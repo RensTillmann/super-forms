@@ -781,7 +781,7 @@ function SUPERreCaptcha(){
     SUPER.field_isset = function(form, name, regex){
         var el = SUPER.field(form, name, regex);
         if(!el) return 0; // does not exist, is not set
-        if(SUPER.has_hidden_parent(el)) {
+        if(SUPER.has_hidden_parent(el,false,false)) {
             return 0; // was conditionally hidden
         }
         return 1;
@@ -1885,7 +1885,7 @@ function SUPERreCaptcha(){
                                             $continue = true;
                                             continue;
                                         }
-                                        $skip = SUPER.has_hidden_parent($shortcode_field);
+                                        $skip = SUPER.has_hidden_parent($shortcode_field, false, false);
                                         $parent = $shortcode_field.closest('.super-shortcode');
                                     }
                                     if(v.a!==''){ 
@@ -1904,7 +1904,7 @@ function SUPERreCaptcha(){
                                                 $continue_and = true;
                                                 continue;
                                             }
-                                            $skip_and = SUPER.has_hidden_parent($shortcode_field_and);
+                                            $skip_and = SUPER.has_hidden_parent($shortcode_field_and, false, false);
                                             $parent_and = $shortcode_field_and.closest('.super-shortcode');
                                         }
                                         if(v.a==='or' && !$continue_and){

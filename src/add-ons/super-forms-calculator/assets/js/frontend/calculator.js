@@ -107,7 +107,7 @@
 
 			// @since 1.5.0 - skip if parent column or element is hidden (conditionally hidden)
 			if(typeof doNotSkip === 'undefined') {
-				if(SUPER.has_hidden_parent(target)){
+				if(SUPER.has_hidden_parent(target, false, false)){
 					continue;
 				}
 			}
@@ -301,7 +301,7 @@
 		}
 
 		// Check if parent column or element is hidden (conditionally hidden)
-		if(SUPER.has_hidden_parent(element)){
+		if(SUPER.has_hidden_parent(element,false,false)){
 			// Exclude conditionally
 			// Lets just replace the field name with 0 as a value
 			numericMath = target.dataset.superNumericMath.replace('{'+oldName+'}', 0);

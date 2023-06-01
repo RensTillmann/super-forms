@@ -309,58 +309,55 @@ if(!class_exists('SUPER_Stripe')) :
 
             add_action( 'super_before_redirect_action', array( $this, 'redirect_to_stripe_checkout' ) );      
 
-            add_action( 'init', array( $this, 'register_post_types' ), 5 );
-            add_filter( 'super_shortcodes_after_form_elements_filter', array( $this, 'add_stripe_element' ), 10, 2 );
+            //add_action( 'init', array( $this, 'register_post_types' ), 5 );
+            //add_filter( 'super_shortcodes_after_form_elements_filter', array( $this, 'add_stripe_element' ), 10, 2 );
             add_action( 'wp_head', array( $this, 'stripe_ipn'));
             if ( $this->is_request( 'admin' ) ) {
                 add_filter( 'super_create_form_tabs', array( $this, 'add_tab' ), 10, 1 );
                 add_action( 'super_create_form_stripe_tab', array( $this, 'add_tab_content' ) );
 
-                add_filter( 'manage_super_stripe_txn_posts_columns', array( $this, 'super_stripe_txn_columns' ), 999999 );
-                add_action( 'manage_super_stripe_txn_posts_custom_column', array( $this, 'super_custom_columns' ), 10, 2 );
-                add_action( 'manage_super_stripe_sub_posts_custom_column', array( $this, 'super_custom_columns' ), 10, 2 );
+                // tmp add_filter( 'manage_super_stripe_txn_posts_columns', array( $this, 'super_stripe_txn_columns' ), 999999 );
+                // tmp add_action( 'manage_super_stripe_txn_posts_custom_column', array( $this, 'super_custom_columns' ), 10, 2 );
+                // tmp add_action( 'manage_super_stripe_sub_posts_custom_column', array( $this, 'super_custom_columns' ), 10, 2 );
 
                 //add_action( 'admin_menu', array( $this, 'register_menu' ), 20 );
                 add_filter( 'super_settings_after_custom_js_filter', array( $this, 'add_settings' ), 10, 2 );
 
-                add_action( 'current_screen', array( $this, 'after_screen' ), 0 );
-                add_filter( 'post_row_actions', array( $this, 'remove_row_actions' ), 10, 1 );
+                //add_action( 'current_screen', array( $this, 'after_screen' ), 0 );
+                //add_filter( 'post_row_actions', array( $this, 'remove_row_actions' ), 10, 1 );
                 
                 add_action( 'after_contact_entry_metabox_hook', array( $this, 'add_transaction_link' ), 0 );
 
-                add_filter( 'views_edit-super_stripe_txn', array( $this, 'delete_list_views_filter' ), 10, 1 );
+                // tmp add_filter( 'views_edit-super_stripe_txn', array( $this, 'delete_list_views_filter' ), 10, 1 );
             }
 
-            if ( $this->is_request( 'ajax' ) ) {
-            }
-
-            add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+            //add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
             //add_filter( 'super_redirect_url_filter', array( $this, 'stripe_redirect' ), 10, 2 );
             //add_action( 'super_front_end_posting_after_insert_post_action', array( $this, 'save_post_id' ) );
             //add_action( 'super_after_wp_insert_user_action', array( $this, 'save_user_id' ) );
             
-            // add_action( 'super_stripe_webhook_payment_intent_succeeded', array( $this, 'payment_intent_succeeded' ), 10 );
+            add_action( 'super_stripe_webhook_payment_intent_succeeded', array( $this, 'payment_intent_succeeded' ), 10 );
             //add_action( 'super_stripe_webhook_payment_intent_created', array( $this, 'payment_intent_created' ), 10 );
             //add_action( 'super_stripe_webhook_payment_intent_payment_failed', array( $this, 'payment_intent_payment_failed' ), 10 );
             
             // Load more Transactions, Products, Customers
-            add_action( 'wp_ajax_super_stripe_api_handler', array( $this, 'super_stripe_api_handler' ) );
+            // tmp add_action( 'wp_ajax_super_stripe_api_handler', array( $this, 'super_stripe_api_handler' ) );
 
             // Prepare payment
-            add_action( 'wp_ajax_super_stripe_prepare_payment', array( $this, 'stripe_prepare_payment' ) );
-            add_action( 'wp_ajax_nopriv_super_stripe_prepare_payment', array( $this, 'stripe_prepare_payment' ) );
+            // tmp add_action( 'wp_ajax_super_stripe_prepare_payment', array( $this, 'stripe_prepare_payment' ) );
+            // tmp add_action( 'wp_ajax_nopriv_super_stripe_prepare_payment', array( $this, 'stripe_prepare_payment' ) );
 
             // Create customer
-            add_action( 'wp_ajax_super_stripe_create_subscription', array( $this, 'stripe_create_subscription' ) );
-            add_action( 'wp_ajax_nopriv_super_stripe_create_subscription', array( $this, 'stripe_create_subscription' ) );
+            // tmp add_action( 'wp_ajax_super_stripe_create_subscription', array( $this, 'stripe_create_subscription' ) );
+            // tmp add_action( 'wp_ajax_nopriv_super_stripe_create_subscription', array( $this, 'stripe_create_subscription' ) );
             
 
             // Filters since 1.2.3
-            add_filter( 'super_common_js_dynamic_functions_filter', array( $this, 'add_dynamic_function' ), 100, 2 );
+            // tmp add_filter( 'super_common_js_dynamic_functions_filter', array( $this, 'add_dynamic_function' ), 100, 2 );
 
-            add_filter( 'super_form_styles_filter', array( $this, 'add_stripe_styles' ), 100, 2 );
-            add_filter( 'super_enqueue_scripts', array( $this, 'super_enqueue_scripts' ), 10, 1 );
-            add_filter( 'super_enqueue_styles', array( $this, 'super_enqueue_styles' ), 10, 1 );
+            //add_filter( 'super_form_styles_filter', array( $this, 'add_stripe_styles' ), 100, 2 );
+            //add_filter( 'super_enqueue_scripts', array( $this, 'super_enqueue_scripts' ), 10, 1 );
+            //add_filter( 'super_enqueue_styles', array( $this, 'super_enqueue_styles' ), 10, 1 );
 
             // Occurs whenever a pending charge is created.
             // The Charge is pending (asynchronous payments only). 
@@ -448,8 +445,12 @@ if(!class_exists('SUPER_Stripe')) :
                             echo '<span class="sfui-label">' . esc_html__( 'If provided, this value will be used when the Customer object is created. If not provided, customers will be asked to enter their email address. Use this parameter to prefill customer data if you already have an email on file.', 'super-forms' ) . '</span>';
                             echo '<input type="text" name="customer_email" placeholder="e.g: {email}" value="' . sanitize_text_field($s['customer_email']) . '" />';
                         echo '</label>';
+                        echo '<div class="sfui-setting">';
+                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                                echo '<input type="checkbox" name="use_logged_in_email" value="true"' . ($s['use_logged_in_email']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Overide with currently logged in or newly registered user E-mail address (recommended)', 'super-forms' ) . '</span>';
+                            echo '</label>';
+                        echo '</div>';
                     echo '</div>';
-
                     echo '<div class="sfui-setting sfui-vertical">';
                         echo '<label>';
                             echo '<span class="sfui-title">' . esc_html__( 'Enable automatic Tax', 'super-forms' ) . '</span>';
@@ -695,14 +696,6 @@ if(!class_exists('SUPER_Stripe')) :
 
                     echo '</div>';
 
-
-                    echo '<div class="sfui-setting sfui-vertical">';
-                        echo '<label>';
-                            echo '<span class="sfui-title">' . esc_html__( 'Customer ID', 'super-forms' ) . '</span>';
-                            echo '<span class="sfui-label">' . esc_html__( 'ID of an existing Customer, if one exists. In payment mode, the customer\'s most recent card payment method will be used to prefill the email, name, card details, and billing address on the Checkout page. In subscription mode, the customer\'s default payment method will be used if it\'s a card, and otherwise the most recent card will be used. A valid billing address, billing name and billing email are required on the payment method for Checkout to prefill the customer\'s card details.', 'super-forms' ) . '</span>';
-                            echo '<input type="text" name="customer" placeholder="e.g: cus_XXXXXX" value="' . sanitize_text_field($s['customer']) . '" />';
-                        echo '</label>';
-                    echo '</div>';
                     echo '<div class="sfui-setting sfui-vertical">';
                         echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                             echo '<span class="sfui-title">' . esc_html__( 'The IETF language tag of the locale Checkout is displayed in. If blank or auto, the browser’s locale is used.', 'super-forms' ) . '</span>';
@@ -962,8 +955,8 @@ if(!class_exists('SUPER_Stripe')) :
             if(empty($s['submit_type'])) $s['submit_type'] = 'auto'; // Describes the type of transaction being performed by Checkout in order to customize relevant text on the page, such as the submit button. submit_type can only be specified on Checkout Sessions in payment mode, but not Checkout Sessions in subscription or setup mode.
             if(empty($s['cancel_url'])) $s['cancel_url'] = ''; // The URL the customer will be directed to if they decide to cancel payment and return to your website.
             if(empty($s['success_url'])) $s['success_url'] = ''; // The URL to which Stripe should send customers when payment or setup is complete. If you’d like to use information from the successful Checkout Session on your page, read the guide on customizing your success page.
-            if(empty($s['customer'])) $s['customer'] = ''; // ID of an existing Customer, if one exists. In payment mode, the customer’s most recent card payment method will be used to prefill the email, name, card details, and billing address on the Checkout page. In subscription mode, the customer’s default payment method will be used if it’s a card, and otherwise the most recent card will be used. A valid billing address, billing name and billing email are required on the payment method for Checkout to prefill the customer’s card details.
             if(empty($s['customer_email'])) $s['customer_email'] = ''; // If provided, this value will be used when the Customer object is created. If not provided, customers will be asked to enter their email address. Use this parameter to prefill customer data if you already have an email on file. To access information about the customer once a session is complete, use the customer field.
+            if(empty($s['use_logged_in_email'])) $s['use_logged_in_email'] = 'true'; // When enabled, use the currently logged in user email address
             if(empty($s['client_reference_id'])) $s['client_reference_id'] = ''; // A unique string to reference the Checkout Session. This can be a customer ID, a cart ID, or similar, and can be used to reconcile the session with your internal systems.
             if(empty($s['metadata'])) $s['metadata'] = '';
             if(empty($s['payment_method_types'])) $s['payment_method_types'] = 'card';
@@ -1211,7 +1204,71 @@ if(!class_exists('SUPER_Stripe')) :
             $success_url = $home_url . 'sfssid/success/{CHECKOUT_SESSION_ID}';
             $mode = SUPER_Common::email_tags( $s['mode'], $data, $settings );
             $customer_email = (isset($s['customer_email']) ? SUPER_Common::email_tags( $s['customer_email'], $data, $settings ) : '');
-            $customer = (isset($s['customer']) ? SUPER_Common::email_tags( $s['customer'], $data, $settings ) : '');
+            $customer = '';
+            if($s['use_logged_in_email']==='true'){
+                // Check if user is logged in, or a newly user was registerd
+                var_dump($x);
+                $user_id = get_current_user_id();
+                $email = SUPER_Common::get_user_email();
+                if(!empty($email)) $customer_email = $email;
+                var_dump($customer_email);
+                var_dump($user_id);
+                try {
+                    $create_new_customer = true;
+                    // Check if user is already connected to a stripe user
+                    $super_stripe_cus = get_user_meta( $user_id, 'super_stripe_cus', true );
+                    if(!empty($super_stripe_cus)){
+                        $customer = \Stripe\Customer::retrieve($super_stripe_cus);
+                    }
+                    if(!empty($customer)){
+                        // Check if customer was deleted
+                        if(!empty($customer['deleted']) && $customer['deleted']==true){
+                            // Customer was deleted, we should create a new
+                        }else{
+                            // The customer exists, make sure we do not create a new customer
+                            $create_new_customer = false; 
+                            $customer = $customer->id;
+                        }
+                    }
+                    if($create_new_customer){
+                        // Customer doesn't exists, create a new customer
+                        $customer = \Stripe\Customer::create(['email' => $email]);
+                        update_user_meta($user_id, 'super_stripe_cus', $customer->id);
+                        $customer = $customer->id;
+                    }
+                } catch( Exception $e ){
+                    if ($e instanceof \Stripe\Error\Card ||
+                        $e instanceof \Stripe\Exception\CardException ||
+                        $e instanceof \Stripe\Exception\RateLimitException ||
+                        $e instanceof \Stripe\Exception\InvalidRequestException ||
+                        $e instanceof \Stripe\Exception\AuthenticationException ||
+                        $e instanceof \Stripe\Exception\ApiConnectionException ||
+                        $e instanceof \Stripe\Exception\ApiErrorException) {
+                        // Specific Stripe exception
+                        if($e->getCode()===0){
+                            // Customer doesn't exists, create a new customer
+                            $customer = \Stripe\Customer::create(['email' => $email]);
+                            update_user_meta($user_id, 'super_stripe_cus', $customer->id);
+                            $customer = $customer->id;
+                        }else{
+                            error_log("exceptionHandler10()");
+                            self::exceptionHandler($e, $metadata);
+                        }
+                    } else {
+                        // Normal exception
+                        error_log("normal exceptionHandler10()");
+                        self::exceptionHandler($e, $metadata);
+                    }
+                }
+
+                //if(isset($metadata['frontend_user_id'])){
+                //    if(absint($metadata['frontend_user_id'])!==0){
+                //        $user_id = $metadata['frontend_user_id'];
+                //    }
+                //}
+                //$super_stripe_cus = get_user_meta( $user_id, 'super_stripe_cus', true );
+            }
+            var_dump($customer);
             $description = (isset($s['subscription_data']['description']) ? SUPER_Common::email_tags( $s['subscription_data']['description'], $data, $settings ) : '');
             $trial_period_days = (isset($s['subscription_data']['trial_period_days']) ? SUPER_Common::email_tags( $s['subscription_data']['trial_period_days'], $data, $settings ) : '');
             $payment_methods = (isset($s['payment_method_types']) ? SUPER_Common::email_tags( $s['payment_method_types'], $data, $settings ) : '');
@@ -2035,245 +2092,245 @@ if(!class_exists('SUPER_Stripe')) :
             error_log( 'payment_method_attached()', 0);
         }
 
-        public static function super_enqueue_styles($styles){
-            $styles['super-stripe-dashboard'] = array(
-                'src'     => plugin_dir_url( __FILE__ ) . 'stripe-dashboard.css',
-                'deps'    => array(),
-                'version' => SUPER_VERSION,
-                'media'   => 'all',
-                'screen'  => array(
-                    'super-forms_page_super_stripe_dashboard'
-                ),
-                'method'  => 'enqueue',
-            );
-            return $styles;
-        }
-        public static function super_enqueue_scripts($scripts){
-            $global_settings = SUPER_Common::get_global_settings();
-            $scripts['super-stripe-dashboard'] = array(
-                'src'     => plugin_dir_url( __FILE__ ) . 'stripe-dashboard.js',
-                'deps'    => array(),
-                'version' => SUPER_VERSION,
-                'footer'  => true,
-                'screen'  => array( 
-                    'super-forms_page_super_stripe_dashboard'
-                ),
-                'method'  => 'register', // Register because we need to localize it
-                'localize'=> array(
-                    'sandbox' => ( !empty($global_settings['stripe_mode']) ? 'true' : 'false' ),
-                    'dashboardUrl' => 'https://dashboard.stripe.com' . ( !empty($global_settings['stripe_mode']) ? '/test' : '' ),
-                    'viewOnlineInvoice' => esc_html__( 'View online invoice', 'super-forms' ),
-                    'refundReasons' => array(
-                        'duplicate' => esc_html__( 'Add more details about this refund', 'super-forms' ),
-                        'fraudulent' => esc_html__( 'Why is this payment fraudulent?', 'super-forms' ),
-                        'requested_by_customer' => esc_html__( 'Add more details about this refund', 'super-forms' ),
-                        'other' => esc_html__( 'Add a reason for this refund', 'super-forms' ),
-                        'other_note' => esc_html__( 'A note is required when a provided reason isn’t selected', 'super-forms' )
-                    ),
-                    'declineCodes' => array(
-                        'authentication_required' => array(
-                            'desc' => esc_html__( 'The card was declined as the transaction requires authentication.', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer should try again and authenticate their card when prompted during the transaction.', 'super-forms' )
-                        ),
-                        'approve_with_id' => array(
-                            'desc' => esc_html__( 'The payment cannot be authorized.', 'super-forms' ),
-                            'steps' => esc_html__( 'The payment should be attempted again. If it still cannot be processed, the customer needs to contact their card issuer.', 'super-forms' )
-                        ),
-                        'call_issuer' => array(
-                            'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
-                        ),
-                        'card_not_supported' => array(
-                            'desc' => esc_html__( 'The card does not support this type of purchase.', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer needs to contact their card issuer to make sure their card can be used to make this type of purchase.', 'super-forms' )
-                        ),
-                        'card_velocity_exceeded' => array(
-                            'desc' => esc_html__( 'The customer has exceeded the balance or credit limit available on their card.', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
-                        ),
-                        'currency_not_supported' => array(
-                            'desc' => esc_html__( 'The card does not support the specified currency.', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer needs to check with the issuer whether the card can be used for the type of currency specified.', 'super-forms' )
-                        ),
-                        'do_not_honor' => array(
-                            'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
-                        ),
-                        'do_not_try_again' => array(
-                            'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
-                        ),
-                        'duplicate_transaction' => array(
-                            'desc' => esc_html__( 'A transaction with identical amount and credit card information was submitted very recently.', 'super-forms' ),
-                            'steps' => esc_html__( 'Check to see if a recent payment already exists.', 'super-forms' )
-                        ),
-                        'expired_card' => array(
-                            'desc' => esc_html__( 'The card has expired.', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer should use another card.', 'super-forms' )
-                        ),
-                        'fraudulent' => array(
-                            'desc' => esc_html__( 'The payment has been declined as Stripe suspects it is fraudulent.', 'super-forms' ),
-                            'steps' => esc_html__( 'Do not report more detailed information to your customer.  Instead, present as you would the ', 'super-forms' )
-                        ),
-                        'generic_decline' => array(
-                            'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
-                        ),
-                        'incorrect_number' => array(
-                            'desc' => esc_html__( 'The card number is incorrect.', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer should try again using the correct card number.', 'super-forms' )
-                        ),
-                        'incorrect_cvc' => array(
-                            'desc' => esc_html__( 'The CVC number is incorrect.', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer should try again using the correct CVC.', 'super-forms' )
-                        ),
-                        'incorrect_pin' => array(
-                            'desc' => esc_html__( 'The PIN entered is incorrect. This decline code only applies to payments made with a card reader. ', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer should try again using the correct PIN.', 'super-forms' )
-                        ),
-                        'incorrect_zip' => array(
-                            'desc' => esc_html__( 'The ZIP/postal code is incorrect.', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer should try again using the correct billing ZIP/postal code.', 'super-forms' )
-                        ),
-                        'insufficient_funds' => array(
-                            'desc' => esc_html__( 'The card has insufficient funds to complete the purchase.', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer should use an alternative payment method.', 'super-forms' )
-                        ),
-                        'invalid_account' => array(
-                            'desc' => esc_html__( 'The card or account the card is connected to, is invalid.', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer needs to contact their card issuer to check that the card is working correctly.', 'super-forms' )
-                        ),
-                        'invalid_amount' => array(
-                            'desc' => esc_html__( 'The payment amount is invalid or exceeds the amount that is allowed.', 'super-forms' ),
-                             'steps' => esc_html__( 'If the amount appears to be correct, the customer needs to check with their card issuer that they can make purchases of that amount.', 'super-forms' )
-                        ),
-                        'invalid_cvc' => array(
-                            'desc' => esc_html__( 'The CVC number is incorrect.', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer should try again using the correct CVC.', 'super-forms' )
-                        ),
-                        'invalid_expiry_year' => array(
-                            'desc' => esc_html__( 'The expiration year invalid.', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer should try again using the correct expiration date.', 'super-forms' )
-                        ),
-                        'invalid_number' => array(
-                            'desc' => esc_html__( 'The card number is incorrect.', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer should try again using the correct card number.', 'super-forms' )
-                        ),
-                        'invalid_pin' => array(
-                            'desc' => esc_html__( 'The PIN entered is incorrect. This decline code only applies to payments made with a card reader.', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer should try again using the correct PIN.', 'super-forms' )
-                        ),
-                        'issuer_not_available' => array(
-                            'desc' => esc_html__( 'The card issuer could not be reached so the payment could not be authorized.', 'super-forms' ),
-                            'steps' => esc_html__( 'The payment should be attempted again. If it still cannot be processed, the customer needs to contact their card issuer.', 'super-forms' )
-                        ),
-                        'lost_card' => array(
-                            'desc' => esc_html__( 'The payment has been declined because the card is reported lost.', 'super-forms' ),
-                            'steps' => esc_html__( 'The specific reason for the decline should not be reported to the customer. Instead, it needs to be presented as a generic decline.', 'super-forms' )
-                        ),
-                        'merchant_blacklist' => array(
-                            'desc' => esc_html__( 'The payment has been declined because it matches a value on the Stripe user’s block list.', 'super-forms' ),
-                            'steps' => esc_html__( 'Do not report more detailed information to your customer. Instead, present as you would the ', 'super-forms' )
-                        ),
-                        'new_account_information_available' => array(
-                            'desc' => esc_html__( 'The card or account the card is connected to, is invalid.', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
-                        ),
-                        'no_action_taken' => array(
-                            'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
-                        ),
-                        'not_permitted' => array(
-                            'desc' => esc_html__( 'The payment is not permitted.', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
-                        ),
-                        'offline_pin_required' => array(
-                            'desc' => esc_html__( 'The card has been declined as it requires a PIN.', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer should try again by inserting their card and entering a PIN.', 'super-forms' )
-                        ),
-                        'online_or_offline_pin_required' => array(
-                            'desc' => esc_html__( 'The card has been declined as it requires a PIN.', 'super-forms' ),
-                            'steps' => esc_html__( 'If the card reader supports Online PIN, the customer should be prompted for a PIN without a new transaction being created. If the card reader does not support Online PIN, the customer should try again by inserting their card and entering a PIN.', 'super-forms' )
-                        ),
-                        'pickup_card' => array(
-                            'desc' => esc_html__( 'The card cannot be used to make this payment (it is possible it has been reported lost or stolen).', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
-                        ),
-                        'pin_try_exceeded' => array(
-                            'desc' => esc_html__( 'The allowable number of PIN tries has been exceeded.', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer must use another card or method of payment.', 'super-forms' )
-                        ),
-                        'processing_error' => array(
-                            'desc' => esc_html__( 'An error occurred while processing the card.', 'super-forms' ),
-                            'steps' => esc_html__( 'The payment should be attempted again. If it still cannot be processed, try again later.', 'super-forms' )
-                        ),
-                        'reenter_transaction' => array(
-                            'desc' => esc_html__( 'The payment could not be processed by the issuer for an unknown reason.', 'super-forms' ),
-                            'steps' => esc_html__( 'The payment should be attempted again. If it still cannot be processed, the customer needs to contact their card issuer.', 'super-forms' )
-                        ),
-                        'restricted_card' => array(
-                            'desc' => esc_html__( 'The card cannot be used to make this payment (it is possible it has been reported lost or stolen).', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
-                        ),
-                        'revocation_of_all_authorizations' => array(
-                            'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
-                        ),
-                        'revocation_of_authorization' => array(
-                            'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
-                        ),
-                        'security_violation' => array(
-                            'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
-                        ),
-                        'service_not_allowed' => array(
-                            'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
-                        ),
-                        'stolen_card' => array(
-                            'desc' => esc_html__( 'The payment has been declined because the card is reported stolen.', 'super-forms' ),
-                            'steps' => esc_html__( 'The specific reason for the decline should not be reported to the customer. Instead, it needs to be presented as a generic decline.', 'super-forms' )
-                        ),
-                        'stop_payment_order' => array(
-                            'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
-                        ),
-                        'testmode_decline' => array(
-                            'desc' => esc_html__( 'A Stripe test card number was used.', 'super-forms' ),
-                            'steps' => esc_html__( 'A genuine card must be used to make a payment.', 'super-forms' )
-                        ),
-                        'transaction_not_allowed' => array(
-                            'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
-                        ),
-                        'try_again_later' => array(
-                            'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
-                            'steps' => esc_html__( 'Ask the customer to attempt the payment again. If subsequent payments are declined, the customer should contact their card issuer for more information.', 'super-forms' )
-                        ),
-                        'withdrawal_count_limit_exceeded' => array(
-                            'desc' => esc_html__( 'The customer has exceeded the balance or credit limit available on their card. ', 'super-forms' ),
-                            'steps' => esc_html__( 'The customer should use an alternative payment method.', 'super-forms' )
-                        )
-                    )       
-                )
-            );
-            $scripts['currencyFormatter'] = array(
-                'src'     => plugin_dir_url( __FILE__ ) . 'currencyFormatter.min.js',
-                'deps'    => array('super-stripe-dashboard'),
-                'version' => SUPER_VERSION,
-                'footer'  => true,
-                'screen'  => array( 
-                    'super-forms_page_super_stripe_dashboard'
-                ),
-                'method'  => 'enqueue'
-            );
-            if(isset($scripts['masked-currency'])){
-                $scripts['masked-currency']['screen'][] = 'super-forms_page_super_stripe_dashboard';
-            }
+        // tmp public static function super_enqueue_styles($styles){
+        // tmp     $styles['super-stripe-dashboard'] = array(
+        // tmp         'src'     => plugin_dir_url( __FILE__ ) . 'stripe-dashboard.css',
+        // tmp         'deps'    => array(),
+        // tmp         'version' => SUPER_VERSION,
+        // tmp         'media'   => 'all',
+        // tmp         'screen'  => array(
+        // tmp             'super-forms_page_super_stripe_dashboard'
+        // tmp         ),
+        // tmp         'method'  => 'enqueue',
+        // tmp     );
+        // tmp     return $styles;
+        // tmp }
+        // tmp public static function super_enqueue_scripts($scripts){
+        // tmp     $global_settings = SUPER_Common::get_global_settings();
+        // tmp     $scripts['super-stripe-dashboard'] = array(
+        // tmp         'src'     => plugin_dir_url( __FILE__ ) . 'stripe-dashboard.js',
+        // tmp         'deps'    => array(),
+        // tmp         'version' => SUPER_VERSION,
+        // tmp         'footer'  => true,
+        // tmp         'screen'  => array( 
+        // tmp             'super-forms_page_super_stripe_dashboard'
+        // tmp         ),
+        // tmp         'method'  => 'register', // Register because we need to localize it
+        // tmp         'localize'=> array(
+        // tmp             'sandbox' => ( !empty($global_settings['stripe_mode']) ? 'true' : 'false' ),
+        // tmp             'dashboardUrl' => 'https://dashboard.stripe.com' . ( !empty($global_settings['stripe_mode']) ? '/test' : '' ),
+        // tmp             'viewOnlineInvoice' => esc_html__( 'View online invoice', 'super-forms' ),
+        // tmp             'refundReasons' => array(
+        // tmp                 'duplicate' => esc_html__( 'Add more details about this refund', 'super-forms' ),
+        // tmp                 'fraudulent' => esc_html__( 'Why is this payment fraudulent?', 'super-forms' ),
+        // tmp                 'requested_by_customer' => esc_html__( 'Add more details about this refund', 'super-forms' ),
+        // tmp                 'other' => esc_html__( 'Add a reason for this refund', 'super-forms' ),
+        // tmp                 'other_note' => esc_html__( 'A note is required when a provided reason isn’t selected', 'super-forms' )
+        // tmp             ),
+        // tmp             'declineCodes' => array(
+        // tmp                 'authentication_required' => array(
+        // tmp                     'desc' => esc_html__( 'The card was declined as the transaction requires authentication.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer should try again and authenticate their card when prompted during the transaction.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'approve_with_id' => array(
+        // tmp                     'desc' => esc_html__( 'The payment cannot be authorized.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The payment should be attempted again. If it still cannot be processed, the customer needs to contact their card issuer.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'call_issuer' => array(
+        // tmp                     'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'card_not_supported' => array(
+        // tmp                     'desc' => esc_html__( 'The card does not support this type of purchase.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer needs to contact their card issuer to make sure their card can be used to make this type of purchase.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'card_velocity_exceeded' => array(
+        // tmp                     'desc' => esc_html__( 'The customer has exceeded the balance or credit limit available on their card.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'currency_not_supported' => array(
+        // tmp                     'desc' => esc_html__( 'The card does not support the specified currency.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer needs to check with the issuer whether the card can be used for the type of currency specified.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'do_not_honor' => array(
+        // tmp                     'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'do_not_try_again' => array(
+        // tmp                     'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'duplicate_transaction' => array(
+        // tmp                     'desc' => esc_html__( 'A transaction with identical amount and credit card information was submitted very recently.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'Check to see if a recent payment already exists.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'expired_card' => array(
+        // tmp                     'desc' => esc_html__( 'The card has expired.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer should use another card.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'fraudulent' => array(
+        // tmp                     'desc' => esc_html__( 'The payment has been declined as Stripe suspects it is fraudulent.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'Do not report more detailed information to your customer.  Instead, present as you would the ', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'generic_decline' => array(
+        // tmp                     'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'incorrect_number' => array(
+        // tmp                     'desc' => esc_html__( 'The card number is incorrect.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer should try again using the correct card number.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'incorrect_cvc' => array(
+        // tmp                     'desc' => esc_html__( 'The CVC number is incorrect.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer should try again using the correct CVC.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'incorrect_pin' => array(
+        // tmp                     'desc' => esc_html__( 'The PIN entered is incorrect. This decline code only applies to payments made with a card reader. ', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer should try again using the correct PIN.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'incorrect_zip' => array(
+        // tmp                     'desc' => esc_html__( 'The ZIP/postal code is incorrect.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer should try again using the correct billing ZIP/postal code.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'insufficient_funds' => array(
+        // tmp                     'desc' => esc_html__( 'The card has insufficient funds to complete the purchase.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer should use an alternative payment method.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'invalid_account' => array(
+        // tmp                     'desc' => esc_html__( 'The card or account the card is connected to, is invalid.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer needs to contact their card issuer to check that the card is working correctly.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'invalid_amount' => array(
+        // tmp                     'desc' => esc_html__( 'The payment amount is invalid or exceeds the amount that is allowed.', 'super-forms' ),
+        // tmp                      'steps' => esc_html__( 'If the amount appears to be correct, the customer needs to check with their card issuer that they can make purchases of that amount.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'invalid_cvc' => array(
+        // tmp                     'desc' => esc_html__( 'The CVC number is incorrect.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer should try again using the correct CVC.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'invalid_expiry_year' => array(
+        // tmp                     'desc' => esc_html__( 'The expiration year invalid.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer should try again using the correct expiration date.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'invalid_number' => array(
+        // tmp                     'desc' => esc_html__( 'The card number is incorrect.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer should try again using the correct card number.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'invalid_pin' => array(
+        // tmp                     'desc' => esc_html__( 'The PIN entered is incorrect. This decline code only applies to payments made with a card reader.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer should try again using the correct PIN.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'issuer_not_available' => array(
+        // tmp                     'desc' => esc_html__( 'The card issuer could not be reached so the payment could not be authorized.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The payment should be attempted again. If it still cannot be processed, the customer needs to contact their card issuer.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'lost_card' => array(
+        // tmp                     'desc' => esc_html__( 'The payment has been declined because the card is reported lost.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The specific reason for the decline should not be reported to the customer. Instead, it needs to be presented as a generic decline.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'merchant_blacklist' => array(
+        // tmp                     'desc' => esc_html__( 'The payment has been declined because it matches a value on the Stripe user’s block list.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'Do not report more detailed information to your customer. Instead, present as you would the ', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'new_account_information_available' => array(
+        // tmp                     'desc' => esc_html__( 'The card or account the card is connected to, is invalid.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'no_action_taken' => array(
+        // tmp                     'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'not_permitted' => array(
+        // tmp                     'desc' => esc_html__( 'The payment is not permitted.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'offline_pin_required' => array(
+        // tmp                     'desc' => esc_html__( 'The card has been declined as it requires a PIN.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer should try again by inserting their card and entering a PIN.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'online_or_offline_pin_required' => array(
+        // tmp                     'desc' => esc_html__( 'The card has been declined as it requires a PIN.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'If the card reader supports Online PIN, the customer should be prompted for a PIN without a new transaction being created. If the card reader does not support Online PIN, the customer should try again by inserting their card and entering a PIN.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'pickup_card' => array(
+        // tmp                     'desc' => esc_html__( 'The card cannot be used to make this payment (it is possible it has been reported lost or stolen).', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'pin_try_exceeded' => array(
+        // tmp                     'desc' => esc_html__( 'The allowable number of PIN tries has been exceeded.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer must use another card or method of payment.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'processing_error' => array(
+        // tmp                     'desc' => esc_html__( 'An error occurred while processing the card.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The payment should be attempted again. If it still cannot be processed, try again later.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'reenter_transaction' => array(
+        // tmp                     'desc' => esc_html__( 'The payment could not be processed by the issuer for an unknown reason.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The payment should be attempted again. If it still cannot be processed, the customer needs to contact their card issuer.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'restricted_card' => array(
+        // tmp                     'desc' => esc_html__( 'The card cannot be used to make this payment (it is possible it has been reported lost or stolen).', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'revocation_of_all_authorizations' => array(
+        // tmp                     'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'revocation_of_authorization' => array(
+        // tmp                     'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'security_violation' => array(
+        // tmp                     'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'service_not_allowed' => array(
+        // tmp                     'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'stolen_card' => array(
+        // tmp                     'desc' => esc_html__( 'The payment has been declined because the card is reported stolen.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The specific reason for the decline should not be reported to the customer. Instead, it needs to be presented as a generic decline.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'stop_payment_order' => array(
+        // tmp                     'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer should contact their card issuer for more information.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'testmode_decline' => array(
+        // tmp                     'desc' => esc_html__( 'A Stripe test card number was used.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'A genuine card must be used to make a payment.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'transaction_not_allowed' => array(
+        // tmp                     'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer needs to contact their card issuer for more information.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'try_again_later' => array(
+        // tmp                     'desc' => esc_html__( 'The card has been declined for an unknown reason.', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'Ask the customer to attempt the payment again. If subsequent payments are declined, the customer should contact their card issuer for more information.', 'super-forms' )
+        // tmp                 ),
+        // tmp                 'withdrawal_count_limit_exceeded' => array(
+        // tmp                     'desc' => esc_html__( 'The customer has exceeded the balance or credit limit available on their card. ', 'super-forms' ),
+        // tmp                     'steps' => esc_html__( 'The customer should use an alternative payment method.', 'super-forms' )
+        // tmp                 )
+        // tmp             )       
+        // tmp         )
+        // tmp     );
+        // tmp     $scripts['currencyFormatter'] = array(
+        // tmp         'src'     => plugin_dir_url( __FILE__ ) . 'currencyFormatter.min.js',
+        // tmp         'deps'    => array('super-stripe-dashboard'),
+        // tmp         'version' => SUPER_VERSION,
+        // tmp         'footer'  => true,
+        // tmp         'screen'  => array( 
+        // tmp             'super-forms_page_super_stripe_dashboard'
+        // tmp         ),
+        // tmp         'method'  => 'enqueue'
+        // tmp     );
+        // tmp     if(isset($scripts['masked-currency'])){
+        // tmp         $scripts['masked-currency']['screen'][] = 'super-forms_page_super_stripe_dashboard';
+        // tmp     }
 
-            return $scripts;
-        }
+        // tmp     return $scripts;
+        // tmp }
 
 
         public static function setAppInfo(){
@@ -2295,10 +2352,10 @@ if(!class_exists('SUPER_Stripe')) :
             \Stripe\Stripe::setApiVersion($version);
         }
         
-        public static function delete_list_views_filter($views){
-            if(!isset($views['trash'])) return array();
-            return array('trash' => $views['trash']);
-        }
+        // tmp public static function delete_list_views_filter($views){
+        // tmp     if(!isset($views['trash'])) return array();
+        // tmp     return array('trash' => $views['trash']);
+        // tmp }
 
         public static function getTransactionId($d){
             // @important: determine the Transaction ID based on the 'object'
@@ -2340,383 +2397,383 @@ if(!class_exists('SUPER_Stripe')) :
             }
         }
 
-        /**
-         * Add Stripe styles
-         *
-         *  @since      1.0.0
-         */
-        public static function add_stripe_styles($style_content, $atts) {
-            //$atts['id'] // form id
-            //$atts['settings'] // form settings
-            $styles = "
-            .super-stripe-ideal-element {
-                height: 33px;
-                width: 300px;
-            }
-            .super-field-size-large .super-stripe-ideal-element {
-                height: 43px;
-            }
-            .super-field-size-huge .super-stripe-ideal-element {
-                height: 53px;
-            }
-            .super-stripe-cc-element,
-            .super-stripe-iban-element {
-                padding-top: 8px;
-                padding-left: 15px;
-                padding-right: 0px;
-                padding-bottom: 8px;
-                height: 33px;
-                width: 300px;
-            }
-            .super-field-size-large .super-stripe-cc-element,
-            .super-field-size-large .super-stripe-iban-element {
-                padding-top: 13px;
-                padding-left: 15px;
-                padding-right: 0px;
-                padding-bottom: 13px;
-                height: 43px;
-            }
-            .super-field-size-huge .super-stripe-cc-element,
-            .super-field-size-huge .super-stripe-iban-element {
-                padding-top: 17px;
-                padding-left: 15px;
-                padding-right: 0px;
-                padding-bottom: 17px;
-                height: 53px;
-            }
-            .super-style-one .super-stripe-base:before {
-                content: '';
-                position: absolute;
-                left: 0;
-                width: 0%;
-                bottom: 1px;
-                margin-top: 2px;
-                bottom: -8px;
-                border-bottom: 4px solid #cdcdcd;
-                z-index: 2;
-                -webkit-transition: width .4s ease-out;
-                -moz-transition: width .4s ease-out;
-                -o-transition: width .4s ease-out;
-                transition: width .4s ease-out;
-            }
-            .super-style-one .super-stripe-focus:before {
-                width: 100%;
-            }";
-            return $style_content.$styles;
-        }
+        // tmp /**
+        // tmp  * Add Stripe styles
+        // tmp  *
+        // tmp  *  @since      1.0.0
+        // tmp  */
+        // tmp public static function add_stripe_styles($style_content, $atts) {
+        // tmp     //$atts['id'] // form id
+        // tmp     //$atts['settings'] // form settings
+        // tmp     $styles = "
+        // tmp     .super-stripe-ideal-element {
+        // tmp         height: 33px;
+        // tmp         width: 300px;
+        // tmp     }
+        // tmp     .super-field-size-large .super-stripe-ideal-element {
+        // tmp         height: 43px;
+        // tmp     }
+        // tmp     .super-field-size-huge .super-stripe-ideal-element {
+        // tmp         height: 53px;
+        // tmp     }
+        // tmp     .super-stripe-cc-element,
+        // tmp     .super-stripe-iban-element {
+        // tmp         padding-top: 8px;
+        // tmp         padding-left: 15px;
+        // tmp         padding-right: 0px;
+        // tmp         padding-bottom: 8px;
+        // tmp         height: 33px;
+        // tmp         width: 300px;
+        // tmp     }
+        // tmp     .super-field-size-large .super-stripe-cc-element,
+        // tmp     .super-field-size-large .super-stripe-iban-element {
+        // tmp         padding-top: 13px;
+        // tmp         padding-left: 15px;
+        // tmp         padding-right: 0px;
+        // tmp         padding-bottom: 13px;
+        // tmp         height: 43px;
+        // tmp     }
+        // tmp     .super-field-size-huge .super-stripe-cc-element,
+        // tmp     .super-field-size-huge .super-stripe-iban-element {
+        // tmp         padding-top: 17px;
+        // tmp         padding-left: 15px;
+        // tmp         padding-right: 0px;
+        // tmp         padding-bottom: 17px;
+        // tmp         height: 53px;
+        // tmp     }
+        // tmp     .super-style-one .super-stripe-base:before {
+        // tmp         content: '';
+        // tmp         position: absolute;
+        // tmp         left: 0;
+        // tmp         width: 0%;
+        // tmp         bottom: 1px;
+        // tmp         margin-top: 2px;
+        // tmp         bottom: -8px;
+        // tmp         border-bottom: 4px solid #cdcdcd;
+        // tmp         z-index: 2;
+        // tmp         -webkit-transition: width .4s ease-out;
+        // tmp         -moz-transition: width .4s ease-out;
+        // tmp         -o-transition: width .4s ease-out;
+        // tmp         transition: width .4s ease-out;
+        // tmp     }
+        // tmp     .super-style-one .super-stripe-focus:before {
+        // tmp         width: 100%;
+        // tmp     }";
+        // tmp     return $style_content.$styles;
+        // tmp }
 
 
-        /**
-         * Create Stripe Customer (required for subscriptions)
-         *
-         *  @since      1.0.0
-         */
-        public static function stripe_create_subscription() {
-            self::setAppInfo();
-            $data = $_POST['data'];
-            $payment_method = $_POST['payment_method'];
-            $metadata = ( isset($_POST['metadata']) ? $_POST['metadata'] : array() );
-            $form_id = absint($data['hidden_form_id']['value']);
-            $settings = SUPER_Common::get_form_settings($form_id);
-            
-            // Check if plan ID is empty (is required)
-            if(empty($settings['stripe_plan_id'])){
-                SUPER_Common::output_message( array(
-                    'msg' => esc_html__( 'Subscription plan ID cannot be empty!', 'super-forms' ),
-                    'form_id' => absint($form_id)
-                ));
-            }
+        // tmp /**
+        // tmp  * Create Stripe Customer (required for subscriptions)
+        // tmp  *
+        // tmp  *  @since      1.0.0
+        // tmp  */
+        // tmp public static function stripe_create_subscription() {
+        // tmp     self::setAppInfo();
+        // tmp     $data = $_POST['data'];
+        // tmp     $payment_method = $_POST['payment_method'];
+        // tmp     $metadata = ( isset($_POST['metadata']) ? $_POST['metadata'] : array() );
+        // tmp     $form_id = absint($data['hidden_form_id']['value']);
+        // tmp     $settings = SUPER_Common::get_form_settings($form_id);
+        // tmp     
+        // tmp     // Check if plan ID is empty (is required)
+        // tmp     if(empty($settings['stripe_plan_id'])){
+        // tmp         SUPER_Common::output_message( array(
+        // tmp             'msg' => esc_html__( 'Subscription plan ID cannot be empty!', 'super-forms' ),
+        // tmp             'form_id' => absint($form_id)
+        // tmp         ));
+        // tmp     }
 
-            // Check if the user is logged in
-            // If so, we will want to save the stripe customer ID for this wordpress user
-            $user_id = get_current_user_id();
-            if(isset($metadata['frontend_user_id'])){
-                if(absint($metadata['frontend_user_id'])!==0){
-                    $user_id = $metadata['frontend_user_id'];
-                }
-            }
-            $super_stripe_cus = get_user_meta( $user_id, 'super_stripe_cus', true );
+        // tmp     // Check if the user is logged in
+        // tmp     // If so, we will want to save the stripe customer ID for this wordpress user
+        // tmp     $user_id = get_current_user_id();
+        // tmp     if(isset($metadata['frontend_user_id'])){
+        // tmp         if(absint($metadata['frontend_user_id'])!==0){
+        // tmp             $user_id = $metadata['frontend_user_id'];
+        // tmp         }
+        // tmp     }
+        // tmp     $super_stripe_cus = get_user_meta( $user_id, 'super_stripe_cus', true );
 
-            try {
-                $create_new_customer = true;
-                // Check if user is logged in, if so check if this is an existing customer
-                // If customer exists, we want to update the `default_payment_method` and `invoice_settings.default_payment_method`
-                if( !empty($super_stripe_cus) ) {
-                    $customer = \Stripe\Customer::retrieve($super_stripe_cus);
-                }
-                if( !empty($customer) ) {
-                    // Check if customer was deleted
-                    if(!empty($customer['deleted']) && $customer['deleted']==true){
-                        // Customer was deleted, we should create a new
-                    }else{
-                        // The customer exists, let's update the payment method for this customer
-                        $paymentMethod = \Stripe\PaymentMethod::retrieve($payment_method); // e.g: pm_1FYeznClCIKljWvssSbEXRww
-                        $paymentMethod->attach(['customer' => $customer->id]);
-                        // Once the payment method has been attached to your customer, 
-                        // update the customers default payment method
-                        \Stripe\Customer::update($customer->id,[
-                            'invoice_settings' => [
-                                'default_payment_method' => $paymentMethod->id,
-                            ],
-                        ]);
-                        // Make sure we do not create a new customer
-                        $create_new_customer = false; 
-                    }
-                }
-                if($create_new_customer){
-                    // Customer doesn't exists, create a new customer
-                    $customer = \Stripe\Customer::create([
-                        'payment_method' => $payment_method,
-                        'email' => 'jenny.rosen@example.com',
-                        'invoice_settings' => [
-                            'default_payment_method' => $payment_method // Creating subscriptions automatically charges customers because the default payment method is set.
-                        ],
-                    ]);
-                    $paymentMethod->attach(['customer' => $customer->id]);
-                    // Save the stripe customer ID for this wordpress user
-                    update_user_meta( $user_id, 'super_stripe_cus', $customer->id);
-                }
-            } catch( Exception $e ){
-                if ($e instanceof \Stripe\Error\Card ||
-                    $e instanceof \Stripe\Exception\CardException ||
-                    $e instanceof \Stripe\Exception\RateLimitException ||
-                    $e instanceof \Stripe\Exception\InvalidRequestException ||
-                    $e instanceof \Stripe\Exception\AuthenticationException ||
-                    $e instanceof \Stripe\Exception\ApiConnectionException ||
-                    $e instanceof \Stripe\Exception\ApiErrorException) {
-                    // Specific Stripe exception
-                    if($e->getCode()===0){
-                        // If no such stripe customer exists we do not output the error instead we create a new stripe customer
-                        // Customer doesn't exists, create a new customer
-                        $customer = \Stripe\Customer::create([
-                            'payment_method' => $payment_method,
-                            'email' => 'jenny.rosen@example2.com',
-                            'invoice_settings' => [
-                                'default_payment_method' => $payment_method // Creating subscriptions automatically charges customers because the default payment method is set.
-                            ],
-                        ]);
-                        $paymentMethod->attach(['customer' => $customer->id]);
-                        // Save the stripe customer ID for this wordpress user
-                        update_user_meta( $user_id, 'super_stripe_cus', $customer->id);
-                    }else{
-                        error_log("exceptionHandler10()");
-                        self::exceptionHandler($e, $metadata);
-                    }
-                } else {
-                    // Normal exception
-                    error_log("normal exceptionHandler10()");
-                    self::exceptionHandler($e, $metadata);
-                }
-            }
+        // tmp     try {
+        // tmp         $create_new_customer = true;
+        // tmp         // Check if user is logged in, if so check if this is an existing customer
+        // tmp         // If customer exists, we want to update the `default_payment_method` and `invoice_settings.default_payment_method`
+        // tmp         if( !empty($super_stripe_cus) ) {
+        // tmp             $customer = \Stripe\Customer::retrieve($super_stripe_cus);
+        // tmp         }
+        // tmp         if( !empty($customer) ) {
+        // tmp             // Check if customer was deleted
+        // tmp             if(!empty($customer['deleted']) && $customer['deleted']==true){
+        // tmp                 // Customer was deleted, we should create a new
+        // tmp             }else{
+        // tmp                 // The customer exists, let's update the payment method for this customer
+        // tmp                 $paymentMethod = \Stripe\PaymentMethod::retrieve($payment_method); // e.g: pm_1FYeznClCIKljWvssSbEXRww
+        // tmp                 $paymentMethod->attach(['customer' => $customer->id]);
+        // tmp                 // Once the payment method has been attached to your customer, 
+        // tmp                 // update the customers default payment method
+        // tmp                 \Stripe\Customer::update($customer->id,[
+        // tmp                     'invoice_settings' => [
+        // tmp                         'default_payment_method' => $paymentMethod->id,
+        // tmp                     ],
+        // tmp                 ]);
+        // tmp                 // Make sure we do not create a new customer
+        // tmp                 $create_new_customer = false; 
+        // tmp             }
+        // tmp         }
+        // tmp         if($create_new_customer){
+        // tmp             // Customer doesn't exists, create a new customer
+        // tmp             $customer = \Stripe\Customer::create([
+        // tmp                 'payment_method' => $payment_method,
+        // tmp                 'email' => 'jenny.rosen@example.com',
+        // tmp                 'invoice_settings' => [
+        // tmp                     'default_payment_method' => $payment_method // Creating subscriptions automatically charges customers because the default payment method is set.
+        // tmp                 ],
+        // tmp             ]);
+        // tmp             $paymentMethod->attach(['customer' => $customer->id]);
+        // tmp             // Save the stripe customer ID for this wordpress user
+        // tmp             update_user_meta( $user_id, 'super_stripe_cus', $customer->id);
+        // tmp         }
+        // tmp     } catch( Exception $e ){
+        // tmp         if ($e instanceof \Stripe\Error\Card ||
+        // tmp             $e instanceof \Stripe\Exception\CardException ||
+        // tmp             $e instanceof \Stripe\Exception\RateLimitException ||
+        // tmp             $e instanceof \Stripe\Exception\InvalidRequestException ||
+        // tmp             $e instanceof \Stripe\Exception\AuthenticationException ||
+        // tmp             $e instanceof \Stripe\Exception\ApiConnectionException ||
+        // tmp             $e instanceof \Stripe\Exception\ApiErrorException) {
+        // tmp             // Specific Stripe exception
+        // tmp             if($e->getCode()===0){
+        // tmp                 // If no such stripe customer exists we do not output the error instead we create a new stripe customer
+        // tmp                 // Customer doesn't exists, create a new customer
+        // tmp                 $customer = \Stripe\Customer::create([
+        // tmp                     'payment_method' => $payment_method,
+        // tmp                     'email' => 'jenny.rosen@example2.com',
+        // tmp                     'invoice_settings' => [
+        // tmp                         'default_payment_method' => $payment_method // Creating subscriptions automatically charges customers because the default payment method is set.
+        // tmp                     ],
+        // tmp                 ]);
+        // tmp                 $paymentMethod->attach(['customer' => $customer->id]);
+        // tmp                 // Save the stripe customer ID for this wordpress user
+        // tmp                 update_user_meta( $user_id, 'super_stripe_cus', $customer->id);
+        // tmp             }else{
+        // tmp                 error_log("exceptionHandler10()");
+        // tmp                 self::exceptionHandler($e, $metadata);
+        // tmp             }
+        // tmp         } else {
+        // tmp             // Normal exception
+        // tmp             error_log("normal exceptionHandler10()");
+        // tmp             self::exceptionHandler($e, $metadata);
+        // tmp         }
+        // tmp     }
 
-            try {
-                // Attempt to create the subscriptions
-                $subscription = \Stripe\Subscription::create([
-                    'customer' => $customer->id,
-                    'items' => [
-                        [
-                            'plan' => $settings['stripe_plan_id'],
-                        ],
-                    ],
-                    // 'trial_period_days' => 0, // Integer representing the number of trial period days before the customer is charged for the first time. This will always overwrite any trials that might apply via a subscribed plan.
-                    'payment_behavior' => 'allow_incomplete',
-                    'expand' => ['latest_invoice.payment_intent'],
-                    'metadata' => $metadata
-                ]);
-            } catch( Exception $e ){
-                if ($e instanceof \Stripe\Error\Card ||
-                    $e instanceof \Stripe\Exception\CardException ||
-                    $e instanceof \Stripe\Exception\RateLimitException ||
-                    $e instanceof \Stripe\Exception\InvalidRequestException ||
-                    $e instanceof \Stripe\Exception\AuthenticationException ||
-                    $e instanceof \Stripe\Exception\ApiConnectionException ||
-                    $e instanceof \Stripe\Exception\ApiErrorException) {
-                    // Specific Stripe exception
-                    error_log("specific exceptionHandler11()");
-                    self::exceptionHandler($e, $metadata);
-                } else {
-                    // Normal exception
-                    error_log("normal exceptionHandler11()");
-                    self::exceptionHandler($e, $metadata);
-                }
-            }
+        // tmp     try {
+        // tmp         // Attempt to create the subscriptions
+        // tmp         $subscription = \Stripe\Subscription::create([
+        // tmp             'customer' => $customer->id,
+        // tmp             'items' => [
+        // tmp                 [
+        // tmp                     'plan' => $settings['stripe_plan_id'],
+        // tmp                 ],
+        // tmp             ],
+        // tmp             // 'trial_period_days' => 0, // Integer representing the number of trial period days before the customer is charged for the first time. This will always overwrite any trials that might apply via a subscribed plan.
+        // tmp             'payment_behavior' => 'allow_incomplete',
+        // tmp             'expand' => ['latest_invoice.payment_intent'],
+        // tmp             'metadata' => $metadata
+        // tmp         ]);
+        // tmp     } catch( Exception $e ){
+        // tmp         if ($e instanceof \Stripe\Error\Card ||
+        // tmp             $e instanceof \Stripe\Exception\CardException ||
+        // tmp             $e instanceof \Stripe\Exception\RateLimitException ||
+        // tmp             $e instanceof \Stripe\Exception\InvalidRequestException ||
+        // tmp             $e instanceof \Stripe\Exception\AuthenticationException ||
+        // tmp             $e instanceof \Stripe\Exception\ApiConnectionException ||
+        // tmp             $e instanceof \Stripe\Exception\ApiErrorException) {
+        // tmp             // Specific Stripe exception
+        // tmp             error_log("specific exceptionHandler11()");
+        // tmp             self::exceptionHandler($e, $metadata);
+        // tmp         } else {
+        // tmp             // Normal exception
+        // tmp             error_log("normal exceptionHandler11()");
+        // tmp             self::exceptionHandler($e, $metadata);
+        // tmp         }
+        // tmp     }
 
-            // Update PaymentIntent with metadata
-            \Stripe\PaymentIntent::update( $subscription->latest_invoice->payment_intent->id, array( 'metadata' => $metadata ) );
+        // tmp     // Update PaymentIntent with metadata
+        // tmp     \Stripe\PaymentIntent::update( $subscription->latest_invoice->payment_intent->id, array( 'metadata' => $metadata ) );
 
-            // Depending on the outcome do things:
-            $paymentintent_status = (isset($subscription->latest_invoice->payment_intent) ? $subscription->latest_invoice->payment_intent->status : '');
+        // tmp     // Depending on the outcome do things:
+        // tmp     $paymentintent_status = (isset($subscription->latest_invoice->payment_intent) ? $subscription->latest_invoice->payment_intent->status : '');
 
-            // Outcome 3: Payment fails
-            if (($subscription->status == 'incomplete') && ($subscription->latest_invoice->status == 'open') && ($paymentintent_status == 'requires_payment_method')) {
-                // The charge attempt for the subscription failed, please try with a new payment method
-                self::payment_intent_payment_failed( array( 'metadata' => $metadata ) );
-                SUPER_Common::output_message( array(
-                    'msg' => esc_html__( 'The charge attempt for the subscription failed, please try with a new payment method', 'super-forms' ),
-                    'form_id' => absint($form_id)
-                ));
-            }
+        // tmp     // Outcome 3: Payment fails
+        // tmp     if (($subscription->status == 'incomplete') && ($subscription->latest_invoice->status == 'open') && ($paymentintent_status == 'requires_payment_method')) {
+        // tmp         // The charge attempt for the subscription failed, please try with a new payment method
+        // tmp         self::payment_intent_payment_failed( array( 'metadata' => $metadata ) );
+        // tmp         SUPER_Common::output_message( array(
+        // tmp             'msg' => esc_html__( 'The charge attempt for the subscription failed, please try with a new payment method', 'super-forms' ),
+        // tmp             'form_id' => absint($form_id)
+        // tmp         ));
+        // tmp     }
 
-            echo json_encode( array( 
-                'client_secret' => $subscription->latest_invoice->payment_intent->client_secret,
-                'subscription_status' => $subscription->status,
-                'invoice_status' => $subscription->latest_invoice->status,
-                'paymentintent_status' => (isset($subscription->latest_invoice->payment_intent) ? $subscription->latest_invoice->payment_intent->status : ''),
-                'metadata' => $metadata
-            ) );
+        // tmp     echo json_encode( array( 
+        // tmp         'client_secret' => $subscription->latest_invoice->payment_intent->client_secret,
+        // tmp         'subscription_status' => $subscription->status,
+        // tmp         'invoice_status' => $subscription->latest_invoice->status,
+        // tmp         'paymentintent_status' => (isset($subscription->latest_invoice->payment_intent) ? $subscription->latest_invoice->payment_intent->status : ''),
+        // tmp         'metadata' => $metadata
+        // tmp     ) );
 
-            // // Outcome 1: Payment succeeds
-            // if (($subscription->status == 'active') && ($subscription->latest_invoice->status == 'paid') && ($paymentintent_status == 'succeeded')) {
-            //     //console.log('Payment succeeds');
-            //     // The payment has succeeded. Display a success message.
-            //     //console.log('The payment has succeeded, show success message1.');
-            //     //$form.data('is-doing-things', ''); // Finish form submission
-            // }
-            // // Outcome 2: Trial starts
-            // if (($subscription->status == 'trialing') && ($subscription->latest_invoice->status == 'paid')) {
-            //     //console.log('Trial starts');
-            //     //$form.data('is-doing-things', ''); // Finish form submission
-            // }
+        // tmp     // // Outcome 1: Payment succeeds
+        // tmp     // if (($subscription->status == 'active') && ($subscription->latest_invoice->status == 'paid') && ($paymentintent_status == 'succeeded')) {
+        // tmp     //     //console.log('Payment succeeds');
+        // tmp     //     // The payment has succeeded. Display a success message.
+        // tmp     //     //console.log('The payment has succeeded, show success message1.');
+        // tmp     //     //$form.data('is-doing-things', ''); // Finish form submission
+        // tmp     // }
+        // tmp     // // Outcome 2: Trial starts
+        // tmp     // if (($subscription->status == 'trialing') && ($subscription->latest_invoice->status == 'paid')) {
+        // tmp     //     //console.log('Trial starts');
+        // tmp     //     //$form.data('is-doing-things', ''); // Finish form submission
+        // tmp     // }
 
-            // // Outcome 4: Requires action
-            // if (($subscription->status == 'incomplete') && ($subscription->latest_invoice->status == 'open') && ($paymentintent_status == 'requires_action')) {
-            //     Notify customer that further action is required
-            //     stripe.confirmCardPayment(result.client_secret).then(function (result) {
-            //         if (result.error) {
-            //             // Display error.msg in your UI.
-            //             SUPER.stripe_proceed(result, $form, $oldHtml);
-            //         } else {
-            //             // The payment has succeeded. Display a success message.
-            //             console.log('The payment has succeeded, show success message2.');
-            //             $form.data('is-doing-things', ''); // Finish form submission
-            //         }
-            //     });
-            // }
-
-
-
-            // // Outcome 1: Payment succeeds
-            // if( ($subscription->status=='active') && ($subscription->latest_invoice->status=='paid') && ($subscription->latest_invoice->payment_intent->status=='succeeded') ) {
-            // }
-            // // Outcome 2: Trial starts
-            // if( ($subscription->status=='trialing') && ($subscription->latest_invoice->status=='paid') ) {
-            // }
-            // // Outcome 3: Payment fails
-            // if( ($subscription->status=='incomplete') && ($subscription->latest_invoice->status=='open') && ($subscription->latest_invoice->payment_intent->status=='requires_payment_method') ) {
-            // }
-            // // Outcome 4: Requires action
-            // if( ($subscription->status=='incomplete') && ($subscription->latest_invoice->status=='open') && ($subscription->latest_invoice->payment_intent->status=='requires_action') ) {
-            // }
-
-            die();
-        }
-
-        // Create PaymentIntent
-        public static function createPaymentIntent($payment_method, $data, $settings, $amount, $currency, $description, $metadata){
-            //error_log("createPaymentIntent()");
-            //error_log("payment_method: " . $payment_method);
-            //error_log("amount: " . $amount);
-            //error_log("currency: " . $currency);
-            //error_log("description: " . $description);
-            try {
-                $data = array(
-                    'amount' => $amount, // The amount to charge times hundred (because amount is in cents)
-                    'currency' => ($payment_method==='ideal' || $payment_method==='sepa_debit' ? 'eur' : $currency), // iDeal only accepts "EUR" as a currency
-                    'description' => $description,
-                    'payment_method_types' => [$payment_method], // e.g: ['card','ideal','sepa_debit'], 
-                    // Shipping information for this PaymentIntent.
-                    'shipping' => array(
-                        'address' => array(
-                            'line1' => SUPER_Common::email_tags( $settings['stripe_line1'], $data, $settings ),
-                            'line2' => SUPER_Common::email_tags( $settings['stripe_line2'], $data, $settings ),
-                            'city' => SUPER_Common::email_tags( $settings['stripe_city'], $data, $settings ),
-                            'country' => SUPER_Common::email_tags( $settings['stripe_country'], $data, $settings ),
-                            'postal_code' => SUPER_Common::email_tags( $settings['stripe_postal_code'], $data, $settings ),
-                            'state' => SUPER_Common::email_tags( $settings['stripe_state'], $data, $settings )
-                        ),
-                        'name' => SUPER_Common::email_tags( $settings['stripe_name'], $data, $settings ),
-                        'phone' => SUPER_Common::email_tags( $settings['stripe_phone'], $data, $settings ),
-                        'carrier' => SUPER_Common::email_tags( $settings['stripe_carrier'], $data, $settings ),
-                        'tracking_number' => SUPER_Common::email_tags( $settings['stripe_tracking_number'], $data, $settings )
-                    ),
-                    'metadata' => $metadata
-                );
-                // Only add receipt email if E-mail address was set
-                if(!empty($settings['stripe_email'])){
-                    $data['stripe_email'] = SUPER_Common::email_tags( $settings['stripe_email'], $data, $settings ); // E-mail address that the receipt for the resulting payment will be sent to.
-                }
-                if( $payment_method=='sepa_debit' ) {
-                    $data['setup_future_usage'] = 'off_session'; // SEPA Direct Debit only accepts an off_session value for this parameter.
-                }
-                $intent = \Stripe\PaymentIntent::create($data);
-
-                //error_log('$payment_method 2: '. $payment_method, 0);
-                //$data = array(
-                //    'amount' => $amount, // The amount to charge times hundred (because amount is in cents)
-                //    'currency' => ($payment_method==='ideal' || $payment_method==='sepa_debit' ? 'eur' : $currency), // iDeal only accepts "EUR" as a currency
-                //    'description' => $description,
-                //    'payment_method_types' => [$payment_method], // e.g: ['card','ideal','sepa_debit'], 
-                //    'receipt_email' => SUPER_Common::email_tags( $settings['stripe_email'], $data, $settings ), // E-mail address that the receipt for the resulting payment will be sent to.
-                //    // Shipping information for this PaymentIntent.
-                //    'shipping' => array(
-                //        'address' => array(
-                //            'line1' => SUPER_Common::email_tags( $settings['stripe_line1'], $data, $settings ),
-                //            'line2' => SUPER_Common::email_tags( $settings['stripe_line2'], $data, $settings ),
-                //            'city' => SUPER_Common::email_tags( $settings['stripe_city'], $data, $settings ),
-                //            'country' => SUPER_Common::email_tags( $settings['stripe_country'], $data, $settings ),
-                //            'postal_code' => SUPER_Common::email_tags( $settings['stripe_postal_code'], $data, $settings ),
-                //            'state' => SUPER_Common::email_tags( $settings['stripe_state'], $data, $settings )
-                //        ),
-                //        'name' => SUPER_Common::email_tags( $settings['stripe_name'], $data, $settings ),
-                //        'phone' => SUPER_Common::email_tags( $settings['stripe_phone'], $data, $settings ),
-                //        'carrier' => SUPER_Common::email_tags( $settings['stripe_carrier'], $data, $settings ),
-                //        'tracking_number' => SUPER_Common::email_tags( $settings['stripe_tracking_number'], $data, $settings )
-                //    ),
-                //    'metadata' => $metadata
-                //);
-                //if( $payment_method=='sepa_debit' ) {
-                //    $data['setup_future_usage'] = 'off_session'; // SEPA Direct Debit only accepts an off_session value for this parameter.
-                //}
-                //$intent = \Stripe\PaymentIntent::create($data);
-                //error_log("intent:" . json_encode($intent));
-            } catch( Exception $e ){
-                if ($e instanceof \Stripe\Error\Card ||
-                    $e instanceof \Stripe\Exception\CardException ||
-                    $e instanceof \Stripe\Exception\RateLimitException ||
-                    $e instanceof \Stripe\Exception\InvalidRequestException ||
-                    $e instanceof \Stripe\Exception\AuthenticationException ||
-                    $e instanceof \Stripe\Exception\ApiConnectionException ||
-                    $e instanceof \Stripe\Exception\ApiErrorException) {
-                    // Specific Stripe exception
-                    error_log("specific exceptionHandler15()");
-                    self::exceptionHandler($e, $metadata);
-                } else {
-                    // Normal exception
-                    error_log("normal exceptionHandler15()");
-                    self::exceptionHandler($e, $metadata);
-                }
-            }
-            return $intent;
-        }
+        // tmp     // // Outcome 4: Requires action
+        // tmp     // if (($subscription->status == 'incomplete') && ($subscription->latest_invoice->status == 'open') && ($paymentintent_status == 'requires_action')) {
+        // tmp     //     Notify customer that further action is required
+        // tmp     //     stripe.confirmCardPayment(result.client_secret).then(function (result) {
+        // tmp     //         if (result.error) {
+        // tmp     //             // Display error.msg in your UI.
+        // tmp     //             SUPER.stripe_proceed(result, $form, $oldHtml);
+        // tmp     //         } else {
+        // tmp     //             // The payment has succeeded. Display a success message.
+        // tmp     //             console.log('The payment has succeeded, show success message2.');
+        // tmp     //             $form.data('is-doing-things', ''); // Finish form submission
+        // tmp     //         }
+        // tmp     //     });
+        // tmp     // }
 
 
 
-        /**
-         * Change row actions
-         *
-         *  @since      1.0.0
-         */
-        public static function remove_row_actions( $actions ) {
-            if( (get_post_type()==='super_stripe_txn') || (get_post_type()==='super_stripe_sub') ) {
-                if( isset( $actions['trash'] ) ) {
-                    unset( $actions['trash'] );
-                }
-                unset( $actions['inline hide-if-no-js'] );
-                unset( $actions['view'] );
-                unset( $actions['edit'] );
-            }
-            return $actions;
-        }
+        // tmp     // // Outcome 1: Payment succeeds
+        // tmp     // if( ($subscription->status=='active') && ($subscription->latest_invoice->status=='paid') && ($subscription->latest_invoice->payment_intent->status=='succeeded') ) {
+        // tmp     // }
+        // tmp     // // Outcome 2: Trial starts
+        // tmp     // if( ($subscription->status=='trialing') && ($subscription->latest_invoice->status=='paid') ) {
+        // tmp     // }
+        // tmp     // // Outcome 3: Payment fails
+        // tmp     // if( ($subscription->status=='incomplete') && ($subscription->latest_invoice->status=='open') && ($subscription->latest_invoice->payment_intent->status=='requires_payment_method') ) {
+        // tmp     // }
+        // tmp     // // Outcome 4: Requires action
+        // tmp     // if( ($subscription->status=='incomplete') && ($subscription->latest_invoice->status=='open') && ($subscription->latest_invoice->payment_intent->status=='requires_action') ) {
+        // tmp     // }
+
+        // tmp     die();
+        // tmp }
+
+        // tmp // Create PaymentIntent
+        // tmp public static function createPaymentIntent($payment_method, $data, $settings, $amount, $currency, $description, $metadata){
+        // tmp     //error_log("createPaymentIntent()");
+        // tmp     //error_log("payment_method: " . $payment_method);
+        // tmp     //error_log("amount: " . $amount);
+        // tmp     //error_log("currency: " . $currency);
+        // tmp     //error_log("description: " . $description);
+        // tmp     try {
+        // tmp         $data = array(
+        // tmp             'amount' => $amount, // The amount to charge times hundred (because amount is in cents)
+        // tmp             'currency' => ($payment_method==='ideal' || $payment_method==='sepa_debit' ? 'eur' : $currency), // iDeal only accepts "EUR" as a currency
+        // tmp             'description' => $description,
+        // tmp             'payment_method_types' => [$payment_method], // e.g: ['card','ideal','sepa_debit'], 
+        // tmp             // Shipping information for this PaymentIntent.
+        // tmp             'shipping' => array(
+        // tmp                 'address' => array(
+        // tmp                     'line1' => SUPER_Common::email_tags( $settings['stripe_line1'], $data, $settings ),
+        // tmp                     'line2' => SUPER_Common::email_tags( $settings['stripe_line2'], $data, $settings ),
+        // tmp                     'city' => SUPER_Common::email_tags( $settings['stripe_city'], $data, $settings ),
+        // tmp                     'country' => SUPER_Common::email_tags( $settings['stripe_country'], $data, $settings ),
+        // tmp                     'postal_code' => SUPER_Common::email_tags( $settings['stripe_postal_code'], $data, $settings ),
+        // tmp                     'state' => SUPER_Common::email_tags( $settings['stripe_state'], $data, $settings )
+        // tmp                 ),
+        // tmp                 'name' => SUPER_Common::email_tags( $settings['stripe_name'], $data, $settings ),
+        // tmp                 'phone' => SUPER_Common::email_tags( $settings['stripe_phone'], $data, $settings ),
+        // tmp                 'carrier' => SUPER_Common::email_tags( $settings['stripe_carrier'], $data, $settings ),
+        // tmp                 'tracking_number' => SUPER_Common::email_tags( $settings['stripe_tracking_number'], $data, $settings )
+        // tmp             ),
+        // tmp             'metadata' => $metadata
+        // tmp         );
+        // tmp         // Only add receipt email if E-mail address was set
+        // tmp         if(!empty($settings['stripe_email'])){
+        // tmp             $data['stripe_email'] = SUPER_Common::email_tags( $settings['stripe_email'], $data, $settings ); // E-mail address that the receipt for the resulting payment will be sent to.
+        // tmp         }
+        // tmp         if( $payment_method=='sepa_debit' ) {
+        // tmp             $data['setup_future_usage'] = 'off_session'; // SEPA Direct Debit only accepts an off_session value for this parameter.
+        // tmp         }
+        // tmp         $intent = \Stripe\PaymentIntent::create($data);
+
+        // tmp         //error_log('$payment_method 2: '. $payment_method, 0);
+        // tmp         //$data = array(
+        // tmp         //    'amount' => $amount, // The amount to charge times hundred (because amount is in cents)
+        // tmp         //    'currency' => ($payment_method==='ideal' || $payment_method==='sepa_debit' ? 'eur' : $currency), // iDeal only accepts "EUR" as a currency
+        // tmp         //    'description' => $description,
+        // tmp         //    'payment_method_types' => [$payment_method], // e.g: ['card','ideal','sepa_debit'], 
+        // tmp         //    'receipt_email' => SUPER_Common::email_tags( $settings['stripe_email'], $data, $settings ), // E-mail address that the receipt for the resulting payment will be sent to.
+        // tmp         //    // Shipping information for this PaymentIntent.
+        // tmp         //    'shipping' => array(
+        // tmp         //        'address' => array(
+        // tmp         //            'line1' => SUPER_Common::email_tags( $settings['stripe_line1'], $data, $settings ),
+        // tmp         //            'line2' => SUPER_Common::email_tags( $settings['stripe_line2'], $data, $settings ),
+        // tmp         //            'city' => SUPER_Common::email_tags( $settings['stripe_city'], $data, $settings ),
+        // tmp         //            'country' => SUPER_Common::email_tags( $settings['stripe_country'], $data, $settings ),
+        // tmp         //            'postal_code' => SUPER_Common::email_tags( $settings['stripe_postal_code'], $data, $settings ),
+        // tmp         //            'state' => SUPER_Common::email_tags( $settings['stripe_state'], $data, $settings )
+        // tmp         //        ),
+        // tmp         //        'name' => SUPER_Common::email_tags( $settings['stripe_name'], $data, $settings ),
+        // tmp         //        'phone' => SUPER_Common::email_tags( $settings['stripe_phone'], $data, $settings ),
+        // tmp         //        'carrier' => SUPER_Common::email_tags( $settings['stripe_carrier'], $data, $settings ),
+        // tmp         //        'tracking_number' => SUPER_Common::email_tags( $settings['stripe_tracking_number'], $data, $settings )
+        // tmp         //    ),
+        // tmp         //    'metadata' => $metadata
+        // tmp         //);
+        // tmp         //if( $payment_method=='sepa_debit' ) {
+        // tmp         //    $data['setup_future_usage'] = 'off_session'; // SEPA Direct Debit only accepts an off_session value for this parameter.
+        // tmp         //}
+        // tmp         //$intent = \Stripe\PaymentIntent::create($data);
+        // tmp         //error_log("intent:" . json_encode($intent));
+        // tmp     } catch( Exception $e ){
+        // tmp         if ($e instanceof \Stripe\Error\Card ||
+        // tmp             $e instanceof \Stripe\Exception\CardException ||
+        // tmp             $e instanceof \Stripe\Exception\RateLimitException ||
+        // tmp             $e instanceof \Stripe\Exception\InvalidRequestException ||
+        // tmp             $e instanceof \Stripe\Exception\AuthenticationException ||
+        // tmp             $e instanceof \Stripe\Exception\ApiConnectionException ||
+        // tmp             $e instanceof \Stripe\Exception\ApiErrorException) {
+        // tmp             // Specific Stripe exception
+        // tmp             error_log("specific exceptionHandler15()");
+        // tmp             self::exceptionHandler($e, $metadata);
+        // tmp         } else {
+        // tmp             // Normal exception
+        // tmp             error_log("normal exceptionHandler15()");
+        // tmp             self::exceptionHandler($e, $metadata);
+        // tmp         }
+        // tmp     }
+        // tmp     return $intent;
+        // tmp }
+
+
+
+        // tmp /**
+        // tmp  * Change row actions
+        // tmp  *
+        // tmp  *  @since      1.0.0
+        // tmp  */
+        // tmp public static function remove_row_actions( $actions ) {
+        // tmp     if( (get_post_type()==='super_stripe_txn') || (get_post_type()==='super_stripe_sub') ) {
+        // tmp         if( isset( $actions['trash'] ) ) {
+        // tmp             unset( $actions['trash'] );
+        // tmp         }
+        // tmp         unset( $actions['inline hide-if-no-js'] );
+        // tmp         unset( $actions['view'] );
+        // tmp         unset( $actions['edit'] );
+        // tmp     }
+        // tmp     return $actions;
+        // tmp }
 
 
         public static function stripe_element_scripts() {
@@ -2757,21 +2814,21 @@ if(!class_exists('SUPER_Stripe')) :
         }
 
 
-        /**
-         * Update transaction counter and enqueue Stripe element scripts
-         *
-         * @param  string $current_screen
-         * 
-         * @since       1.0.0
-        */
-        public function after_screen( $current_screen ) {
-            if( $current_screen->id=='super-forms_page_super_stripe_dashboard' ) {
-                update_option( 'super_stripe_txn_count', 0 );
-            } 
-            if( $current_screen->id=='super-forms_page_super_create_form' ) {
-                self::stripe_element_scripts();
-            }
-        }
+        // tmp /**
+        // tmp  * Update transaction counter and enqueue Stripe element scripts
+        // tmp  *
+        // tmp  * @param  string $current_screen
+        // tmp  * 
+        // tmp  * @since       1.0.0
+        // tmp */
+        // tmp public function after_screen( $current_screen ) {
+        // tmp     if( $current_screen->id=='super-forms_page_super_stripe_dashboard' ) {
+        // tmp         //update_option( 'super_stripe_txn_count', 0 );
+        // tmp     } 
+        // tmp     if( $current_screen->id=='super-forms_page_super_create_form' ) {
+        // tmp         //self::stripe_element_scripts();
+        // tmp     }
+        // tmp }
 
 
         /**
@@ -2798,93 +2855,93 @@ if(!class_exists('SUPER_Stripe')) :
         //}
 
 
-        /**
-         *  Register post types
-         *
-         *  @since    1.0.0
-         */
-        public static function register_post_types() {
-            if (!post_type_exists('super_stripe_txn')) {
-                register_post_type('super_stripe_txn', apply_filters('super_register_post_type_super_stripe_txn', array(
-                    'label' => 'Stripe Transactions',
-                    'description' => '',
-                    'capability_type' => 'post',
-                    'exclude_from_search' => true, // make sure to exclude from default search
-                    'public' => false,
-                    'query_var' => false,
-                    'has_archive' => false,
-                    'publicaly_queryable' => false,
-                    'show_ui' => true,
-                    'show_in_menu' => false,
-                    'map_meta_cap' => true,
-                    'hierarchical' => false,
-                    'supports' => array(),
-                    'capabilities' => array(
-                        'create_posts' => false, // Removes support for the "Add New" function
-                    ),
-                    'rewrite' => array(
-                        'slug' => 'super_stripe_txn',
-                        'with_front' => true
-                    ),
-                    'labels' => array(
-                        'name' => 'Stripe Transactions',
-                        'singular_name' => 'Stripe Transaction',
-                        'menu_name' => 'Stripe Transactions',
-                        'add_new' => 'Add Transaction',
-                        'add_new_item' => 'Add New Transaction',
-                        'edit' => 'Edit',
-                        'edit_item' => 'Edit Transaction',
-                        'new_item' => 'New Transaction',
-                        'view' => 'View Transaction',
-                        'view_item' => 'View Transaction',
-                        'search_items' => 'Search Transactions',
-                        'not_found' => 'No Transactions Found',
-                        'not_found_in_trash' => 'No Transactions Found in Trash',
-                        'parent' => 'Parent Transaction',
-                    )
-                )));
-            }
-            if (!post_type_exists('super_stripe_sub')) {
-                register_post_type('super_stripe_sub', apply_filters('super_register_post_type_super_stripe_sub', array(
-                    'label' => 'Stripe Subscriptions',
-                    'description' => '',
-                    'capability_type' => 'post',
-                    'exclude_from_search' => true, // make sure to exclude from default search
-                    'public' => false,
-                    'query_var' => false,
-                    'has_archive' => false,
-                    'publicaly_queryable' => false,
-                    'show_ui' => true,
-                    'show_in_menu' => false,
-                    'map_meta_cap' => true,
-                    'hierarchical' => false,
-                    'supports' => array(),
-                    'capabilities' => array(
-                        'create_posts' => false, // Removes support for the "Add New" function
-                    ),
-                    'rewrite' => array(
-                        'slug' => 'super_stripe_sub',
-                        'with_front' => true
-                    ),
-                    'labels' => array(
-                        'name' => 'Stripe Subscriptions',
-                        'singular_name' => 'Stripe Subscription',
-                        'menu_name' => 'Stripe Subscriptions',
-                        'add_new' => 'Add Subscription',
-                        'add_new_item' => 'Add New Subscription',
-                        'edit' => 'Edit',
-                        'edit_item' => 'Edit Subscription',
-                        'new_item' => 'New Subscription',
-                        'view' => 'View Subscription',
-                        'view_item' => 'View Subscription',
-                        'search_items' => 'Search Subscriptions',
-                        'not_found' => 'No Subscriptions Found',
-                        'not_found_in_trash' => 'No Subscriptions Found in Trash',
-                        'parent' => 'Parent Subscription',
-                    )
-                )));
-            }
-        }
+        // tmp /**
+        // tmp  *  Register post types
+        // tmp  *
+        // tmp  *  @since    1.0.0
+        // tmp  */
+        // tmp public static function register_post_types() {
+        // tmp     if (!post_type_exists('super_stripe_txn')) {
+        // tmp         register_post_type('super_stripe_txn', apply_filters('super_register_post_type_super_stripe_txn', array(
+        // tmp             'label' => 'Stripe Transactions',
+        // tmp             'description' => '',
+        // tmp             'capability_type' => 'post',
+        // tmp             'exclude_from_search' => true, // make sure to exclude from default search
+        // tmp             'public' => false,
+        // tmp             'query_var' => false,
+        // tmp             'has_archive' => false,
+        // tmp             'publicaly_queryable' => false,
+        // tmp             'show_ui' => true,
+        // tmp             'show_in_menu' => false,
+        // tmp             'map_meta_cap' => true,
+        // tmp             'hierarchical' => false,
+        // tmp             'supports' => array(),
+        // tmp             'capabilities' => array(
+        // tmp                 'create_posts' => false, // Removes support for the "Add New" function
+        // tmp             ),
+        // tmp             'rewrite' => array(
+        // tmp                 'slug' => 'super_stripe_txn',
+        // tmp                 'with_front' => true
+        // tmp             ),
+        // tmp             'labels' => array(
+        // tmp                 'name' => 'Stripe Transactions',
+        // tmp                 'singular_name' => 'Stripe Transaction',
+        // tmp                 'menu_name' => 'Stripe Transactions',
+        // tmp                 'add_new' => 'Add Transaction',
+        // tmp                 'add_new_item' => 'Add New Transaction',
+        // tmp                 'edit' => 'Edit',
+        // tmp                 'edit_item' => 'Edit Transaction',
+        // tmp                 'new_item' => 'New Transaction',
+        // tmp                 'view' => 'View Transaction',
+        // tmp                 'view_item' => 'View Transaction',
+        // tmp                 'search_items' => 'Search Transactions',
+        // tmp                 'not_found' => 'No Transactions Found',
+        // tmp                 'not_found_in_trash' => 'No Transactions Found in Trash',
+        // tmp                 'parent' => 'Parent Transaction',
+        // tmp             )
+        // tmp         )));
+        // tmp     }
+        // tmp     if (!post_type_exists('super_stripe_sub')) {
+        // tmp         register_post_type('super_stripe_sub', apply_filters('super_register_post_type_super_stripe_sub', array(
+        // tmp             'label' => 'Stripe Subscriptions',
+        // tmp             'description' => '',
+        // tmp             'capability_type' => 'post',
+        // tmp             'exclude_from_search' => true, // make sure to exclude from default search
+        // tmp             'public' => false,
+        // tmp             'query_var' => false,
+        // tmp             'has_archive' => false,
+        // tmp             'publicaly_queryable' => false,
+        // tmp             'show_ui' => true,
+        // tmp             'show_in_menu' => false,
+        // tmp             'map_meta_cap' => true,
+        // tmp             'hierarchical' => false,
+        // tmp             'supports' => array(),
+        // tmp             'capabilities' => array(
+        // tmp                 'create_posts' => false, // Removes support for the "Add New" function
+        // tmp             ),
+        // tmp             'rewrite' => array(
+        // tmp                 'slug' => 'super_stripe_sub',
+        // tmp                 'with_front' => true
+        // tmp             ),
+        // tmp             'labels' => array(
+        // tmp                 'name' => 'Stripe Subscriptions',
+        // tmp                 'singular_name' => 'Stripe Subscription',
+        // tmp                 'menu_name' => 'Stripe Subscriptions',
+        // tmp                 'add_new' => 'Add Subscription',
+        // tmp                 'add_new_item' => 'Add New Subscription',
+        // tmp                 'edit' => 'Edit',
+        // tmp                 'edit_item' => 'Edit Subscription',
+        // tmp                 'new_item' => 'New Subscription',
+        // tmp                 'view' => 'View Subscription',
+        // tmp                 'view_item' => 'View Subscription',
+        // tmp                 'search_items' => 'Search Subscriptions',
+        // tmp                 'not_found' => 'No Subscriptions Found',
+        // tmp                 'not_found_in_trash' => 'No Subscriptions Found in Trash',
+        // tmp                 'parent' => 'Parent Subscription',
+        // tmp             )
+        // tmp         )));
+        // tmp     }
+        // tmp }
 
                
         /**
@@ -3366,179 +3423,179 @@ if(!class_exists('SUPER_Stripe')) :
 
 
 
-        /**
-         * Load More 
-         *
-         *  @since      1.0.0
-         */
-        public static function super_stripe_api_handler() {  
-            if( !empty($_POST['data']) ) {
-                $data = $_POST['data'];
-                if( !empty($data['type']) ) {
-                    self::setAppInfo();
-                    $type = sanitize_text_field($data['type']);
-                    if( $type=='searchUsers' ) {
-                        // Search WordPress users
-                        $value = sanitize_text_field($data['value']);
-                        // We use this to give a "best matches/suggestions" user connection for this customer
-                        $customer_email = sanitize_email($data['customer_email']);
-                        if(empty($customer_email)){
-                            $suggestions = array();
-                        }else{
-                            // Try to search for suggestions
-                            $query = new WP_User_Query(
-                                array(
-                                    'fields' => array(
-                                        'ID',
-                                        'user_login',
-                                        'display_name',
-                                        'user_email'
-                                    ),
-                                    'number' => 1, // Acts as the limit
-                                    'search' => "*{$customer_email}*",
-                                    'search_columns' => array(
-                                        'user_email'
-                                    ),
-                                )
-                            );
-                            $suggestions = $query->get_results();
-                        }
-                        $exclude = array();
-                        if(isset($suggestions[0])){
-                            $exclude = array($suggestions[0]->ID);
-                        }
-                        // search usertable
-                        $query = new WP_User_Query(
-                            array(
-                                'fields' => array(
-                                    'ID',
-                                    'user_login',
-                                    'display_name',
-                                    'user_email'
-                                ),
-                                'number' => 20, // Acts as the limit
-                                'exclude' => $exclude, // Exclude suggested user
-                                'search' => "*{$value}*",
-                                'search_columns' => array(
-                                    'ID',
-                                    'user_login',
-                                    'display_name',
-                                    'user_email',
-                                    'user_nicename'
-                                ),
-                            )
-                        );
-                        $users = $query->get_results();
-                        // search usermeta
-                        $query = new WP_User_Query(
-                            array(
-                                'fields' => array(
-                                    'ID',
-                                    'user_login',
-                                    'display_name',
-                                    'user_email'
-                                ),
-                                'number' => 20, // Acts as the limit
-                                'exclude' => $exclude, // Exclude suggested user
-                                'meta_query' => array(
-                                    'relation' => 'OR',
-                                    array(
-                                        'key' => 'first_name',
-                                        'value' => $value,
-                                        'compare' => 'LIKE'
-                                    ),
-                                    array(
-                                        'key' => 'last_name',
-                                        'value' => $value,
-                                        'compare' => 'LIKE'
-                                    )
-                                )
-                            )
-                        );
-                        $users2 = $query->get_results();
-                        // Merge all users
-                        $users = array_merge( $users, $users2 );
-                        $payload = array(
-                            'suggestions' => $suggestions,
-                            'users' => array_unique($users, SORT_REGULAR)
-                        );
-                    }
-                    if( $type=='connectUser' ) {
-                        $unconnect = filter_var($data['unconnect'], FILTER_VALIDATE_BOOLEAN);
-                        $customer_id = sanitize_text_field($data['customer_id']);
-                        $user_id = sanitize_text_field($data['user_id']);
-                        if($unconnect==true){
-                            delete_user_meta( $user_id, 'super_stripe_cus');
-                            $payload = array();
-                        }else{
-                            update_user_meta( $user_id, 'super_stripe_cus', $customer_id);
-                            $edit_link = '#';
-                            if($user_id!==0){
-                                $user_info = get_userdata($user_id);
-                                if($user_info){
-                                    $user_info->data->edit_link = get_edit_user_link($user_info->ID);
-                                    $user_info->data->customer_id = $customer_id;
-                                    $wp_user_info = $user_info->data;
-                                }
-                            }
-                            $payload = array(
-                                'wp_user_info' => $wp_user_info
-                            );
-                        }
-                    }
-                    if( $type=='invoice.online' || 
-                        $type=='invoice.pdf' || 
-                        $type=='paymentIntents' || 
-                        $type=='refreshPaymentIntent' ||
-                        $type=='customers' ||
-                        $type=='subscriptions'
-                        //$type=='products' || 
-                        ) {
+        // tmp /**
+        // tmp  * Load More 
+        // tmp  *
+        // tmp  *  @since      1.0.0
+        // tmp  */
+        // tmp public static function super_stripe_api_handler() {  
+        // tmp     if( !empty($_POST['data']) ) {
+        // tmp         $data = $_POST['data'];
+        // tmp         if( !empty($data['type']) ) {
+        // tmp             self::setAppInfo();
+        // tmp             $type = sanitize_text_field($data['type']);
+        // tmp             if( $type=='searchUsers' ) {
+        // tmp                 // Search WordPress users
+        // tmp                 $value = sanitize_text_field($data['value']);
+        // tmp                 // We use this to give a "best matches/suggestions" user connection for this customer
+        // tmp                 $customer_email = sanitize_email($data['customer_email']);
+        // tmp                 if(empty($customer_email)){
+        // tmp                     $suggestions = array();
+        // tmp                 }else{
+        // tmp                     // Try to search for suggestions
+        // tmp                     $query = new WP_User_Query(
+        // tmp                         array(
+        // tmp                             'fields' => array(
+        // tmp                                 'ID',
+        // tmp                                 'user_login',
+        // tmp                                 'display_name',
+        // tmp                                 'user_email'
+        // tmp                             ),
+        // tmp                             'number' => 1, // Acts as the limit
+        // tmp                             'search' => "*{$customer_email}*",
+        // tmp                             'search_columns' => array(
+        // tmp                                 'user_email'
+        // tmp                             ),
+        // tmp                         )
+        // tmp                     );
+        // tmp                     $suggestions = $query->get_results();
+        // tmp                 }
+        // tmp                 $exclude = array();
+        // tmp                 if(isset($suggestions[0])){
+        // tmp                     $exclude = array($suggestions[0]->ID);
+        // tmp                 }
+        // tmp                 // search usertable
+        // tmp                 $query = new WP_User_Query(
+        // tmp                     array(
+        // tmp                         'fields' => array(
+        // tmp                             'ID',
+        // tmp                             'user_login',
+        // tmp                             'display_name',
+        // tmp                             'user_email'
+        // tmp                         ),
+        // tmp                         'number' => 20, // Acts as the limit
+        // tmp                         'exclude' => $exclude, // Exclude suggested user
+        // tmp                         'search' => "*{$value}*",
+        // tmp                         'search_columns' => array(
+        // tmp                             'ID',
+        // tmp                             'user_login',
+        // tmp                             'display_name',
+        // tmp                             'user_email',
+        // tmp                             'user_nicename'
+        // tmp                         ),
+        // tmp                     )
+        // tmp                 );
+        // tmp                 $users = $query->get_results();
+        // tmp                 // search usermeta
+        // tmp                 $query = new WP_User_Query(
+        // tmp                     array(
+        // tmp                         'fields' => array(
+        // tmp                             'ID',
+        // tmp                             'user_login',
+        // tmp                             'display_name',
+        // tmp                             'user_email'
+        // tmp                         ),
+        // tmp                         'number' => 20, // Acts as the limit
+        // tmp                         'exclude' => $exclude, // Exclude suggested user
+        // tmp                         'meta_query' => array(
+        // tmp                             'relation' => 'OR',
+        // tmp                             array(
+        // tmp                                 'key' => 'first_name',
+        // tmp                                 'value' => $value,
+        // tmp                                 'compare' => 'LIKE'
+        // tmp                             ),
+        // tmp                             array(
+        // tmp                                 'key' => 'last_name',
+        // tmp                                 'value' => $value,
+        // tmp                                 'compare' => 'LIKE'
+        // tmp                             )
+        // tmp                         )
+        // tmp                     )
+        // tmp                 );
+        // tmp                 $users2 = $query->get_results();
+        // tmp                 // Merge all users
+        // tmp                 $users = array_merge( $users, $users2 );
+        // tmp                 $payload = array(
+        // tmp                     'suggestions' => $suggestions,
+        // tmp                     'users' => array_unique($users, SORT_REGULAR)
+        // tmp                 );
+        // tmp             }
+        // tmp             if( $type=='connectUser' ) {
+        // tmp                 $unconnect = filter_var($data['unconnect'], FILTER_VALIDATE_BOOLEAN);
+        // tmp                 $customer_id = sanitize_text_field($data['customer_id']);
+        // tmp                 $user_id = sanitize_text_field($data['user_id']);
+        // tmp                 if($unconnect==true){
+        // tmp                     delete_user_meta( $user_id, 'super_stripe_cus');
+        // tmp                     $payload = array();
+        // tmp                 }else{
+        // tmp                     update_user_meta( $user_id, 'super_stripe_cus', $customer_id);
+        // tmp                     $edit_link = '#';
+        // tmp                     if($user_id!==0){
+        // tmp                         $user_info = get_userdata($user_id);
+        // tmp                         if($user_info){
+        // tmp                             $user_info->data->edit_link = get_edit_user_link($user_info->ID);
+        // tmp                             $user_info->data->customer_id = $customer_id;
+        // tmp                             $wp_user_info = $user_info->data;
+        // tmp                         }
+        // tmp                     }
+        // tmp                     $payload = array(
+        // tmp                         'wp_user_info' => $wp_user_info
+        // tmp                     );
+        // tmp                 }
+        // tmp             }
+        // tmp             if( $type=='invoice.online' || 
+        // tmp                 $type=='invoice.pdf' || 
+        // tmp                 $type=='paymentIntents' || 
+        // tmp                 $type=='refreshPaymentIntent' ||
+        // tmp                 $type=='customers' ||
+        // tmp                 $type=='subscriptions'
+        // tmp                 //$type=='products' || 
+        // tmp                 ) {
 
-                            $payload = array();
-                            $id = '';
-                            $starting_after = null;
-                            if(empty($data['formatted'])) $formatted = true;
-                            if(!empty($data['limit'])) $limit = absint($data['limit']);
-                            if(!empty($data['id'])) $id = sanitize_text_field($data['id']);
-                            if(!empty($data['starting_after'])) $starting_after = sanitize_text_field($data['starting_after']);
-                            if( (!empty($id)) && (($type=='invoice.pdf') || ($type=='invoice.online')) ) {
-                                $payload = self::getInvoice($id);
-                            }
-                            if( $type=='paymentIntents' || $type=='refreshPaymentIntent' ) {
-                                if( (!empty($id)) && (($type=='refreshPaymentIntent')) ) {
-                                    $starting_after = $id;
-                                }
-                                $payload = self::getPaymentIntents($formatted, $limit, $starting_after);
-                            }
-                            if( $type=='customers' ) {
-                                $payload = self::getCustomers($formatted, $limit, $starting_after);
-                            }
-                            if( $type=='subscriptions' ) {
-                                $payload = self::getSubscriptions($formatted, $limit, $starting_after);
-                            }
-                            // if( $type=='products' ) {
-                            //     $payload = self::getProducts($formatted, $limit, $starting_after);
-                            // }
+        // tmp                     $payload = array();
+        // tmp                     $id = '';
+        // tmp                     $starting_after = null;
+        // tmp                     if(empty($data['formatted'])) $formatted = true;
+        // tmp                     if(!empty($data['limit'])) $limit = absint($data['limit']);
+        // tmp                     if(!empty($data['id'])) $id = sanitize_text_field($data['id']);
+        // tmp                     if(!empty($data['starting_after'])) $starting_after = sanitize_text_field($data['starting_after']);
+        // tmp                     if( (!empty($id)) && (($type=='invoice.pdf') || ($type=='invoice.online')) ) {
+        // tmp                         $payload = self::getInvoice($id);
+        // tmp                     }
+        // tmp                     if( $type=='paymentIntents' || $type=='refreshPaymentIntent' ) {
+        // tmp                         if( (!empty($id)) && (($type=='refreshPaymentIntent')) ) {
+        // tmp                             $starting_after = $id;
+        // tmp                         }
+        // tmp                         $payload = self::getPaymentIntents($formatted, $limit, $starting_after);
+        // tmp                     }
+        // tmp                     if( $type=='customers' ) {
+        // tmp                         $payload = self::getCustomers($formatted, $limit, $starting_after);
+        // tmp                     }
+        // tmp                     if( $type=='subscriptions' ) {
+        // tmp                         $payload = self::getSubscriptions($formatted, $limit, $starting_after);
+        // tmp                     }
+        // tmp                     // if( $type=='products' ) {
+        // tmp                     //     $payload = self::getProducts($formatted, $limit, $starting_after);
+        // tmp                     // }
 
-                    }
-                    if( $type=='refund.create' ) {
-                        // ID of the PaymentIntent to refund.
-                        $payment_intent = sanitize_text_field($data['payment_intent']);
-                        // String indicating the reason for the refund. If set, possible values are duplicate, fraudulent, and requested_by_customer.
-                        // If you believe the charge to be fraudulent, specifying fraudulent as the reason will add the associated card and email to your block lists, and will also help us improve our fraud detection algorithms.
-                        $reason = sanitize_text_field($data['reason']);
-                        // A positive integer in cents representing how much of this charge to refund.
-                        // Can refund only up to the remaining, unrefunded amount of the charge.
-                        $amount = sanitize_text_field($data['amount']);
-                        $payload = self::createRefund($payment_intent, $reason, $amount);
-                    }
-                    $payload = json_encode($payload);
-                    echo $payload;
-                }
-            }
-            die();
-        }    
+        // tmp             }
+        // tmp             if( $type=='refund.create' ) {
+        // tmp                 // ID of the PaymentIntent to refund.
+        // tmp                 $payment_intent = sanitize_text_field($data['payment_intent']);
+        // tmp                 // String indicating the reason for the refund. If set, possible values are duplicate, fraudulent, and requested_by_customer.
+        // tmp                 // If you believe the charge to be fraudulent, specifying fraudulent as the reason will add the associated card and email to your block lists, and will also help us improve our fraud detection algorithms.
+        // tmp                 $reason = sanitize_text_field($data['reason']);
+        // tmp                 // A positive integer in cents representing how much of this charge to refund.
+        // tmp                 // Can refund only up to the remaining, unrefunded amount of the charge.
+        // tmp                 $amount = sanitize_text_field($data['amount']);
+        // tmp                 $payload = self::createRefund($payment_intent, $reason, $amount);
+        // tmp             }
+        // tmp             $payload = json_encode($payload);
+        // tmp             echo $payload;
+        // tmp         }
+        // tmp     }
+        // tmp     die();
+        // tmp }    
 
 
         /**
@@ -3902,20 +3959,16 @@ if(!class_exists('SUPER_Stripe')) :
          * @since       1.0.0
          */
         public function stripe_ipn() {
-
             // payment_intent=pi_1FfCwmFKn7uROhgCVZENWCcG
             // payment_intent_client_secret=pi_1FfCwmFKn7uROhgCVZENWCcG_secret_U2Idi8YnxtUBPyPCYjs2wUeTO
             // source_type=ideal
-
             if( !empty($_GET['client_secret']) ) {
                 $status = $GLOBALS['stripe_obj']->status;
-
                 // canceled == payment was canceled
                 // pending == payment method can take up to a few days to be processed
                 // chargeable == waiting for bank to process payment
                 // failed == canceled by user or due to other reason
                 // consumed == completed
-
                 ?>
                 <div class="verifying-payment">
                     <div class="wrapper">
@@ -4079,51 +4132,51 @@ if(!class_exists('SUPER_Stripe')) :
         }
 
 
-        /**
-         * Hook into elements and add Stripe element
-         *
-         *  @since      1.0.0
-        */
-        public static function add_stripe_element( $array, $attributes ) {
-            // Include the predefined arrays
-            require( SUPER_PLUGIN_DIR . '/includes/shortcodes/predefined-arrays.php' );
-            $array['form_elements']['shortcodes']['stripe'] = array(
-                'callback' => 'SUPER_Stripe::stripe_element',
-                'name' => 'Stripe',
-                'icon' => 'stripe;fab',
-                'atts' => array(
-                    'general' => array(
-                        'name' => esc_html__( 'General', 'super-forms' ),
-                        'fields' => array(
-                            'payment_method' => array(
-                                'name' => esc_html__( 'Choose payment gateway', 'super-forms' ), 
-                                'label' => esc_html__( 'Please note that the iDeal gateway can not be used in combination with subscriptions!', 'super-forms' ),
-                                'type' => 'select',
-                                'values' => array(
-                                    'card' => esc_html__( 'Credit Card', 'super-forms' ),
-                                    'sepa_debit' => esc_html__( 'SEPA Direct Debit', 'super-forms' ),
-                                    'ideal' => esc_html__( 'iDeal', 'super-forms' ) 
-                                ),
-                                'default' => ( !isset( $attributes['payment_method'] ) ? '' : $attributes['payment_method'] )
-                            ),
-                            'label' => $label,
-                            'description'=>$description,
-                            'tooltip' => $tooltip
-                        ),
-                    ),
-                    'icon' => array(
-                        'name' => esc_html__( 'Icon', 'super-forms' ),
-                        'fields' => array(
-                            'icon_position' => $icon_position,
-                            'icon_align' => $icon_align,
-                            'icon' => SUPER_Shortcodes::icon($attributes,''),
-                        ),
-                    ),
-                    'conditional_logic' => $conditional_logic_array
-                )
-            );
-            return $array;
-        }
+        // tmp /**
+        // tmp  * Hook into elements and add Stripe element
+        // tmp  *
+        // tmp  *  @since      1.0.0
+        // tmp */
+        // tmp public static function add_stripe_element( $array, $attributes ) {
+        // tmp     // Include the predefined arrays
+        // tmp     require( SUPER_PLUGIN_DIR . '/includes/shortcodes/predefined-arrays.php' );
+        // tmp     $array['form_elements']['shortcodes']['stripe'] = array(
+        // tmp         'callback' => 'SUPER_Stripe::stripe_element',
+        // tmp         'name' => 'Stripe',
+        // tmp         'icon' => 'stripe;fab',
+        // tmp         'atts' => array(
+        // tmp             'general' => array(
+        // tmp                 'name' => esc_html__( 'General', 'super-forms' ),
+        // tmp                 'fields' => array(
+        // tmp                     'payment_method' => array(
+        // tmp                         'name' => esc_html__( 'Choose payment gateway', 'super-forms' ), 
+        // tmp                         'label' => esc_html__( 'Please note that the iDeal gateway can not be used in combination with subscriptions!', 'super-forms' ),
+        // tmp                         'type' => 'select',
+        // tmp                         'values' => array(
+        // tmp                             'card' => esc_html__( 'Credit Card', 'super-forms' ),
+        // tmp                             'sepa_debit' => esc_html__( 'SEPA Direct Debit', 'super-forms' ),
+        // tmp                             'ideal' => esc_html__( 'iDeal', 'super-forms' ) 
+        // tmp                         ),
+        // tmp                         'default' => ( !isset( $attributes['payment_method'] ) ? '' : $attributes['payment_method'] )
+        // tmp                     ),
+        // tmp                     'label' => $label,
+        // tmp                     'description'=>$description,
+        // tmp                     'tooltip' => $tooltip
+        // tmp                 ),
+        // tmp             ),
+        // tmp             'icon' => array(
+        // tmp                 'name' => esc_html__( 'Icon', 'super-forms' ),
+        // tmp                 'fields' => array(
+        // tmp                     'icon_position' => $icon_position,
+        // tmp                     'icon_align' => $icon_align,
+        // tmp                     'icon' => SUPER_Shortcodes::icon($attributes,''),
+        // tmp                 ),
+        // tmp             ),
+        // tmp             'conditional_logic' => $conditional_logic_array
+        // tmp         )
+        // tmp     );
+        // tmp     return $array;
+        // tmp }
 
 
         /**
@@ -4322,115 +4375,115 @@ if(!class_exists('SUPER_Stripe')) :
         }
 
 
-        /**
-         * Enqueue scripts
-         *
-         *  @since      1.0.0
-        */
-        public function enqueue_scripts() {
-            if( !empty($_GET['client_secret']) ) {
-                $client_secret = sanitize_text_field($_GET['client_secret']);
-                $livemode = sanitize_text_field($_GET['livemode']);
-                $source = sanitize_text_field($_GET['source']);
-                // Get Source status
-                // https://f4d.nl/dev/?client_secret=src_client_secret_FAjQj85HSzhwvo4EzUTgC4dm&livemode=false&source=src_1EgNxUFKn7uROhgClC0MmsoJ
-                $url = 'https://api.stripe.com/v1/sources/' . $source;
-                $response = wp_remote_post( 
-                    $url, 
-                    array(
-                        'timeout' => 45,
-                        'headers'=>array(
-                            'Authorization' => 'Bearer sk_test_CczNHRNSYyr4TenhiCp7Oz05'
-                        ),                      
-                        'body' => array()
-                    )
-                );
-                if ( is_wp_error( $response ) ) {
-                    $error_message = $response->get_error_message();
-                    $GLOBALS['stripe_error_message'] = $error_message;
-                } else {
-                    $obj = json_decode($response['body']);
-                    $GLOBALS['stripe_obj'] = $obj;
-                }
+        // tmp /**
+        // tmp  * Enqueue scripts
+        // tmp  *
+        // tmp  *  @since      1.0.0
+        // tmp */
+        // tmp public function enqueue_scripts() {
+        // tmp     if( !empty($_GET['client_secret']) ) {
+        // tmp         $client_secret = sanitize_text_field($_GET['client_secret']);
+        // tmp         $livemode = sanitize_text_field($_GET['livemode']);
+        // tmp         $source = sanitize_text_field($_GET['source']);
+        // tmp         // Get Source status
+        // tmp         // https://f4d.nl/dev/?client_secret=src_client_secret_FAjQj85HSzhwvo4EzUTgC4dm&livemode=false&source=src_1EgNxUFKn7uROhgClC0MmsoJ
+        // tmp         $url = 'https://api.stripe.com/v1/sources/' . $source;
+        // tmp         $response = wp_remote_post( 
+        // tmp             $url, 
+        // tmp             array(
+        // tmp                 'timeout' => 45,
+        // tmp                 'headers'=>array(
+        // tmp                     'Authorization' => 'Bearer sk_test_CczNHRNSYyr4TenhiCp7Oz05'
+        // tmp                 ),                      
+        // tmp                 'body' => array()
+        // tmp             )
+        // tmp         );
+        // tmp         if ( is_wp_error( $response ) ) {
+        // tmp             $error_message = $response->get_error_message();
+        // tmp             $GLOBALS['stripe_error_message'] = $error_message;
+        // tmp         } else {
+        // tmp             $obj = json_decode($response['body']);
+        // tmp             $GLOBALS['stripe_obj'] = $obj;
+        // tmp         }
 
-                // Enqueue styles
-                wp_enqueue_style( 'super-stripe-confirmation', plugin_dir_url( __FILE__ ) . 'stripe-confirmation.css', array(), SUPER_VERSION );
-                // Enqueue scripts
-                wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_VERSION, false ); 
-                $handle = 'super-stripe-confirmation';
-                $name = str_replace( '-', '_', $handle ) . '_i18n';
-                wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'confirmation.js', array(), SUPER_VERSION, false ); 
-                $global_settings = SUPER_Common::get_global_settings();
-                wp_localize_script(
-                    $handle,
-                    $name,
-                    array( 
-                        'stripe_pk' => (isset($global_settings['stripe_pk']) ? $global_settings['stripe_pk'] : ''), 
-                        'status' => (!empty($GLOBALS['stripe_obj']) ? $GLOBALS['stripe_obj']->status : ''),
-                        'client_secret' => $client_secret,
-                        'livemode' => $livemode,
-                        'source' => $source,
+        // tmp         // Enqueue styles
+        // tmp         wp_enqueue_style( 'super-stripe-confirmation', plugin_dir_url( __FILE__ ) . 'stripe-confirmation.css', array(), SUPER_VERSION );
+        // tmp         // Enqueue scripts
+        // tmp         wp_enqueue_script( 'stripe-v3', '//js.stripe.com/v3/', array(), SUPER_VERSION, false ); 
+        // tmp         $handle = 'super-stripe-confirmation';
+        // tmp         $name = str_replace( '-', '_', $handle ) . '_i18n';
+        // tmp         wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'confirmation.js', array(), SUPER_VERSION, false ); 
+        // tmp         $global_settings = SUPER_Common::get_global_settings();
+        // tmp         wp_localize_script(
+        // tmp             $handle,
+        // tmp             $name,
+        // tmp             array( 
+        // tmp                 'stripe_pk' => (isset($global_settings['stripe_pk']) ? $global_settings['stripe_pk'] : ''), 
+        // tmp                 'status' => (!empty($GLOBALS['stripe_obj']) ? $GLOBALS['stripe_obj']->status : ''),
+        // tmp                 'client_secret' => $client_secret,
+        // tmp                 'livemode' => $livemode,
+        // tmp                 'source' => $source,
 
-                        'chargeable' => esc_html__( 'Completing your order...', 'super_forms' ),
-                        'consumed' => sprintf( 
-                            esc_html__( '%sThank you for your order!%s%sWe’ll send your receipt as soon as your payment is confirmed.%s', 'super_forms' ), 
-                            '<div class="title">', 
-                            '</div>', 
-                            '<div class="description">', 
-                            '</div>' 
-                        ),
-                        'pending' => sprintf( 
-                            esc_html__( '%sPending payment!%s%sYour payment might be processed within a couple of days depending on your payment method.%s', 'super_forms' ), 
-                            '<div class="title">', 
-                            '</div>', 
-                            '<div class="description">', 
-                            '</div>' 
-                        ),
-                        'canceled' => sprintf( 
-                            esc_html__( '%sPayment canceled!%s', 'super_forms' ), 
-                            '<div class="title">', 
-                            '</div>'
-                        ),
-                        'failed' => sprintf( 
-                            esc_html__( '%sPayment failed!%s%sWe couldn’t process your order.%s', 'super_forms' ), 
-                            '<div class="title">', 
-                            '</div>', 
-                            '<div class="description">', 
-                            '</div>' 
-                        )
-
-
-                    )
-                );
-                wp_enqueue_script( $handle );
-            }
-        }
+        // tmp                 'chargeable' => esc_html__( 'Completing your order...', 'super_forms' ),
+        // tmp                 'consumed' => sprintf( 
+        // tmp                     esc_html__( '%sThank you for your order!%s%sWe’ll send your receipt as soon as your payment is confirmed.%s', 'super_forms' ), 
+        // tmp                     '<div class="title">', 
+        // tmp                     '</div>', 
+        // tmp                     '<div class="description">', 
+        // tmp                     '</div>' 
+        // tmp                 ),
+        // tmp                 'pending' => sprintf( 
+        // tmp                     esc_html__( '%sPending payment!%s%sYour payment might be processed within a couple of days depending on your payment method.%s', 'super_forms' ), 
+        // tmp                     '<div class="title">', 
+        // tmp                     '</div>', 
+        // tmp                     '<div class="description">', 
+        // tmp                     '</div>' 
+        // tmp                 ),
+        // tmp                 'canceled' => sprintf( 
+        // tmp                     esc_html__( '%sPayment canceled!%s', 'super_forms' ), 
+        // tmp                     '<div class="title">', 
+        // tmp                     '</div>'
+        // tmp                 ),
+        // tmp                 'failed' => sprintf( 
+        // tmp                     esc_html__( '%sPayment failed!%s%sWe couldn’t process your order.%s', 'super_forms' ), 
+        // tmp                     '<div class="title">', 
+        // tmp                     '</div>', 
+        // tmp                     '<div class="description">', 
+        // tmp                     '</div>' 
+        // tmp                 )
 
 
-        /**
-         * Hook into JS filter and add the Stripe Token
-         *
-         *  @since      1.0.0
-        */
-        public static function add_dynamic_function( $functions ) {
-            $functions['before_submit_hook'][] = array(
-                'name' => 'stripe_validate'
-            );
-            $functions['after_email_send_hook'][] = array(
-                'name' => 'stripe_cc_create_payment_method'
-            );
-            $functions['after_email_send_hook'][] = array(
-                'name' => 'stripe_iban_create_payment_method'
-            );
-            $functions['after_email_send_hook'][] = array(
-                'name' => 'stripe_ideal_create_payment_method'
-            );
+        // tmp             )
+        // tmp         );
+        // tmp         wp_enqueue_script( $handle );
+        // tmp     }
+        // tmp }
 
-            $functions['after_init_common_fields'][] = array(
-                'name' => 'init_stripe_elements'
-            );
-            return $functions;
-        }
+
+        // tmp /**
+        // tmp  * Hook into JS filter and add the Stripe Token
+        // tmp  *
+        // tmp  *  @since      1.0.0
+        // tmp */
+        // tmp public static function add_dynamic_function( $functions ) {
+        // tmp     $functions['before_submit_hook'][] = array(
+        // tmp         'name' => 'stripe_validate'
+        // tmp     );
+        // tmp     $functions['after_email_send_hook'][] = array(
+        // tmp         'name' => 'stripe_cc_create_payment_method'
+        // tmp     );
+        // tmp     $functions['after_email_send_hook'][] = array(
+        // tmp         'name' => 'stripe_iban_create_payment_method'
+        // tmp     );
+        // tmp     $functions['after_email_send_hook'][] = array(
+        // tmp         'name' => 'stripe_ideal_create_payment_method'
+        // tmp     );
+
+        // tmp     $functions['after_init_common_fields'][] = array(
+        // tmp         'name' => 'init_stripe_elements'
+        // tmp     );
+        // tmp     return $functions;
+        // tmp }
 
 
         /**

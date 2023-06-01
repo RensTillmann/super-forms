@@ -64,7 +64,7 @@
 					var wrapper = signaturePad.canvas.closest('.super-field-wrapper');
 					signaturePad.addEventListener('afterUpdateStroke', () => {
 						var field = wrapper.querySelector('.super-shortcode-field');
-						if(signaturePad.isEmpty()==false){
+						if(signaturePad.isEmpty()===false){
 							if(!signaturePad.canvas.closest('.super-signature').classList.contains('super-filled')){
 								signaturePad.canvas.closest('.super-signature').classList.add('super-filled');
 							}
@@ -90,7 +90,7 @@
 			});
 		}
 	};
-	SUPER.getSignatureDimensions = function(field, signaturePad, successCallback, errorCallback){
+	SUPER.getSignatureDimensions = function(field, signaturePad, successCallback){
 		var img = new Image();
 		img.onload = function() {
 			successCallback(field, signaturePad, { width: img.width, height: img.height });
