@@ -9,7 +9,7 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## May 31, 2023 - Version 6.3.724
+## Jun 02, 2023 - Version 6.3.725
 
 - **Added:** Option to create vCards and attach them to Admin and Confirmation E-mails via `Form settings > vCard Attachment`
 - **Added:** New `Signature` drawing method for improved device compatibility (Microsoft Surface Pro)
@@ -49,6 +49,7 @@ endforeach;
 - **Fix:** Issue when dragging elements inside column that are inside an Accordion/TAB element
 - **Fix:** Issue with using `foreach loop` inside E-mails not replacing the tags with field value correctly
 - **Fix:** New signature mobile canvas width not adjusting properly
+- **Fix:** Conditional logic conflict with columns that are set to be hidden in some scenario's
 
 ## Dec 21, 2022 - Version 6.3.679
 
