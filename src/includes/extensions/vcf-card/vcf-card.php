@@ -96,6 +96,9 @@ if( !class_exists('SUPER_VCF_Attachment') ) :
                         remove_filter( 'upload_dir', array( 'SUPER_Forms', 'filter_upload_dir' ));
                         $attachment_id = wp_insert_attachment( $attachment, $filename, 0 );
                         add_post_meta($attachment_id, 'super-forms-form-upload-file', true);
+                        if((!empty($atts['settings']['vcard_hide'])) && ($atts['settings']['vcard_hide']==='true')){
+                            add_post_meta($attachment_id, 'super-forms-is-hidden', true);
+                        }
                         $attach_data = wp_generate_attachment_metadata( $attachment_id, $filename );
                         wp_update_attachment_metadata( $attachment_id,  $attach_data );
                         $value['url'] = wp_get_attachment_url( $attachment_id );
@@ -159,6 +162,26 @@ if( !class_exists('SUPER_VCF_Attachment') ) :
                         'label'=> sprintf( esc_html__( '%sClick here for a full list of vCard properties%s', 'super-forms' ), '<a href="https://en.wikipedia.org/wiki/VCard#Properties">', '</a>' ),
                         'default'=> "VERSION:4.0\nFN:{first_name} {last_name}\nGENDER:{gender}\nEMAIL;TYPE=work:{email}\nTEL;TYPE=cell:{phonenumber}",
                         'type'=>'textarea', 
+                        'filter'=>true,
+                        'parent'=>'vcard_enable',
+                        'filter_value'=>'admin,confirm,entry'
+                    ),
+                    'vcard_hide' => array(
+                        'default' => 'true',
+                        'type' => 'checkbox',
+                        'values' => array(
+                            'true' => esc_html__( 'Hide vCard from Media Library', 'super-forms' )
+                        ),
+                        'filter'=>true,
+                        'parent'=>'vcard_enable',
+                        'filter_value'=>'admin,confirm,entry'
+                    ),
+                    'vcard_delete' => array(
+                        'default' => 'false',
+                        'type' => 'checkbox',
+                        'values' => array(
+                            'true' => esc_html__( 'Delete vCard from server after the form was submitted', 'super-forms' )
+                        ),
                         'filter'=>true,
                         'parent'=>'vcard_enable',
                         'filter_value'=>'admin,confirm,entry'

@@ -501,29 +501,30 @@ function SUPERreCaptcha(){
         if(args.generatePdf){
             SUPER.pdf_generator_init(args, function(args){
                 // When debugging is enabled download file instantly without submitting the form
-                if(args.pdfSettings.debug==="true"){
-                    var innerText = args.loadingOverlay.querySelector('.super-inner-text');
-                    // Direct download of PDF
-                    args._pdf.save(args.pdfSettings.filename, {returnPromise: true}).then(function() {
-                        // Close loading overlay
-                        if(args.progressBar) args.progressBar.style.width = (100)+"%";  
-                        if(innerText) innerText.innerHTML = '<span>'+super_common_i18n.loadingOverlay.completed+'</span>';
-                        args.loadingOverlay.classList.add('super-success');
-                        if(args.pdfSettings.downloadBtn==='true'){
-                            args.loadingOverlay.classList.add('super-success');
-                            SUPER.show_pdf_download_btn(args);
-                        }
-                        // Close Popup (if any)
-                        if(typeof SUPER.init_popups === 'function' && typeof SUPER.init_popups.close === 'function' ){
-                            SUPER.init_popups.close(true);
-                        }
-                    }, function() {
-                        // Show error message
-                        if(innerText) innerText.innerHTML = '<span>Something went wrong while downloading the PDF</span>';
-                        args.loadingOverlay.classList.add('super-error');
-                    });
+                if(args.pdfSettings.debug!=="true"){
+                    SUPER.save_data(args); 
+                    return true;
                 }
-                SUPER.save_data(args); 
+                var innerText = args.loadingOverlay.querySelector('.super-inner-text');
+                // Direct download of PDF
+                args._pdf.save(args.pdfSettings.filename, {returnPromise: true}).then(function() {
+                    // Close loading overlay
+                    if(args.progressBar) args.progressBar.style.width = (100)+"%";  
+                    if(innerText) innerText.innerHTML = '<span>'+super_common_i18n.loadingOverlay.completed+'</span>';
+                    args.loadingOverlay.classList.add('super-success');
+                    if(args.pdfSettings.downloadBtn==='true'){
+                        args.loadingOverlay.classList.add('super-success');
+                        SUPER.show_pdf_download_btn(args);
+                    }
+                    // Close Popup (if any)
+                    if(typeof SUPER.init_popups === 'function' && typeof SUPER.init_popups.close === 'function' ){
+                        SUPER.init_popups.close(true);
+                    }
+                }, function() {
+                    // Show error message
+                    if(innerText) innerText.innerHTML = '<span>Something went wrong while downloading the PDF</span>';
+                    args.loadingOverlay.classList.add('super-error');
+                });
             });
         }else{
             SUPER.save_data(args);
@@ -1289,7 +1290,6 @@ function SUPERreCaptcha(){
                                     $field.closest('.super-shortcode').classList.add('super-filled');
                                 }
                                 SUPER.after_field_change_blur_hook({el: $field});
-                                SUPER.init_replace_html_tags({el: $field, form: form}); //undefined, form);
                             }else{
                                 if($result.status=='ZERO_RESULTS'){
                                     $alert_msg = super_common_i18n.errors.distance_calculator.zero_results;
@@ -1366,7 +1366,6 @@ function SUPERreCaptcha(){
                                     $field.closest('.super-shortcode').classList.add('super-filled');
                                 }
                                 SUPER.after_field_change_blur_hook({el: $field});
-                                SUPER.init_replace_html_tags({el: $field, form: form}); //undefined, form);
                             }else{
                                 if($result.status=='ZERO_RESULTS'){
                                     $alert_msg = super_common_i18n.errors.distance_calculator.zero_results;
@@ -4368,6 +4367,9 @@ function SUPERreCaptcha(){
                 }
             }
         }
+        if(typeof args.skipHtmlUpdate==='undefined' || args.skipHtmlUpdate===false){
+            SUPER.update_html_elements(args);
+        }
         SUPER.save_form_progress(args);
     };
 
@@ -4381,23 +4383,31 @@ function SUPERreCaptcha(){
         });
     };
 
+    SUPER.update_html_elements_timeout = {};
+    SUPER.update_html_elements = function(args){
+		if (SUPER.update_html_elements_timeout[args.form.dataset.sfuid] !== null) {
+			clearTimeout(SUPER.update_html_elements_timeout[args.form.dataset.sfuid]);
+		}
+        SUPER.update_html_elements_timeout[args.form.dataset.sfuid] = setTimeout(function () {
+            SUPER.init_replace_html_tags({el: undefined, form: args.form, skipHtmlUpdate: true});
+        }, 10);
+    };
+
     // @since 3.2.0 - save form progress
-    SUPER.save_form_progress_timeout = null; 
+    SUPER.save_form_progress_timeout = {};
     SUPER.save_form_progress = function(args){
-        if( !args.form.classList.contains('super-save-progress') ) {
-            return false;
+        if(args.form.classList.contains('super-save-progress')){
+            if (SUPER.save_form_progress_timeout[args.form.dataset.sfuid] !== null) {
+                clearTimeout(SUPER.save_form_progress_timeout[args.form.dataset.sfuid]);
+            }
+            SUPER.save_form_progress_timeout[args.form.dataset.sfuid] = setTimeout(function () {
+                SUPER.prepare_form_data($(args.form), function(formData){
+                    var $form_id = formData.form_id;
+                    formData = SUPER.after_form_data_collected_hook(formData.data, args.form0);
+                    SUPER.save_form_progress_request(formData, $form_id);
+                }, false); // define false, to skip saving nonce (not required when saving progress)
+            }, 1000); // 1 second timeout, to make sure that we do not make unnecessary requests to the server
         }
-        if(SUPER.save_form_progress_timeout !== null){
-            clearTimeout(SUPER.save_form_progress_timeout);
-        }
-        SUPER.save_form_progress_timeout = setTimeout(function () {
-            SUPER.prepare_form_data($(args.form), function(formData){
-                var $form_id = formData.form_id;
-                formData = SUPER.after_form_data_collected_hook(formData.data, args.form0);
-                SUPER.save_form_progress_request(formData, $form_id);
-            }, false); // define false, to skip saving nonce (not required when saving progress)
-        }, 1000); 
-        // 1 second timeout, to make sure that we do not make unnecessary requests to the server
     };
 
     SUPER.save_form_progress_request = function($data, $form_id){
@@ -6218,7 +6228,11 @@ function SUPERreCaptcha(){
                     var textArea = target.querySelector(':scope > textarea.super-hidden');
                     if(textArea) textArea.value = html;
                 }else{
-                    target.innerHTML = html;
+                    if(target.tagName==='A'){
+                        target.href = html;
+                    }else{
+                        target.innerHTML = html;
+                    }
                 }
             }
             // If field label or description we must skip because we don't want to override the field value
@@ -6231,7 +6245,9 @@ function SUPERreCaptcha(){
                 var field = parent.querySelector('.super-shortcode-field');
                 if(field) {
                     field.value = html;
-                    SUPER.after_field_change_blur_hook({el: field, form: args.form0});
+                    if(typeof args.skipHtmlUpdate==='undefined'){
+                        SUPER.after_field_change_blur_hook({el: field, form: args.form, skipHtmlUpdate: true});
+                    }
                 }
 
 
@@ -6909,8 +6925,8 @@ function SUPERreCaptcha(){
         if(!data) return;
         if(typeof clear === 'undefined') clear = true;
         var i,ii,iii,nodes,items,item,options,wrapper,input,innerNodes,firstValue,dropdown,setFieldValue,itemFirstValue,
-            html,files,element,field,stars,currentStar,
-            switchBtn,activeItem,signatureDataUrl,fieldName,
+            raw_value,html,files,element,field,stars,currentStar,
+            switchBtn,activeItem,fieldName,
             updatedFields = {};        
 
         data = JSON.parse(data);
@@ -6977,13 +6993,13 @@ function SUPERreCaptcha(){
                 // If no element was found, go to next field
                 if(!element) return true;
                 // Add to list of updated fields, required to trigger hook `after_field_change_blur_hook`
-                if(element.value!=data[i].value) {
+                raw_value = (data[i].raw_value ? data[i].raw_value : data[i].value);
+                if(element.value!=raw_value) {
                     updatedFields[fieldName] = element;
                 }
-
                 field = element.closest('.super-field');
                 // Update field value by default
-                element.value = data[i].value;
+                element.value = raw_value;
                 
                 // If field is filled out add the class otherwise remove the class
                 if(element.value===''){
@@ -6995,14 +7011,14 @@ function SUPERreCaptcha(){
                 // Internation phonenumber
                 if(field.classList.contains('super-int-phone-field')){
                     var intPhone = window.superTelInputGlobals.getInstance(element);
-                    intPhone.setNumber(data[i].value);
+                    intPhone.setNumber(raw_value);
                     return true;
                 }
 
                 // Color picker
                 if(field.classList.contains('super-color')){
                     if(typeof $.fn.spectrum === "function") {
-                        $(field.querySelector('.super-shortcode-field')).spectrum('set', data[i].value);
+                        $(field.querySelector('.super-shortcode-field')).spectrum('set', raw_value);
                     }
                     return true;
                 }
@@ -7021,9 +7037,9 @@ function SUPERreCaptcha(){
                         if(typeof SUPER.signatures[formUid] === 'undefined') SUPER.signatures[formUid] = {};
                         if(typeof SUPER.signatures[formUid][fieldName] === 'undefined') SUPER.signatures[formUid][fieldName] = {};
                         var signaturePad = SUPER.signatures[formUid][fieldName]
-                        signaturePad.fromDataURL(data[i].value, { ratio: 1, width: width, height: height, xOffset: 0, yOffset: 0 });
+                        signaturePad.fromDataURL(raw_value, { ratio: 1, width: width, height: height, xOffset: 0, yOffset: 0 });
                         // Remove clear button
-                        if(data[i].value!==''){
+                        if(raw_value!==''){
                             field.querySelector('.super-shortcode-field').dataset.disallowEdit = 'true';
                             if(canvasWrapper.parentNode.querySelector('.super-signature-clear')){
                                 canvasWrapper.parentNode.querySelector('.super-signature-clear').remove();
@@ -7039,7 +7055,7 @@ function SUPERreCaptcha(){
                 // Toggle field
                 if(field.classList.contains('super-toggle')){
                     switchBtn = field.querySelector('.super-toggle-switch');
-                    activeItem = switchBtn.querySelector('label[data-value="'+data[i].value+'"]');
+                    activeItem = switchBtn.querySelector('label[data-value="'+raw_value+'"]');
                     if(activeItem.classList.contains('super-toggle-on')){
                         switchBtn.classList.add('super-active');
                     }else{
@@ -7074,13 +7090,13 @@ function SUPERreCaptcha(){
                 }
                 // Slider field
                 if(field.classList.contains('super-slider')){
-                    SUPER.reposition_slider_amount_label(field, data[i].value);
+                    SUPER.reposition_slider_amount_label(field, raw_value);
                     return true;
                 }
                 // Keyword tags
                 if(field.classList.contains('super-keyword-tags')){
-                    if(data[i].value!==''){
-                        options = data[i].value.split(',');
+                    if(raw_value!==''){
+                        options = raw_value.split(',');
                         html = field.querySelector('.super-autosuggest-tags').innerHTML;
                         items = '';
                         for(ii=0; ii<options.length; ii++){
@@ -7093,8 +7109,8 @@ function SUPERreCaptcha(){
                 // Autosuggest field
                 if(field.classList.contains('super-auto-suggest')){
                     dropdown = field.querySelector('.super-dropdown-list');
-                    if(data[i].value!==''){
-                        firstValue = data[i].value.split(';')[0];
+                    if(raw_value!==''){
+                        firstValue = raw_value; //.split(';')[0];
                         setFieldValue = '';
                         nodes = dropdown.querySelectorAll('.super-item.super-active');
                         for ( ii = 0; ii < nodes.length; ii++){
@@ -7102,7 +7118,7 @@ function SUPERreCaptcha(){
                         }
                         nodes = dropdown.querySelectorAll('.super-item[data-value^="'+firstValue+'"]');
                         for ( ii = 0; ii < nodes.length; ii++){
-                            itemFirstValue = nodes[ii].dataset.value.split(';')[0];
+                            itemFirstValue = nodes[ii].dataset.value; //.split(';')[0];
                             if(itemFirstValue==firstValue){
                                 field.querySelector('.super-field-wrapper').classList.add('super-overlap');
                                 nodes[ii].classList.add('super-active');
@@ -7124,8 +7140,8 @@ function SUPERreCaptcha(){
                 }
                 // Dropdown field
                 if(field.classList.contains('super-dropdown')){
-                    if(data[i].value!==''){
-                        options = data[i].value.split(',');
+                    if(raw_value!==''){
+                        options = raw_value.split(',');
                         dropdown = field.querySelector('.super-dropdown-list');
                         setFieldValue = '';
                         nodes = dropdown.querySelectorAll('.super-item.super-active');
@@ -7135,7 +7151,7 @@ function SUPERreCaptcha(){
                         for ( ii = 0; ii < options.length; ii++){
                             innerNodes = dropdown.querySelectorAll('.super-item:not(.super-placeholder)[data-value^="'+options[ii]+'"]');
                             for ( iii = 0; iii < innerNodes.length; iii++){
-                                itemFirstValue = innerNodes[iii].dataset.value.split(';')[0];
+                                itemFirstValue = innerNodes[iii].dataset.value; //.split(';')[0];
                                 innerNodes[iii].classList.add('super-active');
                                 if(setFieldValue===''){
                                     setFieldValue += itemFirstValue;
@@ -7169,13 +7185,13 @@ function SUPERreCaptcha(){
                     }
                     for( ii = 0; ii < items.length; ii++){
                         input = items[ii].querySelector('input');
-                        if(data[i].value!=='' && input.value == data[i].value){
+                        if(raw_value!=='' && input.value == raw_value){
                             input.checked = true;
                             items[ii].classList.add('super-active');
                             break; // Radio button can only have 1 active item
                         }
                     }
-                    if(data[i].value===''){
+                    if(raw_value===''){
                         // Radio button can only have 1 active item
                         item = wrapper.querySelector('.super-item.super-default-selected');
                         if(item){
@@ -7193,16 +7209,15 @@ function SUPERreCaptcha(){
                         input = items[ii].querySelector('input');
                         items[ii].classList.remove('super-active');
                         input.checked = false;
-
-                        if(data[i].value!==''){
-                            options = data[i].value.split(',');
+                        if(raw_value!==''){
+                            options = raw_value.split(',');
                             if(options.indexOf(input.value)!==-1){
                                 input.checked = true;
                                 items[ii].classList.add('super-active');
                             }
                         }
                     }
-                    if(data[i].value===''){
+                    if(raw_value===''){
                         items = wrapper.querySelectorAll('.super-item.super-default-selected');
                         for( ii = 0; ii < items.length; ii++){
                             items[ii].classList.add('super-active');  
@@ -7214,7 +7229,7 @@ function SUPERreCaptcha(){
                 // Rating field
                 if(field.classList.contains('super-rating')){
                     stars = field.querySelectorAll('.super-rating-star');
-                    currentStar = parseInt(data[i].value) || 0;
+                    currentStar = parseInt(raw_value) || 0;
                     for( ii = 0; ii < stars.length; ii++){
                         if(ii+1 <= currentStar){
                             stars[ii].classList.add('super-active');
@@ -7227,7 +7242,7 @@ function SUPERreCaptcha(){
 
                 if(field.classList.contains('super-date')){
                     // Reset all values?
-                    element.value = data[i].value;
+                    element.value = raw_value;
                     element.classList.remove('super-picker-initialized');
                     element.classList.remove('hasDatepicker');
                     element.id = '';
@@ -8284,7 +8299,23 @@ function SUPERreCaptcha(){
             }
         }
     };
+
+    SUPER.pdf_get_font_data_from_url = function(url){
+        return fetch(url).then((response) => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response.json();
+        }).then((fontData) => {
+            return fontData;
+        }).catch((error) => {
+            console.error("Error: Could not fetch the font data from the URL.", error);
+            return null;
+        });
+    };
+
     SUPER.pdf_generator_init = function(args, callback){
+        debugger;
         args._save_data_callback = callback;
 
         // Page margins and print area
@@ -8361,12 +8392,8 @@ function SUPERreCaptcha(){
                                             // tabloid
                                             // credit-card
 
-        if(super_common_i18n.fonts){
-            args._pdf.addFileToVFS('NotoSans-Regular-normal.ttf', super_common_i18n.fonts.NotoSans.regular);
-            args._pdf.addFont('NotoSans-Regular-normal.ttf', 'NotoSans-Regular', 'normal');
-            args._pdf.addFileToVFS('NotoSans-Bold-bold.ttf', super_common_i18n.fonts.NotoSans.bold);
-            args._pdf.addFont('NotoSans-Bold-bold.ttf', 'NotoSans-Bold', 'bold');
-        }
+
+
 
         // PDF width: 595.28 pt
         // PDF height: 841.89 pt
@@ -8413,6 +8440,38 @@ function SUPERreCaptcha(){
         // Make form scrollable based on a4 height
         args.scrollAmount = 0;
         args.pdfSettings.filename = SUPER.update_variable_fields.replace_tags({form: args.form0, value: args.pdfSettings.filename});
+
+        if(super_common_i18n.fonts){
+            // Replace 'your_url_here' with the actual URL to the JSON file.
+            const fontURL = super_common_i18n.fonts.link+'.json';
+            SUPER.pdf_get_font_data_from_url(fontURL).then((fontData) => {
+                if(fontData){
+                    debugger;
+                    args._pdf.addFileToVFS('NotoSans-Regular-normal.ttf', fontData.regular);
+                    args._pdf.addFont('NotoSans-Regular-normal.ttf', 'NotoSans-Regular', 'normal');
+                    if(!fontData.bold) {
+                        args._pdf.addFileToVFS('NotoSans-Bold-bold.ttf',fontData.regular);
+                    }else{
+                        args._pdf.addFileToVFS('NotoSans-Bold-bold.ttf',fontData.bold);
+                    }
+                    args._pdf.addFont('NotoSans-Bold-bold.ttf', 'NotoSans-Bold', 'bold');
+
+                    SUPER.pdf_generator_prepare(args, function(args){
+                        // First add pdf-text 
+                        SUPER.pdfWrapTextNodes(args.pdfPageContainer);
+                        SUPER.pdfWrapTextNodesRender(args.pdfPageContainer);
+                        // First scroll over all pages, and determine total pages we have
+                        SUPER.pdf_determine_pages(args, function(args){
+                            // Start generating pages (starting at page 1)
+                            args.currentPage = 1;
+                            SUPER.pdf_generator_generate_page(args);
+                        });
+                    });
+
+                }
+            });
+            return false;
+        }
 
         // Blur/unfocus any focussed field
         // bug in google chrome on mobile devices
@@ -9072,7 +9131,7 @@ function SUPERreCaptcha(){
     }
 
     SUPER.pdf_generator_prepare = function(args, callback){
-        args.debugger = false;
+        args.debugger = true;
         var form = args.form0;
 
         // Define PDF tags
@@ -9113,17 +9172,25 @@ function SUPERreCaptcha(){
             css += 'display: none !important;';
             css += 'opacity: 0 !important;';
         css += '}';
-
+        // Heading title and description should not have display:flex;
+        css += '.super-pdf-page-container .super-heading-title, .super-pdf-page-container .super-heading-description {display:block!important;}';
         // Required to render pseudo elements (html2canvas code was altered for this)
         css += '.super-pdf-page-container.super-pdf-clone .super-form *:before,';
         css += '.super-pdf-page-container.super-pdf-clone .super-form *:after {display:none!important;}';
         // Set font weight, line height and letter spacing to normal sizes to avoid inconsistencies between PDF and rendered text in PDF
         if(!args.pdfSettings.imageQuality) args.pdfSettings.imageQuality = 'FAST'; //'FAST' // compression 'NONE', 'FAST', 'MEDIUM' or 'SLOW'
+        debugger;
+        if(args.pdfSettings.native==='true'){
+            debugger;
+            //css += newNormalizeFontStylesNodesClasses + '{font-family:"Helvetica",  "Arial", sans-serif!important;line-height:1.2!important;letter-spacing:0!important;}';
+            //css += "@font-face {font-family:'SF-Unicode';src:url('"+(super_common_i18n.fonts.link)+".woff') format('woff');}";
+            //css += "@font-face {font-family:'SF-Unicode';src:url('"+(super_common_i18n.fonts.link)+".woff2') format('woff2');}";
+            css += newNormalizeFontStylesNodesClasses + '{font-family:"SF-Unicode", "Arial", sans-serif!important;line-height:1.2!important;letter-spacing:0!important;}';
+        }
         if(!args.pdfSettings.normalizeFonts) args.pdfSettings.normalizeFonts = 'true';
         if(args.pdfSettings.normalizeFonts==='true'){
-            if(args.pdfSettings.native==='true'){
-                css += newNormalizeFontStylesNodesClasses + '{font-family:"Helvetica", "Arial", sans-serif!important;line-height:1.2!important;letter-spacing:0!important;}';
-            }else{
+            debugger;
+            if(args.pdfSettings.native!=='true'){
                 css += newNormalizeFontStylesNodesClasses + '{font-family:"Helvetica", "Arial", sans-serif!important;font-weight:normal!important;line-height:1.2!important;letter-spacing:0!important;}';
             }
             css += newNormalizeFontStylesNodesClasses + '{max-height:5000em!important;text-size-adjust:none!important;-webkit-text-size-adjust:none!important;-moz-text-size-adjust:none!important;-ms-text-size-adjust:none!important;}';
@@ -9745,7 +9812,11 @@ function SUPERreCaptcha(){
                     if(super_common_i18n.fonts){
                         args._pdf.addFileToVFS('NotoSans-Regular-normal.ttf', super_common_i18n.fonts.NotoSans.regular);
                         args._pdf.addFont('NotoSans-Regular-normal.ttf', 'NotoSans-Regular', 'normal');
-                        args._pdf.addFileToVFS('NotoSans-Bold-bold.ttf', super_common_i18n.fonts.NotoSans.bold);
+                        if(!super_common_i18n.fonts.NotoSans.bold) {
+                            args._pdf.addFileToVFS('NotoSans-Bold-bold.ttf', super_common_i18n.fonts.NotoSans.regular);
+                        }else{
+                            args._pdf.addFileToVFS('NotoSans-Bold-bold.ttf', super_common_i18n.fonts.NotoSans.bold);
+                        }
                         args._pdf.addFont('NotoSans-Bold-bold.ttf', 'NotoSans-Bold', 'bold');
                     }
                 }
@@ -9923,6 +9994,8 @@ function SUPERreCaptcha(){
                 }
                 if(words.length>(x+1)) {
                     //debugger;
+                    //html += '<span class="super-pdf-text-node super-pdf-space-node" style="padding: 0px 2px 0px 0px;"> </span>';
+                    //html += '<span class="super-pdf-text-node super-pdf-space-node" style="min-width: 4px; display: inline-block;"> </span>';
                     html += ' ';
                 }
                 html += '</span>';
@@ -10071,6 +10144,12 @@ function SUPERreCaptcha(){
         value = el.innerText;
         if(value==='') return true; //continue;
         pos = el.getBoundingClientRect();
+        if(el.classList.contains('super-pdf-space-node')){
+            debugger;
+            console.log(pos.width);
+            //html += '<span class="super-pdf-text-node super-pdf-space-node" style="padding: 0px 2px 0px 0px;"> </span>';
+        }
+
         if(pos.height===0) return true;
         if(super_common_i18n.fonts){
             args._pdf.setFont('NotoSans-Regular', 'normal', 'normal');
@@ -10108,8 +10187,15 @@ function SUPERreCaptcha(){
         }
         var posTop = ((tmpPosTop)/args.scale)*args.convertFromPixel;
         var fontSize = parseFloat(getComputedStyle(el.parentNode).fontSize);
-        var fontSizePoint = fontSize * 0.67;
-        value = args._pdf.setFontSize(fontSizePoint).splitTextToSize(value, posWidth+1);
+        //var fontSizePoint = fontSize * 0.67;
+        var fontSizePoint = fontSize * 0.66; // base value
+        var textAlign = 'left';
+        if(args.pdfSettings.fontSizeTuning){
+            args.pdfSettings.fontSizeTuning = parseFloat(args.pdfSettings.fontSizeTuning);
+            fontSizePoint = fontSizePoint*args.pdfSettings.fontSizeTuning;
+        }
+        args._pdf.setFontSize(fontSizePoint);
+        //value = args._pdf.setFontSize(fontSizePoint).splitTextToSize(value, posWidth+1);
         var charSpace = -(fontSize*args.charSpaceMultiplier)*args.convertFromPixel;
         var topLineHeight = (((fontSize*1.32)-fontSize)/args.topLineHeightDivider)*args.convertFromPixel;
         var tagName = el.parentNode.tagName;
@@ -10134,7 +10220,10 @@ function SUPERreCaptcha(){
         color = getComputedStyle(el.parentNode).color;
         SUPER.pdf_rgba2hex(args, color, ['textColor']);
         posWidth = ((pos.width+1)/args.scale)*args.convertFromPixel;
-        args._pdf.text(value, posLeft, posTop+(topLineHeight*1), {align: 'left', charSpace: charSpace, lineHeightFactor: args.lineHeight, baseline: 'hanging', renderingMode: args.renderingMode}); 
+        if(textAlign==='right'){
+            posLeft = posLeft+posWidth;
+        }
+        args._pdf.text(value, posLeft, posTop+(topLineHeight*1), {isInputVisual: false, isOutputVisual: true, isInputRtl: false, isOutputRtl: false, align: textAlign, charSpace: charSpace, lineHeightFactor: args.lineHeight, baseline: 'hanging', renderingMode: args.renderingMode}); 
         return true;
     };
 

@@ -417,363 +417,2171 @@ class SUPER_Pages {
         return $trigger;
     }
     public static function triggers_tab($atts) {
-        $triggers = SUPER_Common::get_form_triggers($atts['form_id']);
-        if(count($triggers)===0) {
-            $triggers[] = self::get_default_trigger_settings(array());
-        }
-        echo '<div class="sfui-notice sfui-desc">';
-            echo '<strong>'.esc_html__('Note', 'super-forms').':</strong> ' . esc_html__('With triggers you can execute specific actions based on an event that occurs during the form submission.', 'super-forms');
-        echo '</div>';
-        // Enable listings
-        echo '<div class="sfui-setting">';
-            //echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-            //    echo '<input type="checkbox" name="enabled" value="true"' . ($enabled==='true' ? ' checked="checked"' : '') . ' />';
-            //    echo '<span class="sfui-title">' . esc_html__( 'Enable triggers for this form', 'super-forms' ) . '</span>';
-            //echo '</label>';
-            //echo '<div class="sfui-sub-settings">';
-                // When enabled, we display the list with listings
-                echo '<div class="sfui-repeater" data-k="triggers">';
-                // Repeater Item
-                $events = array(
-                    array(
-                        'label' => 'Form Events',
-                        'items' => array(
-                            'sf.before.submission' => 'sf.before.submission',
-                            'sf.after.submission' => 'sf.after.submission',
-                            'sf.submission.validation' => 'sf.submission.validation'
+        //$slug = 'triggers';
+        //SUPER_WooCommerce2()->add_on_slug;
+        // $s = self::get_default_woocommerce_settings($atts);
+        $form_id = $atts['form_id'];
+        $version = $atts['version'];
+        $settings = $atts['settings'];
+        $s = $atts['settings'];
+
+        // Get trigger settings
+        $triggers = SUPER_Common::get_form_triggers($form_id);
+        //if(count($triggers)===0) {
+        //    $triggers[] = self::get_default_trigger_settings(array());
+        //}
+
+        if(version_compare($version, '6.3.728', '<')){
+            // Merge old settings with new ones
+            echo 'Current form version ('.$version.') is lower than 6.3.728 so we must merge old settings with new settings';
+            //var_dump($triggers);
+
+            // Add trigger for E-mail reminders
+            // Loop until we can't find reminder
+            if(empty($s['email_reminder_amount'])) $s['email_reminder_amount'] = 3;
+            $limit = absint($s['email_reminder_amount']);
+            if($limit==0) $limit = 3;
+            $x = 1;
+            while( $x <= $limit ) {
+                if( (!empty($s['email_reminder_' . $x])) && ($s['email_reminder_' . $x]=='true') ) {
+                    $t = array();
+                    if(!empty($s['email_reminder_'.$x.'_time_method']) && $s['email_reminder_'.$x.'_time_method']==='fixed'){
+                        $s['email_reminder_'.$x.'_time_method'] = 'time';
+                    }
+                    // Grab the body, and extract the `loop open`, `loop` and `loop close` parts
+                    $body = (!empty($s['email_reminder_'.$x.'_body']) ? $s['email_reminder_'.$x.'_body'] : '');
+                    $re = '/(<[^>.]*\s?table[^<]*\s?>)(.*\s?{loop_fields}.*\s*?)(<.*\s*?\/table[.^<]*\s*?>)/';
+                    preg_match($re, $body, $m);
+                    $loop_open = (isset($m[1]) ? $m[1] : '<table cellpadding="5">');
+                    $loop = (!empty($s['email_reminder_'.$x.'_email_loop']) ? $s['email_reminder_'.$x.'_email_loop'] : '<tr><th valign="top" align="right">{loop_label}</th><td>{loop_value}7</td></tr>');
+                    $loop_close = (isset($m[3]) ? $m[3] : '</table>');
+                    error_log($body);
+                    $body = str_replace($m[0], '{loop_fields}', $body);
+                    // Only if line breaks was enabled:
+                    if(!empty($s['email_reminder_'.$x.'_body_nl2br']) && $s['email_reminder_'.$x.'_body_nl2br']==='true'){
+                        $body = nl2br($body);
+                    }
+                    //error_log($body);
+                    $t['enabled'] = 'true';
+                    $t['event'] = 'sf.after.submission';
+                    $t['name'] = 'E-mail reminder #'.$x;
+                    $t['listen_to'] = '';
+                    $t['ids'] = '';
+                    $t['order'] = $x;
+                    $t['actions'] = array(
+                        array(
+                            'action' => 'send_email',
+                            'order' => '1',
+                            'conditions' => array(
+                                'enabled' => 'false',
+                                'f1' => '',
+                                'logic' => '==',
+                                'f2' => '',
+                            ),
+                            'email' => array(
+                                'to' => (!empty($s['email_reminder_'.$x.'_to']) ? $s['email_reminder_'.$x.'_to'] : ''),
+                                'from_email' => (!empty($s['email_reminder_'.$x.'_from_type']) && ($s['email_reminder_'.$x.'_from_type']==='default') ? '{option_admin_email}' : $s['email_reminder_'.$x.'_from']),
+                                'from_name' => (!empty($s['email_reminder_'.$x.'_from_type']) && ($s['email_reminder_'.$x.'_from_type']==='default') ? '{option_blogname}' : $s['email_reminder_'.$x.'_from_name']),
+                                'reply_to' => array( 
+                                    'enabled' => (!empty($s['email_reminder_'.$x.'_header_reply_enabled']) && ($s['email_reminder_'.$x.'_header_reply_enabled']==='true') ? 'true' : 'false'),
+                                    'email' => (!empty($s['email_reminder_'.$x.'_header_reply']) ? $s['email_reminder_'.$x.'_header_reply'] : ''),
+                                    'name' => (!empty($s['email_reminder_'.$x.'_header_reply_name']) ? $s['email_reminder_'.$x.'_header_reply_name'] : '')
+                                ),
+                                'subject' => (!empty($s['email_reminder_'.$x.'_subject']) ? $s['email_reminder_'.$x.'_subject'] : ''),
+                                'body' => $body, 
+                                // 'line_breaks' => 'false', // no longer used since tinymce editor
+
+                                'loop_open' => $loop_open,
+                                'loop' => $loop,
+                                'loop_close' => $loop_close,
+
+                                'exclude_empty' => (!empty($s['email_reminder_'.$x.'_exclude_empty']) && ($s['email_reminder_'.$x.'_exclude_empty']==='true') ? 'true' : 'false'),
+
+                                'rtl' => (!empty($s['email_reminder_'.$x.'_rtl']) && ($s['email_reminder_'.$x.'_rtl']==='true') ? 'true' : 'false'),
+                                'cc' => (!empty($s['email_reminder_'.$x.'_header_cc']) ? $s['email_reminder_'.$x.'_header_cc'] : ''),
+                                'bcc' => (!empty($s['email_reminder_'.$x.'_header_bcc']) ? $s['email_reminder_'.$x.'_header_bcc'] : ''),
+                                'attachments' => (!empty($s['email_reminder_'.$x.'_attachments']) ? $s['email_reminder_'.$x.'_attachments'] : ''),
+                                'content_type' => 'html',
+                                'charset' => 'UTF-8',
+                                'schedule' => array(
+                                    'enabled' => 'true',
+                                    'dates' => array(
+                                        array(
+                                            'date' => (!empty($s['email_reminder_'.$x.'_base_date']) ? $s['email_reminder_'.$x.'_base_date'] : ''),
+                                            'days' => (!empty($s['email_reminder_'.$x.'_date_offset']) ? $s['email_reminder_'.$x.'_date_offset'] : '0'),
+                                            'method' => (!empty($s['email_reminder_'.$x.'_time_method']) ? (($s['email_reminder_'.$x.'_time_method']=='offset' && (isset($s['email_reminder_'.$x.'_time_offset']) && $s['email_reminder_'.$x.'_time_offset']==='0')) ? 'instant' : $s['email_reminder_'.$x.'_time_method']) : 'time'),
+                                            'time' => (!empty($s['email_reminder_'.$x.'_time_fixed']) ? $s['email_reminder_'.$x.'_time_fixed'] : '09:00'),
+                                            'offset' => (!empty($s['email_reminder_'.$x.'_time_offset']) ? $s['email_reminder_'.$x.'_time_offset'] : '0')
+                                        )
+                                    )
+                                ),
+                                //"email_reminder_'.$x.'_header_additional": "header-reminder:-header-reminder-value",
+                                //"email_reminder_2_header_additional": "-r2:value--r2",
+                                // woocommerce_completed_header_additional
+                            )
                         )
-                    ),
+                    );
+                    $triggers[] = $t;
+                }
+                $x++;
+            }
+
+            // Add trigger for WooCommerce email after order completed
+            if(!empty($s['woocommerce_checkout']) && $s['woocommerce_checkout']==='true' && !empty($s['woocommerce_completed_email']) && $s['woocommerce_completed_email']==='true'){
+                $t = array();
+                // Grab the body, and extract the `loop open`, `loop` and `loop close` parts
+                $body = (!empty($s['woocommerce_completed_body']) ? $s['woocommerce_completed_body'] : '');
+                $re = '/(<[^>.]*\s?table[^<]*\s?>)(.*\s?{loop_fields}.*\s*?)(<.*\s*?\/table[.^<]*\s*?>)/';
+                preg_match($re, $body, $m);
+                $loop_open = (isset($m[1]) ? $m[1] : '<table cellpadding="5">');
+                $loop = (!empty($s['woocommerce_completed_email_loop']) ? $s['woocommerce_completed_email_loop'] : '<tr><th valign="top" align="right">{loop_label}</th><td>{loop_value}7</td></tr>');
+                $loop_close = (isset($m[3]) ? $m[3] : '</table>');
+                error_log($body);
+                $body = str_replace($m[0], '{loop_fields}', $body);
+                // Only if line breaks was enabled:
+                if(!empty($s['woocommerce_completed_body_nl2br']) && $s['woocommerce_completed_body_nl2br']==='true'){
+                    $body = nl2br($body);
+                }
+                error_log($body);
+                $t['enabled'] = 'true';
+                $t['event'] = 'wc.order.status.completed';
+                $t['name'] = 'Payment completed E-mail';
+                $t['listen_to'] = '';
+                $t['ids'] = '';
+                $t['order'] = '1';
+                $t['actions'] = array(
                     array(
-                        'label' => 'Stripe',
-                        'items' => array(
-                            'stripe.checkout.session.completed' => 'stripe.checkout.session.completed',
-                            'stripe.checkout.session.async_payment_failed' => 'stripe.checkout.session.async_payment_failed',
-                            'stripe.fulfill_order' => 'stripe.fulfill_order'
+                        'action' => 'send_email',
+                        'order' => '1',
+                        'conditions' => array(
+                            'enabled' => 'true',
+                            'f1' => '1',
+                            'logic' => '!=',
+                            'f2' => '2',
+                        ),
+                        'email' => array(
+                            'to' => (!empty($s['woocommerce_completed_to']) ? $s['woocommerce_completed_to'] : ''),
+                            'from_email' => (!empty($s['woocommerce_completed_from_type']) && ($s['woocommerce_completed_from_type']==='default') ? '{option_admin_email}' : $s['woocommerce_completed_from']),
+                            'from_name' => (!empty($s['woocommerce_completed_from_type']) && ($s['woocommerce_completed_from_type']==='default') ? '{option_blogname}' : $s['woocommerce_completed_from_name']),
+                            'reply_to' => array( 
+                                'enabled' => (!empty($s['woocommerce_completed_header_reply_enabled']) && ($s['woocommerce_completed_header_reply_enabled']==='true') ? 'true' : 'false'),
+                                'email' => (!empty($s['woocommerce_completed_header_reply']) ? $s['woocommerce_completed_header_reply'] : ''),
+                                'name' => (!empty($s['woocommerce_completed_header_reply_name']) ? $s['woocommerce_completed_header_reply_name'] : '')
+                            ),
+                            'subject' => (!empty($s['woocommerce_completed_subject']) ? $s['woocommerce_completed_subject'] : ''),
+                            'body' => $body, 
+                            // 'line_breaks' => 'false', // no longer used since tinymce editor
+
+                            'loop_open' => $loop_open, // (!empty($s['woocommerce_completed_email_loop']) ? $s['woocommerce_completed_email_loop'] : '<table cellpadding="5">'),
+                            'loop' => $loop, //(!empty($s['woocommerce_completed_email_loop']) ? $s['woocommerce_completed_email_loop'] : '<tr><th valign="top" align="right">{loop_label}</th><td>{loop_value}</td></tr>'),
+                            'loop_close' => $loop_close, //(!empty($s['woocommerce_completed_email_loop']) ? $s['woocommerce_completed_email_loop'] : '</table>'),
+
+                            'exclude_empty' => (!empty($s['woocommerce_completed_exclude_empty']) && ($s['woocommerce_completed_exclude_empty']==='true') ? 'true' : 'false'),
+
+                            'rtl' => (!empty($s['woocommerce_completed_rtl']) && ($s['woocommerce_completed_rtl']==='true') ? 'true' : 'false'),
+                            'cc' => (!empty($s['woocommerce_completed_header_cc']) ? $s['woocommerce_completed_header_cc'] : ''),
+                            'bcc' => (!empty($s['woocommerce_completed_header_bcc']) ? $s['woocommerce_completed_header_bcc'] : ''),
+                            'attachments' => (!empty($s['woocommerce_completed_attachments']) ? $s['woocommerce_completed_attachments'] : ''),
+                            'content_type' => 'html',
+                            'charset' => 'UTF-8'
+                            // woocommerce_completed_header_additional
                         )
                     )
                 );
-                $actions = array(
-                    'send_email' => 'Send an E-mail',
-                    'insert_db_row' => 'Insert row to database table',
-                    'validate_field' => 'Validate field value',
-                    'create_post' => 'Create a post/page/product'
+                $triggers[] = $t;
+            }
+
+            // tmp $triggers[] = array(
+            // tmp             'action' => 'send_email',
+            // tmp             'order' => '1',
+            // tmp             'enabled' => 'false',
+            // tmp             'f1' => '',
+            // tmp             'logic' => '==',
+            // tmp             'f2' => '',
+            // tmp             'to' => 'to@domain.com',
+            // tmp             'from_email' => 'from@domain.com',
+            // tmp             'from_name' => 'Company name',
+            // tmp             'reply_to' => 'reply-to@domain.com',
+            // tmp             'subject' => 'Subject',
+            // tmp             'body' => '<p>Body</p>',
+            // tmp             'attachments' => '68972,68981,68982',
+            // tmp             'cc' => 'CC',
+            // tmp             'bcc' => 'BCC',
+            // tmp             'content_type' => 'html',
+            // tmp             'charset' => 'UTF-8',
+            // tmp             'custom_headers' => array(
+            // tmp                 array(
+            // tmp                     'name' => 'X-Custom-Header',
+            // tmp                     'value' => 'foobar'
+            // tmp                 )
+            // tmp             )
+            // tmp         )
+            // tmp     ),
+            // tmp     "custom_headers": {
+            // tmp         "0": {
+            // tmp             "name": "X-Custom-Header",
+            // tmp             "value": "foobar"
+            // tmp         }
+            // tmp     }
+            // tmp )
+        
+            $s['_woocommerce'] = array();
+            $s['_woocommerce']['checkout'] = (isset($settings['woocommerce_checkout']) ? $settings['woocommerce_checkout'] : 'false');
+            $s['_woocommerce']['redirect'] = (isset($settings['woocommerce_redirect']) ? $settings['woocommerce_redirect'] : 'checkout');
+            $s['_woocommerce']['coupon'] = (isset($settings['woocommerce_checkout_coupon']) ? $settings['woocommerce_checkout_coupon'] : '');
+            $s['_woocommerce']['checkout_conditionally'] = array();
+            $s['_woocommerce']['checkout_conditionally']['enabled'] = (isset($settings['conditionally_wc_checkout']) ? $settings['conditionally_wc_checkout'] : 'false');
+            if(empty($settings['conditionally_wc_checkout_check'])) $settings['conditionally_wc_checkout_check'] = '';
+            $values = explode(',', $settings['conditionally_wc_checkout_check']);
+            if(!isset($values[0])) $values[0] = '';
+            if(!isset($values[1])) $values[1] = '=='; // is either == or !=   (== by default)
+            if(!isset($values[2])) $values[2] = '';
+            $s['_woocommerce']['checkout_conditionally']['f1'] = $values[0];
+            $s['_woocommerce']['checkout_conditionally']['logic'] = $values[1];
+            $s['_woocommerce']['checkout_conditionally']['f2'] = $values[2];
+            $s['_woocommerce']['empty_cart'] = (isset($settings['woocommerce_checkout_empty_cart']) ? $settings['woocommerce_checkout_empty_cart'] : 'false');
+            $s['_woocommerce']['remove_coupons'] = (isset($settings['woocommerce_checkout_remove_coupons']) ? $settings['woocommerce_checkout_remove_coupons'] : 'false');
+            $s['_woocommerce']['remove_fees'] = (isset($settings['woocommerce_checkout_remove_fees']) ? $settings['woocommerce_checkout_remove_fees'] : 'false');
+            $woocommerce_checkout_products = (isset($settings['woocommerce_checkout_products']) ? explode( "\n", $settings['woocommerce_checkout_products'] ) : '');
+            $woocommerce_checkout_products_meta = (isset($settings['woocommerce_checkout_products_meta']) ? explode( "\n", $settings['woocommerce_checkout_products_meta'] ) : '');
+            $products = array();
+            $products_ids = array();
+            foreach($woocommerce_checkout_products as $k => $v){
+                $product =  explode('|', $v);
+                $id = (isset($product[0]) ? trim($product[0]) : '');
+                if(empty($id)) continue;
+                $qty = (isset($product[1]) ? trim($product[1]) : '');
+                $variation = (isset($product[2]) ? trim($product[2]) : '');
+                $price = (isset($product[3]) ? trim($product[3]) : '');
+                $products_ids[$id] = $k;
+                $products[] = array(
+                    'id' => $id,
+                    'qty' => $qty,
+                    'variation' => $variation,
+                    'price' => $price,
+                    'meta' => 'false',
+                    'items' => array()
                 );
-                foreach($triggers as $k => $v){
-                    // Set default values if they don't exist
-                    $v = self::get_default_trigger_settings($v);
-                    echo '<div class="sfui-repeater-item">';
-                        echo '<div class="sfui-setting sfui-inline">';
-                            // 1. Trigger - Choose an event
-                            // [name] - [description] - [execution_order]
-                            echo '<div class="sfui-setting sfui-inline sfui-width-auto">';
-                                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                    echo '<input type="checkbox" name="active" value="true"' . ($v['active']==='true' ? ' checked="checked"' : '') . ' />';
-                                    echo '<span class="sfui-title">' . esc_html__( 'Enabled', 'super-forms' ) . '</span>';
-                                echo '</label>';
-                            echo '</div>';
-                            // 2. Event - Choose an event that triggers your action (this is what starts executing the action)
-                            echo '<div class="sfui-setting sfui-vertical sfui-width-auto">';
-                                echo '<label>';
-                                    echo '<select name="event" onChange="SUPER.ui.updateSettings(event, this)">';
-                                        echo '<option value=""'.($v['event']==='' ? ' selected="selected"' : '').'>- choose an event -</option>';
-                                        $hadLabel = false;
-                                        foreach($events as $ek => $ev){
-                                            if(isset($ev['label'])){
-                                                $hadLabel = true;
-                                                echo '<optgroup label="'.$ev['label'].'">';
-                                            }
-                                            $count = 0;
-                                            foreach($ev['items'] as $eek => $eev){
-                                                echo '<option value="'.$eek.'"'.($v['event']===$eek ? ' selected="selected"' : '').'>'.$eev.'</option>';
-                                                $count++;
-                                                if(count($ev['items'])===$count){
-                                                    echo '</optgroup>';
-                                                }
-                                            }
-                                            //foreach($ev['items'] as $eek => $eev){
-                                            //var_dump($ev);
-                                            //// form_events
-                                            //// - label
-
-                                            //// webhooks
-                                            //// - label
-                                            //$i = 0;
-                                            //foreach($ev['items'] as $eek => $eev){
-                                            //    if(!isset($eev['items']) ){
-                                            //        if($i===0) {
-                                            //            echo '<optgroup label="'.$ev['label'].'">';
-                                            //        }
-                                            //        echo '<option value="'.$eek.'"'.($v['event']===$eek ? ' selected="selected"' : '').'>'.$eev.'</option>';
-                                            //    }
-                                            //    if(isset($eev['label'])){
-                                            //        echo '<optgroup label="'.$ev['label'].' > '.$eev['label'].'">'; // Webhooks > Stripe
-                                            //    }
-                                            //    foreach($eev['items'] as $eeek => $eeev){ 
-                                            //        echo '<option value="'.$eeek.'"'.($v['event']===$eeek ? ' selected="selected"' : '').'>'.$eeev.'</option>';
-                                            //    }
-                                            //    if(!isset($eev['items']) && $i===(count($ev['items']))){
-                                            //        echo '</optgroup>';
-                                            //    }else{
-                                            //        echo '</optgroup>';
-                                            //    }
-                                            //    $i++;
-                                            //}
-                                            //echo '</optgroup>';
-                                        }
-                                    echo '</select>';
-                                    echo '<span class="sfui-label"><i>' . esc_html__( 'Choose an event that will trigger your action(s)', 'super-forms' ) . '</i></span>';
-                                echo '</label>';
-                            echo '</div>';
-                            echo '<div class="sfui-setting sfui-vertical sfui-width-auto">';
-                                echo '<label>';
-                                    echo '<input type="text" name="name" value="' . $v['name'] . '" />';
-                                    echo '<span class="sfui-label"><i>' . esc_html__( 'Trigger name', 'super-forms' ) . '</i></span>';
-                                echo '</label>';
-                            echo '</div>';
-                            echo '<div class="sfui-setting sfui-vertical">';
-                                echo '<label>';
-                                    echo '<input type="text" name="desc" placeholder="'.esc_html__( 'Describe what this trigger does...', 'super-forms' ).'" value="' . $v['desc'] . '" />';
-                                    echo '<span class="sfui-label"><i>' . esc_html__( 'Description (to remember what it does)', 'super-forms' ) . '</i></span>';
-                                echo '</label>';
-                            echo '</div>';
-
-                            echo '<div class="sfui-setting sfui-vertical sfui-width-auto">';
-                                echo '<label>';
-                                    echo '<select name="listen_to" onChange="SUPER.ui.updateSettings(event, this)">';
-                                        echo '<option value=""'.($v['listen_to']==='' ? ' selected="selected"' : '').'>'.esc_html__('Current form','super-forms').' ('.esc_html('default','super-forms').')</option>';
-                                        echo '<option value="all"'.($v['listen_to']==='all' ? ' selected="selected"' : '').'>'.esc_html__('All forms','super-forms').' ('.esc_html__('globally','super-forms').')</option>';
-                                        echo '<option value="id"'.($v['listen_to']==='id' ? ' selected="selected"' : '').'>'.esc_html__('Specific forms only','super-forms').'</option>';
-                                    echo '</select>';
-                                    echo '<span class="sfui-label"><i>' . esc_html__( 'Trigger for the specified form(s)', 'super-forms' ) . '</i></span>';
-                                echo '</label>';
-                            echo '</div>';
-                            echo '<div class="sfui-setting sfui-vertical sfui-width-auto" data-f="listen_to;id">';
-                                echo '<label>';
-                                    echo '<input type="text" name="listen_to_ids" value="' . $v['listen_to_ids'] . '" />';
-                                    echo '<span class="sfui-label"><i>' . esc_html__( 'Separate each form ID with a comma', 'super-forms' ) . '</i></span>';
-                                echo '</label>';
-                            echo '</div>';
-
-                            echo '<div class="sfui-setting sfui-vertical sfui-width-auto">';
-                                echo '<label>';
-                                    echo '<input type="number" name="order" value="' . $v['order'] . '" />';
-                                    echo '<span class="sfui-label"><i>' . esc_html__( 'Execution order (low number executes first)', 'super-forms' ) . '</i></span>';
-                                echo '</label>';
-                            echo '</div>';
-                            echo '<div class="sfui-btn sfui-round sfui-tooltip" title="' . esc_html__('Change Settings', 'super-forms' ) . '" onclick="SUPER.ui.btn(event, this, \'toggleRepeaterSettings\')"><i class="fas fa-cogs"></i></div>';
-                            echo '<div class="sfui-btn sfui-green sfui-round sfui-tooltip" title="' . esc_attr__( 'Add trigger', 'super-forms' ) . '" onclick="SUPER.ui.btn(event, this, \'addRepeaterItem\')"><i class="fas fa-plus"></i></div>';
-                            echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_html__('Delete trigger', 'super-forms' ) . '" onclick="SUPER.ui.btn(event, this, \'deleteRepeaterItem\')"><i class="fas fa-trash"></i></div>';
-                        echo '</div>';
-
-                        echo '<div class="sfui-setting-group">';
-                            echo '<div class="sfui-setting" data-f="event;">';
-                                echo '<div class="sfui-notice sfui-info">';
-                                    echo '<strong>'.esc_html__('Note', 'super-forms').':</strong> ' . esc_html__('To define actions, you must first choose an event for the trigger above.', 'super-forms');
-                                echo '</div>';
-                            echo '</div>';
-                            // Hide listing to specific user role/ids
-                            echo '<div class="sfui-setting sfui-inline" data-f="event;!">';
-                                echo '<div class="sfui-sub-settings">';
-                                    echo '<div class="sfui-repeater" data-k="actions">';
-                                        // Loop over actions for this event
-                                        if(!isset($v['actions'])) $v['actions'] = array(array('action'=>''));
-                                        foreach($v['actions'] as $ik => $iv){
-                                            $iv = array_merge(
-                                                array(
-                                                    'action'=>'', 
-                                                    'conditionally'=>'', 
-                                                    'logic'=>'', 
-                                                    'f1'=>'', 
-                                                    'f2'=>'', 
-                                                    'to'=>'', 
-                                                    'from'=>'', 
-                                                    'reply_to'=>'', 
-                                                    'subject'=>'',
-                                                    'body'=>'', 
-                                                    //'line_breaks'=>'true',  not used due to tinyMCE
-                                                    'cc'=>'', 
-                                                    'bcc'=>'', 
-                                                    'headers'=>'',
-                                                    'content_type'=>'html',
-                                                    'charset'=>'UTF-8'
-                                                ), 
-                                                $iv
-                                            );
-
-                                            echo '<div class="sfui-repeater-item">';
-                                                echo '<div class="sfui-setting sfui-inline" style="flex:1;">';
-                                                    // 3. Action - The action that is executed/performed
-                                                    // [+] Add another action
-                                                    echo '<div class="sfui-setting sfui-vertical sfui-width-auto">';
-                                                        echo '<label>';
-                                                            echo '<select name="action" onChange="SUPER.ui.updateSettings(event, this)">';
-                                                            echo '<option value=""'.($iv['action']==='' ? ' selected="selected"' : '').'>- choose an action -</option>';
-                                                            foreach($actions as $ak => $av){
-                                                                echo '<option value="'.$ak.'"'.($iv['action']===$ak ? ' selected="selected"' : '').'>'.$av.'</option>';
-                                                            }
-                                                            echo '</select>';
-                                                            echo '<span class="sfui-label">' . esc_html__('The action to perform when the event is triggered', 'super-forms') . '</span>';
-                                                        echo '</label>';
-                                                        echo '<div class="sfui-setting sfui-inline sfui-no-padding">';
-                                                            echo '<div class="sfui-btn sfui-round sfui-tooltip" title="' . esc_html__('Change action settings', 'super-forms' ) . '" onclick="SUPER.ui.btn(event, this, \'toggleRepeaterSettings\')"><i class="fas fa-cogs"></i></div>';
-                                                            //echo '<div class="sfui-btn sfui-blue sfui-round sfui-tooltip" title="' . esc_html__('Conditional logic', 'super-forms' ) . '" onclick="SUPER.ui.btn(event, this, \'toggleConditionSettings\')"><i class="fas fa-arrows-split-up-and-left"></i></div>';
-                                                            echo '<div class="sfui-btn sfui-green sfui-round sfui-tooltip" title="' . esc_attr__( 'Add action', 'super-forms' ) . '" onclick="SUPER.ui.btn(event, this, \'addRepeaterItem\')"><i class="fas fa-plus"></i></div>';
-                                                            echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_html__('Delete action', 'super-forms' ) . '" onclick="SUPER.ui.btn(event, this, \'deleteRepeaterItem\')"><i class="fas fa-trash"></i></div>';
-                                                        echo '</div>';
-                                                    echo '</div>';
-                                                    echo '<div class="sfui-setting sfui-vertical">';
-                                                        echo '<div class="sfui-setting-group sfui-vertical" data-f="action;!">';
-                                                            echo '<div class="sfui-setting-group sfui-inline" data-f="action;!">';
-                                                                echo '<div class="sfui-setting sfui-no-padding sfui-width-auto">';
-                                                                    echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                                                        echo '<input type="checkbox" name="conditionally" value="true"' . ($iv['conditionally']==='true' ? ' checked="checked"' : '') . ' />';
-                                                                        echo '<span class="sfui-title">' . esc_html__( 'Execute conditionally', 'super-forms' ) . ' (' . esc_html__( 'optional', 'super-forms' ) .')</span>';
-                                                                    echo '</label>';
-                                                                echo '</div>';
-                                                                echo '<div class="sfui-setting sfui-no-padding sfui-inline" data-f="conditionally;true">';
-                                                                    echo '<label class="sfui-no-padding">';
-                                                                        echo '<input type="text" name="f1" placeholder="{field}" value="' . $iv['f1'] . '" />';
-                                                                    echo '</label>';
-                                                                    echo '<label class="sfui-no-padding">';
-                                                                        echo '<select name="logic">';
-                                                                            echo '<option'.($iv['logic']==='' ?   ' selected="selected"' : '').' selected="selected" value="">---</option>';
-                                                                            echo '<option'.($iv['logic']==='==' ? ' selected="selected"' : '').' value="==">== Equal</option>';
-                                                                            echo '<option'.($iv['logic']==='!=' ? ' selected="selected"' : '').' value="!=">!= Not equal</option>';
-                                                                            echo '<option'.($iv['logic']==='??' ? ' selected="selected"' : '').' value="??">?? Contains</option>';
-                                                                            echo '<option'.($iv['logic']==='!!' ? ' selected="selected"' : '').' value="!!">!! Not contains</option>';
-                                                                            echo '<option'.($iv['logic']==='>' ?  ' selected="selected"' : '').' value=">">&gt; Greater than</option>';
-                                                                            echo '<option'.($iv['logic']==='<' ?  ' selected="selected"' : '').' value="<">&lt;  Less than</option>';
-                                                                            echo '<option'.($iv['logic']==='>=' ? ' selected="selected"' : '').' value=">=">&gt;= Greater than or equal to</option>';
-                                                                            echo '<option'.($iv['logic']==='<=' ? ' selected="selected"' : '').' value="<=">&lt;= Less than or equal</option>';
-                                                                        echo '</select>';
-                                                                    echo '</label>';
-                                                                    echo '<label class="sfui-no-padding">';
-                                                                        echo '<input type="text" name="f2" placeholder="'.esc_html__( 'Comparison value', 'super-forms' ).'" value="' . $iv['f2'] . '" />';
-                                                                    echo '</label>';
-                                                                echo '</div>';
-                                                            echo '</div>';
-                                                            echo '<div class="sfui-sub-settings" data-f="action;send_email">';
-                                                                echo '<div class="sfui-setting sfui-vertical">';
-                                                                    echo '<label class="sfui-no-padding">';
-                                                                        echo '<span class="sfui-title">' . esc_html__('To', 'super-forms') . ':</span>';
-                                                                        echo '<input type="text" name="to" value="' . $iv['to'] . '" />';
-                                                                    echo '</label>';
-                                                                echo '</div>';
-                                                                echo '<div class="sfui-setting sfui-vertical">';
-                                                                    echo '<label class="sfui-no-padding">';
-                                                                        echo '<span class="sfui-title">' . esc_html__('From', 'super-forms') . ':</span>';
-                                                                        echo '<input type="text" name="from" value="' . $iv['from'] . '" />';
-                                                                    echo '</label>';
-                                                                echo '</div>';
-                                                                echo '<div class="sfui-setting sfui-vertical">';
-                                                                    echo '<label class="sfui-no-padding">';
-                                                                        echo '<span class="sfui-title">' . esc_html__('Reply-To', 'super-forms') . ':</span>';
-                                                                        echo '<input type="text" name="reply_to" value="' . $iv['reply_to'] . '" />';
-                                                                    echo '</label>';
-                                                                echo '</div>';
-                                                                echo '<div class="sfui-setting sfui-vertical">';
-                                                                    echo '<label class="sfui-no-padding">';
-                                                                        echo '<span class="sfui-title">' . esc_html__('Subject', 'super-forms') . ':</span>';
-                                                                        echo '<input type="text" name="subject" value="' . $iv['subject'] . '" />';
-                                                                    echo '</label>';
-                                                                echo '</div>';
-                                                                echo '<div class="sfui-setting sfui-vertical">';
-                                                                    echo '<label class="sfui-no-padding">';
-                                                                        echo '<span class="sfui-title">' . esc_html__('Body', 'super-forms') . ':</span>';
-                                                                        echo '<textarea name="body" id="'.($k.'-'.$ik.'-'.$iv['action']).'-body" class="sfui-textarea-tinymce">'.esc_textarea(wp_unslash($iv['body'])).'</textarea>';
-                                                                    echo '</label>';
-                                                                echo '</div>';
-                                                                // not needed due to tinyMCE echo '<div class="sfui-setting sfui-no-padding">';
-                                                                // not needed due to tinyMCE     echo '<label>';
-                                                                // not needed due to tinyMCE         echo '<input type="checkbox" name="line_breaks" value="true"' . ($iv['line_breaks']==='true' ? ' checked="checked"' : '') . ' />';
-                                                                // not needed due to tinyMCE         echo '<span class="sfui-title">' . esc_html__( 'Enable line breaks', 'super-forms' ) . '</span>';
-                                                                // not needed due to tinyMCE     echo '</label>';
-                                                                // not needed due to tinyMCE echo '</div>';
-
-                                                                // @TODO:
-                                                                // 'attachments'=>array(),
-                                                                // 'string_attachments'=>array()
-                                                                echo '<div class="sfui-setting sfui-vertical">';
-                                                                    echo '<label class="sfui-no-padding">';
-                                                                        echo '<span class="sfui-title">' . esc_html__('Attachments', 'super-forms') . ':</span>';
-                                                                        echo '<span class="sfui-title">' . esc_html__('String attachments', 'super-forms') . ':</span>';
-                                                                    echo '</label>';
-                                                                echo '</div>';
-
-                                                                echo '<div class="sfui-setting sfui-vertical">';
-                                                                    echo '<label class="sfui-no-padding">';
-                                                                        echo '<span class="sfui-title">' . esc_html__('CC', 'super-forms') . ':</span>';
-                                                                        echo '<input type="text" name="cc" value="' . $iv['cc'] . '" />';
-                                                                    echo '</label>';
-                                                                echo '</div>';
-                                                                echo '<div class="sfui-setting sfui-vertical">';
-                                                                    echo '<label class="sfui-no-padding">';
-                                                                        echo '<span class="sfui-title">' . esc_html__('BCC', 'super-forms') . ':</span>';
-                                                                        echo '<input type="text" name="bcc" value="' . $iv['bcc'] . '" />';
-                                                                    echo '</label>';
-                                                                echo '</div>';
-                                                                echo '<div class="sfui-setting sfui-vertical sfui-width-auto">';
-                                                                    echo '<label>';
-                                                                        echo '<span class="sfui-title">' . esc_html__('Content type', 'super-forms') . ':</span>';
-                                                                        echo '<select name="content_type" onChange="SUPER.ui.updateSettings(event, this)">';
-                                                                            echo '<option value=""'.($iv['content_type']==='' ? ' selected="selected"' : '').'>- choose an event -</option>';
-                                                                            echo '<option value="html"'.($iv['content_type']==='html' ? ' selected="selected"' : '').'>HTML</option>';
-                                                                            echo '<option value="plain"'.($iv['content_type']==='plain' ? ' selected="selected"' : '').'>Plain text</option>';
-                                                                        echo '</select>';
-                                                                        echo '<span class="sfui-label"><i>' . esc_html__( 'The content type to use for this email', 'super-forms' ) . '</i></span>';
-                                                                    echo '</label>';
-                                                                echo '</div>';
-                                                                echo '<div class="sfui-setting sfui-vertical">';
-                                                                    echo '<label class="sfui-no-padding">';
-                                                                        echo '<span class="sfui-title">' . esc_html__('Charset', 'super-forms') . ':</span>';
-                                                                        echo '<input type="text" name="charset" value="' . $iv['charset'] . '" />';
-                                                                        echo '<span class="sfui-label"><i>' . sprintf( esc_html__( 'The charset to use for this email.%sExample: UTF-8 or ISO-8859-1', 'super-forms' ), ' ' ) . '</i></span>';
-                                                                    echo '</label>';
-                                                                echo '</div>';
-                                                                echo '<div class="sfui-setting sfui-vertical">';
-                                                                    echo '<label class="sfui-no-padding">';
-                                                                        echo '<span class="sfui-title">' . esc_html__('Additional headers', 'super-forms') . ':</span>';
-                                                                        echo '<textarea name="headers">'.$iv['headers'].'</textarea>';
-                                                                    echo '</label>';
-                                                                echo '</div>';
-                                                            echo '</div>';
-                                                        echo '</div>';
-                                                    echo '</div>';
-                                                echo '</div>';
-                                            echo '</div>';
-                                        }
-                                    echo '</div>';
-                                echo '</div>';
-                            echo '</div>';
-
-                            //// Custom columns
-                            //echo '<div class="sfui-setting">';
-                            //    echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                            //        echo '<input type="checkbox" name="custom_columns.enabled" value="true"' . ($v['custom_columns']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Show the following "Custom" columns', 'super-forms' ) . ':</span>';
-                            //        echo '<div class="sfui-sub-settings" data-f="custom_columns.enabled;true">';
-                            //            echo '<div class="sfui-repeater" data-k="custom_columns.columns">';
-                            //                // Repeater Item
-                            //                $columns = $v['custom_columns']['columns'];
-                            //                foreach( $columns as $ck => $cv ) {
-                            //                    echo '<div class="sfui-repeater-item">';
-                            //                        echo '<div class="sfui-inline sfui-vertical">';
-                            //                            self::getColumnSettingFields($v, '', $ck, $cv);
-                            //                            echo '<div class="sfui-btn sfui-green sfui-round sfui-tooltip" title="' . esc_attr__( 'Add item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Add item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'addRepeaterItem\')"><i class="fas fa-plus"></i></div>';
-                            //                            echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'deleteRepeaterItem\')"><i class="fas fa-trash"></i></div>';
-                            //                        echo '</div>';
-                            //                    echo '</div>';
-                            //                }
-                            //            echo '</div>';
-                            //        echo '</div>';
-                            //    echo '</label>';
-                            //echo '</div>';
-
-                        echo '</div>';
-                    echo '</div>';
+            }
+            foreach($woocommerce_checkout_products_meta as $k => $v){
+                $meta =  explode('|', $v);
+                $id = (isset($meta[0]) ? trim($meta[0]) : '');
+                if(empty($id)) continue;
+                // Check if we can match it with one of the product ID's
+                $products_ids[$id] = $k;
+                if(isset($products_ids[$id])){
+                    $label = (isset($meta[1]) ? trim($meta[1]) : '');
+                    $value = (isset($meta[2]) ? trim($meta[2]) : '');
+                    $index = $products_ids[$id];
+                    $products[$index]['meta'] = 'true';
+                    $products[$index]['items'][] = array(
+                        'label' => $label,
+                        'value' => $value
+                    );
                 }
-                echo '</div>';
-            //echo '</div>';
-        echo '</div>';
+            }
+            $s['_woocommerce']['products'] = $products;
+
+            $woocommerce_checkout_fees = (isset($settings['woocommerce_checkout_fees']) ? explode( "\n", $settings['woocommerce_checkout_fees'] ) : '');
+            $fees = array();
+            foreach($woocommerce_checkout_fees as $k => $v){
+                $fee =  explode('|', $v);
+                $name = (isset($fee[0]) ? trim($fee[0]) : '');
+                if(empty($name)) continue;
+                $amount = (isset($fee[1]) ? trim($fee[1]) : '');
+                $taxable = (isset($fee[2]) ? trim($fee[2]) : '');
+                $tax_class = (isset($fee[3]) ? trim($fee[3]) : '');
+                $fees[] = array(
+                    'name' => $name,
+                    'amount' => $amount,
+                    'taxable' => $taxable,
+                    'tax_class' => $tax_class
+                );
+            }
+            if(!empty($fees)){
+                $s['_woocommerce']['fees'] = array(
+                    'enabled' => 'true',
+                    'items' => $fees
+                );
+            }
+
+            $woocommerce_populate_checkout_fields = (isset($settings['woocommerce_populate_checkout_fields']) ? explode( "\n", $settings['woocommerce_populate_checkout_fields'] ) : '');
+            $fields = array();
+            foreach($woocommerce_populate_checkout_fields as $k => $v){
+                $field =  explode('|', $v);
+                $name = (isset($field[0]) ? trim($field[0]) : '');
+                if(empty($name)) continue;
+                $value = (isset($field[1]) ? trim($field[1]) : '');
+                $fields[] = array(
+                    'name' => $name,
+                    'value' => $value
+                );
+            }
+            if(!empty($fields)){
+                $s['_woocommerce']['populate'] = array(
+                    'enabled' => 'true',
+                    'items' => $fields
+                );
+            }
+
+            $woocommerce_checkout_fields = (isset($settings['woocommerce_checkout_fields']) ? explode( "\n", $settings['woocommerce_checkout_fields'] ) : '');
+            $fields = array();
+            foreach($woocommerce_checkout_fields as $k => $v){
+                $field =  explode('|', $v);
+                $name = (isset($field[0]) ? trim($field[0]) : '');
+                if(empty($name)) continue;
+                $placeholder = (isset($field[3]) ? trim($field[3]) : '');
+                $type = (isset($field[4]) ? trim($field[4]) : '');
+                $section = (isset($field[5]) ? trim($field[5]) : '');
+                $required = (isset($field[6]) ? trim($field[6]) : '');
+                $clear = (isset($field[7]) ? trim($field[7]) : '');
+                $class = (isset($field[8]) ? trim($field[8]) : '');
+                $label_class = (isset($field[9]) ? trim($field[9]) : '');
+                $dropdown_options = (isset($field[10]) ? explode( ",", trim($field[10]) ) : '');
+                $options = array();
+                foreach($dropdown_options as $ok => $ov){
+                    $option =  explode(';', $ov);
+                    $label = (isset($option[0]) ? trim($option[0]) : '');
+                    if(empty($label)) continue;
+                    $value = (isset($option[1]) ? trim($option[1]) : '');
+                    $options[] = array(
+                        'label' => $label,
+                        'value' => $value
+                    );
+                }
+                $label = (isset($field[2]) ? trim($field[2]) : '');
+                $value = (isset($field[1]) ? trim($field[1]) : '');
+                $fields[] = array(
+                    'type' => $type,
+                    'label' => $label,
+                    'name' => $name,
+                    'placeholder' => $placeholder,
+                    'value' => $value,
+                    'section' => $section,
+                    'required' => $required,
+                    'clear' => $clear,
+                    'class' => $class,
+                    'label_class' => $label_class,
+                    'options' => $options,
+                    'skip' => ((isset($settings['woocommerce_checkout_fields_skip_empty']) && $settings['woocommerce_checkout_fields_skip_empty']==='true') ? 'true' : 'false')
+                );
+            }
+            if(!empty($fields)){
+                $s['_woocommerce']['fields'] = array(
+                    'enabled' => 'true',
+                    'items' => $fields
+                );
+            }
+            // Update entry status when order status is changed
+            $entry_status = array(
+                array( 'order' => 'completed', 'entry' => 'completed'),
+                array( 'order' => 'pending', 'entry' => 'pending'),
+                array( 'order' => 'processing', 'entry' => 'processing'),
+                array( 'order' => 'on-hold', 'entry' => 'on-hold'),
+                array( 'order' => 'cancelled', 'entry' => 'cancelled'),
+                array( 'order' => 'failed', 'entry' => 'failed')
+            );
+            $woocommerce_completed_entry_status = (isset($settings['woocommerce_completed_entry_status']) ? $settings['woocommerce_completed_entry_status'] : 'completed');
+            if(!empty($woocommerce_completed_entry_status)){
+                foreach($entry_status as $k => $v){
+                    if($v['order']==='completed'){
+                        $entry_status[$k] = array(
+                            'order' => $v['order'],
+                            'entry' => $woocommerce_completed_entry_status
+                        );
+                    }
+                }
+            }
+            $s['_woocommerce']['entry_status'] = $entry_status;
+
+            // Update post status when order status is changed
+            $post_status = array(
+                array( 'order' => 'completed', 'post' => 'publish'),
+                array( 'order' => 'pending', 'post' => 'pending'),
+                array( 'order' => 'processing', 'post' => 'pending'),
+                array( 'order' => 'on-hold', 'post' => 'pending'),
+                array( 'order' => 'cancelled', 'post' => 'trash'),
+                array( 'order' => 'failed', 'post' => 'trash')
+            );
+            $woocommerce_post_status = (isset($settings['woocommerce_post_status']) ? $settings['woocommerce_post_status'] : 'publish');
+            if(!empty($woocommerce_post_status)){
+                foreach($post_status as $k => $v){
+                    if($v['order']==='completed'){
+                        $post_status[$k] = array(
+                            'order' => $v['order'],
+                            'post' => $woocommerce_post_status
+                        );
+                    }
+                }
+            }
+            $s['_woocommerce']['post_status'] = $post_status;
+
+            // Update user login status when order status is changed
+            $login_status = array(
+                array( 'order' => 'completed', 'login_status' => 'active'),
+                array( 'order' => 'pending', 'login_status' => 'pending'),
+                array( 'order' => 'processing', 'login_status' => 'pending'),
+                array( 'order' => 'on-hold', 'login_status' => 'pending'),
+                array( 'order' => 'cancelled', 'login_status' => 'pending'),
+                array( 'order' => 'failed', 'login_status' => 'pending')
+            );
+            $woocommerce_signup_status = (isset($settings['woocommerce_signup_status']) ? $settings['woocommerce_signup_status'] : 'active');
+            if(!empty($woocommerce_signup_status)){
+                foreach($login_status as $k => $v){
+                    if($v['order']==='completed'){
+                        $login_status[$k] = array(
+                            'order' => $v['order'],
+                            'login_status' => $woocommerce_signup_status
+                        );
+                    }
+                }
+            }
+            $s['_woocommerce']['login_status'] = $login_status;
+
+            // Update user role when order status is changed
+            $user_role = array(
+                array( 'order' => 'completed', 'user_role' => ''),
+                array( 'order' => 'pending', 'user_role' => ''),
+                array( 'order' => 'processing', 'user_role' => ''),
+                array( 'order' => 'on-hold', 'user_role' => ''),
+                array( 'order' => 'cancelled', 'user_role' => ''),
+                array( 'order' => 'failed', 'user_role' => '')
+            );
+            $woocommerce_completed_user_role = (isset($settings['woocommerce_completed_user_role']) ? $settings['woocommerce_completed_user_role'] : '');
+            if(!empty($woocommerce_completed_user_role)){
+                foreach($user_role as $k => $v){
+                    if($v['order']==='completed'){
+                        $user_role[$k] = array(
+                            'order' => $v['order'],
+                            'user_role' => $woocommerce_completed_user_role
+                        );
+                    }
+                }
+            }
+            $s['_woocommerce']['user_role'] = $user_role;
+        }
+
+        $statuses = SUPER_Settings::get_entry_statuses();
+        if(!isset($statuses['delete'])) $statuses['delete'] = 'Delete';
+        $entryStatusesCode = '';
+        foreach($statuses as $k => $v) {
+            if($k==='') continue;
+            if($entryStatusesCode!=='') $entryStatusesCode .= ', ';
+            $entryStatusesCode .= '<code>'.$k.'</code>';
+        }
+
+        $postStatusesCode = '';
+        $statuses = array(
+            'publish' => esc_html__( 'Publish (default)', 'super-forms' ),
+            'future' => esc_html__( 'Future', 'super-forms' ),
+            'draft' => esc_html__( 'Draft', 'super-forms' ),
+            'pending' => esc_html__( 'Pending', 'super-forms' ),
+            'private' => esc_html__( 'Private', 'super-forms' ),
+            'trash' => esc_html__( 'Trash', 'super-forms' ),
+            'auto-draft' => esc_html__( 'Auto-Draft', 'super-forms' ),
+            'delete' => esc_html__( 'Delete', 'super-forms' )
+        );
+        foreach($statuses as $k => $v) {
+            if($k==='') continue;
+            if($postStatusesCode!=='') $postStatusesCode .= ', ';
+            $postStatusesCode .= '<code>'.$k.'</code>';
+        }
+
+        global $wp_roles;
+        $all_roles = $wp_roles->roles;
+        $editable_roles = apply_filters( 'editable_roles', $all_roles );
+        $rolesCode = '';
+        foreach($editable_roles as $k => $v){
+            if($rolesCode!=='') $rolesCode .= ', ';
+            $rolesCode .= '<code>'.$k.'</code>';
+        }
+
+        // Possible events to choose from
+        $events = array(
+            '' => '- choose an event - ',
+            array(
+                'label' => 'Super Forms',
+                'items' => array(
+                    'sf.before.submission' => 'Before form submission',
+                    'sf.after.submission' => 'After form submission',
+                    'sf.submission.validation' => 'Validate form data'
+                )
+            ),
+            array(
+                'label' => 'WooCommerce',
+                'items' => array(
+                    'wc.order.status.completed' => 'Order status changes to `completed`'
+                )
+            ),
+            array(
+                'label' => 'Stripe',
+                'items' => array(
+                    'stripe.checkout.session.completed' => 'Checkout session completed',
+                    'stripe.checkout.session.async_payment_failed' => 'Checkout session async payment failed',
+                    'stripe.fulfill_order' => 'Fulfill order'
+                )
+            )
+        );
+        // Possible actions to choose from
+        $actions = array(
+            '' => '- choose an action - ',
+            'send_email' => 'Send an E-mail',
+            'insert_db_row' => 'Insert row to database table',
+            'validate_field' => 'Validate field value',
+            'create_post' => 'Create a post/page/product'
+        );
+        $logic = array( '==' => '== Equal', '!=' => '!= Not equal', '??' => '?? Contains', '!!' => '!! Not contains', '>'  => '&gt; Greater than', '<'  => '&lt;  Less than', '>=' => '&gt;= Greater than or equal to', '<=' => '&lt;= Less than or equal');
+
+        // Enable WooCommerce Checkout & Instant Order
+        $nodes = array(
+            array(
+                'notice' => 'hint', // hint/info
+                'content' => '<strong>'.esc_html__('Note', 'super-forms').':</strong> ' . esc_html__('With triggers you can execute specific actions based on events that occur on your WordPress site.', 'super-forms')
+            ),
+            array(
+                'name' => 'triggers',
+                'type' => 'repeater',
+                'nodes' => array( // repeater item
+                    array(
+                        'inline' => true,
+                        'padding' => false,
+                        'nodes' => array(
+                            array(
+                                'width_auto' => true, // 'sfui-width-auto'
+                                'name' => 'enabled',
+                                'title' => 'Enabled',
+                                'type' => 'checkbox',
+                                'default' => ''
+                            ),
+                            array(
+                                'name' => 'event',
+                                'subline' => 'Choose an event that will trigger your action(s)',
+                                'type' => 'select',
+                                'options' => $events,
+                                'default' => ''
+                            ),
+                            array(
+                                'name' => 'name',
+                                'subline' => 'Trigger name or description',
+                                'type' => 'text',
+                                'default' => 'Trigger #1',
+                                'placeholder' => 'e.g. Send E-mail when WooCommerce order status changed to `completed`'
+                            ),
+                            array(
+                                'name' => 'listen_to',
+                                'subline' => 'Trigger for the specified form(s)',
+                                'type' => 'select',
+                                'options' => array(
+                                    '' => 'Current form (default)',
+                                    'all' => 'All forms (globally)',
+                                    'id' => 'Specific forms only'
+                                ),
+                                'default' => ''
+                            ),
+                            array(
+                                'filter' => 'listen_to;id',
+                                'name' => 'ids',
+                                'subline' => 'Separate each form ID with a comma',
+                                'type' => 'text',
+                                'default' => ''
+                            ),
+                            array(
+                                'vertical' => true,
+                                'name' => 'order',
+                                'subline' => 'Execution order (low number executes first)',
+                                'type' => 'number',
+                                'default' => '1'
+                            ),
+                        )
+                    ),
+
+                    array(
+                        //'width_auto' => false, // 'sfui-width-auto'
+                        'wrap' => false,
+                        'group' => true, // sfui-setting-group
+                        'group_name' => '',
+                        'inline' => true, // sfui-inline
+                        //'vertical' => true, // sfui-vertical
+                        'filter' => 'event;!',
+                        'nodes' => array(
+                            array(
+                                'toggle' => true,
+                                'title' => esc_html__( 'When above event fires, execute below actions', 'super-forms' ),
+                                'nodes' => array(
+                                    array(
+                                        'name' => 'actions',
+                                        'type' => 'repeater',
+                                        'nodes' => array( // repeater item
+                                            array(
+                                                'inline' => true,
+                                                'padding' => false,
+                                                'nodes' => array(
+                                                    array(
+                                                        //'vertical' => true, // sfui-vertical
+                                                        'width_auto' => true, // 'sfui-width-auto'
+                                                        'name' => 'action',
+                                                        'subline' => 'The action to perform when the event is triggered',
+                                                        'type' => 'select',
+                                                        'options' => $actions,
+                                                        'default' => ''
+                                                    ),
+                                                    array(
+                                                        'width_auto' => true, // 'sfui-width-auto'
+                                                        'vertical' => true,
+                                                        'name' => 'order',
+                                                        'subline' => 'Execution order (low number executes first)',
+                                                        'type' => 'number',
+                                                        'default' => '1'
+                                                    ),
+                                                )
+                                            ),
+                                            array(
+                                                'toggle' => true,
+                                                'title' => esc_html__( 'Action settings', 'super-forms' ),
+                                                'filter' => 'action;!',
+                                                'vertical' => true, // sfui-vertical
+                                                'nodes' => array(
+                                                    array(
+                                                        'width_auto' => true, // 'sfui-width-auto'
+                                                        'wrap' => false,
+                                                        'group' => true, // sfui-setting-group
+                                                        'group_name' => 'conditions',
+                                                        'inline' => true, // sfui-inline
+                                                        //'vertical' => true, // sfui-vertical
+                                                        //'filter' => 'action;!',
+                                                        'nodes' => array(
+                                                            array(
+                                                                'name' => 'enabled',
+                                                                'type' => 'checkbox',
+                                                                'default' => 'false',
+                                                                'title' => esc_html__( 'Only execute this action when below condition is met', 'super-forms' ),
+                                                                'nodes' => array(
+                                                                    array(
+                                                                        'padding' => false,
+                                                                        'sub' => true, // sfui-sub-settings
+                                                                        //'group' => true, // sfui-setting-group
+                                                                        'inline' => true, // sfui-inline
+                                                                        //'vertical' => true, // sfui-vertical
+                                                                        'filter' => 'conditions.enabled;true',
+                                                                        'nodes' => array(
+                                                                            array(
+                                                                                'name' => 'f1',
+                                                                                'type' => 'text',
+                                                                                'default' => '',
+                                                                                'placeholder' => 'e.g. {tag}',
+                                                                            ),
+                                                                            array(
+                                                                                'name' => 'logic',
+                                                                                'type' => 'select', // dropdown
+                                                                                'options' => $logic,
+                                                                                'default' => '',
+                                                                            ),
+                                                                            array(
+                                                                                'name' => 'f2',
+                                                                                'type' => 'text',
+                                                                                'default' => '',
+                                                                                'placeholder' => 'e.g. true'
+                                                                            )
+                                                                        )
+                                                                    )
+                                                                )
+                                                            )
+                                                        )
+                                                    ),
+                                                    array(
+                                                        'wrap' => false,
+                                                        'group' => true,
+                                                        'group_name' => 'email',
+                                                        'vertical' => true,
+                                                        'filter' => 'action;send_email',
+                                                        'nodes' => array(
+                                                            array(
+                                                                'toggle' => true,
+                                                                'title' => esc_html__( 'E-mail headers', 'super-forms' ),
+                                                                'notice' => 'hint', // hint/info
+                                                                'content' => sprintf( esc_html__( 'The `From email` should end with %s for E-mails to work. If you are using an email provider (Gmail, Yahoo, Outlook.com, etc) it should be the email address of that account. If you have problems with E-mail delivery you can read this guide on possible solutions: %sEmail delivery problems%s', 'super-forms' ), '<strong style="color:red;">@' . str_replace('www.', '', $_SERVER["SERVER_NAME"]) . '</strong>', '<a href="https://docs.super-forms.com/common-problems/index/email-delivery-problems">', '</a>' ),
+                                                                'nodes' => array(
+                                                                    array(
+                                                                        'name' => 'to',
+                                                                        'title' => esc_html__( 'To', 'super-forms' ),
+                                                                        'subline' => esc_html__( 'Where the E-mail will be delivered to e.g. {email}', 'super-forms' ),
+                                                                        'type' => 'text',
+                                                                        'default' => '',
+                                                                    ),
+                                                                    array(
+                                                                        'name' => 'from_email',
+                                                                        'title' => esc_html__( 'From email', 'super-forms' ),
+                                                                        'subline' => sprintf( esc_html__( 'Your company E-mail address e.g. info%s', 'super-forms' ), '<strong style="color:red;">@' . str_replace('www.', '', $_SERVER["SERVER_NAME"]) . '</strong>' ),
+                                                                        'type' => 'text',
+                                                                        'default' => '',
+                                                                    ),
+                                                                    array(
+                                                                        'name' => 'from_name',
+                                                                        'title' => esc_html__( 'From name', 'super-forms' ),
+                                                                        'subline' => esc_html__( 'Your company name e.g. Starbucks', 'super-forms' ),
+                                                                        'type' => 'text',
+                                                                        'default' => '',
+                                                                    ),
+                                                                    array(
+                                                                        'wrap' => false,
+                                                                        'width_full' => true,
+                                                                        'group' => true, 
+                                                                        'group_name' => 'reply_to',
+                                                                        'vertical' => true, 
+                                                                        'nodes' => array(
+                                                                            array(
+                                                                                'name' => 'enabled',
+                                                                                'title' => esc_html__( 'Reply to a different email address (optional)', 'super-forms' ),
+                                                                                'type' => 'checkbox',
+                                                                                'default' => 'false'
+                                                                            ),
+                                                                            array(
+                                                                                'wrap' => false,
+                                                                                'group' => true, 
+                                                                                'group_name' => '',
+                                                                                'inline' => true, 
+                                                                                'padding' => false,
+                                                                                'filter' => 'reply_to.enabled;true',
+                                                                                'nodes' => array(
+                                                                                    array(
+                                                                                        'name' => 'email',
+                                                                                        'title' => esc_html__( 'Reply-To email', 'super-forms' ),
+                                                                                        'subline' => esc_html__( 'The email address to reply to', 'super-forms' ),
+                                                                                        'type' => 'text',
+                                                                                        'default' => '',
+                                                                                    ),
+                                                                                    array(
+                                                                                        'name' => 'name',
+                                                                                        'title' => esc_html__( 'Reply-To name (optional)', 'super-forms' ),
+                                                                                        'subline' => esc_html__( 'The name of the person or company', 'super-forms' ),
+                                                                                        'type' => 'text',
+                                                                                        'default' => '',
+                                                                                    )
+                                                                                )
+                                                                            )
+                                                                        )
+                                                                    ),
+                                                                )
+                                                            ),
+                                                            array(
+                                                                'toggle' => true,
+                                                                'title' => esc_html__( 'E-mail content', 'super-forms' ),
+                                                                'vertical' => true, // sfui-vertical
+                                                                'nodes' => array(
+                                                                    array(
+                                                                        'name' => 'subject',
+                                                                        'type' => 'text',
+                                                                        'default' => '',
+                                                                        'title' => esc_html__( 'Subject', 'super-forms' ),
+                                                                    ),
+                                                                    array(
+                                                                        'name' => 'body',
+                                                                        'type' => 'textarea',
+                                                                        'tinymce' => true,
+                                                                        'default' => '',
+                                                                        'title' => esc_html__( 'Body', 'super-forms' ),
+                                                                    ),
+                                                                    array(
+                                                                        'name' => 'attachments',
+                                                                        'title' => esc_html__( 'Attachments', 'super-forms' ),
+                                                                        'label' => esc_html__( 'Hold Ctrl to add multiple files', 'super-forms' ),
+                                                                        'type' => 'files', // file
+                                                                        'default' => '',
+                                                                    )
+                                                                )
+                                                            ),
+                                                            array(
+                                                                'toggle' => true,
+                                                                'title' => esc_html__( 'Advanced options', 'super-forms' ),
+                                                                'vertical' => true, // sfui-vertical
+                                                                'nodes' => array(
+                                                                    array(
+                                                                        'name' => 'loop_open',
+                                                                        'type' => 'textarea',
+                                                                        'default' => '<table cellpadding="5">',
+                                                                        'title' => esc_html__( 'Loop start HTML', 'super-forms' ),
+                                                                        'subline' => esc_html__( 'If your loop is a table, this should be the table opening tag', 'super-forms' )
+                                                                    ),
+                                                                    array(
+                                                                        'name' => 'loop',
+                                                                        'type' => 'textarea',
+                                                                        'default' => '',
+                                                                        'title' => esc_html__( 'Loop content', 'super-forms' ),
+                                                                        'subline' => esc_html__( 'The {loop_fields} tag will be replaced with this content. Use {loop_label} and {loop_value} to retrieve the field labels and their values', 'super-forms' )
+                                                                    ),
+                                                                    array(
+                                                                        'name' => 'loop_close',
+                                                                        'type' => 'textarea',
+                                                                        'default' => '</table>',
+                                                                        'title' => esc_html__( 'Loop end HTML', 'super-forms' ),
+                                                                        'subline' => esc_html__( 'If your loop is a table, this should be the table closing tag', 'super-forms' )
+                                                                    ),
+                                                                    array(
+                                                                        'name' => 'exclude_empty',
+                                                                        'type' => 'checkbox',
+                                                                        'default' => 'true',
+                                                                        'title' => esc_html__( 'Exclude empty values from {loop_fieds}', 'super-forms' ),
+                                                                        'subline' => esc_html__( 'This will strip out any fields that where not filled out by the user', 'super-forms' )
+                                                                    ),
+                                                                    array(
+                                                                        'wrap' => false,
+                                                                        'padding' => false,
+                                                                        'group' => true, // sfui-setting-group
+                                                                        'group_name' => 'exclude',
+                                                                        'vertical' => true, // sfui-vertical
+                                                                        'filter' => '',
+                                                                        'nodes' => array(
+                                                                            array(
+                                                                                'name' => 'enabled',
+                                                                                'type' => 'checkbox',
+                                                                                'default' => 'true',
+                                                                                'title' => 'Exclude specific fields from the {loop_fieds}'
+                                                                            ),
+                                                                            array(
+                                                                                'name' => 'exclude_fields',
+                                                                                'type' => 'repeater',
+                                                                                'filter' => 'exclude.enabled;true',
+                                                                                'nodes' => array( // repeater item
+                                                                                    array(
+                                                                                        'name' => 'name',
+                                                                                        'subline' => 'Field name',
+                                                                                        'type' => 'text',
+                                                                                        'default' => '',
+                                                                                        'placeholder' => 'e.g. birth_date'
+                                                                                    )
+                                                                                )
+                                                                            )
+                                                                        )
+                                                                    ),
+                                                                    array(
+                                                                        'name' => 'rtl',
+                                                                        'type' => 'checkbox',
+                                                                        'default' => 'false',
+                                                                        'title' => esc_html__( 'Enable RTL E-mail layout', 'super-forms' ),
+                                                                        'subline' => esc_html__( 'This will apply a right to left layout for your emails.', 'super-forms' ),
+                                                                        'accepted_values' => array(
+                                                                            array('v'=>'true'), 
+                                                                            array('v'=>'false')
+                                                                        ),
+                                                                    ),
+                                                                    array(
+                                                                        'wrap' => false,
+                                                                        'padding' => false,
+                                                                        'group' => true, // sfui-setting-group
+                                                                        'group_name' => 'headers',
+                                                                        'vertical' => true, // sfui-vertical
+                                                                        'filter' => '',
+                                                                        'nodes' => array(
+                                                                            array(
+                                                                                'name' => 'enabled',
+                                                                                'type' => 'checkbox',
+                                                                                'default' => 'false',
+                                                                                'title' => esc_html__( 'Define custom E-mail headers', 'super-forms' )
+                                                                            ),
+                                                                            array(
+                                                                                'name' => 'headers',
+                                                                                'inline' => true, // sfui-vertical
+                                                                                'type' => 'repeater',
+                                                                                'filter' => 'headers.enabled;true',
+                                                                                'nodes' => array( // repeater item
+                                                                                    array(
+                                                                                        'name' => 'name',
+                                                                                        'subline' => 'Header name/key',
+                                                                                        'type' => 'text',
+                                                                                        'default' => '',
+                                                                                        'placeholder' => 'e.g. X-Custom-Header'
+                                                                                    ),
+                                                                                    array(
+                                                                                        'vertical' => true,
+                                                                                        'name' => 'value',
+                                                                                        'subline' => 'Header value',
+                                                                                        'type' => 'text',
+                                                                                        'placeholder' => 'e.g. foobar'
+                                                                                    )
+                                                                                )
+                                                                            )
+                                                                        )
+                                                                    ),
+                                                                    array(
+                                                                        'name' => 'cc',
+                                                                        'title' => esc_html__( 'CC', 'super-forms' ),
+                                                                        'type' => 'text',
+                                                                        'default' => '',
+                                                                    ),
+                                                                    array(
+                                                                        'name' => 'bcc',
+                                                                        'title' => esc_html__( 'BCC', 'super-forms' ),
+                                                                        'type' => 'text',
+                                                                        'default' => '',
+                                                                    ),
+                                                                    array(
+                                                                        'name' => 'content_type',
+                                                                        'title' => 'Content type',
+                                                                        'subline' => '',
+                                                                        'accepted_values' => array(
+                                                                            array('v'=>'html', 'i'=>'(default)'), 
+                                                                            array('v'=>'plain','i'=>'(plain text)')
+                                                                        ),
+                                                                        'type' => 'text',
+                                                                        'default' => 'html'
+                                                                    ),
+                                                                    array(
+                                                                        'name' => 'charset',
+                                                                        'title' => 'Charset',
+                                                                        'subline' => 'The charset to use for this email. Example: UTF-8 or ISO-8859-1',
+                                                                        'type' => 'text',
+                                                                        'default' => 'UTF-8'
+                                                                    ),
+                                                                )
+                                                            ),
+                                                            array(
+                                                                'toggle' => true,
+                                                                'title' => esc_html__( 'Schedule (optional)', 'super-forms' ),
+                                                                'vertical' => true, // sfui-vertical
+                                                                'nodes' => array(
+                                                                    array(
+                                                                        'wrap' => false,
+                                                                        'padding' => false,
+                                                                        'group' => true,
+                                                                        'group_name' => 'schedule',
+                                                                        'vertical' => true,
+                                                                        'nodes' => array(
+                                                                            array(
+                                                                                'name' => 'enabled',
+                                                                                'type' => 'checkbox',
+                                                                                'default' => 'false',
+                                                                                'title' => esc_html__( 'Enable scheduled execution', 'super-forms' )
+                                                                            ),
+                                                                            array(
+                                                                                'name' => 'dates',
+                                                                                'type' => 'repeater',
+                                                                                'inline' => true,
+                                                                                'filter' => 'schedule.enabled;true',
+                                                                                'nodes' => array(
+                                                                                    array(
+                                                                                        'name' => 'date',
+                                                                                        'title' => 'Base date (leave blank to use the event date)',
+                                                                                        'subline' => 'Must be English formatted date e.g: `25-03-2020`. When using a datepicker that doesn\'t use the correct format, you can use the tag <code>{date;timestamp}</code> to retrieve the timestamp which will work correctly with any date format (leave blank to use the form submission date)',
+                                                                                        'type' => 'text',
+                                                                                        'default' => ''
+                                                                                    ),
+                                                                                    array(
+                                                                                        'name' => 'days',
+                                                                                        'title' => 'Execute after or before (in days) based of the base date.',
+                                                                                        'subline' => '0 = The same day, 1 = One day later, 5 = Five days later, -1 = One day before, -3 = Three days before',
+                                                                                        'type' => 'text',
+                                                                                        'default' => '0'
+                                                                                    ),
+                                                                                    array(
+                                                                                        'name' => 'method',
+                                                                                        'title' => 'Execute at a specific time or offset',
+                                                                                        'subline' => '',
+                                                                                        'accepted_values' => array(
+                                                                                            array('v'=>'instant'), 
+                                                                                            array('v'=>'time','i'=>'(at a fixed time e.g. at 09:00)'),
+                                                                                            array('v'=>'offset','i'=>'(relative to the base date e.g. 2 hours after)')
+                                                                                        ),
+                                                                                        'type' => 'text',
+                                                                                        'default' => 'time'
+                                                                                    ),
+                                                                                    array(
+                                                                                        'name' => 'time',
+                                                                                        'title' => 'Time',
+                                                                                        'subline' => 'Use 24h format e.g: 09:30, 14:00, 18:30 etc.',
+                                                                                        'accepted_values' => array(
+                                                                                            array('v'=>'09:00'),
+                                                                                            array('v'=>'09:15'),
+                                                                                            array('v'=>'09:30', 'i'=>'etc.')
+                                                                                        ),
+                                                                                        'type' => 'text',
+                                                                                        'default' => '09:00',
+                                                                                        'filter' => 'method;time'
+                                                                                    ),
+                                                                                    array(
+                                                                                        'name' => 'offset',
+                                                                                        'title' => 'Offset',
+                                                                                        'subline' => 'Enter an offset based of the base date.',
+                                                                                        'accepted_values' => array(
+                                                                                            array('v'=>'0', 'i'=>'(instantly)'), 
+                                                                                            array('v'=>'0.08', 'i'=>'(after 5 min.)'), 
+                                                                                            array('v'=>'0.16', 'i'=>'(after 10 min.)'), 
+                                                                                            array('v'=>'0.5', 'i'=>'(after 30 min.)'), 
+                                                                                            array('v'=>'2', 'i'=>'(after two hours)'), 
+                                                                                            array('v'=>'-5', 'i'=>'(fie hours prior)')
+                                                                                        ),
+                                                                                        'type' => 'text',
+                                                                                        'default' => '0',
+                                                                                        'filter' => 'method;offset'
+                                                                                    )
+                                                                                )
+                                                                            )
+                                                                        )
+                                                                    )
+                                                                )
+                                                            )
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+
+                )
+            )
+
+            // tmp array(
+            // tmp     'name' => 'checkout',
+            // tmp     'type' => 'checkbox',
+            // tmp     'default' => 'false',
+            // tmp     'title' => esc_html__( 'Enable WooCommerce Checkout', 'super-forms' ),
+            // tmp     'nodes' => array(
+            // tmp         array(
+            // tmp             'sub' => true, // sfui-sub-settings
+            // tmp             'filter' => 'checkout;true',
+            // tmp             'nodes' => array(
+            // tmp                 array(
+            // tmp                     //'width_auto' => false, // 'sfui-width-auto'
+            // tmp                     'wrap' => false,
+            // tmp                     'group' => true, // sfui-setting-group
+            // tmp                     'group_name' => 'checkout_conditionally',
+            // tmp                     'inline' => true, // sfui-inline
+            // tmp                     //'vertical' => true, // sfui-vertical
+            // tmp                     'filter' => 'checkout;true',
+            // tmp                     'nodes' => array(
+            // tmp                         array(
+            // tmp                             'name' => 'enabled',
+            // tmp                             'type' => 'checkbox',
+            // tmp                             'default' => 'false',
+            // tmp                             'title' => esc_html__( 'Only checkout when below condition are met', 'super-forms' ),
+            // tmp                             'nodes' => array(
+            // tmp                                 array(
+            // tmp                                     'sub' => true, // sfui-sub-settings
+            // tmp                                     //'group' => true, // sfui-setting-group
+            // tmp                                     'inline' => true, // sfui-inline
+            // tmp                                     //'vertical' => true, // sfui-vertical
+            // tmp                                     'filter' => 'checkout_conditionally.enabled;true',
+            // tmp                                     'nodes' => array(
+            // tmp                                         array(
+            // tmp                                             'name' => 'f1',
+            // tmp                                             'type' => 'text',
+            // tmp                                             'default' => '',
+            // tmp                                             'placeholder' => 'e.g. {tag}',
+            // tmp                                         ),
+            // tmp                                         array(
+            // tmp                                             'name' => 'logic',
+            // tmp                                             'type' => 'select', // dropdown
+            // tmp                                             'options' => array(
+            // tmp                                                 '==' => '== Equal',
+            // tmp                                                 '!=' => '!= Not equal',
+            // tmp                                                 '??' => '?? Contains',
+            // tmp                                                 '!!' => '!! Not contains',
+            // tmp                                                 '>'  => '&gt; Greater than',
+            // tmp                                                 '<'  => '&lt;  Less than',
+            // tmp                                                 '>=' => '&gt;= Greater than or equal to',
+            // tmp                                                 '<=' => '&lt;= Less than or equal'
+            // tmp                                             ),
+            // tmp                                             'default' => '',
+            // tmp                                         ),
+            // tmp                                         array(
+            // tmp                                             'name' => 'f2',
+            // tmp                                             'type' => 'text',
+            // tmp                                             'default' => '',
+            // tmp                                             'placeholder' => 'e.g. true'
+            // tmp                                         )
+            // tmp                                     )
+            // tmp                                 )
+            // tmp                             )
+            // tmp                         )
+            // tmp                     )
+            // tmp                 ),
+            // tmp                 array(
+            // tmp                     'toggle' => true,
+            // tmp                     'title' => esc_html__( 'Define products', 'super-forms' ) . '<span style="margin-left:10px;color:red;">(required)</span>',
+            // tmp                     'nodes' => array(
+            // tmp                         array(
+            // tmp                             'name' => 'products',
+            // tmp                             'type' => 'repeater',
+            // tmp                             'title' => esc_html__( 'Products to add to the cart/checkout', 'super-forms' ),
+            // tmp                             'nodes' => array( // repeater item
+            // tmp                                 array(
+            // tmp                                     'inline' => true,
+            // tmp                                     'padding' => false,
+            // tmp                                     'nodes' => array(
+            // tmp                                         array(
+            // tmp                                             'vertical' => true, // sfui-vertical
+            // tmp                                             'name' => 'id',
+            // tmp                                             'title' => 'Product ID',
+            // tmp                                             'label' => 'Enter the WooCommerce product ID',
+            // tmp                                             'type' => 'text',
+            // tmp                                             'default' => '',
+            // tmp                                             'placeholder' => 'e.g. {product_id}'
+            // tmp                                         ),
+            // tmp                                         array(
+            // tmp                                             'vertical' => true, // sfui-vertical
+            // tmp                                             'name' => 'qty',
+            // tmp                                             'title' => 'Cart quantity',
+            // tmp                                             'label' => 'How many items to add to the cart',
+            // tmp                                             'type' => 'text',
+            // tmp                                             'default' => '',
+            // tmp                                             'placeholder' => 'e.g. {item_quantity}'
+            // tmp                                         ),
+            // tmp                                         array(
+            // tmp                                             'vertical' => true, // sfui-vertical
+            // tmp                                             'name' => 'price',
+            // tmp                                             'title' => 'Dynamic price',
+            // tmp                                             'label' => 'Leave blank if you do not have the Name Your Price plugin installed',
+            // tmp                                             'type' => 'text',
+            // tmp                                             'default' => '',
+            // tmp                                             'placeholder' => 'e.g. {dynamic_price}'
+            // tmp                                         ),
+            // tmp                                         array(
+            // tmp                                             'vertical' => true, // sfui-vertical
+            // tmp                                             'name' => 'variation',
+            // tmp                                             'title' => 'Variation ID (optional)',
+            // tmp                                             'label' => 'If a product has variations, you can enter the variation ID here',
+            // tmp                                             'type' => 'text',
+            // tmp                                             'default' => '',
+            // tmp                                             'placeholder' => 'e.g. {variation_id}'
+            // tmp                                         )
+            // tmp                                     )
+            // tmp                                 ),
+
+
+            // tmp                                 array(
+            // tmp                                     'name' => 'meta',
+            // tmp                                     'type' => 'checkbox',
+            // tmp                                     'default' => 'false',
+            // tmp                                     'title' => esc_html__( 'Product meta data (optional)', 'super-forms' ),
+            // tmp                                     'nodes' => array(
+            // tmp                                         array(
+            // tmp                                             'sub' => true, // sfui-sub-settings
+            // tmp                                             'filter' => 'meta;true',
+            // tmp                                             'nodes' => array(
+            // tmp                                                 array(
+            // tmp                                                     'name' => 'items',
+            // tmp                                                     'type' => 'repeater',
+            // tmp                                                     'nodes' => array( // repeater item
+            // tmp                                                         array(
+            // tmp                                                             'inline' => true,
+            // tmp                                                             'padding' => false,
+            // tmp                                                             'nodes' => array(
+            // tmp                                                                 array(
+            // tmp                                                                     'vertical' => true, // sfui-vertical
+            // tmp                                                                     'name' => 'label',
+            // tmp                                                                     'title' => 'Label',
+            // tmp                                                                     'label' => 'Define the meta label, for instance `Color`',
+            // tmp                                                                     'type' => 'text',
+            // tmp                                                                     'default' => '',
+            // tmp                                                                     'placeholder' => 'e.g. Color'
+            // tmp                                                                 ),
+            // tmp                                                                 array(
+            // tmp                                                                     'vertical' => true, // sfui-vertical
+            // tmp                                                                     'name' => 'value',
+            // tmp                                                                     'title' => 'Value',
+            // tmp                                                                     'label' => 'Define the meta value, for instance `red`',
+            // tmp                                                                     'type' => 'text',
+            // tmp                                                                     'default' => '',
+            // tmp                                                                     'placeholder' => 'e.g. red'
+            // tmp                                                                 ),
+            // tmp                                                             )
+            // tmp                                                         )
+            // tmp                                                     )
+            // tmp                                                 )
+            // tmp                                             )
+            // tmp                                         )
+            // tmp                                     )
+            // tmp                                 )
+            // tmp                             )
+            // tmp                         )
+            // tmp                     )
+            // tmp                 ),
+            // tmp                 array(
+            // tmp                     'toggle' => true,
+            // tmp                     'title' => esc_html__( 'Checkout fee(s)', 'super-forms' ),
+            // tmp                     'nodes' => array(
+            // tmp                         array(
+            // tmp                             //'width_auto' => false, // 'sfui-width-auto'
+            // tmp                             'wrap' => false,
+            // tmp                             'group' => true, // sfui-setting-group
+            // tmp                             'group_name' => 'fees',
+            // tmp                             //'inline' => true, // sfui-inline
+            // tmp                             'vertical' => true, // sfui-vertical
+            // tmp                             'filter' => 'checkout;true',
+            // tmp                             'nodes' => array(
+            // tmp                                 array(
+            // tmp                                     'name' => 'enabled',
+            // tmp                                     'type' => 'checkbox',
+            // tmp                                     'default' => 'false',
+            // tmp                                     'title' => esc_html__( 'Add checkout fee(s)', 'super-forms' ),
+            // tmp                                 ),
+            // tmp                                 array(
+            // tmp                                     'sub' => true, // sfui-sub-settings
+            // tmp                                     'filter' => 'fees.enabled;true',
+            // tmp                                     'nodes' => array(
+            // tmp                                         array(
+            // tmp                                             'name' => 'items',
+            // tmp                                             'type' => 'repeater',
+            // tmp                                             'nodes' => array( // repeater item
+            // tmp                                                 array(
+            // tmp                                                     'inline' => true,
+            // tmp                                                     'padding' => false,
+            // tmp                                                     'nodes' => array(
+            // tmp                                                         array(
+            // tmp                                                             'vertical' => true, // sfui-vertical
+            // tmp                                                             'name' => 'name',
+            // tmp                                                             'title' => 'Fee name',
+            // tmp                                                             'label' => 'Enter the name/label of the fee',
+            // tmp                                                             'type' => 'text',
+            // tmp                                                             'default' => '',
+            // tmp                                                             'placeholder' => 'e.g. Administration fee'
+            // tmp                                                         ),
+            // tmp                                                         array(
+            // tmp                                                             'vertical' => true, // sfui-vertical
+            // tmp                                                             'name' => 'amount',
+            // tmp                                                             'title' => 'Amount',
+            // tmp                                                             'label' => 'Enter the fee amount (must be a float value)',
+            // tmp                                                             'type' => 'text',
+            // tmp                                                             'default' => '',
+            // tmp                                                             'placeholder' => 'e.g. 5.95'
+            // tmp                                                         ),
+            // tmp                                                         array(
+            // tmp                                                             'vertical' => true, // sfui-vertical
+            // tmp                                                             'name' => 'taxable',
+            // tmp                                                             'title' => 'Taxable',
+            // tmp                                                             'label' => 'Accepted values: <code>true</code> or <code>false</code>',
+            // tmp                                                             'type' => 'text',
+            // tmp                                                             'default' => 'false',
+            // tmp                                                             'placeholder' => 'e.g. false'
+            // tmp                                                         ),
+            // tmp                                                         array(
+            // tmp                                                             'vertical' => true, // sfui-vertical
+            // tmp                                                             'name' => 'tax_class',
+            // tmp                                                             'title' => 'Tax class',
+            // tmp                                                             'label' => 'e.g. <code>none</code>, <code>standard</code>, <code>reduced-rate</code>, <code>zero-rate</code>',
+            // tmp                                                             'type' => 'text',
+            // tmp                                                             'default' => 'none',
+            // tmp                                                             'placeholder' => 'e.g. none'
+            // tmp                                                         )
+            // tmp                                                     )
+            // tmp                                                 )
+            // tmp                                             )
+            // tmp                                         )
+            // tmp                                     )
+            // tmp                                 )
+            // tmp                             )
+            // tmp                         )
+            // tmp                     )
+            // tmp                 ),
+            // tmp                 array(
+            // tmp                     'toggle' => true,
+            // tmp                     'title' => esc_html__( 'Populate checkout fields with form data', 'super-forms' ),
+            // tmp                     'nodes' => array(
+            // tmp                         array(
+            // tmp                             //'width_auto' => false, // 'sfui-width-auto'
+            // tmp                             'wrap' => false,
+            // tmp                             'group' => true, // sfui-setting-group
+            // tmp                             'group_name' => 'populate',
+            // tmp                             //'inline' => true, // sfui-inline
+            // tmp                             'vertical' => true, // sfui-vertical
+            // tmp                             'filter' => 'checkout;true',
+            // tmp                             'nodes' => array(
+            // tmp                                 array(
+            // tmp                                     'name' => 'enabled',
+            // tmp                                     'type' => 'checkbox',
+            // tmp                                     'default' => 'false',
+            // tmp                                     'title' => esc_html__( 'Populate checkout fields with form data', 'super-forms' ),
+            // tmp                                 ),
+            // tmp                                 array(
+            // tmp                                     'sub' => true, // sfui-sub-settings
+            // tmp                                     'filter' => 'populate.enabled;true',
+            // tmp                                     'nodes' => array(
+            // tmp                                         array(
+            // tmp                                             'name' => 'items',
+            // tmp                                             'type' => 'repeater',
+            // tmp                                             'nodes' => array( // repeater item
+            // tmp                                                 array(
+            // tmp                                                     'inline' => true,
+            // tmp                                                     'padding' => false,
+            // tmp                                                     'nodes' => array(
+            // tmp                                                         array(
+            // tmp                                                             'vertical' => true, // sfui-vertical
+            // tmp                                                             'name' => 'name',
+            // tmp                                                             'title' => 'Checkout field name',
+            // tmp                                                             'subline' => 'Enter the field name of this checkout field. Available field names: <code>billing_country</code>, <code>shipping_country</code>, <code>billing_first_name</code>, <code>billing_last_name</code>, <code>billing_company</code>, <code>billing_country</code>, <code>billing_address_1</code>, <code>billing_address_2</code>, <code>billing_postcode</code>, <code>billing_city</code>, <code>billing_state</code>, <code>billing_phone</code>, <code>billing_email</code>, <code>order_comment</code>',
+            // tmp                                                             'type' => 'text',
+            // tmp                                                             'default' => '',
+            // tmp                                                             'placeholder' => 'e.g. billing_first_name'
+            // tmp                                                         ),
+            // tmp                                                         array(
+            // tmp                                                             'vertical' => true, // sfui-vertical
+            // tmp                                                             'name' => 'value',
+            // tmp                                                             'title' => 'Value',
+            // tmp                                                             'subline' => 'The value to set the field to',
+            // tmp                                                             'type' => 'text',
+            // tmp                                                             'default' => '',
+            // tmp                                                             'placeholder' => 'e.g. {first_name}'
+            // tmp                                                         )
+            // tmp                                                     )
+            // tmp                                                 )
+            // tmp                                             )
+            // tmp                                         )
+            // tmp                                     )
+            // tmp                                 )
+            // tmp                             )
+            // tmp                         )
+            // tmp                     )
+            // tmp                 ),
+            // tmp                 array(
+            // tmp                     'toggle' => true,
+            // tmp                     'title' => esc_html__( 'Custom checkout fields', 'super-forms' ),
+            // tmp                     'nodes' => array(
+            // tmp                         array(
+            // tmp                             //'width_auto' => false, // 'sfui-width-auto'
+            // tmp                             'wrap' => false,
+            // tmp                             'group' => true, // sfui-setting-group
+            // tmp                             'group_name' => 'fields',
+            // tmp                             //'inline' => true, // sfui-inline
+            // tmp                             'vertical' => true, // sfui-vertical
+            // tmp                             'filter' => 'checkout;true',
+            // tmp                             'nodes' => array(
+            // tmp                                 array(
+            // tmp                                     'name' => 'enabled',
+            // tmp                                     'type' => 'checkbox',
+            // tmp                                     'default' => 'false',
+            // tmp                                     'title' => esc_html__( 'Add custom checkout field(s)', 'super-forms' ),
+            // tmp                                 ),
+            // tmp                                 array(
+            // tmp                                     'sub' => true, // sfui-sub-settings
+            // tmp                                     'filter' => 'fields.enabled;true',
+            // tmp                                     'nodes' => array(
+            // tmp                                         array(
+            // tmp                                             'name' => 'items',
+            // tmp                                             'type' => 'repeater',
+            // tmp                                             'nodes' => array( // repeater item
+            // tmp                                                 array(
+            // tmp                                                     'inline' => true,
+            // tmp                                                     'padding' => false,
+            // tmp                                                     'nodes' => array(
+            // tmp                                                         array(
+            // tmp                                                             'vertical' => true, // sfui-vertical
+            // tmp                                                             'name' => 'type',
+            // tmp                                                             'title' => 'Type',
+            // tmp                                                             'type' => 'select',
+            // tmp                                                             'options' => array(
+            // tmp                                                                 'text' => 'Text',
+            // tmp                                                                 'textarea' => 'Textarea',
+            // tmp                                                                 'password' => 'Password',
+            // tmp                                                                 'select' => 'Select (dropdown)'
+            // tmp                                                             ),
+            // tmp                                                             'default' => 'text'
+            // tmp                                                         ),
+            // tmp                                                         array(
+            // tmp                                                             'vertical' => true, // sfui-vertical
+            // tmp                                                             'type' => 'text',
+            // tmp                                                             'name' => 'name',
+            // tmp                                                             'title' => 'Name',
+            // tmp                                                             'default' => '',
+            // tmp                                                             'placeholder' => 'e.g. '
+            // tmp                                                         ),
+            // tmp                                                         array(
+            // tmp                                                             'vertical' => true, // sfui-vertical
+            // tmp                                                             'name' => 'label',
+            // tmp                                                             'title' => 'Label',
+            // tmp                                                             'type' => 'text',
+            // tmp                                                             'default' => '',
+            // tmp                                                             'placeholder' => 'e.g. '
+            // tmp                                                         ),
+            // tmp                                                         array(
+            // tmp                                                             'vertical' => true, // sfui-vertical
+            // tmp                                                             'name' => 'placeholder',
+            // tmp                                                             'title' => 'Placeholder',
+            // tmp                                                             'type' => 'text',
+            // tmp                                                             'default' => '',
+            // tmp                                                             'placeholder' => 'e.g. '
+            // tmp                                                         ),
+            // tmp                                                         array(
+            // tmp                                                             'vertical' => true, // sfui-vertical
+            // tmp                                                             'name' => 'value',
+            // tmp                                                             'title' => 'Value',
+            // tmp                                                             'type' => 'text',
+            // tmp                                                             'default' => '',
+            // tmp                                                             'placeholder' => 'e.g. {tag}'
+            // tmp                                                         ),
+            // tmp                                                     )
+            // tmp                                                 ),
+            // tmp                                                 array(
+            // tmp                                                     'inline' => true,
+            // tmp                                                     'padding' => false,
+            // tmp                                                     'nodes' => array(
+            // tmp                                                         array(
+            // tmp                                                             'vertical' => true, // sfui-vertical
+            // tmp                                                             'name' => 'required',
+            // tmp                                                             'title' => 'Required',
+            // tmp                                                             'label' => 'Accepted values: <code>true</code> or <code>false</code>',
+            // tmp                                                             'type' => 'text',
+            // tmp                                                             'default' => 'true',
+            // tmp                                                             'placeholder' => 'e.g. true'
+            // tmp                                                         ),
+            // tmp                                                         array(
+            // tmp                                                             'vertical' => true, // sfui-vertical
+            // tmp                                                             'name' => 'section',
+            // tmp                                                             'title' => 'Section',
+            // tmp                                                             'label' => 'Choose where to put the field',
+            // tmp                                                             'type' => 'select',
+            // tmp                                                             'options' => array(
+            // tmp                                                                 'billing' => 'Billing',
+            // tmp                                                                 'shipping' => 'Shipping',
+            // tmp                                                                 'account' => 'Account',
+            // tmp                                                                 'order' => 'Order'
+            // tmp                                                             ),
+            // tmp                                                             'default' => 'billing'
+            // tmp                                                         ),
+            // tmp                                                         array(
+            // tmp                                                             'vertical' => true, // sfui-vertical
+            // tmp                                                             'name' => 'clear',
+            // tmp                                                             'title' => 'Clear',
+            // tmp                                                             'label' => 'Puts the field on a single row. Accepted values: <code>true</code> or <code>false</code>',
+            // tmp                                                             'type' => 'text',
+            // tmp                                                             'default' => 'true',
+            // tmp                                                             'placeholder' => 'e.g. true'
+            // tmp                                                         ),
+            // tmp                                                         array(
+            // tmp                                                             'vertical' => true, // sfui-vertical
+            // tmp                                                             'name' => 'class',
+            // tmp                                                             'title' => 'Class',
+            // tmp                                                             'label' => 'Apply a custom class name for the input',
+            // tmp                                                             'type' => 'text',
+            // tmp                                                             'default' => '',
+            // tmp                                                             'placeholder' => 'e.g. my-custom-input-classname'
+            // tmp                                                         ),
+            // tmp                                                         array(
+            // tmp                                                             'vertical' => true, // sfui-vertical
+            // tmp                                                             'name' => 'label_class',
+            // tmp                                                             'title' => 'Label class',
+            // tmp                                                             'label' => 'Apply a custom class name for the label',
+            // tmp                                                             'type' => 'text',
+            // tmp                                                             'type' => 'text',
+            // tmp                                                             'default' => '',
+            // tmp                                                             'placeholder' => 'e.g. my-custom-label-classname'
+            // tmp                                                         ),
+            // tmp                                                     )
+            // tmp                                                 ),
+            // tmp                                                 array(
+            // tmp                                                     'inline' => true,
+            // tmp                                                     'padding' => false,
+            // tmp                                                     'nodes' => array(
+            // tmp                                                         array(
+            // tmp                                                             'name' => 'skip',
+            // tmp                                                             'type' => 'checkbox',
+            // tmp                                                             'default' => 'false',
+            // tmp                                                             'title' => esc_html__( 'Only add if field is not conditionally hidden', 'super-forms' )
+            // tmp                                                         ),
+            // tmp                                                     )
+            // tmp                                                 ),
+            // tmp                                                 // Dropdown items
+            // tmp                                                 array(
+            // tmp                                                     'wrap' => false,
+            // tmp                                                     'group' => true, // sfui-setting-group
+            // tmp                                                     'group_name' => '',
+            // tmp                                                     'inline' => true, // sfui-inline
+            // tmp                                                     //'vertical' => true, // sfui-vertical
+            // tmp                                                     //'filter' => 'type;select',
+            // tmp                                                     'filter' => 'fields.type;select',
+            // tmp                                                     'nodes' => array(
+            // tmp                                                         array(
+            // tmp                                                             'name' => 'options',
+            // tmp                                                             'type' => 'repeater',
+            // tmp                                                             'title' => esc_html__( 'Dropdown items', 'super-forms' ),
+            // tmp                                                             'nodes' => array( // repeater item
+            // tmp                                                                 array(
+            // tmp                                                                     'inline' => true,
+            // tmp                                                                     'padding' => false,
+            // tmp                                                                     'nodes' => array(
+            // tmp                                                                         array(
+            // tmp                                                                             'vertical' => true, // sfui-vertical
+            // tmp                                                                             'name' => 'label',
+            // tmp                                                                             'title' => 'Item label',
+            // tmp                                                                             'type' => 'text',
+            // tmp                                                                             'default' => '',
+            // tmp                                                                             'placeholder' => 'e.g. Red'
+            // tmp                                                                         ),
+            // tmp                                                                         array(
+            // tmp                                                                             'vertical' => true, // sfui-vertical
+            // tmp                                                                             'name' => 'value',
+            // tmp                                                                             'title' => 'Item value',
+            // tmp                                                                             'type' => 'text',
+            // tmp                                                                             'default' => '',
+            // tmp                                                                             'placeholder' => 'e.g. red'
+            // tmp                                                                         )
+            // tmp                                                                     )
+            // tmp                                                                 )
+            // tmp                                                             )
+            // tmp                                                         )
+            // tmp                                                     )
+            // tmp                                                 )
+            // tmp                                             )
+            // tmp                                         )
+            // tmp                                     )
+            // tmp                                 )
+            // tmp                             )
+            // tmp                         )
+            // tmp                     )
+            // tmp                 ),
+            // tmp                 // Update entry status when WooCommerce status changes
+            // tmp                 array(
+            // tmp                     'name' => 'entry_status',
+            // tmp                     'type' => 'repeater',
+            // tmp                     'toggle' => true,
+            // tmp                     'title' => esc_html__( 'Update entry status when WooCommerce Order status changes', 'super-forms' ),
+            // tmp                     'nodes' => array( // repeater item
+            // tmp                         array(
+            // tmp                             'inline' => true,
+            // tmp                             'padding' => false,
+            // tmp                             'nodes' => array(
+            // tmp                                 array(
+            // tmp                                     'vertical' => true, // sfui-vertical
+            // tmp                                     'name' => 'order',
+            // tmp                                     'title' => 'Order status',
+            // tmp                                     'subline' => 'Accepted values: <code>pending</code>, <code>processing</code>, <code>on-hold</code>, <code>completed</code>, <code>cancelled</code>, <code>refunded</code>, <code>failed</code>',
+            // tmp                                     'type' => 'text',
+            // tmp                                     'default' => '',
+            // tmp                                     'placeholder' => 'e.g. completed'
+            // tmp                                 ),
+            // tmp                                 array(
+            // tmp                                     'vertical' => true, // sfui-vertical
+            // tmp                                     'name' => 'entry',
+            // tmp                                     'title' => 'Entry status',
+            // tmp                                     'subline' => esc_html__( 'Leave blank or delete to keep the current entry status unchanged. Accepted values are:', 'super-forms' ). ' ' . $entryStatusesCode . '. ' . sprintf( esc_html__( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#backend-settings') . '">', '</a>' ),
+            // tmp                                     'type' => 'text',
+            // tmp                                     'default' => '',
+            // tmp                                     'placeholder' => 'e.g. completed'
+            // tmp                                 ),
+            // tmp                             )
+            // tmp                         )
+            // tmp                     )
+            // tmp                 ),
+            // tmp                 // Update post status when WooCommerce status changes
+            // tmp                 array(
+            // tmp                     'name' => 'post_status',
+            // tmp                     'type' => 'repeater',
+            // tmp                     'toggle' => true,
+            // tmp                     'title' => esc_html__( 'Update post status when WooCommerce Order status changes', 'super-forms' ),
+            // tmp                     'nodes' => array( // repeater item
+            // tmp                         array(
+            // tmp                             'inline' => true,
+            // tmp                             'padding' => false,
+            // tmp                             'nodes' => array(
+            // tmp                                 array(
+            // tmp                                     'vertical' => true, // sfui-vertical
+            // tmp                                     'name' => 'order',
+            // tmp                                     'title' => 'Order status',
+            // tmp                                     'subline' => 'Accepted values: <code>pending</code>, <code>processing</code>, <code>on-hold</code>, <code>completed</code>, <code>cancelled</code>, <code>refunded</code>, <code>failed</code>',
+            // tmp                                     'type' => 'text',
+            // tmp                                     'default' => '',
+            // tmp                                     'placeholder' => 'e.g. completed'
+            // tmp                                 ),
+            // tmp                                 array(
+            // tmp                                     'vertical' => true, // sfui-vertical
+            // tmp                                     'name' => 'post',
+            // tmp                                     'title' => 'Post status',
+            // tmp                                     'subline' => esc_html__( 'Leave blank or delete to keep the current post status unchanged. Accepted values are:', 'super-forms' ). ' ' . $postStatusesCode . '.',
+            // tmp                                     'type' => 'text',
+            // tmp                                     'default' => '',
+            // tmp                                     'placeholder' => 'e.g. publish'
+            // tmp                                 ),
+            // tmp                             )
+            // tmp                         )
+            // tmp                     )
+            // tmp                 ),
+            // tmp                 // Update login status when WooCommerce status changes
+            // tmp                 array(
+            // tmp                     'name' => 'login_status',
+            // tmp                     'type' => 'repeater',
+            // tmp                     'toggle' => true,
+            // tmp                     'title' => esc_html__( 'Update user login status when WooCommerce Order status changes', 'super-forms' ),
+            // tmp                     'nodes' => array( // repeater item
+            // tmp                         array(
+            // tmp                             'inline' => true,
+            // tmp                             'padding' => false,
+            // tmp                             'nodes' => array(
+            // tmp                                 array(
+            // tmp                                     'vertical' => true, // sfui-vertical
+            // tmp                                     'name' => 'order',
+            // tmp                                     'title' => 'Order status',
+            // tmp                                     'subline' => 'Accepted values: <code>pending</code>, <code>processing</code>, <code>on-hold</code>, <code>completed</code>, <code>cancelled</code>, <code>refunded</code>, <code>failed</code>',
+            // tmp                                     'type' => 'text',
+            // tmp                                     'default' => '',
+            // tmp                                     'placeholder' => 'e.g. completed'
+            // tmp                                 ),
+            // tmp                                 array(
+            // tmp                                     'vertical' => true, // sfui-vertical
+            // tmp                                     'name' => 'login_status',
+            // tmp                                     'title' => 'User login status',
+            // tmp                                     'subline' => esc_html__( 'Leave blank or delete to keep the current user status unchanged. Accepted values are:', 'super-forms' ). ' <code>active</code>, <code>pending</code>, <code>payment_required</code>, <code>blocked</code>.',
+            // tmp                                     'type' => 'text',
+            // tmp                                     'default' => '',
+            // tmp                                     'placeholder' => 'e.g. active'
+            // tmp                                 ),
+            // tmp                             )
+            // tmp                         )
+            // tmp                     )
+            // tmp                 ),
+
+            // tmp                 // Update user role when WooCommerce status changes
+            // tmp                 array(
+            // tmp                     'name' => 'user_role',
+            // tmp                     'type' => 'repeater',
+            // tmp                     'toggle' => true,
+            // tmp                     'title' => esc_html__( 'Update user role when WooCommerce Order status changes', 'super-forms' ),
+            // tmp                     'nodes' => array( // repeater item
+            // tmp                         array(
+            // tmp                             'inline' => true,
+            // tmp                             'padding' => false,
+            // tmp                             'nodes' => array(
+            // tmp                                 array(
+            // tmp                                     'vertical' => true, // sfui-vertical
+            // tmp                                     'name' => 'order',
+            // tmp                                     'title' => 'Order status',
+            // tmp                                     'subline' => 'Accepted values: <code>pending</code>, <code>processing</code>, <code>on-hold</code>, <code>completed</code>, <code>cancelled</code>, <code>refunded</code>, <code>failed</code>',
+            // tmp                                     'type' => 'text',
+            // tmp                                     'default' => '',
+            // tmp                                     'placeholder' => 'e.g. completed'
+            // tmp                                 ),
+            // tmp                                 array(
+            // tmp                                     'vertical' => true, // sfui-vertical
+            // tmp                                     'name' => 'user_role',
+            // tmp                                     'title' => 'User role',
+            // tmp                                     'subline' => esc_html__( 'Leave blank or delete to keep the current user role unchanged. Accepted values are:', 'super-forms' ). ' ' . $rolesCode . '.',
+            // tmp                                     'type' => 'text',
+            // tmp                                     'default' => '',
+            // tmp                                     'placeholder' => 'e.g. subscriber'
+            // tmp                                 ),
+            // tmp                             )
+            // tmp                         )
+            // tmp                     )
+            // tmp                 ),
+
+            // tmp                 array(
+            // tmp                     'toggle' => true,
+            // tmp                     'title' => esc_html__( 'Send email after payment completed', 'super-forms' ),
+            // tmp                     'nodes' => array(
+            // tmp                         array(
+            // tmp                             'notice' => 'info', // hint/info
+            // tmp                             'content' => 'To send an email after a WooCommerce order is completed, you can create a new action under the Triggers tab.',
+            // tmp                             'filter' => 'checkout;true'
+            // tmp                             //'width_auto' => false, // 'sfui-width-auto'
+            // tmp                             //'wrap' => false,
+            // tmp                             //'group' => true, // sfui-setting-group
+            // tmp                             //'group_name' => 'emails',
+            // tmp                             //'inline' => true, // sfui-inline
+            // tmp                             //'vertical' => true, // sfui-vertical
+            // tmp                             // tmp 'nodes' => array(
+            // tmp                             // tmp     array(
+            // tmp                             // tmp         'name' => 'status',
+            // tmp                             // tmp         'type' => 'text',
+            // tmp                             // tmp         'default' => '',
+            // tmp                             // tmp         'title' => esc_html__( 'When order status changes to', 'super-forms' ),
+            // tmp                             // tmp     ),
+            // tmp                             // tmp     array(
+            // tmp                             // tmp         'sub' => true, // sfui-sub-settings
+            // tmp                             // tmp         'filter' => 'status;completed',
+            // tmp                             // tmp         'nodes' => array(
+            // tmp                             // tmp             array(
+            // tmp                             // tmp                 'name' => 'to',
+            // tmp                             // tmp                 'type' => 'text',
+            // tmp                             // tmp                 'default' => '',
+            // tmp                             // tmp                 'title' => esc_html__( 'To:', 'super-forms' ),
+            // tmp                             // tmp             ),
+            // tmp                             // tmp         )
+            // tmp                             // tmp     )
+            // tmp                             // tmp )
+            // tmp                         )
+            // tmp                     )
+            // tmp                 ),
+
+
+            // tmp                 array(
+            // tmp                     'vertical' => true, // sfui-vertical
+            // tmp                     'name' => 'redirect',
+            // tmp                     'title' => 'Redirect to:',
+            // tmp                     'subline' => 'Redirect to Checkout, Cart or use form redirect. Accepted values: <code>checkout</code>, <code>cart</code> or <code>none</code>',
+            // tmp                     'type' => 'text',
+            // tmp                     'default' => 'checkout'
+            // tmp                 ),
+            // tmp                 array(
+            // tmp                     'inline' => true, // sfui-inline
+            // tmp                     'name' => 'empty_cart',
+            // tmp                     'type' => 'checkbox',
+            // tmp                     'default' => 'false',
+            // tmp                     'title' => esc_html__( 'Empty cart before adding products', 'super-forms' ),
+            // tmp                 ),
+            // tmp                 array(
+            // tmp                     'inline' => true, // sfui-inline
+            // tmp                     'name' => 'remove_fees',
+            // tmp                     'type' => 'checkbox',
+            // tmp                     'default' => 'false',
+            // tmp                     'title' => esc_html__( 'Remove/clear fees before redirecting to checkout/cart', 'super-forms' ),
+            // tmp                 ),
+            // tmp                 array(
+            // tmp                     'inline' => true, // sfui-inline
+            // tmp                     'name' => 'remove_coupons',
+            // tmp                     'type' => 'checkbox',
+            // tmp                     'default' => 'false',
+            // tmp                     'title' => esc_html__( 'Remove/clear coupons before redirecting to checkout/cart', 'super-forms' ),
+            // tmp                 ),
+            // tmp                 array(
+            // tmp                     'vertical' => true, // sfui-vertical
+            // tmp                     'name' => 'coupon',
+            // tmp                     'type' => 'text',
+            // tmp                     'placeholder' => 'e.g. {coupon_code}',
+            // tmp                     'default' => '',
+            // tmp                     'title' => esc_html__( 'Apply a coupon code', 'super-forms' )
+            // tmp                 ),
+
+            // tmp             )
+            // tmp         )
+            // tmp     )
+            // tmp ),
+            // tmp array(
+            // tmp     'name' => 'instant',
+            // tmp     'type' => 'checkbox',
+            // tmp     'default' => 'false',
+            // tmp     'title' => esc_html__( 'Enable WooCommerce Instant Order', 'super-forms' ),
+            // tmp     'nodes' => array(
+            // tmp         array(
+            // tmp             'sub' => true, // sfui-sub-settings
+            // tmp             'filter' => 'instant;true',
+            // tmp             'nodes' => array(
+            // tmp                 array(
+            // tmp                     'wrap' => false,
+            // tmp                     'group' => true, // sfui-setting-group
+            // tmp                     'group_name' => 'instant_conditionally',
+            // tmp                     'inline' => true, // sfui-inline
+            // tmp                     'filter' => 'instant;true',
+            // tmp                     'nodes' => array(
+            // tmp                         array(
+            // tmp                             'name' => 'enabled',
+            // tmp                             'type' => 'checkbox',
+            // tmp                             'default' => 'false',
+            // tmp                             'title' => esc_html__( 'Only create the order when below condition are met', 'super-forms' ),
+            // tmp                             'nodes' => array(
+            // tmp                                 array(
+            // tmp                                     'inline' => true, // sfui-inline
+            // tmp                                     'filter' => 'instant_conditionally.enabled;true',
+            // tmp                                     'nodes' => array(
+            // tmp                                         array(
+            // tmp                                             'wrap' => false,
+            // tmp                                             'name' => 'f1',
+            // tmp                                             'inline' => true,
+            // tmp                                             'padding' => false,
+            // tmp                                             'type' => 'text',
+            // tmp                                             'default' => '',
+            // tmp                                             'placeholder' => 'e.g. {tag}',
+            // tmp                                         ),
+            // tmp                                         array(
+            // tmp                                             'wrap' => false,
+            // tmp                                             'name' => 'logic',
+            // tmp                                             'padding' => false,
+            // tmp                                             'type' => 'select', // dropdown
+            // tmp                                             'options' => array(
+            // tmp                                                 '==' => '== Equal',
+            // tmp                                                 '!=' => '!= Not equal',
+            // tmp                                                 '??' => '?? Contains',
+            // tmp                                                 '!!' => '!! Not contains',
+            // tmp                                                 '>'  => '&gt; Greater than',
+            // tmp                                                 '<'  => '&lt;  Less than',
+            // tmp                                                 '>=' => '&gt;= Greater than or equal to',
+            // tmp                                                 '<=' => '&lt;= Less than or equal'
+            // tmp                                             ),
+            // tmp                                             'default' => '',
+            // tmp                                         ),
+            // tmp                                         array(
+            // tmp                                             'wrap' => false,
+            // tmp                                             'name' => 'f2',
+            // tmp                                             'inline' => true,
+            // tmp                                             'padding' => false,
+            // tmp                                             'type' => 'text',
+            // tmp                                             'default' => '',
+            // tmp                                             'placeholder' => 'e.g. true'
+            // tmp                                         )
+            // tmp                                     )
+            // tmp                                 )
+            // tmp                             )
+            // tmp                         )
+            // tmp                     )
+            // tmp                 ),
+            // tmp             )
+            // tmp         )
+            // tmp     )
+            // tmp ),
+        );
+        $s = array('triggers' => $triggers);
+        $prefix = array();
+        SUPER_UI::loop_over_tab_setting_nodes($s, $nodes, $prefix);
+
+        //SUPER_UI::loop_over_tab_setting_nodes($triggers, $nodes, $prefix);
+
+        // tmp disabled // tmp $triggers = SUPER_Common::get_form_triggers($atts['form_id']);
+        // tmp disabled // tmp if(count($triggers)===0) {
+        // tmp disabled // tmp     $triggers[] = self::get_default_trigger_settings(array());
+        // tmp disabled // tmp }
+        // tmp disabled echo '<div class="sfui-notice sfui-desc">';
+        // tmp disabled     echo '<strong>'.esc_html__('Note', 'super-forms').':</strong> ' . esc_html__('With triggers you can execute specific actions based on events that occur on your WordPress site.', 'super-forms');
+        // tmp disabled echo '</div>';
+        // tmp disabled // Enable listings
+        // tmp disabled echo '<div class="sfui-setting">';
+        // tmp disabled     //echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+        // tmp disabled     //    echo '<input type="checkbox" name="enabled" value="true"' . ($enabled==='true' ? ' checked="checked"' : '') . ' />';
+        // tmp disabled     //    echo '<span class="sfui-title">' . esc_html__( 'Enable triggers for this form', 'super-forms' ) . '</span>';
+        // tmp disabled     //echo '</label>';
+        // tmp disabled     //echo '<div class="sfui-sub-settings">';
+        // tmp disabled         // When enabled, we display the list with listings
+        // tmp disabled         echo '<div class="sfui-repeater" data-k="triggers">';
+        // tmp disabled         // Repeater Item
+        // tmp disabled         $events = array(
+        // tmp disabled             array(
+        // tmp disabled                 'label' => 'Form Events',
+        // tmp disabled                 'items' => array(
+        // tmp disabled                     'sf.before.submission' => 'sf.before.submission',
+        // tmp disabled                     'sf.after.submission' => 'sf.after.submission',
+        // tmp disabled                     'sf.submission.validation' => 'sf.submission.validation'
+        // tmp disabled                 )
+        // tmp disabled             ),
+        // tmp disabled             array(
+        // tmp disabled                 'label' => 'Stripe',
+        // tmp disabled                 'items' => array(
+        // tmp disabled                     'stripe.checkout.session.completed' => 'stripe.checkout.session.completed',
+        // tmp disabled                     'stripe.checkout.session.async_payment_failed' => 'stripe.checkout.session.async_payment_failed',
+        // tmp disabled                     'stripe.fulfill_order' => 'stripe.fulfill_order'
+        // tmp disabled                 )
+        // tmp disabled             )
+        // tmp disabled         );
+        // tmp disabled         $actions = array(
+        // tmp disabled             'send_email' => 'Send an E-mail',
+        // tmp disabled             'insert_db_row' => 'Insert row to database table',
+        // tmp disabled             'validate_field' => 'Validate field value',
+        // tmp disabled             'create_post' => 'Create a post/page/product'
+        // tmp disabled         );
+        // tmp disabled         foreach($triggers as $k => $v){
+        // tmp disabled             // Set default values if they don't exist
+        // tmp disabled             $v = self::get_default_trigger_settings($v);
+        // tmp disabled             echo '<div class="sfui-repeater-item">';
+        // tmp disabled                 echo '<div class="sfui-setting sfui-inline">';
+        // tmp disabled                     // 1. Trigger - Choose an event
+        // tmp disabled                     // [name] - [description] - [execution_order]
+        // tmp disabled                     echo '<div class="sfui-setting sfui-inline sfui-width-auto">';
+        // tmp disabled                         echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+        // tmp disabled                             echo '<input type="checkbox" name="active" value="true"' . ($v['active']==='true' ? ' checked="checked"' : '') . ' />';
+        // tmp disabled                             echo '<span class="sfui-title">' . esc_html__( 'Enabled', 'super-forms' ) . '</span>';
+        // tmp disabled                         echo '</label>';
+        // tmp disabled                     echo '</div>';
+        // tmp disabled                     // 2. Event - Choose an event that triggers your action (this is what starts executing the action)
+        // tmp disabled                     echo '<div class="sfui-setting sfui-vertical sfui-width-auto">';
+        // tmp disabled                         echo '<label>';
+        // tmp disabled                             echo '<select name="event" onChange="SUPER.ui.updateSettings(event, this)">';
+        // tmp disabled                                 echo '<option value=""'.($v['event']==='' ? ' selected="selected"' : '').'>- choose an event -</option>';
+        // tmp disabled                                 $hadLabel = false;
+        // tmp disabled                                 foreach($events as $ek => $ev){
+        // tmp disabled                                     if(isset($ev['label'])){
+        // tmp disabled                                         $hadLabel = true;
+        // tmp disabled                                         echo '<optgroup label="'.$ev['label'].'">';
+        // tmp disabled                                     }
+        // tmp disabled                                     $count = 0;
+        // tmp disabled                                     foreach($ev['items'] as $eek => $eev){
+        // tmp disabled                                         echo '<option value="'.$eek.'"'.($v['event']===$eek ? ' selected="selected"' : '').'>'.$eev.'</option>';
+        // tmp disabled                                         $count++;
+        // tmp disabled                                         if(count($ev['items'])===$count){
+        // tmp disabled                                             echo '</optgroup>';
+        // tmp disabled                                         }
+        // tmp disabled                                     }
+        // tmp disabled                                     //foreach($ev['items'] as $eek => $eev){
+        // tmp disabled                                     //var_dump($ev);
+        // tmp disabled                                     //// form_events
+        // tmp disabled                                     //// - label
+
+        // tmp disabled                                     //// webhooks
+        // tmp disabled                                     //// - label
+        // tmp disabled                                     //$i = 0;
+        // tmp disabled                                     //foreach($ev['items'] as $eek => $eev){
+        // tmp disabled                                     //    if(!isset($eev['items']) ){
+        // tmp disabled                                     //        if($i===0) {
+        // tmp disabled                                     //            echo '<optgroup label="'.$ev['label'].'">';
+        // tmp disabled                                     //        }
+        // tmp disabled                                     //        echo '<option value="'.$eek.'"'.($v['event']===$eek ? ' selected="selected"' : '').'>'.$eev.'</option>';
+        // tmp disabled                                     //    }
+        // tmp disabled                                     //    if(isset($eev['label'])){
+        // tmp disabled                                     //        echo '<optgroup label="'.$ev['label'].' > '.$eev['label'].'">'; // Webhooks > Stripe
+        // tmp disabled                                     //    }
+        // tmp disabled                                     //    foreach($eev['items'] as $eeek => $eeev){ 
+        // tmp disabled                                     //        echo '<option value="'.$eeek.'"'.($v['event']===$eeek ? ' selected="selected"' : '').'>'.$eeev.'</option>';
+        // tmp disabled                                     //    }
+        // tmp disabled                                     //    if(!isset($eev['items']) && $i===(count($ev['items']))){
+        // tmp disabled                                     //        echo '</optgroup>';
+        // tmp disabled                                     //    }else{
+        // tmp disabled                                     //        echo '</optgroup>';
+        // tmp disabled                                     //    }
+        // tmp disabled                                     //    $i++;
+        // tmp disabled                                     //}
+        // tmp disabled                                     //echo '</optgroup>';
+        // tmp disabled                                 }
+        // tmp disabled                             echo '</select>';
+        // tmp disabled                             echo '<span class="sfui-label"><i>' . esc_html__( 'Choose an event that will trigger your action(s)', 'super-forms' ) . '</i></span>';
+        // tmp disabled                         echo '</label>';
+        // tmp disabled                     echo '</div>';
+        // tmp disabled                     echo '<div class="sfui-setting sfui-vertical sfui-width-auto">';
+        // tmp disabled                         echo '<label>';
+        // tmp disabled                             echo '<input type="text" name="name" value="' . $v['name'] . '" />';
+        // tmp disabled                             echo '<span class="sfui-label"><i>' . esc_html__( 'Trigger name', 'super-forms' ) . '</i></span>';
+        // tmp disabled                         echo '</label>';
+        // tmp disabled                     echo '</div>';
+        // tmp disabled                     echo '<div class="sfui-setting sfui-vertical">';
+        // tmp disabled                         echo '<label>';
+        // tmp disabled                             echo '<input type="text" name="desc" placeholder="'.esc_html__( 'Describe what this trigger does...', 'super-forms' ).'" value="' . $v['desc'] . '" />';
+        // tmp disabled                             echo '<span class="sfui-label"><i>' . esc_html__( 'Description (to remember what it does)', 'super-forms' ) . '</i></span>';
+        // tmp disabled                         echo '</label>';
+        // tmp disabled                     echo '</div>';
+
+        // tmp disabled                     echo '<div class="sfui-setting sfui-vertical sfui-width-auto">';
+        // tmp disabled                         echo '<label>';
+        // tmp disabled                             echo '<select name="listen_to" onChange="SUPER.ui.updateSettings(event, this)">';
+        // tmp disabled                                 echo '<option value=""'.($v['listen_to']==='' ? ' selected="selected"' : '').'>'.esc_html__('Current form','super-forms').' ('.esc_html('default','super-forms').')</option>';
+        // tmp disabled                                 echo '<option value="all"'.($v['listen_to']==='all' ? ' selected="selected"' : '').'>'.esc_html__('All forms','super-forms').' ('.esc_html__('globally','super-forms').')</option>';
+        // tmp disabled                                 echo '<option value="id"'.($v['listen_to']==='id' ? ' selected="selected"' : '').'>'.esc_html__('Specific forms only','super-forms').'</option>';
+        // tmp disabled                             echo '</select>';
+        // tmp disabled                             echo '<span class="sfui-label"><i>' . esc_html__( 'Trigger for the specified form(s)', 'super-forms' ) . '</i></span>';
+        // tmp disabled                         echo '</label>';
+        // tmp disabled                     echo '</div>';
+        // tmp disabled                     echo '<div class="sfui-setting sfui-vertical sfui-width-auto" data-f="listen_to;id">';
+        // tmp disabled                         echo '<label>';
+        // tmp disabled                             echo '<input type="text" name="listen_to_ids" value="' . $v['listen_to_ids'] . '" />';
+        // tmp disabled                             echo '<span class="sfui-label"><i>' . esc_html__( 'Separate each form ID with a comma', 'super-forms' ) . '</i></span>';
+        // tmp disabled                         echo '</label>';
+        // tmp disabled                     echo '</div>';
+
+        // tmp disabled                     echo '<div class="sfui-setting sfui-vertical sfui-width-auto">';
+        // tmp disabled                         echo '<label>';
+        // tmp disabled                             echo '<input type="number" name="order" value="' . $v['order'] . '" />';
+        // tmp disabled                             echo '<span class="sfui-label"><i>' . esc_html__( 'Execution order (low number executes first)', 'super-forms' ) . '</i></span>';
+        // tmp disabled                         echo '</label>';
+        // tmp disabled                     echo '</div>';
+        // tmp disabled                     echo '<div class="sfui-btn sfui-round sfui-tooltip" title="' . esc_html__('Change Settings', 'super-forms' ) . '" onclick="SUPER.ui.btn(event, this, \'toggleRepeaterSettings\')"><i class="fas fa-cogs"></i></div>';
+        // tmp disabled                     echo '<div class="sfui-btn sfui-green sfui-round sfui-tooltip" title="' . esc_attr__( 'Add trigger', 'super-forms' ) . '" onclick="SUPER.ui.btn(event, this, \'addRepeaterItem\')"><i class="fas fa-plus"></i></div>';
+        // tmp disabled                     echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_html__('Delete trigger', 'super-forms' ) . '" onclick="SUPER.ui.btn(event, this, \'deleteRepeaterItem\')"><i class="fas fa-trash"></i></div>';
+        // tmp disabled                 echo '</div>';
+
+        // tmp disabled                 echo '<div class="sfui-setting-group">';
+        // tmp disabled                     echo '<div class="sfui-setting" data-f="event;">';
+        // tmp disabled                         echo '<div class="sfui-notice sfui-info">';
+        // tmp disabled                             echo '<strong>'.esc_html__('Note', 'super-forms').':</strong> ' . esc_html__('To define actions, you must first choose an event for the trigger above.', 'super-forms');
+        // tmp disabled                         echo '</div>';
+        // tmp disabled                     echo '</div>';
+        // tmp disabled                     // Hide listing to specific user role/ids
+        // tmp disabled                     echo '<div class="sfui-setting sfui-inline" data-f="event;!">';
+        // tmp disabled                         echo '<div class="sfui-sub-settings">';
+        // tmp disabled                             echo '<div class="sfui-repeater" data-k="actions">';
+        // tmp disabled                                 // Loop over actions for this event
+        // tmp disabled                                 if(!isset($v['actions'])) $v['actions'] = array(array('action'=>''));
+        // tmp disabled                                 foreach($v['actions'] as $ik => $iv){
+        // tmp disabled                                     $iv = array_merge(
+        // tmp disabled                                         array(
+        // tmp disabled                                             'action'=>'', 
+        // tmp disabled                                             'conditionally'=>'', 
+        // tmp disabled                                             'logic'=>'', 
+        // tmp disabled                                             'f1'=>'', 
+        // tmp disabled                                             'f2'=>'', 
+        // tmp disabled                                             'to'=>'', 
+        // tmp disabled                                             'from'=>'', 
+        // tmp disabled                                             'reply_to'=>'', 
+        // tmp disabled                                             'subject'=>'',
+        // tmp disabled                                             'body'=>'', 
+        // tmp disabled                                             //'line_breaks'=>'true',  not used due to tinyMCE
+        // tmp disabled                                             'cc'=>'', 
+        // tmp disabled                                             'bcc'=>'', 
+        // tmp disabled                                             'headers'=>'',
+        // tmp disabled                                             'content_type'=>'html',
+        // tmp disabled                                             'charset'=>'UTF-8'
+        // tmp disabled                                         ), 
+        // tmp disabled                                         $iv
+        // tmp disabled                                     );
+
+        // tmp disabled                                     echo '<div class="sfui-repeater-item">';
+        // tmp disabled                                         echo '<div class="sfui-setting sfui-inline" style="flex:1;">';
+        // tmp disabled                                             // 3. Action - The action that is executed/performed
+        // tmp disabled                                             // [+] Add another action
+        // tmp disabled                                             echo '<div class="sfui-setting sfui-vertical sfui-width-auto">';
+        // tmp disabled                                                 echo '<label>';
+        // tmp disabled                                                     echo '<select name="action" onChange="SUPER.ui.updateSettings(event, this)">';
+        // tmp disabled                                                     echo '<option value=""'.($iv['action']==='' ? ' selected="selected"' : '').'>- choose an action -</option>';
+        // tmp disabled                                                     foreach($actions as $ak => $av){
+        // tmp disabled                                                         echo '<option value="'.$ak.'"'.($iv['action']===$ak ? ' selected="selected"' : '').'>'.$av.'</option>';
+        // tmp disabled                                                     }
+        // tmp disabled                                                     echo '</select>';
+        // tmp disabled                                                     echo '<span class="sfui-label">' . esc_html__('The action to perform when the event is triggered', 'super-forms') . '</span>';
+        // tmp disabled                                                 echo '</label>';
+        // tmp disabled                                                 echo '<div class="sfui-setting sfui-inline sfui-no-padding">';
+        // tmp disabled                                                     echo '<div class="sfui-btn sfui-round sfui-tooltip" title="' . esc_html__('Change action settings', 'super-forms' ) . '" onclick="SUPER.ui.btn(event, this, \'toggleRepeaterSettings\')"><i class="fas fa-cogs"></i></div>';
+        // tmp disabled                                                     //echo '<div class="sfui-btn sfui-blue sfui-round sfui-tooltip" title="' . esc_html__('Conditional logic', 'super-forms' ) . '" onclick="SUPER.ui.btn(event, this, \'toggleConditionSettings\')"><i class="fas fa-arrows-split-up-and-left"></i></div>';
+        // tmp disabled                                                     echo '<div class="sfui-btn sfui-green sfui-round sfui-tooltip" title="' . esc_attr__( 'Add action', 'super-forms' ) . '" onclick="SUPER.ui.btn(event, this, \'addRepeaterItem\')"><i class="fas fa-plus"></i></div>';
+        // tmp disabled                                                     echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_html__('Delete action', 'super-forms' ) . '" onclick="SUPER.ui.btn(event, this, \'deleteRepeaterItem\')"><i class="fas fa-trash"></i></div>';
+        // tmp disabled                                                 echo '</div>';
+        // tmp disabled                                             echo '</div>';
+        // tmp disabled                                             echo '<div class="sfui-setting sfui-vertical">';
+        // tmp disabled                                                 echo '<div class="sfui-setting-group sfui-vertical" data-f="action;!">';
+        // tmp disabled                                                     echo '<div class="sfui-setting-group sfui-inline" data-f="action;!">';
+        // tmp disabled                                                         echo '<div class="sfui-setting sfui-no-padding sfui-width-auto">';
+        // tmp disabled                                                             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+        // tmp disabled                                                                 echo '<input type="checkbox" name="conditionally" value="true"' . ($iv['conditionally']==='true' ? ' checked="checked"' : '') . ' />';
+        // tmp disabled                                                                 echo '<span class="sfui-title">' . esc_html__( 'Execute conditionally', 'super-forms' ) . ' (' . esc_html__( 'optional', 'super-forms' ) .')</span>';
+        // tmp disabled                                                             echo '</label>';
+        // tmp disabled                                                         echo '</div>';
+        // tmp disabled                                                         echo '<div class="sfui-setting sfui-no-padding sfui-inline" data-f="conditionally;true">';
+        // tmp disabled                                                             echo '<label class="sfui-no-padding">';
+        // tmp disabled                                                                 echo '<input type="text" name="f1" placeholder="{field}" value="' . $iv['f1'] . '" />';
+        // tmp disabled                                                             echo '</label>';
+        // tmp disabled                                                             echo '<label class="sfui-no-padding">';
+        // tmp disabled                                                                 echo '<select name="logic">';
+        // tmp disabled                                                                     echo '<option'.($iv['logic']==='' ?   ' selected="selected"' : '').' selected="selected" value="">---</option>';
+        // tmp disabled                                                                     echo '<option'.($iv['logic']==='==' ? ' selected="selected"' : '').' value="==">== Equal</option>';
+        // tmp disabled                                                                     echo '<option'.($iv['logic']==='!=' ? ' selected="selected"' : '').' value="!=">!= Not equal</option>';
+        // tmp disabled                                                                     echo '<option'.($iv['logic']==='??' ? ' selected="selected"' : '').' value="??">?? Contains</option>';
+        // tmp disabled                                                                     echo '<option'.($iv['logic']==='!!' ? ' selected="selected"' : '').' value="!!">!! Not contains</option>';
+        // tmp disabled                                                                     echo '<option'.($iv['logic']==='>' ?  ' selected="selected"' : '').' value=">">&gt; Greater than</option>';
+        // tmp disabled                                                                     echo '<option'.($iv['logic']==='<' ?  ' selected="selected"' : '').' value="<">&lt;  Less than</option>';
+        // tmp disabled                                                                     echo '<option'.($iv['logic']==='>=' ? ' selected="selected"' : '').' value=">=">&gt;= Greater than or equal to</option>';
+        // tmp disabled                                                                     echo '<option'.($iv['logic']==='<=' ? ' selected="selected"' : '').' value="<=">&lt;= Less than or equal</option>';
+        // tmp disabled                                                                 echo '</select>';
+        // tmp disabled                                                             echo '</label>';
+        // tmp disabled                                                             echo '<label class="sfui-no-padding">';
+        // tmp disabled                                                                 echo '<input type="text" name="f2" placeholder="'.esc_html__( 'Comparison value', 'super-forms' ).'" value="' . $iv['f2'] . '" />';
+        // tmp disabled                                                             echo '</label>';
+        // tmp disabled                                                         echo '</div>';
+        // tmp disabled                                                     echo '</div>';
+        // tmp disabled                                                     echo '<div class="sfui-sub-settings" data-f="action;send_email">';
+        // tmp disabled                                                         echo '<div class="sfui-setting sfui-vertical">';
+        // tmp disabled                                                             echo '<label class="sfui-no-padding">';
+        // tmp disabled                                                                 echo '<span class="sfui-title">' . esc_html__('To', 'super-forms') . ':</span>';
+        // tmp disabled                                                                 echo '<input type="text" name="to" value="' . $iv['to'] . '" />';
+        // tmp disabled                                                             echo '</label>';
+        // tmp disabled                                                         echo '</div>';
+        // tmp disabled                                                         echo '<div class="sfui-setting sfui-vertical">';
+        // tmp disabled                                                             echo '<label class="sfui-no-padding">';
+        // tmp disabled                                                                 echo '<span class="sfui-title">' . esc_html__('From', 'super-forms') . ':</span>';
+        // tmp disabled                                                                 echo '<input type="text" name="from" value="' . $iv['from'] . '" />';
+        // tmp disabled                                                             echo '</label>';
+        // tmp disabled                                                         echo '</div>';
+        // tmp disabled                                                         echo '<div class="sfui-setting sfui-vertical">';
+        // tmp disabled                                                             echo '<label class="sfui-no-padding">';
+        // tmp disabled                                                                 echo '<span class="sfui-title">' . esc_html__('Reply-To', 'super-forms') . ':</span>';
+        // tmp disabled                                                                 echo '<input type="text" name="reply_to" value="' . $iv['reply_to'] . '" />';
+        // tmp disabled                                                             echo '</label>';
+        // tmp disabled                                                         echo '</div>';
+        // tmp disabled                                                         echo '<div class="sfui-setting sfui-vertical">';
+        // tmp disabled                                                             echo '<label class="sfui-no-padding">';
+        // tmp disabled                                                                 echo '<span class="sfui-title">' . esc_html__('Subject', 'super-forms') . ':</span>';
+        // tmp disabled                                                                 echo '<input type="text" name="subject" value="' . $iv['subject'] . '" />';
+        // tmp disabled                                                             echo '</label>';
+        // tmp disabled                                                         echo '</div>';
+        // tmp disabled                                                         echo '<div class="sfui-setting sfui-vertical">';
+        // tmp disabled                                                             echo '<label class="sfui-no-padding">';
+        // tmp disabled                                                                 echo '<span class="sfui-title">' . esc_html__('Body', 'super-forms') . ':</span>';
+        // tmp disabled                                                                 echo '<textarea name="body" id="'.($k.'-'.$ik.'-'.$iv['action']).'-body" class="sfui-textarea-tinymce">'.esc_textarea(wp_unslash($iv['body'])).'</textarea>';
+        // tmp disabled                                                             echo '</label>';
+        // tmp disabled                                                         echo '</div>';
+        // tmp disabled                                                         // not needed due to tinyMCE echo '<div class="sfui-setting sfui-no-padding">';
+        // tmp disabled                                                         // not needed due to tinyMCE     echo '<label>';
+        // tmp disabled                                                         // not needed due to tinyMCE         echo '<input type="checkbox" name="line_breaks" value="true"' . ($iv['line_breaks']==='true' ? ' checked="checked"' : '') . ' />';
+        // tmp disabled                                                         // not needed due to tinyMCE         echo '<span class="sfui-title">' . esc_html__( 'Enable line breaks', 'super-forms' ) . '</span>';
+        // tmp disabled                                                         // not needed due to tinyMCE     echo '</label>';
+        // tmp disabled                                                         // not needed due to tinyMCE echo '</div>';
+
+        // tmp disabled                                                         // @TODO:
+        // tmp disabled                                                         // 'attachments'=>array(),
+        // tmp disabled                                                         // 'string_attachments'=>array()
+        // tmp disabled                                                         echo '<div class="sfui-setting sfui-vertical">';
+        // tmp disabled                                                             echo '<label class="sfui-no-padding">';
+        // tmp disabled                                                                 echo '<span class="sfui-title">' . esc_html__('Attachments', 'super-forms') . ':</span>';
+        // tmp disabled                                                                 echo '<span class="sfui-title">' . esc_html__('String attachments', 'super-forms') . ':</span>';
+        // tmp disabled                                                             echo '</label>';
+        // tmp disabled                                                         echo '</div>';
+
+        // tmp disabled                                                         echo '<div class="sfui-setting sfui-vertical">';
+        // tmp disabled                                                             echo '<label class="sfui-no-padding">';
+        // tmp disabled                                                                 echo '<span class="sfui-title">' . esc_html__('CC', 'super-forms') . ':</span>';
+        // tmp disabled                                                                 echo '<input type="text" name="cc" value="' . $iv['cc'] . '" />';
+        // tmp disabled                                                             echo '</label>';
+        // tmp disabled                                                         echo '</div>';
+        // tmp disabled                                                         echo '<div class="sfui-setting sfui-vertical">';
+        // tmp disabled                                                             echo '<label class="sfui-no-padding">';
+        // tmp disabled                                                                 echo '<span class="sfui-title">' . esc_html__('BCC', 'super-forms') . ':</span>';
+        // tmp disabled                                                                 echo '<input type="text" name="bcc" value="' . $iv['bcc'] . '" />';
+        // tmp disabled                                                             echo '</label>';
+        // tmp disabled                                                         echo '</div>';
+        // tmp disabled                                                         echo '<div class="sfui-setting sfui-vertical sfui-width-auto">';
+        // tmp disabled                                                             echo '<label>';
+        // tmp disabled                                                                 echo '<span class="sfui-title">' . esc_html__('Content type', 'super-forms') . ':</span>';
+        // tmp disabled                                                                 echo '<select name="content_type" onChange="SUPER.ui.updateSettings(event, this)">';
+        // tmp disabled                                                                     echo '<option value=""'.($iv['content_type']==='' ? ' selected="selected"' : '').'>- choose an event -</option>';
+        // tmp disabled                                                                     echo '<option value="html"'.($iv['content_type']==='html' ? ' selected="selected"' : '').'>HTML</option>';
+        // tmp disabled                                                                     echo '<option value="plain"'.($iv['content_type']==='plain' ? ' selected="selected"' : '').'>Plain text</option>';
+        // tmp disabled                                                                 echo '</select>';
+        // tmp disabled                                                                 echo '<span class="sfui-label"><i>' . esc_html__( 'The content type to use for this email', 'super-forms' ) . '</i></span>';
+        // tmp disabled                                                             echo '</label>';
+        // tmp disabled                                                         echo '</div>';
+        // tmp disabled                                                         echo '<div class="sfui-setting sfui-vertical">';
+        // tmp disabled                                                             echo '<label class="sfui-no-padding">';
+        // tmp disabled                                                                 echo '<span class="sfui-title">' . esc_html__('Charset', 'super-forms') . ':</span>';
+        // tmp disabled                                                                 echo '<input type="text" name="charset" value="' . $iv['charset'] . '" />';
+        // tmp disabled                                                                 echo '<span class="sfui-label"><i>' . sprintf( esc_html__( 'The charset to use for this email.%sExample: UTF-8 or ISO-8859-1', 'super-forms' ), ' ' ) . '</i></span>';
+        // tmp disabled                                                             echo '</label>';
+        // tmp disabled                                                         echo '</div>';
+        // tmp disabled                                                         echo '<div class="sfui-setting sfui-vertical">';
+        // tmp disabled                                                             echo '<label class="sfui-no-padding">';
+        // tmp disabled                                                                 echo '<span class="sfui-title">' . esc_html__('Additional headers', 'super-forms') . ':</span>';
+        // tmp disabled                                                                 echo '<textarea name="headers">'.$iv['headers'].'</textarea>';
+        // tmp disabled                                                             echo '</label>';
+        // tmp disabled                                                         echo '</div>';
+        // tmp disabled                                                     echo '</div>';
+        // tmp disabled                                                 echo '</div>';
+        // tmp disabled                                             echo '</div>';
+        // tmp disabled                                         echo '</div>';
+        // tmp disabled                                     echo '</div>';
+        // tmp disabled                                 }
+        // tmp disabled                             echo '</div>';
+        // tmp disabled                         echo '</div>';
+        // tmp disabled                     echo '</div>';
+
+        // tmp disabled                     //// Custom columns
+        // tmp disabled                     //echo '<div class="sfui-setting">';
+        // tmp disabled                     //    echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+        // tmp disabled                     //        echo '<input type="checkbox" name="custom_columns.enabled" value="true"' . ($v['custom_columns']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Show the following "Custom" columns', 'super-forms' ) . ':</span>';
+        // tmp disabled                     //        echo '<div class="sfui-sub-settings" data-f="custom_columns.enabled;true">';
+        // tmp disabled                     //            echo '<div class="sfui-repeater" data-k="custom_columns.columns">';
+        // tmp disabled                     //                // Repeater Item
+        // tmp disabled                     //                $columns = $v['custom_columns']['columns'];
+        // tmp disabled                     //                foreach( $columns as $ck => $cv ) {
+        // tmp disabled                     //                    echo '<div class="sfui-repeater-item">';
+        // tmp disabled                     //                        echo '<div class="sfui-inline sfui-vertical">';
+        // tmp disabled                     //                            self::getColumnSettingFields($v, '', $ck, $cv);
+        // tmp disabled                     //                            echo '<div class="sfui-btn sfui-green sfui-round sfui-tooltip" title="' . esc_attr__( 'Add item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Add item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'addRepeaterItem\')"><i class="fas fa-plus"></i></div>';
+        // tmp disabled                     //                            echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'deleteRepeaterItem\')"><i class="fas fa-trash"></i></div>';
+        // tmp disabled                     //                        echo '</div>';
+        // tmp disabled                     //                    echo '</div>';
+        // tmp disabled                     //                }
+        // tmp disabled                     //            echo '</div>';
+        // tmp disabled                     //        echo '</div>';
+        // tmp disabled                     //    echo '</label>';
+        // tmp disabled                     //echo '</div>';
+
+        // tmp disabled                 echo '</div>';
+        // tmp disabled             echo '</div>';
+        // tmp disabled         }
+        // tmp disabled         echo '</div>';
+        // tmp disabled     //echo '</div>';
+        // tmp disabled echo '</div>';
     }
 
 
@@ -781,7 +2589,7 @@ class SUPER_Pages {
      * Handles the output for the create form page in admin
      */
     public static function create_form() {
-    
+        include_once( 'class-ui.php' );
         // Get all Forms created with Super Forms (post type: super_form)
         $args = array(
             'post_type' => 'super_form', //We want to retrieve all the Forms
@@ -822,6 +2630,7 @@ class SUPER_Pages {
         // @since 4.9.6 - secrets
         $localSecrets = get_post_meta($form_id, '_super_local_secrets', true);
         $globalSecrets = get_option( 'super_global_secrets' );
+        $version = get_post_meta( $form_id, '_super_version', true );
 
         // Include the file that handles the view
         include_once( SUPER_PLUGIN_DIR . '/includes/admin/views/page-create-form.php' );
@@ -851,20 +2660,20 @@ class SUPER_Pages {
      * Handles the output for the view contact entry page in admin
      */
     public static function contact_entry() {
-        $id = $_GET['id'];
-        if ( (FALSE === get_post_status($id)) && (get_post_type($id)!='super_contact_entry') ) {
+        $entry_id = $_GET['id'];
+        if ( (FALSE === get_post_status($entry_id)) && (get_post_type($entry_id)!='super_contact_entry') ) {
             // The post does not exist
             echo 'This contact entry does not exist.';
         } else {
             $my_post = array(
-                'ID' => $id,
+                'ID' => $entry_id,
                 'post_status' => 'super_read',
             );
             wp_update_post($my_post);
-            $date = get_the_date(false,$id);
-            $time = get_the_time(false,$id);
-            $ip = get_post_meta($id, '_super_contact_entry_ip', true);
-            $entry_status = get_post_meta($id, '_super_contact_entry_status', true);
+            $date = get_the_date(false,$entry_id);
+            $time = get_the_time(false,$entry_id);
+            $ip = get_post_meta($entry_id, '_super_contact_entry_ip', true);
+            $entry_status = get_post_meta($entry_id, '_super_contact_entry_status', true);
             $global_settings = SUPER_Common::get_global_settings();
             $data = get_post_meta($_GET['id'], '_super_contact_entry_data', true);
             if(is_array($data)){
@@ -887,10 +2696,14 @@ class SUPER_Pages {
                                     
             // @since 3.4.0  - custom contact entry status
             $statuses = SUPER_Settings::get_entry_statuses($global_settings);
+            $entry_title = esc_html(get_the_title($entry_id));
+            $page_title = esc_html($entry_title). ' ‹ '. get_bloginfo('name') . ' — WordPress';
             ?>
             <script>
+                document.title = '<?php echo $page_title; ?>';
                 jQuery('.toplevel_page_super_forms').removeClass('wp-not-current-submenu').addClass('wp-menu-open wp-has-current-submenu');
                 jQuery('.toplevel_page_super_forms').find('li:eq(4)').addClass('current');
+
             </script>
             <div class="wrap">
 
@@ -898,23 +2711,18 @@ class SUPER_Pages {
 
                     <div id="titlediv" style="margin-bottom:10px;">
                         <div id="titlewrap">
-                            <input placeholder="<?php _e( 'Contact Entry Title', 'super-forms' ); ?>" type="text" name="super_contact_entry_post_title" size="30" value="<?php echo get_the_title($id); ?>" id="title" spellcheck="true" autocomplete="false">
+                            <input placeholder="<?php _e( 'Contact Entry Title', 'super-forms' ); ?>" type="text" name="super_contact_entry_post_title" size="30" value="<?php echo $entry_title; ?>" id="title" spellcheck="true" autocomplete="false">
                         </div>
                     </div>
 
                     <div id="post-body" class="metabox-holder columns-2">
                         <div id="postbox-container-1" class="postbox-container">
-                            <div id="side-sortables" class="meta-box-sortables ui-sortable">
-                                <div id="submitdiv" class="postbox ">
-                                    <div class="handlediv" title="">
-                                        <br>
-                                    </div>
-                                    <h3 class="hndle ui-sortable-handle">
-                                        <span><?php echo esc_html__('Lead Details', 'super-forms' ); ?>:</span>
-                                    </h3>
+                            <div>
+                                <div id="submitdiv" class="postbox">
                                     <div class="inside">
                                         <div class="submitbox" id="submitpost">
                                             <div id="minor-publishing">
+                                                <h3 style="margin:0;padding:20px 10px;"><span><?php echo esc_html__('Lead Details', 'super-forms' ); ?>:</span></h3>
                                                 <div class="misc-pub-section">
                                                     <span><?php echo esc_html__('Submitted', 'super-forms' ).':'; ?> <strong><?php echo $date.' @ '.$time; ?></strong></span>
                                                 </div>
@@ -926,7 +2734,7 @@ class SUPER_Pages {
                                                 </div>
                                                 <?php
                                                 if(SUPER_WC_ACTIVE){
-                                                    $wc_order_id = get_post_meta($id, '_super_contact_entry_wc_order_id', true);
+                                                    $wc_order_id = get_post_meta($entry_id, '_super_contact_entry_wc_order_id', true);
                                                     if(!empty($wc_order_id)){
                                                         ?>
                                                         <div class="misc-pub-section">
@@ -935,8 +2743,8 @@ class SUPER_Pages {
                                                         <?php
                                                     }
                                                 }
-                                                do_action( 'after_contact_entry_metabox_hook', $id );
-                                                $post_author_id = get_post_field( 'post_author', $id );
+                                                do_action( 'after_contact_entry_metabox_hook', $entry_id );
+                                                $post_author_id = get_post_field( 'post_author', $entry_id );
                                                 if( !empty($post_author_id) ) {
                                                     $user_info = get_userdata($post_author_id);
                                                     // In case user no longer exists
@@ -960,14 +2768,35 @@ class SUPER_Pages {
                                                 <div class="clear"></div>
                                             </div>
 
+                                            <?php
+                                            $stripe_connections = get_post_meta($entry_id, '_super_stripe_connections', true);
+                                            if(is_array($stripe_connections) && count($stripe_connections)>0){
+                                                ?>
+                                                <div id="minor-publishing">
+                                                    <h3 style="margin:0;padding-left: 10px;"><span><?php echo esc_html__('Stripe Details', 'super-forms' ); ?>:</span></h3>
+                                                    <div class="misc-pub-section">
+                                                        <?php
+                                                        var_dump($stripe_connections);
+                                                        // 'payment_intent' => $payment_intent,
+                                                        // 'invoice' => $invoice,
+                                                        // 'customer' => $customer,
+                                                        // 'subscription' => $subscription
+                                                        ?>
+                                                    </div>
+                                                    <div class="clear"></div>
+                                                </div>
+                                                <?php
+                                            }
+                                            ?>
+
                                             <div id="major-publishing-actions">
                                                 <div id="delete-action">
-                                                    <a class="submitdelete super-delete-contact-entry" data-contact-entry="<?php echo absint($id); ?>" href="#"><?php echo esc_html__('Move to Trash', 'super-forms' ); ?></a>
+                                                    <a class="submitdelete super-delete-contact-entry" data-contact-entry="<?php echo absint($entry_id); ?>" href="#"><?php echo esc_html__('Move to Trash', 'super-forms' ); ?></a>
                                                 </div>
                                                 <div id="publishing-action">
                                                     <span class="spinner"></span>
                                                     <input name="print" type="submit" class="super-print-contact-entry button button-large" value="<?php echo esc_html__('Print', 'super-forms' ); ?>">
-                                                    <input name="save" type="submit" class="super-update-contact-entry button button-primary button-large" data-contact-entry="<?php echo absint($id); ?>" value="<?php echo esc_html__('Update', 'super-forms' ); ?>">
+                                                    <input name="save" type="submit" class="super-update-contact-entry button button-primary button-large" data-contact-entry="<?php echo absint($entry_id); ?>" value="<?php echo esc_html__('Update', 'super-forms' ); ?>">
                                                 </div>
                                                 <div class="clear"></div>
                                             </div>
@@ -979,14 +2808,8 @@ class SUPER_Pages {
                         </div>
                         
                         <div id="postbox-container-2" class="postbox-container">
-                            <div id="normal-sortables" class="meta-box-sortables ui-sortable">
-                                <div id="super-contact-entry-data" class="postbox ">
-                                    <div class="handlediv" title="">
-                                        <br>
-                                    </div>
-                                    <h3 class="hndle ui-sortable-handle">
-                                        <span><?php echo esc_html__('Lead Information', 'super-forms' ); ?>:</span>
-                                    </h3>
+                            <div>
+                                <div id="super-contact-entry-data" class="postbox">
                                     <?php
                                     $shipping = 0;
                                     $currency = '';
@@ -1080,7 +2903,6 @@ class SUPER_Pages {
                                     </div>
                                 </div>
                             </div>
-                            <div id="advanced-sortables" class="meta-box-sortables ui-sortable"></div>
                         </div>
                     </div>
                     <!-- /post-body -->

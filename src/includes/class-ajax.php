@@ -2400,14 +2400,14 @@ class SUPER_Ajax {
                 $result .= '<select>';
                     $i = 0;
                     foreach( $tabs as $k => $v ){
-                        $result .= '<option ' . ( $i==0 ? 'selected="selected"' : '' ) . ' value="' . $i . '">' . $v['name'] . '</option>';
+                        $result .= '<option ' . ( $i==0 ? 'selected="selected"' : '' ) . ' value="' . $i . '" data-key="' . $k . '">' . $v['name'] . '</option>';
                         $i++;
                     }
                 $result .= '</select>';
             $result .= '</div>';
             $i = 0;
             foreach( $tabs as $k => $v ){
-                $result .= '<div class="tab-content' . ( $i==0 ? ' super-active' : '' ) . '">';
+                $result .= '<div class="tab-content' . ( $i==0 ? ' super-active' : '' ) . '" data-key="' . $k . '">';
                     if($k==='icon' && $settings['theme_hide_icons']==='yes'){
                         $result .= '<strong style="color:red;">' . esc_html__( 'Please note', 'super-forms' ) . ':</strong> ' . esc_html__('Your icons will not be displayed because you currently have enabled the option to hide field icons under "Form Settings > Theme & Colors > Hide field icons"', 'super-forms' );
                     }
@@ -3091,16 +3091,11 @@ class SUPER_Ajax {
 
 
     public static function submit_form() {
-        error_log('submit_form()');
         do_action( 'super_before_submit_form', array( 'post'=>$_POST ));
         if(empty($_POST['fileUpload'])) {
-            error_log('submit_form(2)');
             $atts = self::submit_form_checks();
-            error_log('submit_form(2.1)');
         }else{
-            error_log('submit_form(3)');
             $atts = self::submit_form_checks(true);
-            error_log('submit_form(3.1)');
         }
         $form_id = $atts['form_id'];
         $sfsi = $atts['sfsi'];
@@ -3281,8 +3276,8 @@ class SUPER_Ajax {
                 $post['post_author'] = absint($post_author);
             }
             $contact_entry_id = wp_insert_post($post);
-
             $sfsi['contact_entry_id'] = $contact_entry_id;
+            $sfsi['entry_id'] = $contact_entry_id;
             update_option('_sfsi_' . $uniqueSubmissionId, $sfsi);
 
             // Store entry ID for later use
@@ -3555,6 +3550,7 @@ class SUPER_Ajax {
         }
 
         do_action( 'super_before_sending_email_hook', array( 
+            'uniqueSubmissionId'=>$uniqueSubmissionId,
             'data'=>$data, 
             'form_id'=>$form_id, 
             'entry_id'=>$entry_id, 
@@ -3563,6 +3559,8 @@ class SUPER_Ajax {
             'response_data'=>$response_data, 
             'post'=>$_POST
         ));
+        // We must retrieve the new session info, because the register & login might have updated the `user_id` value
+        $sfsi = get_option('_sfsi_' . $uniqueSubmissionId);
         if( $settings['send']=='yes' ) {
             $email_body = $settings['email_body'];
             $email_body = str_replace( '{loop_fields}', $email_loop, $email_body );
@@ -3915,7 +3913,6 @@ class SUPER_Ajax {
 
             $sfsi['attachments'] = $attachments;
             update_option('_sfsi_' . $uniqueSubmissionId, $sfsi);
-
             SUPER_Common::triggerEvent('sf.after.submission', array(
                 'uniqueSubmissionId'=>$uniqueSubmissionId, 
                 'post'=>$_POST, 
@@ -3934,7 +3931,6 @@ class SUPER_Ajax {
                 'attachments'=>$attachments,
                 'form_id'=>$form_id
             ));
-
             // If the option to delete files after form submission is enabled remove all uploaded files from the server
             if( !empty($settings['file_upload_submission_delete']) ) {
                 // Loop through all data with field typ 'files' and look for any uploaded attachments
@@ -3958,10 +3954,32 @@ class SUPER_Ajax {
                         }
                     }
                 }
+            }else{
+                // Check if we must delete vCards after form submission
+                if( (!empty($settings['vcard_delete'])) && 
+                    ($settings['vcard_delete']==='true') &&
+                    (isset($data['_vcard'])) && 
+                    (isset($data['_vcard']['files'])) && 
+                    (count($data['_vcard']['files'] )!=0)){
+                    foreach($data['_vcard']['files'] as $file){
+                        if(!empty($file['attachment'])){
+                            wp_delete_attachment(absint($file['attachment']), true);
+                        }else{
+                            if(!empty($file['subdir'])){
+                                $filePath = realpath(ABSPATH . $file['subdir']);
+                                SUPER_Common::delete_dir(dirname($filePath));
+                                continue;
+                            }
+                            if(!empty($file['path'])){
+                                SUPER_Common::delete_dir($file['path']);
+                            }
+                        }
+                    }
+                }
             }
 
             // Currently used by Stripe to redirect to checkout session
-            do_action( 'super_before_redirect_action', array( 'form_id'=>$form_id, 'uniqueSubmissionId'=>$uniqueSubmissionId, 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id, 'attachments'=>$attachments ) );
+            do_action( 'super_before_redirect_action', array( 'sfsi'=>$sfsi, 'form_id'=>$form_id, 'uniqueSubmissionId'=>$uniqueSubmissionId, 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id, 'attachments'=>$attachments ) );
 
             // Clear form progression
             SUPER_Common::setClientData( array( 'name' => 'progress_' . $form_id, 'value' => false ) );
@@ -4051,3 +4069,5 @@ class SUPER_Ajax {
 }
 endif;
 SUPER_Ajax::init();
+
+

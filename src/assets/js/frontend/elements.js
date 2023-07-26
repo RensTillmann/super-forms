@@ -2154,7 +2154,6 @@
             // Loop over all fields that are inside dynamic column and rename them accordingly
             SUPER.append_dynamic_column_depth({form: form, clone: clone});
             SUPER.init_common_fields();
-            SUPER.init_replace_html_tags({el: undefined, form: clone});
             SUPER.after_duplicating_column_hook(form, unique_field_names, clone);
             SUPER.after_field_change_blur_hook({form: clone, el: undefined});
         });
@@ -2569,6 +2568,7 @@
             e.stopPropagation();
             form = SUPER.get_frontend_or_backend_form({el: this});
             wrapper = this.closest('.super-field-wrapper');
+            if(!wrapper) return;
             input = wrapper.querySelector('.super-shortcode-field');
             parent = this.closest('.super-dropdown-list');
             placeholder = parent.querySelector('.super-placeholder');
@@ -2729,6 +2729,18 @@
                 SUPER.handle_validations({el: this, form: form, validation: validation, conditionalValidation: conditionalValidation});
                 SUPER.after_field_change_blur_hook({el: this});
             }
+        });
+        var field_change_timeout = null;
+        //$doc.on('keyup', '.super-text .super-shortcode-field', function(e) {
+        $doc.on('keyup', '.super-shortcode-field', function(e) {
+            var $this = $(this), $time = 250;
+            if(e.type!='keyup') $time = 0;
+            if (field_change_timeout !== null) {
+                clearTimeout(field_change_timeout);
+            }
+            field_change_timeout = setTimeout(function () {
+                SUPER.after_field_change_blur_hook({el: $this[0]});
+            }, $time);
         });
 
         SUPER.simulateRadioItemClicked = function(e, el){

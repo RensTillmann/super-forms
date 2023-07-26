@@ -67,301 +67,675 @@ if(!class_exists('SUPER_PDF_Generator')) :
             $slug = SUPER_PDF_Generator()->add_on_slug;
             $settings = (isset($atts['settings']['_'.$slug]) ? $atts['settings']['_'.$slug] : array());
             $s = self::get_default_pdf_settings($settings);
-            
-            // Hiding/Showing elements in PDF
-            echo '<div class="sfui-notice sfui-desc">';
-                echo '<strong>'.esc_html__('Tip', 'super-forms').':</strong> ' . esc_html__( 'By default all elements that are visible in your form will be printed onto the PDF unless defined otherwise under "PDF Settings" TAB when editing the element. Each element can be included or excluded specifically from the PDF or from the form. You can define this on a per element basis (including columns) by editing the element and navigating to "PDF Settings" section. Here you can define if the element should be only visible in the PDF or Form, or both.', 'super-forms' );
-            echo '</div>';
-            // Header/Footer usage notice
-            echo '<div class="sfui-notice sfui-desc">';
-                echo '<strong>'.esc_html__('Tip', 'super-forms').':</strong> ' . esc_html__( 'To use a header and footer for your PDF, you can edit any element (including columns) and navigate to "PDF Settings" section. Here you can define if the element should be used as a header or footer. Note that you can only use one header or footer element. To add multiple elements you should use a column instead.', 'super-forms' );
-            echo '</div>';
-            // {tags} usage notice
-            echo '<div class="sfui-notice sfui-desc">';
-                echo '<strong>'.esc_html__('Tip', 'super-forms').':</strong> ' . esc_html__( '{pdf_page} and {pdf_total_pages} tags can be used inside a HTML element to be used in your header/footer.', 'super-forms' );
-            echo '</div>';
-            
-            // Enable PDF
-            echo '<div class="sfui-setting">';
-                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                    echo '<input type="checkbox" name="generate" value="true"' . ($s['generate']==='true' ? ' checked="checked"' : '') . ' />';
-                    echo '<span class="sfui-title">' . esc_html__( 'Enable Form to PDF generation', 'super-forms' ) . '</span>';
-                echo '</label>';
-                echo '<div class="sfui-sub-settings" data-f="generate;true">';
-                    // Debug mode
-                    echo '<div class="sfui-setting">';
-                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                            echo '<input type="checkbox" name="debug" value="true"' . ($s['debug']==='true' ? ' checked="checked"' : '') . ' />';
-                            echo '<span class="sfui-title">' . esc_html__( 'Enable debug mode (this will not submit the form, but directly download the generated PDF, only enable this when developing your form)', 'super-forms' ) . '</span>';
-                        echo '</label>';
-                    echo '</div>';
-                    // Native mode
-                    echo '<div class="sfui-setting">';
-                        echo '<label onclick="SUPER.ui.updateSettings(event, this)" style="align-items: flex-start;">';
-                            echo '<input type="checkbox" name="native" value="true"' . ($s['native']==='true' ? ' checked="checked"' : '') . ' />';
-                            echo '<div class="sfui-vertical" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start;">';
-                                echo '<span class="sfui-title">' . esc_html__( 'Enable native mode', 'super-forms' ) . ' <strong style="color:red;">(recommended)</strong></span>';
-                                echo '<span class="sfui-label">' . esc_html__( 'Smaller PDF size and faster rendering.', 'super-forms' ) . '</span>';
-                            echo '</div>';
-                        echo '</label>';
-                    echo '</div>';
-                    // Smart page breaks
-                    echo '<div class="sfui-setting sfui-inline">';
-                        echo '<span class="sfui-title">' . esc_html__( 'Smart page break', 'super-forms' ) . ':</span>';
-                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                            echo '<input type="number" min="0" max="99" name="smartBreak" value="' . esc_attr($s['smartBreak']) . '" />';
-                            echo '<span class="sfui-label">' . esc_html__( 'If the element does not fit on the current page, push it to the next page automatically. Recommended value is 95%, set to 0% to disable', 'super-forms' ) . '</span>';
-                        echo '</label>';
-                    echo '</div>';
-                    // PDF file name
-                    echo '<div class="sfui-setting sfui-inline">';
-                        echo '<span class="sfui-title">' . esc_html__( 'PDF filename', 'super-forms' ) . ':</span>';
-                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                            echo '<input type="text" name="filename" value="' . esc_attr($s['filename']) . '" />';
-                            echo '<span class="sfui-label">' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
-                        echo '</label>';
-                    echo '</div>';
-                    // Email label
-                    echo '<div class="sfui-setting sfui-inline">';
-                        echo '<span class="sfui-title">' . esc_html__( 'Email label', 'super-forms' ) . ':</span>';
-                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                            echo '<input type="text" name="emailLabel" value="' . esc_attr($s['emailLabel']) . '" />';
-                            echo '<span class="sfui-label">' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
-                        echo '</label>';
-                    echo '</div>';
-                    // Attach generated PDF to admin e-mail
-                    echo '<div class="sfui-setting">';
-                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                            echo '<input type="checkbox" name="adminEmail" value="true"' . ($s['adminEmail']==='true' ? ' checked="checked"' : '') . ' />';
-                            echo '<span class="sfui-title">' . esc_html__( 'Attach generated PDF to admin e-mail', 'super-forms' ) . '</span>';
-                        echo '</label>';
-                    echo '</div>';
-                    // Attach generated PDF to confirmation e-mail
-                    echo '<div class="sfui-setting">';
-                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                            echo '<input type="checkbox" name="confirmationEmail" value="true"' . ($s['confirmationEmail']==='true' ? ' checked="checked"' : '') . ' />';
-                            echo '<span class="sfui-title">' . esc_html__( 'Attach generated PDF to confirmation e-mail', 'super-forms' ) . '</span>';
-                        echo '</label>';
-                    echo '</div>';
-                    // Do not save PDF in Contact Entry
-                    echo '<div class="sfui-setting">';
-                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                            echo '<input type="checkbox" name="excludeEntry" value="true"' . ($s['excludeEntry']==='true' ? ' checked="checked"' : '') . ' />';
-                            echo '<span class="sfui-title">' . esc_html__( 'Do not save PDF in Contact Entry', 'super-forms' ) . '</span>';
-                        echo '</label>';
-                    echo '</div>';
-                    
-                    // Show download button to the user after PDF was generated
-                    echo '<div class="sfui-setting">';
-                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                            echo '<input type="checkbox" name="downloadBtn" value="true"' . ($s['downloadBtn']==='true' ? ' checked="checked"' : '') . ' />';
-                            echo '<span class="sfui-title">' . esc_html__( 'Show download button to the user after PDF was generated', 'super-forms' ) . '</span>';
-                        echo '</label>';
-                        echo '<div class="sfui-sub-settings" data-f="downloadBtn;true">';
-                            // Download button text
-                            echo '<div class="sfui-setting sfui-inline">';
-                                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                    echo '<span class="sfui-title">' . esc_html__( 'Download button text', 'super-forms' ) . ':</span>';
-                                    echo '<input type="text" name="downloadBtnText" value="' . esc_attr($s['downloadBtnText']) . '" />';
-                                echo '</label>';
-                            echo '</div>';
-                            // Generating text
-                            echo '<div class="sfui-setting sfui-inline">';
-                                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                    echo '<span class="sfui-title">' . esc_html__( 'Generating text', 'super-forms' ) . ':</span>';
-                                    echo '<input type="text" name="generatingText" value="' . esc_attr($s['generatingText']) . '" />';
-                                echo '</label>';
-                            echo '</div>';
-                        echo '</div>';
-                    echo '</div>';
+            $logic = array( '==' => '== Equal', '!=' => '!= Not equal', '??' => '?? Contains', '!!' => '!! Not contains', '>'  => '&gt; Greater than', '<'  => '&lt;  Less than', '>=' => '&gt;= Greater than or equal to', '<=' => '&lt;= Less than or equal');
+            // Page format
+            $formats = array();
+            for($i=0; $i < 10; $i++){ $formats[] = array('v'=>'a'.$i); }
+            for($i=0; $i < 10; $i++){ $formats[] = array('v'=>'b'.$i); }
+            for($i=0; $i < 10; $i++){ $formats[] = array('v'=>'c'.$i); }
+            $formats = array_merge($formats, array(array('v'=>'dl'), array('v'=>'letter'), array('v'=>'government-letter'), array('v'=>'legal'), array('v'=>'junior-legal'), array('v'=>'ledger'), array('v'=>'tabloid'), array('v'=>'credit-card'), array('v'=>'custom')));
+            $nodes = array(
+                array(
+                    'notice' => 'hint', // hint/info
+                    'content' => '<strong>'.esc_html__('Tip', 'super-forms').':</strong> ' . esc_html__( 'If you want to hide elements from the PDF file, you can edit the element and configure this under the "PDF Settings" section.', 'super-forms' ),
+                ),
+                array(
+                    'notice' => 'hint', // hint/info
+                    'content' => '<strong>'.esc_html__('Tip', 'super-forms').':</strong> ' . esc_html__( 'You can define a column to act as your PDF header/footer. Note that you can only define one header and one footer element. Headers and footers will be visible on every page in the PDF. You may use the {pdf_page} and {pdf_total_pages} tags for pagination purposes inside your header/footer.', 'super-forms' )
+                ),
+                array(
+                    'name' => 'generate',
+                    'title' => esc_html__( 'Enable Form to PDF generation', 'super-forms' ),
+                    'type' => 'checkbox',
+                    'default' => '',
+                    'nodes' => array(
+                        array(
+                            'sub' => true, // sfui-sub-settings
+                            'filter' => 'generate;true',
+                            'nodes' => array(
+                                array(
+                                    //'width_auto' => false, // 'sfui-width-auto'
+                                    'wrap' => false,
+                                    'group' => true, // sfui-setting-group
+                                    'group_name' => 'conditions',
+                                    'inline' => true, // sfui-inline
+                                    //'vertical' => true, // sfui-vertical
+                                    'nodes' => array(
+                                        array(
+                                            'name' => 'enabled',
+                                            'type' => 'checkbox',
+                                            'default' => 'false',
+                                            'title' => esc_html__( 'Only generate PDF when below condition is met', 'super-forms' ),
+                                            'nodes' => array(
+                                                array(
+                                                    'sub' => true, // sfui-sub-settings
+                                                    //'group' => true, // sfui-setting-group
+                                                    'inline' => true, // sfui-inline
+                                                    //'vertical' => true, // sfui-vertical
+                                                    'filter' => 'conditions.enabled;true',
+                                                    'nodes' => array(
+                                                        array( 'name' => 'f1', 'type' => 'text', 'default' => '', 'placeholder' => 'e.g. {tag}',),
+                                                        array( 'name' => 'logic', 'type' => 'select', 'options' => $logic, 'default' => '',),
+                                                        array( 'name' => 'f2', 'type' => 'text', 'default' => '', 'placeholder' => 'e.g. true')
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
+                                ),
+                                array(
+                                    'toggle' => true,
+                                    'title' => esc_html__( 'General settings', 'super-forms' ),
+                                    'vertical' => true,
+                                    'nodes' => array(
+                                        array(
+                                            'name' => 'debug',
+                                            'title' => esc_html__( 'Enable debug mode', 'super-forms' ),
+                                            'subline' => esc_html__( '(this will not submit the form, but directly download the generated PDF, only enable this when developing your form)', 'super-forms' ),
+                                            'type' => 'checkbox',
+                                            'default' => ''
+                                        ),
+                                        array(
+                                            'name' => 'native',
+                                            'title' => esc_html__( 'Enable native mode', 'super-forms' ) . ' <strong style="color:red;">('.esc_html__( 'recommended', 'super-forms' ).')</strong>',
+                                            'subline' => esc_html__( '(smaller PDF size and faster rendering)', 'super-forms' ),
+                                            'type' => 'checkbox',
+                                            'default' => ''
+                                        ),
+                                        array(
+                                            'name' => 'filename',
+                                            'title' => esc_html__( 'PDF filename', 'super-forms' ),
+                                            'subline' => esc_html__( 'use {tags} if needed', 'super-forms' ),
+                                            'type' => 'text',
+                                            'default' => 'form.pdf'
+                                        ),
+                                        array(
+                                            'name' => 'emailLabel',
+                                            'title' => esc_html__( 'E-mail label', 'super-forms' ),
+                                            'subline' => esc_html__( 'use {tags} if needed', 'super-forms' ),
+                                            'type' => 'text',
+                                            'default' => 'PDF file'
+                                        ),
+                                        array(
+                                            'name' => 'adminEmail',
+                                            'title' => esc_html__( 'Attach generated PDF to admin email', 'super-forms' ),
+                                            'type' => 'text',
+                                            'default' => 'true',
+                                            'accepted_values' => array(array('v'=>'true'), array('v'=>'false'))
+                                        ),
+                                        array(
+                                            'name' => 'confirmationEmail',
+                                            'title' => esc_html__( 'Attach generated PDF to confirmation email', 'super-forms' ),
+                                            'type' => 'text',
+                                            'default' => 'true',
+                                            'accepted_values' => array(array('v'=>'true'), array('v'=>'false'))
+                                        ),
+                                        array(
+                                            'name' => 'excludeEntry',
+                                            'title' => esc_html__( 'Do not save PDF in Contact Entry', 'super-forms' ),
+                                            'type' => 'text',
+                                            'default' => 'false',
+                                            'accepted_values' => array(array('v'=>'true'), array('v'=>'false'))
+                                        ),
+                                        array(
+                                            'width_auto' => true,
+                                            'name' => 'downloadBtn',
+                                            'title' => esc_html__( 'Show download button to the user after PDF was generated', 'super-forms' ),
+                                            'type' => 'text',
+                                            'default' => 'true',
+                                            'accepted_values' => array(array('v'=>'true'), array('v'=>'false'))
+                                        ),
+                                        array(
+                                            'width_auto' => true,
+                                            'name' => 'downloadBtnText',
+                                            'title' => esc_html__( 'Download button text', 'super-forms' ),
+                                            'type' => 'text',
+                                            'default' => 'true',
+                                            'filter' => 'downloadBtn;true'
+                                        ),
+                                        array(
+                                            'name' => 'generatingText',
+                                            'title' => esc_html__( 'Generating text', 'super-forms' ),
+                                            'subline' => esc_html__( 'Text displayed to the user while the PDF file is being generated', 'super-forms' ),
+                                            'type' => 'text',
+                                            'default' => 'Generating PDF file...'
+                                        )
+                                    )
+                                ),
+                                array(
+                                    'toggle' => true,
+                                    'title' => esc_html__( 'Page dimensions', 'super-forms' ),
+                                    'vertical' => true,
+                                    'nodes' => array(
+                                        array(
+                                            'wrap' => false,
+                                            'group' => true,
+                                            'group_name' => '',
+                                            'vertical' => true,
+                                            'nodes' => array(
+                                                array(
+                                                    'width_auto' => true,
+                                                    'name' => 'orientation',
+                                                    'title' => esc_html__( 'Page orientation', 'super-forms' ),
+                                                    'type' => 'text',
+                                                    'accepted_values' => array(array('v'=>'portrait'), array('v'=>'landscape')),
+                                                    'default' => 'portrait'
+                                                ),
+                                                array(
+                                                    'width_auto' => true,
+                                                    'name' => 'format',
+                                                    'title' => esc_html__( 'Page format', 'super-forms' ),
+                                                    'type' => 'text',
+                                                    'accepted_values' => $formats,
+                                                    'default' => 'a4'
+                                                ),
+                                                array(
+                                                    'width_auto' => true,
+                                                    'name' => 'customFormat',
+                                                    'title' => esc_html__( 'Custom page format in units defined above e.g: 210,297', 'super-forms' ),
+                                                    'type' => 'text',
+                                                    'default' => '',
+                                                    'filter' => 'format;custom'
+                                                ),
+                                                array(
+                                                    'width_auto' => true,
+                                                    'name' => 'unit',
+                                                    'title' => esc_html__( 'Unit', 'super-forms' ),
+                                                    'type' => 'text',
+                                                    'accepted_values' => array(array('v'=>'mm', 'i'=>'(default)'), array('v'=>'pt'), array('v'=>'cm'), array('v'=>'in'), array('v'=>'px')),
+                                                    'default' => 'mm'
+                                                ),
+                                                array(
+                                                    'wrap' => false,
+                                                    'padding' => false,
+                                                    'group' => true,
+                                                    'group_name' => 'margins',
+                                                    'vertical' => true,
+                                                    'nodes' => array(
+                                                        array(
+                                                            'toggle' => true,
+                                                            'title' => esc_html__( 'Header margins (in units declared above)', 'super-forms' ),
+                                                            'vertical' => true,
+                                                            'nodes' => array(
+                                                                array(
+                                                                    'wrap' => false,
+                                                                    'padding' => false,
+                                                                    'group' => true,
+                                                                    'group_name' => 'header',
+                                                                    'inline' => true,
+                                                                    'nodes' => array(
+                                                                        array( 'width_auto' => true, 'name' => 'top', 'type' => 'text', 'default' => '5', 'title' => esc_html__( 'Top', 'super-forms' )),
+                                                                        array( 'width_auto' => true, 'name' => 'right', 'type' => 'text', 'default' => '5', 'title' => esc_html__( 'Right', 'super-forms' )),
+                                                                        array( 'width_auto' => true, 'name' => 'bottom', 'type' => 'text', 'default' => '5', 'title' => esc_html__( 'Bottom', 'super-forms' )),
+                                                                        array( 'width_auto' => true, 'name' => 'left', 'type' => 'text', 'default' => '5', 'title' => esc_html__( 'Left', 'super-forms' )),
+                                                                    )
+                                                                )
+                                                            )
+                                                        ),
+                                                        array(
+                                                            'toggle' => true,
+                                                            'title' => esc_html__( 'Body margins (in units declared above)', 'super-forms' ),
+                                                            'vertical' => true,
+                                                            'nodes' => array(
+                                                                array(
+                                                                    'wrap' => false,
+                                                                    'padding' => false,
+                                                                    'group' => true,
+                                                                    'group_name' => 'body',
+                                                                    'inline' => true,
+                                                                    'nodes' => array(
+                                                                        array( 'width_auto' => true, 'name' => 'top', 'type' => 'text', 'default' => '0', 'title' => esc_html__( 'Top', 'super-forms' )),
+                                                                        array( 'width_auto' => true, 'name' => 'right', 'type' => 'text', 'default' => '5', 'title' => esc_html__( 'Right', 'super-forms' )),
+                                                                        array( 'width_auto' => true, 'name' => 'bottom', 'type' => 'text', 'default' => '0', 'title' => esc_html__( 'Bottom', 'super-forms' )),
+                                                                        array( 'width_auto' => true, 'name' => 'left', 'type' => 'text', 'default' => '5', 'title' => esc_html__( 'Left', 'super-forms' )),
+                                                                    )
+                                                                )
+                                                            )
+                                                        ),
+                                                        array(
+                                                            'toggle' => true,
+                                                            'title' => esc_html__( 'Footer margins (in units declared above)', 'super-forms' ),
+                                                            'vertical' => true,
+                                                            'nodes' => array(
+                                                                array(
+                                                                    'wrap' => false,
+                                                                    'padding' => false,
+                                                                    'group' => true,
+                                                                    'group_name' => 'footer',
+                                                                    'inline' => true,
+                                                                    'nodes' => array(
+                                                                        array( 'width_auto' => true, 'name' => 'top', 'type' => 'text', 'default' => '5', 'title' => esc_html__( 'Top', 'super-forms' )),
+                                                                        array( 'width_auto' => true, 'name' => 'right', 'type' => 'text', 'default' => '5', 'title' => esc_html__( 'Right', 'super-forms' )),
+                                                                        array( 'width_auto' => true, 'name' => 'bottom', 'type' => 'text', 'default' => '5', 'title' => esc_html__( 'Bottom', 'super-forms' )),
+                                                                        array( 'width_auto' => true, 'name' => 'left', 'type' => 'text', 'default' => '5', 'title' => esc_html__( 'Left', 'super-forms' )),
+                                                                    )
+                                                                )
+                                                            )
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
+                                ),
+                                array(
+                                    'toggle' => true,
+                                    'title' => esc_html__( 'Render settings', 'super-forms' ),
+                                    'vertical' => true,
+                                    'nodes' => array(
+                                        array(
+                                            'name' => 'smartBreak',
+                                            'title' => esc_html__( 'Smart page break', 'super-forms' ),
+                                            'subline' => esc_html__( 'If the element does not fit on the current page, push it to the next page automatically. Recommended value is 95%, set to 0% to disable', 'super-forms' ),
+                                            'type' => 'text',
+                                            'default' => '95'
+                                        ),
+                                        array(
+                                            'name' => 'normalizeFonts',
+                                            'title' => esc_html__( 'PDF font normalization', 'super-forms' ),
+                                            'subline' => esc_html__( 'It is recommended to leave this option enable if possible', 'super-forms' ),
+                                            'type' => 'text',
+                                            'default' => 'true',
+                                            'accepted_values' => array(array('v'=>'true'), array('v'=>'false'))
+                                        ),
+                                        array(
+                                            'name' => 'textRendering',
+                                            'title' => esc_html__( 'PDF Text rendering', 'super-forms' ),
+                                            'subline' => esc_html__( 'This makes it possible to search for text inside the PDF', 'super-forms' ),
+                                            'type' => 'text',
+                                            'default' => 'true',
+                                            'filter' => 'native;!true',
+                                            'accepted_values' => array(array('v'=>'true'), array('v'=>'false'))
+                                        ),
+                                        array(
+                                            'notice' => 'info', // hint/info
+                                            'content' => 'Only set language script to <code>unicode</code> if required, to keep the PDF file size at a minimum.',
+                                            'filter' => 'checkout;true'
+                                        ),
+                                        array(
+                                            'name' => 'language',
+                                            'title' => esc_html__( 'Language script', 'super-forms' ),
+                                            'subline' => esc_html__( 'Or leave blank to use the default Latin (Roman) script', 'super-forms' ),
+                                            'type' => 'text',
+                                            'default' => 'latin',
+                                            'accepted_values' => array(
+                                                array('v'=>'latin', 'i'=>'(default)'), 
+                                                array('v'=>'greek'), // greek
+                                                array('v'=>'cyrillic'), // russian
+                                                array('v'=>'arabic'), // arabic
+                                                array('v'=>'persian'), // Arabic based
+                                                array('v'=>'urdu'), // Arabic based
+                                                array('v'=>'devanagari'), // hindi
+                                                array('v'=>'chinese'), // simplified chinese
+                                                array('v'=>'hangul'), // korean
+                                                array('v'=>'japanese'), // hiragana and katakana
+                                                array('v'=>'hebrew'), 
+                                                array('v'=>'thai'),
+                                                array('v'=>'bengali'), 
+                                                array('v'=>'tamil'), 
+                                                array('v'=>'armenian'), 
+                                                array('v'=>'georgian'), 
+                                                array('v'=>'khmer'),
+                                                array('v'=>'myanmar'),
+                                                array('v'=>'sinhala'),
+                                                array('v'=>'gujarati'), 
+                                                array('v'=>'gurmukhi'), 
+                                                array('v'=>'kannada'), 
+                                                array('v'=>'lao'), 
+                                                array('v'=>'malayalam'), 
+                                                array('v'=>'oriya'), 
+                                                array('v'=>'telugu'), 
+                                                array('v'=>'tibetan'), 
+                                                array('v'=>'unicode', 'i'=>'(multi-language)'),
+                                            )
+                                        ),
+                                        array(
+                                            'name' => 'fontSizeTuning',
+                                            'title' => esc_html__( 'Fine tune font size', 'super-forms' ),
+                                            'subline' => esc_html__( 'Enter a float value as the multiplier value', 'super-forms' ),
+                                            'type' => 'text',
+                                            'default' => '1.00',
+                                            'accepted_values' => array(
+                                                array('v'=>'1.00', 'i'=>'(default)'), 
+                                                array('v'=>'0.90', 'i'=>'(decrease)'), 
+                                                array('v'=>'1.10', 'i'=>'(increase)')
+                                            )
+                                        ),
+                                        array(
+                                            'name' => 'imageQuality',
+                                            'title' => esc_html__( 'Image processing speed', 'super-forms' ),
+                                            'subline' => esc_html__( 'The PDF file size will be smaller when using a faster processing speed due to loss of image quality', 'super-forms' ),
+                                            'type' => 'text',
+                                            'default' => 'FAST',
+                                            'accepted_values' => array(
+                                                array('v'=>'FAST', 'i'=>'(low image quality)'), 
+                                                array('v'=>'MEDIUM', 'i'=>'(medium image quality)'), 
+                                                array('v'=>'SLOW', 'i'=>'(high image quality)'), 
+                                                array('v'=>'NONE', 'i'=>'(original image quality)')
+                                            )
+                                        ),
+                                        array(
+                                            'name' => 'renderScale',
+                                            'title' => esc_html__( 'PDF render scale', 'super-forms' ),
+                                            'subline' => esc_html__( 'The recommended render scale is between 1 and 3, the default scale is 2.', 'super-forms' ),
+                                            'type' => 'text',
+                                            'accepted_values' => array(array('v'=>'0.5'), array('v'=>'1'), array('v'=>'2.5'), array('v'=>'2', 'i'=>'(default)'), array('v'=>'3'))
+                                        )
+                                    )
+                                ),
+                            )
+                        )
+                    )
+                ),
 
-                    // Page orientation
-                    echo '<form class="sfui-setting sfui-inline">';
-                        echo '<span class="sfui-title">' . esc_html__( 'Page orientation', 'super-forms' ) . ':</span>';
-                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                            echo '<input type="radio" name="orientation" value="portrait"' . ($s['orientation']==='portrait' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Portrait', 'super-forms' ) . '</span>';
-                        echo '</label>';
-                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                            echo '<input type="radio" name="orientation" value="landscape"' . ($s['orientation']==='landscape' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Landscape', 'super-forms' ) . '</span>';
-                        echo '</label>';
-                    echo '</form>';
+            // tmp         // PDF render scale
+            // tmp         echo '<div class="sfui-setting sfui-inline">';
+            // tmp             echo '<span class="sfui-title">' . esc_html__( 'PDF render scale', 'super-forms' ) . ':</span>';
+            // tmp             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp                 echo '<input type="number" name="renderScale" value="' . esc_attr($s['renderScale']) . '" />';
+            // tmp                 echo '<span class="sfui-label">' . esc_html__( 'recommended render scale is between 1 and 3 (the default scale is 2)', 'super-forms' ) . '</span>';
+            // tmp             echo '</label>';
+            // tmp             echo '<div class="sfui-notice sfui-desc">';
+            // tmp                 echo '<strong>'.esc_html__('Info', 'super-forms').':</strong> ' . esc_html__('Only lower the render scale when your PDF file size is becoming to large for your use case. This can happen when your form is relatively big. Keep in mind that you will lose "pixel" quality when lowering the render scale. When working with huge forms it is really important to check the PDF file size during development and to adjust the render scale accordingly.', 'super-forms' );
+            // tmp             echo '</div>';
+            // tmp         echo '</div>';
 
-                    // Unit
-                    echo '<div class="sfui-setting sfui-inline">';
-                        echo '<span class="sfui-title">' . esc_html__( 'Unit', 'super-forms' ) . ':</span>';
-                        echo '<label>';
-                            echo '<select name="unit" onChange="SUPER.ui.updateSettings(event, this)">';
-                                echo '<option '.($s['unit']=='mm' ? ' selected="selected"' : '').' value="mm">mm ('.esc_html__('default').')</option>';
-                                echo '<option '.($s['unit']=='pt' ? ' selected="selected"' : '').' value="pt">pt</option>';
-                                echo '<option '.($s['unit']=='cm' ? ' selected="selected"' : '').' value="cm">cm</option>';
-                                echo '<option '.($s['unit']=='in' ? ' selected="selected"' : '').' value="in">in</option>';
-                                echo '<option '.($s['unit']=='px' ? ' selected="selected"' : '').' value="px">px</option>';
-                            echo '</select>';
-                        echo '</label>';
-                    echo '</div>';
-                    
-                    // Page format
-                    $formats = array();
-                    $i = 0;
-                    for($i=0; $i < 10; $i++){
-                        $formats[] = 'a'.$i;
-                    }
-                    $i = 0;
-                    for($i=0; $i < 10; $i++){
-                        $formats[] = 'b'.$i;
-                    }
-                    $i = 0;
-                    for($i=0; $i < 10; $i++){
-                        $formats[] = 'c'.$i;
-                    }
-                    $formats = array_merge($formats, array('dl', 'letter', 'government-letter', 'legal', 'junior-legal', 'ledger', 'tabloid', 'credit-card'));
-                    echo '<div class="sfui-setting sfui-inline">';
-                        echo '<span class="sfui-title">' . esc_html__( 'Page format', 'super-forms' ) . ':</span>';
-                        echo '<label>';
-                            echo '<select name="format" onChange="SUPER.ui.updateSettings(event, this)">';
-                            foreach($formats as $v){
-                                echo '<option value="' . esc_attr($v) . '"'.($v==$s['format'] ? ' selected="selected"' : '') .'>' . ($v=='a4' ? $v . ' (' . esc_html__( 'default', 'super-forms' ) . ')' : $v) . '</option>';
-                            }
-                            echo '</select>';
-                        echo '</label>';
-                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                            echo '<span class="sfui-title">' . esc_html__( 'Custom page format in units defined above e.g: 210,297', 'super-forms' ) . ':</span>';
-                            echo '<input type="text" name="customFormat" value="' . esc_attr($s['customFormat']) . '" />';
-                            echo '<span class="sfui-label">' . esc_html__( '(optional, leave blank for none)', 'super-forms' ) . '</span>';
-                        echo '</label>';
-                    echo '</div>';
 
-                    // Body margins (in units declared above)
-                    echo '<div class="sfui-setting">';
-                        echo '<span class="sfui-title">' . esc_html__( 'Body margins (in units declared above)', 'super-forms' ) . '</span>';
-                        echo '<div class="sfui-setting sfui-inline">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<span class="sfui-label">' . esc_html__( 'top', 'super-forms' ) . '</span>';
-                                echo '<input type="number" name="margins.body.top" value="' . esc_attr($s['margins']['body']['top']) . '" />';
-                            echo '</label>';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<span class="sfui-label">' . esc_html__( 'right', 'super-forms' ) . '</span>';
-                                echo '<input type="number" name="margins.body.right" value="' . esc_attr($s['margins']['body']['right']) . '" />';
-                            echo '</label>';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<span class="sfui-label">' . esc_html__( 'bottom', 'super-forms' ) . '</span>';
-                                echo '<input type="number" name="margins.body.bottom" value="' . esc_attr($s['margins']['body']['bottom']) . '" />';
-                            echo '</label>';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<span class="sfui-label">' . esc_html__( 'left', 'super-forms' ) . '</span>';
-                                echo '<input type="number" name="margins.body.left" value="' . esc_attr($s['margins']['body']['left']) . '" />';
-                            echo '</label>';
-                        echo '</div>';
-                    echo '</div>';
-                    // Header margins (in units declared above)
-                    echo '<div class="sfui-setting">';
-                        echo '<span class="sfui-title">' . esc_html__( 'Header margins (in units declared above)', 'super-forms' ) . '</span>';
-                        echo '<span class="sfui-label">' . esc_html__( 'Note: if you wish to use a header make sure define one element in your form to act as the PDF header, you can do so under "PDF Settings" TAB when editing an element', 'super-forms' ) . '</span>';
-                        echo '<div class="sfui-setting sfui-inline">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<span class="sfui-label">' . esc_html__( 'top', 'super-forms' ) . '</span>';
-                                echo '<input type="number" name="margins.header.top" value="' . esc_attr($s['margins']['header']['top']) . '" />';
-                            echo '</label>';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<span class="sfui-label">' . esc_html__( 'right', 'super-forms' ) . '</span>';
-                                echo '<input type="number" name="margins.header.right" value="' . esc_attr($s['margins']['header']['right']) . '" />';
-                            echo '</label>';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<span class="sfui-label">' . esc_html__( 'bottom', 'super-forms' ) . '</span>';
-                                echo '<input type="number" name="margins.header.bottom" value="' . esc_attr($s['margins']['header']['bottom']) . '" />';
-                            echo '</label>';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<span class="sfui-label">' . esc_html__( 'left', 'super-forms' ) . '</span>';
-                                echo '<input type="number" name="margins.header.left" value="' . esc_attr($s['margins']['header']['left']) . '" />';
-                            echo '</label>';
-                        echo '</div>';
-                    echo '</div>';
-                    // Footer margins (in units declared above)
-                    echo '<div class="sfui-setting">';
-                        echo '<span class="sfui-title">' . esc_html__( 'Footer margins (in units declared above)', 'super-forms' ) . '</span>';
-                        echo '<span class="sfui-label">' . esc_html__( 'Note: if you wish to use a footer make sure define one element in your form to act as the PDF footer, you can do so under "PDF Settings" TAB when editing an element', 'super-forms' ) . '</span>';
-                        echo '<div class="sfui-setting sfui-inline">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<span class="sfui-label">' . esc_html__( 'top', 'super-forms' ) . '</span>';
-                                echo '<input type="number" name="margins.footer.top" value="' . esc_attr($s['margins']['footer']['top']) . '" />';
-                            echo '</label>';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<span class="sfui-label">' . esc_html__( 'right', 'super-forms' ) . '</span>';
-                                echo '<input type="number" name="margins.footer.right" value="' . esc_attr($s['margins']['footer']['right']) . '" />';
-                            echo '</label>';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<span class="sfui-label">' . esc_html__( 'bottom', 'super-forms' ) . '</span>';
-                                echo '<input type="number" name="margins.footer.bottom" value="' . esc_attr($s['margins']['footer']['bottom']) . '" />';
-                            echo '</label>';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<span class="sfui-label">' . esc_html__( 'left', 'super-forms' ) . '</span>';
-                                echo '<input type="number" name="margins.footer.left" value="' . esc_attr($s['margins']['footer']['left']) . '" />';
-                            echo '</label>';
-                        echo '</div>';
-                    echo '</div>';
-                    // PDF Text rendering
-                    echo '<div class="sfui-setting sfui-inline">';
-                        echo '<span class="sfui-title">' . esc_html__( 'PDF font normalization', 'super-forms' ) . ':</span>';
-                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                            echo '<input type="checkbox" name="normalizeFonts" value="true"' . ($s['normalizeFonts']==='true' ? ' checked="checked"' : '') . ' />';
-                            echo '<span class="sfui-label">' . esc_html__( 'Enable (recommended)', 'super-forms' ) . '</span>';
-                        echo '</label>';
-                    echo '</div>';
-                    echo '<div class="sfui-setting sfui-inline">';
-                        echo '<span class="sfui-title">' . esc_html__( 'PDF Text rendering', 'super-forms' ) . ':</span>';
-                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                            echo '<input type="checkbox" name="textRendering" value="true"' . ($s['textRendering']==='true' ? ' checked="checked"' : '') . ' />';
-                            echo '<span class="sfui-label">' . esc_html__( 'Enable (makes it possible to search for text inside the PDF)', 'super-forms' ) . '</span>';
-                        echo '</label>';
-                    echo '</div>';
-                    // This allows to copy cyrillic text
-                    echo '<div class="sfui-setting">';
-                        echo '<div class="sfui-sub-settings" data-f="textRendering;true">';
-                            // PDF Cyrillic text
-                            echo '<div class="sfui-setting sfui-inline">';
-                                echo '<span class="sfui-title">' . esc_html__( 'Cyrillic text', 'super-forms' ) . ':</span>';
-                                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                    echo '<input type="checkbox" name="cyrillicText" value="true"' . ($s['cyrillicText']==='true' ? ' checked="checked"' : '') . ' />';
-                                    echo '<span class="sfui-label">' . esc_html__( 'Enable (only enable this if your form uses cyrillic text)', 'super-forms' ) . '</span>';
-                                echo '</label>';
-                            echo '</div>';
-                            // PDF Arabic text
-                            echo '<div class="sfui-setting sfui-inline">';
-                                echo '<span class="sfui-title">' . esc_html__( 'Arabic text', 'super-forms' ) . ':</span>';
-                                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                    echo '<input type="checkbox" name="arabicText" value="true"' . ($s['arabicText']==='true' ? ' checked="checked"' : '') . ' />';
-                                    echo '<span class="sfui-label">' . esc_html__( 'Enable (only enable this if your form uses arabic text)', 'super-forms' ) . '</span>';
-                                echo '</label>';
-                            echo '</div>';
-                        echo '</div>';
-                    echo '</div>';
-                    // Image quality
-                    echo '<div class="sfui-setting sfui-inline">';
-                        echo '<span class="sfui-title">' . esc_html__( 'Image quality', 'super-forms' ) . ':</span>';
-                        echo '<label>';
-                            echo '<select name="imageQuality" onChange="SUPER.ui.updateSettings(event, this)">';
-                                echo '<option '.($s['imageQuality']=='FAST' ? ' selected="selected"' : '').' value="FAST">Low ('.esc_html__('default').')</option>';
-                                echo '<option '.($s['imageQuality']=='MEDIUM' ? ' selected="selected"' : '').' value="MEDIUM">Medium</option>';
-                                echo '<option '.($s['imageQuality']=='SLOW' ? ' selected="selected"' : '').' value="SLOW">High</option>';
-                                echo '<option '.($s['imageQuality']=='NONE' ? ' selected="selected"' : '').' value="NONE">Original</option>';
-                            echo '</select>';
-                        echo '</label>';
-                        echo '<span class="sfui-label">' . esc_html__( 'PDF file size will be smaller when using lower quality', 'super-forms' ) . '</span>';
-                    echo '</div>';
-                    // PDF render scale
-                    echo '<div class="sfui-setting sfui-inline">';
-                        echo '<span class="sfui-title">' . esc_html__( 'PDF render scale', 'super-forms' ) . ':</span>';
-                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                            echo '<input type="number" name="renderScale" value="' . esc_attr($s['renderScale']) . '" />';
-                            echo '<span class="sfui-label">' . esc_html__( 'recommended render scale is between 1 and 3 (the default scale is 2)', 'super-forms' ) . '</span>';
-                        echo '</label>';
-                        echo '<div class="sfui-notice sfui-desc">';
-                            echo '<strong>'.esc_html__('Info', 'super-forms').':</strong> ' . esc_html__('Only lower the render scale when your PDF file size is becoming to large for your use case. This can happen when your form is relatively big. Keep in mind that you will lose "pixel" quality when lowering the render scale. When working with huge forms it is really important to check the PDF file size during development and to adjust the render scale accordingly.', 'super-forms' );
-                        echo '</div>';
-                    echo '</div>';
 
-                echo '</div>';
-            echo '</div>';
+
+            );
+            $prefix = array();
+            SUPER_UI::loop_over_tab_setting_nodes($s, $nodes, $prefix);
+
+            // tmp // Hiding/Showing elements in PDF
+            // tmp echo '<div class="sfui-notice sfui-desc">';
+            // tmp     echo '<strong>'.esc_html__('Tip', 'super-forms').':</strong> ' . esc_html__( 'If you want to hide elements from the PDF file, you can edit the element and configure this under the "PDF Settings" section.', 'super-forms' );
+            // tmp echo '</div>';
+            // tmp // Header/Footer usage notice
+            // tmp echo '<div class="sfui-notice sfui-desc">';
+            // tmp     echo '<strong>'.esc_html__('Tip', 'super-forms').':</strong> ' . esc_html__( 'You can define a column to act as your PDF header/footer. Note that you can only define one header and one footer element. Headers and footers will be visible on every page in the PDF. You may use the {pdf_page} and {pdf_total_pages} tags for pagination purposes inside your header/footer.', 'super-forms' );
+            // tmp echo '</div>';
+            // tmp // Enable PDF
+            // tmp echo '<div class="sfui-setting">';
+            // tmp     echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp         echo '<input type="checkbox" name="generate" value="true"' . ($s['generate']==='true' ? ' checked="checked"' : '') . ' />';
+            // tmp         echo '<span class="sfui-title">' . esc_html__( 'Enable Form to PDF generation', 'super-forms' ) . '</span>';
+            // tmp     echo '</label>';
+            // tmp     echo '<div class="sfui-sub-settings" data-f="generate;true">';
+            // tmp         // Debug mode
+            // tmp         echo '<div class="sfui-setting">';
+            // tmp             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp                 echo '<input type="checkbox" name="debug" value="true"' . ($s['debug']==='true' ? ' checked="checked"' : '') . ' />';
+            // tmp                 echo '<span class="sfui-title">' . esc_html__( 'Enable debug mode (this will not submit the form, but directly download the generated PDF, only enable this when developing your form)', 'super-forms' ) . '</span>';
+            // tmp             echo '</label>';
+            // tmp         echo '</div>';
+            // tmp         // Native mode
+            // tmp         echo '<div class="sfui-setting">';
+            // tmp             echo '<label onclick="SUPER.ui.updateSettings(event, this)" style="align-items: flex-start;">';
+            // tmp                 echo '<input type="checkbox" name="native" value="true"' . ($s['native']==='true' ? ' checked="checked"' : '') . ' />';
+            // tmp                 echo '<div class="sfui-vertical" style="display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start;">';
+            // tmp                     echo '<span class="sfui-title">' . esc_html__( 'Enable native mode', 'super-forms' ) . ' <strong style="color:red;">(recommended)</strong></span>';
+            // tmp                     echo '<span class="sfui-label">' . esc_html__( 'Smaller PDF size and faster rendering.', 'super-forms' ) . '</span>';
+            // tmp                 echo '</div>';
+            // tmp             echo '</label>';
+            // tmp         echo '</div>';
+            // tmp         // Smart page breaks
+            // tmp         echo '<div class="sfui-setting sfui-inline">';
+            // tmp             echo '<span class="sfui-title">' . esc_html__( 'Smart page break', 'super-forms' ) . ':</span>';
+            // tmp             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp                 echo '<input type="number" min="0" max="99" name="smartBreak" value="' . esc_attr($s['smartBreak']) . '" />';
+            // tmp                 echo '<span class="sfui-label">' . esc_html__( 'If the element does not fit on the current page, push it to the next page automatically. Recommended value is 95%, set to 0% to disable', 'super-forms' ) . '</span>';
+            // tmp             echo '</label>';
+            // tmp         echo '</div>';
+            // tmp         // PDF file name
+            // tmp         echo '<div class="sfui-setting sfui-inline">';
+            // tmp             echo '<span class="sfui-title">' . esc_html__( 'PDF filename', 'super-forms' ) . ':</span>';
+            // tmp             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp                 echo '<input type="text" name="filename" value="' . esc_attr($s['filename']) . '" />';
+            // tmp                 echo '<span class="sfui-label">' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
+            // tmp             echo '</label>';
+            // tmp         echo '</div>';
+            // tmp         // Email label
+            // tmp         echo '<div class="sfui-setting sfui-inline">';
+            // tmp             echo '<span class="sfui-title">' . esc_html__( 'Email label', 'super-forms' ) . ':</span>';
+            // tmp             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp                 echo '<input type="text" name="emailLabel" value="' . esc_attr($s['emailLabel']) . '" />';
+            // tmp                 echo '<span class="sfui-label">' . esc_html__( 'use {tags} if needed', 'super-forms' ) . '</span>';
+            // tmp             echo '</label>';
+            // tmp         echo '</div>';
+            // tmp         // Attach generated PDF to admin e-mail
+            // tmp         echo '<div class="sfui-setting">';
+            // tmp             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp                 echo '<input type="checkbox" name="adminEmail" value="true"' . ($s['adminEmail']==='true' ? ' checked="checked"' : '') . ' />';
+            // tmp                 echo '<span class="sfui-title">' . esc_html__( 'Attach generated PDF to admin e-mail', 'super-forms' ) . '</span>';
+            // tmp             echo '</label>';
+            // tmp         echo '</div>';
+            // tmp         // Attach generated PDF to confirmation e-mail
+            // tmp         echo '<div class="sfui-setting">';
+            // tmp             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp                 echo '<input type="checkbox" name="confirmationEmail" value="true"' . ($s['confirmationEmail']==='true' ? ' checked="checked"' : '') . ' />';
+            // tmp                 echo '<span class="sfui-title">' . esc_html__( 'Attach generated PDF to confirmation e-mail', 'super-forms' ) . '</span>';
+            // tmp             echo '</label>';
+            // tmp         echo '</div>';
+            // tmp         // Do not save PDF in Contact Entry
+            // tmp         echo '<div class="sfui-setting">';
+            // tmp             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp                 echo '<input type="checkbox" name="excludeEntry" value="true"' . ($s['excludeEntry']==='true' ? ' checked="checked"' : '') . ' />';
+            // tmp                 echo '<span class="sfui-title">' . esc_html__( 'Do not save PDF in Contact Entry', 'super-forms' ) . '</span>';
+            // tmp             echo '</label>';
+            // tmp         echo '</div>';
+            // tmp         
+            // tmp         // Show download button to the user after PDF was generated
+            // tmp         echo '<div class="sfui-setting">';
+            // tmp             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp                 echo '<input type="checkbox" name="downloadBtn" value="true"' . ($s['downloadBtn']==='true' ? ' checked="checked"' : '') . ' />';
+            // tmp                 echo '<span class="sfui-title">' . esc_html__( 'Show download button to the user after PDF was generated', 'super-forms' ) . '</span>';
+            // tmp             echo '</label>';
+            // tmp             echo '<div class="sfui-sub-settings" data-f="downloadBtn;true">';
+            // tmp                 // Download button text
+            // tmp                 echo '<div class="sfui-setting sfui-inline">';
+            // tmp                     echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp                         echo '<span class="sfui-title">' . esc_html__( 'Download button text', 'super-forms' ) . ':</span>';
+            // tmp                         echo '<input type="text" name="downloadBtnText" value="' . esc_attr($s['downloadBtnText']) . '" />';
+            // tmp                     echo '</label>';
+            // tmp                 echo '</div>';
+            // tmp                 // Generating text
+            // tmp                 echo '<div class="sfui-setting sfui-inline">';
+            // tmp                     echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp                         echo '<span class="sfui-title">' . esc_html__( 'Generating text', 'super-forms' ) . ':</span>';
+            // tmp                         echo '<input type="text" name="generatingText" value="' . esc_attr($s['generatingText']) . '" />';
+            // tmp                     echo '</label>';
+            // tmp                 echo '</div>';
+            // tmp             echo '</div>';
+            // tmp         echo '</div>';
+
+            // tmp         // Page orientation
+            // tmp         echo '<form class="sfui-setting sfui-inline">';
+            // tmp             echo '<span class="sfui-title">' . esc_html__( 'Page orientation', 'super-forms' ) . ':</span>';
+            // tmp             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp                 echo '<input type="radio" name="orientation" value="portrait"' . ($s['orientation']==='portrait' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Portrait', 'super-forms' ) . '</span>';
+            // tmp             echo '</label>';
+            // tmp             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp                 echo '<input type="radio" name="orientation" value="landscape"' . ($s['orientation']==='landscape' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Landscape', 'super-forms' ) . '</span>';
+            // tmp             echo '</label>';
+            // tmp         echo '</form>';
+
+            // tmp         // Unit
+            // tmp         echo '<div class="sfui-setting sfui-inline">';
+            // tmp             echo '<span class="sfui-title">' . esc_html__( 'Unit', 'super-forms' ) . ':</span>';
+            // tmp             echo '<label>';
+            // tmp                 echo '<select name="unit" onChange="SUPER.ui.updateSettings(event, this)">';
+            // tmp                     echo '<option '.($s['unit']=='mm' ? ' selected="selected"' : '').' value="mm">mm ('.esc_html__('default').')</option>';
+            // tmp                     echo '<option '.($s['unit']=='pt' ? ' selected="selected"' : '').' value="pt">pt</option>';
+            // tmp                     echo '<option '.($s['unit']=='cm' ? ' selected="selected"' : '').' value="cm">cm</option>';
+            // tmp                     echo '<option '.($s['unit']=='in' ? ' selected="selected"' : '').' value="in">in</option>';
+            // tmp                     echo '<option '.($s['unit']=='px' ? ' selected="selected"' : '').' value="px">px</option>';
+            // tmp                 echo '</select>';
+            // tmp             echo '</label>';
+            // tmp         echo '</div>';
+            // tmp         
+            // tmp         // Page format
+            // tmp         $formats = array();
+            // tmp         $i = 0;
+            // tmp         for($i=0; $i < 10; $i++){
+            // tmp             $formats[] = 'a'.$i;
+            // tmp         }
+            // tmp         $i = 0;
+            // tmp         for($i=0; $i < 10; $i++){
+            // tmp             $formats[] = 'b'.$i;
+            // tmp         }
+            // tmp         $i = 0;
+            // tmp         for($i=0; $i < 10; $i++){
+            // tmp             $formats[] = 'c'.$i;
+            // tmp         }
+            // tmp         $formats = array_merge($formats, array('dl', 'letter', 'government-letter', 'legal', 'junior-legal', 'ledger', 'tabloid', 'credit-card'));
+            // tmp         echo '<div class="sfui-setting sfui-inline">';
+            // tmp             echo '<span class="sfui-title">' . esc_html__( 'Page format', 'super-forms' ) . ':</span>';
+            // tmp             echo '<label>';
+            // tmp                 echo '<select name="format" onChange="SUPER.ui.updateSettings(event, this)">';
+            // tmp                 foreach($formats as $v){
+            // tmp                     echo '<option value="' . esc_attr($v) . '"'.($v==$s['format'] ? ' selected="selected"' : '') .'>' . ($v=='a4' ? $v . ' (' . esc_html__( 'default', 'super-forms' ) . ')' : $v) . '</option>';
+            // tmp                 }
+            // tmp                 echo '</select>';
+            // tmp             echo '</label>';
+            // tmp             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp                 echo '<span class="sfui-title">' . esc_html__( 'Custom page format in units defined above e.g: 210,297', 'super-forms' ) . ':</span>';
+            // tmp                 echo '<input type="text" name="customFormat" value="' . esc_attr($s['customFormat']) . '" />';
+            // tmp                 echo '<span class="sfui-label">' . esc_html__( '(optional, leave blank for none)', 'super-forms' ) . '</span>';
+            // tmp             echo '</label>';
+            // tmp         echo '</div>';
+
+            // tmp         // Body margins (in units declared above)
+            // tmp         echo '<div class="sfui-setting">';
+            // tmp             echo '<span class="sfui-title">' . esc_html__( 'Body margins (in units declared above)', 'super-forms' ) . '</span>';
+            // tmp             echo '<div class="sfui-setting sfui-inline">';
+            // tmp                 echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp                     echo '<span class="sfui-label">' . esc_html__( 'top', 'super-forms' ) . '</span>';
+            // tmp                     echo '<input type="number" name="margins.body.top" value="' . esc_attr($s['margins']['body']['top']) . '" />';
+            // tmp                 echo '</label>';
+            // tmp                 echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp                     echo '<span class="sfui-label">' . esc_html__( 'right', 'super-forms' ) . '</span>';
+            // tmp                     echo '<input type="number" name="margins.body.right" value="' . esc_attr($s['margins']['body']['right']) . '" />';
+            // tmp                 echo '</label>';
+            // tmp                 echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp                     echo '<span class="sfui-label">' . esc_html__( 'bottom', 'super-forms' ) . '</span>';
+            // tmp                     echo '<input type="number" name="margins.body.bottom" value="' . esc_attr($s['margins']['body']['bottom']) . '" />';
+            // tmp                 echo '</label>';
+            // tmp                 echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp                     echo '<span class="sfui-label">' . esc_html__( 'left', 'super-forms' ) . '</span>';
+            // tmp                     echo '<input type="number" name="margins.body.left" value="' . esc_attr($s['margins']['body']['left']) . '" />';
+            // tmp                 echo '</label>';
+            // tmp             echo '</div>';
+            // tmp         echo '</div>';
+            // tmp         // Header margins (in units declared above)
+            // tmp         echo '<div class="sfui-setting">';
+            // tmp             echo '<span class="sfui-title">' . esc_html__( 'Header margins (in units declared above)', 'super-forms' ) . '</span>';
+            // tmp             echo '<span class="sfui-label">' . esc_html__( 'Note: if you wish to use a header make sure define one element in your form to act as the PDF header, you can do so under "PDF Settings" TAB when editing an element', 'super-forms' ) . '</span>';
+            // tmp             echo '<div class="sfui-setting sfui-inline">';
+            // tmp                 echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp                     echo '<span class="sfui-label">' . esc_html__( 'top', 'super-forms' ) . '</span>';
+            // tmp                     echo '<input type="number" name="margins.header.top" value="' . esc_attr($s['margins']['header']['top']) . '" />';
+            // tmp                 echo '</label>';
+            // tmp                 echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp                     echo '<span class="sfui-label">' . esc_html__( 'right', 'super-forms' ) . '</span>';
+            // tmp                     echo '<input type="number" name="margins.header.right" value="' . esc_attr($s['margins']['header']['right']) . '" />';
+            // tmp                 echo '</label>';
+            // tmp                 echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp                     echo '<span class="sfui-label">' . esc_html__( 'bottom', 'super-forms' ) . '</span>';
+            // tmp                     echo '<input type="number" name="margins.header.bottom" value="' . esc_attr($s['margins']['header']['bottom']) . '" />';
+            // tmp                 echo '</label>';
+            // tmp                 echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp                     echo '<span class="sfui-label">' . esc_html__( 'left', 'super-forms' ) . '</span>';
+            // tmp                     echo '<input type="number" name="margins.header.left" value="' . esc_attr($s['margins']['header']['left']) . '" />';
+            // tmp                 echo '</label>';
+            // tmp             echo '</div>';
+            // tmp         echo '</div>';
+            // tmp         // Footer margins (in units declared above)
+            // tmp         echo '<div class="sfui-setting">';
+            // tmp             echo '<span class="sfui-title">' . esc_html__( 'Footer margins (in units declared above)', 'super-forms' ) . '</span>';
+            // tmp             echo '<span class="sfui-label">' . esc_html__( 'Note: if you wish to use a footer make sure define one element in your form to act as the PDF footer, you can do so under "PDF Settings" TAB when editing an element', 'super-forms' ) . '</span>';
+            // tmp             echo '<div class="sfui-setting sfui-inline">';
+            // tmp                 echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp                     echo '<span class="sfui-label">' . esc_html__( 'top', 'super-forms' ) . '</span>';
+            // tmp                     echo '<input type="number" name="margins.footer.top" value="' . esc_attr($s['margins']['footer']['top']) . '" />';
+            // tmp                 echo '</label>';
+            // tmp                 echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp                     echo '<span class="sfui-label">' . esc_html__( 'right', 'super-forms' ) . '</span>';
+            // tmp                     echo '<input type="number" name="margins.footer.right" value="' . esc_attr($s['margins']['footer']['right']) . '" />';
+            // tmp                 echo '</label>';
+            // tmp                 echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp                     echo '<span class="sfui-label">' . esc_html__( 'bottom', 'super-forms' ) . '</span>';
+            // tmp                     echo '<input type="number" name="margins.footer.bottom" value="' . esc_attr($s['margins']['footer']['bottom']) . '" />';
+            // tmp                 echo '</label>';
+            // tmp                 echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp                     echo '<span class="sfui-label">' . esc_html__( 'left', 'super-forms' ) . '</span>';
+            // tmp                     echo '<input type="number" name="margins.footer.left" value="' . esc_attr($s['margins']['footer']['left']) . '" />';
+            // tmp                 echo '</label>';
+            // tmp             echo '</div>';
+            // tmp         echo '</div>';
+            // tmp         // PDF Text rendering
+            // tmp         echo '<div class="sfui-setting sfui-inline">';
+            // tmp             echo '<span class="sfui-title">' . esc_html__( 'PDF font normalization', 'super-forms' ) . ':</span>';
+            // tmp             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp                 echo '<input type="checkbox" name="normalizeFonts" value="true"' . ($s['normalizeFonts']==='true' ? ' checked="checked"' : '') . ' />';
+            // tmp                 echo '<span class="sfui-label">' . esc_html__( 'Enable (recommended)', 'super-forms' ) . '</span>';
+            // tmp             echo '</label>';
+            // tmp         echo '</div>';
+            // tmp         echo '<div class="sfui-setting sfui-inline">';
+            // tmp             echo '<span class="sfui-title">' . esc_html__( 'PDF Text rendering', 'super-forms' ) . ':</span>';
+            // tmp             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp                 echo '<input type="checkbox" name="textRendering" value="true"' . ($s['textRendering']==='true' ? ' checked="checked"' : '') . ' />';
+            // tmp                 echo '<span class="sfui-label">' . esc_html__( 'Enable (makes it possible to search for text inside the PDF)', 'super-forms' ) . '</span>';
+            // tmp             echo '</label>';
+            // tmp         echo '</div>';
+            // tmp         // This allows to copy cyrillic text
+            // tmp         echo '<div class="sfui-setting">';
+            // tmp             echo '<div class="sfui-sub-settings" data-f="textRendering;true">';
+            // tmp                 // PDF Cyrillic text
+            // tmp                 echo '<div class="sfui-setting sfui-inline">';
+            // tmp                     echo '<span class="sfui-title">' . esc_html__( 'Cyrillic text', 'super-forms' ) . ':</span>';
+            // tmp                     echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp                         echo '<input type="checkbox" name="cyrillicText" value="true"' . ($s['cyrillicText']==='true' ? ' checked="checked"' : '') . ' />';
+            // tmp                         echo '<span class="sfui-label">' . esc_html__( 'Enable (only enable this if your form uses cyrillic text)', 'super-forms' ) . '</span>';
+            // tmp                     echo '</label>';
+            // tmp                 echo '</div>';
+            // tmp                 // PDF Arabic text
+            // tmp                 echo '<div class="sfui-setting sfui-inline">';
+            // tmp                     echo '<span class="sfui-title">' . esc_html__( 'Arabic text', 'super-forms' ) . ':</span>';
+            // tmp                     echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp                         echo '<input type="checkbox" name="arabicText" value="true"' . ($s['arabicText']==='true' ? ' checked="checked"' : '') . ' />';
+            // tmp                         echo '<span class="sfui-label">' . esc_html__( 'Enable (only enable this if your form uses arabic text)', 'super-forms' ) . '</span>';
+            // tmp                     echo '</label>';
+            // tmp                 echo '</div>';
+            // tmp             echo '</div>';
+            // tmp         echo '</div>';
+            // tmp         // Image quality
+            // tmp         echo '<div class="sfui-setting sfui-inline">';
+            // tmp             echo '<span class="sfui-title">' . esc_html__( 'Image quality', 'super-forms' ) . ':</span>';
+            // tmp             echo '<label>';
+            // tmp                 echo '<select name="imageQuality" onChange="SUPER.ui.updateSettings(event, this)">';
+            // tmp                     echo '<option '.($s['imageQuality']=='FAST' ? ' selected="selected"' : '').' value="FAST">Low ('.esc_html__('default').')</option>';
+            // tmp                     echo '<option '.($s['imageQuality']=='MEDIUM' ? ' selected="selected"' : '').' value="MEDIUM">Medium</option>';
+            // tmp                     echo '<option '.($s['imageQuality']=='SLOW' ? ' selected="selected"' : '').' value="SLOW">High</option>';
+            // tmp                     echo '<option '.($s['imageQuality']=='NONE' ? ' selected="selected"' : '').' value="NONE">Original</option>';
+            // tmp                 echo '</select>';
+            // tmp             echo '</label>';
+            // tmp             echo '<span class="sfui-label">' . esc_html__( 'PDF file size will be smaller when using lower quality', 'super-forms' ) . '</span>';
+            // tmp         echo '</div>';
+            // tmp         // PDF render scale
+            // tmp         echo '<div class="sfui-setting sfui-inline">';
+            // tmp             echo '<span class="sfui-title">' . esc_html__( 'PDF render scale', 'super-forms' ) . ':</span>';
+            // tmp             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+            // tmp                 echo '<input type="number" name="renderScale" value="' . esc_attr($s['renderScale']) . '" />';
+            // tmp                 echo '<span class="sfui-label">' . esc_html__( 'recommended render scale is between 1 and 3 (the default scale is 2)', 'super-forms' ) . '</span>';
+            // tmp             echo '</label>';
+            // tmp             echo '<div class="sfui-notice sfui-desc">';
+            // tmp                 echo '<strong>'.esc_html__('Info', 'super-forms').':</strong> ' . esc_html__('Only lower the render scale when your PDF file size is becoming to large for your use case. This can happen when your form is relatively big. Keep in mind that you will lose "pixel" quality when lowering the render scale. When working with huge forms it is really important to check the PDF file size during development and to adjust the render scale accordingly.', 'super-forms' );
+            // tmp             echo '</div>';
+            // tmp         echo '</div>';
+
+            // tmp     echo '</div>';
+            // tmp echo '</div>';
         }
         // Get default PDF settings
         public static function get_default_pdf_settings($s) {
@@ -428,7 +802,7 @@ if(!class_exists('SUPER_PDF_Generator')) :
                 $settings = $x['settings'];
                 if(isset($settings['_pdf'])){
                     $_pdf = wp_slash(wp_slash(json_encode($settings['_pdf'], JSON_UNESCAPED_UNICODE)));
-                    $js .= 'if(typeof SUPER.form_js === "undefined"){ SUPER.form_js = {}; SUPER.form_js['.$form_id.'] = {}; }else{ if(!SUPER.form_js['.$form_id.']){ SUPER.form_js['.$form_id.'] = {}; } } SUPER.form_js['.$form_id.']["_pdf"] = JSON.parse("'.$_pdf.'");';
+                    $js .= 'if(typeof SUPER === "undefined"){var SUPER = {};}if(typeof SUPER.form_js === "undefined"){ SUPER.form_js = {}; SUPER.form_js['.$form_id.'] = {}; }else{ if(!SUPER.form_js['.$form_id.']){ SUPER.form_js['.$form_id.'] = {}; } } SUPER.form_js['.$form_id.']["_pdf"] = JSON.parse("'.$_pdf.'");';
                 }
             }
             return $js;

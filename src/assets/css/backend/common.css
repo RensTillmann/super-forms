@@ -658,7 +658,7 @@
 .super-form-settings .super-field .input {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
 }
 .super-settings .super-field .input:hover .super-reset-settings-buttons,
 .super-form-settings .super-field .input:hover .super-reset-settings-buttons {

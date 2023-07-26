@@ -283,6 +283,7 @@
                         // super_create_form_`translations`_tab
                         // super_create_form_`triggers`_tab
                         do_action( 'super_create_form_' . $k . '_tab', array( 
+                            'version'=>$version,
                             'form_id'=>$form_id, 
                             'secrets'=> array(
                                 'local'=>$localSecrets, 

@@ -257,9 +257,17 @@ if( !class_exists('SUPER_Register_Login') ) :
         public function check_user_login_status( $user, $password ) {
             // Check if the login status of the user is pending or blocked
             $user_login_status = get_user_meta( $user->ID, 'super_user_login_status', true );
-            if( ($user_login_status=='pending') || ($user_login_status=='blocked') ) {
+            if( ($user_login_status=='pending') || ($user_login_status=='blocked') || ($user_login_status=='payment_required') ) {
                 remove_action('authenticate', 'wp_authenticate_username_password', 20);
-                $user = new WP_Error( 'account_not_active', sprintf( esc_html__( '%sERROR%s: You are not allowed to login.', 'super-forms' ), '<strong>', '</strong>' ) );
+                switch ($user_login_status){
+                    case 'pending' :
+                        $msg = sprintf( esc_html__( '%sNote%s: Your account is currently being reviewed.', 'super-forms' ), '<strong>', '</strong>' );
+                    case 'payment_required':
+                        $msg = sprintf( esc_html__( '%sNote%s: Payment for this account is still being processed, you can login after the payment has been completed.', 'super-forms' ), '<strong>', '</strong>' );
+                    case 'blocked' :
+                        $msg = sprintf( esc_html__( '%sERROR%s: You are not allowed to login.', 'super-forms' ), '<strong>', '</strong>' );
+                }
+                $user = new WP_Error( 'account_not_active', $msg );
             }else{
                 // Check if user has not verified their email address yet.
                 $status = get_user_meta( $user->ID, 'super_account_status', true ); // 0 = inactive, 1 = active
@@ -286,11 +294,12 @@ if( !class_exists('SUPER_Register_Login') ) :
                     'fields' => array(
                         'super_user_login_status' => array(
                             'label' => esc_html__( 'User Status', 'super-forms' ),
-                            'description' => esc_html__( 'When set to pending/blocked user won\'t be able to login', 'super-forms' ),
+                            'description' => esc_html__( 'When set to Pending, Payment required or Blocked the user won\'t be able to login.', 'super-forms' ),
                             'type' => 'select',
                             'options' => array(
                                 'active' => esc_html__( 'Active', 'super-forms' ),
                                 'pending' => esc_html__( 'Pending', 'super-forms' ),
+                                'payment_required' => esc_html__( 'Payment required', 'super-forms' ),
                                 'blocked' => esc_html__( 'Blocked', 'super-forms' ),
                             )
                         ),
@@ -956,6 +965,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'values' => array(
                             'active' => esc_html__( 'Active (default)', 'super-forms' ),
                             'pending' => esc_html__( 'Pending', 'super-forms' ),
+                            'payment_required' => esc_html__( 'Payment required', 'super-forms' ),
                             'blocked' => esc_html__( 'Blocked', 'super-forms' ),
                         ),
                     ),
@@ -1082,7 +1092,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     $result = wp_update_user( $userdata );
                     if( is_wp_error( $result ) ) {
                         SUPER_Common::output_message( array(
-                            'msg' => $return->get_error_message(),
+                            'msg' => $result->get_error_message(),
                             'form_id' => absint($form_id)
                         ));
                     }
@@ -1239,6 +1249,7 @@ if( !class_exists('SUPER_Register_Login') ) :
         */
         public static function before_sending_email( $x ) {
             extract( shortcode_atts( array( 
+                'uniqueSubmissionId'=>'',
                 'data'=>array(), 
                 'post'=>array(), 
                 'settings'=>array(),
@@ -1277,7 +1288,6 @@ if( !class_exists('SUPER_Register_Login') ) :
             }
 
             if( $settings['register_login_action']=='register' ) {
-
                 // @since 1.2.6 - skip registration if user_login or user_email couldn't be found or where conditionally hidden
                 if(!isset($settings['register_login_action_skip_register'])) $settings['register_login_action_skip_register'] = '';
                 if( ($settings['register_login_action_skip_register']=='true') && ( (!isset($data['user_login'])) || (!isset($data['user_email'])) ) ) {
@@ -1301,96 +1311,209 @@ if( !class_exists('SUPER_Register_Login') ) :
                     
                     $username_exists = username_exists($user_login);
                     if( $username_exists!=false ) {
+                        error_log('@@@ username exists!');
                         $user = get_user_by( 'login', $user_login );
+                        if($user===false){
+                            $username_exists = true;
+                        }
                         $user_login_status = get_user_meta( $user->ID, 'super_user_login_status', true );
+                        error_log('@@@ current user login status: ' . $user_login_status);
                         if( ($user_login_status=='active') || ($user_login_status=='') ) {
                             $username_exists = true;
                         }else{
-                            wp_delete_user( $user->ID );
-                            $username_exists = false;
+                            error_log('@@@ delete user #'.$user->ID);
+                            // We shouldn't be doing this, at least not right now, we will require an extra setting/option to control this
+                            // And we can't rely just on the login status for this
+                            // wp_delete_user( $user->ID );
+                            //$username_exists = false;
                         }
                     }
 
                     $email_exists = email_exists($user_email);        
                     if( $email_exists!=false ) {
+                        error_log('@@@ email exists!');
                         $user = get_user_by( 'email', $user_email );
+                        if($user===false){
+                            $email_exists = true;
+                        }
                         $user_login_status = get_user_meta( $user->ID, 'super_user_login_status', true );
+                        error_log('@@@ current user login status: ' . $user_login_status);
                         if( ($user_login_status=='active') || ($user_login_status=='') ) {
                             $email_exists = true;
                         }else{
-                            wp_delete_user( $user->ID );
-                            $email_exists = false;
+                            error_log('@@@ delete user #'.$user->ID);
+                            // We shouldn't be doing this, at least not right now, we will require an extra setting/option to control this
+                            // And we can't rely just on the login status for this
+                            // wp_delete_user( $user->ID );
+                            //$email_exists = false;
+                        }
+                    }
+                    $is_paid_signup_form = false; 
+                    if($user_login_status=='payment_required'){
+                        // `payment_required` should be used for paid registrations (if you are using Stripe or WooCommerce for registrations that require payment)
+                        // If the user login status is set to `payment_required`, a user previously registered, but didn't yet completed their payment
+                        // Continue with the submission and use this user, there is no need to re-create the account.
+
+                        // WC checkout
+                        if(!empty($settings['conditionally_wc_checkout'])){
+                            if(!empty($settings['conditionally_wc_checkout_check'])){
+                                $values = explode(',', $settings['conditionally_wc_checkout_check']);
+                                // let's replace tags with values
+                                foreach( $values as $k => $v ) {
+                                    $values[$k] = SUPER_Common::email_tags( $v, $data, $settings );
+                                }
+                                if(!isset($values[0])) $values[0] = '';
+                                if(!isset($values[1])) $values[1] = '=='; // is either == or !=   (== by default)
+                                if(!isset($values[2])) $values[2] = '';
+                                // if at least 1 of the 2 is not empty then apply the check otherwise skip it completely
+                                if( ($values[0]!='') || ($values[2]!='') ) {
+                                    // Check if values match eachother
+                                    if( ($values[1]=='==') && ($values[0]==$values[2]) ) {
+                                        $is_paid_signup_form = true; 
+                                        error_log('paid signup via WC');
+                                    }
+                                    if( ($values[1]=='!=') && ($values[0]!=$values[2]) ) {
+                                        $is_paid_signup_form = true; 
+                                        error_log('paid signup via WC');
+                                    }
+                                }
+                            }
+                        }
+
+                        // PayPal checkout
+                        if(!empty($settings['conditionally_paypal_checkout'])){
+                            if(!empty($settings['conditionally_paypal_checkout_check'])){
+                                $values = explode(',', $settings['conditionally_paypal_checkout_check']);
+                                // let's replace tags with values
+                                foreach( $values as $k => $v ) {
+                                    $values[$k] = SUPER_Common::email_tags( $v, $data, $settings );
+                                }
+                                if(!isset($values[0])) $values[0] = '';
+                                if(!isset($values[1])) $values[1] = '=='; // is either == or !=   (== by default)
+                                if(!isset($values[2])) $values[2] = '';
+                                // if at least 1 of the 2 is not empty then apply the check otherwise skip it completely
+                                if( ($values[0]!='') || ($values[2]!='') ) {
+                                    // Check if values match eachother
+                                    if( ($values[1]=='==') && ($values[0]==$values[2]) ) {
+                                        $is_paid_signup_form = true; 
+                                        error_log('paid signup via PayPal');
+                                    }
+                                    if( ($values[1]=='!=') && ($values[0]!=$values[2]) ) {
+                                        $is_paid_signup_form = true; 
+                                        error_log('paid signup via PayPal');
+                                    }
+                                }
+                            }
+                        }
+
+                        // Stripe checkout
+                        if(!empty($settings['_stripe'])){
+                            $s = $settings['_stripe'];
+                            // Skip if Stripe checkout is not enabled
+                            if($s['enabled']==='true'){
+                                // If conditional check is enabled
+                                $checkout = true;
+                                if($s['conditionally']==='true' && $s['logic']!==''){
+                                    $checkout = false;
+                                    $s['f1'] = SUPER_Common::email_tags($s['f1'], $data, $settings);
+                                    $s['f2'] = SUPER_Common::email_tags($s['f2'], $data, $settings);
+                                    if($s['logic']==='==' && ($s['f1']===$s['f2'])) $checkout = true;
+                                    if($s['logic']==='!=' && ($s['f1']!==$s['f2'])) $checkout = true;
+                                    if($s['logic']==='??' && (strpos($s['f1'], $s['f2'])!==false)) $checkout = true; // Contains
+                                    if($s['logic']==='!!' && (strpos($s['f1'], $s['f2'])===false)) $checkout = true; // Not cointains
+                                    if($s['logic']==='>' && ($s['f1']>$s['f2'])) $checkout = true;
+                                    if($s['logic']==='<' && ($s['f1']<$s['f2'])) $checkout = true;
+                                    if($s['logic']==='>=' && ($s['f1']>=$s['f2'])) $checkout = true;
+                                    if($s['logic']==='<=' && ($s['f1']<=$s['f2'])) $checkout = true;
+                                }
+                                if($checkout===true){
+                                    // Is registered payment form
+                                    $is_paid_signup_form = true;
+                                    error_log('paid signup via Stripe');
+                                }
+                            }
+
+                        }
+                    }
+                    error_log('is paid signup form: ' . $is_paid_signup_form);
+                    if($is_paid_signup_form===false){
+                        if( ( $username_exists!=false ) || ( $email_exists!=false ) ) {
+                            $msg = esc_html__( 'Username or E-mail address already exists, please try again', 'super-forms' );
+                            SUPER_Common::output_message( array(
+                                'msg' => $msg,
+                                'form_id' => absint($form_id),
+                                'fields' => array(
+                                    'user_login' => 'input',
+                                    'user_pass' => 'input'
+                                )
+                            ));
+                        }
+
+                        // If user_pass field doesn't exist, we can generate one and send it by email to the registered user
+                        $send_password = false;
+                        $password = '';
+                        if( !isset( $data['user_pass'] ) ) {
+                            $send_password = true;
+                            $password = wp_generate_password( 24, false );
+                        }else{
+                            $password = $data['user_pass']['value'];
+                        }
+
+                        // Lets gather all data that we need to insert for this user
+                        $userdata = array();
+                        $userdata['user_login'] = $user_login;
+                        $userdata['user_email'] = $user_email;
+                        $userdata['user_pass'] = $password;
+                        $userdata['role'] = SUPER_Common::email_tags( $settings['register_user_role'], $data, $settings );
+                        $userdata['user_registered'] = date('Y-m-d H:i:s');
+                        $userdata['show_admin_bar_front'] = 'false';
+
+                        // Also loop through some of the other default user data that WordPress provides us with out of the box
+                        $other_userdata = array(
+                            'user_nicename',
+                            'user_url',
+                            'display_name',
+                            'nickname',
+                            'first_name',
+                            'last_name',
+                            'description',
+                            'rich_editing',
+                            'role', // This is in case we have a custom dropdown with the name "role" which allows users to select their own account type/role
+                            'jabber',
+                            'aim',
+                            'yim'
+                        );
+                        foreach( $other_userdata as $k ) {
+                            if( isset( $data[$k]['value'] ) ) {
+                                $userdata[$k] = $data[$k]['value'];
+                            }
+                        }
+
+                        // @since 1.6.1 - option to enable or disable toolbar
+                        if(!empty($settings['register_login_show_toolbar'])) {
+                            $userdata['show_admin_bar_front'] = $settings['register_login_show_toolbar'];
+                        }
+
+                        // Insert the user and return the user ID
+                        $user_id = wp_insert_user( $userdata );
+                        if( is_wp_error( $user_id ) ) {
+                            $msg = $user_id->get_error_message();
+
+                            SUPER_Common::setClientData( array( 'name'=> 'msg', 'value'=>array( 'data'=>$data, 'settings'=>$settings, 'msg'=>$msg, 'type'=>'error'  ) ) );
+                            SUPER_Common::output_message( array(
+                                'msg' => $msg,
+                                'form_id' => absint($form_id)
+                            ));
                         }
                     }
 
-                    if( ( $username_exists!=false ) || ( $email_exists!=false ) ) {
-                        $msg = esc_html__( 'Username or E-mail address already exists, please try again', 'super-forms' );
-                        SUPER_Common::output_message( array(
-                            'msg' => $msg,
-                            'form_id' => absint($form_id),
-                            'fields' => array(
-                                'user_login' => 'input',
-                                'user_pass' => 'input'
-                            )
-                        ));
-                    }
-
-                    // If user_pass field doesn't exist, we can generate one and send it by email to the registered user
-                    $send_password = false;
-                    $password = '';
-                    if( !isset( $data['user_pass'] ) ) {
-                        $send_password = true;
-                        $password = wp_generate_password( 24, false );
-                    }else{
-                        $password = $data['user_pass']['value'];
-                    }
-
-                    // Lets gather all data that we need to insert for this user
-                    $userdata = array();
-                    $userdata['user_login'] = $user_login;
-                    $userdata['user_email'] = $user_email;
-                    $userdata['user_pass'] = $password;
-                    $userdata['role'] = SUPER_Common::email_tags( $settings['register_user_role'], $data, $settings );
-                    $userdata['user_registered'] = date('Y-m-d H:i:s');
-                    $userdata['show_admin_bar_front'] = 'false';
-
-                    // Also loop through some of the other default user data that WordPress provides us with out of the box
-                    $other_userdata = array(
-                        'user_nicename',
-                        'user_url',
-                        'display_name',
-                        'nickname',
-                        'first_name',
-                        'last_name',
-                        'description',
-                        'rich_editing',
-                        'role', // This is in case we have a custom dropdown with the name "role" which allows users to select their own account type/role
-                        'jabber',
-                        'aim',
-                        'yim'
-                    );
-                    foreach( $other_userdata as $k ) {
-                        if( isset( $data[$k]['value'] ) ) {
-                            $userdata[$k] = $data[$k]['value'];
-                        }
-                    }
-
-                    // @since 1.6.1 - option to enable or disable toolbar
-                    if(!empty($settings['register_login_show_toolbar'])) {
-                        $userdata['show_admin_bar_front'] = $settings['register_login_show_toolbar'];
-                    }
-
-                    // Insert the user and return the user ID
-                    $user_id = wp_insert_user( $userdata );
-                    if( is_wp_error( $user_id ) ) {
-                        $msg = $user_id->get_error_message();
-
-                        SUPER_Common::setClientData( array( 'name'=> 'msg', 'value'=>array( 'data'=>$data, 'settings'=>$settings, 'msg'=>$msg, 'type'=>'error'  ) ) );
-                        SUPER_Common::output_message( array(
-                            'msg' => $msg,
-                            'form_id' => absint($form_id)
-                        ));
-                    }
+                    // Define user_id as the newly registered user_id
+                    $submissionInfo = get_option( '_sfsi_' . $uniqueSubmissionId, array() );
+                    error_log('registered user id = '. $user_id);
+                    $submissionInfo['user_id'] = $user_id;
+                    $submissionInfo['registered_user_id'] = $user_id;
+                    error_log('uniqueSubmissionId = '. $uniqueSubmissionId);
+                    update_option('_sfsi_' . $uniqueSubmissionId, $submissionInfo );
 
                     // @since v1.0.3 - currently used by the WooCommerce Checkout feature
                     do_action( 'super_after_wp_insert_user_action', array( 'user_id'=>$user_id, 'atts'=>$x ) );

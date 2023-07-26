@@ -1,4 +1,4 @@
-# WooCommerce Custom Orders Add-on
+# WooCommerce Instant Orders Add-on
 
 Create orders on the fly without the need to use the normal workflow WooCommerce uses and with much flexibility. In comparison to the [WooCommerce Checkout](woocommerce-checkout) feature it allows you to completely skip the Cart and/or Checkout page.
 
