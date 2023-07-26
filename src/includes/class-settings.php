@@ -55,7 +55,7 @@ class SUPER_Settings {
      *  @since 3.4.0
      */
     public static function get_entry_statuses( $g=null, $return_default=false ) {
-        $default = "pending|Pending|#808080|#FFFFFF\nprocessing|Processing|#808080|#FFFFFF\non_hold|On hold|#FF7700|#FFFFFF\naccepted|Accepted|#2BC300|#FFFFFF\ncompleted|Completed|#2BC300|#FFFFFF\ncancelled|Cancelled|#E40000|#FFFFFF\ndeclined|Declined|#E40000|#FFFFFF\nrefunded|Refunded|#000000|#FFFFFF";
+        $default = "pending|Pending|#808080|#FFFFFF\nprocessing|Processing|#808080|#FFFFFF\non_hold|On hold|#FF7700|#FFFFFF\naccepted|Accepted|#2BC300|#FFFFFF\ncompleted|Completed|#2BC300|#FFFFFF\ncancelled|Cancelled|#E40000|#FFFFFF\ndeclined|Declined|#E40000|#FFFFFF\nrefunded|Refunded|#000000|#FFFFFF\nactive|Active|#2BC300|#FFFFFF\npaused|Paused|#FF7700|#FFFFFF\nfailed|Failed|#E40000|#FFFFFF";
         if( $return_default==true ) {
             return $default;
         }
@@ -85,6 +85,29 @@ class SUPER_Settings {
                 );
             }
         }
+        // If we are missing `active` and `paused` status, add them
+        if(!isset($statuses['active'])) {
+            $statuses['active'] = array(
+                'name' => 'Active',
+                'bg_color' => '#2BC300',
+                'color' => '#FFFFFF'
+            );
+        }
+        if(!isset($statuses['paused'])) {
+            $statuses['paused'] = array(
+                'name' => 'Paused',
+                'bg_color' => '#FF7700',
+                'color' => '#FFFFFF'
+            );
+        }
+        if(!isset($statuses['failed'])) {
+            $statuses['failed'] = array(
+                'name' => 'Failed',
+                'bg_color' => '#E40000',
+                'color' => '#FFFFFF'
+            );
+        }
+
         return $statuses;
     }
     

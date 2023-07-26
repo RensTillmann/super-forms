@@ -190,8 +190,9 @@ class SUPER_Common {
     }
 
     public static function cleanupFormSubmissionInfo($uniqueSubmissionId, $reference){
+        error_log('cleanupFormSubmissionInfo()');
         $submissionInfo = get_option( '_sfsi_' . $uniqueSubmissionId, array() );
-        //error_log('$submissionInfo (1): ' . json_encode($submissionInfo));
+        error_log('$submissionInfo (1): ' . json_encode($submissionInfo));
         // Delete contact entry
         $entry_id = (isset($submissionInfo['entry_id']) ? absint($submissionInfo['entry_id']) : 0 );
         if( !empty($entry_id) ) {
@@ -1463,7 +1464,6 @@ class SUPER_Common {
                     array( 'name' => 'init_replace_datepicker_default_value_tags' ),
                     array( 'name' => 'conditional_logic' ),
                     array( 'name' => 'google_maps_init' ),
-                    array( 'name' => 'init_replace_html_tags' ),
                     array( 'name' => 'init_replace_post_url_tags' ),
                 ),
                 'after_validating_form_hook' => array(),
@@ -1480,7 +1480,6 @@ class SUPER_Common {
                     array( 'name' => 'conditional_logic' ),
                     array( 'name' => 'calculate_distance' ),
                     array( 'name' => 'google_maps_init' ),
-                    array( 'name' => 'init_replace_html_tags' ),
                     array( 'name' => 'init_replace_post_url_tags' )
                 ),
 
@@ -1917,8 +1916,10 @@ class SUPER_Common {
         }
     }
 
-    public static function get_user_email() {
-        $user_id = get_current_user_id();
+    public static function get_user_email($user_id=null) {
+        if(empty($user_id)){
+            $user_id = get_current_user_id();
+        }
         $user_email = '';
         if($user_id!==0){
             $user = get_user_by( 'ID', $user_id );
@@ -2952,12 +2953,20 @@ class SUPER_Common {
                                     !empty($settings['file_upload_remove_hyperlink_in_emails']) ) {
                                     $files_value .= $value['value'] . '<br />';
                                 }else{
-                                    $files_value .= '<a href="' . esc_url($value['url']) . '" target="_blank">' . esc_html($value['value']) . '</a><br /><br />';
+                                    if($k==='_vcard' && !empty($settings['vcard_delete']) && $settings['vcard_delete']==='true'){
+                                        $files_value .= $value['value'] . '<br />';
+                                    }else{
+                                        $files_value .= '<a href="' . esc_url($value['url']) . '" target="_blank">' . esc_html($value['value']) . '</a><br /><br />';
+                                    }
                                 }
                                 if( !empty($settings['file_upload_submission_delete']) ) {
                                     $files_value_listing .= $value['value'] . '<br />';
                                 }else{
-                                    $files_value_listing .= '<a href="' . esc_url($value['url']) . '" target="_blank">' . esc_html($value['value']) . '</a><br />';
+                                    if($k==='_vcard' && !empty($settings['vcard_delete']) && $settings['vcard_delete']==='true'){
+                                        $files_value_listing .= $value['value'] . '<br />';
+                                    }else{
+                                        $files_value_listing .= '<a href="' . esc_url($value['url']) . '" target="_blank">' . esc_html($value['value']) . '</a><br />';
+                                    }
                                 }
                             }
                             // Check if we should exclude the file from emails

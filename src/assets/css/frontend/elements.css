@@ -2533,7 +2533,6 @@ html[dir=rtl] .super-rtl .super-rating .super-field-wrapper .super-rating {
 
 .display-horizontal .super-field-wrapper {
   display: flex;
-  flex-wrap: wrap;
 }
 
 .display-horizontal .super-item,
@@ -3650,11 +3649,11 @@ html[dir=rtl] .super-rtl .super-rating .super-field-wrapper .super-rating {
   height: 100%;
   align-items: center;
 }
-.super-form .super-multipart.super-active .super-form-button:nth-last-child(2) {
+.super-form .super-multipart.super-active .super-form-button.super-next-multipart:nth-last-child(2), .super-form .super-multipart.super-active .super-form-button.super-prev-multipart:nth-last-child(2) {
   width: auto;
   float: right;
 }
-.super-form.super-rtl .super-multipart.super-active .super-form-button:nth-last-child(2) {
+.super-form.super-rtl .super-multipart.super-active .super-form-button.super-next-multipart:nth-last-child(2), .super-form.super-rtl .super-multipart.super-active .super-form-button.super-prev-multipart:nth-last-child(2) {
   float: left;
 }
 .super-form .super-dropdown.super-filled .super-dropdown-list .super-item:not(.super-placeholder):not(.super-active):hover, .super-form .super-dropdown.super-filled .super-dropdown-list .super-item:not(.super-placeholder).super-focus {

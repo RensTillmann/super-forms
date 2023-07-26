@@ -1,0 +1,709 @@
+.sfui-notice {
+  margin: 0px 0px 10px 0px;
+  padding: 10px;
+  width: 100%;
+  float: left;
+}
+
+.sfui-notice>p {
+  margin: 0px;
+}
+
+.sfui-setting .sfui-notice {
+  margin: 10px 0px 0px 0px;
+}
+
+.sfui-setting-group>.sfui-setting>.sfui-notice {
+  margin-top: 0;
+}
+
+.sfui-setting>.sfui-notice {
+  margin-top: 10px;
+}
+
+.sfui-setting.sfui-toggle>.sfui-notice {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.sfui-info {
+  background-color: #ffe694;
+  color: #7d6924;
+}
+
+.sfui-success {
+  background-color: #d4ffc6;
+  color: #538643;
+}
+
+.sfui-desc {
+  background-color: #dfeeff;
+  color: #383838;
+}
+
+.sfui-width-full {
+  flex: none!important;
+}
+
+.sfui-setting .sfui-inline {
+  align-items: center;
+  justify-content: flex-start;
+  flex-direction: row;
+}
+
+.sfui-setting label {
+  line-height: 1.2;
+  display: flex;
+  align-items: center;
+}
+
+.sfui-setting input[type="checkbox"] {
+  margin-bottom: 1px !important;
+}
+
+.sfui-setting input[type="radio"] {
+  margin-right: 5px;
+}
+
+.sfui-setting input[type="number"] {
+  margin: 0px 10px 0px 10px;
+  width: 50px;
+  text-align: center;
+}
+
+.sfui-setting .sfui-title {
+  font-weight: 500;
+  font-size: 14px;
+}
+
+.sfui-repeater {
+  margin-top: 10px;
+}
+
+.sfui-setting .sfui-title>span {
+  color: #ff9221;
+  font-size: 12px;
+}
+
+.sfui-setting .sfui-subline code,
+.sfui-setting .sfui-label code {
+  font-style: normal;
+  border-radius: 2px;
+  padding: 1px 4px 1px 4px;
+  font-size: 11px;
+}
+
+.sfui-setting .sfui-subline code:hover,
+.sfui-setting .sfui-label code:hover {
+  background-color: #49B4B6;
+  color: white;
+}
+
+.sfui-setting {
+  display: flex;
+  margin: 0px 0px 0px 0px;
+  flex-direction: column;
+  align-items: start;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.sfui-repeater-item {
+  border: 1px solid gainsboro;
+  border-radius: 5px;
+  margin: 0px 0px 10px 0px;
+}
+
+.sfui-repeater-item:hover .sfui-repeater-item:hover {
+  border: 1px solid #D8C88C;
+  background-color: #fff0ba7d;
+}
+
+.sfui-inline .sfui-setting {
+  flex-direction: row;
+  align-items: center;
+  flex: 1;
+}
+
+.sfui-setting>label {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  width: 100%;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.sfui-setting.sfui-type-checkbox>label {
+  flex-direction: row;
+}
+
+.sfui-sub-settings .sfui-setting {
+  border-bottom: 0;
+}
+
+.sfui-setting-group {
+  flex: 1;
+  width: 100%;
+}
+
+.sfui-sub-settings>.sfui-setting,
+.sfui-setting-group>.sfui-setting {
+  border-bottom: 1px solid #d0d0d0;
+}
+
+.sfui-sub-settings {
+  width: 100%;
+}
+
+.sfui-sub-settings .sfui-sub-settings {
+  margin-left: 20px;
+  border-left: 1px dashed #00000087;
+  border-bottom: 1px dashed #00000087;
+  margin: 1px 0px 0px 7px;
+}
+
+.sfui-vertical>label {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.sfui-inline .sfui-width-auto {
+  width: auto;
+  flex: 0 1 auto;
+}
+
+.sfui-vertical .sfui-width-auto {
+  width: auto;
+  flex: 0 1 auto;
+}
+
+.sfui-inline {
+  display: flex;
+}
+
+.sfui-inline.sfui-vertical {
+  align-items: flex-start;
+}
+
+.sfui-setting.sfui-vertical>.sfui-sub-settings {
+  margin: 0px 0px 0px 0px;
+}
+
+.sfui-setting>label:hover>.super-reset-settings-buttons {
+  display: flex;
+}
+
+.sfui-setting input,
+.sfui-setting select {
+  width: 100%;
+  max-width: 100%;
+}
+
+.sfui-setting textarea {
+  width: 100%;
+  max-width: 100%;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.sfui-setting input[type="date"] {
+  width: 150px;
+}
+
+.sfui-setting input[type="checkbox"],
+.sfui-setting input[type="radio"] {
+  width: 16px;
+  height: 16px;
+}
+
+.sfui-setting input[type="number"] {
+  width: 60px;
+  text-align: center;
+}
+
+.sfui-inline .sfui-setting label>i {
+  font-style: italic;
+  font-weight: normal;
+}
+
+.sfui-repeater-item .sfui-inline .sfui-btn {
+  margin: 10px 10px 10px 0px;
+}
+
+.sfui-repeater-item .sfui-repeater-item .sfui-btn {
+  border-radius: 0;
+  width: 22px;
+  height: 22px;
+  min-width: initial;
+  font-size: 10px;
+  margin-top: 10px;
+}
+
+.sfui-setting[data-f]:not(.sfui-active),
+.sfui-conditional-logic-settings:not(.sfui-active),
+.sfui-sub-settings:not(.sfui-active),
+.sfui-setting-group[data-f]:not(.sfui-active) {
+  display: none;
+}
+
+.sfui-btn {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #7F7F7F;
+  flex: 0 0 auto;
+}
+
+.sfui-btn.sfui-red {
+  background-color: #F5234B;
+}
+
+.sfui-btn.sfui-round {
+  border-radius: 100%;
+  width: 30px;
+  height: 30px;
+}
+
+.sfui-setting.sfui-inline {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.sfui-setting.sfui-inline>label {
+  width: auto;
+}
+
+.sfui-setting.sfui-inline>label>input[type="number"] {
+  margin: 0 5px !important;
+}
+
+.sfui-setting .sfui-setting:hover {
+  background-color: #fff0ba7d;
+}
+
+.sfui-setting .sfui-repeater-item:hover {
+  background-color: #fff0ba7d;
+}
+
+.sfui-repeater-item>.sfui-setting-group.sfui-active {
+  border-top: 1px solid #d0d0d0;
+}
+
+.sfui-setting.sfui-vertical {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.sfui-setting .sfui-repeater-item .sfui-setting>label>.sfui-sub-settings>.sfui-repeater>.sfui-repeater-item {
+  margin: 10px 0;
+}
+
+.sfui-setting .sfui-repeater-item .sfui-setting>label>.sfui-sub-settings>.sfui-repeater>.sfui-repeater-item .sfui-inline>.sfui-setting.sfui-vertical>label>.sfui-inline {
+  justify-content: center;
+  align-items: center;
+}
+
+.sfui-setting .sfui-repeater-item .sfui-setting>label>.sfui-sub-settings>.sfui-repeater>.sfui-repeater-item .sfui-inline>.sfui-setting.sfui-vertical>label>.sfui-inline>input[type="checkbox"] {
+  margin: 0 5px 0 0;
+}
+
+.sfui-setting .sfui-sub-settings.sfui-inline>.sfui-setting.sfui-vertical>label>.sfui-inline {
+  justify-content: center;
+  align-items: center;
+}
+
+.sfui-setting .sfui-sub-settings.sfui-inline>.sfui-setting.sfui-vertical>label>.sfui-inline>input[type="checkbox"] {
+  margin: 0 5px 0 0;
+}
+
+.sfui-setting .sfui-repeater-item>.sfui-inline {
+  align-items: flex-start;
+}
+
+.sfui-setting .sfui-setting>label>.sfui-sub-settings.sfui-inline[data-f^="date_range"] .sfui-setting.sfui-vertical {
+  flex: 0 0 auto;
+}
+
+.sfui-setting.sfui-vertical {
+  margin: 0;
+  padding-bottom: 0px;
+}
+
+.sfui-setting.sfui-vertical .sfui-sub-settings .sfui-setting.sfui-inline {
+  margin: 0;
+}
+
+.sfui-setting .sfui-sub-settings .sfui-sub-settings.sfui-inline {
+  align-items: flex-start;
+}
+
+.sfui-setting .sfui-sub-settings .sfui-sub-settings .sfui-sub-settings {
+  margin-bottom: 10px;
+}
+
+.sfui-setting .sfui-sub-settings .sfui-sub-settings .sfui-sub-settings input,
+.sfui-setting .sfui-sub-settings .sfui-sub-settings .sfui-sub-settings select {
+  margin: 0;
+}
+
+.sfui-repeater {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.sfui-repeater .sfui-repeater-item {
+  margin: 0 0 10px;
+}
+
+.sfui-repeater .sfui-repeater-item .sfui-repeater {
+  display: flex;
+  flex-direction: column;
+}
+
+.sfui-setting .sfui-sub-settings.sfui-inline .sfui-setting.sfui-vertical,
+.sfui-repeater-item .sfui-inline.sfui-vertical .sfui-setting.sfui-vertical {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  margin: 0 0 10px;
+}
+
+.sfui-setting .sfui-sub-settings.sfui-inline .sfui-setting.sfui-vertical>label,
+.sfui-repeater-item .sfui-inline.sfui-vertical .sfui-setting.sfui-vertical>label {
+  margin: 0;
+}
+
+.sfui-setting .sfui-sub-settings.sfui-inline .sfui-setting.sfui-vertical>label .sfui-inline,
+.sfui-repeater-item .sfui-inline.sfui-vertical .sfui-setting.sfui-vertical>label .sfui-inline {
+  min-height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.sfui-setting .sfui-sub-settings.sfui-inline .sfui-setting.sfui-vertical>label .sfui-inline input,
+.sfui-repeater-item .sfui-inline.sfui-vertical .sfui-setting.sfui-vertical>label .sfui-inline input {
+  margin: 0 5px 0 0;
+}
+
+.sfui-setting .sfui-sub-settings.sfui-inline .sfui-setting.sfui-vertical .sfui-sub-settings.sfui-vertical,
+.sfui-repeater-item .sfui-inline.sfui-vertical .sfui-setting.sfui-vertical .sfui-sub-settings.sfui-vertical {
+  margin-left: 8px;
+  margin-top: -5px;
+}
+
+.sfui-setting .sfui-sub-settings.sfui-inline .sfui-setting.sfui-vertical .sfui-sub-settings.sfui-vertical .sfui-sub-settings,
+.sfui-repeater-item .sfui-inline.sfui-vertical .sfui-setting.sfui-vertical .sfui-sub-settings.sfui-vertical .sfui-sub-settings {
+  margin: -8px 0 10px 10px;
+  width: calc(100% - 10px);
+}
+
+.sfui-setting .sfui-sub-settings.sfui-inline .sfui-setting.sfui-vertical .sfui-sub-settings.sfui-vertical input,
+.sfui-setting .sfui-sub-settings.sfui-inline .sfui-setting.sfui-vertical .sfui-sub-settings.sfui-vertical select,
+.sfui-repeater-item .sfui-inline.sfui-vertical .sfui-setting.sfui-vertical .sfui-sub-settings.sfui-vertical input,
+.sfui-repeater-item .sfui-inline.sfui-vertical .sfui-setting.sfui-vertical .sfui-sub-settings.sfui-vertical select {
+  margin: 0 0 10px;
+}
+
+.sfui-repeater>.sfui-repeater-item {
+  margin: 0 0 10px;
+  margin-right: 10px !important;
+}
+.sfui-repeater>.sfui-repeater-item.sfui-inline {
+  align-items: flex-start;
+}
+.sfui-setting-group>.sfui-setting {
+  margin: 0;
+}
+
+.sfui-setting-group>.sfui-setting.sfui-vertical .sfui-sub-settings {
+  margin: 0;
+}
+
+.sfui-setting-group>.sfui-setting.sfui-vertical .sfui-sub-settings .sfui-setting {
+  margin: 0;
+}
+
+.sfui-setting input[type="text"],
+.sfui-setting textarea,
+.sfui-setting select {
+  border: 1px solid #cccccc;
+  color: #444;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+.sfui-setting .tox.tox-tinymce {
+  width: 100%;
+}
+
+.sfui-setting {
+  padding: 10px;
+}
+
+.sfui-setting .sfui-sub-settings {
+  margin-top: 10px;
+}
+
+.sfui-setting .sfui-title {
+  padding-bottom: 2px;
+}
+
+.sfui-setting .sfui-label {
+  padding-bottom: 5px;
+}
+
+.sfui-sub-settings[data-f] .sfui-sub-settings[data-f] .sfui-setting:last-child {
+  border-bottom: 0;
+}
+
+.sfui-sub-settings>.sfui-setting>.sfui-repeater {
+  margin-top: 0;
+}
+
+.sfui-sub-settings:not(.sfui-inline)>.sfui-setting:first-child {
+  padding-top: 0;
+}
+
+.sfui-sub-settings.sfui-inline>.sfui-setting {
+  border-bottom: 0;
+}
+
+.sfui-sub-settings.sfui-inline {
+  flex-flow: row wrap;
+  justify-content: flex-start;
+  align-content: flex-start;
+  gap: 10px;
+  padding-left: 10px;
+  flex-basis: 50%;
+}
+
+.sfui-sub-settings.sfui-inline .sfui-setting {
+  padding: 0;
+  width: auto;
+}
+
+.sfui-setting.sfui-type-checkbox>label>.sfui-title {
+  padding: 0 0 0 5px;
+}
+
+.sfui-setting-group>.sfui-sub-settings {
+  margin-left: 17px;
+  margin-bottom: 30px;
+  position: relative;
+}
+
+.sfui-setting-group.sfui-vertical {
+  flex-direction: column;
+  padding-bottom: 10px;
+}
+.sfui-setting-group.sfui-no-padding {
+  padding-left: 10px;
+  padding-right: 0;
+  padding-bottom: 10px;
+  padding-top: 0;
+}
+
+.sfui-toggle {
+  border: 1px solid #d0d0d0;
+  position: relative;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 10px 0 0 !important;
+}
+
+.sfui-toggle>.sfui-toggle-label {
+  margin-bottom: 10px;
+  margin-top: -9px;
+  margin-bottom: 0;
+  padding: 10px 0 10px 30px;
+}
+
+.sfui-toggle>.sfui-toggle-label:before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  content: "\f105";
+  position: absolute;
+  left: 11px;
+  top: 12px;
+}
+
+.sfui-toggle>* {
+  display: none;
+  padding-left: 10px;
+}
+
+.sfui-toggle.sfui-open {
+  padding-bottom: 10px;
+}
+
+.sfui-toggle.sfui-open>.sfui-toggle-label:before {
+  content: "\f078";
+}
+
+.sfui-toggle.sfui-open>* {
+  display: flex;
+}
+
+.sfui-repeater-item>.sfui-setting-group>.sfui-toggle {
+  border-left: 0;
+  border-top: 0;
+  border-radius: 0;
+}
+
+.sfui-no-padding:not(.sfui-setting-group) {
+  padding: 0 !important;
+}
+
+.sfui-setting .browse-images .image-preview,
+.sfui-setting .browse-files .file-preview {
+  float: right;
+  width: 100%;
+  margin: 10px 0px 0px 0px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sfui-setting .browse-images .image-preview>li,
+.sfui-setting .browse-files .file-preview>li {
+  border: 1px solid #dedede;
+  float: left;
+  text-align: center;
+  margin: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  width: auto;
+  flex: 0 0 auto;
+}
+
+.sfui-setting .browse-images .image-preview>li>.super-image,
+.sfui-setting .browse-files .file-preview>li>.super-image {
+  width: 100%;
+  display: inline-block;
+}
+
+.sfui-setting .browse-images .image-preview .super-image,
+.sfui-setting .browse-files .file-preview .super-image {
+  text-align: center;
+  max-width: 100px;
+}
+
+.sfui-setting .browse-images .image-preview .super-image img,
+.sfui-setting .browse-files .file-preview .super-image img {
+  max-height: 100px;
+  max-width: 100px;
+  clear: both;
+  padding: 5px;
+}
+
+.sfui-setting .browse-images .image-preview>li>a,
+.sfui-setting .browse-files .file-preview>li>a {
+  display: block;
+  font-size: 12px;
+  padding: 3px 25px;
+  color: black;
+  clear: both;
+  text-decoration: underline;
+}
+
+.sfui-setting .browse-images .image-preview>li>a.super-delete,
+.sfui-setting .browse-files .file-preview>li>a.super-delete {
+  text-decoration: none;
+  margin-top: 5px;
+}
+
+.sfui-setting .browse-images .image-preview>li>a.super-delete:after,
+.sfui-setting .browse-files .file-preview>li>a.super-delete:after {
+  content: '\f1f8';
+  padding: 0px 0px 0px 5px;
+}
+
+.sfui-setting .browse-images .image-preview>li>a.super-delete:hover,
+.sfui-setting .browse-files .file-preview>li>a.super-delete:hover {
+  color: red;
+}
+
+.sfui-setting .image-field.browse-files .file-preview>li {
+  margin-top: -1px;
+}
+
+.sfui-setting .image-field.browse-files .file-preview>li>a {
+  overflow: hidden;
+  flex-shrink: 1;
+  flex-grow: 1;
+  width: 200px;
+}
+
+.sfui-setting .image-field.browse-files .file-preview>li>a.super-delete {
+  flex-shrink: 1;
+  flex-grow: 0;
+  width: 100px;
+}
+
+.sfui-repeater-item>.sfui-toggle {
+  padding: 10px 0 !important;
+  margin-left: 10px;
+  margin-bottom: 10px;
+  width: calc(100% - 20px);
+}
+
+.sfui-repeater-item>.sfui-toggle>.sfui-toggle-label {
+  margin: 0;
+  padding: 0 0 0 30px;
+}
+
+.sfui-repeater-item>.sfui-toggle .sfui-setting-group>.sfui-setting {
+  padding-left: 0;
+}
+
+.sfui-repeater-item>.sfui-toggle .sfui-setting-group .sfui-toggle {
+  margin: 0 0 10px;
+  width: calc(100% - 10px);
+}
+
+.sfui-repeater-item>.sfui-toggle .sfui-setting-group .sfui-toggle:last-child {
+  margin-bottom: 0;
+}
+
+.sfui-setting-group.sfui-no-padding > .sfui-type-checkbox {
+  border-bottom: 0;
+}
+
+.sfui-type-checkbox .sfui-subline {
+  margin: 0;
+  padding: 0;
+  margin-left: 2px;
+  margin-top: 2px;
+}
+.sfui-setting-group.sfui-inline > .sfui-type-checkbox {
+  border-bottom: 0 !important;
+}
+.sfui-setting-group.sfui-inline.sfui-active > .sfui-type-checkbox {
+  border-bottom: 1px solid #d0d0d0 !important;
+}
+.sfui-setting-group.sfui-inline {
+  margin-bottom: 10px;
+  align-items: flex-start;
+}
+.sfui-toggle.sfui-vertical {
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
+.sfui-setting.sfui-toggle.sfui-vertical > .sfui-setting-group.sfui-inline > .sfui-setting {
+  border-bottom: 0;
+}
+
+.sfui-setting > label > input[type="checkbox"] {
+  margin: 0;
+}
+.sfui-sub-settings.sfui-inline {
+  padding-bottom: 10px;
+}
+
+.sfui-type-checkbox > label > .sfui-subline {
+  margin: 0 0 0 5px;
+}

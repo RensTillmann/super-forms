@@ -826,7 +826,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                             );
                             $result = wp_update_user( $userdata );
                             if( is_wp_error( $result ) ) {
-                                throw new Exception($return->get_error_message());
+                                throw new Exception($result->get_error_message());
                             }
                         }
                     }
@@ -1208,6 +1208,9 @@ if( !class_exists('SUPER_WooCommerce') ) :
 						if( ($values[1]=='==') && ($values[0]==$values[2]) ) {
 							$settings['woocommerce_checkout'] = 'true';
 						}
+                        if( ($values[1]=='!=') && ($values[0]!=$values[2]) ) {
+                            $settings['woocommerce_checkout'] = 'true';
+                        }
 					}
 				}
 			}

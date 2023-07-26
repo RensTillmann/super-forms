@@ -44,7 +44,7 @@ Some features that are interesting to use alongside the Calculator element are:
 
 * [PayPal](paypal-checkout)
 * [WooCommerce Checkout](woocommerce-checkout)
-* [WooCommerce Custom Orders (IN PROGRESS)](in-progress)
+* [WooCommerce Instant Orders (IN PROGRESS)](in-progress)
 * *of course you can use it with any feature for any purpose you require as long as they accept {tags}*
 
 ## Using dynamic columns

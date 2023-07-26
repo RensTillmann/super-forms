@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.3.725
+ * Version:           6.3.727
  * Plugin URI:        http://f4d.nl/super-forms
  * Author URI:        http://f4d.nl/super-forms
  * Author:            feeling4design
@@ -43,7 +43,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '6.3.725';
+        public $version = '6.3.727';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -429,6 +429,8 @@ if(!class_exists('SUPER_Forms')) :
 
             // Delete deprecated files
             $deprecatedFiles = array(
+                'includes/extensions/pdf-generator/fonts-arabic.json', // moved to /fonts/arabic.json 
+                'includes/extensions/pdf-generator/fonts.json', // moved to /fonts/latin.json (which covers latin,cyrillic and greek)
                 'includes/class-super-session.php' // no longer used since new session system
             );
             foreach($deprecatedFiles as $file){
@@ -612,6 +614,7 @@ if(!class_exists('SUPER_Forms')) :
             if(!empty($GLOBALS['super_upload_dir'])){
                 return $GLOBALS['super_upload_dir'];
             }
+            require_once( SUPER_PLUGIN_DIR . '/includes/class-settings.php' );
             $global_settings = SUPER_Common::get_global_settings();
             $defaults = SUPER_Settings::get_defaults($global_settings);
             $global_settings = array_merge( $defaults, $global_settings );
@@ -648,184 +651,7 @@ if(!class_exists('SUPER_Forms')) :
 
 
         public function parse_request( &$wp ) {
-            if ( array_key_exists( 'sfssidr', $wp->query_vars ) ) {
-                // Retry URL (from async failed email)
-                SUPER_Stripe::setAppInfo();
-                $s = \Stripe\Checkout\Session::retrieve($wp->query_vars['sfssidr'], []);
-                $submissionInfo = get_option( '_sfsi_' . $s['metadata']['sfsi_id'], array() );
-                $checkout_session = \Stripe\Checkout\Session::create($submissionInfo['stripeData']);
-                wp_redirect($checkout_session->url);
-                exit;
-            }
-            if ( array_key_exists( 'sfssidc', $wp->query_vars ) ) {
-                // Cancel URL
-                error_log('Returned from Stripe Checkout session via cancel URL');
-                // Do things
-                SUPER_Stripe::setAppInfo();
-                $s = \Stripe\Checkout\Session::retrieve($wp->query_vars['sfssidc'], []);
-                $m = $s['metadata'];
-                // Get form submission info
-                $submissionInfo = get_option( '_sfsi_' . $m['sfsi_id'], array() );
-                SUPER_Common::cleanupFormSubmissionInfo($m['sfsi_id'], 'stripe'); // stored in `wp_options` table as sfsi_%
-                // Now redirect to cancel URL without checkout session ID parameter
-                $submissionInfo['stripe_home_cancel_url'] = remove_query_arg(array('sfssid'), $submissionInfo['stripe_home_cancel_url'] );
-                $submissionInfo['stripe_home_cancel_url'] = remove_query_arg(array('sfr'), $submissionInfo['stripe_home_cancel_url'] );
-                if($submissionInfo){
-                    if(!empty($submissionInfo['referer'])){
-                        $url = add_query_arg('sfr', $m['sfsi_id'], $submissionInfo['referer']);
-                        wp_redirect($url);
-                        exit;
-                    }else{
-                        wp_redirect(home_url());
-                        exit;
-                    }
-                }
-                // Redirect to home URL instead
-                error_log('Redirect to home URL instead');
-                wp_redirect(add_query_arg('sfr', $m['sfsi_id'], $submissionInfo['stripe_home_cancel_url']));
-                exit;
-            }
-            if ( array_key_exists( 'sfssids', $wp->query_vars ) ) {
-                // Success URL
-                error_log('Returned from Stripe Checkout session via success URL');
-                // Do things
-                SUPER_Stripe::setAppInfo();
-                $s = \Stripe\Checkout\Session::retrieve($wp->query_vars['sfssids'], []);
-                $m = $s['metadata'];
-                //$submissionInfo = get_option( '_sfsi_' . $m['sfsi_id'], array() );
-                // Now redirect to success URL without checkout session ID parameter
-                $url = SUPER_Common::getClientData('stripe_home_success_url_'.$m['sf_id']);
-                if($url===false){
-                    wp_redirect(home_url());
-                    exit;
-                }
-                wp_redirect(remove_query_arg(array('sfssid'), $url));
-                exit;
-            }
-            if ( array_key_exists( 'sfstripewebhook', $wp->query_vars ) ) {
-                if($wp->query_vars['sfstripewebhook']==='true'){
-                    // Success URL
-                    // Set your secret key. Remember to switch to your live secret key in production.
-                    // See your keys here: https://dashboard.stripe.com/apikeys
-                    SUPER_Stripe::setAppInfo();
-                    // You can find your endpoint's secret in your webhook settings
-                    $global_settings = SUPER_Common::get_global_settings();
-                    if(!empty($global_settings['stripe_mode']) ) {
-                        $global_settings['stripe_mode'] = 'sandbox';
-                    }else{
-                        $global_settings['stripe_mode'] = 'live';
-                    }
-                    $endpoint_secret = $global_settings['stripe_' . $global_settings['stripe_mode'] . '_webhook_secret']; // e.g: whsec_XXXXXXX
-                    $payload = @file_get_contents('php://input');
-                    $sig_header = $_SERVER['HTTP_STRIPE_SIGNATURE'];
-                    $event = null;
-                    try {
-                        $event = \Stripe\Webhook::constructEvent( $payload, $sig_header, $endpoint_secret );
-                    } catch(\UnexpectedValueException $e) {
-                        // Invalid payload
-                        http_response_code(400);
-                        exit();
-                    } catch(\Stripe\Exception\SignatureVerificationException $e) {
-                        // Invalid signature
-                        http_response_code(400);
-                        exit();
-                    }
-                    // Handle the checkout.session.completed event
-                    switch ($event->type) {
-                        case 'checkout.session.completed':
-                            // The customer has successfully authorized the 
-                            // debit payment by submitting the Checkout form.	
-                            // Wait for the payment to succeed or fail.
-                            $session = $event->data->object;
-                            $submissionInfo = get_option( '_sfsi_' . $session->metadata->sfsi_id, array() );
-                            $form_id = $submissionInfo['form_id'];
-                            SUPER_Common::triggerEvent('stripe.checkout.session.completed', array('form_id'=>$form_id, 'data'=>$session));
-                            //error_log('status: ' . $session->status); // open, complete, or expired
-                            //error_log('payment_status: ' . $session->payment_status); // paid, unpaid, or no_payment_required 
-                            //error_log('Stripe Session: ' . json_encode($session));
-                            // Check if the order is paid (for example, from a card payment)
-                            // A delayed notification payment will have an `unpaid` status, as you're still waiting for funds to be transferred from the customer's account.
-                            if($session->payment_status=='paid' || $session->payment_status=='no_payment_required') {
-                                // Fulfill the purchase
-                                SUPER_Common::triggerEvent('stripe.fulfill_order', array('form_id'=>$form_id, 'data'=>$session));
-                                //SUPER_Stripe::fulfillOrder($session);
-                                // Delete submission info
-                                delete_option( '_sfsi_' . $session->metadata->sfsi_id );
-                            }
-                            break;
-                        case 'checkout.session.async_payment_succeeded':
-                            // This step is only required if you plan to use any of 
-                            // the following payment methods:
-                            // Bacs Direct Debit, Boleto, Canadian pre-authorized debits, 
-                            // Konbini, OXXO, SEPA Direct Debit, SOFORT, or ACH Direct Debit.
-
-                            // Timings: bacs-debit T+6 (7 days max)
-                            // Timings: ...
-
-                            $session = $event->data->object;
-                            $submissionInfo = get_option( '_sfsi_' . $session->metadata->sfsi_id, array() );
-                            $form_id = $submissionInfo['form_id'];
-                            SUPER_Common::triggerEvent('stripe.checkout.session.async_payment_succeeded', array('form_id'=>$form_id, 'data'=>$session));
-                            //error_log('status: ' . $session->status); // open, complete, or expired
-                            //error_log('payment_status: ' . $session->payment_status); // paid, unpaid, or no_payment_required 
-                            //error_log('Stripe Session: ' . json_encode($session));
-                            // Fulfill the purchase
-                            SUPER_Common::triggerEvent('stripe.fulfill_order', array('form_id'=>$form_id, 'data'=>$session));
-                            //SUPER_Stripe::fulfillOrder($session);
-                            // Delete submission info
-                            //error_log('Delete submission info 2: ' . $session->metadata->sfsi_id);
-                            delete_option( '_sfsi_' . $session->metadata->sfsi_id );
-                            break;
-                        case 'checkout.session.async_payment_failed':
-                            // The payment was declined, or failed for some other reason.
-                            // Contact the customer via email and request that they 
-                            // place a new order.
-
-                            $session = $event->data->object;
-                            $submissionInfo = get_option( '_sfsi_' . $session->metadata->sfsi_id, array() );
-                            $form_id = $submissionInfo['form_id'];
-                            SUPER_Common::triggerEvent('stripe.checkout.session.async_payment_failed', array('form_id'=>$form_id,'data'=>$session));
-                            //error_log('status: ' . $session->status); // open, complete, or expired
-                            //error_log('payment_status: ' . $session->payment_status); // paid, unpaid, or no_payment_required 
-                            //error_log('Stripe Session: ' . json_encode($session));
-                            //error_log('Send an email to the customer asking them to retry their order');
-                            $to = $session->customer_details->email;
-                            $submissionInfo = get_option( '_sfsi_' . $session->metadata->sfsi_id, array() );
-                            $form_id = $submissionInfo['form_id'];
-                            $data = $submissionInfo['data'];
-                            //error_log('form_id 1: ' . $form_id);
-                            // Get form settings
-                            $settings = SUPER_Common::get_form_settings($form_id);
-                            $s = SUPER_Stripe::get_default_stripe_settings();
-                            if(isset($settings) && isset($settings['_stripe'])){
-                                $s = array_merge($s, $settings['_stripe']);
-                            }
-                            // Send an email to the customer asking them to retry their order
-                            $subject = SUPER_Common::email_tags( $s['retryPaymentEmail']['subject'], $data, $settings ); // e.g: Payment failed
-                            $body = SUPER_Common::email_tags( $s['retryPaymentEmail']['body'], $data, $settings ); // e.g: 'Payment failed, please retry via the below URL:<br /><br /><a href="' . $retryUrl . '">' . $retryUrl . '</a>';
-                            // Replace tag {stripe_retry_payment_expiry} with expiry (amount is in hours e.g: 48)
-                            $expiry = SUPER_Common::email_tags( $s['retryPaymentEmail']['expiry'], $data, $settings ); // e.g: 'Payment failed, please retry via the below URL:<br /><br /><a href="' . $retryUrl . '">' . $retryUrl . '</a>';
-                            $body = str_replace( '{stripe_retry_payment_expiry}', $expiry, $body );
-                            // Replace tag {stripe_retry_payment_url} with URL
-                            $domain = home_url(); // e.g: 'http://domain.com';
-                            $home_url = trailingslashit($domain);
-                            $retryUrl = $home_url . 'sfssid/retry/' . $session->id; //{CHECKOUT_SESSION_ID}';
-                            //error_log('retry URL: ' . $retryUrl);
-                            $body = str_replace( '{stripe_retry_payment_url}', $retryUrl, $body );
-                            if($s['retryPaymentEmail']['lineBreaks']==='true'){
-                                $body = nl2br($body);
-                            }
-                            $mail = SUPER_Common::email( array( 'to'=>$to, 'subject'=>$subject, 'body'=>$body ));
-                            if($mail==false){
-                                //error_log('Stripe `Payment failed` email could not be send through wp_mail()');
-                                http_response_code(400);
-                            }
-                            break;
-                    }
-                    http_response_code(200);
-                    exit;
-                }
-            }
+            SUPER_Stripe::handle_webhooks($wp);
             if ( array_key_exists( 'sfdlfi', $wp->query_vars ) ) {
                 if ( ! current_user_can( 'export' ) ) {
                     wp_die( __( 'Sorry, you are not allowed to export the content of this site.' ) );
@@ -965,6 +791,13 @@ if(!class_exists('SUPER_Forms')) :
                     )
                 ) );
             }
+            $query->set( 'meta_query', array(
+                // Exclude files that are marked as always hidden (Stripe invoices)
+                array(
+                    'key' => 'super-forms-is-hidden',
+                    'compare' => 'NOT EXISTS' 
+                )
+            ) );
 
         }
         // Hide file uploads in grid view (Media Library) and from overlay view (popup)
@@ -986,6 +819,11 @@ if(!class_exists('SUPER_Forms')) :
                     )
                 );
             }
+            // Exclude files that are marked as always hidden (Stripe invoices)
+            $args['meta_query'][] = array(
+                'key' => 'super-forms-is-hidden',
+                'compare' => 'NOT EXISTS' 
+            );
             return $args;
         }
         public function flush_rules(){
@@ -2353,6 +2191,16 @@ if(!class_exists('SUPER_Forms')) :
                         'screen'  => array(
                             'super-forms_page_super_create_form',
                             'super-forms_page_super_settings'
+                        ),
+                        'method'  => 'enqueue',
+                    ),
+                    'super-ui' => array(
+                        'src'     => $backend_path . 'ui.css',
+                        'deps'    => '',
+                        'version' => SUPER_VERSION,
+                        'media'   => 'all',
+                        'screen'  => array( 
+                            'super-forms_page_super_create_form'
                         ),
                         'method'  => 'enqueue',
                     ),

@@ -4561,6 +4561,7 @@ class SUPER_Shortcodes {
         if( $atts['height']!=0 ) $style .= 'max-height:' . $atts['height'] . 'px;';
         if( $atts['width']!=0 ) $style .= 'max-width:' . $atts['width'] . 'px;';
         $url = '';
+        $tag_attributes = '';
         if( !isset( $atts['link'] ) ) $atts['link'] = '';
         if( $atts['link']!='' ) {
             if( $atts['link']=='custom' ) {
@@ -4568,12 +4569,13 @@ class SUPER_Shortcodes {
             }else{
                 $url = get_permalink( $atts['link'] );
             }
-            $url = ' href="' . esc_url($url) . '"';
+            $tag_attributes = SUPER_Common::get_tags_attributes($url);
+            $url = ' href="' . $url . '"'; // may contain {tags}
         }
         $result .= '<div class="super-image align-' . esc_attr($atts['alignment']) . '" itemscope="itemscope" itemtype="https://schema.org/ImageObject">';
             $result .= '<div class="super-image-inner">';
                 if( !isset( $atts['target'] ) ) $atts['target'] = '';
-                if(!empty($url)) $result .= '<a target="' . esc_attr($atts['target']) . '"' . $url . '>';
+                if(!empty($url)) $result .= '<a target="' . esc_attr($atts['target']) . '"' . $tag_attributes . $url . '>';
                     // @since 1.9 - custom class
                     if( !isset( $atts['class'] ) ) $atts['class'] = '';
                     if( !isset( $atts['image'] ) ) $atts['image'] = 0;
@@ -4582,10 +4584,15 @@ class SUPER_Shortcodes {
                         $url = SUPER_PLUGIN_FILE . 'assets/images/image-icon.png';
                         $result .= '<img src="' . esc_url($url) . '"' . ($atts['class']!='' ? ' class="' . esc_attr($atts['class']) . '"' : '') . ' itemprop="contentURL"';
                     }else{
-                        $title = get_the_title( $attachment_id );
                         $url = wp_get_attachment_url( $attachment_id );
-                        $alt = get_post_meta( $attachment_id, '_wp_attachment_image_alt', true );
-                        $result .= '<img src="' . esc_url($url) . '"' . ($atts['class']!='' ? ' class="' . esc_attr($atts['class']) . '"' : '') . ' alt="' . esc_attr($alt) . '" title="' . esc_attr($title) . '" itemprop="contentURL"';
+                        if($url===false){
+                            $url = SUPER_PLUGIN_FILE . 'assets/images/image-icon.png';
+                            $result .= '<img src="' . esc_url($url) . '"' . ($atts['class']!='' ? ' class="' . esc_attr($atts['class']) . '"' : '') . ' itemprop="contentURL"';
+                        }else{
+                            $title = get_the_title( $attachment_id );
+                            $alt = get_post_meta( $attachment_id, '_wp_attachment_image_alt', true );
+                            $result .= '<img src="' . esc_url($url) . '"' . ($atts['class']!='' ? ' class="' . esc_attr($atts['class']) . '"' : '') . ' alt="' . esc_attr($alt) . '" title="' . esc_attr($title) . '" itemprop="contentURL"';
+                        }
                     } 
                     if( !empty( $style ) ) $result .= ' style="' . esc_attr($style) . '"';
                     $result .= '>';
@@ -6572,33 +6579,51 @@ class SUPER_Shortcodes {
                 // When value is not set, but PDF is activated, set it to true, to not break existing forms that might require it
                 if(!isset($settings['_pdf']['textRendering'])) $settings['_pdf']['textRendering'] = 'true';
                 if(!isset($settings['_pdf']['normalizeFonts'])) $settings['_pdf']['normalizeFonts'] = 'true';
-                if(!isset($settings['_pdf']['cyrillicText'])) $settings['_pdf']['cyrillicText'] = 'true'; 
+                if(!isset($settings['_pdf']['cyrillicText'])) $settings['_pdf']['cyrillicText'] = 'false'; 
                 if(!isset($settings['_pdf']['arabicText'])) $settings['_pdf']['arabicText'] = 'false'; 
+                $language = 'latin'; // defaults to latin
+                if($settings['_pdf']['cyrillicText']==='true') $language = 'cyrillic';
+                if($settings['_pdf']['arabicText']==='true') $language = 'arabic';
+                if(isset($settings['_pdf']['native']) && $settings['_pdf']['native']==='true'){
+                    $settings['_pdf']['textRendering'] = 'true';
+                }
                 // Only if text rendering is enabled, and cyrillic text is enabled
                 if($settings['_pdf']['textRendering']==='true'){
-                    // Cyrillic compatible font
-                    if($settings['_pdf']['cyrillicText']==='true') {
-                        add_action( 'wp_footer', function(){
-                            ?>
-                            <script>
-                            super_common_i18n.fonts = {
-                                NotoSans: JSON.parse('<?php echo file_get_contents(SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts.json'); ?>')
-                            };
-                            </script>
-                            <?php
-                        }, 100 );
-                    }
-                    // Arabic compatible font
-                    if($settings['_pdf']['arabicText']==='true') {
-                        add_action( 'wp_footer', function(){
-                            ?>
-                            <script>
-                            super_common_i18n.fonts = {
-                                NotoSans: JSON.parse('<?php echo file_get_contents(SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts-arabic.json'); ?>')
-                            };
-                            </script>
-                            <?php
-                        }, 100 );
+                    if(!empty($settings['_pdf']['language'])) $language = $settings['_pdf']['language'];
+                    if($language==='persian' || $language==='urdu') $language = 'arabic';
+                    if($language!=='latin' && $language!==''){
+                        // Check if font exists in plugin folder, if not download and store it
+                        $plugin_folder = plugin_dir_path(__FILE__);
+                        $packageUrl = 'https://f4d.nl/@super-forms-updates/packages/fonts/';
+                        $font_dir = SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts/';
+                        // Create the target directory if it doesnt exist
+                        if(!is_dir($font_dir)) mkdir($font_dir, 0755, true);
+                        // Download the fonts if they don't exist yet.
+                        $json_file = SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts/'.$language.'.json';
+                        if(!file_exists($json_file)){
+                            $json_url = $packageUrl.$language.'.json';
+                            $json_data = file_get_contents($json_url);
+                            file_put_contents($json_file, $json_data);
+                        }
+                        $woff_file = SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts/'.$language.'.woff';
+                        if(!file_exists($woff_file)){
+                            $woff_url = $packageUrl.$language.'.woff';
+                            $woff_data = file_get_contents($woff_url);
+                            file_put_contents($woff_file, $woff_data);
+                        }
+                        $woff2_file = SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts/'.$language.'.woff2';
+                        if(!file_exists($woff2_file)){
+                            $woff2_url = $packageUrl.$language.'.woff2';
+                            $woff2_data = file_get_contents($woff2_url);
+                            file_put_contents($woff2_file, $woff2_data);
+                        }
+                        add_action('wp_footer', function($arguments) use ($language) {
+                            $link = SUPER_PLUGIN_FILE . 'includes/extensions/pdf-generator/fonts/'.$language;
+?><style>.super-form:after {font-family: 'SF-Unicode'!important; content:'.'!important; visibility:hidden!important; position:absolute!important; bottom:0px!important; left:0px!important; z-index:-999999!important;}
+@font-face {font-family:'SF-Unicode';src:url('<?php echo $link; ?>.woff') format('woff');}
+@font-face {font-family:'SF-Unicode';src:url('<?php echo $link; ?>.woff2') format('woff2');}</style>
+<script>super_common_i18n.fonts = {link: '<?php echo $link; ?>'};</script><?php
+                        }, 100, 1);
                     }
                 }
             }

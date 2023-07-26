@@ -18,5 +18,5 @@
 - [Popups (included)](popups)
 - [E-mail Templates (included)](email-templates)
 - [E-mail Reminders (included)](email-reminders)
-- [WooCommerce Custom Orders (IN PROGRESS)](in-progress)
+- [WooCommerce Instant Orders (IN PROGRESS)](in-progress)
 - [Stripe Payments (IN PROGRESS)](in-progress)

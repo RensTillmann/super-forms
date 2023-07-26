@@ -2078,7 +2078,7 @@ html[dir="rtl"]
 .display-horizontal
   .super-field-wrapper
     display: flex
-    flex-wrap: wrap
+    //flex-wrap: wrap
 
 .display-horizontal,
 .display-vertical,
@@ -2965,13 +2965,17 @@ html[dir="rtl"]
       align-items: center
   /* Multipart previous/next/submit buttons */
   .super-multipart.super-active
-    .super-form-button:nth-last-child(2)
-      width: auto
-      float: right
+    .super-form-button
+      &.super-next-multipart:nth-last-child(2),
+      &.super-prev-multipart:nth-last-child(2)
+        width: auto
+        float: right
   &.super-rtl
     .super-multipart.super-active
-      .super-form-button:nth-last-child(2)
-        float: left
+      .super-form-button
+        &.super-next-multipart:nth-last-child(2),
+        &.super-prev-multipart:nth-last-child(2)
+          float: left
   /* Dropdowns */
   .super-dropdown
     &.super-filled
