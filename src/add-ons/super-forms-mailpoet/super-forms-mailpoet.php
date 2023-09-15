@@ -4,7 +4,7 @@
  *
  * @package   Super Forms - MailPoet
  * @author    feeling4design
- * @link      http://f4d.nl/super-forms
+ * @link      http://super-forms.com
  * @copyright 2022 by feeling4design
  * @license   GPL-2.0-or-later
  *
@@ -12,8 +12,8 @@
  * Plugin Name: Super Forms - MailPoet
  * Description: Register subscribers for MailPoet with Super Forms
  * Version:     1.0.0
- * Plugin URI:  http://f4d.nl/super-forms
- * Author URI:  http://f4d.nl/super-forms
+ * Plugin URI:  http://super-forms.com
+ * Author URI:  http://super-forms.com
  * Author:      feeling4design
  * Text Domain: super-forms
  * License:           GPL v2 or later

@@ -1841,17 +1841,32 @@ class SUPER_Ajax {
      *  @since      1.9
     */
     public static function start_forms_import() {
-        $file_id = absint( $_POST['file_id'] );
+		$file_id = absint( $_POST['file_id'] );
         $url = wp_get_attachment_url( $file_id );
-        $request = wp_safe_remote_get($url);
-        $contents = wp_remote_retrieve_body( $request );
-
-        // Remove <html> tag at the beginning if exists
+        $request = wp_safe_remote_get($url, $args);
+		if(is_wp_error($request)){
+			error_log($request->get_error_message());
+			wp_send_json_error($request->get_error_message());
+			die();
+		}
+		$contents = wp_remote_retrieve_body( $request );
+		if(is_wp_error($contents)){
+			error_log($request->get_error_message());
+			wp_send_json_error($contents->get_error_message());
+			die();
+		}
+		// Remove <html> tag at the beginning if exists
         $html_tag = substr($contents, 0, 6);
         if($html_tag==='<html>'){
             $contents = substr($contents, 6);
         }
         $forms = json_decode($contents, true);
+		if(!is_array($forms)){
+			error_log('Import file is empty or you do not have permission to read it.');
+			error_log($contents);
+			wp_send_json_error('No permission to read import file or file is corrupted. Please check the server error log for more details, or try disabling `Basic access authentication` (if enabled).');
+			die();
+		}
         foreach($forms as $k => $v){
             $form = array(
                 'post_author' => $v['post_author'],
@@ -1870,6 +1885,7 @@ class SUPER_Ajax {
             if(isset($v['translations'])) add_post_meta( $form_id, '_super_translations', $v['translations'] );
             if(isset($v['secrets'])) add_post_meta( $form_id, '_super_local_secrets', $v['secrets'] );
         }
+        wp_send_json_success();
         die();
     }
 
@@ -3267,7 +3283,7 @@ class SUPER_Ajax {
             // First save the entry simply because we need the ID
             $post = array(
                 'post_status' => 'super_unread',
-                'post_type' => 'super_contact_entry' ,
+                'post_type' => 'super_contact_entry',
                 'post_parent' => $form_id // @since 1.7 - save the form ID as the parent
             );
             // @since 3.8.0 - save the post author based on session if set (currently used by Register & Login)

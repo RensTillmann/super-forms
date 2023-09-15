@@ -567,8 +567,8 @@
 .super-datepicker-dialog .ui-datepicker-header .ui-datepicker-year {
     font-size: 12px;
     line-height: 20px;
-    padding: 0px 0px 0px 0px;
-    height: 20px;
+    padding: 0px 24px 0px 10px;
+    height: 26px;
     margin: 0px 0px 0px 5px;
     min-height: initial;
 }

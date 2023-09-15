@@ -4,16 +4,16 @@
  *
  * @package   Super Forms
  * @author    feeling4design
- * @link      http://f4d.nl/super-forms
+ * @link      http://super-forms.com
  * @copyright 2022 by feeling4design
  * @license   GPL-2.0-or-later
  *
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.3.727
- * Plugin URI:        http://f4d.nl/super-forms
- * Author URI:        http://f4d.nl/super-forms
+ * Version:           6.3.729
+ * Plugin URI:        http://super-forms.com
+ * Author URI:        http://super-forms.com
  * Author:            feeling4design
  * Text Domain:       super-forms
  * Domain Path:       /i18n/languages/
@@ -43,7 +43,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '6.3.727';
+        public $version = '6.3.729';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -248,8 +248,12 @@ if(!class_exists('SUPER_Forms')) :
             // Include Add-ons
             $directory = SUPER_PLUGIN_DIR . '/add-ons';
             $folders = array_diff(scandir($directory), array('..', '.'));
-            foreach($folders as $k => $v){
-                include_once('add-ons/'.$v.'/'.$v.'.php');
+            foreach($folders as $v){
+                $path = $directory . '/' . $v;
+                if(is_dir($path)){
+                    $file = $path . '/' . $v . '.php';
+                    if(file_exists($file)) include_once $file;
+                }
             }
         }
 
@@ -1367,10 +1371,10 @@ if(!class_exists('SUPER_Forms')) :
                                 echo '<h1>' . esc_html__( 'What\'s new?', 'super-forms' ) . '</h1>';
                                 echo '<hr />';
                                 echo '<h2>' . sprintf( esc_html__( 'Listings Add-on %1$sBETA%2$s', 'super-forms' ), '<span style="color:red;">', '</span>' ) . '</h2>';
-                                echo '<p><a target="_blank" href="https://webrehab.zendesk.com/hc/en-gb/sections/4405742210961-Listings-Add-on" class="button button-secondary button-large">' . esc_html__( 'Documentation', 'super-forms' ) . '</a> <a target="_blank" href="' . esc_url(admin_url() . 'admin.php?page=super_addons') . '" class="button button-primary button-large">' . esc_html__( 'Start 15 day trial', 'super-forms' ) . '</a></p>';
+                                echo '<p><a target="_blank" href="https://docs.super-forms.com/features/integrations/listings" class="button button-secondary button-large">' . esc_html__( 'Documentation', 'super-forms' ) . '</a> <a target="_blank" href="' . esc_url(admin_url() . 'admin.php?page=super_addons') . '" class="button button-primary button-large">' . esc_html__( 'Start 15 day trial', 'super-forms' ) . '</a></p>';
                                 echo '<hr />';
                                 echo '<h2>' . sprintf( esc_html__( 'PDF Generator Add-on %1$sBETA%2$s', 'super-forms' ), '<span style="color:red;">', '</span>' ) . '</h2>';
-                                echo '<p><a target="_blank" href="https://webrehab.zendesk.com/hc/en-gb/sections/4404338396177-PDF-Generator" class="button button-secondary button-large">' . esc_html__( 'Documentation', 'super-forms' ) . '</a> <a target="_blank" href="' . esc_url(admin_url() . 'admin.php?page=super_addons') . '" class="button button-primary button-large">' . esc_html__( 'Start 15 day trial', 'super-forms' ) . '</a></p>';
+                                echo '<p><a target="_blank" href="https://docs.super-forms.com/features/integrations/pdf-generator" class="button button-secondary button-large">' . esc_html__( 'Documentation', 'super-forms' ) . '</a> <a target="_blank" href="' . esc_url(admin_url() . 'admin.php?page=super_addons') . '" class="button button-primary button-large">' . esc_html__( 'Start 15 day trial', 'super-forms' ) . '</a></p>';
                                 echo '<hr />';
                                 echo '<h2>' . sprintf( esc_html__( 'Secure File Uploads', 'super-forms' ), '<span style="color:red;">', '</span>' ) . '</h2>';
                                 echo '<p>' . sprintf( esc_html__( 'By default any files uploaded via your forms will no longer be visible in the %1$sMedia Library%2$s. To change this behaviour you can visit the File Upload Settings.', 'super-forms'), '<a target="_blank" href="' . esc_url(get_admin_url() . 'upload.php') . '">', '</a>') . '</p>';
@@ -1429,8 +1433,9 @@ if(!class_exists('SUPER_Forms')) :
                 $where .= ")";
             }
             if( ( (isset($_GET['sffrom'])) && ($_GET['sffrom']!='') ) && ( (isset($_GET['sfto'])) && ($_GET['sfto']!='') ) ) {
-                $sffrom = date('Y-m-d', strtotime($_GET['sffrom']));
-                $sfto = date('Y-m-d', strtotime($_GET['sfto']));
+                $dateFormat = get_option('date_format');
+                $sffrom = DateTime::createFromFormat($dateFormat, $_GET['sffrom'])->format('Y-m-d');
+                $sfto = DateTime::createFromFormat($dateFormat, $_GET['sfto'])->format('Y-m-d');
                 $where .= " AND ( (date($table.post_date) BETWEEN '$sffrom' AND '$sfto') )";
             }
             if( (isset($_GET['super_form_filter'])) && (absint($_GET['super_form_filter'])!=0) ) {

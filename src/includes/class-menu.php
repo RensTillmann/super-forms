@@ -115,8 +115,8 @@ class SUPER_Menu {
         );
         unset($submenu['super_forms'][0]);
         if( isset($submenu['super_forms']) ) {
-            $submenu['super_forms'][5][2] = 'https://webrehab.zendesk.com/hc';
-            $submenu['super_forms'][7][2] = 'https://renstillmann.github.io/super-forms/#/changelog';
+            $submenu['super_forms'][5][2] = 'https://docs.super-forms.com/';
+            $submenu['super_forms'][7][2] = 'https://docs.super-forms.com/changelog';
         }
     }
 }

@@ -9,6 +9,6 @@
 - Easy to use
 
 [Get Started](#main)
-[Free Trial](http://f4d.nl/super-forms-demo/)
+[Free Trial](http://super-forms.com)
 
 ![](_media/bg.jpg)

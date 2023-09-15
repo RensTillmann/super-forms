@@ -4,7 +4,7 @@
  *
  * @package   Super Forms - Calculator
  * @author    feeling4design
- * @link      http://f4d.nl/super-forms
+ * @link      http://super-forms.com
  * @copyright 2022 by feeling4design
  * @license   GPL-2.0-or-later
  *
@@ -12,8 +12,8 @@
  * Plugin Name: Super Forms - Calculator
  * Description: Adds an extra element that allows you to do calculations on any of your fields
  * Version:     2.3.4
- * Plugin URI:  http://f4d.nl/super-forms
- * Author URI:  http://f4d.nl/super-forms
+ * Plugin URI:  http://super-forms.com
+ * Author URI:  http://super-forms.com
  * Author:      feeling4design
  * Text Domain: super-forms
  * Domain Path: /i18n/languages/
