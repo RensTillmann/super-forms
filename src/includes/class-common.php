@@ -1722,10 +1722,10 @@ class SUPER_Common {
         $invoice_key = (!empty($codesettings['invoice_key']) ? $codesettings['invoice_key'] : '');
         $length = $codesettings['len'];
         $characters = $codesettings['char'];
-        $prefix = $codesettings['pre'];
-        $invoice = $codesettings['inv'];
-        $invoice_padding = $codesettings['invp'];
-        $suffix = $codesettings['suf'];
+        $prefix = (!empty($codesettings['pre']) ? $codesettings['pre'] : '');
+        $invoice = (!empty($codesettings['inv']) ? $codesettings['inv'] : '');
+        $invoice_padding = (!empty($codesettings['invp']) ? $codesettings['invp'] : '');
+        $suffix = (!empty($codesettings['suf']) ? $codesettings['suf'] : '');
         $uppercase = $codesettings['upper'];
         $lowercase = $codesettings['lower'];
         $char  = '';

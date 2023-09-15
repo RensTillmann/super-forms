@@ -4,7 +4,7 @@
  *
  * @package   Super Forms - Zapier
  * @author    feeling4design
- * @link      http://f4d.nl/super-forms
+ * @link      http://super-forms.com
  * @copyright 2022 by feeling4design
  * @license   GPL-2.0-or-later
  *
@@ -12,8 +12,8 @@
  * Plugin Name: Super Forms - Zapier
  * Description: Allows you to connect Super Forms with Zapier (zapier.com)
  * Version:     1.3.2
- * Plugin URI:  http://f4d.nl/super-forms
- * Author URI:  http://f4d.nl/super-forms
+ * Plugin URI:  http://super-forms.com
+ * Author URI:  http://super-forms.com
  * Author:      feeling4design
  * Text Domain: super-forms
  * Domain Path: /i18n/languages/

@@ -4,7 +4,7 @@
  *
  * @package   Super Forms - PayPal Checkout
  * @author    feeling4design
- * @link      http://f4d.nl/super-forms
+ * @link      http://super-forms.com
  * @copyright 2022 by feeling4design
  * @license   GPL-2.0-or-later
  *
@@ -12,8 +12,8 @@
  * Plugin Name: Super Forms - PayPal Checkout
  * Description: Checkout with PayPal after form submission. Charge users for registering or posting content.
  * Version:     1.5.1
- * Plugin URI:  http://f4d.nl/super-forms
- * Author URI:  http://f4d.nl/super-forms
+ * Plugin URI:  http://super-forms.com
+ * Author URI:  http://super-forms.com
  * Author:      feeling4design
  * Text Domain: super-forms
  * Domain Path: /i18n/languages/

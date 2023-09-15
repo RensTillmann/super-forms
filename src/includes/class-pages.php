@@ -1368,7 +1368,7 @@ class SUPER_Pages {
                                                                                     array(
                                                                                         'name' => 'days',
                                                                                         'title' => 'Execute after or before (in days) based of the base date.',
-                                                                                        'subline' => '0 = The same day, 1 = One day later, 5 = Five days later, -1 = One day before, -3 = Three days before',
+                                                                                        'subline' => '0 = The same day, 1 = One day after, 5 = Five days later, -1 = One day before, -3 = Three days before',
                                                                                         'type' => 'text',
                                                                                         'default' => '0'
                                                                                     ),

@@ -3096,6 +3096,7 @@ class SUPER_Shortcodes {
         if( empty($atts['step']) ) $atts['step'] == 'any';
 
         if($atts['type']==='int-phone'){
+            if($atts['validation']==='phone') $atts['validation'] = 'empty';
             wp_enqueue_style( 'super-int-phone', SUPER_PLUGIN_FILE . 'assets/css/frontend/int-phone.css', array(), SUPER_VERSION );    
             wp_enqueue_style( 'super-flags', SUPER_PLUGIN_FILE . 'assets/css/frontend/flags.css', array(), SUPER_VERSION );    
             wp_enqueue_script( 'super-int-phone-utils', SUPER_PLUGIN_FILE . 'assets/js/frontend/int-phone-utils.js', array( 'super-common' ), SUPER_VERSION );
@@ -5947,21 +5948,19 @@ class SUPER_Shortcodes {
 
         // Sanitize the ID
         $form_id = absint($id);
-
         self::$current_form_id = $form_id;
         self::$current_form_index++;
-
-        // Check if the post exists
-        if ( FALSE === get_post_status( $form_id ) ) {
-            // The post does not exist
+        // Check if the form exists
+        if(get_post_status($form_id)===false || get_post_status($form_id)==='trash'){
+            // The form does not exist
             $result = '<strong>'.esc_html__('Error', 'super-forms' ).':</strong> '.sprintf(esc_html__('Super Forms could not find a form with ID: %d', 'super-forms' ), $form_id);
             return $result;
         }else{
             // Check if the post is a super_form post type
             $post_type = get_post_type($form_id);
-            if( $post_type!='super_form' ) {
-                    $result = '<strong>'.esc_html__('Error', 'super-forms' ).':</strong> '.sprintf(esc_html__('Super Forms could not find a form with ID: %d', 'super-forms' ), $form_id);
-                    return $result;
+            if($post_type!='super_form'){
+                $result = '<strong>'.esc_html__('Error', 'super-forms' ).':</strong> '.sprintf(esc_html__('Super Forms could not find a form with ID: %d', 'super-forms' ), $form_id);
+                return $result;
             }
         }
 

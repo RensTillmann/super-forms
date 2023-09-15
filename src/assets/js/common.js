@@ -422,17 +422,17 @@ function SUPERreCaptcha(){
                         if(!fieldWrapper) return true; // continue to next field
                         filesWrapper = fieldWrapper.querySelector('.super-fileupload-files');
                         if(!filesWrapper) return true; // continue to next field
-                        for(i=0; i<field.files.length; i++){
-                            file = field.files[i];
+                        Object.keys(field.files).forEach(function(key) {
+                            file = field.files[key];
                             if(args.data[fieldName]){
-                                if(!args.data[fieldName]['files'][i]) continue;
+                                if(!args.data[fieldName]['files'][key]) return;
                                 updateHtml[fieldName].html += SUPER.get_single_uploaded_file_html(false, false, file.value, file.type, file.url);
-                                args.data[fieldName]['files'][i]['value'] = file.value;
-                                args.data[fieldName]['files'][i]['type'] = file.type;
-                                args.data[fieldName]['files'][i]['url'] = file.url;
-                                var blob = SUPER.files[args.form_id][fieldName][i];
-                                delete SUPER.files[args.form_id][fieldName][i];
-                                SUPER.files[args.form_id][fieldName][i] = {
+                                args.data[fieldName]['files'][key]['value'] = file.value;
+                                args.data[fieldName]['files'][key]['type'] = file.type;
+                                args.data[fieldName]['files'][key]['url'] = file.url;
+                                var blob = SUPER.files[args.form_id][fieldName][key];
+                                delete SUPER.files[args.form_id][fieldName][key];
+                                SUPER.files[args.form_id][fieldName][key] = {
                                     url: file.url,
                                     lastModified: blob.lastModified,
                                     lastModifiedDate: blob.lastModifiedDate,
@@ -442,13 +442,13 @@ function SUPERreCaptcha(){
                                     webkitRelativePath: blob.webkitRelativePath
                                 };
                                 if(file.subdir) {
-                                    args.data[fieldName]['files'][i]['subdir'] = file.subdir;
+                                    args.data[fieldName]['files'][key]['subdir'] = file.subdir;
                                 }
                                 if(file.attachment) {
-                                    args.data[fieldName]['files'][i]['attachment'] = file.attachment;
+                                    args.data[fieldName]['files'][key]['attachment'] = file.attachment;
                                 }
                             }
-                        }
+                        });
                         filesWrapper.innerHTML = html;
                     });
                     Object.keys(updateHtml).forEach(function(fieldName) {
@@ -3603,21 +3603,30 @@ function SUPERreCaptcha(){
             }
         }
         if(args.el.closest('.super-shortcode').classList.contains('super-hidden')) return false;
-        var mayBeEmpty = (typeof args.el.dataset.mayBeEmpty !== 'undefined' ? args.el.dataset.mayBeEmpty : 'false');
+        args.mayBeEmpty = (typeof args.el.dataset.mayBeEmpty !== 'undefined' ? args.el.dataset.mayBeEmpty : 'false');
         args.allowEmpty = false;
-        
+        args.emptyValue = false;
+        if(args.el.classList.contains('super-address-autopopulate')){
+            if(!args.el.dataset.lng || args.el.dataset.lng===''){
+                args.emptyValue = true;
+            }
+        }else{
+            if(args.el.value===''){
+                args.emptyValue = true;
+            }
+        }
         // @since   4.9.0 -  Conditional required fields
         // Before we proceed, check if field is empty
-        if (args.el.value === '') {
+        if(args.emptyValue){
             // If it is empty, check if it allowed to be empty
-            if (typeof mayBeEmpty !== 'undefined') {
-                if (mayBeEmpty == 'false') {
+            if(typeof args.mayBeEmpty!=='undefined'){
+                if (args.mayBeEmpty == 'false') {
                     args.allowEmpty = false; // Do not allow field to be empty
                 }
-                if (mayBeEmpty == 'true') {
+                if (args.mayBeEmpty == 'true') {
                     args.allowEmpty = true; // Allow field to be empty
                 }
-                if (mayBeEmpty == 'conditions') {
+                if (args.mayBeEmpty == 'conditions') {
                     // Allow field to be empty only when following conditions are met
                     args.allowEmpty = true; 
                     args.conditionalLogic = args.form.querySelectorAll('.super-validate-conditions');
@@ -3844,14 +3853,14 @@ function SUPERreCaptcha(){
         // @since 5.0.022 - extra validation check for international phone numbers
         if(args.el.closest('.super-int-phone')){
             var super_int_phone = window.superTelInputGlobals.getInstance(args.el);
-            if(!super_int_phone.isValidNumber()){
+            if(!super_int_phone.isValidNumber()){ // If the phone validation causes false positives use super_int_phone.isPossibleNumber() instead
                 error = true;
             }
         }
 
         // Display error messages
-        if(args.allowEmpty && args.el.value==='') error = false;
-        if(typeof args.validation !== 'undefined' && !args.allowEmpty && args.el.value==='') error = true;
+        if(args.allowEmpty && args.emptyValue) error = false;
+        if(typeof args.validation !== 'undefined' && !args.allowEmpty && args.emptyValue) error = true;
         if(error){
             SUPER.handle_errors(args.el);
             SUPER.add_error_status_parent_layout_element($, args.el);
@@ -6973,6 +6982,7 @@ function SUPERreCaptcha(){
                         fieldName = data[i].files[0].name;
                         for(var x=0; x<data[i].files.length; x++){
                             var f = data[i].files[x];
+                            if(!f.url) continue;
                             if(typeof SUPER.files[formId] === 'undefined') SUPER.files[formId] = [];
                             if(typeof SUPER.files[formId][fieldName] === 'undefined') SUPER.files[formId][fieldName] = [];
                             var fileName = f.value;
@@ -7113,11 +7123,15 @@ function SUPERreCaptcha(){
                         firstValue = raw_value; //.split(';')[0];
                         setFieldValue = '';
                         nodes = dropdown.querySelectorAll('.super-item.super-active');
-                        for ( ii = 0; ii < nodes.length; ii++){
+                        for(ii=0;ii<nodes.length;ii++){
                             nodes[ii].classList.remove('super-active');
                         }
                         nodes = dropdown.querySelectorAll('.super-item[data-value^="'+firstValue+'"]');
-                        for ( ii = 0; ii < nodes.length; ii++){
+                        for(ii=0;ii<nodes.length;ii++){
+                            if(options[ii]!==innerNodes[iii].dataset.value){
+                                // Important check, so we don't get duplicate selections for instance when having dropdown items `Son` and `Son-in-law`
+                                continue;
+                            }
                             itemFirstValue = nodes[ii].dataset.value; //.split(';')[0];
                             if(itemFirstValue==firstValue){
                                 field.querySelector('.super-field-wrapper').classList.add('super-overlap');
@@ -7132,7 +7146,7 @@ function SUPERreCaptcha(){
                         element.value = setFieldValue;
                     }else{
                         nodes = dropdown.querySelectorAll('.super-dropdown-list .super-item.super-active');
-                        for ( ii = 0; ii < nodes.length; ii++){
+                        for(ii=0;ii<nodes.length;ii++){
                             nodes[ii].classList.remove('super-active');
                         }
                     }
@@ -7145,12 +7159,16 @@ function SUPERreCaptcha(){
                         dropdown = field.querySelector('.super-dropdown-list');
                         setFieldValue = '';
                         nodes = dropdown.querySelectorAll('.super-item.super-active');
-                        for ( ii = 0; ii < nodes.length; ii++){
+                        for(ii=0;ii<nodes.length;ii++){
                             nodes[ii].classList.remove('super-active');
                         }
-                        for ( ii = 0; ii < options.length; ii++){
+                        for(ii=0;ii<options.length;ii++){
                             innerNodes = dropdown.querySelectorAll('.super-item:not(.super-placeholder)[data-value^="'+options[ii]+'"]');
-                            for ( iii = 0; iii < innerNodes.length; iii++){
+                            for(iii=0;iii<innerNodes.length;iii++){
+                                if(options[ii]!==innerNodes[iii].dataset.value){
+                                    // Important check, so we don't get duplicate selections for instance when having dropdown items `Son` and `Son-in-law`
+                                    continue;
+                                }
                                 itemFirstValue = innerNodes[iii].dataset.value; //.split(';')[0];
                                 innerNodes[iii].classList.add('super-active');
                                 if(setFieldValue===''){
@@ -7163,11 +7181,11 @@ function SUPERreCaptcha(){
                         element.value = setFieldValue;
                     }else{
                         nodes = field.querySelectorAll('.super-dropdown-list .super-item.super-active');
-                        for ( ii = 0; ii < nodes.length; ii++){
+                        for(ii=0;ii<nodes.length;ii++){
                             nodes[ii].classList.remove('super-active');
                         }
                         nodes = field.querySelectorAll('.super-dropdown-list .super-item.super-default-selected');
-                        for ( ii = 0; ii < nodes.length; ii++){
+                        for(ii=0;ii<nodes.length;ii++){
                             nodes[ii].classList.add('super-active');
                         }
                     }
@@ -9131,7 +9149,7 @@ function SUPERreCaptcha(){
     }
 
     SUPER.pdf_generator_prepare = function(args, callback){
-        args.debugger = true;
+        args.debugger = false;
         var form = args.form0;
 
         // Define PDF tags

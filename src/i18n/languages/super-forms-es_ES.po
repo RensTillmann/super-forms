@@ -6408,7 +6408,7 @@ msgstr "http: //"
 
 #. URI of the plugin
 #. Author URI of the plugin
-msgid "http://f4d.nl/super-forms"
+msgid "http://super-forms.com"
 msgstr "http://f4d.nl/super-formas"
 
 #: includes/class-settings.php:1844
