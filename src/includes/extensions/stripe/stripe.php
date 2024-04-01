@@ -4797,7 +4797,7 @@ if(!class_exists('SUPER_Stripe')) :
         // no longer used...?                     array(
         // no longer used...?                         'timeout' => 45,
         // no longer used...?                         'headers'=>array(
-        // no longer used...?                             'Authorization' => 'Bearer sk_test_CczNHRNSYyr4TenhiCp7Oz05'
+        // no longer used...?                             'Authorization' => 'Bearer sk_test_XXXXXXXXX'
         // no longer used...?                         ),                      
         // no longer used...?                         'body' => array(
         // no longer used...?                             // The type of the source. The type is a payment method, one of ach_credit_transfer, ach_debit, alipay, bancontact, card, card_present, eps, giropay, ideal, multibanco, klarna, p24, sepa_debit, sofort, three_d_secure, or wechat. An additional hash is included on the source with a name matching this value. It contains additional information specific to the payment method used.
@@ -5385,7 +5385,7 @@ if(!class_exists('SUPER_Stripe')) :
         // tmp             array(
         // tmp                 'timeout' => 45,
         // tmp                 'headers'=>array(
-        // tmp                     'Authorization' => 'Bearer sk_test_CczNHRNSYyr4TenhiCp7Oz05'
+        // tmp                     'Authorization' => 'Bearer sk_test_XXXXXXXXX'
         // tmp                 ),                      
         // tmp                 'body' => array()
         // tmp             )
