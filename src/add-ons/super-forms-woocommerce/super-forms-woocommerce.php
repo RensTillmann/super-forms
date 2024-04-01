@@ -1206,8 +1206,8 @@ if( !class_exists('SUPER_WooCommerce') ) :
 					// if at least 1 of the 2 is not empty then apply the check otherwise skip it completely
 					if(($c['f1']!='') || ($c['f2']!='')){
 						// Check if values match eachother
-						if(($c['logic']=='==') && ($c['f1']==$c['f2'])) $settings['woocommerce_checkout'] = 'true';
-                        if(($c['logic']=='!=') && ($c['f1']!=$c['f2'])) $settings['woocommerce_checkout'] = 'true';
+                        if(($c['logic']=='==') && ($c['f1']==$c['f2'])) $wcs['checkout'] = 'true';
+                        if(($c['logic']=='!=') && ($c['f1']!=$c['f2'])) $wcs['checkout'] = 'true';
 					}
 				}
 			}
@@ -1215,20 +1215,63 @@ if( !class_exists('SUPER_WooCommerce') ) :
             // @since 1.2.2 - first reset order entry data
             SUPER_Common::setClientData( array( 'name'=> 'wc_entry_data', 'value'=>false  ) );
 
-            if( (isset($settings['woocommerce_checkout'])) && ($settings['woocommerce_checkout']=='true') ) {
-
+            if(isset($wcs) && $wcs['checkout']=='true'){
                 // @since 1.2.2 - save the entry data to the order
                 SUPER_Common::setClientData( array( 'name'=> 'wc_entry_data', 'value'=>$data  ) );
-
-                // No products defined to add to cart!
-                if( (!isset($settings['woocommerce_checkout_products'])) || (empty($settings['woocommerce_checkout_products'])) ) {
-                    $msg = sprintf( esc_html__( 'You haven\'t defined what products should be added to the cart. Please %sedit%s your form settings and try again', 'super-forms' ), '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $atts['post']['form_id'] )) . '">', '</a>' );
-                    SUPER_Common::output_message( array(
-                        'msg' => $msg,
-                        'form_id'=> absint($form_id)
-                    ));
+                foreach($wcs['products'] as $k => $v){
+                    $id = trim($v['id'], '{}');
+                    $qty = trim($v['qty'], '{}');
+                    $price = trim($v['price'], '{}');
+                    $variation = trim($v['variation'], '{}');
+                    $meta = $v['meta'];
+                    $meta_items = $v['items'];
+                    $i=2;
+                    while(isset($data[$id.'_'.$i])){
+                        $new = $wcs['products'][$k];
+                        if($new['id'][0]=='{')        $new['id']        = '{'.$new['id']       .'_'.$i.'}'; 
+                        if($new['qty'][0]=='{')       $new['qty']       = '{'.$new['qty']      .'_'.$i.'}'; 
+                        if($new['variation'][0]=='{') $new['variation'] = '{'.$new['variation'].'_'.$i.'}'; 
+                        if($new['price'][0]=='{')     $new['price']     = '{'.$new['price']    .'_'.$i.'}'; 
+                        if($new['meta']==='true'){
+                            $new_meta = $new['items'];
+                            foreach($new_meta as $mk => $mv){
+                                $label = trim($mv['label'], '{}');
+                                $value = trim($mv['value'], '{}');
+                                if($mv['label'][0]=='{') $new_meta[$mk]['label'] = '{'.$label.'_'.$i.'}'; 
+                                if($mv['value'][0]=='{') $new_meta[$mk]['value'] = '{'.$value.'_'.$i.'}'; 
+                                $new_meta[$mv]['label'] = SUPER_Common::email_tags($new_meta[$mv]['label'], $data, $settings).' ('.$i.')';
+                                $new_meta[$mv]['value'] = SUPER_Common::email_tags($new_meta[$mv]['value'], $data, $settings);
+                            }
+                            $new['items'] = $new_meta;
+                        }
+                        $wcs['products'][] = $new;
+                    }
+                }
+                $products = array();
+                foreach($wcs['products'] as $k => $v){
+                    $id = SUPER_Common::email_tags($v['id'], $data, $settings);
+                    $qty = SUPER_Common::email_tags($v['qty'], $data, $settings);
+                    $variation = SUPER_Common::email_tags($v['variation'], $data, $settings);
+                    $price = SUPER_Common::email_tags($v['price'], $data, $settings);
+                    $price = self::tofloat($price);
+                    $qty = absint($qty);
+                    if($qty>0){
+                        // Check if multiple ID's found (separate by comma)
+                        $multi_products = explode(',', $id);
+                        foreach($multi_products as $product_id){
+                            $product_id = absint($product_id);
+                            $products[] = array(
+                                'id' => $product_id,
+                                'quantity' => $qty,
+                                'variation_id' => absint($variation),
+                                'price' => $price,
+                                'super_data' => $v['items']
+                            );
+                        }
+                    }
                 }
 
+                /*
                 $checkout_products = explode( "\n", $settings['woocommerce_checkout_products'] );  
                 $products_tags = $checkout_products;
                 foreach( $checkout_products as $k => $v ) {
@@ -1385,7 +1428,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                     $product_price = self::tofloat($product_price);
                     $product_quantity = absint($product_quantity);
                     if( $product_quantity>0 ) {
-                        // Check if multiple ideas found (separate by comma)
+                        // Check if multiple ID's found (separate by comma)
                         $multi_products = explode(',', $product_id);
                         foreach( $multi_products as $product_id ) {
                             $product_id = absint($product_id);
@@ -1404,32 +1447,47 @@ if( !class_exists('SUPER_WooCommerce') ) :
 
                     }
                 }
+                */
+
+                "redirect": "cart",
+                "empty_cart": "true",
+                "remove_fees": "true",
+                "remove_coupons": "true",
+                "coupon": "{COUPON_CODE}",
+                "instant": "false",
+                "instant_conditionally": {
+                    "enabled": "false",
+                    "f1": "",
+                    "logic": "==",
+                    "f2": ""
+                }
+
 
                 // Empty the cart
-                if( (isset($settings['woocommerce_checkout_empty_cart'])) && ($settings['woocommerce_checkout_empty_cart']=='true') ) {
+                if( (isset($wcs['empty_cart'])) && ($wcs['empty_cart']=='true') ) {
                     $woocommerce->cart->empty_cart();
                 }
 
                 // Remove any coupons.
-                if( (isset($settings['woocommerce_checkout_remove_coupons'])) && ($settings['woocommerce_checkout_remove_coupons']=='true') ) {
+                if( (isset($wcs['remove_coupons'])) && ($wcs['remove_coupons']=='true') ) {
                     $woocommerce->cart->remove_coupons();
                 }
 
                 // Add discount
-                if( (isset($settings['woocommerce_checkout_coupon'])) && ($settings['woocommerce_checkout_coupon']!='') ) {
-                    $woocommerce->cart->add_discount($settings['woocommerce_checkout_coupon']);
+                if( (isset($wcs['coupon'])) && ($wcs['coupon']!='') ) {
+                    $woocommerce->cart->add_discount($wcs['coupon']);
                 }
 
                 // Delete any fees
-                if( (isset($settings['woocommerce_checkout_remove_fees'])) && ($settings['woocommerce_checkout_remove_fees']=='true') ) {
-                    $woocommerce->session->set( 'fees', array() );
-                    SUPER_Common::setClientData( array( 'name'=> 'wc_fee', 'value'=>false  ) );
+                if( (isset($wcs['remove_fees'])) && ($wcs['remove_fees']=='true') ) {
+                    $woocommerce->session->set('fees', array() );
+                    SUPER_Common::setClientData(array( 'name'=> 'wc_fee', 'value'=>false  ) );
                 }
 
                 // Add fee
-                if( (isset($settings['woocommerce_checkout_fees'])) && ($settings['woocommerce_checkout_fees']!='') ) {
+                if( (isset($wcs['woocommerce_checkout_fees'])) && ($wcs['woocommerce_checkout_fees']!='') ) {
                     $fees = array();
-                    $woocommerce_checkout_fees = explode( "\n", $settings['woocommerce_checkout_fees'] );  
+                    $woocommerce_checkout_fees = explode( "\n", $wcs['woocommerce_checkout_fees'] );  
                     foreach( $woocommerce_checkout_fees as $k => $v ) {
                         $fee =  explode( "|", $v );
                         $name = '';
@@ -1454,9 +1512,9 @@ if( !class_exists('SUPER_WooCommerce') ) :
                 }
 
                 // @since 1.2.2 - Add custom checkout fields
-                if( (isset($settings['woocommerce_checkout_fields'])) && ($settings['woocommerce_checkout_fields']!='') ) {
+                if( (isset($wcs['woocommerce_checkout_fields'])) && ($wcs['woocommerce_checkout_fields']!='') ) {
                     $fields = array();
-                    $woocommerce_checkout_fields = explode( "\n", $settings['woocommerce_checkout_fields'] );  
+                    $woocommerce_checkout_fields = explode( "\n", $wcs['woocommerce_checkout_fields'] );  
                     foreach( $woocommerce_checkout_fields as $k => $v ) {
                         $field =  explode( "|", $v );
                         if( !isset( $field[0] ) ) {
@@ -1487,7 +1545,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
 
 
                         // Only add the field if the field name was visible in the form itself
-                        if( (isset($settings['woocommerce_checkout_fields_skip_empty'])) && ($settings['woocommerce_checkout_fields_skip_empty']=='true') ) {
+                        if( (isset($wcs['woocommerce_checkout_fields_skip_empty'])) && ($wcs['woocommerce_checkout_fields_skip_empty']=='true') ) {
                             if( !isset($data[$name]) ) {
                                 continue;
                             }
@@ -1552,13 +1610,13 @@ if( !class_exists('SUPER_WooCommerce') ) :
                 }
 
                 // Redirect to cart / checkout page
-                if( isset($settings['woocommerce_redirect']) ) {
+                if( isset($wcs['woocommerce_redirect']) ) {
 
-                    if( (isset($settings['woocommerce_populate_checkout_fields'])) && ($settings['woocommerce_populate_checkout_fields']!='') ) {
+                    if( (isset($wcs['woocommerce_populate_checkout_fields'])) && ($wcs['woocommerce_populate_checkout_fields']!='') ) {
                         // First reset
                         $woocommerce->session->set( '_super_form_woocommerce_populate_checkout_fields', array() );
                         $fields = array();
-                        $woocommerce_populate_checkout_fields = explode( "\n", $settings['woocommerce_populate_checkout_fields'] );  
+                        $woocommerce_populate_checkout_fields = explode( "\n", $wcs['woocommerce_populate_checkout_fields'] );  
                         foreach( $woocommerce_populate_checkout_fields as $k => $v ) {
                             $field =  explode( "|", $v );
                             if( !isset( $field[0] ) ) continue; 
@@ -1571,10 +1629,10 @@ if( !class_exists('SUPER_WooCommerce') ) :
 
                     $woocommerce->session->set( '_super_form_data', $data ); // @since 1.2.0 - save data to session for billing fields
                     $redirect = null;
-                    if( $settings['woocommerce_redirect']=='checkout' ) {
+                    if( $wcs['woocommerce_redirect']=='checkout' ) {
                         $redirect = wc_get_checkout_url();
                     }
-                    if( $settings['woocommerce_redirect']=='cart' ) {
+                    if( $wcs['woocommerce_redirect']=='cart' ) {
                         $redirect = function_exists( 'wc_get_cart_url' ) ? wc_get_cart_url() : $woocommerce->cart->get_cart_url();
                     }
                     if( $redirect!=null ) {
