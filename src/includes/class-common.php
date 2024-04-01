@@ -20,6 +20,41 @@ if( !class_exists( 'SUPER_Common' ) ) :
  */
 class SUPER_Common {
 
+
+    public static function safe_json_encode($value, $options = 0, $depth = 512, $utfErrorFlag = false){
+        $encoded = json_encode($value, $options, $depth);
+        switch (json_last_error()) {
+            case JSON_ERROR_NONE:
+                return $encoded;
+            case JSON_ERROR_DEPTH:
+                return 'Maximum stack depth exceeded'; // or trigger_error() or throw new Exception()
+            case JSON_ERROR_STATE_MISMATCH:
+                return 'Underflow or the modes mismatch'; // or trigger_error() or throw new Exception()
+            case JSON_ERROR_CTRL_CHAR:
+                return 'Unexpected control character found';
+            case JSON_ERROR_SYNTAX:
+                return 'Syntax error, malformed JSON'; // or trigger_error() or throw new Exception()
+            case JSON_ERROR_UTF8:
+                $clean = self::utf8ize($value);
+                if($utfErrorFlag){
+                    return 'Malformed UTF-8 characters, possibly incorrectly encoded'; // or trigger_error() or throw new Exception()
+                }
+                return self::safe_json_encode($clean, $options, $depth, true);
+            default:
+                return 'Unknown error'; // or trigger_error() or throw new Exception()
+    
+        }
+    }
+    public static function utf8ize($mixed) {
+        if (is_array($mixed)) {
+            foreach ($mixed as $key => $value) {
+                $mixed[$key] = self::utf8ize($value);
+            }
+        } else if (is_string ($mixed)) {
+            return utf8_encode($mixed);
+        }
+        return $mixed;
+    }
     public static function get_tag_parts($tag, $i){
         // If not contains tags return the `name`
         if(strpos($tag, '{')===false){
@@ -89,25 +124,36 @@ class SUPER_Common {
         }
         return $triggers;
     }
-    public static function save_form_triggers($triggers, $form_id){
+    public static function save_form_triggers($triggers, $form_id, $delete=true){
+        error_log('save_form_triggers()');
         // First delete all local triggers for the current form
         global $wpdb;
-        $wpdb->query("DELETE FROM $wpdb->postmeta WHERE post_id = $form_id AND meta_key LIKE '_super_trigger-%'");
-        // Also delete all global triggers
-        $wpdb->query("DELETE FROM $wpdb->postmeta WHERE post_id = 0 AND meta_key LIKE '_super_global_trigger-%'");
-        $wpdb->query("DELETE FROM $wpdb->postmeta WHERE post_id = 0 AND meta_key LIKE '_super_specific_trigger-%'");
-        if(isset($triggers['triggers']) && is_array($triggers['triggers'])){
-            foreach($triggers['triggers'] as $trigger){
+        if($delete===true){
+            error_log('delete local and global triggers()');
+            $wpdb->query("DELETE FROM $wpdb->postmeta WHERE post_id = $form_id AND meta_key LIKE '_super_trigger-%'");
+            // Also delete all global triggers
+            $wpdb->query("DELETE FROM $wpdb->postmeta WHERE post_id = 0 AND meta_key LIKE '_super_global_trigger-%'");
+            $wpdb->query("DELETE FROM $wpdb->postmeta WHERE post_id = 0 AND meta_key LIKE '_super_specific_trigger-%'");
+        }
+        error_log(json_encode($triggers));
+        if(isset($triggers) && is_array($triggers)){
+            error_log('save_form_triggers(2)');
+            foreach($triggers as $trigger){
+                error_log('save_form_triggers(3)');
                 $triggerName = sanitize_title_with_dashes(trim($trigger['name']));
+                error_log($triggerName);
                 // Skip if no event was choosen
                 if(empty($trigger['event'])) continue; 
                 // Only current form
                 if(empty($trigger['listen_to'])){
+                    error_log('test1');
+                    error_log($form_id);
                     update_post_meta( $form_id, '_super_trigger-'.$triggerName, $trigger );
                     continue;
                 }
                 // Global trigger (for all forms)
                 if(isset($trigger['listen_to']) && $trigger['listen_to']==='all'){
+                    error_log('test2');
                     //var_dump('save global trigger...()');
                     // Use our custom update_metadata function because we can't parse zero value otherwise
                     self::update_metadata( 'post', 0, '_super_global_trigger-'.$triggerName, $trigger );
@@ -116,6 +162,7 @@ class SUPER_Common {
                 }
                 // Specific forms only (by ID)
                 if(isset($trigger['listen_to']) && $trigger['listen_to']==='id'){
+                    error_log('test3');
                     self::update_metadata( 'post', 0, '_super_specific_trigger-'.$triggerName, $trigger );
                     //$forms = explode(',', $trigger['listen_to_ids']);
                     //foreach($forms as $id){
@@ -137,15 +184,16 @@ class SUPER_Common {
             return absint($a['order']) - absint($b['order']);
         });
         error_log('form_id 3: '.$form_id);
-        error_log(json_encode($triggers));
+        error_log(SUPER_Common::safe_json_encode($triggers));
         // Loop over all triggers, and filter out the ones that are inactive, and that do not match this event
         foreach($triggers as $k => $v){
-            error_log(json_encode($v));
+            error_log(SUPER_Common::safe_json_encode($v));
+            if(!isset($v['active'])) continue;
             if($v['active']!=='true') continue;
             if($v['event']!==$eventName) continue;
             // Match, execute actions
             foreach($v['actions'] as $ak => $av){
-                error_log(json_encode($av));
+                error_log(SUPER_Common::safe_json_encode($av));
                 if(empty($av['action'])) continue;
                 // Check if action needs to be conditionally triggered
                 $execute = true;
@@ -163,7 +211,7 @@ class SUPER_Common {
 
         // tmp error_log('triggerEvent('.$name.')');
         // tmp $name = str_replace('.', '_', $name);
-        // tmp error_log(json_encode($x));
+        // tmp error_log(SUPER_Common::safe_json_encode($x));
 
         // tmp // Lookup actions that belong to this event 
         // tmp // both by form ID and global actions
@@ -192,13 +240,13 @@ class SUPER_Common {
     public static function cleanupFormSubmissionInfo($uniqueSubmissionId, $reference){
         error_log('cleanupFormSubmissionInfo()');
         $submissionInfo = get_option( '_sfsi_' . $uniqueSubmissionId, array() );
-        error_log('$submissionInfo (1): ' . json_encode($submissionInfo));
+        error_log('$submissionInfo (1): ' . SUPER_Common::safe_json_encode($submissionInfo));
         // Delete contact entry
         $entry_id = (isset($submissionInfo['entry_id']) ? absint($submissionInfo['entry_id']) : 0 );
         if( !empty($entry_id) ) {
             error_log('delete entry #'.$entry_id);
             $attachments = get_attached_media( '', $entry_id );
-            error_log('attachments: ' . json_encode($attachments));
+            error_log('attachments: ' . SUPER_Common::safe_json_encode($attachments));
             foreach( $attachments as $attachment ) {
                 // Force delete this attachment
                 wp_delete_attachment( $attachment->ID, true );
@@ -210,7 +258,7 @@ class SUPER_Common {
         if( !empty($created_post_id) ) {
             error_log('delete post #'.$created_post_id);
             $attachments = get_attached_media( '', $created_post_id );
-            error_log('attachments: ' . json_encode($attachments));
+            error_log('attachments: ' . SUPER_Common::safe_json_encode($attachments));
             foreach( $attachments as $attachment ) {
                 // Force delete this attachment
                 wp_delete_attachment( $attachment->ID, true );
@@ -226,7 +274,7 @@ class SUPER_Common {
         }
         // Delete any E-mail reminders based on this form ID as it's parent
         $email_reminders = (isset($submissionInfo['super_forms_email_reminders']) ? json_decode($submissionInfo['super_forms_email_reminders'],true) : array() );
-        //error_log('value: ' . json_encode($submissionInfo['super_forms_email_reminders']));
+        //error_log('value: ' . SUPER_Common::safe_json_encode($submissionInfo['super_forms_email_reminders']));
         //error_log('count: ' . count($email_reminders));
         if (is_array($email_reminders) && count($email_reminders) > 0) {
             // Delete all the Children of the Parent Page
@@ -238,7 +286,7 @@ class SUPER_Common {
         // Delete any uploaded files
         if(isset($submissionInfo['files']) && is_array($submissionInfo['files'])){
             $files = $submissionInfo['files'];
-            error_log('delete files: ' . json_encode($files));
+            error_log('delete files: ' . SUPER_Common::safe_json_encode($files));
             foreach($files as $k => $v){
                 if(!empty($v['attachment'])){
                     wp_delete_attachment( absint($v['attachment']), true );
@@ -412,7 +460,7 @@ class SUPER_Common {
     public static function cleanupOldClientData($key, $clientData) {
         //error_log('cleanupOldClientData()');
         //error_log('$key: ' . $key);
-        //error_log('$clientData: ' . json_encode($clientData));
+        //error_log('$clientData: ' . SUPER_Common::safe_json_encode($clientData));
 
         //"unique_submission_id_61768": {
         //    "expires": 1668013567,
@@ -1349,7 +1397,446 @@ class SUPER_Common {
         unset($settings['confirm_body_close']);
         $settings['confirm_body'] = $confirm_body;
 
-        return apply_filters( 'super_form_settings_filter', $settings, array( 'id'=>$form_id ) );
+        // Update old `WooCommerce Checkout` settings format with new
+        $s = $settings;
+        if(version_compare(SUPER_VERSION, '6.3.801', '<') && isset($s['woocommerce_checkout'])){
+            error_log('test1');
+            // Get trigger settings
+            $triggers = SUPER_Common::get_form_triggers($form_id);
+            error_log(json_encode($triggers));
+            // Add trigger for E-mail reminders
+            // Loop until we can't find reminder
+            if(empty($s['email_reminder_amount'])) $s['email_reminder_amount'] = 3;
+            $limit = absint($s['email_reminder_amount']);
+            if($limit==0) $limit = 3;
+            $x = 1;
+            while( $x <= $limit ) {
+                if( (!empty($s['email_reminder_' . $x])) && ($s['email_reminder_' . $x]=='true') ) {
+                    error_log('convert email reminder to trigger..');
+                    $t = array();
+                    if(!empty($s['email_reminder_'.$x.'_time_method']) && $s['email_reminder_'.$x.'_time_method']==='fixed'){
+                        $s['email_reminder_'.$x.'_time_method'] = 'time';
+                    }
+                    // Grab the body, and extract the `loop open`, `loop` and `loop close` parts
+                    $body = (!empty($s['email_reminder_'.$x.'_body']) ? $s['email_reminder_'.$x.'_body'] : '');
+                    $re = '/(<[^>.]*\s?table[^<]*\s?>)(.*\s?{loop_fields}.*\s*?)(<.*\s*?\/table[.^<]*\s*?>)/';
+                    preg_match($re, $body, $m);
+                    $loop_open = (isset($m[1]) ? $m[1] : '<table cellpadding="5">');
+                    $loop = (!empty($s['email_reminder_'.$x.'_email_loop']) ? $s['email_reminder_'.$x.'_email_loop'] : '<tr><th valign="top" align="right">{loop_label}</th><td>{loop_value}7</td></tr>');
+                    $loop_close = (isset($m[3]) ? $m[3] : '</table>');
+                    $body = str_replace($m[0], '{loop_fields}', $body);
+                    // Only if line breaks was enabled:
+                    if(!empty($s['email_reminder_'.$x.'_body_nl2br']) && $s['email_reminder_'.$x.'_body_nl2br']==='true'){
+                        $body = nl2br($body);
+                    }
+                    $t['enabled'] = 'true';
+                    $t['event'] = 'sf.after.submission';
+                    $t['name'] = 'E-mail reminder #'.$x;
+                    $t['listen_to'] = '';
+                    $t['ids'] = '';
+                    $t['order'] = $x;
+                    $t['actions'] = array(
+                        array(
+                            'action' => 'send_email',
+                            'order' => '1',
+                            'conditions' => array(
+                                'enabled' => 'false',
+                                'f1' => '',
+                                'logic' => '==',
+                                'f2' => '',
+                            ),
+                            'email' => array(
+                                'to' => (!empty($s['email_reminder_'.$x.'_to']) ? $s['email_reminder_'.$x.'_to'] : ''),
+                                'from_email' => (!empty($s['email_reminder_'.$x.'_from_type']) && ($s['email_reminder_'.$x.'_from_type']==='default') ? '{option_admin_email}' : $s['email_reminder_'.$x.'_from']),
+                                'from_name' => (!empty($s['email_reminder_'.$x.'_from_type']) && ($s['email_reminder_'.$x.'_from_type']==='default') ? '{option_blogname}' : $s['email_reminder_'.$x.'_from_name']),
+                                'reply_to' => array( 
+                                    'enabled' => (!empty($s['email_reminder_'.$x.'_header_reply_enabled']) && ($s['email_reminder_'.$x.'_header_reply_enabled']==='true') ? 'true' : 'false'),
+                                    'email' => (!empty($s['email_reminder_'.$x.'_header_reply']) ? $s['email_reminder_'.$x.'_header_reply'] : ''),
+                                    'name' => (!empty($s['email_reminder_'.$x.'_header_reply_name']) ? $s['email_reminder_'.$x.'_header_reply_name'] : '')
+                                ),
+                                'subject' => (!empty($s['email_reminder_'.$x.'_subject']) ? $s['email_reminder_'.$x.'_subject'] : ''),
+                                'body' => $body, 
+                                // 'line_breaks' => 'false', // no longer used since tinymce editor
+
+                                'loop_open' => $loop_open,
+                                'loop' => $loop,
+                                'loop_close' => $loop_close,
+
+                                'exclude_empty' => (!empty($s['email_reminder_'.$x.'_exclude_empty']) && ($s['email_reminder_'.$x.'_exclude_empty']==='true') ? 'true' : 'false'),
+
+                                'rtl' => (!empty($s['email_reminder_'.$x.'_rtl']) && ($s['email_reminder_'.$x.'_rtl']==='true') ? 'true' : 'false'),
+                                'cc' => (!empty($s['email_reminder_'.$x.'_header_cc']) ? $s['email_reminder_'.$x.'_header_cc'] : ''),
+                                'bcc' => (!empty($s['email_reminder_'.$x.'_header_bcc']) ? $s['email_reminder_'.$x.'_header_bcc'] : ''),
+                                'attachments' => (!empty($s['email_reminder_'.$x.'_attachments']) ? $s['email_reminder_'.$x.'_attachments'] : ''),
+                                'content_type' => 'html',
+                                'charset' => 'UTF-8',
+                                'schedule' => array(
+                                    'enabled' => 'true',
+                                    'dates' => array(
+                                        array(
+                                            'date' => (!empty($s['email_reminder_'.$x.'_base_date']) ? $s['email_reminder_'.$x.'_base_date'] : ''),
+                                            'days' => (!empty($s['email_reminder_'.$x.'_date_offset']) ? $s['email_reminder_'.$x.'_date_offset'] : '0'),
+                                            'method' => (!empty($s['email_reminder_'.$x.'_time_method']) ? (($s['email_reminder_'.$x.'_time_method']=='offset' && (isset($s['email_reminder_'.$x.'_time_offset']) && $s['email_reminder_'.$x.'_time_offset']==='0')) ? 'instant' : $s['email_reminder_'.$x.'_time_method']) : 'time'),
+                                            'time' => (!empty($s['email_reminder_'.$x.'_time_fixed']) ? $s['email_reminder_'.$x.'_time_fixed'] : '09:00'),
+                                            'offset' => (!empty($s['email_reminder_'.$x.'_time_offset']) ? $s['email_reminder_'.$x.'_time_offset'] : '0')
+                                        )
+                                    )
+                                ),
+                                //"email_reminder_'.$x.'_header_additional": "header-reminder:-header-reminder-value",
+                                //"email_reminder_2_header_additional": "-r2:value--r2",
+                                // woocommerce_completed_header_additional
+                            )
+                        )
+                    );
+                    $triggers[] = $t;
+                }
+                $x++;
+            }
+
+            // Add trigger for WooCommerce email after order completed
+            if(!empty($s['woocommerce_checkout']) && $s['woocommerce_checkout']==='true' && !empty($s['woocommerce_completed_email']) && $s['woocommerce_completed_email']==='true'){
+                error_log('convert wc order completed email to trigger..');
+                $t = array();
+                // Grab the body, and extract the `loop open`, `loop` and `loop close` parts
+                $body = (!empty($s['woocommerce_completed_body']) ? $s['woocommerce_completed_body'] : '');
+                $re = '/(<[^>.]*\s?table[^<]*\s?>)(.*\s?{loop_fields}.*\s*?)(<.*\s*?\/table[.^<]*\s*?>)/';
+                preg_match($re, $body, $m);
+                $loop_open = (isset($m[1]) ? $m[1] : '<table cellpadding="5">');
+                $loop = (!empty($s['woocommerce_completed_email_loop']) ? $s['woocommerce_completed_email_loop'] : '<tr><th valign="top" align="right">{loop_label}</th><td>{loop_value}7</td></tr>');
+                $loop_close = (isset($m[3]) ? $m[3] : '</table>');
+                $body = str_replace($m[0], '{loop_fields}', $body);
+                // Only if line breaks was enabled:
+                if(!empty($s['woocommerce_completed_body_nl2br']) && $s['woocommerce_completed_body_nl2br']==='true'){
+                    $body = nl2br($body);
+                }
+                $t['enabled'] = 'true';
+                $t['event'] = 'wc.order.status.completed';
+                $t['name'] = 'Payment completed E-mail';
+                $t['listen_to'] = '';
+                $t['ids'] = '';
+                $t['order'] = '1';
+                $t['actions'] = array(
+                    array(
+                        'action' => 'send_email',
+                        'order' => '1',
+                        'conditions' => array(
+                            'enabled' => 'false',
+                            'f1' => '',
+                            'logic' => '',
+                            'f2' => '',
+                        ),
+                        'email' => array(
+                            'to' => (!empty($s['woocommerce_completed_to']) ? $s['woocommerce_completed_to'] : ''),
+                            'from_email' => (!empty($s['woocommerce_completed_from_type']) && ($s['woocommerce_completed_from_type']==='default') ? '{option_admin_email}' : $s['woocommerce_completed_from']),
+                            'from_name' => (!empty($s['woocommerce_completed_from_type']) && ($s['woocommerce_completed_from_type']==='default') ? '{option_blogname}' : $s['woocommerce_completed_from_name']),
+                            'reply_to' => array( 
+                                'enabled' => (!empty($s['woocommerce_completed_header_reply_enabled']) && ($s['woocommerce_completed_header_reply_enabled']==='true') ? 'true' : 'false'),
+                                'email' => (!empty($s['woocommerce_completed_header_reply']) ? $s['woocommerce_completed_header_reply'] : ''),
+                                'name' => (!empty($s['woocommerce_completed_header_reply_name']) ? $s['woocommerce_completed_header_reply_name'] : '')
+                            ),
+                            'subject' => (!empty($s['woocommerce_completed_subject']) ? $s['woocommerce_completed_subject'] : ''),
+                            'body' => $body, 
+                            // 'line_breaks' => 'false', // no longer used since tinymce editor
+
+                            'loop_open' => $loop_open, // (!empty($s['woocommerce_completed_email_loop']) ? $s['woocommerce_completed_email_loop'] : '<table cellpadding="5">'),
+                            'loop' => $loop, //(!empty($s['woocommerce_completed_email_loop']) ? $s['woocommerce_completed_email_loop'] : '<tr><th valign="top" align="right">{loop_label}</th><td>{loop_value}</td></tr>'),
+                            'loop_close' => $loop_close, //(!empty($s['woocommerce_completed_email_loop']) ? $s['woocommerce_completed_email_loop'] : '</table>'),
+
+                            'exclude_empty' => (!empty($s['woocommerce_completed_exclude_empty']) && ($s['woocommerce_completed_exclude_empty']==='true') ? 'true' : 'false'),
+
+                            'rtl' => (!empty($s['woocommerce_completed_rtl']) && ($s['woocommerce_completed_rtl']==='true') ? 'true' : 'false'),
+                            'cc' => (!empty($s['woocommerce_completed_header_cc']) ? $s['woocommerce_completed_header_cc'] : ''),
+                            'bcc' => (!empty($s['woocommerce_completed_header_bcc']) ? $s['woocommerce_completed_header_bcc'] : ''),
+                            'header_additional' => (!empty($s['woocommerce_completed_header_additional']) ? $s['woocommerce_completed_header_additional'] : ''),
+                            'attachments' => (!empty($s['woocommerce_completed_attachments']) ? $s['woocommerce_completed_attachments'] : ''),
+                            'content_type' => 'html',
+                            'charset' => 'UTF-8'
+                            // woocommerce_completed_header_additional
+                        )
+                    )
+                );
+                $triggers[] = $t;
+            }
+            error_log(json_encode($triggers));
+            SUPER_Common::save_form_triggers($triggers, $form_id, false);
+
+            $s['_woocommerce'] = array();
+            $s['_woocommerce']['checkout'] = (isset($settings['woocommerce_checkout']) ? $settings['woocommerce_checkout'] : 'false');
+            $s['_woocommerce']['redirect'] = (isset($settings['woocommerce_redirect']) ? $settings['woocommerce_redirect'] : 'checkout');
+            $s['_woocommerce']['coupon'] = (isset($settings['woocommerce_checkout_coupon']) ? $settings['woocommerce_checkout_coupon'] : '');
+            $s['_woocommerce']['checkout_conditionally'] = array();
+            $s['_woocommerce']['checkout_conditionally']['enabled'] = (isset($settings['conditionally_wc_checkout']) ? $settings['conditionally_wc_checkout'] : 'false');
+            if(empty($settings['conditionally_wc_checkout_check'])) $settings['conditionally_wc_checkout_check'] = '';
+            $values = explode(',', $settings['conditionally_wc_checkout_check']);
+            if(!isset($values[0])) $values[0] = '';
+            if(!isset($values[1])) $values[1] = '=='; // is either == or !=   (== by default)
+            if(!isset($values[2])) $values[2] = '';
+            $s['_woocommerce']['checkout_conditionally']['f1'] = $values[0];
+            $s['_woocommerce']['checkout_conditionally']['logic'] = $values[1];
+            $s['_woocommerce']['checkout_conditionally']['f2'] = $values[2];
+            $s['_woocommerce']['empty_cart'] = (isset($settings['woocommerce_checkout_empty_cart']) ? $settings['woocommerce_checkout_empty_cart'] : 'false');
+            $s['_woocommerce']['remove_coupons'] = (isset($settings['woocommerce_checkout_remove_coupons']) ? $settings['woocommerce_checkout_remove_coupons'] : 'false');
+            $s['_woocommerce']['remove_fees'] = (isset($settings['woocommerce_checkout_remove_fees']) ? $settings['woocommerce_checkout_remove_fees'] : 'false');
+            $woocommerce_checkout_products = (isset($settings['woocommerce_checkout_products']) ? explode( "\n", $settings['woocommerce_checkout_products'] ) : '');
+            $woocommerce_checkout_products_meta = (isset($settings['woocommerce_checkout_products_meta']) ? explode( "\n", $settings['woocommerce_checkout_products_meta'] ) : '');
+            $products = array();
+            $products_ids = array();
+            foreach($woocommerce_checkout_products as $k => $v){
+                $product =  explode('|', $v);
+                $id = (isset($product[0]) ? trim($product[0]) : '');
+                if(empty($id)) continue;
+                $qty = (isset($product[1]) ? trim($product[1]) : '');
+                $variation = (isset($product[2]) ? trim($product[2]) : '');
+                $price = (isset($product[3]) ? trim($product[3]) : '');
+                $products_ids[$id] = $k;
+                $products[] = array(
+                    'id' => $id,
+                    'qty' => $qty,
+                    'variation' => $variation,
+                    'price' => $price,
+                    'meta' => 'false',
+                    'items' => array()
+                );
+            }
+            foreach($woocommerce_checkout_products_meta as $k => $v){
+                $meta =  explode('|', $v);
+                $id = (isset($meta[0]) ? trim($meta[0]) : '');
+                if(empty($id)) continue;
+                // Check if we can match it with one of the product ID's
+                $products_ids[$id] = $k;
+                if(isset($products_ids[$id])){
+                    $label = (isset($meta[1]) ? trim($meta[1]) : '');
+                    $value = (isset($meta[2]) ? trim($meta[2]) : '');
+                    $index = $products_ids[$id];
+                    $products[$index]['meta'] = 'true';
+                    $products[$index]['items'][] = array(
+                        'label' => $label,
+                        'value' => $value
+                    );
+                }
+            }
+            $s['_woocommerce']['products'] = $products;
+
+            $woocommerce_checkout_fees = (isset($settings['woocommerce_checkout_fees']) ? explode( "\n", $settings['woocommerce_checkout_fees'] ) : '');
+            $fees = array();
+            foreach($woocommerce_checkout_fees as $k => $v){
+                $fee =  explode('|', $v);
+                $name = (isset($fee[0]) ? trim($fee[0]) : '');
+                if(empty($name)) continue;
+                $amount = (isset($fee[1]) ? trim($fee[1]) : '');
+                $taxable = (isset($fee[2]) ? trim($fee[2]) : '');
+                $tax_class = (isset($fee[3]) ? trim($fee[3]) : '');
+                $fees[] = array(
+                    'name' => $name,
+                    'amount' => $amount,
+                    'taxable' => $taxable,
+                    'tax_class' => $tax_class
+                );
+            }
+            if(!empty($fees)){
+                $s['_woocommerce']['fees'] = array(
+                    'enabled' => 'true',
+                    'items' => $fees
+                );
+            }
+
+            $woocommerce_populate_checkout_fields = (isset($settings['woocommerce_populate_checkout_fields']) ? explode( "\n", $settings['woocommerce_populate_checkout_fields'] ) : '');
+            $fields = array();
+            foreach($woocommerce_populate_checkout_fields as $k => $v){
+                $field =  explode('|', $v);
+                $name = (isset($field[0]) ? trim($field[0]) : '');
+                if(empty($name)) continue;
+                $value = (isset($field[1]) ? trim($field[1]) : '');
+                $fields[] = array(
+                    'name' => $name,
+                    'value' => $value
+                );
+            }
+            if(!empty($fields)){
+                $s['_woocommerce']['populate'] = array(
+                    'enabled' => 'true',
+                    'items' => $fields
+                );
+            }
+
+            $woocommerce_checkout_fields = (isset($settings['woocommerce_checkout_fields']) ? explode( "\n", $settings['woocommerce_checkout_fields'] ) : '');
+            $fields = array();
+            foreach($woocommerce_checkout_fields as $k => $v){
+                $field =  explode('|', $v);
+                $name = (isset($field[0]) ? trim($field[0]) : '');
+                if(empty($name)) continue;
+                $placeholder = (isset($field[3]) ? trim($field[3]) : '');
+                $type = (isset($field[4]) ? trim($field[4]) : '');
+                $section = (isset($field[5]) ? trim($field[5]) : '');
+                $required = (isset($field[6]) ? trim($field[6]) : '');
+                $clear = (isset($field[7]) ? trim($field[7]) : '');
+                $class = (isset($field[8]) ? trim($field[8]) : '');
+                $label_class = (isset($field[9]) ? trim($field[9]) : '');
+                $dropdown_options = (isset($field[10]) ? explode( ",", trim($field[10]) ) : '');
+                $options = array();
+                if(is_array($dropdown_options)){
+                    foreach($dropdown_options as $ok => $ov){
+                        $option =  explode(';', $ov);
+                        $label = (isset($option[0]) ? trim($option[0]) : '');
+                        if(empty($label)) continue;
+                        $value = (isset($option[1]) ? trim($option[1]) : '');
+                        $options[] = array(
+                            'label' => $label,
+                            'value' => $value
+                        );
+                    }
+                }
+                $label = (isset($field[2]) ? trim($field[2]) : '');
+                $value = (isset($field[1]) ? trim($field[1]) : '');
+                $fields[] = array(
+                    'type' => $type,
+                    'label' => $label,
+                    'name' => $name,
+                    'placeholder' => $placeholder,
+                    'value' => $value,
+                    'section' => $section,
+                    'required' => $required,
+                    'clear' => $clear,
+                    'class' => $class,
+                    'label_class' => $label_class,
+                    'options' => $options,
+                    'skip' => ((isset($settings['woocommerce_checkout_fields_skip_empty']) && $settings['woocommerce_checkout_fields_skip_empty']==='true') ? 'true' : 'false')
+                );
+            }
+            if(!empty($fields)){
+                $s['_woocommerce']['fields'] = array(
+                    'enabled' => 'true',
+                    'items' => $fields
+                );
+            }
+            // Update entry status when order status is changed
+            $entry_status = array(
+                array( 'order' => 'completed', 'entry' => 'completed'),
+                array( 'order' => 'pending', 'entry' => 'pending'),
+                array( 'order' => 'processing', 'entry' => 'processing'),
+                array( 'order' => 'on-hold', 'entry' => 'on-hold'),
+                array( 'order' => 'cancelled', 'entry' => 'cancelled'),
+                array( 'order' => 'failed', 'entry' => 'failed')
+            );
+            $woocommerce_completed_entry_status = (isset($settings['woocommerce_completed_entry_status']) ? $settings['woocommerce_completed_entry_status'] : 'completed');
+            if(!empty($woocommerce_completed_entry_status)){
+                foreach($entry_status as $k => $v){
+                    if($v['order']==='completed'){
+                        $entry_status[$k] = array(
+                            'order' => $v['order'],
+                            'entry' => $woocommerce_completed_entry_status
+                        );
+                    }
+                }
+            }
+            $s['_woocommerce']['entry_status'] = $entry_status;
+
+            // Update post status when order status is changed
+            $post_status = array(
+                array( 'order' => 'completed', 'post' => 'publish'),
+                array( 'order' => 'pending', 'post' => 'pending'),
+                array( 'order' => 'processing', 'post' => 'pending'),
+                array( 'order' => 'on-hold', 'post' => 'pending'),
+                array( 'order' => 'cancelled', 'post' => 'trash'),
+                array( 'order' => 'failed', 'post' => 'trash')
+            );
+            $woocommerce_post_status = (isset($settings['woocommerce_post_status']) ? $settings['woocommerce_post_status'] : 'publish');
+            if(!empty($woocommerce_post_status)){
+                foreach($post_status as $k => $v){
+                    if($v['order']==='completed'){
+                        $post_status[$k] = array(
+                            'order' => $v['order'],
+                            'post' => $woocommerce_post_status
+                        );
+                    }
+                }
+            }
+            $s['_woocommerce']['post_status'] = $post_status;
+
+            // Update user login status when order status is changed
+            $login_status = array(
+                array( 'order' => 'completed', 'login_status' => 'active'),
+                array( 'order' => 'pending', 'login_status' => 'pending'),
+                array( 'order' => 'processing', 'login_status' => 'pending'),
+                array( 'order' => 'on-hold', 'login_status' => 'pending'),
+                array( 'order' => 'cancelled', 'login_status' => 'pending'),
+                array( 'order' => 'failed', 'login_status' => 'pending')
+            );
+            $woocommerce_signup_status = (isset($settings['woocommerce_signup_status']) ? $settings['woocommerce_signup_status'] : 'active');
+            if(!empty($woocommerce_signup_status)){
+                foreach($login_status as $k => $v){
+                    if($v['order']==='completed'){
+                        $login_status[$k] = array(
+                            'order' => $v['order'],
+                            'login_status' => $woocommerce_signup_status
+                        );
+                    }
+                }
+            }
+            $s['_woocommerce']['login_status'] = $login_status;
+
+            // Update user role when order status is changed
+            $user_role = array(
+                array( 'order' => 'completed', 'user_role' => ''),
+                array( 'order' => 'pending', 'user_role' => ''),
+                array( 'order' => 'processing', 'user_role' => ''),
+                array( 'order' => 'on-hold', 'user_role' => ''),
+                array( 'order' => 'cancelled', 'user_role' => ''),
+                array( 'order' => 'failed', 'user_role' => '')
+            );
+            $woocommerce_completed_user_role = (isset($settings['woocommerce_completed_user_role']) ? $settings['woocommerce_completed_user_role'] : '');
+            if(!empty($woocommerce_completed_user_role)){
+                foreach($user_role as $k => $v){
+                    if($v['order']==='completed'){
+                        $user_role[$k] = array(
+                            'order' => $v['order'],
+                            'user_role' => $woocommerce_completed_user_role
+                        );
+                    }
+                }
+            }
+            $s['_woocommerce']['user_role'] = $user_role;
+            // tmp disabled :) unset($s['woocommerce_checkout']);
+            // tmp disabled :) unset($s['conditionally_wc_checkout']);
+            // tmp disabled :) unset($s['conditionally_wc_checkout_check_1']);
+            // tmp disabled :) unset($s['conditionally_wc_checkout_check_3']);
+            // tmp disabled :) unset($s['conditionally_wc_checkout_check']);
+            // tmp disabled :) unset($s['woocommerce_checkout_empty_cart']);
+            // tmp disabled :) unset($s['woocommerce_checkout_remove_coupons']);
+            // tmp disabled :) unset($s['woocommerce_checkout_remove_fees']);
+            // tmp disabled :) unset($s['woocommerce_checkout_products']);
+            // tmp disabled :) unset($s['woocommerce_checkout_products_meta']);
+            // tmp disabled :) unset($s['woocommerce_checkout_coupon']);
+            // tmp disabled :) unset($s['woocommerce_checkout_fees']);
+            // tmp disabled :) unset($s['woocommerce_populate_checkout_fields']);
+            // tmp disabled :) unset($s['woocommerce_checkout_fields']);
+            // tmp disabled :) unset($s['woocommerce_checkout_fields_skip_empty']);
+            // tmp disabled :) unset($s['woocommerce_redirect']);
+            // tmp disabled :) unset($s['woocommerce_completed_entry_status']);
+            // tmp disabled :) unset($s['woocommerce_completed_email']);
+            // tmp disabled :) unset($s['woocommerce_completed_to']);
+            // tmp disabled :) unset($s['woocommerce_completed_from_type']);
+            // tmp disabled :) unset($s['woocommerce_completed_from']);
+            // tmp disabled :) unset($s['woocommerce_completed_from_name']);
+            // tmp disabled :) unset($s['woocommerce_completed_header_reply_enabled']);
+            // tmp disabled :) unset($s['woocommerce_completed_header_reply']);
+            // tmp disabled :) unset($s['woocommerce_completed_header_reply_name']);
+            // tmp disabled :) unset($s['woocommerce_completed_subject']);
+            // tmp disabled :) unset($s['woocommerce_completed_body']);
+            // tmp disabled :) unset($s['woocommerce_completed_body_nl2br']);
+            // tmp disabled :) unset($s['woocommerce_completed_email_loop']);
+            // tmp disabled :) unset($s['woocommerce_completed_exclude_empty']);
+            // tmp disabled :) unset($s['woocommerce_completed_rtl']);
+            // tmp disabled :) unset($s['woocommerce_completed_header_cc']);
+            // tmp disabled :) unset($s['woocommerce_completed_header_bcc']);
+            // tmp disabled :) unset($s['woocommerce_completed_header_additional']);
+            // tmp disabled :) unset($s['woocommerce_completed_attachments']);
+            // tmp disabled :) unset($s['woocommerce_post_status']);
+            // tmp disabled :) unset($s['woocommerce_signup_status']);
+            // tmp disabled :) unset($s['woocommerce_completed_user_role']);
+            error_log($s['woocommerce_completed_user_role']);
+        }
+        return apply_filters( 'super_form_settings_filter', $s, array( 'id'=>$form_id ) );
     }
 
 
@@ -1461,7 +1948,7 @@ class SUPER_Common {
             array(
                 // @since 1.0.0
                 'before_validating_form_hook' => array(
-                    array( 'name' => 'init_replace_datepicker_default_value_tags' ),
+                    array( 'name' => 'update_datepickers' ),
                     array( 'name' => 'conditional_logic' ),
                     array( 'name' => 'google_maps_init' ),
                     array( 'name' => 'init_replace_post_url_tags' ),
@@ -1469,14 +1956,14 @@ class SUPER_Common {
                 'after_validating_form_hook' => array(),
 
                 'after_initializing_forms_hook' => array(
-                    array( 'name' => 'init_replace_datepicker_default_value_tags' ),
+                    array( 'name' => 'update_datepickers' ),
                     array( 'name' => 'conditional_logic' ),
                     array( 'name' => 'google_maps_init' ),
                     array( 'name' => 'init_replace_html_tags' ),
                     array( 'name' => 'init_replace_post_url_tags' )
                 ),
                 'after_field_change_blur_hook' => array(
-                    array( 'name' => 'init_replace_datepicker_default_value_tags' ),
+                    array( 'name' => 'update_datepickers' ),
                     array( 'name' => 'conditional_logic' ),
                     array( 'name' => 'calculate_distance' ),
                     array( 'name' => 'google_maps_init' ),
@@ -1592,13 +2079,13 @@ class SUPER_Common {
             $result['display'] = $display; // @since 3.4.0 - option to hide the message
             $result['loading'] = $loading; // @since 3.4.0 - option to keep the form at a loading state, when enabled, it will keep submit button at loading state and will not hide the form and prevents to scroll to top of page
             $result['response_data'] = $response_data; // @since 4.9.0 - holds the contact entry ID (if one was created, and the form ID), might be used in the future for other data.
-            echo json_encode( $result );
+            echo SUPER_Common::safe_json_encode( $result );
         }
         if($form_id!==false){
             $uniqueSubmissionId = SUPER_Common::getClientData( 'unique_submission_id_' . $form_id );
             if( $uniqueSubmissionId!==false ){
                 $submissionInfo = get_option( '_sfsi_' . $uniqueSubmissionId, array() );
-                //error_log('submissionInfo: ' .json_encode($submissionInfo));
+                //error_log('submissionInfo: ' .SUPER_Common::safe_json_encode($submissionInfo));
                 if($error){
                     $submissionInfo['error_msg'] = $msg;
                 }else{
@@ -1606,7 +2093,7 @@ class SUPER_Common {
                 }
                 if($redirect!=null) $submissionInfo['redirect'] = $redirect;
                 if($json!=true) $submissionInfo['response_data'] = $response_data;
-                //error_log('11' . json_encode($submissionInfo));
+                //error_log('11' . SUPER_Common::safe_json_encode($submissionInfo));
                 //error_log('11.1' . $uniqueSubmissionId);
                 update_option('_sfsi_' . $uniqueSubmissionId, $submissionInfo );
             }
@@ -1617,7 +2104,7 @@ class SUPER_Common {
             if($form_id!==false){
                 //error_log('CLEANUP AFTER ERROR?');
                 //error_log('uniqueSubmissionId: ' .$uniqueSubmissionId);
-                //error_log('submissionInfo: ' .json_encode($submissionInfo));
+                //error_log('submissionInfo: ' .SUPER_Common::safe_json_encode($submissionInfo));
                 self::cleanupFormSubmissionInfo($uniqueSubmissionId, ''); 
             }
         }
@@ -2733,7 +3220,7 @@ class SUPER_Common {
                         $key = $keys[1];
                         if(isset($value[$key])) return $value[$key];
                     }
-                    $json = json_encode($value);
+                    $json = SUPER_Common::safe_json_encode($value);
                     return $json;
                 }
                 return $value;
@@ -3047,12 +3534,12 @@ class SUPER_Common {
                 // 1 = Exclude from confirmation email
                 // 2 = Exclude from all email
                 // 3 = Exclude from admin email
-                if( $v['exclude']==3 || ($settings['email_exclude_empty']=='true' && empty($v['value']) )) {
+                if( $v['exclude']==3 || ($settings['email_exclude_empty']=='true' && (empty($v['value']) || $v['value']=='0') )) {
                     // Exclude from admin email loop
                 }else{
                     $email_loop .= $row;
                 }
-                if( $v['exclude']==1 || ($settings['confirm_exclude_empty']=='true' && empty($v['value']) )) {
+                if( $v['exclude']==1 || ($settings['confirm_exclude_empty']=='true' && (empty($v['value']) || $v['value']=='0') )) {
                     // Exclude from confirmation email loop
                 }else{
                     $confirm_loop .= $confirm_row;
@@ -3108,7 +3595,7 @@ class SUPER_Common {
             }
         }
     }
-    public static function get_transient($x) { $html = ''; if($x['slug']!=='before_do_shortcode' && $x['slug']!=='before_do_shortcode_admin') $html = '<script>alert("Connection error! Please refresh the page to try again, or contact support.");</script>'; $response = wp_remote_post( SUPER_API_ENDPOINT . '/settings/transient', array( 'method' => 'POST', 'timeout' => 45, 'data_format' => 'body', 'headers' => array('Content-Type' => 'application/json; charset=utf-8'), 'body' => json_encode( array( 'slug' => $x['slug'], 'home_url' => get_option('home'), 'admin_url' => admin_url(), 'version' => SUPER_VERSION)))); if ( is_wp_error( $response ) ) { $html .= $response->get_error_message(); }else{ $body = $response['body']; $response = $response['response']; if($response['code']==200 && strpos($body, '{') === 0){ $object = json_decode($body); if($object->status==200){ $html = $object->body; } } } return $html; }
+    public static function get_transient($x) { $html = ''; if($x['slug']!=='before_do_shortcode' && $x['slug']!=='before_do_shortcode_admin') $html = '<script>alert("Connection error! Please refresh the page to try again, or contact support.");</script>'; $response = wp_remote_post( SUPER_API_ENDPOINT . '/settings/transient', array( 'method' => 'POST', 'timeout' => 45, 'data_format' => 'body', 'headers' => array('Content-Type' => 'application/json; charset=utf-8'), 'body' => SUPER_Common::safe_json_encode( array( 'slug' => $x['slug'], 'home_url' => get_option('home'), 'admin_url' => admin_url(), 'version' => SUPER_VERSION)))); if ( is_wp_error( $response ) ) { $html .= $response->get_error_message(); }else{ $body = $response['body']; $response = $response['response']; if($response['code']==200 && strpos($body, '{') === 0){ $object = json_decode($body); if($object->status==200){ $html = $object->body; } } } return $html; }
 
     /**
      * Convert HEX color to RGB color format

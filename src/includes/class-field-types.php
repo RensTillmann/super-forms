@@ -140,7 +140,7 @@ class SUPER_Field_Types {
 
                 $return .= '</div>';
             }
-            $return .= '<textarea name="' . $id . '" class="super-element-field multi-items-json">' . json_encode( stripslashes_deep($data[$id]) ) . '</textarea>';
+            $return .= '<textarea name="' . $id . '" class="super-element-field multi-items-json">' . SUPER_Common::safe_json_encode( stripslashes_deep($data[$id]) ) . '</textarea>';
         }
         return $return;
     }
@@ -277,7 +277,7 @@ class SUPER_Field_Types {
 
                 $return .= '</div>';
             }
-            $return .= '<textarea name="' . $id . '" class="super-element-field multi-items-json">' . json_encode( stripslashes_deep($data[$id]) ) . '</textarea>';
+            $return .= '<textarea name="' . $id . '" class="super-element-field multi-items-json">' . SUPER_Common::safe_json_encode( stripslashes_deep($data[$id]) ) . '</textarea>';
         }
         return $return;
     }
@@ -560,7 +560,7 @@ class SUPER_Field_Types {
         }
 
         if( is_array( $field['v'] ) ) {
-            $field['v'] = json_encode( stripslashes_deep($field['v']) );
+            $field['v'] = SUPER_Common::safe_json_encode( stripslashes_deep($field['v']) );
         } 
         $return .= '<textarea name="' . $id . '" class="super-element-field multi-items-json">' . $field['v'] . '</textarea>';
         return $return;
@@ -643,7 +643,7 @@ class SUPER_Field_Types {
             $return .= '</div>';
         }
         if( is_array( $field['v'] ) ) {
-            $field['v'] = json_encode( stripslashes_deep($field['v']) );
+            $field['v'] = SUPER_Common::safe_json_encode( stripslashes_deep($field['v']) );
         }
         $return .= '<textarea name="' . $id . '" class="super-element-field multi-items-json">' . $field['v'] . '</textarea>';
         return $return;
@@ -745,7 +745,7 @@ class SUPER_Field_Types {
                 $return .= '</div>';
         }
         if( is_array( $field['v'] ) ) {
-            $field['v'] = json_encode( stripslashes_deep($field['v']) );
+            $field['v'] = SUPER_Common::safe_json_encode( stripslashes_deep($field['v']) );
         }
         $return .= '<textarea name="' . $id . '" class="super-element-field multi-items-json">' . $field['v'] . '</textarea>';
         return $return;

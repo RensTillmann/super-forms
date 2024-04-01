@@ -4079,7 +4079,7 @@ $array['form_elements'] = array(
                     'group' => 'html_elements',
                     'data' => array(
                         'title' => 'Note:',
-                        'html' =>  "This is a text field with \"Contact entry search\" enabled. It allows you to search previously created contact entries and populate the form with that entry data. More information here: \n\n<a target=\"_blank\"href=\"https://webrehab.zendesk.com/hc/en-gb/articles/360016983617\">Search existing contact entry by title and populate the form with data</a>\n\n<a target=\"_blank\" href=\"https://webrehab.zendesk.com/hc/en-gb/articles/360016983877\">Updating an existing contact entry </a>",
+                        'html' =>  'This is a text field with \"Contact entry search\" enabled. It allows you to search previously created contact entries and populate the form with that entry data. More information here: \n\n<a target=\"_blank\"href=\"https://webrehab.zendesk.com/hc/en-gb/articles/360016983617\">Search existing contact entry by title and populate the form with data</a>\n\n<a target=\"_blank\" href=\"https://webrehab.zendesk.com/hc/en-gb/articles/360016983877\">Updating an existing contact entry </a>',
                     )
                 ),
                 array(

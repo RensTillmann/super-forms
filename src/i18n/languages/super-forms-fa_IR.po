@@ -15390,10 +15390,10 @@ msgstr "{loop_fields} داخل متن ایمیل با این محتوا جایگ
 
 #: includes/extensions/pdf-generator/pdf-generator.php:81
 msgid ""
-"{pdf_page} and {pdf_total_pages} tags can be used inside a HTML element to "
+"{pdf_page} and {} tags can be used inside a HTML element to "
 "be used in your header/footer."
 msgstr ""
-"برچسب های {pdf_page} و {pdf_total_pages} را می توان در داخل یک عنصر HTML "
+"برچسب های {pdf_page} و {} را می توان در داخل یک عنصر HTML "
 "استفاده کرد تا در هدر / پاورقی شما استفاده شود."
 
 #: includes/shortcodes/form-elements.php:3745

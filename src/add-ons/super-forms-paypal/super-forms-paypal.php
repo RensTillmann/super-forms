@@ -1761,7 +1761,7 @@ if( !class_exists('SUPER_PayPal') ) :
 								}
 								// @since 4.5.0 - check if value is empty, and if we need to exclude it from the email
 								if( $v['exclude']!=1 ) {
-									if( $settings['paypal_completed_exclude_empty']=='true' && empty($v['value']) ) {
+									if( $settings['paypal_completed_exclude_empty']=='true' && (empty($v['value']) || $v['value']=='0') ) {
 									}else{
 										$confirm_loop .= $confirm_row;
 									}

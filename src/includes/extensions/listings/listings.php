@@ -156,7 +156,10 @@ if(!class_exists('SUPER_Listings')) :
         // Required to change some settings when editing/updating an existing entry via Listings Add-on
         public static function alter_form_settings_before_rendering($settings, $args){
             extract($args);
-            if($id!=='' && $list_id!=='' && $entry_id!==''){
+            $id = absint($id);
+            $list_id = $list_id;
+            $entry_id = absint($entry_id);
+            if($id!==0 && $list_id!=='' && $entry_id!==0){
                 // In order to edit entries we need to make sure some settings are not enabled
                 $overrideSettings = array(
                     'update_contact_entry'=>'true',
@@ -176,6 +179,7 @@ if(!class_exists('SUPER_Listings')) :
                     'paypal_checkout'=>'',
                     'register_login_action'=>'none',
                     'woocommerce_checkout'=>'',
+                    '_woocommerce'=>array(),
                     'zapier_enable'=>'',
                     'popup_enabled'=>'',
                     //'form_processing_overlay'=>'',
@@ -217,6 +221,7 @@ if(!class_exists('SUPER_Listings')) :
                     'paypal_checkout'=>'',
                     'register_login_action'=>'none',
                     'woocommerce_checkout'=>'',
+                    '_woocommerce'=>array(),
                     'zapier_enable'=>'',
                     'popup_enabled'=>'',
                     //'form_processing_overlay'=>'',
@@ -245,6 +250,7 @@ if(!class_exists('SUPER_Listings')) :
             return array(
                 'title' => array(
                     'name' => esc_html__( 'Entry title', 'super-forms' ),
+                    'default' => esc_html__( 'Title', 'super-forms' ),
                     'meta_key' => 'post_title',
                     'filter' => array(
                         'enabled' => 'true',
@@ -511,399 +517,848 @@ if(!class_exists('SUPER_Listings')) :
             $form_id = absint($atts['form_id']);
             $lists = array();
             if(isset($atts['settings']) && isset($atts['settings']['_'.$slug])){
-                $lists = (is_array($atts['settings']['_'.$slug]['lists']) ? $atts['settings']['_'.$slug]['lists'] : array());
+                $lists = ((isset($atts['settings']['_'.$slug]['lists']) && is_array($atts['settings']['_'.$slug]['lists'])) ? $atts['settings']['_'.$slug]['lists'] : array());
             }
             if(count($lists)==0) {
                 $lists[] = self::get_default_listings_settings(array());
             }
-            // Listing general information
-            echo '<div class="sfui-notice sfui-desc">';
-                echo '<strong>'.esc_html__('About', 'super-forms').':</strong> ' . esc_html__( 'Listings allow you to display Contact Entries in a list/table on the front-end. For each form you can have multiple listings with their own settings. You can copy paste the listings shortcode anywhere in your page to display the listing.', 'super-forms' );
-            echo '</div>';
-            
-            // Enable listings
-            echo '<div class="sfui-setting">';
-                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                    echo '<input type="checkbox" name="enabled" value="true"' . (isset($atts['settings']['_listings']) && $atts['settings']['_listings']['enabled']==='true' ? ' checked="checked"' : '') . ' />';
-                    echo '<span class="sfui-title">' . esc_html__( 'Enable listings for this form', 'super-forms' ) . '</span>';
-                echo '</label>';
-                echo '<div class="sfui-sub-settings" data-f="enabled;true">';
+            $atts['settings']['_'.$slug]['lists'] = $lists;
+            $s = $atts['settings']['_'.$slug];
 
 
-            // When enabled, we display the list with listings
-            echo '<div class="sfui-repeater" data-k="lists">';
-            // Repeater Item
-            foreach($lists as $k => $v){
-                // Set default values if they don't exist
-                $v = self::get_default_listings_settings($v);
-                echo '<div class="sfui-repeater-item">';
-                    echo '<div class="sfui-inline">';
-                        echo '<div class="sfui-setting sfui-vertical">';
-                            echo '<label>';
-                                echo '<input type="text" name="name" value="' . $v['name'] . '" />';
-                                echo '<span class="sfui-label"><i>' . esc_html__( 'Give this listing a name', 'super-forms' ) . '</i></span>';
-                            echo '</label>';
-                        echo '</div>';
-                        echo '<div class="sfui-setting sfui-vertical">';
-                            echo '<label>';
-                                // Get the correct shortcode for this list
-                                $shortcode = '['.esc_html__( 'form-not-saved-yet', 'super-forms' ).']';
-                                if( $form_id!=0 ) $shortcode = '[super_listings list=&quot;' . ($k+1) . '&quot; id=&quot;'. $form_id . '&quot;]';
-                                echo '<input type="text" readonly="readonly" class="super-get-form-shortcodes" value="' . $shortcode. '" />';
-                                echo '<span class="sfui-label"><i>' . esc_html__('Paste shortcode on any page', 'super-forms' ) . '</i></span>';
-                            echo '</label>';
-                        echo '</div>';
-                        echo '<div class="sfui-btn sfui-round sfui-tooltip" title="' . esc_html__('Change Settings', 'super-forms' ) . '" onclick="SUPER.ui.btn(event, this, \'toggleRepeaterSettings\')"><i class="fas fa-cogs"></i></div>';
-                        echo '<div class="sfui-btn sfui-green sfui-round sfui-tooltip" title="' . esc_attr__( 'Add list', 'super-forms' ) . '" onclick="SUPER.ui.btn(event, this, \'addRepeaterItem\')"><i class="fas fa-plus"></i></div>';
-                        echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_html__('Delete Listing', 'super-forms' ) . '" onclick="SUPER.ui.btn(event, this, \'deleteRepeaterItem\')"><i class="fas fa-trash"></i></div>';
-                    echo '</div>';
 
-                    echo '<div class="sfui-setting-group">';
-                        // Hide listing to specific user role/ids
-                        echo '<div class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<input type="checkbox" name="display.enabled" value="true"' . ($v['display']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Only display this listing to the following users', 'super-forms' ) . ':</span>';
-                                echo '<div class="sfui-sub-settings" data-f="display.enabled;true">';
-                                    echo '<div class="sfui-setting sfui-vertical">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'User roles:', 'super-forms' ) . ' <i>(' . esc_html__( 'separated by comma e.g: administrator,editor', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to display to all roles', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="display.user_roles" value="' . sanitize_text_field($v['display']['user_roles']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting sfui-vertical">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'User ID\'s:', 'super-forms' ) . ' <i>(' . esc_html__( 'separated by comma e.g: 32,2467,1870', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to only display to the roles defined above', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="display.user_ids" value="' . sanitize_text_field($v['display']['user_ids']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting sfui-vertical">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-title">' . esc_html__( 'HTML/message to display to users that can not see the listing (leave blank for none)', 'super-forms' ) . '</span>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'This message will be displayed if the listing is not visible to the user', 'super-forms' ) . '</span>';
-                                            echo '<textarea name="display.message">' . $v['display']['message'] . '</textarea>';
-                                        echo '</label>';
-                                    echo '</div>';
-                                echo '</div>';
-                            echo '</label>';
-                        echo '</div>';
-                        // Display based on
-                        echo '<form class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<input type="radio" name="retrieve" value="this_form"' . ($v['retrieve']==='this_form' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Only retrieve entries based on this form', 'super-forms' ) . '</span>';
-                            echo '</label>';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<input type="radio" name="retrieve" value="all_forms"' . ($v['retrieve']==='all_forms' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Retrieve entries based on all forms', 'super-forms' ) . '</span>';
-                            echo '</label>';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<input type="radio" name="retrieve" value="specific_forms"' . ($v['retrieve']==='specific_forms' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Retrieve entries based on the following form ID\'s', 'super-forms' ) . ':</span>';
-                                echo '<div class="sfui-sub-settings sfui-inline" data-f="retrieve;specific_forms">';
-                                    echo '<div class="sfui-setting sfui-vertical">';
-                                        echo '<label>';
-                                            echo '<input type="text" name="form_ids" placeholder="e.g: 123,124" value="' . sanitize_text_field($v['form_ids']) . '" />';
-                                            echo '<span class="sfui-label">(' . esc_html__( 'separated by comma\'s', 'super-forms' ) . '</span>';
-                                        echo '</label>';
-                                    echo '</div>';
-                                echo '</div>';
+            $html_template = "<div class=\"super-listing-entry-details\">
+    <div class=\"super-listing-row super-title\">
+        <div class=\"super-listing-row-label\">" . esc_html__( "Entry title", "super-forms" ) . "</div>
+        <div class=\"super-listing-row-value\">{listing_entry_title}</div>
+    </div>\n
+    <div class=\"super-listing-row super-date\">
+        <div class=\"super-listing-row-label\">" . esc_html__( "Entry date", "super-forms" ) . "</div>
+        <div class=\"super-listing-row-value\">{listing_entry_date}</div>
+    </div>\n
+    <div class=\"super-listing-row super-entry-id\">
+        <div class=\"super-listing-row-label\">" . esc_html__( "Entry ID", "super-forms" ) . "</div>
+        <div class=\"super-listing-row-value\">{listing_entry_id}</div>
+    </div>
+</div>
+<div class=\"super-listing-entry-data\">
+    {loop_fields}
+</div>";
+            $loop_html = "<div class=\"super-listing-row\">
+    <div class=\"super-listing-row-label\">{loop_label}</div>
+    <div class=\"super-listing-row-value\">{loop_value}</div>
+</div>";
 
-                            echo '</label>';
-                        echo '</form>';
-                        // Entries within date range
-                        echo '<div class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<input type="checkbox" name="date_range.enabled" value="true"' . ($v['date_range']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Only display entries within the following date range', 'super-forms' ) . ':</span>';
-                                echo '<div class="sfui-sub-settings sfui-inline" data-f="date_range.enabled;true">';
-                                    echo '<div class="sfui-setting sfui-vertical" style="width:auto;">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'From', 'super-forms' ) . ': <i>(' . esc_html__( 'or leave blank for no minimum date', 'super-forms' ) . ')</i></span>';
-                                            echo '<input type="date" name="date_range.from" value="' . sanitize_text_field($v['date_range']['from']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting sfui-vertical" style="width:auto;">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'Until', 'super-forms' ) . ': <i>(' . esc_html__( 'or leave blank for no maximum date', 'super-forms' ) . ')</i></span>';
-                                            echo '<input type="date" name="date_range.until" value="' . sanitize_text_field($v['date_range']['until']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                echo '</div>';
-                            echo '</label>';
-                        echo '</div>';
-                        // No entries based on filter
-                        echo '<div class="sfui-setting sfui-vertical">';
-                            echo '<label>';
-                                echo '<span class="sfui-title">' . esc_html__( 'HTML/message to display when there are no results based on filter (leave blank for none)', 'super-forms' ) . '</span>';
-                                echo '<span class="sfui-label">' . esc_html__( 'This message will be displayed if there are no results based on the current filter', 'super-forms' ) . '</span>';
-                                echo '<textarea name="noResultsFilterMessage">' . $v['noResultsFilterMessage'] . '</textarea>';
-                            echo '</label>';
-                        echo '</div>';
-                        // No entries message
-                        echo '<div class="sfui-setting sfui-vertical">';
-                            echo '<label>';
-                                echo '<span class="sfui-title">' . esc_html__( 'HTML/message to display when there are no results (leave blank for none)', 'super-forms' ) . '</span>';
-                                echo '<span class="sfui-label">' . esc_html__( 'This message will only be displayed if absolutely zero results are available for the current user.', 'super-forms' ) . '</span>';
-                                echo '<textarea name="noResultsMessage">' . $v['noResultsMessage'] . '</textarea>';
-                            echo '</label>';
-                            echo '<div class="sfui-sub-settings sfui-active">';
-                                echo '<div class="sfui-setting sfui-inline">';
-                                    echo '<label>';
-                                        echo '<input type="checkbox" name="onlyDisplayMessage" value="true"' . ($v['onlyDisplayMessage']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-label">' . esc_html__( 'Also hide filters, pagination and other possible UI elements (only the message will be shown to the user)', 'super-forms' ) . '</span>';
-                                    echo '</label>';
-                                echo '</div>';
-                            echo '</div>';
-                        echo '</div>';
-
-                        // Which users can see all entries?
-                        echo '<div class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<input type="checkbox" name="see_any.enabled" value="true"' . ($v['see_any']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Allow the following users to see all entries (note that logged in users will always be able to see their own entries)', 'super-forms' ) . ':</span>';
-                                echo '<div class="sfui-sub-settings" data-f="see_any.enabled;true">';
-                                    echo '<div class="sfui-setting sfui-vertical">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'User roles:', 'super-forms' ) . ' <i>(' . esc_html__( 'separated by comma e.g: administrator,editor', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to allow all roles', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="see_any.user_roles" value="' . sanitize_text_field($v['see_any']['user_roles']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting sfui-vertical">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'User ID\'s:', 'super-forms' ) . ' <i>(' . esc_html__( 'separated by comma e.g: 32,2467,1870', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to only filter by the roles defined above', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="see_any.user_ids" value="' . sanitize_text_field($v['see_any']['user_ids']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                echo '</div>';
-                            echo '</label>';
-                        echo '</div>';
-
-                        // Allow viewing any entries
-                        echo '<div class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<input type="checkbox" name="view_any.enabled" value="true"' . ($v['view_any']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Allow the following users to view any entries', 'super-forms' ) . ':</span>';
-                                echo '<div class="sfui-sub-settings" data-f="view_any.enabled;true">';
-                                    echo '<div class="sfui-setting sfui-vertical">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'User roles:', 'super-forms' ) . ' <i>(' . esc_html__( 'separated by comma e.g: administrator,editor', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to allow all roles', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="view_any.user_roles" value="' . sanitize_text_field($v['view_any']['user_roles']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting sfui-vertical">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'User ID\'s:', 'super-forms' ) . ' <i>(' . esc_html__( 'separated by comma e.g: 32,2467,1870', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to only filter by the roles defined above', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="view_any.user_ids" value="' . sanitize_text_field($v['view_any']['user_ids']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting sfui-vertical">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'View template HTML', 'super-forms' ) . ' <i>(you can use custom HTML to create your own view, leave blank to use default template' . esc_html__( '', 'super-forms') .')</i></span>';
-                                            echo '<textarea name="view_any.html_template">' . $v['view_any']['html_template'] . '</textarea>';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting sfui-vertical">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'Loop fields HTML', 'super-forms' ) . ' <i>(if you use {loop_fields} inside your custom template, you can define the "row" here and retrieve the field values with {loop_label} and {loop_value} tags, leave blank to use the default loop HTML' . esc_html__( '', 'super-forms') .')</i></span>';
-                                            echo '<textarea name="view_any.loop_html">' . $v['view_any']['loop_html'] . '</textarea>';
-                                        echo '</label>';
-                                    echo '</div>';
-                                echo '</div>';
-                            echo '</label>';
-                        echo '</div>';
-                        // Allow viewing own entries
-                        echo '<div class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<input type="checkbox" name="view_own.enabled" value="true"' . ($v['view_own']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Allow the following users to view their own entries', 'super-forms' ) . ':</span>';
-                                echo '<div class="sfui-sub-settings" data-f="view_own.enabled;true">';
-                                    echo '<div class="sfui-setting sfui-vertical">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'User roles:', 'super-forms' ) . ' <i>(' . esc_html__( 'separated by comma e.g: administrator,editor', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to allow all roles', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="view_own.user_roles" value="' . sanitize_text_field($v['view_own']['user_roles']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting sfui-vertical">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'User ID\'s:', 'super-forms' ) . ' <i>(' . esc_html__( 'separated by comma e.g: 32,2467,1870', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to only filter by the roles defined above', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="view_own.user_ids" value="' . sanitize_text_field($v['view_own']['user_ids']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting sfui-vertical">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'View template HTML', 'super-forms' ) . ' <i>(you can use custom HTML to create your own view, leave blank to use default template' . esc_html__( '', 'super-forms') .')</i></span>';
-                                            echo '<textarea name="view_own.html_template">' . $v['view_own']['html_template'] . '</textarea>';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting sfui-vertical">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'Loop fields HTML', 'super-forms' ) . ' <i>(if you use {loop_fiels} inside your custom template, you can define the "row" here and retrieve the field values with {loop_label} and {loop_value} tags, leave blank to use the default loop HTML' . esc_html__( '', 'super-forms') .')</i></span>';
-                                            echo '<textarea name="view_own.loop_html">' . $v['view_own']['loop_html'] . '</textarea>';
-                                        echo '</label>';
-                                    echo '</div>';
-                                echo '</div>';
-                            echo '</label>';
-                        echo '</div>';
-
-                        // Allow editing any entries
-                        echo '<div class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<input type="checkbox" name="edit_any.enabled" value="true"' . ($v['edit_any']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Allow the following users to edit any entries', 'super-forms' ) . ':</span>';
-                                echo '<div class="sfui-sub-settings" data-f="edit_any.enabled;true">';
-                                    echo '<div class="sfui-setting sfui-vertical">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'User roles:', 'super-forms' ) . ' <i>(' . esc_html__( 'separated by comma e.g: administrator,editor', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to allow all roles', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="edit_any.user_roles" value="' . sanitize_text_field($v['edit_any']['user_roles']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting sfui-vertical">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'User ID\'s:', 'super-forms' ) . ' <i>(' . esc_html__( 'separated by comma e.g: 32,2467,1870', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to only filter by the roles defined above', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="edit_any.user_ids" value="' . sanitize_text_field($v['edit_any']['user_ids']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting">';
-                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                            echo '<input type="checkbox" name="edit_any.change_status.enabled" value="true"' . ($v['edit_any']['change_status']['enabled']==='true' ? ' checked="checked"' : '') . ' />';
-                                            echo '<span class="sfui-label">' . esc_html__( 'Allow these users to edit the Contact Entry status', 'super-forms' ) . '</span>';
-                                            echo '<div class="sfui-sub-settings" data-f="edit_any.change_status.enabled;true">';
-                                                echo '<div class="sfui-setting sfui-vertical">';
-                                                    echo '<label>';
-                                                        echo '<span class="sfui-label">' . esc_html__( 'Only allow changing the status when the current status is none of the below:', 'super-forms' ) . ' <i>(' . esc_html__( 'separated by comma e.g: pending,processing', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to always allow', 'super-forms' ) . '</span>';
-                                                        echo '<input type="text" name="edit_any.change_status.when_not" value="' . sanitize_text_field($v['edit_any']['change_status']['when_not']) . '" />';
-                                                    echo '</label>';
-                                                echo '</div>';
-                                            echo '</div>';
-                                        echo '</label>';
-                                    echo '</div>';
-                                echo '</div>';
-                            echo '</label>';
-                        echo '</div>';
-                        // Allow editing own entries
-                        echo '<div class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<input type="checkbox" name="edit_own.enabled" value="true"' . ($v['edit_own']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Allow the following users to edit their own entries', 'super-forms' ) . ':</span>';
-                                echo '<div class="sfui-sub-settings" data-f="edit_own.enabled;true">';
-                                    echo '<div class="sfui-setting sfui-vertical">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'User roles:', 'super-forms' ) . ' <i>(' . esc_html__( 'separated by comma e.g: administrator,editor', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to allow all roles', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="edit_own.user_roles" value="' . sanitize_text_field($v['edit_own']['user_roles']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting sfui-vertical">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'User ID\'s:', 'super-forms' ) . ' <i>(' . esc_html__( 'separated by comma e.g: 32,2467,1870', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to only filter by the roles defined above', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="edit_own.user_ids" value="' . sanitize_text_field($v['edit_own']['user_ids']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                echo '</div>';
-                            echo '</label>';
-                        echo '</div>';
-                        // Edit overlay settings
-                        echo '<div class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<input type="checkbox" name="form_processing_overlay" value="true"' . ($v['form_processing_overlay']==='true' ? ' checked="checked"' : '') . ' />';
-                                echo '<span class="sfui-label">' . esc_html__( 'Enable form processing overlay (popup)', 'super-forms' ) . '</span>';
-                            echo '</label>';
-                            echo '<div class="sfui-sub-settings" data-f="form_processing_overlay;true">';
-                                echo '<div class="sfui-setting">';
-                                    echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                        echo '<input type="checkbox" name="close_form_processing_overlay" value="true"' . ($v['close_form_processing_overlay']==='true' ? ' checked="checked"' : '') . ' />';
-                                        echo '<span class="sfui-label">' . esc_html__( 'Close the overlay directly after editing the entry', 'super-forms' ) . '</span>';
-                                    echo '</label>';
-                                echo '</div>';
-                            echo '</div>';
-                        echo '</div>';
-                        // Close editor popup after making edits
-                        echo '<div class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<input type="checkbox" name="close_editor_window_after_editing"' . ($v['close_editor_window_after_editing']==='true' ? ' checked="checked"' : '') . ' />';
-                                echo '<span class="sfui-label">' . esc_html__( 'Close the editor window after editing the entry', 'super-forms' ) . '</span>';
-                            echo '</label>';
-                        echo '</div>';
-
-                        // Allow deleting any entries
-                        echo '<div class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<input type="checkbox" name="delete_any.enabled" value="true"' . ($v['delete_any']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Allow the following users to delete any entries', 'super-forms' ) . ':</span>';
-                                echo '<div class="sfui-sub-settings sfui-vertical" data-f="delete_any.enabled;true">';
-                                    echo '<div class="sfui-setting sfui-vertical">';
-                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                            echo '<span class="sfui-label">' . esc_html__( 'User roles:', 'super-forms' ) . ' <i>(' . esc_html__( 'separated by comma e.g: administrator,editor', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to allow all roles', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="delete_any.user_roles" value="' . sanitize_text_field($v['delete_any']['user_roles']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting sfui-vertical">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'User ID\'s:', 'super-forms' ) . ' <i>(' . esc_html__( 'separated by comma e.g: 32,2467,1870', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to only filter by the roles defined above', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="delete_any.user_ids" value="' . sanitize_text_field($v['delete_any']['user_ids']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting">';
-                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                            echo '<input type="checkbox" name="delete_any.permanent" value="true"' . ($v['delete_any']['permanent']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-label">' . esc_html__( 'Bypass Trash and force delete (permanently deletes the entry)', 'super-forms' ) . ':</span>';
-                                        echo '</label>';
-                                    echo '</div>';
-                                echo '</div>';
-                            echo '</label>';
-                        echo '</div>';
-                        // Allow delete own entries
-                        echo '<div class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<input type="checkbox" name="delete_own.enabled" value="true"' . ($v['delete_own']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Allow the following users to delete their own entries', 'super-forms' ) . ':</span>';
-                                echo '<div class="sfui-sub-settings" data-f="delete_own.enabled;true">';
-                                    echo '<div class="sfui-setting sfui-vertical">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'User roles:', 'super-forms' ) . ' <i>(' . esc_html__( 'separated by comma e.g: administrator,editor', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to allow all roles', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="delete_own.user_roles" value="' . sanitize_text_field($v['delete_own']['user_roles']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting sfui-vertical">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-label">' . esc_html__( 'User ID\'s:', 'super-forms' ) . ' <i>(' . esc_html__( 'separated by comma e.g: 32,2467,1870', 'super-forms') .')</i>, ' . esc_html__( 'or leave blank to only filter by the roles defined above', 'super-forms' ) . '</span>';
-                                            echo '<input type="text" name="delete_own.user_ids" value="' . sanitize_text_field($v['delete_own']['user_ids']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                    echo '<div class="sfui-setting">';
-                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                            echo '<input type="checkbox" name="delete_own.permanent" value="true"' . ($v['delete_own']['permanent']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-label">' . esc_html__( 'Bypass Trash and force delete (permanently deletes the entry)', 'super-forms' ) . ':</span>';
-                                        echo '</label>';
-                                    echo '</div>';
-                                echo '</div>';
-                            echo '</label>';
-                        echo '</div>';
-
-                        $standardColumns = self::getStandardColumns();
-                        foreach($standardColumns as $sk => $sv){
-                            echo '<div class="sfui-setting">';
-                                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                    echo '<input type="checkbox" name="'.$sk.'_column.enabled" value="true"' . ($v[$sk.'_column']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Show "'.$sv['name'].'" column', 'super-forms' ) . ':</span>';
-                                    echo '<div class="sfui-sub-settings sfui-inline" data-f="'.$sk.'_column.enabled;true">';
-                                        self::getColumnSettingFields($v, $sk.'_column', $sk, $sv);
-                                    echo '</div>';
-                                echo '</label>';
-                            echo '</div>';
-                        }
-                        // Custom columns
-                        echo '<div class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<input type="checkbox" name="custom_columns.enabled" value="true"' . ($v['custom_columns']['enabled']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Show the following "Custom" columns', 'super-forms' ) . ':</span>';
-                                echo '<div class="sfui-sub-settings" data-f="custom_columns.enabled;true">';
-                                    echo '<div class="sfui-repeater" data-k="custom_columns.columns">';
-                                        // Repeater Item
-                                        $columns = $v['custom_columns']['columns'];
-                                        foreach( $columns as $ck => $cv ) {
-                                            echo '<div class="sfui-repeater-item">';
-                                                echo '<div class="sfui-inline sfui-vertical">';
-                                                    self::getColumnSettingFields($v, '', $ck, $cv);
-                                                    echo '<div class="sfui-btn sfui-green sfui-round sfui-tooltip" title="' . esc_attr__( 'Add item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Add item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'addRepeaterItem\')"><i class="fas fa-plus"></i></div>';
-                                                    echo '<div class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'deleteRepeaterItem\')"><i class="fas fa-trash"></i></div>';
-                                                echo '</div>';
-                                            echo '</div>';
-                                        }
-                                    echo '</div>';
-                                echo '</div>';
-                            echo '</label>';
-                        echo '</div>';
-                    echo '</div>';
-                echo '</div>';
+            $nodes = array(
+                array(
+                    'notice' => 'hint', // hint/info
+                    'content' => '<strong>'.esc_html__('About', 'super-forms').':</strong> ' . esc_html__( 'Listings allow you to display Contact Entries in a list/table on the front-end. For each form you can have multiple listings with their own settings. You can copy paste the listings shortcode anywhere in your page to display the listing.', 'super-forms' )
+                ),
+                array(
+                    'name' => 'enabled',
+                    'title' => esc_html__( 'Enable listings for this form', 'super-forms' ),
+                    'type' => 'checkbox',
+                    'default' => ''
+                ),
+                array(
+                    'name' => 'lists',
+                    'type' => 'repeater',
+                    'filter' => 'enabled;true',
+                    'nodes' => array( // repeater item
+                        array(
+                            'padding' => false,
+                            'inline' => true,
+                            'nodes' => array(
+                                array(
+                                    'name' => 'id',
+                                    'type' => 'hidden',
+                                    'func' => 'listing_id',
+                                    'default' => SUPER_Common::generate_random_code(array('len'=>5, 'char'=>'4', 'upper'=>'true', 'lower'=>'true'), false)
+                                ),
+                                array(
+                                    'name' => 'name',
+                                    'subline' => esc_html__( 'Give this listing a name (for your own reference)', 'super-forms' ),
+                                    'type' => 'text',
+                                    'default' => esc_html__( 'Listing #1', 'super-forms' )
+                                ),
+                                array(
+                                    'name' => '',
+                                    'subline' => esc_html__( 'Shortcode to display the listing on the front-end', 'super-forms' ),
+                                    'type' => 'text',
+                                    'func' => 'listing_shortcode',
+                                    'readonly' => true
+                                )
+                            )
+                        ),
+                        array(
+                            'toggle' => true,
+                            'title' => esc_html__( 'Show listing settings', 'super-forms' ),
+                            'nodes' => array(
+                                array(
+                                    'toggle' => true,
+                                    'title' => esc_html__( 'General settings', 'super-forms' ),
+                                    'nodes' => array(
+                                        array(
+                                            'wrap' => false,
+                                            'group' => true, // sfui-setting-group
+                                            'group_name' => 'display',
+                                            'vertical' => true, // sfui-vertical
+                                            'nodes' => array(
+                                                array(
+                                                    'name' => 'enabled',
+                                                    'type' => 'checkbox',
+                                                    'default' => 'true',
+                                                    'title' => esc_html__( 'Only display this listing to the following users:', 'super-forms' ),
+                                                ),
+                                                array(
+                                                    'name' => 'user_roles',
+                                                    'title' => 'User roles: ',
+                                                    'subline' => esc_html__( 'Seperated by comma e.g: administrator,editor, or leave blank to display to all roles', 'super-forms' ),
+                                                    'type' => 'text',
+                                                    'default' => 'administrator',
+                                                    'filter' => 'display.enabled;true'
+                                                ),
+                                                array(
+                                                    'name' => 'user_ids',
+                                                    'title' => 'User ID\'s: ',
+                                                    'subline' => esc_html__( 'Seperated by comma e.g: 32,2467,1870, or leave blank to only display to the roles defined above', 'super-forms' ),
+                                                    'type' => 'text',
+                                                    'default' => '',
+                                                    'filter' => 'display.enabled;true'
+                                                ),
+                                                array(
+                                                    'name' => 'message',
+                                                    'title' => esc_html__( 'HTML (message) to display to users that can not see the listing (leave blank for none)', 'super-forms' ),
+                                                    'subline' => esc_html__( 'This message will be displayed if the listing is not visible to the user', 'super-forms' ),
+                                                    'type' => 'textarea',
+                                                    'default' => "<div class=\"super-msg super-info\">\n    <h1>" . esc_html__( "You do not have permission to view this listing", "super-forms" ) . "</h1>\n</div>",
+                                                    'filter' => 'display.enabled;true'
+                                                ),
+                                                array(
+                                                    'vertical' => true, // sfui-vertical
+                                                    'name' => 'retrieve',
+                                                    'type' => 'radio',
+                                                    'options' => array(
+                                                        'this_form' => 'Only retrieve entries based on this form',
+                                                        'all_forms' => 'Retrieve entries based on all forms',
+                                                        'specific_forms' => 'Retrieve entries based on the following form ID\'s:'
+                                                    ),
+                                                    'default' => 'this_form'
+                                                ),
+                                                array(
+                                                    'name' => 'form_ids',
+                                                    'subline' => esc_html__( 'Seperate each form ID with a comma', 'super-forms' ),
+                                                    'placeholder' => esc_html__( 'e.g: 32,2467,1870', 'super-forms' ),
+                                                    'type' => 'text',
+                                                    'default' => '',
+                                                    'filter' => 'display.retrieve;specific_forms'
+                                                )
+                                            )
+                                        ),
+                                        array(
+                                            'wrap' => false,
+                                            'group' => true, // sfui-setting-group
+                                            'group_name' => 'date_range',
+                                            'vertical' => true, // sfui-vertical
+                                            'nodes' => array(
+                                                array(
+                                                    'name' => 'enabled',
+                                                    'type' => 'checkbox',
+                                                    'default' => 'true',
+                                                    'title' => esc_html__( 'Only display entries within the following date range:', 'super-forms' ),
+                                                ),
+                                                array(
+                                                    'padding' => false,
+                                                    'sub' => true,
+                                                    'inline' => true,
+                                                    'filter' => 'date_range.enabled;true',
+                                                    'nodes' => array(
+                                                        array(
+                                                            'width_auto' => true,
+                                                            'name' => 'from',
+                                                            'title' => esc_html__( 'From:', 'super-forms' ),
+                                                            'subline' => esc_html__( 'leave blank for no minimum date', 'super-forms' ),
+                                                            'type' => 'date',
+                                                            'default' => ''
+                                                        ),
+                                                        array(
+                                                            'width_auto' => true,
+                                                            'name' => 'to',
+                                                            'title' => esc_html__( 'To:', 'super-forms' ),
+                                                            'subline' => esc_html__( 'leave blank for no maximum date', 'super-forms' ),
+                                                            'type' => 'date',
+                                                            'default' => ''
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        ),
+                                        array(
+                                            'name' => 'noResultsFilterMessage',
+                                            'title' => esc_html__( 'HTML/message to display when there are no results based on filter', 'super-forms' ),
+                                            'subline' => esc_html__( 'This message will be displayed if there are no results based on the current filter (leave blank for none)', 'super-forms' ),
+                                            'type' => 'textarea',
+                                            'default' => "<div class=\"super-msg super-info\">\n    <h1>" . esc_html__( "No results found based on your filter", "super-forms" ) . "</h1>\n    " . esc_html__( 'Clear your filters or try a different filter.', 'super-forms' ) . "\n</div>"
+                                        ),
+                                        array(
+                                            'name' => 'noResultsMessage',
+                                            'title' => esc_html__( 'HTML/message to display when there are no results', 'super-forms' ),
+                                            'subline' => esc_html__( 'This message will only be displayed if absolutely zero results are available for the current user (leave blank for none)', 'super-forms' ),
+                                            'type' => 'textarea',
+                                            'default' => "<div class=\"super-msg super-info\">\n    <h1>" . esc_html__( "No results found", "super-forms" ) . "</h1>\n</div>"
+                                        ),
+                                        array(
+                                            'name' => 'onlyDisplayMessage',
+                                            'title' => esc_html__( 'Also hide filters, pagination and other possible UI elements (only the message will be shown to the user)', 'super-forms' ),
+                                            'type' => 'checkbox',
+                                            'default' => 'true'
+                                        ),
+                                        array(
+                                            'name' => 'form_processing_overlay',
+                                            'type' => 'checkbox',
+                                            'default' => 'true',
+                                            'title' => esc_html__( 'Enable form processing overlay (popup)', 'super-forms' ),
+                                        ),
+                                        array(
+                                            'name' => 'close_form_processing_overlay',
+                                            'type' => 'checkbox',
+                                            'default' => 'true',
+                                            'title' => esc_html__( 'Close the overlay directly after editing the entry', 'super-forms' ),
+                                            'filter' => 'form_processing_overlay;true'
+                                        ),
+                                        array(
+                                            'name' => 'close_editor_window_after_editing',
+                                            'type' => 'checkbox',
+                                            'default' => 'true',
+                                            'title' => esc_html__( 'Close the editor window after editing the entry', 'super-forms' )
+                                        )
+                                    )
+                                ),
+                                array(
+                                    'toggle' => true,
+                                    'title' => esc_html__( '`See` permission settings', 'super-forms' ),
+                                    'nodes' => array(
+                                        array(
+                                            'wrap' => false,
+                                            'group' => true, // sfui-setting-group
+                                            'group_name' => 'see_any',
+                                            'vertical' => true, // sfui-vertical
+                                            'nodes' => array(
+                                                array(
+                                                    'name' => 'enabled',
+                                                    'type' => 'checkbox',
+                                                    'default' => 'true',
+                                                    'title' => esc_html__( 'Allow the following users to see all entries (note that logged in users will always be able to see their own entries)', 'super-forms' ),
+                                                ),
+                                                array(
+                                                    'name' => 'user_roles',
+                                                    'title' => 'User roles: ',
+                                                    'subline' => esc_html__( 'Seperated by comma e.g: administrator,editor, or leave blank to allow all roles', 'super-forms' ),
+                                                    'type' => 'text',
+                                                    'default' => 'administrator',
+                                                    'filter' => 'see_any.enabled;true'
+                                                ),
+                                                array(
+                                                    'name' => 'user_ids',
+                                                    'title' => 'User ID\'s: ',
+                                                    'subline' => esc_html__( 'Seperated by comma e.g: 32,2467,1870, or leave blank to only filter by the roles defined above', 'super-forms' ),
+                                                    'type' => 'text',
+                                                    'default' => '',
+                                                    'filter' => 'see_any.enabled;true'
+                                                )
+                                            )
+                                        )
+                                    )
+                                ),
+                                array(
+                                    'toggle' => true,
+                                    'title' => esc_html__( '`View` permission settings', 'super-forms' ),
+                                    'nodes' => array(
+                                        array(
+                                            'wrap' => false,
+                                            'group' => true, // sfui-setting-group
+                                            'group_name' => 'view_any',
+                                            'vertical' => true, // sfui-vertical
+                                            'nodes' => array(
+                                                array(
+                                                    'name' => 'enabled',
+                                                    'type' => 'checkbox',
+                                                    'default' => 'true',
+                                                    'title' => esc_html__( 'Allow the following users to view any entries', 'super-forms' ),
+                                                ),
+                                                array(
+                                                    'name' => 'user_roles',
+                                                    'title' => 'User roles: ',
+                                                    'subline' => esc_html__( 'Seperated by comma e.g: administrator,editor, or leave blank to allow all roles', 'super-forms' ),
+                                                    'type' => 'text',
+                                                    'default' => 'administrator',
+                                                    'filter' => 'view_any.enabled;true'
+                                                ),
+                                                array(
+                                                    'name' => 'user_ids',
+                                                    'title' => 'User ID\'s: ',
+                                                    'subline' => esc_html__( 'Seperated by comma e.g: 32,2467,1870, or leave blank to only filter by the roles defined above', 'super-forms' ),
+                                                    'type' => 'text',
+                                                    'default' => '',
+                                                    'filter' => 'view_any.enabled;true'
+                                                ),
+                                                array(
+                                                    'name' => 'html_template',
+                                                    'title' => esc_html( 'View template HTML', 'super-forms' ),
+                                                    'subline' => esc_html__( 'When viewing an entry, you can create your own HTML view (leave blank to use the default template)', 'super-forms' ),
+                                                    'type' => 'textarea',
+                                                    'default' => $html_template,
+                                                    'filter' => 'view_any.enabled;true'
+                                                ),
+                                                array(
+                                                    'name' => 'loop_html',
+                                                    'title' => esc_html( 'Loop fields HTML', 'super-forms' ),
+                                                    'subline' => esc_html__( 'If you use {loop_fields} inside your custom template, you can define the "row" here and retrieve the field values with {loop_label} and {loop_value} tags, leave blank to use the default loop HTML', 'super-forms' ),
+                                                    'type' => 'textarea',
+                                                    'default' => $loop_html,
+                                                    'filter' => 'view_any.enabled;true'
+                                                )
+                                            )
+                                        ),
+                                        array(
+                                            'wrap' => false,
+                                            'group' => true, // sfui-setting-group
+                                            'group_name' => 'view_own',
+                                            'vertical' => true, // sfui-vertical
+                                            'nodes' => array(
+                                                array(
+                                                    'name' => 'enabled',
+                                                    'type' => 'checkbox',
+                                                    'default' => 'true',
+                                                    'title' => esc_html__( 'Allow the following users to view their own entries', 'super-forms' ),
+                                                ),
+                                                array(
+                                                    'name' => 'user_roles',
+                                                    'title' => 'User roles: ',
+                                                    'subline' => esc_html__( 'Seperated by comma e.g: administrator,editor, or leave blank to allow all roles', 'super-forms' ),
+                                                    'type' => 'text',
+                                                    'default' => 'administrator',
+                                                    'filter' => 'view_own.enabled;true'
+                                                ),
+                                                array(
+                                                    'name' => 'user_ids',
+                                                    'title' => 'User ID\'s: ',
+                                                    'subline' => esc_html__( 'Seperated by comma e.g: 32,2467,1870, or leave blank to only filter by the roles defined above', 'super-forms' ),
+                                                    'type' => 'text',
+                                                    'default' => '',
+                                                    'filter' => 'view_own.enabled;true'
+                                                ),
+                                                array(
+                                                    'name' => 'html_template',
+                                                    'title' => esc_html( 'View template HTML', 'super-forms' ),
+                                                    'subline' => esc_html__( 'When viewing an entry, you can create your own HTML view (leave blank to use the default template)', 'super-forms' ),
+                                                    'type' => 'textarea',
+                                                    'default' => $html_template,
+                                                    'filter' => 'view_own.enabled;true'
+                                                ),
+                                                array(
+                                                    'name' => 'loop_html',
+                                                    'title' => esc_html( 'Loop fields HTML', 'super-forms' ),
+                                                    'subline' => esc_html__( 'If you use {loop_fields} inside your custom template, you can define the "row" here and retrieve the field values with {loop_label} and {loop_value} tags, leave blank to use the default loop HTML', 'super-forms' ),
+                                                    'type' => 'textarea',
+                                                    'default' => $loop_html,
+                                                    'filter' => 'view_own.enabled;true'
+                                                )
+                                            )
+                                        )
+                                    )
+                                ),
+                                array(
+                                    'toggle' => true,
+                                    'title' => esc_html__( '`Edit` permission settings', 'super-forms' ),
+                                    'nodes' => array(
+                                        array(
+                                            'wrap' => false,
+                                            'group' => true, // sfui-setting-group
+                                            'group_name' => 'edit_any',
+                                            'vertical' => true, // sfui-vertical
+                                            'nodes' => array(
+                                                array(
+                                                    'name' => 'enabled',
+                                                    'type' => 'checkbox',
+                                                    'default' => 'true',
+                                                    'title' => esc_html__( 'Allow the following users to edit any entries', 'super-forms' ),
+                                                ),
+                                                array(
+                                                    'name' => 'user_roles',
+                                                    'title' => 'User roles: ',
+                                                    'subline' => esc_html__( 'Seperated by comma e.g: administrator,editor, or leave blank to allow all roles', 'super-forms' ),
+                                                    'type' => 'text',
+                                                    'default' => 'administrator',
+                                                    'filter' => 'edit_any.enabled;true'
+                                                ),
+                                                array(
+                                                    'name' => 'user_ids',
+                                                    'title' => 'User ID\'s: ',
+                                                    'subline' => esc_html__( 'Seperated by comma e.g: 32,2467,1870, or leave blank to only filter by the roles defined above', 'super-forms' ),
+                                                    'type' => 'text',
+                                                    'default' => '',
+                                                    'filter' => 'edit_any.enabled;true'
+                                                ),
+                                                array(
+                                                    'wrap' => false,
+                                                    'group' => true, // sfui-setting-group
+                                                    'group_name' => 'change_status',
+                                                    'vertical' => true, // sfui-vertical
+                                                    'nodes' => array(
+                                                        array(
+                                                            'name' => 'enabled',
+                                                            'type' => 'checkbox',
+                                                            'default' => 'true',
+                                                            'title' => esc_html__( 'Allow these users to edit the Contact Entry status', 'super-forms' ),
+                                                            'filter' => 'edit_any.enabled;true'
+                                                        ),
+                                                        array(
+                                                            'name' => 'when_not',
+                                                            'title' => esc_html__( 'Only allow changing the status when the current status is none of the below:', 'super-forms' ),
+                                                            'subtitle' => esc_html__( 'Separated by comma e.g: pending,processing (or leave blank to always allow)', 'super-forms' ),
+                                                            'type' => 'text',
+                                                            'default' => '',
+                                                            'filter' => 'change_status.enabled;true'
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        ),
+                                        array(
+                                            'wrap' => false,
+                                            'group' => true, // sfui-setting-group
+                                            'group_name' => 'edit_own',
+                                            'vertical' => true, // sfui-vertical
+                                            'nodes' => array(
+                                                array(
+                                                    'name' => 'enabled',
+                                                    'type' => 'checkbox',
+                                                    'default' => 'true',
+                                                    'title' => esc_html__( 'Allow the following users to edit their own entries', 'super-forms' ),
+                                                ),
+                                                array(
+                                                    'name' => 'user_roles',
+                                                    'title' => 'User roles: ',
+                                                    'subline' => esc_html__( 'Seperated by comma e.g: administrator,editor, or leave blank to allow all roles', 'super-forms' ),
+                                                    'type' => 'text',
+                                                    'default' => 'administrator',
+                                                    'filter' => 'edit_own.enabled;true'
+                                                ),
+                                                array(
+                                                    'name' => 'user_ids',
+                                                    'title' => 'User ID\'s: ',
+                                                    'subline' => esc_html__( 'Seperated by comma e.g: 32,2467,1870, or leave blank to only filter by the roles defined above', 'super-forms' ),
+                                                    'type' => 'text',
+                                                    'default' => '',
+                                                    'filter' => 'edit_own.enabled;true'
+                                                ),
+                                                array(
+                                                    'wrap' => false,
+                                                    'group' => true, // sfui-setting-group
+                                                    'group_name' => 'change_status',
+                                                    'vertical' => true, // sfui-vertical
+                                                    'nodes' => array(
+                                                        array(
+                                                            'name' => 'enabled',
+                                                            'type' => 'checkbox',
+                                                            'default' => 'true',
+                                                            'title' => esc_html__( 'Allow these users to edit the Contact Entry status', 'super-forms' ),
+                                                            'filter' => 'edit_own.enabled;true'
+                                                        ),
+                                                        array(
+                                                            'name' => 'when_not',
+                                                            'title' => esc_html__( 'Only allow changing the status when the current status is none of the below:', 'super-forms' ),
+                                                            'subtitle' => esc_html__( 'Separated by comma e.g: pending,processing (or leave blank to always allow)', 'super-forms' ),
+                                                            'type' => 'text',
+                                                            'default' => '',
+                                                            'filter' => 'change_status.enabled;true'
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
+                                ),
+                                array(
+                                    'toggle' => true,
+                                    'title' => esc_html__( '`Delete` permission settings', 'super-forms' ),
+                                    'nodes' => array(
+                                        array(
+                                            'wrap' => false,
+                                            'group' => true, // sfui-setting-group
+                                            'group_name' => 'delete_any',
+                                            'vertical' => true, // sfui-vertical
+                                            'nodes' => array(
+                                                array(
+                                                    'name' => 'enabled',
+                                                    'type' => 'checkbox',
+                                                    'default' => 'true',
+                                                    'title' => esc_html__( 'Allow the following users to delete any entries', 'super-forms' ),
+                                                ),
+                                                array(
+                                                    'name' => 'user_roles',
+                                                    'title' => 'User roles: ',
+                                                    'subline' => esc_html__( 'Seperated by comma e.g: administrator,editor, or leave blank to allow all roles', 'super-forms' ),
+                                                    'type' => 'text',
+                                                    'default' => 'administrator',
+                                                    'filter' => 'delete_any.enabled;true'
+                                                ),
+                                                array(
+                                                    'name' => 'user_ids',
+                                                    'title' => 'User ID\'s: ',
+                                                    'subline' => esc_html__( 'Seperated by comma e.g: 32,2467,1870, or leave blank to only filter by the roles defined above', 'super-forms' ),
+                                                    'type' => 'text',
+                                                    'default' => '',
+                                                    'filter' => 'delete_any.enabled;true'
+                                                ),
+                                                array(
+                                                    'name' => 'permanent',
+                                                    'type' => 'checkbox',
+                                                    'default' => 'true',
+                                                    'title' => esc_html__( 'Bypass Trash and force delete (permanently deletes the entry)', 'super-forms' ),
+                                                    'filter' => 'delete_any.enabled;true'
+                                                ),
+                                            )
+                                        ),
+                                        array(
+                                            'wrap' => false,
+                                            'group' => true, // sfui-setting-group
+                                            'group_name' => 'delete_own',
+                                            'vertical' => true, // sfui-vertical
+                                            'nodes' => array(
+                                                array(
+                                                    'name' => 'enabled',
+                                                    'type' => 'checkbox',
+                                                    'default' => 'true',
+                                                    'title' => esc_html__( 'Allow the following users to delete their own entries', 'super-forms' ),
+                                                ),
+                                                array(
+                                                    'name' => 'user_roles',
+                                                    'title' => 'User roles: ',
+                                                    'subline' => esc_html__( 'Seperated by comma e.g: administrator,editor, or leave blank to allow all roles', 'super-forms' ),
+                                                    'type' => 'text',
+                                                    'default' => 'administrator',
+                                                    'filter' => 'delete_own.enabled;true'
+                                                ),
+                                                array(
+                                                    'name' => 'user_ids',
+                                                    'title' => 'User ID\'s: ',
+                                                    'subline' => esc_html__( 'Seperated by comma e.g: 32,2467,1870, or leave blank to only filter by the roles defined above', 'super-forms' ),
+                                                    'type' => 'text',
+                                                    'default' => '',
+                                                    'filter' => 'delete_own.enabled;true'
+                                                ),
+                                                array(
+                                                    'name' => 'permanent',
+                                                    'type' => 'checkbox',
+                                                    'default' => 'true',
+                                                    'title' => esc_html__( 'Bypass Trash and force delete (permanently deletes the entry)', 'super-forms' ),
+                                                    'filter' => 'delete_own.enabled;true'
+                                                )
+                                            )
+                                        )
+                                    )
+                                ),
+                                array(
+                                    'toggle' => true,
+                                    'title' => esc_html__( 'Column settings', 'super-forms' ),
+                                    'nodes' => array()
+                                )
+                            )
+                        )
+                    )
+                )
+            );
+            $standardColumns = self::getStandardColumns();
+            foreach($standardColumns as $sk => $sv){
+                //var_dump($sk); // title
+                //var_dump($sv);
+                ////array(5) { 
+                //    ["name"]=> string(11) "Entry title" 
+                //    ["default"]=> string(5) "Title" 
+                //    ["meta_key"]=> string(10) "post_title" 
+                //    ["filter"]=> array(3) { 
+                //        ["enabled"]=> string(4) "true" 
+                //        ["type"]=> string(4) "text" 
+                //        ["placeholder"]=> string(9) "search..." 
+                //    } 
+                //    ["sort"]=> string(4) "true" 
+                $nodes[2]['nodes'][1]['nodes'][count($nodes[2]['nodes'][1]['nodes'])-1]['nodes'][] = array(
+                    'wrap' => false,
+                    'group' => true,
+                    'group_name' => $sk.'_column',
+                    'vertical' => true, // sfui-vertical
+                    'nodes' => array(
+                        array(
+                            'name' => 'enabled',
+                            'type' => 'checkbox',
+                            'default' => 'true',
+                            'title' => sprintf(esc_html__( 'Show "%s" column:', 'super-forms' ), $sv['name'])
+                        ),
+                        array(
+                            'padding' => false,
+                            'sub' => true,
+                            'inline' => true,
+                            'filter' => $sk.'_column.enabled;true',
+                            'nodes' => array(
+                                array(
+                                    'name' => 'name',
+                                    'subline' => 'Column name',
+                                    'type' => 'text',
+                                    'default' => (!empty($sv['default']) ? $sv['default'] : '')
+                                ),
+                                array(
+                                    'wrap' => false,
+                                    'group' => true,
+                                    'group_name' => 'link',
+                                    'vertical' => true,
+                                    'nodes' => array(
+                                        array(
+                                            'name' => 'type',
+                                            'subline' => esc_html( 'Link', 'super-forms' ),
+                                            'type' => 'select',
+                                            'options' => array(
+                                                'none' => esc_html__( 'None', 'super-forms' ),
+                                                'contact_entry' => esc_html__( 'Edit the contact entry (backend)', 'super-forms' ),
+                                                'wc_order_backend' => esc_html__( 'WooCommerce order (backend)', 'super-forms' ),
+                                                'wc_order_frontend' => esc_html__( 'WooCommerce order (front-end)', 'super-forms' ),
+                                                'paypal_order' => esc_html__( 'PayPal order (backend)', 'super-forms' ),
+                                                'paypal_subscription' => esc_html__( 'PayPal subscription (backend)', 'super-forms' ),
+                                                'generated_pdf' => esc_html__( 'Generated PDF file', 'super-forms' ),
+                                                'post_backend' => esc_html__( 'Created post/page (backend)', 'super-forms' ),
+                                                'post_frontend' => esc_html__( 'Created post/page (front-end)', 'super-forms' ),
+                                                'author_posts' => esc_html__( 'The author page (front-end)', 'super-forms' ),
+                                                'author_edit' => esc_html__( 'The author profile (backend)', 'super-forms' ),
+                                                'author_email' => esc_html__( 'Author E-mail address (mailto:)', 'super-forms' ),
+                                                'mailto' => esc_html__( 'E-mail address (mailto:)', 'super-forms' ),
+                                                'custom' => esc_html__( 'Custom URL', 'super-forms' )
+                                            ),
+                                            'default' => 'none'
+                                        ),
+                                        array(
+                                            'name' => 'url',
+                                            'subline' => esc_html( 'Enter custom URL (use {tags} if needed):', 'super-forms' ),
+                                            'type' => 'text',
+                                            'default' => '',
+                                            'filter' => $sk.'_column.link.type;custom'
+                                        )
+                                    )
+                                ),
+                                array(
+                                    'width_auto' => true,
+                                    'name' => 'width',
+                                    'subline' => esc_html( 'Width (px)', 'super-forms' ),
+                                    'type' => 'number',
+                                    'default' => '150'
+                                ),
+                                array(
+                                    'width_auto' => true,
+                                    'name' => 'order',
+                                    'subline' => esc_html( 'Order', 'super-forms' ),
+                                    'type' => 'number',
+                                    'default' => '10'
+                                ),
+                                array(
+                                    'wrap' => false,
+                                    'group' => true,
+                                    'group_name' => 'filter',
+                                    'vertical' => true,
+                                    'nodes' => array(
+                                        array(
+                                            'width_auto' => true,
+                                            'name' => 'enabled',
+                                            'title' => esc_html( 'Allow filter', 'super-forms' ),
+                                            'type' => 'checkbox',
+                                            'default' => 'true'
+                                        ),
+                                        array(
+                                            'padding' => false,
+                                            'sub' => true,
+                                            'inline' => true,
+                                            'filter' => $sk.'_column.filter.enabled;true',
+                                            'nodes' => array(
+                                                array(
+                                                    'name' => 'placeholder',
+                                                    'title' => esc_html( 'Filter placeholder', 'super-forms' ),
+                                                    'type' => 'text',
+                                                    'default' => 'search...'
+                                                )
+                                            )
+                                        )
+                                    )
+                                ),
+                                array(
+                                    'width_auto' => true,
+                                    'name' => 'sort',
+                                    'title' => esc_html( 'Allow sorting', 'super-forms' ),
+                                    'type' => 'checkbox',
+                                    'default' => (!empty($sv['default']) ? $sv['default'] : '')
+                                )
+                            )
+                        )
+                    )
+                );
             }
-            echo '</div>';
-
-                echo '</div>';
-            echo '</div>';
+            $nodes[2]['nodes'][1]['nodes'][count($nodes[2]['nodes'][1]['nodes'])-1]['nodes'][] = array(
+                'wrap' => false,
+                'group' => true,
+                'group_name' => 'custom_columns',
+                'vertical' => true, // sfui-vertical
+                'nodes' => array(
+                    array(
+                        'name' => 'enabled',
+                        'type' => 'checkbox',
+                        'default' => 'true',
+                        'title' => esc_html__( 'Show the following "Custom" columns:', 'super-forms' ),
+                    ),
+                    array(
+                        'padding' => false,
+                        'sub' => true,
+                        'inline' => true,
+                        'filter' => 'custom_columns.enabled;true',
+                        'nodes' => array(
+                            array(
+                                'name' => 'columns',
+                                'type' => 'repeater',
+                                'filter' => 'custom_columns.enabled;true',
+                                'nodes' => array(
+                                    array(
+                                        'padding' => false,
+                                        'inline' => true,
+                                        'nodes' => array(
+                                            array(
+                                                'name' => 'name',
+                                                'subline' => esc_html__( 'Column name', 'super-forms' ),
+                                                'placeholder' => esc_html__( 'e.g. First name', 'super-forms' ),
+                                                'type' => 'text',
+                                                'default' => ''
+                                            ),
+                                            array(
+                                                'name' => 'field_name',
+                                                'subline' => esc_html__( 'Field name', 'super-forms' ),
+                                                'placeholder' => esc_html__( 'e.g. first_name', 'super-forms' ),
+                                                'type' => 'text',
+                                                'default' => ''
+                                            ),
+                                            array(
+                                                'wrap' => false,
+                                                'group' => true,
+                                                'group_name' => 'link',
+                                                'vertical' => true,
+                                                'nodes' => array(
+                                                    array(
+                                                        'width_auto' => true,
+                                                        'name' => 'type',
+                                                        'subline' => esc_html( 'Link', 'super-forms' ),
+                                                        'type' => 'select',
+                                                        'options' => array(
+                                                            'none' => esc_html__( 'None', 'super-forms' ),
+                                                            'contact_entry' => esc_html__( 'Edit the contact entry (backend)', 'super-forms' ),
+                                                            'wc_order_backend' => esc_html__( 'WooCommerce order (backend)', 'super-forms' ),
+                                                            'wc_order_frontend' => esc_html__( 'WooCommerce order (front-end)', 'super-forms' ),
+                                                            'paypal_order' => esc_html__( 'PayPal order (backend)', 'super-forms' ),
+                                                            'paypal_subscription' => esc_html__( 'PayPal subscription (backend)', 'super-forms' ),
+                                                            'generated_pdf' => esc_html__( 'Generated PDF file', 'super-forms' ),
+                                                            'post_backend' => esc_html__( 'Created post/page (backend)', 'super-forms' ),
+                                                            'post_frontend' => esc_html__( 'Created post/page (front-end)', 'super-forms' ),
+                                                            'author_posts' => esc_html__( 'The author page (front-end)', 'super-forms' ),
+                                                            'author_edit' => esc_html__( 'The author profile (backend)', 'super-forms' ),
+                                                            'author_email' => esc_html__( 'Author E-mail address (mailto:)', 'super-forms' ),
+                                                            'mailto' => esc_html__( 'E-mail address (mailto:)', 'super-forms' ),
+                                                            'custom' => esc_html__( 'Custom URL', 'super-forms' )
+                                                        ),
+                                                        'default' => 'none'
+                                                    ),
+                                                    array(
+                                                        'name' => 'url',
+                                                        'title' => esc_html( 'Enter custom URL (use {tags} if needed):', 'super-forms' ),
+                                                        'type' => 'text',
+                                                        'default' => '',
+                                                        'filter' => 'link.type;custom'
+                                                    )
+                                                )
+                                            ),
+                                            array(
+                                                'width_auto' => true,
+                                                'name' => 'width',
+                                                'subline' => esc_html( 'Width (px)', 'super-forms' ),
+                                                'type' => 'number',
+                                                'default' => '150',
+                                            ),
+                                            array(
+                                                'width_auto' => true,
+                                                'name' => 'order',
+                                                'subline' => esc_html( 'Order', 'super-forms' ),
+                                                'type' => 'number',
+                                                'default' => '10',
+                                            ),
+                                            array(
+                                                'wrap' => false,
+                                                'group' => true,
+                                                'group_name' => 'filter',
+                                                'vertical' => true,
+                                                'nodes' => array(
+                                                    array(
+                                                        'width_auto' => true,
+                                                        'name' => 'enabled',
+                                                        'title' => esc_html( 'Allow filter', 'super-forms' ),
+                                                        'type' => 'checkbox',
+                                                        'default' => 'true'
+                                                    ),
+                                                    array(
+                                                        'padding' => false,
+                                                        'sub' => true,
+                                                        'vertical' => true,
+                                                        'filter' => 'filter.enabled;true',
+                                                        'nodes' => array(
+                                                            array(
+                                                                'name' => 'placeholder',
+                                                                'title' => esc_html( 'Filter placeholder', 'super-forms' ),
+                                                                'type' => 'text',
+                                                                'default' => 'search...',
+                                                            ),
+                                                            array(
+                                                                'width_auto' => true,
+                                                                'name' => 'type',
+                                                                'subline' => esc_html( 'Filter method', 'super-forms' ),
+                                                                'type' => 'select',
+                                                                'options' => array(
+                                                                    'text' => esc_html__( 'Text field (default)', 'super-forms' ),
+                                                                    'dropdown' => esc_html__( 'Dropdown', 'super-forms' ),
+                                                                ),
+                                                                'default' => 'none',
+                                                            ),
+                                                            array(
+                                                                'name' => 'items',
+                                                                'title' => esc_html( 'Filter options', 'super-forms' ),
+                                                                'subline' => esc_html__( 'put each on a new line', 'super-forms'),
+                                                                'type' => 'textarea',
+                                                                'placeholder' => "red|Red\ngreen|Green\nblue|Blue",
+                                                                'default' => "option_value1|Option Label 1\noption_value2|Option Label 2",
+                                                                'filter' => 'filter.type;dropdown'
+                                                            )
+                                                        )
+                                                    )
+                                                )
+                                            ),
+                                            array(
+                                                'width_auto' => true,
+                                                'name' => 'sort',
+                                                'title' => esc_html( 'Allow sorting', 'super-forms' ),
+                                                'type' => 'checkbox',
+                                                'default' => 'true'
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            );
+            $prefix = array();
+            SUPER_UI::loop_over_tab_setting_nodes($s, $nodes, $prefix);
         }
         public static function getColumnSettingFields($v, $pre, $key, $value){
             if(!empty($pre)){
@@ -1587,8 +2042,28 @@ if(!class_exists('SUPER_Listings')) :
             wp_enqueue_style( 'super-listings', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/styles.css', array(), SUPER_VERSION );
             SUPER_Forms()->enqueue_fontawesome_styles();
 
+
+
+            // Check if list ID is numeric, if so it's the old method
+            // if not this is the new method
+            if(is_numeric($atts['list'])){
+                // Old method
+                $list_id = absint($atts['list'])-1;
+            }else{
+                // New method
+                // Loop over listings and then compare ID and return the index+1
+                if(isset($settings['_listings']) && isset($settings['_listings']['lists'])){
+                    $lists = $settings['_listings']['lists'];
+                    foreach($lists as $k => $v){
+                        if($v['id']===$atts['list']){
+                            // Match, use as list ID
+                            $list_id = $k;
+                            break;
+                        }
+                    }
+                }
+            }
             // Get the settings for this specific list based on it's index
-            $list_id = absint($atts['list'])-1;
             if(!isset($settings['_listings'])){
                 // The list does not exist
                 $result = '<strong>'.esc_html__('Error', 'super-forms' ).':</strong> '.sprintf(esc_html__('Super Forms could not find a listing with ID: %d', 'super-forms' ), $list_id);
@@ -1722,8 +2197,10 @@ if(!class_exists('SUPER_Listings')) :
             $filter_by_entry_data = "";
             // Now first check if this is a custom column
             // Custom column always starts with underscore
+            $x = 0;
             foreach($filterColumns as $fck => $fcv){
                 if($fck[0]==='_'){ // starts with underscore, which means this is custom column
+                    $x++;
                     $fck = substr($fck, 1);
                     // If so, it means that we need to filter the contact entry data
                     if($list['custom_columns']['enabled']==='true'){
@@ -1731,11 +2208,11 @@ if(!class_exists('SUPER_Listings')) :
                         foreach($customColumns as $cv){
                             if($cv['field_name']==$fck){
                                 $fckLength = strlen($fck);
-                                $filter_by_entry_data .= ", SUBSTRING_INDEX( SUBSTRING_INDEX( SUBSTRING_INDEX(meta.meta_value, 's:4:\"name\";s:$fckLength:\"$fck\";s:5:\"value\";', -1), '\";s:', 1), ':\"', -1) AS filterValue";
+                                $filter_by_entry_data .= ", SUBSTRING_INDEX( SUBSTRING_INDEX( SUBSTRING_INDEX(meta.meta_value, 's:4:\"name\";s:$fckLength:\"$fck\";s:5:\"value\";', -1), '\";s:', 1), ':\"', -1) AS filterValue_".$x;
                                 if( !empty($having) ){
-                                    $having .= " AND filterValue LIKE '%$fcv%'";
+                                    $having .= " AND filterValue_".$x." LIKE '%$fcv%'";
                                 }else{
-                                    $having .= " HAVING filterValue LIKE '%$fcv%'";
+                                    $having .= " HAVING filterValue_".$x." LIKE '%$fcv%'";
                                 }
                                 break;
                             }
@@ -2106,7 +2583,6 @@ END AS paypalSubscriptionId
             OFFSET $offset
             ";
             $entries = $wpdb->get_results($query);
-
             $foundFormIds = array();
             $result = '';
             $result .= SUPER_Common::load_google_fonts($settings);

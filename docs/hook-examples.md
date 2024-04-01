@@ -46,7 +46,7 @@ function f4d_compare_database_value($x){
     $found = $wpdb->get_var($sql);
     if(absint($found)===0){
         // Code does not exists, return error
-        echo json_encode(
+        echo SUPER_Common::safe_json_encode(
             array(
                 'error' => true,
                 'fields' => array('code'), // field that contains errors

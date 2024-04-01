@@ -15539,10 +15539,10 @@ msgstr "{loop_fields} inde i e-mail-kroppen erstattes med dette indhold"
 
 #: includes/extensions/pdf-generator/pdf-generator.php:81
 msgid ""
-"{pdf_page} and {pdf_total_pages} tags can be used inside a HTML element to "
+"{pdf_page} and {} tags can be used inside a HTML element to "
 "be used in your header/footer."
 msgstr ""
-"{pdf_page} og {pdf_total_pages} tags kan bruges inde i et HTML-element, der "
+"{pdf_page} og {} tags kan bruges inde i et HTML-element, der "
 "skal bruges i din sidehoved / sidefod."
 
 #: includes/shortcodes/form-elements.php:3745

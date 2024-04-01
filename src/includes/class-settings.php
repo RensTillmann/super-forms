@@ -315,9 +315,9 @@ class SUPER_Settings {
                     ),
                     'filter'=>true,
                     'parent'=>'send',
-                    'filter_value'=>'yes'
+                    'filter_value'=>'yes',
+                    'i18n'=>true
                 ),
-
                 'header_cc' => array(
                     'name' => esc_html__( 'CC:', 'super-forms' ),
                     'label' => esc_html__( 'Send copy to following address(es)', 'super-forms' ),
@@ -326,6 +326,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent'=>'send',
                     'filter_value'=>'yes',
+                    'i18n'=>true
                 ),
                 'header_bcc' => array(
                     'name' => esc_html__( 'BCC:', 'super-forms' ),
@@ -335,6 +336,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent'=>'send',
                     'filter_value'=>'yes',
+                    'i18n'=>true
                 ),
                 'header_additional' => array(
                     'name' => esc_html__('Additional Headers:', 'super-forms' ),
@@ -344,6 +346,7 @@ class SUPER_Settings {
                     'filter'=>true,
                     'parent'=>'send',
                     'filter_value'=>'yes',
+                    'i18n'=>true
                 )
             ),
         );
@@ -3167,7 +3170,7 @@ class SUPER_Settings {
                 // @since 1.9 - export settings
                 '<div class="super-export-import">',
                     '<strong>' . esc_html__( 'Export Settings', 'super-forms' ) . ':</strong>',
-                    '<textarea name="export-json">' . json_encode( $s ) . '</textarea>',
+                    '<textarea name="export-json">' . SUPER_Common::safe_json_encode( $s ) . '</textarea>',
                     '<hr />',
                     '<strong>' . esc_html__( 'Import Settings', 'super-forms' ) . ':</strong>',
                     '<textarea name="import-json"></textarea>',

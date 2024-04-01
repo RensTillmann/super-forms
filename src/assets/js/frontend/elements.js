@@ -482,7 +482,8 @@
 
         // Init datepickers
         var oneDay = 24*60*60*1000, // hours*minutes*seconds*milliseconds
-            nodes = document.querySelectorAll('.super-datepicker');
+            nodes = document.querySelectorAll('.super-datepicker'),
+            year, month, day, hour, minute, seconds;
 
         for (i = 0; i < nodes.length; ++i) {
             if(typeof datepicker === "function"){ 
@@ -507,7 +508,7 @@
                 firstDay = el.dataset.firstDay,
                 localization = el.dataset.localization,
                 widget,connectedMinDays,minDate,connectedMaxDays,maxDate,
-                parse,year,month,firstDate,$date,days,found,date,fullDate,dateFrom,
+                parse,firstDate,$date,days,found,date,fullDate,dateFrom,
                 dateTo,d1,d2,from,to,check,day,exclDays,exclDaysOverride,exclDaysOverrideReplaced,exclDates,exclDatesReplaced,
                 changeMonth =(el.dataset.changeMonth==='true' ? true : false),
                 changeYear =(el.dataset.changeYear==='true' ? true : false),
@@ -2149,7 +2150,12 @@
             SUPER.after_appending_duplicated_column_hook(form, unique_field_names, clone);
             // Now reset field values to default
             SUPER.init_clear_form({form: form, clone: clone});
-            
+            // Initialize tooltips
+            nodes = clone.querySelectorAll('.super-tooltip.tooltipstered');
+            for(i=0; i<nodes.length; ++i){
+                nodes[i].classList.remove('tooltipstered');
+                nodes[i].setAttribute('title', nodes[i].getAttribute('data-title'));
+            }
             // First rename then loop through conditional logic and update names, otherwise we might think that the field didn't exist!
             // Loop over all fields that are inside dynamic column and rename them accordingly
             SUPER.append_dynamic_column_depth({form: form, clone: clone});
@@ -2719,7 +2725,8 @@
             SUPER.scrollToElement(form);
         });
 
-        $doc.on('change', '.super-shortcode-field', function (e) {
+        $doc.on('change input', '.super-shortcode-field', function (e){
+            if(e.type==='input' && (this.type!=='datetime-local' && this.type!=='date')) return;
             if(this.classList.contains('super-fileupload')) return false;
             var keyCode = e.keyCode || e.which; 
             if (keyCode != 9) { 

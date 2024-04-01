@@ -247,7 +247,7 @@ if( !class_exists('SUPER_Popup') ) :
                     'super-popup' => array(
                         'src'     => plugin_dir_url( __FILE__ ) . 'assets/css/popup.css',
                         'deps'    => array(),
-                        'version' => SUPER_Popup()->version,
+                        'version' => SUPER_VERSION,
                         'media'   => 'all',
                         'screen'  => array(
                             'super-forms_page_super_create_form',
@@ -276,7 +276,7 @@ if( !class_exists('SUPER_Popup') ) :
                     'css-plugin' => array(
                         'src'     => plugin_dir_url( __FILE__ ) . 'assets/js/css-plugin.js',
                         'deps'    => array( 'jquery', 'super-common' ),
-                        'version' => SUPER_Popup()->version,
+                        'version' => SUPER_VERSION,
                         'footer'  => false,
                         'screen'  => array( 
                             'super-forms_page_super_create_form',
@@ -286,7 +286,7 @@ if( !class_exists('SUPER_Popup') ) :
                     'ease-pack' => array(
                         'src'     => plugin_dir_url( __FILE__ ) . 'assets/js/ease-pack.js',
                         'deps'    => array( 'css-plugin' ),
-                        'version' => SUPER_Popup()->version,
+                        'version' => SUPER_VERSION,
                         'footer'  => false,
                         'screen'  => array( 
                             'super-forms_page_super_create_form',
@@ -296,7 +296,7 @@ if( !class_exists('SUPER_Popup') ) :
                     'tween-lite' => array(
                         'src'     => plugin_dir_url( __FILE__ ) . 'assets/js/tween-lite.js',
                         'deps'    => array( 'ease-pack' ),
-                        'version' => SUPER_Popup()->version,
+                        'version' => SUPER_VERSION,
                         'footer'  => false,
                         'screen'  => array( 
                             'super-forms_page_super_create_form',
@@ -306,7 +306,7 @@ if( !class_exists('SUPER_Popup') ) :
                     'super-popup' => array(
                         'src'     => plugin_dir_url( __FILE__ ) . 'assets/js/popup.js',
                         'deps'    => array(),
-                        'version' => SUPER_Popup()->version,
+                        'version' => SUPER_VERSION,
                         'footer'  => false,
                         'screen'  => array( 
                             'super-forms_page_super_create_form',
@@ -619,12 +619,12 @@ if( !class_exists('SUPER_Popup') ) :
         */
         public static function load_scripts( $data ) {
             if( (isset($data['settings']['popup_enabled'])) && ($data['settings']['popup_enabled']=='true') ) {
-                wp_enqueue_style( 'super-popup', plugin_dir_url( __FILE__ ) . 'assets/css/popup.css', array(), SUPER_Popup()->version );
-                wp_enqueue_script( 'css-plugin', plugin_dir_url( __FILE__ ) . 'assets/js/css-plugin.js', array( 'jquery', 'super-common' ), SUPER_Popup()->version );
-                wp_enqueue_script( 'ease-pack', plugin_dir_url( __FILE__ ) . 'assets/js/ease-pack.js', array( 'css-plugin' ), SUPER_Popup()->version );
-                wp_enqueue_script( 'tween-lite', plugin_dir_url( __FILE__ ) . 'assets/js/tween-lite.js', array( 'ease-pack' ), SUPER_Popup()->version );
-                wp_enqueue_script( 'jquery-gsap', plugin_dir_url( __FILE__ ) . 'assets/js/jquery.gsap.js', array( 'tween-lite' ), SUPER_Popup()->version );
-                wp_enqueue_script( 'super-popup', plugin_dir_url( __FILE__ ) . 'assets/js/popup.js', array( 'jquery-gsap' ), SUPER_Popup()->version );
+                wp_enqueue_style( 'super-popup', plugin_dir_url( __FILE__ ) . 'assets/css/popup.css', array(), SUPER_VERSION );
+                wp_enqueue_script( 'css-plugin', plugin_dir_url( __FILE__ ) . 'assets/js/css-plugin.js', array( 'jquery', 'super-common' ), SUPER_VERSION );
+                wp_enqueue_script( 'ease-pack', plugin_dir_url( __FILE__ ) . 'assets/js/ease-pack.js', array( 'css-plugin' ), SUPER_VERSION );
+                wp_enqueue_script( 'tween-lite', plugin_dir_url( __FILE__ ) . 'assets/js/tween-lite.js', array( 'ease-pack' ), SUPER_VERSION );
+                wp_enqueue_script( 'jquery-gsap', plugin_dir_url( __FILE__ ) . 'assets/js/jquery.gsap.js', array( 'tween-lite' ), SUPER_VERSION );
+                wp_enqueue_script( 'super-popup', plugin_dir_url( __FILE__ ) . 'assets/js/popup.js', array( 'jquery-gsap' ), SUPER_VERSION );
                 wp_localize_script( 'super-popup', 'super_popup_i18n', array( 'ajaxurl' => admin_url( 'admin-ajax.php' ) ) );
             }
         }
@@ -647,7 +647,7 @@ if( !class_exists('SUPER_Popup') ) :
                 unset($popup_settings[$old_k]);
                 $popup_settings[$k] = $v;
             }
-            return json_encode($popup_settings);
+            return SUPER_Common::safe_json_encode($popup_settings);
         }
 
 

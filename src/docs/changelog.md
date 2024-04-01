@@ -9,6 +9,30 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Feb 26, 2024 - Version 6.3.741
+
+- **Fix:** Both the `Divider` element and `<hr />` tag were not being printend on PDF when Native mode is enabled
+
+## Feb 07, 2024 - Version 6.3.740
+
+- **Fix:** Issue with Calculator element where math that contains regex like {contains*}, {^starts_with_}, {ends_with$} would not be calculated in some scenario's
+- **Added:** hour/minute/second conversion for Calculator element
+- **Improved:** Exclude zero values `0` for WooCommerce emails, PayPal emails and E-mail reminders emails, when the option to exclude empty values is enabled
+- **Fix:** Issue where in some scenario's the `Column` element would not close properly which could cause small padding issues
+
+## Oct 16, 2023 - Version 6.3.730
+
+- **Fix:** Bug with displaying `Empty error message` instead of the `Validation error message` when validation is set to `Phone number`
+
+## Sep 15, 2023 - Version 6.3.729
+
+- **Fix:** Bug allowing you to skip `Address Autocomplete` field by pressing `TAB` key without selecting any address
+- **Fix:** Bug causing Entry data population to choose multiple dropdown items, example: when the entry value would be `Son` for the dropdown and there would be another dropdown item with value `Son-in-law` it would select both items as selected.
+- **Fix:** Some hosting providers might add `.htaccess` files inside all directories for security reasons, skip these when loading Add-ons inside the `/add-ons` folder. 
+- **Fix:** On back-end Contact Entries page, the date filter would not work properly depending on the WordPress `Settings > General > Date Format` setting
+- **Fix:** When field type is set to International phonenumber (int-phone) automatically set the field validation to `Required (not empty)`
+- **Fix:** Do not render/display Forms that have been marked as trashed
+
 ## Jun 02, 2023 - Version 6.3.725
 
 - **Added:** Option to create vCards and attach them to Admin and Confirmation E-mails via `Form settings > vCard Attachment`

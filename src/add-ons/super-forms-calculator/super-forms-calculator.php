@@ -239,9 +239,9 @@ if( !class_exists('SUPER_Calculator') ) :
         */
         public static function load_scripts($atts) {
             if($atts['ajax']) {
-                wp_enqueue_style( 'super-calculator', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/calculator.css', array(), SUPER_Calculator()->version );
-                wp_enqueue_script( 'mathjs', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/mathjs.min.js', array( 'jquery', 'super-common' ), SUPER_Calculator()->version );
-                wp_enqueue_script( 'super-calculator', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/calculator.js', array( 'mathjs' ), SUPER_Calculator()->version );
+                wp_enqueue_style( 'super-calculator', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/calculator.css', array(), SUPER_VERSION );
+                wp_enqueue_script( 'mathjs', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/mathjs.min.js', array( 'jquery', 'super-common' ), SUPER_VERSION );
+                wp_enqueue_script( 'super-calculator', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/calculator.js', array( 'mathjs' ), SUPER_VERSION );
             }
         }
 
@@ -310,7 +310,7 @@ if( !class_exists('SUPER_Calculator') ) :
             $array['super-calculator'] = array(
                 'src'     => $frontend_path . 'calculator.css',
                 'deps'    => '',
-                'version' => SUPER_Calculator()->version,
+                'version' => SUPER_VERSION,
                 'media'   => 'all',
                 'screen'  => array( 
                     'super-forms_page_super_create_form'
@@ -332,7 +332,7 @@ if( !class_exists('SUPER_Calculator') ) :
             $array['mathjs'] = array(
                 'src'     => $frontend_path . 'mathjs.min.js',
                 'deps'    => array( 'jquery', 'super-common' ),
-                'version' => SUPER_Calculator()->version,
+                'version' => SUPER_VERSION,
                 'footer'  => false,
                 'screen'  => array( 
                     'super-forms_page_super_create_form'
@@ -342,7 +342,7 @@ if( !class_exists('SUPER_Calculator') ) :
             $array['super-calculator'] = array(
                 'src'     => $frontend_path . 'calculator.js',
                 'deps'    => array( 'mathjs' ),
-                'version' => SUPER_Calculator()->version,
+                'version' => SUPER_VERSION,
                 'footer'  => false,
                 'screen'  => array( 
                     'super-forms_page_super_create_form'
@@ -429,11 +429,15 @@ if( !class_exists('SUPER_Calculator') ) :
                         $jsformat = str_replace('y', 'yy', $jsformat);
                     }
                 }
+                // Hour/minute/second conversion
+                $jsformat = str_replace('H', 'HH', $jsformat);
+                $jsformat = str_replace('i', 'mm', $jsformat);
+                $jsformat = str_replace('s', 'ss', $jsformat);
             }
 
-            wp_enqueue_style( 'super-calculator', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/calculator.css', array(), SUPER_Calculator()->version );
-            wp_enqueue_script( 'mathjs', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/mathjs.min.js', array( 'jquery', 'super-common' ), SUPER_Calculator()->version );
-            wp_enqueue_script( 'super-calculator', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/calculator.js', array( 'mathjs' ), SUPER_Calculator()->version );
+            wp_enqueue_style( 'super-calculator', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/calculator.css', array(), SUPER_VERSION );
+            wp_enqueue_script( 'mathjs', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/mathjs.min.js', array( 'jquery', 'super-common' ), SUPER_VERSION );
+            wp_enqueue_script( 'super-calculator', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/calculator.js', array( 'mathjs' ), SUPER_VERSION );
             $class = ''; 
             if( $atts['margin']!='' ) {
                 $class = 'super-remove-margin'; 

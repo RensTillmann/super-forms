@@ -15639,10 +15639,10 @@ msgstr "{loop_fields} binne die e-posadres sal met hierdie inhoud vervang word"
 
 #: includes/extensions/pdf-generator/pdf-generator.php:81
 msgid ""
-"{pdf_page} and {pdf_total_pages} tags can be used inside a HTML element to "
+"{pdf_page} and {} tags can be used inside a HTML element to "
 "be used in your header/footer."
 msgstr ""
-"{pdf_page} en {pdf_total_pages} tags kan in 'n HTML-element gebruik word om "
+"{pdf_page} en {} tags kan in 'n HTML-element gebruik word om "
 "in u kop / voetskrif te gebruik."
 
 #: includes/shortcodes/form-elements.php:3745

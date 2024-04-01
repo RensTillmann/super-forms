@@ -15649,10 +15649,10 @@ msgstr ""
 
 #: includes/extensions/pdf-generator/pdf-generator.php:81
 msgid ""
-"{pdf_page} and {pdf_total_pages} tags can be used inside a HTML element to "
+"{pdf_page} and {} tags can be used inside a HTML element to "
 "be used in your header/footer."
 msgstr ""
-"A {pdf_page} és a {pdf_total_pages} címkék használhatók egy HTML elem "
+"A {pdf_page} és a {} címkék használhatók egy HTML elem "
 "belsejében, amelyet a fejlécében / láblécében használhat."
 
 #: includes/shortcodes/form-elements.php:3745

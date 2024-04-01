@@ -37,6 +37,7 @@ class SUPER_Shortcodes {
         return shortcode_atts( array( 
             'grid'=>null, 
             'tag'=>'', 
+            'nextTag'=>'', 
             'group'=>'', 
             'atts'=>array(), 
             'inner'=>array(), 
@@ -1257,12 +1258,14 @@ class SUPER_Shortcodes {
                 $range = trim($atts[$prefix.'retrieve_method_google_sheet_range']);
                 // Credentials JSON
                 $credentials = json_decode(trim($atts[$prefix.'retrieve_method_google_sheet_credentials']), true);
-                $client->setAuthConfig($credentials);
-                // Create Google Sheets service
-                $service = new Google_Service_Sheets($client);
-                // Get the values from the spreadsheet
-                $response = $service->spreadsheets_values->get($spreadsheetId, $range);
-                $values = $response->getValues();
+                if(!empty($credentials['client_id']) && !empty($credentials['client_email']) && !empty($credentials['private_key'])){
+                    $client->setAuthConfig($credentials);
+                    // Create Google Sheets service
+                    $service = new Google_Service_Sheets($client);
+                    // Get the values from the spreadsheet
+                    $response = $service->spreadsheets_values->get($spreadsheetId, $range);
+                    $values = $response->getValues();
+                }
             } catch (Google\Service\Exception $exception) {
                 // Handle the exception
                 $errorMessage = $exception->getMessage();
@@ -1377,7 +1380,7 @@ class SUPER_Shortcodes {
         }else{
             // Skip this if we are adding a predefined element, otherwise it would override it with the element defaults
             if( $predefined==false ) {
-                $data = json_decode(json_encode($data), true);
+                $data = json_decode(SUPER_Common::safe_json_encode($data), true);
                 foreach( $shortcodes[$group]['shortcodes'][$tag]['atts'] as $k => $v ) {
                     if(!isset($v['fields'])) continue; 
                     foreach( $v['fields'] as $fk => $fv ) {
@@ -1393,7 +1396,7 @@ class SUPER_Shortcodes {
         }
 
 
-        $inner = json_decode(json_encode($inner), true);
+        $inner = json_decode(SUPER_Common::safe_json_encode($inner), true);
 
         $class = '';
         $inner_class = '';
@@ -1452,7 +1455,6 @@ class SUPER_Shortcodes {
             if( empty($data) ) $data = null;
             if( empty($inner) ) $inner = null;
             $i18n = (isset($_POST['i18n']) ? $_POST['i18n'] : '');
-            //$result .= 'tag2: ' . $tag;
             $result .= self::output_element_html( array('grid'=>null, 'tag'=>$tag, 'group'=>$group, 'data'=>$data, 'inner'=>$inner, 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>$builder) );
             return $result;
         }
@@ -1501,7 +1503,6 @@ class SUPER_Shortcodes {
                     if( empty($data) ) $data = null;
                     if( empty($inner) ) $inner = null;
                     $i18n = (isset($_POST['i18n']) ? $_POST['i18n'] : '');
-                    //$result .= 'tag3: ' . $tag;
                     $result .= self::output_element_html( array('grid'=>null, 'tag'=>$tag, 'group'=>$group, 'data'=>$data, 'inner'=>$inner, 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>true) );
                 $result .= '</div>';
             }else{
@@ -1510,7 +1511,6 @@ class SUPER_Shortcodes {
                         if( empty($data) ) $data = null;
                         if( empty($inner) ) $inner = null;
                         $i18n = (isset($_POST['i18n']) ? $_POST['i18n'] : '');
-                        //$result .= 'tag4: ' . $tag;
                         $result .= self::output_element_html( array('grid'=>null, 'tag'=>$tag, 'group'=>$group, 'data'=>$data, 'inner'=>$inner, 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false) );
                     }
                     if( !empty( $inner ) ) {
@@ -1522,7 +1522,7 @@ class SUPER_Shortcodes {
                     }
                 $result .= '</div>';
             }
-            $result .= '<textarea name="element-data">' . htmlentities( json_encode( $data ), ENT_NOQUOTES | ENT_SUBSTITUTE | ENT_DISALLOWED ) . '</textarea>';
+            $result .= '<textarea name="element-data">' . htmlentities( SUPER_Common::safe_json_encode( $data ), ENT_NOQUOTES | ENT_SUBSTITUTE | ENT_DISALLOWED ) . '</textarea>';
         $result .= '</div>';
         
         return $result;
@@ -1792,7 +1792,7 @@ class SUPER_Shortcodes {
         }
 
         if(!empty($atts['type']) && $atts['type']==='int-phone'){
-            $data_attributes['int-phone'] = json_encode(array(
+            $data_attributes['int-phone'] = SUPER_Common::safe_json_encode(array(
                 'preferredCountries' => $atts['preferredCountries'],
                 'onlyCountries' => $atts['onlyCountries'],
                 'placeholderNumberType' => $atts['placeholderNumberType'],
@@ -1974,7 +1974,7 @@ class SUPER_Shortcodes {
                     if(!empty($v['logic_and'])) $compact[$k]['la'] = $v['logic_and'];
                     if(isset($v['value_and'])) $compact[$k]['va'] = $v['value_and'];
                 }
-                $result .= '<textarea class="super-validate-conditions"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . '>' . json_encode($compact) . '</textarea>';
+                $result .= '<textarea class="super-validate-conditions"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . '>' . SUPER_Common::safe_json_encode($compact) . '</textarea>';
 
             }
         }
@@ -2016,7 +2016,7 @@ class SUPER_Shortcodes {
             if(!empty($atts['conditional_variable_ajax_lookup']) && $atts['conditional_variable_ajax_lookup']==='true'){
                 $result .= '<textarea class="super-conditional-logic"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . ' data-ajax="true"></textarea>';
             }else{
-                $result .= '<textarea class="super-conditional-logic"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . '>' . json_encode($compact) . '</textarea>';
+                $result .= '<textarea class="super-conditional-logic"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . '>' . SUPER_Common::safe_json_encode($compact) . '</textarea>';
             }
         }
 
@@ -2132,11 +2132,12 @@ class SUPER_Shortcodes {
                     if(isset($v['value_and'])) $compact[$k]['va'] = $v['value_and'];
                     if(isset($v['new_value'])) $compact[$k]['n'] = $v['new_value'];
                 }
+                $jsonString = SUPER_Common::safe_json_encode($compact);
                 // If Ajax lookup is enabled:
                 if(!empty($atts['conditional_variable_ajax_lookup']) && $atts['conditional_variable_ajax_lookup']==='true'){
                     return '<textarea class="super-variable-conditions"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . ' data-ajax="true"></textarea>';
                 }else{
-                    return '<textarea class="super-variable-conditions"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . '>' . json_encode($compact) . '</textarea>';
+                    return '<textarea class="super-variable-conditions"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . '>' . $jsonString . '</textarea>';
                 }
             }
         }
@@ -2275,7 +2276,7 @@ class SUPER_Shortcodes {
                             'builder' => $builder,
                             'html' => $tab_html
                         );
-                        return json_encode($json);
+                        return SUPER_Common::safe_json_encode($json);
                     }
                 }
                 
@@ -2313,15 +2314,15 @@ class SUPER_Shortcodes {
                                 }
                                 $re = '/\{(.*?)\}/';
                                 $i = $dynamic;
-                                foreach( $tab_inner as $iv ) {
+                                foreach( $tab_inner as $ik => $iv ) {
                                     if( empty($iv['data']) ) $iv['data'] = null;
                                     if( empty($iv['inner']) ) $iv['inner'] = null;
                                     if($builder){
                                         $result .= self::output_builder_html( array('tag'=>$iv['tag'], 'group'=>$iv['group'], 'data'=>$iv['data'], 'inner'=>$iv['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings) );
                                     }else{
                                         $iv = SUPER_Common::replace_tags_dynamic_columns( array('v'=>$iv, 're'=>$re, 'i'=>$i, 'dynamic_field_names'=>$dynamic_field_names, 'inner_field_names'=>$inner_field_names) );
-                                        //$result .= 'tag5: ' . $iv['tag'];
-                                        $result .= self::output_element_html( array('grid'=>null, 'tag'=>$iv['tag'], 'group'=>$iv['group'], 'data'=>$iv['data'], 'inner'=>$iv['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false, 'entry_data'=>$entry_data, 'dynamic'=>$dynamic, 'dynamic_field_names'=>$dynamic_field_names, 'inner_field_names'=>$inner_field_names, 'formProgress'=>$formProgress) );
+                                        $nextTag = (isset($tab_inner[$ik+1]) ? $tab_inner[$ik+1]['tag'] : '');
+                                        $result .= self::output_element_html( array('grid'=>null, 'tag'=>$iv['tag'], 'nextTag'=>$nextTag, 'group'=>$iv['group'], 'data'=>$iv['data'], 'inner'=>$iv['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false, 'entry_data'=>$entry_data, 'dynamic'=>$dynamic, 'dynamic_field_names'=>$dynamic_field_names, 'inner_field_names'=>$inner_field_names, 'formProgress'=>$formProgress) );
                                     }
                                 }
                                 // Restore amount of columns found
@@ -2363,7 +2364,7 @@ class SUPER_Shortcodes {
                             'builder' => $builder,
                             'header_items' => $header_items
                         );
-                        return json_encode($json);
+                        return SUPER_Common::safe_json_encode($json);
                     }
                 }
                 
@@ -2420,14 +2421,15 @@ class SUPER_Shortcodes {
                                     }
                                     $re = '/\{(.*?)\}/';
                                     $i = $dynamic;
-                                    foreach( $tab_inner as $iv ) {
+                                    foreach( $tab_inner as $ik => $iv ) {
                                         if( empty($iv['data']) ) $iv['data'] = null;
                                         if( empty($iv['inner']) ) $iv['inner'] = null;
                                         if($builder){
                                             $result .= self::output_builder_html( array('tag'=>$iv['tag'], 'group'=>$iv['group'], 'data'=>$iv['data'], 'inner'=>$iv['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings) );
                                         }else{
                                             $iv = SUPER_Common::replace_tags_dynamic_columns( array('v'=>$iv, 're'=>$re, 'i'=>$i, 'dynamic_field_names'=>$dynamic_field_names, 'inner_field_names'=>$inner_field_names) );
-                                            $result .= self::output_element_html( array('grid'=>null, 'tag'=>$iv['tag'], 'group'=>$iv['group'], 'data'=>$iv['data'], 'inner'=>$iv['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false, 'entry_data'=>$entry_data, 'dynamic'=>$dynamic, 'dynamic_field_names'=>$dynamic_field_names, 'inner_field_names'=>$inner_field_names, 'formProgress'=>$formProgress) );
+                                            $nextTag = (isset($tab_inner[$ik+1]) ? $tab_inner[$ik+1]['tag'] : '');
+                                            $result .= self::output_element_html( array('grid'=>null, 'tag'=>$iv['tag'], 'nextTag'=>$nextTag, 'group'=>$iv['group'], 'data'=>$iv['data'], 'inner'=>$iv['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false, 'entry_data'=>$entry_data, 'dynamic'=>$dynamic, 'dynamic_field_names'=>$dynamic_field_names, 'inner_field_names'=>$inner_field_names, 'formProgress'=>$formProgress) );
                                         }
                                     }
                                     // Restore amount of columns found
@@ -2467,7 +2469,8 @@ class SUPER_Shortcodes {
             foreach( $elements as $k => $v ) {
                 if( empty($v['data']) ) $v['data'] = null;
                 if( empty($v['inner']) ) $v['inner'] = null;
-                $result .= self::output_element_html( array('grid'=>null, 'tag'=>$v['tag'], 'group'=>$v['group'], 'data'=>$v['data'], 'inner'=>$v['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false, 'entry_data'=>$entry_data, 'dynamic'=>0, 'dynamic_field_names'=>array(), 'inner_field_names'=>array(), 'formProgress'=>$formProgress) );
+                $nextTag = (isset($elements[$k+1]) ? $elements[$k+1]['tag'] : '');
+                $result .= self::output_element_html( array('grid'=>null, 'tag'=>$v['tag'], 'nextTag'=>$nextTag, 'group'=>$v['group'], 'data'=>$v['data'], 'inner'=>$v['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false, 'entry_data'=>$entry_data, 'dynamic'=>0, 'dynamic_field_names'=>array(), 'inner_field_names'=>array(), 'formProgress'=>$formProgress) );
             }
         }
         return $result;
@@ -2546,7 +2549,8 @@ class SUPER_Shortcodes {
             foreach( $inner as $k => $v ) {
                 if( empty($v['data']) ) $v['data'] = null;
                 if( empty($v['inner']) ) $v['inner'] = null;
-                $result .= self::output_element_html( array('grid'=>null, 'tag'=>$v['tag'], 'group'=>$v['group'], 'data'=>$v['data'], 'inner'=>$v['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false, 'entry_data'=>$entry_data, 'dynamic'=>0, 'dynamic_field_names'=>array(), 'inner_field_names'=>array(), 'formProgress'=>$formProgress) );
+                $nextTag = (isset($inner[$k+1]) ? $inner[$k+1]['tag'] : '');
+                $result .= self::output_element_html( array('grid'=>null, 'tag'=>$v['tag'], 'nextTag'=>$nextTag, 'group'=>$v['group'], 'data'=>$v['data'], 'inner'=>$v['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false, 'entry_data'=>$entry_data, 'dynamic'=>0, 'dynamic_field_names'=>array(), 'inner_field_names'=>array(), 'formProgress'=>$formProgress) );
             }
         }
         unset($GLOBALS['super_grid_system']);
@@ -2675,6 +2679,10 @@ class SUPER_Shortcodes {
             $class = 'first-column';
             $result .= '<div class="super-grid super-shortcode">';
         }
+        //$class .= ' ??-width-'.$grid[$grid['level']]['width'];
+        //$class .= ' ??-total-'.$grid['columns'][$grid['level']]['total'];
+        //$class .= ' ??-current-'.$grid['columns'][$grid['level']]['current'];
+        //$class .= ' ??-absolute_current-'.$grid['columns'][$grid['level']]['absolute_current'];
         if( ( $grid[$grid['level']]['width']>=95 ) || ( $grid['columns'][$grid['level']]['total']==$grid['columns'][$grid['level']]['current'] ) ) {
             $close_grid = true;
         }
@@ -2751,7 +2759,8 @@ class SUPER_Shortcodes {
                 if( empty($v['data']) ) $v['data'] = null;
                 if( empty($v['inner']) ) $v['inner'] = null;
                 $v = SUPER_Common::replace_tags_dynamic_columns( array('v'=>$v, 're'=>$re, 'i'=>$i, 'dynamic_field_names'=>$dynamic_field_names, 'inner_field_names'=>$inner_field_names) );
-                $result .= self::output_element_html( array('grid'=>$grid, 'tag'=>$v['tag'], 'group'=>$v['group'], 'data'=>$v['data'], 'inner'=>$v['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false, 'entry_data'=>$entry_data, 'dynamic'=>$dynamic, 'dynamic_field_names'=>$dynamic_field_names, 'inner_field_names'=>$inner_field_names, 'formProgress'=>$formProgress) );
+                $nextTag2 = (isset($inner[$k+1]) ? $inner[$k+1]['tag'] : '');
+                $result .= self::output_element_html( array('grid'=>$grid, 'tag'=>$v['tag'], 'nextTag'=>$nextTag2, 'group'=>$v['group'], 'data'=>$v['data'], 'inner'=>$v['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false, 'entry_data'=>$entry_data, 'dynamic'=>$dynamic, 'dynamic_field_names'=>$dynamic_field_names, 'inner_field_names'=>$inner_field_names, 'formProgress'=>$formProgress) );
             }
             if( $atts['duplicate']==='enabled' ) {
                 $result .= '<div class="super-duplicate-actions">';
@@ -2772,6 +2781,11 @@ class SUPER_Shortcodes {
         $result .= self::loop_conditions( $atts, $tag, $settings );
 
         $result .= '</div>';
+
+        // Check if next element is not a column
+        if($nextTag!=='column'){
+            $close_grid = true;
+        }
         if($close_grid==true){
             $grid[$grid['level']]['width'] = 0;
             $grid['columns'][$grid['level']]['current'] = 0;
@@ -3726,7 +3740,7 @@ class SUPER_Shortcodes {
             $result .= '<span>' . $atts['default_language']['language'] . '</span>';
             $result .= '</li>';
         }else{
-            $result .= '<li data-value="" class="super-item super-placeholder">' . $item_placeholder . '</li>';
+            $result .= '<li data-value="' . esc_attr($atts['value']) . '" class="super-item super-placeholder">' . $item_placeholder . '</li>';
         }
         foreach( $items as $v ) {
             if(!empty($atts['language_switch'])){
@@ -3855,7 +3869,6 @@ class SUPER_Shortcodes {
 
         // Get default value
         $atts['value'] = self::get_default_value($tag, $atts, $settings, $entry_data);
-
         $result = self::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'class'=>$class, 'settings'=>$settings));
         $result .= self::opening_wrapper( $atts, $inner, $shortcodes, $settings );
 
@@ -4494,7 +4507,7 @@ class SUPER_Shortcodes {
         if( $atts['enable_random_code']=='true' ) $result .= ' data-code="' . $atts['enable_random_code'] . '"';
         if( $atts['code_invoice']=='true' ) $result .= ' data-invoice-padding="' . $atts['code_invoice_padding'] . '"';
 
-        if(!empty($codeSettings)) $result .= ' data-codeSettings="' . esc_attr(json_encode($codeSettings)) . '"';
+        if(!empty($codeSettings)) $result .= ' data-codeSettings="' . esc_attr(SUPER_Common::safe_json_encode($codeSettings)) . '"';
         $result .= ' />';
 
         $result .= self::loop_variable_conditions( $atts );
@@ -4889,7 +4902,7 @@ class SUPER_Shortcodes {
             $result .= '<strong style="color:red;">' . esc_html__( 'Please enter your "Google API key" and make sure you enabled the "Google Maps JavaScript API" library in order to generate a map', 'super-forms' ) . '</strong>';
         }
         $result .= '</div>';
-        $result .= '<textarea disabled class="super-hidden">' . json_encode( $atts ) . '</textarea>';
+        $result .= '<textarea disabled class="super-hidden">' . SUPER_Common::safe_json_encode( $atts ) . '</textarea>';
         $result .= '</div>';
         return $result;
     }
@@ -5116,15 +5129,15 @@ class SUPER_Shortcodes {
         $callback = explode( '::', $callback );
         $class = $callback[0];
         $function = $callback[1];
-        $data = json_decode(json_encode($data), true);
-        $inner = json_decode(json_encode($inner), true);
+        $data = json_decode(SUPER_Common::safe_json_encode($data), true);
+        $inner = json_decode(SUPER_Common::safe_json_encode($inner), true);
         if($settings['theme_hide_icons']==='yes'){
             unset($data['icon']);
             unset($data['icon_align']);
             unset($data['icon_position']);
         }
-
-        return call_user_func( array( $class, $function ), array('tag'=>$tag, 'atts'=>$data, 'inner'=>$inner, 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>$builder, 'entry_data'=>$entry_data, 'dynamic'=>$dynamic, 'dynamic_field_names'=>$dynamic_field_names, 'inner_field_names'=>$inner_field_names, 'formProgress'=>$formProgress) );
+        if(empty($nextTag)) $nextTag = '';
+        return call_user_func( array( $class, $function ), array('tag'=>$tag, 'nextTag'=>$nextTag, 'atts'=>$data, 'inner'=>$inner, 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>$builder, 'entry_data'=>$entry_data, 'dynamic'=>$dynamic, 'dynamic_field_names'=>$dynamic_field_names, 'inner_field_names'=>$inner_field_names, 'formProgress'=>$formProgress) );
     }
 
     
@@ -5157,7 +5170,7 @@ class SUPER_Shortcodes {
             }
             if( isset( $value['predefined'] ) ) {
                 $pre = $value['predefined'];
-                $pre = htmlentities( json_encode( $value['predefined'] ), ENT_NOQUOTES | ENT_SUBSTITUTE | ENT_DISALLOWED );
+                $pre = htmlentities( SUPER_Common::safe_json_encode( $value['predefined'] ), ENT_NOQUOTES | ENT_SUBSTITUTE | ENT_DISALLOWED );
                 $return .= '<textarea class="predefined" style="display:none;">' . wp_unslash($pre) . '</textarea>';
             }
         $return .= '</div>';
@@ -5921,8 +5934,11 @@ class SUPER_Shortcodes {
             'i18n' => ''
         ), $atts ) );
 
+        $id = absint($id);
+        $entry_id = absint($entry_id);
+
         $editingContactEntry = false;
-        if($id!=='' && $list_id!=='' && $entry_id!==''){
+        if($id!==0 && $list_id!=='' && $entry_id!==0){
             $editingContactEntry = true;
         }
 
@@ -5972,6 +5988,35 @@ class SUPER_Shortcodes {
         require_once( SUPER_PLUGIN_DIR . '/includes/class-settings.php' );
 
         $settings = SUPER_Common::get_form_settings($form_id);
+
+        $entry_data = null;
+        $contact_entry_id = 0;
+        if($editingContactEntry===true){
+            // Check if invalid Entry ID
+            if( ($entry_id==0) || (get_post_type($entry_id)!='super_contact_entry') ) {
+                $result = '<strong>'.esc_html__('Error', 'super-forms' ).':</strong> '.esc_html__( 'No entry found with ID:', 'super-forms' ) . ' ' . $entry_id;
+                return $result;
+            }else{
+                $lists = $settings['_listings']['lists'];
+                $list = SUPER_Listings::get_default_listings_settings($lists[$list_id]);
+                $entry = get_post($entry_id);
+                $allow = SUPER_Listings::get_action_permissions(array('list'=>$list, 'entry'=>$entry));
+                // If we are editing an entry
+                if($_POST['action']==='super_listings_edit_entry'){
+                    $allowEditAny = $allow['allowEditAny'];
+                    $allowEditOwn = $allow['allowEditOwn'];
+                    if($allowEditAny || $allowEditOwn){
+                        // Allow edit
+                        $entry_data = get_post_meta( $entry_id, '_super_contact_entry_data', true );
+                        $contact_entry_id = $entry_id;
+                    }else{
+                        $result = '<strong>'.esc_html__('Error', 'super-forms' ).':</strong> '.esc_html__( 'No permission to edit this entry', 'super-forms' );
+                        return $result;
+                    }
+                }
+            }
+        }
+
         if(!isset($settings['id'])){
             $settings['id'] = $form_id;
         }
@@ -6069,37 +6114,69 @@ class SUPER_Shortcodes {
             $class .= ' super-adaptive';
         } 
  
-        $entry_data = null;
-
-        $contact_entry_id = 0;
-        if( isset( $_GET['contact_entry_id'] ) ) {
-            $contact_entry_id = absint($_GET['contact_entry_id']);
-        }else{
-            if( isset( $_POST['contact_entry_id'] ) ) {
-                $contact_entry_id = absint($_POST['contact_entry_id']);
-            }
-        }
-        if($contact_entry_id!=0){
-            // If Admin, we are allowed to access this data directly
-            if( current_user_can('administrator') ) {
-                $entry_data = get_post_meta( $contact_entry_id, '_super_contact_entry_data', true );
+        if($editingContactEntry===false){
+            if( isset( $_GET['contact_entry_id'] ) ) {
+                $contact_entry_id = absint($_GET['contact_entry_id']);
             }else{
-                // User must be logged in to access this data, or transient with entry ID should be available
-                $authenticated_entry_id = get_transient( 'super_form_authenticated_entry_id_' . $contact_entry_id );
-                if($authenticated_entry_id!==false){
-                    $entry_data = get_post_meta( $authenticated_entry_id, '_super_contact_entry_data', true );
-                    delete_transient( 'super_form_authenticated_entry_id_' . $contact_entry_id );
+                if( isset( $_POST['contact_entry_id'] ) ) {
+                    $contact_entry_id = absint($_POST['contact_entry_id']);
+                }
+            }
+            if($contact_entry_id!=0){
+                // If Admin, we are allowed to access this data directly
+                if( current_user_can('administrator') ) {
+                    $entry_data = get_post_meta( $contact_entry_id, '_super_contact_entry_data', true );
                 }else{
+                    // User must be logged in to access this data, or transient with entry ID should be available
+                    $authenticated_entry_id = get_transient( 'super_form_authenticated_entry_id_' . $contact_entry_id );
+                    if($authenticated_entry_id!==false){
+                        $entry_data = get_post_meta( $authenticated_entry_id, '_super_contact_entry_data', true );
+                        delete_transient( 'super_form_authenticated_entry_id_' . $contact_entry_id );
+                    }else{
+                        $current_user_id = get_current_user_id();
+                        if( $current_user_id!=0 ) {
+                            // By default retrieve entry data based on this form ID
+                            $form_ids = array($form_id);
+                            // Check if we are retrieving entry data based on other form ID
+                            if( ( isset( $settings['retrieve_last_entry_form'] ) ) && ( $settings['retrieve_last_entry_form']!='' ) ) {
+                                $form_ids = explode( ",", $settings['retrieve_last_entry_form'] );
+                            }
+                            $form_ids = implode("','", $form_ids);
+                            // Lookup contact entries based on this user ID and form ID(s)
+                            global $wpdb;
+                            $table = $wpdb->prefix . 'posts';
+                            $table_meta = $wpdb->prefix . 'postmeta';
+                            $entry = $wpdb->get_results("
+                            SELECT  ID 
+                            FROM    $table 
+                            WHERE   post_author = $current_user_id AND
+                                    post_parent IN ('$form_ids') AND
+                                    post_status IN ('publish','super_unread','super_read') AND 
+                                    post_type = 'super_contact_entry'
+                            ORDER BY ID DESC
+                            LIMIT 1");
+                            if( isset($entry[0])) {
+                                $entry_data = get_post_meta( $entry[0]->ID, '_super_contact_entry_data', true );
+                                $contact_entry_id = $entry[0]->ID;
+                            }
+                        }
+                    }
+                }
+            }
+            // @since 2.9.0 - autopopulate form with user last submitted entry data
+            if( ( isset( $settings['retrieve_last_entry_data'] ) ) && ( $settings['retrieve_last_entry_data']=='true' ) ) {
+
+                // @since 3.8.0 - retrieve entry data based on $_GET['contact_entry_id'] or $_POST['contact_entry_id'] 
+                if( empty($contact_entry_id) ) {
                     $current_user_id = get_current_user_id();
                     if( $current_user_id!=0 ) {
-                        // By default retrieve entry data based on this form ID
                         $form_ids = array($form_id);
-                        // Check if we are retrieving entry data based on other form ID
                         if( ( isset( $settings['retrieve_last_entry_form'] ) ) && ( $settings['retrieve_last_entry_form']!='' ) ) {
                             $form_ids = explode( ",", $settings['retrieve_last_entry_form'] );
                         }
                         $form_ids = implode("','", $form_ids);
-                        // Lookup contact entries based on this user ID and form ID(s)
+
+                        // First check if we can find contact entries based on user ID and Form ID
                         global $wpdb;
                         $table = $wpdb->prefix . 'posts';
                         $table_meta = $wpdb->prefix . 'postmeta';
@@ -6113,45 +6190,12 @@ class SUPER_Shortcodes {
                         ORDER BY ID DESC
                         LIMIT 1");
                         if( isset($entry[0])) {
+                            // If entry exists, set the ID so we can actually update it based on the ID later
+                            if( !empty($settings['update_contact_entry']) ) {
+                                $contact_entry_id = absint($entry[0]->ID);
+                            }
                             $entry_data = get_post_meta( $entry[0]->ID, '_super_contact_entry_data', true );
-                            $contact_entry_id = $entry[0]->ID;
                         }
-                    }
-                }
-            }
-        }
-        // @since 2.9.0 - autopopulate form with user last submitted entry data
-        if( ( isset( $settings['retrieve_last_entry_data'] ) ) && ( $settings['retrieve_last_entry_data']=='true' ) ) {
-
-            // @since 3.8.0 - retrieve entry data based on $_GET['contact_entry_id'] or $_POST['contact_entry_id'] 
-            if( empty($contact_entry_id) ) {
-                $current_user_id = get_current_user_id();
-                if( $current_user_id!=0 ) {
-                    $form_ids = array($form_id);
-                    if( ( isset( $settings['retrieve_last_entry_form'] ) ) && ( $settings['retrieve_last_entry_form']!='' ) ) {
-                        $form_ids = explode( ",", $settings['retrieve_last_entry_form'] );
-                    }
-                    $form_ids = implode("','", $form_ids);
-
-                    // First check if we can find contact entries based on user ID and Form ID
-                    global $wpdb;
-                    $table = $wpdb->prefix . 'posts';
-                    $table_meta = $wpdb->prefix . 'postmeta';
-                    $entry = $wpdb->get_results("
-                    SELECT  ID 
-                    FROM    $table 
-                    WHERE   post_author = $current_user_id AND
-                            post_parent IN ('$form_ids') AND
-                            post_status IN ('publish','super_unread','super_read') AND 
-                            post_type = 'super_contact_entry'
-                    ORDER BY ID DESC
-                    LIMIT 1");
-                    if( isset($entry[0])) {
-                        // If entry exists, set the ID so we can actually update it based on the ID later
-                        if( !empty($settings['update_contact_entry']) ) {
-                            $contact_entry_id = absint($entry[0]->ID);
-                        }
-                        $entry_data = get_post_meta( $entry[0]->ID, '_super_contact_entry_data', true );
                     }
                 }
             }
@@ -6478,11 +6522,11 @@ class SUPER_Shortcodes {
             // @since 4.7.7 - only add this field if no such field name already exists
             // otherwise we would end up with duplicate fields
             $re = '/{"name":"hidden_contact_entry_id"/';
-            $str = json_encode($elements);
+            $str = SUPER_Common::safe_json_encode($elements);
             preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
             if(empty($matches)){
                 $result .= '<div class="super-shortcode super-field super-hidden">';
-                    $result .= '<input class="super-shortcode-field" type="hidden" value="' . absint($contact_entry_id) . '" name="hidden_contact_entry_id" />';
+                    $result .= '<input class="super-shortcode-field" type="hidden" value="' . absint($contact_entry_id) . '" test="test" name="hidden_contact_entry_id" />';
                 $result .= '</div>';
             }
         }
@@ -6499,7 +6543,8 @@ class SUPER_Shortcodes {
             foreach( $elements as $k => $v ) {
                 if( empty($v['data']) ) $v['data'] = null;
                 if( empty($v['inner']) ) $v['inner'] = null;
-                $result .= self::output_element_html( array('grid'=>null, 'tag'=>$v['tag'], 'group'=>$v['group'], 'data'=>$v['data'], 'inner'=>$v['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false, 'entry_data'=>$entry_data, 'dynamic'=>0, 'dynamic_field_names'=>array(), 'inner_field_names'=>array(), 'formProgress'=>$formProgress) );
+                $nextTag = (isset($elements[$k+1]) ? $elements[$k+1]['tag'] : '');
+                $result .= self::output_element_html( array('grid'=>null, 'tag'=>$v['tag'], 'nextTag'=>$nextTag, 'group'=>$v['group'], 'data'=>$v['data'], 'inner'=>$v['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false, 'entry_data'=>$entry_data, 'dynamic'=>0, 'dynamic_field_names'=>array(), 'inner_field_names'=>array(), 'formProgress'=>$formProgress) );
             }
         }
         

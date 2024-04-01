@@ -537,7 +537,7 @@
                         self.__contentSet(initialTitle);
                     }
                 }
-
+                self._$origin.attr('data-title', self._$origin.attr('title'));
                 self._$origin
                     // strip the title off of the element to prevent the default tooltips
                     // from popping up

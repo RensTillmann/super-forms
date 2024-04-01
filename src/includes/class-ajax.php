@@ -255,10 +255,10 @@ class SUPER_Ajax {
                     if(isset($v['value_and'])) $compact[$k]['va'] = $v['value_and'];
                 }
             }
-            echo json_encode(array('field_name'=>$_POST['field_name'], 'conditions'=>$compact));
+            echo SUPER_Common::safe_json_encode(array('field_name'=>$_POST['field_name'], 'conditions'=>$compact));
             die();
         }
-        echo json_encode(array('field_name'=>$_POST['field_name'], 'conditions'=>array()));
+        echo SUPER_Common::safe_json_encode(array('field_name'=>$_POST['field_name'], 'conditions'=>array()));
         die();
     }
     public static function create_nonce(){
@@ -471,7 +471,7 @@ class SUPER_Ajax {
             'headers' => array('Content-Type' => 'application/json; charset=utf-8')
         );
         $custom_args['body']['auth'] = self::api_get_auth();
-        $custom_args['body'] = json_encode($custom_args['body']);
+        $custom_args['body'] = SUPER_Common::safe_json_encode($custom_args['body']);
         return array_merge($default_args, $custom_args);
     }
 
@@ -557,7 +557,7 @@ class SUPER_Ajax {
             'html' => SUPER_Shortcodes::super_form_func( $atts, true ),
             'rtl' => $rtl
         );
-        echo json_encode($data);
+        echo SUPER_Common::safe_json_encode($data);
         die();
     }
 
@@ -701,7 +701,7 @@ class SUPER_Ajax {
             'elements' => $elements_html,
             'settings' => $settings_html
         );
-        echo json_encode($data);
+        echo SUPER_Common::safe_json_encode($data);
         die();
     }
 
@@ -755,6 +755,8 @@ class SUPER_Ajax {
     public static function undo_redo() {
         $form_id = absint($_POST['form_id']);
         $elements = $_POST['elements'];
+        $elements = wp_unslash($elements);
+        $elements = json_decode($elements, true);
         $shortcodes = SUPER_Shortcodes::shortcodes();
         $form_html = SUPER_Common::generate_backend_elements($form_id, $shortcodes, $elements);
         echo $form_html;
@@ -1070,7 +1072,7 @@ class SUPER_Ajax {
             $order_id = absint($_POST['order_id']);
             $skip = sanitize_text_field($_POST['skip']);
             $data = SUPER_Common::get_entry_data_by_wc_order_id($order_id, $skip);
-            echo json_encode($data);
+            echo SUPER_Common::safe_json_encode($data);
         }else{
             $value = sanitize_text_field($_POST['value']);
             $method = sanitize_text_field($_POST['method']);
@@ -1113,7 +1115,7 @@ class SUPER_Ajax {
                     }
                 }
             }
-            echo json_encode($data);
+            echo SUPER_Common::safe_json_encode($data);
         }
         die();
     }
@@ -1336,9 +1338,9 @@ class SUPER_Ajax {
             }
             echo '</ul>';
             echo '<input type="hidden" name="query" value="' . $query . '" />';
-            echo '<label>Delimiter: <input type="text" name="delimiter" value="," /></label>';
-            echo '<label>Enclosure: <input type="text" name="enclosure" value="' . esc_attr('"') . '" /></label>';
-            echo '<label>Sort: <select name="order_by"><option value="ASC">ASC - Oldest first (default)</option><option value="DESC">DESC - Newest first</option></select></label>';
+            echo '<label>'.esc_html__('Delimiter','super-forms').': <input type="text" name="delimiter" value="," /></label>';
+            echo '<label>'.esc_html__('Enclosure','super-forms').': <input type="text" name="enclosure" value="' . esc_attr('"') . '" /></label>';
+            echo '<label>'.esc_html__('Sort','super-forms').': <select name="order_by"><option value="ASC">'.esc_html__('ASC - Oldest first (default)','super-forms').'</option><option value="DESC">'.esc_html__('DESC - Newest first','super-forms').'</option></select></label>';
             echo '<span class="button button-primary button-large super-export-selected-columns" style="margin: 0px 30px 0px 0px;">'.esc_html__('Export', 'super-forms').'</span>';
         echo '</div>';
         die();
@@ -1634,7 +1636,7 @@ class SUPER_Ajax {
                 fclose($handle);
             }
         }
-        echo json_encode($columns);
+        echo SUPER_Common::safe_json_encode($columns);
         die();
     }
 
@@ -1803,7 +1805,7 @@ class SUPER_Ajax {
                 $secretsSettings = get_post_meta( $form_id, '_super_local_secrets', true );
                 $forms[$k]['secrets'] = $secretsSettings;
             }
-            $content = json_encode($forms);
+            $content = SUPER_Common::safe_json_encode($forms);
             fwrite($fp, $content);
             fclose($fp);
             $attachment_id = 0;
@@ -1818,7 +1820,7 @@ class SUPER_Ajax {
                 $attach_data = wp_generate_attachment_metadata( $attachment_id, $filename );
                 wp_update_attachment_metadata( $attachment_id,  $attach_data );
             }
-            echo json_encode(
+            echo SUPER_Common::safe_json_encode(
                 array(
                     'file_url' => trailingslashit(home_url()) . 'sfdlfi/' . $attachment_id,
                     'offset' => $offset+$limit,
@@ -2187,7 +2189,8 @@ class SUPER_Ajax {
         }else{
             $form = array(
                 'ID' => $form_id,
-                'post_title' => $title
+                'post_title' => $title,
+                'post_status' => 'publish'
             );
             wp_update_post( $form );
             //SUPER_Common::wp_update_post_fast($form);
@@ -2222,7 +2225,7 @@ class SUPER_Ajax {
         if($action==='super_save_form'){
             // Only update global secrets if we are not importing a form
             update_option( 'super_global_secrets', $_super_global_secrets );
-            echo json_encode(array('form_id'=>$form_id, 'modifiedTime'=>get_post_modified_time('U', false, $form_id)));
+            echo SUPER_Common::safe_json_encode(array('form_id'=>$form_id, 'modifiedTime'=>get_post_modified_time('U', false, $form_id)));
             die();
         }
         // Importing single form, we must return the form ID
@@ -2373,7 +2376,7 @@ class SUPER_Ajax {
                     $result .= ' data-default="' . $default . '"';
                 }
                 if( !empty($fv['_styles']) ) {
-                    $result .= ' data-styles="' .esc_attr(json_encode($fv['_styles'])). '"';
+                    $result .= ' data-styles="' .esc_attr(SUPER_Common::safe_json_encode($fv['_styles'])). '"';
                 }
                 $result .= '>';
                     if( method_exists( 'SUPER_Field_Types', $fv['type'] ) ) {
@@ -2565,13 +2568,6 @@ class SUPER_Ajax {
         }
         if( $predefined!='' ) {
             $result = '';
-            //$predefined = json_encode($predefined); // string
-            //error_log($predefined);
-            //error_log($predefined);
-            //$predefined = json_decode($predefined, true);
-            //error_log(json_encode($predefined));
-            //$predefined = wp_slash($predefined);
-            //error_log(json_encode($predefined));
             $predefined = wp_unslash($predefined);
             foreach( $predefined as $k => $v ) {
                 // Output builder HTML (element and with action buttons)
@@ -2883,8 +2879,8 @@ class SUPER_Ajax {
         error_log('upload_files(2)');
         $uniqueSubmissionId = $atts['uniqueSubmissionId'];
         $form_id = $atts['form_id'];
-        $entry_id = $atts['entry_id'];
-        $list_id = $atts['list_id'];
+        $entry_id = absint($atts['entry_id']);
+        $list_id = absint($atts['list_id']);
         $settings = $atts['settings'];
         $response_data = $atts['response_data'];
         $data = $atts['data'];
@@ -2905,7 +2901,7 @@ class SUPER_Ajax {
         $mime_types = array_merge($wp_mime_types, $mime_types);
         // Allow developers to filter mime types
         $mime_types = apply_filters('super_file_upload_mime_types_validation', $mime_types);
-        $str = json_encode($formEelements);
+        $str = SUPER_Common::safe_json_encode($formEelements);
         error_log('upload_files(3)');
         if(!empty($files)){
             error_log('upload_files(4)');
@@ -3081,7 +3077,7 @@ class SUPER_Ajax {
         error_log('upload_files(7)');
         SUPER_Common::triggerEvent('sf.after.files.uploaded', $x);
         error_log('upload_files(8)');
-        echo json_encode($response);
+        echo SUPER_Common::safe_json_encode($response);
         die();
     }
 
@@ -3098,7 +3094,7 @@ class SUPER_Ajax {
             if( !empty( $_POST['data'] ) ) {
                 $data = wp_unslash($_POST['data']);
                 $data = json_decode($data, true);
-                $data = wp_slash($data);
+                //$data = wp_slash($data);
             }
             SUPER_Common::setClientData( array( 'name' => 'progress_' . $form_id, 'value' => $data ) );
         }
@@ -3119,8 +3115,8 @@ class SUPER_Ajax {
         // Get/set unique submission identifier
         $uniqueSubmissionId = $atts['uniqueSubmissionId'];
         $data = $atts['data'];
-        $entry_id = $atts['entry_id'];
-        $list_id = $atts['list_id'];
+        $entry_id = absint($atts['entry_id']);
+        $list_id = absint($atts['list_id']);
         $settings = $atts['settings'];
         $response_data = $atts['response_data'];
         do_action( 'super_before_processing_data', array('atts' => $atts) );
@@ -3420,7 +3416,7 @@ class SUPER_Ajax {
                                 $final_entry_data[$k] = $v;
                             }
                         }else{
-                            if( $settings['contact_entry_exclude_empty']=='true' && empty($v['value']) ) {
+                            if( $settings['contact_entry_exclude_empty']=='true' && (empty($v['value']) || $v['value']=='0') ) {
                                 // Except for _super_dynamic_data
                                 if($k=='_super_dynamic_data') {
                                     $final_entry_data[$k] = $v;
@@ -3477,7 +3473,7 @@ class SUPER_Ajax {
                 $response_data['entry_status'] = $_entry_status;
             }
             $list_id = '';
-            if(isset($_POST['list_id'])) $list_id = absint($_POST['list_id']);
+            if(isset($_POST['list_id'])) $list_id = $_POST['list_id'];
             if($update_entry_status===false) {
                 if($list_id===''){
                     update_post_meta( $entry_id, '_super_contact_entry_status', $settings['contact_entry_custom_status_update'] );
@@ -3858,7 +3854,7 @@ class SUPER_Ajax {
                 $headers = array();
                 if($settings['form_post_json']=='true'){
                     $headers = array('Content-Type' => 'application/json; charset=utf-8');
-                    $parameters = json_encode($parameters);
+                    $parameters = SUPER_Common::safe_json_encode($parameters);
                 }
 
                 $sfsi['post_body'] = $parameters;
@@ -3893,7 +3889,7 @@ class SUPER_Ajax {
                 if( $settings['form_post_debug']=='true' ) {
                     // Check if Array, if so convert to json
                     if(is_array($parameters)){
-                        $parameters_output = json_encode($parameters);
+                        $parameters_output = SUPER_Common::safe_json_encode($parameters);
                     }else{
                         $parameters_output = $parameters;
                     }

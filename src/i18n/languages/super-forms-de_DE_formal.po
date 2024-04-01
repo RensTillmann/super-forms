@@ -15854,10 +15854,10 @@ msgstr "{loop_fields} im E-Mail-Text wird durch diesen Inhalt ersetzt"
 
 #: includes/extensions/pdf-generator/pdf-generator.php:81
 msgid ""
-"{pdf_page} and {pdf_total_pages} tags can be used inside a HTML element to "
+"{pdf_page} and {} tags can be used inside a HTML element to "
 "be used in your header/footer."
 msgstr ""
-"Die Tags {pdf_page} und {pdf_total_pages} können in einem HTML-Element "
+"Die Tags {pdf_page} und {} können in einem HTML-Element "
 "verwendet werden, das in Ihrer Kopf- / Fußzeile verwendet wird."
 
 #: includes/shortcodes/form-elements.php:3745

@@ -16000,10 +16000,10 @@ msgstr ""
 
 #: includes/extensions/pdf-generator/pdf-generator.php:81
 msgid ""
-"{pdf_page} and {pdf_total_pages} tags can be used inside a HTML element to "
+"{pdf_page} and {} tags can be used inside a HTML element to "
 "be used in your header/footer."
 msgstr ""
-"Les balises {pdf_page} et {pdf_total_pages} peuvent être utilisées dans un "
+"Les balises {pdf_page} et {} peuvent être utilisées dans un "
 "élément HTML à utiliser dans votre en-tête / pied de page."
 
 #: includes/shortcodes/form-elements.php:3745
