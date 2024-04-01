@@ -201,8 +201,8 @@ if( !class_exists('SUPER_Register_Login') ) :
          *  @since      1.2.0
         */
         public function return_wc_countries($countries, $data) {
-            if(!isset($data['settings']['register_login_action'])) $data['settings']['register_login_action'] = '';
-            if( (class_exists('WC_Countries')) && (($data['settings']['register_login_action']=='register') || ($data['settings']['register_login_action']=='update')) && (($data['name']=='billing_country') || ($data['name']=='shipping_country')) ) {
+            $s = $data['settings'];
+            if( (class_exists('WC_Countries')) && ((isset($s['register_login_action']) && $s['register_login_action']=='register') || (isset($s['register_login_action']) && $s['register_login_action']=='update')) && (($data['name']=='billing_country') || ($data['name']=='shipping_country')) ) {
                 $countries_obj = new WC_Countries();
                 $countries = $countries_obj->__get('countries');
                 return $countries;

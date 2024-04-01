@@ -125,4 +125,4 @@ if($_POST['action']==='super_listings_edit_entry'){
         }
     }
 }
-echo json_encode($return);
+echo SUPER_Common::safe_json_encode($return);

@@ -492,7 +492,7 @@ if(!class_exists('SUPER_Stripe')) :
                             error_log('Subscription was updated');
                             $subscription = $event->data->object;
                             $m = $subscription->metadata;
-                            error_log(json_encode($m));
+                            error_log(SUPER_Common::safe_json_encode($m));
                             //$submissionInfo = get_option( '_sfsi_' . $m['sfsi_id'], array() );
                             // Get form settings
                             $settings = SUPER_Common::get_form_settings($m->sf_id);
@@ -501,7 +501,7 @@ if(!class_exists('SUPER_Stripe')) :
                             // $m['sf_user']
                             // $m['sf_post']
                             error_log('subscription id: ' . $subscription->id);
-                            error_log('subscription object: ' . json_encode($subscription));
+                            error_log('subscription object: ' . SUPER_Common::safe_json_encode($subscription));
                             if(!empty($m['sf_entry'])){
                                 // Maybe update entry status?
                                 $statuses = explode("\n", $s['subscription']['entry_status']);
@@ -577,11 +577,11 @@ if(!class_exists('SUPER_Stripe')) :
                             // A delayed notification payment will have an `unpaid` status, as you're still waiting for funds to be transferred from the customer's account.
                             if($session->payment_status=='paid' || $session->payment_status=='no_payment_required') {
                                 error_log('session ID: ' . $session->id);
-                                error_log('session before: ' . json_encode($session));
+                                error_log('session before: ' . SUPER_Common::safe_json_encode($session));
                                 //$session = \Stripe\Checkout\Session::retrieve($session->id, array(
                                 //    'expand' => array('invoice')
                                 //));
-                                error_log('session after: ' . json_encode($session));
+                                error_log('session after: ' . SUPER_Common::safe_json_encode($session));
                                 // Update user role, post status, user login status or entry status
                                 SUPER_Stripe::fulfillOrder(array('form_id'=>$form_id, 's'=>$s, 'stripe_session'=>$session, 'submissionInfo'=>$submissionInfo));
                                 // Fulfill the purchase
@@ -646,21 +646,21 @@ if(!class_exists('SUPER_Stripe')) :
                         // tmp case 'invoice.created':
                         // tmp     // Attach to entry?
                         // tmp     $invoice = $event->data->object;
-                        // tmp     error_log('Invoice Object: '.json_encode($invoice));
-                        // tmp     error_log('PDF : '.json_encode($invoice->invoice_pdf));
-                        // tmp     error_log('metadata : '.json_encode($invoice->metadata));
+                        // tmp     error_log('Invoice Object: '.SUPER_Common::safe_json_encode($invoice));
+                        // tmp     error_log('PDF : '.SUPER_Common::safe_json_encode($invoice->invoice_pdf));
+                        // tmp     error_log('metadata : '.SUPER_Common::safe_json_encode($invoice->metadata));
                         // tmp     if(!empty($invoice->metadata->sf_entry)){
                         // tmp         $entry_id = absint($invoice->metadata->sf_entry);
                         // tmp         $stripe_connections = get_post_meta($entry_id, '_super_stripe_connections', true);
                         // tmp         if(!is_array($stripe_connections)) $stripe_connections = array();
-                        // tmp         error_log('before: ' . json_encode($stripe_connections));
+                        // tmp         error_log('before: ' . SUPER_Common::safe_json_encode($stripe_connections));
                         // tmp         $stripe_connections['invoice'] = $invoice->id;
-                        // tmp         error_log('after: ' . json_encode($stripe_connections));
+                        // tmp         error_log('after: ' . SUPER_Common::safe_json_encode($stripe_connections));
                         // tmp         update_post_meta($entry_id, '_super_stripe_connections', $stripe_connections);
                         // tmp     }
                         // tmp     // we don't want to store invoices on a server really... $invoice = $event->data->object;
-                        // tmp     // we don't want to store invoices on a server really... error_log('Invoice Object: '.json_encode($invoice));
-                        // tmp     // we don't want to store invoices on a server really... error_log('PDF : '.json_encode($invoice->invoice_pdf));
+                        // tmp     // we don't want to store invoices on a server really... error_log('Invoice Object: '.SUPER_Common::safe_json_encode($invoice));
+                        // tmp     // we don't want to store invoices on a server really... error_log('PDF : '.SUPER_Common::safe_json_encode($invoice->invoice_pdf));
                         // tmp     // we don't want to store invoices on a server really... //"invoice": "in_1NHaOKFKn7uROhgCSQF4RVe9",
                         // tmp     // we don't want to store invoices on a server really... //"invoice_creation": {
                         // tmp     // we don't want to store invoices on a server really... //    "enabled": true,
@@ -725,12 +725,12 @@ if(!class_exists('SUPER_Stripe')) :
                         // tmp     // we don't want to store invoices on a server really...     $d = $GLOBALS['super_upload_dir'];
                         // tmp     // we don't want to store invoices on a server really...     $is_secure_dir = substr($d['subdir'], 0, 3);
                         // tmp     // we don't want to store invoices on a server really...     $uploaded_file = wp_upload_bits($file_name, null, $body, $d['subdir']);
-                        // tmp     // we don't want to store invoices on a server really...     error_log(json_encode($uploaded_file));
+                        // tmp     // we don't want to store invoices on a server really...     error_log(SUPER_Common::safe_json_encode($uploaded_file));
                         // tmp     // we don't want to store invoices on a server really...     if(!$uploaded_file['error']){
                         // tmp     // we don't want to store invoices on a server really...         $entry_id = $invoice->metadata->sf_entry;
                         // tmp     // we don't want to store invoices on a server really...         $stripe_connections = get_post_meta($entry_id, '_super_stripe_connections', array());
                         // tmp     // we don't want to store invoices on a server really...         error_log('PDF invoice file was uploaded successfully');
-                        // tmp     // we don't want to store invoices on a server really...         error_log(json_encode($uploaded_file));
+                        // tmp     // we don't want to store invoices on a server really...         error_log(SUPER_Common::safe_json_encode($uploaded_file));
                         // tmp     // we don't want to store invoices on a server really...         // File uploaded successfully
                         // tmp     // we don't want to store invoices on a server really...         $filename = $uploaded_file['file'];
                         // tmp     // we don't want to store invoices on a server really...         error_log('$filename: '.$filename);
@@ -746,7 +746,7 @@ if(!class_exists('SUPER_Stripe')) :
                         // tmp     // we don't want to store invoices on a server really...         $uploaded_file['number'] = $invoice->number;
                         // tmp     // we don't want to store invoices on a server really...         $stripe_connections['invoice'] = $uploaded_file;
                         // tmp     // we don't want to store invoices on a server really...         update_post_meta($entry_id, '_super_stripe_connections', $stripe_connections);
-                        // tmp     // we don't want to store invoices on a server really...         error_log('stripe connections: ' . json_encode($stripe_connections));
+                        // tmp     // we don't want to store invoices on a server really...         error_log('stripe connections: ' . SUPER_Common::safe_json_encode($stripe_connections));
                         // tmp     // we don't want to store invoices on a server really...     }else{
                         // tmp     // we don't want to store invoices on a server really...         // File was not uploaded
                         // tmp     // we don't want to store invoices on a server really...         error_log('PDF invoice file was not uploaded');
@@ -767,706 +767,1000 @@ if(!class_exists('SUPER_Stripe')) :
         public static function add_tab_content($atts){
             $slug = SUPER_Stripe()->add_on_slug;
             $s = self::get_default_stripe_settings($atts['settings']);
-            // Stripe general information
-            echo '<div class="sfui-notice sfui-desc">';
-                echo '<strong>'.esc_html__('Note', 'super-forms').':</strong> ' . sprintf( esc_html__( 'Make sure to enter your Stripe API credentials via %sSuper Forms > Settings > Stripe Checkout%s', 'super-forms' ), '<a target="_blank" href="' . esc_url(admin_url()) . 'admin.php?page=super_settings#stripe-checkout">', '</a>' );
-            echo '</div>';
-            echo '<div class="sfui-notice sfui-desc">';
-                echo '<strong>'.esc_html__('Tip', 'super-forms').':</strong> ' . sprintf( esc_html__( 'You can use field {tags} to configure the below settings based on user input.', 'super-forms' ), '<a target="_blank" href="' . esc_url(admin_url()) . 'admin.php?page=super_settings#stripe-checkout">', '</a>' );
-            echo '</div>';
-            
-            // Enable Stripe checkout
-            echo '<div class="sfui-setting">';
-                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                    echo '<input type="checkbox" name="enabled" value="true"' . ($s['enabled']==='true' ? ' checked="checked"' : '') . ' />';
-                    echo '<span class="sfui-title">' . esc_html__( 'Enable Stripe checkout for this form', 'super-forms' ) . '</span>';
-                echo '</label>';
-                echo '<div class="sfui-sub-settings" data-f="enabled;true">';
-                    echo '<div class="sfui-setting-group sfui-inline" data-f="enabled;true">';
-                        echo '<div class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<input type="checkbox" name="conditionally" value="true"' . ($s['conditionally']==='true' ? ' checked="checked"' : '') . ' />';
-                                echo '<span class="sfui-title">' . esc_html__( 'Conditionally checkout to Stripe', 'super-forms' ) . '</span>';
-                            echo '</label>';
-                            echo '<div class="sfui-setting sfui-inline" data-f="conditionally;true">';
-                                echo '<label class="sfui-no-padding">';
-                                    echo '<input type="text" name="f1" placeholder="{field}" value="' . $s['f1'] . '" />';
-                                echo '</label>';
-                                echo '<label class="sfui-no-padding">';
-                                    echo '<select name="logic">';
-                                        echo '<option'.($s['logic']==='' ?   ' selected="selected"' : '').' selected="selected" value="">---</option>';
-                                        echo '<option'.($s['logic']==='==' ? ' selected="selected"' : '').' value="==">== Equal</option>';
-                                        echo '<option'.($s['logic']==='!=' ? ' selected="selected"' : '').' value="!=">!= Not equal</option>';
-                                        echo '<option'.($s['logic']==='??' ? ' selected="selected"' : '').' value="??">?? Contains</option>';
-                                        echo '<option'.($s['logic']==='!!' ? ' selected="selected"' : '').' value="!!">!! Not contains</option>';
-                                        echo '<option'.($s['logic']==='>' ?  ' selected="selected"' : '').' value=">">&gt; Greater than</option>';
-                                        echo '<option'.($s['logic']==='<' ?  ' selected="selected"' : '').' value="<">&lt;  Less than</option>';
-                                        echo '<option'.($s['logic']==='>=' ? ' selected="selected"' : '').' value=">=">&gt;= Greater than or equal to</option>';
-                                        echo '<option'.($s['logic']==='<=' ? ' selected="selected"' : '').' value="<=">&lt;= Less than or equal</option>';
-                                    echo '</select>';
-                                echo '</label>';
-                                echo '<label class="sfui-no-padding">';
-                                    echo '<input type="text" name="f2" placeholder="'.esc_html__( 'Comparison value', 'super-forms' ).'" value="' . $s['f2'] . '" />';
-                                echo '</label>';
-                            echo '</div>';
-                        echo '</div>';
-                    echo '</div>';
+            $logic = array( '==' => '== Equal', '!=' => '!= Not equal', '??' => '?? Contains', '!!' => '!! Not contains', '>'  => '&gt; Greater than', '<'  => '&lt;  Less than', '>=' => '&gt;= Greater than or equal to', '<=' => '&lt;= Less than or equal');
+            $statuses = SUPER_Settings::get_entry_statuses();
+            $entryStatusesValues = array(
+                array( 'v'=>'delete', 'i'=>'(to permanently delete the entry)'),
+                array( 'v'=>'trash', 'i'=>'(to trash the entry)')
+            );
+            foreach($statuses as $k => $v) {
+                if($k==='') continue;
+                $entryStatusesValues[] = array('v'=>$k);
+            }
+            $postStatusesValues = array();
+            $statuses = array(
+                'publish' => esc_html__( 'Publish (default)', 'super-forms' ),
+                'future' => esc_html__( 'Future', 'super-forms' ),
+                'draft' => esc_html__( 'Draft', 'super-forms' ),
+                'pending' => esc_html__( 'Pending', 'super-forms' ),
+                'private' => esc_html__( 'Private', 'super-forms' ),
+                'trash' => esc_html__( 'Trash', 'super-forms' ),
+                'auto-draft' => esc_html__( 'Auto-Draft', 'super-forms' )
+            );
+            foreach($statuses as $k => $v) {
+                $postStatusesValues[] = array('v'=>$k, 'i'=>$v);
+            }
 
-                    echo '<div class="sfui-setting sfui-vertical">';
-                        echo '<label>';
-                            echo '<span class="sfui-title">' . esc_html__( 'The mode of the Checkout Session', 'super-forms' ) . '</span>';
-                            echo '<span class="sfui-label">' . esc_html__( 'Possible values', 'super-forms' ) . ': <code>payment</code> <code>subscription</code> <code>setup</code></span>';
-                            echo '<input type="text" name="mode" placeholder="e.g: payment" value="' . sanitize_text_field($s['mode']) . '" />';
-                        echo '</label>';
-                    echo '</div>';
+            global $wp_roles;
+            $all_roles = $wp_roles->roles;
+            $editable_roles = apply_filters( 'editable_roles', $all_roles );
+            $roleValues = array();
+            foreach( $editable_roles as $k => $v ) {
+                $roleValues[] = array('v'=>$k);
+            }
+            $userLoginStatusesValues = array();
+            $statuses = array(
+                'active' => esc_html__( 'Active (default)', 'super-forms' ),
+                'pending' => esc_html__( 'Pending', 'super-forms' ),
+                'payment_required' => esc_html__( 'Payment required', 'super-forms' ),
+                'blocked' => esc_html__( 'Blocked', 'super-forms' )
+            );
+            foreach($statuses as $k => $v) {
+                $userLoginStatusesValues[] = array('v'=>$k, 'i'=>$v);
+            }
 
-                    echo '<div class="sfui-setting sfui-vertical">';
-                        echo '<label>';
-                            echo '<span class="sfui-title">' . esc_html__( 'Payment methods', 'super-forms' ) . '</span>';
-                            echo '<span class="sfui-label">' . esc_html__( 'A list of the types of payment methods (e.g., card) this Checkout Session can accept. Separate each by comma.', 'super-forms' ) . ' ' . esc_html__( 'Accepted values are', 'super-forms' ) . ': <code>card</code> <code>acss_debit</code> <code>afterpay_clearpay</code> <code>alipay</code> <code>au_becs_debit</code> <code>bacs_debit</code> <code>bancontact</code> <code>boleto</code> <code>eps</code> <code>fpx</code> <code>giropay</code> <code>grabpay</code> <code>ideal</code> <code>klarna</code> <code>konbini</code> <code>oxxo</code> <code>p24</code> <code>paynow</code> <code>sepa_debit</code> <code>sofort</code> <code>us_bank_account</code> <code>wechat_pay</code></span>';
-                            echo '<input type="text" name="payment_method_types" placeholder="e.g: card,ideal" value="' . sanitize_text_field($s['payment_method_types']) . '" />';
-                        echo '</label>';
-                    echo '</div>';
+            $nodes = array(
+                array(
+                    'notice' => 'hint',
+                    'content' => '<strong>'.esc_html__('Note', 'super-forms').':</strong> ' . sprintf( esc_html__( 'Make sure to enter your Stripe API credentials via %sSuper Forms > Settings > Stripe Checkout%s', 'super-forms' ), '<a target="_blank" href="' . esc_url(admin_url()) . 'admin.php?page=super_settings#stripe-checkout">', '</a>' )
+                ),
+                array(
+                    'notice' => 'hint', // hint/info
+                    'content' => '<strong>'.esc_html__('Tip', 'super-forms').':</strong> ' . sprintf( esc_html__( 'You can use field {tags} to configure the below settings based on user input.', 'super-forms' ), '<a target="_blank" href="' . esc_url(admin_url()) . 'admin.php?page=super_settings#stripe-checkout">', '</a>' )
+                ),
+                array(
+                    'name' => 'enable',
+                    'title' => esc_html__( 'Enable Stripe checkout for this form', 'super-forms' ),
+                    'type' => 'checkbox',
+                    'default' => '',
+                    'nodes' => array(
+                        array(
+                            'sub' => true, // sfui-sub-settings
+                            'filter' => 'enable;true',
+                            'nodes' => array(
+                                array(
+                                    //'width_auto' => false, // 'sfui-width-auto'
+                                    'wrap' => false,
+                                    'group' => true, // sfui-setting-group
+                                    'group_name' => 'conditions',
+                                    'inline' => true, // sfui-inline
+                                    //'vertical' => true, // sfui-vertical
+                                    'nodes' => array(
+                                        array(
+                                            'name' => 'enabled',
+                                            'type' => 'checkbox',
+                                            'default' => 'false',
+                                            'title' => esc_html__( 'Conditionally checkout to Stripe', 'super-forms' ),
+                                            'nodes' => array(
+                                                array(
+                                                    'sub' => true, // sfui-sub-settings
+                                                    //'group' => true, // sfui-setting-group
+                                                    'inline' => true, // sfui-inline
+                                                    //'vertical' => true, // sfui-vertical
+                                                    'filter' => 'conditions.enabled;true',
+                                                    'nodes' => array(
+                                                        array( 'name' => 'f1', 'type' => 'text', 'default' => '', 'placeholder' => 'e.g. {tag}',),
+                                                        array( 'name' => 'logic', 'type' => 'select', 'options' => $logic, 'default' => '',),
+                                                        array( 'name' => 'f2', 'type' => 'text', 'default' => '', 'placeholder' => 'e.g. true')
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
+                                ),
+                                array(
+                                    'toggle' => true,
+                                    'title' => esc_html__( 'General settings', 'super-forms' ),
+                                    'vertical' => true,
+                                    'nodes' => array(
+                                        array(
+                                            'name' => 'mode',
+                                            'title' => esc_html__( 'The mode of the Checkout Session', 'super-forms' ),
+                                            'accepted_values' => array(array('v'=>'payment', 'i'=>'(for one time payments)'), array('v'=>'subscription', 'i'=>'(for recurring payments)')),
+                                            'type' => 'text',
+                                            'default' => 'payment'
+                                        ),
+                                        array(
+                                            'wrap' => false,
+                                            'group' => true,
+                                            'group_name' => 'subscription_data',
+                                            'filter' => 'mode;subscription',
+                                            'vertical' => true,
+                                            'nodes' => array(
+                                                array(
+                                                    'name' => 'trial_period_days',
+                                                    'title' => esc_html__( 'Trial period in days', 'super-forms' ),
+                                                    'subline' => esc_html__( 'Integer representing the number of trial period days before the customer is charged for the first time. Has to be at least 1. (leave blank for no trial period)', 'super-forms' ),
+                                                    'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), '15' ),
+                                                    'type' => 'text'
+                                                ),
+                                                array(
+                                                    'name' => 'description',
+                                                    'title' => esc_html__( 'The subscription’s description, meant to be displayable to the customer.', 'super-forms' ),
+                                                    'subline' => esc_html__( 'Use this field to optionally store an explanation of the subscription for rendering in Stripe hosted surfaces.', 'super-forms' ),
+                                                    'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), 'Website updates and maintenance' ),
+                                                    'type' => 'text'
+                                                )
+                                            )
+                                        ),
+                                        array(
+                                            'name' => 'payment_method_types',
+                                            'title' => esc_html__( 'Payment methods', 'super-forms' ),
+                                            'subline' => esc_html__( 'A list of the types of payment methods this Checkout Session can accept. Separate each by comma.', 'super-forms' ),
+                                            'placeholder' => esc_html__( 'e.g. card,ideal', 'super-forms' ),
+                                            'accepted_values' => array(array('v'=>'card'), array('v'=>'acss_debit'), array('v'=>'afterpay_clearpay'), array('v'=>'alipay'), array('v'=>'au_becs_debit'), array('v'=>'bacs_debit'), array('v'=>'bancontact'), array('v'=>'boleto'), array('v'=>'eps'), array('v'=>'fpx'), array('v'=>'giropay'), array('v'=>'grabpay'), array('v'=>'ideal'), array('v'=>'klarna'), array('v'=>'konbini'), array('v'=>'oxxo'), array('v'=>'p24'), array('v'=>'paynow'), array('v'=>'sepa_debit'), array('v'=>'sofort'), array('v'=>'us_bank_account'), array('v'=>'wechat_pay')),
+                                            'type' => 'text',
+                                            'default' => 'card'
+                                        ),
+                                        array(
+                                            'name' => 'customer_email',
+                                            'title' => esc_html__( 'Customer E-mail', 'super-forms' ),
+                                            'subline' => esc_html__( 'If provided, this value will be used when the Customer object is created. If not provided, customers will be asked to enter their email address. Use this parameter to prefill customer data if you already have an email on file.', 'super-forms' ),
+                                            'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), '{email}' ),
+                                            'type' => 'text',
+                                            'default' => ''
+                                        ),
+                                        array(
+                                            'name' => 'use_logged_in_email',
+                                            'title' => esc_html__( 'Override with currently logged in or newly registered user E-mail address (recommended)', 'super-forms' ),
+                                            'type' => 'checkbox',
+                                            'default' => 'true'
+                                        ),
+                                        array(
+                                            'name' => 'connect_stripe_email',
+                                            'title' => esc_html__( 'If a Stripe user with this E-mail address already exists connect it to the WordPress user (recommended)', 'super-forms' ),
+                                            'type' => 'checkbox',
+                                            'default' => 'true'
+                                        ),
+                                        array(
+                                            'name' => 'cancel_url',
+                                            'title' => esc_html__( 'Cancel URL', 'super-forms' ),
+                                            'subline' => esc_html__( 'The URL the customer will be directed to if they decide to cancel payment and return to your website.', 'super-forms' ),
+                                            'placeholder' => esc_html__( 'Leave blank to redirect back to the page with the form', 'super-forms' ),
+                                            'type' => 'text',
+                                            'default' => ''
+                                        ),
+                                        array(
+                                            'name' => 'success_url',
+                                            'title' => esc_html__( 'Success URL', 'super-forms' ),
+                                            'subline' => esc_html__( 'The URL to which Stripe should send customers when payment is complete. If you\'d like to use information from the successful Checkout Session on your page, read the guide on customizing your success page.', 'super-forms' ),
+                                            'placeholder' => esc_html__( 'Leave blank to redirect back to the page with the form', 'super-forms' ),
+                                            'type' => 'text',
+                                            'default' => ''
+                                        ),
+                                        array(
+                                            'wrap' => false,
+                                            'group' => true,
+                                            'group_name' => 'automatic_tax',
+                                            'vertical' => true,
+                                            'nodes' => array(
+                                                array(
+                                                    'name' => 'enabled',
+                                                    'title' => esc_html__( 'Enable automatic Tax', 'super-forms' ),
+                                                    'accepted_values' => array(array('v'=>'true'), array('v'=>'false')),
+                                                    'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), 'true' ),
+                                                    'type' => 'text',
+                                                    'default' => 'true'
+                                                )
+                                            )
+                                        ),
+                                        array(
+                                            'wrap' => false,
+                                            'group' => true,
+                                            'group_name' => 'tax_id_collection',
+                                            'vertical' => true,
+                                            'nodes' => array(
+                                                array(
+                                                    'name' => 'enabled',
+                                                    'title' => esc_html__( 'Enable Tax ID collection (allows users to purchase as a business)', 'super-forms' ),
+                                                    'accepted_values' => array(array('v'=>'true'), array('v'=>'false')),
+                                                    'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), 'true' ),
+                                                    'type' => 'text',
+                                                    'default' => 'true'
+                                                )
+                                            )
+                                        ),
+                                        array(
+                                            'name' => 'billing_address_collection',
+                                            'title' => esc_html__( 'Collect customer billing address', 'super-forms' ),
+                                            'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), 'required' ),
+                                            'accepted_values' => array(array('v'=>'auto'), array('v'=>'required')),
+                                            'type' => 'text',
+                                            'default' => 'required'
+                                        ),
+                                        array(
+                                            'wrap' => false,
+                                            'group' => true,
+                                            'group_name' => 'phone_number_collection',
+                                            'vertical' => true,
+                                            'nodes' => array(
+                                                array(
+                                                    'name' => 'enabled',
+                                                    'title' => esc_html__( 'Collect customer phone number', 'super-forms' ),
+                                                    'accepted_values' => array(array('v'=>'false'), array('v'=>'true')),
+                                                    'type' => 'text',
+                                                    'default' => 'false'
+                                                ),
+                                                array(
+                                                    'notice' => 'info', // hint/info
+                                                    'content' => '<strong>' . esc_html__('Note', 'super-forms') . ':</strong> ' . sprintf( esc_html__( 'We recommend that you review your privacy policy and check with your legal contacts before enabling phone number collection. Learn more about %scollecting phone numbers with Checkout%s.', 'super-forms' ), '<a href="https://stripe.com/docs/payments/checkout/phone-numbers">', '</a>')
+                                                )
+                                            )
+                                        ),
+                                        array(
+                                            'name' => 'invoice_creation',
+                                            'title' => esc_html__( 'Create invoice', 'super-forms' ),
+                                            'accepted_values' => array(array('v'=>'true'), array('v'=>'false')),
+                                            'type' => 'text',
+                                            'default' => 'true'
+                                        ),
+                                        array(
+                                            'notice' => 'info', // hint/info
+                                            'content' => sprintf( esc_html__( 'The `Create invoice` setting only affects Checkout Sessions with `payment` as mode. Set this to `false` when you are creating invoices outside of Stripe. Set this to `true` if you want Stripe to create invoices automatically for one-time payments. To send invoice summary emails to your customer, you must make sure you enable the %1$sEmail customers about successful payments%2$s in your Stripe Dashboard. You can also prevent Stripe from sending these emails by %1$sdisabling the setting%2$s in your Stripe Dashboard. If a delayed payment method is used, the invoice will be send after successful payment.', 'super-forms' ), '<a href="https://dashboard.stripe.com/settings/emails" target="_blank">', '</a>')
+                                        )
+                                    )
+                                ),
+                                array(
+                                    'toggle' => true,
+                                    'title' => esc_html__( 'Checkout line items', 'super-forms' ),
+                                    'vertical' => true,
+                                    'nodes' => array(
+                                        array(
+                                            'name' => 'line_items',
+                                            'type' => 'repeater',
+                                            'nodes' => array( // repeater item
+                                                array(
+                                                    'name' => 'quantity',
+                                                    'title' => esc_html__( 'Quantity', 'super-forms' ),
+                                                    'placeholder' => esc_html__( 'e.g. 1', 'super-forms' ),
+                                                    'type' => 'text',
+                                                    'default' => '1'
+                                                ),
+                                                array(
+                                                    'name' => 'type',
+                                                    'placeholder' => esc_html__( 'e.g. 1', 'super-forms' ),
+                                                    'type' => 'radio',
+                                                    'options' => array(
+                                                        'price' => esc_html__( 'Based on existing Stripe Price or Plan ID (recommended)', 'super-forms' ),
+                                                        'price_data' => esc_html__( 'Create new price object', 'super-forms' ),
+                                                    ),
+                                                    'default' => 'price'
+                                                ),
+                                                array(
+                                                    'name' => 'price',
+                                                    'title' => esc_html__( 'Product price/plan ID', 'super-forms' ),
+                                                    'subline' => sprintf( esc_html__( 'You can create a new product and price via the Stripe %sDashboard%s.', 'super-forms' ), '<a target="_blank" href="https://dashboard.stripe.com/products">', '</a>' ),
+                                                    'placeholder' => esc_html__( 'e.g. price_XXXX', 'super-forms' ),
+                                                    'type' => 'text',
+                                                    'default' => '',
+                                                    'filter' => 'type;price',
+                                                ),
+                                                array(
+                                                    'wrap' => false,
+                                                    'group' => true,
+                                                    'group_name' => 'price_data',
+                                                    'vertical' => true,
+                                                    'filter' => 'type;price_data',
+                                                    'nodes' => array(
+                                                        array(
+                                                            'name' => 'type',
+                                                            'type' => 'radio',
+                                                            'options' => array(
+                                                                'product' => esc_html__( 'Use an existing product ID which the price will belong to', 'super-forms' ),
+                                                                'product_data' => esc_html__( 'Create new Stripe product on the fly', 'super-forms' )
+                                                            ),
+                                                            'default' => 'product'
+                                                        ),
+                                                        array(
+                                                            'name' => 'product',
+                                                            'subline' => esc_html__( 'Enter an already existing Stripe product ID that this price will belong to', 'super-forms' ),
+                                                            'placeholder' => esc_html__( 'e.g. prod_XXXXXXXXXXX', 'super-forms' ),
+                                                            'type' => 'text',
+                                                            'default' => '',
+                                                            'filter' => 'price_data.type;product'
+                                                        ),
+                                                        array(
+                                                            'wrap' => false,
+                                                            'group' => true,
+                                                            'group_name' => 'product_data',
+                                                            'vertical' => true,
+                                                            'filter' => 'price_data.type;product_data',
+                                                            'nodes' => array(
+                                                                array(
+                                                                    'name' => 'name',
+                                                                    'subline' => esc_html__( 'Product name', 'super-forms' ),
+                                                                    'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), 'Notebook' ),
+                                                                    'type' => 'text',
+                                                                    'default' => ''
+                                                                ),
+                                                                array(
+                                                                    'name' => 'description',
+                                                                    'subline' => esc_html__( 'Description', 'super-forms' ),
+                                                                    'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), 'Intel i9, 8GB RAM' ),
+                                                                    'type' => 'text',
+                                                                    'default' => ''
+                                                                ),
+                                                                array(
+                                                                    'name' => 'tax_code',
+                                                                    'subline' => sprintf( esc_html__( 'Tax category code ID. %sFind a tax category%s. Your default tax category is used if you don’t provide one when creating a transaction with Stripe Tax enabled. You can update this in your %stax settings%s.', 'super-forms' ), '<a target="_blank" href="https://stripe.com/docs/tax/tax-categories">', '</a>', '<a target="_blank" href="https://dashboard.stripe.com/settings/tax">', '</a>' ),
+                                                                    'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), 'txcd_99999999 (Tangible Goods)' ),
+                                                                    'type' => 'text',
+                                                                    'default' => ''
+                                                                )
+                                                            )
+                                                        ),
+                                                        array(
+                                                            'name' => 'unit_amount_decimal',
+                                                            'title' => esc_html__( 'Unit amount', 'super-forms' ),
+                                                            'subline' => esc_html__( 'Define a price as float value (only dot is accepted as decimal separator)', 'super-forms' ),
+                                                            'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), '65.95' ),
+                                                            'type' => 'text',
+                                                            'default' => '10.95'
+                                                        ),
+                                                        array(
+                                                            'name' => 'currency',
+                                                            'title' => esc_html__( 'Currency', 'super-forms' ),
+                                                            'subline' => sprintf( esc_html__( 'Three-letter ISO currency code. Must be a %ssupported currency%s.', 'super-forms' ), '<a target="_blank" href="https://stripe.com/docs/currencies">', '</a>' ),
+                                                            'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), 'USD or EUR' ),
+                                                            'type' => 'text',
+                                                            'default' => 'USD'
+                                                        ),
+                                                        array(
+                                                            'notice' => 'hint', // hint/info
+                                                            'content' => '<strong>'.esc_html__('Note', 'super-forms').':</strong> ' . esc_html__( 'Some payment methods require a specific currency to be set for your line items. For instance, when using `ideal` the currency must be set to EUR or Stripe will return an error message.', 'super-forms' )
+                                                        ),
+                                                        array(
+                                                            'name' => 'tax_behavior',
+                                                            'title' => esc_html__( 'Tax behavior', 'super-forms' ),
+                                                            'subline' => esc_html__( 'Specifies whether the price is considered inclusive of taxes or exclusive of taxes. One of inclusive, exclusive, or unspecified. Once specified as either inclusive or exclusive, it cannot be changed.', 'super-forms' ),
+                                                            'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), 'exclusive' ),
+                                                            'accepted_values' => array(array('v'=>'inclusive'), array('v'=>'exclusive'), array('v'=>'unspecified')),
+                                                            'type' => 'text',
+                                                            'default' => 'unspecified'
+                                                        ),
+                                                        array(
+                                                            'wrap' => false,
+                                                            'group' => true,
+                                                            'group_name' => 'recurring',
+                                                            'vertical' => true,
+                                                            'nodes' => array(
+                                                                array(
+                                                                    'name' => 'interval',
+                                                                    'title' => esc_html__( 'Specify billing frequency (defaults to `none` for one-time payments)', 'super-forms' ),
+                                                                    'subline' => esc_html__( 'Specifies whether the price is considered inclusive of taxes or exclusive of taxes. One of inclusive, exclusive, or unspecified. Once specified as either inclusive or exclusive, it cannot be changed.', 'super-forms' ),
+                                                                    'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), 'month' ),
+                                                                    'accepted_values' => array(array('v'=>'none'), array('v'=>'day'), array('v'=>'week'), array('v'=>'month'), array('v'=>'year')),
+                                                                    'type' => 'text',
+                                                                    'default' => 'none'
+                                                                ),
+                                                                array(
+                                                                    'name' => 'interval_count',
+                                                                    'title' => esc_html__( 'The number of intervals between subscription billings.', 'super-forms' ),
+                                                                    'subline' => esc_html__( 'Maximum of one year interval allowed (1 year, 12 months, or 52 weeks).', 'super-forms' ),
+                                                                    'placeholder' => esc_html__( 'Enter the number of intervals', 'super-forms' ),
+                                                                    'type' => 'text',
+                                                                    'default' => '1'
+                                                                )
+                                                            )
+                                                        )
+                                                    )
+                                                ),
+                                                array(
+                                                    'name' => 'custom_tax_rate',
+                                                    'title' => esc_html__( 'Apply custom Tax Rates', 'super-forms' ),
+                                                    'accepted_values' => array(array('v'=>'true'), array('v'=>'false')),
+                                                    'type' => 'text',
+                                                    'default' => 'false'
+                                                ),
+                                                array(
+                                                    'name' => 'tax_rates',
+                                                    'title' => esc_html__( 'Tax rates', 'super-forms' ),
+                                                    'subline' => sprintf( esc_html__( 'Separate each rate with a comma. You can manage and create Tax Rates in via the Stripe %sDashboard%s.', 'super-forms' ), '<a target="_blank" href="https://dashboard.stripe.com/test/tax-rates">', '</a>' ),
+                                                    'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), 'txr_1LmUhbFKn7uROhgCwnWwpN9p' ),
+                                                    'type' => 'text',
+                                                    'default' => '',
+                                                    'filter' => 'custom_tax_rate;true'
+                                                )
+                                            )
+                                        )
+                                    )
+                                ),
+                                array(
+                                    'toggle' => true,
+                                    'title' => esc_html__( 'Discount settings', 'super-forms' ),
+                                    'vertical' => true,
+                                    'nodes' => array(
+                                        array(
+                                            'notice' => 'hint', // hint/info
+                                            'content' => sprintf( esc_html__( 'You can create coupons easily via the %scoupon management%s page of the Stripe dashboard.', 'super-forms' ), '<a target="_blank" href="https://dashboard.stripe.com/coupons">', '</a>' )
+                                        ),
+                                        array(
+                                            'wrap' => false,
+                                            'group' => true,
+                                            'group_name' => 'discounts',
+                                            'vertical' => true,
+                                            'nodes' => array(
+                                                array(
+                                                    'name' => 'type',
+                                                    'type' => 'radio',
+                                                    'options' => array(
+                                                        'none' => esc_html__( 'Do not apply any discount', 'super-forms' ),
+                                                        'existing_coupon' => esc_html__( 'Based on existing Stripe Coupon ID', 'super-forms' ),
+                                                        'existing_promotion_code' => esc_html__( 'Based on existing Stripe Promotion ID', 'super-forms' ),
+                                                        'new' => esc_html__( 'Create new coupon on the fly', 'super-forms' )
+                                                    ),
+                                                    'default' => 'none'
+                                                ),
+                                                array(
+                                                    'name' => 'coupon',
+                                                    'title' => esc_html__( 'Coupon ID', 'super-forms' ),
+                                                    'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), 'SbwGtc0x' ),
+                                                    'type' => 'text',
+                                                    'default' => '',
+                                                    'filter' => 'discounts.type;existing_coupon'
+                                                ),
+                                                array(
+                                                    'name' => 'promotion_code',
+                                                    'title' => esc_html__( 'Promotion ID', 'super-forms' ),
+                                                    'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), 'SbwGtc0x' ),
+                                                    'type' => 'text',
+                                                    'default' => '',
+                                                    'filter' => 'discounts.type;existing_promotion_code'
+                                                ),
+                                                array(
+                                                    'wrap' => false,
+                                                    'group' => true,
+                                                    'group_name' => 'new',
+                                                    'vertical' => true,
+                                                    'filter' => 'discounts.type;new',
+                                                    'nodes' => array(
+                                                        array(
+                                                            'name' => 'name',
+                                                            'title' => esc_html__( 'Name of the coupon displayed to customers on, for instance invoices, or receipts. By default the id is shown if name is not set.', 'super-forms' ),
+                                                            'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), 'FALLDISCOUNT' ),
+                                                            'type' => 'text',
+                                                            'default' => ''
+                                                        ),
+                                                        array(
+                                                            'name' => 'type',
+                                                            'type' => 'radio',
+                                                            'options' => array(
+                                                                'percent_off' => esc_html__( 'Percent Off', 'super-forms' ),
+                                                                'amount_off' => esc_html__( 'Amount Off', 'super-forms' )
+                                                            ),
+                                                            'default' => 'none'
+                                                        ),
+                                                        array(
+                                                            'name' => 'percent_off',
+                                                            'title' => esc_html__( 'Value larger tahn 0, and smaller or equal to 100 that represents the discount the coupon will apply.', 'super-forms' ),
+                                                            'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), '10' ),
+                                                            'type' => 'text',
+                                                            'default' => '',
+                                                            'filter' => 'new.type;percent_off'
+                                                        ),
+                                                        array(
+                                                            'name' => 'amount_off',
+                                                            'title' => esc_html__( 'A positive integer representing the amount to subtract from an invoice total', 'super-forms' ),
+                                                            'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), '50.00' ),
+                                                            'type' => 'text',
+                                                            'default' => '',
+                                                            'filter' => 'new.type;amount_off'
+                                                        ),
+                                                        array(
+                                                            'name' => 'currency',
+                                                            'title' => sprintf( esc_html__( 'Three-letter ISO currency code. Must be a %ssupported currency%s.', 'super-forms' ), '<a target="_blank" href="https://stripe.com/docs/currencies">', '</a>' ),
+                                                            'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), 'USD' ),
+                                                            'type' => 'text',
+                                                            'default' => '',
+                                                            'filter' => 'new.type;amount_off'
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
+                                ),
+                                array(
+                                    'toggle' => true,
+                                    'title' => esc_html__( 'Retry payment E-mail settings', 'super-forms' ),
+                                    'vertical' => true,
+                                    'nodes' => array(
+                                        array(
+                                            'wrap' => false,
+                                            'group' => true,
+                                            'group_name' => 'retryPaymentEmail',
+                                            'vertical' => true,
+                                            'nodes' => array(
+                                                array(
+                                                    'notice' => 'info', // hint/info
+                                                    'content' => '<strong>' . esc_html__('Note', 'super-forms') . ':</strong> ' . sprintf( esc_html__( 'When using any of the following payment methods %s the below E-mail will be send to the user when their payment failed. This way they are able to retry their payment without filling out the form again.', 'super-forms' ), '<code>bacs_debit</code> <code>boleto</code> <code>acss_debit</code> <code>oxxo</code> <code>sepa_debit</code> <code>sofort</code> <code>us_bank_account</code>')
+                                                ),
+                                                array(
+                                                    'name' => 'subject',
+                                                    'title' => esc_html__( 'Subject', 'super-forms' ),
+                                                    'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), esc_html__( 'Payment failed', 'super-forms' ) ),
+                                                    'type' => 'text',
+                                                    esc_html__( 'Payment failed', 'super-forms' )
+                                                ),
+                                                array(
+                                                    'name' => 'body',
+                                                    'title' => esc_html__( 'Body', 'super-forms' ),
+                                                    'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), esc_html__( 'Payment failed', 'super-forms' ) ),
+                                                    'type' => 'textarea',
+                                                    'default' => sprintf( esc_html__( 'Payment failed please try again by clicking the below URL.%sThe below link will be valid for %s hours before your order is removed.%s%s', 'super-forms' ), "\n", '{stripe_retry_payment_expiry}', "\n\n", '<a href="{stripe_retry_payment_url}">{stripe_retry_payment_url}</a>' ),
+                                                ),
+                                                array(
+                                                    'name' => 'lineBreaks',
+                                                    'title' => esc_html__( 'Automatically add line breaks (enabled by default)', 'super-forms' ),
+                                                    'type' => 'checkbox',
+                                                    'default' => 'true'
+                                                ),
+                                                array(
+                                                    'name' => 'expiry',
+                                                    'title' => esc_html__( 'Retry payment link expiry in hours', 'super-forms' ),
+                                                    'subline' => esc_html__( 'Enter the amount in hours before the retry payment link expires. Must be a number between 24 and 720.', 'super-forms' ),
+                                                    'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), '24' ),
+                                                    'type' => 'number',
+                                                    'min' => 24,
+                                                    'max' => 720,
+                                                    'default' => 48
+                                                )
+                                            )
+                                        )
+                                    )
+                                ),
+                                array(
+                                    'toggle' => true,
+                                    'title' => esc_html__( 'Shipping settings', 'super-forms' ),
+                                    'vertical' => true,
+                                    'nodes' => array(
+                                        array(
+                                            'wrap' => false,
+                                            'group' => true,
+                                            'group_name' => 'shipping_options',
+                                            'vertical' => true,
+                                            'nodes' => array(
+                                                array(
+                                                    'name' => 'type',
+                                                    'placeholder' => esc_html__( 'e.g. 1', 'super-forms' ),
+                                                    'type' => 'radio',
+                                                    'options' => array(
+                                                        'id' => esc_html__( 'Based on existing Stripe Shipping Rate ID (recommended)', 'super-forms' ),
+                                                        'data' => esc_html__( 'Create new shipping rate on the fly', 'super-forms' )
+                                                    ),
+                                                    'default' => 'none'
+                                                ),
+                                                array(
+                                                    'name' => 'shipping_rate',
+                                                    'title' => esc_html__( 'Enter shipping rate ID', 'super-forms' ),
+                                                    'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), 'shr_XXXXXXXXXXX' ),
+                                                    'type' => 'text',
+                                                    'default' => '',
+                                                    'filter' => 'shipping_options.type;id'
+                                                ),
+                                                array(
+                                                    'wrap' => false,
+                                                    'group' => true,
+                                                    'group_name' => 'shipping_rate_data',
+                                                    'vertical' => true,
+                                                    'filter' => 'shipping_options.type;data',
+                                                    'nodes' => array(
+                                                        array(
+                                                            'name' => 'display_name',
+                                                            'title' => esc_html__( 'Display name', 'super-forms' ),
+                                                            'subline' => esc_html__( 'The name of the shipping rate, meant to be displayable to the customer. This will appear on CheckoutSessions.', 'super-forms' ),
+                                                            'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), esc_html__( 'World wide shipping', 'super-forms' ) ),
+                                                            'type' => 'text',
+                                                            'default' => ''
+                                                        ),
+                                                        array(
+                                                            'wrap' => false,
+                                                            'group' => true,
+                                                            'group_name' => 'fixed_amount',
+                                                            'vertical' => true,
+                                                            'nodes' => array(
+                                                                array(
+                                                                    'name' => 'amount',
+                                                                    'title' => esc_html__( 'Amount to charge for shipping', 'super-forms' ),
+                                                                    'subline' => esc_html__( '(must be greater than 0)', 'super-forms' ),
+                                                                    'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), '6.95' ),
+                                                                    'type' => 'text',
+                                                                    'default' => ''
+                                                                ),
+                                                                array(
+                                                                    'name' => 'currency',
+                                                                    'title' => esc_html__( 'Shipping currency', 'super-forms' ),
+                                                                    'subline' => sprintf( esc_html__( 'Three-letter ISO currency code. Must be a %ssupported currency%s.', 'super-forms' ), '<a target="_blank" href="https://stripe.com/docs/currencies">', '</a>' ),
+                                                                    'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), 'USD' ),
+                                                                    'type' => 'text',
+                                                                    'default' => ''
+                                                                )
+                                                            )
+                                                        ),
+                                                        array(
+                                                            'toggle' => true,
+                                                            'title' => esc_html__( 'Tax settings', 'super-forms' ),
+                                                            'vertical' => true,
+                                                            'nodes' => array(
+                                                                array(
+                                                                    'name' => 'tax_behavior',
+                                                                    'title' => esc_html__( 'Shipping tax behavior', 'super-forms' ),
+                                                                    'subline' => esc_html__( 'Specifies whether the rate is considered inclusive of taxes or exclusive of taxes.', 'super-forms' ),
+                                                                    'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), 'inclusive' ),
+                                                                    'accepted_values' => array(array('v'=>'inclusive'), array('v'=>'exclusive'), array('v'=>'unspecified')),
+                                                                    'type' => 'text',
+                                                                    'default' => ''
+                                                                ),
+                                                                array(
+                                                                    'name' => 'tax_code',
+                                                                    'title' => esc_html__( 'Shipping tax code', 'super-forms' ),
+                                                                    'subline' => esc_html__( 'A tax code ID. The Shipping tax code is', 'super-forms' ).': <code>txcd_92010001</code>',
+                                                                    'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), 'txcd_92010001' ),
+                                                                    'type' => 'text',
+                                                                    'default' => 'txcd_92010001'
+                                                                )
+                                                            )
+                                                        ),
+                                                        array(
+                                                            'toggle' => true,
+                                                            'title' => esc_html__( 'Define estimated shipping time', 'super-forms' ),
+                                                            'vertical' => true,
+                                                            'nodes' => array(
+                                                                array(
+                                                                    'notice' => 'hint',
+                                                                    'content' => esc_html__( 'Here you can configure the estimated range for how long shipping will take, this will be shown to the customer during checkout.', 'super-forms' ),
+                                                                ),
+                                                                array(
+                                                                    'wrap' => false,
+                                                                    'group' => true,
+                                                                    'group_name' => 'delivery_estimate',
+                                                                    'vertical' => true,
+                                                                    'nodes' => array(
+                                                                        array(
+                                                                            'toggle' => true,
+                                                                            'title' => esc_html__( 'The upper bound of the estimated range. If empty, represents no upper bound i.e., infinite.', 'super-forms' ),
+                                                                            'vertical' => true,
+                                                                            'nodes' => array(
+                                                                                array(
+                                                                                    'wrap' => false,
+                                                                                    'group' => true,
+                                                                                    'group_name' => 'maximum',
+                                                                                    'inline' => true,
+                                                                                    'nodes' => array(
+                                                                                        array(
+                                                                                            'name' => 'unit',
+                                                                                            'title' => esc_html__( 'Unit', 'super-forms' ),
+                                                                                            'accepted_values' => array(array('v'=>'hour'), array('v'=>'day'), array('v'=>'business_day'), array('v'=>'week'), array('v'=>'month')),
+                                                                                            'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), 'business_day' ),
+                                                                                            'type' => 'text',
+                                                                                            'default' => ''
+                                                                                        ),
+                                                                                        array(
+                                                                                            'name' => 'value',
+                                                                                            'title' => esc_html__( 'Value', 'super-forms' ),
+                                                                                            'subline' => esc_html__( '(must be greater than 0)', 'super-forms' ),
+                                                                                            'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), '5' ),
+                                                                                            'type' => 'text',
+                                                                                            'default' => ''
+                                                                                        )
+                                                                                    )
+                                                                                ),
+                                                                            )
+                                                                        ),
+                                                                        array(
+                                                                            'toggle' => true,
+                                                                            'title' => esc_html__( 'The lower bound of the estimated range. If empty, represents no lower bound.', 'super-forms' ),
+                                                                            'vertical' => true,
+                                                                            'nodes' => array(
+                                                                                array(
+                                                                                    'wrap' => false,
+                                                                                    'group' => true,
+                                                                                    'group_name' => 'minimum',
+                                                                                    'inline' => true,
+                                                                                    'nodes' => array(
+                                                                                        array(
+                                                                                            'name' => 'unit',
+                                                                                            'title' => esc_html__( 'Unit', 'super-forms' ),
+                                                                                            'accepted_values' => array(array('v'=>'hour'), array('v'=>'day'), array('v'=>'business_day'), array('v'=>'week'), array('v'=>'month')),
+                                                                                            'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), 'business_day' ),
+                                                                                            'type' => 'text',
+                                                                                            'default' => ''
+                                                                                        ),
+                                                                                        array(
+                                                                                            'name' => 'value',
+                                                                                            'title' => esc_html__( 'Value', 'super-forms' ),
+                                                                                            'subline' => esc_html__( '(must be greater than 0)', 'super-forms' ),
+                                                                                            'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), '5' ),
+                                                                                            'type' => 'text',
+                                                                                            'default' => ''
+                                                                                        )
+                                                                                    )
+                                                                                )
+                                                                            )
+                                                                        )
+                                                                    )
+                                                                )
+                                                            )
+                                                        ),
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
+                                ),
+                                array(
+                                    'toggle' => true,
+                                    'title' => esc_html__( 'Payment complete triggers', 'super-forms' ),
+                                    'vertical' => true,
+                                    'nodes' => array(
+                                        array(
+                                            'name' => 'update_entry_status',
+                                            'title' => esc_html__( 'Entry status after payment completed', 'super-forms' ),
+                                            'subline' => esc_html__( '(leave blank to keep the current entry status unchanged)', 'super-forms' ),
+                                            'accepted_values' => $entryStatusesValues,
+                                            'type' => 'text',
+                                            'default' => ''
+                                        ),
+                                        array(
+                                            'wrap' => false,
+                                            'group' => true,
+                                            'group_name' => 'frontend_posting',
+                                            'vertical' => true,
+                                            'nodes' => array(
+                                                array(
+                                                    'name' => 'update_post_status',
+                                                    'title' => esc_html__( 'Post status after payment complete', 'super-forms' ),
+                                                    'subline' => esc_html__( 'Only used for Front-end posting. Leave blank to keep the current post status unchanged.', 'super-forms' ),
+                                                    'accepted_values' => $postStatusesValues,
+                                                    'type' => 'text',
+                                                    'default' => ''
+                                                )
+                                            )
+                                        ),
+                                        array(
+                                            'wrap' => false,
+                                            'group' => true,
+                                            'group_name' => 'register_login',
+                                            'vertical' => true,
+                                            'nodes' => array(
+                                                array(
+                                                    'name' => 'update_user_role',
+                                                    'title' => esc_html__( 'Change user role after payment complete', 'super-forms' ),
+                                                    'subline' => esc_html__( 'Leave blank to keep the current user role unchanged.', 'super-forms' ),
+                                                    'accepted_values' => $roleValues,
+                                                    'type' => 'text',
+                                                    'default' => ''
+                                                ),
+                                                array(
+                                                    'name' => 'update_login_status',
+                                                    'title' => esc_html__( 'User login status after payment complete', 'super-forms' ),
+                                                    'subline' => esc_html__( 'Only used when registering a new user. You would normally want this to be set to `active` so that the user is able to login. Leave blank to keep the current login status unchanged.', 'super-forms' ),
+                                                    'accepted_values' => $userLoginStatusesValues,
+                                                    'type' => 'text',
+                                                    'default' => ''
+                                                )
+                                            )
+                                        ),
+                                    )
+                                ),
+                                array(
+                                    'toggle' => true,
+                                    'title' => esc_html__( 'Subscription status update triggers', 'super-forms' ),
+                                    'vertical' => true,
+                                    'nodes' => array(
+                                        array(
+                                            'wrap' => false,
+                                            'group' => true,
+                                            'group_name' => 'subscription',
+                                            'vertical' => true,
+                                            'nodes' => array(
+                                                // echo '<span class="sfui-title">' . esc_html__( 'Entry status when subscription status changes', 'super-forms' ) . '</span>';
+                                                array(
+                                                    'notice' => 'info', // hint/info
+                                                    'content' => sprintf( esc_html__( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#backend-settings') . '">', '</a>' )
+                                                ),
+                                                array(
+                                                    'name' => 'entry_status',
+                                                    'type' => 'repeater',
+                                                    'inline' => true,
+                                                    'nodes' => array(
+                                                        array(
+                                                            'name' => 'status',
+                                                            'title' => esc_html__( 'When subscription status changes to', 'super-forms' ),
+                                                            'subline' => esc_html__( '(leave blank to keep the current entry status unchanged)', 'super-forms' ),
+                                                            'accepted_values' => array(array('v'=>'active'), array('v'=>'paused'), array('v'=>'canceled')),
+                                                            'type' => 'text',
+                                                            'default' => ''
+                                                        ),
+                                                        array(
+                                                            'name' => 'entry',
+                                                            'title' => esc_html__( 'Set entry status to', 'super-forms' ),
+                                                            'accepted_values' => $entryStatusesValues,
+                                                            'type' => 'text',
+                                                            'default' => ''
+                                                        ),
+                                                    )
+                                                ),
+                                                array(
+                                                    'notice' => 'info', // hint/info
+                                                    'content' => esc_html__( 'Only used for Front-end posting. Leave blank to keep the current post status unchanged.', 'super-forms' )
+                                                ),
+                                                array(
+                                                    'name' => 'post_status',
+                                                    'type' => 'repeater',
+                                                    'inline' => true,
+                                                    'nodes' => array(
+                                                        array(
+                                                            'name' => 'status',
+                                                            'title' => esc_html__( 'When subscription status changes to', 'super-forms' ),
+                                                            'subline' => esc_html__( '(leave blank to keep the current post status unchanged)', 'super-forms' ),
+                                                            'accepted_values' => array(array('v'=>'active'), array('v'=>'paused'), array('v'=>'canceled')),
+                                                            'type' => 'text',
+                                                            'default' => ''
+                                                        ),
+                                                        array(
+                                                            'name' => 'post',
+                                                            'title' => esc_html__( 'Set post status to', 'super-forms' ),
+                                                            'accepted_values' => $postStatusesValues,
+                                                            'type' => 'text',
+                                                            'default' => ''
+                                                        ),
+                                                    )
+                                                ),
+                                                array(
+                                                    'notice' => 'info', // hint/info
+                                                    'content' => esc_html__( 'Only used for Front-end posting. Leave blank to keep the current post status unchanged.', 'super-forms' )
+                                                ),
+                                                array(
+                                                    'name' => 'login_status',
+                                                    'type' => 'repeater',
+                                                    'inline' => true,
+                                                    'nodes' => array(
+                                                        array(
+                                                            'name' => 'status',
+                                                            'title' => esc_html__( 'When subscription status changes to', 'super-forms' ),
+                                                            'subline' => esc_html__( '(leave blank to keep the login status unchanged)', 'super-forms' ),
+                                                            'accepted_values' => array(array('v'=>'active'), array('v'=>'paused'), array('v'=>'canceled')),
+                                                            'type' => 'text',
+                                                            'default' => ''
+                                                        ),
+                                                        array(
+                                                            'name' => 'post',
+                                                            'title' => esc_html__( 'Set login status to', 'super-forms' ),
+                                                            'accepted_values' => $userLoginStatusesValues,
+                                                            'type' => 'text',
+                                                            'default' => ''
+                                                        )
+                                                    )
+                                                ),
+                                                array(
+                                                    'name' => 'user_role',
+                                                    'type' => 'repeater',
+                                                    'inline' => true,
+                                                    'nodes' => array(
+                                                        array(
+                                                            'name' => 'status',
+                                                            'title' => esc_html__( 'When subscription status changes to', 'super-forms' ),
+                                                            'subline' => esc_html__( '(leave blank to keep the current user role unchanged)', 'super-forms' ),
+                                                            'accepted_values' => array(array('v'=>'active'), array('v'=>'paused'), array('v'=>'canceled')),
+                                                            'type' => 'text',
+                                                            'default' => ''
+                                                        ),
+                                                        array(
+                                                            'name' => 'post',
+                                                            'title' => esc_html__( 'Set user role to', 'super-forms' ),
+                                                            'accepted_values' => $roleValues,
+                                                            'type' => 'text',
+                                                            'default' => ''
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
+                                ),
+                                array(
+                                    'toggle' => true,
+                                    'title' => esc_html__( 'Advanced settings', 'super-forms' ),
+                                    'vertical' => true,
+                                    'nodes' => array(
+                                        array(
+                                            'name' => 'submit_type',
+                                            'title' => esc_html__( 'Submit type', 'super-forms' ),
+                                            'subline' => esc_html__( 'Describes the type of transaction being performed by Checkout in order to customize relevant text on the page, such as the submit button.', 'super-forms' ),
+                                            'accepted_values' => array(array('v'=>'auto'), array('v'=>'pay'), array('v'=>'book'), array('v'=>'donate')),
+                                            'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), 'donate' ),
+                                            'type' => 'text',
+                                            'default' => 'auto'
+                                        ),
+                                        array(
+                                            'name' => 'locale',
+                                            'title' => esc_html__( 'The IETF language tag of the locale Checkout is displayed in. If blank or auto, the browser’s locale is used.', 'super-forms' ),
+                                            'subline' => esc_html__( 'Describes the type of transaction being performed by Checkout in order to customize relevant text on the page, such as the submit button.', 'super-forms' ),
+                                            'accepted_values' => array(array('v'=>'auto'), array('v'=>'bg'), array('v'=>'cs'), array('v'=>'da'), array('v'=>'de'), array('v'=>'el'), array('v'=>'en'), array('v'=>'GB'), array('v'=>'es'), array('v'=>'419'), array('v'=>'et'), array('v'=>'fi'), array('v'=>'fil'), array('v'=>'fr'), array('v'=>'CA'), array('v'=>'hr'), array('v'=>'hu'), array('v'=>'id'), array('v'=>'it'), array('v'=>'ja'), array('v'=>'ko'), array('v'=>'lt'), array('v'=>'lv'), array('v'=>'ms'), array('v'=>'mt'), array('v'=>'nb'), array('v'=>'nl'), array('v'=>'pl'), array('v'=>'pt'), array('v'=>'BR'), array('v'=>'ro'), array('v'=>'ru'), array('v'=>'sk'), array('v'=>'sl'), array('v'=>'sv'), array('v'=>'th'), array('v'=>'tr'), array('v'=>'vi'), array('v'=>'zh'), array('v'=>'HK'), array('v'=>'TW')),
+                                            'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), 'en' ),
+                                            'type' => 'text',
+                                            'default' => 'auto'
+                                        ),
+                                        array(
+                                            'name' => 'client_reference_id',
+                                            'title' => esc_html__( 'Client reference ID (for developers only)', 'super-forms' ),
+                                            'subline' => esc_html__( 'A unique string to reference the Checkout Session. This can be a customer ID, a cart ID, or similar, and can be used to reconcile the session with your internal systems.', 'super-forms' ),
+                                            'type' => 'text',
+                                            'default' => ''
+                                        )
+                                    )
+                                ),
 
-                    echo '<div class="sfui-setting sfui-vertical">';
-                        echo '<label>';
-                            echo '<span class="sfui-title">' . esc_html__( 'Checkout line items', 'super-forms' ) . '</span>';
-                        echo '</label>';
-                        echo '<div class="sfui-repeater" data-k="line_items">';
-                        // Repeater Item
-                        foreach( $s['line_items'] as $k => $v ) {
-                            echo '<div class="sfui-repeater-item">';
-                                echo '<div class="sfui-setting sfui-vertical" style="flex:1;">';
-                                    echo '<label>';
-                                        echo '<span class="sfui-title">' . esc_html__( 'Quantity:', 'super-forms' ) . '</span>';
-                                        echo '<input type="text" name="quantity" placeholder="' . esc_html__( 'e.g: 1', 'super-forms' ) . '" value="' . sanitize_text_field($v['quantity']) . '" />';
-                                    echo '</label>';
-                                echo '</div>';
+                            ),
 
-                                echo '<div class="sfui-inline sfui-vertical">';
-                                    echo '<form class="sfui-setting">';
-                                        // Price
-                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                            echo '<input type="radio" name="type" value="price"' . ($v['type']==='price' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Based on existing Stripe Price or Plan ID (recommended)', 'super-forms' ) . '</span>';
-                                            echo '<div class="sfui-sub-settings sfui-inline" data-f="type;price">';
-                                                echo '<div class="sfui-setting sfui-inline">';
-                                                    // Price or Plan ID
-                                                    echo '<div class="sfui-setting sfui-vertical" style="flex:1;">';
-                                                        echo '<label>';
-                                                            echo '<span class="sfui-label">' . esc_html__( 'Enter product price/plan ID.', 'super-forms' ) . ' ' . sprintf( esc_html__( 'You can create a new product and price via the Stripe %sDashboard%s.', 'super-forms' ), '<a target="_blank" href="https://dashboard.stripe.com/products">', '</a>' ) . '</span>';
-                                                            echo '<input type="text" name="price" placeholder="' . esc_html__( 'e.g: price_XXXX', 'super-forms' ) . '" value="' . sanitize_text_field($v['price']) . '" />';
-                                                        echo '</label>';
-                                                    echo '</div>';
-                                                echo '</div>';
-                                            echo '</div>';
-                                        echo '</label>';
-                                        // Price data
-                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                            echo '<input type="radio" name="type" value="price_data"' . ($v['type']==='price_data' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Create new price object', 'super-forms' ) . '</span>';
-                                            echo '<div class="sfui-sub-settings sfui-vertical" data-f="type;price_data">';
-                                                echo '<div class="sfui-inline sfui-vertical">';
-                                                    echo '<div class="sfui-setting">';
-                                                        // Existing Product
-                                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                                            echo '<input type="radio" name="price_data.type" value="product"' . ($v['price_data']['type']==='product' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Use an existing product ID which the price will belong to', 'super-forms' ) . '</span>';
-                                                            echo '<div class="sfui-sub-settings sfui-inline" data-f="price_data.type;product">';
-                                                                // Product ID
-                                                                echo '<div class="sfui-setting sfui-vertical" style="flex:1;">';
-                                                                    echo '<label>';
-                                                                        echo '<span class="sfui-label">' . esc_html__( 'Enter an already existing Stripe product ID that this price will belong to', 'super-forms' ) . '</span>';
-                                                                        echo '<input type="text" name="price_data.product" placeholder="e.g: prod_XXXXXXXXXXXXXX" value="' . sanitize_text_field($v['price_data']['product']) . '" />';
-                                                                    echo '</label>';
-                                                                echo '</div>';
-                                                            echo '</div>';
-                                                        echo '</label>';
-                                                        // New product data
-                                                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                                            echo '<input type="radio" name="price_data.type" value="product_data"' . ($v['price_data']['type']==='product_data' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Create new Stripe product on the fly', 'super-forms' ) . '</span>';
-                                                            echo '<div class="sfui-sub-settings sfui-inline" data-f="price_data.type;product_data">';
-                                                                echo '<div class="sfui-setting">';
-                                                                    // Product data
-                                                                    echo '<div class="sfui-vertical">';
-                                                                        echo '<label>';
-                                                                            echo '<span class="sfui-label">' . esc_html__( 'Product name', 'super-forms' ) . '</span>';
-                                                                            echo '<input type="text" name="price_data.product_data.name" placeholder="e.g: Notebook" value="' . sanitize_text_field($v['price_data']['product_data']['name']) . '" />';
-                                                                        echo '</label>';
-                                                                    echo '</div>';
-                                                                    echo '<div class="sfui-vertical">';
-                                                                        echo '<label>';
-                                                                            echo '<span class="sfui-label">' . esc_html__( 'Description', 'super-forms' ) . '</span>';
-                                                                            echo '<input type="text" name="price_data.product_data.description" placeholder="Intel i7, 8GB RAM" value="' . sanitize_text_field($v['price_data']['product_data']['description']) . '" />';
-                                                                        echo '</label>';
-                                                                    echo '</div>';
-                                                                    echo '<div class="sfui-vertical">';
-                                                                        echo '<label>';
-                                                                            echo '<span class="sfui-label">' . sprintf( esc_html__( 'Tax category code ID. %sFind a tax category%s. Your default tax category is used if you don’t provide one when creating a transaction with Stripe Tax enabled. You can update this in your %stax settings%s.', 'super-forms' ), '<a target="_blank" href="https://stripe.com/docs/tax/tax-categories">', '</a>', '<a target="_blank" href="https://dashboard.stripe.com/settings/tax">', '</a>' ) . '</span>';
-                                                                            echo '<input type="text" name="price_data.product_data.tax_code" placeholder="e.g: txcd_99999999 (Tangible Goods)" value="' . sanitize_text_field($v['price_data']['product_data']['tax_code']) . '" />';
-                                                                        echo '</label>';
-                                                                    echo '</div>';
-                                                                echo '</div>';
-                                                            echo '</div>';
-                                                        echo '</label>';
-                                                    echo '</div>';
-                                                echo '</div>';
+                            // [optional] The shipping rate options to apply to this Session.
+                            //'shipping_options' => [
+                            //    'shipping_rate' => '', // The ID of the Shipping Rate to use for this shipping option.
+                            //    'shipping_rate_data' => [ // Parameters to be passed to Shipping Rate creation for this shipping option
+                            //        'display_name' => '', // The name of the shipping rate, meant to be displayable to the customer. This will appear on CheckoutSessions.
+                            //        'type' => 'fixed_amount', // The type of calculation to use on the shipping rate. Can only be fixed_amount for now.
+                            //        'delivery_estimate' => [ // The estimated range for how long shipping will take, meant to be displayable to the customer. This will appear on CheckoutSessions.
+                            //            'maximum' => [ // The upper bound of the estimated range. If empty, represents no upper bound i.e., infinite.
+                            //                'unit' => 'business_day', // hour, day, business_day, week, month
+                            //                'value' => 5,
+                            //            ],
+                            //            'minimum' => [ // The lower bound of the estimated range. If empty, represents no lower bound.
+                            //                'unit' => 'business_day', // hour, day, business_day, week, month
+                            //                'value' => 2,
+                            //            ]
+                            //        ],
+                            //        'fixed_amount' => [
+                            //            'amount' => 3000, // A non-negative integer in cents representing how much to charge.
+                            //            'currency' => 'usd' // Three-letter ISO currency code. Must be a supported currency.
+                            //        ]
+                            //        'metadata' => [], // Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format. Individual keys can be unset by posting an empty value to them. All keys can be unset by posting an empty value to metadata.
+                            //        'tax_behavior' => 'exclusive' // Specifies whether the rate is considered inclusive of taxes or exclusive of taxes. One of inclusive, exclusive, or unspecified.
+                            //        'tax_code' => 'txcd_92010001', // A tax code ID. The Shipping tax code is txcd_92010001.
+                            //    ]
+                            //],
 
-                                                echo '<div class="sfui-setting sfui-vertical">';
-                                                    echo '<label>';
-                                                        echo '<span class="sfui-title">' . esc_html__( 'Unit amount', 'super-forms' ) . '</span>';
-                                                        echo '<span class="sfui-label">' . esc_html__( 'Define a price as float value (only dot is accepted as decimal separator)', 'super-forms' ) . '</span>';
-                                                        echo '<input type="text" name="price_data.unit_amount_decimal" placeholder="e.g: 65.95" value="' . sanitize_text_field($v['price_data']['unit_amount_decimal']) . '" />';
-                                                    echo '</label>';
-                                                echo '</div>';
-                                                echo '<div class="sfui-setting sfui-vertical">';
-                                                    echo '<label>';
-                                                        echo '<span class="sfui-title">' . esc_html__( 'Currency', 'super-forms' ) . '</span>';
-                                                        echo '<span class="sfui-label">' . sprintf( esc_html__( 'Three-letter ISO currency code. Must be a %ssupported currency%s.', 'super-forms' ), '<a target="_blank" href="https://stripe.com/docs/currencies">', '</a>' ) . '</span>';
-                                                        echo '<input type="text" name="price_data.currency" placeholder="e.g: USD or EUR" value="' . sanitize_text_field($v['price_data']['currency']) . '" />';
-                                                        echo '<div class="sfui-notice sfui-desc">';
-                                                            echo '<strong>' . esc_html__('Note', 'super-forms') . ':</strong> ' . esc_html__( 'Some payment methods require a specific currency to be set for your line items. For instance, when using `ideal` the currency must be set to EUR or Stripe will return an error message.', 'super-forms' );
-                                                        echo '</div>';
-                                                    echo '</label>';
-                                                echo '</div>';
-                                                echo '<div class="sfui-setting sfui-vertical">';
-                                                    echo '<label>';
-                                                        echo '<span class="sfui-title">' . esc_html__( 'Tax behavior', 'super-forms' ) . '</span>';
-                                                        echo '<span class="sfui-label">' . esc_html__( 'Specifies whether the price is considered inclusive of taxes or exclusive of taxes. One of inclusive, exclusive, or unspecified. Once specified as either inclusive or exclusive, it cannot be changed.', 'super-forms' ) . '</span>';
-                                                        echo '<span class="sfui-label">' . esc_html__( 'Accepted values are', 'super-forms' ) . ': <code>inclusive</code> <code>exclusive</code> <code>unspecified</code></span>';
-                                                        echo '<input type="text" name="price_data.tax_behavior" placeholder="e.g: exclusive" value="' . sanitize_text_field($v['price_data']['tax_behavior']) . '" />';
-                                                    echo '</label>';
-                                                echo '</div>';
-                                                echo '<div class="sfui-setting sfui-vertical">';
-                                                    echo '<label>';
-                                                        echo '<span class="sfui-title">' . esc_html__( 'Specify billing frequency (defaults to `none` for one-time payments)', 'super-forms' ) . '</span>';
-                                                        echo '<span class="sfui-label">' . esc_html__( 'Accepted values are', 'super-forms' ) . ': <code>none</code> <code>day</code> <code>week</code> <code>month</code> <code>year</code></span>';
-                                                        echo '<input type="text" name="price_data.recurring.interval" placeholder="e.g: month" value="' . sanitize_text_field($v['price_data']['recurring']['interval']) . '" />';
-                                                    echo '</label>';
-                                                echo '</div>';
-                                                echo '<div class="sfui-setting sfui-vertical">';
-                                                    echo '<label>';
-                                                        echo '<span class="sfui-title">' . esc_html__( 'The number of intervals between subscription billings.', 'super-forms' ) . '</span>';
-                                                        echo '<span class="sfui-label">' . esc_html__( 'Maximum of one year interval allowed (1 year, 12 months, or 52 weeks).', 'super-forms' ) . '</span>';
-                                                        echo '<input type="text" name="price_data.recurring.interval_count" placeholder="Enter the number of intervals" value="' . sanitize_text_field($v['price_data']['recurring']['interval_count']) . '" />';
-                                                    echo '</label>';
-                                                echo '</div>';
-                                            echo '</div>';
-                                        echo '</label>';
-                                    echo '</form>';
-                                echo '</div>';
-
-                                echo '<div class="sfui-setting">';
-                                    echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                        echo '<input type="checkbox" name="custom_tax_rate" value="true"' . ($v['custom_tax_rate']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Apply custom Tax Rates', 'super-forms' ) . ' (' . esc_html__( 'optional', 'super-forms' ) . ')</span>';
-                                    echo '</label>';
-                                    echo '<div class="sfui-sub-settings sfui-vertical" data-f="custom_tax_rate;true">';
-                                        echo '<label>';
-                                            echo '<span class="sfui-title">' . esc_html__( 'Tax rates:', 'super-forms' ) . '</span>';
-                                            echo '<span class="sfui-label">' . sprintf( esc_html__( 'Separate each rate with a comma. You can manage and create Tax Rates in via the Stripe %sDashboard%s.', 'super-forms' ), '<a target="_blank" href="https://dashboard.stripe.com/test/tax-rates">', '</a>' ) . '</span>';
-                                            echo '<input type="text" name="tax_rates" placeholder="' . esc_html__( 'e.g: txr_1LmUhbFKn7uROhgCwnWwpN9p', 'super-forms' ) . '" value="' . sanitize_text_field($v['tax_rates']) . '" />';
-                                        echo '</label>';
-                                    echo '</div>';
-                                echo '</div>';
-
-                                echo '<div style="margin-left:10px;" class="sfui-btn sfui-green sfui-round sfui-tooltip" title="' . esc_attr__( 'Add item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Add item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'addRepeaterItem\')"><i class="fas fa-plus"></i></div>';
-                                echo '<div style="margin-left:0px;" class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'deleteRepeaterItem\')"><i class="fas fa-trash"></i></div>';
-                            echo '</div>';
-                        }
-                        echo '</div>';
-                    echo '</div>';
-
-                    echo '<div class="sfui-setting sfui-vertical">';
-                        echo '<label>';
-                            echo '<span class="sfui-title">' . esc_html__( 'Apply discount', 'super-forms' ) . '</span>';
-                            echo '<span class="sfui-label">' . sprintf( esc_html__( 'You can create coupons easily via the %scoupon management%s page of the Stripe dashboard.', 'super-forms' ), '<a target="_blank" href="https://dashboard.stripe.com/coupons">', '</a>' ) . '</span>';
-                        echo '</label>';
-                        echo '<div class="sfui-inline sfui-vertical">';
-                            echo '<form class="sfui-setting">';
-                                // Discount Options
-                                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                    echo '<input type="radio" name="discounts.type" value="none"' . ($s['discounts']['type']==='none' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Do not apply any discount', 'super-forms' ) . '</span>';
-                                echo '</label>';
-                                // Coupon ID
-                                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                    echo '<input type="radio" name="discounts.type" value="existing_coupon"' . ($s['discounts']['type']==='existing_coupon' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Based on existing Stripe Coupon ID', 'super-forms' ) . '</span>';
-                                    echo '<div class="sfui-sub-settings sfui-inline" data-f="discounts.type;existing_coupon">';
-                                        echo '<div class="sfui-setting sfui-inline">';
-                                            echo '<div class="sfui-setting sfui-vertical" style="flex:1;">';
-                                                echo '<label>';
-                                                    echo '<span class="sfui-label">' . esc_html__( 'Enter Coupon ID:', 'super-forms' ) . '</span>';
-                                                    echo '<input type="text" name="discounts.coupon" placeholder="' . esc_html__( 'e.g: SbwGtc0x', 'super-forms' ) . '" value="' . (isset($s['discounts']['coupon']) ? sanitize_text_field($s['discounts']['coupon']) : '') . '" />';
-                                                echo '</label>';
-                                            echo '</div>';
-                                        echo '</div>';
-                                    echo '</div>';
-                                echo '</label>';
-                                // Promotion ID
-                                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                    echo '<input type="radio" name="discounts.type" value="existing_promotion_code"' . ($s['discounts']['type']==='existing_promotion_code' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Based on existing Stripe Promotion ID', 'super-forms' ) . '</span>';
-                                    echo '<div class="sfui-sub-settings sfui-inline" data-f="discounts.type;existing_promotion_code">';
-                                        echo '<div class="sfui-setting sfui-inline">';
-                                            echo '<div class="sfui-setting sfui-vertical" style="flex:1;">';
-                                                echo '<label>';
-                                                    echo '<span class="sfui-label">' . esc_html__( 'Enter Promotion ID:', 'super-forms' ) . '</span>';
-                                                    echo '<input type="text" name="discounts.promotion_code" placeholder="' . esc_html__( 'e.g: SbwGtc0x', 'super-forms' ) . '" value="' . (isset($s['discounts']['promotion_code']) ? sanitize_text_field($s['discounts']['promotion_code']) : '') . '" />';
-                                                echo '</label>';
-                                            echo '</div>';
-                                        echo '</div>';
-                                    echo '</div>';
-                                echo '</label>';
-                                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                    echo '<input type="radio" name="discounts.type" value="new"' . ($s['discounts']['type']==='new' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Create new coupon on the fly', 'super-forms' ) . '</span>';
-                                    echo '<div class="sfui-sub-settings sfui-inline" data-f="discounts.type;new">';
-                                        echo '<div class="sfui-inline sfui-vertical">';
-                                            echo '<div class="sfui-setting">';
-                                                echo '<label>';
-                                                    echo '<span class="sfui-label">' . esc_html__( 'Name of the coupon displayed to customers on, for instance invoices, or receipts. By default the id is shown if name is not set.', 'super-forms' ) . '</span>';
-                                                    echo '<input type="text" name="discounts.new.name" placeholder="FALLDISCOUNT" value="' . (isset($s['discounts']['new']['name']) ? sanitize_text_field($s['discounts']['new']['name']) : '') . '" />';
-                                                echo '</label>';
-                                                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                                    echo '<input type="radio" name="discounts.new.type" value="percent_off"' . ($s['discounts']['new']['type']==='percent_off' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Percent Off', 'super-forms' ) . '</span>';
-                                                    echo '<div class="sfui-sub-settings sfui-vertical" data-f="discounts.new.type;percent_off">';
-                                                        echo '<label>';
-                                                            echo '<span class="sfui-label">' . esc_html__( 'Value larger tahn 0, and smaller or equal to 100 that represents the discount the coupon will apply.', 'super-forms' ) . '</span>';
-                                                            echo '<input type="text" name="discounts.new.percent_off" placeholder="e.g: 10" value="' . (isset($s['discounts']['new']['percent_off']) ? sanitize_text_field($s['discounts']['new']['percent_off']) : '') . '" />';
-                                                        echo '</label>';
-                                                    echo '</div>';
-                                                echo '</label>';
-                                                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                                    echo '<input type="radio" name="discounts.new.type" value="amount_off"' . ($s['discounts']['new']['type']==='amount_off' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Amount Off', 'super-forms' ) . '</span>';
-                                                    echo '<div class="sfui-sub-settings sfui-vertical" data-f="discounts.new.type;amount_off">';
-                                                        echo '<label>';
-                                                            echo '<span class="sfui-label">' . esc_html__( 'A positive integer representing the amount to subtract from an invoice total', 'super-forms' ) . '</span>';
-                                                            echo '<input type="text" name="discounts.new.amount_off" placeholder="e.g: 50.00" value="' . (isset($s['discounts']['new']['amount_off']) ? sanitize_text_field($s['discounts']['new']['amount_off']) : '') . '" />';
-                                                        echo '</label>';
-                                                        echo '<label>';
-                                                            echo '<span class="sfui-label">' . sprintf( esc_html__( 'Three-letter ISO currency code. Must be a %ssupported currency%s.', 'super-forms' ), '<a target="_blank" href="https://stripe.com/docs/currencies">', '</a>' ) . '</span>';
-                                                            echo '<input type="text" name="discounts.new.currency" placeholder="e.g: USD" value="' . (isset($s['shipping_options']['shipping_rate_data']['fixed_amount']['currency']) ? sanitize_text_field($s['shipping_options']['shipping_rate_data']['fixed_amount']['currency']) : '') . '" />';
-                                                        echo '</label>';
-                                                    echo '</div>';
-                                                echo '</label>';
-                                            echo '</div>';
-                                        echo '</div>';
-                                    echo '</div>';
-                                echo '</label>';
-                            echo '</form>';
-                        echo '</div>';
-
-                    echo '</div>';
-
-                    echo '<div class="sfui-setting sfui-vertical">';
-                        echo '<label>';
-                            echo '<span class="sfui-title">' . esc_html__( 'Cancel URL', 'super-forms' ) . '</span>';
-                            echo '<span class="sfui-label">' . esc_html__( 'The URL the customer will be directed to if they decide to cancel payment and return to your website.', 'super-forms' ) . '</span>';
-                            echo '<input type="text" name="cancel_url" placeholder="Leave blank to redirect back to the page with the form" value="' . sanitize_text_field($s['cancel_url']) . '" />';
-                        echo '</label>';
-                    echo '</div>';
-                    echo '<div class="sfui-setting sfui-vertical">';
-                        echo '<label>';
-                            echo '<span class="sfui-title">' . esc_html__( 'Success URL', 'super-forms' ) . '</span>';
-                            echo '<span class="sfui-label">' . esc_html__( 'The URL to which Stripe should send customers when payment or setup is complete. If you\'d like to use information from the successful Checkout Session on your page, read the guide on customizing your success page.', 'super-forms' ) . '</span>';
-                            echo '<input type="text" name="success_url" placeholder="Leave blank to redirect back to the page with the form" value="' . sanitize_text_field($s['success_url']) . '" />';
-                        echo '</label>';
-                    echo '</div>';
-
-                    echo '<div class="sfui-setting sfui-vertical">';
-                        echo '<label>';
-                            echo '<span class="sfui-title">' . esc_html__( 'Customer E-mail', 'super-forms' ) . '</span>';
-                            echo '<span class="sfui-label">' . esc_html__( 'If provided, this value will be used when the Customer object is created. If not provided, customers will be asked to enter their email address. Use this parameter to prefill customer data if you already have an email on file.', 'super-forms' ) . '</span>';
-                            echo '<input type="text" name="customer_email" placeholder="e.g: {email}" value="' . sanitize_text_field($s['customer_email']) . '" />';
-                        echo '</label>';
-                        echo '<div class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<input type="checkbox" name="use_logged_in_email" value="true"' . ($s['use_logged_in_email']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Override with currently logged in or newly registered user E-mail address (recommended)', 'super-forms' ) . '</span>';
-                            echo '</label>';
-                        echo '</div>';
-                        echo '<div class="sfui-setting">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<input type="checkbox" name="connect_stripe_email" value="true"' . ($s['connect_stripe_email']==='true' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'If a Stripe user with this E-mail address already exists connect it to the WordPress user (recommended)', 'super-forms' ) . '</span>';
-                            echo '</label>';
-                        echo '</div>';
-                    echo '</div>';
-                    
-                    echo '<div class="sfui-setting sfui-vertical">';
-                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                            echo '<span class="sfui-title">' . esc_html__( 'Trial period in days (only works when mode is set to `subscription`)', 'super-forms' ) . '</span>';
-                            echo '<span class="sfui-label">' . esc_html__( 'Integer representing the number of trial period days before the customer is charged for the first time. Has to be at least 1.', 'super-forms' ) . '</span>';
-                            echo '<input type="text" name="subscription_data.trial_period_days" placeholder="e.g: 15 (leave blank for no trial period)" value="' . (isset($s['subscription_data']['trial_period_days']) ? sanitize_text_field($s['subscription_data']['trial_period_days']) : '') . '" />';
-                        echo '</label>';
-                    echo '</div>';
-
-                    echo '<div class="sfui-setting sfui-vertical">';
-                        echo '<div class="sfui-notice sfui-desc">';
-                            echo '<strong>' . esc_html__('Note', 'super-forms') . ':</strong> ' . sprintf( esc_html__( 'When using any of the following payment methods %s the below E-mail will be send to the user when their payment failed. This way they are able to retry their payment without filling out the form again.', 'super-forms' ), '<code>bacs_debit</code> <code>boleto</code> <code>acss_debit</code> <code>oxxo</code> <code>sepa_debit</code> <code>sofort</code> <code>us_bank_account</code>');
-                        echo '</div>';
-                        echo '<label>';
-                            echo '<span class="sfui-title">' . esc_html__( 'Retry payment E-mail Subject', 'super-forms' ) . '</span>';
-                            echo '<input type="text" name="retryPaymentEmail.subject" placeholder="Payment failed" value="' . sanitize_text_field($s['retryPaymentEmail']['subject']) . '" />';
-                        echo '</label>';
-                        echo '<label>';
-                            echo '<span class="sfui-title">' . esc_html__( 'Retry payment E-mail Body', 'super-forms' ) . '</span>';
-                            echo '<textarea name="retryPaymentEmail.body">' . $s['retryPaymentEmail']['body'] . '</textarea>';
-                        echo '</label>';
-                        echo '<div class="sfui-inline">';
-                            echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                echo '<input type="checkbox" name="retryPaymentEmail.lineBreaks" value="true"' . ($s['retryPaymentEmail']['lineBreaks']==='true' ? ' checked="checked"' : '') . ' />';
-                                echo '<span class="sfui-label">' . esc_html__( 'Automatically add line breaks (enabled by default)', 'super-forms' ) . '</span>';
-                            echo '</label>';
-                        echo '</div>';
-                        echo '<label>';
-                            echo '<span class="sfui-title">' . esc_html__( 'Retry payment link expiry in hours', 'super-forms' ) . '</span>';
-                            echo '<span class="sfui-label">' . esc_html__( 'Enter the amount in hours before the retry payment link expires. Must be a number between 24 and 720.', 'super-forms' ) . '</span>';
-                            echo '<input type="number" min="24" max="720" name="retryPaymentEmail.expiry" placeholder="e.g: 24" value="' . sanitize_text_field($s['retryPaymentEmail']['expiry']) . '" />';
-                        echo '</label>';
-                    echo '</div>';
- 
-                    echo '<div class="sfui-setting sfui-vertical">';
-                        echo '<label>';
-                            echo '<span class="sfui-title">' . esc_html__( 'Collect customer phone number', 'super-forms' ) . '</span>';
-                            echo '<span class="sfui-label">' . esc_html__( 'Accepted values are', 'super-forms' ) . ': <code>false</code> <code>true</code></span>';
-                            echo '<input type="text" name="phone_number_collection.enabled" value="' . ($s['phone_number_collection']['enabled']) . '" />';
-                        echo '</label>';
-                        echo '<div class="sfui-sub-settings sfui-inline" data-f="phone_number_collection.enabled;true">';
-                            echo '<div class="sfui-notice sfui-desc">';
-                                echo '<strong>' . esc_html__('Note', 'super-forms') . ':</strong> ' . sprintf( esc_html__( 'We recommend that you review your privacy policy and check with your legal contacts before using this feature. Learn more about %scollecting phone numbers with Checkout%s.', 'super-forms' ), '<a href="https://stripe.com/docs/payments/checkout/phone-numbers">', '</a>');
-                            echo '</div>';
-                        echo '</div>';
-                    echo '</div>';
-
-                    // [optional] Specify whether Checkout should collect the customer’s billing address.
-                    // `auto` Checkout will only collect the billing address when necessary.
-                    // `required` Checkout will always collect the customer’s billing address.
-                    //'billing_address_collection' => 'auto', 
-                    echo '<div class="sfui-setting sfui-vertical">';
-                        echo '<label>';
-                            echo '<span class="sfui-title">' . esc_html__( 'Collect customer billing address', 'super-forms' ) . '</span>';
-                            echo '<span class="sfui-label">' . esc_html__( 'Accepted values are', 'super-forms' ) . ': <code>auto</code> <code>required</code></span>';
-                            echo '<input type="text" name="billing_address_collection" placeholder="e.g: required" value="' . sanitize_text_field($s['billing_address_collection']) . '" />';
-                        echo '</label>';
-                    echo '</div>';
-
-                    echo '<div class="sfui-setting sfui-vertical">';
-                        echo '<label>';
-                            echo '<span class="sfui-title">' . esc_html__( 'The shipping rate options to apply to this Session.', 'super-forms' ) . '</span>';
-                        echo '</label>';
-                        echo '<div class="sfui-inline sfui-vertical">';
-                            echo '<form class="sfui-setting">';
-                                // Shipping Options
-                                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                    echo '<input type="radio" name="shipping_options.type" value="id"' . ($s['shipping_options']['type']==='id' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Based on existing Stripe Shipping Rate ID (recommended)', 'super-forms' ) . '</span>';
-                                    echo '<div class="sfui-sub-settings sfui-inline" data-f="shipping_options.type;id">';
-                                        echo '<div class="sfui-setting sfui-inline">';
-                                            // Shipping Rate ID
-                                            echo '<div class="sfui-setting sfui-vertical" style="flex:1;">';
-                                                echo '<label>';
-                                                    echo '<span class="sfui-label">' . esc_html__( 'Enter shipping rate ID:', 'super-forms' ) . '</span>';
-                                                    echo '<input type="text" name="shipping_options.shipping_rate" placeholder="' . esc_html__( 'e.g: shr_XXXXXXXXXXXXXXXXXXXXXXXX', 'super-forms' ) . '" value="' . (isset($s['shipping_options']['shipping_rate']) ? sanitize_text_field($s['shipping_options']['shipping_rate']) : '') . '" />';
-                                                echo '</label>';
-                                            echo '</div>';
-                                        echo '</div>';
-                                    echo '</div>';
-                                echo '</label>';
-                                // Shipping Rate Data
-                                echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                                    echo '<input type="radio" name="shipping_options.type" value="data"' . ($s['shipping_options']['type']==='data' ? ' checked="checked"' : '') . ' /><span class="sfui-title">' . esc_html__( 'Create new shipping rate on the fly', 'super-forms' ) . '</span>';
-                                    echo '<div class="sfui-sub-settings sfui-vertical" data-f="shipping_options.type;data">';
-                                        echo '<div class="sfui-setting sfui-vertical">';
-                                            echo '<label>';
-                                                echo '<span class="sfui-title">' . esc_html__( 'Display name', 'super-forms' ) . '</span>';
-                                                echo '<span class="sfui-label">' . esc_html__( 'The name of the shipping rate, meant to be displayable to the customer. This will appear on CheckoutSessions.', 'super-forms' ) . '</span>';
-                                                echo '<input type="text" name="shipping_options.shipping_rate_data.display_name" placeholder="e.g: World wide shipping" value="' . (isset($s['shipping_options']['shipping_rate_data']['display_name']) ? sanitize_text_field($s['shipping_options']['shipping_rate_data']['display_name']) : '') . '" />';
-                                            echo '</label>';
-                                        echo '</div>';
-                                        echo '<div class="sfui-setting sfui-vertical">';
-
-                                            echo '<label>';
-                                                echo '<span class="sfui-title">' . esc_html__( 'The estimated range for how long shipping will take, meant to be displayable to the customer.', 'super-forms' ) . '</span>';
-                                            echo '</label>';
-
-                                            echo '<div class="sfui-setting sfui-vertical">';
-                                                echo '<span class="sfui-title">' . esc_html__( 'The upper bound of the estimated range. If empty, represents no upper bound i.e., infinite.', 'super-forms' ) . '</span>';
-                                                echo '<label>';
-                                                    echo '<span class="sfui-label">' . esc_html__( 'Unit.', 'super-forms' ) . ' ' . esc_html__( 'Accepted values are', 'super-forms' ) . ': <code>hour</code> <code>day</code> <code>business_day</code> <code>week</code> <code>month</code></span>'; 
-                                                    echo '<input type="text" name="shipping_options.shipping_rate_data.delivery_estimate.maximum.unit" placeholder="e.g: business_day" value="' . sanitize_text_field($s['shipping_options']['shipping_rate_data']['delivery_estimate']['maximum']['unit']) . '" />';
-                                                echo '</label>';
-                                                echo '<label>';
-                                                    echo '<span class="sfui-label">' . esc_html__( 'Value (must be greater than 0)', 'super-forms' ) . '</span>';
-                                                    echo '<input type="number" name="shipping_options.shipping_rate_data.delivery_estimate.maximum.value" placeholder="e.g: 5" value="' . absint($s['shipping_options']['shipping_rate_data']['delivery_estimate']['maximum']['value']) . '" />';
-                                                echo '</label>';
-                                            echo '</div>';
-                                            echo '<div class="sfui-setting sfui-vertical">';
-                                                echo '<span class="sfui-title">' . esc_html__( 'The lower bound of the estimated range. If empty, represents no lower bound.', 'super-forms' ) . '</span>';
-                                                echo '<label>';
-                                                    echo '<span class="sfui-label">' . esc_html__( 'Unit.', 'super-forms' ) . ' ' . esc_html__( 'Accepted values are', 'super-forms' ) . ': <code>hour</code> <code>day</code> <code>business_day</code> <code>week</code> <code>month</code></span>'; 
-                                                    echo '<input type="text" name="shipping_options.shipping_rate_data.delivery_estimate.minimum.unit" placeholder="e.g: business_day" value="' . sanitize_text_field($s['shipping_options']['shipping_rate_data']['delivery_estimate']['minimum']['unit']) . '" />';
-                                                echo '</label>';
-                                                echo '<label>';
-                                                    echo '<span class="sfui-label">' . esc_html__( 'Value (must be greater than 0)', 'super-forms' ) . '</span>';
-                                                    echo '<input type="number" name="shipping_options.shipping_rate_data.delivery_estimate.minimum.value" placeholder="e.g: 5" value="' . absint($s['shipping_options']['shipping_rate_data']['delivery_estimate']['minimum']['value']) . '" />';
-                                                echo '</label>';
-                                            echo '</div>';
-                                        echo '</div>';
-
-                                        echo '<div class="sfui-setting sfui-vertical">';
-                                            echo '<label>';
-                                                echo '<span class="sfui-title">' . esc_html__( 'Amount to charge for shipping', 'super-forms' ) . '</span>';
-                                                echo '<input type="text" name="shipping_options.shipping_rate_data.fixed_amount.amount" placeholder="e.g: 6.99" value="' . (isset($s['shipping_options']['shipping_rate_data']['fixed_amount']['amount']) ? sanitize_text_field($s['shipping_options']['shipping_rate_data']['fixed_amount']['amount']) : '') . '" />';
-                                            echo '</label>';
-                                            echo '<label>';
-                                                echo '<span class="sfui-title">' . esc_html__( 'Shipping currency', 'super-forms' ) . '</span>';
-                                                echo '<span class="sfui-label">' . sprintf( esc_html__( 'Three-letter ISO currency code. Must be a %ssupported currency%s.', 'super-forms' ), '<a target="_blank" href="https://stripe.com/docs/currencies">', '</a>' ) . '</span>';
-                                                echo '<input type="text" name="shipping_options.shipping_rate_data.fixed_amount.currency" placeholder="e.g: USD" value="' . (isset($s['shipping_options']['shipping_rate_data']['fixed_amount']['currency']) ? sanitize_text_field($s['shipping_options']['shipping_rate_data']['fixed_amount']['currency']) : '') . '" />';
-                                            echo '</label>';
-                                            echo '<label>';
-                                                echo '<span class="sfui-title">' . esc_html__( 'Shipping tax behavior', 'super-forms' ) . '</span>';
-                                                echo '<span class="sfui-label">' . esc_html__( 'Specifies whether the rate is considered inclusive of taxes or exclusive of taxes.', 'super-forms' ) . ' ' . esc_html__( 'Accepted values are', 'super-forms' ) . ': <code>inclusive</code> <code>exclusive</code> <code>unspecified</code></span>'; 
-                                                echo '<input type="text" name="shipping_options.shipping_rate_data.tax_behavior" placeholder="e.g: inclusive" value="' . (isset($s['shipping_options']['shipping_rate_data']['tax_behavior']) ? sanitize_text_field($s['shipping_options']['shipping_rate_data']['tax_behavior']) : '') . '" />';
-                                            echo '</label>';
-                                            echo '<label>';
-                                                echo '<span class="sfui-title">' . esc_html__( 'Shipping tax code', 'super-forms' ) . '</span>';
-                                                echo '<span class="sfui-label">' . esc_html__( 'A tax code ID. The Shipping tax code is', 'super-forms' ) . ': <code>txcd_92010001</code></span>';
-                                                echo '<input type="text" name="shipping_options.shipping_rate_data.tax_code" placeholder="e.g: inclusive" value="' . (isset($s['shipping_options']['shipping_rate_data']['tax_code']) ? sanitize_text_field($s['shipping_options']['shipping_rate_data']['tax_code']) : '') . '" />';
-                                            echo '</label>';
-                                        echo '</div>';
-
-                                    echo '</div>';
-                                echo '</label>';
-                            echo '</form>';
-                        echo '</div>';
-                    echo '</div>';
-
-                    $statuses = SUPER_Settings::get_entry_statuses();
-                    $entryStatusesCode = '';
-                    foreach($statuses as $k => $v) {
-                        if($k==='') continue;
-                        if($entryStatusesCode!=='') $entryStatusesCode .= ', ';
-                        $entryStatusesCode .= '<code>'.$k.'</code>';
-                    }
-                    echo '<div class="sfui-setting sfui-vertical">';
-                        echo '<label>';
-                            echo '<span class="sfui-title">' . esc_html__( 'Entry status after payment completed', 'super-forms' ) . '</span>';
-                            echo '<span class="sfui-label">' . sprintf( esc_html__( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#backend-settings') . '">', '</a>' ) . '</span>';
-                            echo '<span class="sfui-label">' . esc_html__( 'Leave blank to keep the current entry status unchanged. Accepted values are:', 'super-forms' ) . ' ' . $entryStatusesCode . '</span>';
-                            echo '<input type="text" name="update_entry_status" value="' . (isset($s['update_entry_status']) ? sanitize_text_field($s['update_entry_status']) : '') . '" />';
-                        echo '</label>';
-                    echo '</div>';
-                    echo '<div class="sfui-setting sfui-vertical">';
-                        echo '<label>';
-                            echo '<span class="sfui-title">' . esc_html__( 'Entry status when subscription status changes', 'super-forms' ) . '</span>';
-                            echo '<span class="sfui-label">' . esc_html__( 'Put each combination on a new line, separate the values by pipes like so: `subscription_status|entry_status`.', 'super-forms' ) . '</span>';
-                            echo '<span class="sfui-label">' . esc_html__( 'Accepted values for subscription status are:', 'super-forms' ) . ' <code>active</code>, <code>paused</code> and <code>canceled</code></span>';
-                            echo '<span class="sfui-label">' . esc_html__( 'Accepted values are for entries are:', 'super-forms' ) . ' <code>delete</code> (to permanently delete the entry), <code>trash</code> (to trash the entry), ' . $entryStatusesCode . '</span>';
-                            echo '<span class="sfui-label">' . sprintf( esc_html__( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#backend-settings') . '">', '</a>' ) . '</span>';
-                            echo '<span class="sfui-label">' . esc_html__( 'Remove the line if you wish to leave the entry status unchanged.', 'super-forms' ) . '</span>';
-                            echo '<textarea name="subscription.entry_status">' . (isset($s['subscription']['entry_status']) ? $s['subscription']['entry_status'] : '') . '</textarea>';
-                        echo '</label>';
-                    echo '</div>';
-
-                    if(class_exists('SUPER_Frontend_Posting')){
-                        $postStatusesCode = '';
-                        $statuses = array(
-                            'publish' => esc_html__( 'Publish (default)', 'super-forms' ),
-                            'future' => esc_html__( 'Future', 'super-forms' ),
-                            'draft' => esc_html__( 'Draft', 'super-forms' ),
-                            'pending' => esc_html__( 'Pending', 'super-forms' ),
-                            'private' => esc_html__( 'Private', 'super-forms' ),
-                            'trash' => esc_html__( 'Trash', 'super-forms' ),
-                            'auto-draft' => esc_html__( 'Auto-Draft', 'super-forms' )
-                        );
-                        foreach($statuses as $k => $v) {
-                            if($k==='') continue;
-                            if($postStatusesCode!=='') $postStatusesCode .= ', ';
-                            $postStatusesCode .= '<code>'.$k.'</code>';
-                        }
-                        echo '<div class="sfui-setting sfui-vertical">';
-                            echo '<label>';
-                                echo '<span class="sfui-title">' . esc_html__( 'Post status after payment complete', 'super-forms' ) . '</span>';
-                                echo '<span class="sfui-label">' . esc_html__( 'Only used for Front-end posting. Leave blank to keep the current post status unchanged. Accepted values are:', 'super-forms' ) . ' ' . $postStatusesCode . '</span>';
-                                echo '<input type="text" name="frontend_posting.update_post_status" value="' . (isset($s['frontend_posting']['update_post_status']) ? sanitize_text_field($s['frontend_posting']['update_post_status']) : '') . '" />';
-                            echo '</label>';
-                        echo '</div>';
-                        echo '<div class="sfui-setting sfui-vertical">';
-                            echo '<label>';
-                                echo '<span class="sfui-title">' . esc_html__( 'Post status when subscription status changes', 'super-forms' ) . '</span>';
-                                echo '<span class="sfui-label">' . esc_html__( 'Only used for Front-end posting.', 'super-forms' ) . '</span>';
-                                echo '<span class="sfui-label">' . esc_html__( 'Put each combination on a new line, separate the values by pipes like so: `subscription_status|post_status`.', 'super-forms' ) . '</span>';
-                                echo '<span class="sfui-label">' . esc_html__( 'Accepted values for subscription status are:', 'super-forms' ) . ' <code>active</code>, <code>paused</code> and <code>canceled</code></span>';
-                                echo '<span class="sfui-label">' . esc_html__( 'Accepted values for posts are:', 'super-forms' ) . ' <code>delete</code> (to permanently delete the post), <code>trash</code> (to trash the post), ' . $postStatusesCode . '</span>';
-                                echo '<span class="sfui-label">' . esc_html__( 'Remove the line if you wish to leave the post status unchanged.', 'super-forms' ) . '</span>';
-                                echo '<textarea name="subscription.post_status">' . (isset($s['subscription']['post_status']) ? $s['subscription']['post_status'] : '') . '</textarea>';
-                            echo '</label>';
-                        echo '</div>';
-                    }
-
-                    // Register & Login features
-                    if(class_exists('SUPER_Register_Login')){
-                        global $wp_roles;
-                        $all_roles = $wp_roles->roles;
-                        $editable_roles = apply_filters( 'editable_roles', $all_roles );
-                        $rolesCode = '';
-                        foreach( $editable_roles as $k => $v ) {
-                            if($rolesCode!=='') $rolesCode .= ', ';
-                            $rolesCode .= '<code>'.$k.'</code>';
-                        }
-                        $userLoginStatusesCode = '';
-                        $statuses = array(
-                            'active' => esc_html__( 'Active (default)', 'super-forms' ),
-                            'pending' => esc_html__( 'Pending', 'super-forms' ),
-                            'payment_required' => esc_html__( 'Payment required', 'super-forms' ),
-                            'blocked' => esc_html__( 'Blocked', 'super-forms' )
-                        );
-                        foreach($statuses as $k => $v) {
-                            if($k==='') continue;
-                            if($userLoginStatusesCode!=='') $userLoginStatusesCode .= ', ';
-                            $userLoginStatusesCode .= '<code>'.$k.'</code>';
-                        }
-                        echo '<div class="sfui-setting sfui-vertical">';
-                            echo '<label>';
-                                echo '<span class="sfui-title">' . esc_html__( 'User login status after payment complete', 'super-forms' ) . '</span>';
-                                echo '<span class="sfui-label">' . esc_html__( 'Only used when registering a new user. You would normally want this to be set to `active` so that the user is able to login. Leave blank to keep the current login status unchanged. Accepted values are:', 'super-forms' ) . ' ' . $userLoginStatusesCode . '</span>';
-                                echo '<input type="text" name="register_login.update_login_status" value="' . (isset($s['register_login']['update_login_status']) ? sanitize_text_field($s['register_login']['update_login_status']) : '') . '" />';
-                            echo '</label>';
-                            echo '<label>';
-                                echo '<span class="sfui-title">' . esc_html__( 'User login status when subscription status changes', 'super-forms' ) . '</span>';
-                                echo '<span class="sfui-label">' . esc_html__( 'Put each combination on a new line, separate the values by pipes like so `subscription_status|user_login_status`.', 'super-forms' ) . '</span>';
-                                echo '<span class="sfui-label">' . esc_html__( 'Accepted values for subscription status are:', 'super-forms' ) . ' <code>active</code>, <code>paused</code> and <code>canceled</code></span>';
-                                echo '<span class="sfui-label">' . esc_html__( 'Accepted values for login status are:', 'super-forms' ) . ' ' . $userLoginStatusesCode . '</span>';
-                                echo '<span class="sfui-label">' . esc_html__( 'Remove the line if you wish to leave the login status unchanged.', 'super-forms' ) . '</span>';
-                                echo '<textarea name="subscription.login_status">' . (isset($s['subscription']['login_status']) ? $s['subscription']['login_status'] : '') . '</textarea>';
-                            echo '</label>';
-                            echo '<label>';
-                                echo '<span class="sfui-title">' . esc_html__( 'Change user role after payment complete', 'super-forms' ) . '</span>';
-                                echo '<span class="sfui-label">' . esc_html__( 'Leave blank to keep the current user role unchanged. Accepted values are:', 'super-forms' ) . ' ' . $rolesCode . '</span>';
-                                echo '<input type="text" name="register_login.update_user_role" value="' . (isset($s['register_login']['update_user_role']) ? sanitize_text_field($s['register_login']['update_user_role']) : '') . '" />';
-                            echo '</label>';
-                            echo '<label>';
-                                echo '<span class="sfui-title">' . esc_html__( 'Change user role when subscription status changes', 'super-forms' ) . '</span>';
-                                echo '<span class="sfui-label">' . esc_html__( 'Put each combination on a new line, separate the values by pipes like so: `subscription_status|user_role`.', 'super-forms' ) . '</span>';
-                                echo '<span class="sfui-label">' . esc_html__( 'Accepted values for subscription status are:', 'super-forms' ) . ' <code>active</code>, <code>paused</code> and <code>canceled</code></span>';
-                                echo '<span class="sfui-label">' . esc_html__( 'Accepted values for user roles are:', 'super-forms' ) . ' ' . $rolesCode . '</span>';
-                                echo '<span class="sfui-label">' . esc_html__( 'Remove the line if you wish to leave the user role unchanged.', 'super-forms' ) . '</span>';
-                                echo '<textarea name="subscription.user_role">' . (isset($s['subscription']['user_role']) ? $s['subscription']['user_role'] : '') . '</textarea>';
-                            echo '</label>';
-                        echo '</div>';
-                    }
-
-                    echo '<div class="sfui-setting sfui-vertical">';
-                        echo '<div class="sfui-notice sfui-desc">';
-                            echo '<strong>' . esc_html__('Note', 'super-forms') . ':</strong> ' . sprintf( esc_html__( 'This option only affects Checkout Sessions with `payment` as mode. Set this to `false` when you are creating invoices outside of Stripe. Set this to `true` if you want Stripe to create invoices automatically for one-time payments. To send invoice summary emails to your customer, you must make sure you enable the %1$sEmail customers about successful payments%2$s in your Stripe Dashboard. You can also prevent Stripe from sending these emails by %1$sdisabling the setting%2$s in your Stripe Dashboard. If a delayed payment method is used, the invoice will be send after successful payment.', 'super-forms' ), '<a href="https://dashboard.stripe.com/settings/emails" target="_blank">', '</a>');
-                        echo '</div>';
-                        echo '<label>';
-                            echo '<span class="sfui-title">' . esc_html__( 'Create invoice', 'super-forms' ) . '</span>';
-                            echo '<span class="sfui-label">' . esc_html__( '', 'super-forms' ) . ' ' . esc_html__( 'Accepted values are', 'super-forms' ) . ': <code>true</code> <code>false</code></span>';
-                            echo '<input type="text" name="invoice_creation" value="' . sanitize_text_field($s['invoice_creation']) . '" />';
-                        echo '</label>';
-                    echo '</div>';
-
-                    echo '<div class="sfui-setting sfui-vertical">';
-                        echo '<label>';
-                            echo '<span class="sfui-title">' . esc_html__( 'Enable automatic Tax', 'super-forms' ) . '</span>';
-                            echo '<span class="sfui-label">' . esc_html__( 'Accepted value are', 'super-forms' ) . ': <code>true</code> or <code>false</code></span>';
-                            echo '<input type="text" name="automatic_tax.enabled" placeholder="e.g: true" value="' . sanitize_text_field($s['automatic_tax']['enabled']) . '" />';
-                        echo '</label>';
-                    echo '</div>';
-
-                    echo '<div class="sfui-setting sfui-vertical">';
-                        echo '<label>';
-                            echo '<span class="sfui-title">' . esc_html__( 'Enable Tax ID collection (allows users to purchase as a business)', 'super-forms' ) . '</span>';
-                            echo '<span class="sfui-label">' . esc_html__( 'Accepted value are', 'super-forms' ) . ': <code>true</code> or <code>false</code></span>';
-                            echo '<input type="text" name="tax_id_collection.enabled" placeholder="e.g: true" value="' . sanitize_text_field($s['tax_id_collection']['enabled']) . '" />';
-                        echo '</label>';
-                    echo '</div>';
-
-                    echo '<div class="sfui-setting sfui-vertical">';
-                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                            echo '<span class="sfui-title">' . esc_html__( 'The subscription’s description, meant to be displayable to the customer.', 'super-forms' ) . '</span>';
-                            echo '<span class="sfui-label">' . esc_html__( 'Use this field to optionally store an explanation of the subscription for rendering in Stripe hosted surfaces.', 'super-forms' ) . '</span>';
-                            echo '<input type="text" name="subscription_data.description" placeholder="e.g: Website updates and maintenance" value="' . (isset($s['subscription_data']['description']) ? sanitize_text_field($s['subscription_data']['description']) : '') . '" />';
-                        echo '</label>';
-                    echo '</div>';
-                    
-                    echo '<div class="sfui-setting sfui-vertical">';
-                        echo '<label>';
-                            echo '<span class="sfui-title">' . esc_html__( 'Submit type', 'super-forms' ) . '</span>';
-                            echo '<span class="sfui-label">' . esc_html__( 'Describes the type of transaction being performed by Checkout in order to customize relevant text on the page, such as the submit button. Possible values', 'super-forms' ) . ': <code>auto</code> <code>pay</code> <code>book</code> <code>donate</code></span>';
-                            echo '<input type="text" name="submit_type" placeholder="e.g: donate" value="' . sanitize_text_field($s['submit_type']) . '" />';
-                        echo '</label>';
-                    echo '</div>';
-                    
-                    echo '<div class="sfui-setting sfui-vertical">';
-                        echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                            echo '<span class="sfui-title">' . esc_html__( 'The IETF language tag of the locale Checkout is displayed in. If blank or auto, the browser’s locale is used.', 'super-forms' ) . '</span>';
-                            echo '<span class="sfui-label">' . esc_html__( 'Possible values', 'super-forms' ) . ': <code>auto</code> <code>bg</code> <code>cs</code> <code>da</code> <code>de</code> <code>el</code> <code>en</code> <code>en-GB</code> <code>es</code> <code>es-419</code> <code>et</code> <code>fi</code> <code>fil</code> <code>fr</code> <code>fr-CA</code> <code>hr</code> <code>hu</code> <code>id</code> <code>it</code> <code>ja</code> <code>ko</code> <code>lt</code> <code>lv</code> <code>ms</code> <code>mt</code> <code>nb</code> <code>nl</code> <code>pl</code> <code>pt</code> <code>pt-BR</code> <code>ro</code> <code>ru</code> <code>sk</code> <code>sl</code> <code>sv</code> <code>th</code> <code>tr</code> <code>vi</code> <code>zh</code> <code>zh-HK</code> <code>zh-TW</code></span>';
-                            echo '<input type="text" name="locale" placeholder="e.g: en" value="' . sanitize_text_field($s['locale']) . '" />';
-                        echo '</label>';
-                    echo '</div>';
-
-                    echo '<div class="sfui-setting sfui-vertical">';
-                        echo '<label>';
-                            echo '<span class="sfui-title">' . esc_html__( 'Client reference ID (for developers only)', 'super-forms' ) . '</span>';
-                            echo '<span class="sfui-label">' . esc_html__( 'A unique string to reference the Checkout Session. This can be a customer ID, a cart ID, or similar, and can be used to reconcile the session with your internal systems.', 'super-forms' ) . '</span>';
-                            echo '<input type="text" name="client_reference_id" placeholder="" value="' . sanitize_text_field($s['client_reference_id']) . '" />';
-                        echo '</label>';
-                    echo '</div>';
-
-                    // [optional] The shipping rate options to apply to this Session.
-                    //'shipping_options' => [
-                    //    'shipping_rate' => '', // The ID of the Shipping Rate to use for this shipping option.
-                    //    'shipping_rate_data' => [ // Parameters to be passed to Shipping Rate creation for this shipping option
-                    //        'display_name' => '', // The name of the shipping rate, meant to be displayable to the customer. This will appear on CheckoutSessions.
-                    //        'type' => 'fixed_amount', // The type of calculation to use on the shipping rate. Can only be fixed_amount for now.
-                    //        'delivery_estimate' => [ // The estimated range for how long shipping will take, meant to be displayable to the customer. This will appear on CheckoutSessions.
-                    //            'maximum' => [ // The upper bound of the estimated range. If empty, represents no upper bound i.e., infinite.
-                    //                'unit' => 'business_day', // hour, day, business_day, week, month
-                    //                'value' => 5,
-                    //            ],
-                    //            'minimum' => [ // The lower bound of the estimated range. If empty, represents no lower bound.
-                    //                'unit' => 'business_day', // hour, day, business_day, week, month
-                    //                'value' => 2,
-                    //            ]
-                    //        ],
-                    //        'fixed_amount' => [
-                    //            'amount' => 3000, // A non-negative integer in cents representing how much to charge.
-                    //            'currency' => 'usd' // Three-letter ISO currency code. Must be a supported currency.
-                    //        ]
-                    //        'metadata' => [], // Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format. Individual keys can be unset by posting an empty value to them. All keys can be unset by posting an empty value to metadata.
-                    //        'tax_behavior' => 'exclusive' // Specifies whether the rate is considered inclusive of taxes or exclusive of taxes. One of inclusive, exclusive, or unspecified.
-                    //        'tax_code' => 'txcd_92010001', // A tax code ID. The Shipping tax code is txcd_92010001.
-                    //    ]
-                    //],
-
-
-
-                    
-                    // not used echo '<div class="sfui-setting sfui-vertical">';
-                    // not used     echo '<div class="sfui-notice sfui-desc">';
-                    // not used         echo '<strong>' . esc_html__('Note', 'super-forms') . ':</strong> ' . sprintf( esc_html__( '%sStripe Connect%s is required for the below settings to work', 'super-forms' ), '<a target="_blank" href="https://stripe.com/docs/connect">', '</a>' );
-                    // not used     echo '</div>';
-                    // not used     echo '<div class="sfui-setting sfui-vertical">';
-                    // not used         echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                    // not used             echo '<span class="sfui-title">' . esc_html__( 'Application fee percent (enter a non-negative decimal between 0 and 100, with at most two decimal places)', 'super-forms' ) . '</span>';
-                    // not used             echo '<span class="sfui-label">' . esc_html__( 'This represents the percentage of the subscription invoice subtotal that will be transferred to the application owner’s Stripe account. To use an application fee percent, the request must be made on behalf of another account, using the Stripe-Account header or an OAuth key. For more information, see the application fees documentation.', 'super-forms' ) . '</span>';
-                    // not used             echo '<input type="text" name="subscription_data.application_fee_percent" placeholder="e.g: 30" value="' . sanitize_text_field($s['subscription_data']['application_fee_percent']) . '" />';
-                    // not used         echo '</label>';
-                    // not used     echo '</div>';
-                    // not used     echo '<div class="sfui-setting sfui-vertical">';
-                    // not used         echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                    // not used             echo '<span class="sfui-title">' . esc_html__( 'ID of an existing, connected Stripe account.', 'super-forms' ) . '</span>';
-                    // not used             echo '<input type="text" name="subscription_data.transfer_data.destination" placeholder="e.g: acct_1D1FNjFKn7uROhgC" value="' . sanitize_text_field($s['subscription_data']['transfer_data']['destination']) . '" />';
-                    // not used         echo '</label>';
-                    // not used     echo '</div>';
-                    // not used     echo '<div class="sfui-setting sfui-vertical">';
-                    // not used         echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
-                    // not used             echo '<span class="sfui-title">' . esc_html__( 'Amount percent (enter a non-negative decimal between 0 and 100, with at most two decimal places)', 'super-forms' ) . '</span>';
-                    // not used             echo '<span class="sfui-label">' . esc_html__( 'This represents the percentage of the subscription invoice subtotal that will be transferred to the destination account. By default, the entire amount is transferred to the destination.', 'super-forms' ) . '</span>';
-                    // not used             echo '<input type="text" name="subscription_data.transfer_data.amount_percent" placeholder="e.g: 100" value="' . sanitize_text_field($s['subscription_data']['transfer_data']['amount_percent']) . '" />';
-                    // not used         echo '</label>';
-                    // not used     echo '</div>';
-                    // not used echo '</div>';
-
-
-                echo '</div>';
-            echo '</div>';
-
-
+                            // not used echo '<div class="sfui-setting sfui-vertical">';
+                            // not used     echo '<div class="sfui-notice sfui-desc">';
+                            // not used         echo '<strong>' . esc_html__('Note', 'super-forms') . ':</strong> ' . sprintf( esc_html__( '%sStripe Connect%s is required for the below settings to work', 'super-forms' ), '<a target="_blank" href="https://stripe.com/docs/connect">', '</a>' );
+                            // not used     echo '</div>';
+                            // not used     echo '<div class="sfui-setting sfui-vertical">';
+                            // not used         echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                            // not used             echo '<span class="sfui-title">' . esc_html__( 'Application fee percent (enter a non-negative decimal between 0 and 100, with at most two decimal places)', 'super-forms' ) . '</span>';
+                            // not used             echo '<span class="sfui-label">' . esc_html__( 'This represents the percentage of the subscription invoice subtotal that will be transferred to the application owner’s Stripe account. To use an application fee percent, the request must be made on behalf of another account, using the Stripe-Account header or an OAuth key. For more information, see the application fees documentation.', 'super-forms' ) . '</span>';
+                            // not used             echo '<input type="text" name="subscription_data.application_fee_percent" placeholder="e.g: 30" value="' . sanitize_text_field($s['subscription_data']['application_fee_percent']) . '" />';
+                            // not used         echo '</label>';
+                            // not used     echo '</div>';
+                            // not used     echo '<div class="sfui-setting sfui-vertical">';
+                            // not used         echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                            // not used             echo '<span class="sfui-title">' . esc_html__( 'ID of an existing, connected Stripe account.', 'super-forms' ) . '</span>';
+                            // not used             echo '<input type="text" name="subscription_data.transfer_data.destination" placeholder="e.g: acct_1D1FNjFKn7uROhgC" value="' . sanitize_text_field($s['subscription_data']['transfer_data']['destination']) . '" />';
+                            // not used         echo '</label>';
+                            // not used     echo '</div>';
+                            // not used     echo '<div class="sfui-setting sfui-vertical">';
+                            // not used         echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
+                            // not used             echo '<span class="sfui-title">' . esc_html__( 'Amount percent (enter a non-negative decimal between 0 and 100, with at most two decimal places)', 'super-forms' ) . '</span>';
+                            // not used             echo '<span class="sfui-label">' . esc_html__( 'This represents the percentage of the subscription invoice subtotal that will be transferred to the destination account. By default, the entire amount is transferred to the destination.', 'super-forms' ) . '</span>';
+                            // not used             echo '<input type="text" name="subscription_data.transfer_data.amount_percent" placeholder="e.g: 100" value="' . sanitize_text_field($s['subscription_data']['transfer_data']['amount_percent']) . '" />';
+                            // not used         echo '</label>';
+                            // not used     echo '</div>';
+                            // not used echo '</div>';
+                        )
+                    )
+                )
+            );
+            $prefix = array();
+            SUPER_UI::loop_over_tab_setting_nodes($s, $nodes, $prefix);
         }
         // Get default listing settings
         public static function get_default_stripe_settings($settings=array(), $s=array()) {
@@ -1477,10 +1771,10 @@ if(!class_exists('SUPER_Stripe')) :
                 'f2' => '', 
                 'logic' => ''
             );
-            if(empty($s['mode'])) $s['mode'] = 'payment'; // The mode of the Checkout Session. Required when using prices or setup mode. Pass subscription if the Checkout Session includes at least one recurring item.
-            if(empty($s['submit_type'])) $s['submit_type'] = 'auto'; // Describes the type of transaction being performed by Checkout in order to customize relevant text on the page, such as the submit button. submit_type can only be specified on Checkout Sessions in payment mode, but not Checkout Sessions in subscription or setup mode.
+            if(empty($s['mode'])) $s['mode'] = 'payment'; // The mode of the Checkout Session. Required when using prices. Pass subscription if the Checkout Session includes at least one recurring item.
+            if(empty($s['submit_type'])) $s['submit_type'] = 'auto'; // Describes the type of transaction being performed by Checkout in order to customize relevant text on the page, such as the submit button. submit_type can only be specified on Checkout Sessions in payment mode, but not Checkout Sessions in subscription mode.
             if(empty($s['cancel_url'])) $s['cancel_url'] = ''; // The URL the customer will be directed to if they decide to cancel payment and return to your website.
-            if(empty($s['success_url'])) $s['success_url'] = ''; // The URL to which Stripe should send customers when payment or setup is complete. If you’d like to use information from the successful Checkout Session on your page, read the guide on customizing your success page.
+            if(empty($s['success_url'])) $s['success_url'] = ''; // The URL to which Stripe should send customers when payment is complete. If you’d like to use information from the successful Checkout Session on your page, read the guide on customizing your success page.
             if(empty($s['customer_email'])) $s['customer_email'] = ''; // If provided, this value will be used when the Customer object is created. If not provided, customers will be asked to enter their email address. Use this parameter to prefill customer data if you already have an email on file. To access information about the customer once a session is complete, use the customer field.
             if(empty($s['use_logged_in_email'])) $s['use_logged_in_email'] = 'true'; // When enabled, use the currently logged in user email address
             if(empty($s['connect_stripe_email'])) $s['connect_stripe_email'] = 'true'; // Connect with existing Stripe user based on E-mail address if one exists
@@ -1717,7 +2011,7 @@ if(!class_exists('SUPER_Stripe')) :
                 'attachments'=>array()
             ), $x));
             //error_log('redirect_to_stripe_checkout()');
-            //error_log(json_encode($x));
+            //error_log(SUPER_Common::safe_json_encode($x));
             //error_log('Entry ID: '.$sfsi['entry_id']);
             //error_log('User ID: '.$sfsi['user_id']);
             $domain = home_url(); // e.g: 'http://domain.com';
@@ -1872,14 +2166,14 @@ if(!class_exists('SUPER_Stripe')) :
                 'sf_post' => (isset($sfsi['created_post']) ? $sfsi['created_post'] : 0),
                 'sfsi_id' => $uniqueSubmissionId
             );
-            error_log('custom metadata for stripe session and invoice: ' . json_encode($metadata));
+            error_log('custom metadata for stripe session and invoice: ' . SUPER_Common::safe_json_encode($metadata));
             $home_cancel_url = (isset($s['cancel_url']) ? SUPER_Common::email_tags( $s['cancel_url'], $data, $settings ) : '');
             $home_success_url = (isset($s['success_url']) ? SUPER_Common::email_tags( $s['success_url'], $data, $settings ) : '');
             if($home_cancel_url==='') $home_cancel_url = $_SERVER['HTTP_REFERER'];
             if($home_success_url==='') $home_success_url = $_SERVER['HTTP_REFERER'];
 
             $submissionInfo = get_option( '_sfsi_' . $uniqueSubmissionId, array() );
-            error_log('submissionInfo: '.json_encode($submissionInfo));
+            error_log('submissionInfo: '.SUPER_Common::safe_json_encode($submissionInfo));
             $submissionInfo['entry_id'] = $entry_id;
             $submissionInfo['stripe_home_cancel_url'] = $home_cancel_url;
             $submissionInfo['stripe_home_success_url'] = $home_success_url;
@@ -1914,9 +2208,9 @@ if(!class_exists('SUPER_Stripe')) :
             //$metadata['entry_id'] = $entry_id;
             //error_log('entry_id: ' . $entry_id);
             foreach($metadata as $k => $v){
-                if(is_array($v)) $metadata[$k] = json_encode($v);
+                if(is_array($v)) $metadata[$k] = SUPER_Common::safe_json_encode($v);
             }
-            //error_log('metadata: ' . json_encode($metadata));
+            //error_log('metadata: ' . SUPER_Common::safe_json_encode($metadata));
 
             //// Get Contact Entry ID and save it so we can update the entry status after successfull payment
             //if(!empty($settings['save_contact_entry']) && $settings['save_contact_entry']=='yes'){
@@ -2108,7 +2402,7 @@ if(!class_exists('SUPER_Stripe')) :
             }
 
             //$currency = SUPER_Common::email_tags( $s['stripe_currency'], $data, $settings );
-            //error_log('$payment_method: ' . json_encode($payment_methods));
+            //error_log('$payment_method: ' . SUPER_Common::safe_json_encode($payment_methods));
             //error_log('$currency: ' . $currency);
 
             //// Set meta data
@@ -2208,13 +2502,13 @@ if(!class_exists('SUPER_Stripe')) :
             try {
                 // Use Stripe's library to make requests...
                 //error_log('shipping_options');
-                //error_log(json_encode($shipping_options));
+                //error_log(SUPER_Common::safe_json_encode($shipping_options));
                 $stripeData = array(
-                    // [required conditionally] The mode of the Checkout Session. Required when using prices or setup mode. Pass subscription if the Checkout Session includes at least one recurring item.
-                    'mode' => $mode, //'payment', // `payment`, `subscription` or `setup`
+                    // [required conditionally] The mode of the Checkout Session. Required when using prices mode. Pass subscription if the Checkout Session includes at least one recurring item.
+                    'mode' => $mode, //'payment', // `payment`, `subscription`
                     // [required] The URL the customer will be directed to if they decide to cancel payment and return to your website.
                     'cancel_url' => $cancel_url,
-                    // [required] The URL to which Stripe should send customers when payment or setup is complete. If you’d like to use information from the successful Checkout Session on your page, read the guide on
+                    // [required] The URL to which Stripe should send customers when payment is complete. If you’d like to use information from the successful Checkout Session on your page, read the guide on
                     'success_url' => $success_url,
                     // Example success page could be:
                     // ```php
@@ -2548,7 +2842,7 @@ if(!class_exists('SUPER_Stripe')) :
                     unset($stripeData['customer_creation']);
                 }
                 // You may only specify one of these parameters: submit_type, subscription_data.
-                error_log(json_encode($stripeData));
+                error_log(SUPER_Common::safe_json_encode($stripeData));
                 if(isset($stripeData['submit_type']) && $mode!=='subscription'){
                     unset($stripeData['subscription_data']);
                 }
@@ -2970,7 +3264,7 @@ if(!class_exists('SUPER_Stripe')) :
             \Stripe\Stripe::setAppInfo(
                 'Super Forms - Stripe Add-on',
                 SUPER_VERSION,
-                'https://f4d.nl/super-forms'
+                'https://super-forms.com'
             );
             $global_settings = SUPER_Common::get_global_settings();
             if(!empty($global_settings['stripe_mode']) ) {
@@ -3246,7 +3540,7 @@ if(!class_exists('SUPER_Stripe')) :
         // tmp         ));
         // tmp     }
 
-        // tmp     echo json_encode( array( 
+        // tmp     echo SUPER_Common::safe_json_encode( array( 
         // tmp         'client_secret' => $subscription->latest_invoice->payment_intent->client_secret,
         // tmp         'subscription_status' => $subscription->status,
         // tmp         'invoice_status' => $subscription->latest_invoice->status,
@@ -3367,7 +3661,7 @@ if(!class_exists('SUPER_Stripe')) :
         // tmp         //    $data['setup_future_usage'] = 'off_session'; // SEPA Direct Debit only accepts an off_session value for this parameter.
         // tmp         //}
         // tmp         //$intent = \Stripe\PaymentIntent::create($data);
-        // tmp         //error_log("intent:" . json_encode($intent));
+        // tmp         //error_log("intent:" . SUPER_Common::safe_json_encode($intent));
         // tmp     } catch( Exception $e ){
         // tmp         if ($e instanceof \Stripe\Error\Card ||
         // tmp             $e instanceof \Stripe\Exception\CardException ||
@@ -3633,9 +3927,9 @@ if(!class_exists('SUPER_Stripe')) :
             return \Stripe\Invoice::retrieve($id);
         }
         public static function exceptionHandler($e, $metadata=array()){
-            //error_log("e: " . json_encode($e));
-            //error_log("err: " . json_encode($e->getError()));
-            //error_log("metadata: " . json_encode($metadata));
+            //error_log("e: " . SUPER_Common::safe_json_encode($e));
+            //error_log("err: " . SUPER_Common::safe_json_encode($e->getError()));
+            //error_log("metadata: " . SUPER_Common::safe_json_encode($metadata));
             $form_id = SUPER_Common::cleanupFormSubmissionInfo($metadata['sfsi_id'], '');
             //error_log("form_id 1: " . $form_id);
             if(isset($metadata['sf_id'])) $form_id = $metadata['sf_id'];
@@ -3647,49 +3941,49 @@ if(!class_exists('SUPER_Stripe')) :
             die();
 
             // deprecated self::payment_intent_payment_failed( array( 'metadata' => $metadata ) );
-            //echo json_encode( array( 'error' => array( 'message' => $e->getMessage() ) ) ); 
+            //echo SUPER_Common::safe_json_encode( array( 'error' => array( 'message' => $e->getMessage() ) ) ); 
             //{"error":{"message":"No such price: 'price_1KJINrFKn7uROhgCgsntnfbq'; a similar object exists in live mode, but a test mode key was used to make this request."}}
             // Print error message
             // catch(\Stripe\Error\Card $e) {
             //     // Since it's a decline, \Stripe\Error\Card will be caught
             //     $message = $e->getJsonBody()['error']['message'];
-            //     echo json_encode( array( 'error' => array( 'message' => $message ) ) );
+            //     echo SUPER_Common::safe_json_encode( array( 'error' => array( 'message' => $message ) ) );
             //     die();
             // } catch(\Stripe\Exception\CardException $e) {
             //     // Since it's a decline, \Stripe\Exception\CardException will be caught
-            //     echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+            //     echo SUPER_Common::safe_json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
             //     die();
             // } catch (\Stripe\Exception\RateLimitException $e) {
             //     // Too many requests made to the API too quickly
-            //     echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+            //     echo SUPER_Common::safe_json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
             //     die();
             // } catch (\Stripe\Exception\InvalidRequestException $e) {
             //     // Invalid parameters were supplied to Stripe's API
-            //     echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+            //     echo SUPER_Common::safe_json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
             //     die();
             // } catch (\Stripe\Exception\AuthenticationException $e) {
             //     // Authentication with Stripe's API failed
             //     // (maybe you changed API keys recently)
-            //     echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+            //     echo SUPER_Common::safe_json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
             //     die();
             // } catch (\Stripe\Exception\ApiConnectionException $e) {
             //     // Network communication with Stripe failed
-            //     echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
+            //     echo SUPER_Common::safe_json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) );
             //     die();
             // } catch (\Stripe\Exception\ApiErrorException $e) {
             //     // Display a very generic error to the user, and maybe send
             //     // yourself an email
-            //     echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured with the Stripe API', 'super-forms' ) ) ) );
+            //     echo SUPER_Common::safe_json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured with the Stripe API', 'super-forms' ) ) ) );
             //     die();
             // } catch (Exception $e) {
             //     // Something else happened, completely unrelated to Stripe
-            //     echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured', 'super-forms' ) ) ) );
+            //     echo SUPER_Common::safe_json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured', 'super-forms' ) ) ) );
             //     die();
             // }
 
             // if( isset($e) && function_exists($e->getError()) && isset($e->getError()->message) )
-            //     echo json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) ); die();
-            // echo json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured', 'super-forms' ) ) ) ); die();
+            //     echo SUPER_Common::safe_json_encode( array( 'error' => array( 'message' => $e->getError()->message ) ) ); die();
+            // echo SUPER_Common::safe_json_encode( array( 'error' => array( 'message' => esc_html__( 'An error occured', 'super-forms' ) ) ) ); die();
         }
         public static function createRefund($payment_intent, $reason, $amount) {
             error_log("createRefund()");
@@ -3716,7 +4010,7 @@ if(!class_exists('SUPER_Stripe')) :
                     self::exceptionHandler($e);
                 }
             }
-            echo json_encode($response->toArray(), JSON_PRETTY_PRINT);
+            echo SUPER_Common::safe_json_encode($response->toArray(), JSON_PRETTY_PRINT);
             die();
         }
         public static function getPaymentIntents( $formatted=true, $limit=20, $starting_after=null, $created=null, $customer=null, $ending_before=null) {
@@ -3819,7 +4113,7 @@ if(!class_exists('SUPER_Stripe')) :
                             }
                         }
                     }
-                    $paymentIntents->data[$k]->raw = json_encode($paymentIntents->data[$k]->toArray(), JSON_PRETTY_PRINT);
+                    $paymentIntents->data[$k]->raw = SUPER_Common::safe_json_encode($paymentIntents->data[$k]->toArray(), JSON_PRETTY_PRINT);
                 }
                 return $paymentIntents->data;
             }else{
@@ -3880,7 +4174,7 @@ if(!class_exists('SUPER_Stripe')) :
             }
             foreach($customers->data as $k => $v){
                 $customers->data[$k]->createdFormatted = date_i18n( 'j M Y, H:i', $customers->data[$k]->created );
-                $customers->data[$k]->raw = json_encode($customers->data[$k]->toArray(), JSON_PRETTY_PRINT);
+                $customers->data[$k]->raw = SUPER_Common::safe_json_encode($customers->data[$k]->toArray(), JSON_PRETTY_PRINT);
                 // Search for wordpress user that is connected to this Stripe customer based on customer ID
                 $args = array(
                     'meta_query' => array(
@@ -3988,7 +4282,7 @@ if(!class_exists('SUPER_Stripe')) :
                 }
                 //$subscriptions->data[$k]->productName = $product->name;
                 $subscriptions->data[$k]->createdFormatted = date_i18n( 'j M Y, H:i', $subscriptions->data[$k]->created );
-                $subscriptions->data[$k]->raw = json_encode($subscriptions->data[$k]->toArray(), JSON_PRETTY_PRINT);
+                $subscriptions->data[$k]->raw = SUPER_Common::safe_json_encode($subscriptions->data[$k]->toArray(), JSON_PRETTY_PRINT);
                 // Search for wordpress user that is connected to this Stripe customer based on customer ID
                 $args = array(
                     'meta_query' => array(
@@ -4222,7 +4516,7 @@ if(!class_exists('SUPER_Stripe')) :
         // tmp                 $amount = sanitize_text_field($data['amount']);
         // tmp                 $payload = self::createRefund($payment_intent, $reason, $amount);
         // tmp             }
-        // tmp             $payload = json_encode($payload);
+        // tmp             $payload = SUPER_Common::safe_json_encode($payload);
         // tmp             echo $payload;
         // tmp         }
         // tmp     }
@@ -4780,7 +5074,7 @@ if(!class_exists('SUPER_Stripe')) :
             $invoice = $stripe_session['invoice'];
             $customer = $stripe_session['customer'];
             $subscription = $stripe_session['subscription'];
-            error_log('stripe_session: ' . json_encode($stripe_session));
+            error_log('stripe_session: ' . SUPER_Common::safe_json_encode($stripe_session));
             error_log('payment_intent: ' . $payment_intent);
             error_log('invoice: ' . $invoice);
             error_log('customer: ' . $customer);

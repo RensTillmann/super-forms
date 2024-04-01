@@ -492,13 +492,13 @@ if( !class_exists('SUPER_WooCommerce') ) :
          *  @since      1.3.4
         */
         public function display_product_meta_data_frontend( $item_data, $cart_item ) {
-            if( isset($cart_item['super_data']) ) {
-                foreach($cart_item['super_data'] as $k => $v){
-                    $item_data[] = array( 
-                        'name' =>  $k,
-                        'value' => $v
-                    );
-                }
+            if(!isset($cart_item['super_data'])) return $item_data;
+            if(!is_array($cart_item['super_data'])) return $item_data;
+            foreach($cart_item['super_data'] as $k => $v){
+                $item_data[] = array( 
+                    'name' =>  $k,
+                    'value' => $v
+                );
             }
             return $item_data;
         }
@@ -582,7 +582,10 @@ if( !class_exists('SUPER_WooCommerce') ) :
          *  @since      1.2.0
         */
         public function return_wc_countries($countries, $data) {
-            if( (class_exists('WC_Countries')) && (isset($data['settings']['woocommerce_checkout'])) && ($data['settings']['woocommerce_checkout']=='true') && ( ($data['name']=='billing_country') || ($data['name']=='shipping_country') ) ) {
+            $s = $data['settings'];
+            $wcs = null;
+            if(isset($s['_woocommerce'])) $wcs = $s['_woocommerce'];
+            if( (class_exists('WC_Countries')) && (isset($wcs) && isset($wcs['checkout'])) && ($wcs['checkout']=='true') && (($data['name']=='billing_country') || ($data['name']=='shipping_country')) ) {
                 $countries_obj = new WC_Countries();
                 $countries = $countries_obj->__get('countries');
                 return $countries;
@@ -1013,7 +1016,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                             // 0 = Do not exclude from e-mails
                             // 2 = Exclude from all email
                             // 3 = Exclude from admin email
-                            if( $v['exclude']==3 || ($settings['woocommerce_completed_exclude_empty']=='true' && empty($v['value']) )) {
+                            if( $v['exclude']==3 || ($settings['woocommerce_completed_exclude_empty']=='true' && (empty($v['value']) || $v['value']=='0') )) {
                                 // Exclude from admin email loop
                             }else{
                                 $email_loop .= $row;
@@ -1166,10 +1169,12 @@ if( !class_exists('SUPER_WooCommerce') ) :
         public static function before_email_success_msg( $atts ) {
 
             $settings = $atts['settings'];
+            $wcs = null;
+            if(isset($settings['_woocommerce'])) $wcs = $settings['_woocommerce'];
             $form_id = absint($atts['form_id']);
 
             // If WC checkout is enabled but WC is not installed and activated
-            if( (isset($settings['woocommerce_checkout'])) && ($settings['woocommerce_checkout']=='true') ) {
+            if( (isset($settings['_woocommerce'])) && ($settings['_woocommerce']['checkout']=='true') ) {
                 global $woocommerce;
                 if(!$woocommerce){
                     $msg = esc_html__( 'WooCommerce Checkout is enabled for this form, but WooCommerce itself is not activated!', 'super-forms' );
@@ -1191,26 +1196,18 @@ if( !class_exists('SUPER_WooCommerce') ) :
             }
 
 			// @since 1.9.3 - check if we do not want to checkout to WooCommerce conditionally
-			if( !empty($settings['conditionally_wc_checkout']) ) {
-				$settings['woocommerce_checkout'] = '';
-				if( !empty($settings['conditionally_wc_checkout_check']) ) {
-					$values = explode(',', $settings['conditionally_wc_checkout_check']);
-					// let's replace tags with values
-					foreach( $values as $k => $v ) {
-						$values[$k] = SUPER_Common::email_tags( $v, $data, $settings );
-					}
-					if(!isset($values[0])) $values[0] = '';
-					if(!isset($values[1])) $values[1] = '=='; // is either == or !=   (== by default)
-					if(!isset($values[2])) $values[2] = '';
+			if(!empty($wcs['checkout_conditionally'])){
+				$wcs['checkout'] = 'false';
+				if($wcs['checkout_conditionally']['enabled']==='true'){
+                    $c = $wcs['checkout_conditionally'];
+					if(!isset($c['f1']))    $c['f1'] = '';
+					if(!isset($c['logic'])) $c['logic'] = '=='; // is either == or !=   (== by default)
+					if(!isset($c['f2']))    $c['f2'] = '';
 					// if at least 1 of the 2 is not empty then apply the check otherwise skip it completely
-					if( ($values[0]!='') || ($values[2]!='') ) {
+					if(($c['f1']!='') || ($c['f2']!='')){
 						// Check if values match eachother
-						if( ($values[1]=='==') && ($values[0]==$values[2]) ) {
-							$settings['woocommerce_checkout'] = 'true';
-						}
-                        if( ($values[1]=='!=') && ($values[0]!=$values[2]) ) {
-                            $settings['woocommerce_checkout'] = 'true';
-                        }
+						if(($c['logic']=='==') && ($c['f1']==$c['f2'])) $settings['woocommerce_checkout'] = 'true';
+                        if(($c['logic']=='!=') && ($c['f1']!=$c['f2'])) $settings['woocommerce_checkout'] = 'true';
 					}
 				}
 			}
@@ -1603,13 +1600,13 @@ if( !class_exists('SUPER_WooCommerce') ) :
         public static function add_settings( $array, $x ) {
             $default = $x['default'];
             $settings = $x['settings'];
-			$statuses = SUPER_Settings::get_entry_statuses();
-			$new_statuses = array();
-			foreach($statuses as $k => $v) {
-				$new_statuses[$k] = $v['name'];
-			}
-			$statuses = $new_statuses;
-			unset($new_statuses);
+            $statuses = SUPER_Settings::get_entry_statuses();
+            $new_statuses = array();
+            foreach($statuses as $k => $v) {
+                $new_statuses[$k] = $v['name'];
+            }
+            $statuses = $new_statuses;
+            unset($new_statuses);
             $array['woocommerce_checkout_global'] = array(
                 'hidden' => true,
                 'name' => esc_html__( 'WooCommerce Checkout', 'super-forms' ),
@@ -1694,6 +1691,22 @@ if( !class_exists('SUPER_WooCommerce') ) :
                     array('title'=>'Replacing the "Add to cart" on a product page with a form', 'url'=>'/features/integrations/woocommerce-checkout/replacing-the-add-to-cart-on-a-product-page-with-a-form'),
                     array('title'=>'Hiding product from shop and order via custom form', 'url'=>'/features/integrations/woocommerce-checkout/hiding-product-from-shop-and-order-via-custom-form'),
                 ),
+                'html' => array(
+                    sprintf( esc_html__( '%s%sNote: %sThese settings have been moved to the [WooCommerce] TAB%s', 'super-forms' ), '<div class="sfui-notice sfui-desc">', '<strong>', '</strong>', '</div>' ),
+                )
+            );
+            return $array;
+            $array['woocommerce_checkout'] = array(        
+                'hidden' => 'settings',
+                'name' => esc_html__( 'WooCommerce Checkout', 'super-forms' ),
+                'label' => esc_html__( 'WooCommerce Checkout', 'super-forms' ),
+                'docs' => array(
+                    array('title'=>'Fixed price checkout', 'url'=>'/features/integrations/woocommerce-checkout/fixed-price-checkout'),
+                    array('title'=>'Dynamic price checkout', 'url'=>'/features/integrations/woocommerce-checkout/dynamic-price-checkout'),
+                    array('title'=>'Variable product checkout (variations)', 'url'=>'/features/integrations/woocommerce-checkout/variable-product-checkout-variations'),
+                    array('title'=>'Replacing the "Add to cart" on a product page with a form', 'url'=>'/features/integrations/woocommerce-checkout/replacing-the-add-to-cart-on-a-product-page-with-a-form'),
+                    array('title'=>'Hiding product from shop and order via custom form', 'url'=>'/features/integrations/woocommerce-checkout/hiding-product-from-shop-and-order-via-custom-form'),
+                ),
                 // tmp 'html' => array(
                 // tmp     sprintf( esc_html__( '%s%sNote:%s if you only want users to be able to order products via this form you can configure the products in question to be excluded from your regular shop. Alternatively you can also define to replace the product "Add to cart" area with your form. You can define those settings here: %sSuper Forms > Settings > WooCommerce Checkout%s%s', 'super-forms' ), '<div class="sfui-notice sfui-desc">', '<strong>', '</strong>', '<a target="_blank" href="' . esc_url(admin_url()) . 'admin.php?page=super_settings#woocommerce-checkout-global">', '</a>', '</div>' ),
                 // tmp     sprintf( esc_html__( '%s%sDocumentation:%s %sSingle product checkout with a fixed quantity and price%s%s', 'super-forms' ), '<div class="sfui-notice sfui-desc">', '<strong>', '</strong>', '<a target="_blank" href="https://webrehab.zendesk.com/hc/en-gb/articles/360018449398"">', '</a>', '</div>' )
@@ -1708,28 +1721,28 @@ if( !class_exists('SUPER_WooCommerce') ) :
                         ),
                     ),               
                     // @since 1.9.3 - Conditionally checkout to WooCommerce
-					'conditionally_wc_checkout' => array(
-						'hidden_setting' => true,
-						'default' =>  '',
-						'type' => 'checkbox',
-						'filter'=>true,
-						'values' => array(
-							'true' => esc_html__( 'Conditionally checkout to WooCommerce', 'super-forms' ),
-						),
-						'parent' => 'woocommerce_checkout',
-						'filter_value' => 'true'
-					),
-					'conditionally_wc_checkout_check' => array(
-						'hidden_setting' => true,
-						'type' => 'conditional_check',
-						'name' => esc_html__( 'Only checkout to WooCommerce when following condition is met', 'super-forms' ),
-						'label' => esc_html__( 'You are allowed to enter field {tags} to do the check', 'super-forms' ),
-						'default' =>  '',
-						'placeholder' => "{fieldname},value",
-						'filter'=>true,
-						'parent' => 'conditionally_wc_checkout',
-						'filter_value' => 'true'
-					),
+                    'conditionally_wc_checkout' => array(
+                        'hidden_setting' => true,
+                        'default' =>  '',
+                        'type' => 'checkbox',
+                        'filter'=>true,
+                        'values' => array(
+                            'true' => esc_html__( 'Conditionally checkout to WooCommerce', 'super-forms' ),
+                        ),
+                        'parent' => 'woocommerce_checkout',
+                        'filter_value' => 'true'
+                    ),
+                    'conditionally_wc_checkout_check' => array(
+                        'hidden_setting' => true,
+                        'type' => 'conditional_check',
+                        'name' => esc_html__( 'Only checkout to WooCommerce when following condition is met', 'super-forms' ),
+                        'label' => esc_html__( 'You are allowed to enter field {tags} to do the check', 'super-forms' ),
+                        'default' =>  '',
+                        'placeholder' => "{fieldname},value",
+                        'filter'=>true,
+                        'parent' => 'conditionally_wc_checkout',
+                        'filter_value' => 'true'
+                    ),
 
                     'woocommerce_checkout_empty_cart' => array(
                         'default' =>  '',
@@ -1847,16 +1860,16 @@ if( !class_exists('SUPER_WooCommerce') ) :
                     ),
 
 
-					'woocommerce_completed_entry_status' => array(
-						'name' => esc_html__( 'Entry status after payment completed', 'super-forms' ),
-						'label' => sprintf( esc_html__( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#backend-settings') . '">', '</a>' ),
-						'default' =>  'completed',
-						'type' => 'select',
-						'values' => $statuses,
-						'filter' => true,
-						'parent' => 'woocommerce_checkout',
-						'filter_value' => 'true',
-					),
+                    'woocommerce_completed_entry_status' => array(
+                        'name' => esc_html__( 'Entry status after payment completed', 'super-forms' ),
+                        'label' => sprintf( esc_html__( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#backend-settings') . '">', '</a>' ),
+                        'default' =>  'completed',
+                        'type' => 'select',
+                        'values' => $statuses,
+                        'filter' => true,
+                        'parent' => 'woocommerce_checkout',
+                        'filter_value' => 'true',
+                    ),
 
 
                     // @since 1.3.8 - option to send email after payment completed
@@ -1952,16 +1965,16 @@ if( !class_exists('SUPER_WooCommerce') ) :
                     'parent' => 'woocommerce_checkout',
                     'filter_value' => 'true',
                 );
-				$array['woocommerce_checkout']['fields']['woocommerce_completed_user_role'] = array(
-					'name' => esc_html__( 'Change user role after payment complete', 'super-forms' ),
-					'label' => esc_html__( 'Only used for Register & Login feature', 'super-forms' ),
-					'default' =>  '',
-					'type' => 'select',
-					'values' => array_merge($roles, array('' => esc_html__( 'Do not change role', 'super-forms' ))),
-					'filter' => true,
-					'parent' => 'woocommerce_checkout',
-					'filter_value' => 'true',
-				);
+                $array['woocommerce_checkout']['fields']['woocommerce_completed_user_role'] = array(
+                    'name' => esc_html__( 'Change user role after payment complete', 'super-forms' ),
+                    'label' => esc_html__( 'Only used for Register & Login feature', 'super-forms' ),
+                    'default' =>  '',
+                    'type' => 'select',
+                    'values' => array_merge($roles, array('' => esc_html__( 'Do not change role', 'super-forms' ))),
+                    'filter' => true,
+                    'parent' => 'woocommerce_checkout',
+                    'filter_value' => 'true',
+                );
 
             }
 

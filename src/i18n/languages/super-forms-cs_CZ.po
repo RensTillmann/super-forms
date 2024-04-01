@@ -15445,10 +15445,10 @@ msgstr "{loop_fields} uvnitř těla e-mailu bude nahrazen tímto obsahem"
 
 #: includes/extensions/pdf-generator/pdf-generator.php:81
 msgid ""
-"{pdf_page} and {pdf_total_pages} tags can be used inside a HTML element to "
+"{pdf_page} and {} tags can be used inside a HTML element to "
 "be used in your header/footer."
 msgstr ""
-"Značky {pdf_page} a {pdf_total_pages} lze použít uvnitř prvku HTML a použít "
+"Značky {pdf_page} a {} lze použít uvnitř prvku HTML a použít "
 "je v záhlaví / zápatí."
 
 #: includes/shortcodes/form-elements.php:3745

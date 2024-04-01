@@ -417,8 +417,9 @@ class SUPER_Pages {
         return $trigger;
     }
     public static function triggers_tab($atts) {
+        error_log('triggers_tab()');
         //$slug = 'triggers';
-        //SUPER_WooCommerce2()->add_on_slug;
+        //SUPER_WC_Instant_Orders()->add_on_slug;
         // $s = self::get_default_woocommerce_settings($atts);
         $form_id = $atts['form_id'];
         $version = $atts['version'];
@@ -426,441 +427,12 @@ class SUPER_Pages {
         $s = $atts['settings'];
 
         // Get trigger settings
+        error_log($form_id);
         $triggers = SUPER_Common::get_form_triggers($form_id);
+        error_log(json_encode($triggers));
         //if(count($triggers)===0) {
         //    $triggers[] = self::get_default_trigger_settings(array());
         //}
-
-        if(version_compare($version, '6.3.728', '<')){
-            // Merge old settings with new ones
-            echo 'Current form version ('.$version.') is lower than 6.3.728 so we must merge old settings with new settings';
-            //var_dump($triggers);
-
-            // Add trigger for E-mail reminders
-            // Loop until we can't find reminder
-            if(empty($s['email_reminder_amount'])) $s['email_reminder_amount'] = 3;
-            $limit = absint($s['email_reminder_amount']);
-            if($limit==0) $limit = 3;
-            $x = 1;
-            while( $x <= $limit ) {
-                if( (!empty($s['email_reminder_' . $x])) && ($s['email_reminder_' . $x]=='true') ) {
-                    $t = array();
-                    if(!empty($s['email_reminder_'.$x.'_time_method']) && $s['email_reminder_'.$x.'_time_method']==='fixed'){
-                        $s['email_reminder_'.$x.'_time_method'] = 'time';
-                    }
-                    // Grab the body, and extract the `loop open`, `loop` and `loop close` parts
-                    $body = (!empty($s['email_reminder_'.$x.'_body']) ? $s['email_reminder_'.$x.'_body'] : '');
-                    $re = '/(<[^>.]*\s?table[^<]*\s?>)(.*\s?{loop_fields}.*\s*?)(<.*\s*?\/table[.^<]*\s*?>)/';
-                    preg_match($re, $body, $m);
-                    $loop_open = (isset($m[1]) ? $m[1] : '<table cellpadding="5">');
-                    $loop = (!empty($s['email_reminder_'.$x.'_email_loop']) ? $s['email_reminder_'.$x.'_email_loop'] : '<tr><th valign="top" align="right">{loop_label}</th><td>{loop_value}7</td></tr>');
-                    $loop_close = (isset($m[3]) ? $m[3] : '</table>');
-                    error_log($body);
-                    $body = str_replace($m[0], '{loop_fields}', $body);
-                    // Only if line breaks was enabled:
-                    if(!empty($s['email_reminder_'.$x.'_body_nl2br']) && $s['email_reminder_'.$x.'_body_nl2br']==='true'){
-                        $body = nl2br($body);
-                    }
-                    //error_log($body);
-                    $t['enabled'] = 'true';
-                    $t['event'] = 'sf.after.submission';
-                    $t['name'] = 'E-mail reminder #'.$x;
-                    $t['listen_to'] = '';
-                    $t['ids'] = '';
-                    $t['order'] = $x;
-                    $t['actions'] = array(
-                        array(
-                            'action' => 'send_email',
-                            'order' => '1',
-                            'conditions' => array(
-                                'enabled' => 'false',
-                                'f1' => '',
-                                'logic' => '==',
-                                'f2' => '',
-                            ),
-                            'email' => array(
-                                'to' => (!empty($s['email_reminder_'.$x.'_to']) ? $s['email_reminder_'.$x.'_to'] : ''),
-                                'from_email' => (!empty($s['email_reminder_'.$x.'_from_type']) && ($s['email_reminder_'.$x.'_from_type']==='default') ? '{option_admin_email}' : $s['email_reminder_'.$x.'_from']),
-                                'from_name' => (!empty($s['email_reminder_'.$x.'_from_type']) && ($s['email_reminder_'.$x.'_from_type']==='default') ? '{option_blogname}' : $s['email_reminder_'.$x.'_from_name']),
-                                'reply_to' => array( 
-                                    'enabled' => (!empty($s['email_reminder_'.$x.'_header_reply_enabled']) && ($s['email_reminder_'.$x.'_header_reply_enabled']==='true') ? 'true' : 'false'),
-                                    'email' => (!empty($s['email_reminder_'.$x.'_header_reply']) ? $s['email_reminder_'.$x.'_header_reply'] : ''),
-                                    'name' => (!empty($s['email_reminder_'.$x.'_header_reply_name']) ? $s['email_reminder_'.$x.'_header_reply_name'] : '')
-                                ),
-                                'subject' => (!empty($s['email_reminder_'.$x.'_subject']) ? $s['email_reminder_'.$x.'_subject'] : ''),
-                                'body' => $body, 
-                                // 'line_breaks' => 'false', // no longer used since tinymce editor
-
-                                'loop_open' => $loop_open,
-                                'loop' => $loop,
-                                'loop_close' => $loop_close,
-
-                                'exclude_empty' => (!empty($s['email_reminder_'.$x.'_exclude_empty']) && ($s['email_reminder_'.$x.'_exclude_empty']==='true') ? 'true' : 'false'),
-
-                                'rtl' => (!empty($s['email_reminder_'.$x.'_rtl']) && ($s['email_reminder_'.$x.'_rtl']==='true') ? 'true' : 'false'),
-                                'cc' => (!empty($s['email_reminder_'.$x.'_header_cc']) ? $s['email_reminder_'.$x.'_header_cc'] : ''),
-                                'bcc' => (!empty($s['email_reminder_'.$x.'_header_bcc']) ? $s['email_reminder_'.$x.'_header_bcc'] : ''),
-                                'attachments' => (!empty($s['email_reminder_'.$x.'_attachments']) ? $s['email_reminder_'.$x.'_attachments'] : ''),
-                                'content_type' => 'html',
-                                'charset' => 'UTF-8',
-                                'schedule' => array(
-                                    'enabled' => 'true',
-                                    'dates' => array(
-                                        array(
-                                            'date' => (!empty($s['email_reminder_'.$x.'_base_date']) ? $s['email_reminder_'.$x.'_base_date'] : ''),
-                                            'days' => (!empty($s['email_reminder_'.$x.'_date_offset']) ? $s['email_reminder_'.$x.'_date_offset'] : '0'),
-                                            'method' => (!empty($s['email_reminder_'.$x.'_time_method']) ? (($s['email_reminder_'.$x.'_time_method']=='offset' && (isset($s['email_reminder_'.$x.'_time_offset']) && $s['email_reminder_'.$x.'_time_offset']==='0')) ? 'instant' : $s['email_reminder_'.$x.'_time_method']) : 'time'),
-                                            'time' => (!empty($s['email_reminder_'.$x.'_time_fixed']) ? $s['email_reminder_'.$x.'_time_fixed'] : '09:00'),
-                                            'offset' => (!empty($s['email_reminder_'.$x.'_time_offset']) ? $s['email_reminder_'.$x.'_time_offset'] : '0')
-                                        )
-                                    )
-                                ),
-                                //"email_reminder_'.$x.'_header_additional": "header-reminder:-header-reminder-value",
-                                //"email_reminder_2_header_additional": "-r2:value--r2",
-                                // woocommerce_completed_header_additional
-                            )
-                        )
-                    );
-                    $triggers[] = $t;
-                }
-                $x++;
-            }
-
-            // Add trigger for WooCommerce email after order completed
-            if(!empty($s['woocommerce_checkout']) && $s['woocommerce_checkout']==='true' && !empty($s['woocommerce_completed_email']) && $s['woocommerce_completed_email']==='true'){
-                $t = array();
-                // Grab the body, and extract the `loop open`, `loop` and `loop close` parts
-                $body = (!empty($s['woocommerce_completed_body']) ? $s['woocommerce_completed_body'] : '');
-                $re = '/(<[^>.]*\s?table[^<]*\s?>)(.*\s?{loop_fields}.*\s*?)(<.*\s*?\/table[.^<]*\s*?>)/';
-                preg_match($re, $body, $m);
-                $loop_open = (isset($m[1]) ? $m[1] : '<table cellpadding="5">');
-                $loop = (!empty($s['woocommerce_completed_email_loop']) ? $s['woocommerce_completed_email_loop'] : '<tr><th valign="top" align="right">{loop_label}</th><td>{loop_value}7</td></tr>');
-                $loop_close = (isset($m[3]) ? $m[3] : '</table>');
-                error_log($body);
-                $body = str_replace($m[0], '{loop_fields}', $body);
-                // Only if line breaks was enabled:
-                if(!empty($s['woocommerce_completed_body_nl2br']) && $s['woocommerce_completed_body_nl2br']==='true'){
-                    $body = nl2br($body);
-                }
-                error_log($body);
-                $t['enabled'] = 'true';
-                $t['event'] = 'wc.order.status.completed';
-                $t['name'] = 'Payment completed E-mail';
-                $t['listen_to'] = '';
-                $t['ids'] = '';
-                $t['order'] = '1';
-                $t['actions'] = array(
-                    array(
-                        'action' => 'send_email',
-                        'order' => '1',
-                        'conditions' => array(
-                            'enabled' => 'true',
-                            'f1' => '1',
-                            'logic' => '!=',
-                            'f2' => '2',
-                        ),
-                        'email' => array(
-                            'to' => (!empty($s['woocommerce_completed_to']) ? $s['woocommerce_completed_to'] : ''),
-                            'from_email' => (!empty($s['woocommerce_completed_from_type']) && ($s['woocommerce_completed_from_type']==='default') ? '{option_admin_email}' : $s['woocommerce_completed_from']),
-                            'from_name' => (!empty($s['woocommerce_completed_from_type']) && ($s['woocommerce_completed_from_type']==='default') ? '{option_blogname}' : $s['woocommerce_completed_from_name']),
-                            'reply_to' => array( 
-                                'enabled' => (!empty($s['woocommerce_completed_header_reply_enabled']) && ($s['woocommerce_completed_header_reply_enabled']==='true') ? 'true' : 'false'),
-                                'email' => (!empty($s['woocommerce_completed_header_reply']) ? $s['woocommerce_completed_header_reply'] : ''),
-                                'name' => (!empty($s['woocommerce_completed_header_reply_name']) ? $s['woocommerce_completed_header_reply_name'] : '')
-                            ),
-                            'subject' => (!empty($s['woocommerce_completed_subject']) ? $s['woocommerce_completed_subject'] : ''),
-                            'body' => $body, 
-                            // 'line_breaks' => 'false', // no longer used since tinymce editor
-
-                            'loop_open' => $loop_open, // (!empty($s['woocommerce_completed_email_loop']) ? $s['woocommerce_completed_email_loop'] : '<table cellpadding="5">'),
-                            'loop' => $loop, //(!empty($s['woocommerce_completed_email_loop']) ? $s['woocommerce_completed_email_loop'] : '<tr><th valign="top" align="right">{loop_label}</th><td>{loop_value}</td></tr>'),
-                            'loop_close' => $loop_close, //(!empty($s['woocommerce_completed_email_loop']) ? $s['woocommerce_completed_email_loop'] : '</table>'),
-
-                            'exclude_empty' => (!empty($s['woocommerce_completed_exclude_empty']) && ($s['woocommerce_completed_exclude_empty']==='true') ? 'true' : 'false'),
-
-                            'rtl' => (!empty($s['woocommerce_completed_rtl']) && ($s['woocommerce_completed_rtl']==='true') ? 'true' : 'false'),
-                            'cc' => (!empty($s['woocommerce_completed_header_cc']) ? $s['woocommerce_completed_header_cc'] : ''),
-                            'bcc' => (!empty($s['woocommerce_completed_header_bcc']) ? $s['woocommerce_completed_header_bcc'] : ''),
-                            'attachments' => (!empty($s['woocommerce_completed_attachments']) ? $s['woocommerce_completed_attachments'] : ''),
-                            'content_type' => 'html',
-                            'charset' => 'UTF-8'
-                            // woocommerce_completed_header_additional
-                        )
-                    )
-                );
-                $triggers[] = $t;
-            }
-
-            // tmp $triggers[] = array(
-            // tmp             'action' => 'send_email',
-            // tmp             'order' => '1',
-            // tmp             'enabled' => 'false',
-            // tmp             'f1' => '',
-            // tmp             'logic' => '==',
-            // tmp             'f2' => '',
-            // tmp             'to' => 'to@domain.com',
-            // tmp             'from_email' => 'from@domain.com',
-            // tmp             'from_name' => 'Company name',
-            // tmp             'reply_to' => 'reply-to@domain.com',
-            // tmp             'subject' => 'Subject',
-            // tmp             'body' => '<p>Body</p>',
-            // tmp             'attachments' => '68972,68981,68982',
-            // tmp             'cc' => 'CC',
-            // tmp             'bcc' => 'BCC',
-            // tmp             'content_type' => 'html',
-            // tmp             'charset' => 'UTF-8',
-            // tmp             'custom_headers' => array(
-            // tmp                 array(
-            // tmp                     'name' => 'X-Custom-Header',
-            // tmp                     'value' => 'foobar'
-            // tmp                 )
-            // tmp             )
-            // tmp         )
-            // tmp     ),
-            // tmp     "custom_headers": {
-            // tmp         "0": {
-            // tmp             "name": "X-Custom-Header",
-            // tmp             "value": "foobar"
-            // tmp         }
-            // tmp     }
-            // tmp )
-        
-            $s['_woocommerce'] = array();
-            $s['_woocommerce']['checkout'] = (isset($settings['woocommerce_checkout']) ? $settings['woocommerce_checkout'] : 'false');
-            $s['_woocommerce']['redirect'] = (isset($settings['woocommerce_redirect']) ? $settings['woocommerce_redirect'] : 'checkout');
-            $s['_woocommerce']['coupon'] = (isset($settings['woocommerce_checkout_coupon']) ? $settings['woocommerce_checkout_coupon'] : '');
-            $s['_woocommerce']['checkout_conditionally'] = array();
-            $s['_woocommerce']['checkout_conditionally']['enabled'] = (isset($settings['conditionally_wc_checkout']) ? $settings['conditionally_wc_checkout'] : 'false');
-            if(empty($settings['conditionally_wc_checkout_check'])) $settings['conditionally_wc_checkout_check'] = '';
-            $values = explode(',', $settings['conditionally_wc_checkout_check']);
-            if(!isset($values[0])) $values[0] = '';
-            if(!isset($values[1])) $values[1] = '=='; // is either == or !=   (== by default)
-            if(!isset($values[2])) $values[2] = '';
-            $s['_woocommerce']['checkout_conditionally']['f1'] = $values[0];
-            $s['_woocommerce']['checkout_conditionally']['logic'] = $values[1];
-            $s['_woocommerce']['checkout_conditionally']['f2'] = $values[2];
-            $s['_woocommerce']['empty_cart'] = (isset($settings['woocommerce_checkout_empty_cart']) ? $settings['woocommerce_checkout_empty_cart'] : 'false');
-            $s['_woocommerce']['remove_coupons'] = (isset($settings['woocommerce_checkout_remove_coupons']) ? $settings['woocommerce_checkout_remove_coupons'] : 'false');
-            $s['_woocommerce']['remove_fees'] = (isset($settings['woocommerce_checkout_remove_fees']) ? $settings['woocommerce_checkout_remove_fees'] : 'false');
-            $woocommerce_checkout_products = (isset($settings['woocommerce_checkout_products']) ? explode( "\n", $settings['woocommerce_checkout_products'] ) : '');
-            $woocommerce_checkout_products_meta = (isset($settings['woocommerce_checkout_products_meta']) ? explode( "\n", $settings['woocommerce_checkout_products_meta'] ) : '');
-            $products = array();
-            $products_ids = array();
-            foreach($woocommerce_checkout_products as $k => $v){
-                $product =  explode('|', $v);
-                $id = (isset($product[0]) ? trim($product[0]) : '');
-                if(empty($id)) continue;
-                $qty = (isset($product[1]) ? trim($product[1]) : '');
-                $variation = (isset($product[2]) ? trim($product[2]) : '');
-                $price = (isset($product[3]) ? trim($product[3]) : '');
-                $products_ids[$id] = $k;
-                $products[] = array(
-                    'id' => $id,
-                    'qty' => $qty,
-                    'variation' => $variation,
-                    'price' => $price,
-                    'meta' => 'false',
-                    'items' => array()
-                );
-            }
-            foreach($woocommerce_checkout_products_meta as $k => $v){
-                $meta =  explode('|', $v);
-                $id = (isset($meta[0]) ? trim($meta[0]) : '');
-                if(empty($id)) continue;
-                // Check if we can match it with one of the product ID's
-                $products_ids[$id] = $k;
-                if(isset($products_ids[$id])){
-                    $label = (isset($meta[1]) ? trim($meta[1]) : '');
-                    $value = (isset($meta[2]) ? trim($meta[2]) : '');
-                    $index = $products_ids[$id];
-                    $products[$index]['meta'] = 'true';
-                    $products[$index]['items'][] = array(
-                        'label' => $label,
-                        'value' => $value
-                    );
-                }
-            }
-            $s['_woocommerce']['products'] = $products;
-
-            $woocommerce_checkout_fees = (isset($settings['woocommerce_checkout_fees']) ? explode( "\n", $settings['woocommerce_checkout_fees'] ) : '');
-            $fees = array();
-            foreach($woocommerce_checkout_fees as $k => $v){
-                $fee =  explode('|', $v);
-                $name = (isset($fee[0]) ? trim($fee[0]) : '');
-                if(empty($name)) continue;
-                $amount = (isset($fee[1]) ? trim($fee[1]) : '');
-                $taxable = (isset($fee[2]) ? trim($fee[2]) : '');
-                $tax_class = (isset($fee[3]) ? trim($fee[3]) : '');
-                $fees[] = array(
-                    'name' => $name,
-                    'amount' => $amount,
-                    'taxable' => $taxable,
-                    'tax_class' => $tax_class
-                );
-            }
-            if(!empty($fees)){
-                $s['_woocommerce']['fees'] = array(
-                    'enabled' => 'true',
-                    'items' => $fees
-                );
-            }
-
-            $woocommerce_populate_checkout_fields = (isset($settings['woocommerce_populate_checkout_fields']) ? explode( "\n", $settings['woocommerce_populate_checkout_fields'] ) : '');
-            $fields = array();
-            foreach($woocommerce_populate_checkout_fields as $k => $v){
-                $field =  explode('|', $v);
-                $name = (isset($field[0]) ? trim($field[0]) : '');
-                if(empty($name)) continue;
-                $value = (isset($field[1]) ? trim($field[1]) : '');
-                $fields[] = array(
-                    'name' => $name,
-                    'value' => $value
-                );
-            }
-            if(!empty($fields)){
-                $s['_woocommerce']['populate'] = array(
-                    'enabled' => 'true',
-                    'items' => $fields
-                );
-            }
-
-            $woocommerce_checkout_fields = (isset($settings['woocommerce_checkout_fields']) ? explode( "\n", $settings['woocommerce_checkout_fields'] ) : '');
-            $fields = array();
-            foreach($woocommerce_checkout_fields as $k => $v){
-                $field =  explode('|', $v);
-                $name = (isset($field[0]) ? trim($field[0]) : '');
-                if(empty($name)) continue;
-                $placeholder = (isset($field[3]) ? trim($field[3]) : '');
-                $type = (isset($field[4]) ? trim($field[4]) : '');
-                $section = (isset($field[5]) ? trim($field[5]) : '');
-                $required = (isset($field[6]) ? trim($field[6]) : '');
-                $clear = (isset($field[7]) ? trim($field[7]) : '');
-                $class = (isset($field[8]) ? trim($field[8]) : '');
-                $label_class = (isset($field[9]) ? trim($field[9]) : '');
-                $dropdown_options = (isset($field[10]) ? explode( ",", trim($field[10]) ) : '');
-                $options = array();
-                foreach($dropdown_options as $ok => $ov){
-                    $option =  explode(';', $ov);
-                    $label = (isset($option[0]) ? trim($option[0]) : '');
-                    if(empty($label)) continue;
-                    $value = (isset($option[1]) ? trim($option[1]) : '');
-                    $options[] = array(
-                        'label' => $label,
-                        'value' => $value
-                    );
-                }
-                $label = (isset($field[2]) ? trim($field[2]) : '');
-                $value = (isset($field[1]) ? trim($field[1]) : '');
-                $fields[] = array(
-                    'type' => $type,
-                    'label' => $label,
-                    'name' => $name,
-                    'placeholder' => $placeholder,
-                    'value' => $value,
-                    'section' => $section,
-                    'required' => $required,
-                    'clear' => $clear,
-                    'class' => $class,
-                    'label_class' => $label_class,
-                    'options' => $options,
-                    'skip' => ((isset($settings['woocommerce_checkout_fields_skip_empty']) && $settings['woocommerce_checkout_fields_skip_empty']==='true') ? 'true' : 'false')
-                );
-            }
-            if(!empty($fields)){
-                $s['_woocommerce']['fields'] = array(
-                    'enabled' => 'true',
-                    'items' => $fields
-                );
-            }
-            // Update entry status when order status is changed
-            $entry_status = array(
-                array( 'order' => 'completed', 'entry' => 'completed'),
-                array( 'order' => 'pending', 'entry' => 'pending'),
-                array( 'order' => 'processing', 'entry' => 'processing'),
-                array( 'order' => 'on-hold', 'entry' => 'on-hold'),
-                array( 'order' => 'cancelled', 'entry' => 'cancelled'),
-                array( 'order' => 'failed', 'entry' => 'failed')
-            );
-            $woocommerce_completed_entry_status = (isset($settings['woocommerce_completed_entry_status']) ? $settings['woocommerce_completed_entry_status'] : 'completed');
-            if(!empty($woocommerce_completed_entry_status)){
-                foreach($entry_status as $k => $v){
-                    if($v['order']==='completed'){
-                        $entry_status[$k] = array(
-                            'order' => $v['order'],
-                            'entry' => $woocommerce_completed_entry_status
-                        );
-                    }
-                }
-            }
-            $s['_woocommerce']['entry_status'] = $entry_status;
-
-            // Update post status when order status is changed
-            $post_status = array(
-                array( 'order' => 'completed', 'post' => 'publish'),
-                array( 'order' => 'pending', 'post' => 'pending'),
-                array( 'order' => 'processing', 'post' => 'pending'),
-                array( 'order' => 'on-hold', 'post' => 'pending'),
-                array( 'order' => 'cancelled', 'post' => 'trash'),
-                array( 'order' => 'failed', 'post' => 'trash')
-            );
-            $woocommerce_post_status = (isset($settings['woocommerce_post_status']) ? $settings['woocommerce_post_status'] : 'publish');
-            if(!empty($woocommerce_post_status)){
-                foreach($post_status as $k => $v){
-                    if($v['order']==='completed'){
-                        $post_status[$k] = array(
-                            'order' => $v['order'],
-                            'post' => $woocommerce_post_status
-                        );
-                    }
-                }
-            }
-            $s['_woocommerce']['post_status'] = $post_status;
-
-            // Update user login status when order status is changed
-            $login_status = array(
-                array( 'order' => 'completed', 'login_status' => 'active'),
-                array( 'order' => 'pending', 'login_status' => 'pending'),
-                array( 'order' => 'processing', 'login_status' => 'pending'),
-                array( 'order' => 'on-hold', 'login_status' => 'pending'),
-                array( 'order' => 'cancelled', 'login_status' => 'pending'),
-                array( 'order' => 'failed', 'login_status' => 'pending')
-            );
-            $woocommerce_signup_status = (isset($settings['woocommerce_signup_status']) ? $settings['woocommerce_signup_status'] : 'active');
-            if(!empty($woocommerce_signup_status)){
-                foreach($login_status as $k => $v){
-                    if($v['order']==='completed'){
-                        $login_status[$k] = array(
-                            'order' => $v['order'],
-                            'login_status' => $woocommerce_signup_status
-                        );
-                    }
-                }
-            }
-            $s['_woocommerce']['login_status'] = $login_status;
-
-            // Update user role when order status is changed
-            $user_role = array(
-                array( 'order' => 'completed', 'user_role' => ''),
-                array( 'order' => 'pending', 'user_role' => ''),
-                array( 'order' => 'processing', 'user_role' => ''),
-                array( 'order' => 'on-hold', 'user_role' => ''),
-                array( 'order' => 'cancelled', 'user_role' => ''),
-                array( 'order' => 'failed', 'user_role' => '')
-            );
-            $woocommerce_completed_user_role = (isset($settings['woocommerce_completed_user_role']) ? $settings['woocommerce_completed_user_role'] : '');
-            if(!empty($woocommerce_completed_user_role)){
-                foreach($user_role as $k => $v){
-                    if($v['order']==='completed'){
-                        $user_role[$k] = array(
-                            'order' => $v['order'],
-                            'user_role' => $woocommerce_completed_user_role
-                        );
-                    }
-                }
-            }
-            $s['_woocommerce']['user_role'] = $user_role;
-        }
-
         $statuses = SUPER_Settings::get_entry_statuses();
         if(!isset($statuses['delete'])) $statuses['delete'] = 'Delete';
         $entryStatusesCode = '';
@@ -1305,13 +877,22 @@ class SUPER_Pages {
                                                                     array(
                                                                         'name' => 'cc',
                                                                         'title' => esc_html__( 'CC', 'super-forms' ),
+                                                                        'subline' => esc_html__( 'Send copy to following address(es)', 'super-forms' ),
                                                                         'type' => 'text',
                                                                         'default' => '',
                                                                     ),
                                                                     array(
                                                                         'name' => 'bcc',
                                                                         'title' => esc_html__( 'BCC', 'super-forms' ),
+                                                                        'subline' => esc_html__( 'Send copy to following address(es), without being able to see the address', 'super-forms' ),
                                                                         'type' => 'text',
+                                                                        'default' => '',
+                                                                    ),
+                                                                    array(
+                                                                        'name' => 'header_additional',
+                                                                        'title' => esc_html__( 'Additional Headers', 'super-forms' ),
+                                                                        'subline' => esc_html__( 'Add any extra email headers here', 'super-forms' ),
+                                                                        'type' => 'textarea',
                                                                         'default' => '',
                                                                     ),
                                                                     array(
@@ -1456,7 +1037,7 @@ class SUPER_Pages {
             // tmp                             'name' => 'enabled',
             // tmp                             'type' => 'checkbox',
             // tmp                             'default' => 'false',
-            // tmp                             'title' => esc_html__( 'Only checkout when below condition are met', 'super-forms' ),
+            // tmp                             'title' => esc_html__( 'Only checkout when below condition is met', 'super-forms' ),
             // tmp                             'nodes' => array(
             // tmp                                 array(
             // tmp                                     'sub' => true, // sfui-sub-settings
@@ -2167,7 +1748,7 @@ class SUPER_Pages {
             // tmp                             'name' => 'enabled',
             // tmp                             'type' => 'checkbox',
             // tmp                             'default' => 'false',
-            // tmp                             'title' => esc_html__( 'Only create the order when below condition are met', 'super-forms' ),
+            // tmp                             'title' => esc_html__( 'Only create the order when below condition is met', 'super-forms' ),
             // tmp                             'nodes' => array(
             // tmp                                 array(
             // tmp                                     'inline' => true, // sfui-inline
@@ -2665,11 +2246,13 @@ class SUPER_Pages {
             // The post does not exist
             echo 'This contact entry does not exist.';
         } else {
-            $my_post = array(
-                'ID' => $entry_id,
-                'post_status' => 'super_read',
-            );
-            wp_update_post($my_post);
+            if(get_post_status($entry_id)!=='super_read'){
+                $my_post = array(
+                    'ID' => $entry_id,
+                    'post_status' => 'super_read',
+                );
+                wp_update_post($my_post);
+			}
             $date = get_the_date(false,$entry_id);
             $time = get_the_time(false,$entry_id);
             $ip = get_post_meta($entry_id, '_super_contact_entry_ip', true);

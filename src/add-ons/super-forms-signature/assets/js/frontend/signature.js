@@ -52,7 +52,9 @@
 				var height = canvasWrapper.getBoundingClientRect().height;
 				signaturePad.canvas.width = width;
 				signaturePad.canvas.height = height;
-				signaturePad.fromDataURL(field.value, { ratio: 1, width: dimensions.width, height: dimensions.height, xOffset: 0, yOffset: 0 });
+				if(field.value!==''){
+					signaturePad.fromDataURL(field.value, { ratio: 1, width: dimensions.width, height: dimensions.height, xOffset: 0, yOffset: 0 });
+				}
 			}, function(error) {
 				console.error('Error:', error);
 			});
@@ -63,19 +65,26 @@
 					var signaturePad = SUPER.signatures[formUid][fieldName];
 					var wrapper = signaturePad.canvas.closest('.super-field-wrapper');
 					signaturePad.addEventListener('afterUpdateStroke', () => {
-						var field = wrapper.querySelector('.super-shortcode-field');
-						if(signaturePad.isEmpty()===false){
-							if(!signaturePad.canvas.closest('.super-signature').classList.contains('super-filled')){
-								signaturePad.canvas.closest('.super-signature').classList.add('super-filled');
+						if(!SUPER.signatureTimeouts) SUPER.signatureTimeouts = {};
+						if(!SUPER.signatureTimeouts[formUid]) SUPER.signatureTimeouts[formUid] = {};
+						if(!SUPER.signatureTimeouts[formUid][fieldName]) SUPER.signatureTimeouts[formUid][fieldName] = null;
+                        if(SUPER.signatureTimeouts[formUid][fieldName]!==null){
+                            clearTimeout(SUPER.signatureTimeouts[formUid][fieldName]);
+                        }
+						SUPER.signatureTimeouts[formUid][fieldName] = setTimeout(function () {
+							var field = wrapper.querySelector('.super-shortcode-field');
+							if(signaturePad.isEmpty()===false){
+								if(!signaturePad.canvas.closest('.super-signature').classList.contains('super-filled')){
+									signaturePad.canvas.closest('.super-signature').classList.add('super-filled');
+								}
+								var dataUrl = signaturePad.toDataURL();
+								field.value = dataUrl;
+							}else{
+								signaturePad.canvas.closest('.super-signature').classList.remove('super-filled');
 							}
-							var dataUrl = signaturePad.toDataURL();
-							field.value = dataUrl;
-						}else{
-							signaturePad.canvas.closest('.super-signature').classList.remove('super-filled');
-						}
-						SUPER.after_field_change_blur_hook({el: field});
+							SUPER.after_field_change_blur_hook({el: field});
+                        }, 100);
 					}, { once: false });
-
 					var clear = wrapper.querySelector('.super-signature-clear');
 					if(clear){
 						clear.addEventListener('click', function(){
@@ -85,7 +94,6 @@
 							p.querySelector('.super-shortcode-field').value = '';
 						});
 					}
-
 				});
 			});
 		}
@@ -102,9 +110,10 @@
 	};
 
     // @since 1.2.2 - remove initialized class from signature element after the column has been cloned
-    SUPER.init_remove_initialized_class = function($form, $unique_field_names, $clone){
-        if($clone.querySelector('.super-signature.super-initialized')){
-			$clone.querySelector('.super-signature.super-initialized').classList.remove('super-initialized');
+    SUPER.init_remove_initialized_class = function(form, unique_field_names, clone){
+		var i, nodes = clone.querySelectorAll('.super-signature.super-initialized');
+		for(i=0; i<nodes.length; ++i){
+			nodes[i].classList.remove('super-initialized');
 		}
     };
 
@@ -136,7 +145,7 @@
 		if( typeof clone !== 'undefined' ) {
 			nodes = clone.querySelectorAll('.super-signature .super-signature-canvas > canvas');
 			for( i=0; i < nodes.length; i++){
-				nodes[i].remove();
+				//nodes[i].remove();
 			}
 			SUPER.init_signature();
 		}

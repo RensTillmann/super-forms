@@ -20,7 +20,7 @@ Check out all the [available features](conditional-logic)
 
 ## Examples
 
-Check out some of the [awesome forms](https://f4d.nl/super-forms/example-forms/) created with Super Forms
+Check out some of the [awesome forms](https://super-forms.com) created with Super Forms
 
 ## Note to developers
 

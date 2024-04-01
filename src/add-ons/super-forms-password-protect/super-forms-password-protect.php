@@ -312,7 +312,7 @@ if( !class_exists('SUPER_Password_Protect') ) :
                 if(!is_array($elements)){
                     $elements = json_decode( $elements, true );
                 }
-                $elements_json = json_encode($elements);
+                $elements_json = SUPER_Common::safe_json_encode($elements);
                 $field_found = strpos($elements_json, '"name":"password"');
                 if ($field_found === false) {
                     $msg  = '<div class="super-msg super-error">';

@@ -318,7 +318,7 @@ if( !class_exists('SUPER_Email_Reminders') ) :
 
                                 }
                             }
-                            if( $settings['reminder_exclude_empty']=='true' && empty($v['value']) ) {
+                            if( $settings['reminder_exclude_empty']=='true' && (empty($v['value']) || $v['value']=='0') ) {
                             }else{
                                 $reminder_loop .= $row;
                             }

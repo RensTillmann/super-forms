@@ -286,7 +286,7 @@ Now you might ask where should I actually place this tag? You can choose to use 
 **Tag to retrieve the current/total PDF pages (PDF Add-on):**
 
 * `{pdf_page}`
-* `{pdf_total_pages}`
+* `{}`
 
 **Tag to retrieve the generated PDF file label/name/url:**
 

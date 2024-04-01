@@ -222,8 +222,8 @@ if( !class_exists('SUPER_Signature') ) :
         */
         public static function load_scripts($atts) {
             if($atts['ajax']) {
-                wp_enqueue_style( 'super-signature', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/signature.css', array(), SUPER_Signature()->version );
-                wp_enqueue_script( 'super-signature', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/signature.js', array( 'super-common' ), SUPER_Signature()->version );
+                wp_enqueue_style( 'super-signature', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/signature.css', array(), SUPER_VERSION );
+                wp_enqueue_script( 'super-signature', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/signature.js', array( 'super-common' ), SUPER_VERSION );
             }
         }
 
@@ -255,7 +255,7 @@ if( !class_exists('SUPER_Signature') ) :
             $array['super-signature'] = array(
                 'src'     => $frontend_path . 'signature.css',
                 'deps'    => '',
-                'version' => SUPER_Signature()->version,
+                'version' => SUPER_VERSION,
                 'media'   => 'all',
                 'screen'  => array( 
                     'super-forms_page_super_create_form'
@@ -277,7 +277,7 @@ if( !class_exists('SUPER_Signature') ) :
             $array['super-signature'] = array(
                 'src'     => $frontend_path . 'signature.js',
                 'deps'    => array( 'super-common' ),
-                'version' => SUPER_Signature()->version,
+                'version' => SUPER_VERSION,
                 'footer'  => false,
                 'screen'  => array( 
                     'super-forms_page_super_create_form'
@@ -330,9 +330,9 @@ if( !class_exists('SUPER_Signature') ) :
                 $css = wp_remote_fopen($url);
                 $result .= '<style>' . $css . '</style>';
             }else{
-                wp_enqueue_style( 'super-signature', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/signature.css', array(), SUPER_Signature()->version );
+                wp_enqueue_style( 'super-signature', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/signature.css', array(), SUPER_VERSION );
             }
-			wp_enqueue_script( 'super-signature', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/signature.js', array( 'super-common' ), SUPER_Signature()->version );
+			wp_enqueue_script( 'super-signature', plugin_dir_url( __FILE__ ) . 'assets/js/frontend/signature.js', array( 'super-common' ), SUPER_VERSION );
 
             $result .= SUPER_Shortcodes::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings));
 	        $result .= SUPER_Shortcodes::opening_wrapper( $atts, $inner, $shortcodes, $settings );

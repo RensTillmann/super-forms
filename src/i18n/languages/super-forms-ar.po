@@ -15211,10 +15211,10 @@ msgstr "سيتم استبدال {loop_fields} داخل نص البريد الإ�
 
 #: includes/extensions/pdf-generator/pdf-generator.php:81
 msgid ""
-"{pdf_page} and {pdf_total_pages} tags can be used inside a HTML element to "
+"{pdf_page} and {} tags can be used inside a HTML element to "
 "be used in your header/footer."
 msgstr ""
-"يمكن استخدام علامتي {pdf_page} و {pdf_total_pages} داخل عنصر HTML لاستخدامه "
+"يمكن استخدام علامتي {pdf_page} و {} داخل عنصر HTML لاستخدامه "
 "في الرأس / التذييل."
 
 #: includes/shortcodes/form-elements.php:3745

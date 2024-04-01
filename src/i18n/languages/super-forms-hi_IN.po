@@ -15522,10 +15522,10 @@ msgstr "ईमेल बॉडी के अंदर {loop_fields} को इ�
 
 #: includes/extensions/pdf-generator/pdf-generator.php:81
 msgid ""
-"{pdf_page} and {pdf_total_pages} tags can be used inside a HTML element to "
+"{pdf_page} and {} tags can be used inside a HTML element to "
 "be used in your header/footer."
 msgstr ""
-"{pdf_page} और {pdf_total_pages} टैग का उपयोग आपके शीर्ष लेख या पाद लेख में "
+"{pdf_page} और {} टैग का उपयोग आपके शीर्ष लेख या पाद लेख में "
 "उपयोग किए जाने वाले HTML तत्व के अंदर किया जा सकता है।"
 
 #: includes/shortcodes/form-elements.php:3745

@@ -22,7 +22,7 @@ class SUPER_Triggers {
 
     public static function send_email($eventName, $actionName, $form_id, $x){
         error_log('Action `'.$actionName.'` was executed, by trigger event `'.$eventName.'` for fomr ID: `'.$form_id.'`');
-        error_log(json_encode($x));
+        error_log(SUPER_Common::safe_json_encode($x));
         // not used due to tinyMCE if($x['line_breaks']==='true') $x['body'] = nl2br($x['body']);
         $custom_reply = false;
         if(!empty($x['reply_to'])) $custom_reply = true;

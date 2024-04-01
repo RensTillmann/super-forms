@@ -54,13 +54,15 @@ class SUPER_UI {
                             $i = 0;
                             foreach($items as $ik => $iv){
                                 $prefix[] = $i;
-                                echo '<div class="sfui-repeater-item'.(isset($v['inline']) ? ' sfui-inline' : '').'">';
+                                echo '<div class="sfui-repeater-item'.((isset($v['padding']) && $v['padding']===false) ? ' sfui-no-padding' : '').((isset($v['padding']) && $v['padding']===false) ? ' sfui-no-padding' : '').(isset($v['inline']) ? ' sfui-inline' : '').'">';
                                     // Might have children
                                     if(isset($v['nodes']) && is_array($v['nodes'])) {
                                         self::loop_over_tab_setting_nodes($s, $v['nodes'], $prefix);
                                     }
-                                    echo '<div style="margin-left:10px;" class="sfui-btn sfui-green sfui-round sfui-tooltip" title="' . esc_attr__( 'Add item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Add item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'addRepeaterItem\')"><i class="fas fa-plus"></i></div>';
-                                    echo '<div style="margin-left:0px;" class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'deleteRepeaterItem\')"><i class="fas fa-trash"></i></div>';
+                                    echo '<div>';
+                                        echo '<div style="margin-left:10px;" class="sfui-btn sfui-green sfui-round sfui-tooltip" title="' . esc_attr__( 'Add item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Add item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'addRepeaterItem\')"><i class="fas fa-plus"></i></div>';
+                                        echo '<div style="margin-left:0px;" class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'deleteRepeaterItem\')"><i class="fas fa-trash"></i></div>';
+                                    echo '</div>';
                                 echo '</div>';
                                 array_pop($prefix);  
                                 $i++;
@@ -71,12 +73,14 @@ class SUPER_UI {
                                 if(isset($v['nodes']) && is_array($v['nodes'])) {
                                     self::loop_over_tab_setting_nodes($s, $v['nodes'], $prefix);
                                 }
-                                echo '<div style="margin-left:10px;" class="sfui-btn sfui-green sfui-round sfui-tooltip" title="' . esc_attr__( 'Add item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Add item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'addRepeaterItem\')"><i class="fas fa-plus"></i></div>';
-                                echo '<div style="margin-left:0px;" class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'deleteRepeaterItem\')"><i class="fas fa-trash"></i></div>';
+                                echo '<div>';
+                                    echo '<div style="margin-left:10px;" class="sfui-btn sfui-green sfui-round sfui-tooltip" title="' . esc_attr__( 'Add item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Add item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'addRepeaterItem\')"><i class="fas fa-plus"></i></div>';
+                                    echo '<div style="margin-left:0px;" class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'deleteRepeaterItem\')"><i class="fas fa-trash"></i></div>';
+                                echo '</div>';
                             echo '</div>';
                         }
 
-                        //echo json_encode($iv);
+                        //echo SUPER_Common::safe_json_encode($iv);
                         // tmp if(isset($iv[$v['name']])){
                         // tmp     $items = $iv[$v['name']];
                         // tmp }else{
@@ -138,7 +142,7 @@ class SUPER_UI {
                         if(!empty($v['group_name'])){
                             //'group_name' => 'instant_conditionally',
                             $prefix[] = $v['group_name'];
-                            error_log('after opening group: ' . json_encode($prefix));
+                            //error_log('after opening group: ' . SUPER_Common::safe_json_encode($prefix));
                         }
                         if(isset($v['nodes']) && is_array($v['nodes'])) self::loop_over_tab_setting_nodes($s, $v['nodes'], $prefix);
                         if(isset($v['wrap']) && $v['wrap']===false){
@@ -165,7 +169,7 @@ class SUPER_UI {
             }
             if(!empty($v['group_name'])){
                 array_pop($prefix);  
-                error_log('after closing group: ' . json_encode($prefix));
+                // tmp error_log('after closing group: ' . SUPER_Common::safe_json_encode($prefix));
             }
             if(isset($v['notice'])){
                 echo '<div class="sfui-notice'.($v['notice']==='info' ? ' sfui-yellow' : '').($v['notice']==='hint' ? ' sfui-desc' : '').'"><p>'.$v['content'].'</p></div>';
@@ -278,7 +282,7 @@ class SUPER_UI {
                 self::subline($v);
             echo '</label>';
         }
-        if($v['type']==='text' || $v['type']==='number'){
+        if($v['type']==='text' || $v['type']==='hidden' || $v['type']==='number' || $v['type']==='date'){
             echo '<label>';
                 if(isset($v['title'])){
                     echo '<span class="sfui-title'.((isset($v['label'])) ? ' sfui-no-padding' : '').'">' . $v['title'] . '</span>';
@@ -286,11 +290,37 @@ class SUPER_UI {
                 if(isset($v['label'])){
                     echo '<span class="sfui-label">' . $v['label'] . '</span>';
                 }
-                echo '<input type="'.$v['type'].'" name="'.$v['name'].'"'.(isset($v['min']) ? ' min="'.$v['min'].'"' : '').(isset($v['max']) ? ' max="'.$v['max'].'"' : '').(isset($v['step']) ? ' step="'.$v['step'].'"' : '').(isset($v['placeholder']) ? ' placeholder="'.$v['placeholder'].'"' : '').' value="' . self::get_value($s, $name, $v) . '" onChange="SUPER.ui.updateSettings(event, this)" />';
+                $value = self::get_value($s, $name, $v);
+                if(isset($v['func'])){
+                    if($v['func']==='listing_id'){
+                        // error_log('id value: '.$value);
+                        if(empty($value)){
+                            $explodedName = explode('.', $name);
+                            $index = intval($explodedName[count($explodedName)-2]);
+                            $value = $index+1;
+                        }
+                    }
+                    if($v['func']==='listing_shortcode'){
+                        $explodedName = explode('.', $name);
+                        $index = intval($explodedName[count($explodedName)-2]);
+                        error_log('test@@@@@@@@@@@@@');
+                        error_log(SUPER_Common::safe_json_encode($s['lists']));
+                        if(empty($s['lists'][$index]['id'])){
+                            $id = $index+1;
+                        }else{
+                            $id = $s['lists'][$index]['id'];
+                        }
+                        $form_id = (isset($_GET['id']) ? absint($_GET['id']) : 0);
+                        $shortcode = '['.esc_html__( 'form-not-saved-yet', 'super-forms' ).']';
+                        if($form_id!=0) $shortcode = '[super_listings list=&quot;'.$id.'&quot; id=&quot;'.$form_id.'&quot;]';
+                        $value = $shortcode;
+                    }
+                }
+                echo '<input type="'.$v['type'].'" name="'.$v['name'].'"'.(isset($v['readonly']) ? ' readonly="readonly"' : '').(isset($v['min']) ? ' min="'.$v['min'].'"' : '').(isset($v['max']) ? ' max="'.$v['max'].'"' : '').(isset($v['step']) ? ' step="'.$v['step'].'"' : '').(isset($v['placeholder']) ? ' placeholder="'.$v['placeholder'].'"' : '').' value="' . $value . '" onChange="SUPER.ui.updateSettings(event, this)" />';
                 self::subline($v);
             echo '</label>';
         }
-        if($v['type']==='select'){
+        if($v['type']==='radio' || $v['type']==='select'){
             echo '<label>';
                 if(isset($v['title'])){
                     echo '<span class="sfui-title'.((isset($v['label'])) ? ' sfui-no-padding' : '').'">' . $v['title'] . '</span>';
@@ -298,28 +328,37 @@ class SUPER_UI {
                 if(isset($v['label'])){
                     echo '<span class="sfui-label">' . $v['label'] . '</span>';
                 }
-                echo '<select name="'.$v['name'].'" onChange="SUPER.ui.updateSettings(event, this)">';
-                    $hadLabel = false;
+                if($v['type']==='radio'){
+                    echo '<form class="sfui-setting">';
                     foreach($v['options'] as $ok => $ov){
-                        if(!isset($ov['items'])){
-                            echo '<option'.(self::get_value($s, $name, null)===$ok ? ' selected="selected"' : '').' value="'.$ok.'">'.$ov.'</option>';
-                            continue;
-                        }
-                        if(isset($ov['label'])){
-                            $hadLabel = true;
-                            echo '<optgroup label="'.$ov['label'].'">';
-                        }
-                        $count = 0;
-                        foreach($ov['items'] as $ook => $oov){
-                            echo '<option'.(self::get_value($s, $name, null)===$ook ? ' selected="selected"' : '').' value="'.$ook.'">'.$oov.'</option>';
-                            //echo '<option value="'.$ook.'"'.($v['event']===$ook ? ' selected="selected"' : '').'>'.$oov.'</option>';
-                            $count++;
-                            if(count($ov['items'])===$count){
-                                echo '</optgroup>';
+                        echo '<label onclick="SUPER.ui.updateSettings(event, this)"><input type="radio" name="'.$v['name'].'" value="'.$ok.'"'.(self::get_value($s, $name, null)===$ok ? ' checked="checked"' : '').'><span class="sfui-title">'.($ov).'</span></label>';
+                    }
+                    echo '</form>';
+                }
+                if($v['type']==='select'){
+                    echo '<select name="'.$v['name'].'" onChange="SUPER.ui.updateSettings(event, this)">';
+                        $hadLabel = false;
+                        foreach($v['options'] as $ok => $ov){
+                            if(!isset($ov['items'])){
+                                echo '<option'.(self::get_value($s, $name, null)===$ok ? ' selected="selected"' : '').' value="'.$ok.'">'.$ov.'</option>';
+                                continue;
+                            }
+                            if(isset($ov['label'])){
+                                $hadLabel = true;
+                                echo '<optgroup label="'.$ov['label'].'">';
+                            }
+                            $count = 0;
+                            foreach($ov['items'] as $ook => $oov){
+                                echo '<option'.(self::get_value($s, $name, null)===$ook ? ' selected="selected"' : '').' value="'.$ook.'">'.$oov.'</option>';
+                                //echo '<option value="'.$ook.'"'.($v['event']===$ook ? ' selected="selected"' : '').'>'.$oov.'</option>';
+                                $count++;
+                                if(count($ov['items'])===$count){
+                                    echo '</optgroup>';
+                                }
                             }
                         }
-                    }
-                echo '</select>';
+                    echo '</select>';
+                }
                 self::subline($v);
             echo '</label>';
         }

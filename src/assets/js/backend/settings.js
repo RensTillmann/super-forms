@@ -615,7 +615,11 @@
                                         action: 'super_start_forms_import',
                                         file_id: $id,
                                     },
-                                    success: function () {
+                                    success: function (response) {
+                                        if(!response.success && response.data && response.data){
+                                            alert(response.data);
+                                            return;
+                                        }
                                         window.location.href = "edit.php?post_type=super_form";
                                         $('<div>'+super_settings_i18n.import_completed+'!</div>').insertAfter($button);
                                         $button.remove();

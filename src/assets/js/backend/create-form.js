@@ -87,7 +87,22 @@
             }
             if(action==='addRepeaterItem'){
                 var clone = el.closest('.sfui-repeater-item').cloneNode(true);
-                el.closest('.sfui-repeater').appendChild(clone);
+                var p = el.closest('.sfui-repeater');
+                p.appendChild(clone);
+                if(p.dataset.r==='lists'){
+                    var input = clone.querySelector('input[value*="[super_listings"]');
+                    if(input){
+                        var id = SUPER.generate_new_field_name().replace('field_','');
+                        var form_id = document.querySelector('.super-header input[name="form_id"]').value;
+                        input.value = '[super_listings list="'+id+'" id="'+(form_id)+'"]';
+                        // Set unieuq list ID
+                        input = clone.querySelector('input[name="id"]');
+                        input.value = id;
+                    }
+                    input = clone.querySelector('input[name="name"]');
+                    input.value = 'Listing #'+p.children.length;
+                    
+                }
                 SUPER.ui.showHideSubsettings(clone);
                 e.preventDefault();
                 return false;
@@ -155,7 +170,7 @@
                 }else{
                     if(parts.length===2) node = tab.querySelector('[data-g="'+parts[0]+'"] [name="'+parts[1]+'"]');
                     if(parts.length===3) node = tab.querySelector('[data-g="'+parts[0]+'"] [data-g="'+parts[1]+'"] [name="'+parts[2]+'"]');
-                    if(parts.length===3) node = tab.querySelector('[data-g="'+parts[0]+'"] [data-g="'+parts[1]+'"] [data-g="'+parts[2]+'"] [name="'+parts[3]+'"]');
+                    if(parts.length===4) node = tab.querySelector('[data-g="'+parts[0]+'"] [data-g="'+parts[1]+'"] [data-g="'+parts[2]+'"] [name="'+parts[3]+'"]');
                 }
                 if(node){
                     // Input
@@ -163,9 +178,9 @@
                         value = node.value;
                         nodes[i].classList.remove('sfui-active');
                         if(filter[1][0]==='!'){
-                            debugger;
+                            
                             if(filter[1]==='!'){
-                                debugger;
+                                
                                 if(value!==''){
                                     nodes[i].classList.add('sfui-active');
                                     if(node===el) if(nodes[i].parentNode.classList.contains('sfui-setting-group')) nodes[i].parentNode.classList.add('sfui-active');
@@ -188,12 +203,20 @@
                     }
                     // Radio, Checkbox, Select (dropdown)?
                     if(node.type==='checkbox' || node.type==='radio'){
-                        value = (node.checked ? node.value : '');
+                        if(node.type==='radio'){
+                            var selected = node.closest('form').querySelector('input[name="'+node.name+'"]:checked');
+                            if(selected) {
+                                
+                                value = selected.value;
+                            }
+                        }else{
+                            value = (node.checked ? node.value : '');
+                        }
                         nodes[i].classList.remove('sfui-active');
                         if(filter[1][0]==='!'){
-                            debugger;
+                            
                             if(filter[1]==='!'){
-                                debugger;
+                                
                                 if(value!==''){
                                     nodes[i].classList.add('sfui-active');
                                     if(node===el) if(nodes[i].parentNode.classList.contains('sfui-setting-group')) nodes[i].parentNode.classList.add('sfui-active');
@@ -439,9 +462,22 @@
         }
     };
     SUPER.get_tab_settings = function(settings, slug, tab, data){
+        var translating = false;
+        var $i18n = '';
+        if(slug==='triggers'){
+            $i18n = $('.super-preview-elements').attr('data-i18n');
+            if(typeof $i18n!=='undefined' && $i18n!==''){
+                translating = true;
+                debugger;
+            }
+        }
         var returnObj = false;
         if(typeof data === 'undefined') {
-            data = {};
+            if(translating){
+                debugger;
+            }else{
+                data = {};
+            }
         }else{
             returnObj = true;
         }
@@ -454,6 +490,9 @@
         // First grab all settings that are not inside a repeater element
         var i, k, group, nodes = tab.querySelectorAll('[data-g], [data-r], [name]');
         for(i=0; i<nodes.length; i++){
+            if(slug==='triggers' && translating){
+                debugger;
+            }
             if(nodes[i].classList.contains('sf-processed')){
                 continue;
             }
@@ -493,7 +532,14 @@
                 if(nodes[i].tagName==='TEXTAREA' && tinymce.get(nodes[i].id)){
                     value = tinymce.get(nodes[i].id).getContent();
                 }
-                if(!data[k]) data[k] = value;
+                if(typeof $i18n!=='undefined' && $i18n!==''){
+                    debugger;
+                    if(!data['i18n']) data['i18n'] = {};
+                    if(!data['i18n'][$i18n]) data['i18n'][$i18n] = {};
+                    if(!data['i18n'][$i18n][k]) data['i18n'][$i18n][k] = value;
+                }else{
+                    if(!data[k]) data[k] = value;
+                }
                 continue;
             }
         }

@@ -3,15 +3,15 @@ if ( ! defined( 'ABSPATH' ) ) {
     exit; // Exit if accessed directly
 }
 
-if(!class_exists('SUPER_WooCommerce2')) :
+if(!class_exists('SUPER_WC_Instant_Orders')) :
 
     /**
-     * Main SUPER_WooCommerce2 Class
+     * Main SUPER_WC_Instant_Orders Class
      *
-     * @class SUPER_WooCommerce2
+     * @class SUPER_WC_Instant_Orders
      * @version 1.0.0
      */
-    final class SUPER_WooCommerce2 {
+    final class SUPER_WC_Instant_Orders {
     
         /**
          * @var string
@@ -23,7 +23,7 @@ if(!class_exists('SUPER_WooCommerce2')) :
 
 
         /**
-         * @var SUPER_WooCommerce2 The single instance of the class
+         * @var SUPER_WC_Instant_Orders The single instance of the class
          *
          *  @since      1.0.0
         */
@@ -31,13 +31,13 @@ if(!class_exists('SUPER_WooCommerce2')) :
 
         
         /**
-         * Main SUPER_WooCommerce2 Instance
+         * Main SUPER_WC_Instant_Orders Instance
          *
-         * Ensures only one instance of SUPER_WooCommerce2 is loaded or can be loaded.
+         * Ensures only one instance of SUPER_WC_Instant_Orders is loaded or can be loaded.
          *
          * @static
-         * @see SUPER_WooCommerce2()
-         * @return SUPER_WooCommerce2 - Main instance
+         * @see SUPER_WC_Instant_Orders()
+         * @return SUPER_WC_Instant_Orders - Main instance
          *
          *  @since      1.0.0
         */
@@ -50,7 +50,7 @@ if(!class_exists('SUPER_WooCommerce2')) :
 
 
         /**
-         * SUPER_WooCommerce2 Constructor.
+         * SUPER_WC_Instant_Orders Constructor.
          *
          *  @since      1.0.0
         */
@@ -140,9 +140,9 @@ if(!class_exists('SUPER_WooCommerce2')) :
         // tmp     // tmp }
         // tmp     // tmp echo 'e.';
         // tmp     // tmp $value = $array;
-        // tmp     // tmp echo json_encode($value);
+        // tmp     // tmp echo SUPER_Common::safe_json_encode($value);
         // tmp     // tmp $keys = explode('.', $keyPath);
-        // tmp     // tmp echo json_encode($keys);
+        // tmp     // tmp echo SUPER_Common::safe_json_encode($keys);
         // tmp     // tmp foreach ($keys as $key) {
         // tmp     // tmp     if (isset($value[$key])) {
         // tmp     // tmp         $value = $value[$key];
@@ -153,250 +153,12 @@ if(!class_exists('SUPER_WooCommerce2')) :
         // tmp     // tmp return $value;
         // tmp }
         public static function add_tab_content($atts){
-            $slug = SUPER_WooCommerce2()->add_on_slug;
+            $slug = SUPER_WC_Instant_Orders()->add_on_slug;
             // $s = self::get_default_woocommerce_settings($atts);
             $form_id = $atts['form_id'];
             $version = $atts['version'];
             $settings = $atts['settings'];
             $s = $atts['settings'];
-            if(version_compare($version, '6.3.728', '<')){
-                // Merge old settings with new ones
-                echo 'Current form version ('.$version.') is lower than 6.3.728 so we must merge old settings with new settings';
-                $s['_woocommerce'] = array();
-                $s['_woocommerce']['checkout'] = (isset($settings['woocommerce_checkout']) ? $settings['woocommerce_checkout'] : 'false');
-                $s['_woocommerce']['redirect'] = (isset($settings['woocommerce_redirect']) ? $settings['woocommerce_redirect'] : 'checkout');
-                $s['_woocommerce']['coupon'] = (isset($settings['woocommerce_checkout_coupon']) ? $settings['woocommerce_checkout_coupon'] : '');
-                $s['_woocommerce']['checkout_conditionally'] = array();
-                $s['_woocommerce']['checkout_conditionally']['enabled'] = (isset($settings['conditionally_wc_checkout']) ? $settings['conditionally_wc_checkout'] : 'false');
-				if(empty($settings['conditionally_wc_checkout_check'])) $settings['conditionally_wc_checkout_check'] = '';
-                $values = explode(',', $settings['conditionally_wc_checkout_check']);
-                if(!isset($values[0])) $values[0] = '';
-                if(!isset($values[1])) $values[1] = '=='; // is either == or !=   (== by default)
-                if(!isset($values[2])) $values[2] = '';
-                $s['_woocommerce']['checkout_conditionally']['f1'] = $values[0];
-                $s['_woocommerce']['checkout_conditionally']['logic'] = $values[1];
-                $s['_woocommerce']['checkout_conditionally']['f2'] = $values[2];
-                $s['_woocommerce']['empty_cart'] = (isset($settings['woocommerce_checkout_empty_cart']) ? $settings['woocommerce_checkout_empty_cart'] : 'false');
-                $s['_woocommerce']['remove_coupons'] = (isset($settings['woocommerce_checkout_remove_coupons']) ? $settings['woocommerce_checkout_remove_coupons'] : 'false');
-                $s['_woocommerce']['remove_fees'] = (isset($settings['woocommerce_checkout_remove_fees']) ? $settings['woocommerce_checkout_remove_fees'] : 'false');
-                $woocommerce_checkout_products = (isset($settings['woocommerce_checkout_products']) ? explode( "\n", $settings['woocommerce_checkout_products'] ) : '');
-                $woocommerce_checkout_products_meta = (isset($settings['woocommerce_checkout_products_meta']) ? explode( "\n", $settings['woocommerce_checkout_products_meta'] ) : '');
-                $products = array();
-                $products_ids = array();
-                foreach($woocommerce_checkout_products as $k => $v){
-                    $product =  explode('|', $v);
-                    $id = (isset($product[0]) ? trim($product[0]) : '');
-                    if(empty($id)) continue;
-                    $qty = (isset($product[1]) ? trim($product[1]) : '');
-                    $variation = (isset($product[2]) ? trim($product[2]) : '');
-                    $price = (isset($product[3]) ? trim($product[3]) : '');
-                    $products_ids[$id] = $k;
-                    $products[] = array(
-                        'id' => $id,
-                        'qty' => $qty,
-                        'variation' => $variation,
-                        'price' => $price,
-                        'meta' => 'false',
-                        'items' => array()
-                    );
-                }
-                foreach($woocommerce_checkout_products_meta as $k => $v){
-                    $meta =  explode('|', $v);
-                    $id = (isset($meta[0]) ? trim($meta[0]) : '');
-                    if(empty($id)) continue;
-                    // Check if we can match it with one of the product ID's
-                    $products_ids[$id] = $k;
-                    if(isset($products_ids[$id])){
-                        $label = (isset($meta[1]) ? trim($meta[1]) : '');
-                        $value = (isset($meta[2]) ? trim($meta[2]) : '');
-                        $index = $products_ids[$id];
-                        $products[$index]['meta'] = 'true';
-                        $products[$index]['items'][] = array(
-                            'label' => $label,
-                            'value' => $value
-                        );
-                    }
-                }
-                $s['_woocommerce']['products'] = $products;
-
-                $woocommerce_checkout_fees = (isset($settings['woocommerce_checkout_fees']) ? explode( "\n", $settings['woocommerce_checkout_fees'] ) : '');
-                $fees = array();
-                foreach($woocommerce_checkout_fees as $k => $v){
-                    $fee =  explode('|', $v);
-                    $name = (isset($fee[0]) ? trim($fee[0]) : '');
-                    if(empty($name)) continue;
-                    $amount = (isset($fee[1]) ? trim($fee[1]) : '');
-                    $taxable = (isset($fee[2]) ? trim($fee[2]) : '');
-                    $tax_class = (isset($fee[3]) ? trim($fee[3]) : '');
-                    $fees[] = array(
-                        'name' => $name,
-                        'amount' => $amount,
-                        'taxable' => $taxable,
-                        'tax_class' => $tax_class
-                    );
-                }
-                if(!empty($fees)){
-                    $s['_woocommerce']['fees'] = array(
-                        'enabled' => 'true',
-                        'items' => $fees
-                    );
-                }
-
-                $woocommerce_populate_checkout_fields = (isset($settings['woocommerce_populate_checkout_fields']) ? explode( "\n", $settings['woocommerce_populate_checkout_fields'] ) : '');
-                $fields = array();
-                foreach($woocommerce_populate_checkout_fields as $k => $v){
-                    $field =  explode('|', $v);
-                    $name = (isset($field[0]) ? trim($field[0]) : '');
-                    if(empty($name)) continue;
-                    $value = (isset($field[1]) ? trim($field[1]) : '');
-                    $fields[] = array(
-                        'name' => $name,
-                        'value' => $value
-                    );
-                }
-                if(!empty($fields)){
-                    $s['_woocommerce']['populate'] = array(
-                        'enabled' => 'true',
-                        'items' => $fields
-                    );
-                }
-
-                $woocommerce_checkout_fields = (isset($settings['woocommerce_checkout_fields']) ? explode( "\n", $settings['woocommerce_checkout_fields'] ) : '');
-                $fields = array();
-                foreach($woocommerce_checkout_fields as $k => $v){
-                    $field =  explode('|', $v);
-                    $name = (isset($field[0]) ? trim($field[0]) : '');
-                    if(empty($name)) continue;
-                    $placeholder = (isset($field[3]) ? trim($field[3]) : '');
-                    $type = (isset($field[4]) ? trim($field[4]) : '');
-                    $section = (isset($field[5]) ? trim($field[5]) : '');
-                    $required = (isset($field[6]) ? trim($field[6]) : '');
-                    $clear = (isset($field[7]) ? trim($field[7]) : '');
-                    $class = (isset($field[8]) ? trim($field[8]) : '');
-                    $label_class = (isset($field[9]) ? trim($field[9]) : '');
-                    $dropdown_options = (isset($field[10]) ? explode( ",", trim($field[10]) ) : '');
-                    $options = array();
-                    foreach($dropdown_options as $ok => $ov){
-                        $option =  explode(';', $ov);
-                        $label = (isset($option[0]) ? trim($option[0]) : '');
-                        if(empty($label)) continue;
-                        $value = (isset($option[1]) ? trim($option[1]) : '');
-                        $options[] = array(
-                            'label' => $label,
-                            'value' => $value
-                        );
-                    }
-                    $label = (isset($field[2]) ? trim($field[2]) : '');
-                    $value = (isset($field[1]) ? trim($field[1]) : '');
-                    $fields[] = array(
-                        'type' => $type,
-                        'label' => $label,
-                        'name' => $name,
-                        'placeholder' => $placeholder,
-                        'value' => $value,
-                        'section' => $section,
-                        'required' => $required,
-                        'clear' => $clear,
-                        'class' => $class,
-                        'label_class' => $label_class,
-                        'options' => $options,
-                        'skip' => ((isset($settings['woocommerce_checkout_fields_skip_empty']) && $settings['woocommerce_checkout_fields_skip_empty']==='true') ? 'true' : 'false')
-                    );
-                }
-                if(!empty($fields)){
-                    $s['_woocommerce']['fields'] = array(
-                        'enabled' => 'true',
-                        'items' => $fields
-                    );
-                }
-                // Update entry status when order status is changed
-                $entry_status = array(
-                    array( 'order' => 'completed', 'entry' => 'completed'),
-                    array( 'order' => 'pending', 'entry' => 'pending'),
-                    array( 'order' => 'processing', 'entry' => 'processing'),
-                    array( 'order' => 'on-hold', 'entry' => 'on-hold'),
-                    array( 'order' => 'cancelled', 'entry' => 'cancelled'),
-                    array( 'order' => 'failed', 'entry' => 'failed')
-                );
-                $woocommerce_completed_entry_status = (isset($settings['woocommerce_completed_entry_status']) ? $settings['woocommerce_completed_entry_status'] : 'completed');
-                if(!empty($woocommerce_completed_entry_status)){
-                    foreach($entry_status as $k => $v){
-                        if($v['order']==='completed'){
-                            $entry_status[$k] = array(
-                                'order' => $v['order'],
-                                'entry' => $woocommerce_completed_entry_status
-                            );
-                        }
-                    }
-                }
-                $s['_woocommerce']['entry_status'] = $entry_status;
-
-                // Update post status when order status is changed
-                $post_status = array(
-                    array( 'order' => 'completed', 'post' => 'publish'),
-                    array( 'order' => 'pending', 'post' => 'pending'),
-                    array( 'order' => 'processing', 'post' => 'pending'),
-                    array( 'order' => 'on-hold', 'post' => 'pending'),
-                    array( 'order' => 'cancelled', 'post' => 'trash'),
-                    array( 'order' => 'failed', 'post' => 'trash')
-                );
-                $woocommerce_post_status = (isset($settings['woocommerce_post_status']) ? $settings['woocommerce_post_status'] : 'publish');
-                if(!empty($woocommerce_post_status)){
-                    foreach($post_status as $k => $v){
-                        if($v['order']==='completed'){
-                            $post_status[$k] = array(
-                                'order' => $v['order'],
-                                'post' => $woocommerce_post_status
-                            );
-                        }
-                    }
-                }
-                $s['_woocommerce']['post_status'] = $post_status;
-
-                // Update user login status when order status is changed
-                $login_status = array(
-                    array( 'order' => 'completed', 'login_status' => 'active'),
-                    array( 'order' => 'pending', 'login_status' => 'pending'),
-                    array( 'order' => 'processing', 'login_status' => 'pending'),
-                    array( 'order' => 'on-hold', 'login_status' => 'pending'),
-                    array( 'order' => 'cancelled', 'login_status' => 'pending'),
-                    array( 'order' => 'failed', 'login_status' => 'pending')
-                );
-                $woocommerce_signup_status = (isset($settings['woocommerce_signup_status']) ? $settings['woocommerce_signup_status'] : 'active');
-                if(!empty($woocommerce_signup_status)){
-                    foreach($login_status as $k => $v){
-                        if($v['order']==='completed'){
-                            $login_status[$k] = array(
-                                'order' => $v['order'],
-                                'login_status' => $woocommerce_signup_status
-                            );
-                        }
-                    }
-                }
-                $s['_woocommerce']['login_status'] = $login_status;
-
-                // Update user role when order status is changed
-                $user_role = array(
-                    array( 'order' => 'completed', 'user_role' => ''),
-                    array( 'order' => 'pending', 'user_role' => ''),
-                    array( 'order' => 'processing', 'user_role' => ''),
-                    array( 'order' => 'on-hold', 'user_role' => ''),
-                    array( 'order' => 'cancelled', 'user_role' => ''),
-                    array( 'order' => 'failed', 'user_role' => '')
-                );
-                $woocommerce_completed_user_role = (isset($settings['woocommerce_completed_user_role']) ? $settings['woocommerce_completed_user_role'] : '');
-                if(!empty($woocommerce_completed_user_role)){
-                    foreach($user_role as $k => $v){
-                        if($v['order']==='completed'){
-                            $user_role[$k] = array(
-                                'order' => $v['order'],
-                                'user_role' => $woocommerce_completed_user_role
-                            );
-                        }
-                    }
-                }
-                $s['_woocommerce']['user_role'] = $user_role;
-            }
 
             $statuses = SUPER_Settings::get_entry_statuses();
             if(!isset($statuses['delete'])) $statuses['delete'] = 'Delete';
@@ -458,7 +220,7 @@ if(!class_exists('SUPER_WooCommerce2')) :
                                             'name' => 'enabled',
                                             'type' => 'checkbox',
                                             'default' => 'false',
-                                            'title' => esc_html__( 'Only checkout when below condition are met', 'super-forms' ),
+                                            'title' => esc_html__( 'Only checkout when below condition is met', 'super-forms' ),
                                             'nodes' => array(
                                                 array(
                                                     'sub' => true, // sfui-sub-settings
@@ -1169,7 +931,7 @@ if(!class_exists('SUPER_WooCommerce2')) :
                                             'name' => 'enabled',
                                             'type' => 'checkbox',
                                             'default' => 'false',
-                                            'title' => esc_html__( 'Only create the order when below condition are met', 'super-forms' ),
+                                            'title' => esc_html__( 'Only create the order when below condition is met', 'super-forms' ),
                                             'nodes' => array(
                                                 array(
                                                     'inline' => true, // sfui-inline
@@ -1222,6 +984,7 @@ if(!class_exists('SUPER_WooCommerce2')) :
                 ),
             );
             $prefix = array();
+            if(!isset($s['_woocommerce'])) $s['_woocommerce'] = array();
             SUPER_UI::loop_over_tab_setting_nodes($s['_woocommerce'], $nodes, $prefix);
         }
         // Get default listing settings
@@ -1317,9 +1080,9 @@ if(!class_exists('SUPER_WooCommerce2')) :
                 'sf_post' => (isset($sfsi['created_post']) ? $sfsi['created_post'] : 0),
                 'sfsi_id' => $uniqueSubmissionId
             );
-            error_log('custom metadata for woocommerce order: ' . json_encode($metadata));
+            error_log('custom metadata for woocommerce order: ' . SUPER_Common::safe_json_encode($metadata));
             $submissionInfo = get_option( '_sfsi_' . $uniqueSubmissionId, array() );
-            error_log('submissionInfo: '.json_encode($submissionInfo));
+            error_log('submissionInfo: '.SUPER_Common::safe_json_encode($submissionInfo));
             $submissionInfo['entry_id'] = $entry_id;
             update_option('_sfsi_' . $uniqueSubmissionId, $submissionInfo );
 
@@ -1471,16 +1234,16 @@ endif;
 
 
 /**
- * Returns the main instance of SUPER_WooCommerce2 to prevent the need to use globals.
+ * Returns the main instance of SUPER_WC_Instant_Orders to prevent the need to use globals.
  *
- * @return SUPER_WooCommerce2
+ * @return SUPER_WC_Instant_Orders
  */
-if(!function_exists('SUPER_WooCommerce2')){
-    function SUPER_WooCommerce2() {
-        return SUPER_WooCommerce2::instance();
+if(!function_exists('SUPER_WC_Instant_Orders')){
+    function SUPER_WC_Instant_Orders() {
+        return SUPER_WC_Instant_Orders::instance();
     }
     // Global for backwards compatibility.
-    $GLOBALS['SUPER_WooCommerce2'] = SUPER_WooCommerce2();
+    $GLOBALS['SUPER_WC_Instant_Orders'] = SUPER_WC_Instant_Orders();
 }
 
 

@@ -179,14 +179,14 @@ if( !class_exists('SUPER_Zapier') ) :
             if( !empty($settings['zapier_enable']) ) {
                 $url = $settings['zapier_webhook'];  
                 if(isset($settings['zapier_exclude_settings']) && $settings['zapier_exclude_settings']=='true'){
-                    $body = json_encode(
+                    $body = SUPER_Common::safe_json_encode(
                         array(
                             'files'=>$files, 
                             'data'=>$data
                         )
                     );
                 }else{
-                    $body = json_encode(
+                    $body = SUPER_Common::safe_json_encode(
                         array(
                             'files'=>$files, 
                             'data'=>$data, 

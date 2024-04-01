@@ -185,7 +185,7 @@ if( !class_exists('SUPER_Mailchimp') ) :
         */
         public static function load_scripts($atts) {
             if($atts['ajax']) {
-                wp_enqueue_style( 'super-mailchimp', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/mailchimp.css', array(), SUPER_Mailchimp()->version );
+                wp_enqueue_style( 'super-mailchimp', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/mailchimp.css', array(), SUPER_VERSION );
             }
         }
         
@@ -216,7 +216,7 @@ if( !class_exists('SUPER_Mailchimp') ) :
             $array['super-mailchimp'] = array(
                 'src'     => $assets_path . 'css/backend/mailchimp.css',
                 'deps'    => '',
-                'version' => SUPER_Mailchimp()->version,
+                'version' => SUPER_VERSION,
                 'media'   => 'all',
                 'screen'  => array( 
                     'super-forms_page_super_create_form'
@@ -226,7 +226,7 @@ if( !class_exists('SUPER_Mailchimp') ) :
             $array['super-mailchimp'] = array(
                 'src'     => $assets_path . 'css/frontend/mailchimp.css',
                 'deps'    => '',
-                'version' => SUPER_Mailchimp()->version,
+                'version' => SUPER_VERSION,
                 'media'   => 'all',
                 'screen'  => array( 
                     'super-forms_page_super_create_form'
@@ -258,14 +258,14 @@ if( !class_exists('SUPER_Mailchimp') ) :
                     $detail = $obj['detail'];
                     $errors = $obj['errors'];
                     SUPER_Common::output_message( array(
-                        'msg' => '<strong>' . esc_html($detail) . ':</strong> ' . esc_html(json_encode($errors)),
+                        'msg' => '<strong>' . esc_html($detail) . ':</strong> ' . esc_html(SUPER_Common::safe_json_encode($errors)),
                         'form_id' => absint($form_id)
                     ));
                 }else{
                     // Otherwise display any other error response
                     if( $obj['status']!=200 && $obj['status']!=400 && $obj['status']!=='subscribed' && $obj['status']!=='unsubscribed' && $obj['status']!=='pending' ) {
                         SUPER_Common::output_message( array(
-                            'msg' => '<strong>' . esc_html__( 'Error', 'super-forms' ) . ':</strong> ' . json_encode($obj),
+                            'msg' => '<strong>' . esc_html__( 'Error', 'super-forms' ) . ':</strong> ' . SUPER_Common::safe_json_encode($obj),
                             'form_id' => absint($form_id)
                         ));
                     }
@@ -282,7 +282,7 @@ if( !class_exists('SUPER_Mailchimp') ) :
         public static function mailchimp($x) {
             extract( shortcode_atts( array( 'tag'=>'', 'atts'=>array(), 'inner'=>array(), 'shortcodes'=>null, 'settings'=>array(), 'i18n'=>null), $x ) );
 
-            wp_enqueue_style( 'super-mailchimp', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/mailchimp.css', array(), SUPER_Mailchimp()->version );
+            wp_enqueue_style( 'super-mailchimp', plugin_dir_url( __FILE__ ) . 'assets/css/frontend/mailchimp.css', array(), SUPER_VERSION );
 
             // Fallback check for older super form versions
             if (method_exists('SUPER_Common','generate_array_default_element_settings')) {
@@ -700,7 +700,7 @@ if( !class_exists('SUPER_Mailchimp') ) :
                     }
                 }
 
-                $data_string = json_encode($user_data);
+                $data_string = SUPER_Common::safe_json_encode($user_data);
 
                 $obj = json_decode( $response['body'], true );
                 if( $obj['status']=='pending' || $obj['status']=='subscribed' || $obj['status']=='unsubscribed' ) {
@@ -715,7 +715,7 @@ if( !class_exists('SUPER_Mailchimp') ) :
                             }
                         }
                         $user_data['interests'] = $obj['interests'];
-                        $data_string = json_encode($user_data); 
+                        $data_string = SUPER_Common::safe_json_encode($user_data); 
                     }
                     // Now update the user with it's new interests
                     $response = wp_remote_post( 
@@ -761,7 +761,7 @@ if( !class_exists('SUPER_Mailchimp') ) :
                         );
                     }
                     $tags = array('tags' => $tags);
-                    $tags = json_encode($tags);
+                    $tags = SUPER_Common::safe_json_encode($tags);
                     $response = wp_remote_post( 
                         $patch_url . '/tags', 
                         array(

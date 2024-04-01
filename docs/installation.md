@@ -4,7 +4,7 @@ Below we will guide you through the steps to install the plugin on your WordPres
 
 ## Download the plugin
 
-If you haven't already, download the [latest version](https://f4d.nl/super-forms/) of Super Forms and save it somewhere so you know where to find it later. You should now have the installable plugin named **super-forms.zip**.
+If you haven't already, download the [latest version](https://super-forms.com) of Super Forms and save it somewhere so you know where to find it later. You should now have the installable plugin named **super-forms.zip**.
 
 ## Upload the plugin
 

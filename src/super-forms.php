@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.3.729
+ * Version:           6.3.742
  * Plugin URI:        http://super-forms.com
  * Author URI:        http://super-forms.com
  * Author:            feeling4design
@@ -43,7 +43,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '6.3.729';
+        public $version = '6.3.742';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -271,6 +271,8 @@ if(!class_exists('SUPER_Forms')) :
             // remove the below filter, but for now we will use it to avoid any issues
             add_filter( 'run_wptexturize', '__return_false', 9999999 );
 
+            add_filter( 'wp_untrash_post_status', array( $this, 'untrash_form_status' ), 10, 3);
+
             // Add minute schedule for cron system
             add_filter( 'cron_schedules', array( $this, 'minute_schedule' ) );
 
@@ -443,12 +445,16 @@ if(!class_exists('SUPER_Forms')) :
             }
         }
 
+        public function untrash_form_status($new_status, $post_id, $previous_status){
+            if(get_post_type($post_id)==='super_form') return $previous_status;
+        }
+
         public static function inject_entry_data($js, $x){
             if(isset($x['entry_data'])){
                 $form_id = $x['id'];
                 $entry_data = $x['entry_data'];
                 if(absint($form_id)!==0 && !empty($entry_data) && is_array($entry_data) && count($entry_data)!==0){
-                    $entry_data = wp_slash(wp_slash(json_encode($entry_data, JSON_UNESCAPED_UNICODE)));
+                    $entry_data = wp_slash(wp_slash(SUPER_Common::safe_json_encode($entry_data, JSON_UNESCAPED_UNICODE)));
                     $js .= 'if(typeof SUPER.form_js === "undefined"){SUPER.form_js = {};SUPER.form_js['.$form_id.'] = {};}else{if(!SUPER.form_js['.$form_id.']){SUPER.form_js['.$form_id.'] = {};}};SUPER.form_js['.$form_id.']["_entry_data"] = "'.$entry_data.'";';
                 }
             }
@@ -654,42 +660,41 @@ if(!class_exists('SUPER_Forms')) :
         }
 
 
-        public function parse_request( &$wp ) {
+        public function parse_request(&$wp){
             SUPER_Stripe::handle_webhooks($wp);
-            if ( array_key_exists( 'sfdlfi', $wp->query_vars ) ) {
-                if ( ! current_user_can( 'export' ) ) {
-                    wp_die( __( 'Sorry, you are not allowed to export the content of this site.' ) );
+            if(array_key_exists('sfdlfi', $wp->query_vars)){
+                if(!current_user_can('export')){
+                    wp_die(__('Sorry, you are not allowed to export the content of this site.'));
                 }
-                $fileLocation = $wp->query_vars['sfdlfi'];
-                $url = wp_get_attachment_url( $fileLocation );
+                $attachment_id = $wp->query_vars['sfdlfi'];
+                $url = wp_get_attachment_url($attachment_id);
                 if(empty($url)){
-                    wp_delete_attachment( $fileLocation, true );
+                    wp_die(__('File not found'));
+                    wp_delete_attachment($attachment_id, true);
                     header("HTTP/1.1 404 Not Found");
                     exit;
                 }
                 $request = wp_safe_remote_get($url);
-                if ( is_wp_error( $request ) ) {
-                    wp_delete_attachment( $fileLocation, true );
-                    header("HTTP/1.1 404 Not Found");
-                    exit;
+                if(is_wp_error($request)){
+                    wp_delete_attachment($attachment_id, true);
+                    wp_die($request->get_error_message());
                 }
-                $content = wp_remote_retrieve_body( $request );
-
+                $content = wp_remote_retrieve_body($request);
                 // Delete the export data
-                wp_delete_attachment( $fileLocation, true );
+                wp_delete_attachment($attachment_id, true);
                 header('Content-Description: File Transfer');
-                header('Content-Disposition: attachment; filename=' . basename($url) );
-                header('Content-Type: text/txt; charset=' . get_option( 'blog_charset' ), true );
+                header('Content-Disposition: attachment; filename=' . basename($url));
+                header('Content-Type: text/txt; charset=' . get_option('blog_charset'), true);
                 echo $content;
                 exit;
             }
-            if ( array_key_exists( 'sfgtfi', $wp->query_vars ) ) {
+            if(array_key_exists('sfgtfi', $wp->query_vars)){
                 // Get settings
                 $settings = SUPER_Common::get_form_settings(0);
                 // Check if user must be logged in to download the file
                 $auth = true;
                 if(!empty($settings['file_upload_auth'])){
-                    if ( !is_user_logged_in() ) {
+                    if(!is_user_logged_in()){
                         $auth = false;
                     }else{
                         // Also check for roles (if defined)
@@ -701,8 +706,8 @@ if(!class_exists('SUPER_Forms')) :
                             // Only check if there are any roles, otherwise allow all logged in users
                             if(count($allowed_roles)>0){
                                 $allowed = false;
-                                foreach( $current_user->roles as $v ) {
-                                    if( in_array( $v, $allowed_roles ) ) {
+                                foreach($current_user->roles as $v){
+                                    if(in_array($v, $allowed_roles)){
                                         $allowed = true;
                                         break;
                                     }
@@ -716,21 +721,21 @@ if(!class_exists('SUPER_Forms')) :
                 if($auth===false){
                     auth_redirect();
                 }
-                $fileLocation = $wp->query_vars['sfgtfi'];
+                $attachment_id = $wp->query_vars['sfgtfi'];
                 // Check if this file was uploaded via the new file upload system (v5.0.0+)
                 // This is true if the subdir is 13 digits long
                 $new = false;
                 $re = '/[0-9]{13}\/.*\..*/m';
-                preg_match_all($re, $fileLocation, $matches, PREG_SET_ORDER, 0);
+                preg_match_all($re, $attachment_id, $matches, PREG_SET_ORDER, 0);
                 if($matches) $new = true;
                 $re = '/[0-9]{4}\/[0-9]{2}\/[0-9]{13}\/.*\..*/m';
-                preg_match_all($re, $fileLocation, $matches, PREG_SET_ORDER, 0);
+                preg_match_all($re, $attachment_id, $matches, PREG_SET_ORDER, 0);
                 if($matches) $new = true;
                 if($new){
                     // Was uploaded with the new file upload system...
                     $file = ABSPATH . str_replace('__/', '../', $wp->query_vars['sfgtfi']);
                     $file = urldecode(urlencode($file));
-                    if(!is_file($file)) {
+                    if(!is_file($file)){
                         status_header(404);
                         exit;
                     }
@@ -743,29 +748,29 @@ if(!class_exists('SUPER_Forms')) :
                         // User defined directory
                         $uploadPath = ABSPATH . $settings['file_upload_dir'];
                     }
-                    $file =  wp_normalize_path(trailingslashit($uploadPath) . $fileLocation);
-                    $file = urldecode( $file );
-                    if (!$uploadPath || !is_file($file)) {
+                    $file =  wp_normalize_path(trailingslashit($uploadPath) . $attachment_id);
+                    $file = urldecode($file);
+                    if(!$uploadPath || !is_file($file)){
                         status_header(404);
                         exit;
                     }
                 }
                 $mime = wp_check_filetype($file);
-                if( false === $mime[ 'type' ] && function_exists( 'mime_content_type' ) ) {
-                    $mime[ 'type' ] = mime_content_type( $file );
+                if(false===$mime['type'] && function_exists('mime_content_type')){
+                    $mime['type'] = mime_content_type($file);
                 }
-                if($mime['type']) {
+                if($mime['type']){
                     $mimetype = $mime['type'];
                 }else{
-                    $mimetype = 'image/' . substr( $file, strrpos( $file, '.' ) + 1 );
+                    $mimetype = 'image/' . substr($file, strrpos($file, '.')+1);
                 }
-                header( 'Content-Type: ' . $mimetype ); // always send this
-                if ( false === strpos( $_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS' ) ) {
+                header('Content-Type: ' . $mimetype); // always send this
+                if(false===strpos($_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS')){
                     header( 'Content-Length: ' . filesize( $file ) );
                 }
                 self::caching_headers($file, filemtime($file));
                 // If we made it this far, just serve the file
-                readfile( $file );
+                readfile($file);
                 exit();
             }
             return;
@@ -880,7 +885,7 @@ if(!class_exists('SUPER_Forms')) :
                     'timeout' => 45,
                     'data_format' => 'body',
                     'headers' => array('Content-Type' => 'application/json; charset=utf-8'),
-                    'body' => json_encode(array(
+                    'body' => SUPER_Common::safe_json_encode(array(
                         'home_url' => get_option('home'),
                         'site_url' => site_url(),
                         'email' => $userEmail,
@@ -1928,6 +1933,7 @@ if(!class_exists('SUPER_Forms')) :
             }
 
             foreach( $fields as $k ) {
+                if(empty(trim($k))) continue;
                 $field = explode( "|", $k );
                 if( $field[0]=='hidden_form_id' ) {
                     $columns['hidden_form_id'] = $field[1];

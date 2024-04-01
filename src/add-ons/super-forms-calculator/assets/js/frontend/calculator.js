@@ -81,6 +81,8 @@
 	// Init Calculator
 	SUPER.init_calculator = function(args){
 		var form = SUPER.get_frontend_or_backend_form(args);
+		if(!SUPER.calculatorFieldConnections) SUPER.calculatorFieldConnections = {};
+		if(!SUPER.calculatorFieldConnections[form.id]) SUPER.calculatorFieldConnections[form.id] = {};
 
 		var i,ii,iii,match,numericMath,values,names,name,oldName,elements,found,newMath,decimals,thousandSeparator,
 			format,amount,currency,target,superMath,calculatorFields,doNotSkip,decimalSeparator,prevAmount,$jsformat,
@@ -98,12 +100,23 @@
             //SUPER.init_calculator_update_fields_attribute(form, calculatorFields);
         }else{
             calculatorFields = form.querySelectorAll('.super-calculator-wrapper[data-fields*="{'+args.el.dataset.oname+'}"]');
+			if(calculatorFields.length===0 && SUPER.calculatorFieldConnections[form.id][args.el.dataset.oname]){
+				var count = Object.keys(SUPER.calculatorFieldConnections[form.id][args.el.dataset.oname]).length;
+				if(count>0){
+					calculatorFields = [];
+					Object.keys(SUPER.calculatorFieldConnections[form.id][args.el.dataset.oname]).forEach(function (key) {
+						calculatorFields.push(SUPER.calculatorFieldConnections[form.id][args.el.dataset.oname][key]);
+					});
+				}
+			}
         }
-
-        if(calculatorFields.length===0) return true;
+        if(calculatorFields.length===0) {
+			return true;
+		}
 
         for (i = 0; i < calculatorFields.length; ++i) {
 			target = calculatorFields[i];
+			$field = target.parentNode.querySelector('.super-shortcode-field');
 
 			// @since 1.5.0 - skip if parent column or element is hidden (conditionally hidden)
 			if(typeof doNotSkip === 'undefined') {
@@ -172,6 +185,8 @@
 					for (iii = 0; iii < elements.length; iii++) { 
 						if(!elements[iii]) continue;
 						if(elements[iii].name!='hidden_form_id'){
+							if(!SUPER.calculatorFieldConnections[form.id][elements[iii].name]) SUPER.calculatorFieldConnections[form.id][elements[iii].name] = {};
+							SUPER.calculatorFieldConnections[form.id][elements[iii].name][$field.name] = target;
 							if(iii===0){
 								newMath += '{'+elements[iii].name+oldNameSuffix+'}';
 							}else{
@@ -219,16 +234,43 @@
             if( typeof $jsformat !== 'undefined' ) {
 				$timestamp = amount;
 				if( $timestamp!='' ) {
-					$parse = new Date($timestamp);
+					
+					// YYYY-MM-DDTHH:mm:ss.sssZ
+					$parse = new Date($timestamp); //.toUTCString();
 					if($parse!=null){
+						
+						//amount = $parse.toString('r');
+						// Methods on Date Object will convert from UTC to users timezone
+						// Set minutes to current minutes (UTC) + User local time UTC offset
+						$parse.setMinutes($parse.getMinutes() + $parse.getTimezoneOffset())
+						// Now we can use methods on the date obj without the timezone conversion
+						
+						amount = $parse.toDateString();
+						
 						amount = $parse.toString($jsformat);
 					}
+					// tmp $parse = new Date($timestamp).toISOString();
+					// tmp if($parse!=null){
+					// tmp 	
+					// tmp 	amount = $parse.toString($jsformat);
+					// tmp }
+					// tmp var $parse = new Date(Date.UTC( new Date($timestamp).getUTCFullYear(), new Date($timestamp).getUTCMonth(), new Date($timestamp).getUTCDate(), new Date($timestamp).getUTCHours(), new Date($timestamp).getUTCMinutes(), new Date($timestamp).getUTCSeconds()));
+					// tmp if($parse!=null){
+					// tmp 	
+					// tmp 	amount = $parse.toString($jsformat);
+					// tmp }
+					//console.log(date.toUTCString());
+					// tmp if($parse!=null){
+					// tmp 	amount = $parse.toString($jsformat);
+					// tmp }
+					//
+					//var parsedDate = Date.parse($timestamp);
+					//var formattedDate = parsedDate.toUTCString($jsformat); //'yyyy-MM-dd HH:mm:ss');
 				}
             }else{
 				amount = amount.toFixed(decimals);
 			}
 
-			$field = target.parentNode.querySelector('.super-shortcode-field');
 			// Only if value was changed
 			if($field.value!==amount){
 				updatedCalculatorFields[$field.name] = $field;
@@ -376,7 +418,8 @@
 			}
 
 			// Check if datepicker field
-			if( parent.classList.contains('super-date') || parent.classList.contains('super-field-type-date')){
+			if( parent.classList.contains('super-field-type-datetime-local') || parent.classList.contains('super-date') || parent.classList.contains('super-field-type-date')){
+				
 				text_field = false;
 				value = (element.getAttribute('data-math-diff')) ? parseFloat(element.getAttribute('data-math-diff')) : 0;
 				if(parent.classList.contains('super-field-type-date')){

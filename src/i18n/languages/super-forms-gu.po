@@ -15453,7 +15453,7 @@ msgstr "ઇમેઇલ બ bodyડીની અંદરની {લૂપ_ફ�
 
 #: includes/extensions/pdf-generator/pdf-generator.php:81
 msgid ""
-"{pdf_page} and {pdf_total_pages} tags can be used inside a HTML element to "
+"{pdf_page} and {} tags can be used inside a HTML element to "
 "be used in your header/footer."
 msgstr ""
 "head પીડીએફ_પેજ element અને {પીડીએફ_ટotalટલ_પૃષ્ઠો} ટગ્સનો ઉપયોગ તમારા હેડર "
