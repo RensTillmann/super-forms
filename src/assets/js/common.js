@@ -2455,7 +2455,7 @@ function SUPERreCaptcha(){
                                 // @since 3.6.0 - check if we want to return the label instead of a value
                                 replaceTagsWithValue = [];
                                 replaceTagsWithValue['<%counter%>'] = (x+1);
-                                replaceTagsWithValue['<%label%>'] = items[x].textContent;
+                                replaceTagsWithValue['<%label%>'] = (items[x].dataset.searchValue ? items[x].dataset.searchValue : items[x].textContent);
                                 var itemValue = items[x].dataset.value.toString().split(';');
                                 if($s===0){
                                     replaceTagsWithValue['<%value%>'] = itemValue[0];
@@ -2937,7 +2937,7 @@ function SUPERreCaptcha(){
                             for (key = 0; key < $selected.length; key++) {
                                 // @since 3.6.0 - check if we want to return the label instead of a value
                                 if($value_n=='label'){
-                                    $new_value = $selected[key].textContent;
+                                    $new_value = ($selected[key].dataset.searchValue ? $selected[key].dataset.searchValue : $selected[key].textContent);
                                 }else{
                                     $new_value = $selected[key].dataset.value.toString().split(';');
                                     if($value_n===0){

@@ -1449,18 +1449,18 @@ if( !class_exists('SUPER_WooCommerce') ) :
                 }
                 */
 
-                "redirect": "cart",
-                "empty_cart": "true",
-                "remove_fees": "true",
-                "remove_coupons": "true",
-                "coupon": "{COUPON_CODE}",
-                "instant": "false",
-                "instant_conditionally": {
-                    "enabled": "false",
-                    "f1": "",
-                    "logic": "==",
-                    "f2": ""
-                }
+                // tmp "redirect": "cart",
+                // tmp "empty_cart": "true",
+                // tmp "remove_fees": "true",
+                // tmp "remove_coupons": "true",
+                // tmp "coupon": "{COUPON_CODE}",
+                // tmp "instant": "false",
+                // tmp "instant_conditionally": {
+                // tmp     "enabled": "false",
+                // tmp     "f1": "",
+                // tmp     "logic": "==",
+                // tmp     "f2": ""
+                // tmp }
 
 
                 // Empty the cart
