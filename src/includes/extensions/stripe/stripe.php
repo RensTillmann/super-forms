@@ -2023,17 +2023,10 @@ if(!class_exists('SUPER_Stripe')) :
             // If conditional check is enabled
             $checkout = true;
             if($s['conditionally']==='true' && $s['logic']!==''){
-                $checkout = false;
-                $s['f1'] = SUPER_Common::email_tags($s['f1'], $data, $settings);
-                $s['f2'] = SUPER_Common::email_tags($s['f2'], $data, $settings);
-                if($s['logic']==='==' && ($s['f1']===$s['f2'])) $checkout = true;
-                if($s['logic']==='!=' && ($s['f1']!==$s['f2'])) $checkout = true;
-                if($s['logic']==='??' && (strpos($s['f1'], $s['f2'])!==false)) $checkout = true; // Contains
-                if($s['logic']==='!!' && (strpos($s['f1'], $s['f2'])===false)) $checkout = true; // Not cointains
-                if($s['logic']==='>' && ($s['f1']>$s['f2'])) $checkout = true;
-                if($s['logic']==='<' && ($s['f1']<$s['f2'])) $checkout = true;
-                if($s['logic']==='>=' && ($s['f1']>=$s['f2'])) $checkout = true;
-                if($s['logic']==='<=' && ($s['f1']<=$s['f2'])) $checkout = true;
+                $logic = $s['logic'];
+                $f1 = SUPER_Common::email_tags($s['f1'], $data, $settings);
+                $f2 = SUPER_Common::email_tags($s['f2'], $data, $settings);
+                $checkout = self::conditional_compare_check($f1, $logic, $f2);
             }
             if($checkout===false) return true;
             self::setAppInfo();
@@ -2772,7 +2765,7 @@ if(!class_exists('SUPER_Stripe')) :
 
                     // We don't use this, since it requires consent from the user
                     // // Expires after
-                    // 'expires_at' => time() + (3600 * 0.5), // Configured to expire after 30 min. 
+                    // 'expires_at' => current_time('timestamp') + (3600 * 0.5), // Configured to expire after 30 min. 
                     // // Allow recovery 
                     // 'consent_collection' => array(
                     //     'promotions' => 'auto', // Promotional consent is required to send recovery emails

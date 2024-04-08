@@ -1354,58 +1354,32 @@ if( !class_exists('SUPER_Register_Login') ) :
                         // If the user login status is set to `payment_required`, a user previously registered, but didn't yet completed their payment
                         // Continue with the submission and use this user, there is no need to re-create the account.
 
-                        // WC checkout
-                        if(!empty($settings['conditionally_wc_checkout'])){
-                            if(!empty($settings['conditionally_wc_checkout_check'])){
-                                $values = explode(',', $settings['conditionally_wc_checkout_check']);
-                                // let's replace tags with values
-                                foreach( $values as $k => $v ) {
-                                    $values[$k] = SUPER_Common::email_tags( $v, $data, $settings );
-                                }
-                                if(!isset($values[0])) $values[0] = '';
-                                if(!isset($values[1])) $values[1] = '=='; // is either == or !=   (== by default)
-                                if(!isset($values[2])) $values[2] = '';
-                                // if at least 1 of the 2 is not empty then apply the check otherwise skip it completely
-                                if( ($values[0]!='') || ($values[2]!='') ) {
-                                    // Check if values match eachother
-                                    if( ($values[1]=='==') && ($values[0]==$values[2]) ) {
-                                        $is_paid_signup_form = true; 
-                                        error_log('paid signup via WC');
-                                    }
-                                    if( ($values[1]=='!=') && ($values[0]!=$values[2]) ) {
-                                        $is_paid_signup_form = true; 
-                                        error_log('paid signup via WC');
-                                    }
-                                }
-                            }
+                        // If this is a paid signup form (when checkout is enabled)
+                        $checkout = false;
+                        // WooCommerce checkout
+                        $wcs = null;
+                        if(isset($settings['_woocommerce'])) $wcs = $settings['_woocommerce'];
+                        if(isset($wcs) && $wcs['checkout']=='true'){
+                            $checkout = SUPER_Common::conditionally_wc_checkout($data, $settings);
                         }
-
                         // PayPal checkout
-                        if(!empty($settings['conditionally_paypal_checkout'])){
-                            if(!empty($settings['conditionally_paypal_checkout_check'])){
-                                $values = explode(',', $settings['conditionally_paypal_checkout_check']);
-                                // let's replace tags with values
-                                foreach( $values as $k => $v ) {
-                                    $values[$k] = SUPER_Common::email_tags( $v, $data, $settings );
-                                }
-                                if(!isset($values[0])) $values[0] = '';
-                                if(!isset($values[1])) $values[1] = '=='; // is either == or !=   (== by default)
-                                if(!isset($values[2])) $values[2] = '';
-                                // if at least 1 of the 2 is not empty then apply the check otherwise skip it completely
-                                if( ($values[0]!='') || ($values[2]!='') ) {
-                                    // Check if values match eachother
-                                    if( ($values[1]=='==') && ($values[0]==$values[2]) ) {
-                                        $is_paid_signup_form = true; 
-                                        error_log('paid signup via PayPal');
-                                    }
-                                    if( ($values[1]=='!=') && ($values[0]!=$values[2]) ) {
-                                        $is_paid_signup_form = true; 
-                                        error_log('paid signup via PayPal');
+                        if((isset($settings['paypal_checkout'])) && ($settings['paypal_checkout'] == 'true')){
+                            $checkout = true;
+                            if(!empty($settings['conditionally_paypal_checkout'])){
+                                if(!empty($settings['conditionally_paypal_checkout_check'])){
+                                    // If conditional check is enabled
+                                    $values = explode(',', $settings['conditionally_paypal_checkout_check']);
+                                    $f1 = (isset($values[0]) ? $values[0] : '');
+                                    $logic = (isset($values[1]) ? $values[1] : '');
+                                    $f2 = (isset($values[2]) ? $values[2] : '');
+                                    if($logic!==''){
+                                        $f1 = SUPER_Common::email_tags($f1, $data, $settings);
+                                        $f2 = SUPER_Common::email_tags($f2, $data, $settings);
+                                        $checkout = self::conditional_compare_check($f1, $logic, $f2);
                                     }
                                 }
                             }
                         }
-
                         // Stripe checkout
                         if(!empty($settings['_stripe'])){
                             $s = $settings['_stripe'];
@@ -1414,29 +1388,22 @@ if( !class_exists('SUPER_Register_Login') ) :
                                 // If conditional check is enabled
                                 $checkout = true;
                                 if($s['conditionally']==='true' && $s['logic']!==''){
-                                    $checkout = false;
-                                    $s['f1'] = SUPER_Common::email_tags($s['f1'], $data, $settings);
-                                    $s['f2'] = SUPER_Common::email_tags($s['f2'], $data, $settings);
-                                    if($s['logic']==='==' && ($s['f1']===$s['f2'])) $checkout = true;
-                                    if($s['logic']==='!=' && ($s['f1']!==$s['f2'])) $checkout = true;
-                                    if($s['logic']==='??' && (strpos($s['f1'], $s['f2'])!==false)) $checkout = true; // Contains
-                                    if($s['logic']==='!!' && (strpos($s['f1'], $s['f2'])===false)) $checkout = true; // Not cointains
-                                    if($s['logic']==='>' && ($s['f1']>$s['f2'])) $checkout = true;
-                                    if($s['logic']==='<' && ($s['f1']<$s['f2'])) $checkout = true;
-                                    if($s['logic']==='>=' && ($s['f1']>=$s['f2'])) $checkout = true;
-                                    if($s['logic']==='<=' && ($s['f1']<=$s['f2'])) $checkout = true;
-                                }
-                                if($checkout===true){
-                                    // Is registered payment form
-                                    $is_paid_signup_form = true;
-                                    error_log('paid signup via Stripe');
+                                    $f1 = SUPER_Common::email_tags($s['f1'], $data, $settings);
+                                    $logic = $s['logic'];
+                                    $f2 = SUPER_Common::email_tags($s['f2'], $data, $settings);
+                                    $checkout = self::conditional_compare_check($f1, $logic, $f2);
                                 }
                             }
-
+                        }
+                        if($checkout===true){
+                            // Is registered payment form
+                            $is_paid_signup_form = true;
+                            error_log('is paid signup form, either via PayPal, Stripe, or WooCommerce checkout');
                         }
                     }
                     error_log('is paid signup form: ' . $is_paid_signup_form);
                     if($is_paid_signup_form===false){
+                        error_log('is not a paid signup form');
                         if( ( $username_exists!=false ) || ( $email_exists!=false ) ) {
                             $msg = esc_html__( 'Username or E-mail address already exists, please try again', 'super-forms' );
                             SUPER_Common::output_message( array(
@@ -1498,7 +1465,6 @@ if( !class_exists('SUPER_Register_Login') ) :
                         $user_id = wp_insert_user( $userdata );
                         if( is_wp_error( $user_id ) ) {
                             $msg = $user_id->get_error_message();
-
                             SUPER_Common::setClientData( array( 'name'=> 'msg', 'value'=>array( 'data'=>$data, 'settings'=>$settings, 'msg'=>$msg, 'type'=>'error'  ) ) );
                             SUPER_Common::output_message( array(
                                 'msg' => $msg,

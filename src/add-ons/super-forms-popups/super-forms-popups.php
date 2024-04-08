@@ -434,7 +434,7 @@ if( !class_exists('SUPER_Popup') ) :
             if(!isset($_COOKIE['super_popup_expire_' . $form_id])) {
                 $expire = floatval($_POST['expire']);
                 if( $expire>0 ) {
-                    setcookie( 'super_popup_expire_' . $form_id, $form_id, time() + ($expire * DAY_IN_SECONDS), COOKIEPATH, COOKIE_DOMAIN, is_ssl() );
+                    setcookie( 'super_popup_expire_' . $form_id, $form_id, current_time('timestamp') + ($expire * DAY_IN_SECONDS), COOKIEPATH, COOKIE_DOMAIN, is_ssl() );
                 }
             }
             die();
@@ -810,7 +810,7 @@ if( !class_exists('SUPER_Popup') ) :
                     'popup_from' => array(
                         'name' => esc_html__( 'From date', 'super-forms' ),
                         'desc' => esc_html__( 'From date (yyyy-mm-dd): Display the popup within specific date range', 'super-forms' ),
-                        'default' =>  date('Y-m-d'),
+                        'default' =>  current_time('Y-m-d'),
                         'parent' => 'popup_enable_schedule',
                         'filter_value' => 'true',
                         'filter'=>true,
@@ -818,7 +818,7 @@ if( !class_exists('SUPER_Popup') ) :
                     'popup_till' => array(
                         'name' => esc_html__( 'Till date', 'super-forms' ),
                         'desc' => esc_html__( 'Till date (yyyy-mm-dd): Display the popup within specific date range', 'super-forms' ),
-                        'default' =>  date('Y-m-d'),
+                        'default' =>  current_time('Y-m-d'),
                         'parent' => 'popup_enable_schedule',
                         'filter_value' => 'true',
                         'filter'=>true,

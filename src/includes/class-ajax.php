@@ -349,7 +349,7 @@ class SUPER_Ajax {
         $result = setcookie(
             'super_forms[wp_admin]', // name
             $auth, // value
-            time()+60*120, // expires after 15 minutes
+            current_time('timestamp')+60*120, // expires after 15 minutes
             '',  // path
             '', // domain
             false, // secure (many WP dashboard might not have valid certificate, or are not forced to https protocol)
@@ -453,7 +453,7 @@ class SUPER_Ajax {
     public static function api_do_request($route, $custom_args, $method='echo'){
         $args = self::api_default_post_args($custom_args);
         if($route==='logout'){
-            setcookie('super_forms[wp_admin]', '', time()-3600);
+            setcookie('super_forms[wp_admin]', '', current_time('timestamp')-3600);
         }
         $api_endpoint = (isset($_POST['api_endpoint']) ? $_POST['api_endpoint'] : SUPER_API_ENDPOINT);
         $r = wp_remote_post($api_endpoint . '/' . $route, $args);
@@ -2633,11 +2633,8 @@ class SUPER_Ajax {
     }
 
     public static function submit_form_checks($skipChecks=false) {
-        error_log('submit_form_checks()');
         $csrfValidation = SUPER_Common::verifyCSRF();
-        error_log('submit_form_checks(2)');
         if(!$csrfValidation && empty($GLOBALS['super_csrf'])){
-            error_log('submit_form_checks(3)');
             // Only if not previously validated
             // For example if files are being uploaded by the user
             $GLOBALS['super_csrf'] = true;
@@ -2646,10 +2643,8 @@ class SUPER_Ajax {
             // In this case sessions won't work  because of browsers "SameSite by default cookies"
             $global_settings = SUPER_Common::get_global_settings();
             if(!empty($global_settings['csrf_check']) && $global_settings['csrf_check']==='false'){
-                error_log('submit_form_checks(4)');
                 // Check was disabled by the user, skip it
             }else{
-                error_log('submit_form_checks(5)');
                 // Return error
                 SUPER_Common::output_message( array( 
                     'type' => 'session_expired',
@@ -2657,12 +2652,10 @@ class SUPER_Ajax {
                 ));
             }
         }
-        error_log('submit_form_checks(6)');
         // Check if form_id exists, this is always required
         // If it doesn't exist it is most likely due the server not being able to process all the data
         // In that case "max_input_vars" should be increased
         if(empty($_POST['form_id'])) {
-            error_log('submit_form_checks(7)');
             // First try to increase it manually
             // If it fails, tell the user about it, so they can contact the webmaster
             $max_input_vars = ini_get('max_input_vars');
@@ -4050,18 +4043,7 @@ class SUPER_Ajax {
             SUPER_Common::triggerEvent('sf.submission.finalized', $atts);
             // Clean up submission info
             delete_option('_sfsi_' . $uniqueSubmissionId);
-            //$atts = self::submit_form_checks(true);
-            //    'uniqueSubmissionId'=>$uniqueSubmissionId, 
-            //    'post'=>$_POST, 
-            //    'data'=>$data, 
-            //    'settings'=>$settings, 
-            //    'entry_id'=>$contact_entry_id, 
-            //    'attachments'=>$attachments,
-            //    'form_id'=>$form_id
-            //));
-
             $response_data['sf_nonce'] = SUPER_Common::generate_nonce();
-
             // Required by Listings to replace the old PDF URL with the newly generated URL:
             if(isset($sfsi['data']['_generated_pdf_file'])) $response_data['_generated_pdf_file'] = $sfsi['data']['_generated_pdf_file'];
             SUPER_Common::output_message( array(

@@ -417,22 +417,13 @@ class SUPER_Pages {
         return $trigger;
     }
     public static function triggers_tab($atts) {
-        error_log('triggers_tab()');
-        //$slug = 'triggers';
-        //SUPER_WC_Instant_Orders()->add_on_slug;
-        // $s = self::get_default_woocommerce_settings($atts);
         $form_id = $atts['form_id'];
         $version = $atts['version'];
         $settings = $atts['settings'];
         $s = $atts['settings'];
 
         // Get trigger settings
-        error_log($form_id);
         $triggers = SUPER_Common::get_form_triggers($form_id);
-        error_log(json_encode($triggers));
-        //if(count($triggers)===0) {
-        //    $triggers[] = self::get_default_trigger_settings(array());
-        //}
         $statuses = SUPER_Settings::get_entry_statuses();
         if(!isset($statuses['delete'])) $statuses['delete'] = 'Delete';
         $entryStatusesCode = '';
@@ -934,7 +925,7 @@ class SUPER_Pages {
                                                                                 'title' => esc_html__( 'Enable scheduled execution', 'super-forms' )
                                                                             ),
                                                                             array(
-                                                                                'name' => 'dates',
+                                                                                'name' => 'schedules',
                                                                                 'type' => 'repeater',
                                                                                 'inline' => true,
                                                                                 'filter' => 'schedule.enabled;true',

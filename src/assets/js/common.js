@@ -8511,7 +8511,7 @@ function SUPERreCaptcha(){
         args.scrollAmount = 0;
         args.pdfSettings.filename = SUPER.update_variable_fields.replace_tags({form: args.form0, value: args.pdfSettings.filename});
 
-        if(super_common_i18n.fonts){
+        if(super_common_i18n.fonts && super_common_i18n.fonts.link){
             // Replace 'your_url_here' with the actual URL to the JSON file.
             const fontURL = super_common_i18n.fonts.link+'.json';
             SUPER.pdf_get_font_data_from_url(fontURL).then((fontData) => {
