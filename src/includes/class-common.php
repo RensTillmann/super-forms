@@ -125,7 +125,6 @@ class SUPER_Common {
         return $triggers;
     }
     public static function save_form_triggers($triggers, $form_id, $delete=true){
-        error_log('save_form_triggers()');
         // First delete all local triggers for the current form
         global $wpdb;
         if($delete===true){
@@ -135,39 +134,25 @@ class SUPER_Common {
             $wpdb->query("DELETE FROM $wpdb->postmeta WHERE post_id = 0 AND meta_key LIKE '_super_global_trigger-%'");
             $wpdb->query("DELETE FROM $wpdb->postmeta WHERE post_id = 0 AND meta_key LIKE '_super_specific_trigger-%'");
         }
-        error_log(json_encode($triggers));
         if(isset($triggers) && is_array($triggers)){
-            error_log('save_form_triggers(2)');
             foreach($triggers as $trigger){
-                error_log('save_form_triggers(3)');
                 $triggerName = sanitize_title_with_dashes(trim($trigger['name']));
-                error_log($triggerName);
                 // Skip if no event was choosen
                 if(empty($trigger['event'])) continue; 
                 // Only current form
                 if(empty($trigger['listen_to'])){
-                    error_log('test1');
-                    error_log($form_id);
                     update_post_meta( $form_id, '_super_trigger-'.$triggerName, $trigger );
                     continue;
                 }
                 // Global trigger (for all forms)
                 if(isset($trigger['listen_to']) && $trigger['listen_to']==='all'){
-                    error_log('test2');
-                    //var_dump('save global trigger...()');
                     // Use our custom update_metadata function because we can't parse zero value otherwise
                     self::update_metadata( 'post', 0, '_super_global_trigger-'.$triggerName, $trigger );
-                    //var_dump($result);
                     continue;
                 }
                 // Specific forms only (by ID)
                 if(isset($trigger['listen_to']) && $trigger['listen_to']==='id'){
-                    error_log('test3');
                     self::update_metadata( 'post', 0, '_super_specific_trigger-'.$triggerName, $trigger );
-                    //$forms = explode(',', $trigger['listen_to_ids']);
-                    //foreach($forms as $id){
-                    //    //update_post_meta( $id, '_super_trigger-'.$triggerName, $trigger );
-                    //}
                     continue;
                 }
             }
@@ -183,58 +168,31 @@ class SUPER_Common {
         usort($triggers, function($a, $b) {
             return absint($a['order']) - absint($b['order']);
         });
-        error_log('form_id 3: '.$form_id);
-        error_log(SUPER_Common::safe_json_encode($triggers));
         // Loop over all triggers, and filter out the ones that are inactive, and that do not match this event
         foreach($triggers as $k => $v){
-            error_log(SUPER_Common::safe_json_encode($v));
-            if(!isset($v['active'])) continue;
-            if($v['active']!=='true') continue;
+            if(!isset($v['enabled'])) continue;
+            if($v['enabled']!=='true') continue;
             if($v['event']!==$eventName) continue;
             // Match, execute actions
             foreach($v['actions'] as $ak => $av){
-                error_log(SUPER_Common::safe_json_encode($av));
                 if(empty($av['action'])) continue;
                 // Check if action needs to be conditionally triggered
                 $execute = true;
-                if($av['conditionally']==='true' && $av['logic']!==''){
-                    $execute = false;
-                    if($av['logic']==='==' && ($av['f1']===$av['f2'])) $execute = true;
+                $c = $av['conditions'];
+                if($c['enabled']==='true' && $c['logic']!==''){
+                    $logic = $c['logic'];
+                    $f1 = SUPER_Common::email_tags($c['f1'], $data, $settings);
+                    $f2 = SUPER_Common::email_tags($c['f2'], $data, $settings);
+                    $execute = self::conditional_compare_check($f1, $logic, $f2);
                 }
                 if($execute===false) continue;
                 // Check if trigger function exists
                 if(method_exists('SUPER_Triggers', $av['action'])) {
-                    call_user_func(array('SUPER_Triggers', $av['action']), $eventName, $av['action'], $form_id, $av);
+                    $x = array('eventName'=>$eventName, 'triggerName'=>$v['name'], 'action'=>$av, 'form_id'=>$form_id, 'form_data'=>$x);
+                    call_user_func(array('SUPER_Triggers', $av['action']), $x); //$eventName, $av['action'], $form_id, $x);
                 }
             }
         }
-
-        // tmp error_log('triggerEvent('.$name.')');
-        // tmp $name = str_replace('.', '_', $name);
-        // tmp error_log(SUPER_Common::safe_json_encode($x));
-
-        // tmp // Lookup actions that belong to this event 
-        // tmp // both by form ID and global actions
-        // tmp //SUPER_Triggers::send_email();
-        // tmp global $wpdb;
-        // tmp $table = $wpdb->prefix . 'posts';
-        // tmp $table_meta = $wpdb->prefix . 'postmeta';
-        // tmp $rows = $wpdb->get_results("
-        // tmp SELECT ID, meta_value FROM wp_posts
-        // tmp INNER JOIN wp_postmeta ON ID = post_id AND meta_key = '_super_form_settings'
-        // tmp WHERE post_status = 'publish' 
-        // tmp AND ID IN (
-        // tmp     SELECT post_id FROM wp_postmeta 
-        // tmp     WHERE post_id = ID AND meta_key = '_super_form_settings' 
-        // tmp     AND meta_value LIKE '%\"_triggers\"%'
-        // tmp )");
-		// tmp foreach($rows as $r){
-        // tmp     var_dump($r['ID']);
-        // tmp     var_dump($r['meta_value']);
-		// tmp }
-        // tmp //if(method_exists('SUPER_Triggers', $name)){
-        // tmp //    call_user_func(array('SUPER_Triggers', $name), $name, array('x'=>$x));
-        // tmp //}
     }
 
     public static function cleanupFormSubmissionInfo($uniqueSubmissionId, $reference){
@@ -339,12 +297,12 @@ class SUPER_Common {
             }
         }
 
-        // $exp_var is used to only extend expiry of the cookie when `time() > $exp_var`
+        // $exp_var is used to only extend expiry of the cookie when `current_time('timestamp') > $exp_var`
         // that way we don't have to write to the database that many times
         // by default the expiry is set to 1 hour, and the expiry variant is set to 30 min.
 		$expires = apply_filters( 'super_cookie_expires_filter', $expires);
 		$exp_var = apply_filters( 'super_cookie_exp_var_filter', $exp_var);
-        $now = time();
+        $now = current_time('timestamp');
         $expires = $now + $expires;
         $exp_var = $now + $exp_var;
 		// Returns true if the page is using SSL (checks if HTTPS or on Port 443).
@@ -401,7 +359,7 @@ class SUPER_Common {
                 ), $x 
             )
         );
-        // $exp_var is used to only extend expiry of the cookie when `time() > $exp_var`
+        // $exp_var is used to only extend expiry of the cookie when `current_time('timestamp') > $exp_var`
         // that way we don't have to write to the database that many times
         // by default the expiry is set to 30 min., and the expiry variant is set to 10 min.
 
@@ -421,7 +379,7 @@ class SUPER_Common {
         if(strpos($name, 'unique_submission_id')===0){
             $name .= '_'.$form_id;
         }
-        $now = time();
+        $now = current_time('timestamp');
         $force = false;
         if($name==='sf_nonce') $force = true;
         $key = self::startClientSession(array('force'=>$force));
@@ -472,7 +430,7 @@ class SUPER_Common {
         // $uniqueSubmissionId = SUPER_Common::getClientData( 'unique_submission_id_' . $form_id );
         // error_log('$uniqueSubmissionId: '. $uniqueSubmissionId);
         // if( $uniqueSubmissionId===false ){
-        //     $uniqueSubmissionId = md5(uniqid(mt_rand(), true)) . '.' . time();
+        //     $uniqueSubmissionId = md5(uniqid(mt_rand(), true)) . '.' . current_time('timestamp');
         //     error_log('generate new $uniqueSubmissionId: '. $uniqueSubmissionId);
         //     SUPER_Common::setClientData( array( 'name' => 'unique_submission_id_' . $form_id, 'value' => $uniqueSubmissionId ) );
         // }else{
@@ -486,7 +444,7 @@ class SUPER_Common {
         //     ) );
         // }
 
-        $now = time();
+        $now = current_time('timestamp');
         foreach($clientData as $name => $data){
             if(is_array($data)){
                 if($data['expires'] < $now){
@@ -543,7 +501,7 @@ class SUPER_Common {
         if(!isset($clientData[$name])) return false;
         if(!isset($clientData[$name]['value'])) return false;
         // If expired variation is reached, extend it
-        $now = time();
+        $now = current_time('timestamp');
         if($clientData[$name]['exp_var'] < $now){
             // Default expiry filter
             $expires = apply_filters( 'super_client_data_expires_filter', 30*60 ); //1800, // Defaults to 30 min. (30*60)
@@ -610,7 +568,7 @@ class SUPER_Common {
         if($limit===0) $limit = 10; // Defaults to 100
         $limit = apply_filters( 'super_client_data_delete_limit_filter', absint($limit) ); // It's technically called a `Cookie name`, but we call it `key` here
         // Delete old deprecated sessions from previous Super Forms versions
-        $now = time();
+        $now = current_time('timestamp');
         //error_log('$now: '.$now);
         $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '\_super\_session\_%' LIMIT 5000");
         $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '\_sfs\_%' LIMIT 5000");
@@ -1199,18 +1157,10 @@ class SUPER_Common {
             }
             foreach($conditions as $ck => $cv){
                 preg_match($re, $cv, $matches);
-                $v1 = $matches[1];
-                $operator = $matches[2];
-                $v2 = $matches[3];
-                $show = false;
-                if($operator==='==' && $v1==$v2) $show = true;
-                if($operator==='!=' && $v1!=$v2) $show = true;
-                if($operator==='>=' && $v1>=$v2) $show = true;
-                if($operator==='<=' && $v1<=$v2) $show = true;
-                if($operator==='>' && $v1>$v2) $show = true;
-                if($operator==='<' && $v1<$v2) $show = true;
-                if($operator==='??' && (strpos($v1, $v2)!==FALSE)) $show = true;
-                if($operator==='!??' && (!strpos($v1, $v2)===FALSE)) $show = true;
+                $f1 = $matches[1];
+                $logic = $matches[2];
+                $f2 = $matches[3];
+                $show = self::conditional_compare_check($f1, $logic, $f2);
                 if($show){
                     $show_counter++;
                 }
@@ -1362,6 +1312,31 @@ class SUPER_Common {
         return SUPER_Forms()->default_settings;
     }
 
+    // Check if we conditionally checkout to WooCommerce
+    public static function conditionally_wc_checkout($data, $settings){
+        $checkout = true;
+        $wcs = $settings['_woocommerce'];
+        if(!empty($wcs['checkout_conditionally'] && $wcs['checkout_conditionally']['enabled']==='true')){
+            $c = $wcs['checkout_conditionally'];
+            $logic = $c['logic'];
+            $f1 = SUPER_Common::email_tags($c['f1'], $data, $settings);
+            $f2 = SUPER_Common::email_tags($c['f2'], $data, $settings);
+            $checkout = self::conditional_compare_check($f1, $logic, $f2);
+        }
+        return $checkout;
+    }
+    public static function conditional_compare_check($f1, $logic, $f2){
+        if($logic==='=='  && ($f1===$f2)) return true;
+        if($logic==='!='  && ($f1!==$f2)) return true;
+        if($logic==='??'  && (strpos($f1, $f2)!==false)) return true;
+        if($logic==='!??' && (!strpos($f1, $f2)===false)) return true;
+        if($logic==='!!'  && (strpos($f1, $f2)===false)) return true;
+        if($logic==='>'   && (self::tofloat($f1)>self::tofloat($f2))) return true;
+        if($logic==='<'   && (self::tofloat($f1)<self::tofloat($f2))) return true;
+        if($logic==='>='  && (self::tofloat($f1)>=self::tofloat($f2))) return true;
+        if($logic==='<='  && (self::tofloat($f1)<=self::tofloat($f2))) return true;
+        return false;
+    }
 
     /**
      * Get form settings
@@ -1400,10 +1375,10 @@ class SUPER_Common {
         // Update old `WooCommerce Checkout` settings format with new
         $s = $settings;
         if(version_compare(SUPER_VERSION, '6.3.801', '<') && isset($s['woocommerce_checkout'])){
-            error_log('test1');
             // Get trigger settings
             $triggers = SUPER_Common::get_form_triggers($form_id);
-            error_log(json_encode($triggers));
+            // Regex to convert E-mail body settings to TinyMCE editor
+            $regex = '/([\s\S]*?)(<[^\/<>]+?>[^\/<>]*?{loop_fields}[\s\S]*?>)([\s\S]*)|([\s\S]*?)({loop_fields})([\s\S]*)/';
             // Add trigger for E-mail reminders
             // Loop until we can't find reminder
             if(empty($s['email_reminder_amount'])) $s['email_reminder_amount'] = 3;
@@ -1412,29 +1387,52 @@ class SUPER_Common {
             $x = 1;
             while( $x <= $limit ) {
                 if( (!empty($s['email_reminder_' . $x])) && ($s['email_reminder_' . $x]=='true') ) {
-                    error_log('convert email reminder to trigger..');
-                    $t = array();
+                    $t = array(
+                        'enabled'=> 'true',
+                        'event'=> 'sf.after.submission',
+                        'name'=> 'E-mail reminder #'.$x,
+                        'listen_to'=> '',
+                        'ids'=> '',
+                        'order'=> $x
+                    );
                     if(!empty($s['email_reminder_'.$x.'_time_method']) && $s['email_reminder_'.$x.'_time_method']==='fixed'){
                         $s['email_reminder_'.$x.'_time_method'] = 'time';
                     }
                     // Grab the body, and extract the `loop open`, `loop` and `loop close` parts
-                    $body = (!empty($s['email_reminder_'.$x.'_body']) ? $s['email_reminder_'.$x.'_body'] : '');
-                    $re = '/(<[^>.]*\s?table[^<]*\s?>)(.*\s?{loop_fields}.*\s*?)(<.*\s*?\/table[.^<]*\s*?>)/';
-                    preg_match($re, $body, $m);
-                    $loop_open = (isset($m[1]) ? $m[1] : '<table cellpadding="5">');
-                    $loop = (!empty($s['email_reminder_'.$x.'_email_loop']) ? $s['email_reminder_'.$x.'_email_loop'] : '<tr><th valign="top" align="right">{loop_label}</th><td>{loop_value}7</td></tr>');
-                    $loop_close = (isset($m[3]) ? $m[3] : '</table>');
-                    $body = str_replace($m[0], '{loop_fields}', $body);
+                    $body = '';
+                    if(!empty($s['email_reminder_'.$x.'_body_open'])) $body .= $s['email_reminder_'.$x.'_body_open'] . '<br />';
+                    unset($s['email_reminder_'.$x.'_body_open']);
+                    $body .= $s['email_reminder_'.$x.'_body'];
+                    if(!empty($s['email_reminder_'.$x.'_body_close'])) $body .= '<br />' . $s['email_reminder_'.$x.'_body_close'];
+                    unset($s['email_reminder_'.$x.'_body_close']);
+                    $loop_open = '<table cellpadding="6">';
+                    $loop = $s['email_reminder_'.$x.'_email_loop'];
+                    $loop_close = '</table>';
+                    $body = str_replace(array("\r", "\n"), '<br />', $body);
+                    preg_match($regex, $body, $m);
+                    // Print the entire match result
+                    $body = '';
+                    if(count($m)===4 || count($m)===7){
+                        // Only if {loop_fields} tag was found
+                        if(count($m)===4){
+                            $body .= $m[1];
+                            $body .= '{loop_fields}';
+                            $body .= $m[3];
+                            $exploded = explode('{loop_fields}', $m[2]);
+                        }else{
+                            $body .= $m[4];
+                            $body .= '{loop_fields}';
+                            $body .= $m[6];
+                            $exploded = explode('{loop_fields}', $m[5]);
+                        }
+                        $loop_open = $exploded[0];
+                        $loop_close = $exploded[1];
+                    }
+                    $s['email_reminder_'.$x.'_body'] = $body;
                     // Only if line breaks was enabled:
                     if(!empty($s['email_reminder_'.$x.'_body_nl2br']) && $s['email_reminder_'.$x.'_body_nl2br']==='true'){
                         $body = nl2br($body);
                     }
-                    $t['enabled'] = 'true';
-                    $t['event'] = 'sf.after.submission';
-                    $t['name'] = 'E-mail reminder #'.$x;
-                    $t['listen_to'] = '';
-                    $t['ids'] = '';
-                    $t['order'] = $x;
                     $t['actions'] = array(
                         array(
                             'action' => 'send_email',
@@ -1467,12 +1465,13 @@ class SUPER_Common {
                                 'rtl' => (!empty($s['email_reminder_'.$x.'_rtl']) && ($s['email_reminder_'.$x.'_rtl']==='true') ? 'true' : 'false'),
                                 'cc' => (!empty($s['email_reminder_'.$x.'_header_cc']) ? $s['email_reminder_'.$x.'_header_cc'] : ''),
                                 'bcc' => (!empty($s['email_reminder_'.$x.'_header_bcc']) ? $s['email_reminder_'.$x.'_header_bcc'] : ''),
+                                'header_additional' => (!empty($s['email_reminder_'.$x.'_header_additional']) ? $s['email_reminder_'.$x.'_header_additional'] : ''),
                                 'attachments' => (!empty($s['email_reminder_'.$x.'_attachments']) ? $s['email_reminder_'.$x.'_attachments'] : ''),
                                 'content_type' => 'html',
                                 'charset' => 'UTF-8',
                                 'schedule' => array(
                                     'enabled' => 'true',
-                                    'dates' => array(
+                                    'schedules' => array(
                                         array(
                                             'date' => (!empty($s['email_reminder_'.$x.'_base_date']) ? $s['email_reminder_'.$x.'_base_date'] : ''),
                                             'days' => (!empty($s['email_reminder_'.$x.'_date_offset']) ? $s['email_reminder_'.$x.'_date_offset'] : '0'),
@@ -1497,14 +1496,42 @@ class SUPER_Common {
             if(!empty($s['woocommerce_checkout']) && $s['woocommerce_checkout']==='true' && !empty($s['woocommerce_completed_email']) && $s['woocommerce_completed_email']==='true'){
                 error_log('convert wc order completed email to trigger..');
                 $t = array();
+
                 // Grab the body, and extract the `loop open`, `loop` and `loop close` parts
-                $body = (!empty($s['woocommerce_completed_body']) ? $s['woocommerce_completed_body'] : '');
-                $re = '/(<[^>.]*\s?table[^<]*\s?>)(.*\s?{loop_fields}.*\s*?)(<.*\s*?\/table[.^<]*\s*?>)/';
-                preg_match($re, $body, $m);
-                $loop_open = (isset($m[1]) ? $m[1] : '<table cellpadding="5">');
-                $loop = (!empty($s['woocommerce_completed_email_loop']) ? $s['woocommerce_completed_email_loop'] : '<tr><th valign="top" align="right">{loop_label}</th><td>{loop_value}7</td></tr>');
-                $loop_close = (isset($m[3]) ? $m[3] : '</table>');
-                $body = str_replace($m[0], '{loop_fields}', $body);
+                $body = '';
+                if(!empty($s['woocommerce_completed_body_open'])) $body .= $s['woocommerce_completed_body_open'] . '<br />';
+                unset($s['woocommerce_completed_body_open']);
+                $body .= $s['woocommerce_completed_body'];
+                if(!empty($s['woocommerce_completed_body_close'])) $body .= '<br />' . $s['woocommerce_completed_body_close'];
+                unset($s['woocommerce_completed_body_close']);
+                $loop_open = '<table cellpadding="5">';
+                $loop = $s['woocommerce_completed_email_loop'];
+                $loop_close = '</table>';
+                error_log('body:' . $body);
+                $body = str_replace(array("\r", "\n"), '<br />', $body);
+                error_log('body after:' . $body);
+                preg_match($regex, $body, $m);
+                // Print the entire match result
+                $body = '';
+                error_log('count (WC):' . count($m));
+                if(count($m)===4 || count($m)===7){
+                    // Only if {loop_fields} tag was found
+                    if(count($m)===4){
+                        $body .= $m[1];
+                        $body .= '{loop_fields}';
+                        $body .= $m[3];
+                        $exploded = explode('{loop_fields}', $m[2]);
+                    }else{
+                        $body .= $m[4];
+                        $body .= '{loop_fields}';
+                        $body .= $m[6];
+                        $exploded = explode('{loop_fields}', $m[5]);
+                    }
+                    $loop_open = $exploded[0];
+                    $loop_close = $exploded[1];
+                }
+                $s['woocommerce_completed_body'] = $body;
+
                 // Only if line breaks was enabled:
                 if(!empty($s['woocommerce_completed_body_nl2br']) && $s['woocommerce_completed_body_nl2br']==='true'){
                     $body = nl2br($body);
@@ -1557,28 +1584,27 @@ class SUPER_Common {
                 );
                 $triggers[] = $t;
             }
-            error_log(json_encode($triggers));
             SUPER_Common::save_form_triggers($triggers, $form_id, false);
 
             $s['_woocommerce'] = array();
-            $s['_woocommerce']['checkout'] = (isset($settings['woocommerce_checkout']) ? $settings['woocommerce_checkout'] : 'false');
-            $s['_woocommerce']['redirect'] = (isset($settings['woocommerce_redirect']) ? $settings['woocommerce_redirect'] : 'checkout');
-            $s['_woocommerce']['coupon'] = (isset($settings['woocommerce_checkout_coupon']) ? $settings['woocommerce_checkout_coupon'] : '');
+            $s['_woocommerce']['checkout'] = (isset($s['woocommerce_checkout']) ? $s['woocommerce_checkout'] : 'false');
+            $s['_woocommerce']['redirect'] = (isset($s['woocommerce_redirect']) ? $s['woocommerce_redirect'] : 'checkout');
+            $s['_woocommerce']['coupon'] = (isset($s['woocommerce_checkout_coupon']) ? $s['woocommerce_checkout_coupon'] : '');
             $s['_woocommerce']['checkout_conditionally'] = array();
-            $s['_woocommerce']['checkout_conditionally']['enabled'] = (isset($settings['conditionally_wc_checkout']) ? $settings['conditionally_wc_checkout'] : 'false');
-            if(empty($settings['conditionally_wc_checkout_check'])) $settings['conditionally_wc_checkout_check'] = '';
-            $values = explode(',', $settings['conditionally_wc_checkout_check']);
+            $s['_woocommerce']['checkout_conditionally']['enabled'] = (isset($s['conditionally_wc_checkout']) ? $s['conditionally_wc_checkout'] : 'false');
+            if(empty($s['conditionally_wc_checkout_check'])) $s['conditionally_wc_checkout_check'] = '';
+            $values = explode(',', $s['conditionally_wc_checkout_check']);
             if(!isset($values[0])) $values[0] = '';
             if(!isset($values[1])) $values[1] = '=='; // is either == or !=   (== by default)
             if(!isset($values[2])) $values[2] = '';
             $s['_woocommerce']['checkout_conditionally']['f1'] = $values[0];
             $s['_woocommerce']['checkout_conditionally']['logic'] = $values[1];
             $s['_woocommerce']['checkout_conditionally']['f2'] = $values[2];
-            $s['_woocommerce']['empty_cart'] = (isset($settings['woocommerce_checkout_empty_cart']) ? $settings['woocommerce_checkout_empty_cart'] : 'false');
-            $s['_woocommerce']['remove_coupons'] = (isset($settings['woocommerce_checkout_remove_coupons']) ? $settings['woocommerce_checkout_remove_coupons'] : 'false');
-            $s['_woocommerce']['remove_fees'] = (isset($settings['woocommerce_checkout_remove_fees']) ? $settings['woocommerce_checkout_remove_fees'] : 'false');
-            $woocommerce_checkout_products = (isset($settings['woocommerce_checkout_products']) ? explode( "\n", $settings['woocommerce_checkout_products'] ) : '');
-            $woocommerce_checkout_products_meta = (isset($settings['woocommerce_checkout_products_meta']) ? explode( "\n", $settings['woocommerce_checkout_products_meta'] ) : '');
+            $s['_woocommerce']['empty_cart'] = (isset($s['woocommerce_checkout_empty_cart']) ? $s['woocommerce_checkout_empty_cart'] : 'false');
+            $s['_woocommerce']['remove_coupons'] = (isset($s['woocommerce_checkout_remove_coupons']) ? $s['woocommerce_checkout_remove_coupons'] : 'false');
+            $s['_woocommerce']['remove_fees'] = (isset($s['woocommerce_checkout_remove_fees']) ? $s['woocommerce_checkout_remove_fees'] : 'false');
+            $woocommerce_checkout_products = (isset($s['woocommerce_checkout_products']) ? explode( "\n", $s['woocommerce_checkout_products'] ) : array());
+            $woocommerce_checkout_products_meta = (isset($s['woocommerce_checkout_products_meta']) ? explode( "\n", $s['woocommerce_checkout_products_meta'] ) : array());
             $products = array();
             $products_ids = array();
             foreach($woocommerce_checkout_products as $k => $v){
@@ -1603,7 +1629,6 @@ class SUPER_Common {
                 $id = (isset($meta[0]) ? trim($meta[0]) : '');
                 if(empty($id)) continue;
                 // Check if we can match it with one of the product ID's
-                $products_ids[$id] = $k;
                 if(isset($products_ids[$id])){
                     $label = (isset($meta[1]) ? trim($meta[1]) : '');
                     $value = (isset($meta[2]) ? trim($meta[2]) : '');
@@ -1617,7 +1642,7 @@ class SUPER_Common {
             }
             $s['_woocommerce']['products'] = $products;
 
-            $woocommerce_checkout_fees = (isset($settings['woocommerce_checkout_fees']) ? explode( "\n", $settings['woocommerce_checkout_fees'] ) : '');
+            $woocommerce_checkout_fees = (isset($s['woocommerce_checkout_fees']) ? explode( "\n", $s['woocommerce_checkout_fees'] ) : array());
             $fees = array();
             foreach($woocommerce_checkout_fees as $k => $v){
                 $fee =  explode('|', $v);
@@ -1640,7 +1665,7 @@ class SUPER_Common {
                 );
             }
 
-            $woocommerce_populate_checkout_fields = (isset($settings['woocommerce_populate_checkout_fields']) ? explode( "\n", $settings['woocommerce_populate_checkout_fields'] ) : '');
+            $woocommerce_populate_checkout_fields = (isset($s['woocommerce_populate_checkout_fields']) ? explode( "\n", $s['woocommerce_populate_checkout_fields'] ) : array());
             $fields = array();
             foreach($woocommerce_populate_checkout_fields as $k => $v){
                 $field =  explode('|', $v);
@@ -1659,7 +1684,7 @@ class SUPER_Common {
                 );
             }
 
-            $woocommerce_checkout_fields = (isset($settings['woocommerce_checkout_fields']) ? explode( "\n", $settings['woocommerce_checkout_fields'] ) : '');
+            $woocommerce_checkout_fields = (isset($s['woocommerce_checkout_fields']) ? explode( "\n", $s['woocommerce_checkout_fields'] ) : array());
             $fields = array();
             foreach($woocommerce_checkout_fields as $k => $v){
                 $field =  explode('|', $v);
@@ -1700,7 +1725,7 @@ class SUPER_Common {
                     'class' => $class,
                     'label_class' => $label_class,
                     'options' => $options,
-                    'skip' => ((isset($settings['woocommerce_checkout_fields_skip_empty']) && $settings['woocommerce_checkout_fields_skip_empty']==='true') ? 'true' : 'false')
+                    'skip' => ((isset($s['woocommerce_checkout_fields_skip_empty']) && $s['woocommerce_checkout_fields_skip_empty']==='true') ? 'true' : 'false')
                 );
             }
             if(!empty($fields)){
@@ -1718,7 +1743,7 @@ class SUPER_Common {
                 array( 'order' => 'cancelled', 'entry' => 'cancelled'),
                 array( 'order' => 'failed', 'entry' => 'failed')
             );
-            $woocommerce_completed_entry_status = (isset($settings['woocommerce_completed_entry_status']) ? $settings['woocommerce_completed_entry_status'] : 'completed');
+            $woocommerce_completed_entry_status = (isset($s['woocommerce_completed_entry_status']) ? $s['woocommerce_completed_entry_status'] : 'completed');
             if(!empty($woocommerce_completed_entry_status)){
                 foreach($entry_status as $k => $v){
                     if($v['order']==='completed'){
@@ -1740,7 +1765,7 @@ class SUPER_Common {
                 array( 'order' => 'cancelled', 'post' => 'trash'),
                 array( 'order' => 'failed', 'post' => 'trash')
             );
-            $woocommerce_post_status = (isset($settings['woocommerce_post_status']) ? $settings['woocommerce_post_status'] : 'publish');
+            $woocommerce_post_status = (isset($s['woocommerce_post_status']) ? $s['woocommerce_post_status'] : 'publish');
             if(!empty($woocommerce_post_status)){
                 foreach($post_status as $k => $v){
                     if($v['order']==='completed'){
@@ -1762,7 +1787,7 @@ class SUPER_Common {
                 array( 'order' => 'cancelled', 'login_status' => 'pending'),
                 array( 'order' => 'failed', 'login_status' => 'pending')
             );
-            $woocommerce_signup_status = (isset($settings['woocommerce_signup_status']) ? $settings['woocommerce_signup_status'] : 'active');
+            $woocommerce_signup_status = (isset($s['woocommerce_signup_status']) ? $s['woocommerce_signup_status'] : 'active');
             if(!empty($woocommerce_signup_status)){
                 foreach($login_status as $k => $v){
                     if($v['order']==='completed'){
@@ -1776,6 +1801,7 @@ class SUPER_Common {
             $s['_woocommerce']['login_status'] = $login_status;
 
             // Update user role when order status is changed
+            $woocommerce_completed_user_role = (isset($s['woocommerce_completed_user_role']) ? $s['woocommerce_completed_user_role'] : '');
             $user_role = array(
                 array( 'order' => 'completed', 'user_role' => ''),
                 array( 'order' => 'pending', 'user_role' => ''),
@@ -1784,7 +1810,6 @@ class SUPER_Common {
                 array( 'order' => 'cancelled', 'user_role' => ''),
                 array( 'order' => 'failed', 'user_role' => '')
             );
-            $woocommerce_completed_user_role = (isset($settings['woocommerce_completed_user_role']) ? $settings['woocommerce_completed_user_role'] : '');
             if(!empty($woocommerce_completed_user_role)){
                 foreach($user_role as $k => $v){
                     if($v['order']==='completed'){
@@ -1796,23 +1821,11 @@ class SUPER_Common {
                 }
             }
             $s['_woocommerce']['user_role'] = $user_role;
+
             // tmp disabled :) unset($s['woocommerce_checkout']);
-            // tmp disabled :) unset($s['conditionally_wc_checkout']);
-            // tmp disabled :) unset($s['conditionally_wc_checkout_check_1']);
-            // tmp disabled :) unset($s['conditionally_wc_checkout_check_3']);
-            // tmp disabled :) unset($s['conditionally_wc_checkout_check']);
-            // tmp disabled :) unset($s['woocommerce_checkout_empty_cart']);
-            // tmp disabled :) unset($s['woocommerce_checkout_remove_coupons']);
-            // tmp disabled :) unset($s['woocommerce_checkout_remove_fees']);
-            // tmp disabled :) unset($s['woocommerce_checkout_products']);
-            // tmp disabled :) unset($s['woocommerce_checkout_products_meta']);
-            // tmp disabled :) unset($s['woocommerce_checkout_coupon']);
-            // tmp disabled :) unset($s['woocommerce_checkout_fees']);
             // tmp disabled :) unset($s['woocommerce_populate_checkout_fields']);
             // tmp disabled :) unset($s['woocommerce_checkout_fields']);
             // tmp disabled :) unset($s['woocommerce_checkout_fields_skip_empty']);
-            // tmp disabled :) unset($s['woocommerce_redirect']);
-            // tmp disabled :) unset($s['woocommerce_completed_entry_status']);
             // tmp disabled :) unset($s['woocommerce_completed_email']);
             // tmp disabled :) unset($s['woocommerce_completed_to']);
             // tmp disabled :) unset($s['woocommerce_completed_from_type']);
@@ -1833,8 +1846,8 @@ class SUPER_Common {
             // tmp disabled :) unset($s['woocommerce_completed_attachments']);
             // tmp disabled :) unset($s['woocommerce_post_status']);
             // tmp disabled :) unset($s['woocommerce_signup_status']);
-            // tmp disabled :) unset($s['woocommerce_completed_user_role']);
-            error_log($s['woocommerce_completed_user_role']);
+            unset($s['woocommerce_completed_user_role']);
+            //error_log($s['woocommerce_completed_user_role']);
         }
         return apply_filters( 'super_form_settings_filter', $s, array( 'id'=>$form_id ) );
     }
@@ -3670,6 +3683,8 @@ class SUPER_Common {
             'bcc'=>'', 
             'subject'=>'', 
             'body'=>'', 
+            'charset'=>get_option('blog_charset'),
+            'content_type'=>'html', // Super Forms defaults to text/html, but if you need to use plain text you can change it in the settings
             'settings'=>array(),
             'attachments'=>array(),
             'string_attachments'=>array()
@@ -3731,7 +3746,7 @@ class SUPER_Common {
             if(!empty($settings['header_additional'])){
                 $headers = array_filter( explode( "\n", $settings['header_additional'] ) );
             } 
-            $headers[] = "Content-Type: text/html; charset=\"" . get_option('blog_charset') . "\"";
+            $headers[] = "Content-Type: text/".$content_type."; charset=\"" . $charset . "\"";
             
             // Set From: header
             if( empty( $from_name ) ) {
@@ -3887,16 +3902,16 @@ class SUPER_Common {
             }
 
             // Set email format to HTML
-            if( !isset( $settings['header_content_type'] ) ) $settings['header_content_type'] = 'html';
-            if( $settings['header_content_type'] == 'html' ) {
+            //if( !isset( $settings['header_content_type'] ) ) $settings['header_content_type'] = 'html';
+            if( $content_type == 'html' ) {
                 $phpmailer->isHTML(true);
             }else{
                 $phpmailer->isHTML(false);
             }
 
             // CharSet
-            if( !isset( $settings['header_charset'] ) ) $settings['header_charset'] = 'UTF-8';
-            $phpmailer->CharSet = $settings['header_charset'];
+            //if( !isset( $settings['header_charset'] ) ) $settings['header_charset'] = 'UTF-8';
+            $phpmailer->CharSet = $charset; //['header_charset'];
 
             // Content-Type
             //$phpmailer->ContentType = 'multipart/mixed';

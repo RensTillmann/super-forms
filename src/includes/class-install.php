@@ -58,6 +58,7 @@ class SUPER_Install {
     public static function deactivate(){       
         wp_clear_scheduled_hook('super_client_data_garbage_collection');
         wp_clear_scheduled_hook('super_cron_reminders');
+        wp_clear_scheduled_hook('super_scheduled_trigger_actions');
         do_action('after_super_forms_deactivated');
     }
 

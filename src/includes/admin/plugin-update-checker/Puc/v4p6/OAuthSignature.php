@@ -41,7 +41,7 @@ if ( !class_exists('Puc_v4p6_OAuthSignature', false) ):
 					'oauth_consumer_key' => $this->consumerKey,
 					'oauth_nonce' => $this->nonce(),
 					'oauth_signature_method' => 'HMAC-SHA1',
-					'oauth_timestamp' => time(),
+					'oauth_timestamp' => current_time('timestamp'),
 					'oauth_version' => '1.0',
 				)
 			);

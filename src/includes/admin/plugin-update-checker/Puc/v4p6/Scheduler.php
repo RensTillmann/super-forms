@@ -51,7 +51,7 @@ if ( !class_exists('Puc_v4p6_Scheduler', false) ):
 				}
 
 				if ( !wp_next_scheduled($this->cronHook) && !defined('WP_INSTALLING') ) {
-					wp_schedule_event(time(), $scheduleName, $this->cronHook);
+					wp_schedule_event(current_time('timestamp'), $scheduleName, $this->cronHook);
 				}
 				add_action($this->cronHook, array($this, 'maybeCheckForUpdates'));
 

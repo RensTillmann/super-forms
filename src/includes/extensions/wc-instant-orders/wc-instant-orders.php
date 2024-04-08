@@ -1035,17 +1035,10 @@ if(!class_exists('SUPER_WC_Instant_Orders')) :
             // If conditional check is enabled
             $checkout = true;
             if($s['conditionally']==='true' && $s['logic']!==''){
-                $checkout = false;
-                $s['f1'] = SUPER_Common::email_tags($s['f1'], $data, $settings);
-                $s['f2'] = SUPER_Common::email_tags($s['f2'], $data, $settings);
-                if($s['logic']==='==' && ($s['f1']===$s['f2'])) $checkout = true;
-                if($s['logic']==='!=' && ($s['f1']!==$s['f2'])) $checkout = true;
-                if($s['logic']==='??' && (strpos($s['f1'], $s['f2'])!==false)) $checkout = true; // Contains
-                if($s['logic']==='!!' && (strpos($s['f1'], $s['f2'])===false)) $checkout = true; // Not cointains
-                if($s['logic']==='>' && ($s['f1']>$s['f2'])) $checkout = true;
-                if($s['logic']==='<' && ($s['f1']<$s['f2'])) $checkout = true;
-                if($s['logic']==='>=' && ($s['f1']>=$s['f2'])) $checkout = true;
-                if($s['logic']==='<=' && ($s['f1']<=$s['f2'])) $checkout = true;
+                $logic = $s['logic'];
+                $f1 = SUPER_Common::email_tags($s['f1'], $data, $settings);
+                $f2 = SUPER_Common::email_tags($s['f2'], $data, $settings);
+                $checkout = self::conditional_compare_check($f1, $logic, $f2);
             }
             if($checkout===false) return true;
             $mode = SUPER_Common::email_tags( $s['mode'], $data, $settings );
@@ -2394,7 +2387,7 @@ if(!function_exists('SUPER_WC_Instant_Orders')){
 // tmp             // tmp     $order->save();
 // tmp 
 // tmp             // tmp     // Step 6: Create the subscription
-// tmp             // tmp     $start_date = date('Y-m-d H:i:s');
+// tmp             // tmp     $start_date = current_time('Y-m-d H:i:s');
 // tmp             // tmp     $billing_period = WC_Subscriptions_Product::get_period( $product );
 // tmp             // tmp     error_log('period: '.$period);
 // tmp             // tmp     $billing_interval = WC_Subscriptions_Product::get_interval( $product );

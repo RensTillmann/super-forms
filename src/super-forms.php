@@ -280,6 +280,7 @@ if(!class_exists('SUPER_Forms')) :
 
             add_action( 'wp', array( $this, 'super_client_data_register_garbage_collection' ) );
             add_action( 'super_client_data_garbage_collection', array( $this, 'super_client_data_cleanup' ) );
+            add_action( 'super_scheduled_trigger_actions', array( $this, 'super_scheduled_trigger_actions' ) );
             
             add_action( 'plugins_loaded', array( $this, 'include_add_ons' ), 0 );
 
@@ -480,10 +481,16 @@ if(!class_exists('SUPER_Forms')) :
             if(!defined('WP_INSTALLING')) SUPER_Common::deleteOldClientData();
             do_action( 'super_client_data_cleanup' );
         }
-
+        public static function super_scheduled_trigger_actions() {
+            require_once( SUPER_PLUGIN_DIR . '/includes/class-triggers.php' );
+            SUPER_Triggers::execute_scheduled_trigger_actions();
+        }
         public static function super_client_data_register_garbage_collection() {
             if(!wp_next_scheduled('super_client_data_garbage_collection')){
-                wp_schedule_event(time(), 'every_minute', 'super_client_data_garbage_collection');
+                wp_schedule_event(current_time('timestamp'), 'every_minute', 'super_client_data_garbage_collection');
+            }
+            if(!wp_next_scheduled('super_scheduled_trigger_actions')){
+                wp_schedule_event(current_time('timestamp'), 'every_minute', 'super_scheduled_trigger_actions');
             }
         }
 
@@ -605,7 +612,7 @@ if(!class_exists('SUPER_Forms')) :
             header('Cache-Control: public');
             // The Expires header contains the date/time after which the response is considered stale.
             // "stale" means "not fresh"
-            header( 'Expires: ' . gmdate( 'D, d M Y H:i:s', time() + 86400*30 ) . ' GMT' ); // +30 days
+            header( 'Expires: ' . gmdate( 'D, d M Y H:i:s', current_time('timestamp') + 86400*30 ) . ' GMT' ); // +30 days
             // Only send back the requested resource (with a 200 status)
             // if it has been last modified after the given date.
             // If the request has not been modified since, send back a 304 without any body
