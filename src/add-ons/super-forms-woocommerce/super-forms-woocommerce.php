@@ -496,8 +496,8 @@ if( !class_exists('SUPER_WooCommerce') ) :
             if(!is_array($cart_item['super_data'])) return $item_data;
             foreach($cart_item['super_data'] as $k => $v){
                 $item_data[] = array( 
-                    'name' =>  $k,
-                    'value' => $v
+                    'name' =>  $v['label'],
+                    'value' => $v['value']
                 );
             }
             return $item_data;
@@ -1231,8 +1231,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                                 $value = trim($mv['value'], '{}');
                                 if($mv['label'][0]=='{') $new_meta[$mk]['label'] = '{'.$label.'_'.$i.'}'; 
                                 if($mv['value'][0]=='{') $new_meta[$mk]['value'] = '{'.$value.'_'.$i.'}'; 
-                                $new_meta[$mv]['label'] = SUPER_Common::email_tags($new_meta[$mv]['label'], $data, $settings).' ('.$i.')';
-                                $new_meta[$mv]['value'] = SUPER_Common::email_tags($new_meta[$mv]['value'], $data, $settings);
+                                $new_meta[$mv]['label'] = $new_meta[$mv]['label'].' ('.$i.')';
                             }
                             $new['items'] = $new_meta;
                         }
@@ -1241,13 +1240,33 @@ if( !class_exists('SUPER_WooCommerce') ) :
                 }
                 $products = array();
                 foreach($wcs['products'] as $k => $v){
-                    $id = SUPER_Common::email_tags($v['id'], $data, $settings);
-                    $qty = SUPER_Common::email_tags($v['qty'], $data, $settings);
-                    $variation = SUPER_Common::email_tags($v['variation'], $data, $settings);
-                    $price = SUPER_Common::email_tags($v['price'], $data, $settings);
-                    $price = self::tofloat($price);
-                    $qty = absint($qty);
+                    $qty = absint(SUPER_Common::email_tags($v['qty'], $data, $settings));
                     if($qty>0){
+                        $id = SUPER_Common::email_tags($v['id'], $data, $settings);
+                        $variation = SUPER_Common::email_tags($v['variation'], $data, $settings);
+                        $price = SUPER_Common::email_tags($v['price'], $data, $settings);
+                        $price = self::tofloat($price);
+                        foreach($v['items'] as $ik => $iv){
+                            // Skip items that don't exist in the form data
+                            $value_before = $v['items'][$ik]['value'];
+                            $value_after = SUPER_Common::email_tags($v['items'][$ik]['value'], $data, $settings);
+                            if(trim($value_before)===trim($value_after)){
+                                // Didn't change, might be the case that this {tag} doesn't exist in the form data
+                                if(preg_match("/{(.+?)}/", $value_after)){
+                                    unset($v['items'][$ik]);
+                                    continue;
+                                }
+                            }else{
+                                $v['items'][$ik]['value'] = $value_after;
+                            }
+                            // Delete any empty product meta items 
+                            if(empty($v['items'][$ik]['value'])) {
+                                unset($v['items'][$ik]);
+                                continue;
+                            }
+                            // Replace possible {tags} for the label
+                            $v['items'][$ik]['label'] = SUPER_Common::email_tags($v['items'][$ik]['label'], $data, $settings);
+                        }
                         // Check if multiple ID's found (separate by comma)
                         $multi_products = explode(',', $id);
                         foreach($multi_products as $product_id){

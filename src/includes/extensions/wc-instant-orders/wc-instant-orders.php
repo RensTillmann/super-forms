@@ -1571,7 +1571,7 @@ if(!function_exists('SUPER_WC_Instant_Orders')){
 // tmp             // tmp     $products_meta = explode( "\n", $settings['wc_instant_orders_products_meta'] );  
 // tmp             // tmp     $values = array();
 // tmp             // tmp     $meta = array();
-// tmp             // tmp     $regex = "/{(.*?)}/";
+// tmp             // tmp     $regex = "/{(.+?)}/";
 // tmp             // tmp     foreach( $products_meta as $wck => $v ) {
 // tmp             // tmp         $product =  explode( "|", $v );
 // tmp 
@@ -2088,7 +2088,7 @@ if(!function_exists('SUPER_WC_Instant_Orders')){
 // tmp             // tmp     $orders_fees = explode( "\n", $settings['wc_instant_orders_fees'] );  
 // tmp             // tmp     $values = array();
 // tmp             // tmp     $fees = array();
-// tmp             // tmp     $regex = "/{(.*?)}/";
+// tmp             // tmp     $regex = "/{(.+?)}/";
 // tmp             // tmp     foreach( $orders_fees as $wck => $v ) {
 // tmp             // tmp         $fee =  explode( "|", $v );
 // tmp             // tmp         $count = count($fee)-1;

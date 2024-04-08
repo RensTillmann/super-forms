@@ -1083,7 +1083,7 @@ class SUPER_Shortcodes {
                 'exclude'      => $exclude_users
             ); 
             $users = (array) get_users( $args );
-            $regex = '/\{(.*?)\}/';
+            $regex = '/\{(.+?)\}/';
             $users_array = array();
             foreach($users as $k => $v){
                 $v = (array) $v->data;
@@ -1588,7 +1588,7 @@ class SUPER_Shortcodes {
 
         // If default value contains {tags} we will replace them on page load via javascript
         if(!empty($atts['value'])){
-            $regex = '/\{(.*?)\}/';
+            $regex = '/\{(.+?)\}/';
             preg_match_all($regex, $atts['value'], $matches, PREG_SET_ORDER, 0);
             if(count($matches)>0){
                 $class .= ' super-replace-tags';
@@ -2312,7 +2312,7 @@ class SUPER_Shortcodes {
                                 foreach( $tab_inner as $iv ) {
                                     if( $iv['tag']=='column' ) $GLOBALS['super_column_found']++;
                                 }
-                                $re = '/\{(.*?)\}/';
+                                $re = '/\{(.+?)\}/';
                                 $i = $dynamic;
                                 foreach( $tab_inner as $ik => $iv ) {
                                     if( empty($iv['data']) ) $iv['data'] = null;
@@ -2419,7 +2419,7 @@ class SUPER_Shortcodes {
                                     foreach( $tab_inner as $iv ) {
                                         if( $iv['tag']=='column' ) $GLOBALS['super_column_found']++;
                                     }
-                                    $re = '/\{(.*?)\}/';
+                                    $re = '/\{(.+?)\}/';
                                     $i = $dynamic;
                                     foreach( $tab_inner as $ik => $iv ) {
                                         if( empty($iv['data']) ) $iv['data'] = null;
@@ -2753,7 +2753,7 @@ class SUPER_Shortcodes {
             foreach( $inner as $k => $v ) {
                 if( $v['tag']=='column' ) $GLOBALS['super_column_found']++;
             }
-            $re = '/\{(.*?)\}/';
+            $re = '/\{(.+?)\}/';
             $i = $dynamic;
             foreach( $inner as $k => $v ) {
                 if( empty($v['data']) ) $v['data'] = null;

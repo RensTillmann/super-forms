@@ -1147,6 +1147,7 @@ class SUPER_Common {
             }
         }
         $result = '';
+        error_log(json_encode($statements));
         foreach($statements as $k => $v){
             $show_counter = 0;
             $conditions = explode('&&', $v['conditions']);
@@ -1155,8 +1156,10 @@ class SUPER_Common {
                 $conditions = explode('||', $v['conditions']);
                 $method = '||';
             }
+            error_log(json_encode($conditions));
             foreach($conditions as $ck => $cv){
                 preg_match($re, $cv, $matches);
+                error_log(json_encode($matches));
                 $f1 = $matches[1];
                 $logic = $matches[2];
                 $f2 = $matches[3];

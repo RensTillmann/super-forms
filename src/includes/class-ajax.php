@@ -1021,7 +1021,7 @@ class SUPER_Ajax {
         GROUP BY wc_order.ID
         LIMIT 50";
         $orders = $wpdb->get_results($query);
-        $regex = '/\{(.*?)\}/';
+        $regex = '/\{(.+?)\}/';
         $orders_array = array();
         foreach($orders as $k => $v){
             $v = (array) $v;

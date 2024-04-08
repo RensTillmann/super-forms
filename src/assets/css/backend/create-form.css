@@ -2244,6 +2244,7 @@
     float: left;
     width: 100%;
     background-color: white;
+    margin: -1px 0px 0px 0px;
 }
 
 .super-builder .super-tabs-content .super-tab-content {
