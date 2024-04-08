@@ -2263,7 +2263,7 @@ if( !class_exists('SUPER_PayPal') ) :
 					
 						// Let's check if at least on of the options contains a {tag}
 						foreach( $options as $op => $ov ) {
-							if( preg_match("/{(.*?)}/", $ov) ) {
+							if( preg_match("/{(.+?)}/", $ov) ) {
 								$origin_name = str_replace("{", "", $ov);
 								$origin_name = str_replace("}", "", $origin_name);
 								// Loop through dynamic added fields
@@ -2283,7 +2283,7 @@ if( !class_exists('SUPER_PayPal') ) :
 									$ii = 0;
 									foreach( $field_names as $v ) {
 										if( !empty( $options[$ii] ) ) {
-											if( preg_match("/{(.*?)}/", $options[$ii]) ) {
+											if( preg_match("/{(.+?)}/", $options[$ii]) ) {
 												$name = str_replace("{", "", $options[$ii]); 
 												$name = str_replace("}", "", $name);
 												$name = str_replace($name, $name . '_' . ($i), $options[$ii]);

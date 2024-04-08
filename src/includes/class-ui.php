@@ -293,7 +293,6 @@ class SUPER_UI {
                 $value = self::get_value($s, $name, $v);
                 if(isset($v['func'])){
                     if($v['func']==='listing_id'){
-                        // error_log('id value: '.$value);
                         if(empty($value)){
                             $explodedName = explode('.', $name);
                             $index = intval($explodedName[count($explodedName)-2]);
@@ -303,8 +302,6 @@ class SUPER_UI {
                     if($v['func']==='listing_shortcode'){
                         $explodedName = explode('.', $name);
                         $index = intval($explodedName[count($explodedName)-2]);
-                        error_log('test@@@@@@@@@@@@@');
-                        error_log(SUPER_Common::safe_json_encode($s['lists']));
                         if(empty($s['lists'][$index]['id'])){
                             $id = $index+1;
                         }else{

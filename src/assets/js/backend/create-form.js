@@ -1644,11 +1644,48 @@
         tinymce.init({
             selector: selector, 
 
+            setup: function(editor){
+                editor.on('BeforeGetContent', function(e) {
+                    // Perform tasks after setting the content
+                    debugger;
+                });
+                editor.on('GetContent', function(e) {
+                    // Perform tasks after setting the content
+                    debugger;
+                });
+                editor.on('LoadContent', function(e) {
+                    // Perform tasks after setting the content
+                    debugger;
+                });
+                editor.on('BeforeSetContent', function(e) {
+                    // Perform tasks after setting the content
+                    debugger;
+                });
+                editor.on('SetContent', function(e) {
+                    // Perform tasks after setting the content
+                    debugger;
+                });
+                editor.on('PreProcess', function(e) {
+                    // Perform tasks after processing the content
+                    debugger;
+                });
+                editor.on('PostProcess', function(e) {
+                    // Perform tasks after processing the content
+                    debugger;
+                });
+                editor.on('SaveContent', function(e) {
+                    debugger;
+                });
+                editor.on('BeforeSetContent', function (e) {
+                    debugger;
+                });
+                editor.on('KeyUp', function(e) {
+                    //debugger;
+                    //console.log('Key up:', e.key);
+                });
+            },
             // Other initialization options...
             forced_root_block: false, // Disable the automatic insertion of <p> tags
-            valid_elements: 'table[!class|id],td,tr,tbody,thead,tfoot,{loop_fields}', // Allow the <table> element with class and id attributes, as well as its child elements: <td>, <tr>, <tbody>, <thead>, <tfoot>, and the {loop_fields} placeholder
-            valid_children: '+body[style],+table[tbody|thead|tfoot|tr|{loop_fields}|loop_fields],+thead[tr],+tbody[tr],+tfoot[tr],+tr[td]', // Allow specific child elements for <body> and <table> elements
-
             toolbar_mode: 'scrolling', //'floating', 'sliding', 'scrolling', or 'wrap'
             contextmenu: false,
             plugins: [
@@ -1660,6 +1697,8 @@
             toolbar1: 'bold italic forecolor backcolor alignleft aligncenter alignright alignjustify outdent indent',
             toolbar2: 'numlist bullist image link media table code preview fullscreen',
             content_style: 'body {margin:5px 10px 5px 10px; color:#2c3338; font-family:Helvetica,Arial,sans-serif; font-size:12px }'
+            //valid_elements: 'table[!class|id],td,tr,tbody,thead,tfoot,{loop_fields}', // Allow the <table> element with class and id attributes, as well as its child elements: <td>, <tr>, <tbody>, <thead>, <tfoot>, and the {loop_fields} placeholder
+            //valid_children: '+body[style],+table[tbody|thead|tfoot|tr|{loop_fields}|loop_fields],+thead[tr],+tbody[tr],+tfoot[tr],+tr[td]', // Allow specific child elements for <body> and <table> elements
         });
     };
 
@@ -1773,7 +1812,7 @@
             // Empty field
             clone.querySelector('input[name="secretName"]').value = '';
             clone.querySelector('input[name="secretValue"]').value = '';
-            clone.querySelector('.super-secret-tag').innerHTML = '&nbsp;';
+            clone.querySelector('.super-secret-tag').innerHTML = '{@}';
             this.closest('ul').appendChild(clone);
             if(this.closest('.super-global-secrets')){
                 var node = this.closest('li');
@@ -1808,7 +1847,7 @@
             this.value = SUPER.formatUniqueFieldName(this.value);
             // Update the {@tag}
             if(this.value===''){
-                this.closest('li').querySelector('.super-secret-tag').innerHTML = '';
+                this.closest('li').querySelector('.super-secret-tag').innerHTML = '{@}';
             }else{
                 this.closest('li').querySelector('.super-secret-tag').innerHTML = '{@'+this.value+'}';
             }
