@@ -261,6 +261,7 @@
     jQuery(document).ready(function ($) {
 
         $(document).on('click', '.super-reset-default-value, .super-reset-last-value, .super-reset-global-value, .super-lock-global-setting', function () {
+            if(this.closest('.sfui-setting')) return;
             // If parent is settings tab
             if(this.closest('.super-form-settings-tabs')){
                 var settingsTab = this.closest('.super-form-settings-tabs');

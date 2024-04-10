@@ -119,6 +119,13 @@ class SUPER_UI {
                     echo '<div class="4 sfui-setting'.(isset($v['width_full']) ? ' sfui-width-full' : '').(isset($v['width_auto']) ? ' sfui-width-auto' : '').(isset($v['type']) ? ' sfui-type-'.$v['type'] : '').(isset($v['inline']) ? ' sfui-inline' : '').(isset($v['vertical']) ? ' sfui-vertical' : '').((isset($v['padding']) && $v['padding']===false) ? ' sfui-no-padding' : '').'"'.(isset($v['filter']) ? ' data-f="'.$v['filter'].'"' : '').'>';
                 }
                 self::print_field($s, $v, $prefix);
+                // Reset to default setting buttons
+                if(!empty($v['reset'])){
+                    $name = $v['name'];
+                    if(count($prefix)>0) $name = implode('.',$prefix).'.'.$v['name'];
+                    $v['v'] = self::get_value($s, $name, null);
+                    echo SUPER_Common::reset_setting_icons($v, false);
+                }
                 // Might have children
                 if(isset($v['nodes']) && is_array($v['nodes'])) {
                     self::loop_over_tab_setting_nodes($s, $v['nodes'], $prefix);

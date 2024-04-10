@@ -634,7 +634,7 @@ class SUPER_Common {
         return $elementSettings;
     }
 
-    public static function reset_setting_icons($v){
+    public static function reset_setting_icons($v, $global=true){
         $html  = '<div class="super-reset-settings-buttons">';
         if(!isset($v['default'])) $v['default'] = ''; // $v['default'];
         if(!isset($v['v'])) $v['v'] = ''; // $v['default'];
@@ -647,8 +647,10 @@ class SUPER_Common {
         }else{
             $html .= '<i class="fas fa-undo-alt super-reset-default-value" title="' . esc_html__( 'Reset to default value', 'super-forms' ) . '" data-value="'.esc_attr($v['default']).'"></i>';
             $html .= '<i class="fas fa-history super-reset-last-value" title="' . esc_html__( 'Reset to last known value', 'super-forms' ) . '" data-value="'.esc_attr($v['v']).'"></i>';
-            $html .= '<i class="fas fa-globe super-reset-global-value" title="' . esc_html__( 'Reset to global value', 'super-forms' ) . '" data-value="'.esc_attr($v['g']).'"></i>';
-            $html .= '<i class="fas fa-lock super-lock-global-setting" title="' . esc_html__( 'Lock to global settings', 'super-forms' ) . '" data-value="'.esc_attr($v['g']).'"></i>';
+            if($global===true){
+                $html .= '<i class="fas fa-globe super-reset-global-value" title="' . esc_html__( 'Reset to global value', 'super-forms' ) . '" data-value="'.esc_attr($v['g']).'"></i>';
+                $html .= '<i class="fas fa-lock super-lock-global-setting" title="' . esc_html__( 'Lock to global settings', 'super-forms' ) . '" data-value="'.esc_attr($v['g']).'"></i>';
+            }
         }
         $html .= '</div>';
         return $html;
@@ -1045,7 +1047,7 @@ class SUPER_Common {
     public static function filter_if_statements($html=''){
         // If does not contain 'endif;' we can just return the `$html` without doing anything
         if(!strpos($html, 'endif;')) return $html;
-        $re = '/\s*[\'|"]?(.*?)[\'|"]?\s*(==|!=|>=|<=|>|<|\?\?|!\?\?)\s*[\'|"]?(.*?)[\'|"]?\s*$/';
+        $re = '/\s*[\'|"]?(.*?)[\'|"]?\s*(==|!=|>=|&gt;=|<=|&lt;=|>|&gt;|<|&lt;|\?\?|!\?\?)\s*[\'|"]?(.*?)[\'|"]?\s*$/';
         $array = str_split($html);
         $if_index = 0;
         $skip_up_to = 0;
@@ -1147,7 +1149,9 @@ class SUPER_Common {
             }
         }
         $result = '';
-        error_log(json_encode($statements));
+        foreach($statements as $k => $v){
+            $statements[$k]['inner_content'] = preg_replace('/(?:^(?:&nbsp;|\s|<br\s?\/?>)+|(?:&nbsp;|\s|<br\s?\/?>)+$)/', '', $statements[$k]['inner_content']);
+        }
         foreach($statements as $k => $v){
             $show_counter = 0;
             $conditions = explode('&&', $v['conditions']);
@@ -1156,10 +1160,8 @@ class SUPER_Common {
                 $conditions = explode('||', $v['conditions']);
                 $method = '||';
             }
-            error_log(json_encode($conditions));
             foreach($conditions as $ck => $cv){
                 preg_match($re, $cv, $matches);
-                error_log(json_encode($matches));
                 $f1 = $matches[1];
                 $logic = $matches[2];
                 $f2 = $matches[3];
@@ -1332,12 +1334,18 @@ class SUPER_Common {
         if($logic==='=='  && ($f1===$f2)) return true;
         if($logic==='!='  && ($f1!==$f2)) return true;
         if($logic==='??'  && (strpos($f1, $f2)!==false)) return true;
-        if($logic==='!??' && (!strpos($f1, $f2)===false)) return true;
+        if($logic==='!??' && (!strpos($f1, $f2)!==false)) return true;
         if($logic==='!!'  && (strpos($f1, $f2)===false)) return true;
         if($logic==='>'   && (self::tofloat($f1)>self::tofloat($f2))) return true;
         if($logic==='<'   && (self::tofloat($f1)<self::tofloat($f2))) return true;
         if($logic==='>='  && (self::tofloat($f1)>=self::tofloat($f2))) return true;
         if($logic==='<='  && (self::tofloat($f1)<=self::tofloat($f2))) return true;
+        // Below is required for TinyMCE editor since it will convert special characters into their HTML entities.
+        // For example: `if({tag}<18):` becomes `if({tag}&lt;18):`
+        if($logic==='&gt;'   && (self::tofloat($f1)>self::tofloat($f2))) return true;
+        if($logic==='&lt;'   && (self::tofloat($f1)<self::tofloat($f2))) return true;
+        if($logic==='&gt;='  && (self::tofloat($f1)>=self::tofloat($f2))) return true;
+        if($logic==='&lt;='  && (self::tofloat($f1)<=self::tofloat($f2))) return true;
         return false;
     }
 
@@ -1497,7 +1505,6 @@ class SUPER_Common {
 
             // Add trigger for WooCommerce email after order completed
             if(!empty($s['woocommerce_checkout']) && $s['woocommerce_checkout']==='true' && !empty($s['woocommerce_completed_email']) && $s['woocommerce_completed_email']==='true'){
-                error_log('convert wc order completed email to trigger..');
                 $t = array();
 
                 // Grab the body, and extract the `loop open`, `loop` and `loop close` parts
@@ -1510,13 +1517,10 @@ class SUPER_Common {
                 $loop_open = '<table cellpadding="5">';
                 $loop = $s['woocommerce_completed_email_loop'];
                 $loop_close = '</table>';
-                error_log('body:' . $body);
                 $body = str_replace(array("\r", "\n"), '<br />', $body);
-                error_log('body after:' . $body);
                 preg_match($regex, $body, $m);
                 // Print the entire match result
                 $body = '';
-                error_log('count (WC):' . count($m));
                 if(count($m)===4 || count($m)===7){
                     // Only if {loop_fields} tag was found
                     if(count($m)===4){
@@ -1824,33 +1828,31 @@ class SUPER_Common {
                 }
             }
             $s['_woocommerce']['user_role'] = $user_role;
-
-            // tmp disabled :) unset($s['woocommerce_checkout']);
-            // tmp disabled :) unset($s['woocommerce_populate_checkout_fields']);
-            // tmp disabled :) unset($s['woocommerce_checkout_fields']);
-            // tmp disabled :) unset($s['woocommerce_checkout_fields_skip_empty']);
-            // tmp disabled :) unset($s['woocommerce_completed_email']);
-            // tmp disabled :) unset($s['woocommerce_completed_to']);
-            // tmp disabled :) unset($s['woocommerce_completed_from_type']);
-            // tmp disabled :) unset($s['woocommerce_completed_from']);
-            // tmp disabled :) unset($s['woocommerce_completed_from_name']);
-            // tmp disabled :) unset($s['woocommerce_completed_header_reply_enabled']);
-            // tmp disabled :) unset($s['woocommerce_completed_header_reply']);
-            // tmp disabled :) unset($s['woocommerce_completed_header_reply_name']);
-            // tmp disabled :) unset($s['woocommerce_completed_subject']);
-            // tmp disabled :) unset($s['woocommerce_completed_body']);
-            // tmp disabled :) unset($s['woocommerce_completed_body_nl2br']);
-            // tmp disabled :) unset($s['woocommerce_completed_email_loop']);
-            // tmp disabled :) unset($s['woocommerce_completed_exclude_empty']);
-            // tmp disabled :) unset($s['woocommerce_completed_rtl']);
-            // tmp disabled :) unset($s['woocommerce_completed_header_cc']);
-            // tmp disabled :) unset($s['woocommerce_completed_header_bcc']);
-            // tmp disabled :) unset($s['woocommerce_completed_header_additional']);
-            // tmp disabled :) unset($s['woocommerce_completed_attachments']);
-            // tmp disabled :) unset($s['woocommerce_post_status']);
-            // tmp disabled :) unset($s['woocommerce_signup_status']);
+            unset($s['woocommerce_checkout']);
+            unset($s['woocommerce_populate_checkout_fields']);
+            unset($s['woocommerce_checkout_fields']);
+            unset($s['woocommerce_checkout_fields_skip_empty']);
+            unset($s['woocommerce_completed_email']);
+            unset($s['woocommerce_completed_to']);
+            unset($s['woocommerce_completed_from_type']);
+            unset($s['woocommerce_completed_from']);
+            unset($s['woocommerce_completed_from_name']);
+            unset($s['woocommerce_completed_header_reply_enabled']);
+            unset($s['woocommerce_completed_header_reply']);
+            unset($s['woocommerce_completed_header_reply_name']);
+            unset($s['woocommerce_completed_subject']);
+            unset($s['woocommerce_completed_body']);
+            unset($s['woocommerce_completed_body_nl2br']);
+            unset($s['woocommerce_completed_email_loop']);
+            unset($s['woocommerce_completed_exclude_empty']);
+            unset($s['woocommerce_completed_rtl']);
+            unset($s['woocommerce_completed_header_cc']);
+            unset($s['woocommerce_completed_header_bcc']);
+            unset($s['woocommerce_completed_header_additional']);
+            unset($s['woocommerce_completed_attachments']);
+            unset($s['woocommerce_post_status']);
+            unset($s['woocommerce_signup_status']);
             unset($s['woocommerce_completed_user_role']);
-            //error_log($s['woocommerce_completed_user_role']);
         }
         return apply_filters( 'super_form_settings_filter', $s, array( 'id'=>$form_id ) );
     }

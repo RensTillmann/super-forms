@@ -1643,7 +1643,6 @@
         if(remove===true) tinymce.remove(selector);
         tinymce.init({
             selector: selector, 
-
             setup: function(editor){
                 editor.on('BeforeGetContent', function(e) {
                     // Perform tasks after setting the content
@@ -1660,6 +1659,9 @@
                 editor.on('BeforeSetContent', function(e) {
                     // Perform tasks after setting the content
                     debugger;
+                    // Replace non-breaking spaces with regular spaces
+                    //e.content = e.content.replace(/\u00A0/g, ' ');
+                    e.content = e.content.replace(/\r?\n/g, '<br />');
                 });
                 editor.on('SetContent', function(e) {
                     // Perform tasks after setting the content
@@ -1674,9 +1676,6 @@
                     debugger;
                 });
                 editor.on('SaveContent', function(e) {
-                    debugger;
-                });
-                editor.on('BeforeSetContent', function (e) {
                     debugger;
                 });
                 editor.on('KeyUp', function(e) {
@@ -1706,6 +1705,14 @@
 
         SUPER.ui.init();
         SUPER.ui.showHideSubsettings();
+        $(document).on('click', '.sfui-setting .super-reset-default-value, .sfui-setting .super-reset-last-value', function(){
+            // If parent is settings tab
+            var value = this.dataset.value;
+            var input = this.parentNode.closest('.sfui-setting').querySelector('[name]');
+            input.value = value;
+            SUPER.ui.updateSettings(null, input)
+            return;
+        });
         SUPER.init_docs();
 
         $('body.wp-admin').addClass('folded');
