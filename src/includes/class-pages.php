@@ -669,21 +669,24 @@ class SUPER_Pages {
                                                                         'title' => esc_html__( 'To', 'super-forms' ),
                                                                         'subline' => esc_html__( 'Where the E-mail will be delivered to e.g. {email}', 'super-forms' ),
                                                                         'type' => 'text',
-                                                                        'default' => '',
+                                                                        'default' => '{email}',
+                                                                        'reset' => true
                                                                     ),
                                                                     array(
                                                                         'name' => 'from_email',
                                                                         'title' => esc_html__( 'From email', 'super-forms' ),
                                                                         'subline' => sprintf( esc_html__( 'Your company E-mail address e.g. info%s', 'super-forms' ), '<strong style="color:red;">@' . str_replace('www.', '', $_SERVER["SERVER_NAME"]) . '</strong>' ),
                                                                         'type' => 'text',
-                                                                        'default' => '',
+                                                                        'default' => 'no-reply@'.str_replace('www.', '', $_SERVER["SERVER_NAME"]),
+                                                                        'reset' => true
                                                                     ),
                                                                     array(
                                                                         'name' => 'from_name',
                                                                         'title' => esc_html__( 'From name', 'super-forms' ),
                                                                         'subline' => esc_html__( 'Your company name e.g. Starbucks', 'super-forms' ),
                                                                         'type' => 'text',
-                                                                        'default' => '',
+                                                                        'default' => '{option_blogname}',
+                                                                        'reset' => true
                                                                     ),
                                                                     array(
                                                                         'wrap' => false,
@@ -734,15 +737,16 @@ class SUPER_Pages {
                                                                     array(
                                                                         'name' => 'subject',
                                                                         'type' => 'text',
-                                                                        'default' => '',
+                                                                        'default' => esc_html__( 'New question', 'super-forms' ),
                                                                         'title' => esc_html__( 'Subject', 'super-forms' ),
+                                                                        'reset' => true
                                                                     ),
                                                                     array(
                                                                         'name' => 'body',
                                                                         'type' => 'textarea',
                                                                         'tinymce' => true,
-                                                                        'default' => '',
-                                                                        'title' => esc_html__( 'Body', 'super-forms' ),
+                                                                        'default' => sprintf( esc_html__( "The following information has been send by the submitter:\n\n%s\n\nBest regards, %s", 'super-forms' ), '{loop_fields}', '{option_blogname}' ),
+                                                                        'title' => esc_html__( 'Body', 'super-forms' )
                                                                     ),
                                                                     array(
                                                                         'name' => 'attachments',
@@ -763,21 +767,24 @@ class SUPER_Pages {
                                                                         'type' => 'textarea',
                                                                         'default' => '<table cellpadding="5">',
                                                                         'title' => esc_html__( 'Loop start HTML', 'super-forms' ),
-                                                                        'subline' => esc_html__( 'If your loop is a table, this should be the table opening tag', 'super-forms' )
+                                                                        'subline' => esc_html__( 'If your loop is a table, this should be the table opening tag', 'super-forms' ),                                                                         
+                                                                        'reset' => true
                                                                     ),
                                                                     array(
                                                                         'name' => 'loop',
                                                                         'type' => 'textarea',
-                                                                        'default' => '',
+                                                                        'default' => '<tr><th valign="top" align="right">{loop_label}</th><td>{loop_value}</td></tr>',
                                                                         'title' => esc_html__( 'Loop content', 'super-forms' ),
-                                                                        'subline' => esc_html__( 'The {loop_fields} tag will be replaced with this content. Use {loop_label} and {loop_value} to retrieve the field labels and their values', 'super-forms' )
+                                                                        'subline' => esc_html__( 'The {loop_fields} tag will be replaced with this content. Use {loop_label} and {loop_value} to retrieve the field labels and their values', 'super-forms' ),
+                                                                        'reset' => true
                                                                     ),
                                                                     array(
                                                                         'name' => 'loop_close',
                                                                         'type' => 'textarea',
                                                                         'default' => '</table>',
                                                                         'title' => esc_html__( 'Loop end HTML', 'super-forms' ),
-                                                                        'subline' => esc_html__( 'If your loop is a table, this should be the table closing tag', 'super-forms' )
+                                                                        'subline' => esc_html__( 'If your loop is a table, this should be the table closing tag', 'super-forms' ),
+                                                                        'reset' => true
                                                                     ),
                                                                     array(
                                                                         'name' => 'exclude_empty',
@@ -792,7 +799,6 @@ class SUPER_Pages {
                                                                         'group' => true, // sfui-setting-group
                                                                         'group_name' => 'exclude',
                                                                         'vertical' => true, // sfui-vertical
-                                                                        'filter' => '',
                                                                         'nodes' => array(
                                                                             array(
                                                                                 'name' => 'enabled',
