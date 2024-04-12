@@ -49,12 +49,13 @@ class SUPER_Triggers {
     }
 
     public static function send_email($x){
+        error_log('trigger function: send_email() was fired');
         extract($x);
         extract($form_data);
         // Check if we need to grab the settings
         if(!isset($settings)) $settings = SUPER_Common::get_form_settings($form_id);
         // Check if this trigger action needs to be scheduled
-        $options = $action['email'];
+        $options = $action['data'];
         $actionName = $action['action'];
         if($options['schedule']['enabled']==='true'){
             $schedules = $options['schedule']['schedules'];
@@ -105,7 +106,7 @@ class SUPER_Triggers {
                 }
                 // Insert reminder into database
                 // Make sure to disabled the schedule so that when the action is called on the scheduled date, it won't re-create a new one and instead actually execute the action
-                $action['email']['schedule']['enabled'] = 'false';
+                $action['data']['schedule']['enabled'] = 'false';
                 $post = array(
                     'post_title' => $eventName.'->'.$actionName,
                     'post_content' => maybe_serialize($action),
@@ -144,7 +145,7 @@ class SUPER_Triggers {
             return true;
         }
         $loops = self::retrieve_email_loop_html($data, $settings, $options['loop']);
-        $email_loop = $loops['email_loop'];
+        $email_loop = $options['loop_open'].$loops['email_loop'].$options['loop_close'];
         $attachments = $loops['attachments'];
         $string_attachments = $loops['string_attachments'];
         $email_body = $options['body'];

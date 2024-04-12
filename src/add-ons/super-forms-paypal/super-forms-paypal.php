@@ -1910,7 +1910,6 @@ if( !class_exists('SUPER_PayPal') ) :
 		 *  @since      1.0.0
 		 */
 		public static function before_email_success_msg($atts) {
-
 			$settings = $atts['settings'];
 			if (isset($atts['data'])) {
 				$data = $atts['data'];
