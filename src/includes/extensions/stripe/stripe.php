@@ -819,7 +819,7 @@ if(!class_exists('SUPER_Stripe')) :
                     'content' => '<strong>'.esc_html__('Tip', 'super-forms').':</strong> ' . sprintf( esc_html__( 'You can use field {tags} to configure the below settings based on user input.', 'super-forms' ), '<a target="_blank" href="' . esc_url(admin_url()) . 'admin.php?page=super_settings#stripe-checkout">', '</a>' )
                 ),
                 array(
-                    'name' => 'enable',
+                    'name' => 'enabled',
                     'title' => esc_html__( 'Enable Stripe checkout for this form', 'super-forms' ),
                     'type' => 'checkbox',
                     'default' => '',

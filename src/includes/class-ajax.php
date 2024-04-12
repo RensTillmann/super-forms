@@ -1883,7 +1883,9 @@ class SUPER_Ajax {
             $elements = $v['elements'];
             if(!is_array($elements)) $elements = json_decode( $elements, true );
             add_post_meta( $form_id, '_super_elements', $elements );
-            if(isset($v['triggers'])) SUPER_Common::save_form_triggers($v['triggers'], $form_id);
+            if(isset($v['triggers'])) {
+                SUPER_Common::save_form_triggers($v['triggers'], $form_id);
+            }
             if(isset($v['translations'])) add_post_meta( $form_id, '_super_translations', $v['translations'] );
             if(isset($v['secrets'])) add_post_meta( $form_id, '_super_local_secrets', $v['secrets'] );
         }
@@ -2141,6 +2143,7 @@ class SUPER_Ajax {
         $_super_elements = (isset($_POST['formElements']) ? wp_unslash($_POST['formElements']) : '');
         $_super_form_settings = (isset($_POST['formSettings']) ? wp_unslash($_POST['formSettings']) : '');
         $_super_triggers = (isset($_POST['triggerSettings']) ? wp_unslash($_POST['triggerSettings']) : '');
+        update_post_meta( $form_id, '_super_trigger-'.$form_id, 'ACTION :)' );
         $_super_translations = (isset($_POST['translationSettings']) ? wp_unslash($_POST['translationSettings']) : '');
         if($action==='super_save_form'){
             // Decode JSON string
@@ -2254,7 +2257,9 @@ class SUPER_Ajax {
             if($action==='super_import_single_form'){
                 if(!empty($settings)) update_post_meta( $form_id, '_super_form_settings', $settings );
                 if(!empty($elements)) update_post_meta( $form_id, '_super_elements', $elements );
-                if(!empty($triggers)) SUPER_Common::save_form_triggers($triggers, $form_id);
+                if(!empty($triggers)) {
+                    SUPER_Common::save_form_triggers($triggers, $form_id);
+                }
                 if(!empty($translations)) update_post_meta( $form_id, '_super_translations', $translations );
                 if(!empty($local_secrets)) update_post_meta( $form_id, '_super_local_secrets', $local_secrets );
             }
@@ -2867,9 +2872,7 @@ class SUPER_Ajax {
         );
     }
     public static function upload_files() {
-        error_log('upload_files()');
         $atts = self::submit_form_checks();
-        error_log('upload_files(2)');
         $uniqueSubmissionId = $atts['uniqueSubmissionId'];
         $form_id = $atts['form_id'];
         $entry_id = absint($atts['entry_id']);
@@ -2895,9 +2898,7 @@ class SUPER_Ajax {
         // Allow developers to filter mime types
         $mime_types = apply_filters('super_file_upload_mime_types_validation', $mime_types);
         $str = SUPER_Common::safe_json_encode($formEelements);
-        error_log('upload_files(3)');
         if(!empty($files)){
-            error_log('upload_files(4)');
             foreach($files['name'] as $fieldName => $fileInfo){
                 $re = '/"data":{"name":"'.$fieldName.'".*?extensions":"(.*?)"/m';
                 preg_match($re, $str, $matches, PREG_OFFSET_CAPTURE, 0);
@@ -3050,12 +3051,10 @@ class SUPER_Ajax {
                 }
             }
         }
-        error_log('upload_files(5)');
         $response = array(
             'files' => $data,
             'sf_nonce' => SUPER_Common::generate_nonce()
         );
-        error_log('upload_files(6)');
         $x = array(
             'uniqueSubmissionId'=>$uniqueSubmissionId,
             'data'=>$odata,
@@ -3067,9 +3066,7 @@ class SUPER_Ajax {
             'response_data'=>$response_data, 
             'post'=>$_POST
         );
-        error_log('upload_files(7)');
         SUPER_Common::triggerEvent('sf.after.files.uploaded', $x);
-        error_log('upload_files(8)');
         echo SUPER_Common::safe_json_encode($response);
         die();
     }
@@ -3198,7 +3195,6 @@ class SUPER_Ajax {
 
         // @since 4.9.5
         $data = apply_filters( 'super_after_processing_files_data_filter', $data, array( 'post'=>$_POST, 'settings'=>$settings ) );        
-
         // Store files, so we can delete files when user clicks the `cancel` button
         $files = array();
         foreach($data as $k => $v){

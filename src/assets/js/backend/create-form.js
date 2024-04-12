@@ -141,8 +141,6 @@
         },
         // Show/Hide sub settings
         showHideSubsettings: function(el){
-            console.log('test');
-            console.log('showHideSubsettings()');
             var i,
                 nodes,
                 filter,
@@ -277,26 +275,58 @@
         },
         // Update form settings
         updateSettings: function(e, el){
-            console.log('updateSettings()');
             SUPER.ui.showHideSubsettings(el);
-            // Update form settings
-            SUPER.update_form_settings(true);
+            if(el.closest('.super-tab-triggers')){
+                var i18n = document.querySelector('.super-create-form').dataset.i18n;
+                var i18n_data = null;
+                if(i18n && i18n!=='' && el.closest('.sfui-i18n')){
+                    // Translating...
+                    // Only update the translation settings based on the input value
+                    var p = el.closest('[data-g="data"]');
+                    var i18n_value = p.nextElementSibling.querySelector('[name="i18n"]').value.trim();
+                    if(i18n_value===''){
+                        var i18n_data = {};
+                        i18n_data[i18n] = {};
+                    }else{
+                        try{
+                            var i18n_data = JSON.parse(i18n_value);
+                        }
+                        catch(e){
+                            console.error(e);
+                            var i18n_data = {};
+                            i18n_data[i18n] = {};
+                            p.nextElementSibling.querySelector('[name="i18n"]').classList.add('sfui-red');
+                        }
+                    }
+                    if(i18n_data[i18n]){
+                        // If a translated version exists
+                        if(el.tagName==='TEXTAREA' && tinymce.get(el.id)){
+                            i18n_data[i18n][el.name] = tinymce.get(el.id).getContent();
+                        }else{
+                            i18n_data[i18n][el.name] = el.value;
+                        }
+                        p.nextElementSibling.querySelector('[name="i18n"]').value = JSON.stringify(i18n_data);
+                    }
+                }else{
+                    // Update trigger settings
+                    SUPER.update_trigger_settings(true);
+                }
+            }else{
+                // Update form settings
+                SUPER.update_form_settings(true);
+            }
         }
     };
     SUPER.update_form_elements = function(string){
-        console.log('update_form_elements()');
         document.querySelector('.super-raw-code-form-elements textarea').value = SUPER.get_form_elements(string);
     };
     SUPER.update_form_settings = function(string){
-        console.log('update_form_settings()');
         document.querySelector('.super-raw-code-form-settings textarea').value = SUPER.get_form_settings(string);
     };
     SUPER.update_trigger_settings = function(string){
-        console.log('update_trigger_settings()');
         document.querySelector('.super-raw-code-trigger-settings textarea').value = SUPER.get_trigger_settings(string);
     };
     SUPER.update_translation_settings = function(string){
-        console.log('update_translation_settings()');
         document.querySelector('.super-raw-code-translation-settings textarea').value = SUPER.get_translation_settings(string);
     };
     SUPER.formatUniqueFieldName = function(value){
@@ -318,7 +348,6 @@
         return $elements;
     };
     SUPER.get_form_settings = function(string){
-        console.log('get_form_settings()');
         if(typeof string === 'undefined') string = false;
         var $settings = {};
         var includeGlobalValues = false;
@@ -356,7 +385,6 @@
         // no longer used, we grab triggers specifically $settings = SUPER.get_tab_settings($settings, 'triggers');
         // WooCommerce settings
         $settings = SUPER.get_tab_settings($settings, 'woocommerce');
-        console.log($settings['_woocommerce']['checkout']);
         // PDF settings
         $settings = SUPER.get_tab_settings($settings, 'pdf');
         // Listing settings
@@ -462,22 +490,15 @@
         }
     };
     SUPER.get_tab_settings = function(settings, slug, tab, data){
-        var translating = false;
-        var $i18n = '';
-        if(slug==='triggers'){
-            $i18n = $('.super-preview-elements').attr('data-i18n');
-            if(typeof $i18n!=='undefined' && $i18n!==''){
-                translating = true;
-                debugger;
-            }
+        var nodes, i, translating = false, i18n_data = null;
+        var i18n = document.querySelector('.super-create-form').dataset.i18n;
+        if(i18n && i18n!=='' && slug==='triggers'){
+            // Translating...
+            translating = true;
         }
         var returnObj = false;
         if(typeof data === 'undefined') {
-            if(translating){
-                debugger;
-            }else{
-                data = {};
-            }
+            data = {};
         }else{
             returnObj = true;
         }
@@ -487,12 +508,48 @@
         if(!tab) {
             return settings;
         }
-        // First grab all settings that are not inside a repeater element
-        var i, k, group, nodes = tab.querySelectorAll('[data-g], [data-r], [name]');
-        for(i=0; i<nodes.length; i++){
-            if(slug==='triggers' && translating){
-                debugger;
+        if(translating){
+            // Remember the original value for translatable settings
+            nodes = tab.querySelectorAll('.sfui-i18n [name]');
+            for(i=0; i<nodes.length; i++){
+                // Skip if already exists
+                if(nodes[i].nextElementSibling && nodes[i].nextElementSibling.className==='sfui-original-i18n-value') continue;
+                if(nodes[i].type==='text'){
+                    var field = document.createElement('input');
+                    field.type = 'hidden';
+                    field.value = nodes[i].value;
+                    field.className = 'sfui-original-i18n-value';
+                    field.style.display = 'none';
+                }
+                if(nodes[i].type==='textarea'){
+                    var field = document.createElement('textarea');
+                    field.value = nodes[i].value;
+                    field.className = 'sfui-original-i18n-value';
+                    field.style.display = 'none';
+                }
+                nodes[i].parentNode.insertBefore(field, nodes[i].nextSibling);
             }
+        }else{
+            // Reset remembered original value for translatable settings
+            nodes = tab.querySelectorAll('.sfui-i18n [name]');
+            for(i=0; i<nodes.length; i++){
+                // Delete if exists 
+                if(nodes[i].nextElementSibling && nodes[i].nextElementSibling.className==='sfui-original-i18n-value') {
+                    // Set value to this again
+                    if(nodes[i].tagName==='TEXTAREA' && tinymce.get(nodes[i].id)){
+                        tinymce.get(nodes[i].id).setContent(nodes[i].nextElementSibling.value);
+                    }else{
+                        nodes[i].value = nodes[i].nextElementSibling.value;
+                    }
+                    nodes[i].nextElementSibling.remove();
+                    continue;
+                }
+            }
+        }
+
+        // First grab all settings that are not inside a repeater element
+        var i, k, nodes = tab.querySelectorAll('[data-g], [data-r], [name]');
+        for(i=0; i<nodes.length; i++){
             if(nodes[i].classList.contains('sf-processed')){
                 continue;
             }
@@ -515,37 +572,61 @@
                 data[k] = SUPER.get_tab_settings(settings, slug, nodes[i], data[k]);
                 continue;
             }
-            // tmp group = nodes[i].parentNode.closest('[data-g]');
-            // tmp if(group && tab!==group){
-            // tmp     // Is group item
-            // tmp     continue;
-            // tmp }
             if(nodes[i].name){
                 // is field
-                var value = nodes[i].value;
-                var type = nodes[i].type;
-                k = nodes[i].name.split('.').pop();
-                if(type==='checkbox') value = nodes[i].checked;
-                if(type==='radio') value = (tab.querySelector('[name="'+nodes[i].name+'"]:checked') ? tab.querySelector('[name="'+nodes[i].name+'"]:checked').value : '');
-                if(value===true) value = "true"; 
-                if(value===false) value = "false"; 
-                if(nodes[i].tagName==='TEXTAREA' && tinymce.get(nodes[i].id)){
-                    value = tinymce.get(nodes[i].id).getContent();
-                }
-                if(typeof $i18n!=='undefined' && $i18n!==''){
-                    debugger;
-                    if(!data['i18n']) data['i18n'] = {};
-                    if(!data['i18n'][$i18n]) data['i18n'][$i18n] = {};
-                    if(!data['i18n'][$i18n][k]) data['i18n'][$i18n][k] = value;
+                // first check if we are in translation mode
+                if(translating && nodes[i].closest('.sfui-setting').classList.contains('sfui-i18n')){
+                    // Try to grab existing translated string
+                    if(i18n_data===null){
+                        var p = nodes[i].closest('[data-g="data"]');
+                        var i18n_value = p.nextElementSibling.querySelector('[name="i18n"]').value.trim();
+                        p.nextElementSibling.querySelector('[name="i18n"]').classList.remove('sfui-red');
+                        if(i18n_value===''){
+                            var i18n_data = {};
+                            i18n_data[i18n] = {};
+                        }else{
+                            try{
+                                var i18n_data = JSON.parse(i18n_value);
+                            }
+                            catch(e){
+                                console.error(e);
+                                var i18n_data = {};
+                                i18n_data[i18n] = {};
+                                p.nextElementSibling.querySelector('[name="i18n"]').classList.add('sfui-red');
+                            }
+                        }
+                    }
+                    if(i18n_data[i18n] && i18n_data[i18n][nodes[i].name]){
+                        // If a translated version exists
+                        var value = nodes[i].value;
+                        k = nodes[i].name.split('.').pop();
+                        if(!data[k]){
+                            if(nodes[i].tagName==='TEXTAREA' && tinymce.get(nodes[i].id)){
+                                data[k] = nodes[i].nextElementSibling.value;
+                                tinymce.get(nodes[i].id).setContent(i18n_data[i18n][nodes[i].name]);
+                            }else{
+                                data[k] = nodes[i].nextElementSibling.value;
+                                nodes[i].value = i18n_data[i18n][nodes[i].name];
+                            }
+                        }
+                    }
                 }else{
+                    var value = nodes[i].value;
+                    var type = nodes[i].type;
+                    k = nodes[i].name.split('.').pop();
+                    if(type==='checkbox') value = nodes[i].checked;
+                    if(type==='radio') value = (tab.querySelector('[name="'+nodes[i].name+'"]:checked') ? tab.querySelector('[name="'+nodes[i].name+'"]:checked').value : '');
+                    if(value===true) value = "true"; 
+                    if(value===false) value = "false"; 
+                    if(nodes[i].tagName==='TEXTAREA' && tinymce.get(nodes[i].id)){
+                        value = tinymce.get(nodes[i].id).getContent();
+                    }
                     if(!data[k]) data[k] = value;
                 }
                 continue;
             }
         }
-        if(returnObj){
-            return data;
-        }
+        if(returnObj) return data;
 
         // Remove processed class
         tab = document.querySelector('.super-tab-content.super-tab-'+slug);
@@ -553,69 +634,9 @@
         for(i=0; i<nodes.length; i++){
             nodes[i].classList.remove('sf-processed');
         }
-
         // Return settings
         settings['_'+slug] = data;
         return settings;
-
-        // tmp var i, x, nodes, xnodes, p, sub, repeater, value, name, tab = document.querySelector('.super-tab-content.super-tab-'+slug), data = {};
-        // tmp if(tab){
-        // tmp     // First grab all settings that are not inside a repeater element
-        // tmp     nodes = tab.querySelectorAll('.sfui-setting > label > [name], .sfui-inline > label > [name]');
-        // tmp     for(i=0; i<nodes.length; i++){
-        // tmp         repeater = nodes[i].closest('.sfui-repeater-item');
-        // tmp         if(repeater) continue; // skip if inside repater element
-        // tmp         // is direct inner field, must add it to the data
-        // tmp         value = nodes[i].value;
-        // tmp         if(nodes[i].type==='checkbox') value = nodes[i].checked;
-        // tmp         if(nodes[i].type==='radio') value = (tab.querySelector('[name="'+nodes[i].name+'"]:checked') ? tab.querySelector('[name="'+nodes[i].name+'"]:checked').value : '');
-        // tmp         if(value===true) value = "true"; 
-        // tmp         if(value===false) value = "false"; 
-        // tmp         if(nodes[i].tagName==='TEXTAREA' && tinymce.get(nodes[i].id)){
-        // tmp             value = tinymce.get(nodes[i].id).getContent();
-        // tmp         }
-        // tmp         name = nodes[i].name;
-        // tmp         data = SUPER.get_obj_value_by_key(data, name, value);
-
-        // tmp         p = nodes[i].closest('.sfui-setting');
-        // tmp         if(p){
-        // tmp             sub = p.querySelector('.sfui-sub-settings, .sfui-setting');
-        // tmp             if(sub){
-        // tmp                 xnodes = sub.querySelectorAll(':scope > .sfui-repeater');
-        // tmp                 for(x=0; x<xnodes.length; x++){
-        // tmp                     data = SUPER.processRepeaterItems({tab: tab, node: xnodes[x], depth: 0, data: data});
-        // tmp                 }
-        // tmp             }
-        // tmp         }
-        // tmp     }
-        // tmp     settings['_'+slug] = data;
-
-        // tmp     // Process repeater items
-        // tmp     if(slug==='triggers'){
-        // tmp         nodes = tab.querySelectorAll('.sfui-setting > .sfui-repeater');
-        // tmp         for(x=0; x<nodes.length; x++){
-        // tmp             data = SUPER.processRepeaterItems({tab: tab, node: nodes[x], depth: 0, data: data});
-        // tmp         }
-        // tmp     }
-        // tmp     // Process repeater items
-        // tmp     if(slug==='stripe'){
-        // tmp         nodes = tab.querySelectorAll('.sfui-repeater');
-        // tmp         for(x=0; x<nodes.length; x++){
-        // tmp             data = SUPER.processRepeaterItems({tab: tab, node: nodes[x], depth: 0, data: data});
-        // tmp         }
-        // tmp     }
-        // tmp     // Process repeater items
-        // tmp     if(slug==='woocommerce'){
-        // tmp         nodes = tab.querySelectorAll('.sfui-repeater');
-        // tmp         for(x=0; x<nodes.length; x++){
-        // tmp             if(nodes[x].parentNode.closest('.sfui-repeater')){
-        // tmp                 // If inside repater, skip it
-        // tmp                 continue;
-        // tmp             }
-        // tmp             data = SUPER.processRepeaterItems({tab: tab, node: nodes[x], depth: 0, data: data});
-        // tmp         }
-        // tmp     }
-        // tmp }
     }
     SUPER.get_trigger_settings = function(string){
         if(typeof string === 'undefined') string = false;
@@ -1644,43 +1665,15 @@
         tinymce.init({
             selector: selector, 
             setup: function(editor){
-                editor.on('BeforeGetContent', function(e) {
-                    // Perform tasks after setting the content
-                    debugger;
-                });
-                editor.on('GetContent', function(e) {
-                    // Perform tasks after setting the content
-                    debugger;
-                });
-                editor.on('LoadContent', function(e) {
-                    // Perform tasks after setting the content
-                    debugger;
-                });
                 editor.on('BeforeSetContent', function(e) {
-                    // Perform tasks after setting the content
-                    debugger;
                     // Replace non-breaking spaces with regular spaces
-                    //e.content = e.content.replace(/\u00A0/g, ' ');
                     e.content = e.content.replace(/\r?\n/g, '<br />');
                 });
-                editor.on('SetContent', function(e) {
-                    // Perform tasks after setting the content
-                    debugger;
-                });
-                editor.on('PreProcess', function(e) {
-                    // Perform tasks after processing the content
-                    debugger;
-                });
-                editor.on('PostProcess', function(e) {
-                    // Perform tasks after processing the content
-                    debugger;
-                });
-                editor.on('SaveContent', function(e) {
-                    debugger;
-                });
-                editor.on('KeyUp', function(e) {
-                    //debugger;
-                    //console.log('Key up:', e.key);
+                editor.on('Change', function(e) {
+                    // Required to store trigger translations properly
+                    var input = editor.getElement();
+                    input.value = editor.getContent()
+                    SUPER.ui.updateSettings(null, input)
                 });
             },
             // Other initialization options...
@@ -1701,10 +1694,45 @@
         });
     };
 
-    jQuery(document).ready(function ($) {
+    SUPER.ui.positionResetBtns = function(p, input, btn){
+        var parentRect = p.getBoundingClientRect();
+        var inputRect = input.getBoundingClientRect();
+        var inputTopRelativeToParent = inputRect.top-parentRect.top;
+        var btnRect = btn.getBoundingClientRect();
+        btn.style.position = 'absolute';
+        if(btnRect.height===0) btnRect.height = 19;
+        var btnTop =  inputTopRelativeToParent+((inputRect.height-btnRect.height)/2);
+        btn.style.top = btnTop+'px';
+        btn.style.right = (parseFloat(getComputedStyle(p).paddingRight)+5)+'px';
+    };
 
+    jQuery(document).ready(function ($) {
         SUPER.ui.init();
         SUPER.ui.showHideSubsettings();
+        var resetBtns = document.querySelectorAll('.sfui-setting .super-reset-settings-buttons');
+        resetBtns.forEach(function(btn){
+            var p = btn.closest('.sfui-setting'), input = p.querySelector('[name]');
+            SUPER.ui.positionResetBtns(p, input, btn);
+        });
+        $(document).on('mouseenter', '.sfui-setting [name]', function(e){
+            if(e.target!==this) return;
+            // This condition ensures that the event target is the topmost `.sfui-setting` element
+            var p = this.closest('.sfui-setting');
+            var btn = p.querySelector(':scope > .super-reset-settings-buttons');
+            if(!btn) return;
+            btn.style.display = 'flex';
+            SUPER.ui.positionResetBtns(p, this, btn);
+        });
+        $(document).on('mouseout', '.sfui-setting [name]', function(e){
+            if(e.target!==this) return;
+            if(e.relatedTarget && e.relatedTarget.classList.contains('super-reset-settings-buttons')) return;
+            if(e.relatedTarget && e.relatedTarget.parentNode.classList.contains('super-reset-settings-buttons')) return;
+            // This condition ensures that the event target is the topmost `.sfui-setting` element
+            var p = this.closest('.sfui-setting');
+            var btn = p.querySelector(':scope > .super-reset-settings-buttons');
+            if(!btn) return;
+            btn.style.display = '';
+        });
         $(document).on('click', '.sfui-setting .super-reset-default-value, .sfui-setting .super-reset-last-value', function(){
             // If parent is settings tab
             var value = this.dataset.value;

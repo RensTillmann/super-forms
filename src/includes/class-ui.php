@@ -116,7 +116,7 @@ class SUPER_UI {
                 if(isset($v['wrap']) && $v['wrap']===false){
                     // don't wrap
                 }else{
-                    echo '<div class="4 sfui-setting'.(isset($v['width_full']) ? ' sfui-width-full' : '').(isset($v['width_auto']) ? ' sfui-width-auto' : '').(isset($v['type']) ? ' sfui-type-'.$v['type'] : '').(isset($v['inline']) ? ' sfui-inline' : '').(isset($v['vertical']) ? ' sfui-vertical' : '').((isset($v['padding']) && $v['padding']===false) ? ' sfui-no-padding' : '').'"'.(isset($v['filter']) ? ' data-f="'.$v['filter'].'"' : '').'>';
+                    echo '<div class="4 sfui-setting'.(isset($v['i18n']) ? ' sfui-i18n' : '').(isset($v['width_full']) ? ' sfui-width-full' : '').(isset($v['width_auto']) ? ' sfui-width-auto' : '').(isset($v['type']) ? ' sfui-type-'.$v['type'] : '').(isset($v['inline']) ? ' sfui-inline' : '').(isset($v['vertical']) ? ' sfui-vertical' : '').((isset($v['padding']) && $v['padding']===false) ? ' sfui-no-padding' : '').'"'.(isset($v['filter']) ? ' data-f="'.$v['filter'].'"' : '').'>';
                 }
                 self::print_field($s, $v, $prefix);
                 // Reset to default setting buttons

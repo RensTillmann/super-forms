@@ -1173,12 +1173,10 @@ if( !class_exists('SUPER_WooCommerce') ) :
          *  @since      1.0.0
         */
         public static function before_email_success_msg( $atts ) {
-
             $settings = $atts['settings'];
             $wcs = null;
             if(isset($settings['_woocommerce'])) $wcs = $settings['_woocommerce'];
             $form_id = absint($atts['form_id']);
-
             // If WC checkout is enabled but WC is not installed and activated
             if( (isset($settings['_woocommerce'])) && ($settings['_woocommerce']['checkout']=='true') ) {
                 global $woocommerce;

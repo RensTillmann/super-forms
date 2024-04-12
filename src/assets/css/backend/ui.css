@@ -58,6 +58,8 @@
   align-items: start;
   flex-wrap: wrap;
   width: 100%;
+  position: relative;
+  row-gap: 5px;
 }
 .sfui-repeater-item {
   border: 1px solid gainsboro;
@@ -268,6 +270,9 @@
 }
 .sfui-setting-group.sfui-vertical {
   flex-direction: column;
+}
+.sfui-setting-group.sfui-vertical > :last-child {
+  margin-bottom:0px;
 }
 .sfui-toggle {
   border: 1px solid #d0d0d0;
@@ -514,12 +519,17 @@
 .sfui-toggle {
   margin-bottom: 10px;
 }
-.sfui-setting {
-  row-gap: 5px;
-}
 .sfui-setting.sfui-vertical {
   row-gap: 10px;
 }
 .sfui-setting-group.sfui-vertical .sfui-sub-settings {
   margin-left: 6px;
+}
+.sfui-setting .super-reset-settings-buttons {
+  display: none;
+  position:absolute;
+  top:0px;
+  right:0px;
+  flex-direction: row;
+  z-index: 1;
 }

@@ -128,7 +128,6 @@ class SUPER_Common {
         // First delete all local triggers for the current form
         global $wpdb;
         if($delete===true){
-            error_log('delete local and global triggers()');
             $wpdb->query("DELETE FROM $wpdb->postmeta WHERE post_id = $form_id AND meta_key LIKE '_super_trigger-%'");
             // Also delete all global triggers
             $wpdb->query("DELETE FROM $wpdb->postmeta WHERE post_id = 0 AND meta_key LIKE '_super_global_trigger-%'");
@@ -141,7 +140,7 @@ class SUPER_Common {
                 if(empty($trigger['event'])) continue; 
                 // Only current form
                 if(empty($trigger['listen_to'])){
-                    update_post_meta( $form_id, '_super_trigger-'.$triggerName, $trigger );
+                    add_post_meta( $form_id, '_super_trigger-'.$triggerName, $trigger );
                     continue;
                 }
                 // Global trigger (for all forms)
@@ -646,7 +645,13 @@ class SUPER_Common {
             $html .= '<i class="fas fa-lock super-lock-global-setting" title="' . esc_html__( 'Lock all to global settings', 'super-forms' ) . '" data-value="'.esc_attr($v['g']).'"></i>';
         }else{
             $html .= '<i class="fas fa-undo-alt super-reset-default-value" title="' . esc_html__( 'Reset to default value', 'super-forms' ) . '" data-value="'.esc_attr($v['default']).'"></i>';
-            $html .= '<i class="fas fa-history super-reset-last-value" title="' . esc_html__( 'Reset to last known value', 'super-forms' ) . '" data-value="'.esc_attr($v['v']).'"></i>';
+            if($global===false){
+                if($v['v']!==''){
+                    $html .= '<i class="fas fa-history super-reset-last-value" title="' . esc_html__( 'Reset to last known value', 'super-forms' ) . '" data-value="'.esc_attr($v['v']).'"></i>';
+                }
+            }else{
+                $html .= '<i class="fas fa-history super-reset-last-value" title="' . esc_html__( 'Reset to last known value', 'super-forms' ) . '" data-value="'.esc_attr($v['v']).'"></i>';
+            }
             if($global===true){
                 $html .= '<i class="fas fa-globe super-reset-global-value" title="' . esc_html__( 'Reset to global value', 'super-forms' ) . '" data-value="'.esc_attr($v['g']).'"></i>';
                 $html .= '<i class="fas fa-lock super-lock-global-setting" title="' . esc_html__( 'Lock to global settings', 'super-forms' ) . '" data-value="'.esc_attr($v['g']).'"></i>';
@@ -1319,8 +1324,9 @@ class SUPER_Common {
 
     // Check if we conditionally checkout to WooCommerce
     public static function conditionally_wc_checkout($data, $settings){
-        $checkout = true;
         $wcs = $settings['_woocommerce'];
+        if($wcs['checkout']!=='true') return false;
+        $checkout = true;
         if(!empty($wcs['checkout_conditionally'] && $wcs['checkout_conditionally']['enabled']==='true')){
             $c = $wcs['checkout_conditionally'];
             $logic = $c['logic'];
