@@ -834,6 +834,7 @@ class SUPER_Pages {
                                                                             array('v'=>'true'), 
                                                                             array('v'=>'false')
                                                                         ),
+                                                                        'i18n' => true
                                                                     ),
                                                                     array(
                                                                         'wrap' => false,

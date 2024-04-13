@@ -50,12 +50,21 @@ class SUPER_Triggers {
 
     public static function send_email($x){
         error_log('trigger function: send_email() was fired');
+        error_log(json_encode($x));
         extract($x);
         extract($form_data);
         // Check if we need to grab the settings
         if(!isset($settings)) $settings = SUPER_Common::get_form_settings($form_id);
         // Check if this trigger action needs to be scheduled
         $options = $action['data'];
+        $i18n = (isset($form_data['post']['i18n']) ? $form_data['post']['i18n'] : '');
+        if(!empty($i18n)){
+            $translated_options = ((isset($action['i18n']) && is_array($action['i18n'])) ? $action['i18n'] : array()); // In case this is a translated version
+            if(isset($translated_options[$i18n])){
+                // Merge any options with translated options
+                $options = array_merge($options, $translated_options[$i18n]);
+            }
+        }
         $actionName = $action['action'];
         if($options['schedule']['enabled']==='true'){
             $schedules = $options['schedule']['schedules'];
@@ -132,15 +141,17 @@ class SUPER_Triggers {
                 // Save all submission data post meta for this reminder
                 unset($form_data['post']);
                 unset($form_data['settings']); // for scheduled actions we will grab the settings based on the form ID when executed
+                $form_data['post'] = array('i18n'=>$i18n); // required for scheduled actions, so we know in which language the form was submitted
                 $triggerEventParameters = array(
                     'form_id' => $form_id,
                     'eventName'  => $eventName,  // e.g. 'sf.after.submission'
                     'triggerName'  => $triggerName,  // e.g. 'E-mail reminder #2'
                     'actionName' => $actionName, // e.g. 'send_email'
                     'order' => $action['order'], // e.g. 'send_email'
-                    'form_data' => $form_data, // $form_data will hold the following data: 
+                    'form_data' => $form_data
                 );
                 add_post_meta($scheduled_trigger_action_id, '_super_scheduled_trigger_action_data', $triggerEventParameters);
+                error_log('trigger action '.$actionName.' has been scheduled for '.$scheduled_real_date);
             }
             return true;
         }

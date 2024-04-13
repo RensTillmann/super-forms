@@ -282,9 +282,10 @@
                 if(i18n && i18n!=='' && el.closest('.sfui-i18n')){
                     // Translating...
                     // Only update the translation settings based on the input value
+                    if(el.closest('.sfui-type-checkbox')) el = el.querySelector('input');
                     var p = el.closest('[data-g="data"]');
                     var i18n_value = p.nextElementSibling.querySelector('[name="i18n"]').value.trim();
-                    if(i18n_value===''){
+                    if(i18n_value==='' || i18n_value==='[]'){
                         var i18n_data = {};
                         i18n_data[i18n] = {};
                     }else{
@@ -298,15 +299,20 @@
                             p.nextElementSibling.querySelector('[name="i18n"]').classList.add('sfui-red');
                         }
                     }
-                    if(i18n_data[i18n]){
-                        // If a translated version exists
-                        if(el.tagName==='TEXTAREA' && tinymce.get(el.id)){
-                            i18n_data[i18n][el.name] = tinymce.get(el.id).getContent();
-                        }else{
-                            i18n_data[i18n][el.name] = el.value;
-                        }
-                        p.nextElementSibling.querySelector('[name="i18n"]').value = JSON.stringify(i18n_data);
+                    if(!i18n_data[i18n]) i18n_data[i18n] = {};
+                    // If a translated version exists
+                    var value = el.value;
+                    var type = el.type;
+                    //k = el.name.split('.').pop();
+                    if(type==='checkbox') value = el.checked;
+                    if(type==='radio') value = (tab.querySelector('[name="'+el.name+'"]:checked') ? tab.querySelector('[name="'+el.name+'"]:checked').value : '');
+                    if(value===true) value = "true"; 
+                    if(value===false) value = "false"; 
+                    if(el.tagName==='TEXTAREA' && tinymce.get(el.id)){
+                        value = tinymce.get(el.id).getContent();
                     }
+                    i18n_data[i18n][el.name] = value;
+                    p.nextElementSibling.querySelector('[name="i18n"]').value = JSON.stringify(i18n_data, undefined, 4);
                 }else{
                     // Update trigger settings
                     SUPER.update_trigger_settings(true);
@@ -314,6 +320,28 @@
             }else{
                 // Update form settings
                 SUPER.update_form_settings(true);
+            }
+        },
+        i18n: {
+            reset_original_value: function(){
+                var i, nodes = document.querySelectorAll('.sfui-i18n [name]');
+                for(i=0; i<nodes.length; i++){
+                    // Delete if exists 
+                    if(nodes[i].nextElementSibling && nodes[i].nextElementSibling.className==='sfui-original-i18n-value') {
+                        // Set value to this again
+                        if(nodes[i].tagName==='TEXTAREA' && tinymce.get(nodes[i].id)){
+                            tinymce.get(nodes[i].id).setContent(nodes[i].nextElementSibling.value);
+                        }else{
+                            if(nodes[i].type==='checkbox'){
+                                nodes[i].checked = (nodes[i].nextElementSibling.value==='true' ? true : false);
+                            }else{
+                                nodes[i].value = nodes[i].nextElementSibling.value;
+                            }
+                        }
+                        nodes[i].nextElementSibling.remove();
+                        continue;
+                    }
+                }
             }
         }
     };
@@ -514,16 +542,24 @@
             for(i=0; i<nodes.length; i++){
                 // Skip if already exists
                 if(nodes[i].nextElementSibling && nodes[i].nextElementSibling.className==='sfui-original-i18n-value') continue;
-                if(nodes[i].type==='text'){
-                    var field = document.createElement('input');
-                    field.type = 'hidden';
-                    field.value = nodes[i].value;
+                if(nodes[i].type==='textarea'){
+                    if(tinymce.get(nodes[i].id)) {
+                        var value = tinymce.get(nodes[i].id).getContent();
+                    }else{
+                        var value = nodes[i].value;
+                    }
+                    var field = document.createElement('textarea');
+                    field.value = value;
                     field.className = 'sfui-original-i18n-value';
                     field.style.display = 'none';
-                }
-                if(nodes[i].type==='textarea'){
-                    var field = document.createElement('textarea');
-                    field.value = nodes[i].value;
+                }else{
+                    var value = nodes[i].value;
+                    if(nodes[i].type==='checkbox'){
+                        value = nodes[i].checked ? 'true' : 'false';
+                    }
+                    var field = document.createElement('input');
+                    field.type = 'hidden';
+                    field.value = value;
                     field.className = 'sfui-original-i18n-value';
                     field.style.display = 'none';
                 }
@@ -531,19 +567,8 @@
             }
         }else{
             // Reset remembered original value for translatable settings
-            nodes = tab.querySelectorAll('.sfui-i18n [name]');
-            for(i=0; i<nodes.length; i++){
-                // Delete if exists 
-                if(nodes[i].nextElementSibling && nodes[i].nextElementSibling.className==='sfui-original-i18n-value') {
-                    // Set value to this again
-                    if(nodes[i].tagName==='TEXTAREA' && tinymce.get(nodes[i].id)){
-                        tinymce.get(nodes[i].id).setContent(nodes[i].nextElementSibling.value);
-                    }else{
-                        nodes[i].value = nodes[i].nextElementSibling.value;
-                    }
-                    nodes[i].nextElementSibling.remove();
-                    continue;
-                }
+            if(!$('.super-create-form').hasClass('super-translation-mode')){
+                SUPER.ui.i18n.reset_original_value();
             }
         }
 
@@ -606,7 +631,14 @@
                                 tinymce.get(nodes[i].id).setContent(i18n_data[i18n][nodes[i].name]);
                             }else{
                                 data[k] = nodes[i].nextElementSibling.value;
-                                nodes[i].value = i18n_data[i18n][nodes[i].name];
+                                if(nodes[i].name==='i18n'){
+                                    data[k] = JSON.parse(data[k], undefined, 4);
+                                }
+                                if(nodes[i].type==='checkbox'){
+                                    nodes[i].checked = (i18n_data[i18n][nodes[i].name]==='true' ? true : false);
+                                }else{
+                                    nodes[i].value = i18n_data[i18n][nodes[i].name];
+                                }
                             }
                         }
                     }
@@ -621,7 +653,24 @@
                     if(nodes[i].tagName==='TEXTAREA' && tinymce.get(nodes[i].id)){
                         value = tinymce.get(nodes[i].id).getContent();
                     }
-                    if(!data[k]) data[k] = value;
+                    if(!data[k]) {
+                        if(nodes[i].name==='i18n'){
+                            if(value==='' || value==='[]'){
+                                value = '{}';
+                            }else{
+                                try{
+                                    var i18n_data = JSON.parse(value);
+                                }
+                                catch(e){
+                                    console.error(e);
+                                    value = '{}';
+                                }
+                            }
+                            data[k] = JSON.parse(value, undefined, 4);
+                        }else{
+                            data[k] = value;
+                        }
+                    }
                 }
                 continue;
             }
@@ -1672,7 +1721,6 @@
                 editor.on('Change', function(e) {
                     // Required to store trigger translations properly
                     var input = editor.getElement();
-                    input.value = editor.getContent()
                     SUPER.ui.updateSettings(null, input)
                 });
             },
@@ -1726,7 +1774,7 @@
         $(document).on('mouseout', '.sfui-setting [name]', function(e){
             if(e.target!==this) return;
             if(e.relatedTarget && e.relatedTarget.classList.contains('super-reset-settings-buttons')) return;
-            if(e.relatedTarget && e.relatedTarget.parentNode.classList.contains('super-reset-settings-buttons')) return;
+            if(e.relatedTarget && e.relatedTarget.parentNode && e.relatedTarget.parentNode.classList.contains('super-reset-settings-buttons')) return;
             // This condition ensures that the event target is the topmost `.sfui-setting` element
             var p = this.closest('.sfui-setting');
             var btn = p.querySelector(':scope > .super-reset-settings-buttons');
@@ -2301,15 +2349,29 @@
             if ($delete === true) {
                 // Before removing language check if currently in translation mode for this language
                 // If this is the case we must switch back to the default language and thus the "builder" mode
+                var $row = $(this).parent(),
+                    $language = $row.find('.super-dropdown[data-name="language"] .super-active'),
+                    $flag = $('.super-default-language .super-dropdown[data-name="flag"] .super-active'),
+                    $i18n = $('.super-preview-elements').attr('data-i18n'),
+                    $tab = $('.super-tabs .super-tab-builder');
+                if($language){
+                    var $deleted_i18n = $language.attr('data-value');
+                    // Clean up trigger translations where needed
+                    var i, json='', nodes = document.querySelectorAll('.sfui-setting [name="i18n"]');
+                    for(i=0; i<nodes.length; i++){
+                        json = JSON.parse(nodes[i].value);
+                        if(json[$deleted_i18n]){
+                            delete json[$deleted_i18n];
+                        }
+                        nodes[i].value = JSON.stringify(json, undefined, 4);
+                    }
+                }
                 if ($('.super-create-form').hasClass('super-translation-mode')) {
-                    var $row = $(this).parent(),
-                        $language = $row.find('.super-dropdown[data-name="language"] .super-active'),
-                        $flag = $('.super-default-language .super-dropdown[data-name="flag"] .super-active'),
-                        $i18n = $('.super-preview-elements').attr('data-i18n'),
-                        $tab = $('.super-tabs .super-tab-builder');
                     if ($language) {
                         $language = $language.attr('data-value');
                         if ($language == $i18n) {
+                            // Reset remembered original value for translatable settings
+                            SUPER.ui.i18n.reset_original_value();
                             // Switch back to builder mode
                             $('.super-translation-mode-notice').hide();
                             $('.super-create-form').removeClass('super-translation-mode').attr('data-i18n', null);

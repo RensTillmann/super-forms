@@ -157,12 +157,12 @@ class SUPER_Common {
             }
         }
     }
-    public static function triggerEvent($eventName, $x){
+    public static function triggerEvent($eventName, $form_data){
         global $wpdb;
         error_log('triggerEvent('.$eventName.')');
         if(!class_exists('SUPER_Triggers')) require_once('class-triggers.php'); 
         $triggers = array();
-        $form_id = absint($x['form_id']);
+        $form_id = absint($form_data['form_id']);
         $triggers = self::get_form_triggers($form_id);
         usort($triggers, function($a, $b) {
             return absint($a['order']) - absint($b['order']);
@@ -187,8 +187,8 @@ class SUPER_Common {
                 if($execute===false) continue;
                 // Check if trigger function exists
                 if(method_exists('SUPER_Triggers', $av['action'])) {
-                    $x = array('eventName'=>$eventName, 'triggerName'=>$v['name'], 'action'=>$av, 'form_id'=>$form_id, 'form_data'=>$x);
-                    call_user_func(array('SUPER_Triggers', $av['action']), $x); //$eventName, $av['action'], $form_id, $x);
+                    $x = array('eventName'=>$eventName, 'triggerName'=>$v['name'], 'action'=>$av, 'form_id'=>$form_id, 'form_data'=>$form_data);
+                    call_user_func(array('SUPER_Triggers', $av['action']), $x);
                 }
             }
         }

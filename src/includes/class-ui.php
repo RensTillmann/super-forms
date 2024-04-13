@@ -285,7 +285,15 @@ class SUPER_UI {
                 if(isset($v['label'])){
                     echo '<span class="sfui-label">' . $v['label'] . '</span>';
                 }
-                echo '<textarea'.(isset($v['tinymce']) ? ' class="sfui-textarea-tinymce"' : '').' name="'.$v['name'].'"'.(isset($v['placeholder']) ? ' placeholder="'.$v['placeholder'].'"' : '').'>' . esc_textarea(wp_unslash(self::get_value($s, $name, $v))) . '</textarea>';
+                $value = self::get_value($s, $name, $v);
+                if(is_array($value)){
+                    $value = SUPER_Common::safe_json_encode($value, JSON_PRETTY_PRINT);
+                }
+                $value = wp_unslash($value);
+                $value = esc_textarea($value);
+                if($v['name']==='i18n' && $value==='[]') $value = '';
+                echo '<textarea'.(isset($v['tinymce']) ? ' class="sfui-textarea-tinymce"' : '').' name="'.$v['name'].'"'.(isset($v['placeholder']) ? ' placeholder="'.$v['placeholder'].'"' : '').'>' . $value . '</textarea>';
+                //echo '<textarea'.(isset($v['tinymce']) ? ' class="sfui-textarea-tinymce"' : '').' name="'.$v['name'].'"'.(isset($v['placeholder']) ? ' placeholder="'.$v['placeholder'].'"' : '').'>' . esc_textarea(wp_unslash(self::get_value($s, $name, $v))) . '</textarea>';
                 self::subline($v);
             echo '</label>';
         }

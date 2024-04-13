@@ -659,6 +659,7 @@ class SUPER_Ajax {
                                 if(empty($v['i18n'])) {
                                     $invisible = ' super-i18n-hidden';
                                 }
+                                if(!isset($v['type'])) $v['type'] = 'text';
                                 $settings_html .= '<div class="super-field super-field-type-'.$v['type'] . $invisible . $filter . '"' . $parent . '' . $filtervalue;
                                 $settings_html .= '>';
                                     if( isset( $v['name'] ) ) {
