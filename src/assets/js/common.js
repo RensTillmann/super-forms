@@ -2749,9 +2749,6 @@ function SUPERreCaptcha(){
 
     // @since 3.0.0 - replace variable field {tags} with actual field values
     SUPER.update_variable_fields.replace_tags = function(args){
-        if(!args.form){
-            debugger;
-        }
         if(typeof args.bwc === 'undefined') args.bwc = false;
         if(typeof args.value !== 'undefined' && args.bwc){
             // If field name is empty do nothing
@@ -9399,7 +9396,6 @@ function SUPERreCaptcha(){
         pdfPageContainer.style.top = "0px";
         // ------- for debugging only: ----
         if(args.debugger===true){
-            debugger;
             pdfPageContainer.style.zIndex = "9999999999";
             pdfPageContainer.style.left = "0px";
             pdfPageContainer.style.top = "0px";
@@ -9498,10 +9494,8 @@ function SUPERreCaptcha(){
         // We only have to loop over fields that we are going to print out
         if(!args.pdfSettings.normalizeFonts) args.pdfSettings.normalizeFonts = 'true';
         if(args.pdfSettings.normalizeFonts==='true'){
-            debugger;
             nodes = pdfPageContainer.querySelectorAll(normalizeFontStylesNodesClasses);
             for( i=0; i < nodes.length; i++ ) {
-                debugger;
                 var el = nodes[i];
                 if(el.classList.contains('super-heading-title')){
                     el = el.children[0];
@@ -10296,7 +10290,6 @@ function SUPERreCaptcha(){
         }
         // If font weight is above X
         if(parseInt(getComputedStyle(el).fontWeight)>=700){
-            debugger;
             if(super_common_i18n.fonts){
                 args._pdf.setFont('NotoSans-Bold', 'normal', 'bold');
             }else{
@@ -10368,7 +10361,6 @@ function SUPERreCaptcha(){
     }
     // PDF render native elements
     SUPER.pdf_generator_render_elements = function(args){
-        debugger;
         var selectors = `
         .super-divider,
         .super-li-marker,

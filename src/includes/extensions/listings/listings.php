@@ -1072,8 +1072,6 @@ if(!class_exists('SUPER_Listings')) :
             );
             $standardColumns = self::getStandardColumns();
             foreach($standardColumns as $sk => $sv){
-                //var_dump($sk); // title
-                //var_dump($sv);
                 ////array(5) { 
                 //    ["name"]=> string(11) "Entry title" 
                 //    ["default"]=> string(5) "Title" 

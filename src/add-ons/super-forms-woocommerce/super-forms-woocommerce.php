@@ -853,7 +853,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                     }
                 }
 
-                var_dump('@TODO WC Completed E-mail trigger');
+                //var_dump('@TODO WC Completed E-mail trigger');
                 // tmp if( !empty($form_settings['woocommerce_completed_email']) ) {
                 // tmp     $global_settings = SUPER_Common::get_global_settings();
                 // tmp     if( $form_settings!=false ) {

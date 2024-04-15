@@ -2147,7 +2147,6 @@ if(!class_exists('SUPER_Stripe')) :
                 //}
                 //$super_stripe_cus = get_user_meta( $user_id, 'super_stripe_cus', true );
             }
-            //var_dump($customer);
             $description = (isset($s['subscription_data']['description']) ? SUPER_Common::email_tags( $s['subscription_data']['description'], $data, $settings ) : '');
             $trial_period_days = (isset($s['subscription_data']['trial_period_days']) ? SUPER_Common::email_tags( $s['subscription_data']['trial_period_days'], $data, $settings ) : '');
             $payment_methods = (isset($s['payment_method_types']) ? SUPER_Common::email_tags( $s['payment_method_types'], $data, $settings ) : '');

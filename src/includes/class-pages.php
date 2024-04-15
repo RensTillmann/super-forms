@@ -1238,7 +1238,8 @@ class SUPER_Pages {
                                                     <h3 style="margin:0;padding-left: 10px;"><span><?php echo esc_html__('Stripe Details', 'super-forms' ); ?>:</span></h3>
                                                     <div class="misc-pub-section">
                                                         <?php
-                                                        var_dump($stripe_connections);
+                                                        error_log(json_encode($stripe_connections));
+                                                        //var_dump($stripe_connections);
                                                         // 'payment_intent' => $payment_intent,
                                                         // 'invoice' => $invoice,
                                                         // 'customer' => $customer,

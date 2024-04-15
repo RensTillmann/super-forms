@@ -368,32 +368,32 @@
         },
         i18n: {
             // Function to load image based on attachment ID
-            loadImageFromAttachmentID: function(file){
-                //var apiURL = super_create_form_i18n.home_url + '/wp-json/wp/v2/media/' + file.dataset.file;
-                //// Make a GET request to the WordPress REST API
-                //fetch(apiURL)
-                //    .then(response => response.json())
-                //    .then(data => {
-                //        if(data.data.status[0]!==2) {
-                //            debugger;
-                //        }
-                //        var html = '<div class="super-image">';
-                //        if(data.media_type==='image'){
-                //            html += '<img src="'+data.source_url+'" />';
-                //        }else{
-                //            html += '<img src="" />';
-                //        }
-                //        html += '</div>';
-                //        html += '<a target="_blank" href="'+data.source_url+'">' + data.slug + '</a>';
-                //        html += '<a href="#" class="super-delete">Delete</a>';
-                //        file.innerHTML = html;
-                //        //if(file.querySelector('.super-image img')) {
-                //        //    file.querySelector('.super-image img').src = imageURL;
-                //        //}
-                //    })
-                //    .catch(error => {
-                //        console.error('Error loading image:', error);
-                //    });
+            reload_attachments: function(node){
+                var fileIDs = node.value.split(',');
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function(){
+                    if(this.readyState==4 && this.status==200){
+                        var html='', attachments = JSON.parse(this.responseText);
+                        Object.keys(attachments).forEach(function(key){
+                            html += '<li data-file="'+attachments[key].id+'">';
+                            html += '<div class="super-image">';
+                            html += '<img src="' + attachments[key].url + '" />';
+                            html += '</div>';
+                            html += '<a target="_blank" href="'+attachments[key].editLink+'">' + attachments[key].filename + '</a>';
+                            html += '<a href="#" class="super-delete">Delete</a>';
+                            html += '</li>';
+                        });
+                        node.parentNode.querySelector(':scope .file-preview').innerHTML = html;
+                    }
+                };
+                xhttp.onerror = function () {
+                    console.log(this);
+                    console.log("** An error occurred during the transaction");
+                };
+                xhttp.open("POST", ajaxurl, true);
+                xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
+                var params = $.param({action: 'super_ui_i18n_reload_attachments', fileIDs: fileIDs});
+                xhttp.send(params);
             },
             get_keys: function(keys, el, value, slug){
                 var p = el.parentNode.closest('[data-g]');
@@ -621,22 +621,24 @@
         if(!tab) {
             return settings;
         }
-        if(translating){
-            // Get the current country flag
-            var flag = document.querySelector(':scope .super-tabs > .super-tab-builder > .flag');
-            // Remember the original value for translatable settings
-            nodes = tab.querySelectorAll('.sfui-i18n [name]');
+        // Get the current country flag
+        var flag = document.querySelector(':scope .super-tabs > .super-tab-builder > .flag');
+        // Remember the original value for translatable settings
+        nodes = tab.querySelectorAll('.sfui-i18n [name]');
+        if(flag){
             for(i=0; i<nodes.length; i++){
                 // Add the country flag next to the setting title to indicate translatable option
-                debugger;
                 var title = nodes[i].closest('label').querySelector('.sfui-title');
                 if(title){
-                    debugger;
                     var cloneFlag = flag.cloneNode();
-                    cloneFlag.title = 'Translation for '+i18n;
+                    cloneFlag.title = 'Translation for '+(i18n ? i18n : 'main language');
                     if(title.querySelector('.flag')) title.querySelector('.flag').remove();
                     title.appendChild(cloneFlag);
                 }
+            }
+        }
+        if(translating){
+            for(i=0; i<nodes.length; i++){
                 // Skip if already exists
                 if(nodes[i].nextElementSibling && nodes[i].nextElementSibling.className==='sfui-original-i18n-value') {
                     continue;
@@ -660,17 +662,6 @@
                 field.className = 'sfui-original-i18n-value';
                 field.style.display = 'none';
                 nodes[i].parentNode.insertBefore(field, nodes[i].nextSibling);
-                // Re-load attachment image preview
-                if(field.parentNode.closest('.browse-files')){
-                    //var x, files = field.parentNode.querySelectorAll(':scope .file-preview > li')
-                    //for(x=0; x<files.length; x++){
-                    //    SUPER.ui.i18n.loadImageFromAttachmentID(files[x]);
-                    //}
-                    //var attachmentIDs = field.value.split(','); // Replace with your attachment ID
-                    //for(x=0; x<attachmentIDs.length; x++){
-                    //    SUPER.ui.i18n.loadImageFromAttachmentID(attachmentIDs[x]);
-                    //}
-                }
             }
         }else{
             // Reset remembered original value for translatable settings
@@ -757,21 +748,14 @@
                                 if(nodes[i].type==='checkbox'){
                                     nodes[i].checked = (i18n_data[i18n][nodes[i].name]==='true' ? true : false);
                                 }else{
-                                    nodes[i].value = i18n_data[i18n][nodes[i].name];
-                                    if(nodes[i].parentNode.closest('.browse-files')){
-                                        //var html = '', x, filesIDs = nodes[i].value.split(',');
-                                        //for(x=0; x<filesIDs.length; x++){
-                                        //    filesIDs[x]
-                                        //    html += '<li data-file="'+filesIDs[x]+'">';
-                                        //    html += '</li>';
-                                        //}
-                                        //nodes[i].parentNode.querySelector(':scope .file-preview').innerHTML = html;
-                                        ////var x, files = nodes[i].parentNode.closest('.browse-files').querySelector(':scope .file-preview > li');
-                                        //var x, files = nodes[i].parentNode.querySelectorAll(':scope .file-preview > li')
-                                        //for(x=0; x<files.length; x++){
-                                        //    SUPER.ui.i18n.loadImageFromAttachmentID(files[x]);
-                                        //}
+                                    if(nodes[i].value!==i18n_data[i18n][nodes[i].name]){
+                                        // Re-load attachment image preview
+                                        if(nodes[i].parentNode.closest('.sfui-setting').classList.contains('sfui-type-files')){
+                                            nodes[i].value = i18n_data[i18n][nodes[i].name];
+                                            SUPER.ui.i18n.reload_attachments(nodes[i]);
+                                        }
                                     }
+                                    nodes[i].value = i18n_data[i18n][nodes[i].name];
                                 }
                             }
                         }
