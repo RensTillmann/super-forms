@@ -287,8 +287,9 @@
   border: 1px solid #d0d0d0;
   position: relative;
 }
-.sfui-toggle>.sfui-toggle {
+.sfui-toggle > .sfui-toggle {
   width: calc(100% - 20px);
+  margin-left:10px;
 }
 .sfui-toggle>.sfui-toggle-label:before {
   font-family: "Font Awesome 5 Free";

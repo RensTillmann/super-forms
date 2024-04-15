@@ -197,43 +197,40 @@ class SUPER_Common {
     public static function cleanupFormSubmissionInfo($uniqueSubmissionId, $reference){
         error_log('cleanupFormSubmissionInfo()');
         $submissionInfo = get_option( '_sfsi_' . $uniqueSubmissionId, array() );
-        error_log('$submissionInfo (1): ' . SUPER_Common::safe_json_encode($submissionInfo));
         // Delete contact entry
         $entry_id = (isset($submissionInfo['entry_id']) ? absint($submissionInfo['entry_id']) : 0 );
-        if( !empty($entry_id) ) {
+        if(!empty($entry_id)){
             error_log('delete entry #'.$entry_id);
             $attachments = get_attached_media( '', $entry_id );
-            error_log('attachments: ' . SUPER_Common::safe_json_encode($attachments));
-            foreach( $attachments as $attachment ) {
+            error_log('delete attachments: ' . SUPER_Common::safe_json_encode($attachments));
+            foreach($attachments as $attachment){
                 // Force delete this attachment
                 wp_delete_attachment( $attachment->ID, true );
             }
             wp_delete_post($entry_id, true); // force delete, we no longer want it in our system
         }
         // Delete post after canceled payment (only used for Front-end Posting feature)
-        $created_post_id = (isset($submissionInfo['created_post_id']) ? absint($submissionInfo['created_post_id']) : 0 );
-        if( !empty($created_post_id) ) {
+        $created_post_id = (isset($submissionInfo['created_post_id']) ? absint($submissionInfo['created_post_id']) : 0);
+        if(!empty($created_post_id)){
             error_log('delete post #'.$created_post_id);
-            $attachments = get_attached_media( '', $created_post_id );
-            error_log('attachments: ' . SUPER_Common::safe_json_encode($attachments));
-            foreach( $attachments as $attachment ) {
+            $attachments = get_attached_media('', $created_post_id);
+            error_log('delete attachments: ' . SUPER_Common::safe_json_encode($attachments));
+            foreach($attachments as $attachment){
                 // Force delete this attachment
-                wp_delete_attachment( $attachment->ID, true );
+                wp_delete_attachment($attachment->ID, true);
             }
             wp_delete_post($created_post_id, true);  // force delete, we no longer want it in our system
         }
         // Delete user after canceled payment (only used for Register & Login feature)
-        $registered_user_id = (isset($submissionInfo['registered_user_id']) ? absint($submissionInfo['registered_user_id']) : 0 );
-        if( !empty($registered_user_id) ) {
+        $registered_user_id = (isset($submissionInfo['registered_user_id']) ? absint($submissionInfo['registered_user_id']) : 0);
+        if(!empty($registered_user_id)){
             require_once( ABSPATH . 'wp-admin/includes/user.php' );
             error_log('delete user #'.$registered_user_id);
             wp_delete_user($registered_user_id);
         }
         // Delete any E-mail reminders based on this form ID as it's parent
         $email_reminders = (isset($submissionInfo['super_forms_email_reminders']) ? json_decode($submissionInfo['super_forms_email_reminders'],true) : array() );
-        //error_log('value: ' . SUPER_Common::safe_json_encode($submissionInfo['super_forms_email_reminders']));
-        //error_log('count: ' . count($email_reminders));
-        if (is_array($email_reminders) && count($email_reminders) > 0) {
+        if(is_array($email_reminders) && count($email_reminders) > 0){
             // Delete all the Children of the Parent Page
             foreach($email_reminders as $reminder){
                 error_log('delete reminder #'.$reminder);
@@ -256,14 +253,10 @@ class SUPER_Common {
                 if(!empty($v['subdir'])){
                     // This is uploaded to a custom dir outside the wp content directory
                     // Try to grab the real path
-                    error_log('subdir: ' . $v['subdir']);
                     $filePath = ABSPATH . $v['subdir'];
                     $filePath = realpath($filePath);
-                    error_log('filePath: ' . $filePath);
-                    error_log('dir: ' . dirname($filePath));
                     // Try to delete it
                     SUPER_Common::delete_dir( dirname($filePath) );
-                    //SUPER_Common::delete_file( $filePath );
                 }
             }
         }
@@ -396,14 +389,9 @@ class SUPER_Common {
                 }
             }
         }
-        //error_log('check if starts with `unique_submission_id_`');
-        //error_log('$name: ' . $name);
         if(strpos($name, 'unique_submission_id_')===0){
-            //error_log('starts with `unique_submission_id_`');
             // It starts with 'http'
-            //error_log('before, value = '.$value);
             $value = $value . '.' . ($now+$expires);
-            //error_log('after, value = '.$value);
         }
         $clientData[$name] = array(
             'expires'=>$now + $expires,
@@ -415,34 +403,6 @@ class SUPER_Common {
         return $value;
     }
     public static function cleanupOldClientData($key, $clientData) {
-        //error_log('cleanupOldClientData()');
-        //error_log('$key: ' . $key);
-        //error_log('$clientData: ' . SUPER_Common::safe_json_encode($clientData));
-
-        //"unique_submission_id_61768": {
-        //    "expires": 1668013567,
-        //    "exp_var": 1668012367,
-        //    "value": "d4efb589e8bdc4183b10b988884e703b.1668011767"
-        //},
-
-
-        // $uniqueSubmissionId = SUPER_Common::getClientData( 'unique_submission_id_' . $form_id );
-        // error_log('$uniqueSubmissionId: '. $uniqueSubmissionId);
-        // if( $uniqueSubmissionId===false ){
-        //     $uniqueSubmissionId = md5(uniqid(mt_rand(), true)) . '.' . current_time('timestamp');
-        //     error_log('generate new $uniqueSubmissionId: '. $uniqueSubmissionId);
-        //     SUPER_Common::setClientData( array( 'name' => 'unique_submission_id_' . $form_id, 'value' => $uniqueSubmissionId ) );
-        // }else{
-        //     // Update to increase expiry
-        //     error_log('update to increase expiry for $uniqueSubmissionId: '. $uniqueSubmissionId);
-        //     SUPER_Common::setClientData( array( 
-        //         'name' => 'unique_submission_id_' . $form_id,
-        //         'value' => $uniqueSubmissionId,
-        //         'expires' => 60*60, // 60 min. (30*60)
-        //         'exp_var' => 20*60 // 20 min. (20*60)
-        //     ) );
-        // }
-
         $now = current_time('timestamp');
         foreach($clientData as $name => $data){
             if(is_array($data)){
@@ -562,13 +522,11 @@ class SUPER_Common {
     }
  
     public static function deleteOldClientData($limit=0) {
-        //error_log('deleteOldClientData()');
 		global $wpdb;
         if($limit===0) $limit = 10; // Defaults to 100
         $limit = apply_filters( 'super_client_data_delete_limit_filter', absint($limit) ); // It's technically called a `Cookie name`, but we call it `key` here
         // Delete old deprecated sessions from previous Super Forms versions
         $now = current_time('timestamp');
-        //error_log('$now: '.$now);
         $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '\_super\_session\_%' LIMIT 5000");
         $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '\_sfs\_%' LIMIT 5000");
         $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '\_sfsdata\_%' AND SUBSTRING_INDEX(SUBSTRING_INDEX(option_value, ';', 2), ':', -1) < {$now}");
@@ -595,8 +553,6 @@ class SUPER_Common {
         $sf_nonce = SUPER_Common::getClientData( 'sf_nonce' );
         $v = htmlspecialchars(filter_input(INPUT_POST, 'sf_nonce'));
         if(!$v || $v !== $sf_nonce){
-            error_log('current nonce in database: ' . $sf_nonce);
-            error_log('nonce from form input field: ' . $v);
             return false; // invalid
         }
         // Destroy existing nonce
@@ -1361,8 +1317,9 @@ class SUPER_Common {
      * @since 3.8.0
      */
     public static function get_form_settings($form_id) {
-        if( !class_exists( 'SUPER_Settings' ) )  require_once( 'class-settings.php' ); 
-        $form_settings = get_post_meta( absint($form_id), '_super_form_settings', true );
+        $form_id = absint($form_id);
+        if(!class_exists('SUPER_Settings'))  require_once('class-settings.php'); 
+        $form_settings = get_post_meta($form_id, '_super_form_settings', true);
         if(!$form_settings) $form_settings = array();
         $global_settings = self::get_global_settings();
         $defaults = SUPER_Settings::get_defaults($global_settings);
@@ -1391,7 +1348,9 @@ class SUPER_Common {
 
         // Update old `WooCommerce Checkout` settings format with new
         $s = $settings;
-        if(version_compare(SUPER_VERSION, '6.3.801', '<') && isset($s['woocommerce_checkout'])){
+        // Get current form version
+        $current_form_version = get_post_meta($form_id, '_super_version', true);
+        if(version_compare($current_form_version, '6.4', '<')){
             // Get trigger settings
             $triggers = SUPER_Common::get_form_triggers($form_id);
             // Regex to convert E-mail body settings to TinyMCE editor
@@ -1509,12 +1468,9 @@ class SUPER_Common {
                 }
                 $x++;
             }
-            error_log(json_encode($triggers));
-
             // Add trigger for WooCommerce email after order completed
             if(!empty($s['woocommerce_checkout']) && $s['woocommerce_checkout']==='true' && !empty($s['woocommerce_completed_email']) && $s['woocommerce_completed_email']==='true'){
                 $t = array();
-
                 // Grab the body, and extract the `loop open`, `loop` and `loop close` parts
                 $body = '';
                 if(!empty($s['woocommerce_completed_body_open'])) $body .= $s['woocommerce_completed_body_open'] . '<br />';
@@ -1861,16 +1817,13 @@ class SUPER_Common {
             unset($s['woocommerce_post_status']);
             unset($s['woocommerce_signup_status']);
             unset($s['woocommerce_completed_user_role']);
-            error_log('before:');
-            error_log(json_encode($s));
             foreach($s as $ks => $kv){
                 if(strpos($ks, 'email_reminder_')!==false){
                     unset($s[$ks]);
                 }
             }
-            error_log('after:');
-            error_log(json_encode($s));
             update_post_meta($form_id, '_super_form_settings', $s);
+            update_post_meta($form_id, '_super_version', SUPER_VERSION);
         }
         return apply_filters( 'super_form_settings_filter', $s, array( 'id'=>$form_id ) );
     }
@@ -2121,7 +2074,6 @@ class SUPER_Common {
             $uniqueSubmissionId = SUPER_Common::getClientData( 'unique_submission_id_' . $form_id );
             if( $uniqueSubmissionId!==false ){
                 $submissionInfo = get_option( '_sfsi_' . $uniqueSubmissionId, array() );
-                //error_log('submissionInfo: ' .SUPER_Common::safe_json_encode($submissionInfo));
                 if($error){
                     $submissionInfo['error_msg'] = $msg;
                 }else{
@@ -2129,18 +2081,10 @@ class SUPER_Common {
                 }
                 if($redirect!=null) $submissionInfo['redirect'] = $redirect;
                 if($json!=true) $submissionInfo['response_data'] = $response_data;
-                //error_log('11' . SUPER_Common::safe_json_encode($submissionInfo));
-                //error_log('11.1' . $uniqueSubmissionId);
                 update_option('_sfsi_' . $uniqueSubmissionId, $submissionInfo );
             }
-        }
-        // When there was an error, cleanup things?
-        if($error===true){
-            // todo...
-            if($form_id!==false){
-                //error_log('CLEANUP AFTER ERROR?');
-                //error_log('uniqueSubmissionId: ' .$uniqueSubmissionId);
-                //error_log('submissionInfo: ' .SUPER_Common::safe_json_encode($submissionInfo));
+            // When there was an error, cleanup things?
+            if($error===true){
                 self::cleanupFormSubmissionInfo($uniqueSubmissionId, ''); 
             }
         }

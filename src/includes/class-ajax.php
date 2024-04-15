@@ -105,6 +105,8 @@ class SUPER_Ajax {
             'listings_edit_entry' => true,
             'listings_delete_entry' => false,
 
+            'ui_i18n_reload_attachments' => false, // used for triggers to reload the correct attachment image when switching between translations
+
         );
         foreach ( $ajax_events as $ajax_event => $nopriv ) {
             add_action( 'wp_ajax_super_' . $ajax_event, array( __CLASS__, $ajax_event ) );
@@ -120,6 +122,24 @@ class SUPER_Ajax {
         }else{
             echo 'false'; // this is the latest version
         }
+        die();
+    }
+
+    public static function ui_i18n_reload_attachments(){
+        $fileIDs = $_POST['fileIDs'];
+        $files = array();
+        foreach($fileIDs as $id){
+            $id = absint($id);
+            $attachment = wp_get_attachment_metadata($id); // Get attachment metadata
+            $mime_type = get_post_mime_type($id);
+            $files[] = array(
+                'id' => $id,
+                'url' => (substr($mime_type, 0, 5)==='image' ? wp_get_attachment_url($id) : wp_mime_type_icon($mime_type)),
+                'editLink' => get_edit_post_link($id),
+                'filename' => basename(get_attached_file($id))
+            );
+        }
+        echo SUPER_Common::safe_json_encode($files);
         die();
     }
 
@@ -2067,6 +2087,7 @@ class SUPER_Ajax {
             $settings = $_POST['settings'];
             $settings = json_decode( stripslashes( $settings ), true );
             if( json_last_error() != 0 ) {
+                error_log( 'JSON error: ' . json_last_error() );
                 var_dump( 'JSON error: ' . json_last_error() );
             }
         }
