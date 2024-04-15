@@ -47,10 +47,21 @@ class SUPER_Triggers {
             }
         }
     }
-
+    private static function merge_i18n_options(array $array1, array $array2){
+        // Loop through each key-value pair in the second array
+        foreach($array2 as $key => $value){
+            // If the key exists in the first array and both values are arrays, merge recursively
+            if(array_key_exists($key, $array1) && is_array($value) && is_array($array1[$key])){
+                $array1[$key] = self::merge_i18n_options($array1[$key], $value);
+            } else {
+                // Otherwise, simply set the value in the first array
+                $array1[$key] = $value;
+            }
+        }
+        return $array1;
+    }
     public static function send_email($x){
         error_log('trigger function: send_email() was fired');
-        error_log(json_encode($x));
         extract($x);
         extract($form_data);
         // Check if we need to grab the settings
@@ -62,7 +73,10 @@ class SUPER_Triggers {
             $translated_options = ((isset($action['i18n']) && is_array($action['i18n'])) ? $action['i18n'] : array()); // In case this is a translated version
             if(isset($translated_options[$i18n])){
                 // Merge any options with translated options
-                $options = array_merge($options, $translated_options[$i18n]);
+                //$options = array_merge($options, $translated_options[$i18n]);
+                error_log(json_encode($options));
+                $options = self::merge_i18n_options($options, $translated_options[$i18n]);
+                error_log(json_encode($options));
             }
         }
         $actionName = $action['action'];
@@ -155,7 +169,7 @@ class SUPER_Triggers {
             }
             return true;
         }
-        $loops = self::retrieve_email_loop_html($data, $settings, $options['loop']);
+        $loops = self::retrieve_email_loop_html($data, $settings, $options);
         $email_loop = $options['loop_open'].$loops['email_loop'].$options['loop_close'];
         $attachments = $loops['attachments'];
         $string_attachments = $loops['string_attachments'];
@@ -217,12 +231,26 @@ class SUPER_Triggers {
         }
     }
 
-    public static function retrieve_email_loop_html($data, $settings, $loop){
+    public static function retrieve_email_loop_html($data, $settings, $options){
+        error_log('before:');
+        error_log(json_encode($data));
+        if($options['exclude']['enabled']==='true'){
+            foreach($options['exclude']['exclude_fields'] as $v){
+                if(isset($data[$v['name']])){
+                    unset($data[$v['name']]);
+                }
+            }
+        }
+        error_log('after:');
+        error_log(json_encode($data));
+        $loop = $options['loop'];
         $email_loop = '';
         $attachments = array();
         $string_attachments = array();
         if( ( isset( $data ) ) && ( count( $data )>0 ) ) {
             foreach( $data as $k => $v ) {
+                // Skip excluded fields
+
                 // Skip dynamic data
                 if($k=='_super_dynamic_data') continue;
                 $row = $loop; //$settings['email_loop'];

@@ -160,6 +160,7 @@
                     $new_files = $new_files ? $new_files + "," + $(this).attr('data-file') : $(this).attr('data-file');
                 });
                 $field.val($new_files);
+                $field.trigger('change'); // Required in order for live updates on builder page
                 // First make sure to update the multi items json
                 SUPER.update_multi_items();
             });
@@ -243,6 +244,7 @@
                             }
                         });
                         $field.val($id);
+                        $field.trigger('change'); // Required in order for live updates on builder page
                     });
                 }
 

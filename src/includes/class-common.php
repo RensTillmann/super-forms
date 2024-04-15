@@ -1404,6 +1404,7 @@ class SUPER_Common {
             $x = 1;
             while( $x <= $limit ) {
                 if( (!empty($s['email_reminder_' . $x])) && ($s['email_reminder_' . $x]=='true') ) {
+                    unset($s['email_reminder_' . $x]);
                     $t = array(
                         'enabled'=> 'true',
                         'event'=> 'sf.after.submission',
@@ -1422,7 +1423,7 @@ class SUPER_Common {
                     $body .= $s['email_reminder_'.$x.'_body'];
                     if(!empty($s['email_reminder_'.$x.'_body_close'])) $body .= '<br />' . $s['email_reminder_'.$x.'_body_close'];
                     unset($s['email_reminder_'.$x.'_body_close']);
-                    $loop_open = '<table cellpadding="6">';
+                    $loop_open = '<table cellpadding="5">';
                     $loop = $s['email_reminder_'.$x.'_email_loop'];
                     $loop_close = '</table>';
                     $body = str_replace(array("\r", "\n"), '<br />', $body);
@@ -1460,7 +1461,7 @@ class SUPER_Common {
                                 'logic' => '==',
                                 'f2' => '',
                             ),
-                            'email' => array(
+                            'data' => array(
                                 'to' => (!empty($s['email_reminder_'.$x.'_to']) ? $s['email_reminder_'.$x.'_to'] : ''),
                                 'from_email' => (!empty($s['email_reminder_'.$x.'_from_type']) && ($s['email_reminder_'.$x.'_from_type']==='default') ? '{option_admin_email}' : $s['email_reminder_'.$x.'_from']),
                                 'from_name' => (!empty($s['email_reminder_'.$x.'_from_type']) && ($s['email_reminder_'.$x.'_from_type']==='default') ? '{option_blogname}' : $s['email_reminder_'.$x.'_from_name']),
@@ -1508,6 +1509,7 @@ class SUPER_Common {
                 }
                 $x++;
             }
+            error_log(json_encode($triggers));
 
             // Add trigger for WooCommerce email after order completed
             if(!empty($s['woocommerce_checkout']) && $s['woocommerce_checkout']==='true' && !empty($s['woocommerce_completed_email']) && $s['woocommerce_completed_email']==='true'){
@@ -1565,7 +1567,7 @@ class SUPER_Common {
                             'logic' => '',
                             'f2' => '',
                         ),
-                        'email' => array(
+                        'data' => array(
                             'to' => (!empty($s['woocommerce_completed_to']) ? $s['woocommerce_completed_to'] : ''),
                             'from_email' => (!empty($s['woocommerce_completed_from_type']) && ($s['woocommerce_completed_from_type']==='default') ? '{option_admin_email}' : $s['woocommerce_completed_from']),
                             'from_name' => (!empty($s['woocommerce_completed_from_type']) && ($s['woocommerce_completed_from_type']==='default') ? '{option_blogname}' : $s['woocommerce_completed_from_name']),
@@ -1859,6 +1861,16 @@ class SUPER_Common {
             unset($s['woocommerce_post_status']);
             unset($s['woocommerce_signup_status']);
             unset($s['woocommerce_completed_user_role']);
+            error_log('before:');
+            error_log(json_encode($s));
+            foreach($s as $ks => $kv){
+                if(strpos($ks, 'email_reminder_')!==false){
+                    unset($s[$ks]);
+                }
+            }
+            error_log('after:');
+            error_log(json_encode($s));
+            update_post_meta($form_id, '_super_form_settings', $s);
         }
         return apply_filters( 'super_form_settings_filter', $s, array( 'id'=>$form_id ) );
     }

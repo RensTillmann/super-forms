@@ -272,7 +272,7 @@ class SUPER_UI {
                     }
                 }
                 echo '</ul>';
-                echo '<input type="hidden" name="' . $v['name'] . '" value="' . esc_attr($value) . '" />';
+                echo '<input type="hidden" name="' . $v['name'] . '" value="' . esc_attr($value) . '" onchange="SUPER.ui.updateSettings(event, this)"/>';
             echo '</div>';
             self::subline($v);
             echo '</label>';

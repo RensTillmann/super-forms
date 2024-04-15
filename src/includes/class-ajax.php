@@ -2144,7 +2144,6 @@ class SUPER_Ajax {
         $_super_elements = (isset($_POST['formElements']) ? wp_unslash($_POST['formElements']) : '');
         $_super_form_settings = (isset($_POST['formSettings']) ? wp_unslash($_POST['formSettings']) : '');
         $_super_triggers = (isset($_POST['triggerSettings']) ? wp_unslash($_POST['triggerSettings']) : '');
-        update_post_meta( $form_id, '_super_trigger-'.$form_id, 'ACTION :)' );
         $_super_translations = (isset($_POST['translationSettings']) ? wp_unslash($_POST['translationSettings']) : '');
         if($action==='super_save_form'){
             // Decode JSON string

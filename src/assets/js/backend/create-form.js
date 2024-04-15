@@ -103,6 +103,16 @@
                     input.value = 'Listing #'+p.children.length;
                     
                 }
+                var i, tinymce_editors = clone.querySelectorAll('.sfui-textarea-tinymce');
+                for(i=0; i<tinymce_editors.length; i++){
+                    tinymce_editors[i].id = '';
+                    tinymce_editors[i].style.display = '';
+                    if(tinymce_editors[i].nextElementSibling){
+                        tinymce_editors[i].nextElementSibling.remove();
+                    }
+                    // Initialize TinyMCE for the cloned wrapper
+                    SUPER.initTinyMCE('.sfui-textarea-tinymce');
+                }
                 SUPER.ui.showHideSubsettings(clone);
                 e.preventDefault();
                 return false;
@@ -300,6 +310,12 @@
                         }
                     }
                     if(!i18n_data[i18n]) i18n_data[i18n] = {};
+                    var $typeOff = typeof i18n_data[i18n];
+                    console.log($typeOff);
+                    console.log(typeof i18n_data[i18n]);
+                    if(Array.isArray(i18n_data[i18n])){
+                        i18n_data[i18n] = {};
+                    }
                     // If a translated version exists
                     var value = el.value;
                     var type = el.type;
@@ -311,7 +327,35 @@
                     if(el.tagName==='TEXTAREA' && tinymce.get(el.id)){
                         value = tinymce.get(el.id).getContent();
                     }
-                    i18n_data[i18n][el.name] = value;
+                    if(el.nextElementSibling && el.nextElementSibling.className==='sfui-original-i18n-value' && el.nextElementSibling.value===value){
+                        // Remove any language string that equals the original language
+                        delete i18n_data[i18n][el.name];
+                        if(Array.isArray(i18n_data[i18n])){
+                            i18n_data[i18n] = {};
+                        }
+                    }else{
+                        var i, k, obj, keys = SUPER.ui.i18n.get_keys([], el, value, 'triggers');
+                        for(i=0; i<keys.length; i++){
+                            k = keys[i];
+                            if(i>0){
+                                if(!obj[k]){
+                                    obj[k] = {};
+                                    obj = obj[k];
+                                }else{
+                                    obj = obj[k];
+                                }
+                            }else{
+                                if(!i18n_data[i18n][k]){
+                                    i18n_data[i18n][k] = {};
+                                    obj = i18n_data[i18n][k];
+                                }else{
+                                    obj = i18n_data[i18n][k];
+                                }
+                            }
+                        }
+                        if(!obj) obj = i18n_data[i18n];
+                        obj[el.name] = value;
+                    }
                     p.nextElementSibling.querySelector('[name="i18n"]').value = JSON.stringify(i18n_data, undefined, 4);
                 }else{
                     // Update trigger settings
@@ -323,6 +367,46 @@
             }
         },
         i18n: {
+            // Function to load image based on attachment ID
+            loadImageFromAttachmentID: function(file){
+                //var apiURL = super_create_form_i18n.home_url + '/wp-json/wp/v2/media/' + file.dataset.file;
+                //// Make a GET request to the WordPress REST API
+                //fetch(apiURL)
+                //    .then(response => response.json())
+                //    .then(data => {
+                //        if(data.data.status[0]!==2) {
+                //            debugger;
+                //        }
+                //        var html = '<div class="super-image">';
+                //        if(data.media_type==='image'){
+                //            html += '<img src="'+data.source_url+'" />';
+                //        }else{
+                //            html += '<img src="" />';
+                //        }
+                //        html += '</div>';
+                //        html += '<a target="_blank" href="'+data.source_url+'">' + data.slug + '</a>';
+                //        html += '<a href="#" class="super-delete">Delete</a>';
+                //        file.innerHTML = html;
+                //        //if(file.querySelector('.super-image img')) {
+                //        //    file.querySelector('.super-image img').src = imageURL;
+                //        //}
+                //    })
+                //    .catch(error => {
+                //        console.error('Error loading image:', error);
+                //    });
+            },
+            get_keys: function(keys, el, value, slug){
+                var p = el.parentNode.closest('[data-g]');
+                if(p){
+                    // is group
+                    if(slug==='triggers' && p.dataset.g!=='data'){
+                        // Skip `data` key for triggers
+                        keys.unshift(p.dataset.g);
+                    }
+                    return SUPER.ui.i18n.get_keys(keys, p, value, slug);
+                }
+                return keys;
+            },
             reset_original_value: function(){
                 var i, nodes = document.querySelectorAll('.sfui-i18n [name]');
                 for(i=0; i<nodes.length; i++){
@@ -501,6 +585,7 @@
     // tmp disabled     }
     // tmp disabled     return args.data;
     // tmp disabled };
+
     SUPER.get_obj_value_by_key = function(obj, is, value){
         if(typeof is==='string'){
             return SUPER.get_obj_value_by_key(obj, is.split('.'), value);
@@ -537,11 +622,25 @@
             return settings;
         }
         if(translating){
+            // Get the current country flag
+            var flag = document.querySelector(':scope .super-tabs > .super-tab-builder > .flag');
             // Remember the original value for translatable settings
             nodes = tab.querySelectorAll('.sfui-i18n [name]');
             for(i=0; i<nodes.length; i++){
+                // Add the country flag next to the setting title to indicate translatable option
+                debugger;
+                var title = nodes[i].closest('label').querySelector('.sfui-title');
+                if(title){
+                    debugger;
+                    var cloneFlag = flag.cloneNode();
+                    cloneFlag.title = 'Translation for '+i18n;
+                    if(title.querySelector('.flag')) title.querySelector('.flag').remove();
+                    title.appendChild(cloneFlag);
+                }
                 // Skip if already exists
-                if(nodes[i].nextElementSibling && nodes[i].nextElementSibling.className==='sfui-original-i18n-value') continue;
+                if(nodes[i].nextElementSibling && nodes[i].nextElementSibling.className==='sfui-original-i18n-value') {
+                    continue;
+                }
                 if(nodes[i].type==='textarea'){
                     if(tinymce.get(nodes[i].id)) {
                         var value = tinymce.get(nodes[i].id).getContent();
@@ -549,9 +648,6 @@
                         var value = nodes[i].value;
                     }
                     var field = document.createElement('textarea');
-                    field.value = value;
-                    field.className = 'sfui-original-i18n-value';
-                    field.style.display = 'none';
                 }else{
                     var value = nodes[i].value;
                     if(nodes[i].type==='checkbox'){
@@ -559,11 +655,22 @@
                     }
                     var field = document.createElement('input');
                     field.type = 'hidden';
-                    field.value = value;
-                    field.className = 'sfui-original-i18n-value';
-                    field.style.display = 'none';
                 }
+                field.value = value;
+                field.className = 'sfui-original-i18n-value';
+                field.style.display = 'none';
                 nodes[i].parentNode.insertBefore(field, nodes[i].nextSibling);
+                // Re-load attachment image preview
+                if(field.parentNode.closest('.browse-files')){
+                    //var x, files = field.parentNode.querySelectorAll(':scope .file-preview > li')
+                    //for(x=0; x<files.length; x++){
+                    //    SUPER.ui.i18n.loadImageFromAttachmentID(files[x]);
+                    //}
+                    //var attachmentIDs = field.value.split(','); // Replace with your attachment ID
+                    //for(x=0; x<attachmentIDs.length; x++){
+                    //    SUPER.ui.i18n.loadImageFromAttachmentID(attachmentIDs[x]);
+                    //}
+                }
             }
         }else{
             // Reset remembered original value for translatable settings
@@ -612,6 +719,16 @@
                         }else{
                             try{
                                 var i18n_data = JSON.parse(i18n_value);
+                                var changed = false;
+                                Object.keys(i18n_data).forEach(function(key){
+                                    if(Array.isArray(i18n_data[key])){
+                                        i18n_data[key] = {};
+                                        changed = true;
+                                    }
+                                });
+                                if(changed){
+                                    p.nextElementSibling.querySelector('[name="i18n"]').value = JSON.stringify(i18n_data, undefined, 4);
+                                }
                             }
                             catch(e){
                                 console.error(e);
@@ -620,6 +737,9 @@
                                 p.nextElementSibling.querySelector('[name="i18n"]').classList.add('sfui-red');
                             }
                         }
+                    }
+                    if(Array.isArray(i18n_data[i18n])){
+                        i18n_data[i18n] = {};
                     }
                     if(i18n_data[i18n] && i18n_data[i18n][nodes[i].name]){
                         // If a translated version exists
@@ -638,6 +758,20 @@
                                     nodes[i].checked = (i18n_data[i18n][nodes[i].name]==='true' ? true : false);
                                 }else{
                                     nodes[i].value = i18n_data[i18n][nodes[i].name];
+                                    if(nodes[i].parentNode.closest('.browse-files')){
+                                        //var html = '', x, filesIDs = nodes[i].value.split(',');
+                                        //for(x=0; x<filesIDs.length; x++){
+                                        //    filesIDs[x]
+                                        //    html += '<li data-file="'+filesIDs[x]+'">';
+                                        //    html += '</li>';
+                                        //}
+                                        //nodes[i].parentNode.querySelector(':scope .file-preview').innerHTML = html;
+                                        ////var x, files = nodes[i].parentNode.closest('.browse-files').querySelector(':scope .file-preview > li');
+                                        //var x, files = nodes[i].parentNode.querySelectorAll(':scope .file-preview > li')
+                                        //for(x=0; x<files.length; x++){
+                                        //    SUPER.ui.i18n.loadImageFromAttachmentID(files[x]);
+                                        //}
+                                    }
                                 }
                             }
                         }
@@ -659,17 +793,28 @@
                                 value = '{}';
                             }else{
                                 try{
-                                    var i18n_data = JSON.parse(value);
+                                    value = JSON.parse(value);
+                                    var changed = false;
+                                    Object.keys(value).forEach(function(key){
+                                        if(Array.isArray(value[key])){
+                                            value[key] = {};
+                                            changed = true;
+                                        }
+                                    });
+                                    if(changed){
+                                        value = JSON.stringify(value, undefined, 4);
+                                    }
                                 }
                                 catch(e){
                                     console.error(e);
                                     value = '{}';
                                 }
                             }
-                            data[k] = JSON.parse(value, undefined, 4);
-                        }else{
-                            data[k] = value;
+                            if(typeof value!=='object'){
+                                value = JSON.parse(value, undefined, 4);
+                            }
                         }
+                        data[k] = value;
                     }
                 }
                 continue;
