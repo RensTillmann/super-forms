@@ -670,7 +670,8 @@ class SUPER_Pages {
                                                                         'subline' => esc_html__( 'Where the E-mail will be delivered to e.g. {email}', 'super-forms' ),
                                                                         'type' => 'text',
                                                                         'default' => '{email}',
-                                                                        'reset' => true
+                                                                        'reset' => true,
+                                                                        'i18n' => true
                                                                     ),
                                                                     array(
                                                                         'name' => 'from_email',
@@ -678,7 +679,8 @@ class SUPER_Pages {
                                                                         'subline' => sprintf( esc_html__( 'Your company E-mail address e.g. info%s', 'super-forms' ), '<strong style="color:red;">@' . str_replace('www.', '', $_SERVER["SERVER_NAME"]) . '</strong>' ),
                                                                         'type' => 'text',
                                                                         'default' => 'no-reply@'.str_replace('www.', '', $_SERVER["SERVER_NAME"]),
-                                                                        'reset' => true
+                                                                        'reset' => true,
+                                                                        'i18n' => true
                                                                     ),
                                                                     array(
                                                                         'name' => 'from_name',
@@ -686,7 +688,8 @@ class SUPER_Pages {
                                                                         'subline' => esc_html__( 'Your company name e.g. Starbucks', 'super-forms' ),
                                                                         'type' => 'text',
                                                                         'default' => '{option_blogname}',
-                                                                        'reset' => true
+                                                                        'reset' => true,
+                                                                        'i18n' => true
                                                                     ),
                                                                     array(
                                                                         'wrap' => false,
@@ -715,6 +718,7 @@ class SUPER_Pages {
                                                                                         'subline' => esc_html__( 'The email address to reply to', 'super-forms' ),
                                                                                         'type' => 'text',
                                                                                         'default' => '',
+                                                                                        'i18n' => true
                                                                                     ),
                                                                                     array(
                                                                                         'name' => 'name',
@@ -722,6 +726,7 @@ class SUPER_Pages {
                                                                                         'subline' => esc_html__( 'The name of the person or company', 'super-forms' ),
                                                                                         'type' => 'text',
                                                                                         'default' => '',
+                                                                                        'i18n' => true
                                                                                     )
                                                                                 )
                                                                             )
@@ -756,6 +761,7 @@ class SUPER_Pages {
                                                                         'label' => esc_html__( 'Hold Ctrl to add multiple files', 'super-forms' ),
                                                                         'type' => 'files', // file
                                                                         'default' => '',
+                                                                        'i18n' => true
                                                                     )
                                                                 )
                                                             ),
