@@ -6089,26 +6089,27 @@ function SUPERreCaptcha(){
             if(args.foundElements.length>0){
                 htmlFields = args.foundElements;
             }else{
-                htmlFields = args.form.querySelectorAll('[data-tags], .super-google-map, .super-html-content');
+                htmlFields = args.form.querySelectorAll('[data-fields], .super-google-map, .super-html-content');
             }
         }else{
             if(typeof args.el === 'undefined') {
-                htmlFields = args.form.querySelectorAll('[data-tags], .super-google-map, .super-html-content');
+                htmlFields = args.form.querySelectorAll('[data-fields], .super-google-map, .super-html-content');
             }else{
                 var n = SUPER.get_original_field_name(args.el);
-                htmlFields = args.form.querySelectorAll('[data-tags*="{'+n+'}"], .super-google-map[data-fields*="{'+n+'}"], .super-html-content[data-fields*="{'+n+'}"]');
+                htmlFields = args.form.querySelectorAll('[data-fields*="{'+n+'}"], .super-google-map[data-fields*="{'+n+'}"], .super-html-content[data-fields*="{'+n+'}"]');
             }
         }
         regex = /{([^\\\/\s"'+]*?)}/g;
         Object.keys(htmlFields).forEach(function(key) {
             target = htmlFields[key];
             // @since 4.9.0 - accordion title description {tags} compatibility
-            if( target.dataset.tags ) {
+            if(target.dataset.fields && target.dataset.original){
                 html = target.dataset.original;
             }else{
-                if(!target.parentNode.querySelector('textarea')){
-                    return true;
-                }
+                if(!target.parentNode.querySelector('textarea') || 
+                    target.className==='super-conditional-logic' || 
+                    target.className==='super-validate-conditions' || 
+                    target.className==='super-variable-conditions') return true;
                 html = target.parentNode.querySelector('textarea').value;
             }
             // If empty skip
@@ -9997,7 +9998,7 @@ function SUPERreCaptcha(){
             if(childNode.parentNode.className==='sp-dd'){
                 continue;
             }
-            if((childNode.parentNode.closest('.super-pdf-header') || childNode.parentNode.closest('.super-pdf-footer')) && childNode.dataset && childNode.dataset.tags){ 
+            if((childNode.parentNode.closest('.super-pdf-header') || childNode.parentNode.closest('.super-pdf-footer')) && childNode.dataset && childNode.dataset.fields){
                 //  childNode.classList && childNode.classList.contains('super-html-content')){
                 // Reset content to original with tags (solely required for {pdf_page} and {pdf_total_pages} tags)
                 SUPER.init_replace_html_tags({el: undefined, form: childNode.parentNode});

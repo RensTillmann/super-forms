@@ -9,32 +9,25 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Feb 26, 2024 - Version 6.3.741
+## Apr 15, 2024 - Version 6.4-beta
 
+- **Added:** New [Stripe] tab to configure Stripe checkout, allowing for one time payments and recurring payments.
+- **Added:** New [WooCommerce] tab to configure anything related to WooCommerce checkouts, in the next BETA version Instant Orders will also be implemented under this tab.
+- **Added:** New [Triggers] tab to execute actions based on events that occur on your site, temporarily only supports sending E-mail after form submission for testing purposes.
+Actions can be scheduled at specific dates and times, any E-mail reminders will now be located under the [Triggers] tab.
+Actions are compatible with the build-in translation system, allowing for more flexibility when it comes to translating. E-mail attachment may also be translatable so you that you can (for example) send different PDF files based on the users language.
 - **Fix:** Both the `Divider` element and `<hr />` tag were not being printend on PDF when Native mode is enabled
-
-## Feb 07, 2024 - Version 6.3.740
-
 - **Fix:** Issue with Calculator element where math that contains regex like {contains*}, {^starts_with_}, {ends_with$} would not be calculated in some scenario's
 - **Added:** hour/minute/second conversion for Calculator element
 - **Improved:** Exclude zero values `0` for WooCommerce emails, PayPal emails and E-mail reminders emails, when the option to exclude empty values is enabled
 - **Fix:** Issue where in some scenario's the `Column` element would not close properly which could cause small padding issues
-
-## Oct 16, 2023 - Version 6.3.730
-
 - **Fix:** Bug with displaying `Empty error message` instead of the `Validation error message` when validation is set to `Phone number`
-
-## Sep 15, 2023 - Version 6.3.729
-
 - **Fix:** Bug allowing you to skip `Address Autocomplete` field by pressing `TAB` key without selecting any address
 - **Fix:** Bug causing Entry data population to choose multiple dropdown items, example: when the entry value would be `Son` for the dropdown and there would be another dropdown item with value `Son-in-law` it would select both items as selected.
 - **Fix:** Some hosting providers might add `.htaccess` files inside all directories for security reasons, skip these when loading Add-ons inside the `/add-ons` folder. 
 - **Fix:** On back-end Contact Entries page, the date filter would not work properly depending on the WordPress `Settings > General > Date Format` setting
 - **Fix:** When field type is set to International phonenumber (int-phone) automatically set the field validation to `Required (not empty)`
 - **Fix:** Do not render/display Forms that have been marked as trashed
-
-## Jun 02, 2023 - Version 6.3.725
-
 - **Added:** Option to create vCards and attach them to Admin and Confirmation E-mails via `Form settings > vCard Attachment`
 - **Added:** New `Signature` drawing method for improved device compatibility (Microsoft Surface Pro)
 - **Added:** Option to connect Dropdown, Autosuggest, Keyword elements directly with Google Sheets (documentation: [form with google sheets dropdown](https://docs.super-forms.com/features/advanced/wordpress-form-with-google-sheets-dropdown))
@@ -74,9 +67,6 @@ endforeach;
 - **Fix:** Issue with using `foreach loop` inside E-mails not replacing the tags with field value correctly
 - **Fix:** New signature mobile canvas width not adjusting properly
 - **Fix:** Conditional logic conflict with columns that are set to be hidden in some scenario's
-
-## Dec 21, 2022 - Version 6.3.679
-
 - **Added:** Option to calculate distances between multiple addresses e.g: (between A to B, between B to C and from C back to A)
 - **Added:** Option `Disable browser translation` under `Translations` TAB to disable browsers to translate the form
 - **Added:** New predefined tags to retrieve form submission date inside emails: `submission_date_gmt`, `submission_hours_gmt`, `submission_timestamp_gmt`, `submission_date`, `submission_hours`, `submission_timestamp`
@@ -97,9 +87,6 @@ endforeach;
 - **Fix:** Issue with Listings filters causing to display entries that have `post_author` value `0` to all users even though it shouldn't
 - **Fix:** Prevent users from entering with a year longer than 4 characters in size for datepicker
 - **Fix:** Form data population issue for `Keyword/tags field`
-
-## Sep 07, 2022 - Version 6.3.600
-
 - **Added:** Missing country `Kosovo` for the `Countries (ISO2)` and `Countries (FULL)` elements
 - **Improved:** PDF Generator speed optimization
 - **Improved:** When using `Quantity` field with steps defined to `0.5` make sure the user can enter a single decimal point by hand. When using `0.05` user will be able to enter 2 decimal point numbers instead. When the step is defined to `1` user won't be able to enter any decimals
