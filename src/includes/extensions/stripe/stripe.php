@@ -826,7 +826,7 @@ if(!class_exists('SUPER_Stripe')) :
                     'nodes' => array(
                         array(
                             'sub' => true, // sfui-sub-settings
-                            'filter' => 'enable;true',
+                            'filter' => 'enabled;true',
                             'nodes' => array(
                                 array(
                                     //'width_auto' => false, // 'sfui-width-auto'

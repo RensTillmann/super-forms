@@ -2219,7 +2219,7 @@
             // tmp // @IMPORTANT: Only do this for elements that are NOT inside a dynamic column
             // tmp foundElements = [];
             // tmp $.each(removedFields, function( index ) {
-            // tmp     var html_fields = form.querySelectorAll('[data-tags*="{'+index+'}"], .super-google-map[data-fields*="{'+index+'}"], .super-html-content[data-fields*="{'+index+'}"]');
+            // tmp     var html_fields = form.querySelectorAll('[data-fields*="{'+index+'}"], .super-google-map[data-fields*="{'+index+'}"], .super-html-content[data-fields*="{'+index+'}"]');
             // tmp     for (i = 0; i < html_fields.length; ++i) {
             // tmp         if(!html_fields[i].closest('.super-duplicate-column-fields')){
             // tmp             found = false;
