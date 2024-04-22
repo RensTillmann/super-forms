@@ -187,22 +187,25 @@ class SUPER_Common {
                 if($execute===false) continue;
                 // Check if trigger function exists
                 if(method_exists('SUPER_Triggers', $av['action'])) {
-                    $x = array('eventName'=>$eventName, 'triggerName'=>$v['name'], 'action'=>$av, 'form_id'=>$form_id, 'form_data'=>$form_data);
+                    $x = array(
+                        'eventName'=>$eventName, 
+                        'triggerName'=>$v['name'], 
+                        'action'=>$av, 
+                        'form_id'=>$form_id, 
+                        'form_data'=>$form_data
+                    );
                     call_user_func(array('SUPER_Triggers', $av['action']), $x);
                 }
             }
         }
     }
 
-    public static function cleanupFormSubmissionInfo($uniqueSubmissionId, $reference){
-        error_log('cleanupFormSubmissionInfo()');
-        $submissionInfo = get_option( '_sfsi_' . $uniqueSubmissionId, array() );
+    public static function cleanupFormSubmissionInfo($sfs_uid, $reference){
+        $sfsi = get_option( '_sfsi_' . $sfs_uid, array() );
         // Delete contact entry
-        $entry_id = (isset($submissionInfo['entry_id']) ? absint($submissionInfo['entry_id']) : 0 );
+        $entry_id = (isset($sfsi['entry_id']) ? absint($sfsi['entry_id']) : 0 );
         if(!empty($entry_id)){
-            error_log('delete entry #'.$entry_id);
             $attachments = get_attached_media( '', $entry_id );
-            error_log('delete attachments: ' . SUPER_Common::safe_json_encode($attachments));
             foreach($attachments as $attachment){
                 // Force delete this attachment
                 wp_delete_attachment( $attachment->ID, true );
@@ -210,11 +213,9 @@ class SUPER_Common {
             wp_delete_post($entry_id, true); // force delete, we no longer want it in our system
         }
         // Delete post after canceled payment (only used for Front-end Posting feature)
-        $created_post_id = (isset($submissionInfo['created_post_id']) ? absint($submissionInfo['created_post_id']) : 0);
+        $created_post_id = (isset($sfsi['created_post_id']) ? absint($sfsi['created_post_id']) : 0);
         if(!empty($created_post_id)){
-            error_log('delete post #'.$created_post_id);
             $attachments = get_attached_media('', $created_post_id);
-            error_log('delete attachments: ' . SUPER_Common::safe_json_encode($attachments));
             foreach($attachments as $attachment){
                 // Force delete this attachment
                 wp_delete_attachment($attachment->ID, true);
@@ -222,25 +223,26 @@ class SUPER_Common {
             wp_delete_post($created_post_id, true);  // force delete, we no longer want it in our system
         }
         // Delete user after canceled payment (only used for Register & Login feature)
-        $registered_user_id = (isset($submissionInfo['registered_user_id']) ? absint($submissionInfo['registered_user_id']) : 0);
+        // Note for Stripe checkouts:
+        //  - When this cleanup is called upon checkout.session.expired, we can delete this user even if the user filled out and paid in the meantime.
+        //  - This is because when a user has the status `payment_required` it will be deleted and a new user ID will be created
+        //  - That way there should not be any issues in case of an expired session and the user creating an account succesfully before the previous checkout session was expired
+        $registered_user_id = (isset($sfsi['registered_user_id']) ? absint($sfsi['registered_user_id']) : 0);
         if(!empty($registered_user_id)){
             require_once( ABSPATH . 'wp-admin/includes/user.php' );
-            error_log('delete user #'.$registered_user_id);
             wp_delete_user($registered_user_id);
         }
         // Delete any E-mail reminders based on this form ID as it's parent
-        $email_reminders = (isset($submissionInfo['super_forms_email_reminders']) ? json_decode($submissionInfo['super_forms_email_reminders'],true) : array() );
+        $email_reminders = (isset($sfsi['super_forms_email_reminders']) ? json_decode($sfsi['super_forms_email_reminders'],true) : array() );
         if(is_array($email_reminders) && count($email_reminders) > 0){
             // Delete all the Children of the Parent Page
             foreach($email_reminders as $reminder){
-                error_log('delete reminder #'.$reminder);
                 wp_delete_post($reminder, true);  // force delete, we no longer want it in our system
             }
         }
         // Delete any uploaded files
-        if(isset($submissionInfo['files']) && is_array($submissionInfo['files'])){
-            $files = $submissionInfo['files'];
-            error_log('delete files: ' . SUPER_Common::safe_json_encode($files));
+        if(isset($sfsi['files']) && is_array($sfsi['files'])){
+            $files = $sfsi['files'];
             foreach($files as $k => $v){
                 if(!empty($v['attachment'])){
                     wp_delete_attachment( absint($v['attachment']), true );
@@ -260,7 +262,7 @@ class SUPER_Common {
                 }
             }
         }
-        return (isset($submissionInfo['form_id']) ? $submissionInfo['form_id'] : 0);
+        return (isset($sfsi['form_id']) ? $sfsi['form_id'] : 0);
     }
     
     public static function startClientSession( $x=array() ){
@@ -2071,21 +2073,21 @@ class SUPER_Common {
             echo SUPER_Common::safe_json_encode( $result );
         }
         if($form_id!==false){
-            $uniqueSubmissionId = SUPER_Common::getClientData( 'unique_submission_id_' . $form_id );
-            if( $uniqueSubmissionId!==false ){
-                $submissionInfo = get_option( '_sfsi_' . $uniqueSubmissionId, array() );
+            $sfs_uid = SUPER_Common::getClientData( 'unique_submission_id_' . $form_id );
+            if( $sfs_uid!==false ){
+                $sfsi = get_option( '_sfsi_' . $sfs_uid, array() );
                 if($error){
-                    $submissionInfo['error_msg'] = $msg;
+                    $sfsi['error_msg'] = $msg;
                 }else{
-                    $submissionInfo['success_msg'] = $msg;
+                    $sfsi['success_msg'] = $msg;
                 }
-                if($redirect!=null) $submissionInfo['redirect'] = $redirect;
-                if($json!=true) $submissionInfo['response_data'] = $response_data;
-                update_option('_sfsi_' . $uniqueSubmissionId, $submissionInfo );
+                if($redirect!=null) $sfsi['redirect'] = $redirect;
+                if($json!=true) $sfsi['response_data'] = $response_data;
+                update_option('_sfsi_' . $sfs_uid, $sfsi );
             }
             // When there was an error, cleanup things?
             if($error===true){
-                self::cleanupFormSubmissionInfo($uniqueSubmissionId, ''); 
+                self::cleanupFormSubmissionInfo($sfs_uid, ''); 
             }
         }
         die();
@@ -3140,17 +3142,19 @@ class SUPER_Common {
             }
 
             // Now replace all the tags inside the value with the correct data
-            foreach( $tags as $k => $v ) {
-                if( isset( $v[1] ) ) {
-                    $value = str_replace( '{'. $k .'}', self::decode( $v[1] ), $value );
+            if(isset($tags) && is_array($tags)){
+                foreach($tags as $k => $v){
+                    if(isset($v[1])){
+                        $value = str_replace( '{'. $k .'}', self::decode( $v[1] ), $value );
+                    }
                 }
             }
 
             // @since 4.4.0 - Loop through form settings
             // After replacing the settings {tag} with data, make sure to once more replace any possible {tags} 
             // (but only once, so we will skip this next time)
-            if( is_array( $settings ) ) {
-                foreach( $settings as $k => $v ) {
+            if(is_array($settings)){
+                foreach($settings as $k => $v){
                     if(is_array($v)) continue;
                     $value = strval($value);
                     $value = str_replace( '{form_setting_' . $k . '}', self::decode( $v ), $value, $count );
@@ -3706,8 +3710,41 @@ class SUPER_Common {
         if( !isset( $global_settings['smtp_enabled'] ) ) {
             $global_settings['smtp_enabled'] = 'disabled';
         }
+
+        $unlink_string_attachments = array();
+        foreach($string_attachments as $k => $v){
+            if( $v['encoding']=='base64' && $v['type']=='image/png' ) {
+                $v['data'] = substr( $v['data'], strpos( $v['data'], "," ) );
+                $v['data'] = base64_decode( $v['data'] );
+            }
+            $base64_image = $v['data']; // Your base64 encoded image string here
+            $file_name = $v['filename']; // Desired file name for the image
+            // Decode base64 string into binary data
+            $image_data = $v['data']; //base64_decode($base64_image);
+            // Get the system's temporary directory path using WordPress function
+            $tmp_dir = wp_upload_dir()['basedir'] . '/tmp/';
+            $folderResult = SUPER_Common::generate_random_folder($tmp_dir);
+            $tmp_dir = $folderResult['folderPath'];
+            // Create the temporary directory if it doesn't exist
+            wp_mkdir_p($tmp_dir);
+            // Define the file path within the temporary directory
+            $file_path = $tmp_dir . '/' . $file_name;
+            // Save the binary data to a file in the temporary directory
+            file_put_contents($file_path, $image_data);
+            $uid = sanitize_title_with_dashes($file_name);
+            // Define attachment filename (same as the file name)
+            $name = $file_name;
+            // Initialize PHPMailer
+            add_action('phpmailer_init', function(&$phpmailer) use ($file_path, $uid, $name) {
+                $phpmailer->SMTPKeepAlive = true;
+                $phpmailer->AddEmbeddedImage($file_path, $uid, $name);
+            });
+            // Delete the temporary file after sending the email
+            $unlink_string_attachments[] = $tmp_dir;
+        }
+
         if( $global_settings['smtp_enabled']=='disabled' ) {
-            SUPER_Common::setClientData( array( 'name'=> 'string_attachments', 'value'=>$string_attachments  ) );
+            //SUPER_Common::setClientData( array( 'name'=> 'string_attachments', 'value'=>$string_attachments  ) );
 
             $headers = array();
             if(!empty($settings['header_additional'])){
@@ -3749,10 +3786,16 @@ class SUPER_Common {
                     $headers[] = 'Bcc: ' . trim($value);
                 }
             }
+            error_log('test wp_mail()');
+            error_log(count($attachmentPaths));
             $result = wp_mail( $to, $subject, $body, $headers, $attachmentPaths );
             $error = '';
             if($result==false){
                 $error = 'Email could not be send through wp_mail()';
+            }
+            // Delete tmp files
+            foreach($unlink_string_attachments as $dir){
+                SUPER_Common::delete_dir($dir);
             }
             // Return
             return array( 'result'=>$result, 'error'=>$error, 'mail'=>null );
@@ -3859,14 +3902,14 @@ class SUPER_Common {
                 $phpmailer->addAttachment( $path );
             }
 
-            // Add string attachment(s)
-            foreach( $string_attachments as $v ) {
-                if( $v['encoding']=='base64' && $v['type']=='image/png' ) {
-                    $v['data'] = substr( $v['data'], strpos( $v['data'], "," ) );
-                    $v['data'] = base64_decode( $v['data'] );
-                }
-                $phpmailer->AddStringAttachment( $v['data'], $v['filename'], $v['encoding'], $v['type'] );
-            }
+            // tmp // Add string attachment(s)
+            // tmp foreach( $string_attachments as $v ) {
+            // tmp     if( $v['encoding']=='base64' && $v['type']=='image/png' ) {
+            // tmp         $v['data'] = substr( $v['data'], strpos( $v['data'], "," ) );
+            // tmp         $v['data'] = base64_decode( $v['data'] );
+            // tmp     }
+            // tmp     $phpmailer->AddStringAttachment( $v['data'], $v['filename'], $v['encoding'], $v['type'] );
+            // tmp }
 
             // Set email format to HTML
             //if( !isset( $settings['header_content_type'] ) ) $settings['header_content_type'] = 'html';

@@ -531,6 +531,9 @@
 .sfui-toggle {
   margin-bottom: 10px;
 }
+.sfui-vertical > .sfui-toggle {
+  margin-bottom: 0px;
+}
 .sfui-setting.sfui-vertical {
   row-gap: 10px;
 }

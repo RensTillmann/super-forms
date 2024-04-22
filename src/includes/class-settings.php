@@ -551,14 +551,8 @@ class SUPER_Settings {
             'hidden' => true,
             'name' => esc_html__( 'Global Overriding', 'super-forms' ),
             'label' => esc_html__( 'Global Overriding', 'super-forms' ),
-            'html' => array(
-                '<p class="super-global-email-config-notice" style="background-color: #ff3535;color: #ffffff;font-size: 14px;line-height: 16px;margin-bottom: 30px;border-radius: 5px;padding: 15px 25px 15px 25px;">',
-                '<strong style="font-size:16px;">' . esc_html__( 'Important notice:', 'super-forms' ) . '</strong> ',
-                esc_html__( 'Here you can override specific settings for all your forms (including previously created forms). Only use it if you have a setting that needs to be used on all forms. To actually apply the setting to all forms you must enable the checkbox \'Force: ...\' that corresponds with the setting. If you later decide to uncheck the checkbox, the old form values will be used again. Meaning if you use the below settings it will not actually override any of your form settings, but simply ignore them.', 'super-forms' ),
-                '</p>',
-            ),
+            'html' => array('<div class="sfui-notice sfui-yellow" style="display:flex;align-items:center;"><p><strong>Important:</strong> '.esc_html__( 'Here you can override specific settings for all your forms (including previously created forms). Only use it if you have a setting that needs to be used on all forms. To actually apply the setting to all forms you must enable the checkbox \'Force: ...\' that corresponds with the setting. If you later decide to uncheck the checkbox, the old form values will be used again. Meaning if you use the below settings it will not actually override any of your form settings, but simply ignore them.', 'super-forms' ).'</p></div>'),
             'fields' => array(
-
                 // @since 4.9.5 - configure global email settings (can be used to override all form settings)
                 // Set global 'To' header, can override 'header_to' and 'confirm_to' settings
                 'global_email_to_admin' => array(
@@ -3017,12 +3011,7 @@ class SUPER_Settings {
             'hidden' => true,
             'name' => esc_html__( 'WooCommerce My Account Menu Items', 'super-forms' ),
             'label' => esc_html__('Define custom WooCommerce "My Account" menu items', 'super-forms' ),
-            'html' => array(
-                '<p style="background-color: #ff3535;color: #ffffff;font-size: 14px;line-height: 16px;margin-bottom: 30px;border-radius: 5px;padding: 15px 25px 15px 25px;">',
-                '<strong style="font-size:16px;">' . esc_html__( 'Please note:', 'super-forms' ) . '</strong> ',
-                sprintf( esc_html__( 'In order to reflect any changes made to the below settings you must refresh your permalinks under %1$sSettings > Permalinks%2$s by clicking "Save Changes".', 'super-forms' ), '<a target="blank" href="' . esc_url(admin_url() . 'options-permalink.php') . '">', '</a>'),
-                '</p>',
-            ),
+            'html' => array('<div class="sfui-notice sfui-yellow" style="display:flex;align-items:center;"><p><strong>Please note:</strong> '.sprintf( esc_html__( 'In order to reflect any changes made to the below settings you must refresh your permalinks under %1$sSettings > Permalinks%2$s by clicking "Save Changes".', 'super-forms' ), '<a target="blank" href="' . esc_url(admin_url() . 'options-permalink.php') . '">', '</a>').'</p></div>'),
             'fields' => array(
                 'wc_my_account_menu_items' => array(
                     'name' => esc_html__('Define menu items', 'super-forms' ),

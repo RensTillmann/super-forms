@@ -297,13 +297,12 @@ if(!class_exists('SUPER_Forms')) :
             add_action( 'init', array( $this, 'register_shortcodes' ) );
 			add_action( 'parse_request', array( $this, 'sfapi'));
 
-            // Set unique submission ID to expire after 7 days 
-            // due to possible delayed payment methods used by Stripe
+            // Set unique submission ID to expire after 15 days due to possible delayed payment methods used by Stripe
+            // SEPA Direct Debit is a reusable, delayed notification payment method. This means that it can take up to 14 business days to receive notification on the success or failure of a payment after you initiate a debit from the customer’s account, though the average is five business days.
+            // Sofort is a single use, delayed notification payment method that requires customers to authenticate their payment. It redirects them to their bank’s portal to authenticate the payment, and it typically takes 2 to 14 days to receive notification of success or failure.
             add_filter( 'super_client_data_unique_submission_id_expires_filter', 
-                function($expires) { 
-                    // 15 days, required for Sofort and SEPA Direct Debit payments
-                    // we will store the submission data for this long, but the data
-                    // will be cleaned up if payment failed or succeeded before expiring
+                function($expires){ 
+                    // The data will be cleaned up if payment failed or succeeded before expiring
                     return 60*60*24*15; 
                 } 
             );
@@ -382,7 +381,7 @@ if(!class_exists('SUPER_Forms')) :
             add_filter( 'super_before_sending_confirm_body_filter', array( $this, 'email_if_statements' ), 10, 2 );
 
             // Actions since 1.2.7
-            add_action( 'phpmailer_init', array( $this, 'add_string_attachments' ) );
+            //add_action( 'phpmailer_init', array( $this, 'add_string_attachments' ) );
 
             // Actions since 3.3.0
             add_action( 'vc_before_init', array( $this, 'super_forms_addon' ) );
@@ -842,19 +841,7 @@ if(!class_exists('SUPER_Forms')) :
             );
             return $args;
         }
-        public function flush_rules(){
-            // Make sure to flush any rewrites on upgrading
-            flush_rewrite_rules();
-            delete_option('_sf_permalinks_flushed');
-            $i = 2;
-            while($i<7){
-                delete_option('_sf_permalinks_flushed_v'.$i);
-                $i++;
-            }
-        }
         public function api_post_activation() {
-            // Make sure to flush any rewrites on upgrading
-            self::flush_rules();
             self::api_post('activation');
         }
         public function api_post_deactivation() {
@@ -866,8 +853,6 @@ if(!class_exists('SUPER_Forms')) :
                 if( (isset($options['plugins'])) && (is_array($options['plugins'])) ) {
                     foreach($options['plugins'] as $each_plugin){
                         if ($each_plugin==$current_plugin_path_name){
-                            // Make sure to flush any rewrites on upgrading
-                            self::flush_rules();
                             // Delete deprecated files
                             $deprecatedFiles = array(
                                 'includes/ajax-handler.php'
@@ -1293,15 +1278,17 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.2.6
         */
-        function add_string_attachments( $phpmailer ) {
-            $attachments = SUPER_Common::getClientData( 'string_attachments' );
-            if( $attachments!=false ) {
-                foreach( $attachments as $v ) {
-                    $phpmailer->AddStringAttachment( base64_decode($v['data']), $v['filename'], $v['encoding'], $v['type'] );
-                }
-                SUPER_Common::setClientData( array( 'name'=> 'string_attachments', 'value'=>false  ) );
-            }
-        }
+        // function add_string_attachments( $phpmailer ) {
+        //     error_log('add_string_attachments()');
+        //     $attachments = SUPER_Common::getClientData( 'string_attachments' );
+        //     if( $attachments!=false ) {
+        //         error_log(count($attachments));
+        //         foreach( $attachments as $v ) {
+        //             $phpmailer->AddStringAttachment( base64_decode($v['data']), $v['filename'], $v['encoding'], $v['type'] );
+        //         }
+        //         SUPER_Common::setClientData( array( 'name'=> 'string_attachments', 'value'=>false  ) );
+        //     }
+        // }
 
 
         /**

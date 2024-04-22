@@ -743,7 +743,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                         }
                         $woocommerce->session->set( '_super_wc_signup', array( 
                             'user_id' => $user_id,
-                            'status' => $settings['woocommerce_signup_status'],
+                            'status' => $settings['_woocommerce']['login_status'],
                             'role' => $user_role
                         ));
                     }else{
@@ -820,7 +820,11 @@ if( !class_exists('SUPER_WooCommerce') ) :
                 if ( !empty( $_super_wc_signup ) ) { // @since 1.0.2 - check if not empty
                     // Update login status
                     if(!empty($_super_wc_signup['user_id'])) {
-                        update_user_meta( $_super_wc_signup['user_id'], 'super_user_login_status', $_super_wc_signup['status'] );
+                        $matched_login_status = array();
+                        foreach($settings['_woocommerce']['login_status'] as $k => $v){
+                            $matched_login_status[$v['order']] = $v['login_status'];
+                        }
+                        update_user_meta( $_super_wc_signup['user_id'], 'super_user_login_status', $matched_login_status['completed'] );
                         // Update user role
                         if( !empty($_super_wc_signup['role']) ) {
                             $userdata = array(

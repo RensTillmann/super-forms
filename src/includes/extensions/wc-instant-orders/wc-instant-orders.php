@@ -1021,7 +1021,7 @@ if(!class_exists('SUPER_WC_Instant_Orders')) :
             extract( shortcode_atts( array(
                 'sfsi'=>array(),
                 'form_id'=>0,
-                'uniqueSubmissionId'=>'',
+                'sfs_uid'=>'',
                 'post'=>array(), 
                 'data'=>array(), 
                 'settings'=>array(), 
@@ -1034,10 +1034,11 @@ if(!class_exists('SUPER_WC_Instant_Orders')) :
             if($s['enabled']!=='true') return true;
             // If conditional check is enabled
             $checkout = true;
-            if($s['conditionally']==='true' && $s['logic']!==''){
-                $logic = $s['logic'];
-                $f1 = SUPER_Common::email_tags($s['f1'], $data, $settings);
-                $f2 = SUPER_Common::email_tags($s['f2'], $data, $settings);
+            $c = $s['conditions'];
+            if($c['enabled']==='true' && $c['logic']!==''){
+                $logic = $c['logic'];
+                $f1 = SUPER_Common::email_tags($c['f1'], $data, $settings);
+                $f2 = SUPER_Common::email_tags($c['f2'], $data, $settings);
                 $checkout = self::conditional_compare_check($f1, $logic, $f2);
             }
             if($checkout===false) return true;
@@ -1071,13 +1072,13 @@ if(!class_exists('SUPER_WC_Instant_Orders')) :
                 'sf_entry' => $entry_id,
                 'sf_user' => (isset($sfsi['user_id']) ? $sfsi['user_id'] : 0),
                 'sf_post' => (isset($sfsi['created_post']) ? $sfsi['created_post'] : 0),
-                'sfsi_id' => $uniqueSubmissionId
+                'sfsi_id' => $sfs_uid
             );
             error_log('custom metadata for woocommerce order: ' . SUPER_Common::safe_json_encode($metadata));
-            $submissionInfo = get_option( '_sfsi_' . $uniqueSubmissionId, array() );
-            error_log('submissionInfo: '.SUPER_Common::safe_json_encode($submissionInfo));
-            $submissionInfo['entry_id'] = $entry_id;
-            update_option('_sfsi_' . $uniqueSubmissionId, $submissionInfo );
+            $sfsi = get_option( '_sfsi_' . $sfs_uid, array() );
+            error_log('sfsi: '.SUPER_Common::safe_json_encode($sfsi));
+            $sfsi['entry_id'] = $entry_id;
+            error_log('14');update_option('_sfsi_' . $sfs_uid, $sfsi );
 
             $line_items = array();
             foreach($s['line_items'] as $k => $v){
@@ -1201,7 +1202,7 @@ if(!class_exists('SUPER_WC_Instant_Orders')) :
                 'error'=>false, 
                 'msg' => '', 
                 'redirect' => $checkout_session->url,
-                'form_id' => absint($submissionInfo['form_id'])
+                'form_id' => absint($sfsi['form_id'])
             ));
             die();
         }
@@ -1511,7 +1512,7 @@ if(!function_exists('SUPER_WC_Instant_Orders')){
 // tmp             extract( shortcode_atts( array(
 // tmp                 'sfsi'=>array(),
 // tmp                 'form_id'=>0,
-// tmp                 'uniqueSubmissionId'=>'',
+// tmp                 'sfs_uid'=>'',
 // tmp                 'post'=>array(), 
 // tmp                 'data'=>array(), 
 // tmp                 'settings'=>array(), 

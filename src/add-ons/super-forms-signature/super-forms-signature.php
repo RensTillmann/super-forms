@@ -160,6 +160,9 @@ if( !class_exists('SUPER_Signature') ) :
             
             // Actions since 1.0.0
             add_filter( 'super_shortcodes_after_form_elements_filter', array( $this, 'add_signature_element' ), 10, 2 );
+            
+            // This filter should not just be called for ajax request because of possible scheduled Triggers (Send E-mail action)
+            add_filter( 'super_before_email_loop_data_filter', array( $this, 'add_signature_to_email_loop' ), 10, 2 );
 
             if ( $this->is_request( 'frontend' ) ) {
                 
@@ -184,7 +187,6 @@ if( !class_exists('SUPER_Signature') ) :
             }
             
             if ( $this->is_request( 'ajax' ) ) {
-                add_filter( 'super_before_email_loop_data_filter', array( $this, 'add_signature_to_email_loop' ), 10, 2 );
                 add_action( 'super_before_email_loop_data', array( $this, 'continue_after_signature' ) );
             }
             
@@ -524,9 +526,11 @@ if( !class_exists('SUPER_Signature') ) :
                     $result['string_attachments'] = $data['string_attachments'];
                 }
                 if( isset( $v['label'] ) ) $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
-                // @IMPORTANT, escape the Data URL but make sure add it as an acceptable protocol 
-                // otherwise the signature will not be displayed
-                if( isset( $v['value'] ) ) $row = str_replace( '{loop_value}', $signature_filename . '<br /><img src="' . esc_url( $v['value'], array( 'data' ) ) . '" />', $row );
+                // OLD: if( isset( $v['value'] ) ) $row = str_replace( '{loop_value}', $signature_filename . '<br /><img src="cid:'.sanitize_title_with_dashes($signature_filename).'" />', $row );
+                // New way, inline signature via file instead of base64 string:
+                // Signature is temporarily stored in /uploads/tmp/xxxxx/signature-field-name.png
+                // After the E-mail is send it is deleted from the server automatically
+                if( isset( $v['value'] ) ) $row = str_replace( '{loop_value}', '<img src="cid:'.sanitize_title_with_dashes($signature_filename).'" />', $row );
                 $result['status'] = 'continue';
                 $result['exclude'] = $v['exclude'];
                 $result['row'] = $row;

@@ -2510,6 +2510,7 @@
 
         // On choosing item, populate form with data
         $doc.on('click', '.super-wc-order-search .super-field-wrapper:not(.super-overlap) .super-dropdown-list .super-item, .super-auto-suggest .super-field-wrapper:not(.super-overlap) .super-dropdown-list .super-item', function(){
+            
             var i, items,
                 wrapper = this.closest('.super-field-wrapper'),
                 parent = this.parentNode,
@@ -2530,6 +2531,7 @@
             field.classList.add('super-filled');
             SUPER.after_field_change_blur_hook({el: wrapper.querySelector('.super-shortcode-field')});
             if(populate=='true'){
+                
                 SUPER.populate_form_data_ajax({el: field, clear: false});
             }
         });
@@ -2629,7 +2631,7 @@
                 // Remove initialized class
                 $form.find('.super-button').remove();
                 $form.removeClass('super-initialized');
-                $.ajax({ 
+                $.ajax({
                     url: super_elements_i18n.ajaxurl, 
                     type: 'post', 
                     data: { 
@@ -2681,6 +2683,8 @@
                                     }
                                     $form.find('form').html(data.html);
                                     $form.data('i18n', $i18n);
+                                    // Store the translation language code in sessionStorage
+                                    sessionStorage.setItem('sf_'+$form_id+'_i18n', $i18n);
                                 }
                             },
                             complete: function(){
@@ -2690,6 +2694,13 @@
                                 $form.find('.super-multipart-steps').remove();
                                 SUPER.init_super_form_frontend();
                                 SUPER.after_preview_loaded_hook($form_id);
+                                // Set language switch dropdown to `filled` state
+                                
+                                var switcher = $form[0].querySelector('.super-i18n-switcher .super-dropdown');
+                                if(switcher){
+                                    
+                                    switcher.classList.add('super-filled');
+                                }
                             },
                             error: function (xhr, ajaxOptions, thrownError) {
                                 // eslint-disable-next-line no-console

@@ -27,6 +27,7 @@ if (!Element.prototype.closest) {
 if(typeof window.SUPER === 'undefined'){
     window.SUPER = {};
 }
+SUPER.automatically_switched_language = false;
 
 SUPER.round = function(number, decimals){
     if(typeof decimals === 'undefined') decimals = 0;
@@ -3524,6 +3525,9 @@ function SUPERreCaptcha(){
                     SUPER.init_popups.close(true);
                 }
             }
+            if(args.loadingOverlay.querySelector('.super-loading-wrapper')){
+                args.loadingOverlay.querySelector('.super-loading-wrapper').scrollTop = -args.loadingOverlay.querySelector('.super-loading-wrapper').scrollHeight;
+            }
         }else{
             // Display message in legacy mode
             // But only display if not empty
@@ -4333,7 +4337,7 @@ function SUPERreCaptcha(){
     // After field value changed
     SUPER.after_field_change_blur_hook = function(args){
         console.log('after_field_change_blur_hook', args);
-        if(args.el){
+        if(args.el && args.el.closest('.super-shortcode')){
             if(args.el.value===''){
                 args.el.closest('.super-shortcode').classList.remove('super-filled');
             }else{
@@ -4450,6 +4454,10 @@ function SUPERreCaptcha(){
         formData.append('action', 'super_save_form_progress');
         formData.append('form_id', $form_id);
         var data = JSON.stringify($data);
+        if(SUPER.form_js && SUPER.form_js[$form_id] && SUPER.form_js[$form_id]['_entry_data']){
+            // Updating the entry data on the object is required for language switcher to get the latest form progression data.
+            SUPER.form_js[$form_id]['_entry_data'] = data;
+        }
         formData.append('data', data);
         $.ajax({
             type: 'post',
@@ -6021,6 +6029,18 @@ function SUPERreCaptcha(){
                         setTimeout(function (){
                             $(args.form).fadeOut(100, function () {
                                 args.form.classList.add('super-initialized');
+                                if(SUPER.automatically_switched_language===false && args.form.querySelector('.super-i18n-switcher')){
+                                    // Check if we need to set the i18n data for this form based history, in case user went back via browser back button
+                                    var $i18n = sessionStorage.getItem('sf_'+formId+'_i18n');
+                                    if(args.form.querySelector('.super-i18n-switcher li[data-value="'+$i18n+'"]')){
+                                        SUPER.automatically_switched_language = true;
+                                        console.log($i18n);
+                                        args.form.dataset.i18n = $i18n;
+                                        console.log('Switched language on page load to '+$i18n);
+                                        args.form.querySelector('.super-i18n-switcher li[data-value="'+$i18n+'"]').click();
+                                        return;
+                                    }
+                                }
                                 $(args.form).fadeIn(500, function(){
                                     SUPER.switch_to_step_and_or_field(args.form);
                                 });
@@ -6029,7 +6049,6 @@ function SUPERreCaptcha(){
                     }
                 }
             };
-
             SUPER.after_initializing_forms_hook(args);
             
             if(SUPER.form_js && SUPER.form_js[formId] && SUPER.form_js[formId]['_entry_data']){
@@ -6760,6 +6779,10 @@ function SUPERreCaptcha(){
         // Remove error classes and filled classes
         nodes = args.form.querySelectorAll('.super-error, .super-error-active, .super-filled');
         for (i = 0; i < nodes.length; i++) { 
+            if(nodes[i].parentNode.classList.contains('super-i18n-switcher')) {
+                
+                continue;
+            }
             if(args.clear===false){
                 if(!nodes[i].classList.contains('super-wc-order-search')){
                     nodes[i].classList.remove('super-error');
@@ -7489,6 +7512,7 @@ function SUPERreCaptcha(){
         $('.super-shortcode-field[data-search="true"]:not(.super-dom-populated)').each(function(){
             if(this.value!==''){
                 this.classList.add('super-dom-populated');
+                
                 SUPER.populate_form_data_ajax({el: this});
             }
         });
@@ -7651,7 +7675,6 @@ function SUPERreCaptcha(){
                 $form.html('<p style="color:red;font-size:12px;"><strong>'+super_common_i18n.elementor.notice+':</strong> [Form ID: '+formId+ '] - '+super_common_i18n.elementor.msg+'</p>');
                 return false;
             }
-
             if( $total!==0 ) {
                 // Lets check if this form has already rendered the multi-parts
                 if( !$form.find('.super-multipart:eq(0)').hasClass('super-rendered') ) {
@@ -11481,6 +11504,7 @@ function SUPERreCaptcha(){
             var field = this;
             if (timeout !== null) clearTimeout(timeout);
             timeout = setTimeout(function () {
+                
                 SUPER.populate_form_data_ajax({el: field});
             }, 1000);
         });

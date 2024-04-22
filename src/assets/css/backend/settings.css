@@ -808,3 +808,9 @@
 .super-display-search-results .super-fields.super-search-found > .super-field.super-search-found-main {
   display: flex;
 }
+.super-settings .super-color-picker {
+  flex-direction: row-reverse;
+}
+.super-settings .super-color-picker .super-reset-settings-buttons > i {
+  margin: 0 0 0 5px !important;
+}

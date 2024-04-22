@@ -9,13 +9,17 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Apr 15, 2024 - Version 6.4-beta
+## Apr 22, 2024 - Version 6.4-beta
 
 - **Added:** New [Stripe] tab to configure Stripe checkout, allowing for one time payments and recurring payments.
 - **Added:** New [WooCommerce] tab to configure anything related to WooCommerce checkouts, in the next BETA version Instant Orders will also be implemented under this tab.
 - **Added:** New [Triggers] tab to execute actions based on events that occur on your site, temporarily only supports sending E-mail after form submission for testing purposes.
 Actions can be scheduled at specific dates and times, any E-mail reminders will now be located under the [Triggers] tab.
 Actions are compatible with the build-in translation system, allowing for more flexibility when it comes to translating. E-mail attachment may also be translatable so you that you can (for example) send different PDF files based on the users language.
+- **Improved:** Language switcher state remembered when returning back to form via previous button from Stripe checkout (as an example)
+- **Improved:** When filling out the form in a specific language, when returning via the browser back button to the form, it will remember the language and try to populate with remembered form data (if option is enabled)
+- **Fix:** When dealing with Calculator elements inside a dynamic column, when adding a new row, it should reset the value based on the current row fields
+- **Fix:** Signature inside conditional hidden column render issue
 - **Fix:** Both the `Divider` element and `<hr />` tag were not being printend on PDF when Native mode is enabled
 - **Fix:** Issue with Calculator element where math that contains regex like {contains*}, {^starts_with_}, {ends_with$} would not be calculated in some scenario's
 - **Added:** hour/minute/second conversion for Calculator element
