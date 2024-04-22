@@ -159,7 +159,12 @@
                 tab;
 
             if(el){
-                tab = el.closest('.super-tab-content');
+                //sfui-setting-group sfui-inline
+                //data-g
+                tab = el.closest('.sfui-setting-group');
+                if(!tab){
+                    tab = el.closest('.super-tab-content');
+                } 
             }else{
                 tab = document.querySelector('.super-tabs-content');
             }
@@ -175,6 +180,10 @@
                 var parts = filter[0].split('.');
                 if(parts.length===1){
                     node = tab.querySelector('[name="'+filter[0]+'"]');
+                    if(!node){
+                        tab = nodes[i].closest('.super-tab-content');
+                        node = tab.querySelector('[name="'+filter[0]+'"]');
+                    }
                 }else{
                     if(parts.length===2) node = tab.querySelector('[data-g="'+parts[0]+'"] [name="'+parts[1]+'"]');
                     if(parts.length===3) node = tab.querySelector('[data-g="'+parts[0]+'"] [data-g="'+parts[1]+'"] [name="'+parts[2]+'"]');
@@ -363,7 +372,7 @@
                 }
             }else{
                 // Update form settings
-                SUPER.update_form_settings(true);
+                SUPER.update_form_settings(true, el);
             }
         },
         i18n: {
@@ -432,8 +441,8 @@
     SUPER.update_form_elements = function(string){
         document.querySelector('.super-raw-code-form-elements textarea').value = SUPER.get_form_elements(string);
     };
-    SUPER.update_form_settings = function(string){
-        document.querySelector('.super-raw-code-form-settings textarea').value = SUPER.get_form_settings(string);
+    SUPER.update_form_settings = function(string, el){
+        document.querySelector('.super-raw-code-form-settings textarea').value = SUPER.get_form_settings(string, el);
     };
     SUPER.update_trigger_settings = function(string){
         document.querySelector('.super-raw-code-trigger-settings textarea').value = SUPER.get_trigger_settings(string);
@@ -459,50 +468,73 @@
         }
         return $elements;
     };
-    SUPER.get_form_settings = function(string){
+    SUPER.get_form_settings = function(string, el){
         if(typeof string === 'undefined') string = false;
-        var $settings = {};
-        var includeGlobalValues = false;
-        if(string===false){
-            includeGlobalValues = document.querySelector('input[name="retain_underlying_global_values"]').checked;
+        var specificTab = false;
+        if(el){
+            // If a setting was updated, determine which tab it belongs to.
+            // Then only update that specific part in the settings for speed improvements
+            var tab = el.closest('.super-tab-content');
+            if(tab){
+                var tabSlug = tab.className.replace('super-tab-content super-tab-', '');
+                tabSlug = tabSlug.replace('super-active', '').trim();
+                if(tabSlug==='woocommerce' || tabSlug==='pdf' || tabSlug==='listings' || tabSlug==='stripe'){
+                    var specificTab = true;
+                }
+            }
         }
-        $('.super-create-form .super-form-settings .super-element-field').each(function () {
-            var $this = $(this);
-            var $hidden = false;
+        if(specificTab){
+            var $settings = JSON.parse(document.querySelector('.super-raw-code-form-settings textarea').value);
+            // WooCommerce settings OR
+            // PDF settings OR
+            // Listing settings OR
+            // Stripe settings
+            $settings = SUPER.get_tab_settings($settings, tabSlug);
+        }else{
+            // Grab all settings anew
+            var $settings = {};
+            var includeGlobalValues = false;
+            if(string===false){
+                includeGlobalValues = document.querySelector('input[name="retain_underlying_global_values"]').checked;
+            }
+            $('.super-create-form .super-form-settings .super-element-field').each(function () {
+                var $this = $(this);
+                var $hidden = false;
 
-            // select parent based on .filter class
-            var $parent = $this.parents('.super-field.super-filter');
-            $parent.each(function () {
-                if ($(this).css('display') == 'none') {
-                    $hidden = true;
+                // select parent based on .filter class
+                var $parent = $this.parents('.super-field.super-filter');
+                $parent.each(function () {
+                    if ($(this).css('display') == 'none') {
+                        $hidden = true;
+                    }
+                });
+
+                // now select based on only .super-field class
+                $parent = $this.parents('.super-field');
+                if ($hidden === false) {
+                    var $name = $this.attr('name');
+                    if(includeGlobalValues){
+                        $value = $this.val();
+                    }else{
+                        var $value = '_g_';
+                        if(!$this[0].closest('._g_')){ //!$parent.hasClass('_g_')){
+                            $value = $this.val();
+                        }
+                    }
+                    $settings[$name] = $value;
                 }
             });
-
-            // now select based on only .super-field class
-            $parent = $this.parents('.super-field');
-            if ($hidden === false) {
-                var $name = $this.attr('name');
-                if(includeGlobalValues){
-                    $value = $this.val();
-                }else{
-                    var $value = '_g_';
-                    if(!$this[0].closest('._g_')){ //!$parent.hasClass('_g_')){
-                        $value = $this.val();
-                    }
-                }
-                $settings[$name] = $value;
-            }
-        });
-        // Trigger settings
-        // no longer used, we grab triggers specifically $settings = SUPER.get_tab_settings($settings, 'triggers');
-        // WooCommerce settings
-        $settings = SUPER.get_tab_settings($settings, 'woocommerce');
-        // PDF settings
-        $settings = SUPER.get_tab_settings($settings, 'pdf');
-        // Listing settings
-        $settings = SUPER.get_tab_settings($settings, 'listings');
-        // Stripe settings
-        $settings = SUPER.get_tab_settings($settings, 'stripe');
+            // Trigger settings
+            // no longer used, we grab triggers specifically $settings = SUPER.get_tab_settings($settings, 'triggers');
+            // WooCommerce settings
+            $settings = SUPER.get_tab_settings($settings, 'woocommerce');
+            // PDF settings
+            $settings = SUPER.get_tab_settings($settings, 'pdf');
+            // Listing settings
+            $settings = SUPER.get_tab_settings($settings, 'listings');
+            // Stripe settings
+            $settings = SUPER.get_tab_settings($settings, 'stripe');
+        }
         if(string===true) {
             if(!isEmpty($settings)) return JSON.stringify($settings, undefined, 4);
             return '';
@@ -1842,10 +1874,16 @@
         if(remove===true) tinymce.remove(selector);
         tinymce.init({
             selector: selector, 
+
+            //var content = tinymce.get('your_editor_id').getContent();
+            //content = content.replace(/{stripe_retry_payment_expiry_placeholder}/g, '{stripe_retry_payment_expiry}');
+            //content = content.replace(/{stripe_retry_payment_url_placeholder}/g, '{stripe_retry_payment_url}');
+            //tinymce.get('your_editor_id').setContent(content);
             setup: function(editor){
                 editor.on('BeforeSetContent', function(e) {
                     // Replace non-breaking spaces with regular spaces
                     e.content = e.content.replace(/\r?\n/g, '<br />');
+                    e.content = e.content.replace(/%7B(.+?)%7D/g, '{$1}');
                 });
                 editor.on('Change', function(e) {
                     // Required to store trigger translations properly

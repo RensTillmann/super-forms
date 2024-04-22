@@ -740,6 +740,24 @@ class SUPER_Pages {
                                                                 'vertical' => true, // sfui-vertical
                                                                 'nodes' => array(
                                                                     array(
+                                                                        'notice' => 'hint', // hint/info
+                                                                        'content' => '<strong>'.esc_html__('Note', 'super-forms').':</strong> ' . sprintf( esc_html__('Use %s and %s tags to display the expiry in time and the retry payment link itself inside your E-mail body.', 'super-forms'), '{stripe_retry_payment_expiry}', '{stripe_retry_payment_url}' ),
+                                                                        'filter' => 'event;stripe.checkout.session.async_payment_failed'
+                                                                    ),
+                                                                    array(
+                                                                        'notice' => 'hint', // hint/info
+                                                                        'content' => '<strong>'.esc_html__('Example retry payment email', 'super-forms').':</strong><br /><br />' . sprintf( esc_html__( 'Payment failed please try again by clicking the below URL.%sThe below link will be valid for %s hours before your order is removed.%s%s', 'super-forms'), '<br />', '{stripe_retry_payment_expiry}', '<br /><br />', '<a href="{stripe_retry_payment_url}">{stripe_retry_payment_url}</a>' ),
+                                                                        'filter' => 'event;stripe.checkout.session.async_payment_failed'
+                                                                    ),
+                                                                    array(
+                                                                        'name' => 'stripe_retry_payment_link_expiry',
+                                                                        'title' => 'Retry payment link expiry in hours',
+                                                                        'subline' => 'Enter the amount in hours before the retry payment link expires. Must be a number between 24 and 720.',
+                                                                        'type' => 'number',
+                                                                        'default' => '48',
+                                                                        'filter' => 'event;stripe.checkout.session.async_payment_failed'
+                                                                    ),
+                                                                    array(
                                                                         'name' => 'subject',
                                                                         'type' => 'text',
                                                                         'default' => esc_html__( 'New question', 'super-forms' ),

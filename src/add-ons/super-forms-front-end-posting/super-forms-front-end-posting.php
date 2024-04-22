@@ -949,10 +949,10 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                     SUPER_Common::setClientData( array( 'name'=> 'super_forms_created_post_id', 'value'=>$post_id  ) );
 
                     // Store as submission info
-                    $uniqueSubmissionId = $atts['uniqueSubmissionId'];
-                    $submissionInfo = get_option( '_sfsi_' . $uniqueSubmissionId, array() );
-                    $submissionInfo['created_post'] = $post_id;
-                    update_option('_sfsi_' . $uniqueSubmissionId, $submissionInfo );
+                    $sfs_uid = $atts['sfs_uid'];
+                    $sfsi = get_option( '_sfsi_' . $sfs_uid, array() );
+                    $sfsi['created_post'] = $post_id;
+                    update_option('_sfsi_' . $sfs_uid, $sfsi );
                 }
 
                 // @since 1.0.1

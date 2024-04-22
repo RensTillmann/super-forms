@@ -26,33 +26,33 @@
         </ul>
         <?php
         $counter = 0;
-        foreach( $fields as $k => $v ) {
-            if( (isset($v['hidden'])) && ($v['hidden']==='settings') ) {
+        foreach($fields as $k => $v){
+            if((isset($v['hidden'])) && ($v['hidden']==='settings')){
                 continue;
             }
-            if( $counter==0 ) {
+            if($counter==0){
                 echo '<div class="super-fields super-active super-field-type-">';
             }else{
                 echo '<div class="super-fields">';
             }
 
-            if( !empty($v['label'])) {
+            if(!empty($v['label'])){
                 echo '<h2>' . $v['label'] . '</h2>';
             }
-            if( isset( $v['html'] ) ) {
-                foreach( $v['html'] as $html ) {
+            if(isset($v['html']) && is_array($v['html'])){
+                foreach($v['html'] as $html){
                     echo $html;
                 }
             } 
             //Load fields
-            if( isset( $v['fields'] ) ) {
-                foreach( $v['fields'] as $fk => $fv ) {
+            if(isset($v['fields'])){
+                foreach($v['fields'] as $fk => $fv){
                     if(isset($fv['type']) && $fv['type']==='multicolor'){
                         foreach($fv['colors'] as $ck => $cv){
                             if(isset($g[$ck])) $fv['colors'][$ck]['v'] = $g[$ck];
                         }
                     }
-                    echo call_user_func( array( 'SUPER_Field_Types', 'loop_over_fields' ), $fk, $fv );
+                    echo call_user_func(array('SUPER_Field_Types', 'loop_over_fields'), $fk, $fv);
                 }
             }
             echo '</div>';

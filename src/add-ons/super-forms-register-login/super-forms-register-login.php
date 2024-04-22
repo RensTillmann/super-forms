@@ -1112,10 +1112,10 @@ if( !class_exists('SUPER_Register_Login') ) :
                     }
 
                     // Store as submission info
-                    $uniqueSubmissionId = $atts['uniqueSubmissionId'];
-                    $submissionInfo = get_option( '_sfsi_' . $uniqueSubmissionId, array() );
-                    $submissionInfo['updatedUser'] = $user_id;
-                    update_option('_sfsi_' . $uniqueSubmissionId, $submissionInfo );
+                    $sfs_uid = $atts['sfs_uid'];
+                    $sfsi = get_option( '_sfsi_' . $sfs_uid, array() );
+                    $sfsi['updatedUser'] = $user_id;
+                    update_option('_sfsi_' . $sfs_uid, $sfsi );
 
                 }else{
                     // @since 1.4.0 - register new user if user doesn't exists while updating user
@@ -1249,7 +1249,7 @@ if( !class_exists('SUPER_Register_Login') ) :
         */
         public static function before_sending_email( $x ) {
             extract( shortcode_atts( array( 
-                'uniqueSubmissionId'=>'',
+                'sfs_uid'=>'',
                 'data'=>array(), 
                 'post'=>array(), 
                 'settings'=>array(),
@@ -1308,50 +1308,41 @@ if( !class_exists('SUPER_Register_Login') ) :
                     // Now lets check if a user already exists with the same user_login or user_email
                     $user_login = sanitize_user( $data['user_login']['value'] );
                     $user_email = sanitize_email( $data['user_email']['value'] );
-                    
                     $username_exists = username_exists($user_login);
-                    if( $username_exists!=false ) {
-                        error_log('@@@ username exists!');
+                    $force_create_new_user_account = false; // important
+                    if($username_exists!=false){
                         $user = get_user_by( 'login', $user_login );
                         if($user===false){
                             $username_exists = true;
                         }
                         $user_login_status = get_user_meta( $user->ID, 'super_user_login_status', true );
-                        error_log('@@@ current user login status: ' . $user_login_status);
-                        if( ($user_login_status=='active') || ($user_login_status=='') ) {
+                        if(($user_login_status=='active') || ($user_login_status=='')){
                             $username_exists = true;
                         }else{
-                            error_log('@@@ delete user #'.$user->ID);
-                            // We shouldn't be doing this, at least not right now, we will require an extra setting/option to control this
-                            // And we can't rely just on the login status for this
-                            // wp_delete_user( $user->ID );
-                            //$username_exists = false;
+                            wp_delete_user( $user->ID );
+                            $username_exists = false;
+                            $force_create_new_user_account = true; 
                         }
                     }
-
                     $email_exists = email_exists($user_email);        
-                    if( $email_exists!=false ) {
-                        error_log('@@@ email exists!');
-                        $user = get_user_by( 'email', $user_email );
+                    if($email_exists!=false){
+                        $user = get_user_by('email', $user_email);
                         if($user===false){
                             $email_exists = true;
                         }
                         $user_login_status = get_user_meta( $user->ID, 'super_user_login_status', true );
-                        error_log('@@@ current user login status: ' . $user_login_status);
-                        if( ($user_login_status=='active') || ($user_login_status=='') ) {
+                        if(($user_login_status=='active') || ($user_login_status=='')){
                             $email_exists = true;
                         }else{
-                            error_log('@@@ delete user #'.$user->ID);
-                            // We shouldn't be doing this, at least not right now, we will require an extra setting/option to control this
-                            // And we can't rely just on the login status for this
-                            // wp_delete_user( $user->ID );
-                            //$email_exists = false;
+                            wp_delete_user( $user->ID );
+                            $email_exists = false;
+                            $force_create_new_user_account = true; 
                         }
                     }
-                    $is_paid_signup_form = false; 
-                    if($user_login_status=='payment_required'){
+                    $create_new_user_account = true; 
+                    if(!empty($user_login_status) && $user_login_status==='payment_required'){
                         // `payment_required` should be used for paid registrations (if you are using Stripe or WooCommerce for registrations that require payment)
-                        // If the user login status is set to `payment_required`, a user previously registered, but didn't yet completed their payment
+                        // If the user login status is `payment_required` it means that the user who previously registered didn't yet completed their payment
                         // Continue with the submission and use this user, there is no need to re-create the account.
 
                         // If this is a paid signup form (when checkout is enabled)
@@ -1387,7 +1378,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                             if($s['enabled']==='true'){
                                 // If conditional check is enabled
                                 $checkout = true;
-                                if($s['conditionally']==='true' && $s['logic']!==''){
+                                if($s['conditions']['enabled']==='true' && $s['logic']!==''){
                                     $f1 = SUPER_Common::email_tags($s['f1'], $data, $settings);
                                     $logic = $s['logic'];
                                     $f2 = SUPER_Common::email_tags($s['f2'], $data, $settings);
@@ -1397,15 +1388,16 @@ if( !class_exists('SUPER_Register_Login') ) :
                         }
                         if($checkout===true){
                             // Is registered payment form
-                            $is_paid_signup_form = true;
-                            error_log('is paid signup form, either via PayPal, Stripe, or WooCommerce checkout');
+                            $create_new_user_account = false;
+                            if($force_create_new_user_account){
+                                // important, because the previously created user was just deleted, so we must create a new account again
+                                $create_new_user_account = true;
+                            }
                         }
                     }
-                    error_log('is paid signup form: ' . $is_paid_signup_form);
-                    if($is_paid_signup_form===false){
-                        error_log('is not a paid signup form');
-                        if( ( $username_exists!=false ) || ( $email_exists!=false ) ) {
-                            $msg = esc_html__( 'Username or E-mail address already exists, please try again', 'super-forms' );
+                    if($create_new_user_account===true){
+                        if(($username_exists!=false) || ($email_exists!=false)){
+                            $msg = esc_html__('Username or E-mail address already exists, please try again', 'super-forms');
                             SUPER_Common::output_message( array(
                                 'msg' => $msg,
                                 'form_id' => absint($form_id),
@@ -1415,7 +1407,6 @@ if( !class_exists('SUPER_Register_Login') ) :
                                 )
                             ));
                         }
-
                         // If user_pass field doesn't exist, we can generate one and send it by email to the registered user
                         $send_password = false;
                         $password = '';
@@ -1425,7 +1416,6 @@ if( !class_exists('SUPER_Register_Login') ) :
                         }else{
                             $password = $data['user_pass']['value'];
                         }
-
                         // Lets gather all data that we need to insert for this user
                         $userdata = array();
                         $userdata['user_login'] = $user_login;
@@ -1434,7 +1424,6 @@ if( !class_exists('SUPER_Register_Login') ) :
                         $userdata['role'] = SUPER_Common::email_tags( $settings['register_user_role'], $data, $settings );
                         $userdata['user_registered'] = date('Y-m-d H:i:s');
                         $userdata['show_admin_bar_front'] = 'false';
-
                         // Also loop through some of the other default user data that WordPress provides us with out of the box
                         $other_userdata = array(
                             'user_nicename',
@@ -1455,15 +1444,13 @@ if( !class_exists('SUPER_Register_Login') ) :
                                 $userdata[$k] = $data[$k]['value'];
                             }
                         }
-
                         // @since 1.6.1 - option to enable or disable toolbar
-                        if(!empty($settings['register_login_show_toolbar'])) {
+                        if(!empty($settings['register_login_show_toolbar'])){
                             $userdata['show_admin_bar_front'] = $settings['register_login_show_toolbar'];
                         }
-
                         // Insert the user and return the user ID
-                        $user_id = wp_insert_user( $userdata );
-                        if( is_wp_error( $user_id ) ) {
+                        $user_id = wp_insert_user($userdata);
+                        if(is_wp_error($user_id)){
                             $msg = $user_id->get_error_message();
                             SUPER_Common::setClientData( array( 'name'=> 'msg', 'value'=>array( 'data'=>$data, 'settings'=>$settings, 'msg'=>$msg, 'type'=>'error'  ) ) );
                             SUPER_Common::output_message( array(
@@ -1472,33 +1459,24 @@ if( !class_exists('SUPER_Register_Login') ) :
                             ));
                         }
                     }
-
                     // Define user_id as the newly registered user_id
-                    $submissionInfo = get_option( '_sfsi_' . $uniqueSubmissionId, array() );
-                    error_log('registered user id = '. $user_id);
-                    $submissionInfo['user_id'] = $user_id;
-                    $submissionInfo['registered_user_id'] = $user_id;
-                    error_log('uniqueSubmissionId = '. $uniqueSubmissionId);
-                    update_option('_sfsi_' . $uniqueSubmissionId, $submissionInfo );
-
+                    $sfsi = get_option( '_sfsi_' . $sfs_uid, array() );
+                    $sfsi['user_id'] = $user_id;
+                    $sfsi['registered_user_id'] = $user_id;
+                    update_option('_sfsi_' . $sfs_uid, $sfsi );
                     // @since v1.0.3 - currently used by the WooCommerce Checkout feature
                     do_action( 'super_after_wp_insert_user_action', array( 'user_id'=>$user_id, 'atts'=>$x ) );
-       
                     // @since 1.3.0 - save user meta after possible file(s) have been processed and saved into media library
                     SUPER_Common::setClientData( array( 'name'=> 'super_forms_registered_user_id', 'value'=>$user_id  ) );
-
                     // @since 1.0.3
                     if( !isset($settings['register_user_signup_status']) ) $settings['register_user_signup_status'] = 'active';
                     update_user_meta( $user_id, 'super_user_login_status', $settings['register_user_signup_status'] );
-
                     if( (isset($settings['register_send_approve_email'])) && ($settings['register_send_approve_email']=='true') ) {
                         update_user_meta( $user_id, 'super_user_approve_data', array('settings'=>$settings, 'data'=>$data) );
                     }
-
                     // Check if we need to send an activation email to this user
                     if( ($settings['register_login_activation']=='verify') || ($settings['register_login_activation']=='verify_login') ) {
                         $code = wp_generate_password( 8, false );
-                        
                         // @since 1.2.4 - allows users to use a custom activation code, for instance generated with the unique random number with a hidden field
                         if(isset($data['register_activation_code'])){
                             $code = $data['register_activation_code']['value'];
@@ -1506,7 +1484,6 @@ if( !class_exists('SUPER_Register_Login') ) :
                         if(isset($data['email_verification_code'])){
                             $code = $data['email_verification_code']['value'];
                         }
-                        
                         update_user_meta( $user_id, 'super_account_status', 0 ); // 0 = inactive, 1 = active
                         update_user_meta( $user_id, 'super_account_activation', $code ); 
                         $user = get_user_by( 'id', $user_id );
@@ -1519,7 +1496,6 @@ if( !class_exists('SUPER_Register_Login') ) :
                             ));
                         }
                     }
-                    
                     // @since 1.0.4
                     // Login the user without activating it's account
                     if( $settings['register_login_activation']=='verify_login' ) {
@@ -1527,7 +1503,6 @@ if( !class_exists('SUPER_Register_Login') ) :
                         wp_set_auth_cookie( $user_id );
                         update_user_meta( $user_id, 'super_last_login', time() );
                     }
-
                     // Check if we let users automatically login after registering (instant login)
                     if( $settings['register_login_activation']=='login' ) $settings['register_login_activation'] = 'auto';
                     if( $settings['register_login_activation']=='auto' ) {
@@ -1537,7 +1512,6 @@ if( !class_exists('SUPER_Register_Login') ) :
                         update_user_meta( $user_id, 'super_account_status', 1 );
                         update_user_meta( $user_id, 'super_user_login_status', 'active' );
                     }
-
                     // Check if automatically activate users
                     if( $settings['register_login_activation']=='activate' ) {
                         update_user_meta( $user_id, 'super_account_status', 1 );
@@ -1547,7 +1521,6 @@ if( !class_exists('SUPER_Register_Login') ) :
                     if( $settings['register_login_activation']=='none' ) {
                         update_user_meta( $user_id, 'super_account_status', 1 );
                     }
-
                     // @since 1.1.0 - create multi-site
                     if( !isset($settings['register_login_multisite_enabled']) ) $settings['register_login_multisite_enabled'] = '';
                     if( $settings['register_login_multisite_enabled']=='true' ) {

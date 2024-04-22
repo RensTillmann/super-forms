@@ -82,6 +82,7 @@
             }
         });
 
+        SUPER.init_color_pickers();
         SUPER.init_image_browser();
        
         $doc.on('click', '.super-checkbox input[type="checkbox"]',function(){

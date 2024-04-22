@@ -1087,6 +1087,7 @@ class SUPER_Ajax {
      *  @since      2.2.0
     */
     public static function populate_form_data() {
+        error_log('populate_form_data(1)');
         global $wpdb;
         // @since 4.6.0 - check if we are looking up entry data based on a WC order
         if(isset($_POST['order_id'])){
@@ -1097,13 +1098,15 @@ class SUPER_Ajax {
         }else{
             $value = sanitize_text_field($_POST['value']);
             $method = sanitize_text_field($_POST['method']);
+            error_log('value: '.$value);
+            error_log('method: '.$method);
             $table = $wpdb->prefix . 'posts';
             $table_meta = $wpdb->prefix . 'postmeta';
             if($method=='equals') $query = "post_title = BINARY '$value'";
             if($method=='contains') $query = "post_title LIKE BINARY '%$value%'";
             $entry = $wpdb->get_results("SELECT ID FROM $table WHERE $query AND post_status IN ('publish','super_unread','super_read') AND post_type = 'super_contact_entry' LIMIT 1");
             $data = array();
-            if( isset($entry[0])) {
+            if(isset($entry[0])){
                 $data = get_post_meta( $entry[0]->ID, '_super_contact_entry_data', true );
                 unset($data['hidden_form_id']);
                 $entry_status = get_post_meta( absint($entry[0]->ID), '_super_contact_entry_status', true );
@@ -1136,6 +1139,7 @@ class SUPER_Ajax {
                     }
                 }
             }
+            error_log('data: '.json_encode($data));
             echo SUPER_Common::safe_json_encode($data);
         }
         die();
@@ -2703,6 +2707,7 @@ class SUPER_Ajax {
             $data = wp_unslash($_POST['data']);
             $data = json_decode($data, true);
             $data = wp_slash($data);
+            unset($_POST['data']);
         }
         // @since 3.2.0 
         // - If honeypot captcha field is not empty just cancel the request completely
@@ -2723,6 +2728,7 @@ class SUPER_Ajax {
         unset($settings['form_custom_css']);
 
         // @since 4.7.0 - translation
+        $i18n = '';
         if(!empty($_POST['i18n'])){
             $i18n = sanitize_text_field($_POST['i18n']);
             if( (!empty($settings['i18n'])) && (!empty($settings['i18n'][$i18n])) ){
@@ -2732,12 +2738,12 @@ class SUPER_Ajax {
         }
         
         // @since 1.7.6
-        $data = apply_filters( 'super_before_sending_email_data_filter', $data, array( 'data'=>$data, 'post'=>$_POST, 'settings'=>$settings ) );        
+        $data = apply_filters( 'super_before_sending_email_data_filter', $data, array( 'i18n'=>$i18n, 'data'=>$data, 'post'=>$_POST, 'settings'=>$settings ) );        
 
         // Before we continue we might want to alter the form settings
         $entry_id = (isset($_POST['entry_id']) ? absint($_POST['entry_id']) : '');
         $list_id = (isset($_POST['list_id']) ? absint($_POST['list_id']) : '');
-        $settings = apply_filters( 'super_before_submit_form_settings_filter', $settings, array( 'data'=>$data, 'post'=>$_POST, 'entry_id'=>$entry_id, 'list_id'=>$list_id ) );        
+        $settings = apply_filters( 'super_before_submit_form_settings_filter', $settings, array( 'i18n'=>$i18n, 'data'=>$data, 'post'=>$_POST, 'entry_id'=>$entry_id, 'list_id'=>$list_id ) );        
         
         // @since 4.6.0 - verify reCAPTCHA token
         if($skipChecks===false){
@@ -2827,30 +2833,31 @@ class SUPER_Ajax {
         }
 
         // Get/set unique submission identifier
-        $uniqueSubmissionId = SUPER_Common::getClientData( 'unique_submission_id_' . $form_id );
-        if( $uniqueSubmissionId===false ){
-            $uniqueSubmissionId = md5(uniqid(mt_rand(), true)); 
+        $sfs_uid = SUPER_Common::getClientData( 'unique_submission_id_' . $form_id );
+        if( $sfs_uid===false ){
+            $sfs_uid = md5(uniqid(mt_rand(), true)); 
             // . '.' . $expires . '.'. $exp_var;
-            $uniqueSubmissionId = SUPER_Common::setClientData(
+            $sfs_uid = SUPER_Common::setClientData(
                 array( 
                     'name' => 'unique_submission_id_' . $form_id, 
-                    'value' => $uniqueSubmissionId
+                    'value' => $sfs_uid
                 )
             );
         }else{
             // Update to increase expiry
-            $s = explode('.', $uniqueSubmissionId);
-            delete_option( '_sfsi_'.$s[0].'.'.$s[1]);
-            $uniqueSubmissionId = $s[0];
-            $uniqueSubmissionId = SUPER_Common::setClientData( array( 
+            $s = explode('.', $sfs_uid);
+            delete_option( '_sfsi_' . $s[0] . '.' . $s[1]);
+            $sfs_uid = $s[0];
+            $sfs_uid = SUPER_Common::setClientData( array( 
                 'name' => 'unique_submission_id_' . $form_id,
-                'value' => $uniqueSubmissionId
+                'value' => $sfs_uid
                 //'expires' => 60*60, // 60 min. (30*60)
                 //'exp_var' => 20*60 // 20 min. (20*60)
             ) );
         }
         $x = array(
-            'uniqueSubmissionId'=>$uniqueSubmissionId,
+            'i18n'=>$i18n,
+            'sfs_uid'=>$sfs_uid,
             'data'=>$data,
             'form_id'=>$form_id, 
             'entry_id'=>$entry_id, 
@@ -2880,9 +2887,10 @@ class SUPER_Ajax {
         }
         $sfsi['files'] = $files;
         unset($sfsi['settings']); // remove settings, not needed
-        update_option('_sfsi_' . $uniqueSubmissionId, $sfsi);
+        update_option('_sfsi_' . $sfs_uid, $sfsi);
         return array(
-            'uniqueSubmissionId' => $uniqueSubmissionId,
+            'i18n' => $i18n,
+            'sfs_uid' => $sfs_uid,
             'sfsi'=>$sfsi,
             'data'=>$data,
             'form_id'=>$form_id,
@@ -2894,7 +2902,8 @@ class SUPER_Ajax {
     }
     public static function upload_files() {
         $atts = self::submit_form_checks();
-        $uniqueSubmissionId = $atts['uniqueSubmissionId'];
+        $i18n = $atts['i18n'];
+        $sfs_uid = $atts['sfs_uid'];
         $form_id = $atts['form_id'];
         $entry_id = absint($atts['entry_id']);
         $list_id = absint($atts['list_id']);
@@ -3077,7 +3086,8 @@ class SUPER_Ajax {
             'sf_nonce' => SUPER_Common::generate_nonce()
         );
         $x = array(
-            'uniqueSubmissionId'=>$uniqueSubmissionId,
+            'i18n'=>$i18n,
+            'sfs_uid'=>$sfs_uid,
             'data'=>$odata,
             'files'=>$data,
             'form_id'=>$form_id, 
@@ -3099,15 +3109,17 @@ class SUPER_Ajax {
      *  @since      3.1.0
     */
     public static function save_form_progress() {
+        error_log('save_form_progress(1)');
         if(!empty($_POST['form_id'])){
+            error_log('save_form_progress(2)');
             $form_id = absint($_POST['form_id']);
             $data = false; // Clear data by default
-            if( !empty( $_POST['data'] ) ) {
+            if(!empty($_POST['data'])){
+                error_log('save_form_progress(3)');
                 $data = wp_unslash($_POST['data']);
                 $data = json_decode($data, true);
-                //$data = wp_slash($data);
             }
-            SUPER_Common::setClientData( array( 'name' => 'progress_' . $form_id, 'value' => $data ) );
+            SUPER_Common::setClientData(array('name'=>'progress_' . $form_id, 'value'=>$data));
         }
         die();
     }
@@ -3120,11 +3132,12 @@ class SUPER_Ajax {
         }else{
             $atts = self::submit_form_checks(true);
         }
+        $i18n = $atts['i18n'];
         $form_id = $atts['form_id'];
         $sfsi = $atts['sfsi'];
 
         // Get/set unique submission identifier
-        $uniqueSubmissionId = $atts['uniqueSubmissionId'];
+        $sfs_uid = $atts['sfs_uid'];
         $data = $atts['data'];
         $entry_id = absint($atts['entry_id']);
         $list_id = absint($atts['list_id']);
@@ -3233,7 +3246,7 @@ class SUPER_Ajax {
         unset($GLOBALS['super_upload_dir']);
         unset($GLOBALS['super_allowed_mime_types']);
         $sfsi['data'] = $data;
-        update_option('_sfsi_' . $uniqueSubmissionId, $sfsi);
+        update_option('_sfsi_' . $sfs_uid, $sfsi);
 
         if( !empty( $settings['header_additional'] ) ) {
             $header_additional = '';
@@ -3300,7 +3313,7 @@ class SUPER_Ajax {
             $contact_entry_id = wp_insert_post($post);
             $sfsi['contact_entry_id'] = $contact_entry_id;
             $sfsi['entry_id'] = $contact_entry_id;
-            update_option('_sfsi_' . $uniqueSubmissionId, $sfsi);
+            update_option('_sfsi_' . $sfs_uid, $sfsi);
 
             // Store entry ID for later use
             set_transient( 'super_form_authenticated_entry_id_' . $contact_entry_id, $contact_entry_id, 30 ); // Expires in 30 seconds
@@ -3513,7 +3526,7 @@ class SUPER_Ajax {
              *
              *  @since      1.2.9
             */
-            do_action( 'super_after_saving_contact_entry_action', array( 'uniqueSubmissionId'=>$uniqueSubmissionId,  'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id ) );
+            do_action( 'super_after_saving_contact_entry_action', array( 'sfs_uid'=>$sfs_uid,  'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id ) );
 
         }
 
@@ -3572,7 +3585,7 @@ class SUPER_Ajax {
         }
 
         do_action( 'super_before_sending_email_hook', array( 
-            'uniqueSubmissionId'=>$uniqueSubmissionId,
+            'sfs_uid'=>$sfs_uid,
             'data'=>$data, 
             'form_id'=>$form_id, 
             'entry_id'=>$entry_id, 
@@ -3582,7 +3595,7 @@ class SUPER_Ajax {
             'post'=>$_POST
         ));
         // We must retrieve the new session info, because the register & login might have updated the `user_id` value
-        $sfsi = get_option('_sfsi_' . $uniqueSubmissionId);
+        $sfsi = get_option('_sfsi_' . $sfs_uid);
         if( $settings['send']=='yes' ) {
             $email_body = $settings['email_body'];
             $email_body = str_replace( '{loop_fields}', $email_loop, $email_body );
@@ -3868,7 +3881,7 @@ class SUPER_Ajax {
                 }
 
                 $sfsi['post_body'] = $parameters;
-                update_option('_sfsi_' . $uniqueSubmissionId, $sfsi);
+                update_option('_sfsi_' . $sfs_uid, $sfsi);
 
                 $response = wp_remote_post(
                     $settings['form_post_url'], 
@@ -3892,7 +3905,7 @@ class SUPER_Ajax {
                 SUPER_Common::setClientData( array( 'name' => 'progress_' . $form_id, 'value' => false ) );
 
                 $sfsi['post_response'] = $response;
-                update_option('_sfsi_' . $uniqueSubmissionId, $sfsi);
+                update_option('_sfsi_' . $sfs_uid, $sfsi);
 
                 do_action( 'super_after_wp_remote_post_action', $response );
 
@@ -3934,9 +3947,10 @@ class SUPER_Ajax {
             $attachments = apply_filters( 'super_attachments_filter', $attachments, array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id, 'attachments'=>$attachments ) );
 
             $sfsi['attachments'] = $attachments;
-            update_option('_sfsi_' . $uniqueSubmissionId, $sfsi);
+            update_option('_sfsi_' . $sfs_uid, $sfsi);
             SUPER_Common::triggerEvent('sf.after.submission', array(
-                'uniqueSubmissionId'=>$uniqueSubmissionId, 
+                'i18n'=>$i18n, 
+                'sfs_uid'=>$sfs_uid, 
                 'post'=>$_POST, 
                 'data'=>$data, 
                 'settings'=>$settings, 
@@ -3945,7 +3959,8 @@ class SUPER_Ajax {
                 'form_id'=>$form_id
             ));
             do_action( 'super_before_email_success_msg_action', array( 
-                'uniqueSubmissionId'=>$uniqueSubmissionId, 
+                'i18n'=>$i18n, 
+                'sfs_uid'=>$sfs_uid, 
                 'post'=>$_POST, 
                 'data'=>$data, 
                 'settings'=>$settings, 
@@ -4001,7 +4016,7 @@ class SUPER_Ajax {
             }
 
             // Currently used by Stripe to redirect to checkout session
-            do_action( 'super_before_redirect_action', array( 'sfsi'=>$sfsi, 'form_id'=>$form_id, 'uniqueSubmissionId'=>$uniqueSubmissionId, 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id, 'attachments'=>$attachments ) );
+            do_action( 'super_before_redirect_action', array( 'sfsi'=>$sfsi, 'form_id'=>$form_id, 'sfs_uid'=>$sfs_uid, 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id, 'attachments'=>$attachments ) );
 
             // Clear form progression
             SUPER_Common::setClientData( array( 'name' => 'progress_' . $form_id, 'value' => false ) );
@@ -4054,12 +4069,12 @@ class SUPER_Ajax {
             $redirect = apply_filters( 'super_redirect_url_filter', $redirect, array( 'data'=>$data, 'settings'=>$settings ) );
             if($redirect!=='' && $redirect!==false){
                 // tmp $sfsi['redirectedTo'] = $redirect;
-                // tmp update_option('_sfsi_' . $uniqueSubmissionId, $sfsi );
+                // tmp update_option('_sfsi_' . $sfs_uid, $sfsi );
             }
             
             SUPER_Common::triggerEvent('sf.submission.finalized', $atts);
             // Clean up submission info
-            delete_option('_sfsi_' . $uniqueSubmissionId);
+            delete_option('_sfsi_' . $sfs_uid);
             $response_data['sf_nonce'] = SUPER_Common::generate_nonce();
             // Required by Listings to replace the old PDF URL with the newly generated URL:
             if(isset($sfsi['data']['_generated_pdf_file'])) $response_data['_generated_pdf_file'] = $sfsi['data']['_generated_pdf_file'];

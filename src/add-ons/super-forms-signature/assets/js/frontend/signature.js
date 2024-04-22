@@ -12,13 +12,18 @@
 	SUPER.init_signature = function(){
 		var i, nodes = document.querySelectorAll('.super-signature:not(.super-initialized)');
 		for(i=0; i<nodes.length; i++){
-			nodes[i].classList.add('super-initialized');
 			var canvasWrapper = nodes[i].querySelector('.super-signature-canvas');
-			var field = nodes[i].querySelector('.super-shortcode-field');
-			var canvas = canvasWrapper.querySelector('canvas');
-			// Set canvas to proper width
 			var width = canvasWrapper.getBoundingClientRect().width;
 			var height = canvasWrapper.getBoundingClientRect().height;
+			if(width===0 && height===0){
+				// If conditionally hidden, skip it until visible
+				nodes[i].classList.remove('super-initialized');
+				continue;
+			}
+			var field = nodes[i].querySelector('.super-shortcode-field');
+			var canvas = canvasWrapper.querySelector('canvas');
+			nodes[i].classList.add('super-initialized');
+			// Set canvas to proper width
 			canvas.width = width;
 			canvas.height = height;
 			if(typeof SUPER.signatures === 'undefined') SUPER.signatures = {};
