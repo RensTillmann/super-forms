@@ -546,19 +546,19 @@ class SUPER_Ajax {
             // No need to do this, return message
             $verified = false;
         }
-        $csrfValidation = SUPER_Common::verifyCSRF();
-        if(!$csrfValidation){
-            // Only check when not disabled by the user.
-            // Some users want to use/load their forms via an iframe from a different domain name
-            // In this case sessions won't work  because of browsers "SameSite by default cookies"
-            $global_settings = SUPER_Common::get_global_settings();
-            if(!empty($global_settings['csrf_check']) && $global_settings['csrf_check']==='false'){
-                // Check was disabled by the user, skip it
-            }else{
-                // Return error
-                $verified = false;
-            }
-        }
+        // tmp $csrfValidation = SUPER_Common::verifyCSRF();
+        // tmp if(!$csrfValidation){
+        // tmp     // Only check when not disabled by the user.
+        // tmp     // Some users want to use/load their forms via an iframe from a different domain name
+        // tmp     // In this case sessions won't work  because of browsers "SameSite by default cookies"
+        // tmp     $global_settings = SUPER_Common::get_global_settings();
+        // tmp     if(!empty($global_settings['csrf_check']) && $global_settings['csrf_check']==='false'){
+        // tmp         // Check was disabled by the user, skip it
+        // tmp     }else{
+        // tmp         // Return error
+        // tmp         $verified = false;
+        // tmp     }
+        // tmp }
         if($verified===false){
             SUPER_Common::output_message( array( 
                 'msg' => esc_html__( 'Unable to switch language, session expired!', 'super-forms' )
@@ -1087,7 +1087,6 @@ class SUPER_Ajax {
      *  @since      2.2.0
     */
     public static function populate_form_data() {
-        error_log('populate_form_data(1)');
         global $wpdb;
         // @since 4.6.0 - check if we are looking up entry data based on a WC order
         if(isset($_POST['order_id'])){
@@ -1098,8 +1097,6 @@ class SUPER_Ajax {
         }else{
             $value = sanitize_text_field($_POST['value']);
             $method = sanitize_text_field($_POST['method']);
-            error_log('value: '.$value);
-            error_log('method: '.$method);
             $table = $wpdb->prefix . 'posts';
             $table_meta = $wpdb->prefix . 'postmeta';
             if($method=='equals') $query = "post_title = BINARY '$value'";
@@ -1139,7 +1136,6 @@ class SUPER_Ajax {
                     }
                 }
             }
-            error_log('data: '.json_encode($data));
             echo SUPER_Common::safe_json_encode($data);
         }
         die();
@@ -3109,13 +3105,10 @@ class SUPER_Ajax {
      *  @since      3.1.0
     */
     public static function save_form_progress() {
-        error_log('save_form_progress(1)');
         if(!empty($_POST['form_id'])){
-            error_log('save_form_progress(2)');
             $form_id = absint($_POST['form_id']);
             $data = false; // Clear data by default
             if(!empty($_POST['data'])){
-                error_log('save_form_progress(3)');
                 $data = wp_unslash($_POST['data']);
                 $data = json_decode($data, true);
             }

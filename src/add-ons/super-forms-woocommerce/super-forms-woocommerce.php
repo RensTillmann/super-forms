@@ -1214,30 +1214,36 @@ if( !class_exists('SUPER_WooCommerce') ) :
                 SUPER_Common::setClientData( array( 'name'=> 'wc_entry_data', 'value'=>$data  ) );
                 foreach($wcs['products'] as $k => $v){
                     $id = trim($v['id'], '{}');
+                    $id = explode(';', $id);
                     $qty = trim($v['qty'], '{}');
+                    $qty = explode(';', $qty);
                     $price = trim($v['price'], '{}');
+                    $price = explode(';', $price);
                     $variation = trim($v['variation'], '{}');
+                    $variation = explode(';', $variation);
                     $meta = $v['meta'];
                     $meta_items = $v['items'];
                     $i=2;
-                    while(isset($data[$id.'_'.$i])){
+                    while(isset($data[$id[0].'_'.$i]) || isset($data[$qty[0].'_'.$i]) || isset($data[$price[0].'_'.$i]) || isset($data[$variation[0].'_'.$i])){
                         $new = $wcs['products'][$k];
-                        if($new['id'][0]=='{')        $new['id']        = '{'.$new['id']       .'_'.$i.'}'; 
-                        if($new['qty'][0]=='{')       $new['qty']       = '{'.$new['qty']      .'_'.$i.'}'; 
-                        if($new['variation'][0]=='{') $new['variation'] = '{'.$new['variation'].'_'.$i.'}'; 
-                        if($new['price'][0]=='{')     $new['price']     = '{'.$new['price']    .'_'.$i.'}'; 
+                        if(''!==$new['id'] && $new['id'][0]=='{')               $new['id']        = '{'.$id[0]       .'_'.$i.(isset($id[1])        ? ';'.$id[1] : '')         .'}'; 
+                        if(''!==$new['qty'] && $new['qty'][0]=='{')             $new['qty']       = '{'.$qty[0]      .'_'.$i.(isset($qty[1])       ? ';'.$qty[1] : '')        .'}'; 
+                        if(''!==$new['variation'] && $new['variation'][0]=='{') $new['variation'] = '{'.$variation[0].'_'.$i.(isset($variation[1]) ? ';'.$variation[1] : '')  .'}'; 
+                        if(''!==$new['price'] && $new['price'][0]=='{')         $new['price']     = '{'.$price[0]    .'_'.$i.(isset($price[1])     ? ';'.$price[1] : '')      .'}'; 
                         if($new['meta']==='true'){
                             $new_meta = $new['items'];
                             foreach($new_meta as $mk => $mv){
                                 $label = trim($mv['label'], '{}');
+                                $label = explode(';', $label);
                                 $value = trim($mv['value'], '{}');
-                                if($mv['label'][0]=='{') $new_meta[$mk]['label'] = '{'.$label.'_'.$i.'}'; 
-                                if($mv['value'][0]=='{') $new_meta[$mk]['value'] = '{'.$value.'_'.$i.'}'; 
-                                $new_meta[$mv]['label'] = $new_meta[$mv]['label'].' ('.$i.')';
+                                $value = explode(';', $value);
+                                if(''!==$mv['label'] && $mv['label'][0]=='{')               $new_meta[$mk]['label']        = '{'.$label[0]       .'_'.$i.(isset($label[1])        ? ';'.$label[1] : '')         .'}'; 
+                                if(''!==$mv['value'] && $mv['value'][0]=='{')               $new_meta[$mk]['value']        = '{'.$value[0]       .'_'.$i.(isset($value[1])        ? ';'.$value[1] : '')         .'}'; 
                             }
                             $new['items'] = $new_meta;
                         }
                         $wcs['products'][] = $new;
+                        $i++;
                     }
                 }
                 $products = array();
@@ -1384,7 +1390,6 @@ if( !class_exists('SUPER_WooCommerce') ) :
                     if( isset($v['super_data']) ) {
                         $super_data = array( 'super_data' => $v['super_data'] );
                     }
-
                     $cart_item_key = $woocommerce->cart->add_to_cart(
                         $v['id'],               // ( int ) optional – contains the id of the product to add to the cart
                         $v['quantity'],         // ( int ) optional default: 1 – contains the quantity of the item to add

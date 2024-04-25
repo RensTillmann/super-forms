@@ -419,7 +419,6 @@
 
 			// Check if datepicker field
 			if( parent.classList.contains('super-field-type-datetime-local') || parent.classList.contains('super-date') || parent.classList.contains('super-field-type-date')){
-				
 				text_field = false;
 				value = (element.getAttribute('data-math-diff')) ? parseFloat(element.getAttribute('data-math-diff')) : 0;
 				if(parent.classList.contains('super-field-type-date')){
