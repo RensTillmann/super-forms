@@ -27,7 +27,7 @@ if (!Element.prototype.closest) {
 if(typeof window.SUPER === 'undefined'){
     window.SUPER = {};
 }
-SUPER.automatically_switched_language = false;
+SUPER.switched_language = false;
 
 SUPER.round = function(number, decimals){
     if(typeof decimals === 'undefined') decimals = 0;
@@ -369,7 +369,7 @@ function SUPERreCaptcha(){
                             success: function (nonce) {
                                 // Update new nonce
                                 args.sf_nonce = nonce.trim();
-                                $('input[name="sf_nonce"]').val(nonce.trim());
+                                args.form0.querySelector('input[name="sf_nonce"]').value = nonce.trim();
                             },
                             complete: function(){
                                 SUPER.upload_files(args, callback);
@@ -390,7 +390,7 @@ function SUPERreCaptcha(){
                         files = result.files;
                     // Update nonce
                     args.sf_nonce = result.sf_nonce;
-                    $('input[name="sf_nonce"]').val(result.sf_nonce.trim());
+                    args.form0.querySelector('input[name="sf_nonce"]').value = result.sf_nonce.trim();
                     Object.keys(files).forEach(function(fieldName) {
                         activeFiles = args.form0.querySelector('.super-active-files[name="'+fieldName+'"]');
                         if(!activeFiles) return true; // continue to next field
@@ -3162,7 +3162,7 @@ function SUPERreCaptcha(){
                         }
 
                         // Check if datepicker field
-                        if($parent.classList.contains('super-date') || $parent.classList.contains('super-field-type-date')){
+                        if($parent.classList.contains('super-time') || $parent.classList.contains('super-field-type-datetime-local') || $parent.classList.contains('super-date') || $parent.classList.contains('super-field-type-date')){
                             $text_field = false;
                             $value = $element.value;
                             if($parent.classList.contains('super-field-type-date')){
@@ -3566,6 +3566,10 @@ function SUPERreCaptcha(){
         }
         // Redirect user to specified url
         if(result.error!==true && result.redirect){
+            // Construct the URL with the specific parameter appended
+            if(result.back_url && result.back_url!==''){
+                history.pushState(null, null, result.back_url);
+            }
             window.location.href = result.redirect;
             return true;
         }
@@ -4945,7 +4949,7 @@ function SUPERreCaptcha(){
             },
             success: function (nonce) {
                 // Update new nonce
-                $('input[name="sf_nonce"]').val(nonce.trim());
+                $form.find('input[name="sf_nonce"]').val(nonce.trim());
             },
             complete: function(){
                 if(typeof callback === 'function'){
@@ -6029,15 +6033,18 @@ function SUPERreCaptcha(){
                         setTimeout(function (){
                             $(args.form).fadeOut(100, function () {
                                 args.form.classList.add('super-initialized');
-                                if(SUPER.automatically_switched_language===false && args.form.querySelector('.super-i18n-switcher')){
+                                if(SUPER.switched_language===false && args.form.querySelector('.super-i18n-switcher')){
                                     // Check if we need to set the i18n data for this form based history, in case user went back via browser back button
                                     var $i18n = sessionStorage.getItem('sf_'+formId+'_i18n');
                                     if(args.form.querySelector('.super-i18n-switcher li[data-value="'+$i18n+'"]')){
-                                        SUPER.automatically_switched_language = true;
+                                        SUPER.switched_language = true;
                                         console.log($i18n);
                                         args.form.dataset.i18n = $i18n;
                                         console.log('Switched language on page load to '+$i18n);
                                         args.form.querySelector('.super-i18n-switcher li[data-value="'+$i18n+'"]').click();
+                                        $(args.form).fadeIn(500, function(){
+                                            SUPER.switch_to_step_and_or_field(args.form);
+                                        });
                                         return;
                                     }
                                 }
@@ -11361,7 +11368,7 @@ function SUPERreCaptcha(){
                             success: function (nonce) {
                                 // Update new nonce
                                 args.sf_nonce = nonce.trim();
-                                $('input[name="sf_nonce"]').val(nonce.trim());
+                                args.form0.querySelector('input[name="sf_nonce"]').value = nonce.trim();
                             },
                             complete: function(){
                                 SUPER.save_data(args);
@@ -11381,7 +11388,7 @@ function SUPERreCaptcha(){
                 }else{
                     // Update new nonce
                     if(result.response_data && result.response_data.sf_nonce){
-                        $('input[name="sf_nonce"]').val(result.response_data.sf_nonce);
+                        args.form0.querySelector('input[name="sf_nonce"]').value = result.response_data.sf_nonce;
                     }
                     // Clear form progression (if enabled)
                     if( args.form[0].classList.contains('super-save-progress') ) {

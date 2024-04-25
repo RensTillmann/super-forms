@@ -629,6 +629,42 @@
                     SUPER.init_connected_datepicker(this, selectedDate, parseFormat, oneDay);
                 },
                 beforeShowDay: function(dt) {
+                    var el = this;
+                    if(el.value!==''){
+                        parse = Date.parseExact(el.value, parseFormat);
+                        if(parse!==null){
+                            year = parse.toString('yyyy');
+                            month = parse.toString('MM');
+                            day = parse.toString('dd');
+                            el.dataset.mathYear = year;
+                            el.dataset.mathMonth = month;
+                            el.dataset.mathDay = day;
+                            firstDate = new Date(Date.UTC(year, month-1, day));
+                            var dayIndex = firstDate.getDay();
+                            el.dataset.mathDayw = dayIndex;
+                            el.dataset.mathDayn = super_elements_i18n.dayNames[dayIndex]; // long (default)
+                            el.dataset.mathDayns = super_elements_i18n.dayNamesShort[dayIndex]; // short
+                            el.dataset.mathDaynss = super_elements_i18n.dayNamesMin[dayIndex]; // super short
+                            el.dataset.mathDiff = firstDate.getTime();
+                            el.dataset.mathAge = SUPER.init_datepicker_get_age(month+'/'+day+'/'+year, 'years');
+                            el.dataset.mathAgeMonths = SUPER.init_datepicker_get_age(month+'/'+day+'/'+year, 'months');
+                            el.dataset.mathAgeDays = SUPER.init_datepicker_get_age(month+'/'+day+'/'+year, 'days');
+                            $date = Date.parseExact(day+'-'+month+'-'+year, parseFormat);
+                            if($date!==null){
+                                $date = $date.toString("dd-MM-yyyy");
+                                SUPER.init_connected_datepicker(el, $date, parseFormat, oneDay);
+                            }
+                        }
+                    }else{
+                        el.dataset.mathYear = '0';
+                        el.dataset.mathMonth = '0';
+                        el.dataset.mathDay = '0';
+                        el.dataset.mathDayw = '0';
+                        el.dataset.mathDayn = '';
+                        el.dataset.mathDiff = '0';
+                        el.dataset.mathAge = '0';
+                    }
+
                     workDays = (this.dataset.workDays == 'true');
                     weekends = (this.dataset.weekends == 'true');
                     day = dt.getDay();
@@ -2664,6 +2700,7 @@
                                 sf_nonce: $sf_nonce,
                             },
                             success: function (result) {
+                                SUPER.switched_language = true;
                                 var data = JSON.parse(result);
                                 if(data.error && data.error===true){
                                     var i, nodes = document.querySelectorAll('.super-msg');

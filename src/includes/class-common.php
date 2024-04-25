@@ -2051,6 +2051,7 @@ class SUPER_Common {
             'type'=>'',
             'error'=>true,
             'msg'=>'Missing required parameter $msg!', 
+            'back_url'=>null,
             'redirect'=>null,
             'fields'=>array(),
             'display'=>true,
@@ -2065,7 +2066,8 @@ class SUPER_Common {
         }else{
             // We will want to return a JSON string with the error/success message data
             $result = array('type'=>$type, 'error'=>$error, 'msg'=>$msg);
-            if($redirect!=null) $result['redirect']= $redirect;
+            if($redirect!=null) $result['redirect'] = $redirect;
+            if($back_url!=null) $result['back_url'] = $back_url;
             $result['fields'] = $fields;
             $result['display'] = $display; // @since 3.4.0 - option to hide the message
             $result['loading'] = $loading; // @since 3.4.0 - option to keep the form at a loading state, when enabled, it will keep submit button at loading state and will not hide the form and prevents to scroll to top of page
@@ -3786,8 +3788,6 @@ class SUPER_Common {
                     $headers[] = 'Bcc: ' . trim($value);
                 }
             }
-            error_log('test wp_mail()');
-            error_log(count($attachmentPaths));
             $result = wp_mail( $to, $subject, $body, $headers, $attachmentPaths );
             $error = '';
             if($result==false){
