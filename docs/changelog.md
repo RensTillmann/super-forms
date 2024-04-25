@@ -19,11 +19,11 @@ Actions are compatible with the build-in translation system, allowing for more f
 - **Improved:** Inline Signature images inside E-mails instead of as an attachment
 - **Improved:** Language switcher state remembered when returning back to form via previous button from Stripe checkout (as an example)
 - **Improved:** When filling out the form in a specific language, when returning via the browser back button to the form, it will remember the language and try to populate with remembered form data (if option is enabled)
-- **Fix:** `{tag;timestamp}` now also works for Timepicker and fields with field typ set to `[date]` (native browser datepicker)
-- **Fix:** When a min date for `Datepicker` element is set, make sure the timestamp (epoch) and any other date namings are updated on page load
+- **Fix:** `{tag;timestamp}` now also works for Timepicker and fields with field type set to `[date]` (native browser datepicker)
+- **Fix:** When a min date for `Datepicker` element is set, make sure the timestamp (epoch) and any other date naming's are updated on page load
 - **Fix:** When dealing with Calculator elements inside a dynamic column, when adding a new row, it should reset the value based on the current row fields
 - **Fix:** Signature inside conditional hidden column render issue
-- **Fix:** Both the `Divider` element and `<hr />` tag were not being printend on PDF when Native mode is enabled
+- **Fix:** Both the `Divider` element and `<hr />` tag were not being printed on PDF when Native mode is enabled
 - **Fix:** Issue with Calculator element where math that contains regex like {contains*}, {^starts_with_}, {ends_with$} would not be calculated in some scenario's
 - **Added:** hour/minute/second conversion for Calculator element
 - **Improved:** Exclude zero values `0` for WooCommerce emails, PayPal emails and E-mail reminders emails, when the option to exclude empty values is enabled
@@ -33,7 +33,7 @@ Actions are compatible with the build-in translation system, allowing for more f
 - **Fix:** Bug causing Entry data population to choose multiple dropdown items, example: when the entry value would be `Son` for the dropdown and there would be another dropdown item with value `Son-in-law` it would select both items as selected.
 - **Fix:** Some hosting providers might add `.htaccess` files inside all directories for security reasons, skip these when loading Add-ons inside the `/add-ons` folder. 
 - **Fix:** On back-end Contact Entries page, the date filter would not work properly depending on the WordPress `Settings > General > Date Format` setting
-- **Fix:** When field type is set to International phonenumber (int-phone) automatically set the field validation to `Required (not empty)`
+- **Fix:** When field type is set to International phone number (int-phone) automatically set the field validation to `Required (not empty)`
 - **Fix:** Do not render/display Forms that have been marked as trashed
 - **Added:** Option to create vCards and attach them to Admin and Confirmation E-mails via `Form settings > vCard Attachment`
 - **Added:** New `Signature` drawing method for improved device compatibility (Microsoft Surface Pro)
@@ -48,11 +48,11 @@ Actions are compatible with the build-in translation system, allowing for more f
 - **Added:** `Listings` when editing entries, you can define if the user is allowed to change the entry status, and disallow to change the entry if it already has a specific status
 - **Improved:** `Form Settings > Form Settings > Custom redirect URL` can now be translated to redirect to custom pages e.g. `https://domain.com/thank-you/`, `https://domain.com/de/vielen-dank/`, `https://domain.com/fr/merci-beaucoup/
 - **Improved:** When `native` PDF generation is enabled, add the country flag next to the international phonenumber field
-- **Improved:** Scrolling to next focussed field or next multi-part. Only scroll when required based on the elements top/bottom positioning compared to widnow height
+- **Improved:** Scrolling to next focused field or next multi-part. Only scroll when required based on the elements top/bottom positioning compared to window height
 - **Improved:** When using keyboard arrows up/down on radio button do not go to next step automatically when enabled on multi-part
 - **Improved:** Grid/Columns now using flex method
 - **Improved:** `Color picker` element small responsiveness fix
-- **Improved:** `PDF page breaks` are cacluated after HTML block is updated/changed. Allowing to use the PDF page break html directly inside foreach loops. Example which loops over uploaded files:
+- **Improved:** `PDF page breaks` are calculated after HTML block is updated/changed. Allowing to use the PDF page break html directly inside foreach loops. Example which loops over uploaded files:
 ```html
 foreach(file;loop):
   if(<%counter%>!='1'):<div class="super-shortcode super-field super-pdf_page_break"></div>endif;
@@ -420,7 +420,7 @@ endforeach;
 - **Improved:** Allow setting `The types of place results to return` to be empty for `Address auto complete` feature, so that all types can be returned when left blank
 - **Improved:** Clean up generated PDF datauri, no need to store it in contact entry data in database, it could also cause the database to throw error due to reaching maximum Text/Blob size
 - **Fix:** When filtering [Auto suggest](auto-suggest.md) make sure to preserve any spaces in the search results
-- **Fix:** Firefox adaptive placeholders focus automatically getting unfocussed
+- **Fix:** Firefox adaptive placeholders focus automatically getting unfocused
 - **Fix:** When using `Currency` field with a `Default value` make sure the masked is applied upon page load
 - **Fix:** When using connected datepickers in combination with a custom `Localization` e.g `Czech` and a min/max connected date, the connection would not function due to difference in date formats
 - **Fix:** Multi-part thinking there was still a field that required validation when in fact the field had become conditionally hidden while after the field had thrown a validation error. This caused the form being unable to submit.
@@ -702,7 +702,7 @@ and Contact Entry
 - **Fixed:** Export/Import missing translation languages
 - **Fixed:** Text field with `Enable keyword field` in dynamic columns causing javascript error
 - **Fixed:** Masked input in combination with `Uppercase transformation` was not working
-- **Improved:** Prevent from going to next/prev TAB via keyboard input `<`, `>` keys when a field is focussed
+- **Improved:** Prevent from going to next/prev TAB via keyboard input `<`, `>` keys when a field is focused
 - **Improved:** Only allow number input for Quantity field
 - **Improved:** JavaScript code optimization
 - **Improved:** `Contact Entry Search` feature for `Text field` to better populate form with all the data
@@ -1342,7 +1342,7 @@ and Contact Entry
 - **Added:** Convert text field to search field to search contact entries by title, and auto populate form fields with entry data (search methods: equals / contains)
 - **Added:** Option to enable updating contact entry data if one was found based on a search field
 - **Added:** Option to do a custom POST method to a custom URL with all form fields posted
-- **Fixed:** First dropdown fields automatically focussed when going to next / prev multi-part step
+- **Fixed:** First dropdown fields automatically focused when going to next / prev multi-part step
 - **Fixed:** JS Composer using global styles conflicting with super forms duplicate column + button making it invisible when it should be visible
 
 ## Dec 18, 2016 - Version 2.1.0
@@ -1461,7 +1461,7 @@ and Contact Entry
 ## Oct 5, 2016 - Version 1.3.0
 
 - **Fixed:** Conflict class WP_AutoUpdate, changed it to SUPER_WP_AutoUpdate
-- **Fixed:** Dropdown no longer being largen when focussed
+- **Fixed:** Dropdown no longer being largen when focused
 - **Fixed:** Duplicate column fields no longer hiding dropdown content (overflow:hidden removed)
 - **Fixed:** saving directory home_url() changed to site_url() (in case core files are located different location on server)
 - **Fixed:** Checkbox images retrieving thumbnail version, now returning original image
@@ -1669,7 +1669,7 @@ and Contact Entry
 - **Fixed:** Uncaught TypeError: Cannot convert object to primitive value
 - **Fixed:** reCAPTCHA conditional-validation-value undefined
 - **Fixed:** When minimum files are not set for file upload it will not proceed to submit the form
-- **Fixed:** textarea cannot add line breaks, form is trying to submit after pressing enter when textarea is focussed
+- **Fixed:** textarea cannot add line breaks, form is trying to submit after pressing enter when textarea is focused
 - **Fixed:** Warning: array_merge(): Argument #2 is not an array, when first time creating Form
 - **Added:** Submit Button element, allows you to add conditional logic on submit button if placed inside colum
 - **Added:** Tags to retrieve values of logged in user `{user_login}`, `{user_email}`, `{user_firstname}`, `{user_lastname}`, `{user_display}`, `{user_id}`
@@ -1719,7 +1719,7 @@ and Contact Entry
 
 ## February 25, 2016 - Version 1.1.1
 
-- **Fixed:** Not able to use arrow up/down and Enter key when dropdown element is focussed
+- **Fixed:** Not able to use arrow up/down and Enter key when dropdown element is focused
 - **Improved:** When TABBING through fields, the submit button will also be focused and enter can trigger to submit the form
 - **Improved:** For a better user experience field validation is now only triggered on change and blur (unfocus)
 - **Improved:** When Multi-part contains errors it will scroll to this section and will make it visible
