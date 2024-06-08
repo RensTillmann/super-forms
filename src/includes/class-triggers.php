@@ -2,7 +2,7 @@
 /**
  * Super Forms Triggers Class.
  *
- * @author      feeling4design
+ * @author      WebRehab
  * @category    Class
  * @package     SUPER_Forms/Classes
  * @class       SUPER_Triggers
@@ -32,27 +32,28 @@ class SUPER_Triggers {
         $scheduled_actions = $wpdb->get_results($wpdb->prepare($query, $current_timestamp));
         foreach($scheduled_actions as $k => $v){
             $scheduled_action_id = $v->post_id;
-            $post_content = maybe_unserialize($v->post_content);
+            $trigger_options = maybe_unserialize($v->post_content);
             $triggerEventParameters = maybe_unserialize($v->triggerEventParameters);
-            $i18n = $triggerEventParameters['i18n'];
-            $form_id = $triggerEventParameters['form_id'];
-            $eventName = $triggerEventParameters['eventName']; // the event name that triggers the action e.g. `sf.after.submission`
-            $triggerName = $triggerEventParameters['triggerName']; // the event name that triggers the action e.g. `sf.after.submission`
-            $actionName = $triggerEventParameters['actionName']; // the action name e.g. `send_email`
-            $av = $post_content; // the post_content will hold a serialized array with the action options
-            $form_data = $triggerEventParameters['form_data']; // form submission data
+            $triggerEventParameters['action'] = $trigger_options;
+            $triggerEventParameters['scheduled_action_id'] = $scheduled_action_id;
+            error_log('$triggerEventParameters: '.json_encode($triggerEventParameters));
+            //$eventName = $triggerEventParameters['eventName']; // the event name that triggers the action e.g. `sf.after.submission`
+            //$triggerName = $triggerEventParameters['triggerName']; // the event name that triggers the action e.g. `sf.after.submission`
+            //$actionName = $triggerEventParameters['actionName']; // the action name e.g. `send_email`
+            //$av = $trigger_options; // the post_content will hold a serialized array with the action options
+            //$sfsi = $triggerEventParameters['sfsi']; // form submission data
             // Check if trigger function (action) exists e.g. send_email()
-            if(method_exists('SUPER_Triggers', $actionName)) {
-                $x = array(
-                    'i18n'=>$i18n, 
-                    'eventName'=>$eventName, 
-                    'triggerName'=>$triggerName, 
-                    'action'=>$av, 
-                    'form_id'=>$form_id, 
-                    'form_data'=>$form_data, 
-                    'scheduled_action_id'=>$scheduled_action_id
-                );
-                call_user_func(array('SUPER_Triggers', $av['action']), $x);
+            if(method_exists('SUPER_Triggers', $triggerEventParameters['actionName'])) {
+                //$x = array(
+                //    'eventName'=>$eventName, 
+                //    'triggerName'=>$triggerName, 
+                //    'action'=>$trigger_options, 
+                //    'sfsi'=>$sfsi, 
+                //    'scheduled_action_id'=>$scheduled_action_id
+                //);
+                error_log('$trigger_options[action]: '.$trigger_options['action']);
+                error_log('$x: '.json_encode($x));
+                call_user_func(array('SUPER_Triggers', $trigger_options['action']), $triggerEventParameters);
             }
         }
     }
@@ -70,8 +71,10 @@ class SUPER_Triggers {
         return $array1;
     }
     public static function send_email($x){
+        error_log('x: '.json_encode($x));
         extract($x);
-        extract($form_data);
+        error_log('sfsi: '.json_encode($sfsi));
+        extract($sfsi);
         // Check if we need to grab the settings
         if(!isset($settings)) $settings = SUPER_Common::get_form_settings($form_id);
         // Check if this trigger action needs to be scheduled
@@ -175,16 +178,14 @@ class SUPER_Triggers {
                 add_post_meta($scheduled_trigger_action_id, '_super_scheduled_trigger_action_timestamp', $scheduled_trigger_action_timestamp);
                 // Save the action options (settings)
                 // Save all submission data post meta for this reminder
-                unset($form_data['post']);
-                unset($form_data['settings']); // for scheduled actions we will grab the settings based on the form ID when executed
+                unset($sfsi['post']);
+                unset($sfsi['settings']); // for scheduled actions we will grab the settings based on the form ID when executed
                 $triggerEventParameters = array(
-                    'i18n' => $i18n,
-                    'form_id' => $form_id,
                     'eventName'  => $eventName,  // e.g. 'sf.after.submission'
                     'triggerName'  => $triggerName,  // e.g. 'E-mail reminder #2'
                     'actionName' => $actionName, // e.g. 'send_email'
                     'order' => $action['order'], // e.g. 'send_email'
-                    'form_data' => $form_data
+                    'sfsi' => $sfsi
                 );
                 add_post_meta($scheduled_trigger_action_id, '_super_scheduled_trigger_action_data', $triggerEventParameters);
                 error_log('trigger action '.$actionName.' has been scheduled for '.$scheduled_real_date);
@@ -200,7 +201,7 @@ class SUPER_Triggers {
         $email_body = apply_filters( 'super_before_sending_email_body_filter', $email_body, array( 'settings'=>$settings, 'email_loop'=>$email_loop, 'data'=>$data ) );
         $email_body = SUPER_Common::email_tags( $email_body, $data, $settings );
         // @since 4.9.5 - RTL email setting
-        if($options['rtl']=='true') $email_body = '<div dir="rtl" style="text-align:right;">' . $email_body . '</div>';
+        if(isset($options['rtl']) && $options['rtl']=='true') $email_body = '<div dir="rtl" style="text-align:right;">' . $email_body . '</div>';
         $email_body = do_shortcode($email_body);
         $to = SUPER_Common::decode_email_header(SUPER_Common::email_tags($options['to'], $data, $settings));
         $from = SUPER_Common::decode_email_header(SUPER_Common::email_tags($options['from_email'], $data, $settings));
@@ -227,7 +228,8 @@ class SUPER_Triggers {
             $email_params['reply'] = SUPER_Common::decode_email_header(SUPER_Common::email_tags($options['reply_to']['email'], $data, $settings));
             $email_params['reply_name'] = SUPER_Common::decode(SUPER_Common::email_tags($options['reply_to']['name'], $data, $settings));
         }
-        $email_attachments = explode( ',', $options['attachments'] );
+        $email_attachments = array();
+        if(isset($options['attachments'])) $email_attachments = explode( ',', $options['attachments'] );
         foreach($email_attachments as $k => $v){
             $file = get_attached_file($v);
             if( $file ) {
@@ -239,7 +241,6 @@ class SUPER_Triggers {
         $attachments = apply_filters( 'super_before_sending_email_attachments_filter', $attachments, array( 'atts'=>$x, 'settings'=>$settings, 'data'=>$data, 'email_body'=>$email_body ) );
         $email_params['attachments'] = $attachments;
         // Send the email
-        error_log(json_encode($email_params));
         $mail = SUPER_Common::email( $email_params );
         // Return error message
         if(!empty($mail->ErrorInfo)){

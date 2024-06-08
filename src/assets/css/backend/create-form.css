@@ -119,6 +119,10 @@
 .super-raw-code-form-elements, 
 .super-raw-code-form-settings, 
 .super-raw-code-trigger-settings,
+.super-raw-code-woocommerce-settings,
+.super-raw-code-listings-settings,
+.super-raw-code-pdf-settings,
+.super-raw-code-stripe-settings,
 .super-raw-code-translation-settings {
     float: left;
     width: 100%;

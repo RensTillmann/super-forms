@@ -2,7 +2,7 @@
 /**
  * Class to handle field types like textarea dropdown etc.
  *
- * @author      feeling4design
+ * @author      WebRehab
  * @category    Admin
  * @package     SUPER_Forms/Classes
  * @class       SUPER_Field_Types

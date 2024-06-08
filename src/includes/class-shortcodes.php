@@ -2,7 +2,7 @@
 /**
  * Super Forms Shortcodes Class.
  *
- * @author      feeling4design
+ * @author      WebRehab
  * @category    Class
  * @package     SUPER_Forms/Classes
  * @class       SUPER_Shortcodes
@@ -884,7 +884,7 @@ class SUPER_Shortcodes {
             if( isset( $atts[$prefix.'retrieve_method_delimiter'] ) ) $delimiter = $atts[$prefix.'retrieve_method_delimiter'];
             if( isset( $atts[$prefix.'retrieve_method_enclosure'] ) ) $enclosure = stripslashes($atts[$prefix.'retrieve_method_enclosure']);
             $file = get_attached_file($atts[$prefix.'retrieve_method_csv']);
-            if( (!empty($file)) && (($handle = fopen($file, "r")) !== FALSE) ) {
+            if( (!empty($file)) && (($handle = @fopen($file, "r")) !== FALSE) ) {
                 // Progress file pointer and get first 3 characters to compare to the BOM string.
                 $bom = "\xef\xbb\xbf"; // BOM as a string for comparison.
                 if (fgets($handle, 4) !== $bom) rewind($handle); // BOM not found - rewind pointer to start of file.
@@ -1481,7 +1481,7 @@ class SUPER_Shortcodes {
                     $result .= '<div class="super-title">';
                     $result .= $name;
                     if( ($tag!='button') && ($tag!='button') && (isset($data['name'])) ) {
-                        $result .= ' <input class="super-tooltip" title="Unique field name" type="text" value="' . esc_attr($data['name']) . '" autocomplete="false" />';
+                        $result .= ' <input class="super-tooltip" title="Unique field name" type="text" value="' . esc_attr($data['name']) . '" autocomplete="off" />';
                     }
                     $result .= '</div>';
                 }
@@ -1822,7 +1822,7 @@ class SUPER_Shortcodes {
         if( !empty( $atts['readonly'] ) ) $result .= ' readonly="true"';
 
         // @since 3.6.0 - disable field autocompletion
-        if( !empty($atts['autocomplete']) ) $result .= ' autocomplete="false"';
+        if( !empty($atts['autocomplete']) ) $result .= ' autocomplete="off"';
 
         // @since 4.9.3 - Adaptive Placeholders
         // If adaptive placeholders is enabled, we will not want to use the default placeholders
@@ -2014,9 +2014,9 @@ class SUPER_Shortcodes {
             }
             // If Ajax lookup is enabled:
             if(!empty($atts['conditional_variable_ajax_lookup']) && $atts['conditional_variable_ajax_lookup']==='true'){
-                $result .= '<textarea class="super-conditional-logic"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . ' data-ajax="true"></textarea>';
+                $result .= '<textarea autocomplete="off" class="super-conditional-logic"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . ' data-ajax="true"></textarea>';
             }else{
-                $result .= '<textarea class="super-conditional-logic"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . '>' . SUPER_Common::safe_json_encode($compact) . '</textarea>';
+                $result .= '<textarea autocomplete="off" class="super-conditional-logic"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . '>' . SUPER_Common::safe_json_encode($compact) . '</textarea>';
             }
         }
 
@@ -2047,7 +2047,7 @@ class SUPER_Shortcodes {
                 $conditions = array();
                 if( $file ) {
                     $row = 0;
-                    if( (!empty($file)) && (($handle = fopen($file, "r")) !== FALSE) ) {
+                    if( (!empty($file)) && (($handle = @fopen($file, "r")) !== FALSE) ) {
                         // Progress file pointer and get first 3 characters to compare to the BOM string.
                         $bom = "\xef\xbb\xbf"; // BOM as a string for comparison.
                         if (fgets($handle, 4) !== $bom) rewind($handle); // BOM not found - rewind pointer to start of file.
@@ -2135,9 +2135,9 @@ class SUPER_Shortcodes {
                 $jsonString = SUPER_Common::safe_json_encode($compact);
                 // If Ajax lookup is enabled:
                 if(!empty($atts['conditional_variable_ajax_lookup']) && $atts['conditional_variable_ajax_lookup']==='true'){
-                    return '<textarea class="super-variable-conditions"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . ' data-ajax="true"></textarea>';
+                    return '<textarea autocomplete="off" class="super-variable-conditions"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . ' data-ajax="true"></textarea>';
                 }else{
-                    return '<textarea class="super-variable-conditions"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . '>' . $jsonString . '</textarea>';
+                    return '<textarea autocomplete="off" class="super-variable-conditions"' . (!empty($names) ? ' data-fields="{' . implode('}{', $names) . '}"' : '') . '>' . $jsonString . '</textarea>';
                 }
             }
         }
@@ -4144,7 +4144,7 @@ class SUPER_Shortcodes {
         // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
 
-        $result .= '<input tabindex="-1" class="super-shortcode-field super-datepicker' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="text" autocomplete="false" ';
+        $result .= '<input tabindex="-1" class="super-shortcode-field super-datepicker' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="text" autocomplete="off" ';
 
 
         // @since 1.1.8 - added option to select an other datepicker to achieve date range with 2 datepickers (useful for booking forms)
@@ -4292,7 +4292,7 @@ class SUPER_Shortcodes {
         // @since 1.9 - custom class
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
 
-        $result .= '<input tabindex="-1" class="super-shortcode-field super-timepicker' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="text" autocomplete="false" ';
+        $result .= '<input tabindex="-1" class="super-shortcode-field super-timepicker' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '" type="text" autocomplete="off" ';
         if( !isset( $atts['range'] ) ) $atts['range'] = '';
         $result .= ' value="' . esc_attr($atts['value']) . '" name="' . $atts['name'] . '" data-format="' . $atts['format'] . '" data-step="' . $atts['step'] . '" data-range="' . $atts['range'] . '" data-duration="' . $atts['duration'] . '"';
         $result .= self::common_attributes( $atts, $tag, $settings );
@@ -4494,7 +4494,7 @@ class SUPER_Shortcodes {
         $class = ' hidden';
         $result = self::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'class'=>$class, 'settings'=>$settings));
         
-        $result .= '<input class="super-shortcode-field" type="hidden"';
+        $result .= '<input autocomplete="off" class="super-shortcode-field" type="hidden"';
         if( !empty($atts['name']) ) $result .= ' name="' . $atts['name'] . '"';
         if( !empty($atts['originalFieldName']) ) {
             // Original Field Name (required/used by dynamic columns, to allow nested dynamic columns, javascript uses this data attribute)

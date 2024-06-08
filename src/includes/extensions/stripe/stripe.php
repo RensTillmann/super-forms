@@ -76,7 +76,7 @@ if(!class_exists('SUPER_Stripe')) :
                 $sfsi = get_option( '_sfsi_' . $s['metadata']['sfsi_id'], array() );
                 $form_id = $sfsi['form_id'];
                 $settings = SUPER_Common::get_form_settings($form_id);
-                $s = SUPER_Stripe::get_default_stripe_settings($settings);
+                $s = self::get_default_stripe_settings($settings);
                 $expiry = $s['retryPaymentEmail']['expiry']; // expiry in hours 1 = 1 hour, 0.5 = 30min.
                 // Calculate expiry for the retry checkout session
                 $expires_at = current_time('timestamp') + (3600 * $expiry);
@@ -102,6 +102,11 @@ if(!class_exists('SUPER_Stripe')) :
                 if($url===false){
                     wp_redirect(home_url());
                     exit;
+                }
+                // Check if the URL starts with http or https
+                if(!preg_match('/^https?:\/\//', $url)){
+                    // If not, prepend http:// to the URL
+                    $url = 'http://' . $url;
                 }
                 wp_redirect(remove_query_arg(array('sfssid'), $url));
                 exit;
@@ -171,78 +176,96 @@ if(!class_exists('SUPER_Stripe')) :
                     switch ($event->type) {
                         // Checkout session expired
                         case 'checkout.session.expired':
-                            $session = $event->data->object;
-                            SUPER_Common::cleanupFormSubmissionInfo($session->metadata->sfsi_id, $event->type);
+                            $stripe_session = $event->data->object;
+                            error_log('sfsi_id: '.$stripe_session->metadata->sfsi_id);
+                            SUPER_Common::cleanupFormSubmissionInfo($stripe_session->metadata->sfsi_id, $event->type);
                             break;
                         case 'checkout.session.completed':
                             // The customer has successfully authorized the debit payment by submitting the Checkout form. Wait for the payment to succeed or fail.
-                            $session = $event->data->object;
-                            $sfsi = get_option( '_sfsi_' . $session->metadata->sfsi_id, array() );
-                            if(!isset($sfsi['form_id'])){
-                                error_log('Stripe: could not get form_id from submission info, probably because this info was expired');
-                                break;
+                            $stripe_session = $event->data->object;
+                            SUPER_Common::triggerEvent('stripe.checkout.session.completed', array('sfsi_id'=>$stripe_session->metadata->sfsi_id));
+                            if($stripe_session->payment_status=='paid' || $stripe_session->payment_status=='no_payment_required'){
+                                // Update user role, post status, user login status or entry status
+                                self::fulfillOrder(array('sfsi_id'=>$stripe_session->metadata->sfsi_id, 'stripe_session'=>$stripe_session)); //array('form_id'=>$form_id, 's'=>$s, 'stripe_session'=>$stripe_session, 'sfsi'=>$sfsi));
+                                // moved into above function // Delete submission info
+                                // moved into above function delete_option( '_sfsi_' . $stripe_session->metadata->sfsi_id );
                             }
-                            $form_id = $sfsi['form_id'];
-                            // Get form settings
-                            $settings = SUPER_Common::get_form_settings($form_id);
-                            $s = SUPER_Stripe::get_default_stripe_settings($settings);
-                            SUPER_Common::triggerEvent('stripe.checkout.session.completed', array('form_id'=>$form_id, 's'=>$s, 'stripe_session'=>$session, 'sfsi'=>$sfsi));
+                            // tmp $sfsi = get_option( '_sfsi_' . $stripe_session->metadata->sfsi_id, array() );
+                            // tmp if(!isset($sfsi['form_id'])){
+                            // tmp     error_log('Stripe: could not get form_id from submission info, probably because this info was expired');
+                            // tmp     break;
+                            // tmp }
+                            // tmp $form_id = $sfsi['form_id'];
+                            // tmp // Get form settings
+                            // tmp $settings = SUPER_Common::get_form_settings($form_id);
+                            // tmp $s = self::get_default_stripe_settings($settings);
+                            // SUPER_Common::triggerEvent('stripe.checkout.session.completed', array('sfsi_id'=>$stripe_session->metadata->sfsi_id));
+                                // tmp //'form_id'=>$form_id, 's'=>$s, 'stripe_session'=>$stripe_session, 'sfsi'=>$sfsi
+                                // tmp 'i18n'=>$i18n, 
+                                // tmp 'sfsi_id'=>$sfsi_id, 
+                                // tmp 'post'=>$_POST, 
+                                // tmp 'data'=>$data, 
+                                // tmp 'settings'=>$settings, 
+                                // tmp 'entry_id'=>$contact_entry_id, 
+                                // tmp 'attachments'=>$attachments,
+                                // tmp 'form_id'=>$form_id
                             // Check if the order is paid (for example, from a card payment)
                             // A delayed notification payment will have an `unpaid` status, as you're still waiting for funds to be transferred from the customer's account.
-                            if($session->payment_status=='paid' || $session->payment_status=='no_payment_required') {
-                                // Update user role, post status, user login status or entry status
-                                SUPER_Stripe::fulfillOrder(array('form_id'=>$form_id, 's'=>$s, 'stripe_session'=>$session, 'sfsi'=>$sfsi));
-                                // Delete submission info
-                                delete_option( '_sfsi_' . $session->metadata->sfsi_id );
-                            }
+                            // tmp if($stripe_session->payment_status=='paid' || $stripe_session->payment_status=='no_payment_required'){
+                            // tmp     // Update user role, post status, user login status or entry status
+                            // tmp     self::fulfillOrder(array('form_id'=>$form_id, 's'=>$s, 'stripe_session'=>$stripe_session, 'sfsi'=>$sfsi));
+                            // tmp     // Delete submission info
+                            // tmp     delete_option( '_sfsi_' . $stripe_session->metadata->sfsi_id );
+                            // tmp }
                             break;
                         case 'checkout.session.async_payment_succeeded':
                             // This step is only required if you plan to use any of the following payment methods:
                             // Bacs Direct Debit, Boleto, Canadian pre-authorized debits, Konbini, OXXO, SEPA Direct Debit, SOFORT, or ACH Direct Debit.
                             // Timings: bacs-debit T+6 (7 days max)
                             // Timings: ...
-                            $session = $event->data->object;
-                            $sfsi = get_option( '_sfsi_' . $session->metadata->sfsi_id, array() );
-                            $form_id = $sfsi['form_id'];
+                            $stripe_session = $event->data->object;
+                            SUPER_Common::triggerEvent('stripe.checkout.session.async_payment_succeeded', array('sfsi_id'=>$stripe_session->metadata->sfsi_id)); //array('form_id'=>$form_id, 's'=>$s, 'stripe_session'=>$stripe_session, 'sfsi'=>$sfsi));
+                            self::fulfillOrder(array('sfsi_id'=>$stripe_session->metadata->sfsi_id, 'stripe_session'=>$stripe_session)); //array('form_id'=>$form_id, 's'=>$s, 'stripe_session'=>$stripe_session, 'sfsi'=>$sfsi));
+                            //$sfsi = get_option( '_sfsi_' . $stripe_session->metadata->sfsi_id, array() );
+                            //$form_id = $sfsi['form_id'];
                             // Get form settings
-                            $settings = SUPER_Common::get_form_settings($form_id);
-                            $s = SUPER_Stripe::get_default_stripe_settings($settings);
-                            SUPER_Common::triggerEvent('stripe.checkout.session.async_payment_succeeded', array('form_id'=>$form_id, 'stripe_session'=>$session));
+                            //$settings = SUPER_Common::get_form_settings($form_id);
+                            //$s = self::get_default_stripe_settings($settings);
                             // Update user role, post status, user login status or entry status
-                            SUPER_Stripe::fulfillOrder(array('form_id'=>$form_id, 's'=>$s, 'stripe_session'=>$session, 'sfsi'=>$sfsi));
-                            // Delete submission info
-                            delete_option( '_sfsi_' . $session->metadata->sfsi_id );
+                            // moved into above function // Delete submission info
+                            // moved into above function delete_option( '_sfsi_' . $stripe_session->metadata->sfsi_id );
                             break;
                         case 'checkout.session.async_payment_failed':
                             // The payment was declined, or failed for some other reason. Contact the customer via email and request that they place a new order.
-                            $session = $event->data->object;
-                            $sfsi = get_option( '_sfsi_' . $session->metadata->sfsi_id, array() );
-                            $form_id = $sfsi['form_id'];
-                            SUPER_Common::triggerEvent('stripe.checkout.session.async_payment_failed', array('form_id'=>$form_id,'stripe_session'=>$session));
-                            $to = $session->customer_details->email;
-                            $data = $sfsi['data'];
-                            // Get form settings
-                            $settings = SUPER_Common::get_form_settings($form_id);
-                            $s = SUPER_Stripe::get_default_stripe_settings($settings);
-                            // Send an email to the customer asking them to retry their order
-                            // @TODO via Triggers
-                            $subject = SUPER_Common::email_tags( $s['retryPaymentEmail']['subject'], $data, $settings ); // e.g: Payment failed
-                            $body = SUPER_Common::email_tags( $s['retryPaymentEmail']['body'], $data, $settings ); // e.g: 'Payment failed, please retry via the below URL:<br /><br /><a href="' . $retryUrl . '">' . $retryUrl . '</a>';
-                            // Replace tag {stripe_retry_payment_expiry} with expiry (amount is in hours e.g: 48)
-                            $expiry = SUPER_Common::email_tags( $s['retryPaymentEmail']['expiry'], $data, $settings ); // e.g: 'Payment failed, please retry via the below URL:<br /><br /><a href="' . $retryUrl . '">' . $retryUrl . '</a>';
-                            $body = str_replace( '{stripe_retry_payment_expiry}', $expiry, $body );
-                            // Replace tag {stripe_retry_payment_url} with URL
-                            $domain = home_url(); // e.g: 'http://domain.com';
-                            $home_url = trailingslashit($domain);
-                            $retryUrl = $home_url . 'sfssid/retry/' . $session->id; //{CHECKOUT_SESSION_ID}';
-                            $body = str_replace( '{stripe_retry_payment_url}', $retryUrl, $body );
-                            if($s['retryPaymentEmail']['lineBreaks']==='true'){
-                                $body = nl2br($body);
-                            }
-                            $mail = SUPER_Common::email( array( 'to'=>$to, 'subject'=>$subject, 'body'=>$body ));
-                            if($mail==false){
-                                http_response_code(400);
-                            }
+                            $stripe_session = $event->data->object;
+                            SUPER_Common::triggerEvent('stripe.checkout.session.async_payment_failed', array('sfsi_id'=>$stripe_session->metadata->sfsi_id)); // array('form_id'=>$form_id, 's'=>$s, 'stripe_session'=>$stripe_session, 'sfsi'=>$sfsi));
+                            self::paymentFailed(array('sfsi_id'=>$stripe_session->metadata->sfsi_id, 'stripe_session'=>$stripe_session)); //array('form_id'=>$form_id, 's'=>$s, 'stripe_session'=>$stripe_session, 'sfsi'=>$sfsi));
+                            //$sfsi = get_option( '_sfsi_' . $stripe_session->metadata->sfsi_id, array() );
+                            //$form_id = $sfsi['form_id'];
+                            // tmp $to = $stripe_session->customer_details->email;
+                            // tmp $data = $sfsi['data'];
+                            // tmp // Get form settings
+                            // tmp $settings = SUPER_Common::get_form_settings($form_id);
+                            // tmp $s = self::get_default_stripe_settings($settings);
+                            // tmp // Send an email to the customer asking them to retry their order
+                            // tmp // @TODO via Triggers
+                            // tmp $subject = SUPER_Common::email_tags( $s['retryPaymentEmail']['subject'], $data, $settings ); // e.g: Payment failed
+                            // tmp $body = SUPER_Common::email_tags( $s['retryPaymentEmail']['body'], $data, $settings ); // e.g: 'Payment failed, please retry via the below URL:<br /><br /><a href="' . $retryUrl . '">' . $retryUrl . '</a>';
+                            // tmp // Replace tag {stripe_retry_payment_expiry} with expiry (amount is in hours e.g: 48)
+                            // tmp $expiry = SUPER_Common::email_tags( $s['retryPaymentEmail']['expiry'], $data, $settings ); // e.g: 'Payment failed, please retry via the below URL:<br /><br /><a href="' . $retryUrl . '">' . $retryUrl . '</a>';
+                            // tmp $body = str_replace( '{stripe_retry_payment_expiry}', $expiry, $body );
+                            // tmp // Replace tag {stripe_retry_payment_url} with URL
+                            // tmp $domain = home_url(); // e.g: 'http://domain.com';
+                            // tmp $home_url = trailingslashit($domain);
+                            // tmp $retryUrl = $home_url . 'sfssid/retry/' . $stripe_session->id; //{CHECKOUT_SESSION_ID}';
+                            // tmp $body = str_replace( '{stripe_retry_payment_url}', $retryUrl, $body );
+                            // tmp if($s['retryPaymentEmail']['lineBreaks']==='true'){
+                            // tmp     $body = nl2br($body);
+                            // tmp }
+                            // tmp $mail = SUPER_Common::email( array( 'to'=>$to, 'subject'=>$subject, 'body'=>$body ));
+                            // tmp if($mail==false){
+                            // tmp     http_response_code(400);
+                            // tmp }
                             break;
                         // Events for subscriptions
                         case 'customer.subscription.created':
@@ -255,80 +278,13 @@ if(!class_exists('SUPER_Stripe')) :
                             // Sent when the subscription is successfully started, after the payment is confirmed. 
                             // Also sent whenever a subscription is changed. For example, adding a coupon, applying a discount, adding an invoice item, and changing plans all trigger this event.
                             error_log('Subscription was updated');
-                            $subscription = $event->data->object;
-                            $m = $subscription->metadata;
-                            $sfsi = get_option( '_sfsi_' . $m['sfsi_id'], array() );
-                            $data = $sfsi['data'];
-                            // Get form settings
-                            $settings = SUPER_Common::get_form_settings($m->sf_id);
-                            $s = SUPER_Stripe::get_default_stripe_settings($settings);
-                            if(!empty($m['sf_entry'])){
-                                // Maybe update entry status?
-                                error_log('Update entry status');
-                                foreach($s['subscription']['entry_status'] as $k => $v){
-                                    error_log($v['status']);
-                                    error_log($subscription->status);
-                                    if($v['status']===$subscription->status){
-                                        error_log('match');
-                                        $value = trim($v['value']);
-                                        if($value==='') continue; // do not change if empty
-                                        $value = SUPER_Common::email_tags($value, $data, $settings);
-                                        update_post_meta($m['sf_entry'], '_super_contact_entry_status', $value);
-                                        error_log('Updated entry status to '.$value.' for #'.$m['sf_entry']);
-                                        break;
-                                    }
-                                }
-                            }
-                            if(!empty($m['sf_post'])){
-                                // Maybe update post status?
-                                error_log('Update post status');
-                                foreach($s['subscription']['post_status'] as $k => $v){
-                                    if($v['status']===$subscription->status){
-                                        $value = trim($v['value']);
-                                        if($value==='') continue; // do not change if empty
-                                        $value = SUPER_Common::email_tags($value, $data, $settings);
-                                        wp_update_post(array('ID'=>$m['sf_post'], 'post_status'=>$value));
-                                        error_log('Updated post status to '.$value.' for #'.$m['sf_post']);
-                                        break;
-                                    }
-                                }
-                            }
-                            // Never update user role or login status for Administrator accounts to prevent locking out themselves
-                            if(!empty($m['sf_user']) && !user_can($m['sf_user'], 'administrator')){
-                                // Maybe update user role or user login status?
-                                error_log('Update user role or user login status');
-                                // Update user login status
-                                foreach($s['subscription']['login_status'] as $k => $v){
-                                    if($v['status']===$subscription->status){
-                                        $value = trim($v['value']);
-                                        if($value==='') continue; // do not change if empty
-                                        $value = SUPER_Common::email_tags($value, $data, $settings);
-                                        update_user_meta($m['sf_user'], 'super_user_login_status', $value);
-                                        error_log('Updated login status to '.$value.' for #'.$m['sf_user']);
-                                        break;
-                                    }
-                                }
-                                foreach($s['subscription']['user_role'] as $k => $v){
-                                    if($v['status']===$subscription->status){
-                                        $value = trim($v['value']);
-                                        if($value==='') continue; // do not change if empty
-                                        $value = SUPER_Common::email_tags($value, $data, $settings);
-                                        $userdata = array('ID'=>$m['sf_user'], 'role'=>$value);
-                                        $result = wp_update_user($userdata);
-                                        if(is_wp_error($result)){
-                                            error_log('Super Forms [ERROR]: failed to update user role to '.$value.' for user with ID: '.$m['sf_user'].' after Stripe subscription status changed');
-                                            error_log($result->get_error_message());
-                                            throw new Exception($result->get_error_message());
-                                        }
-                                        error_log('Updated user role to '.$value.' for #'.$m['sf_user']);
-                                        break;
-                                    }
-                                }
-                            }
+                            self::afterSubscriptionUpdated($event);
                             break;
                         case 'customer.subscription.deleted':
-                            // Sent when a customers subscription ends.
+                            // Sent when a customers subscription ends ("status": "canceled")
+                            // This will also be the case for async payment failed (for delayed payment notifications like Sofort payments) 
                             error_log('Subscription was deleted');
+                            self::afterSubscriptionDeleted($event);
                             break;
                         case 'invoice.paid':
                             // Sent when the invoice is successfully paid. You can provision access to your product when you receive this event and the subscription status is active.
@@ -450,6 +406,86 @@ if(!class_exists('SUPER_Stripe')) :
                 }
             }
         }
+
+        public static function afterSubscriptionDeleted($event){
+            self::stripeEventCustomerSubscriptionUpdatedOrDeleted($event);
+        }
+        public static function afterSubscriptionUpdated($event){
+            self::stripeEventCustomerSubscriptionUpdatedOrDeleted($event);
+        }
+        public static function stripeEventCustomerSubscriptionUpdatedOrDeleted($event){
+            $subscription = $event->data->object;
+            $m = $subscription->metadata;
+            $sfsi = get_option( '_sfsi_' . $m['sfsi_id'], array() );
+            $data = $sfsi['data'];
+            // Get form settings
+            $settings = SUPER_Common::get_form_settings($m->sf_id);
+            $s = self::get_default_stripe_settings($settings);
+            if(!empty($m['sf_entry'])){
+                // Maybe update entry status?
+                error_log('Update entry status');
+                foreach($s['subscription']['entry_status'] as $k => $v){
+                    error_log($v['status']);
+                    error_log($subscription->status);
+                    if($v['status']===$subscription->status){
+                        error_log('match');
+                        $value = trim($v['value']);
+                        if($value==='') continue; // do not change if empty
+                        $value = SUPER_Common::email_tags($value, $data, $settings);
+                        update_post_meta($m['sf_entry'], '_super_contact_entry_status', $value);
+                        error_log('Updated entry status to '.$value.' for #'.$m['sf_entry']);
+                        break;
+                    }
+                }
+            }
+            if(!empty($m['sf_post'])){
+                // Maybe update post status?
+                error_log('Update post status');
+                foreach($s['subscription']['post_status'] as $k => $v){
+                    if($v['status']===$subscription->status){
+                        $value = trim($v['value']);
+                        if($value==='') continue; // do not change if empty
+                        $value = SUPER_Common::email_tags($value, $data, $settings);
+                        wp_update_post(array('ID'=>$m['sf_post'], 'post_status'=>$value));
+                        error_log('Updated post status to '.$value.' for #'.$m['sf_post']);
+                        break;
+                    }
+                }
+            }
+            // Never update user role or login status for Administrator accounts to prevent locking out themselves
+            if(!empty($m['sf_user']) && !user_can($m['sf_user'], 'administrator')){
+                // Maybe update user role or user login status?
+                error_log('Update user role or user login status');
+                // Update user login status
+                foreach($s['subscription']['login_status'] as $k => $v){
+                    if($v['status']===$subscription->status){
+                        $value = trim($v['value']);
+                        if($value==='') continue; // do not change if empty
+                        $value = SUPER_Common::email_tags($value, $data, $settings);
+                        update_user_meta($m['sf_user'], 'super_user_login_status', $value);
+                        error_log('Updated login status to '.$value.' for #'.$m['sf_user']);
+                        break;
+                    }
+                }
+                foreach($s['subscription']['user_role'] as $k => $v){
+                    if($v['status']===$subscription->status){
+                        $value = trim($v['value']);
+                        if($value==='') continue; // do not change if empty
+                        $value = SUPER_Common::email_tags($value, $data, $settings);
+                        $userdata = array('ID'=>$m['sf_user'], 'role'=>$value);
+                        $result = wp_update_user($userdata);
+                        if(is_wp_error($result)){
+                            error_log('Super Forms [ERROR]: failed to update user role to '.$value.' for user with ID: '.$m['sf_user'].' after Stripe subscription status changed');
+                            error_log($result->get_error_message());
+                            throw new Exception($result->get_error_message());
+                        }
+                        error_log('Updated user role to '.$value.' for #'.$m['sf_user']);
+                        break;
+                    }
+                }
+            }
+        }
+
         // Get default listing settings
         public static function get_default_stripe_settings($settings=array(), $s=array()) {
             if(empty($s['enabled'])) $s['enabled'] = 'false';
@@ -543,10 +579,53 @@ if(!class_exists('SUPER_Stripe')) :
             if(empty($s['update_entry_status'])) $s['update_entry_status'] = '';
             if(empty($s['subscription'])) {
                 $s['subscription'] = array(
-                    'entry_status' => array( array( 'status'=>'active', 'value'=>'active'), array( 'status'=>'paused', 'value'=>'pending'), array( 'status'=>'canceled', 'value'=>'trash')),
-                    'post_status' => array( array( 'status'=>'active', 'value'=>'publish'), array( 'status'=>'paused', 'value'=>'pending'), array( 'status'=>'canceled', 'value'=>'trash')),
-                    'login_status' => array( array( 'status'=>'active', 'value'=>'active')),
-                    'user_role' => array( array( 'status'=>'active', 'value'=>'subscriber'))
+                    'entry_status' => array(
+                        array(
+                            'status'=>'active',
+                            'value'=>'active'
+                        ),
+                        array(
+                            'status'=>'paused',
+                            'value'=>'pending'
+                        ),
+                        array(
+                            'status'=>'canceled',
+                            'value'=>'trash'
+                        )
+                    ),
+                    'post_status' => array(
+                        array(
+                            'status'=>'active',
+                            'value'=>'publish'
+                        ),
+                        array(
+                            'status'=>'paused',
+                            'value'=>'pending'),
+                        array(
+                            'status'=>'canceled',
+                            'value'=>'trash'
+                        )
+                    ),
+                    'login_status' => array(
+                        array(
+                            'status'=>'active',
+                            'value'=>'active'
+                        ),
+                        array(
+                            'status'=>'paused',
+                            'value'=>'pending'
+                        ),
+                        array(
+                            'status'=>'canceled',
+                            'value'=>'trash'
+                        )
+                    ),
+                    'user_role' => array(
+                        array(
+                            'status'=>'active', 
+                            'value'=>'subscriber'
+                        )
+                    )
                 );
             }
             if(empty($s['frontend_posting'])) $s['frontend_posting'] = array(
@@ -562,7 +641,7 @@ if(!class_exists('SUPER_Stripe')) :
                     'price' => '', // The ID of the Price or Plan object. One of price or price_data is required.
                     'quantity' => 1, // The quantity of the line item being purchased. Quantity should not be defined when recurring.usage_type=metered.
                     'price_data' => array( // Data used to generate a new Price object inline. One of price or price_data is required.
-                        'currency' => 'usd', // Three-letter ISO currency code. Must be a supported currency.
+                        'currency' => 'usd', // Three-letter ISO currency code. Must be a supported currency. In case you allow the user to choose a payment method via for instance a radio butotn element, make sure that you set the currency based on that since some payment methods like iDeal/Sofort require EUR currency. You can do this with the use of a variable field and retrieving it with a tag like {your_variable_currency_field_name_here}
                         'type' => 'product', //product_data', // (not a Stripe key) Type either `product` or `product_data`
                         'product' => '', // The ID of the product that this price will belong to. One of product or product_data is required.
                         'product_data' => array( // Data used to generate a new product object inline. One of product or product_data is required.
@@ -602,9 +681,10 @@ if(!class_exists('SUPER_Stripe')) :
                     //'tax_type' => '',
                 )
             );
-            $s = apply_filters( 'super_stripe_default_settings_filter', $s );
-            if(isset($settings) && isset($settings['_stripe'])){
-                $s = array_merge($s, $settings['_stripe']);
+            $s = apply_filters('super_stripe_default_settings_filter', $s);
+            if(isset($settings)){
+                if($settings==='') $settings = array();
+                $s = array_merge($s, $settings);
             }
             return $s;
         }
@@ -612,7 +692,7 @@ if(!class_exists('SUPER_Stripe')) :
             extract( shortcode_atts( array(
                 'sfsi'=>array(),
                 'form_id'=>0,
-                'sfs_uid'=>'',
+                'sfsi_id'=>'',
                 'post'=>array(), 
                 'data'=>array(), 
                 'settings'=>array(), 
@@ -748,7 +828,10 @@ if(!class_exists('SUPER_Stripe')) :
                             error_log('Newly created Stripe customer '.$customer.' is connected to WP user: '.$user_id);
                         }
                     }catch(Exception $e){
+                        error_log('1 Stripe error occured');
+                        error_log($e->getCode());
                         if($e->getCode()===0){
+                            error_log('Customer does not exist, create a new one?');
                             // Customer doesn't exists, create a new customer
                             $customer = \Stripe\Customer::create(array('email' => $customer_email));
                             update_user_meta($user_id, 'super_stripe_cus', $customer->id);
@@ -768,20 +851,20 @@ if(!class_exists('SUPER_Stripe')) :
                 'sf_entry' => $entry_id,
                 'sf_user' => (isset($sfsi['user_id']) ? $sfsi['user_id'] : 0),
                 'sf_post' => (isset($sfsi['created_post']) ? $sfsi['created_post'] : 0),
-                'sfsi_id' => $sfs_uid
+                'sfsi_id' => $sfsi_id
             );
             $home_cancel_url = (isset($s['cancel_url']) ? SUPER_Common::email_tags( $s['cancel_url'], $data, $settings ) : '');
             $home_success_url = (isset($s['success_url']) ? SUPER_Common::email_tags( $s['success_url'], $data, $settings ) : '');
             if($home_cancel_url==='') $home_cancel_url = $_SERVER['HTTP_REFERER'];
             if($home_success_url==='') $home_success_url = $_SERVER['HTTP_REFERER'];
 
-            $sfsi = get_option( '_sfsi_' . $sfs_uid, array() );
+            $sfsi = get_option( '_sfsi_' . $sfsi_id, array() );
             $sfsi['entry_id'] = $entry_id;
             $sfsi['stripe_home_cancel_url'] = $home_cancel_url;
             $sfsi['stripe_home_success_url'] = $home_success_url;
             SUPER_Common::setClientData( array( 'name'=>'stripe_home_cancel_url_'.$form_id, 'value'=>$home_cancel_url ) );
             SUPER_Common::setClientData( array( 'name'=>'stripe_home_success_url_'.$form_id, 'value'=>$home_success_url ) );
-            update_option('_sfsi_' . $sfs_uid, $sfsi );
+            update_option('_sfsi_' . $sfsi_id, $sfsi );
             // Shipping options
             $shipping_options = array();
             if($s['shipping_options']['type']==='id'){
@@ -978,8 +1061,8 @@ if(!class_exists('SUPER_Stripe')) :
                     'success_url' => $success_url,
                     // Example success page could be:
                     // ```php
-                    // $session = \Stripe\Checkout\Session::retrieve($request->get('session_id'));
-                    // $customer = \Stripe\Customer::retrieve($session->customer);
+                    // $stripe_session = \Stripe\Checkout\Session::retrieve($request->get('session_id'));
+                    // $customer = \Stripe\Customer::retrieve($stripe_session->customer);
                     // return $response->write("<html><body><h1>Thanks for your order, $customer->name!</h1></body></html>");
                     // ```
 
@@ -1351,15 +1434,42 @@ if(!class_exists('SUPER_Stripe')) :
                 $stripeData = array_remove_empty($stripeData);
                 $stripeData = apply_filters( 'super_stripe_checkout_session_create_data_filter', $stripeData );
                 // Append stripe data to submission info
-                $sfsi = get_option( '_sfsi_' . $sfs_uid, array() );
+                $sfsi = get_option( '_sfsi_' . $sfsi_id, array() );
                 $sfsi['stripeData'] = $stripeData;
-                update_option('_sfsi_' . $sfs_uid, $sfsi );
+                update_option('_sfsi_' . $sfsi_id, $sfsi );
                 // Create the checkout session via Stripe API
                 $expires_at = current_time('timestamp') - (3600 * 1.5);
                 $stripeData['expires_at'] = $expires_at;
                 $checkout_session = \Stripe\Checkout\Session::create($stripeData);
             } catch( Exception $e ){
-                self::exceptionHandler($e, $metadata);
+                if($stripeData['customer']!=='' && strpos($e->getMessage(), 'You cannot combine currencies on a single customer.')===0){
+                    // This seems to be the only way to detect if this error occurs, stripe doesn't return a specific Error code...
+                    // Try to make the same request
+                    try {
+                        error_log('Stripe: '.$e->getMessage());
+                        unset($stripeData['customer']);
+                        unset($stripeData['customer_update']);
+                        $stripeData['customer_email'] = $customer_email;
+                        // error_log('retry the checkout session, but this time without passing an existing customer, because of the currency conflict.');
+                        // error_log('Create a new Stripe customer with this E-mail address');
+                        // if($create_new_customer){
+                        //     error_log('test1');
+                        //     error_log($customer->id);
+                        // }else{
+                        //     error_log('test2');
+                        //     $customer = \Stripe\Customer::create(array('email' => $customer_email));
+                        //     error_log('created a new customer just for this checkout since it uses a different currency');
+                        //     // Do not update connection with user, keep the existing one
+                        //     // update_user_meta($user_id, 'super_stripe_cus', $customer->id);
+                        // }
+                        // $customer = $customer->id;
+                        $checkout_session = \Stripe\Checkout\Session::create($stripeData);
+                    } catch( Exception $e ){
+                        self::exceptionHandler($e, $metadata);
+                    }
+                }else{
+                    self::exceptionHandler($e, $metadata);
+                }
             }
             // Redirect to Stripe checkout page
             $back_url = $home_url . 'sfssid/cancel/'.$checkout_session->id;
@@ -1376,7 +1486,7 @@ if(!class_exists('SUPER_Stripe')) :
             require_once 'stripe-php/init.php';
             \Stripe\Stripe::setAppInfo('Super Forms - Stripe Add-on', SUPER_VERSION, 'https://super-forms.com');
             $global_settings = SUPER_Common::get_global_settings();
-            if(!empty($global_settings['stripe_mode']) ) {
+            if(!empty($global_settings['stripe_mode']) && $global_settings['stripe_mode']!=='live' ) {
                 $global_settings['stripe_mode'] = 'sandbox';
             }else{
                 $global_settings['stripe_mode'] = 'live';
@@ -1441,6 +1551,8 @@ if(!class_exists('SUPER_Stripe')) :
         }
         public static function exceptionHandler($e, $metadata=array()){
             $form_id = 0;
+            error_log('Super Forms - Stripe checkout session error code: '.$e->getCode());
+            error_log($e);
             if(!empty($metadata['sfsi_id'])) $form_id = SUPER_Common::cleanupFormSubmissionInfo($metadata['sfsi_id'], '');
             if(!empty($metadata['sf_id'])) $form_id = $metadata['sf_id'];
             SUPER_Common::output_message( array(
@@ -1449,22 +1561,29 @@ if(!class_exists('SUPER_Stripe')) :
             ));
             die();
         }
-        public static function fulfillOrder($x){
-            extract($x); 
+        public static function fulfillOrder($atts){
+            extract($atts); 
+            $sfsi = get_option( '_sfsi_' . $sfsi_id, array() );
+            error_log('8.0: '.json_encode($sfsi));
+            if(count($sfsi)>0){
+                error_log('8.1: '.json_encode($sfsi));
+                extract($sfsi);
+                error_log('8.2: '.json_encode($sfsi));
+            }
             $settings = SUPER_Common::get_form_settings($form_id);
-            $data = $sfsi['data'];
-            $entry_id = (!empty($sfsi['entry_id']) ? absint($sfsi['entry_id']) : 0);
-            $registered_user_id = (!empty($sfsi['registered_user_id']) ? absint($sfsi['registered_user_id']) : 0);
-            $created_post = (!empty($sfsi['created_post']) ? absint($sfsi['created_post']) : 0);
+            $stripe_settings = self::get_default_stripe_settings($settings);
+            $entry_id = (!empty($entry_id) ? absint($entry_id) : 0);
+            $registered_user_id = (!empty($registered_user_id) ? absint($registered_user_id) : 0);
+            $created_post = (!empty($created_post) ? absint($created_post) : 0);
             $payment_intent = $stripe_session['payment_intent'];
             $invoice = $stripe_session['invoice'];
             $customer = $stripe_session['customer'];
             $subscription = $stripe_session['subscription'];
             if(!empty($entry_id)){
                 // Update entry status after payment completed?
-                $s['update_entry_status'] = SUPER_Common::email_tags(trim($s['update_entry_status']), $data, $settings);
+                $stripe_settings['update_entry_status'] = SUPER_Common::email_tags(trim($stripe_settings['update_entry_status']), $data, $settings);
                 // Update contact entry status after succesfull payment
-                if(!empty($s['update_entry_status'])) update_post_meta($entry_id, '_super_contact_entry_status', $s['update_entry_status']);
+                if(!empty($stripe_settings['update_entry_status'])) update_post_meta($entry_id, '_super_contact_entry_status', $stripe_settings['update_entry_status']);
                 // Connect Stripe details to this entry
                 // @TODO --- === > TEST BELOW
                 update_post_meta($entry_id, '_super_stripe_connections', 
@@ -1478,36 +1597,104 @@ if(!class_exists('SUPER_Stripe')) :
             }
             if(!empty($registered_user_id)){
                 // Update registered user login status after payment completed?
-                $s['register_login']['update_login_status'] = SUPER_Common::email_tags(trim($s['register_login']['update_login_status']), $data, $settings);
-                if(!empty($s['register_login']['update_login_status'])){
+                $stripe_settings['register_login']['update_login_status'] = SUPER_Common::email_tags(trim($stripe_settings['register_login']['update_login_status']), $data, $settings);
+                if(!empty($stripe_settings['register_login']['update_login_status'])){
                     // Update login status
-                    if(!empty($s['register_login']['update_login_status'])) update_user_meta($registered_user_id, 'super_user_login_status', $s['register_login']['update_login_status']);
+                    if(!empty($stripe_settings['register_login']['update_login_status'])) update_user_meta($registered_user_id, 'super_user_login_status', $stripe_settings['register_login']['update_login_status']);
                 }
                 // Update registered user role after payment completed?
-                $s['register_login']['update_user_role'] = SUPER_Common::email_tags(trim($s['register_login']['update_user_role']), $data, $settings);
-                if(!empty($s['register_login']['update_user_role'])){
+                $stripe_settings['register_login']['update_user_role'] = SUPER_Common::email_tags(trim($stripe_settings['register_login']['update_user_role']), $data, $settings);
+                if(!empty($stripe_settings['register_login']['update_user_role'])){
                     // Update user role
-                    $userdata = array('ID' => $registered_user_id, 'role' => $s['register_login']['update_user_role']);
+                    $userdata = array('ID' => $registered_user_id, 'role' => $stripe_settings['register_login']['update_user_role']);
                     wp_update_user($userdata);
                 }
             }
             if(!empty($created_post)){
-                $s['frontend_posting']['update_post_status'] = SUPER_Common::email_tags(trim($s['frontend_posting']['update_post_status']), $data, $settings);
-                if(!empty($s['frontend_posting']['update_post_status'])){
+                $stripe_settings['frontend_posting']['update_post_status'] = SUPER_Common::email_tags(trim($stripe_settings['frontend_posting']['update_post_status']), $data, $settings);
+                if(!empty($stripe_settings['frontend_posting']['update_post_status'])){
                     // Update created post status after payment completed?
-                    wp_update_post(array('ID' => $created_post, 'post_status' => $s['frontend_posting']['update_post_status']));
+                    wp_update_post(array('ID' => $created_post, 'post_status' => $stripe_settings['frontend_posting']['update_post_status']));
                 }
             }
             // Fulfill the purchase
-            SUPER_Common::triggerEvent('stripe.fulfill_order', $x); //array('form_id'=>$form_id, 'stripe_session'=>$session));
+            SUPER_Common::triggerEvent('stripe.fulfill_order', array('sfsi_id'=>$sfsi_id, 'stripe_settings'=>$stripe_settings, 'stripe_session'=>$stripe_session));
+            //SUPER_Common::triggerEvent('stripe.fulfill_order', $x); // $x = array('form_id'=>$form_id, 's'=>$s, 'stripe_session'=>$stripe_session, 'sfsi'=>$sfsi)
+            // Delete submission info
+            delete_option( '_sfsi_' . $sfsi_id );
+        }
+        public static function paymentFailed($atts){
+            // tmp extract($atts); 
+            // tmp $sfsi = get_option( '_sfsi_' . $sfsi_id, array() );
+            // tmp error_log('8.0: '.json_encode($sfsi));
+            // tmp if(count($sfsi)>0){
+            // tmp     error_log('8.1: '.json_encode($sfsi));
+            // tmp     extract($sfsi);
+            // tmp     error_log('8.2: '.json_encode($sfsi));
+            // tmp }
+            // tmp $settings = SUPER_Common::get_form_settings($form_id);
+            // tmp $stripe_settings = self::get_default_stripe_settings($settings);
+            // tmp $entry_id = (!empty($entry_id) ? absint($entry_id) : 0);
+            // tmp $registered_user_id = (!empty($registered_user_id) ? absint($registered_user_id) : 0);
+            // tmp $created_post = (!empty($created_post) ? absint($created_post) : 0);
+            // tmp $payment_intent = $stripe_session['payment_intent'];
+            // tmp $invoice = $stripe_session['invoice'];
+            // tmp $customer = $stripe_session['customer'];
+            // tmp $subscription = $stripe_session['subscription'];
+            // tmp if(!empty($entry_id)){
+            // tmp     // Update entry status after payment completed?
+            // tmp     $stripe_settings['update_entry_status'] = SUPER_Common::email_tags(trim($stripe_settings['update_entry_status']), $data, $settings);
+            // tmp     // Update contact entry status after succesfull payment
+            // tmp     if(!empty($stripe_settings['update_entry_status'])) update_post_meta($entry_id, '_super_contact_entry_status', $stripe_settings['update_entry_status']);
+            // tmp     // Connect Stripe details to this entry
+            // tmp     // @TODO --- === > TEST BELOW
+            // tmp     update_post_meta($entry_id, '_super_stripe_connections', 
+            // tmp         array(
+            // tmp             'payment_intent' => $payment_intent,
+            // tmp             'invoice' => $invoice,
+            // tmp             'customer' => $customer,
+            // tmp             'subscription' => $subscription
+            // tmp         )
+            // tmp     );
+            // tmp }
+            // tmp if(!empty($registered_user_id)){
+            // tmp     // Update registered user login status after payment completed?
+            // tmp     $stripe_settings['register_login']['update_login_status'] = SUPER_Common::email_tags(trim($stripe_settings['register_login']['update_login_status']), $data, $settings);
+            // tmp     if(!empty($stripe_settings['register_login']['update_login_status'])){
+            // tmp         // Update login status
+            // tmp         if(!empty($stripe_settings['register_login']['update_login_status'])) update_user_meta($registered_user_id, 'super_user_login_status', $stripe_settings['register_login']['update_login_status']);
+            // tmp     }
+            // tmp     // Update registered user role after payment completed?
+            // tmp     $stripe_settings['register_login']['update_user_role'] = SUPER_Common::email_tags(trim($stripe_settings['register_login']['update_user_role']), $data, $settings);
+            // tmp     if(!empty($stripe_settings['register_login']['update_user_role'])){
+            // tmp         // Update user role
+            // tmp         $userdata = array('ID' => $registered_user_id, 'role' => $stripe_settings['register_login']['update_user_role']);
+            // tmp         wp_update_user($userdata);
+            // tmp     }
+            // tmp }
+            // tmp if(!empty($created_post)){
+            // tmp     $stripe_settings['frontend_posting']['update_post_status'] = SUPER_Common::email_tags(trim($stripe_settings['frontend_posting']['update_post_status']), $data, $settings);
+            // tmp     if(!empty($stripe_settings['frontend_posting']['update_post_status'])){
+            // tmp         // Update created post status after payment completed?
+            // tmp         wp_update_post(array('ID' => $created_post, 'post_status' => $stripe_settings['frontend_posting']['update_post_status']));
+            // tmp     }
+            // tmp }
+            // tmp // Fulfill the purchase
+            // tmp SUPER_Common::triggerEvent('stripe.fulfill_order', array('sfsi_id'=>$sfsi_id, 'stripe_settings'=>$stripe_settings, 'stripe_session'=>$stripe_session));
+            // tmp //SUPER_Common::triggerEvent('stripe.fulfill_order', $x); // $x = array('form_id'=>$form_id, 's'=>$s, 'stripe_session'=>$stripe_session, 'sfsi'=>$sfsi)
+            // tmp // Delete submission info
+            // tmp delete_option( '_sfsi_' . $sfsi_id );
         }
         public static function add_tab($tabs){
             $tabs['stripe'] = 'Stripe';
             return $tabs;
         }
         public static function add_tab_content($atts){
+            extract($atts);
             $slug = SUPER_Stripe()->add_on_slug;
-            $s = self::get_default_stripe_settings($atts['settings']);
+            error_log('add_tab_content()');
+            error_log(json_encode($stripe));
+            $s = self::get_default_stripe_settings($stripe);
             $logic = array( '==' => '== Equal', '!=' => '!= Not equal', '??' => '?? Contains', '!!' => '!! Not contains', '>'  => '&gt; Greater than', '<'  => '&lt;  Less than', '>=' => '&gt;= Greater than or equal to', '<=' => '&lt;= Less than or equal');
             $statuses = SUPER_Settings::get_entry_statuses();
             $entryStatusesValues = array(
@@ -1543,8 +1730,12 @@ if(!class_exists('SUPER_Stripe')) :
             $statuses = array(
                 'active' => esc_html__( 'Active (default)', 'super-forms' ),
                 'pending' => esc_html__( 'Pending', 'super-forms' ),
-                'payment_required' => esc_html__( 'Payment required', 'super-forms' ),
-                'blocked' => esc_html__( 'Blocked', 'super-forms' )
+                'paused' => esc_html__( 'Paused', 'super-forms' ),
+                'blocked' => esc_html__( 'Blocked', 'super-forms' ),
+                'payment_past_due' => esc_html__( 'Payment past due', 'super-forms' ),
+                'signup_payment_processing' => esc_html__( 'Signup payment processing', 'super-forms' )
+                //'payment_processing' => esc_html__( 'Payment processing', 'super-forms' ),
+                //'payment_required' => esc_html__( 'Payment required', 'super-forms' ),
             );
             foreach($statuses as $k => $v) {
                 $userLoginStatusesValues[] = array('v'=>$k, 'i'=>$v);
@@ -1641,7 +1832,8 @@ if(!class_exists('SUPER_Stripe')) :
                                             'placeholder' => esc_html__( 'e.g. card,ideal', 'super-forms' ),
                                             'accepted_values' => array(array('v'=>'card'), array('v'=>'acss_debit'), array('v'=>'afterpay_clearpay'), array('v'=>'alipay'), array('v'=>'au_becs_debit'), array('v'=>'bacs_debit'), array('v'=>'bancontact'), array('v'=>'boleto'), array('v'=>'eps'), array('v'=>'fpx'), array('v'=>'giropay'), array('v'=>'grabpay'), array('v'=>'ideal'), array('v'=>'klarna'), array('v'=>'konbini'), array('v'=>'oxxo'), array('v'=>'p24'), array('v'=>'paynow'), array('v'=>'sepa_debit'), array('v'=>'sofort'), array('v'=>'us_bank_account'), array('v'=>'wechat_pay')),
                                             'type' => 'text',
-                                            'default' => 'card'
+                                            'default' => 'card',
+                                            'i18n' => true
                                         ),
                                         array(
                                             'name' => 'customer_email',
@@ -1785,6 +1977,7 @@ if(!class_exists('SUPER_Stripe')) :
                                                     'type' => 'text',
                                                     'default' => '',
                                                     'filter' => 'type;price',
+                                                    'i18n' => true
                                                 ),
                                                 array(
                                                     'wrap' => false,
@@ -1804,11 +1997,13 @@ if(!class_exists('SUPER_Stripe')) :
                                                         ),
                                                         array(
                                                             'name' => 'product',
+                                                            'title' => esc_html__( 'Product ID', 'super-forms' ),
                                                             'subline' => esc_html__( 'Enter an already existing Stripe product ID that this price will belong to', 'super-forms' ),
                                                             'placeholder' => esc_html__( 'e.g. prod_XXXXXXXXXXX', 'super-forms' ),
                                                             'type' => 'text',
                                                             'default' => '',
-                                                            'filter' => 'price_data.type;product'
+                                                            'filter' => 'price_data.type;product',
+                                                            'i18n' => true
                                                         ),
                                                         array(
                                                             'wrap' => false,
@@ -2286,10 +2481,9 @@ if(!class_exists('SUPER_Stripe')) :
                                             'group_name' => 'subscription',
                                             'vertical' => true,
                                             'nodes' => array(
-                                                // echo '<span class="sfui-title">' . esc_html__( 'Entry status when subscription status changes', 'super-forms' ) . '</span>';
                                                 array(
-                                                    'notice' => 'info', // hint/info
-                                                    'content' => sprintf( esc_html__( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#backend-settings') . '">', '</a>' )
+                                                    'notice' => 'hit', // hint/info
+                                                    'content' => sprintf( esc_html__( 'You can add custom Contact Entry statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#backend-settings') . '">', '</a>' )
                                                 ),
                                                 array(
                                                     'name' => 'entry_status',
@@ -2314,6 +2508,10 @@ if(!class_exists('SUPER_Stripe')) :
                                                     )
                                                 ),
                                                 array(
+                                                    'notice' => 'hint', // hint/info
+                                                    'content' => esc_html__( 'Update the created post status when subscription status changes (only required if you use Front-end Posting feature). For forms that do not have the Front-end Posting feature enabled you can define [Triggers] to accomplish a similar behavior.', 'super-forms' ),
+                                                ),
+                                                array(
                                                     'name' => 'post_status',
                                                     'type' => 'repeater',
                                                     'inline' => true,
@@ -2336,6 +2534,10 @@ if(!class_exists('SUPER_Stripe')) :
                                                     )
                                                 ),
                                                 array(
+                                                    'notice' => 'hint', // hint/info
+                                                    'content' => esc_html__( 'Update the registered user login status when subscription status changes (only required if this is a paid signup form via Register & Login feature). For none paid signup forms you can define [Triggers] to accomplish a similar behavior.', 'super-forms' ),
+                                                ),
+                                                array(
                                                     'name' => 'login_status',
                                                     'type' => 'repeater',
                                                     'inline' => true,
@@ -2356,6 +2558,10 @@ if(!class_exists('SUPER_Stripe')) :
                                                             'default' => ''
                                                         )
                                                     )
+                                                ),
+                                                array(
+                                                    'notice' => 'hint', // hint/info
+                                                    'content' => esc_html__( 'Update the registered user role when subscription status changes (only required if this is a paid signup form via Register & Login feature). For none paid signup forms you can define [Triggers] to accomplish a similar behavior.', 'super-forms' ),
                                                 ),
                                                 array(
                                                     'name' => 'user_role',
@@ -2416,6 +2622,27 @@ if(!class_exists('SUPER_Stripe')) :
                                     )
                                 ),
 
+                                array(
+                                    'wrap' => false,
+                                    'group' => true,
+                                    'vertical' => true,
+                                    'nodes' => array(
+                                        array(
+                                            'toggle' => true,
+                                            'title' => esc_html__( 'Translations (raw)', 'super-forms' ),
+                                            'notice' => 'hint', // hint/info
+                                            'content' => esc_html__( 'Although you can edit existing translated strings below, you may find it easier to use the [Translations] tab instead.', 'super-forms' ),
+                                            'nodes' => array(
+                                                array(
+                                                    'name' => 'i18n',
+                                                    'type' => 'textarea',
+                                                    'default' => ''
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
+
                             ),
 
                             // [optional] The shipping rate options to apply to this Session.
@@ -2474,6 +2701,7 @@ if(!class_exists('SUPER_Stripe')) :
                 )
             );
             $prefix = array();
+            error_log('loop_over_tab_setting_nodes: '.json_encode($s));
             SUPER_UI::loop_over_tab_setting_nodes($s, $nodes, $prefix);
         }
         public static function add_settings($array, $x){

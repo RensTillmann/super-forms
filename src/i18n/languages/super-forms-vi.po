@@ -5313,7 +5313,7 @@ msgid "February"
 msgstr "tháng 2"
 
 #. Author of the plugin
-msgid "feeling4design"
+msgid "WebRehab"
 msgstr "cảm giác"
 
 #: includes/class-settings.php:2165

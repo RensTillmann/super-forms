@@ -2,7 +2,7 @@
 /**
  * Settings related functions and actions.
  *
- * @author      feeling4design
+ * @author      WebRehab
  * @category    Admin
  * @package     SUPER_Forms/Classes
  * @class       SUPER_Settings
@@ -262,7 +262,7 @@ class SUPER_Settings {
                 'email_body' => array(
                     'name' => esc_html__( 'Body content:', 'super-forms' ),
                     'label' => esc_html__( 'Use a custom email body. Use {loop_fields} to retrieve the loop.', 'super-forms' ),
-                    'default' => sprintf( esc_html__( "The following information has been send by the submitter:\n\n%s\n\nBest regards, %s", 'super-forms' ), '<table cellpadding="5">{loop_fields}</table>', '{option_blogname}' ),
+                    'default' => sprintf( esc_html__( "The following information has been send by the submitter:%sBest regards, %s", 'super-forms' ), '<br /><br /><table cellpadding="5">{loop_fields}</table><br /><br />', '{option_blogname}' ),
                     'type'=>'textarea',
                     'filter'=>true,
                     'parent'=>'send',
@@ -455,7 +455,7 @@ class SUPER_Settings {
                 'confirm_body' => array(
                     'name' => esc_html__( 'Body content:', 'super-forms' ),
                     'label' => esc_html__( 'Use a custom email body. Use {loop_fields} to retrieve the loop.', 'super-forms' ),
-                    'default' => sprintf( esc_html__( "Dear user,\n\nThank you for contacting us!\n\n%s\n\nWe will reply within 48 hours.\n\nBest Regards, %s"), '<table cellpadding="5">{loop_fields}</table>', '{option_blogname}' ),
+                    'default' => sprintf( esc_html__( "Dear user,%sThank you for contacting us!%sWe will reply within 48 hours.%sBest Regards, %s"), '<br /><br />', '<br /><br /><table cellpadding="5">{loop_fields}</table><br /><br />', '<br /><br />', '{option_blogname}' ),
                     'type'=>'textarea',
                     'filter'=>true,
                     'parent'=>'confirm',

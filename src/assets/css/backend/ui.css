@@ -160,6 +160,7 @@
   min-width: initial;
   font-size: 10px;
 }
+.sfui-notice[data-f]:not(.sfui-active),
 .sfui-setting[data-f]:not(.sfui-active),
 .sfui-conditional-logic-settings:not(.sfui-active),
 .sfui-sub-settings:not(.sfui-active),

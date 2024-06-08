@@ -2,7 +2,7 @@
 /**
  * Installation related functions and actions.
  *
- * @author      feeling4design
+ * @author      WebRehab
  * @category    Admin
  * @package     SUPER_Forms/Classes
  * @class       SUPER_Menu

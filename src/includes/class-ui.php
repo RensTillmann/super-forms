@@ -2,7 +2,7 @@
 /**
  * Super Forms UI Class.
  *
- * @author      feeling4design
+ * @author      WebRehab
  * @category    Class
  * @package     SUPER_Forms/Classes
  * @class       SUPER_UI
@@ -60,8 +60,8 @@ class SUPER_UI {
                                         self::loop_over_tab_setting_nodes($s, $v['nodes'], $prefix);
                                     }
                                     echo '<div>';
-                                        echo '<div style="margin-left:10px;" class="sfui-btn sfui-green sfui-round sfui-tooltip" title="' . esc_attr__( 'Add item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Add item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'addRepeaterItem\')"><i class="fas fa-plus"></i></div>';
-                                        echo '<div style="margin-left:0px;" class="sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'deleteRepeaterItem\')"><i class="fas fa-trash"></i></div>';
+                                        echo '<div style="margin-left:10px;" class="add-repeater-item-btn sfui-btn sfui-green sfui-round sfui-tooltip" title="' . esc_attr__( 'Add item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Add item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'addRepeaterItem\')"><i class="fas fa-plus"></i></div>';
+                                        echo '<div style="margin-left:0px;" class="delete-repeater-item-btn sfui-btn sfui-red sfui-round sfui-tooltip" title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" data-title="' . esc_attr__( 'Delete item', 'super-forms' ) .'" onclick="SUPER.ui.btn(event, this, \'deleteRepeaterItem\')"><i class="fas fa-trash"></i></div>';
                                     echo '</div>';
                                 echo '</div>';
                                 array_pop($prefix);  
@@ -105,7 +105,7 @@ class SUPER_UI {
                         if(isset($v['label'])) echo '<span class="sfui-label">' . $v['label'] . '</span>';
                     echo '</label>';
                     if(isset($v['notice'])){
-                        echo '<div class="sfui-notice'.($v['notice']==='info' ? ' sfui-yellow' : '').($v['notice']==='hint' ? ' sfui-desc' : '').'"><p>'.$v['content'].'</p></div>';
+                        echo '<div class="sfui-notice'.($v['notice']==='info' ? ' sfui-yellow' : '').($v['notice']==='hint' ? ' sfui-desc' : '').'"'.(isset($v['filter']) ? ' data-f="'.$v['filter'].'"' : '').'><p>'.$v['content'].'</p></div>';
                     }
                     if(isset($v['nodes']) && is_array($v['nodes'])) self::loop_over_tab_setting_nodes($s, $v['nodes'], $prefix);
                 echo '</div>';
@@ -179,7 +179,7 @@ class SUPER_UI {
                 // tmp error_log('after closing group: ' . SUPER_Common::safe_json_encode($prefix));
             }
             if(isset($v['notice'])){
-                echo '<div class="sfui-notice'.($v['notice']==='info' ? ' sfui-yellow' : '').($v['notice']==='hint' ? ' sfui-desc' : '').'"><p>'.$v['content'].'</p></div>';
+                echo '<div class="sfui-notice'.($v['notice']==='info' ? ' sfui-yellow' : '').($v['notice']==='hint' ? ' sfui-desc' : '').'"'.(isset($v['filter']) ? ' data-f="'.$v['filter'].'"' : '').'><p>'.$v['content'].'</p></div>';
                 continue;
             }
 
@@ -193,6 +193,7 @@ class SUPER_UI {
                 echo ' '.esc_html( 'Accepted values', 'super-forms' ).': ';
                 $x = 0;
                 foreach($v['accepted_values'] as $iv){
+                    if($iv['v']==='signup_payment_processing') continue; // this is a system login status, don't allow users to use it
                     if($x>0) echo ', ';
                     if(isset($iv['v'])){
                         echo '<code>'.$iv['v'].'</code>'.(!empty($iv['i']) ? ' '.$iv['i'] : '');

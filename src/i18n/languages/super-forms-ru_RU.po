@@ -5358,8 +5358,8 @@ msgid "February"
 msgstr "Февраль"
 
 #. Author of the plugin
-msgid "feeling4design"
-msgstr "feeling4design"
+msgid "WebRehab"
+msgstr "WebRehab"
 
 #: includes/class-settings.php:2165
 msgid "Field Colors"

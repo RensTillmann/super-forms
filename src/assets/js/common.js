@@ -2776,6 +2776,13 @@ function SUPERreCaptcha(){
         if(typeof SUPER.preFlightMappings[formId]==='undefined') SUPER.preFlightMappings[formId] = {fieldNames: [], tags: {}}
         if(SUPER.preFlightMappings[formId].tags[indexMapping]){
             if(indexMapping!=='{pdf_page}' && indexMapping!=='{dynamic_column_counter}') {
+                // Check if this field name still exists, this might happen in a dynamic column when the element gets deleted.
+                // Otherwise we must unset it
+                var name = indexMapping.replace('{','').replace('}','').split(';')[0];
+                if(!SUPER.field(args.form, name)) {
+                    delete SUPER.preFlightMappings[formId].tags[indexMapping];
+                    return ''; // does not exist, is not set, return empty string
+                }
                 return SUPER.preFlightMappings[formId].tags[indexMapping];
             }
         }
@@ -2888,8 +2895,9 @@ function SUPERreCaptcha(){
 
 
             if(!$element) $element = SUPER.field(args.form, $name);
+            // Return empty value in case the field does not exist
+            if(!$element) return '';
             if($element){
-                if($element[0]) $element = $element[0];
                 // Check if parent column or element is hidden (conditionally hidden)
                 if( SUPER.has_hidden_parent($element, false, false) ) {
                     // Exclude conditionally
@@ -11330,7 +11338,7 @@ function SUPERreCaptcha(){
         if(args.version) formData.append('version', args.version);
         if(args.data) formData.append('data', JSON.stringify(args.data));
         if(args.fileUpload) formData.append('fileUpload', true);
-        formData.append('i18n', args.form.data('i18n')); // @since 4.7.0 translation
+        formData.append('i18n', (args.form.data('i18n') ? args.form.data('i18n') : '')); // @since 4.7.0 translation
         $.ajax({
             type: 'post',
             url: super_common_i18n.ajaxurl,

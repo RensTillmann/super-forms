@@ -57,57 +57,48 @@
     SUPER.ui = {
         btn: function(e, el, action){
             var node;
-            if(action==='toggleConditionSettings'){
+            if (action === 'toggleConditionSettings') {
                 node = el.closest('.sfui-repeater-item').querySelector('.sfui-conditional-logic-settings');
-                if(node.classList.contains('sfui-active')){
+                if (node.classList.contains('sfui-active')) {
                     node.classList.remove('sfui-active');
-                }else{
+                } else {
                     node.classList.add('sfui-active');
                 }
-                //var node = el.parentNode.parentNode.querySelector('.sfui-conditional-logic-settings');
-                //if(node){
-                //    if(node.classList.contains('super-active')){
-                //        node.classList.remove('super-active');
-                //    }else{
-                //        node.classList.add('super-active');
-                //    }
-                //}
                 e.preventDefault();
                 return false;
             }
-            if(action==='toggleRepeaterSettings'){
+            if (action === 'toggleRepeaterSettings') {
                 node = el.closest('.sfui-repeater-item').querySelector('.sfui-setting-group');
-                if(node.classList.contains('sfui-active')){
+                if (node.classList.contains('sfui-active')) {
                     node.classList.remove('sfui-active');
-                }else{
+                } else {
                     node.classList.add('sfui-active');
                 }
                 e.preventDefault();
                 return false;
             }
-            if(action==='addRepeaterItem'){
+            if (action === 'addRepeaterItem') {
                 var clone = el.closest('.sfui-repeater-item').cloneNode(true);
                 var p = el.closest('.sfui-repeater');
                 p.appendChild(clone);
-                if(p.dataset.r==='lists'){
+                if (p.dataset.r === 'lists') {
                     var input = clone.querySelector('input[value*="[super_listings"]');
-                    if(input){
-                        var id = SUPER.generate_new_field_name().replace('field_','');
+                    if (input) {
+                        var id = SUPER.generate_new_field_name().replace('field_', '');
                         var form_id = document.querySelector('.super-header input[name="form_id"]').value;
-                        input.value = '[super_listings list="'+id+'" id="'+(form_id)+'"]';
-                        // Set unieuq list ID
+                        input.value = '[super_listings list="' + id + '" id="' + (form_id) + '"]';
+                        // Set unique list ID
                         input = clone.querySelector('input[name="id"]');
                         input.value = id;
                     }
                     input = clone.querySelector('input[name="name"]');
-                    input.value = 'Listing #'+p.children.length;
-                    
+                    input.value = 'Listing #' + p.children.length;
                 }
                 var i, tinymce_editors = clone.querySelectorAll('.sfui-textarea-tinymce');
-                for(i=0; i<tinymce_editors.length; i++){
+                for (i = 0; i < tinymce_editors.length; i++) {
                     tinymce_editors[i].id = '';
                     tinymce_editors[i].style.display = '';
-                    if(tinymce_editors[i].nextElementSibling){
+                    if (tinymce_editors[i].nextElementSibling) {
                         tinymce_editors[i].nextElementSibling.remove();
                     }
                     // Initialize TinyMCE for the cloned wrapper
@@ -117,10 +108,33 @@
                 e.preventDefault();
                 return false;
             }
-            if(action==='deleteRepeaterItem'){
+            if (action === 'deleteRepeaterItem') {
                 // Do not delete last item
-                if(el.closest('.sfui-repeater').querySelectorAll(':scope > .sfui-repeater-item').length>1){
-                    el.closest('.sfui-repeater-item').remove();
+                debugger;
+                var repeater = el.closest('.sfui-repeater');
+                var repeaterItems = repeater.querySelectorAll(':scope > .sfui-repeater-item');
+                if(repeaterItems.length > 1){
+                    var itemToDelete = el.closest('.sfui-repeater-item');
+                    if (repeater.closest('.super-tab-content') && document.querySelector('.super-create-form').dataset.i18n) {
+                        // In translation mode
+                        var i18n = document.querySelector('.super-create-form').dataset.i18n;
+                        var p = repeater.closest('[data-g="data"]') ? repeater.closest('[data-g="data"]') : repeater.closest('.super-tab-content');
+                        var i18n_input_field = p.querySelector('[name="i18n"]');
+                        var i18n_value = i18n_input_field.value.trim();
+                        var i18n_data = i18n_value ? JSON.parse(i18n_value) : {};
+        
+                        var key = repeater.getAttribute('data-r');
+                        var index = Array.prototype.indexOf.call(repeaterItems, itemToDelete);
+        
+                        if (i18n_data[i18n] && i18n_data[i18n][key]) {
+                            i18n_data[i18n][key].splice(index, 1); // Remove the corresponding i18n data
+                            if (i18n_data[i18n][key].length === 0) {
+                                delete i18n_data[i18n][key]; // Remove the key if the array is empty
+                            }
+                            i18n_input_field.value = JSON.stringify(i18n_data, undefined, 4);
+                        }
+                    }
+                    itemToDelete.remove();
                 }
                 e.preventDefault();
                 return false;
@@ -168,7 +182,8 @@
             }else{
                 tab = document.querySelector('.super-tabs-content');
             }
-            nodes = tab.querySelectorAll('.sfui-setting, .sfui-sub-settings, .sfui-setting-group');
+            if(!tab) return;
+            nodes = tab.querySelectorAll('.sfui-notice[data-f], .sfui-setting[data-f], .sfui-sub-settings[data-f], .sfui-setting-group[data-f]');
             for(i=0; i < nodes.length; i++){
                 if(!nodes[i].dataset.f) continue;
                 value = '';
@@ -180,8 +195,11 @@
                 var parts = filter[0].split('.');
                 if(parts.length===1){
                     node = tab.querySelector('[name="'+filter[0]+'"]');
-                    if(!node){
-                        tab = nodes[i].closest('.super-tab-content');
+                    while(!node){
+                        if(tab.parentNode.dataset.r==='triggers') break;
+                        if(tab.classList.contains('super-tab-content')) break;
+                        tab = tab.parentNode.closest('.sfui-repeater-item');
+                        if(!tab) break;
                         node = tab.querySelector('[name="'+filter[0]+'"]');
                     }
                 }else{
@@ -256,12 +274,14 @@
                     }
                     if(node.type==='select-one'){
                         value = node.options[node.selectedIndex].value;
+                        if(nodes[i].classList.contains('sfui-notice')) nodes[i].classList.remove('sfui-active');
                         if(nodes[i].classList.contains('sfui-setting')) nodes[i].classList.remove('sfui-active');
                         if(nodes[i].classList.contains('sfui-setting-group')) nodes[i].classList.remove('sfui-active');
                         //if(nodes[i].parentNode.querySelector('.sfui-sub-settings')) nodes[i].parentNode.querySelector('.sfui-sub-settings').classList.remove('sfui-active');
                         if(filter[1][0]==='!'){
                             if(filter[1]==='!'){
                                 if(value!==''){
+                                    if(nodes[i].classList.contains('sfui-notice')) nodes[i].classList.add('sfui-active');
                                     if(nodes[i].classList.contains('sfui-setting')) nodes[i].classList.add('sfui-active');
                                     if(nodes[i].classList.contains('sfui-setting-group')) nodes[i].classList.add('sfui-active');
                                     if(nodes[i].classList.contains('sfui-sub-settings')) nodes[i].classList.add('sfui-active');
@@ -271,6 +291,7 @@
                             }else{
                                 if(filter[1]===value){
                                     filter[1] = filter[1].replace('!', '');
+                                    if(nodes[i].classList.contains('sfui-notice')) nodes[i].classList.add('sfui-active');
                                     if(nodes[i].classList.contains('sfui-setting')) nodes[i].classList.add('sfui-active');
                                     if(nodes[i].classList.contains('sfui-setting-group')) nodes[i].classList.add('sfui-active');
                                     if(nodes[i].classList.contains('sfui-sub-settings')) nodes[i].classList.add('sfui-active');
@@ -280,6 +301,7 @@
                             }
                         }else{
                             if(filter[1].split(',').indexOf(value)!==-1){
+                                if(nodes[i].classList.contains('sfui-notice')) nodes[i].classList.add('sfui-active');
                                 if(nodes[i].classList.contains('sfui-setting')) nodes[i].classList.add('sfui-active');
                                 if(nodes[i].classList.contains('sfui-setting-group')) nodes[i].classList.add('sfui-active');
                                 if(nodes[i].classList.contains('sfui-sub-settings')) nodes[i].classList.add('sfui-active');
@@ -295,89 +317,261 @@
         // Update form settings
         updateSettings: function(e, el){
             SUPER.ui.showHideSubsettings(el);
-            if(el.closest('.super-tab-triggers')){
+            if (el.closest('.super-tab-triggers') ||
+                el.closest('.super-tab-woocommerce') ||
+                el.closest('.super-tab-listings') ||
+                el.closest('.super-tab-pdf') ||
+                el.closest('.super-tab-stripe')) {
+                var slug = el.closest('.super-tab-content').className.replace('super-active', '').replace('super-tab-content', '').replace('super-tab-', '').split(' ').join('');
                 var i18n = document.querySelector('.super-create-form').dataset.i18n;
                 var i18n_data = null;
-                if(i18n && i18n!=='' && el.closest('.sfui-i18n')){
+                if(slug==='stripe') debugger;
+                if (i18n && i18n !== '') {
                     // Translating...
                     // Only update the translation settings based on the input value
-                    if(el.closest('.sfui-type-checkbox')) el = el.querySelector('input');
-                    var p = el.closest('[data-g="data"]');
-                    var i18n_value = p.nextElementSibling.querySelector('[name="i18n"]').value.trim();
-                    if(i18n_value==='' || i18n_value==='[]'){
-                        var i18n_data = {};
+                    if (el.tagName !== 'INPUT' && el.parentNode.classList.contains('sfui-type-checkbox')) el = el.parentNode.querySelector('input');
+                    if (el.tagName !== 'INPUT' && el.parentNode.parentNode.classList.contains('sfui-type-checkbox')) {
+                        el = el.parentNode.parentNode.querySelector('input');
+                    }
+                    var p = (el.closest('[data-g="data"]') ? el.closest('[data-g="data"]') : el.closest('.super-tab-content'));
+                    var i18n_input_field = (p.classList.contains('super-tab-content')) ? p.querySelector('[name="i18n"]') : p.nextElementSibling.querySelector('[name="i18n"]');
+                    
+                    var i18n_value = i18n_input_field.value.trim();
+                    if (i18n_value === '' || i18n_value === '[]') {
+                        i18n_data = {};
                         i18n_data[i18n] = {};
-                    }else{
-                        try{
-                            var i18n_data = JSON.parse(i18n_value);
+                    } else {
+                        try {
+                            i18n_data = JSON.parse(i18n_value);
                         }
-                        catch(e){
+                        catch (e) {
                             console.error(e);
-                            var i18n_data = {};
+                            i18n_data = {};
                             i18n_data[i18n] = {};
-                            p.nextElementSibling.querySelector('[name="i18n"]').classList.add('sfui-red');
+                            i18n_input_field.classList.add('sfui-red');
                         }
                     }
-                    if(!i18n_data[i18n]) i18n_data[i18n] = {};
-                    var $typeOff = typeof i18n_data[i18n];
-                    console.log($typeOff);
-                    console.log(typeof i18n_data[i18n]);
-                    if(Array.isArray(i18n_data[i18n])){
+                    if (!i18n_data[i18n]) i18n_data[i18n] = {};
+                    if (Array.isArray(i18n_data[i18n])) {
                         i18n_data[i18n] = {};
                     }
-                    // If a translated version exists
+                    
                     var value = el.value;
                     var type = el.type;
-                    //k = el.name.split('.').pop();
-                    if(type==='checkbox') value = el.checked;
-                    if(type==='radio') value = (tab.querySelector('[name="'+el.name+'"]:checked') ? tab.querySelector('[name="'+el.name+'"]:checked').value : '');
-                    if(value===true) value = "true"; 
-                    if(value===false) value = "false"; 
-                    if(el.tagName==='TEXTAREA' && tinymce.get(el.id)){
+                    if (type === 'checkbox') value = el.checked;
+                    if (type === 'radio') value = (tab.querySelector('[name="' + el.name + '"]:checked') ? tab.querySelector('[name="' + el.name + '"]:checked').value : '');
+                    if (value === true) value = "true";
+                    if (value === false) value = "false";
+                    if (el.tagName === 'TEXTAREA' && tinymce.get(el.id)) {
                         value = tinymce.get(el.id).getContent();
                     }
-                    if(el.nextElementSibling && el.nextElementSibling.className==='sfui-original-i18n-value' && el.nextElementSibling.value===value){
-                        // Remove any language string that equals the original language
-                        delete i18n_data[i18n][el.name];
-                        if(Array.isArray(i18n_data[i18n])){
-                            i18n_data[i18n] = {};
+        
+                    // Check if it was part of a repeater field
+                    var differentValueExists = false;
+                    const fields = el.closest('.sfui-repeater-item').querySelectorAll('[name]');
+                    fields.forEach(field => {
+                        const fieldDefaultValue = field.nextElementSibling && field.nextElementSibling.className === 'sfui-original-i18n-value' ? field.nextElementSibling.value : null;
+                        if (field.name && field.value !== fieldDefaultValue && fieldDefaultValue !== null) {
+                            differentValueExists = true;
                         }
-                    }else{
-                        var i, k, obj, keys = SUPER.ui.i18n.get_keys([], el, value, 'triggers');
-                        for(i=0; i<keys.length; i++){
-                            k = keys[i];
-                            if(i>0){
-                                if(!obj[k]){
-                                    obj[k] = {};
-                                    obj = obj[k];
-                                }else{
-                                    obj = obj[k];
-                                }
-                            }else{
-                                if(!i18n_data[i18n][k]){
-                                    i18n_data[i18n][k] = {};
-                                    obj = i18n_data[i18n][k];
-                                }else{
-                                    obj = i18n_data[i18n][k];
-                                }
-                            }
-                        }
-                        if(!obj) obj = i18n_data[i18n];
-                        obj[el.name] = value;
+                    });
+        
+                    if (differentValueExists) {
+                        i18n_data[i18n] = SUPER.ui.i18n.collectDataFromParents(i18n_data[i18n], el, value);
+                        console.log(JSON.stringify(i18n_data[i18n], null, 2));
+                    } else {
+                        // Use collectDataFromParents to delete fields correctly in nested structures
+                        i18n_data[i18n] = SUPER.ui.i18n.deleteFromParents(i18n_data[i18n], el);
                     }
-                    p.nextElementSibling.querySelector('[name="i18n"]').value = JSON.stringify(i18n_data, undefined, 4);
-                }else{
-                    // Update trigger settings
-                    SUPER.update_trigger_settings(true);
+        
+                    // Adjust the number of repeater items to match the count in i18n_data
+                    const repeaterKey = el.closest('[data-r]') ? el.closest('[data-r]').getAttribute('data-r') : null;
+                    if (repeaterKey && i18n_data[i18n][repeaterKey]) {
+                        const repeaterContainer = el.closest('[data-r]');
+                        const currentItems = repeaterContainer.querySelectorAll('.sfui-repeater-item');
+                        const targetCount = i18n_data[i18n][repeaterKey].length;
+        
+                        // Add missing items
+                        while (currentItems.length < targetCount) {
+                            debugger;
+                            SUPER.ui.btn(event, repeaterContainer.querySelector('.add-repeater-item-btn'), 'addRepeaterItem');
+                            repeaterItems = repeaterContainer.querySelectorAll('.sfui-repeater-item');
+                        }
+                        // Remove excess items
+                        while (currentItems.length > targetCount) {
+                            debugger;
+                            SUPER.ui.btn(event, currentItems[currentItems.length - 1].querySelector('.delete-repeater-item-btn'), 'deleteRepeaterItem');
+                            repeaterItems = repeaterContainer.querySelectorAll('.sfui-repeater-item');
+                        }
+                    }
+        
+                    i18n_input_field.value = JSON.stringify(i18n_data, undefined, 4);
+                } else {
+                    // Update tab settings
+                    if (el.closest('.super-tab-triggers')) SUPER.update_trigger_settings(true);
+                    if (el.closest('.super-tab-woocommerce')) SUPER.update_woocommerce_settings(true);
+                    if (el.closest('.super-tab-listings')) SUPER.update_listings_settings(true);
+                    if (el.closest('.super-tab-pdf')) SUPER.update_pdf_settings(true);
+                    if (el.closest('.super-tab-stripe')) SUPER.update_stripe_settings(true);
                 }
-            }else{
+            } else {
                 // Update form settings
                 SUPER.update_form_settings(true, el);
             }
         },
+
         i18n: {
+            deleteFromParents: function(data, el){
+                var defaultValue = el.nextElementSibling && el.nextElementSibling.className === 'sfui-original-i18n-value' ? el.nextElementSibling.value : null;
+                let currentParent = el.parentElement;
+                let hasDataRorG = false;
+            
+                while (currentParent) {
+                    if (currentParent.hasAttribute('data-r')) {
+                        hasDataRorG = true;
+                        const key = currentParent.getAttribute('data-r');
+                        const repeaterItems = Array.from(currentParent.children).filter(child => child.classList.contains('sfui-repeater-item'));
+                        const index = repeaterItems.indexOf(el.closest('.sfui-repeater-item'));
+            
+                        if (data[key] && data[key][index]) {
+                            const item = data[key][index];
+                            if (el.name && el.value === defaultValue) {
+                                delete item[el.name];
+                            }
+                            // Clean up if the item becomes empty
+                            if (Object.keys(item).length === 0) {
+                                data[key].splice(index, 1);
+                                if (data[key].length === 0) {
+                                    delete data[key];
+                                }
+                            }
+                        }
+            
+                    } else if (currentParent.hasAttribute('data-g')) {
+                        hasDataRorG = true;
+                        const key = currentParent.getAttribute('data-g');
+                        if (data[key]) {
+                            if (el.name && el.value === defaultValue) {
+                                delete data[key][el.name];
+                            }
+                            // Clean up if the group becomes empty
+                            if (Object.keys(data[key]).length === 0) {
+                                delete data[key];
+                            }
+                        }
+                    }
+                    currentParent = currentParent.parentElement;
+                }
+            
+                // If no data-r or data-g was found, delete the element directly from the data object
+                if (!hasDataRorG) {
+                    if (el.name && el.value === defaultValue) {
+                        delete data[el.name];
+                    }
+                }
+            
+                return data;
+            },
+
+            collectDataFromParents: function(data, el, value){
+                var defaultValue = el.nextElementSibling && el.nextElementSibling.className === 'sfui-original-i18n-value' ? el.nextElementSibling.value : null;
+                let currentParent = el.parentElement;
+                let hasDataRorG = false;
+                while (currentParent) {
+                    if (currentParent.hasAttribute('data-r')) {
+                        hasDataRorG = true;
+                        const key = currentParent.getAttribute('data-r');
+                        const repeaterItems = Array.from(currentParent.children).filter(child => child.classList.contains('sfui-repeater-item'));
+                        const index = repeaterItems.indexOf(el.closest('.sfui-repeater-item'));
+        
+                        if (!data[key]) {
+                            data[key] = [];
+                        }
+        
+                        const item = data[key][index] || {};
+        
+                        // Collect all fields within the repeater item
+                        const fields = el.closest('.sfui-repeater-item').querySelectorAll('[name]');
+                        let allTranslatableFieldsMatchDefault = true;
+        
+                        fields.forEach(field => {
+                            const fieldDefaultValue = field.nextElementSibling && field.nextElementSibling.className === 'sfui-original-i18n-value' ? field.nextElementSibling.value : null;
+                            if (field.name && field.value !== fieldDefaultValue) {
+                                item[field.name] = field.value;
+                                if (fieldDefaultValue !== null) {
+                                    allTranslatableFieldsMatchDefault = false;
+                                }
+                            } else if (field.name && field.value === fieldDefaultValue) {
+                                delete item[field.name];
+                            }
+                        });
+        
+                        for (const attr of currentParent.attributes) {
+                            if (attr.name.startsWith('data-') && attr.name !== 'data-r' && attr.name !== 'data-g') {
+                                item[attr.name.replace('data-', '')] = attr.value;
+                            }
+                        }
+        
+                        if (allTranslatableFieldsMatchDefault) {
+                            delete data[key][index]; // Remove the item if all translatable fields match the default value
+                        } else {
+                            data[key][index] = item;
+                        }
+        
+                    } else if (currentParent.hasAttribute('data-g')) {
+                        hasDataRorG = true;
+                        const key = currentParent.getAttribute('data-g');
+                        if (!data[key]) {
+                            data[key] = {};
+                        }
+        
+                        for (const attr of currentParent.attributes) {
+                            if (attr.name.startsWith('data-') && attr.name !== 'data-r' && attr.name !== 'data-g') {
+                                data[key][attr.name.replace('data-', '')] = attr.value;
+                            }
+                        }
+        
+                        if (el.name && value !== defaultValue) {
+                            data[key][el.name] = value;
+                        } else if (el.name && value === defaultValue) {
+                            delete data[key][el.name];
+                        }
+                    }
+                    currentParent = currentParent.parentElement;
+                }
+                // If no data-r or data-g was found, add the element directly to the data object
+                if (!hasDataRorG) {
+                    if (el.name && value !== defaultValue) {
+                        data[el.name] = value;
+                    } else if (el.name && value === defaultValue) {
+                        delete data[el.name];
+                    }
+                }
+                // Clean up the data object
+                SUPER.ui.i18n.cleanUpData(data);
+                return data;
+            },
+            cleanUpData: function(data){
+                for (const key in data) {
+                    if (Array.isArray(data[key])) {
+                        data[key] = data[key].filter(item => item !== null);
+                        if (data[key].length === 0) {
+                            delete data[key];
+                        }
+                    } else if (typeof data[key] === 'object' && data[key] !== null) {
+                        SUPER.ui.i18n.cleanUpData(data[key]);
+                        if (Object.keys(data[key]).length === 0) {
+                            delete data[key];
+                        }
+                    }
+                }
+            },
             // Function to load image based on attachment ID
             reload_attachments: function(node){
+                if(node.value===''){
+                    node.parentNode.querySelector(':scope .file-preview').innerHTML = '';
+                    return;
+                }
                 var fileIDs = node.value.split(',');
                 var xhttp = new XMLHttpRequest();
                 xhttp.onreadystatechange = function(){
@@ -404,6 +598,59 @@
                 var params = $.param({action: 'super_ui_i18n_reload_attachments', fileIDs: fileIDs});
                 xhttp.send(params);
             },
+            getTranslatedValue: function(el, i18n_data, i18n){
+                let currentParent = el.parentElement;
+                let path = [];
+                // Traverse up the DOM to build the path
+                while (currentParent) {
+                  if (currentParent.hasAttribute('data-r')) {
+                    const key = currentParent.getAttribute('data-r');
+                    const repeaterItems = Array.from(currentParent.children).filter(child => child.classList.contains('sfui-repeater-item'));
+                    const index = repeaterItems.indexOf(el.closest('.sfui-repeater-item'));
+                    path.unshift(`${key}[${index}]`);
+                  } else if (currentParent.hasAttribute('data-g')) {
+                    const key = currentParent.getAttribute('data-g');
+                    path.unshift(key);
+                  }
+                  currentParent = currentParent.parentElement;
+                }
+                path.push(el.name); // Add the field name to the path
+                // Construct the path in the i18n_data object
+                let translatedValue = i18n_data[i18n];
+                for (const part of path) {
+                  // Check if part is an array access string like 'line_items[1]'
+                  const arrayMatch = part.match(/^([a-zA-Z0-9_]+)\[([0-9]+)\]$/);
+                  if (arrayMatch) {
+                    const arrayKey = arrayMatch[1];
+                    const index = parseInt(arrayMatch[2], 10);
+                    if (translatedValue && Array.isArray(translatedValue[arrayKey])) {
+                      translatedValue = translatedValue[arrayKey][index];
+                    } else {
+                      translatedValue = null;
+                      break;
+                    }
+                  } else {
+                    if (translatedValue && part in translatedValue) {
+                      translatedValue = translatedValue[part];
+                    } else {
+                      translatedValue = null;
+                      break;
+                    }
+                  }
+                }
+                return translatedValue;
+            },
+            findParentsWithAttributes: function(el, attrs){
+                var parents = [];
+                var parent = el.parentElement;
+                while(parent){
+                    if (attrs.some(attr => parent.hasAttribute(attr))){
+                        parents.push(parent);
+                    }
+                    parent = parent.parentElement;
+                }
+                return parents;
+            }, 
             get_keys: function(keys, el, value, slug){
                 var p = el.parentNode.closest('[data-g]');
                 if(p){
@@ -428,7 +675,14 @@
                             if(nodes[i].type==='checkbox'){
                                 nodes[i].checked = (nodes[i].nextElementSibling.value==='true' ? true : false);
                             }else{
-                                nodes[i].value = nodes[i].nextElementSibling.value;
+                                if(nodes[i].value!==nodes[i].nextElementSibling.value){
+                                    // Re-load attachment image preview
+                                    if(nodes[i].parentNode.closest('.sfui-setting').classList.contains('sfui-type-files')){
+                                        nodes[i].value = nodes[i].nextElementSibling.value;
+                                        SUPER.ui.i18n.reload_attachments(nodes[i]);
+                                    }
+                                    nodes[i].value = nodes[i].nextElementSibling.value;
+                                }
                             }
                         }
                         nodes[i].nextElementSibling.remove();
@@ -446,6 +700,18 @@
     };
     SUPER.update_trigger_settings = function(string){
         document.querySelector('.super-raw-code-trigger-settings textarea').value = SUPER.get_trigger_settings(string);
+    };
+    SUPER.update_woocommerce_settings = function(string){
+        document.querySelector('.super-raw-code-woocommerce-settings textarea').value = SUPER.get_woocommerce_settings(string);
+    };
+    SUPER.update_listings_settings = function(string){
+        document.querySelector('.super-raw-code-listings-settings textarea').value = SUPER.get_listings_settings(string);
+    };
+    SUPER.update_pdf_settings = function(string){
+        document.querySelector('.super-raw-code-pdf-settings textarea').value = SUPER.get_pdf_settings(string);
+    };
+    SUPER.update_stripe_settings = function(string){
+        document.querySelector('.super-raw-code-stripe-settings textarea').value = SUPER.get_stripe_settings(string);
     };
     SUPER.update_translation_settings = function(string){
         document.querySelector('.super-raw-code-translation-settings textarea').value = SUPER.get_translation_settings(string);
@@ -524,16 +790,6 @@
                     $settings[$name] = $value;
                 }
             });
-            // Trigger settings
-            // no longer used, we grab triggers specifically $settings = SUPER.get_tab_settings($settings, 'triggers');
-            // WooCommerce settings
-            $settings = SUPER.get_tab_settings($settings, 'woocommerce');
-            // PDF settings
-            $settings = SUPER.get_tab_settings($settings, 'pdf');
-            // Listing settings
-            $settings = SUPER.get_tab_settings($settings, 'listings');
-            // Stripe settings
-            $settings = SUPER.get_tab_settings($settings, 'stripe');
         }
         if(string===true) {
             if(!isEmpty($settings)) return JSON.stringify($settings, undefined, 4);
@@ -634,57 +890,58 @@
             return SUPER.get_obj_value_by_key(obj[is[0]], is.slice(1), value);
         }
     };
-    SUPER.get_tab_settings = function(settings, slug, tab, data){
+    SUPER.get_tab_settings = function(settings, slug, tab, data) {
         var nodes, i, translating = false, i18n_data = null;
         var i18n = document.querySelector('.super-create-form').dataset.i18n;
-        if(i18n && i18n!=='' && slug==='triggers'){
+        if (i18n && i18n !== '' && (slug === 'triggers' || slug === 'woocommerce' || slug === 'listings' || slug === 'pdf' || slug === 'stripe')) {
             // Translating...
             translating = true;
         }
         var returnObj = false;
-        if(typeof data === 'undefined') {
+        if (typeof data === 'undefined') {
             data = {};
-        }else{
+        } else {
             returnObj = true;
         }
-        if(typeof tab === 'undefined'){
-            tab = document.querySelector('.super-tab-content.super-tab-'+slug);
+        if (typeof tab === 'undefined') {
+            tab = document.querySelector('.super-tab-content.super-tab-' + slug);
         }
-        if(!tab) {
+        if (!tab) {
             return settings;
         }
         // Get the current country flag
         var flag = document.querySelector(':scope .super-tabs > .super-tab-builder > .flag');
         // Remember the original value for translatable settings
         nodes = tab.querySelectorAll('.sfui-i18n [name]');
-        if(flag){
-            for(i=0; i<nodes.length; i++){
+        if (flag) {
+            for (i = 0; i < nodes.length; i++) {
                 // Add the country flag next to the setting title to indicate translatable option
                 var title = nodes[i].closest('label').querySelector('.sfui-title');
-                if(title){
+                if (title) {
                     var cloneFlag = flag.cloneNode();
-                    cloneFlag.title = 'Translation for '+(i18n ? i18n : 'main language');
-                    if(title.querySelector('.flag')) title.querySelector('.flag').remove();
+                    cloneFlag.title = 'Translation for ' + (i18n ? i18n : 'main language');
+                    if (title.querySelector('.flag')) title.querySelector('.flag').remove();
                     title.appendChild(cloneFlag);
                 }
             }
         }
-        if(translating){
-            for(i=0; i<nodes.length; i++){
+        if (translating) {
+            if (slug === 'stripe') debugger;
+            for (i = 0; i < nodes.length; i++) {
                 // Skip if already exists
-                if(nodes[i].nextElementSibling && nodes[i].nextElementSibling.className==='sfui-original-i18n-value') {
+                if (nodes[i].nextElementSibling && nodes[i].nextElementSibling.className === 'sfui-original-i18n-value') {
                     continue;
                 }
-                if(nodes[i].type==='textarea'){
-                    if(tinymce.get(nodes[i].id)) {
+                if (nodes[i].type === 'textarea') {
+                    if (tinymce.get(nodes[i].id)) {
                         var value = tinymce.get(nodes[i].id).getContent();
-                    }else{
+                    } else {
                         var value = nodes[i].value;
                     }
                     var field = document.createElement('textarea');
-                }else{
+                } else {
                     var value = nodes[i].value;
-                    if(nodes[i].type==='checkbox'){
+                    if (nodes[i].type === 'checkbox') {
                         value = nodes[i].checked ? 'true' : 'false';
                     }
                     var field = document.createElement('input');
@@ -695,138 +952,208 @@
                 field.style.display = 'none';
                 nodes[i].parentNode.insertBefore(field, nodes[i].nextSibling);
             }
-        }else{
+        } else {
             // Reset remembered original value for translatable settings
-            if(!$('.super-create-form').hasClass('super-translation-mode')){
+            if (!$('.super-create-form').hasClass('super-translation-mode')) {
                 SUPER.ui.i18n.reset_original_value();
             }
         }
-
+    
+        // Adjust the number of repeater items based on i18n_data
+        if (translating && slug === 'stripe' && tab.classList.contains('super-tab-content')){ 
+            debugger;
+            var p = tab;
+            // Initialize i18n_data if not already done
+            if (i18n_data === null) {
+                var i18n_input_field = p.querySelector('[name="i18n"]');
+                var i18n_value = i18n_input_field.value.trim();
+                i18n_input_field.classList.remove('sfui-red');
+                if (i18n_value === '') {
+                    i18n_data = {};
+                    i18n_data[i18n] = {};
+                } else {
+                    try {
+                        i18n_data = JSON.parse(i18n_value);
+                        var changed = false;
+                        Object.keys(i18n_data).forEach(function(key) {
+                            if (Array.isArray(i18n_data[key])) {
+                                i18n_data[key] = {};
+                                changed = true;
+                            }
+                        });
+                        if (changed) {
+                            i18n_input_field.value = JSON.stringify(i18n_data, undefined, 4);
+                        }
+                    }
+                    catch (e) {
+                        console.error(e);
+                        i18n_data = {};
+                        i18n_data[i18n] = {};
+                        i18n_input_field.classList.add('sfui-red');
+                    }
+                }
+            }
+    
+            // Adjust repeater items based on i18n_data
+            var repeaters = tab.querySelectorAll('[data-r]');
+            repeaters.forEach(function(repeater) {
+                var key = repeater.getAttribute('data-r');
+                if (i18n_data[i18n] && i18n_data[i18n][key]) {
+                    var repeaterItems = repeater.querySelectorAll('.sfui-repeater-item');
+                    var targetCount = i18n_data[i18n][key].length;
+    
+                    // Add missing items
+                    while (repeaterItems.length < targetCount) {
+                        debugger;
+                        SUPER.ui.btn(event, repeater.querySelector('.add-repeater-item-btn'), 'addRepeaterItem');
+                        repeaterItems = repeater.querySelectorAll('.sfui-repeater-item');
+                    }
+    
+                    // Remove excess items
+                    while (repeaterItems.length > targetCount) {
+                        debugger;
+                        SUPER.ui.btn(event, repeaterItems[repeaterItems.length - 1].querySelector('.delete-repeater-item-btn'), 'deleteRepeaterItem');
+                        repeaterItems = repeater.querySelectorAll('.sfui-repeater-item');
+                    }
+                }
+            });
+        }
+    
         // First grab all settings that are not inside a repeater element
         var i, k, nodes = tab.querySelectorAll('[data-g], [data-r], [name]');
-        for(i=0; i<nodes.length; i++){
-            if(nodes[i].classList.contains('sf-processed')){
+        for (i = 0; i < nodes.length; i++) {
+            if (nodes[i].classList.contains('sf-processed')) {
                 continue;
             }
             nodes[i].classList.add('sf-processed');
-            if(nodes[i].dataset.r){
+            if (nodes[i].dataset.r) {
                 var ri, repeaterItems = nodes[i].querySelectorAll(':scope > .sfui-repeater-item');
                 k = nodes[i].dataset.r;
-                for(ri=0; ri<repeaterItems.length; ri++){
-                    if(!data[k]) data[k] = [];
-                    if(!data[k][ri]) data[k][ri] = {};
+                for (ri = 0; ri < repeaterItems.length; ri++) {
+                    if (!data[k]) data[k] = [];
+                    if (!data[k][ri]) data[k][ri] = {};
                     data[k][ri] = SUPER.get_tab_settings(settings, slug, repeaterItems[ri], data[k][ri]);
                 }
                 continue;
             }
-            if(nodes[i].dataset.g){
+            if (nodes[i].dataset.g) {
                 // is group
                 k = nodes[i].dataset.g;
-                if(!data[k]) data[k] = {};
+                if (!data[k]) data[k] = {};
                 // Lookup any inner fields
                 data[k] = SUPER.get_tab_settings(settings, slug, nodes[i], data[k]);
                 continue;
             }
-            if(nodes[i].name){
+            if (nodes[i].name) {
                 // is field
                 // first check if we are in translation mode
-                if(translating && nodes[i].closest('.sfui-setting').classList.contains('sfui-i18n')){
+                if (translating && nodes[i].closest('.sfui-setting').classList.contains('sfui-i18n')) {
                     // Try to grab existing translated string
-                    if(i18n_data===null){
-                        var p = nodes[i].closest('[data-g="data"]');
-                        var i18n_value = p.nextElementSibling.querySelector('[name="i18n"]').value.trim();
-                        p.nextElementSibling.querySelector('[name="i18n"]').classList.remove('sfui-red');
-                        if(i18n_value===''){
+                    if (i18n_data === null) {
+                        var p = (nodes[i].closest('[data-g="data"]') ? nodes[i].closest('[data-g="data"]') : nodes[i].closest('.super-tab-content'));
+                        if (p.classList.contains('super-tab-content')) {
+                            var i18n_input_field = p.querySelector('[name="i18n"]');
+                        } else {
+                            var i18n_input_field = p.nextElementSibling.querySelector('[name="i18n"]');
+                        }
+                        var i18n_value = i18n_input_field.value.trim();
+                        i18n_input_field.classList.remove('sfui-red');
+                        if (i18n_value === '') {
                             var i18n_data = {};
                             i18n_data[i18n] = {};
-                        }else{
-                            try{
+                        } else {
+                            try {
                                 var i18n_data = JSON.parse(i18n_value);
                                 var changed = false;
-                                Object.keys(i18n_data).forEach(function(key){
-                                    if(Array.isArray(i18n_data[key])){
+                                Object.keys(i18n_data).forEach(function(key) {
+                                    if (Array.isArray(i18n_data[key])) {
                                         i18n_data[key] = {};
                                         changed = true;
                                     }
                                 });
-                                if(changed){
-                                    p.nextElementSibling.querySelector('[name="i18n"]').value = JSON.stringify(i18n_data, undefined, 4);
+                                if (changed) {
+                                    i18n_input_field.value = JSON.stringify(i18n_data, undefined, 4);
                                 }
                             }
-                            catch(e){
+                            catch (e) {
                                 console.error(e);
                                 var i18n_data = {};
                                 i18n_data[i18n] = {};
-                                p.nextElementSibling.querySelector('[name="i18n"]').classList.add('sfui-red');
+                                i18n_input_field.classList.add('sfui-red');
                             }
                         }
                     }
-                    if(Array.isArray(i18n_data[i18n])){
+                    if (Array.isArray(i18n_data[i18n])) {
                         i18n_data[i18n] = {};
                     }
-                    if(i18n_data[i18n] && i18n_data[i18n][nodes[i].name]){
-                        // If a translated version exists
+                    if (i18n_data[i18n]) {
                         var value = nodes[i].value;
                         k = nodes[i].name.split('.').pop();
-                        if(!data[k]){
-                            if(nodes[i].tagName==='TEXTAREA' && tinymce.get(nodes[i].id)){
+                        if (!data[k]) {
+                            if (nodes[i].tagName === 'TEXTAREA' && tinymce.get(nodes[i].id)) {
                                 data[k] = nodes[i].nextElementSibling.value;
-                                tinymce.get(nodes[i].id).setContent(i18n_data[i18n][nodes[i].name]);
-                            }else{
+                                const translatedValue = SUPER.ui.i18n.getTranslatedValue(nodes[i], i18n_data, i18n);
+                                if (translatedValue !== null) {
+                                    tinymce.get(nodes[i].id).setContent(translatedValue);
+                                }
+                            } else {
                                 data[k] = nodes[i].nextElementSibling.value;
-                                if(nodes[i].name==='i18n'){
+                                if (nodes[i].name === 'i18n') {
                                     data[k] = JSON.parse(data[k], undefined, 4);
                                 }
-                                if(nodes[i].type==='checkbox'){
-                                    nodes[i].checked = (i18n_data[i18n][nodes[i].name]==='true' ? true : false);
-                                }else{
-                                    if(nodes[i].value!==i18n_data[i18n][nodes[i].name]){
-                                        // Re-load attachment image preview
-                                        if(nodes[i].parentNode.closest('.sfui-setting').classList.contains('sfui-type-files')){
-                                            nodes[i].value = i18n_data[i18n][nodes[i].name];
-                                            SUPER.ui.i18n.reload_attachments(nodes[i]);
+                                const translatedValue = SUPER.ui.i18n.getTranslatedValue(nodes[i], i18n_data, i18n);
+                                if (translatedValue !== null) {
+                                    if (nodes[i].type === 'checkbox') {
+                                        nodes[i].checked = (translatedValue === 'true');
+                                    } else {
+                                        if (nodes[i].value !== translatedValue) {
+                                            // Re-load attachment image preview
+                                            if (nodes[i].parentNode.closest('.sfui-setting').classList.contains('sfui-type-files')) {
+                                                nodes[i].value = translatedValue;
+                                                SUPER.ui.i18n.reload_attachments(nodes[i]);
+                                            }
                                         }
+                                        nodes[i].value = translatedValue;
                                     }
-                                    nodes[i].value = i18n_data[i18n][nodes[i].name];
                                 }
                             }
                         }
                     }
-                }else{
+                } else {
                     var value = nodes[i].value;
                     var type = nodes[i].type;
                     k = nodes[i].name.split('.').pop();
-                    if(type==='checkbox') value = nodes[i].checked;
-                    if(type==='radio') value = (tab.querySelector('[name="'+nodes[i].name+'"]:checked') ? tab.querySelector('[name="'+nodes[i].name+'"]:checked').value : '');
-                    if(value===true) value = "true"; 
-                    if(value===false) value = "false"; 
-                    if(nodes[i].tagName==='TEXTAREA' && tinymce.get(nodes[i].id)){
+                    if (type === 'checkbox') value = nodes[i].checked;
+                    if (type === 'radio') value = (tab.querySelector('[name="' + nodes[i].name + '"]:checked') ? tab.querySelector('[name="' + nodes[i].name + '"]:checked').value : '');
+                    if (value === true) value = "true";
+                    if (value === false) value = "false";
+                    if (nodes[i].tagName === 'TEXTAREA' && tinymce.get(nodes[i].id)) {
                         value = tinymce.get(nodes[i].id).getContent();
                     }
-                    if(!data[k]) {
-                        if(nodes[i].name==='i18n'){
-                            if(value==='' || value==='[]'){
+                    if (!data[k]) {
+                        if (nodes[i].name === 'i18n') {
+                            if (value === '' || value === '[]') {
                                 value = '{}';
-                            }else{
-                                try{
+                            } else {
+                                try {
                                     value = JSON.parse(value);
                                     var changed = false;
-                                    Object.keys(value).forEach(function(key){
-                                        if(Array.isArray(value[key])){
+                                    Object.keys(value).forEach(function(key) {
+                                        if (Array.isArray(value[key])) {
                                             value[key] = {};
                                             changed = true;
                                         }
                                     });
-                                    if(changed){
+                                    if (changed) {
                                         value = JSON.stringify(value, undefined, 4);
                                     }
                                 }
-                                catch(e){
+                                catch (e) {
                                     console.error(e);
                                     value = '{}';
                                 }
                             }
-                            if(typeof value!=='object'){
+                            if (typeof value !== 'object') {
                                 value = JSON.parse(value, undefined, 4);
                             }
                         }
@@ -836,27 +1163,320 @@
                 continue;
             }
         }
-        if(returnObj) return data;
-
+        if (returnObj) return data;
+    
         // Remove processed class
-        tab = document.querySelector('.super-tab-content.super-tab-'+slug);
+        tab = document.querySelector('.super-tab-content.super-tab-' + slug);
         nodes = tab.querySelectorAll('.sf-processed');
-        for(i=0; i<nodes.length; i++){
+        for (i = 0; i < nodes.length; i++) {
             nodes[i].classList.remove('sf-processed');
         }
         // Return settings
-        settings['_'+slug] = data;
+        settings['_' + slug] = data;
         return settings;
-    }
+    };
+//    SUPER.get_tab_settings = function(settings, slug, tab, data){
+//        var nodes, i, translating = false, i18n_data = null;
+//        var i18n = document.querySelector('.super-create-form').dataset.i18n;
+//        if(i18n && i18n!=='' && (slug==='triggers' || slug==='woocommerce' || slug==='listings' || slug==='pdf' || slug==='stripe')){
+//            // Translating...
+//            translating = true;
+//        }
+//        var returnObj = false;
+//        if(typeof data === 'undefined') {
+//            data = {};
+//        }else{
+//            returnObj = true;
+//        }
+//        if(typeof tab === 'undefined'){
+//            tab = document.querySelector('.super-tab-content.super-tab-'+slug);
+//        }
+//        if(!tab) {
+//            return settings;
+//        }
+//        // Get the current country flag
+//        var flag = document.querySelector(':scope .super-tabs > .super-tab-builder > .flag');
+//        // Remember the original value for translatable settings
+//        nodes = tab.querySelectorAll('.sfui-i18n [name]');
+//        if(flag){
+//            for(i=0; i<nodes.length; i++){
+//                // Add the country flag next to the setting title to indicate translatable option
+//                var title = nodes[i].closest('label').querySelector('.sfui-title');
+//                if(title){
+//                    var cloneFlag = flag.cloneNode();
+//                    cloneFlag.title = 'Translation for '+(i18n ? i18n : 'main language');
+//                    if(title.querySelector('.flag')) title.querySelector('.flag').remove();
+//                    title.appendChild(cloneFlag);
+//                }
+//            }
+//        }
+//        if(translating){
+//            if(slug==='stripe') debugger;
+//            for(i=0; i<nodes.length; i++){
+//                // Skip if already exists
+//                if(nodes[i].nextElementSibling && nodes[i].nextElementSibling.className==='sfui-original-i18n-value') {
+//                    continue;
+//                }
+//                if(nodes[i].type==='textarea'){
+//                    if(tinymce.get(nodes[i].id)) {
+//                        var value = tinymce.get(nodes[i].id).getContent();
+//                    }else{
+//                        var value = nodes[i].value;
+//                    }
+//                    var field = document.createElement('textarea');
+//                }else{
+//                    var value = nodes[i].value;
+//                    if(nodes[i].type==='checkbox'){
+//                        value = nodes[i].checked ? 'true' : 'false';
+//                    }
+//                    var field = document.createElement('input');
+//                    field.type = 'hidden';
+//                }
+//                field.value = value;
+//                field.className = 'sfui-original-i18n-value';
+//                field.style.display = 'none';
+//                nodes[i].parentNode.insertBefore(field, nodes[i].nextSibling);
+//            }
+//        }else{
+//            // Reset remembered original value for translatable settings
+//            if(!$('.super-create-form').hasClass('super-translation-mode')){
+//                SUPER.ui.i18n.reset_original_value();
+//            }
+//        }
+//
+//        // First grab all settings that are not inside a repeater element
+//        var i, k, nodes = tab.querySelectorAll('[data-g], [data-r], [name]');
+//        for(i=0; i<nodes.length; i++){
+//            if(nodes[i].classList.contains('sf-processed')){
+//                continue;
+//            }
+//            nodes[i].classList.add('sf-processed');
+//            if(nodes[i].dataset.r){
+//                var ri, repeaterItems = nodes[i].querySelectorAll(':scope > .sfui-repeater-item');
+//                k = nodes[i].dataset.r;
+//                for(ri=0; ri<repeaterItems.length; ri++){
+//                    if(!data[k]) data[k] = [];
+//                    if(!data[k][ri]) data[k][ri] = {};
+//                    data[k][ri] = SUPER.get_tab_settings(settings, slug, repeaterItems[ri], data[k][ri]);
+//                }
+//                continue;
+//            }
+//            if(nodes[i].dataset.g){
+//                // is group
+//                k = nodes[i].dataset.g;
+//                if(!data[k]) data[k] = {};
+//                // Lookup any inner fields
+//                data[k] = SUPER.get_tab_settings(settings, slug, nodes[i], data[k]);
+//                continue;
+//            }
+//            if(nodes[i].name){
+//                // is field
+//                // first check if we are in translation mode
+//                if(translating && nodes[i].closest('.sfui-setting').classList.contains('sfui-i18n')){
+//                    // Try to grab existing translated string
+//                    if(i18n_data===null){
+//                        var p = (nodes[i].closest('[data-g="data"]') ? nodes[i].closest('[data-g="data"]') : nodes[i].closest('.super-tab-content'));
+//                        if(p.classList.contains('super-tab-content')){
+//                            var i18n_input_field = p.querySelector('[name="i18n"]');
+//                        }else{
+//                            var i18n_input_field = p.nextElementSibling.querySelector('[name="i18n"]');
+//                        }
+//                        var i18n_value = i18n_input_field.value.trim();
+//                        i18n_input_field.classList.remove('sfui-red');
+//                        if(i18n_value===''){
+//                            var i18n_data = {};
+//                            i18n_data[i18n] = {};
+//                        }else{
+//                            try{
+//                                var i18n_data = JSON.parse(i18n_value);
+//                                var changed = false;
+//                                Object.keys(i18n_data).forEach(function(key){
+//                                    if(Array.isArray(i18n_data[key])){
+//                                        i18n_data[key] = {};
+//                                        changed = true;
+//                                    }
+//                                });
+//                                if(changed){
+//                                    i18n_input_field.value = JSON.stringify(i18n_data, undefined, 4);
+//                                }
+//                            }
+//                            catch(e){
+//                                console.error(e);
+//                                var i18n_data = {};
+//                                i18n_data[i18n] = {};
+//                                i18n_input_field.classList.add('sfui-red');
+//                            }
+//                        }
+//                    }
+//                    if(Array.isArray(i18n_data[i18n])){
+//                        i18n_data[i18n] = {};
+//                    }
+//                    if (i18n_data[i18n]) {
+//                        var value = nodes[i].value;
+//                        k = nodes[i].name.split('.').pop();
+//                        if (!data[k]) {
+//                          if (nodes[i].tagName === 'TEXTAREA' && tinymce.get(nodes[i].id)) {
+//                            data[k] = nodes[i].nextElementSibling.value;
+//                            const translatedValue = SUPER.ui.i18n.getTranslatedValue(nodes[i], i18n_data, i18n);
+//                            if (translatedValue !== null) {
+//                              tinymce.get(nodes[i].id).setContent(translatedValue);
+//                            }
+//                          } else {
+//                            data[k] = nodes[i].nextElementSibling.value;
+//                            if (nodes[i].name === 'i18n') {
+//                              data[k] = JSON.parse(data[k], undefined, 4);
+//                            }
+//                            const translatedValue = SUPER.ui.i18n.getTranslatedValue(nodes[i], i18n_data, i18n);
+//                            if (translatedValue !== null) {
+//                              if (nodes[i].type === 'checkbox') {
+//                                nodes[i].checked = (translatedValue === 'true');
+//                              } else {
+//                                if (nodes[i].value !== translatedValue) {
+//                                  // Re-load attachment image preview
+//                                  if (nodes[i].parentNode.closest('.sfui-setting').classList.contains('sfui-type-files')) {
+//                                    nodes[i].value = translatedValue;
+//                                    SUPER.ui.i18n.reload_attachments(nodes[i]);
+//                                  }
+//                                }
+//                                nodes[i].value = translatedValue;
+//                              }
+//                            }
+//                          }
+//                        }
+//                    }
+//                    // tmp if(i18n_data[i18n] && i18n_data[i18n][nodes[i].name]){
+//                    // tmp     // If a translated version exists
+//                    // tmp     var value = nodes[i].value;
+//                    // tmp     k = nodes[i].name.split('.').pop();
+//                    // tmp     if(!data[k]){
+//                    // tmp         if(nodes[i].tagName==='TEXTAREA' && tinymce.get(nodes[i].id)){
+//                    // tmp             data[k] = nodes[i].nextElementSibling.value;
+//                    // tmp             tinymce.get(nodes[i].id).setContent(i18n_data[i18n][nodes[i].name]);
+//                    // tmp         }else{
+//                    // tmp             data[k] = nodes[i].nextElementSibling.value;
+//                    // tmp             if(nodes[i].name==='i18n'){
+//                    // tmp                 data[k] = JSON.parse(data[k], undefined, 4);
+//                    // tmp             }
+//                    // tmp             if(nodes[i].type==='checkbox'){
+//                    // tmp                 nodes[i].checked = (i18n_data[i18n][nodes[i].name]==='true' ? true : false);
+//                    // tmp             }else{
+//                    // tmp                 if(nodes[i].value!==i18n_data[i18n][nodes[i].name]){
+//                    // tmp                     // Re-load attachment image preview
+//                    // tmp                     if(nodes[i].parentNode.closest('.sfui-setting').classList.contains('sfui-type-files')){
+//                    // tmp                         nodes[i].value = i18n_data[i18n][nodes[i].name];
+//                    // tmp                         SUPER.ui.i18n.reload_attachments(nodes[i]);
+//                    // tmp                     }
+//                    // tmp                 }
+//                    // tmp                 nodes[i].value = i18n_data[i18n][nodes[i].name];
+//                    // tmp             }
+//                    // tmp         }
+//                    // tmp     }
+//                    // tmp }
+//                }else{
+//                    var value = nodes[i].value;
+//                    var type = nodes[i].type;
+//                    k = nodes[i].name.split('.').pop();
+//                    if(type==='checkbox') value = nodes[i].checked;
+//                    if(type==='radio') value = (tab.querySelector('[name="'+nodes[i].name+'"]:checked') ? tab.querySelector('[name="'+nodes[i].name+'"]:checked').value : '');
+//                    if(value===true) value = "true"; 
+//                    if(value===false) value = "false"; 
+//                    if(nodes[i].tagName==='TEXTAREA' && tinymce.get(nodes[i].id)){
+//                        value = tinymce.get(nodes[i].id).getContent();
+//                    }
+//                    if(!data[k]) {
+//                        if(nodes[i].name==='i18n'){
+//                            if(value==='' || value==='[]'){
+//                                value = '{}';
+//                            }else{
+//                                try{
+//                                    value = JSON.parse(value);
+//                                    var changed = false;
+//                                    Object.keys(value).forEach(function(key){
+//                                        if(Array.isArray(value[key])){
+//                                            value[key] = {};
+//                                            changed = true;
+//                                        }
+//                                    });
+//                                    if(changed){
+//                                        value = JSON.stringify(value, undefined, 4);
+//                                    }
+//                                }
+//                                catch(e){
+//                                    console.error(e);
+//                                    value = '{}';
+//                                }
+//                            }
+//                            if(typeof value!=='object'){
+//                                value = JSON.parse(value, undefined, 4);
+//                            }
+//                        }
+//                        data[k] = value;
+//                    }
+//                }
+//                continue;
+//            }
+//        }
+//        if(returnObj) return data;
+//
+//        // Remove processed class
+//        tab = document.querySelector('.super-tab-content.super-tab-'+slug);
+//        nodes = tab.querySelectorAll('.sf-processed');
+//        for(i=0; i<nodes.length; i++){
+//            nodes[i].classList.remove('sf-processed');
+//        }
+//        // Return settings
+//        settings['_'+slug] = data;
+//        return settings;
+//    }
     SUPER.get_trigger_settings = function(string){
         if(typeof string === 'undefined') string = false;
-        var $triggers = SUPER.get_tab_settings({}, 'triggers');
-        $triggers = $triggers['_triggers']['triggers'];
+        var $s = SUPER.get_tab_settings({}, 'triggers');
+        $s = $s['_triggers']['triggers'];
         if(string===true) {
-            if(!isEmpty($triggers)) return JSON.stringify($triggers, undefined, 4);
+            if(!isEmpty($s)) return JSON.stringify($s, undefined, 4);
             return '';
         }
-        return $triggers;
+        return $s;
+    };
+    SUPER.get_woocommerce_settings = function(string){
+        if(typeof string === 'undefined') string = false;
+        var $s = SUPER.get_tab_settings({}, 'woocommerce');
+        $s = $s['_woocommerce'];
+        if(string===true) {
+            if(!isEmpty($s)) return JSON.stringify($s, undefined, 4);
+            return '';
+        }
+        return $s;
+    };
+    SUPER.get_listings_settings = function(string){
+        if(typeof string === 'undefined') string = false;
+        var $s = SUPER.get_tab_settings({}, 'listings');
+        $s = $s['_listings'];
+        if(string===true) {
+            if(!isEmpty($s)) return JSON.stringify($s, undefined, 4);
+            return '';
+        }
+        return $s;
+    };
+    SUPER.get_pdf_settings = function(string){
+        if(typeof string === 'undefined') string = false;
+        var $s = SUPER.get_tab_settings({}, 'pdf');
+        $s = $s['_pdf'];
+        if(string===true) {
+            if(!isEmpty($s)) return JSON.stringify($s, undefined, 4);
+            return '';
+        }
+        return $s;
+    };
+    SUPER.get_stripe_settings = function(string){
+        if(typeof string === 'undefined') string = false;
+        var $s = SUPER.get_tab_settings({}, 'stripe');
+        $s = $s['_stripe'];
+        if(string===true) {
+            if(!isEmpty($s)) return JSON.stringify($s, undefined, 4);
+            return '';
+        }
+        return $s;
     };
     SUPER.get_translation_settings = function(string){
         if(typeof string === 'undefined') string = false;
@@ -1085,6 +1705,7 @@
         $elements = SUPER.get_form_elements(true);
         SUPER.update_form_settings(true);
         SUPER.update_trigger_settings(true);
+        SUPER.update_stripe_settings(true);
         SUPER.update_translation_settings(true);
         document.querySelector('.super-raw-code-form-elements > textarea').value = $elements;
         if ($history) SUPER.trigger_redo_undo($elements, $old_code);
@@ -1679,20 +2300,19 @@
         };
         xhttp.open("POST", ajaxurl, true);
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
-
-        var params = {
-            action: 'super_save_form',
-            form_id: $('.super-create-form input[name="form_id"]').val(),
-            title: $('.super-create-form input[name="title"]').val(),
-            formElements: document.querySelector('.super-raw-code-form-elements textarea').value,
-            formSettings: document.querySelector('.super-raw-code-form-settings textarea').value,
-            triggerSettings: (document.querySelector('.super-raw-code-trigger-settings textarea') ? document.querySelector('.super-raw-code-trigger-settings textarea').value : ''),
-            translationSettings: document.querySelector('.super-raw-code-translation-settings textarea').value, // @since 4.7.0 translation
-            i18n: $initial_i18n, // @since 4.7.0 translation
-            i18n_disable_browser_translation: ($('.super-i18n-disable-browser-translation').hasClass('super-active') ? 'true' : 'false'),
-            i18n_switch: ($('.super-i18n-switch').hasClass('super-active') ? 'true' : 'false') // @since 4.7.0 translation
-        };
-
+        var params = {};
+        params.action = 'super_save_form';
+        params.form_id = $('.super-create-form input[name="form_id"]').val();
+        params.title = $('.super-create-form input[name="title"]').val();
+        if(!super_create_form_i18n.version){
+            params.formElements = document.querySelector('.super-raw-code-form-elements textarea').value;
+            params.formSettings = document.querySelector('.super-raw-code-form-settings textarea').value;
+            params.triggerSettings = (document.querySelector('.super-raw-code-trigger-settings textarea') ? document.querySelector('.super-raw-code-trigger-settings textarea').value : '');
+            params.translationSettings = document.querySelector('.super-raw-code-translation-settings textarea').value; // @since 4.7.0 translation
+            params.i18n = $initial_i18n; // @since 4.7.0 translation
+            params.i18n_disable_browser_translation = ($('.super-i18n-disable-browser-translation').hasClass('super-active') ? 'true' : 'false');
+            params.i18n_switch = ($('.super-i18n-switch').hasClass('super-active') ? 'true' : 'false'); // @since 4.7.0 translation
+        }
         // @since 4.9.6 - Secrets
         var localSecrets = [], 
             globalSecrets = [],
@@ -1712,6 +2332,45 @@
         }
         params.localSecrets = localSecrets;
         params.globalSecrets = globalSecrets;
+        if(super_create_form_i18n.version){
+            params.form_data = {
+                elements: document.querySelector('.super-raw-code-form-elements textarea').value,
+                settings: document.querySelector('.super-raw-code-form-settings textarea').value,
+                triggers: (document.querySelector('.super-raw-code-trigger-settings textarea') ? document.querySelector('.super-raw-code-trigger-settings textarea').value : ''),
+                woocommerce: (document.querySelector('.super-raw-code-woocommerce-settings textarea') ? document.querySelector('.super-raw-code-woocommerce-settings textarea').value : ''),
+                listings: (document.querySelector('.super-raw-code-listings-settings textarea') ? document.querySelector('.super-raw-code-listings-settings textarea').value : ''),
+                pdf: (document.querySelector('.super-raw-code-pdf-settings textarea') ? document.querySelector('.super-raw-code-pdf-settings textarea').value : ''),
+                stripe: (document.querySelector('.super-raw-code-stripe-settings textarea') ? document.querySelector('.super-raw-code-stripe-settings textarea').value : ''),
+                translations: document.querySelector('.super-raw-code-translation-settings textarea').value,
+                i18n: $initial_i18n, // @since 4.7.0 translation
+                i18n_disable_browser_translation: ($('.super-i18n-disable-browser-translation').hasClass('super-active') ? 'true' : 'false'),
+                i18n_switch: ($('.super-i18n-switch').hasClass('super-active') ? 'true' : 'false') // @since 4.7.0 translation
+            };
+            params.form_data.elements  = params.form_data.elements.trim();
+            params.form_data.settings  = params.form_data.settings.trim();
+            params.form_data.triggers  = params.form_data.triggers.trim();
+            params.form_data.woocommerce  = params.form_data.woocommerce.trim();
+            params.form_data.listings  = params.form_data.listings.trim();
+            params.form_data.pdf  = params.form_data.pdf.trim();
+            params.form_data.stripe  = params.form_data.stripe.trim();
+            params.form_data.translations  = params.form_data.translations.trim();
+            try{
+                if(params.form_data.elements!=='') params.form_data.elements = JSON.parse(params.form_data.elements);
+                if(params.form_data.settings!=='') params.form_data.settings = JSON.parse(params.form_data.settings);
+                if(params.form_data.triggers!=='') params.form_data.triggers = JSON.parse(params.form_data.triggers);
+                if(params.form_data.woocommerce!=='') params.form_data.woocommerce = JSON.parse(params.form_data.woocommerce);
+                if(params.form_data.listings!=='') params.form_data.listings = JSON.parse(params.form_data.listings);
+                if(params.form_data.pdf!=='') params.form_data.pdf = JSON.parse(params.form_data.pdf);
+                if(params.form_data.stripe!=='') params.form_data.stripe = JSON.parse(params.form_data.stripe);
+                if(params.form_data.translations!=='') params.form_data.translations = JSON.parse(params.form_data.translations);
+                params.form_data = JSON.stringify(params.form_data);
+            }catch(e){
+                alert('Unable to save form due to JSON parse error, check the browser console for more details.');
+                console.log(e);
+                return;
+            }
+        }
+        params.z = 1; // Hack to test if request was submitted fully, and server didn't cut off the payload
         params = SUPER.save_form_params_filter(params);
         params = $.param(params);
         xhttp.send(params);
@@ -1882,7 +2541,7 @@
             setup: function(editor){
                 editor.on('BeforeSetContent', function(e) {
                     // Replace non-breaking spaces with regular spaces
-                    e.content = e.content.replace(/\r?\n/g, '<br />');
+                    // tmp e.content = e.content.replace(/\r?\n/g, '<br />');
                     e.content = e.content.replace(/%7B(.+?)%7D/g, '{$1}');
                 });
                 editor.on('Change', function(e) {
@@ -1940,8 +2599,8 @@
         });
         $(document).on('mouseout', '.sfui-setting [name]', function(e){
             if(e.target!==this) return;
-            if(e.relatedTarget && e.relatedTarget.classList.contains('super-reset-settings-buttons')) return;
-            if(e.relatedTarget && e.relatedTarget.parentNode && e.relatedTarget.parentNode.classList.contains('super-reset-settings-buttons')) return;
+            if(e.relatedTarget && e.relatedTarget.classList && e.relatedTarget.classList.contains('super-reset-settings-buttons')) return;
+            if(e.relatedTarget && e.relatedTarget.parentNode && e.relatedTarget.parentNode.classList && e.relatedTarget.parentNode.classList.contains('super-reset-settings-buttons')) return;
             // This condition ensures that the event target is the topmost `.sfui-setting` element
             var p = this.closest('.sfui-setting');
             var btn = p.querySelector(':scope > .super-reset-settings-buttons');
@@ -1972,6 +2631,10 @@
         SUPER.initTinyMCE('.sfui-textarea-tinymce');
         document.querySelector('.super-raw-code-form-settings textarea').value = SUPER.get_form_settings(true);
         document.querySelector('.super-raw-code-trigger-settings textarea').value = SUPER.get_trigger_settings(true);
+        document.querySelector('.super-raw-code-woocommerce-settings textarea').value = SUPER.get_woocommerce_settings(true);
+        document.querySelector('.super-raw-code-listings-settings textarea').value = SUPER.get_listings_settings(true);
+        document.querySelector('.super-raw-code-pdf-settings textarea').value = SUPER.get_pdf_settings(true);
+        document.querySelector('.super-raw-code-stripe-settings textarea').value = SUPER.get_stripe_settings(true);
         document.querySelector('.super-raw-code-translation-settings textarea').value = SUPER.get_translation_settings(true);
 
         // Check if there is an active panel
@@ -2120,102 +2783,45 @@
 
         // @since 4.9.0 - update form code manually
         $doc.on('click', '.super-update-raw-code', function () {
-            var html,
-                n1 = document.querySelector('.super-raw-code-form-elements .sfui-notice'),
-                n2 = document.querySelector('.super-raw-code-form-settings .sfui-notice'),
-                n3 = document.querySelector('.super-raw-code-trigger-settings .sfui-notice'),
-                n4 = document.querySelector('.super-raw-code-translation-settings .sfui-notice'),
-                formElements = document.querySelector('.super-raw-code-form-elements textarea').value,
-                formSettings = document.querySelector('.super-raw-code-form-settings textarea').value,
-                triggerSettings = document.querySelector('.super-raw-code-trigger-settings textarea').value,
-                translationSettings = document.querySelector('.super-raw-code-translation-settings textarea').value;
-
+            var html, notice, field, rawCodeNodes = {
+                rawCodeSelector: 'form-elements',
+                rawCodeSelector: 'form-settings',
+                rawCodeSelector: 'trigger-settings',
+                rawCodeSelector: 'woocommerce-settings',
+                rawCodeSelector: 'listings-settings',
+                rawCodeSelector: 'pdf-settings',
+                rawCodeSelector: 'stripe-settings',
+                rawCodeSelector: 'translation-settings'
+            };
             // Handle non-exception-throwing cases:
             // Neither JSON.parse(false) or JSON.parse(1234) throw errors, hence the type-checking,
             // but... JSON.parse(null) returns null, and typeof null === "object", 
             // so we must check for that, too. Thankfully, null is falsey, so this suffices:
-
-            try {
-                (formElements!=='' ? JSON.parse(formElements) : {});
-            }
-            catch (e) {
-                html = '<strong>'+super_create_form_i18n.invalid_json+'</strong>';
-                html += '<br /><br />------<br />'+e+'<br />------<br /><br />';
-                html += super_create_form_i18n.try_jsonlint;
-                n1.innerHTML = html;
-                n1.classList.remove('sfui-yellow');
-                n1.classList.add('sfui-red');
-                document.querySelector('.super-raw-code-form-elements textarea').classList.add('sfui-red');
-                n1.scrollIntoView();
-                return false;
-            }
-            n1.innerHTML = super_create_form_i18n.edit_json_notice_n1;          
-            n1.classList.remove('sfui-red');
-            n1.classList.add('sfui-yellow');
-            document.querySelector('.super-raw-code-form-elements textarea').classList.remove('sfui-red');
-
-            try {
-                (formSettings!=='' ? JSON.parse(formSettings) : {});
-            }
-            catch (e) {
-                html = '<strong>'+super_create_form_i18n.invalid_json+'</strong>';
-                html += '<br /><br />------<br />'+e+'<br />------<br /><br />';
-                html += super_create_form_i18n.try_jsonlint;
-                n2.innerHTML = html;
-                n2.classList.remove('sfui-yellow');
-                n2.classList.add('sfui-red');
-                document.querySelector('.super-raw-code-form-settings textarea').classList.add('sfui-red');
-                n2.scrollIntoView();
-                return false;
-            }
-            n2.innerHTML = super_create_form_i18n.edit_json_notice_n2;
-            n2.classList.remove('sfui-red');
-            n2.classList.add('sfui-yellow');
-            document.querySelector('.super-raw-code-form-settings textarea').classList.remove('sfui-red');
-            
-            try {
-                (triggerSettings!=='' ? JSON.parse(triggerSettings) : {});
-            }
-            catch (e) {
-                html = '<strong>'+super_create_form_i18n.invalid_json+'</strong>';
-                html += '<br /><br />------<br />'+e+'<br />------<br /><br />';
-                html += super_create_form_i18n.try_jsonlint;
-                n3.innerHTML = html;
-                n3.classList.remove('sfui-yellow');
-                n3.classList.add('sfui-red');
-                document.querySelector('.super-raw-code-trigger-settings textarea').classList.add('sfui-red');
-                n3.scrollIntoView();
-                return false;
-            }
-            n3.innerHTML = super_create_form_i18n.edit_json_notice_n3;
-            n3.classList.remove('sfui-red');
-            n3.classList.add('sfui-yellow');
-            document.querySelector('.super-raw-code-trigger-settings textarea').classList.remove('sfui-red');
-
-            try {
-                (translationSettings!=='' ? JSON.parse(translationSettings) : {});
-            }
-            catch (e) {
-                html = '<strong>'+super_create_form_i18n.invalid_json+'</strong>';
-                html += '<br /><br />------<br />'+e+'<br />------<br /><br />';
-                html += super_create_form_i18n.try_jsonlint;
-                n4.innerHTML = html;
-                n4.classList.remove('sfui-yellow');
-                n4.classList.add('sfui-red');
-                document.querySelector('.super-raw-code-translation-settings textarea').classList.add('sfui-red');
-                n4.scrollIntoView();
-                return false;
-            }
-            n4.innerHTML = super_create_form_i18n.edit_json_notice_n3;
-            n4.classList.remove('sfui-red');
-            n4.classList.add('sfui-yellow');
-            document.querySelector('.super-raw-code-translation-settings textarea').classList.remove('sfui-red');
-
+            Object.keys(rawCodeNodes).forEach(function(selector){
+                notice = document.querySelector('.super-raw-code-'+selector+' .sfui-notice');
+                field = document.querySelector('.super-raw-code-'+selector+' textarea');
+                try{
+                    (formElements!=='' ? JSON.parse(formElements) : {});
+                }catch(e){
+                    html = '<strong>'+super_create_form_i18n.invalid_json+'</strong>';
+                    html += '<br /><br />------<br />'+e+'<br />------<br /><br />';
+                    html += super_create_form_i18n.try_jsonlint;
+                    notice.innerHTML = html;
+                    notice.classList.remove('sfui-yellow');
+                    notice.classList.add('sfui-red');
+                    field.classList.add('sfui-red');
+                    notice.scrollIntoView();
+                    return false;
+                }
+                notice.innerHTML = super_create_form_i18n.edit_json_notice_n1;          
+                notice.classList.remove('sfui-red');
+                notice.classList.add('sfui-yellow');
+                field.classList.remove('sfui-red');
+            });
             // Add loading state to button
             var button = this;
             var oldHtml = button.innerHTML;
             button.innerHTML = '<i class="fas fa-save"></i>'+super_create_form_i18n.save_loading;
-
             clearTimeout(SUPER.new_version_check);
             SUPER.before_save_form(function(){
                 SUPER.save_form($('.super-actions .super-save'), 2, undefined, undefined, function(){
@@ -2297,6 +2903,10 @@
             if($this.hasClass('super-tab-code')){
                 document.querySelector('.super-raw-code-form-settings textarea').value = SUPER.get_form_settings(true);
                 document.querySelector('.super-raw-code-trigger-settings textarea').value = SUPER.get_trigger_settings(true);
+                document.querySelector('.super-raw-code-woocommerce-settings textarea').value = SUPER.get_woocommerce_settings(true);
+                document.querySelector('.super-raw-code-listings-settings textarea').value = SUPER.get_listings_settings(true);
+                document.querySelector('.super-raw-code-pdf-settings textarea').value = SUPER.get_pdf_settings(true);
+                document.querySelector('.super-raw-code-stripe-settings textarea').value = SUPER.get_stripe_settings(true);
                 document.querySelector('.super-raw-code-translation-settings textarea').value = SUPER.get_translation_settings(true);
             }
             $('.super-tabs-content').css('display', '');
@@ -3700,6 +4310,10 @@
                     formElements: document.querySelector('.super-raw-code-form-elements > textarea').value,
                     formSettings: SUPER.get_form_settings(),
                     triggerSettings: SUPER.get_trigger_settings(),
+                    woocommerceSettings: SUPER.get_woocommerce_settings(),
+                    listingsSettings: SUPER.get_listings_settings(),
+                    pdfSettings: SUPER.get_pdf_settings(),
+                    stripeSettings: SUPER.get_stripe_settings(),
                     translationSettings: SUPER.get_translation_settings()
                 },
                 success: function (data) {

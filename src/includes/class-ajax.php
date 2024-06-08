@@ -2,7 +2,7 @@
 /**
  * Class for handling Ajax requests
  *
- * @author      feeling4design
+ * @author      WebRehab
  * @category    Admin
  * @package     SUPER_Forms/Classes
  * @class       SUPER_Ajax
@@ -976,8 +976,21 @@ class SUPER_Ajax {
         $version = get_post_meta( $backup_id, '_super_version', true );
         update_post_meta( $form_id, '_super_version', $version );
 
-        $triggers = SUPER_Common::get_form_triggers($backup_id);
-        SUPER_Common::save_form_triggers($triggers, $backup_id);
+        $s = SUPER_Common::get_form_triggers($backup_id);
+        SUPER_Common::save_form_triggers($s, $backup_id);
+
+        $s = SUPER_Common::get_form_woocommerce_settings($backup_id);
+        SUPER_Common::save_form_woocommerce_settings($s, $backup_id);
+
+        $s = SUPER_Common::get_form_listings_settings($backup_id);
+        SUPER_Common::save_form_listings_settings($s, $backup_id);
+
+        $s = SUPER_Common::get_form_pdf_settings($backup_id);
+        error_log('3.1: '.json_encode($s));
+        SUPER_Common::save_form_pdf_settings($s, $backup_id);
+
+        $s = SUPER_Common::get_form_stripe_settings($backup_id);
+        SUPER_Common::save_form_stripe_settings($s, $backup_id);
 
         // @since 4.7.0 - translations
         $translations = SUPER_Common::get_form_translations($backup_id);
@@ -1678,6 +1691,10 @@ class SUPER_Ajax {
         $formElements = wp_unslash($_POST['formElements']);
         $formElements = json_decode($formElements, true);
         $triggerSettings = get_post_meta( $form_id, '_super_triggers', true );
+        $woocommerceSettings = get_post_meta( $form_id, '_super_woocommerce', true );
+        $listingsSettings = get_post_meta( $form_id, '_super_listings', true );
+        $pdfSettings = get_post_meta( $form_id, '_super_pdf', true );
+        $stripeSettings = get_post_meta( $form_id, '_super_stripe', true );
         $translationSettings = get_post_meta( $form_id, '_super_translations', true );
         $secretsSettings = get_post_meta( $form_id, '_super_local_secrets', true );
         $export = array(
@@ -1685,6 +1702,10 @@ class SUPER_Ajax {
             'settings' => $formSettings,
             'elements' => $formElements,
             'triggers' => $triggerSettings,
+            'woocommerce' => $woocommerceSettings,
+            'listings' => $listingsSettings,
+            'pdf' => $pdfSettings,
+            'stripe' => $stripeSettings,
             'translations' => $translationSettings,
             'secrets' => $secretsSettings
         );
@@ -1726,7 +1747,11 @@ class SUPER_Ajax {
         // What do we need to import?
         $import_elements = (isset($_POST['elements']) ? $_POST['elements'] : 'false'); // Form elements
         $import_settings = (isset($_POST['settings']) ? $_POST['settings'] : 'false'); // Form settings
-        $import_triggers = (isset($_POST['triggers']) ? $_POST['triggers'] : 'false'); // Translation settings
+        $import_triggers = (isset($_POST['triggers']) ? $_POST['triggers'] : 'false'); // Triggers
+        $import_woocommerce = (isset($_POST['woocommerce']) ? $_POST['woocommerce'] : 'false'); // WooCommerce settings
+        $import_listings = (isset($_POST['listings']) ? $_POST['listings'] : 'false'); // Listings settings
+        $import_pdf = (isset($_POST['pdf']) ? $_POST['pdf'] : 'false'); // PDF settings
+        $import_stripe = (isset($_POST['stripe']) ? $_POST['stripe'] : 'false'); // Stripe settings
         $import_translations = (isset($_POST['translations']) ? $_POST['translations'] : 'false'); // Translation settings
         $import_secrets = (isset($_POST['secrets']) ? $_POST['secrets'] : 'false'); // Secrets settings
         $file = wp_get_attachment_url($file_id);
@@ -1744,16 +1769,17 @@ class SUPER_Ajax {
             }
             $contents = maybe_unserialize( $contents );
             $_POST['title'] = (isset($contents['title']) ? $contents['title'] : $contents['post_title']);
-            $formElements = array();
-            $formSettings = array();
-            $triggerSettings = array();
-            $translationSettings = array();
-            $secretsSettings = array();
-            if($import_elements=='true' && isset($contents['elements'])) $_POST['formElements'] = $contents['elements'];
-            if($import_settings=='true' && isset($contents['settings'])) $_POST['formSettings'] = $contents['settings'];
-            if($import_triggers=='true' && isset($contents['triggers'])) $_POST['triggerSettings']= $contents['triggers'];
-            if($import_translations=='true' && isset($contents['translations'])) $_POST['translationSettings']= $contents['translations'];
+            $form_data = array();
+            if($import_elements=='true' && isset($contents['elements'])) $form_data['elements'] = $contents['elements'];
+            if($import_settings=='true' && isset($contents['settings'])) $form_data['settings'] = $contents['settings'];
+            if($import_triggers=='true' && isset($contents['triggers'])) $form_data['triggers'] = $contents['triggers'];
+            if($import_woocommerce=='true' && isset($contents['woocommerce'])) $form_data['woocommerce'] = $contents['woocommerce'];
+            if($import_listings=='true' && isset($contents['listings'])) $form_data['listings'] = $contents['listings'];
+            if($import_pdf=='true' && isset($contents['pdf'])) $form_data['pdf'] = $contents['pdf'];
+            if($import_stripe=='true' && isset($contents['stripe'])) $form_data['stripe'] = $contents['stripe'];
+            if($import_translations=='true' && isset($contents['translations'])) $form_data['translations'] = $contents['translations'];
             if($import_secrets=='true' && isset($contents['secrets'])) $_POST['localSecrets'] = $contents['secrets'];
+            $_POST['form_data'] = $form_data;
             $response = self::save_form();
             echo $response;
         }else{
@@ -1904,9 +1930,12 @@ class SUPER_Ajax {
             $elements = $v['elements'];
             if(!is_array($elements)) $elements = json_decode( $elements, true );
             add_post_meta( $form_id, '_super_elements', $elements );
-            if(isset($v['triggers'])) {
-                SUPER_Common::save_form_triggers($v['triggers'], $form_id);
-            }
+            if(isset($v['triggers'])) SUPER_Common::save_form_triggers($v['triggers'], $form_id);
+            if(isset($v['woocommerce'])) SUPER_Common::save_form_woocommerce_settings($v['woocommerce'], $form_id);
+            if(isset($v['listings'])) SUPER_Common::save_form_listings_settings($v['listings'], $form_id);
+            error_log('3.2: '.json_encode($v['pdf']));
+            if(isset($v['pdf'])) SUPER_Common::save_form_pdf_settings($v['pdf'], $form_id);
+            if(isset($v['stripe'])) SUPER_Common::save_form_stripe_settings($v['stripe'], $form_id);
             if(isset($v['translations'])) add_post_meta( $form_id, '_super_translations', $v['translations'] );
             if(isset($v['secrets'])) add_post_meta( $form_id, '_super_local_secrets', $v['secrets'] );
         }
@@ -2143,50 +2172,46 @@ class SUPER_Ajax {
     */
     public static function save_form() {
         // Normal form save:
-        $action = $_POST['action'];
+        $action = (isset($_POST['action']) ? $_POST['action'] : '');
         $form_id = (!empty($_POST['form_id']) ? absint($_POST['form_id']) : 0);
         $title = (!empty($_POST['title']) ? $_POST['title'] : esc_html__( 'Form Name', 'super-forms' ));
-        
+        $form_data = (!empty($_POST['form_data']) ? $_POST['form_data'] : '');
+        error_log('t1: '.json_encode($form_data));
         // Check if one of the keys doesn't exist, this is the case when the server was unable to process this request
         // because the form is to large to be saved by this specific server
-        if((!isset($_POST['formElements']) && (isset($_POST['elements']) && $_POST['elements']==='true')) || 
-           (!isset($_POST['formSettings']) && (isset($_POST['settings']) && $_POST['settings']==='true')) || 
-           (!isset($_POST['triggerSettings']) && (isset($_POST['triggers']) && $_POST['triggers']==='true')) || 
-           (!isset($_POST['translationSettings']) && (isset($_POST['translations']) && $_POST['translations']==='true')) ){
-            // Except when importing a form from file...
-            if(isset($_POST['action']) && $_POST['action']!=='super_import_single_form'){
-                // Failed, notify user
-                SUPER_Common::output_message( array( 
-                    'msg' => esc_html__( 'Error: server could not save the form because the request is to large. Please contact your webmaster and increase your server limits.', 'super-forms' )
-                ));
-            }
+        // Except when importing a form from file...
+        if(!isset($_POST['z']) && $action!=='super_import_single_form'){
+            SUPER_Common::output_message(array('msg' => esc_html__( 'Error: server could not save the form because the request is to large. Please contact your webmaster and increase your server limits.', 'super-forms')));
         }
-
-        $_super_elements = (isset($_POST['formElements']) ? wp_unslash($_POST['formElements']) : '');
-        $_super_form_settings = (isset($_POST['formSettings']) ? wp_unslash($_POST['formSettings']) : '');
-        $_super_triggers = (isset($_POST['triggerSettings']) ? wp_unslash($_POST['triggerSettings']) : '');
-        $_super_translations = (isset($_POST['translationSettings']) ? wp_unslash($_POST['translationSettings']) : '');
-        if($action==='super_save_form'){
-            // Decode JSON string
-            $_super_elements = json_decode($_super_elements, true);
-            $_super_form_settings = json_decode($_super_form_settings, true);
-            $_super_triggers = json_decode($_super_triggers, true);
-            $_super_translations = json_decode($_super_translations, true);
+        if(!is_array($form_data) && $action!=='super_import_single_form'){
+            $form_data = wp_unslash($form_data);
+            $form_data = json_decode($form_data, true);
         }
-        $_super_local_secrets = (!empty($_POST['localSecrets']) ? $_POST['localSecrets'] : '');
-        $_super_global_secrets = (!empty($_POST['globalSecrets']) ? $_POST['globalSecrets'] : '');
-        $_super_elements = wp_slash($_super_elements); // This is required to keep "Custom regex" working e.g: \\d will become \\\\d
-        $_super_form_settings = wp_slash($_super_form_settings); // This is required to keep Custom CSS {content: '\x123';} working
-        $_super_triggers = wp_slash($_super_triggers); // This is required to keep Custom CSS {content: '\x123';} working
+        $re_slash = array('elements', 'settings', 'triggers', 'woocommerce', 'listings', 'pdf', 'stripe');
+        foreach($form_data as $k => $v){
+            // Re-slash is required to keep "Custom regex" working e.g: \\d will become \\\\d
+            // Re-slash is required to keep Custom CSS {content: '\x123';} working
+            if(in_array($k, $re_slash)) $form_data[$k] = wp_slash($form_data[$k]);
+        }
+        extract($form_data);
+        if(!isset($triggers)) $triggers = array();
+        if(!isset($woocommerce)) $woocommerce = array();
+        if(!isset($listings)) $listings = array();
+        if(!isset($pdf)) $pdf = array();
+        if(!isset($stripe)) $stripe = array();
+        error_log('1: '.json_encode($pdf));
+        $local_secrets = (!empty($_POST['localSecrets']) ? $_POST['localSecrets'] : '');
+        $global_secrets = (!empty($_POST['globalSecrets']) ? $_POST['globalSecrets'] : '');
         // We must delete/clear any translations that no longer exist
-        $_super_elements = self::clear_i18n($_super_elements, $_super_translations);
+        $elements = self::clear_i18n($elements, $translations);
         // @since 3.9.0 - don't save settings that are the same as global settings
         // Get global settings
         $global_settings = SUPER_Common::get_global_settings();
         // @since 4.7.0 - translation language switcher
-        if(isset($_POST['i18n_disable_browser_translation'])) $_super_form_settings['i18n_disable_browser_translation'] = sanitize_text_field($_POST['i18n_disable_browser_translation']);
-        if(isset($_POST['i18n_switch'])) $_super_form_settings['i18n_switch'] = sanitize_text_field($_POST['i18n_switch']);
-        if( empty( $form_id ) ) {
+        if(isset($i18n_disable_browser_translation)) $settings['i18n_disable_browser_translation'] = sanitize_text_field($i18n_disable_browser_translation);
+        if(isset($i18n_switch)) $settings['i18n_switch'] = sanitize_text_field($i18n_switch);
+        if(empty($form_id)){
+            // Create a new form
             $form = array(
                 'post_author' => get_current_user_id(),
                 'post_title' => $title,
@@ -2200,17 +2225,22 @@ class SUPER_Ajax {
                     'title'=>$title,
                     'action'=>$action,
                     'form_id'=>$form_id,
-                    'settings'=>$_super_form_settings,
-                    'elements'=>$_super_elements, 
-                    'triggers'=>$_super_triggers, 
-                    'translations'=>$_super_translations, 
-                    'local_secrets'=>$_super_local_secrets, 
-                    'global_secrets'=>$_super_global_secrets,
+                    'settings'=>$settings,
+                    'elements'=>$elements, 
+                    'triggers'=>$triggers, 
+                    'woocommerce'=>$woocommerce, 
+                    'listings'=>$listings, 
+                    'pdf'=>$pdf, 
+                    'stripe'=>$stripe, 
+                    'translations'=>$translations, 
+                    'local_secrets'=>$local_secrets, 
+                    'global_secrets'=>$global_secrets,
                     'new'=>true,
                     'backup'=>false
                 )
             );
         }else{
+            // Update existing form
             $form = array(
                 'ID' => $form_id,
                 'post_title' => $title,
@@ -2218,16 +2248,16 @@ class SUPER_Ajax {
             );
             wp_update_post( $form );
             //SUPER_Common::wp_update_post_fast($form);
-            if(!empty($_POST['i18n'])){
+            if(!empty($i18n)){
                 // Merge with existing form settings
-                $settings = SUPER_Common::get_form_settings($form_id);
+                $form_settings = SUPER_Common::get_form_settings($form_id);
                 // Add language to the form settings
-                $settings['i18n'][$_POST['i18n']] = $_super_form_settings;
-                $_super_form_settings = $settings;
+                $form_settings['i18n'][$i18n] = $settings;
+                $settings = $form_settings;
             }else{
-                $settings = SUPER_Common::get_form_settings($form_id);
-                if(!empty($settings['i18n'])){
-                    $_super_form_settings['i18n'] = $settings['i18n'];
+                $form_settings = SUPER_Common::get_form_settings($form_id);
+                if(!empty($form_settings['i18n'])){
+                    $settings['i18n'] = $form_settings['i18n'];
                 }
             }
             self::save_form_meta(
@@ -2235,12 +2265,16 @@ class SUPER_Ajax {
                     'title'=>$title,
                     'action'=>$action,
                     'form_id'=>$form_id,
-                    'settings'=>$_super_form_settings,
-                    'elements'=>$_super_elements, 
-                    'triggers'=>$_super_triggers, 
-                    'translations'=>$_super_translations, 
-                    'local_secrets'=>$_super_local_secrets, 
-                    'global_secrets'=>$_super_global_secrets,
+                    'settings'=>$settings,
+                    'elements'=>$elements, 
+                    'triggers'=>$triggers, 
+                    'woocommerce'=>$woocommerce, 
+                    'listings'=>$listings, 
+                    'pdf'=>$pdf, 
+                    'stripe'=>$stripe, 
+                    'translations'=>$translations, 
+                    'local_secrets'=>$local_secrets, 
+                    'global_secrets'=>$global_secrets,
                     'new'=>false,
                     'backup'=>false
                 )
@@ -2248,7 +2282,7 @@ class SUPER_Ajax {
         }
         if($action==='super_save_form'){
             // Only update global secrets if we are not importing a form
-            update_option( 'super_global_secrets', $_super_global_secrets );
+            update_option( 'super_global_secrets', $global_secrets );
             echo SUPER_Common::safe_json_encode(array('form_id'=>$form_id, 'modifiedTime'=>get_post_modified_time('U', false, $form_id)));
             die();
         }
@@ -2258,7 +2292,9 @@ class SUPER_Ajax {
         }
     }
     public static function save_form_meta($x) {
+        error_log('save_form_meta()');
         extract($x);
+        error_log('2: '.json_encode($pdf));
         if($new===true){
             add_post_meta( $form_id, '_super_version', SUPER_VERSION );
             add_post_meta( $form_id, '_super_form_settings', $settings );
@@ -2266,6 +2302,11 @@ class SUPER_Ajax {
             add_post_meta( $form_id, '_super_translations', $translations );
             add_post_meta( $form_id, '_super_local_secrets', $local_secrets );
             SUPER_Common::save_form_triggers($triggers, $form_id);
+            SUPER_Common::save_form_woocommerce_settings($woocommerce, $form_id);
+            SUPER_Common::save_form_listings_settings($listings, $form_id);
+            error_log('3: '.json_encode($pdf));
+            SUPER_Common::save_form_pdf_settings($pdf, $form_id);
+            SUPER_Common::save_form_stripe_settings($stripe, $form_id);
         }else{
             update_post_meta( $form_id, '_super_version', SUPER_VERSION );
             if($action==='super_save_form'){
@@ -2274,13 +2315,21 @@ class SUPER_Ajax {
                 update_post_meta( $form_id, '_super_translations', $translations );
                 update_post_meta( $form_id, '_super_local_secrets', $local_secrets );
                 SUPER_Common::save_form_triggers($triggers, $form_id);
+                SUPER_Common::save_form_woocommerce_settings($woocommerce, $form_id);
+                SUPER_Common::save_form_listings_settings($listings, $form_id);
+                error_log('4: '.json_encode($pdf));
+                SUPER_Common::save_form_pdf_settings($pdf, $form_id);
+                SUPER_Common::save_form_stripe_settings($stripe, $form_id);
             }
             if($action==='super_import_single_form'){
                 if(!empty($settings)) update_post_meta( $form_id, '_super_form_settings', $settings );
                 if(!empty($elements)) update_post_meta( $form_id, '_super_elements', $elements );
-                if(!empty($triggers)) {
-                    SUPER_Common::save_form_triggers($triggers, $form_id);
-                }
+                if(!empty($triggers)) SUPER_Common::save_form_triggers($triggers, $form_id);
+                if(!empty($woocommerce)) SUPER_Common::save_form_woocommerce_settings($woocommerce, $form_id);
+                if(!empty($listings)) SUPER_Common::save_form_listings_settings($listings, $form_id);
+                error_log('5: '.json_encode($pdf));
+                if(!empty($pdf)) SUPER_Common::save_form_pdf_settings($pdf, $form_id);
+                if(!empty($stripe)) SUPER_Common::save_form_stripe_settings($stripe, $form_id);
                 if(!empty($translations)) update_post_meta( $form_id, '_super_translations', $translations );
                 if(!empty($local_secrets)) update_post_meta( $form_id, '_super_local_secrets', $local_secrets );
             }
@@ -2302,6 +2351,10 @@ class SUPER_Ajax {
                         'settings'=>$settings,
                         'elements'=>$elements, 
                         'triggers'=>$triggers, 
+                        'woocommerce'=>$woocommerce, 
+                        'listings'=>$listings, 
+                        'pdf'=>$pdf, 
+                        'stripe'=>$stripe, 
                         'translations'=>$translations, 
                         'local_secrets'=>$local_secrets, 
                         'global_secrets'=>$global_secrets,
@@ -2722,16 +2775,21 @@ class SUPER_Ajax {
         unset($settings['theme_custom_js']);
         unset($settings['theme_custom_css']);
         unset($settings['form_custom_css']);
+        error_log('5: '.json_encode($settings['i18n']));
 
         // @since 4.7.0 - translation
         $i18n = '';
-        if(!empty($_POST['i18n'])){
+        error_log('1: '.$i18n);
+        if(isset($_POST['i18n']) && !empty($_POST['i18n'])){
+            error_log('2: '.$_POST['i18n']);
             $i18n = sanitize_text_field($_POST['i18n']);
+            error_log('2: '.$i18n);
             if( (!empty($settings['i18n'])) && (!empty($settings['i18n'][$i18n])) ){
                 $settings = array_replace_recursive($settings, $settings['i18n'][$i18n]);
-                unset($settings['i18n']);
             }
         }
+        unset($settings['i18n']);
+        error_log('3: '.$i18n);
         
         // @since 1.7.6
         $data = apply_filters( 'super_before_sending_email_data_filter', $data, array( 'i18n'=>$i18n, 'data'=>$data, 'post'=>$_POST, 'settings'=>$settings ) );        
@@ -2829,31 +2887,32 @@ class SUPER_Ajax {
         }
 
         // Get/set unique submission identifier
-        $sfs_uid = SUPER_Common::getClientData( 'unique_submission_id_' . $form_id );
-        if( $sfs_uid===false ){
-            $sfs_uid = md5(uniqid(mt_rand(), true)); 
+        $sfsi_id = SUPER_Common::getClientData( 'unique_submission_id_' . $form_id );
+        if( $sfsi_id===false ){
+            $sfsi_id = md5(uniqid(mt_rand(), true)); 
             // . '.' . $expires . '.'. $exp_var;
-            $sfs_uid = SUPER_Common::setClientData(
+            $sfsi_id = SUPER_Common::setClientData(
                 array( 
                     'name' => 'unique_submission_id_' . $form_id, 
-                    'value' => $sfs_uid
+                    'value' => $sfsi_id
                 )
             );
         }else{
             // Update to increase expiry
-            $s = explode('.', $sfs_uid);
+            $s = explode('.', $sfsi_id);
             delete_option( '_sfsi_' . $s[0] . '.' . $s[1]);
-            $sfs_uid = $s[0];
-            $sfs_uid = SUPER_Common::setClientData( array( 
+            $sfsi_id = $s[0];
+            $sfsi_id = SUPER_Common::setClientData( array( 
                 'name' => 'unique_submission_id_' . $form_id,
-                'value' => $sfs_uid
+                'value' => $sfsi_id
                 //'expires' => 60*60, // 60 min. (30*60)
                 //'exp_var' => 20*60 // 20 min. (20*60)
             ) );
         }
+        error_log('4: '.$i18n);
         $x = array(
             'i18n'=>$i18n,
-            'sfs_uid'=>$sfs_uid,
+            'sfsi_id'=>$sfsi_id,
             'data'=>$data,
             'form_id'=>$form_id, 
             'entry_id'=>$entry_id, 
@@ -2862,9 +2921,8 @@ class SUPER_Ajax {
             'response_data'=>$response_data, 
             'post'=>$_POST
         );
-        SUPER_Common::triggerEvent('sf.before.submission', $x);
-
         $sfsi = $x;
+        SUPER_Common::triggerEvent('sf.before.submission', $sfsi);
         // Store currently logged in user id
         $sfsi['user_id'] = get_current_user_id(); // currently logged in user ID
         $sfsi['referer'] = wp_get_referer(); // page URL before loading form page
@@ -2882,11 +2940,46 @@ class SUPER_Ajax {
             }
         }
         $sfsi['files'] = $files;
-        unset($sfsi['settings']); // remove settings, not needed
-        update_option('_sfsi_' . $sfs_uid, $sfsi);
-        return array(
+        // unset($sfsi['settings']); // remove settings, not needed
+        error_log('@1 updating _sfsi_ data');
+        if(!isset($sfsi['i18n'])){
+            error_log('@ i18n for _sfsi_'.$sfsi_id.' was not set');
+            $sfsi['i18n'] = $i18n;
+        }
+        if(!isset($sfsi['files'])){
+            error_log('@ files for _sfsi_'.$sfsi_id.' was not set');
+            $sfsi['files'] = $files;
+        }
+        if(!isset($sfsi['sfsi_id'])){
+            error_log('@ sfs_uid for _sfsi_'.$sfsi_id.' was not set');
+            $sfsi['sfsi_id'] = $sfsi_id;
+        }
+        if(!isset($sfsi['response_data'])){
+            error_log('@ response_data for _sfsi_'.$sfsi_id.' was not set');
+            $sfsi['response_data'] = $response_data;
+        }
+        if(!isset($sfsi['data'])){
+            error_log('@ data for _sfsi_'.$sfsi_id.' was not set');
+            $sfsi['data'] = $data;
+        }
+        if(!isset($sfsi['list_id'])){
+            error_log('@ list_id for _sfsi_'.$sfsi_id.' was not set');
+            $sfsi['list_id'] = $list_id;
+        }
+        if(!isset($sfsi['entry_id'])){
+            error_log('@ entry_id for _sfsi_'.$sfsi_id.' was not set');
+            $sfsi['entry_id'] = $contact_entry_id;
+        }
+        if(!isset($sfsi['form_id'])){
+            error_log('@ form_id for _sfsi_'.$sfsi_id.' was not set');
+            $sfsi['form_id'] = $form_id;
+        }
+        update_option('_sfsi_' . $sfsi_id, $sfsi);
+        return $sfsi; 
+        /*
+        array(
             'i18n' => $i18n,
-            'sfs_uid' => $sfs_uid,
+            'sfsi_id' => $sfsi_id,
             'sfsi'=>$sfsi,
             'data'=>$data,
             'form_id'=>$form_id,
@@ -2895,17 +2988,18 @@ class SUPER_Ajax {
             'settings'=>$settings,
             'response_data'=>$response_data
         );
+        */
     }
     public static function upload_files() {
-        $atts = self::submit_form_checks();
-        $i18n = $atts['i18n'];
-        $sfs_uid = $atts['sfs_uid'];
-        $form_id = $atts['form_id'];
-        $entry_id = absint($atts['entry_id']);
-        $list_id = absint($atts['list_id']);
-        $settings = $atts['settings'];
-        $response_data = $atts['response_data'];
-        $data = $atts['data'];
+        $sfsi = self::submit_form_checks();
+        $i18n = $sfsi['i18n'];
+        $sfsi_id = $sfsi['sfsi_id'];
+        $form_id = $sfsi['form_id'];
+        $entry_id = absint($sfsi['entry_id']);
+        $list_id = absint($sfsi['list_id']);
+        $settings = $sfsi['settings'];
+        $response_data = $sfsi['response_data'];
+        $data = $sfsi['data'];
         $odata = $data;
         // Dependencies for file upload
         $global_settings = SUPER_Common::get_global_settings();
@@ -3081,9 +3175,9 @@ class SUPER_Ajax {
             'files' => $data,
             'sf_nonce' => SUPER_Common::generate_nonce()
         );
-        $x = array(
+        $sfsi = array(
             'i18n'=>$i18n,
-            'sfs_uid'=>$sfs_uid,
+            'sfsi_id'=>$sfsi_id,
             'data'=>$odata,
             'files'=>$data,
             'form_id'=>$form_id, 
@@ -3093,7 +3187,54 @@ class SUPER_Ajax {
             'response_data'=>$response_data, 
             'post'=>$_POST
         );
-        SUPER_Common::triggerEvent('sf.after.files.uploaded', $x);
+        error_log('@2 updating _sfsi_ data');
+        if(!isset($sfsi['i18n'])){
+            error_log('@ i18n for _sfsi_'.$sfsi_id.' was not set');
+            $sfsi['i18n'] = $i18n;
+        }
+        if(!isset($sfsi['sfsi_id'])){
+            error_log('@ sfs_uid for _sfsi_'.$sfsi_id.' was not set');
+            $sfsi['sfsi_id'] = $sfsi_id;
+        }
+        if(!isset($sfsi['post'])){
+            error_log('@ post for _sfsi_'.$sfsi_id.' was not set');
+            $sfsi['post'] = $_POST;
+        }
+        if(!isset($sfsi['response_data'])){
+            error_log('@ response_data for _sfsi_'.$sfsi_id.' was not set');
+            $sfsi['response_data'] = $response_data;
+        }
+        if(!isset($sfsi['data'])){
+            error_log('@ data for _sfsi_'.$sfsi_id.' was not set');
+            $sfsi['data'] = $odata;
+        }
+        if(!isset($sfsi['settings'])){
+            error_log('@ settings for _sfsi_'.$sfsi_id.' was not set');
+            $sfsi['settings'] = $settings;
+        }
+        if(!isset($sfsi['list_id'])){
+            error_log('@ list_id for _sfsi_'.$sfsi_id.' was not set');
+            $sfsi['list_id'] = $list_id;
+        }
+        if(!isset($sfsi['entry_id'])){
+            error_log('@ entry_id for _sfsi_'.$sfsi_id.' was not set');
+            $sfsi['entry_id'] = $contact_entry_id;
+        }
+        if(!isset($sfsi['attachments'])){
+            error_log('@ attachments for _sfsi_'.$sfsi_id.' was not set');
+            $sfsi['attachments'] = $attachments;
+        }
+        if(!isset($sfsi['form_id'])){
+            error_log('@ form_id for _sfsi_'.$sfsi_id.' was not set');
+            $sfsi['form_id'] = $form_id;
+        }
+        if(!isset($sfsi['files'])){
+            error_log('@ files for _sfsi_'.$sfsi_id.' was not set');
+            $sfsi['files'] = $data;
+        }
+        error_log('2: '.json_encode($settings['i18n']));
+        update_option('_sfsi_' . $sfsi_id, $sfsi);
+        SUPER_Common::triggerEvent('sf.after.files.uploaded', $sfsi);
         echo SUPER_Common::safe_json_encode($response);
         die();
     }
@@ -3121,22 +3262,22 @@ class SUPER_Ajax {
     public static function submit_form() {
         do_action( 'super_before_submit_form', array( 'post'=>$_POST ));
         if(empty($_POST['fileUpload'])) {
-            $atts = self::submit_form_checks();
+            $sfsi = self::submit_form_checks();
         }else{
-            $atts = self::submit_form_checks(true);
+            $sfsi = self::submit_form_checks(true);
         }
-        $i18n = $atts['i18n'];
-        $form_id = $atts['form_id'];
-        $sfsi = $atts['sfsi'];
-
+        error_log('6: '.$sfsi['i18n']);
+        $i18n = $sfsi['i18n'];
+        error_log('7: '.$i18n);
+        $form_id = $sfsi['form_id'];
         // Get/set unique submission identifier
-        $sfs_uid = $atts['sfs_uid'];
-        $data = $atts['data'];
-        $entry_id = absint($atts['entry_id']);
-        $list_id = absint($atts['list_id']);
-        $settings = $atts['settings'];
-        $response_data = $atts['response_data'];
-        do_action( 'super_before_processing_data', array('atts' => $atts) );
+        $sfsi_id = $sfsi['sfsi_id'];
+        $data = $sfsi['data'];
+        $entry_id = absint($sfsi['entry_id']);
+        $list_id = absint($sfsi['list_id']);
+        $settings = $sfsi['settings'];
+        $response_data = $sfsi['response_data'];
+        do_action( 'super_before_processing_data', array('atts' => $sfsi) );
         if( ( isset( $data ) ) && ( count( $data )>0 ) ) {
             foreach( $data as $k => $v ) {
                 if( !isset($v['type']) ) continue;
@@ -3239,7 +3380,7 @@ class SUPER_Ajax {
         unset($GLOBALS['super_upload_dir']);
         unset($GLOBALS['super_allowed_mime_types']);
         $sfsi['data'] = $data;
-        update_option('_sfsi_' . $sfs_uid, $sfsi);
+        update_option('_sfsi_' . $sfsi_id, $sfsi);
 
         if( !empty( $settings['header_additional'] ) ) {
             $header_additional = '';
@@ -3306,7 +3447,7 @@ class SUPER_Ajax {
             $contact_entry_id = wp_insert_post($post);
             $sfsi['contact_entry_id'] = $contact_entry_id;
             $sfsi['entry_id'] = $contact_entry_id;
-            update_option('_sfsi_' . $sfs_uid, $sfsi);
+            update_option('_sfsi_' . $sfsi_id, $sfsi);
 
             // Store entry ID for later use
             set_transient( 'super_form_authenticated_entry_id_' . $contact_entry_id, $contact_entry_id, 30 ); // Expires in 30 seconds
@@ -3519,7 +3660,7 @@ class SUPER_Ajax {
              *
              *  @since      1.2.9
             */
-            do_action( 'super_after_saving_contact_entry_action', array( 'sfs_uid'=>$sfs_uid,  'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id ) );
+            do_action( 'super_after_saving_contact_entry_action', array( 'sfsi_id'=>$sfsi_id,  'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id ) );
 
         }
 
@@ -3578,7 +3719,7 @@ class SUPER_Ajax {
         }
 
         do_action( 'super_before_sending_email_hook', array( 
-            'sfs_uid'=>$sfs_uid,
+            'sfsi_id'=>$sfsi_id,
             'data'=>$data, 
             'form_id'=>$form_id, 
             'entry_id'=>$entry_id, 
@@ -3588,7 +3729,7 @@ class SUPER_Ajax {
             'post'=>$_POST
         ));
         // We must retrieve the new session info, because the register & login might have updated the `user_id` value
-        $sfsi = get_option('_sfsi_' . $sfs_uid);
+        $sfsi = get_option('_sfsi_' . $sfsi_id);
         if( $settings['send']=='yes' ) {
             $email_body = $settings['email_body'];
             $email_body = str_replace( '{loop_fields}', $email_loop, $email_body );
@@ -3655,7 +3796,7 @@ class SUPER_Ajax {
             }
 
             // @since 2.0
-            $attachments = apply_filters( 'super_before_sending_email_attachments_filter', $attachments, array( 'atts'=>$atts, 'settings'=>$settings, 'data'=>$data, 'email_body'=>$email_body ) );
+            $attachments = apply_filters( 'super_before_sending_email_attachments_filter', $attachments, array( 'atts'=>$sfsi, 'settings'=>$settings, 'data'=>$data, 'email_body'=>$email_body ) );
 
             // Send the email
             $params = array( 'to'=>$to, 'from'=>$from, 'from_name'=>$from_name, 'custom_reply'=>$custom_reply, 'reply'=>$reply, 'reply_name'=>$reply_name, 'cc'=>$cc, 'bcc'=>$bcc, 'subject'=>$subject, 'body'=>$email_body, 'settings'=>$settings, 'attachments'=>$attachments, 'string_attachments'=>$string_attachments );
@@ -3874,7 +4015,7 @@ class SUPER_Ajax {
                 }
 
                 $sfsi['post_body'] = $parameters;
-                update_option('_sfsi_' . $sfs_uid, $sfsi);
+                update_option('_sfsi_' . $sfsi_id, $sfsi);
 
                 $response = wp_remote_post(
                     $settings['form_post_url'], 
@@ -3898,7 +4039,7 @@ class SUPER_Ajax {
                 SUPER_Common::setClientData( array( 'name' => 'progress_' . $form_id, 'value' => false ) );
 
                 $sfsi['post_response'] = $response;
-                update_option('_sfsi_' . $sfs_uid, $sfsi);
+                update_option('_sfsi_' . $sfsi_id, $sfsi);
 
                 do_action( 'super_after_wp_remote_post_action', $response );
 
@@ -3940,20 +4081,45 @@ class SUPER_Ajax {
             $attachments = apply_filters( 'super_attachments_filter', $attachments, array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id, 'attachments'=>$attachments ) );
 
             $sfsi['attachments'] = $attachments;
-            update_option('_sfsi_' . $sfs_uid, $sfsi);
-            SUPER_Common::triggerEvent('sf.after.submission', array(
-                'i18n'=>$i18n, 
-                'sfs_uid'=>$sfs_uid, 
-                'post'=>$_POST, 
-                'data'=>$data, 
-                'settings'=>$settings, 
-                'entry_id'=>$contact_entry_id, 
-                'attachments'=>$attachments,
-                'form_id'=>$form_id
-            ));
+            error_log('@3 updating _sfsi_ data');
+            error_log('5: '.$i18n);
+            if(!isset($sfsi['i18n'])){
+                error_log('@ i18n for _sfsi_'.$sfsi_id.' was not set');
+                $sfsi['i18n'] = $i18n;
+            }
+            if(!isset($sfsi['sfsi_id'])){
+                error_log('@ sfs_uid for _sfsi_'.$sfsi_id.' was not set');
+                $sfsi['sfsi_id'] = $sfsi_id;
+            }
+            if(!isset($sfsi['post'])){
+                error_log('@ post for _sfsi_'.$sfsi_id.' was not set');
+                $sfsi['post'] = $_POST;
+            }
+            if(!isset($sfsi['data'])){
+                error_log('@ data for _sfsi_'.$sfsi_id.' was not set');
+                $sfsi['data'] = $data;
+            }
+            if(!isset($sfsi['settings'])){
+                error_log('@ settings for _sfsi_'.$sfsi_id.' was not set');
+                $sfsi['settings'] = $settings;
+            }
+            if(!isset($sfsi['entry_id'])){
+                error_log('@ entry_id for _sfsi_'.$sfsi_id.' was not set');
+                $sfsi['entry_id'] = $contact_entry_id;
+            }
+            if(!isset($sfsi['attachments'])){
+                error_log('@ attachments for _sfsi_'.$sfsi_id.' was not set');
+                $sfsi['attachments'] = $attachments;
+            }
+            if(!isset($sfsi['form_id'])){
+                error_log('@ form_id for _sfsi_'.$sfsi_id.' was not set');
+                $sfsi['form_id'] = $form_id;
+            }
+            update_option('_sfsi_' . $sfsi_id, $sfsi);
+            SUPER_Common::triggerEvent('sf.after.submission', $sfsi);
             do_action( 'super_before_email_success_msg_action', array( 
                 'i18n'=>$i18n, 
-                'sfs_uid'=>$sfs_uid, 
+                'sfsi_id'=>$sfsi_id, 
                 'post'=>$_POST, 
                 'data'=>$data, 
                 'settings'=>$settings, 
@@ -4009,7 +4175,7 @@ class SUPER_Ajax {
             }
 
             // Currently used by Stripe to redirect to checkout session
-            do_action( 'super_before_redirect_action', array( 'sfsi'=>$sfsi, 'form_id'=>$form_id, 'sfs_uid'=>$sfs_uid, 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id, 'attachments'=>$attachments ) );
+            do_action( 'super_before_redirect_action', array( 'sfsi'=>$sfsi, 'form_id'=>$form_id, 'sfsi_id'=>$sfsi_id, 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id, 'attachments'=>$attachments ) );
 
             // Clear form progression
             SUPER_Common::setClientData( array( 'name' => 'progress_' . $form_id, 'value' => false ) );
@@ -4062,12 +4228,12 @@ class SUPER_Ajax {
             $redirect = apply_filters( 'super_redirect_url_filter', $redirect, array( 'data'=>$data, 'settings'=>$settings ) );
             if($redirect!=='' && $redirect!==false){
                 // tmp $sfsi['redirectedTo'] = $redirect;
-                // tmp update_option('_sfsi_' . $sfs_uid, $sfsi );
+                // tmp update_option('_sfsi_' . $sfsi_id, $sfsi );
             }
             
-            SUPER_Common::triggerEvent('sf.submission.finalized', $atts);
+            SUPER_Common::triggerEvent('sf.submission.finalized', $sfsi);
             // Clean up submission info
-            delete_option('_sfsi_' . $sfs_uid);
+            delete_option('_sfsi_' . $sfsi_id);
             $response_data['sf_nonce'] = SUPER_Common::generate_nonce();
             // Required by Listings to replace the old PDF URL with the newly generated URL:
             if(isset($sfsi['data']['_generated_pdf_file'])) $response_data['_generated_pdf_file'] = $sfsi['data']['_generated_pdf_file'];

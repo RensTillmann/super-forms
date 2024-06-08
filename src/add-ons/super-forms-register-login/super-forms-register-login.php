@@ -3,9 +3,9 @@
  * Super Forms - Register & Login
  *
  * @package   Super Forms - Register & Login
- * @author    feeling4design
+ * @author    WebRehab
  * @link      http://super-forms.com
- * @copyright 2022 by feeling4design
+ * @copyright 2022 by WebRehab
  * @license   GPL-2.0-or-later
  *
  * @wordpress-plugin
@@ -14,7 +14,7 @@
  * Version:     2.0.0
  * Plugin URI:  http://super-forms.com
  * Author URI:  http://super-forms.com
- * Author:      feeling4design
+ * Author:      WebRehab
  * Text Domain: super-forms
  * Domain Path: /i18n/languages/
  * License:           GPL v2 or later
@@ -256,18 +256,31 @@ if( !class_exists('SUPER_Register_Login') ) :
          */
         public function check_user_login_status( $user, $password ) {
             // Check if the login status of the user is pending or blocked
-            $user_login_status = get_user_meta( $user->ID, 'super_user_login_status', true );
-            if( ($user_login_status=='pending') || ($user_login_status=='blocked') || ($user_login_status=='payment_required') ) {
+            $login_status = get_user_meta( $user->ID, 'super_user_login_status', true );
+            $disallowed_login_statuses = apply_filters('super_disallowed_login_statuses_filter', array(
+                'pending', 
+                'paused', 
+                'blocked',
+                'payment_past_due', 
+                'signup_payment_processing'
+                //'payment_processing', 
+                //'payment_required', 
+            ), $user, $login_status);
+            if(in_array($login_status, $disallowed_login_statuses)){
                 remove_action('authenticate', 'wp_authenticate_username_password', 20);
-                switch ($user_login_status){
-                    case 'pending' :
-                        $msg = sprintf( esc_html__( '%sNote%s: Your account is currently being reviewed.', 'super-forms' ), '<strong>', '</strong>' );
-                    case 'payment_required':
-                        $msg = sprintf( esc_html__( '%sNote%s: Payment for this account is still being processed, you can login after the payment has been completed.', 'super-forms' ), '<strong>', '</strong>' );
-                    case 'blocked' :
-                        $msg = sprintf( esc_html__( '%sERROR%s: You are not allowed to login.', 'super-forms' ), '<strong>', '</strong>' );
-                }
-                $user = new WP_Error( 'account_not_active', $msg );
+                $default_msg = sprintf( esc_html__( '%sERROR%s: You are not allowed to login.', 'super-forms' ), '<strong>', '</strong>' );
+                $messages = array(
+                    'pending' => sprintf( esc_html__( '%sNote%s: Your account is currently being reviewed.', 'super-forms' ), '<strong>', '</strong>' ),
+                    'paused' => sprintf( esc_html__( '%sNote%s: Your account is currently paused.', 'super-forms' ), '<strong>', '</strong>' ),
+                    'blocked' => $default_msg,
+                    'payment_past_due' => sprintf( esc_html__( '%sNote%s: A payment for this account is past due.', 'super-forms' ), '<strong>', '</strong>' ),
+                    'signup_payment_processing' => sprintf( esc_html__( '%sNote%s: Signup payment for this account is being processed, you can login after the payment has been completed.', 'super-forms' ), '<strong>', '</strong>' )
+                    //'payment_required' => sprintf( esc_html__( '%sNote%s: A payment for this account is required.', 'super-forms' ), '<strong>', '</strong>' ),
+                    //'payment_processing' => sprintf( esc_html__( '%sNote%s: Payment for this account is being processed, you can login after the payment has been completed.', 'super-forms' ), '<strong>', '</strong>' )
+                );
+                $locked_out_messages = apply_filters('super_login_status_messages_filter', $messages, $user, $login_status);
+                if(isset($messages[$login_status])) $msg = $messages[$login_status];
+                $user = new WP_Error('account_not_active', $msg);
             }else{
                 // Check if user has not verified their email address yet.
                 $status = get_user_meta( $user->ID, 'super_account_status', true ); // 0 = inactive, 1 = active
@@ -294,13 +307,18 @@ if( !class_exists('SUPER_Register_Login') ) :
                     'fields' => array(
                         'super_user_login_status' => array(
                             'label' => esc_html__( 'User Status', 'super-forms' ),
-                            'description' => esc_html__( 'When set to Pending, Payment required or Blocked the user won\'t be able to login.', 'super-forms' ),
+                            'description' => esc_html__( 'When set to `Pending`, `Payment processing`, `Payment required`, `Payment past due` or `Blocked` the user won\'t be able to login.', 'super-forms' ),
+                            //@TODO... documentation regarding the different user statuses
                             'type' => 'select',
                             'options' => array(
                                 'active' => esc_html__( 'Active', 'super-forms' ),
-                                'pending' => esc_html__( 'Pending', 'super-forms' ),
-                                'payment_required' => esc_html__( 'Payment required', 'super-forms' ),
-                                'blocked' => esc_html__( 'Blocked', 'super-forms' ),
+                                'pending' => esc_html__( 'Pending (use this status if you wish to review new accounts before allowing them to login)', 'super-forms' ),
+                                'paused' => esc_html__( 'Paused (use this status when a subscription is temporarily paused)', 'super-forms' ),
+                                'blocked' => esc_html__( 'Blocked (use this status to disallow users logging into their account)', 'super-forms' ),
+                                'payment_past_due' => esc_html__( 'Payment past due (use this status for failed payments, for instance when a credit card could not be charged because it expired)', 'super-forms' ),
+                                'signup_payment_processing' => esc_html__( 'Signup payment processing (this is an automated status, only used during the first time registration of accounts for signup forms)', 'super-forms' )
+                                //'payment_processing' => esc_html__( 'Payment processing', 'super-forms' ),
+                                //'payment_required' => esc_html__( 'Payment required', 'super-forms' ),
                             )
                         ),
                     )
@@ -965,8 +983,12 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'values' => array(
                             'active' => esc_html__( 'Active (default)', 'super-forms' ),
                             'pending' => esc_html__( 'Pending', 'super-forms' ),
-                            'payment_required' => esc_html__( 'Payment required', 'super-forms' ),
+                            'paused' => esc_html__( 'Paused', 'super-forms' ),
                             'blocked' => esc_html__( 'Blocked', 'super-forms' ),
+                            'payment_past_due' => esc_html__( 'Payment past due', 'super-forms' )
+                            //'payment_processing' => esc_html__( 'Payment processing', 'super-forms' ),
+                            //'payment_required' => esc_html__( 'Payment required', 'super-forms' ),
+                            //'signup_payment_processing' => esc_html__( 'Signup payment processing (this status must be used for paid signup forms)', 'super-forms' )
                         ),
                     ),
                     // @since 1.2.7 - Send activation email when account is activated by admin
@@ -1112,10 +1134,10 @@ if( !class_exists('SUPER_Register_Login') ) :
                     }
 
                     // Store as submission info
-                    $sfs_uid = $atts['sfs_uid'];
-                    $sfsi = get_option( '_sfsi_' . $sfs_uid, array() );
+                    $sfsi_id = $atts['sfsi_id'];
+                    $sfsi = get_option( '_sfsi_' . $sfsi_id, array() );
                     $sfsi['updatedUser'] = $user_id;
-                    update_option('_sfsi_' . $sfs_uid, $sfsi );
+                    update_option('_sfsi_' . $sfsi_id, $sfsi );
 
                 }else{
                     // @since 1.4.0 - register new user if user doesn't exists while updating user
@@ -1249,7 +1271,7 @@ if( !class_exists('SUPER_Register_Login') ) :
         */
         public static function before_sending_email( $x ) {
             extract( shortcode_atts( array( 
-                'sfs_uid'=>'',
+                'sfsi_id'=>'',
                 'data'=>array(), 
                 'post'=>array(), 
                 'settings'=>array(),
@@ -1294,108 +1316,130 @@ if( !class_exists('SUPER_Register_Login') ) :
                     // do nothing
                 }else{
                     // Before we proceed, lets check if we have at least a user_login and user_email field
-                    if((!isset($data['user_login'])) && (isset($data['user_email']))) {
+                    if((!isset($data['user_login'])) && (isset($data['user_email']))){
                         $data['user_login'] = $data['user_email'];
                     }
-                    if((!isset( $data['user_login'])) || (!isset($data['user_email']))){
-                        $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s and %2$s fields which are required in order to register a new user. Please %3$sedit%4$s your form and try again', 'super-forms' ), '<strong>user_login</strong>', '<strong>user_email</strong>', '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $post['form_id'] )) . '">', '</a>' );
+                    if(!isset($data['user_email'])){
+                        $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s field which is required in order to register a new user. Please %3$sedit%4$s your form and try again', 'super-forms' ), '<strong>user_email</strong>', '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $post['form_id'] )) . '">', '</a>' );
                         SUPER_Common::output_message( array(
                             'msg' => $msg,
                             'form_id' => absint($form_id)
                         ));
                     }
-
-                    // Now lets check if a user already exists with the same user_login or user_email
-                    $user_login = sanitize_user( $data['user_login']['value'] );
-                    $user_email = sanitize_email( $data['user_email']['value'] );
-                    $username_exists = username_exists($user_login);
-                    $force_create_new_user_account = false; // important
-                    if($username_exists!=false){
-                        $user = get_user_by( 'login', $user_login );
-                        if($user===false){
-                            $username_exists = true;
-                        }
-                        $user_login_status = get_user_meta( $user->ID, 'super_user_login_status', true );
-                        if(($user_login_status=='active') || ($user_login_status=='')){
-                            $username_exists = true;
-                        }else{
-                            wp_delete_user( $user->ID );
-                            $username_exists = false;
-                            $force_create_new_user_account = true; 
-                        }
-                    }
-                    $email_exists = email_exists($user_email);        
-                    if($email_exists!=false){
-                        $user = get_user_by('email', $user_email);
-                        if($user===false){
-                            $email_exists = true;
-                        }
-                        $user_login_status = get_user_meta( $user->ID, 'super_user_login_status', true );
-                        if(($user_login_status=='active') || ($user_login_status=='')){
-                            $email_exists = true;
-                        }else{
-                            wp_delete_user( $user->ID );
-                            $email_exists = false;
-                            $force_create_new_user_account = true; 
-                        }
-                    }
                     $create_new_user_account = true; 
-                    if(!empty($user_login_status) && $user_login_status==='payment_required'){
-                        // `payment_required` should be used for paid registrations (if you are using Stripe or WooCommerce for registrations that require payment)
-                        // If the user login status is `payment_required` it means that the user who previously registered didn't yet completed their payment
-                        // Continue with the submission and use this user, there is no need to re-create the account.
-
-                        // If this is a paid signup form (when checkout is enabled)
-                        $checkout = false;
-                        // WooCommerce checkout
-                        $wcs = null;
-                        if(isset($settings['_woocommerce'])) $wcs = $settings['_woocommerce'];
-                        if(isset($wcs) && $wcs['checkout']=='true'){
-                            $checkout = SUPER_Common::conditionally_wc_checkout($data, $settings);
-                        }
-                        // PayPal checkout
-                        if((isset($settings['paypal_checkout'])) && ($settings['paypal_checkout'] == 'true')){
-                            $checkout = true;
-                            if(!empty($settings['conditionally_paypal_checkout'])){
-                                if(!empty($settings['conditionally_paypal_checkout_check'])){
-                                    // If conditional check is enabled
-                                    $values = explode(',', $settings['conditionally_paypal_checkout_check']);
-                                    $f1 = (isset($values[0]) ? $values[0] : '');
-                                    $logic = (isset($values[1]) ? $values[1] : '');
-                                    $f2 = (isset($values[2]) ? $values[2] : '');
-                                    if($logic!==''){
-                                        $f1 = SUPER_Common::email_tags($f1, $data, $settings);
-                                        $f2 = SUPER_Common::email_tags($f2, $data, $settings);
-                                        $checkout = self::conditional_compare_check($f1, $logic, $f2);
-                                    }
-                                }
-                            }
-                        }
-                        // Stripe checkout
-                        if(!empty($settings['_stripe'])){
-                            $s = $settings['_stripe'];
-                            // Skip if Stripe checkout is not enabled
-                            if($s['enabled']==='true'){
+                    $payment_past_due = false;
+                    $login_status = false;
+                    // Before we continue, check if this is a paid signup form, we do this by checking if checkout is enabled for any of the payment methods like wc, paypal or stripe
+                    // If this is a paid signup form (when checkout is enabled)
+                    $checkout = false;
+                    // WooCommerce checkout
+                    $wcs = null;
+                    if(isset($settings['_woocommerce'])) $wcs = $settings['_woocommerce'];
+                    if(isset($wcs) && $wcs['checkout']=='true'){
+                        $checkout = SUPER_Common::conditionally_wc_checkout($data, $settings);
+                    }
+                    // PayPal checkout
+                    if((isset($settings['paypal_checkout'])) && ($settings['paypal_checkout'] == 'true')){
+                        $checkout = true;
+                        if(!empty($settings['conditionally_paypal_checkout'])){
+                            if(!empty($settings['conditionally_paypal_checkout_check'])){
                                 // If conditional check is enabled
-                                $checkout = true;
-                                if($s['conditions']['enabled']==='true' && $s['logic']!==''){
-                                    $f1 = SUPER_Common::email_tags($s['f1'], $data, $settings);
-                                    $logic = $s['logic'];
-                                    $f2 = SUPER_Common::email_tags($s['f2'], $data, $settings);
+                                $values = explode(',', $settings['conditionally_paypal_checkout_check']);
+                                $f1 = (isset($values[0]) ? $values[0] : '');
+                                $logic = (isset($values[1]) ? $values[1] : '');
+                                $f2 = (isset($values[2]) ? $values[2] : '');
+                                if($logic!==''){
+                                    $f1 = SUPER_Common::email_tags($f1, $data, $settings);
+                                    $f2 = SUPER_Common::email_tags($f2, $data, $settings);
                                     $checkout = self::conditional_compare_check($f1, $logic, $f2);
                                 }
                             }
                         }
-                        if($checkout===true){
-                            // Is registered payment form
-                            $create_new_user_account = false;
-                            if($force_create_new_user_account){
-                                // important, because the previously created user was just deleted, so we must create a new account again
-                                $create_new_user_account = true;
+                    }
+                    // Stripe checkout
+                    if(!empty($settings['_stripe'])){
+                        $s = $settings['_stripe'];
+                        // Skip if Stripe checkout is not enabled
+                        if($s['enabled']==='true'){
+                            // If conditional check is enabled
+                            $checkout = true;
+                            if($s['conditions']['enabled']==='true' && $s['logic']!==''){
+                                $f1 = SUPER_Common::email_tags($s['f1'], $data, $settings);
+                                $logic = $s['logic'];
+                                $f2 = SUPER_Common::email_tags($s['f2'], $data, $settings);
+                                $checkout = self::conditional_compare_check($f1, $logic, $f2);
+                            }
+                        }
+                    }
+                    // Lets check if a user already exists with the same user_login or user_email
+                    $user_login = sanitize_user($data['user_login']['value']);
+                    $user_email = sanitize_email($data['user_email']['value']);
+                    error_log($user_login);
+                    error_log($user_email);
+                    $username_exists = username_exists($user_login);
+                    if($username_exists!==false){
+                        error_log('username exists');
+                        $user = get_user_by('login', $user_login);
+                        if($user===false){
+                            error_log('could not find user by login');
+                            $username_exists = false;
+                        }else{
+                            error_log('found user by login, lets grab the login status');
+                            $login_status = get_user_meta($user->ID, 'super_user_login_status', true);
+                            error_log('login status: '.$login_status);
+                            if($login_status==='signup_payment_processing'){
+                                error_log('login status is signup_payment_processing');
+                                error_log('we should delete this user');
+                                wp_delete_user($user->ID);
+                                $username_exists = false;
+                            }else{
+                                error_log('do not delete this user, it already exists and has a different login status');
+                                // If the status is `payment_required` or `payment_past_due` then we won't delete the user, but use it's user ID instead and proceed to the checkout so they can make a payment
+                                // The `payment_required` could be used to request a new payment from the user
+                                // While `payment_past_due` could be used to indicate that the card on file wasn't able to be charged (might have been expired or any other reason)
+                                if($login_status==='payment_required' || $login_status==='payment_past_due'){
+                                    // Use this user
+                                    $create_new_user_account = false;
+                                    $payment_past_due = true;
+                                }else{
+                                    $username_exists = true;
+                                }
+                            }
+                        }
+                    }
+                    $email_exists = email_exists($user_email);        
+                    if($email_exists!==false){
+                        error_log('email exists');
+                        $user = get_user_by('email', $user_email);
+                        if($user===false){
+                            error_log('could not find user by email');
+                            $email_exists = false;
+                        }else{
+                            error_log('found user by email, lets grab the login status');
+                            $login_status = get_user_meta($user->ID, 'super_user_login_status', true);
+                            error_log('login status: '.$login_status);
+                            if($login_status==='signup_payment_processing'){
+                                error_log('login status is signup_payment_processing');
+                                error_log('we should delete this user');
+                                wp_delete_user($user->ID);
+                                $email_exists = false;
+                            }else{
+                                error_log('do not delete this user, it already exists and has a different login status');
+                                // If the status is `payment_required` or `payment_past_due` then we won't delete the user, but use it's user ID instead and proceed to the checkout so they can make a payment
+                                // The `payment_required` could be used to request a new payment from the user
+                                // While `payment_past_due` could be used to indicate that the card on file wasn't able to be charged (might have been expired or any other reason)
+                                if($login_status==='payment_required' || $login_status==='payment_past_due'){
+                                    // Use this user
+                                    $create_new_user_account = false;
+                                    $payment_past_due = true;
+                                }else{
+                                    $username_exists = true;
+                                }
                             }
                         }
                     }
                     if($create_new_user_account===true){
+                        error_log('trying to create a new user account');
                         if(($username_exists!=false) || ($email_exists!=false)){
                             $msg = esc_html__('Username or E-mail address already exists, please try again', 'super-forms');
                             SUPER_Common::output_message( array(
@@ -1458,95 +1502,143 @@ if( !class_exists('SUPER_Register_Login') ) :
                                 'form_id' => absint($form_id)
                             ));
                         }
+                    }else{
+                        error_log('use existing account?');
+                        $user_id = $user->ID;
+                        error_log('user_id: '.$user_id);
                     }
                     // Define user_id as the newly registered user_id
-                    $sfsi = get_option( '_sfsi_' . $sfs_uid, array() );
+                    $sfsi = get_option( '_sfsi_' . $sfsi_id, array() );
                     $sfsi['user_id'] = $user_id;
-                    $sfsi['registered_user_id'] = $user_id;
-                    update_option('_sfsi_' . $sfs_uid, $sfsi );
+                    if($payment_past_due===false){
+                        // @important - we only set `registered_user_id` when it's the first time the user registered
+                        // when the user status is `payment_past_due` we do not create a new user
+                        // it is important we do not set it so that the cleanupFormSubmissionInfo() function doesn't delete this user when for instance the checkout session expired
+                        $sfsi['registered_user_id'] = $user_id;
+                    }
+                    update_option('_sfsi_' . $sfsi_id, $sfsi );
                     // @since v1.0.3 - currently used by the WooCommerce Checkout feature
                     do_action( 'super_after_wp_insert_user_action', array( 'user_id'=>$user_id, 'atts'=>$x ) );
-                    // @since 1.3.0 - save user meta after possible file(s) have been processed and saved into media library
                     SUPER_Common::setClientData( array( 'name'=> 'super_forms_registered_user_id', 'value'=>$user_id  ) );
                     // @since 1.0.3
                     if( !isset($settings['register_user_signup_status']) ) $settings['register_user_signup_status'] = 'active';
-                    update_user_meta( $user_id, 'super_user_login_status', $settings['register_user_signup_status'] );
-                    if( (isset($settings['register_send_approve_email'])) && ($settings['register_send_approve_email']=='true') ) {
-                        update_user_meta( $user_id, 'super_user_approve_data', array('settings'=>$settings, 'data'=>$data) );
+                    if($payment_past_due===false){
+                        if( (isset($settings['register_send_approve_email'])) && ($settings['register_send_approve_email']=='true') ) {
+                            update_user_meta( $user_id, 'super_user_approve_data', array('settings'=>$settings, 'data'=>$data) );
+                        }
                     }
                     // Check if we need to send an activation email to this user
-                    if( ($settings['register_login_activation']=='verify') || ($settings['register_login_activation']=='verify_login') ) {
-                        $code = wp_generate_password( 8, false );
-                        // @since 1.2.4 - allows users to use a custom activation code, for instance generated with the unique random number with a hidden field
-                        if(isset($data['register_activation_code'])){
-                            $code = $data['register_activation_code']['value'];
-                        }
-                        if(isset($data['email_verification_code'])){
-                            $code = $data['email_verification_code']['value'];
-                        }
-                        update_user_meta( $user_id, 'super_account_status', 0 ); // 0 = inactive, 1 = active
-                        update_user_meta( $user_id, 'super_account_activation', $code ); 
-                        $user = get_user_by( 'id', $user_id );
-                        $mail = self::send_verification_email(array('password'=>$password, 'code'=>$code, 'user'=>$user, 'settings'=>$settings, 'data'=>$data));
-                        // Return message
-                        if( !empty( $mail->ErrorInfo ) ) {
-                            SUPER_Common::output_message( array(
-                                'msg' => $mail->ErrorInfo,
-                                'form_id' => absint($form_id)
-                            ));
+                    if($payment_past_due===false){
+                        if(($settings['register_login_activation']=='verify') || ($settings['register_login_activation']=='verify_login')){
+                            $code = wp_generate_password( 8, false );
+                            // @since 1.2.4 - allows users to use a custom activation code, for instance generated with the unique random number with a hidden field
+                            if(isset($data['register_activation_code'])){
+                                $code = $data['register_activation_code']['value'];
+                            }
+                            if(isset($data['email_verification_code'])){
+                                $code = $data['email_verification_code']['value'];
+                            }
+                            update_user_meta( $user_id, 'super_account_status', 0 ); // 0 = inactive, 1 = active
+                            update_user_meta( $user_id, 'super_account_activation', $code ); 
+                            $user = get_user_by( 'id', $user_id );
+                            $mail = self::send_verification_email(array('password'=>$password, 'code'=>$code, 'user'=>$user, 'settings'=>$settings, 'data'=>$data));
+                            // Return message
+                            if(!empty($mail->ErrorInfo)){
+                                SUPER_Common::output_message(array(
+                                    'msg' => $mail->ErrorInfo,
+                                    'form_id' => absint($form_id)
+                                ));
+                            }
                         }
                     }
                     // @since 1.0.4
                     // Login the user without activating it's account
-                    if( $settings['register_login_activation']=='verify_login' ) {
-                        wp_set_current_user( $user_id );
-                        wp_set_auth_cookie( $user_id );
-                        update_user_meta( $user_id, 'super_last_login', time() );
+                    if($payment_past_due===false){
+                        if($settings['register_login_activation']=='verify_login'){
+                            if($checkout===false){
+                                // Only login the user when it's not a paid signup form 
+                                wp_set_current_user($user_id);
+                                wp_set_auth_cookie($user_id);
+                                update_user_meta($user_id, 'super_last_login', time());
+                            }
+                        }
                     }
                     // Check if we let users automatically login after registering (instant login)
-                    if( $settings['register_login_activation']=='login' ) $settings['register_login_activation'] = 'auto';
-                    if( $settings['register_login_activation']=='auto' ) {
-                        wp_set_current_user( $user_id );
-                        wp_set_auth_cookie( $user_id );
-                        update_user_meta( $user_id, 'super_last_login', time() );
-                        update_user_meta( $user_id, 'super_account_status', 1 );
-                        update_user_meta( $user_id, 'super_user_login_status', 'active' );
+                    // 'verify' => esc_html__( 'Send verification email (default)', 'super-forms' ),
+                    // 'verify_login' => esc_html__( 'Send verification email and automatically login', 'super-forms' ),
+                    // 'auto' => esc_html__( 'No verification required and login automatically', 'super-forms' ),
+                    // 'activate' => esc_html__( 'No verification required and do not automatically login either', 'super-forms' ),
+                    // 'none' => esc_html__( 'Do nothing (don\'t login nor send verification email)', 'super-forms' ),
+                    if($payment_past_due===false){
+                        if($settings['register_login_activation']=='login') $settings['register_login_activation'] = 'auto';
+                        if($settings['register_login_activation']=='auto'){
+                            update_user_meta($user_id, 'super_account_status', 1);
+                            if($checkout===false){
+                                // If this is a paid signup form don't login the user autmoatically
+                                // we will also set the status to `signup_payment_processing`
+                                wp_set_current_user($user_id);
+                                wp_set_auth_cookie($user_id);
+                                update_user_meta($user_id, 'super_last_login', time());
+                                $settings['register_user_signup_status'] = 'active';
+                            }
+                        }
                     }
+                    if($checkout===true){
+                        error_log('is paid signup form');
+                        // This is a paid signup form
+                        if($payment_past_due===true){
+                            // Do not change the status, this will be done once the payment is completed
+                            error_log('status of user is set to `payment_past_due`, keep login status unchanged');
+                        }else{
+                            error_log('update login status to `signup_payment_processing`');
+                            update_user_meta($user_id, 'super_user_login_status', 'signup_payment_processing');
+                        }
+                    }else{
+                        error_log('is not checkout, set to login status based on form settings');
+                        update_user_meta($user_id, 'super_user_login_status', $settings['register_user_signup_status']);
+                    }
+
                     // Check if automatically activate users
-                    if( $settings['register_login_activation']=='activate' ) {
-                        update_user_meta( $user_id, 'super_account_status', 1 );
+                    if($payment_past_due===false){
+                        if( $settings['register_login_activation']=='activate' ) {
+                            update_user_meta( $user_id, 'super_account_status', 1 );
+                        }
                     }
                     // When set to 'none' we update account status to 1 so that user is able to login, although they are not automatically logged in
                     // When the login status of a new registered user is not set to "Active" then the user won't be able to login until an Admin has approved their account
-                    if( $settings['register_login_activation']=='none' ) {
-                        update_user_meta( $user_id, 'super_account_status', 1 );
+                    if($payment_past_due===false){
+                        if( $settings['register_login_activation']=='none' ) {
+                            update_user_meta( $user_id, 'super_account_status', 1 );
+                        }
                     }
                     // @since 1.1.0 - create multi-site
                     if( !isset($settings['register_login_multisite_enabled']) ) $settings['register_login_multisite_enabled'] = '';
-                    if( $settings['register_login_multisite_enabled']=='true' ) {
-                        $user = get_user_by( 'id', $user_id );
-                        $domain = SUPER_Common::email_tags( $settings['register_login_multisite_domain'], $data, $settings, $user );
-                        $path = SUPER_Common::email_tags( $settings['register_login_multisite_path'], $data, $settings, $user );
-                        $title = SUPER_Common::email_tags( $settings['register_login_multisite_title'], $data, $settings, $user );
-                        $site_id = SUPER_Common::email_tags( $settings['register_login_multisite_id'], $data, $settings, $user );
-                        $site_meta = apply_filters( 'super_register_login_create_blog_site_meta', array(), $user_id, $meta_data, $atts, $settings );
-                        $blog_id = wpmu_create_blog($domain, $path, $title, $user_id, $site_meta, $site_id);
-                        if( is_wp_error( $blog_id ) ) {
-                            $msg = $blog_id->get_error_message();
-                            SUPER_Common::setClientData( array( 'name'=> 'msg', 'value'=>array( 'data'=>$data, 'settings'=>$settings, 'msg'=>$msg, 'type'=>'error'  ) ) );
-                            SUPER_Common::output_message( array(
-                                'msg' => $msg,
-                                'form_id' => absint($form_id)
-                            ));
+                    if($payment_past_due===false){
+                        if( $settings['register_login_multisite_enabled']=='true' ) {
+                            $user = get_user_by( 'id', $user_id );
+                            $domain = SUPER_Common::email_tags( $settings['register_login_multisite_domain'], $data, $settings, $user );
+                            $path = SUPER_Common::email_tags( $settings['register_login_multisite_path'], $data, $settings, $user );
+                            $title = SUPER_Common::email_tags( $settings['register_login_multisite_title'], $data, $settings, $user );
+                            $site_id = SUPER_Common::email_tags( $settings['register_login_multisite_id'], $data, $settings, $user );
+                            $site_meta = apply_filters( 'super_register_login_create_blog_site_meta', array(), $user_id, $meta_data, $atts, $settings );
+                            $blog_id = wpmu_create_blog($domain, $path, $title, $user_id, $site_meta, $site_id);
+                            if( is_wp_error( $blog_id ) ) {
+                                $msg = $blog_id->get_error_message();
+                                SUPER_Common::setClientData( array( 'name'=> 'msg', 'value'=>array( 'data'=>$data, 'settings'=>$settings, 'msg'=>$msg, 'type'=>'error'  ) ) );
+                                SUPER_Common::output_message( array(
+                                    'msg' => $msg,
+                                    'form_id' => absint($form_id)
+                                ));
+                            }
+                            global $current_site;
+                            if( (!is_super_admin($user_id)) && (get_user_option('primary_blog', $user_id)==$current_site->blog_id) ) {
+                                update_user_option( $user_id, 'primary_blog', $blog_id, true );
+                            }
+                            if( $settings['register_login_multisite_email']=='true' ) {
+                                wpmu_welcome_notification( $blog_id, $user_id, $password, $title, array('public'=>1) );
+                            }
+                            do_action( 'super_register_login_after_create_blog', $blog_id );
                         }
-                        global $current_site;
-                        if( (!is_super_admin($user_id)) && (get_user_option('primary_blog', $user_id)==$current_site->blog_id) ) {
-                            update_user_option( $user_id, 'primary_blog', $blog_id, true );
-                        }
-                        if( $settings['register_login_multisite_email']=='true' ) {
-                            wpmu_welcome_notification( $blog_id, $user_id, $password, $title, array('public'=>1) );
-                        }
-                        do_action( 'super_register_login_after_create_blog', $blog_id );
                     }
                 }
             }

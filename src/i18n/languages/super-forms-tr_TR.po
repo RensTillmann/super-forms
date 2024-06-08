@@ -5302,7 +5302,7 @@ msgid "February"
 msgstr "Şubat"
 
 #. Author of the plugin
-msgid "feeling4design"
+msgid "WebRehab"
 msgstr "duygu4 tasarım"
 
 #: includes/class-settings.php:2165
