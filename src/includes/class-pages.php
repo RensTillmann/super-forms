@@ -2,7 +2,7 @@
 /**
  * Callbacks to generate pages
  *
- * @author      feeling4design
+ * @author      WebRehab
  * @category    Admin
  * @package     SUPER_Forms/Classes
  * @class       SUPER_Pages
@@ -207,6 +207,34 @@ class SUPER_Pages {
         echo '<div class="super-raw-code-trigger-settings">';
             echo '<p class="sfui-notice sfui-yellow">';
             echo sprintf( esc_html__( '%sTrigger settings:%s', 'super-forms' ), '<strong>', '</strong>' );
+            echo '</p>';
+            echo '<textarea></textarea>';
+        echo '</div>';
+
+        echo '<div class="super-raw-code-woocommerce-settings">';
+            echo '<p class="sfui-notice sfui-yellow">';
+            echo sprintf( esc_html__( '%sWooCommerce settings:%s', 'super-forms' ), '<strong>', '</strong>' );
+            echo '</p>';
+            echo '<textarea></textarea>';
+        echo '</div>';
+
+        echo '<div class="super-raw-code-listings-settings">';
+            echo '<p class="sfui-notice sfui-yellow">';
+            echo sprintf( esc_html__( '%sListings settings:%s', 'super-forms' ), '<strong>', '</strong>' );
+            echo '</p>';
+            echo '<textarea></textarea>';
+        echo '</div>';
+
+        echo '<div class="super-raw-code-pdf-settings">';
+            echo '<p class="sfui-notice sfui-yellow">';
+            echo sprintf( esc_html__( '%sPDF settings:%s', 'super-forms' ), '<strong>', '</strong>' );
+            echo '</p>';
+            echo '<textarea></textarea>';
+        echo '</div>';
+
+        echo '<div class="super-raw-code-stripe-settings">';
+            echo '<p class="sfui-notice sfui-yellow">';
+            echo sprintf( esc_html__( '%sStripe settings:%s', 'super-forms' ), '<strong>', '</strong>' );
             echo '</p>';
             echo '<textarea></textarea>';
         echo '</div>';
@@ -750,14 +778,6 @@ class SUPER_Pages {
                                                                         'filter' => 'event;stripe.checkout.session.async_payment_failed'
                                                                     ),
                                                                     array(
-                                                                        'name' => 'stripe_retry_payment_link_expiry',
-                                                                        'title' => 'Retry payment link expiry in hours',
-                                                                        'subline' => 'Enter the amount in hours before the retry payment link expires. Must be a number between 24 and 720.',
-                                                                        'type' => 'number',
-                                                                        'default' => '48',
-                                                                        'filter' => 'event;stripe.checkout.session.async_payment_failed'
-                                                                    ),
-                                                                    array(
                                                                         'name' => 'subject',
                                                                         'type' => 'text',
                                                                         'default' => esc_html__( 'New question', 'super-forms' ),
@@ -769,7 +789,7 @@ class SUPER_Pages {
                                                                         'name' => 'body',
                                                                         'type' => 'textarea',
                                                                         'tinymce' => true,
-                                                                        'default' => sprintf( esc_html__( "The following information has been send by the submitter:\n\n%s\n\nBest regards, %s", 'super-forms' ), '{loop_fields}', '{option_blogname}' ),
+                                                                        'default' => sprintf( esc_html__( "The following information has been send by the submitter:%sBest regards, %s", 'super-forms' ), '<br /><br />{loop_fields}<br /><br />', '{option_blogname}' ),
                                                                         'title' => esc_html__( 'Body', 'super-forms' ),
                                                                         'i18n' => true
                                                                     ),
@@ -1092,16 +1112,18 @@ class SUPER_Pages {
             $title = esc_html__( 'Form Name', 'super-forms' );
         }
         $settings = SUPER_Common::get_form_settings($form_id);
+        $woocommerce = SUPER_Common::get_form_woocommerce_settings($form_id);
+        $listings = SUPER_Common::get_form_listings_settings($form_id);
+
+        $pdf = SUPER_Common::get_form_pdf_settings($form_id);
+        $stripe = SUPER_Common::get_form_stripe_settings($form_id);
 
         // Retrieve all form setting fields with the correct default values
-        $fields = SUPER_Settings::fields( $settings );
+        $fields = SUPER_Settings::fields($settings);
 
         // Get all available shortcodes
         $shortcodes = SUPER_Shortcodes::shortcodes();
         
-        // @since 4.7.0 - translations
-        //$triggers = SUPER_Common::get_form_triggers($form_id);
-
         // @since 4.7.0 - translations
         $translations = SUPER_Common::get_form_translations($form_id);
 
@@ -1191,7 +1213,7 @@ class SUPER_Pages {
 
                     <div id="titlediv" style="margin-bottom:10px;">
                         <div id="titlewrap">
-                            <input placeholder="<?php _e( 'Contact Entry Title', 'super-forms' ); ?>" type="text" name="super_contact_entry_post_title" size="30" value="<?php echo $entry_title; ?>" id="title" spellcheck="true" autocomplete="false">
+                            <input placeholder="<?php _e( 'Contact Entry Title', 'super-forms' ); ?>" type="text" name="super_contact_entry_post_title" size="30" value="<?php echo $entry_title; ?>" id="title" spellcheck="true" autocomplete="off">
                         </div>
                     </div>
 

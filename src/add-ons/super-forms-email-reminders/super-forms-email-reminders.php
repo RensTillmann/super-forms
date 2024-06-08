@@ -3,9 +3,9 @@
  * Super Forms - E-mail Reminders
  *
  * @package   Super Forms - E-mail Reminders
- * @author    feeling4design
+ * @author    WebRehab
  * @link      http://super-forms.com
- * @copyright 2022 by feeling4design
+ * @copyright 2022 by WebRehab
  * @license   GPL-2.0-or-later
  *
  * @wordpress-plugin
@@ -14,7 +14,7 @@
  * Version:     1.2.1
  * Plugin URI:  http://super-forms.com
  * Author URI:  http://super-forms.com
- * Author:      feeling4design
+ * Author:      WebRehab
  * Text Domain: super-forms
  * Domain Path: /i18n/languages/
  * License:           GPL v2 or later
@@ -173,18 +173,18 @@ if( !class_exists('SUPER_Email_Reminders') ) :
             while( $x <= $limit ) {
                 if( (!empty($settings['email_reminder_' . $x])) && ($settings['email_reminder_' . $x]=='true') ) {
                     $email_body = '';
-                    if(!empty($settings['email_reminder_' . $x . '_body_open'])) $email_body .= $settings['email_reminder_' . $x . '_body_open'] . "\n\n";
+                    if(!empty($settings['email_reminder_' . $x . '_body_open'])) $email_body .= $settings['email_reminder_' . $x . '_body_open'] . "<br /><br />";
                     unset($settings['email_reminder_' . $x . '_body_open']);
                     $email_body .= $settings['email_reminder_' . $x . '_body'];
-                    if(!empty($settings['email_reminder_' . $x . '_body_close'])) $email_body .= "\n\n" . $settings['email_reminder_' . $x . '_body_close'];
+                    if(!empty($settings['email_reminder_' . $x . '_body_close'])) $email_body .= "<br /><br />" . $settings['email_reminder_' . $x . '_body_close'];
                     unset($settings['email_reminder_' . $x . '_body_close']);
                     $settings['email_reminder_' . $x . '_body'] = $email_body;
 
                     $confirm_body = '';
-                    if(!empty($settings['email_reminder_' . $x . '_body_open'])) $confirm_body .= $settings['email_reminder_' . $x . '_body_open'] . "\n\n";
+                    if(!empty($settings['email_reminder_' . $x . '_body_open'])) $confirm_body .= $settings['email_reminder_' . $x . '_body_open'] . "<br /><br />";
                     unset($settings['email_reminder_' . $x . '_body_open']);
                     $confirm_body .= $settings['email_reminder_' . $x . '_body'];
-                    if(!empty($settings['email_reminder_' . $x . '_body_close'])) $confirm_body .= "\n\n" . $settings['email_reminder_' . $x . '_body_close'];
+                    if(!empty($settings['email_reminder_' . $x . '_body_close'])) $confirm_body .= "<br /><br />" . $settings['email_reminder_' . $x . '_body_close'];
                     unset($settings['email_reminder_' . $x . '_body_close']);
                     $settings['email_reminder_' . $x . '_body'] = $confirm_body;
                 }
@@ -497,10 +497,10 @@ if( !class_exists('SUPER_Email_Reminders') ) :
             SUPER_Common::setClientData( array( 'name'=> 'super_forms_email_reminders', 'value'=>$email_reminders  ) );
 
             // Store as submission info
-            $sfs_uid = $atts['sfs_uid'];
-            $sfsi = get_option( '_sfsi_' . $sfs_uid, array() );
+            $sfsi_id = $atts['sfsi_id'];
+            $sfsi = get_option( '_sfsi_' . $sfsi_id, array() );
             $sfsi['reminders'] = $email_reminders;
-            update_option('_sfsi_' . $sfs_uid, $sfsi );
+            update_option('_sfsi_' . $sfsi_id, $sfsi );
         }
 
 

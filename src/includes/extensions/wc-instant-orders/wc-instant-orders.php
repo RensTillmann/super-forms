@@ -1021,7 +1021,7 @@ if(!class_exists('SUPER_WC_Instant_Orders')) :
             extract( shortcode_atts( array(
                 'sfsi'=>array(),
                 'form_id'=>0,
-                'sfs_uid'=>'',
+                'sfsi_id'=>'',
                 'post'=>array(), 
                 'data'=>array(), 
                 'settings'=>array(), 
@@ -1072,13 +1072,13 @@ if(!class_exists('SUPER_WC_Instant_Orders')) :
                 'sf_entry' => $entry_id,
                 'sf_user' => (isset($sfsi['user_id']) ? $sfsi['user_id'] : 0),
                 'sf_post' => (isset($sfsi['created_post']) ? $sfsi['created_post'] : 0),
-                'sfsi_id' => $sfs_uid
+                'sfsi_id' => $sfsi_id
             );
             error_log('custom metadata for woocommerce order: ' . SUPER_Common::safe_json_encode($metadata));
-            $sfsi = get_option( '_sfsi_' . $sfs_uid, array() );
+            $sfsi = get_option( '_sfsi_' . $sfsi_id, array() );
             error_log('sfsi: '.SUPER_Common::safe_json_encode($sfsi));
             $sfsi['entry_id'] = $entry_id;
-            error_log('14');update_option('_sfsi_' . $sfs_uid, $sfsi );
+            error_log('14');update_option('_sfsi_' . $sfsi_id, $sfsi );
 
             $line_items = array();
             foreach($s['line_items'] as $k => $v){
@@ -1512,7 +1512,7 @@ if(!function_exists('SUPER_WC_Instant_Orders')){
 // tmp             extract( shortcode_atts( array(
 // tmp                 'sfsi'=>array(),
 // tmp                 'form_id'=>0,
-// tmp                 'sfs_uid'=>'',
+// tmp                 'sfsi_id'=>'',
 // tmp                 'post'=>array(), 
 // tmp                 'data'=>array(), 
 // tmp                 'settings'=>array(), 

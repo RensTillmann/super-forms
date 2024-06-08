@@ -2,7 +2,7 @@
 /**
  * Register Post Types
  *
- * @author      feeling4design
+ * @author      WebRehab
  * @category    Class
  * @package     SUPER_Forms/Classes
  * @class       SUPER_Post_Types

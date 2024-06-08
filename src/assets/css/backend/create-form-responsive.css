@@ -1,7 +1,7 @@
 /* Simple Responsive Styling 
    In this area we are using the "max-width" proporty 
    for faster development, the other options are used
-   for more specific device targeting (feeling4design).
+   for more specific device targeting (WebRehab).
 */
 @media only screen and (max-width: 1145px) {
     .super-header .super-actions span {

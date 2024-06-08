@@ -64,9 +64,11 @@ if(!class_exists('SUPER_PDF_Generator')) :
             return $tabs;
         }
         public static function add_tab_content($atts){
+            extract($atts);
+            error_log('t3: '.json_encode($pdf));
             $slug = SUPER_PDF_Generator()->add_on_slug;
-            $settings = (isset($atts['settings']['_'.$slug]) ? $atts['settings']['_'.$slug] : array());
-            $s = self::get_default_pdf_settings($settings);
+            $s = self::get_default_pdf_settings($pdf);
+            error_log('t4: '.json_encode($s));
             $logic = array( '==' => '== Equal', '!=' => '!= Not equal', '??' => '?? Contains', '!!' => '!! Not contains', '>'  => '&gt; Greater than', '<'  => '&lt;  Less than', '>=' => '&gt;= Greater than or equal to', '<=' => '&lt;= Less than or equal');
             // Page format
             $formats = array();
@@ -432,7 +434,7 @@ if(!class_exists('SUPER_PDF_Generator')) :
             SUPER_UI::loop_over_tab_setting_nodes($s, $nodes, $prefix);
         }
         // Get default PDF settings
-        public static function get_default_pdf_settings($s) {
+        public static function get_default_pdf_settings($settings=array(), $s=array()){
             if(empty($s['generate'])) $s['generate'] = 'false';
             if(isset($s['debug'])) {
                 if(empty($s['native'])) $s['native'] = 'false';
@@ -488,6 +490,11 @@ if(!class_exists('SUPER_PDF_Generator')) :
                     'left' => 5
                 )
             );
+            $s = apply_filters('super_pdf_default_settings_filter', $s);
+            if(isset($settings)){
+                if($settings==='') $settings = array();
+                $s = array_merge($s, $settings);
+            }
             return $s;
         }
         public function pdf_form_js($js, $x){

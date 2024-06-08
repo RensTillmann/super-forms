@@ -3,9 +3,9 @@
  * Super Forms - Calculator
  *
  * @package   Super Forms - Calculator
- * @author    feeling4design
+ * @author    WebRehab
  * @link      http://super-forms.com
- * @copyright 2022 by feeling4design
+ * @copyright 2022 by WebRehab
  * @license   GPL-2.0-or-later
  *
  * @wordpress-plugin
@@ -14,7 +14,7 @@
  * Version:     2.3.4
  * Plugin URI:  http://super-forms.com
  * Author URI:  http://super-forms.com
- * Author:      feeling4design
+ * Author:      WebRehab
  * Text Domain: super-forms
  * Domain Path: /i18n/languages/
  * License:           GPL v2 or later
@@ -491,7 +491,7 @@ if( !class_exists('SUPER_Calculator') ) :
             
             $result .= '</span>';
             $result .= '</div>';
-	        $result .= '<input type="hidden" class="super-shortcode-field"';
+	        $result .= '<input autocomplete="off" type="hidden" class="super-shortcode-field"';
 	        $result .= ' data-value="' . $atts['currency'] . number_format( 0, $atts['decimals'], $atts['decimal_separator'], '' ) . $atts['format'] . '" value="' . number_format( 0, $atts['decimals'], $atts['decimal_separator'], '' ) . '" name="' . $atts['name'] . '"';
 
 	        $result .= SUPER_Shortcodes::common_attributes( $atts, $tag );

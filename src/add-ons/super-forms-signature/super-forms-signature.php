@@ -3,9 +3,9 @@
  * Super Forms - Signature
  *
  * @package   Super Forms - Signature
- * @author    feeling4design
+ * @author    WebRehab
  * @link      http://super-forms.com
- * @copyright 2022 by feeling4design
+ * @copyright 2022 by WebRehab
  * @license   GPL-2.0-or-later
  *
  * @wordpress-plugin
@@ -14,7 +14,7 @@
  * Version:     1.8.4
  * Plugin URI:  http://super-forms.com
  * Author URI:  http://super-forms.com
- * Author:      feeling4design
+ * Author:      WebRehab
  * Text Domain: super-forms
  * Domain Path: /i18n/languages/
  * License:           GPL v2 or later

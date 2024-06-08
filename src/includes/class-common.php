@@ -2,7 +2,7 @@
 /**
  * Super Forms Common Class.
  *
- * @author      feeling4design
+ * @author      WebRehab
  * @category    Class
  * @package     SUPER_Forms/Classes
  * @class       SUPER_Common
@@ -157,12 +157,50 @@ class SUPER_Common {
             }
         }
     }
-    public static function triggerEvent($eventName, $form_data){
+    public static function get_form_woocommerce_settings($form_id){
+        return maybe_unserialize(get_post_meta($form_id, '_woocommerce', true));
+    }
+    public static function get_form_listings_settings($form_id){
+        return maybe_unserialize(get_post_meta($form_id, '_listings', true));
+    }
+    public static function get_form_pdf_settings($form_id){              
+        $s = get_post_meta($form_id, '_pdf', true);
+        if($s===false){ $s = array(); }else{ $s = maybe_unserialize($s); }
+        return $s;
+    }
+    public static function get_form_stripe_settings($form_id){           
+        $s = get_post_meta($form_id, '_stripe', true);
+        if($s===false){ $s = array(); }else{ $s = maybe_unserialize($s); }
+        return $s;
+    }
+    public static function save_form_woocommerce_settings($s, $form_id){ 
+        update_post_meta($form_id, '_woocommerce', $s);
+    }
+    public static function save_form_listings_settings($s, $form_id){    
+        update_post_meta($form_id, '_listings', $s);
+    }
+    public static function save_form_pdf_settings($s, $form_id){         
+        update_post_meta($form_id, '_pdf', $s);
+    }
+    public static function save_form_stripe_settings($s, $form_id){      
+        update_post_meta($form_id, '_stripe', $s);
+    }
+
+    public static function triggerEvent($eventName, $atts){
         global $wpdb;
         error_log('triggerEvent('.$eventName.')');
         if(!class_exists('SUPER_Triggers')) require_once('class-triggers.php'); 
-        $triggers = array();
-        $form_id = absint($form_data['form_id']);
+        error_log('7.0: '.json_encode($atts));
+        extract($atts);
+        error_log('7.1: '.json_encode($atts));
+        error_log('7.2: '.json_encode($sfsi_id));
+        $sfsi = get_option( '_sfsi_' . $sfsi_id, array() );
+        if(count($sfsi)>0){
+            error_log('7.3: '.json_encode($sfsi));
+            extract($sfsi);
+            error_log('7.4: '.json_encode($sfsi));
+        }
+        error_log('form_id: '.$form_id);
         $triggers = self::get_form_triggers($form_id);
         usort($triggers, function($a, $b) {
             return absint($a['order']) - absint($b['order']);
@@ -191,8 +229,7 @@ class SUPER_Common {
                         'eventName'=>$eventName, 
                         'triggerName'=>$v['name'], 
                         'action'=>$av, 
-                        'form_id'=>$form_id, 
-                        'form_data'=>$form_data
+                        'sfsi'=>$sfsi
                     );
                     call_user_func(array('SUPER_Triggers', $av['action']), $x);
                 }
@@ -200,8 +237,8 @@ class SUPER_Common {
         }
     }
 
-    public static function cleanupFormSubmissionInfo($sfs_uid, $reference){
-        $sfsi = get_option( '_sfsi_' . $sfs_uid, array() );
+    public static function cleanupFormSubmissionInfo($sfsi_id, $reference){
+        $sfsi = get_option( '_sfsi_' . $sfsi_id, array() );
         // Delete contact entry
         $entry_id = (isset($sfsi['entry_id']) ? absint($sfsi['entry_id']) : 0 );
         if(!empty($entry_id)){
@@ -222,11 +259,9 @@ class SUPER_Common {
             }
             wp_delete_post($created_post_id, true);  // force delete, we no longer want it in our system
         }
-        // Delete user after canceled payment (only used for Register & Login feature)
+        // Delete newly created user after canceled payment or expired checkout session (only used for Register & Login feature)
         // Note for Stripe checkouts:
-        //  - When this cleanup is called upon checkout.session.expired, we can delete this user even if the user filled out and paid in the meantime.
-        //  - This is because when a user has the status `payment_required` it will be deleted and a new user ID will be created
-        //  - That way there should not be any issues in case of an expired session and the user creating an account succesfully before the previous checkout session was expired
+        //  - When a user has `payment_past_due` status, the `registered_user_id` won't be set, so no previous user account would be deleted by this
         $registered_user_id = (isset($sfsi['registered_user_id']) ? absint($sfsi['registered_user_id']) : 0);
         if(!empty($registered_user_id)){
             require_once( ABSPATH . 'wp-admin/includes/user.php' );
@@ -1225,23 +1260,23 @@ class SUPER_Common {
         }
         $email_body = '';
         if(!empty(SUPER_Forms()->global_settings['email_body_open'])) {
-            $email_body .= SUPER_Forms()->global_settings['email_body_open'] . "\n\n";
+            $email_body .= SUPER_Forms()->global_settings['email_body_open'] . "<br /><br />";
         }
         unset(SUPER_Forms()->global_settings['email_body_open']);
         $email_body .= (isset(SUPER_Forms()->global_settings['email_body']) ? SUPER_Forms()->global_settings['email_body'] : '');
         if(!empty(SUPER_Forms()->global_settings['email_body_close'])) {
-            $email_body .= "\n\n" . SUPER_Forms()->global_settings['email_body_close'];
+            $email_body .= "<br /><br />" . SUPER_Forms()->global_settings['email_body_close'];
         }
         unset(SUPER_Forms()->global_settings['email_body_close']);
         SUPER_Forms()->global_settings['email_body'] = $email_body;
         $confirm_body = '';
         if(!empty(SUPER_Forms()->global_settings['confirm_body_open'])) {
-            $confirm_body .= SUPER_Forms()->global_settings['confirm_body_open'] . "\n\n";
+            $confirm_body .= SUPER_Forms()->global_settings['confirm_body_open'] . "<br /><br />";
         }
         unset(SUPER_Forms()->global_settings['confirm_body_open']);
         $confirm_body .= (isset(SUPER_Forms()->global_settings['confirm_body']) ? SUPER_Forms()->global_settings['confirm_body'] : '');
         if(!empty(SUPER_Forms()->global_settings['confirm_body_close'])) {
-            $confirm_body .= "\n\n" . SUPER_Forms()->global_settings['confirm_body_close'];
+            $confirm_body .= "<br /><br />" . SUPER_Forms()->global_settings['confirm_body_close'];
         }
         unset(SUPER_Forms()->global_settings['confirm_body_close']);
         SUPER_Forms()->global_settings['confirm_body'] = $confirm_body;
@@ -1333,18 +1368,18 @@ class SUPER_Common {
         }
 
         $email_body = '';
-        if(!empty($settings['email_body_open'])) $email_body .= $settings['email_body_open'] . "\n\n";
+        if(!empty($settings['email_body_open'])) $email_body .= $settings['email_body_open'] . "<br /><br />";
         unset($settings['email_body_open']);
         $email_body .= $settings['email_body'];
-        if(!empty($settings['email_body_close'])) $email_body .= "\n\n" . $settings['email_body_close'];
+        if(!empty($settings['email_body_close'])) $email_body .= "<br /><br />" . $settings['email_body_close'];
         unset($settings['email_body_close']);
         $settings['email_body'] = $email_body;
 
         $confirm_body = '';
-        if(!empty($settings['confirm_body_open'])) $confirm_body .= $settings['confirm_body_open'] . "\n\n";
+        if(!empty($settings['confirm_body_open'])) $confirm_body .= $settings['confirm_body_open'] . "<br /><br />";
         unset($settings['confirm_body_open']);
         $confirm_body .= $settings['confirm_body'];
-        if(!empty($settings['confirm_body_close'])) $confirm_body .= "\n\n" . $settings['confirm_body_close'];
+        if(!empty($settings['confirm_body_close'])) $confirm_body .= "<br /><br />" . $settings['confirm_body_close'];
         unset($settings['confirm_body_close']);
         $settings['confirm_body'] = $confirm_body;
 
@@ -1352,6 +1387,7 @@ class SUPER_Common {
         $s = $settings;
         // Get current form version
         $current_form_version = get_post_meta($form_id, '_super_version', true);
+        // @Important, this check is against the Super Forms plugin version, not to be confused with the WordPress version!
         if(version_compare($current_form_version, '6.4', '<')){
             // Get trigger settings
             $triggers = SUPER_Common::get_form_triggers($form_id);
@@ -2075,9 +2111,9 @@ class SUPER_Common {
             echo SUPER_Common::safe_json_encode( $result );
         }
         if($form_id!==false){
-            $sfs_uid = SUPER_Common::getClientData( 'unique_submission_id_' . $form_id );
-            if( $sfs_uid!==false ){
-                $sfsi = get_option( '_sfsi_' . $sfs_uid, array() );
+            $sfsi_id = SUPER_Common::getClientData( 'unique_submission_id_' . $form_id );
+            if( $sfsi_id!==false ){
+                $sfsi = get_option( '_sfsi_' . $sfsi_id, array() );
                 if($error){
                     $sfsi['error_msg'] = $msg;
                 }else{
@@ -2085,11 +2121,11 @@ class SUPER_Common {
                 }
                 if($redirect!=null) $sfsi['redirect'] = $redirect;
                 if($json!=true) $sfsi['response_data'] = $response_data;
-                update_option('_sfsi_' . $sfs_uid, $sfsi );
+                update_option('_sfsi_' . $sfsi_id, $sfsi );
             }
             // When there was an error, cleanup things?
             if($error===true){
-                self::cleanupFormSubmissionInfo($sfs_uid, ''); 
+                self::cleanupFormSubmissionInfo($sfsi_id, ''); 
             }
         }
         die();

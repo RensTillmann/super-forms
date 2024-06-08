@@ -9,6 +9,16 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Jun 09, 2024 - Version 6.4.007-beta
+
+- **Fix:** Added `autocomplete="off"` for special fields to avoid issues in Firefox
+- **Fix:** Make sure that the `Success URL` for Stripe is an absolute URL if a relative URL was entered
+
+## Apr 26, 2024 - Version 6.4.004-beta
+
+- **Added:** New filter hook `super_disallowed_login_statuses_filter` to alter the login statuses that are disallowed to login e.g. `pending`, `payment_processing`, `payment_required`, `payment_past_due`, `blocked` or to add your own statuses
+- **Added:** New filter hook `super_login_status_messages_filter` to alter the message a user gets when trying to login with an account that is not allowed to login e.g. `This account requires a payment, please click here to extend your membership`
+
 ## Apr 24, 2024 - Version 6.4.003-beta
 
 - **Added:** New [Stripe] tab to configure Stripe checkout, allowing for one time payments and recurring payments.

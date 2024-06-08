@@ -3,9 +3,9 @@
  * Super Forms - Front-end Posting
  *
  * @package   Super Forms - Front-end Posting
- * @author    feeling4design
+ * @author    WebRehab
  * @link      http://super-forms.com
- * @copyright 2022 by feeling4design
+ * @copyright 2022 by WebRehab
  * @license   GPL-2.0-or-later
  *
  * @wordpress-plugin
@@ -14,7 +14,7 @@
  * Version:     1.6.1
  * Plugin URI:  http://super-forms.com
  * Author URI:  http://super-forms.com
- * Author:      feeling4design
+ * Author:      WebRehab
  * Text Domain: super-forms
  * Domain Path: /i18n/languages/
  * License:           GPL v2 or later
@@ -949,10 +949,10 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                     SUPER_Common::setClientData( array( 'name'=> 'super_forms_created_post_id', 'value'=>$post_id  ) );
 
                     // Store as submission info
-                    $sfs_uid = $atts['sfs_uid'];
-                    $sfsi = get_option( '_sfsi_' . $sfs_uid, array() );
+                    $sfsi_id = $atts['sfsi_id'];
+                    $sfsi = get_option( '_sfsi_' . $sfsi_id, array() );
                     $sfsi['created_post'] = $post_id;
-                    update_option('_sfsi_' . $sfs_uid, $sfsi );
+                    update_option('_sfsi_' . $sfsi_id, $sfsi );
                 }
 
                 // @since 1.0.1

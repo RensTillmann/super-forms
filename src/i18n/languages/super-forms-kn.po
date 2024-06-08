@@ -5317,7 +5317,7 @@ msgid "February"
 msgstr "ಫೆಬ್ರವರಿ"
 
 #. Author of the plugin
-msgid "feeling4design"
+msgid "WebRehab"
 msgstr "ಭಾವನೆ 4 ವಿನ್ಯಾಸ"
 
 #: includes/class-settings.php:2165

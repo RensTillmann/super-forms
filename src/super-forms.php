@@ -3,18 +3,18 @@
  * Super Forms
  *
  * @package   Super Forms
- * @author    feeling4design
+ * @author    WebRehab
  * @link      http://super-forms.com
- * @copyright 2022 by feeling4design
+ * @copyright 2022 by WebRehab
  * @license   GPL-2.0-or-later
  *
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.4.003
+ * Version:           6.4.007
  * Plugin URI:        http://super-forms.com
  * Author URI:        http://super-forms.com
- * Author:            feeling4design
+ * Author:            WebRehab
  * Text Domain:       super-forms
  * Domain Path:       /i18n/languages/
  * License:           GPL v2 or later
@@ -43,7 +43,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '6.4.003';
+        public $version = '6.4.007';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -551,7 +551,11 @@ if(!class_exists('SUPER_Forms')) :
             $directory = SUPER_PLUGIN_DIR . '/includes/extensions';
             $folders = array_diff(scandir($directory), array('..', '.'));
             foreach($folders as $k => $v){
-                include_once('includes/extensions/'.$v.'/'.$v.'.php');
+                $path = $directory . '/' . $v;
+                if(is_dir($path)){
+                    $file = $path . '/' . $v . '.php';
+                    if(file_exists($file)) include_once $file;
+                }
             }
         }
         public function rewrite_rules(){
@@ -1210,8 +1214,8 @@ if(!class_exists('SUPER_Forms')) :
             if( $post_type=='super_contact_entry') {
                 $from = ( isset( $_GET['sffrom'] ) && $_GET['sffrom'] ) ? $_GET['sffrom'] : '';
                 $to = ( isset( $_GET['sfto'] ) && $_GET['sfto'] ) ? $_GET['sfto'] : '';
-                echo '<input autocomplete="false" type="text" name="sffrom" placeholder="Date From" value="' . esc_attr($from) . '" />';
-                echo '<input autocomplete="false" type="text" name="sfto" placeholder="Date To" value="' . esc_attr($to) . '" />';
+                echo '<input autocomplete="off" type="text" name="sffrom" placeholder="Date From" value="' . esc_attr($from) . '" />';
+                echo '<input autocomplete="off" type="text" name="sfto" placeholder="Date To" value="' . esc_attr($to) . '" />';
             }
         }
 
@@ -2488,6 +2492,7 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'register', // Register because we need to localize it
                         'localize'=> array(
+                            'version' => SUPER_VERSION,
                             'home_url' => get_home_url(),
                             'not_editing_an_element' => sprintf( esc_html__( 'You are currently not editing an element.%sEdit any alement by clicking the %s icon.', 'super-forms' ), '<br />', '<i class="fa fa-pencil"></i>' ),
                             'no_backups_found' => esc_html__( 'No backups found...', 'super-forms' ),
@@ -3042,8 +3047,21 @@ if(!class_exists('SUPER_Forms')) :
             }
             add_post_meta( $new_id, '_super_elements', $elements );
             
-            $triggers = SUPER_Common::get_form_triggers($id);
-            SUPER_Common::save_form_triggers($triggers, $id);
+            $s = SUPER_Common::get_form_triggers($id);
+            SUPER_Common::save_form_triggers($s, $id);
+
+            $s = SUPER_Common::get_form_woocommerce_settings($id);
+            SUPER_Common::save_form_woocommerce_settings($s, $id);
+
+            $s = SUPER_Common::get_form_listings_settings($id);
+            SUPER_Common::save_form_listings_settings($s, $id);
+
+            $s = SUPER_Common::get_form_pdf_settings($id);
+            SUPER_Common::save_form_pdf_settings($s, $id);
+
+            $s = SUPER_Common::get_form_stripe_settings($id);
+            SUPER_Common::save_form_stripe_settings($s, $id);
+
 
             // @since 4.7.0 - translations
             $translations = SUPER_Common::get_form_translations($id);
