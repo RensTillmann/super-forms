@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.4.007
+ * Version:           6.4.008
  * Plugin URI:        http://super-forms.com
  * Author URI:        http://super-forms.com
  * Author:            WebRehab
@@ -43,7 +43,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '6.4.007';
+        public $version = '6.4.008';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -2515,6 +2515,7 @@ if(!class_exists('SUPER_Forms')) :
                             'alert_duplicate_secret_names' => esc_html__( 'You have duplicate secret names. Please make sure each secret has a unique name!', 'super-forms' ),
                             'alert_multipart_error' => esc_html__( 'It\'s not possible to insert a Multipart inside a Multipart', 'super-forms' ),
                             'alert_empty_field_name' => esc_html__( 'Unique field name may not be empty!', 'super-forms' ),
+                            'alert_add_delete_not_allowed' => esc_html__( 'Switch back to the main language to add or delete items', 'super-forms' ),
                             'deleting' => esc_html__( 'Deleting...', 'super-forms' ),
                             'edit_json_notice_n1' => sprintf( esc_html__( '%sForm elements:%s', 'super-forms' ), '<strong>', '</strong>' ),
                             'edit_json_notice_n2' => sprintf( esc_html__( '%sForm settings:%s', 'super-forms' ), '<strong>', '</strong>' ),

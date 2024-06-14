@@ -1039,7 +1039,7 @@ if(!class_exists('SUPER_WC_Instant_Orders')) :
                 $logic = $c['logic'];
                 $f1 = SUPER_Common::email_tags($c['f1'], $data, $settings);
                 $f2 = SUPER_Common::email_tags($c['f2'], $data, $settings);
-                $checkout = self::conditional_compare_check($f1, $logic, $f2);
+                $checkout = SUPER_Common::conditional_compare_check($f1, $logic, $f2);
             }
             if($checkout===false) return true;
             $mode = SUPER_Common::email_tags( $s['mode'], $data, $settings );

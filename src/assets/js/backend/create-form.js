@@ -55,7 +55,47 @@
         return JSON.stringify(obj) === JSON.stringify({});
     }
     SUPER.ui = {
-        btn: function(e, el, action){
+        settings: {},
+        getTabFieldValue: function(el){
+            // First get the field value
+            var value = el.value;
+            var type = el.type;
+            if (type === 'checkbox') value = el.checked;
+            if (type === 'radio') value = (tab.querySelector('[name="' + el.name + '"]:checked') ? tab.querySelector('[name="' + el.name + '"]:checked').value : '');
+            if (value === true) value = "true";
+            if (value === false) value = "false";
+            if (el.tagName === 'TEXTAREA' && tinymce.get(el.id)) {
+                value = tinymce.get(el.id).getContent();
+            }
+            return value;
+        },
+        setRepeaterFieldValues: function(element, values){
+            for (var fieldName in values) {
+                if (values.hasOwnProperty(fieldName)) {
+                    var fieldValue = values[fieldName];
+                    if (typeof fieldValue === 'object' && fieldValue !== null) {
+                        // Handle nested objects
+                        var nestedElement = element.querySelector(`[data-g="${fieldName}"]`);
+                        if (nestedElement) {
+                            SUPER.ui.setRepeaterFieldValues(nestedElement, fieldValue);
+                        } else {
+                            console.log(`Nested element not found for field: ${fieldName}`);
+                        }
+                    } else {
+                        // Handle simple fields
+                        var field = element.querySelector(`[name="${fieldName}"]`);
+                        if (field) {
+                            console.log(`Setting value for field: ${fieldName} to ${fieldValue}`);
+                            field.value = fieldValue;
+                        } else {
+                            console.log(`Field not found: ${fieldName}`);
+                        }
+                    }
+                }
+            }
+        },
+        btn: function(e, el, action, skipAlert){
+            if(typeof skipAlert==='undefined') skipAlert = false;
             var node;
             if (action === 'toggleConditionSettings') {
                 node = el.closest('.sfui-repeater-item').querySelector('.sfui-conditional-logic-settings');
@@ -78,6 +118,10 @@
                 return false;
             }
             if (action === 'addRepeaterItem') {
+                if(!skipAlert && !SUPER.ui.i18n.addDeleteAllowed()){
+                    alert(super_create_form_i18n.alert_add_delete_not_allowed);
+                    return;
+                }
                 var clone = el.closest('.sfui-repeater-item').cloneNode(true);
                 var p = el.closest('.sfui-repeater');
                 p.appendChild(clone);
@@ -109,8 +153,11 @@
                 return false;
             }
             if (action === 'deleteRepeaterItem') {
+                if(!skipAlert && !SUPER.ui.i18n.addDeleteAllowed()){
+                    alert(super_create_form_i18n.alert_add_delete_not_allowed);
+                    return;
+                }
                 // Do not delete last item
-                debugger;
                 var repeater = el.closest('.sfui-repeater');
                 var repeaterItems = repeater.querySelectorAll(':scope > .sfui-repeater-item');
                 if(repeaterItems.length > 1){
@@ -317,110 +364,243 @@
         // Update form settings
         updateSettings: function(e, el){
             SUPER.ui.showHideSubsettings(el);
-            if (el.closest('.super-tab-triggers') ||
-                el.closest('.super-tab-woocommerce') ||
-                el.closest('.super-tab-listings') ||
-                el.closest('.super-tab-pdf') ||
-                el.closest('.super-tab-stripe')) {
-                var slug = el.closest('.super-tab-content').className.replace('super-active', '').replace('super-tab-content', '').replace('super-tab-', '').split(' ').join('');
-                var i18n = document.querySelector('.super-create-form').dataset.i18n;
-                var i18n_data = null;
-                if(slug==='stripe') debugger;
-                if (i18n && i18n !== '') {
-                    // Translating...
-                    // Only update the translation settings based on the input value
-                    if (el.tagName !== 'INPUT' && el.parentNode.classList.contains('sfui-type-checkbox')) el = el.parentNode.querySelector('input');
-                    if (el.tagName !== 'INPUT' && el.parentNode.parentNode.classList.contains('sfui-type-checkbox')) {
-                        el = el.parentNode.parentNode.querySelector('input');
-                    }
-                    var p = (el.closest('[data-g="data"]') ? el.closest('[data-g="data"]') : el.closest('.super-tab-content'));
-                    var i18n_input_field = (p.classList.contains('super-tab-content')) ? p.querySelector('[name="i18n"]') : p.nextElementSibling.querySelector('[name="i18n"]');
-                    
-                    var i18n_value = i18n_input_field.value.trim();
-                    if (i18n_value === '' || i18n_value === '[]') {
-                        i18n_data = {};
-                        i18n_data[i18n] = {};
-                    } else {
-                        try {
-                            i18n_data = JSON.parse(i18n_value);
+
+            var i18n = document.querySelector('.super-create-form').dataset.i18n; 
+            var tab = el.closest('.super-tab-content');
+            var slug = tab.className.replace('super-active', '').replace('super-tab-content', '').replace('super-tab-', '').split(' ').join('');
+            // Check how many translatable fields there are
+            var translatableFields = tab.querySelectorAll('.sfui-i18n [name]');
+            if(i18n && i18n!=='' && translatableFields.length>0){
+                // Translating
+                var s = SUPER.get_stripe_settings();
+                // Now that we have all the settings for this language, we will find all the translatable field and re-generate the i18n JSON for this language
+                console.log(s);
+                console.log(translatableFields);
+                if(!SUPER.ui.settings['_'+slug].i18n[i18n]) SUPER.ui.settings['_'+slug].i18n[i18n] = {};
+                var i18nObject = SUPER.ui.settings['_'+slug].i18n[i18n];
+                var mainLanguageObject = SUPER.ui.settings['_'+slug];
+                translatableFields.forEach(field => {
+                    var value = SUPER.ui.getTabFieldValue(field);
+                    var keyPath = [];
+                    var parent = field.parentElement;
+                    // Traverse up to build the key path
+                    while (parent && parent !== tab) {
+                        if(parent.classList.contains('sfui-repeater-item')){
+                            var repeater = parent.parentElement;
+                            var index = Array.from(repeater.children).indexOf(parent);
+                            keyPath.unshift(index);
+                        } else if (parent.hasAttribute('data-g')) {
+                            keyPath.unshift(parent.getAttribute('data-g'));
+                        } else if (parent.hasAttribute('data-r')) {
+                            // Find the index of the current repeater item
+                            keyPath.unshift(parent.getAttribute('data-r')+'[]');
                         }
-                        catch (e) {
-                            console.error(e);
-                            i18n_data = {};
-                            i18n_data[i18n] = {};
-                            i18n_input_field.classList.add('sfui-red');
-                        }
+                        parent = parent.parentElement;
                     }
-                    if (!i18n_data[i18n]) i18n_data[i18n] = {};
-                    if (Array.isArray(i18n_data[i18n])) {
-                        i18n_data[i18n] = {};
-                    }
-                    
-                    var value = el.value;
-                    var type = el.type;
-                    if (type === 'checkbox') value = el.checked;
-                    if (type === 'radio') value = (tab.querySelector('[name="' + el.name + '"]:checked') ? tab.querySelector('[name="' + el.name + '"]:checked').value : '');
-                    if (value === true) value = "true";
-                    if (value === false) value = "false";
-                    if (el.tagName === 'TEXTAREA' && tinymce.get(el.id)) {
-                        value = tinymce.get(el.id).getContent();
-                    }
-        
-                    // Check if it was part of a repeater field
-                    var differentValueExists = false;
-                    const fields = el.closest('.sfui-repeater-item').querySelectorAll('[name]');
-                    fields.forEach(field => {
-                        const fieldDefaultValue = field.nextElementSibling && field.nextElementSibling.className === 'sfui-original-i18n-value' ? field.nextElementSibling.value : null;
-                        if (field.name && field.value !== fieldDefaultValue && fieldDefaultValue !== null) {
-                            differentValueExists = true;
+                    // Construct the nested object in i18nObject
+                    var lastKey = field.name;
+                    var obj = i18nObject;
+                    var objCompare = mainLanguageObject;
+                    keyPath.forEach(key => {
+                        if(!isNaN(key)){
+                            if(!obj[key]) obj[key] = {};
+                            obj = obj[key];
+                            objCompare = objCompare[key];
+                            return;
+                        }else{
+                            var tmpKey = key.replace('[]','');
+                            if(!obj[tmpKey] && key.indexOf('[]')!==-1){
+                                obj[tmpKey] = [];
+                            }
+                            if(!obj[tmpKey]){
+                                obj[tmpKey] = [];
+                            }
+                            obj = obj[tmpKey];
+                            objCompare = objCompare[tmpKey];
+                            return;
                         }
                     });
-        
-                    if (differentValueExists) {
-                        i18n_data[i18n] = SUPER.ui.i18n.collectDataFromParents(i18n_data[i18n], el, value);
-                        console.log(JSON.stringify(i18n_data[i18n], null, 2));
-                    } else {
-                        // Use collectDataFromParents to delete fields correctly in nested structures
-                        i18n_data[i18n] = SUPER.ui.i18n.deleteFromParents(i18n_data[i18n], el);
-                    }
-        
-                    // Adjust the number of repeater items to match the count in i18n_data
-                    const repeaterKey = el.closest('[data-r]') ? el.closest('[data-r]').getAttribute('data-r') : null;
-                    if (repeaterKey && i18n_data[i18n][repeaterKey]) {
-                        const repeaterContainer = el.closest('[data-r]');
-                        const currentItems = repeaterContainer.querySelectorAll('.sfui-repeater-item');
-                        const targetCount = i18n_data[i18n][repeaterKey].length;
-        
-                        // Add missing items
-                        while (currentItems.length < targetCount) {
-                            debugger;
-                            SUPER.ui.btn(event, repeaterContainer.querySelector('.add-repeater-item-btn'), 'addRepeaterItem');
-                            repeaterItems = repeaterContainer.querySelectorAll('.sfui-repeater-item');
+                    if(objCompare[lastKey]===value){
+                        // When this value equals the on from the main language delete it
+                        if(obj[lastKey]){
+                            delete obj[lastKey];
                         }
-                        // Remove excess items
-                        while (currentItems.length > targetCount) {
-                            debugger;
-                            SUPER.ui.btn(event, currentItems[currentItems.length - 1].querySelector('.delete-repeater-item-btn'), 'deleteRepeaterItem');
-                            repeaterItems = repeaterContainer.querySelectorAll('.sfui-repeater-item');
-                        }
+                    }else{
+                        // Value is different, keep it
+                        obj[lastKey] = value;
                     }
-        
-                    i18n_input_field.value = JSON.stringify(i18n_data, undefined, 4);
-                } else {
-                    // Update tab settings
-                    if (el.closest('.super-tab-triggers')) SUPER.update_trigger_settings(true);
-                    if (el.closest('.super-tab-woocommerce')) SUPER.update_woocommerce_settings(true);
-                    if (el.closest('.super-tab-listings')) SUPER.update_listings_settings(true);
-                    if (el.closest('.super-tab-pdf')) SUPER.update_pdf_settings(true);
-                    if (el.closest('.super-tab-stripe')) SUPER.update_stripe_settings(true);
+                });
+                // Clean up the data object
+                SUPER.ui.settings['_'+slug].i18n[i18n] = SUPER.ui.i18n.removeEmpty(SUPER.ui.settings['_'+slug].i18n[i18n]);
+                var i18n_input_field = tab.querySelector('[name="i18n"]');
+                if(i18n_input_field){
+                    i18n_input_field.value = JSON.stringify(SUPER.ui.settings['_'+slug].i18n, undefined, 4);
+                }else{
+                    alert('Could not find i18n field to store translation settings for tab: '+slug);
                 }
-            } else {
-                // Update form settings
-                SUPER.update_form_settings(true, el);
+                return;
+            }else{
+                // Not translating or the tab doesn't have any translatable fields
+                var s = SUPER.get_stripe_settings();
+                console.log(s);
+                return;
             }
+
+            // First get the field value
+            var value = el.value;
+            var type = el.type;
+            if (type === 'checkbox') value = el.checked;
+            if (type === 'radio') value = (tab.querySelector('[name="' + el.name + '"]:checked') ? tab.querySelector('[name="' + el.name + '"]:checked').value : '');
+            if (value === true) value = "true";
+            if (value === false) value = "false";
+            if (el.tagName === 'TEXTAREA' && tinymce.get(el.id)) {
+                value = tinymce.get(el.id).getContent();
+            }
+            if(!i18n || i18n===''){
+                // On main language, update normal settings
+                SUPER.ui.settings['_'+slug] = SUPER.ui.i18n.collectDataFromParents(SUPER.ui.settings['_'+slug], el, value);
+            }else{
+                // tmp // When we are in translation mode we must check if different value exists
+                // tmp if(!SUPER.ui.settings['_'+slug].i18n[i18n]) SUPER.ui.settings['_'+slug].i18n[i18n] = {};
+                // tmp var differentValueExists = false;
+                // tmp if(el.closest('.sfui-repeater-item')){
+                // tmp     fields = el.closest('.sfui-repeater-item').querySelectorAll('[name]');
+                // tmp }else{
+                // tmp     var fields = [];
+                // tmp     fields.push(el);
+                // tmp }
+                // tmp fields.forEach(field => {
+                // tmp     var fieldDefaultValue = field.nextElementSibling && field.nextElementSibling.className === 'sfui-original-i18n-value' ? field.nextElementSibling.value : null;
+                // tmp     if (field.name && field.value !== fieldDefaultValue && fieldDefaultValue !== null) {
+                // tmp         differentValueExists = true;
+                // tmp     }
+                // tmp });
+            
+                // tmp if (differentValueExists) {
+                // tmp     SUPER.ui.settings['_'+slug].i18n[i18n] = SUPER.ui.i18n.collectDataFromParents(SUPER.ui.settings['_'+slug].i18n[i18n], el, value);
+                // tmp } else {
+                // tmp     // Use collectDataFromParents to delete fields correctly in nested structures
+                // tmp     SUPER.ui.settings['_'+slug].i18n[i18n] = SUPER.ui.i18n.deleteFromParents(SUPER.ui.settings['_'+slug].i18n[i18n], el);
+                // tmp }
+                // tmp var p = el.closest('[data-g="data"]') ? el.closest('[data-g="data"]') : el.closest('.super-tab-content');
+                // tmp var i18n_input_field = p.querySelector('[name="i18n"]');
+                // tmp i18n_input_field.value = JSON.stringify(SUPER.ui.settings['_'+slug].i18n, undefined, 4);
+            }
+
+            // tmp     var i18n = document.querySelector('.super-create-form').dataset.i18n;
+            // tmp if (el.closest('.super-tab-triggers') ||
+            // tmp     el.closest('.super-tab-woocommerce') ||
+            // tmp     el.closest('.super-tab-listings') ||
+            // tmp     el.closest('.super-tab-pdf') ||
+            // tmp     el.closest('.super-tab-stripe')) {
+            // tmp     var slug = el.closest('.super-tab-content').className.replace('super-active', '').replace('super-tab-content', '').replace('super-tab-', '').split(' ').join('');
+            // tmp     var i18n = document.querySelector('.super-create-form').dataset.i18n;
+            // tmp     var i18n_data = null;
+            // tmp     if (i18n && i18n !== '') {
+            // tmp         // Translating...
+            // tmp         // Only update the translation settings based on the input value
+            // tmp         if (el.tagName !== 'INPUT' && el.parentNode.classList.contains('sfui-type-checkbox')) el = el.parentNode.querySelector('input');
+            // tmp         if (el.tagName !== 'INPUT' && el.parentNode.parentNode.classList.contains('sfui-type-checkbox')) {
+            // tmp             el = el.parentNode.parentNode.querySelector('input');
+            // tmp         }
+            // tmp         var p = (el.closest('[data-g="data"]') ? el.closest('[data-g="data"]') : el.closest('.super-tab-content'));
+            // tmp         var i18n_input_field = (p.classList.contains('super-tab-content')) ? p.querySelector('[name="i18n"]') : p.nextElementSibling.querySelector('[name="i18n"]');
+            // tmp         
+            // tmp         var i18n_value = i18n_input_field.value.trim();
+            // tmp         if (i18n_value === '' || i18n_value === '[]') {
+            // tmp             i18n_data = {};
+            // tmp             i18n_data[i18n] = {};
+            // tmp         } else {
+            // tmp             try {
+            // tmp                 i18n_data = JSON.parse(i18n_value);
+            // tmp             }
+            // tmp             catch (e) {
+            // tmp                 console.error(e);
+            // tmp                 i18n_data = {};
+            // tmp                 i18n_data[i18n] = {};
+            // tmp                 i18n_input_field.classList.add('sfui-red');
+            // tmp             }
+            // tmp         }
+            // tmp         if (!i18n_data[i18n]) i18n_data[i18n] = {};
+            // tmp         if (Array.isArray(i18n_data[i18n])) {
+            // tmp             i18n_data[i18n] = {};
+            // tmp         }
+            // tmp         
+            // tmp         var value = el.value;
+            // tmp         var type = el.type;
+            // tmp         if (type === 'checkbox') value = el.checked;
+            // tmp         if (type === 'radio') value = (tab.querySelector('[name="' + el.name + '"]:checked') ? tab.querySelector('[name="' + el.name + '"]:checked').value : '');
+            // tmp         if (value === true) value = "true";
+            // tmp         if (value === false) value = "false";
+            // tmp         if (el.tagName === 'TEXTAREA' && tinymce.get(el.id)) {
+            // tmp             value = tinymce.get(el.id).getContent();
+            // tmp         }
+        
+            // tmp         // Check if it was part of a repeater field
+            // tmp         var differentValueExists = false;
+            // tmp         if(el.closest('.sfui-repeater-item')){
+            // tmp             fields = el.closest('.sfui-repeater-item').querySelectorAll('[name]');
+            // tmp         }else{
+            // tmp             var fields = [];
+            // tmp             fields.push(el);
+            // tmp         }
+            // tmp         fields.forEach(field => {
+            // tmp             var fieldDefaultValue = field.nextElementSibling && field.nextElementSibling.className === 'sfui-original-i18n-value' ? field.nextElementSibling.value : null;
+            // tmp             if (field.name && field.value !== fieldDefaultValue && fieldDefaultValue !== null) {
+            // tmp                 differentValueExists = true;
+            // tmp             }
+            // tmp         });
+        
+            // tmp         if (differentValueExists) {
+            // tmp             i18n_data[i18n] = SUPER.ui.i18n.collectDataFromParents(i18n_data[i18n], el, value);
+            // tmp             console.log(JSON.stringify(i18n_data[i18n], null, 2));
+            // tmp         } else {
+            // tmp             // Use collectDataFromParents to delete fields correctly in nested structures
+            // tmp             i18n_data[i18n] = SUPER.ui.i18n.deleteFromParents(i18n_data[i18n], el);
+            // tmp         }
+        
+            // tmp         // Adjust the number of repeater items to match the count in i18n_data
+            // tmp         const repeaterKey = el.closest('[data-r]') ? el.closest('[data-r]').getAttribute('data-r') : null;
+            // tmp         if (repeaterKey && i18n_data[i18n][repeaterKey]) {
+            // tmp             const repeaterContainer = el.closest('[data-r]');
+            // tmp             const currentItems = repeaterContainer.querySelectorAll('.sfui-repeater-item');
+            // tmp             const targetCount = i18n_data[i18n][repeaterKey].length;
+        
+            // tmp             // Add missing items
+            // tmp             while (currentItems.length < targetCount) {
+            // tmp                 SUPER.ui.btn(event, repeaterContainer.querySelector('.add-repeater-item-btn'), 'addRepeaterItem', true);
+            // tmp                 repeaterItems = repeaterContainer.querySelectorAll('.sfui-repeater-item');
+            // tmp             }
+            // tmp             // Remove excess items
+            // tmp             while (currentItems.length > targetCount) {
+            // tmp                 SUPER.ui.btn(event, currentItems[currentItems.length - 1].querySelector('.delete-repeater-item-btn'), 'deleteRepeaterItem', true);
+            // tmp                 repeaterItems = repeaterContainer.querySelectorAll('.sfui-repeater-item');
+            // tmp             }
+            // tmp         }
+        
+            // tmp         i18n_input_field.value = JSON.stringify(i18n_data, undefined, 4);
+            // tmp     } else {
+            // tmp         // Update tab settings
+            // tmp         if (el.closest('.super-tab-triggers')) SUPER.update_trigger_settings(true);
+            // tmp         if (el.closest('.super-tab-woocommerce')) SUPER.update_woocommerce_settings(true);
+            // tmp         if (el.closest('.super-tab-listings')) SUPER.update_listings_settings(true);
+            // tmp         if (el.closest('.super-tab-pdf')) SUPER.update_pdf_settings(true);
+            // tmp         if (el.closest('.super-tab-stripe')) SUPER.update_stripe_settings(true);
+            // tmp     }
+            // tmp } else {
+            // tmp     // Update form settings
+            // tmp     SUPER.update_form_settings(true, el);
+            // tmp }
         },
 
         i18n: {
+            translating: false,
+            mainLanguage: '',
+            lastLanguage: '',
+            addDeleteAllowed: function(){
+                if(SUPER.ui.i18n.translating) return false;
+                return true;
+            },
             deleteFromParents: function(data, el){
                 var defaultValue = el.nextElementSibling && el.nextElementSibling.className === 'sfui-original-i18n-value' ? el.nextElementSibling.value : null;
                 let currentParent = el.parentElement;
@@ -474,6 +654,7 @@
             },
 
             collectDataFromParents: function(data, el, value){
+                var i18n = document.querySelector('.super-create-form').dataset.i18n;
                 var defaultValue = el.nextElementSibling && el.nextElementSibling.className === 'sfui-original-i18n-value' ? el.nextElementSibling.value : null;
                 let currentParent = el.parentElement;
                 let hasDataRorG = false;
@@ -512,7 +693,7 @@
                             }
                         }
         
-                        if (allTranslatableFieldsMatchDefault) {
+                        if (i18n && i18n!=='' && allTranslatableFieldsMatchDefault) {
                             delete data[key][index]; // Remove the item if all translatable fields match the default value
                         } else {
                             data[key][index] = item;
@@ -548,24 +729,47 @@
                     }
                 }
                 // Clean up the data object
-                SUPER.ui.i18n.cleanUpData(data);
+                data = SUPER.ui.i18n.removeEmpty(data);
                 return data;
             },
-            cleanUpData: function(data){
-                for (const key in data) {
-                    if (Array.isArray(data[key])) {
-                        data[key] = data[key].filter(item => item !== null);
-                        if (data[key].length === 0) {
-                            delete data[key];
+            removeEmpty: function(obj){
+                if (Array.isArray(obj)) {
+                    return obj
+                        .map(item => {
+                            return SUPER.ui.i18n.removeEmpty(item);
+                        })
+                        .filter(item => {
+                            return item !== undefined && (Array.isArray(item) ? item.length > 0 : Object.keys(item).length > 0);
+                        });
+                } else if (typeof obj === 'object' && obj !== null) {
+                    const newObj = {};
+                    Object.keys(obj).forEach(key => {
+                        const value = SUPER.ui.i18n.removeEmpty(obj[key]);
+                        if (value !== undefined && (Array.isArray(value) ? value.length > 0 : Object.keys(value).length > 0)) {
+                            newObj[key] = value;
                         }
-                    } else if (typeof data[key] === 'object' && data[key] !== null) {
-                        SUPER.ui.i18n.cleanUpData(data[key]);
-                        if (Object.keys(data[key]).length === 0) {
-                            delete data[key];
-                        }
-                    }
+                    });
+                    return Object.keys(newObj).length > 0 ? newObj : undefined;
                 }
+                return obj;
             },
+            // tmp const cleanedData = removeEmpty(data);
+            // tmp console.log(JSON.stringify(cleanedData, null, 2));
+            // tmp cleanUpData: function(data){
+            // tmp     for (const key in data) {
+            // tmp         if (Array.isArray(data[key])) {
+            // tmp             data[key] = data[key].filter(item => item !== null);
+            // tmp             if (data[key].length === 0) {
+            // tmp                 delete data[key];
+            // tmp             }
+            // tmp         } else if (typeof data[key] === 'object' && data[key] !== null) {
+            // tmp             SUPER.ui.i18n.cleanUpData(data[key]);
+            // tmp             if (Object.keys(data[key]).length === 0) {
+            // tmp                 delete data[key];
+            // tmp             }
+            // tmp         }
+            // tmp     }
+            // tmp },
             // Function to load image based on attachment ID
             reload_attachments: function(node){
                 if(node.value===''){
@@ -663,11 +867,11 @@
                 }
                 return keys;
             },
-            reset_original_value: function(){
+            restore_original_value: function(){
                 var i, nodes = document.querySelectorAll('.sfui-i18n [name]');
                 for(i=0; i<nodes.length; i++){
                     // Delete if exists 
-                    if(nodes[i].nextElementSibling && nodes[i].nextElementSibling.className==='sfui-original-i18n-value') {
+                    if(nodes[i].nextElementSibling && nodes[i].nextElementSibling.className==='sfui-original-i18n-value'){
                         // Set value to this again
                         if(nodes[i].tagName==='TEXTAREA' && tinymce.get(nodes[i].id)){
                             tinymce.get(nodes[i].id).setContent(nodes[i].nextElementSibling.value);
@@ -689,7 +893,7 @@
                         continue;
                     }
                 }
-            }
+            },
         }
     };
     SUPER.update_form_elements = function(string){
@@ -890,13 +1094,105 @@
             return SUPER.get_obj_value_by_key(obj[is[0]], is.slice(1), value);
         }
     };
-    SUPER.get_tab_settings = function(settings, slug, tab, data) {
-        var nodes, i, translating = false, i18n_data = null;
-        var i18n = document.querySelector('.super-create-form').dataset.i18n;
-        if (i18n && i18n !== '' && (slug === 'triggers' || slug === 'woocommerce' || slug === 'listings' || slug === 'pdf' || slug === 'stripe')) {
-            // Translating...
-            translating = true;
+    SUPER.get_tab_settings = function(settings, slug, tab, data){
+        var nodes, i, i18n_data = null, translating = false;
+        if(slug==='stripe'){
+            debugger;
         }
+        var i18n = document.querySelector('.super-create-form').dataset.i18n;
+        if(SUPER.ui.settings['_'+slug]){
+            // Get the current country flag
+            var flag = document.querySelector(':scope .super-tabs > .super-tab-builder > .flag');
+            // Remember the original value for translatable settings
+            if (typeof tab === 'undefined') {
+                tab = document.querySelector('.super-tab-content.super-tab-' + slug);
+            }
+            nodes = tab.querySelectorAll('.sfui-i18n [name]');
+            if(flag){
+                for(i = 0; i<nodes.length; i++){
+                    // Add the country flag next to the setting title to indicate translatable option
+                    var title = nodes[i].closest('label').querySelector('.sfui-title');
+                    if (title) {
+                        var cloneFlag = flag.cloneNode();
+                        cloneFlag.title = 'Translation for ' + (i18n ? i18n : 'main language');
+                        if (title.querySelector('.flag')) title.querySelector('.flag').remove();
+                        title.appendChild(cloneFlag);
+                    }
+                }
+            }
+            if(SUPER.ui.i18n.translating) {
+                for (i = 0; i < nodes.length; i++) {
+                    // Skip if already exists
+                    if (nodes[i].nextElementSibling && nodes[i].nextElementSibling.className === 'sfui-original-i18n-value') {
+                        continue;
+                    }
+                    if (nodes[i].type === 'textarea') {
+                        if (tinymce.get(nodes[i].id)) {
+                            var value = tinymce.get(nodes[i].id).getContent();
+                        } else {
+                            var value = nodes[i].value;
+                        }
+                        var field = document.createElement('textarea');
+                    } else {
+                        var value = nodes[i].value;
+                        if (nodes[i].type === 'checkbox') {
+                            value = nodes[i].checked ? 'true' : 'false';
+                        }
+                        var field = document.createElement('input');
+                        field.type = 'hidden';
+                    }
+                    field.value = value;
+                    field.className = 'sfui-original-i18n-value';
+                    field.style.display = 'none';
+                    nodes[i].parentNode.insertBefore(field, nodes[i].nextSibling);
+                }
+                // Populate fields with i18n data
+                debugger;
+                if(SUPER.ui.settings['_'+slug].i18n){
+                    var i18n_data = JSON.parse(JSON.stringify(SUPER.ui.settings['_'+slug].i18n));
+                    if(i18n_data[i18n]){
+                        for(i = 0; i < nodes.length; i++){
+                            debugger;
+                            var value = nodes[i].value;
+                            var translatedValue = SUPER.ui.i18n.getTranslatedValue(nodes[i], i18n_data, i18n);
+                            if(translatedValue!==null){
+                                k = nodes[i].name.split('.').pop();
+                                if(!i18n_data[k]){
+                                    if(nodes[i].tagName === 'TEXTAREA' && tinymce.get(nodes[i].id)){
+                                        i18n_data[k] = nodes[i].nextElementSibling.value;
+                                        tinymce.get(nodes[i].id).setContent(translatedValue);
+                                    } else {
+                                        if(nodes[i].type === 'checkbox'){
+                                            nodes[i].checked = (translatedValue === 'true');
+                                        }else{
+                                            if (nodes[i].value !== translatedValue) {
+                                                // Re-load attachment image preview
+                                                if (nodes[i].parentNode.closest('.sfui-setting').classList.contains('sfui-type-files')) {
+                                                    nodes[i].value = translatedValue;
+                                                    SUPER.ui.i18n.reload_attachments(nodes[i]);
+                                                }
+                                            }
+                                            nodes[i].value = translatedValue;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                // Reset remembered original value for translatable settings
+                if(slug==='stripe'){
+                    debugger;
+                }
+                SUPER.ui.i18n.restore_original_value();
+            }
+            return SUPER.ui.settings['_'+slug];
+        }
+        SUPER.ui.i18n.mainLanguage = (document.querySelector('.super-default-language .super-item.super-active') ? document.querySelector('.super-default-language .super-item.super-active').dataset.value : '');
+        //if(SUPER.ui.i18n.translating && (slug === 'triggers' || slug === 'woocommerce' || slug === 'listings' || slug === 'pdf' || slug === 'stripe')) {
+        //    translating = true;
+        //}
         var returnObj = false;
         if (typeof data === 'undefined') {
             data = {};
@@ -926,7 +1222,6 @@
             }
         }
         if (translating) {
-            if (slug === 'stripe') debugger;
             for (i = 0; i < nodes.length; i++) {
                 // Skip if already exists
                 if (nodes[i].nextElementSibling && nodes[i].nextElementSibling.className === 'sfui-original-i18n-value') {
@@ -955,45 +1250,47 @@
         } else {
             // Reset remembered original value for translatable settings
             if (!$('.super-create-form').hasClass('super-translation-mode')) {
-                SUPER.ui.i18n.reset_original_value();
+                SUPER.ui.i18n.restore_original_value();
             }
         }
     
         // Adjust the number of repeater items based on i18n_data
-        if (translating && slug === 'stripe' && tab.classList.contains('super-tab-content')){ 
-            debugger;
+        if (translating && slug === 'stripe' && tab.classList.contains('super-tab-content')){
             var p = tab;
             // Initialize i18n_data if not already done
-            if (i18n_data === null) {
-                var i18n_input_field = p.querySelector('[name="i18n"]');
-                var i18n_value = i18n_input_field.value.trim();
-                i18n_input_field.classList.remove('sfui-red');
-                if (i18n_value === '') {
-                    i18n_data = {};
-                    i18n_data[i18n] = {};
-                } else {
-                    try {
-                        i18n_data = JSON.parse(i18n_value);
-                        var changed = false;
-                        Object.keys(i18n_data).forEach(function(key) {
-                            if (Array.isArray(i18n_data[key])) {
-                                i18n_data[key] = {};
-                                changed = true;
-                            }
-                        });
-                        if (changed) {
-                            i18n_input_field.value = JSON.stringify(i18n_data, undefined, 4);
-                        }
-                    }
-                    catch (e) {
-                        console.error(e);
-                        i18n_data = {};
-                        i18n_data[i18n] = {};
-                        i18n_input_field.classList.add('sfui-red');
-                    }
-                }
+            // tmp if (i18n_data === null) {
+            // tmp     var i18n_input_field = p.querySelector('[name="i18n"]');
+            // tmp     var i18n_value = i18n_input_field.value.trim();
+            // tmp     i18n_input_field.classList.remove('sfui-red');
+            // tmp     if (i18n_value === '') {
+            // tmp         i18n_data = {};
+            // tmp         i18n_data[i18n] = {};
+            // tmp     } else {
+            // tmp         try {
+            // tmp             i18n_data = JSON.parse(i18n_value);
+            // tmp             var changed = false;
+            // tmp             Object.keys(i18n_data).forEach(function(key) {
+            // tmp                 if (Array.isArray(i18n_data[key])) {
+            // tmp                     i18n_data[key] = {};
+            // tmp                     changed = true;
+            // tmp                 }
+            // tmp             });
+            // tmp             if (changed) {
+            // tmp                 i18n_input_field.value = JSON.stringify(i18n_data, undefined, 4);
+            // tmp             }
+            // tmp         }
+            // tmp         catch (e) {
+            // tmp             console.error(e);
+            // tmp             i18n_data = {};
+            // tmp             i18n_data[i18n] = {};
+            // tmp             i18n_input_field.classList.add('sfui-red');
+            // tmp         }
+            // tmp     }
+            // tmp }
+            if(!SUPER.ui.settings['_'+slug].i18n){
+                SUPER.ui.settings['_'+slug].i18n = {};
             }
-    
+            i18n_data = SUPER.ui.settings['_'+slug].i18n;
             // Adjust repeater items based on i18n_data
             var repeaters = tab.querySelectorAll('[data-r]');
             repeaters.forEach(function(repeater) {
@@ -1004,21 +1301,18 @@
     
                     // Add missing items
                     while (repeaterItems.length < targetCount) {
-                        debugger;
-                        SUPER.ui.btn(event, repeater.querySelector('.add-repeater-item-btn'), 'addRepeaterItem');
+                        SUPER.ui.btn(event, repeater.querySelector('.add-repeater-item-btn'), 'addRepeaterItem', true);
                         repeaterItems = repeater.querySelectorAll('.sfui-repeater-item');
                     }
     
                     // Remove excess items
                     while (repeaterItems.length > targetCount) {
-                        debugger;
-                        SUPER.ui.btn(event, repeaterItems[repeaterItems.length - 1].querySelector('.delete-repeater-item-btn'), 'deleteRepeaterItem');
+                        SUPER.ui.btn(event, repeaterItems[repeaterItems.length - 1].querySelector('.delete-repeater-item-btn'), 'deleteRepeaterItem', true);
                         repeaterItems = repeater.querySelectorAll('.sfui-repeater-item');
                     }
                 }
             });
         }
-    
         // First grab all settings that are not inside a repeater element
         var i, k, nodes = tab.querySelectorAll('[data-g], [data-r], [name]');
         for (i = 0; i < nodes.length; i++) {
@@ -1171,9 +1465,83 @@
         for (i = 0; i < nodes.length; i++) {
             nodes[i].classList.remove('sf-processed');
         }
-        // Return settings
-        settings['_' + slug] = data;
-        return settings;
+        if(translating && data.i18n){
+            // Store i18n settings globally
+            SUPER.ui.settings['_' + slug].i18n[i18n] = data.i18n[i18n];
+        }else{
+            // Store settings globally
+            if(slug==='stripe' && SUPER.ui.i18n.lastLanguage!=='' && SUPER.ui.i18n.lastLanguage!==SUPER.ui.i18n.mainLanguage){
+                SUPER.ui.settings['_'+slug].i18n[SUPER.ui.i18n.lastLanguage] = data.i18n[SUPER.ui.i18n.lastLanguage];
+                data = SUPER.ui.settings['_'+slug];
+                // Adjust repeater items based on i18n_data
+                var repeaters = tab.querySelectorAll('[data-r]');
+                repeaters.forEach(function(repeater) {
+                    var key = repeater.getAttribute('data-r');
+                    if (data[key]) {
+                        var repeaterItems = repeater.querySelectorAll('.sfui-repeater-item');
+                        var targetCount = data[key].length;
+                        // Add missing items
+                        while (repeaterItems.length < targetCount) {
+                            SUPER.ui.btn(event, repeater.querySelector('.add-repeater-item-btn'), 'addRepeaterItem', true);
+                            repeaterItems = repeater.querySelectorAll('.sfui-repeater-item');
+                        }
+                        // Remove excess items
+                        while (repeaterItems.length > targetCount) {
+                            SUPER.ui.btn(event, repeaterItems[repeaterItems.length - 1].querySelector('.delete-repeater-item-btn'), 'deleteRepeaterItem', true);
+                            repeaterItems = repeater.querySelectorAll('.sfui-repeater-item');
+                        }
+                        // Restore values for main language
+                        repeater.querySelectorAll('.sfui-repeater-item').forEach((item, index) => {
+                            var itemValues = SUPER.ui.settings['_'+slug][key][index] || {};
+                            SUPER.ui.setRepeaterFieldValues(item, itemValues);
+                        });
+                        
+                        // repeater.querySelectorAll('.sfui-repeater-item').forEach((item, index) => {
+                        //     var itemValues = SUPER.ui.settings['_'+slug][key][index] || {};
+                        //     for (var fieldName in itemValues) {
+                        //         if (itemValues.hasOwnProperty(fieldName)) {
+                        //             var fieldValue = itemValues[fieldName];
+                        //             if (typeof fieldValue === 'object' && fieldValue !== null) {
+                        //                 // Handle nested objects
+                        //                 var nestedElement = item.querySelector(`[data-g="${fieldName}"]`);
+                        //                 if (nestedElement) {
+                        //                     for (var nestedFieldName in fieldValue) {
+                        //                         if (fieldValue.hasOwnProperty(nestedFieldName)) {
+                        //                             var nestedField = nestedElement.querySelector(`[name="${nestedFieldName}"]`);
+                        //                             if (nestedField) {
+                        //                                 console.log(`Setting value for nested field: ${nestedFieldName} to ${fieldValue[nestedFieldName]}`);
+                        //                                 nestedField.value = fieldValue[nestedFieldName];
+                        //                             } else {
+                        //                                 console.log(`Nested field not found: ${nestedFieldName}`);
+                        //                             }
+                        //                         }
+                        //                     }
+                        //                 } else {
+                        //                     console.log(`Nested element not found for field: ${fieldName}`);
+                        //                 }
+                        //             } else {
+                        //                 // Handle simple fields
+                        //                 var field = item.querySelector(`[name="${fieldName}"]`);
+                        //                 if (field) {
+                        //                     console.log(`Setting value for field: ${fieldName} to ${fieldValue}`);
+                        //                     field.value = fieldValue;
+                        //                 } else {
+                        //                     console.log(`Field not found: ${fieldName}`);
+                        //                 }
+                        //             }
+                        //         }
+                        //     }
+                        // });
+                    }
+                });
+            }else{
+                SUPER.ui.settings['_' + slug] = data;
+            }
+        }
+        // Return tab specific settings
+        return data;
+        //settings['_' + slug] = data;
+        //return settings;
     };
 //    SUPER.get_tab_settings = function(settings, slug, tab, data){
 //        var nodes, i, translating = false, i18n_data = null;
@@ -1211,7 +1579,6 @@
 //            }
 //        }
 //        if(translating){
-//            if(slug==='stripe') debugger;
 //            for(i=0; i<nodes.length; i++){
 //                // Skip if already exists
 //                if(nodes[i].nextElementSibling && nodes[i].nextElementSibling.className==='sfui-original-i18n-value') {
@@ -1240,7 +1607,7 @@
 //        }else{
 //            // Reset remembered original value for translatable settings
 //            if(!$('.super-create-form').hasClass('super-translation-mode')){
-//                SUPER.ui.i18n.reset_original_value();
+//                SUPER.ui.i18n.restore_original_value();
 //            }
 //        }
 //
@@ -1431,7 +1798,7 @@
     SUPER.get_trigger_settings = function(string){
         if(typeof string === 'undefined') string = false;
         var $s = SUPER.get_tab_settings({}, 'triggers');
-        $s = $s['_triggers']['triggers'];
+        $s = $s['triggers'];
         if(string===true) {
             if(!isEmpty($s)) return JSON.stringify($s, undefined, 4);
             return '';
@@ -1441,7 +1808,6 @@
     SUPER.get_woocommerce_settings = function(string){
         if(typeof string === 'undefined') string = false;
         var $s = SUPER.get_tab_settings({}, 'woocommerce');
-        $s = $s['_woocommerce'];
         if(string===true) {
             if(!isEmpty($s)) return JSON.stringify($s, undefined, 4);
             return '';
@@ -1451,7 +1817,6 @@
     SUPER.get_listings_settings = function(string){
         if(typeof string === 'undefined') string = false;
         var $s = SUPER.get_tab_settings({}, 'listings');
-        $s = $s['_listings'];
         if(string===true) {
             if(!isEmpty($s)) return JSON.stringify($s, undefined, 4);
             return '';
@@ -1461,7 +1826,6 @@
     SUPER.get_pdf_settings = function(string){
         if(typeof string === 'undefined') string = false;
         var $s = SUPER.get_tab_settings({}, 'pdf');
-        $s = $s['_pdf'];
         if(string===true) {
             if(!isEmpty($s)) return JSON.stringify($s, undefined, 4);
             return '';
@@ -1471,7 +1835,6 @@
     SUPER.get_stripe_settings = function(string){
         if(typeof string === 'undefined') string = false;
         var $s = SUPER.get_tab_settings({}, 'stripe');
-        $s = $s['_stripe'];
         if(string===true) {
             if(!isEmpty($s)) return JSON.stringify($s, undefined, 4);
             return '';
@@ -2783,25 +3146,26 @@
 
         // @since 4.9.0 - update form code manually
         $doc.on('click', '.super-update-raw-code', function () {
-            var html, notice, field, rawCodeNodes = {
-                rawCodeSelector: 'form-elements',
-                rawCodeSelector: 'form-settings',
-                rawCodeSelector: 'trigger-settings',
-                rawCodeSelector: 'woocommerce-settings',
-                rawCodeSelector: 'listings-settings',
-                rawCodeSelector: 'pdf-settings',
-                rawCodeSelector: 'stripe-settings',
-                rawCodeSelector: 'translation-settings'
-            };
+            var html, notice, field, rawCodeNodes = [
+                'form-elements',
+                'form-settings',
+                'trigger-settings',
+                'woocommerce-settings',
+                'listings-settings',
+                'pdf-settings',
+                'stripe-settings',
+                'translation-settings'
+            ];
             // Handle non-exception-throwing cases:
             // Neither JSON.parse(false) or JSON.parse(1234) throw errors, hence the type-checking,
             // but... JSON.parse(null) returns null, and typeof null === "object", 
             // so we must check for that, too. Thankfully, null is falsey, so this suffices:
-            Object.keys(rawCodeNodes).forEach(function(selector){
+            for(var i=0; i<rawCodeNodes.length; i++){
+                var selector = rawCodeNodes[i];
                 notice = document.querySelector('.super-raw-code-'+selector+' .sfui-notice');
                 field = document.querySelector('.super-raw-code-'+selector+' textarea');
                 try{
-                    (formElements!=='' ? JSON.parse(formElements) : {});
+                    (field.value!=='' ? JSON.parse(field.value) : {});
                 }catch(e){
                     html = '<strong>'+super_create_form_i18n.invalid_json+'</strong>';
                     html += '<br /><br />------<br />'+e+'<br />------<br /><br />';
@@ -2817,7 +3181,7 @@
                 notice.classList.remove('sfui-red');
                 notice.classList.add('sfui-yellow');
                 field.classList.remove('sfui-red');
-            });
+            }
             // Add loading state to button
             var button = this;
             var oldHtml = button.innerHTML;
@@ -3017,6 +3381,8 @@
                 $tab = $('.super-tabs .super-tab-builder'),
                 $initial_i18n = $('.super-preview-elements').attr('data-i18n');
 
+            SUPER.ui.i18n.lastLanguage = ($initial_i18n ? $initial_i18n : '');
+
             // Validate
             $row.find('.super-dropdown[data-name="language"], .super-dropdown[data-name="flag"]').removeClass('super-error');
             if (!$language.length || !$flag.length) {
@@ -3059,7 +3425,10 @@
                 // We were in builder mode, so let's activate translation mode and reload the form elements with the correct language
                 $('.super-create-form').addClass('super-translation-mode').attr('data-i18n', $language);
             }
-
+            SUPER.ui.i18n.translating = false;
+            if($i18n!==''){
+                SUPER.ui.i18n.translating = true;
+            }
             // Display loading icon, and hide all elements/settings
             $('.super-preview-elements, .super-form-settings').addClass('super-loading');
 
@@ -3095,6 +3464,33 @@
                             $('.super-preview-elements').html(data.elements);
                             SUPER.regenerate_element_inner();
                             $('.super-form-settings .super-elements-container').html(data.settings);
+                            // When switching from translating back to main language, restore the repeater items
+                            if($i18n===''){
+                                var slug = 'stripe';
+                                var tab = document.querySelector('.super-tab-stripe');
+                                if(typeof SUPER.ui.settings['_' + slug]!=='undefined' && slug === 'stripe'){
+                                    var x = SUPER.ui.settings['_'+slug];
+                                    // Adjust repeater items based on i18n_data
+                                    var repeaters = tab.querySelectorAll('[data-r]');
+                                    repeaters.forEach(function(repeater) {
+                                        var key = repeater.getAttribute('data-r');
+                                        if (x[key]) {
+                                            var repeaterItems = repeater.querySelectorAll('.sfui-repeater-item');
+                                            var targetCount = x[key].length;
+                                            // Add missing items
+                                            while (repeaterItems.length < targetCount) {
+                                                SUPER.ui.btn(event, repeater.querySelector('.add-repeater-item-btn'), 'addRepeaterItem', true);
+                                                repeaterItems = repeater.querySelectorAll('.sfui-repeater-item');
+                                            }
+                                            // Remove excess items
+                                            while (repeaterItems.length > targetCount) {
+                                                SUPER.ui.btn(event, repeaterItems[repeaterItems.length - 1].querySelector('.delete-repeater-item-btn'), 'deleteRepeaterItem', true);
+                                                repeaterItems = repeater.querySelectorAll('.sfui-repeater-item');
+                                            }
+                                        }
+                                    });
+                                }
+                            }
                             $('.super-preview-elements, .super-form-settings').removeClass('super-loading');
                         },
                         error: function () {
@@ -3148,7 +3544,7 @@
                         $language = $language.attr('data-value');
                         if ($language == $i18n) {
                             // Reset remembered original value for translatable settings
-                            SUPER.ui.i18n.reset_original_value();
+                            SUPER.ui.i18n.restore_original_value();
                             // Switch back to builder mode
                             $('.super-translation-mode-notice').hide();
                             $('.super-create-form').removeClass('super-translation-mode').attr('data-i18n', null);
@@ -3766,11 +4162,10 @@
         SUPER.update_element_update_data = function ($fields) {
             var $element = $('.super-element.editing');
             var $element_data;
-            var $translating = $('.super-create-form').hasClass('super-translation-mode');
             // Always get possible translation data from current element
             $element_data = JSON.parse($element.children('textarea[name="element-data"]').val());
             // Check if in translation mode
-            if ($translating) {
+            if (SUPER.ui.i18n.translating) {
                 // First grab current field data, then add the translation data
                 if (typeof $element_data.i18n === 'undefined' || $element_data.i18n.length === 0) {
                     $element_data.i18n = {};
@@ -3934,7 +4329,7 @@
                 group: $group,
                 builder: ($tag == 'tabs' ? $builder : 0),
                 data: $fields,
-                translating: $('.super-create-form').hasClass('super-translation-mode'),
+                translating: SUPER.ui.i18n.translating,
                 i18n: $i18n,
                 form_id: $('.super-create-form input[name="form_id"]').val()
             };
@@ -4127,7 +4522,7 @@
                 tag: $tag,
                 group: $group,
                 data: $data,
-                translating: $('.super-create-form').hasClass('super-translation-mode'),
+                translating: SUPER.ui.i18n.translating,
                 i18n: $('.super-preview-elements').attr('data-i18n')
             };
             params = $.param(params);
