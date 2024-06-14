@@ -9,6 +9,12 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Jun 14, 2024 - Version 6.4.008-beta
+
+- **Fix:** Correctly converting Calculator value to float for Stripe
+- **Fix:** PHP error in regards to conditionally checkouts for Stripe and other features
+- **Added:** PayPal option for Stripe checkout
+
 ## Jun 09, 2024 - Version 6.4.007-beta
 
 - **Fix:** Added `autocomplete="off"` for special fields to avoid issues in Firefox

@@ -1351,7 +1351,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                                 if($logic!==''){
                                     $f1 = SUPER_Common::email_tags($f1, $data, $settings);
                                     $f2 = SUPER_Common::email_tags($f2, $data, $settings);
-                                    $checkout = self::conditional_compare_check($f1, $logic, $f2);
+                                    $checkout = SUPER_Common::conditional_compare_check($f1, $logic, $f2);
                                 }
                             }
                         }
@@ -1367,7 +1367,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                                 $f1 = SUPER_Common::email_tags($s['f1'], $data, $settings);
                                 $logic = $s['logic'];
                                 $f2 = SUPER_Common::email_tags($s['f2'], $data, $settings);
-                                $checkout = self::conditional_compare_check($f1, $logic, $f2);
+                                $checkout = SUPER_Common::conditional_compare_check($f1, $logic, $f2);
                             }
                         }
                     }
