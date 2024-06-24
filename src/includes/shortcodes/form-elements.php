@@ -553,6 +553,15 @@ $array['form_elements'] = array(
                                 'true' => esc_html__( 'Enable auto suggest', 'super-forms' ),
                             )
                         ),
+                        'allow_custom_value' => array(
+                            'desc' => esc_html__( 'Enable this if you want users to be able to enter their own value', 'super-forms' ), 
+                            'default'=> ( !isset( $attributes['allow_custom_value'] ) ? '' : $attributes['allow_custom_value'] ),
+                            'type' => 'checkbox', 
+                            'filter'=>true,
+                            'values' => array(
+                                'true' => esc_html__( 'Allow users to enter their own value', 'super-forms' ),
+                            )
+                        ),
                         'filter_logic' => array(
                             'name' => esc_html__( 'Filter logic', 'super-forms' ), 
                             'default'=> ( !isset( $attributes['filter_logic'] ) ? 'contains' : $attributes['filter_logic'] ),
