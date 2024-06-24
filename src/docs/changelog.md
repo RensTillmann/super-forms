@@ -9,6 +9,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Jun 24, 2024 - Version 6.4.009-beta
+
+- **Added:** Option for Autosuggest field to allow users to enter their own values (from now on by default only the items provided can be choosen), optionally you can set the Validation to "Required" and allowing the field to be left empty if it is not required when left empty
+
 ## Jun 14, 2024 - Version 6.4.008-beta
 
 - **Fix:** Correctly converting Calculator value to float for Stripe

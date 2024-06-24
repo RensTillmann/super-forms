@@ -2449,6 +2449,15 @@
                 for(i = 0; i < nodes.length; i++){
                     nodes[i].classList.remove('super-open');
                 }
+                nodes = document.querySelectorAll('.super-string-found');
+                for(i = 0; i < nodes.length; i++){
+                    nodes[i].classList.remove('super-string-found');
+                    if(nodes[i].classList.contains('super-auto-suggest')){
+                        if(!nodes[i].querySelector('.super-item.super-active')){
+                            nodes[i].querySelector('.super-shortcode-field').value = '';
+                        }
+                    }
+                }
                 if(e.target.closest('.super-setting')){
                     if(e.target.classList.contains('super-dropdown-placeholder')){
                         e.target.parentNode.classList.add('super-focus');
@@ -2545,14 +2554,17 @@
         });
 
         // On choosing item, populate form with data
-        $doc.on('click', '.super-wc-order-search .super-field-wrapper:not(.super-overlap) .super-dropdown-list .super-item, .super-auto-suggest .super-field-wrapper:not(.super-overlap) .super-dropdown-list .super-item', function(){
-            
+        $doc.on('click', '.super-wc-order-search .super-field-wrapper:not(.super-overlap) .super-dropdown-list .super-item, .super-auto-suggest .super-field-wrapper:not(.super-overlap) .super-dropdown-list .super-item', function(e){
             var i, items,
                 wrapper = this.closest('.super-field-wrapper'),
                 parent = this.parentNode,
                 field = this.closest('.super-field'),
                 value = this.innerText,
-                populate = wrapper.querySelector('.super-shortcode-field').dataset.wcosp;
+                el = wrapper.querySelector('.super-shortcode-field'),
+                form = SUPER.get_frontend_or_backend_form({el: el}),
+                validation = el.dataset.validation,
+                conditionalValidation = el.dataset.conditionalValidation,
+                populate = el.dataset.wcosp;
 
             items = parent.querySelectorAll('.super-item.super-active');
             for( i = 0; i < items.length; i++ ) {
@@ -2565,9 +2577,9 @@
             field.classList.remove('super-string-found');
             wrapper.classList.add('super-overlap');
             field.classList.add('super-filled');
-            SUPER.after_field_change_blur_hook({el: wrapper.querySelector('.super-shortcode-field')});
+            SUPER.handle_validations({event: e, el: el, form: form, validation: validation, conditionalValidation: conditionalValidation});
+            SUPER.after_field_change_blur_hook({el: el});
             if(populate=='true'){
-                
                 SUPER.populate_form_data_ajax({el: field, clear: false});
             }
         });
@@ -2781,7 +2793,8 @@
                 var form = SUPER.get_frontend_or_backend_form({el: this}),
                     validation = this.dataset.validation,
                     conditionalValidation = this.dataset.conditionalValidation;
-                SUPER.handle_validations({el: this, form: form, validation: validation, conditionalValidation: conditionalValidation});
+                if(validation==='restrict_to_items') return;
+                SUPER.handle_validations({event: e, el: this, form: form, validation: validation, conditionalValidation: conditionalValidation});
                 SUPER.after_field_change_blur_hook({el: this});
             }
         });

@@ -3120,6 +3120,15 @@ class SUPER_Shortcodes {
         // Set validation to 'numeric' if field type was set to 'number'
         if($atts['type'] == 'number') $atts['validation'] = 'float';
 
+        // If auto suggest is enabled, and the option to allow custom values is not enabled,
+        // make sure to set the validation to `restrict_to_items`
+        if($atts['enable_auto_suggest']=='true'){
+            if(!isset($atts['allow_custom_value'])) $atts['allow_custom_value'] = '';
+            if($atts['allow_custom_value']!='true'){
+                $atts['validation'] = 'restrict_to_items';
+            }
+        }
+
         // @since 3.1.0 - google distance calculation between 2 addresses
         $data_attributes = '';
         $distance_calculator_class = '';
@@ -3199,7 +3208,7 @@ class SUPER_Shortcodes {
 
         // @since   1.2.4 - auto suggest feature
         if( !isset( $atts['enable_auto_suggest'] ) ) $atts['enable_auto_suggest'] = '';
-        $class = ($atts['enable_auto_suggest']=='true' ? ' super-auto-suggest' : '');
+        $class = ($atts['enable_auto_suggest']=='true' ? ' super-auto-suggest' : ''); 
 
         // @since   4.6.0 - wc order search
         if( !isset( $atts['wc_order_search'] ) ) $atts['wc_order_search'] = '';

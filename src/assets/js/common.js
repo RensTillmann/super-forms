@@ -3623,6 +3623,7 @@ function SUPERreCaptcha(){
 
     // Check for errors, validate fields
     SUPER.handle_validations = function(args){
+        if(args.event) console.log(args.event.type);
         if(args.el.closest('[data-conditional-action="show"]')){
             if(args.el.closest('[data-conditional-action="show"]').classList.contains('super-conditional-hidden')){
                 return false;
@@ -3637,8 +3638,17 @@ function SUPERreCaptcha(){
                 args.emptyValue = true;
             }
         }else{
-            if(args.el.value===''){
-                args.emptyValue = true;
+            // Currently used by autosuggest field only
+            if(args.validation=='restrict_to_items'){
+                // This validation will be used when an autosuggest does not have `Allow users to enter their own value` enabled
+                // We simply check if an item was selected
+                if(!args.el.parentNode.querySelector('.super-item.super-active')){
+                    args.emptyValue = true;
+                }
+            }else{
+                if(args.el.value===''){
+                    args.emptyValue = true;
+                }
             }
         }
         // @since   4.9.0 -  Conditional required fields
@@ -3699,6 +3709,22 @@ function SUPERreCaptcha(){
         }
         if (args.validation == 'captcha') {
             error = true;
+        }
+        if (args.validation == 'restrict_to_items') {
+            if((args.event && args.event.type!=='change') || !args.event){
+                // This validation will be used when an autosuggest does not have `Allow users to enter their own value` enabled
+                // We simply check if an item was selected
+                if(!args.el.parentNode.querySelector('.super-item.super-active')){
+                    args.el.parentNode.closest('.super-field').classList.remove('super-string-found');
+                    // No option was selected,, return error unless the field may be left empty
+                    // In that case, make sure to empty the value of the input field just in case someone typed something
+                    error = true;
+                    args.el.value = '';
+                    if(args.allowEmpty){
+                        error = false;
+                    }
+                }
+            }
         }
         if (args.validation == 'numeric') {
             regex = /^\d+$/;
