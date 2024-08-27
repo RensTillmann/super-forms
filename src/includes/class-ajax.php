@@ -68,7 +68,6 @@ class SUPER_Ajax {
             'populate_form_data'            => true,  // @since 2.2.0
             'search_wc_orders'              => true,
 
-            'calculate_distance'            => true,  // @since 3.1.0
             'restore_backup'                => false, // @since 3.1.0
             'delete_backups'                => false, // @since 3.1.0
 
@@ -834,47 +833,6 @@ class SUPER_Ajax {
         }
         die();
     }
-
-
-    /** 
-     *  Calculate distance between to places / zipcodes
-     *
-     *  @since      3.1.0
-    */
-    public static function calculate_distance() {
-        global $wpdb;
-        $units = sanitize_text_field($_POST['units']);
-        $url = 'https://maps.googleapis.com/maps/api/directions/json?';
-        $origin = sanitize_text_field($_POST['origin']);
-        $destination = sanitize_text_field($_POST['destination']);
-        $url .= 'origin=' . $origin . '&destination=' . $destination;
-        $global_settings = SUPER_Common::get_global_settings();
-        if( !empty($global_settings['form_google_places_api']) ) $url .= '&key=' . $global_settings['form_google_places_api'];
-        if( !empty($global_settings['google_maps_api_language']) ) $url .= '&language=' . $global_settings['google_maps_api_language'];
-        if( !empty($global_settings['google_maps_api_region']) ) $url .= '&region=' . $global_settings['google_maps_api_region'];
-        if($units=='imperial') $url .= '&units=imperial';
-        $response = wp_remote_get( $url, array('timeout'=>60) );
-        if ( is_wp_error( $response ) ) {
-            $error_message = $response->get_error_message();
-        }
-        $json = json_decode($response['body'], true);
-        if($json['status']!='OK'){
-            if($json['status']=='NOT_FOUND'){
-                $error_message = esc_html__( 'Address could not be found, please verify that the address was entered correctly.', 'super-forms' );
-            }else{
-                $error_message = $json['error_message'];
-            }
-        }
-        if(!empty($error_message)){
-            SUPER_Common::output_message( array(
-                'msg' => $error_message
-            ));
-        }else{
-            echo $response['body'];
-        }
-        die();
-    }
-
 
 
     /** 

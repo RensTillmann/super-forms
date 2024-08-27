@@ -1002,6 +1002,12 @@
                 finalrange = [],
                 $form_id,
                 $form_size;
+            
+            this.value = SUPER.update_variable_fields.replace_tags({form: form, regex: regex, value: this.value});
+            if(this.value.length===13){
+                // Convert timestamp to correct time format
+                this.value = SUPER.timestampTo24h(this.value);
+            }
 
             if(min==='') min = '00:00';
             if(max==='') max = '23:59';

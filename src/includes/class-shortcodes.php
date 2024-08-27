@@ -1522,6 +1522,10 @@ class SUPER_Shortcodes {
                     }
                 $result .= '</div>';
             }
+            // Special use-case for google API credentials.json
+            if(!empty($data['retrieve_method_google_sheet_credentials'])){
+                $data['retrieve_method_google_sheet_credentials'] = wp_unslash($data['retrieve_method_google_sheet_credentials']);
+            }
             $result .= '<textarea name="element-data">' . htmlentities( SUPER_Common::safe_json_encode( $data ), ENT_NOQUOTES | ENT_SUBSTITUTE | ENT_DISALLOWED ) . '</textarea>';
         $result .= '</div>';
         
@@ -1610,7 +1614,7 @@ class SUPER_Shortcodes {
         }
 
         if( !empty( $atts['tooltip'] ) ) $result .= ' title="' . esc_attr( stripslashes( $atts['tooltip'] ) ) . '"';
-        if( $tag=='text' || $tag=='hidden' ) {
+        if( $tag=='text' || $tag=='hidden' || $tag=='time') {
             $result .= self::conditional_variable_attributes( $atts );
         }
         if( $tag!='hidden' ) {
@@ -4315,6 +4319,7 @@ class SUPER_Shortcodes {
 
         $result .= '</div>';
         $result .= self::loop_conditions( $atts, $tag, $settings );
+        $result .= self::loop_variable_conditions( $atts );
         $result .= '</div>';
         return $result;
     }    

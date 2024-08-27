@@ -357,12 +357,14 @@ class SUPER_Common {
                         @setcookie( $cookieName, $id, $expires, COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );
                         if($update_option) {
                             update_option( '_sfsdata_' . $id, array('expires'=>$expires, 'exp_var'=>$exp_var), 'no' );
+                            wp_cache_delete('_sfsdata_' . $id, 'options');
                         }
                     }
                 }
             }else{
                 if($update_option) {
                     update_option( '_sfsdata_' . $id, array('expires'=>$expires, 'exp_var'=>$exp_var), 'no' );
+                    wp_cache_delete('_sfsdata_' . $id, 'options');
                 }
             }
         }else{
@@ -372,6 +374,7 @@ class SUPER_Common {
                 @setcookie( $cookieName, $id, $expires, COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );
                 if($update_option) {
                     update_option( '_sfsdata_' . $id, array('expires'=>$expires, 'exp_var'=>$exp_var), 'no' );
+                    wp_cache_delete('_sfsdata_' . $id, 'options');
                 }
             }
         }
@@ -422,6 +425,7 @@ class SUPER_Common {
                 if(count($clientData)<3){
                     // If empty, we can delete it, to clean it up
                     delete_option( '_sfsdata_' . $key );
+                    wp_cache_delete('_sfsdata_' . $key, 'options');
                     return;
                 }
             }
@@ -462,10 +466,12 @@ class SUPER_Common {
         }
         if(count($clientData)<3){
             delete_option( '_sfsdata_' . $key );
+            wp_cache_delete('_sfsdata_' . $key, 'options');
             return;
         }else{
             if($clientData['expires'] < $now){
                 delete_option( '_sfsdata_' . $key );
+                wp_cache_delete('_sfsdata_' . $key, 'options');
             }else{
                 if(!headers_sent()){
                     if($clientData['exp_var'] < $now){
@@ -483,6 +489,7 @@ class SUPER_Common {
             }
         }
         update_option( '_sfsdata_' . $key, $clientData, 'no' );
+        wp_cache_delete('_sfsdata_' . $key, 'options');
     }
 
     public static function getClientData( $name ) {
@@ -519,6 +526,7 @@ class SUPER_Common {
                 @setcookie( $cookieName, $key, $clientData['expires'], COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );
             }
             update_option( '_sfsdata_' . $key, $clientData, 'no' );
+            wp_cache_delete('_sfsdata_' . $key, 'options');
         }
         return $clientData[$name]['value'];
     }
@@ -2161,6 +2169,8 @@ class SUPER_Common {
                 foreach( $elements as $k => $v ) {
                     if( empty($v['data']) ) $v['data'] = null;
                     if( empty($v['inner']) ) $v['inner'] = null;
+                    error_log('TEST6');
+                    error_log(json_encode($v['data']));
                     $html .= SUPER_Shortcodes::output_builder_html( array('tag'=>$v['tag'], 'group'=>$v['group'], 'data'=>$v['data'], 'inner'=>$v['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings) );
                 }
             }         

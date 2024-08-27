@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.4.009
+ * Version:           6.4.010
  * Plugin URI:        http://super-forms.com
  * Author URI:        http://super-forms.com
  * Author:            WebRehab
@@ -43,7 +43,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '6.4.009';
+        public $version = '6.4.010';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -1551,6 +1551,7 @@ if(!class_exists('SUPER_Forms')) :
                 'elementor'=>SUPER_Forms()->common_i18n['elementor'],
                 'directions'=>SUPER_Forms()->common_i18n['directions'],
                 'errors'=>SUPER_Forms()->common_i18n['errors'],
+                'google'=>SUPER_Forms()->common_i18n['google'],
                 // @since 3.6.0 - google tracking
                 'ga_tracking' => ( !isset( $settings['form_ga_tracking'] ) ? "" : $settings['form_ga_tracking'] ),
                 'super_int_phone_utils' => SUPER_PLUGIN_FILE . 'assets/js/frontend/int-phone-utils.js'
@@ -1723,6 +1724,7 @@ if(!class_exists('SUPER_Forms')) :
             $this->load_plugin_textdomain();
 
             $failed_to_process_data = esc_html__( 'Failed to process data, check server error log and browser console for details!', 'super-forms' );
+            $global_settings = SUPER_Common::get_global_settings();
 
             // @since 3.2.0 - filter hook for javascrip translation string and other manipulation
             $this->common_i18n = apply_filters( 'super_common_i18n_filter', 
@@ -1760,7 +1762,16 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'distance_calculator' => array(
                             'zero_results' => esc_html__( 'Sorry, no distance could be calculated based on entered data. Please enter a valid address or zipcode.', 'super-forms' ),
-                            'error' => esc_html__( 'Something went wrong while calculating the distance.', 'super-forms' )
+                            'error' => esc_html__( 'Something went wrong while calculating the distance.', 'super-forms' ),
+                            'not_found' => esc_html__( 'Address could not be found, please verify that the address was entered correctly.', 'super-forms' )
+                        )
+                    ),
+                    'google' => array(
+                        'maps' => array(
+                            'api' => array(
+                                'language' => (!empty($global_settings['google_maps_api_language']) ? $global_settings['google_maps_api_language'] : ''),
+                                'region' => (!empty($global_settings['google_maps_api_region']) ? $global_settings['google_maps_api_region'] : '')
+                            )
                         )
                     ),
                     'monthNames' => array(
@@ -1848,7 +1859,6 @@ if(!class_exists('SUPER_Forms')) :
             // Add WooCommerce menu items?
             add_filter( 'woocommerce_account_menu_items', array( $this, 'add_custom_wc_my_account_menu_items' ), 10, 1 );
             add_filter( 'woocommerce_get_endpoint_url', array( $this, 'add_custom_wc_my_account_menu_item_endpoint' ), 10, 4 );
-            $global_settings = SUPER_Common::get_global_settings();
             if(empty($global_settings['wc_my_account_menu_items'])) $global_settings['wc_my_account_menu_items'] = '';
             $wc_my_account_menu_items = explode("\n", $global_settings['wc_my_account_menu_items']);
             foreach( $wc_my_account_menu_items as $v ) {
@@ -2111,6 +2121,7 @@ if(!class_exists('SUPER_Forms')) :
                         'elementor'=>$this->common_i18n['elementor'],
                         'directions'=>$this->common_i18n['directions'],
                         'errors'=>$this->common_i18n['errors'],
+                        'google'=>$this->common_i18n['google'],
                         // @since 3.6.0 - google tracking
                         'ga_tracking' => ( !isset( $global_settings['form_ga_tracking'] ) ? "" : $global_settings['form_ga_tracking'] ),
                         'super_int_phone_utils' => SUPER_PLUGIN_FILE . 'assets/js/frontend/int-phone-utils.js',
@@ -3045,6 +3056,13 @@ if(!class_exists('SUPER_Forms')) :
             $elements = get_post_meta( $id, '_super_elements', true );
             if( !is_array($elements) ) {
                 $elements = json_decode( $elements, true );
+            }
+            foreach($elements as $k => $v){
+                if(!empty($elements[$k]['data']['retrieve_method_google_sheet_credentials'])){
+                    error_log($elements[$k]['data']['retrieve_method_google_sheet_credentials']);
+                    $elements[$k]['data']['retrieve_method_google_sheet_credentials'] = wp_unslash($elements[$k]['data']['retrieve_method_google_sheet_credentials']);
+                    error_log($elements[$k]['data']['retrieve_method_google_sheet_credentials']);
+                }
             }
             add_post_meta( $new_id, '_super_elements', $elements );
             

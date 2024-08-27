@@ -56,6 +56,7 @@
     }
     SUPER.ui = {
         settings: {},
+        tmpSettings: {}, // used for translation mode only
         getTabFieldValue: function(el){
             // First get the field value
             var value = el.value;
@@ -180,6 +181,85 @@
                             }
                             i18n_input_field.value = JSON.stringify(i18n_data, undefined, 4);
                         }
+                    }else{
+                        // Not in translation mode, make sure to delete the corresponding index from the translated version for this repeater
+                        var tab = itemToDelete.closest('.super-tab-content');
+                        var slug = tab.className.replace('super-active', '').replace('super-tab-content', '').replace('super-tab-', '').split(' ').join('');
+                        var i18nObject = SUPER.ui.settings['_'+slug].i18n[i18n];
+                        var mainLanguageObject = SUPER.ui.settings['_'+slug];
+                        var keyPath = [];
+                        var parent = itemToDelete;
+                        // Traverse up to build the key path
+                        while (parent && parent !== tab) {
+                            if(parent.classList.contains('sfui-repeater-item')){
+                                var repeater = parent.parentElement;
+                                var index = Array.from(repeater.children).indexOf(parent);
+                                keyPath.unshift(index);
+                            } else if (parent.hasAttribute('data-g')) {
+                                keyPath.unshift(parent.getAttribute('data-g'));
+                            } else if (parent.hasAttribute('data-r')) {
+                                // Find the index of the current repeater item
+                                keyPath.unshift(parent.getAttribute('data-r')+'[]');
+                            }
+                            parent = parent.parentElement;
+                        }
+                        console.log(keyPath);
+                        //// Construct the nested object in i18nObject
+                        //var obj = i18nObject;
+                        //var objCompare = mainLanguageObject;
+                        //keyPath.forEach(key => {
+                        //    if(!isNaN(key)){
+                        //        if(!obj[key]) obj[key] = {};
+                        //        obj = obj[key];
+                        //        objCompare = objCompare[key];
+                        //        return;
+                        //    }else{
+                        //        var tmpKey = key.replace('[]','');
+                        //        if(!obj[tmpKey] && key.indexOf('[]')!==-1){
+                        //            obj[tmpKey] = [];
+                        //        }
+                        //        if(!obj[tmpKey]){
+                        //            obj[tmpKey] = [];
+                        //        }
+                        //        obj = obj[tmpKey];
+                        //        objCompare = objCompare[tmpKey];
+                        //        return;
+                        //    }
+                        //});
+                        //if(objCompare[lastKey]===value){
+                        //    // When this value equals the on from the main language delete it
+                        //    if(obj[lastKey]){
+                        //        delete obj[lastKey];
+                        //    }
+                        //}else{
+                        //    // Value is different, keep it
+                        //    obj[lastKey] = value;
+                        //}
+
+
+
+
+                        var p = repeater.closest('[data-g="data"]') ? repeater.closest('[data-g="data"]') : repeater.closest('.super-tab-content');
+                        var i18n_input_field = p.querySelector('[name="i18n"]');
+                        var i18n_value = i18n_input_field.value.trim();
+                        var i18n_data = i18n_value ? JSON.parse(i18n_value) : {};
+        
+                        var key = repeater.getAttribute('data-r');
+                        var index = Array.prototype.indexOf.call(repeaterItems, itemToDelete);
+        
+                        Object.keys(i18n_data).forEach(function(key){
+                            if(i18n_data[key]){
+                                //if (i18n_data[i18n] && i18n_data[i18n][key]) {
+                                //    i18n_data[i18n][key].splice(index, 1); // Remove the corresponding i18n data
+                                //    if (i18n_data[i18n][key].length === 0) {
+                                //        delete i18n_data[i18n][key]; // Remove the key if the array is empty
+                                //    }
+                                //    i18n_input_field.value = JSON.stringify(i18n_data, undefined, 4);
+                                //}
+                            }
+
+                        });
+
                     }
                     itemToDelete.remove();
                 }
@@ -368,14 +448,18 @@
             var i18n = document.querySelector('.super-create-form').dataset.i18n; 
             var tab = el.closest('.super-tab-content');
             var slug = tab.className.replace('super-active', '').replace('super-tab-content', '').replace('super-tab-', '').split(' ').join('');
+            if(slug==='triggers') {
+                debugger;
+            }
             // Check how many translatable fields there are
             var translatableFields = tab.querySelectorAll('.sfui-i18n [name]');
             if(i18n && i18n!=='' && translatableFields.length>0){
                 // Translating
-                var s = SUPER.get_stripe_settings();
+                //var s = SUPER.get_stripe_settings(false, true);
                 // Now that we have all the settings for this language, we will find all the translatable field and re-generate the i18n JSON for this language
-                console.log(s);
-                console.log(translatableFields);
+                //console.log(s);
+                //console.log(translatableFields);
+                if(!SUPER.ui.settings['_'+slug].i18n) SUPER.ui.settings['_'+slug].i18n = {};
                 if(!SUPER.ui.settings['_'+slug].i18n[i18n]) SUPER.ui.settings['_'+slug].i18n[i18n] = {};
                 var i18nObject = SUPER.ui.settings['_'+slug].i18n[i18n];
                 var mainLanguageObject = SUPER.ui.settings['_'+slug];
@@ -441,9 +525,9 @@
                 return;
             }else{
                 // Not translating or the tab doesn't have any translatable fields
-                var s = SUPER.get_stripe_settings();
-                console.log(s);
-                return;
+                //var s = SUPER.get_stripe_settings(false, true);
+                //console.log(s);
+                //return;
             }
 
             // First get the field value
@@ -458,7 +542,7 @@
             }
             if(!i18n || i18n===''){
                 // On main language, update normal settings
-                SUPER.ui.settings['_'+slug] = SUPER.ui.i18n.collectDataFromParents(SUPER.ui.settings['_'+slug], el, value);
+                SUPER.ui.settings['_'+slug] = SUPER.ui.i18n.collectDataFromParents(SUPER.ui.settings['_'+slug], el, value, slug, tab);
             }else{
                 // tmp // When we are in translation mode we must check if different value exists
                 // tmp if(!SUPER.ui.settings['_'+slug].i18n[i18n]) SUPER.ui.settings['_'+slug].i18n[i18n] = {};
@@ -653,7 +737,54 @@
                 return data;
             },
 
-            collectDataFromParents: function(data, el, value){
+            collectDataFromParents: function(data, el, value, slug, tab){
+                if(slug==='triggers'){
+                    debugger;
+                }
+                //if(!SUPER.ui.settings['_'+slug]) SUPER.ui.settings['_'+slug] = {};
+                var mainLanguageObject = data; // SUPER.ui.settings['_'+slug];
+                var field = el;
+                var value = SUPER.ui.getTabFieldValue(field);
+                var keyPath = [];
+                var parent = field.parentElement;
+                // Traverse up to build the key path
+                while (parent && parent !== tab) {
+                    if(parent.classList.contains('sfui-repeater-item')){
+                        var repeater = parent.parentElement;
+                        var index = Array.from(repeater.children).indexOf(parent);
+                        keyPath.unshift(index);
+                    } else if (parent.hasAttribute('data-g')) {
+                        keyPath.unshift(parent.getAttribute('data-g'));
+                    } else if (parent.hasAttribute('data-r')) {
+                        // Find the index of the current repeater item
+                        keyPath.unshift(parent.getAttribute('data-r')+'[]');
+                    }
+                    parent = parent.parentElement;
+                }
+                // Construct the nested object in i18nObject
+                var lastKey = field.name;
+                var obj = mainLanguageObject;
+                keyPath.forEach(key => {
+                    if(!isNaN(key)){
+                        if(!obj[key]) obj[key] = {};
+                        obj = obj[key];
+                        return;
+                    }else{
+                        var tmpKey = key.replace('[]','');
+                        if(!obj[tmpKey] && key.indexOf('[]')!==-1){
+                            obj[tmpKey] = [];
+                        }
+                        if(!obj[tmpKey]){
+                            obj[tmpKey] = [];
+                        }
+                        obj = obj[tmpKey];
+                        return;
+                    }
+                });
+                // Value is different, keep it
+                obj[lastKey] = value;
+
+
                 var i18n = document.querySelector('.super-create-form').dataset.i18n;
                 var defaultValue = el.nextElementSibling && el.nextElementSibling.className === 'sfui-original-i18n-value' ? el.nextElementSibling.value : null;
                 let currentParent = el.parentElement;
@@ -868,6 +999,7 @@
                 return keys;
             },
             restore_original_value: function(){
+                SUPER.ui.i18n.lastLanguage = SUPER.ui.i18n.mainLanguage;
                 var i, nodes = document.querySelectorAll('.sfui-i18n [name]');
                 for(i=0; i<nodes.length; i++){
                     // Delete if exists 
@@ -1094,11 +1226,9 @@
             return SUPER.get_obj_value_by_key(obj[is[0]], is.slice(1), value);
         }
     };
-    SUPER.get_tab_settings = function(settings, slug, tab, data){
-        var nodes, i, i18n_data = null, translating = false;
-        if(slug==='stripe'){
-            debugger;
-        }
+    SUPER.get_tab_settings = function(settings, slug, tab, data, returnData){
+        if(typeof returnData === 'undefined') returnData = false;
+        var nodes, i, i18n_data = null;
         var i18n = document.querySelector('.super-create-form').dataset.i18n;
         if(SUPER.ui.settings['_'+slug]){
             // Get the current country flag
@@ -1147,12 +1277,10 @@
                     nodes[i].parentNode.insertBefore(field, nodes[i].nextSibling);
                 }
                 // Populate fields with i18n data
-                debugger;
                 if(SUPER.ui.settings['_'+slug].i18n){
                     var i18n_data = JSON.parse(JSON.stringify(SUPER.ui.settings['_'+slug].i18n));
                     if(i18n_data[i18n]){
                         for(i = 0; i < nodes.length; i++){
-                            debugger;
                             var value = nodes[i].value;
                             var translatedValue = SUPER.ui.i18n.getTranslatedValue(nodes[i], i18n_data, i18n);
                             if(translatedValue!==null){
@@ -1183,16 +1311,25 @@
             } else {
                 // Reset remembered original value for translatable settings
                 if(slug==='stripe'){
-                    debugger;
+                    if(SUPER.ui.i18n.lastLanguage!=='' && SUPER.ui.i18n.lastLanguage!==SUPER.ui.i18n.mainLanguage){
+                        SUPER.ui.i18n.restore_original_value();
+                    }
+                }else{
+                    //SUPER.ui.i18n.restore_original_value();
                 }
-                SUPER.ui.i18n.restore_original_value();
             }
+            if(SUPER.ui.i18n.lastLanguage==='' || (SUPER.ui.i18n.lastLanguage!=='' && SUPER.ui.i18n.lastLanguage!==SUPER.ui.i18n.mainLanguage)){
+                // Do not return settings, instead update
+            }else{
+                if(returnData){
+                    return SUPER.ui.settings['_'+slug];
+                }
+            }
+        }
+        if(returnData){
             return SUPER.ui.settings['_'+slug];
         }
         SUPER.ui.i18n.mainLanguage = (document.querySelector('.super-default-language .super-item.super-active') ? document.querySelector('.super-default-language .super-item.super-active').dataset.value : '');
-        //if(SUPER.ui.i18n.translating && (slug === 'triggers' || slug === 'woocommerce' || slug === 'listings' || slug === 'pdf' || slug === 'stripe')) {
-        //    translating = true;
-        //}
         var returnObj = false;
         if (typeof data === 'undefined') {
             data = {};
@@ -1221,7 +1358,7 @@
                 }
             }
         }
-        if (translating) {
+        if(SUPER.ui.i18n.translating) {
             for (i = 0; i < nodes.length; i++) {
                 // Skip if already exists
                 if (nodes[i].nextElementSibling && nodes[i].nextElementSibling.className === 'sfui-original-i18n-value') {
@@ -1249,13 +1386,14 @@
             }
         } else {
             // Reset remembered original value for translatable settings
-            if (!$('.super-create-form').hasClass('super-translation-mode')) {
+            if(SUPER.ui.i18n.lastLanguage!=='' && SUPER.ui.i18n.lastLanguage!==SUPER.ui.i18n.mainLanguage){
+                //if (!$('.super-create-form').hasClass('super-translation-mode')) {
                 SUPER.ui.i18n.restore_original_value();
             }
         }
     
         // Adjust the number of repeater items based on i18n_data
-        if (translating && slug === 'stripe' && tab.classList.contains('super-tab-content')){
+        if (SUPER.ui.i18n.translating && slug === 'stripe' && tab.classList.contains('super-tab-content')){
             var p = tab;
             // Initialize i18n_data if not already done
             // tmp if (i18n_data === null) {
@@ -1341,7 +1479,7 @@
             if (nodes[i].name) {
                 // is field
                 // first check if we are in translation mode
-                if (translating && nodes[i].closest('.sfui-setting').classList.contains('sfui-i18n')) {
+                if (SUPER.ui.i18n.translating && nodes[i].closest('.sfui-setting').classList.contains('sfui-i18n')) {
                     // Try to grab existing translated string
                     if (i18n_data === null) {
                         var p = (nodes[i].closest('[data-g="data"]') ? nodes[i].closest('[data-g="data"]') : nodes[i].closest('.super-tab-content'));
@@ -1465,7 +1603,7 @@
         for (i = 0; i < nodes.length; i++) {
             nodes[i].classList.remove('sf-processed');
         }
-        if(translating && data.i18n){
+        if(SUPER.ui.i18n.translating && data.i18n){
             // Store i18n settings globally
             SUPER.ui.settings['_' + slug].i18n[i18n] = data.i18n[i18n];
         }else{
@@ -1795,9 +1933,10 @@
 //        settings['_'+slug] = data;
 //        return settings;
 //    }
-    SUPER.get_trigger_settings = function(string){
+    SUPER.get_trigger_settings = function(string, returnData){
         if(typeof string === 'undefined') string = false;
-        var $s = SUPER.get_tab_settings({}, 'triggers');
+        if(typeof returnData === 'undefined') returnData = false;
+        var $s = SUPER.get_tab_settings({}, 'triggers', undefined, undefined, returnData);
         $s = $s['triggers'];
         if(string===true) {
             if(!isEmpty($s)) return JSON.stringify($s, undefined, 4);
@@ -1823,18 +1962,20 @@
         }
         return $s;
     };
-    SUPER.get_pdf_settings = function(string){
+    SUPER.get_pdf_settings = function(string, returnData){
         if(typeof string === 'undefined') string = false;
-        var $s = SUPER.get_tab_settings({}, 'pdf');
+        if(typeof returnData === 'undefined') returnData = false;
+        var $s = SUPER.get_tab_settings({}, 'pdf', undefined, undefined, returnData);
         if(string===true) {
             if(!isEmpty($s)) return JSON.stringify($s, undefined, 4);
             return '';
         }
         return $s;
     };
-    SUPER.get_stripe_settings = function(string){
+    SUPER.get_stripe_settings = function(string, returnData){
         if(typeof string === 'undefined') string = false;
-        var $s = SUPER.get_tab_settings({}, 'stripe');
+        if(typeof returnData === 'undefined') returnData = false;
+        var $s = SUPER.get_tab_settings({}, 'stripe', undefined, undefined, returnData);
         if(string===true) {
             if(!isEmpty($s)) return JSON.stringify($s, undefined, 4);
             return '';
@@ -2068,6 +2209,7 @@
         $elements = SUPER.get_form_elements(true);
         SUPER.update_form_settings(true);
         SUPER.update_trigger_settings(true);
+        SUPER.update_pdf_settings(true);
         SUPER.update_stripe_settings(true);
         SUPER.update_translation_settings(true);
         document.querySelector('.super-raw-code-form-elements > textarea').value = $elements;
@@ -2676,6 +2818,7 @@
             params.i18n_disable_browser_translation = ($('.super-i18n-disable-browser-translation').hasClass('super-active') ? 'true' : 'false');
             params.i18n_switch = ($('.super-i18n-switch').hasClass('super-active') ? 'true' : 'false'); // @since 4.7.0 translation
         }
+        console.log(SUPER.ui.settings);
         // @since 4.9.6 - Secrets
         var localSecrets = [], 
             globalSecrets = [],
@@ -3374,6 +3517,7 @@
         });
         // edit translation
         $doc.on('click', '.super-translations-list .super-edit', function () {
+            console.log(SUPER.ui.settings);
             var $row = $(this).parent(),
                 $language = $row.find('.super-dropdown[data-name="language"] .super-active'),
                 $language_title = $language.html(),
@@ -3443,7 +3587,9 @@
             // This will prevent loading "old" / "unsaved" form elements and settings
             clearTimeout(SUPER.new_version_check);
             SUPER.before_save_form(function(){
+                console.log(SUPER.ui.settings);
                 SUPER.save_form($('.super-actions .super-save'), 3, $(this), $initial_i18n, function ($button) {
+                    console.log(SUPER.ui.settings);
                     clearTimeout(SUPER.new_version_check);
                     SUPER.new_version_check = setTimeout(function(){
                         checkNewerForVersion();
@@ -3460,9 +3606,11 @@
                             i18n: $i18n
                         },
                         success: function (data) {
+                            console.log(SUPER.ui.settings);
                             data = JSON.parse(data);
                             $('.super-preview-elements').html(data.elements);
                             SUPER.regenerate_element_inner();
+                            console.log(SUPER.ui.settings);
                             $('.super-form-settings .super-elements-container').html(data.settings);
                             // When switching from translating back to main language, restore the repeater items
                             if($i18n===''){
@@ -3497,6 +3645,7 @@
                             alert(super_create_form_i18n.export_form_error);
                         },
                         complete: function () {
+                            console.log(SUPER.ui.settings);
                             SUPER.init_slider_field();
                             SUPER.init_tooltips();
                             SUPER.init_docs();

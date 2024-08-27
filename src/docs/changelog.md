@@ -9,6 +9,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Jul 12, 2024 - Version 6.4.010-beta
+
+- **Fix:** When calculating distance/duration between two places, the API will now be called from the client side instead of server side to avoid the referrer/IP restriction conflict causing a API error from Google when using the referrer or IP restriction for the API key.
+
 ## Jun 24, 2024 - Version 6.4.009-beta
 
 - **Added:** Option for Autosuggest field to allow users to enter their own values (from now on by default only the items provided can be choosen), optionally you can set the Validation to "Required" and allowing the field to be left empty if it is not required when left empty
