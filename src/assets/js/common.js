@@ -1195,13 +1195,7 @@ function SUPERreCaptcha(){
                 $destination,
                 $destination2,
                 $value,
-                $units,
-                $result,
-                $leg,
-                $field,
-                $calculation_value,
-                $html,
-                $alert_msg;
+                $units;
             if($method=='start'){
                 $origin_field = args.el;
                 $origin = args.el.value;
@@ -1251,161 +1245,80 @@ function SUPERreCaptcha(){
             }
             distance_calculator_timeout = setTimeout(function () {
                 args.el.closest('.super-field-wrapper').classList.add('super-calculating-distance');
-
                 if($origin!=='' && $destination!==''){
-                    $.ajax({
-                        url: super_common_i18n.ajaxurl,
-                        type: 'post',
-                        data: {
-                            action: 'super_calculate_distance',
-                            units: $units,
-                            origin: $origin,
-                            destination: $destination
-                        },
-                        success: function (result) {
-                            $result = JSON.parse(result);
-                            if($result.status=='OK'){
-                                $leg = $result.routes[0].legs[0];
-                                $field = $origin_field.dataset.distanceField;
-                                // distance  - Distance in meters
-                                if( $value=='distance' ) {
-                                    $calculation_value = $leg.distance.value;
-                                }
-                                // dis_text  - Distance text in km or miles
-                                if( $value=='dis_text' ) {
-                                    $calculation_value = $leg.distance.text;
-                                }
-                                // duration  - Duration in seconds
-                                if( $value=='duration' ) {
-                                    $calculation_value = $leg.duration.value;
-                                }
-                                // dur_text  - Duration text in minutes
-                                if( $value=='dur_text' ) {
-                                    $calculation_value = $leg.duration.text;
-                                }
-                                $field = SUPER.field(form, $field);
-                                $field.value = $calculation_value;
-                                if($calculation_value===''){
-                                    $field.closest('.super-shortcode').classList.remove('super-filled');
-                                }else{
-                                    $field.closest('.super-shortcode').classList.add('super-filled');
-                                }
-                                SUPER.after_field_change_blur_hook({el: $field});
-                            }else{
-                                if($result.status=='ZERO_RESULTS'){
-                                    $alert_msg = super_common_i18n.errors.distance_calculator.zero_results;
-                                }else{
-                                    if($result.status=='OVER_QUERY_LIMIT'){
-                                        $alert_msg = $result.error_message;
-                                    }else{
-                                        if($result.error===true){
-                                            $alert_msg = $result.msg;
-                                        }else{
-                                            $alert_msg = super_common_i18n.errors.distance_calculator.error;
-                                        }
-                                    }
-                                }
-                                $('.super-msg').remove();
-                                $result = JSON.parse(result);
-                                $html = '<div class="super-msg super-error">';                            
-                                $origin_field.blur();
-                                if(typeof $destination_field !== 'undefined') $destination_field.blur();
-                                $html += $alert_msg;
-                                $html += '<span class="super-close"></span>';
-                                $html += '</div>';
-                                $($html).prependTo($(form));
-                                SUPER.scrollToElement(form);
-                            }
-                        },
-                        complete: function(){
-                            args.el.closest('.super-field-wrapper').classList.remove('super-calculating-distance');
-                        },
-                        error: function (xhr, ajaxOptions, thrownError) {
-                            // eslint-disable-next-line no-console
-                            console.log(xhr, ajaxOptions, thrownError);
-                            alert(super_common_i18n.errors.failed_to_process_data);
-                        }
-                    });
+                    SUPER.calculateDistance(args, form, $value, $origin, $destination, $units, $origin_field, $destination_field, $destination_field2, 1);
                 }
-
-                if($method=='both' && ($destination!=='' && $destination2!=='')) {
-                    $.ajax({
-                        url: super_common_i18n.ajaxurl,
-                        type: 'post',
-                        data: {
-                            action: 'super_calculate_distance',
-                            units: $units,
-                            origin: $destination,
-                            destination: $destination2
-                        },
-                        success: function (result) {
-                            $result = JSON.parse(result);
-                            if($result.status=='OK'){
-                                $leg = $result.routes[0].legs[0];
-                                $field = $destination_field.dataset.distanceField;
-                                // distance  - Distance in meters
-                                if( $value=='distance' ) {
-                                    $calculation_value = $leg.distance.value;
-                                }
-                                // dis_text  - Distance text in km or miles
-                                if( $value=='dis_text' ) {
-                                    $calculation_value = $leg.distance.text;
-                                }
-                                // duration  - Duration in seconds
-                                if( $value=='duration' ) {
-                                    $calculation_value = $leg.duration.value;
-                                }
-                                // dur_text  - Duration text in minutes
-                                if( $value=='dur_text' ) {
-                                    $calculation_value = $leg.duration.text;
-                                }
-                                $field = SUPER.field(form, $field);
-                                $field.value = $calculation_value;
-                                if($calculation_value===''){
-                                    $field.closest('.super-shortcode').classList.remove('super-filled');
-                                }else{
-                                    $field.closest('.super-shortcode').classList.add('super-filled');
-                                }
-                                SUPER.after_field_change_blur_hook({el: $field});
-                            }else{
-                                if($result.status=='ZERO_RESULTS'){
-                                    $alert_msg = super_common_i18n.errors.distance_calculator.zero_results;
-                                }else{
-                                    if($result.status=='OVER_QUERY_LIMIT'){
-                                        $alert_msg = $result.error_message;
-                                    }else{
-                                        if($result.error===true){
-                                            $alert_msg = $result.msg;
-                                        }else{
-                                            $alert_msg = super_common_i18n.errors.distance_calculator.error;
-                                        }
-                                    }
-                                }
-                                $('.super-msg').remove();
-                                $result = JSON.parse(result);
-                                $html = '<div class="super-msg super-error">';                            
-                                $destination_field.blur();
-                                if(typeof $destination_field2 !== 'undefined') $destination_field2.blur();
-                                $html += $alert_msg;
-                                $html += '<span class="super-close"></span>';
-                                $html += '</div>';
-                                $($html).prependTo($(form));
-                                SUPER.scrollToElement(form);
-                            }
-                        },
-                        complete: function(){
-                            args.el.closest('.super-field-wrapper').classList.remove('super-calculating-distance');
-                        },
-                        error: function (xhr, ajaxOptions, thrownError) {
-                            // eslint-disable-next-line no-console
-                            console.log(xhr, ajaxOptions, thrownError);
-                            alert(super_common_i18n.errors.failed_to_process_data);
-                        }
-                    });
+                if($method=='both' && ($destination!=='' && $destination2!=='')){
+                    SUPER.calculateDistance(args, form, $value, $destination, $destination2, $units, $origin_field, $destination_field, $destination_field2, 2);
                 }
-                
-
             }, 1000);
+        }
+    };
+    SUPER.calculateDistance = async function(args, form, value, origin, destination, units, origin_field, destination_field, destination_field2, type){
+        try {
+            if(!SUPER.DistanceMatrixService) SUPER.DistanceMatrixService = new google.maps.DistanceMatrixService();
+            SUPER.DistanceMatrixService.getDistanceMatrix({
+                origins: [origin],
+                destinations: [destination],
+                travelMode: google.maps.TravelMode.DRIVING,
+                unitSystem: (units === 'imperial' ? google.maps.UnitSystem.IMPERIAL : google.maps.UnitSystem.METRIC),
+                language: super_common_i18n.google.maps.api.language,
+                region: super_common_i18n.google.maps.api.region
+              }, function(response, status){
+                if(status !== google.maps.DistanceMatrixStatus.OK){
+                  alert('Google API Distance Matrix Error: ' + status);
+                  console.error(respons);
+                } else {
+                    var $leg, $calculation_value;
+                    $('.super-msg').remove();
+                    if(response.rows[0] && response.rows[0].elements[0].status===google.maps.DistanceMatrixStatus.OK){
+                        $leg = response.rows[0].elements[0];
+                        var $field = origin_field.dataset.distanceField;
+                        // distance  - Distance in meters
+                        if( value=='distance' ) $calculation_value = $leg.distance.value;
+                        // dis_text  - Distance text in km or miles
+                        if( value=='dis_text' ) $calculation_value = $leg.distance.text;
+                        // duration  - Duration in seconds
+                        if( value=='duration' ) $calculation_value = $leg.duration.value;
+                        // dur_text  - Duration text in minutes
+                        if( value=='dur_text' ) $calculation_value = $leg.duration.text;
+                        $field = SUPER.field(form, $field);
+                        $field.value = $calculation_value;
+                        if($calculation_value===''){
+                            $field.closest('.super-shortcode').classList.remove('super-filled');
+                        }else{
+                            $field.closest('.super-shortcode').classList.add('super-filled');
+                        }
+                        SUPER.after_field_change_blur_hook({el: $field});
+                    }else{
+                        $leg = response.rows[0].elements[0];
+                        if($leg.status==='ZERO_RESULTS') return;
+                        if($leg.status==='NOT_FOUND') {
+                            var $alert_msg = super_common_i18n.errors.distance_calculator.not_found;
+                        }else{
+                            // INVALID_REQUEST // MAX_DIMENSIONS_EXCEEDED // MAX_ELEMENTS_EXCEEDED // OK // OVER_QUERY_LIMIT // REQUEST_DENIED // UNKNOWN_ERROR
+                            var $alert_msg = super_common_i18n.errors.distance_calculator.error+' ('+$leg.status+')';
+                        }
+                        var $html = '<div class="super-msg super-error">';                            
+                        if(type===1){
+                            origin_field.blur();
+                            if(typeof destination_field !== 'undefined') destination_field.blur();
+                        }else{
+                            destination_field.blur();
+                            if(typeof destination_field2 !== 'undefined') destination_field2.blur();
+                        }
+                        $html += $alert_msg;
+                        $html += '<span class="super-close"></span>';
+                        $html += '</div>';
+                        $($html).prependTo($(form));
+                        SUPER.scrollToElement(form);
+                    }
+                    args.el.closest('.super-field-wrapper').classList.remove('super-calculating-distance');
+                }
+            });
+        }catch(error){
+            console.error('Error fetching data:', error);
+            alert(super_common_i18n.errors.distance_calculator.error);
         }
     };
 
@@ -1935,6 +1848,9 @@ function SUPERreCaptcha(){
                                                         args.value = v.n;
                                                         v.n = SUPER.update_variable_fields.replace_tags(args);
                                                     }
+                                                    if($field.classList.contains('super-timepicker') && v.n.length===13){
+                                                        v.n = SUPER.timestampTo24h(v.n);
+                                                    } 
                                                     $field.value = v.n;
                                                 }else{
                                                     // @important - we must check if changed field is undefined
@@ -1955,6 +1871,9 @@ function SUPERreCaptcha(){
                                                         args.value = v.n;
                                                         v.n = SUPER.update_variable_fields.replace_tags(args);
                                                     }
+                                                    if($field.classList.contains('super-timepicker') && v.n.length===13){
+                                                        v.n = SUPER.timestampTo24h(v.n);
+                                                    } 
                                                     $field.value = v.n;
                                                 }else{
                                                     // @important - we must check if changed field is undefined
@@ -2747,6 +2666,18 @@ function SUPERreCaptcha(){
             }
         }
     };
+    SUPER.timestampTo24h = function(value){
+        var ts = Number(value);
+        try{
+            var date = new Date(ts);
+            var hours = date.getUTCHours().toString().padStart(2, '0');
+            var minutes = date.getUTCMinutes().toString().padStart(2, '0');
+            return hours+':'+minutes;
+        }catch(error){
+            console.error(error);
+            return value;
+        }
+    }
 
     // @since 3.0.0 - replace variable field {tags} with actual field values
     SUPER.update_variable_fields.replace_tags = function(args){
@@ -3257,6 +3188,9 @@ function SUPERreCaptcha(){
                         }
                         if( ($value_type=='int') && (isNaN($value)) ) {
                             $value = $default_value;
+                        }
+                        if( $value_n==='24h' && $value.length===13){
+                            $value = SUPER.timestampTo24h($value);
                         }
                         args.value = args.value.replace('{'+$old_name+'}', $value);
                         SUPER.beforeReturnReplacedTagValue(args, formId, $name, indexMapping, args.value);
@@ -5695,6 +5629,7 @@ function SUPERreCaptcha(){
             }else{
                 thisAutocomplete.el.value = place.formatted_address;
             }
+            SUPER.handle_validations({el: thisAutocomplete.el, form: thisAutocomplete.form});
             SUPER.calculate_distance({el: thisAutocomplete.el});
 
             var street_data = {

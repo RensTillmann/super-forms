@@ -2621,7 +2621,6 @@ if(!class_exists('SUPER_Stripe')) :
                                         )
                                     )
                                 ),
-
                                 array(
                                     'wrap' => false,
                                     'group' => true,
@@ -2642,7 +2641,6 @@ if(!class_exists('SUPER_Stripe')) :
                                         )
                                     )
                                 )
-
                             ),
 
                             // [optional] The shipping rate options to apply to this Session.

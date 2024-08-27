@@ -3177,6 +3177,7 @@ $array['form_elements'] = array(
                         'icon' => SUPER_Shortcodes::icon($attributes,''),
                     ),
                 ),
+                'conditional_variable' => $conditional_variable_array,
                 'conditional_logic' => $conditional_logic_array
             ),
         ),

@@ -149,14 +149,16 @@ if(!class_exists('SUPER_PDF_Generator')) :
                                             'title' => esc_html__( 'PDF filename', 'super-forms' ),
                                             'subline' => esc_html__( 'use {tags} if needed', 'super-forms' ),
                                             'type' => 'text',
-                                            'default' => 'form.pdf'
+                                            'default' => 'form.pdf',
+                                            'i18n' => true
                                         ),
                                         array(
                                             'name' => 'emailLabel',
                                             'title' => esc_html__( 'E-mail label', 'super-forms' ),
                                             'subline' => esc_html__( 'use {tags} if needed', 'super-forms' ),
                                             'type' => 'text',
-                                            'default' => 'PDF file'
+                                            'default' => 'PDF file',
+                                            'i18n' => true
                                         ),
                                         array(
                                             'name' => 'adminEmail',
@@ -200,7 +202,8 @@ if(!class_exists('SUPER_PDF_Generator')) :
                                             'title' => esc_html__( 'Generating text', 'super-forms' ),
                                             'subline' => esc_html__( 'Text displayed to the user while the PDF file is being generated', 'super-forms' ),
                                             'type' => 'text',
-                                            'default' => 'Generating PDF file...'
+                                            'default' => 'Generating PDF file...',
+                                            'i18n' => true
                                         )
                                     )
                                 ),
@@ -360,6 +363,7 @@ if(!class_exists('SUPER_PDF_Generator')) :
                                             'subline' => esc_html__( 'Or leave blank to use the default Latin (Roman) script', 'super-forms' ),
                                             'type' => 'text',
                                             'default' => 'latin',
+                                            'i18n' => true,
                                             'accepted_values' => array(
                                                 array('v'=>'latin', 'i'=>'(default)'), 
                                                 array('v'=>'greek'), // greek
@@ -422,6 +426,26 @@ if(!class_exists('SUPER_PDF_Generator')) :
                                             'subline' => esc_html__( 'The recommended render scale is between 1 and 3, the default scale is 2.', 'super-forms' ),
                                             'type' => 'text',
                                             'accepted_values' => array(array('v'=>'0.5'), array('v'=>'1'), array('v'=>'2.5'), array('v'=>'2', 'i'=>'(default)'), array('v'=>'3'))
+                                        )
+                                    )
+                                ),
+                                array(
+                                    'wrap' => false,
+                                    'group' => true,
+                                    'vertical' => true,
+                                    'nodes' => array(
+                                        array(
+                                            'toggle' => true,
+                                            'title' => esc_html__( 'Translations (raw)', 'super-forms' ),
+                                            'notice' => 'hint', // hint/info
+                                            'content' => esc_html__( 'Although you can edit existing translated strings below, you may find it easier to use the [Translations] tab instead.', 'super-forms' ),
+                                            'nodes' => array(
+                                                array(
+                                                    'name' => 'i18n',
+                                                    'type' => 'textarea',
+                                                    'default' => ''
+                                                )
+                                            )
                                         )
                                     )
                                 )
