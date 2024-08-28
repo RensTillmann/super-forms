@@ -2169,8 +2169,6 @@ class SUPER_Common {
                 foreach( $elements as $k => $v ) {
                     if( empty($v['data']) ) $v['data'] = null;
                     if( empty($v['inner']) ) $v['inner'] = null;
-                    error_log('TEST6');
-                    error_log(json_encode($v['data']));
                     $html .= SUPER_Shortcodes::output_builder_html( array('tag'=>$v['tag'], 'group'=>$v['group'], 'data'=>$v['data'], 'inner'=>$v['inner'], 'shortcodes'=>$shortcodes, 'settings'=>$settings) );
                 }
             }         
