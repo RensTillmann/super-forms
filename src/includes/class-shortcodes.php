@@ -1257,6 +1257,7 @@ class SUPER_Shortcodes {
                 // Range of the data you want to retrieve (e.g., "Sheet1!A1:C10")
                 $range = trim($atts[$prefix.'retrieve_method_google_sheet_range']);
                 // Credentials JSON
+                $atts[$prefix.'retrieve_method_google_sheet_credentials'] = wp_unslash($atts[$prefix.'retrieve_method_google_sheet_credentials']);
                 $credentials = json_decode(trim($atts[$prefix.'retrieve_method_google_sheet_credentials']), true);
                 if(!empty($credentials['client_id']) && !empty($credentials['client_email']) && !empty($credentials['private_key'])){
                     $client->setAuthConfig($credentials);

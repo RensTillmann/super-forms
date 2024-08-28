@@ -3059,9 +3059,7 @@ if(!class_exists('SUPER_Forms')) :
             }
             foreach($elements as $k => $v){
                 if(!empty($elements[$k]['data']['retrieve_method_google_sheet_credentials'])){
-                    error_log($elements[$k]['data']['retrieve_method_google_sheet_credentials']);
-                    $elements[$k]['data']['retrieve_method_google_sheet_credentials'] = wp_unslash($elements[$k]['data']['retrieve_method_google_sheet_credentials']);
-                    error_log($elements[$k]['data']['retrieve_method_google_sheet_credentials']);
+                    $elements[$k]['data']['retrieve_method_google_sheet_credentials'] = wp_slash($elements[$k]['data']['retrieve_method_google_sheet_credentials']);
                 }
             }
             add_post_meta( $new_id, '_super_elements', $elements );
