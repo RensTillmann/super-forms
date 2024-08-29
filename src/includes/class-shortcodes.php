@@ -6576,7 +6576,7 @@ class SUPER_Shortcodes {
             }
             if(current_user_can('administrator') && $combinedPossibleFileUploads>ini_get('max_file_uploads')){
                 $result .= '<div class="super-msg super-info">';
-                $result .= '<strong>'.esc_html__('Note', 'super-forms' ).':</strong> '.sprintf(esc_html__('The total combined possible file uploads of all file upload elements in your form is %d which exceeds the configured `max_file_uploads` of %d. Make sure to increase it in your php.ini or via .htaccess or wp-config.php if you don\'t have access to php.ini. This message is only visible to Administrators of the website, and users can still submit the form as long as they don\'t exceed the file upload limitations set in your php.ini configuration.', 'super-forms' ), $combinedPossibleFileUploads, ini_get('max_file_uploads'));
+                $result .= '<strong>'.esc_html__('Note', 'super-forms' ).':</strong> '.sprintf(esc_html__('The total combined possible file uploads of all file upload elements in your form is %d which exceeds the configured `max_file_uploads` of %d. Make sure to increase it in your php.ini or via .htaccess or wp-config.php if you don\'t have access to php.ini. It is good practice to leave some extra margin when increasing this value. So if your required value is 30 increase it to 40 instead. This message is only visible to Administrators of the website, and users can still submit the form as long as they don\'t exceed the file upload limitations set in your php.ini configuration.', 'super-forms' ), $combinedPossibleFileUploads, ini_get('max_file_uploads'));
                 $result .= '<span class="super-close"></span>';
                 $result .= '</div>';
             }

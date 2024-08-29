@@ -3097,7 +3097,7 @@ class SUPER_Settings {
                 '<p><b>WordPress ' . esc_html__(' version', 'super-forms' ) . ':</b> ' . get_bloginfo( 'version' ) . '</p>',
                 '<p><b>PHP ' . esc_html__('version', 'super-forms' ) . ':</b> ' . phpversion() . '</p>',
                 '<p><b>PHP max_file_uploads:</b> ' . ini_get('max_file_uploads') . '</p>',
-                '<p><i>' . esc_html__('The maximum number of files that can be uploaded per form submission is', 'super-forms') . ' '.ini_get('max_file_uploads').'<br />'. esc_html__('This value should be equal or greater than the total of files a user can upload for all File upload elements combined.', 'super-forms') . '<br />'. esc_html__('If you don\'t have access to php.ini, you can also set this value using a .htaccess file if you\'re using Apache', 'super-forms') . '</i></p>',
+                '<p><i>' . esc_html__('The maximum number of files that can be uploaded per form submission is', 'super-forms') . ' '.ini_get('max_file_uploads').'<br />'. esc_html__('This value should be greater than (plus some room for margin) the total of files a user can upload for all File upload elements combined.', 'super-forms') . '<br />'. esc_html__('If you don\'t have access to php.ini, you can also set this value using a .htaccess file if you\'re using Apache', 'super-forms') . '</i></p>',
                 '<p><i>Via Apache:<br />php_value max_file_uploads 50</i></p>',
                 '<p><i>Via debug.php:<br />ini_set(\'max_file_uploads\', \'50\');</i></p>',
             ),

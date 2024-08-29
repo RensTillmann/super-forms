@@ -364,7 +364,7 @@ $array['html_elements'] = array(
                         ),
                         'html' => array(
                             'name'=>esc_html__( 'HTML', 'super-forms' ),
-                            'label'=>esc_html__( 'Use {tags} if needed, you can also use third party [shortcodes] if needed. But please note that if you are using {tags} in combination with [shortcodes] from third parties, this might cause problems with initialized DOM elements. This is because when using {tags} the HTML will be updated to reflect the value change of a field, which causes the HTML to be reloaded, losing any initialized DOM elements. Best practise would be to not mix {tags} and [shortcodes] in a single HTML element.', 'super-forms' ),
+                            'label'=>esc_html__( 'Use {tags} if needed, you can also use third party [shortcodes] if needed. But please note that if you are using {tags} in combination with [shortcodes] from third parties, this might cause problems with initialized DOM elements. This is because when using {tags} the HTML will be updated to reflect the value change of a field, which causes the HTML to be reloaded, losing any initialized DOM elements. Best practice would be to not mix {tags} and [shortcodes] in a single HTML element.', 'super-forms' ),
                             'type'=>'textarea',
                             'default'=> ( !isset( $attributes['html']) ? '' : $attributes['html']),
                             'i18n' => true
@@ -425,7 +425,7 @@ $array['html_elements'] = array(
                         'email' => SUPER_Shortcodes::email($attributes, '' ),
                         'html' => array(
                             'name'=>esc_html__( 'HTML', 'super-forms' ),
-                            'label'=>esc_html__( 'Use {tags} if needed, you can also use third party [shortcodes] if needed. But please note that if you are using {tags} in combination with [shortcodes] from third parties, this might cause problems with initialized DOM elements. This is because when using {tags} the HTML will be updated to reflect the value change of a field, which causes the HTML to be reloaded, losing any initialized DOM elements. Best practise would be to not mix {tags} and [shortcodes] in a single HTML element.', 'super-forms' ),
+                            'label'=>esc_html__( 'Use {tags} if needed, you can also use third party [shortcodes] if needed. But please note that if you are using {tags} in combination with [shortcodes] from third parties, this might cause problems with initialized DOM elements. This is because when using {tags} the HTML will be updated to reflect the value change of a field, which causes the HTML to be reloaded, losing any initialized DOM elements. Best practice would be to not mix {tags} and [shortcodes] in a single HTML element.', 'super-forms' ),
                             'type'=>'tinymce',
                             'default'=> ( !isset( $attributes['html']) ? '' : $attributes['html']),
                             'i18n' => true
