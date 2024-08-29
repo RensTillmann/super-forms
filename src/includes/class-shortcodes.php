@@ -5921,6 +5921,24 @@ class SUPER_Shortcodes {
             'filter_value'=>'custom'
         );
     }
+    public static function fileUploadcountMaxlength($array){
+        $count = 0;
+        // Check if this element has a 'tag' of 'file' and contains a 'maxlength' in 'data'
+        if(isset($array['tag']) && $array['tag'] === 'file'){
+            if(isset($array['data']['maxlength'])){
+                $count = $count + $array['data']['maxlength'];
+            }else{
+                $count++;
+            }
+        }
+        // Recursively check any 'inner' elements
+        if (isset($array['inner']) && is_array($array['inner'])) {
+            foreach ($array['inner'] as $innerElement) {
+                $count += self::fileUploadcountMaxlength($innerElement);
+            }
+        }
+        return $count;
+    }
 
 
     /** 
@@ -5994,6 +6012,7 @@ class SUPER_Shortcodes {
                 return $result;
             }
         }
+
 
         /** 
          *  Make sure that we have all settings even if this form hasn't saved it yet when new settings where added by a add-on
@@ -6548,6 +6567,20 @@ class SUPER_Shortcodes {
 
         // Loop through all form elements
         if( !empty( $elements ) ) {
+
+            // Check if total file uploads exceeds the max_file_uploads defined in php.ini
+            $combinedPossibleFileUploads = 0;
+            foreach($elements as $v){
+                $combinedPossibleFileUploads += self::fileUploadcountMaxlength($v);
+                error_log($combinedPossibleFileUploads);
+            }
+            if(current_user_can('administrator') && $combinedPossibleFileUploads>ini_get('max_file_uploads')){
+                $result .= '<div class="super-msg super-info">';
+                $result .= '<strong>'.esc_html__('Note', 'super-forms' ).':</strong> '.sprintf(esc_html__('The total combined possible file uploads of all file upload elements in your form is %d which exceeds the configured `max_file_uploads` of %d. Make sure to increase it in your php.ini or via .htaccess or wp-config.php if you don\'t have access to php.ini. This message is only visible to Administrators of the website, and users can still submit the form as long as they don\'t exceed the file upload limitations set in your php.ini configuration.', 'super-forms' ), $combinedPossibleFileUploads, ini_get('max_file_uploads'));
+                $result .= '<span class="super-close"></span>';
+                $result .= '</div>';
+            }
+
             $shortcodes = self::shortcodes();
             // Before doing the actuall loop we need to know how many columns this form contains
             // This way we can make sure to correctly close the column system

@@ -3,11 +3,21 @@
 
 ## Listings Add-on now available! More info here:
 
-- [Listings Add-on](https://renstillmann.github.io/super-forms/#/listings-add-on)
+- [Listings Add-on](https://docs.super-forms.com/features/integrations/listings)
 
 ## PDF Generator Add-on now available! More info here:
 
-- [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
+- [PDF Generator Add-on](https://docs.super-forms.com/features/integrations/pdf-generator)
+
+## TODO:
+
+- Issue with populating existing signature from first person, when using a form that requires two persons to sign the document.
+- Issue with Listings settings not merged correctly from latest version to Beta version
+
+## Aug 29, 2024 - Version 6.4.012-beta
+
+- **Fix:** Issue with the Google Sheets API credentials.json setting not correctly working after duplicating a form
+- **Improved:** Notify administrator whenever their form exceeds the php.ini `max_file_uploads` value for all File upload elements file limits combined
 
 ## Jul 12, 2024 - Version 6.4.010-beta
 
