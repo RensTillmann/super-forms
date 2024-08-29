@@ -373,7 +373,7 @@ However they do not share the same field name right now (`other` and `friday_sat
 
 This might not be a problem in normal situations, because those fields can still share the same E-mail label. However when you are using a third party service, or doing a POST requires. Or any other data handling (exproting entries for instance) that depends on the field name(s), it might be required to always have the same field name no matter what field was conditionally visible.
 
-?> **TIP:** In general it is good practise to use a [variable field](#variable-fields) in these situations.
+?> **TIP:** In general it is good practice to use a [variable field](#variable-fields) in these situations.
 
 If you decide to use a variable field to merge multiple fields into one, you will most likely want to exclude the others fields from both emails and from being saved in the contact entry. You can do so by editing both timepickers `other` and `friday_saturday` and setting `Advanced > Exclude from email` to `Exclude from all emails`. And disable `Advanced > Do not save field in Contact Entry`.
 
