@@ -339,6 +339,8 @@ h1.super-thanks-title
       content: unicode("f00d")
   &.super-error
     color: #D08080
+    strong 
+      color: #D08080
     a
       color: #943B3B
       border: 0
@@ -372,6 +374,8 @@ h1.super-thanks-title
     &:after
       color: #DCCF6E
       content: unicode("f058")
+    strong
+      color: #ADA254
     a
       color: #756E39
     .super-close
@@ -799,11 +803,11 @@ textarea
   top: 0px
   z-index: 1000
   font-size: 16px
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  line-height: 0px;
+  height: 100%
+  display: flex
+  justify-content: center
+  align-items: center
+  line-height: 0px
   +rotating()
 
 .super-custom-regex

@@ -806,6 +806,9 @@
 .super-listings .super-msg.super-error {
   color: #D08080;
 }
+.super-listings .super-msg.super-error strong {
+  color: #D08080;
+}
 
 .super-listings .super-msg.super-error a {
   color: #943B3B;
@@ -841,6 +844,9 @@
 .super-msg.super-info {
   border: 1px solid #DCCF6E;
   background-color: #FDF3AA;
+  color: #ADA254;
+}
+.super-msg.super-info strong {
   color: #ADA254;
 }
 
