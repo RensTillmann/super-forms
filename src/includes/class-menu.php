@@ -98,7 +98,7 @@ class SUPER_Menu {
             'SUPER_Pages::demos'
         );
         add_submenu_page( 
-            null, 
+            'null_super_forms',
             esc_html__( 'View contact entry', 'super-forms' ), 
             esc_html__( 'View contact entry', 'super-forms' ), 
             'manage_options', 
@@ -106,7 +106,7 @@ class SUPER_Menu {
             'SUPER_Pages::contact_entry'
         );
         add_submenu_page( 
-            null, 
+            'null_super_forms',
             esc_html__( 'Contact entries', 'super-forms' ), 
             esc_html__( 'Contact entries', 'super-forms' ), 
             'manage_options', 

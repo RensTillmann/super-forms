@@ -71,6 +71,7 @@ if(!class_exists('SUPER_Forms')) :
         */
         public $global_settings;
         public $default_settings;
+        public $commaForItemsDetected;
 
 
         /**
@@ -252,7 +253,7 @@ if(!class_exists('SUPER_Forms')) :
                 $path = $directory . '/' . $v;
                 if(is_dir($path)){
                     $file = $path . '/' . $v . '.php';
-                    if(file_exists($file)) include_once $file;
+                    //if(file_exists($file)) include_once $file;
                 }
             }
         }
@@ -295,7 +296,7 @@ if(!class_exists('SUPER_Forms')) :
             // Actions since 1.0.0
             add_action( 'init', array( $this, 'init' ), 0 );
             add_action( 'init', array( $this, 'register_shortcodes' ) );
-			add_action( 'parse_request', array( $this, 'sfapi'));
+            add_action( 'parse_request', array( $this, 'sfapi'));
 
             // Set unique submission ID to expire after 15 days due to possible delayed payment methods used by Stripe
             // SEPA Direct Debit is a reusable, delayed notification payment method. This means that it can take up to 14 business days to receive notification on the success or failure of a payment after you initiate a debit from the customer’s account, though the average is five business days.
@@ -354,7 +355,7 @@ if(!class_exists('SUPER_Forms')) :
                 add_action( 'admin_action_duplicate_super_contact_entry', array( $this, 'duplicate_contact_entry_action' ) );
                 add_action( 'init', array( $this, 'custom_contact_entry_status' ) );
                 add_action( 'admin_footer-post.php', array( $this, 'append_contact_entry_status_list' ) );
-                
+           
                 // Actions since 1.2.6
                 add_action( 'init', array( $this, 'update_plugin' ) );
 

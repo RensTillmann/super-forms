@@ -1336,6 +1336,16 @@ class SUPER_Shortcodes {
             $atts['value'] = implode( ',', $selected_items );
         }
         if(empty($items_values)) $items_values = array();
+
+        // Check if we found a checkbox/radio/dropdown with an item value that contains a comma
+        if(empty(SUPER_Forms()->commaForItemsDetected)){
+            foreach($items_values as $value){
+                if(strpos($value, ',')!==false){
+                    SUPER_Forms()->commaForItemsDetected[$atts['name']] = $atts['name'];
+                    break;
+                }
+            }
+        }
         return apply_filters( 'super_' . $tag . '_' . $atts['name'] . '_items_filter', array('items'=>$items, 'items_values'=>$items_values, 'atts'=>$atts), array( 'tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings, 'entry_data'=>$entry_data ) );
     }
 

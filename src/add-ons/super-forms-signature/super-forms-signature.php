@@ -487,17 +487,17 @@ if( !class_exists('SUPER_Signature') ) :
         public static function add_signature_to_email_loop( $row, $data ) {
             $type = isset($data['type']) ? $data['type'] : '';
             $v = $data['v'];
-            $result['status'] = '';
-            $result['exclude'] = '';
-            $result['row'] = '';
-            if(!isset($v['value'])) return $result;
+            $data['status'] = '';
+            $data['exclude'] = '';
+            $data['row'] = '';
+            if(!isset($v['value'])) return $data;
             if((strpos($v['value'], 'data:image/png;base64,') !== false) ||  (strpos($v['value'], 'data:image/jpeg;base64,') !== false)) {
                 $signature_filename = $v['name'] . ".png";
                 $signature_contact_image_data = $v['value'];
                 $signature_data = substr($signature_contact_image_data, strpos($signature_contact_image_data, ","));
                 $signature_encoding = "base64";
                 $signature_type = "image/png";
-                $data['string_attachments'][] = array(
+                $string_attachment = array(
                     'data' => $signature_data,
                     'filename' => $signature_filename,
                     'encoding' => $signature_encoding,
@@ -512,18 +512,18 @@ if( !class_exists('SUPER_Signature') ) :
                     if($v['exclude']==1 || $v['exclude']==2){
                         // Excluded 
                     }else{
-                        $result['confirm_string_attachments'] = $data['string_attachments'];
+                        $data['confirm_string_attachments'][] = $string_attachment;
                     }
                 }
                 if($type==='admin'){
                     if($v['exclude']==3 || $v['exclude']==2){
                         // Excluded 
                     }else{
-                        $result['string_attachments'] = $data['string_attachments'];
+                        $data['string_attachments'][] = $string_attachment;
                     }
                 }
                 if($type==='listing'){
-                    $result['string_attachments'] = $data['string_attachments'];
+                    $data['string_attachments'][] = $string_attachment;
                 }
                 if( isset( $v['label'] ) ) $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
                 // OLD: if( isset( $v['value'] ) ) $row = str_replace( '{loop_value}', $signature_filename . '<br /><img src="cid:'.sanitize_title_with_dashes($signature_filename).'" />', $row );
@@ -531,11 +531,11 @@ if( !class_exists('SUPER_Signature') ) :
                 // Signature is temporarily stored in /uploads/tmp/xxxxx/signature-field-name.png
                 // After the E-mail is send it is deleted from the server automatically
                 if( isset( $v['value'] ) ) $row = str_replace( '{loop_value}', '<img src="cid:'.sanitize_title_with_dashes($signature_filename).'" />', $row );
-                $result['status'] = 'continue';
-                $result['exclude'] = $v['exclude'];
-                $result['row'] = $row;
+                $data['status'] = 'continue';
+                $data['exclude'] = $v['exclude'];
+                $data['row'] = $row;
             }
-            return $result;
+            return $data;
         }
     }
         

@@ -7077,29 +7077,26 @@ function SUPERreCaptcha(){
 
                 // Signature element
                 if(field.classList.contains('super-signature')){
-                    if(typeof $.fn.SuperSignaturePad === "function") {
-                        var canvasWrapper = field.querySelector('.super-signature-canvas');
-                        var canvas = canvasWrapper.querySelector('canvas');
-                        var width = canvasWrapper.getBoundingClientRect().width;
-                        var height = canvasWrapper.getBoundingClientRect().height;
-                        canvas.width = width;
-                        canvas.height = height;
-                        var formUid = field.closest('.super-form').dataset.sfuid;
-                        var fieldName = field.querySelector('.super-shortcode-field').name;
-                        if(typeof SUPER.signatures[formUid] === 'undefined') SUPER.signatures[formUid] = {};
-                        if(typeof SUPER.signatures[formUid][fieldName] === 'undefined') SUPER.signatures[formUid][fieldName] = {};
-                        var signaturePad = SUPER.signatures[formUid][fieldName]
-                        signaturePad.fromDataURL(raw_value, { ratio: 1, width: width, height: height, xOffset: 0, yOffset: 0 });
-                        // Remove clear button
-                        if(raw_value!==''){
-                            field.querySelector('.super-shortcode-field').dataset.disallowEdit = 'true';
-                            if(canvasWrapper.parentNode.querySelector('.super-signature-clear')){
-                                canvasWrapper.parentNode.querySelector('.super-signature-clear').remove();
-                                signaturePad.off();
-                            }
-                            field.classList.add('super-filled'); // Make sure to be able to delete signature to be able to draw a new one
-                            //if(data.contact_entry_id){}
+                    var canvasWrapper = field.querySelector('.super-signature-canvas');
+                    var canvas = canvasWrapper.querySelector('canvas');
+                    var width = canvasWrapper.getBoundingClientRect().width;
+                    var height = canvasWrapper.getBoundingClientRect().height;
+                    canvas.width = width;
+                    canvas.height = height;
+                    var formUid = field.closest('.super-form').dataset.sfuid;
+                    var fieldName = field.querySelector('.super-shortcode-field').name;
+                    if(typeof SUPER.signatures[formUid] === 'undefined') SUPER.signatures[formUid] = {};
+                    if(typeof SUPER.signatures[formUid][fieldName] === 'undefined') SUPER.signatures[formUid][fieldName] = {};
+                    var signaturePad = SUPER.signatures[formUid][fieldName]
+                    signaturePad.fromDataURL(raw_value, { ratio: 1, width: width, height: height, xOffset: 0, yOffset: 0 });
+                    // Remove clear button
+                    if(raw_value!==''){
+                        field.querySelector('.super-shortcode-field').dataset.disallowEdit = 'true';
+                        if(canvasWrapper.parentNode.querySelector('.super-signature-clear')){
+                            canvasWrapper.parentNode.querySelector('.super-signature-clear').remove();
+                            signaturePad.off();
                         }
+                        field.classList.add('super-filled'); // Make sure to be able to delete signature to be able to draw a new one
                     }
                     return true;
                 }
