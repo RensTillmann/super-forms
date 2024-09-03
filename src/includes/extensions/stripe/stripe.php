@@ -1453,10 +1453,8 @@ if(!class_exists('SUPER_Stripe')) :
                         // error_log('retry the checkout session, but this time without passing an existing customer, because of the currency conflict.');
                         // error_log('Create a new Stripe customer with this E-mail address');
                         // if($create_new_customer){
-                        //     error_log('test1');
                         //     error_log($customer->id);
                         // }else{
-                        //     error_log('test2');
                         //     $customer = \Stripe\Customer::create(array('email' => $customer_email));
                         //     error_log('created a new customer just for this checkout since it uses a different currency');
                         //     // Do not update connection with user, keep the existing one

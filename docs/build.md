@@ -23,7 +23,7 @@ If not, you can proceed by clicking the `Skip wizard` button.
 
 This will create a new form from scratch and save it with the settings based on your **Global Settings**.
 
-?> **NOTE:** The Global Settings will never affect previously created form settings if they do not share the same values. It's good practise to change settings on the form itself after creating one.
+?> **NOTE:** The Global Settings will never affect previously created form settings if they do not share the same values. It's good practice to change settings on the form itself after creating one.
 
 ## 2. Adding elements
 

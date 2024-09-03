@@ -33,7 +33,7 @@ There are two types of secrets: `Local` and `Global` secrets.
 
 The difference between the two are that local secrets can only be used on the form you are working on while global secrets are site wide and if you define them they also become available to your other forms.
 
-!> **NOTE:** Keep in mind that it's best practise to use local secrets unless you have a good usecase that requires the use of global secrets. This is because if you change one of your global secrets it can possible cause issues on forms that also used this global secret. So you must keep this in mind when defining your secrets.
+!> **NOTE:** Keep in mind that it's best practice to use local secrets unless you have a good usecase that requires the use of global secrets. This is because if you change one of your global secrets it can possible cause issues on forms that also used this global secret. So you must keep this in mind when defining your secrets.
 
 ## How to use secrets?
 

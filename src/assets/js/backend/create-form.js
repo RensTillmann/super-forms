@@ -2559,14 +2559,17 @@
                                 label: $this.children('input[name="label"]').val()
                             });
                         } else {
+                            // @since 6.4.013 - should not contain any comma's because SF stores it as a comma separated list in the database, which would otherwise cause issues when populating the form data at a later point into the form
+                            var value = $this.children('input[name="value"]').val().split(',').join('');
                             $items.push({
                                 checked: $checked,
                                 image: $this.find('input[name="image"]').val(),
                                 max_width: $this.find('input[name="max_width"]').val(),
                                 max_height: $this.find('input[name="max_height"]').val(),
                                 label: $this.children('input[name="label"]').val(),
-                                value: $this.children('input[name="value"]').val()
+                                value: value 
                             });
+                            $this.children('input[name="value"]').val(value);
                         }
                     }
                 }

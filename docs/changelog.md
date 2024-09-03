@@ -3,11 +3,45 @@
 
 ## Listings Add-on now available! More info here:
 
-- [Listings Add-on](https://renstillmann.github.io/super-forms/#/listings-add-on)
+- [Listings Add-on](https://docs.super-forms.com/features/integrations/listings)
 
 ## PDF Generator Add-on now available! More info here:
 
-- [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
+- [PDF Generator Add-on](https://docs.super-forms.com/features/integrations/pdf-generator)
+
+## TODO:
+
+- Issue with populating existing signature from first person, when using a form that requires two persons to sign the document.
+- Issue with Listings settings not merged correctly from latest version to Beta version
+
+## Aug 29, 2024 - Version 6.4.012-beta
+
+- **Fix:** Issue with the Google Sheets API credentials.json setting not correctly working after duplicating a form
+- **Improved:** Notify administrator whenever their form exceeds the php.ini `max_file_uploads` value for all File upload elements file limits combined
+
+## Jul 12, 2024 - Version 6.4.010-beta
+
+- **Fix:** When calculating distance/duration between two places, the API will now be called from the client side instead of server side to avoid the referrer/IP restriction conflict causing a API error from Google when using the referrer or IP restriction for the API key.
+
+## Jun 24, 2024 - Version 6.4.009-beta
+
+- **Added:** Option for Autosuggest field to allow users to enter their own values (from now on by default only the items provided can be choosen), optionally you can set the Validation to "Required" and allowing the field to be left empty if it is not required when left empty
+
+## Jun 14, 2024 - Version 6.4.008-beta
+
+- **Fix:** Correctly converting Calculator value to float for Stripe
+- **Fix:** PHP error in regards to conditionally checkouts for Stripe and other features
+- **Added:** PayPal option for Stripe checkout
+
+## Jun 09, 2024 - Version 6.4.007-beta
+
+- **Fix:** Added `autocomplete="off"` for special fields to avoid issues in Firefox
+- **Fix:** Make sure that the `Success URL` for Stripe is an absolute URL if a relative URL was entered
+
+## Apr 26, 2024 - Version 6.4.004-beta
+
+- **Added:** New filter hook `super_disallowed_login_statuses_filter` to alter the login statuses that are disallowed to login e.g. `pending`, `payment_processing`, `payment_required`, `payment_past_due`, `blocked` or to add your own statuses
+- **Added:** New filter hook `super_login_status_messages_filter` to alter the message a user gets when trying to login with an account that is not allowed to login e.g. `This account requires a payment, please click here to extend your membership`
 
 ## Apr 24, 2024 - Version 6.4.003-beta
 

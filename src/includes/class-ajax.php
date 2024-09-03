@@ -2139,7 +2139,7 @@ class SUPER_Ajax {
         // because the form is to large to be saved by this specific server
         // Except when importing a form from file...
         if(!isset($_POST['z']) && $action!=='super_import_single_form'){
-            SUPER_Common::output_message(array('msg' => esc_html__( 'Error: server could not save the form because the request is to large. Please contact your webmaster and increase your server limits.', 'super-forms')));
+            SUPER_Common::output_message(array('msg' => esc_html__( 'Error: please increase the `max_input_vars` value your php.ini (or via .htaccess) in order to save the form.', 'super-forms')));
         }
         if(!is_array($form_data) && $action!=='super_import_single_form'){
             $form_data = wp_unslash($form_data);

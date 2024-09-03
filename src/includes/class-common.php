@@ -577,6 +577,26 @@ class SUPER_Common {
         $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '\_sfsdata\_%' AND SUBSTRING_INDEX(SUBSTRING_INDEX(option_value, ';', 2), ':', -1) < {$now}");
         // Also cleanup expired submission info
         $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '\_sfsi\_%' AND SUBSTRING_INDEX(option_name, '.', -1) < {$now}");
+        // Delete expired uploads/tmp/sf/xxxxxx folders
+        $tmp_dir = wp_upload_dir()['basedir'] . '/tmp/sf/';
+        $now = current_time('timestamp');
+        $expired_dirs = array();
+        if($handle = opendir($tmp_dir)){
+            while(false !== ($entry = readdir($handle))) {
+                if($entry != "." && $entry != ".."){
+                    $dir_path = $tmp_dir . $entry;
+                    if(is_dir($dir_path)){
+                        if(is_numeric($entry) && intval($entry)<$now){
+                            $expired_dirs[] = $dir_path;
+                        }
+                    }
+                }
+            }
+            closedir($handle);
+        }
+        foreach($expired_dirs as $dir){
+            SUPER_Common::delete_dir($dir);
+        }
 	}
 
     public static function generate_nonce(){
@@ -2090,7 +2110,7 @@ class SUPER_Common {
         ), $x));
         self::output_message($x);
     }
-    public static function output_message($x) { 
+    public static function output_message($x) {
         extract( shortcode_atts( array(
             'type'=>'',
             'error'=>true,
@@ -2165,7 +2185,8 @@ class SUPER_Common {
                 // @since 4.3.0 - required to make sure any backslashes used in custom regex is escaped properly
                 $elements = wp_slash($shortcode);
             }
-            if( is_array( $elements) ) {
+            if(is_array($elements)){
+                SUPER_Forms()->commaForItemsDetected = SUPER_Common::searchForItemsWithComma($elements);
                 foreach( $elements as $k => $v ) {
                     if( empty($v['data']) ) $v['data'] = null;
                     if( empty($v['inner']) ) $v['inner'] = null;
@@ -2173,8 +2194,15 @@ class SUPER_Common {
                 }
             }         
         }
-        
-        return $html;
+        // Check if we found a checkbox/radio/dropdown with an item value that contains a comma
+        $before = '';
+        if(!empty(SUPER_Forms()->commaForItemsDetected)){
+            $before .= '<div class="super-msg super-error" style="margin: 10px 0.5%;">';
+            $before .= '<strong>'.esc_html__('Alert', 'super-forms' ).':</strong> '.sprintf(esc_html__('We detected that the form contains comma\'s for one or more of your Checkbox/Radio/Dropdown items value. It is no longer recommended to have comma\'s as a value for any of these Elements. We strongly advice you to edit the below fields and making sure any comma\'s are deleted from the Items Value. The Item Label itself can still contain comma\'s. Also make sure that you are not comparing any existing Conditional Logic, Variable Conditions and other logic against these values with comma\'s, and if so make sure to properly update them so that your form behaves at it should after removing the comma\'s from the Item Value. For your reference, below a list of fields that are affected and contain comma\'s as their Item value:%s%s', 'super-forms' ), '<br />', '<strong>'.implode(', ', SUPER_Forms()->commaForItemsDetected).'</strong>');
+            $before .= '<span class="super-close"></span>';
+            $before .= '</div>';
+        }
+        return $before.$html;
     }
 
     /**
@@ -3387,36 +3415,36 @@ class SUPER_Common {
                 $confirm_result = apply_filters( 'super_before_email_loop_data_filter', $confirm_row, array( 'type'=>'confirm', 'v'=>$v, 'confirm_string_attachments'=>$confirm_string_attachments ) );
                 $listing_result = apply_filters( 'super_before_listing_loop_data_filter', $listing_row, array( 'type'=>'listing', 'v'=>$v, 'string_attachments'=>$string_attachments ) );
                 $continue = false;
-                if( isset( $result['status'] ) ) {
-                    if( $result['status']=='continue' ) {
-                        if( isset( $result['string_attachments'] ) ) {
+                if(isset($result['status'])){
+                    if($result['status']=='continue'){
+                        if(isset($result['string_attachments'])){
                             $string_attachments = $result['string_attachments'];
                         }
-                        if( ( isset( $result['exclude'] ) ) && ( $result['exclude']==3 ) ) {
+                        if((isset($result['exclude'])) && ($result['exclude']==3)){
                         }else{
                             $email_loop .= $result['row'];
                         }
                         $continue = true;
                     }
                 }
-                if( isset( $confirm_result['status'] ) ) {
-                    if( $confirm_result['status']=='continue' ) {
-                        if( isset( $confirm_result['confirm_string_attachments'] ) ) {
+                if(isset($confirm_result['status'])){
+                    if($confirm_result['status']=='continue'){
+                        if(isset($confirm_result['confirm_string_attachments'])){
                             $confirm_string_attachments = $confirm_result['confirm_string_attachments'];
                         }
-                        if( ( isset( $confirm_result['exclude'] ) ) && ( $confirm_result['exclude']==1 ) ) {
+                        if((isset($confirm_result['exclude'])) && ($confirm_result['exclude']==1)){
                         }else{
                             $confirm_loop .= $confirm_result['row'];
                         }
                         $continue = true;
                     }
                 }
-                if( isset( $listing_result['status'] ) ) {
-                    if( $listing_result['status']=='continue' ) {
-                        if( isset( $listing_result['string_attachments'] ) ) {
+                if(isset($listing_result['status'])){
+                    if($listing_result['status']=='continue'){
+                        if(isset($listing_result['string_attachments'])){
                             $string_attachments = $listing_result['string_attachments'];
                         }
-                        if( ( isset( $listing_result['exclude'] ) ) && ( $listing_result['exclude']==1 ) ) {
+                        if((isset($listing_result['exclude'])) && ($listing_result['exclude']==1)){
                         }else{
                             $listing_loop .= $listing_result['row'];
                         }
@@ -3682,6 +3710,36 @@ class SUPER_Common {
         return '#'.$r_hex.$g_hex.$b_hex;
     }
 
+    public static function searchForItemsWithComma($array){
+        $result = [];
+        foreach ($array as $item) {
+            if (isset($item['data']['checkbox_items'])) {
+                foreach ($item['data']['checkbox_items'] as $checkboxItem) {
+                    if (strpos($checkboxItem['value'], ',') !== false) {
+                        $result[] = $item['data']['name'];
+                        break;
+                    }
+                }
+            }
+            
+            if (isset($item['data']['dropdown_items'])) {
+                foreach ($item['data']['dropdown_items'] as $dropdownItem) {
+                    if (strpos($dropdownItem['value'], ',') !== false) {
+                        $result[] = $item['data']['name'];
+                        break;
+                    }
+                }
+            }
+
+            // Recursively search inner elements if they exist
+            if (isset($item['inner'])) {
+                $result = array_merge($result, self::searchForItemsWithComma($item['inner']));
+            }
+        }
+
+        return $result;
+    }
+
 
     /**
      * Send emails
@@ -3763,12 +3821,10 @@ class SUPER_Common {
                 $v['data'] = substr( $v['data'], strpos( $v['data'], "," ) );
                 $v['data'] = base64_decode( $v['data'] );
             }
-            $base64_image = $v['data']; // Your base64 encoded image string here
             $file_name = $v['filename']; // Desired file name for the image
-            // Decode base64 string into binary data
-            $image_data = $v['data']; //base64_decode($base64_image);
-            // Get the system's temporary directory path using WordPress function
-            $tmp_dir = wp_upload_dir()['basedir'] . '/tmp/';
+            $image_data = $v['data']; // Base64 string
+            $tmp_dir = wp_upload_dir()['basedir'] . '/tmp/sf/'; // Get the system's temporary directory path using WordPress function
+            $tmp_dir .= (current_time('timestamp')+120).'/'; // plus 2 minutes expiry
             $folderResult = SUPER_Common::generate_random_folder($tmp_dir);
             $tmp_dir = $folderResult['folderPath'];
             // Create the temporary directory if it doesn't exist
@@ -3791,7 +3847,6 @@ class SUPER_Common {
 
         if( $global_settings['smtp_enabled']=='disabled' ) {
             //SUPER_Common::setClientData( array( 'name'=> 'string_attachments', 'value'=>$string_attachments  ) );
-
             $headers = array();
             if(!empty($settings['header_additional'])){
                 $headers = array_filter( explode( "\n", $settings['header_additional'] ) );
@@ -3832,15 +3887,9 @@ class SUPER_Common {
                     $headers[] = 'Bcc: ' . trim($value);
                 }
             }
-            $result = wp_mail( $to, $subject, $body, $headers, $attachmentPaths );
             $error = '';
-            if($result==false){
-                $error = 'Email could not be send through wp_mail()';
-            }
-            // Delete tmp files
-            foreach($unlink_string_attachments as $dir){
-                SUPER_Common::delete_dir($dir);
-            }
+            $result = wp_mail( $to, $subject, $body, $headers, $attachmentPaths );
+            if($result==false) $error = 'Email could not be send through wp_mail()';
             // Return
             return array( 'result'=>$result, 'error'=>$error, 'mail'=>null );
         }else{
