@@ -162,7 +162,7 @@ class SUPER_Shortcodes {
             }
         }
         if(!empty($_POST['translating'])){
-            $i18n = $_POST['i18n'];
+            $i18n = SUPER_Common::get_payload_i18n();
             if( (isset($atts['i18n'])) && (isset($atts['i18n'][$i18n])) ) {
                 $atts = array_replace_recursive($atts, $atts['i18n'][$i18n]);
                 return $atts;
@@ -1465,7 +1465,7 @@ class SUPER_Shortcodes {
         if($builder!==false){
             if( empty($data) ) $data = null;
             if( empty($inner) ) $inner = null;
-            $i18n = (isset($_POST['i18n']) ? $_POST['i18n'] : '');
+            $i18n = SUPER_Common::get_payload_i18n();
             $result .= self::output_element_html( array('grid'=>null, 'tag'=>$tag, 'group'=>$group, 'data'=>$data, 'inner'=>$inner, 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>$builder) );
             return $result;
         }
@@ -1513,7 +1513,7 @@ class SUPER_Shortcodes {
                 $result .= '<div class="super-element-inner">';
                     if( empty($data) ) $data = null;
                     if( empty($inner) ) $inner = null;
-                    $i18n = (isset($_POST['i18n']) ? $_POST['i18n'] : '');
+                    $i18n = SUPER_Common::get_payload_i18n();
                     $result .= self::output_element_html( array('grid'=>null, 'tag'=>$tag, 'group'=>$group, 'data'=>$data, 'inner'=>$inner, 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>true) );
                 $result .= '</div>';
             }else{
@@ -1521,7 +1521,7 @@ class SUPER_Shortcodes {
                     if( ( $tag!='column' ) && ( $tag!='multipart' ) ) {
                         if( empty($data) ) $data = null;
                         if( empty($inner) ) $inner = null;
-                        $i18n = (isset($_POST['i18n']) ? $_POST['i18n'] : '');
+                        $i18n = SUPER_Common::get_payload_i18n();
                         $result .= self::output_element_html( array('grid'=>null, 'tag'=>$tag, 'group'=>$group, 'data'=>$data, 'inner'=>$inner, 'shortcodes'=>$shortcodes, 'settings'=>$settings, 'i18n'=>$i18n, 'builder'=>false) );
                     }
                     if( !empty( $inner ) ) {

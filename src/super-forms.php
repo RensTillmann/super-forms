@@ -71,6 +71,8 @@ if(!class_exists('SUPER_Forms')) :
         */
         public $global_settings;
         public $default_settings;
+        public $stripe_settings;
+        public $submission_i18n;
         public $commaForItemsDetected;
 
 
@@ -672,7 +674,32 @@ if(!class_exists('SUPER_Forms')) :
 
 
         public function parse_request(&$wp){
+            error_log('parse_request()');
+            // {"page":"","pagename":"sfssid\/cancel\/cs_test_b1ksxoJQnMaqWYsxx9r1S1hFGbRZS0gSQ6DtmIAXh2yQOtNmD6NOLMjwh1"}
+            error_log(json_encode($wp->query_vars));
             SUPER_Stripe::handle_webhooks($wp);
+            // Sometimes, WordPress doesn’t flush rules correctly when triggered programmatically. Try manually visiting Settings > Permalinks after activating the plugin and click Save Changes to trigger a manual flush. This step may highlight whether it's a deeper issue within the rewrite rule system.
+            if(isset($wp->query_vars['pagename'])){
+                $pagename = $wp->query_vars['pagename'];
+                $prefix = 'sfdlfi/';
+                $showError = false;
+                if(strpos($pagename, $prefix)===0) $showError = true;
+                $prefix = 'sfgtfi';
+                if(strpos($pagename, $prefix)===0) $showError = true;
+                $prefix = 'sfssid/cancel/';
+                if(strpos($pagename, $prefix)===0) $showError = true;
+                $prefix = 'sfssid/success/';
+                if(strpos($pagename, $prefix)===0) $showError = true;
+                $prefix = 'sfssid/retry/';
+                if(strpos($pagename, $prefix)===0) $showError = true;
+                $prefix = 'sfstripe/webhook';
+                if(strpos($pagename, $prefix)===0) $showError = true;
+                if($showError){
+                    wp_die(esc_html__('For Super Forms to work properly, please manually refresh your permalinks. Go to Settings > Permalinks in the WordPress dashboard and click Save Changes', 'super-forms'));
+                    header("HTTP/1.1 400 Not Found");
+                    exit;
+                }
+            }
             if(array_key_exists('sfdlfi', $wp->query_vars)){
                 if(!current_user_can('export')){
                     wp_die(__('Sorry, you are not allowed to export the content of this site.'));
