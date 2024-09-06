@@ -689,6 +689,7 @@ if(!class_exists('SUPER_Stripe')) :
             return $s;
         }
         public static function redirect_to_stripe_checkout($x){
+            error_log('redirect_to_stripe_checkout()');
             extract( shortcode_atts( array(
                 'sfsi'=>array(),
                 'form_id'=>0,
@@ -701,10 +702,23 @@ if(!class_exists('SUPER_Stripe')) :
             ), $x));
             $domain = home_url(); // e.g: 'http://domain.com';
             $home_url = trailingslashit($domain);
-            if(empty($settings['_stripe'])) return true;
-            $s = $settings['_stripe'];
+            // Stripe checkout
+            $s = SUPER_Common::get_form_stripe_settings($form_id);
+            error_log('stripe settings:');
+            error_log(json_encode($s));
+
+
             // Skip if Stripe checkout is not enabled
-            if($s['enabled']!=='true') return true;
+            if(empty($s)){
+                error_log('return 1');
+                error_log(json_encode($settings));
+                return true;
+            }
+            // Skip if Stripe checkout is not enabled
+            if($s['enabled']!=='true') {
+                error_log('return 2');
+                return true;
+            }
             // If conditional check is enabled
             $checkout = true;
             $c = $s['conditions'];
@@ -714,7 +728,10 @@ if(!class_exists('SUPER_Stripe')) :
                 $f2 = SUPER_Common::email_tags($c['f2'], $data, $settings);
                 $checkout = SUPER_Common::conditional_compare_check($f1, $logic, $f2);
             }
-            if($checkout===false) return true;
+            if($checkout===false) {
+                error_log('return 3');
+                return true;
+            }
             try{
                 $api = self::setAppInfo();
             }catch(Exception $e){
@@ -999,7 +1016,10 @@ if(!class_exists('SUPER_Stripe')) :
                     }
                 }
                 if($v['custom_tax_rate']==='true'){
-                    $v['tax_rates'] = explode(',', str_replace(' ', '', trim($v['tax_rates'])));
+                    if(!is_array($v['tax_rates'])){
+                        $v['tax_rates'] = explode(',', str_replace(' ', '', trim($v['tax_rates'])));
+                    }
+                    error_log(json_encode($v['tax_rates']));
                 }else{
                     unset($line_items[$k]['tax_rates']);
                 }
@@ -1881,7 +1901,8 @@ if(!class_exists('SUPER_Stripe')) :
                                                     'accepted_values' => array(array('v'=>'true'), array('v'=>'false')),
                                                     'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), 'true' ),
                                                     'type' => 'text',
-                                                    'default' => 'true'
+                                                    'default' => 'true',
+                                                    'i18n' => true
                                                 )
                                             )
                                         ),
@@ -2093,7 +2114,8 @@ if(!class_exists('SUPER_Stripe')) :
                                                     'title' => esc_html__( 'Apply custom Tax Rates', 'super-forms' ),
                                                     'accepted_values' => array(array('v'=>'true'), array('v'=>'false')),
                                                     'type' => 'text',
-                                                    'default' => 'false'
+                                                    'default' => 'false',
+                                                    'i18n' => true
                                                 ),
                                                 array(
                                                     'name' => 'tax_rates',
@@ -2102,7 +2124,8 @@ if(!class_exists('SUPER_Stripe')) :
                                                     'placeholder' => sprintf( esc_html__( 'e.g. %s', 'super-forms' ), 'txr_1LmUhbFKn7uROhgCwnWwpN9p' ),
                                                     'type' => 'text',
                                                     'default' => '',
-                                                    'filter' => 'custom_tax_rate;true'
+                                                    'filter' => 'custom_tax_rate;true',
+                                                    'i18n' => true
                                                 )
                                             )
                                         )

@@ -482,6 +482,12 @@
                         parent = parent.parentElement;
                     }
                     // Construct the nested object in i18nObject
+                    if(field.name==='custom_tax_rate'){
+                        debugger;
+                    }
+                    if(field.name==='tax_rates'){
+                        debugger;
+                    }
                     var lastKey = field.name;
                     var obj = i18nObject;
                     var objCompare = mainLanguageObject;
@@ -3663,6 +3669,8 @@
                                 // Enable sortable functionality
                                 $('.super-preview-elements').sortable('enable');
                             }
+                            debugger;
+                            SUPER.ui.showHideSubsettings();
                         }
                     });
                 });

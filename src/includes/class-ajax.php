@@ -529,7 +529,7 @@ class SUPER_Ajax {
     public static function language_switcher() {
         $atts = array(
             'id' => absint($_POST['form_id']),
-            'i18n' => (isset($_POST['i18n']) ? sanitize_text_field($_POST['i18n']) : ''),
+            'i18n' => SUPER_Common::get_payload_i18n(),
             'parameters' => (isset($_POST['parameters']) ? $_POST['parameters'] : array()),
         );
         // Check if languages are used
@@ -594,7 +594,7 @@ class SUPER_Ajax {
 
         // @since 4.7.0 - translation
         if(!empty($_POST['i18n'])){
-            $i18n = $_POST['i18n'];
+            $i18n = SUPER_Common::get_payload_i18n();
             if( (!empty($settings['i18n'])) && (!empty($settings['i18n'][$i18n])) ){
                 $settings = array_replace_recursive($settings, $settings['i18n'][$i18n]);
             }
@@ -631,7 +631,7 @@ class SUPER_Ajax {
                 }
                 if( isset( $value['fields'] ) ) {
                     foreach( $value['fields'] as $k => $v ) {
-                        if(empty($_POST['i18n'])){
+                        if(empty(SUPER_Forms()->submission_i18n)){
                             if( ( !isset( $v['hidden'] ) ) || ( $v['hidden']==false ) )  {
                                 $filter = '';
                                 $parent = '';
@@ -2549,9 +2549,9 @@ class SUPER_Ajax {
                                     if( !isset( $fv['type'] ) ) $fv['type'] = 'text';
                                     if( method_exists( 'SUPER_Field_Types', $fv['type'] ) ) {
                                         $fv['v'] = $default; // if doesn't exists, fallback to default value
-                                        if(isset($data['i18n']) && isset($data['i18n'][$_POST['i18n']])){
-                                            if( isset($data['i18n'][$_POST['i18n']][$fk]) ) {
-                                                $fv['v'] = $data['i18n'][$_POST['i18n']][$fk];
+                                        if(isset($data['i18n']) && isset($data['i18n'][SUPER_Forms()->submission_i18n])){
+                                            if( isset($data['i18n'][SUPER_Forms()->submission_i18n][$fk]) ) {
+                                                $fv['v'] = $data['i18n'][SUPER_Forms()->submission_i18n][$fk];
                                             }else{
                                                 if( isset($data[$fk]) ) {
                                                     $fv['v'] = $data[$fk];
@@ -2589,7 +2589,7 @@ class SUPER_Ajax {
      *  @since      1.0.0
     */
     public static function get_element_builder_html( $tag=null, $group=null, $inner=null, $data=null, $method=1 ) {
-        $i18n = (isset($_POST['i18n']) ? $_POST['i18n'] : '');
+        $i18n = SUPER_Common::get_payload_i18n();
         $form_id = 0;
         if( isset( $_POST['form_id'] ) ) {
             $form_id = absint( $_POST['form_id'] );
@@ -2739,9 +2739,7 @@ class SUPER_Ajax {
         $i18n = '';
         error_log('1: '.$i18n);
         if(isset($_POST['i18n']) && !empty($_POST['i18n'])){
-            error_log('2: '.$_POST['i18n']);
-            $i18n = sanitize_text_field($_POST['i18n']);
-            error_log('2: '.$i18n);
+            $i18n = SUPER_Common::get_payload_i18n();
             if( (!empty($settings['i18n'])) && (!empty($settings['i18n'][$i18n])) ){
                 $settings = array_replace_recursive($settings, $settings['i18n'][$i18n]);
             }

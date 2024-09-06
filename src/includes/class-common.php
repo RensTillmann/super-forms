@@ -168,9 +168,49 @@ class SUPER_Common {
         if($s===false){ $s = array(); }else{ $s = maybe_unserialize($s); }
         return $s;
     }
-    public static function get_form_stripe_settings($form_id){           
+
+    // Function to recursively merge the translated array with the default language
+    public static function mergeTranslatedSettings($defaultSettings, $translatedSettings) {
+        foreach ($translatedSettings as $key => $value) {
+            // Check if the key exists in the default settings
+            if (array_key_exists($key, $defaultSettings)) {
+                // If the value is an array, we need to recursively merge
+                if (is_array($value)) {
+                    // Recursively merge arrays
+                    $defaultSettings[$key] = self::mergeTranslatedSettings($defaultSettings[$key], $value);
+                } else {
+                    // If not an array, replace the value in default settings with the translated value
+                    $defaultSettings[$key] = $value;
+                }
+            } else {
+                // If the key doesn't exist in default settings, add it from the translated settings
+                $defaultSettings[$key] = $value;
+            }
+        }
+        
+        return $defaultSettings;
+    }
+    public static function get_form_stripe_settings($form_id){ 
+        if(!empty(SUPER_Forms()->stripe_settings)) return SUPER_Forms()->stripe_settings;
         $s = get_post_meta($form_id, '_stripe', true);
-        if($s===false){ $s = array(); }else{ $s = maybe_unserialize($s); }
+        if($s===false){ 
+            $s = array(); 
+        }else{ 
+            $s = maybe_unserialize($s); 
+        }
+        // Merge translated settings
+        error_log('merge translated settings');
+        error_log(SUPER_Forms()->submission_i18n);
+        if(!empty($s['i18n']) && !empty($s['i18n'][SUPER_Forms()->submission_i18n])){
+            error_log('before merging');
+            error_log(json_encode($s));
+            $translatedSettings = $s['i18n'][SUPER_Forms()->submission_i18n];
+            $s = self::mergeTranslatedSettings($s, $translatedSettings);
+            unset($s['i18n']);
+            error_log('after merging');
+            error_log(json_encode($s));
+        }
+        SUPER_Forms()->stripe_settings = $s;
         return $s;
     }
     public static function save_form_woocommerce_settings($s, $form_id){ 
@@ -1050,8 +1090,10 @@ class SUPER_Common {
     public static function get_form_translations($form_id){
         return get_post_meta( $form_id, '_super_translations', true );
     }
-
-
+    public static function get_payload_i18n(){
+        SUPER_Forms()->submission_i18n = (isset($_POST['i18n']) ? sanitize_text_field($_POST['i18n']) : '');
+        return SUPER_Forms()->submission_i18n;
+    }
     /**
      * Font Awesome 5 Free backwards compatibility
      */

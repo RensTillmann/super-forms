@@ -28,7 +28,8 @@ class SUPER_Install {
 	 *	@since		1.0.0
 	 */
 	public static function install(){
-        flush_rewrite_rules(); // required for add_rewrite_rule() to be affected after updating the plugin or installing it for the first time
+        error_log('SUPER_Install::install()');
+        flush_rewrite_rules(true); // required for add_rewrite_rule() to be affected after updating the plugin or installing it for the first time
         global $wpdb;
         if(!defined('SUPER_INSTALLING')){
             define('SUPER_INSTALLING', true);
@@ -54,7 +55,8 @@ class SUPER_Install {
      *  @since      1.9
      */
     public static function deactivate(){       
-        flush_rewrite_rules(); // required for add_rewrite_rule() to be affected after updating the plugin or installing it for the first time
+        error_log('SUPER_Install::deactivate()');
+        flush_rewrite_rules(true); // required for add_rewrite_rule() to be affected after updating the plugin or installing it for the first time
         delete_option('_sf_permalinks_flushed');
         wp_clear_scheduled_hook('super_client_data_garbage_collection');
         wp_clear_scheduled_hook('super_cron_reminders');

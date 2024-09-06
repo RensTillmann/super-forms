@@ -1357,18 +1357,16 @@ if( !class_exists('SUPER_Register_Login') ) :
                         }
                     }
                     // Stripe checkout
-                    if(!empty($settings['_stripe'])){
-                        $s = $settings['_stripe'];
-                        // Skip if Stripe checkout is not enabled
-                        if($s['enabled']==='true'){
-                            // If conditional check is enabled
-                            $checkout = true;
-                            if($s['conditions']['enabled']==='true' && $s['logic']!==''){
-                                $f1 = SUPER_Common::email_tags($s['f1'], $data, $settings);
-                                $logic = $s['logic'];
-                                $f2 = SUPER_Common::email_tags($s['f2'], $data, $settings);
-                                $checkout = SUPER_Common::conditional_compare_check($f1, $logic, $f2);
-                            }
+                    $s = SUPER_Common::get_form_stripe_settings($form_id);
+                    // Skip if Stripe checkout is not enabled
+                    if(!empty($s) && $s['enabled']==='true'){
+                        // If conditional check is enabled
+                        $checkout = true;
+                        if($s['conditions']['enabled']==='true' && $s['logic']!==''){
+                            $f1 = SUPER_Common::email_tags($s['f1'], $data, $settings);
+                            $logic = $s['logic'];
+                            $f2 = SUPER_Common::email_tags($s['f2'], $data, $settings);
+                            $checkout = SUPER_Common::conditional_compare_check($f1, $logic, $f2);
                         }
                     }
                     // Lets check if a user already exists with the same user_login or user_email
