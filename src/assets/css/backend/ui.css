@@ -37,7 +37,8 @@
   font-weight: 500;
   font-size: 14px;
 }
-.sfui-title .flag {
+.sfui-title .flag,
+.sfui-subline .flag {
   margin: 0px 0px 0px 6px;
 }
 .sfui-setting .sfui-title>span {

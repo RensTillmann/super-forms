@@ -1232,6 +1232,28 @@
             return SUPER.get_obj_value_by_key(obj[is[0]], is.slice(1), value);
         }
     };
+    SUPER.add_country_flags = function(i18n, flag, nodes){
+        if(flag){
+            for(var i=0; i<nodes.length; i++){
+                // Add the country flag next to the setting title to indicate translatable option
+                var node = nodes[i].closest('label').querySelector('.sfui-title');
+                if(node){
+                    var cloneFlag = flag.cloneNode();
+                    cloneFlag.title = 'Translation for ' + (i18n ? i18n : 'main language');
+                    if (node.querySelector('.flag')) node.querySelector('.flag').remove();
+                    node.appendChild(cloneFlag);
+                }else{
+                    var node = nodes[i].closest('label').querySelector('.sfui-subline');
+                    if(node){
+                        var cloneFlag = flag.cloneNode();
+                        cloneFlag.title = 'Translation for ' + (i18n ? i18n : 'main language');
+                        if (node.querySelector('.flag')) node.querySelector('.flag').remove();
+                        node.appendChild(cloneFlag);
+                    }
+                }
+            }
+        }
+    };
     SUPER.get_tab_settings = function(settings, slug, tab, data, returnData){
         if(typeof returnData === 'undefined') returnData = false;
         var nodes, i, i18n_data = null;
@@ -1244,18 +1266,7 @@
                 tab = document.querySelector('.super-tab-content.super-tab-' + slug);
             }
             nodes = tab.querySelectorAll('.sfui-i18n [name]');
-            if(flag){
-                for(i = 0; i<nodes.length; i++){
-                    // Add the country flag next to the setting title to indicate translatable option
-                    var title = nodes[i].closest('label').querySelector('.sfui-title');
-                    if (title) {
-                        var cloneFlag = flag.cloneNode();
-                        cloneFlag.title = 'Translation for ' + (i18n ? i18n : 'main language');
-                        if (title.querySelector('.flag')) title.querySelector('.flag').remove();
-                        title.appendChild(cloneFlag);
-                    }
-                }
-            }
+            SUPER.add_country_flags(i18n, flag, nodes);
             if(SUPER.ui.i18n.translating) {
                 for (i = 0; i < nodes.length; i++) {
                     // Skip if already exists
@@ -1352,18 +1363,7 @@
         var flag = document.querySelector(':scope .super-tabs > .super-tab-builder > .flag');
         // Remember the original value for translatable settings
         nodes = tab.querySelectorAll('.sfui-i18n [name]');
-        if (flag) {
-            for (i = 0; i < nodes.length; i++) {
-                // Add the country flag next to the setting title to indicate translatable option
-                var title = nodes[i].closest('label').querySelector('.sfui-title');
-                if (title) {
-                    var cloneFlag = flag.cloneNode();
-                    cloneFlag.title = 'Translation for ' + (i18n ? i18n : 'main language');
-                    if (title.querySelector('.flag')) title.querySelector('.flag').remove();
-                    title.appendChild(cloneFlag);
-                }
-            }
-        }
+        SUPER.add_country_flags(i18n, flag, nodes);
         if(SUPER.ui.i18n.translating) {
             for (i = 0; i < nodes.length; i++) {
                 // Skip if already exists
@@ -3615,6 +3615,9 @@
                             i18n: $i18n
                         },
                         success: function (data) {
+                            debugger;
+                            debugger;
+                            debugger;
                             console.log(SUPER.ui.settings);
                             data = JSON.parse(data);
                             $('.super-preview-elements').html(data.elements);

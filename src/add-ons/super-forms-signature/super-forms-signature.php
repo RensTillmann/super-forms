@@ -381,6 +381,7 @@ if( !class_exists('SUPER_Signature') ) :
          *  @since      1.0.0
         */
         public static function add_signature_element( $array, $attributes ) {
+            error_log('add_signature_element()');
 
             // Include the predefined arrays
             require( SUPER_PLUGIN_DIR . '/includes/shortcodes/predefined-arrays.php' );

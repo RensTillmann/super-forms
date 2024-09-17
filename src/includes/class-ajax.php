@@ -534,7 +534,7 @@ class SUPER_Ajax {
         );
         // Check if languages are used
         $verified = true;
-        $settings = SUPER_Common::get_form_settings($atts['id']);
+        $settings = SUPER_Common::get_form_settings($atts['id'], true);
         if(empty($settings['i18n_switch'])) $settings['i18n_switch'] = 'false';
         if($settings['i18n_switch']!=='true'){
             // No need to do this, return message
@@ -947,6 +947,7 @@ class SUPER_Ajax {
         error_log('3.1: '.json_encode($s));
         SUPER_Common::save_form_pdf_settings($s, $backup_id);
 
+        error_log('get_form_stripe_settings(3)');
         $s = SUPER_Common::get_form_stripe_settings($backup_id);
         SUPER_Common::save_form_stripe_settings($s, $backup_id);
 
@@ -3232,6 +3233,8 @@ class SUPER_Ajax {
         $entry_id = absint($sfsi['entry_id']);
         $list_id = absint($sfsi['list_id']);
         $settings = $sfsi['settings'];
+        error_log('submit_form(1)::$settings');
+        error_log(json_encode($settings));
         $response_data = $sfsi['response_data'];
         do_action( 'super_before_processing_data', array('atts' => $sfsi) );
         if( ( isset( $data ) ) && ( count( $data )>0 ) ) {

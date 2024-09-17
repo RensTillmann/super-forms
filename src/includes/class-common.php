@@ -157,18 +157,6 @@ class SUPER_Common {
             }
         }
     }
-    public static function get_form_woocommerce_settings($form_id){
-        return maybe_unserialize(get_post_meta($form_id, '_woocommerce', true));
-    }
-    public static function get_form_listings_settings($form_id){
-        return maybe_unserialize(get_post_meta($form_id, '_listings', true));
-    }
-    public static function get_form_pdf_settings($form_id){              
-        $s = get_post_meta($form_id, '_pdf', true);
-        if($s===false){ $s = array(); }else{ $s = maybe_unserialize($s); }
-        return $s;
-    }
-
     // Function to recursively merge the translated array with the default language
     public static function mergeTranslatedSettings($defaultSettings, $translatedSettings) {
         foreach ($translatedSettings as $key => $value) {
@@ -190,8 +178,98 @@ class SUPER_Common {
         
         return $defaultSettings;
     }
-    public static function get_form_stripe_settings($form_id){ 
-        if(!empty(SUPER_Forms()->stripe_settings)) return SUPER_Forms()->stripe_settings;
+    public static function get_form_woocommerce_settings($form_id){
+        error_log(SUPER_Forms()->submission_i18n);
+        if(!empty(SUPER_Forms()->woocommerce_settings) && empty(SUPER_Forms()->submission_i18n)){
+            error_log('return existing woocommerce settings...');
+            return SUPER_Forms()->woocommerce_settings;
+        }
+        error_log(SUPER_Forms()->submission_i18n);
+        $s = get_post_meta($form_id, '_woocommerce', true);
+        if($s===false){ 
+            $s = array(); 
+        }else{ 
+            $s = maybe_unserialize($s); 
+        }
+        // Merge translated settings
+        error_log('merge translated settings for WOOCOMMERCE');
+        error_log(SUPER_Forms()->submission_i18n);
+        if(!empty($s['i18n']) && !empty($s['i18n'][SUPER_Forms()->submission_i18n])){
+            error_log('before merging');
+            error_log(json_encode($s));
+            $translatedSettings = $s['i18n'][SUPER_Forms()->submission_i18n];
+            $s = self::mergeTranslatedSettings($s, $translatedSettings);
+            unset($s['i18n']);
+            error_log('after merging');
+            error_log(json_encode($s));
+        }
+        SUPER_Forms()->woocommerce_settings = $s;
+        return $s;
+    }
+    public static function get_form_listings_settings($form_id){
+        error_log(SUPER_Forms()->submission_i18n);
+        if(!empty(SUPER_Forms()->listings_settings) && empty(SUPER_Forms()->submission_i18n)){
+            error_log('return existing listings settings...');
+            return SUPER_Forms()->listings_settings;
+        }
+        error_log(SUPER_Forms()->submission_i18n);
+        $s = get_post_meta($form_id, '_listings', true);
+        if($s===false){ 
+            $s = array(); 
+        }else{ 
+            $s = maybe_unserialize($s); 
+        }
+        // Merge translated settings
+        error_log('merge translated settings for LISTINGS');
+        error_log(SUPER_Forms()->submission_i18n);
+        if(!empty($s['i18n']) && !empty($s['i18n'][SUPER_Forms()->submission_i18n])){
+            error_log('before merging');
+            error_log(json_encode($s));
+            $translatedSettings = $s['i18n'][SUPER_Forms()->submission_i18n];
+            $s = self::mergeTranslatedSettings($s, $translatedSettings);
+            unset($s['i18n']);
+            error_log('after merging');
+            error_log(json_encode($s));
+        }
+        SUPER_Forms()->listings_settings = $s;
+        return $s;
+    }
+    public static function get_form_pdf_settings($form_id){
+        error_log(SUPER_Forms()->submission_i18n);
+        if(!empty(SUPER_Forms()->pdf_settings) && empty(SUPER_Forms()->submission_i18n)){
+            error_log('return existing pdf settings...');
+            return SUPER_Forms()->pdf_settings;
+        }
+        error_log(SUPER_Forms()->submission_i18n);
+        if(!empty(SUPER_Forms()->pdf_settings)) return SUPER_Forms()->pdf_settings;
+        $s = get_post_meta($form_id, '_pdf', true);
+        if($s===false){ 
+            $s = array(); 
+        }else{ 
+            $s = maybe_unserialize($s); 
+        }
+        // Merge translated settings
+        error_log('merge translated settings for PDF');
+        error_log(SUPER_Forms()->submission_i18n);
+        if(!empty($s['i18n']) && !empty($s['i18n'][SUPER_Forms()->submission_i18n])){
+            error_log('before merging');
+            error_log(json_encode($s));
+            $translatedSettings = $s['i18n'][SUPER_Forms()->submission_i18n];
+            $s = self::mergeTranslatedSettings($s, $translatedSettings);
+            unset($s['i18n']);
+            error_log('after merging');
+            error_log(json_encode($s));
+        }
+        SUPER_Forms()->pdf_settings = $s;
+        return $s;
+    }
+    public static function get_form_stripe_settings($form_id){
+        error_log(SUPER_Forms()->submission_i18n);
+        if(!empty(SUPER_Forms()->stripe_settings) && empty(SUPER_Forms()->submission_i18n)){
+            error_log('return existing stripe settings...');
+            return SUPER_Forms()->stripe_settings;
+        }
+        error_log(SUPER_Forms()->submission_i18n);
         $s = get_post_meta($form_id, '_stripe', true);
         if($s===false){ 
             $s = array(); 
@@ -199,7 +277,7 @@ class SUPER_Common {
             $s = maybe_unserialize($s); 
         }
         // Merge translated settings
-        error_log('merge translated settings');
+        error_log('merge translated settings for STRIPE');
         error_log(SUPER_Forms()->submission_i18n);
         if(!empty($s['i18n']) && !empty($s['i18n'][SUPER_Forms()->submission_i18n])){
             error_log('before merging');
@@ -213,16 +291,16 @@ class SUPER_Common {
         SUPER_Forms()->stripe_settings = $s;
         return $s;
     }
-    public static function save_form_woocommerce_settings($s, $form_id){ 
+    public static function save_form_woocommerce_settings($s, $form_id){
         update_post_meta($form_id, '_woocommerce', $s);
     }
-    public static function save_form_listings_settings($s, $form_id){    
+    public static function save_form_listings_settings($s, $form_id){
         update_post_meta($form_id, '_listings', $s);
     }
-    public static function save_form_pdf_settings($s, $form_id){         
+    public static function save_form_pdf_settings($s, $form_id){
         update_post_meta($form_id, '_pdf', $s);
     }
-    public static function save_form_stripe_settings($s, $form_id){      
+    public static function save_form_stripe_settings($s, $form_id){
         update_post_meta($form_id, '_stripe', $s);
     }
 
@@ -1386,8 +1464,7 @@ class SUPER_Common {
     }
 
     // Check if we conditionally checkout to WooCommerce
-    public static function conditionally_wc_checkout($data, $settings){
-        $wcs = $settings['_woocommerce'];
+    public static function conditionally_wc_checkout($data, $wcs, $settings){
         if($wcs['checkout']!=='true') return false;
         $checkout = true;
         if(!empty($wcs['checkout_conditionally'] && $wcs['checkout_conditionally']['enabled']==='true')){
@@ -1423,7 +1500,12 @@ class SUPER_Common {
      *
      * @since 3.8.0
      */
-    public static function get_form_settings($form_id) {
+    public static function get_form_settings($form_id, $renew=false){
+        error_log('get_form_settings()');
+        if($renew===false && isset(SUPER_Forms()->form_settings)){
+            error_log('we already have the form setings, return it');
+            return SUPER_Forms()->form_settings;
+        }
         $form_id = absint($form_id);
         if(!class_exists('SUPER_Settings'))  require_once('class-settings.php'); 
         $form_settings = get_post_meta($form_id, '_super_form_settings', true);
@@ -1932,8 +2014,20 @@ class SUPER_Common {
             }
             update_post_meta($form_id, '_super_form_settings', $s);
             update_post_meta($form_id, '_super_version', SUPER_VERSION);
+
+            self::save_form_woocommerce_settings($s['_woocommerce'], $form_id);
+            self::save_form_listings_settings($s['_listings'], $form_id);
+            self::save_form_pdf_settings($s['_pdf'], $form_id);
+            self::save_form_stripe_settings($s['_stripe'], $form_id);
         }
-        return apply_filters( 'super_form_settings_filter', $s, array( 'id'=>$form_id ) );
+
+        $s['_woocommerce'] = self::get_form_woocommerce_settings($form_id);
+        $s['_listings'] = self::get_form_listings_settings($form_id);
+        $s['_pdf'] = self::get_form_pdf_settings($form_id);
+        $s['_stripe'] = self::get_form_stripe_settings($form_id);
+
+        SUPER_Forms()->form_settings = apply_filters( 'super_form_settings_filter', $s, array( 'id'=>$form_id ) );
+        return SUPER_Forms()->form_settings;
     }
 
 

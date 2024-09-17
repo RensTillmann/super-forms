@@ -129,7 +129,9 @@ class SUPER_Shortcodes {
          *  @since      1.0.0
         */
         include( 'shortcodes/form-elements.php' );
+        error_log('before appy_filters(super_shortcodes_after_form_elements_filter)');
         $array = apply_filters( 'super_shortcodes_after_form_elements_filter', $array, $attr );
+        error_log('after appy_filters(super_shortcodes_after_form_elements_filter)');
         
 
         /** 

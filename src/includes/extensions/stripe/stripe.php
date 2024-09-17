@@ -703,6 +703,9 @@ if(!class_exists('SUPER_Stripe')) :
             $domain = home_url(); // e.g: 'http://domain.com';
             $home_url = trailingslashit($domain);
             // Stripe checkout
+            error_log('get_form_stripe_settings(5)');
+            error_log(SUPER_Forms()->submission_i18n);
+            error_log(json_encode($settings));
             $s = SUPER_Common::get_form_stripe_settings($form_id);
             error_log('stripe settings:');
             error_log(json_encode($s));

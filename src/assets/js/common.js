@@ -469,6 +469,27 @@ function SUPERreCaptcha(){
             }
         });
     };
+    SUPER.mergeTranslatedSettings = function(defaultSettings, translatedSettings) {
+        for (var key in translatedSettings) {
+            if (translatedSettings.hasOwnProperty(key)) {
+                // Check if the key exists in default settings
+                if (defaultSettings.hasOwnProperty(key)) {
+                    // If the value is an object, we need to recursively merge
+                    if (typeof translatedSettings[key] === 'object' && !Array.isArray(translatedSettings[key])) {
+                        // Recursively merge objects
+                        defaultSettings[key] = SUPER.mergeTranslatedSettings(defaultSettings[key], translatedSettings[key]);
+                    } else {
+                        // If not an object (or if it's an array), replace the value in default settings with the translated value
+                        defaultSettings[key] = translatedSettings[key];
+                    }
+                } else {
+                    // If the key doesn't exist in default settings, add it from the translated settings
+                    defaultSettings[key] = translatedSettings[key];
+                }
+            }
+        } 
+        return defaultSettings;
+    };
     SUPER.process_form_data = function(args){
         args.generatePdf = false;
         args.pdfSettings = null;
@@ -476,8 +497,14 @@ function SUPERreCaptcha(){
             typeof SUPER.form_js[args.form_id] !== 'undefined' && 
             typeof SUPER.form_js[args.form_id]._pdf !== 'undefined' && 
             SUPER.form_js[args.form_id]._pdf.generate === "true" ) {
+                debugger;
+                debugger;
                 args.generatePdf = true;
                 args.pdfSettings = SUPER.form_js[args.form_id]._pdf;
+                if(args.pdfSettings['i18n'] && args.pdfSettings['i18n'][args.form0.dataset.i18n]){
+                    var $translatedSettings = args.pdfSettings['i18n'][args.form0.dataset.i18n];
+                    args.pdfSettings = SUPER.mergeTranslatedSettings(args.pdfSettings, $translatedSettings);
+                }
                 if(args.progressBar) args.progressBar.style.width = 0+'%';
                 if(args.pdfSettings.generatingText===''){
                     args.loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+super_common_i18n.loadingOverlay.generating_pdf+'</span>';
@@ -489,8 +516,13 @@ function SUPERreCaptcha(){
             if( typeof SUPER.get_form_settings === 'function' && 
                 typeof SUPER.get_form_settings()._pdf !== 'undefined' && 
                 SUPER.get_form_settings()._pdf.generate === "true" ) {
+                    debugger;
                     args.generatePdf = true;
                     args.pdfSettings = SUPER.get_form_settings()._pdf;
+                    if(args.pdfSettings['i18n'] && args.pdfSettings['i18n'][args.form0.dataset.i18n]){
+                        var $translatedSettings = args.pdfSettings['i18n'][args.form0.dataset.i18n];
+                        args.pdfSettings = SUPER.mergeTranslatedSettings(args.pdfSettings, $translatedSettings);
+                    }
                     if(args.progressBar) args.progressBar.style.width = 0+'%';
                     if(args.pdfSettings.generatingText===''){
                         args.loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+super_common_i18n.loadingOverlay.generating_pdf+'</span>';
