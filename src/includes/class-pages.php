@@ -1116,6 +1116,7 @@ class SUPER_Pages {
         $listings = SUPER_Common::get_form_listings_settings($form_id);
 
         $pdf = SUPER_Common::get_form_pdf_settings($form_id);
+        error_log('get_form_stripe_settings(4)');
         $stripe = SUPER_Common::get_form_stripe_settings($form_id);
 
         // Retrieve all form setting fields with the correct default values

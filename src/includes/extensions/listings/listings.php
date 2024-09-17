@@ -632,7 +632,8 @@ if(!class_exists('SUPER_Listings')) :
                                                     'subline' => esc_html__( 'This message will be displayed if the listing is not visible to the user', 'super-forms' ),
                                                     'type' => 'textarea',
                                                     'default' => "<div class=\"super-msg super-info\">\n    <h1>" . esc_html__( "You do not have permission to view this listing", "super-forms" ) . "</h1>\n</div>",
-                                                    'filter' => 'display.enabled;true'
+                                                    'filter' => 'display.enabled;true',
+                                                    'i18n'=>true
                                                 ),
                                                 array(
                                                     'vertical' => true, // sfui-vertical
@@ -698,14 +699,16 @@ if(!class_exists('SUPER_Listings')) :
                                             'title' => esc_html__( 'HTML/message to display when there are no results based on filter', 'super-forms' ),
                                             'subline' => esc_html__( 'This message will be displayed if there are no results based on the current filter (leave blank for none)', 'super-forms' ),
                                             'type' => 'textarea',
-                                            'default' => "<div class=\"super-msg super-info\">\n    <h1>" . esc_html__( "No results found based on your filter", "super-forms" ) . "</h1>\n    " . esc_html__( 'Clear your filters or try a different filter.', 'super-forms' ) . "\n</div>"
+                                            'default' => "<div class=\"super-msg super-info\">\n    <h1>" . esc_html__( "No results found based on your filter", "super-forms" ) . "</h1>\n    " . esc_html__( 'Clear your filters or try a different filter.', 'super-forms' ) . "\n</div>",
+                                            'i18n'=>true
                                         ),
                                         array(
                                             'name' => 'noResultsMessage',
                                             'title' => esc_html__( 'HTML/message to display when there are no results', 'super-forms' ),
                                             'subline' => esc_html__( 'This message will only be displayed if absolutely zero results are available for the current user (leave blank for none)', 'super-forms' ),
                                             'type' => 'textarea',
-                                            'default' => "<div class=\"super-msg super-info\">\n    <h1>" . esc_html__( "No results found", "super-forms" ) . "</h1>\n</div>"
+                                            'default' => "<div class=\"super-msg super-info\">\n    <h1>" . esc_html__( "No results found", "super-forms" ) . "</h1>\n</div>",
+                                            'i18n'=>true
                                         ),
                                         array(
                                             'name' => 'onlyDisplayMessage',
@@ -808,7 +811,8 @@ if(!class_exists('SUPER_Listings')) :
                                                     'subline' => esc_html__( 'When viewing an entry, you can create your own HTML view (leave blank to use the default template)', 'super-forms' ),
                                                     'type' => 'textarea',
                                                     'default' => $html_template,
-                                                    'filter' => 'view_any.enabled;true'
+                                                    'filter' => 'view_any.enabled;true',
+                                                    'i18n'=>true
                                                 ),
                                                 array(
                                                     'name' => 'loop_html',
@@ -854,7 +858,8 @@ if(!class_exists('SUPER_Listings')) :
                                                     'subline' => esc_html__( 'When viewing an entry, you can create your own HTML view (leave blank to use the default template)', 'super-forms' ),
                                                     'type' => 'textarea',
                                                     'default' => $html_template,
-                                                    'filter' => 'view_own.enabled;true'
+                                                    'filter' => 'view_own.enabled;true',
+                                                    'i18n'=>true
                                                 ),
                                                 array(
                                                     'name' => 'loop_html',
@@ -1103,6 +1108,7 @@ if(!class_exists('SUPER_Listings')) :
                                 array(
                                     'name' => 'name',
                                     'subline' => 'Column name',
+                                    'i18n'=>true,
                                     'type' => 'text',
                                     'default' => (!empty($sv['default']) ? $sv['default'] : '')
                                 ),
@@ -1228,6 +1234,7 @@ if(!class_exists('SUPER_Listings')) :
                                             array(
                                                 'name' => 'name',
                                                 'subline' => esc_html__( 'Column name', 'super-forms' ),
+                                                'i18n'=>true,
                                                 'placeholder' => esc_html__( 'e.g. First name', 'super-forms' ),
                                                 'type' => 'text',
                                                 'default' => ''

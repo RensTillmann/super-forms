@@ -1333,10 +1333,9 @@ if( !class_exists('SUPER_Register_Login') ) :
                     // If this is a paid signup form (when checkout is enabled)
                     $checkout = false;
                     // WooCommerce checkout
-                    $wcs = null;
-                    if(isset($settings['_woocommerce'])) $wcs = $settings['_woocommerce'];
-                    if(isset($wcs) && $wcs['checkout']=='true'){
-                        $checkout = SUPER_Common::conditionally_wc_checkout($data, $settings);
+                    $wcs = SUPER_Common::get_form_woocommerce_settings($form_id);
+                    if(!empty($wcs) && $wcs['checkout']=='true'){
+                        $checkout = SUPER_Common::conditionally_wc_checkout($data, $wcs, $settings);
                     }
                     // PayPal checkout
                     if((isset($settings['paypal_checkout'])) && ($settings['paypal_checkout'] == 'true')){
@@ -1357,6 +1356,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         }
                     }
                     // Stripe checkout
+                    error_log('get_form_stripe_settings(2)');
                     $s = SUPER_Common::get_form_stripe_settings($form_id);
                     // Skip if Stripe checkout is not enabled
                     if(!empty($s) && $s['enabled']==='true'){

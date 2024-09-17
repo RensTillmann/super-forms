@@ -99,7 +99,11 @@
             // @since 1.5.0 - first update the data fields attribute to make sure regex tags are replaced with according field names
             //SUPER.init_calculator_update_fields_attribute(form, calculatorFields);
         }else{
-            calculatorFields = form.querySelectorAll('.super-calculator-wrapper[data-fields*="{'+args.el.dataset.oname+'}"]');
+			// We can't use oname (original field name) here because someone might use {hidden_2}+{hidden_3}+etc. inside their math, which would cause the Calculator to not update at all.
+			// This could be avoided by using ({hidden}-{hidden})+({hidden_2}+{hidden_3}+etc.) as a work-around to this issue.
+			// Not sure how this might affect other use-cases but we will be using args.el.name instead from now on going forward and not oname (original field name)
+            // deprecated: calculatorFields = form.querySelectorAll('.super-calculator-wrapper[data-fields*="{'+args.el.dataset.oname+'}"]');
+            calculatorFields = form.querySelectorAll('.super-calculator-wrapper[data-fields*="{'+args.el.name+'}"]');
 			if(calculatorFields.length===0 && SUPER.calculatorFieldConnections[form.id][args.el.dataset.oname]){
 				var count = Object.keys(SUPER.calculatorFieldConnections[form.id][args.el.dataset.oname]).length;
 				if(count>0){

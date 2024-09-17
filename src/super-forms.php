@@ -71,6 +71,10 @@ if(!class_exists('SUPER_Forms')) :
         */
         public $global_settings;
         public $default_settings;
+        public $form_settings;
+        public $woocommerce_settings;
+        public $listings_settings;
+        public $pdf_settings;
         public $stripe_settings;
         public $submission_i18n;
         public $commaForItemsDetected;
@@ -255,7 +259,7 @@ if(!class_exists('SUPER_Forms')) :
                 $path = $directory . '/' . $v;
                 if(is_dir($path)){
                     $file = $path . '/' . $v . '.php';
-                    //if(file_exists($file)) include_once $file;
+                    if(file_exists($file)) include_once $file;
                 }
             }
         }
@@ -3104,6 +3108,7 @@ if(!class_exists('SUPER_Forms')) :
             $s = SUPER_Common::get_form_pdf_settings($id);
             SUPER_Common::save_form_pdf_settings($s, $id);
 
+            error_log('get_form_stripe_settings(1)');
             $s = SUPER_Common::get_form_stripe_settings($id);
             SUPER_Common::save_form_stripe_settings($s, $id);
 
