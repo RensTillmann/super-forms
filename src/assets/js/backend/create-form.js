@@ -204,41 +204,6 @@
                             parent = parent.parentElement;
                         }
                         console.log(keyPath);
-                        //// Construct the nested object in i18nObject
-                        //var obj = i18nObject;
-                        //var objCompare = mainLanguageObject;
-                        //keyPath.forEach(key => {
-                        //    if(!isNaN(key)){
-                        //        if(!obj[key]) obj[key] = {};
-                        //        obj = obj[key];
-                        //        objCompare = objCompare[key];
-                        //        return;
-                        //    }else{
-                        //        var tmpKey = key.replace('[]','');
-                        //        if(!obj[tmpKey] && key.indexOf('[]')!==-1){
-                        //            obj[tmpKey] = [];
-                        //        }
-                        //        if(!obj[tmpKey]){
-                        //            obj[tmpKey] = [];
-                        //        }
-                        //        obj = obj[tmpKey];
-                        //        objCompare = objCompare[tmpKey];
-                        //        return;
-                        //    }
-                        //});
-                        //if(objCompare[lastKey]===value){
-                        //    // When this value equals the on from the main language delete it
-                        //    if(obj[lastKey]){
-                        //        delete obj[lastKey];
-                        //    }
-                        //}else{
-                        //    // Value is different, keep it
-                        //    obj[lastKey] = value;
-                        //}
-
-
-
-
                         var p = repeater.closest('[data-g="data"]') ? repeater.closest('[data-g="data"]') : repeater.closest('.super-tab-content');
                         var i18n_input_field = p.querySelector('[name="i18n"]');
                         var i18n_value = i18n_input_field.value.trim();
@@ -488,39 +453,29 @@
                     var lastKey = field.name;
                     var obj = i18nObject;
                     var objCompare = mainLanguageObject;
-                    //keyPath.forEach(key => {
-                    //    if(!isNaN(key)){
-                    //        if(!obj[key]) obj[key] = {};
-                    //        obj = obj[key];
-                    //        objCompare = objCompare[key];
-                    //        return;
-                    //    }else{
-                    //        var tmpKey = key.replace('[]','');
-                    //        if(!obj[tmpKey] && key.indexOf('[]')!==-1){
-                    //            obj[tmpKey] = [];
-                    //        }
-                    //        if(!obj[tmpKey]){
-                    //            obj[tmpKey] = [];
-                    //        }
-                    //        obj = obj[tmpKey];
-                    //        objCompare = objCompare[tmpKey];
-                    //        return;
-                    //    }
-                    //});
+                    var parentIsArray = false;
                     keyPath.forEach(key => {
-                        if (!isNaN(key)) {
-                            if (!obj[key]) obj[key] = {}; // Creates an empty object if key doesn't exist
+                        if(!isNaN(key)){
+                            if(!obj[key]) obj[key] = {};
                             obj = obj[key];
                             objCompare = objCompare[key];
-                        } else {
-                            var tmpKey = key.replace('[]', '');
-                            if (key.indexOf('[]') !== -1) {
-                                // Only create an array if it doesn't exist and you intend to use it
-                                if (!Array.isArray(obj[tmpKey])) {
+                        }else{
+                            var tmpKey = key.replace('[]','');
+                            if(key==='custom_columns') debugger;
+                            if(tmpKey==='custom_columns') debugger;
+                            if(!obj[tmpKey] && key.indexOf('[]')!==-1){
+                                if(parentIsArray===true){
+                                    // Settings that are of type array() don't directly have children that are of type array
+                                    obj[tmpKey] = {};
+                                    parentIsArray = false;
+                                }else{
                                     obj[tmpKey] = [];
+                                    parentIsArray = true;
                                 }
-                            } else if (!obj[tmpKey]) {
-                                // Only create an object if it doesn't already exist
+                            }else{
+                                parentIsArray = false;
+                            }
+                            if(!obj[tmpKey]){
                                 obj[tmpKey] = {};
                             }
                             obj = obj[tmpKey];
@@ -536,10 +491,13 @@
                     }else{
                         // Value is different, keep it
                         obj[lastKey] = value;
+                        if(obj.length===0){
+                            obj = {};
+                            obj[lastKey] = value;
+                        }
                     }
                 });
                 // Clean up the data object
-                debugger;
                 SUPER.ui.settings['_'+slug].i18n[i18n] = SUPER.ui.i18n.removeEmpty(SUPER.ui.settings['_'+slug].i18n[i18n]);
                 console.log(JSON.stringify(SUPER.ui.settings['_'+slug].i18n));
                 SUPER.ui.settings['_'+slug].i18n = JSON.parse(JSON.stringify(SUPER.ui.settings['_'+slug].i18n));
@@ -572,138 +530,7 @@
             if(!i18n || i18n===''){
                 // On main language, update normal settings
                 SUPER.ui.settings['_'+slug] = SUPER.ui.i18n.collectDataFromParents(SUPER.ui.settings['_'+slug], el, value, slug, tab);
-            }else{
-                // tmp // When we are in translation mode we must check if different value exists
-                // tmp if(!SUPER.ui.settings['_'+slug].i18n[i18n]) SUPER.ui.settings['_'+slug].i18n[i18n] = {};
-                // tmp var differentValueExists = false;
-                // tmp if(el.closest('.sfui-repeater-item')){
-                // tmp     fields = el.closest('.sfui-repeater-item').querySelectorAll('[name]');
-                // tmp }else{
-                // tmp     var fields = [];
-                // tmp     fields.push(el);
-                // tmp }
-                // tmp fields.forEach(field => {
-                // tmp     var fieldDefaultValue = field.nextElementSibling && field.nextElementSibling.className === 'sfui-original-i18n-value' ? field.nextElementSibling.value : null;
-                // tmp     if (field.name && field.value !== fieldDefaultValue && fieldDefaultValue !== null) {
-                // tmp         differentValueExists = true;
-                // tmp     }
-                // tmp });
-            
-                // tmp if (differentValueExists) {
-                // tmp     SUPER.ui.settings['_'+slug].i18n[i18n] = SUPER.ui.i18n.collectDataFromParents(SUPER.ui.settings['_'+slug].i18n[i18n], el, value);
-                // tmp } else {
-                // tmp     // Use collectDataFromParents to delete fields correctly in nested structures
-                // tmp     SUPER.ui.settings['_'+slug].i18n[i18n] = SUPER.ui.i18n.deleteFromParents(SUPER.ui.settings['_'+slug].i18n[i18n], el);
-                // tmp }
-                // tmp var p = el.closest('[data-g="data"]') ? el.closest('[data-g="data"]') : el.closest('.super-tab-content');
-                // tmp var i18n_input_field = p.querySelector('[name="i18n"]');
-                // tmp i18n_input_field.value = JSON.stringify(SUPER.ui.settings['_'+slug].i18n, undefined, 4);
             }
-
-            // tmp     var i18n = document.querySelector('.super-create-form').dataset.i18n;
-            // tmp if (el.closest('.super-tab-triggers') ||
-            // tmp     el.closest('.super-tab-woocommerce') ||
-            // tmp     el.closest('.super-tab-listings') ||
-            // tmp     el.closest('.super-tab-pdf') ||
-            // tmp     el.closest('.super-tab-stripe')) {
-            // tmp     var slug = el.closest('.super-tab-content').className.replace('super-active', '').replace('super-tab-content', '').replace('super-tab-', '').split(' ').join('');
-            // tmp     var i18n = document.querySelector('.super-create-form').dataset.i18n;
-            // tmp     var i18n_data = null;
-            // tmp     if (i18n && i18n !== '') {
-            // tmp         // Translating...
-            // tmp         // Only update the translation settings based on the input value
-            // tmp         if (el.tagName !== 'INPUT' && el.parentNode.classList.contains('sfui-type-checkbox')) el = el.parentNode.querySelector('input');
-            // tmp         if (el.tagName !== 'INPUT' && el.parentNode.parentNode.classList.contains('sfui-type-checkbox')) {
-            // tmp             el = el.parentNode.parentNode.querySelector('input');
-            // tmp         }
-            // tmp         var p = (el.closest('[data-g="data"]') ? el.closest('[data-g="data"]') : el.closest('.super-tab-content'));
-            // tmp         var i18n_input_field = (p.classList.contains('super-tab-content')) ? p.querySelector('[name="i18n"]') : p.nextElementSibling.querySelector('[name="i18n"]');
-            // tmp         
-            // tmp         var i18n_value = i18n_input_field.value.trim();
-            // tmp         if (i18n_value === '' || i18n_value === '[]') {
-            // tmp             i18n_data = {};
-            // tmp             i18n_data[i18n] = {};
-            // tmp         } else {
-            // tmp             try {
-            // tmp                 i18n_data = JSON.parse(i18n_value);
-            // tmp             }
-            // tmp             catch (e) {
-            // tmp                 console.error(e);
-            // tmp                 i18n_data = {};
-            // tmp                 i18n_data[i18n] = {};
-            // tmp                 i18n_input_field.classList.add('sfui-red');
-            // tmp             }
-            // tmp         }
-            // tmp         if (!i18n_data[i18n]) i18n_data[i18n] = {};
-            // tmp         if (Array.isArray(i18n_data[i18n])) {
-            // tmp             i18n_data[i18n] = {};
-            // tmp         }
-            // tmp         
-            // tmp         var value = el.value;
-            // tmp         var type = el.type;
-            // tmp         if (type === 'checkbox') value = el.checked;
-            // tmp         if (type === 'radio') value = (tab.querySelector('[name="' + el.name + '"]:checked') ? tab.querySelector('[name="' + el.name + '"]:checked').value : '');
-            // tmp         if (value === true) value = "true";
-            // tmp         if (value === false) value = "false";
-            // tmp         if (el.tagName === 'TEXTAREA' && tinymce.get(el.id)) {
-            // tmp             value = tinymce.get(el.id).getContent();
-            // tmp         }
-        
-            // tmp         // Check if it was part of a repeater field
-            // tmp         var differentValueExists = false;
-            // tmp         if(el.closest('.sfui-repeater-item')){
-            // tmp             fields = el.closest('.sfui-repeater-item').querySelectorAll('[name]');
-            // tmp         }else{
-            // tmp             var fields = [];
-            // tmp             fields.push(el);
-            // tmp         }
-            // tmp         fields.forEach(field => {
-            // tmp             var fieldDefaultValue = field.nextElementSibling && field.nextElementSibling.className === 'sfui-original-i18n-value' ? field.nextElementSibling.value : null;
-            // tmp             if (field.name && field.value !== fieldDefaultValue && fieldDefaultValue !== null) {
-            // tmp                 differentValueExists = true;
-            // tmp             }
-            // tmp         });
-        
-            // tmp         if (differentValueExists) {
-            // tmp             i18n_data[i18n] = SUPER.ui.i18n.collectDataFromParents(i18n_data[i18n], el, value);
-            // tmp             console.log(JSON.stringify(i18n_data[i18n], null, 2));
-            // tmp         } else {
-            // tmp             // Use collectDataFromParents to delete fields correctly in nested structures
-            // tmp             i18n_data[i18n] = SUPER.ui.i18n.deleteFromParents(i18n_data[i18n], el);
-            // tmp         }
-        
-            // tmp         // Adjust the number of repeater items to match the count in i18n_data
-            // tmp         const repeaterKey = el.closest('[data-r]') ? el.closest('[data-r]').getAttribute('data-r') : null;
-            // tmp         if (repeaterKey && i18n_data[i18n][repeaterKey]) {
-            // tmp             const repeaterContainer = el.closest('[data-r]');
-            // tmp             const currentItems = repeaterContainer.querySelectorAll('.sfui-repeater-item');
-            // tmp             const targetCount = i18n_data[i18n][repeaterKey].length;
-        
-            // tmp             // Add missing items
-            // tmp             while (currentItems.length < targetCount) {
-            // tmp                 SUPER.ui.btn(event, repeaterContainer.querySelector('.add-repeater-item-btn'), 'addRepeaterItem', true);
-            // tmp                 repeaterItems = repeaterContainer.querySelectorAll('.sfui-repeater-item');
-            // tmp             }
-            // tmp             // Remove excess items
-            // tmp             while (currentItems.length > targetCount) {
-            // tmp                 SUPER.ui.btn(event, currentItems[currentItems.length - 1].querySelector('.delete-repeater-item-btn'), 'deleteRepeaterItem', true);
-            // tmp                 repeaterItems = repeaterContainer.querySelectorAll('.sfui-repeater-item');
-            // tmp             }
-            // tmp         }
-        
-            // tmp         i18n_input_field.value = JSON.stringify(i18n_data, undefined, 4);
-            // tmp     } else {
-            // tmp         // Update tab settings
-            // tmp         if (el.closest('.super-tab-triggers')) SUPER.update_trigger_settings(true);
-            // tmp         if (el.closest('.super-tab-woocommerce')) SUPER.update_woocommerce_settings(true);
-            // tmp         if (el.closest('.super-tab-listings')) SUPER.update_listings_settings(true);
-            // tmp         if (el.closest('.super-tab-pdf')) SUPER.update_pdf_settings(true);
-            // tmp         if (el.closest('.super-tab-stripe')) SUPER.update_stripe_settings(true);
-            // tmp     }
-            // tmp } else {
-            // tmp     // Update form settings
-            // tmp     SUPER.update_form_settings(true, el);
-            // tmp }
         },
 
         i18n: {
@@ -794,17 +621,24 @@
                     if(!isNaN(key)){
                         if(!obj[key]) obj[key] = {};
                         obj = obj[key];
-                        return;
                     }else{
                         var tmpKey = key.replace('[]','');
                         if(!obj[tmpKey] && key.indexOf('[]')!==-1){
-                            obj[tmpKey] = [];
+                            if(parentIsArray===true){
+                                // Settings that are of type array() don't directly have children that are of type array
+                                obj[tmpKey] = {};
+                                parentIsArray = false;
+                            }else{
+                                obj[tmpKey] = [];
+                                parentIsArray = true;
+                            }
+                        }else{
+                            parentIsArray = false;
                         }
                         if(!obj[tmpKey]){
-                            obj[tmpKey] = [];
+                            obj[tmpKey] = {};
                         }
                         obj = obj[tmpKey];
-                        return;
                     }
                 });
                 // Value is different, keep it
@@ -891,17 +725,14 @@
             },
             removeEmpty: function(obj) {
                 console.log("Initial obj (deep copy):", JSON.parse(JSON.stringify(obj))); // Log a deep copy to preserve initial state
-            
                 function hasNamedProperties(item) {
                     // Check if the item is an object with named properties
                     return typeof item === 'object' && !Array.isArray(item) && Object.keys(item).length > 0;
                 }
-            
                 function isNonEmptyArrayWithNamedProperties(item) {
                     // Check if it's an array with additional named properties (length == 0 but has keys)
                     return Array.isArray(item) && Object.keys(item).length > 0 && item.length === 0;
                 }
-            
                 if (Array.isArray(obj)) {
                     console.log("Object is an array. Length:", obj.length);
                     return obj
@@ -934,6 +765,10 @@
                         try {
                             const beforeRemoveEmpty = JSON.parse(JSON.stringify(obj[key]));
                             const value = SUPER.ui.i18n.removeEmpty(obj[key]);
+                            if(value===undefined && obj[key] !== undefined){
+                                delete obj[key]; 
+                                return;
+                            }
                             console.log(`Before recursive call for key "${key}":`, beforeRemoveEmpty);
                             console.log(`Result after recursive call for key "${key}":`, value);
             
@@ -946,9 +781,6 @@
                             if(obj[key] !== undefined && hasEntries) {
                                 newObj[key] = obj[key];
                             }
-                            //if (value !== undefined && hasEntries) {
-                            //    newObj[key] = value;
-                            //}
                         } catch (error) {
                             console.error(`Error processing key "${key}":`, error);
                         }
@@ -961,521 +793,6 @@
                 console.log("Return obj as is:", obj);
                 return obj;
             },
-            
-            //removeEmpty: function(obj) {
-            //    console.log("Initial obj (deep copy):", JSON.parse(JSON.stringify(obj))); // Log a deep copy to preserve initial state
-            
-            //    function hasNamedProperties(item) {
-            //        // Check if the item is an object with named properties
-            //        return typeof item === 'object' && !Array.isArray(item) && Object.keys(item).length > 0;
-            //    }
-            
-            //    function isNonEmptyArrayWithNamedProperties(item) {
-            //        // Check if it's an array with additional named properties (length == 0 but has keys)
-            //        return Array.isArray(item) && Object.keys(item).length > 0 && item.length === 0;
-            //    }
-            
-            //    if (Array.isArray(obj)) {
-            //        console.log("Object is an array. Length:", obj.length);
-            //        return obj
-            //            .map((item, index) => {
-            //                console.log(`Processing array item at index ${index}:`, item, "Type:", typeof item);
-            //                try {
-            //                    const result = SUPER.ui.i18n.removeEmpty(item);
-            //                    console.log(`Result after recursive call for item at index ${index}:`, result);
-            //                    return result;
-            //                } catch (error) {
-            //                    console.error(`Error processing array item at index ${index}:`, error);
-            //                    return undefined;
-            //                }
-            //            })
-            //            .filter((item, index) => {
-            //                const keepItem = item !== undefined && 
-            //                    ((Array.isArray(item) && item.length > 0) || 
-            //                     (hasNamedProperties(item)) || 
-            //                     isNonEmptyArrayWithNamedProperties(item) || 
-            //                     (Object.entries(item).length > 0));
-            //                console.log(`Filtering array item at index ${index}:`, item, "Keep:", keepItem);
-            //                return keepItem;
-            //            });
-            //    } else if (typeof obj === 'object' && obj !== null) {
-            //        console.log("Object is a non-null object.");
-            //        const newObj = {};
-            //        Object.keys(obj).forEach(key => {
-            //            console.log(`Processing object key "${key}":`, obj[key], "Type:", typeof obj[key]);
-            
-            //            try {
-            //                const beforeRemoveEmpty = JSON.parse(JSON.stringify(obj[key]));
-            //                const value = SUPER.ui.i18n.removeEmpty(obj[key]);
-            //                console.log(`Before recursive call for key "${key}":`, beforeRemoveEmpty);
-            //                console.log(`Result after recursive call for key "${key}":`, value);
-            
-            //                // New criteria: Check both length, named properties, and entries to determine if the value should be kept
-            //                const hasEntries = (Array.isArray(value) && value.length > 0) || 
-            //                                   hasNamedProperties(value) || 
-            //                                   isNonEmptyArrayWithNamedProperties(value) || 
-            //                                   Object.entries(value).length > 0;
-            //                console.log(`Filtering key "${key}":`, value, "Has Entries:", hasEntries);
-            
-            //                if (value !== undefined && hasEntries) {
-            //                    newObj[key] = value;
-            //                }
-            //            } catch (error) {
-            //                console.error(`Error processing key "${key}":`, error);
-            //            }
-            //        });
-            //        const hasKeys = Object.keys(newObj).length > 0;
-            //        console.log("New object after filtering:", newObj, "Has keys:", hasKeys);
-            //        return hasKeys ? newObj : undefined;
-            //    }
-            
-            //    console.log("Return obj as is:", obj);
-            //    return obj;
-            //},
-
-            //removeEmpty: function(obj) {
-            //    console.log("Initial obj (deep copy):", JSON.parse(JSON.stringify(obj))); // Log a deep copy to preserve initial state
-            
-            //    function hasNamedProperties(item) {
-            //        // Check if there are named (non-index) properties
-            //        return Object.keys(item).length > 0 && !Array.isArray(item);
-            //    }
-            
-            //    if (Array.isArray(obj)) {
-            //        console.log("Object is an array. Length:", obj.length);
-            //        return obj
-            //            .map((item, index) => {
-            //                console.log(`Processing array item at index ${index}:`, item, "Type:", typeof item);
-            //                try {
-            //                    const result = SUPER.ui.i18n.removeEmpty(item);
-            //                    console.log(`Result after recursive call for item at index ${index}:`, result);
-            //                    return result;
-            //                } catch (error) {
-            //                    console.error(`Error processing array item at index ${index}:`, error);
-            //                    return undefined;
-            //                }
-            //            })
-            //            .filter((item, index) => {
-            //                const keepItem = item !== undefined && 
-            //                    ((Array.isArray(item) && item.length > 0) || 
-            //                     (hasNamedProperties(item)) || 
-            //                     (Object.entries(item).length > 0));
-            //                console.log(`Filtering array item at index ${index}:`, item, "Keep:", keepItem);
-            //                return keepItem;
-            //            });
-            //    } else if (typeof obj === 'object' && obj !== null) {
-            //        console.log("Object is a non-null object.");
-            //        const newObj = {};
-            //        Object.keys(obj).forEach(key => {
-            //            console.log(`Processing object key "${key}":`, obj[key], "Type:", typeof obj[key]);
-            
-            //            try {
-            //                const beforeRemoveEmpty = JSON.parse(JSON.stringify(obj[key]));
-            //                const value = SUPER.ui.i18n.removeEmpty(obj[key]);
-            //                console.log(`Before recursive call for key "${key}":`, beforeRemoveEmpty);
-            //                console.log(`Result after recursive call for key "${key}":`, value);
-            
-            //                // New criteria: Check both length and number of entries to determine if the value should be kept
-            //                const hasEntries = (Array.isArray(value) && value.length > 0) || 
-            //                                   hasNamedProperties(value) || 
-            //                                   Object.entries(value).length > 0;
-            //                console.log(`Filtering key "${key}":`, value, "Has Entries:", hasEntries);
-            
-            //                if (value !== undefined && hasEntries) {
-            //                    newObj[key] = value;
-            //                }
-            //            } catch (error) {
-            //                console.error(`Error processing key "${key}":`, error);
-            //            }
-            //        });
-            //        const hasKeys = Object.keys(newObj).length > 0;
-            //        console.log("New object after filtering:", newObj, "Has keys:", hasKeys);
-            //        return hasKeys ? newObj : undefined;
-            //    }
-            
-            //    console.log("Return obj as is:", obj);
-            //    return obj;
-            //},
-
-            //removeEmpty: function(obj) {
-            //    console.log("Initial obj (deep copy):", JSON.parse(JSON.stringify(obj))); // Log a deep copy to preserve initial state
-            
-            //    function hasNamedProperties(item) {
-            //        // Check if there are named (non-index) properties
-            //        return Object.keys(item).length > 0 && !Array.isArray(item);
-            //    }
-            
-            //    if (Array.isArray(obj)) {
-            //        console.log("Object is an array. Length:", obj.length);
-            //        return obj
-            //            .map((item, index) => {
-            //                console.log(`Processing array item at index ${index}:`, item, "Type:", typeof item);
-            //                try {
-            //                    const result = SUPER.ui.i18n.removeEmpty(item);
-            //                    console.log(`Result after recursive call for item at index ${index}:`, result);
-            //                    return result;
-            //                } catch (error) {
-            //                    console.error(`Error processing array item at index ${index}:`, error);
-            //                    return undefined;
-            //                }
-            //            })
-            //            .filter((item, index) => {
-            //                const keepItem = item !== undefined && 
-            //                    ((Array.isArray(item) && item.length > 0) || 
-            //                     (hasNamedProperties(item)) || 
-            //                     (Object.entries(item).length > 0));
-            //                console.log(`Filtering array item at index ${index}:`, item, "Keep:", keepItem);
-            //                return keepItem;
-            //            });
-            //    } else if (typeof obj === 'object' && obj !== null) {
-            //        console.log("Object is a non-null object.");
-            //        const newObj = {};
-            //        Object.keys(obj).forEach(key => {
-            //            console.log(`Processing object key "${key}":`, obj[key], "Type:", typeof obj[key]);
-            
-            //            // Check if it's an actual array or custom object
-            //            if (typeof obj[key] === 'object' && obj[key] !== null) {
-            //                console.log(`Key "${key}" properties:`, JSON.stringify(obj[key], null, 2));
-            //                console.log(`Is key "${key}" an array?`, Array.isArray(obj[key]));
-            
-            //                // Log the entries to understand if it's an iterable object or an array-like object
-            //                console.log(`Entries for key "${key}":`, Object.entries(obj[key]));
-            //            }
-            
-            //            try {
-            //                const value = SUPER.ui.i18n.removeEmpty(obj[key]);
-            //                console.log(`Result after recursive call for key "${key}":`, value);
-            
-            //                // New criteria: Check both length and number of entries to determine if the value should be kept
-            //                const hasEntries = (Array.isArray(value) && value.length > 0) || 
-            //                                   hasNamedProperties(value) || 
-            //                                   Object.entries(value).length > 0;
-            //                console.log(`Filtering key "${key}":`, value, "Has Entries:", hasEntries);
-            
-            //                if (value !== undefined && hasEntries) {
-            //                    newObj[key] = value;
-            //                }
-            //            } catch (error) {
-            //                console.error(`Error processing key "${key}":`, error);
-            //            }
-            //        });
-            //        const hasKeys = Object.keys(newObj).length > 0;
-            //        console.log("New object after filtering:", newObj, "Has keys:", hasKeys);
-            //        return hasKeys ? newObj : undefined;
-            //    }
-            
-            //    console.log("Return obj as is:", obj);
-            //    return obj;
-            //},
-
-            //removeEmpty: function(obj) {
-            //    console.log("Initial obj (deep copy):", JSON.parse(JSON.stringify(obj))); // Log a deep copy to preserve initial state
-            
-            //    if (Array.isArray(obj)) {
-            //        console.log("Object is an array. Length:", obj.length);
-            //        return obj
-            //            .map((item, index) => {
-            //                console.log(`Processing array item at index ${index}:`, item, "Type:", typeof item);
-            //                try {
-            //                    const result = SUPER.ui.i18n.removeEmpty(item);
-            //                    console.log(`Result after recursive call for item at index ${index}:`, result);
-            //                    return result;
-            //                } catch (error) {
-            //                    console.error(`Error processing array item at index ${index}:`, error);
-            //                    return undefined;
-            //                }
-            //            })
-            //            .filter((item, index) => {
-            //                const hasEntries = Array.isArray(item) ? item.length > 0 : Object.entries(item).length > 0;
-            //                console.log(`Filtering array item at index ${index}:`, item, "Has Entries:", hasEntries);
-            //                return item !== undefined && hasEntries;
-            //            });
-            //    } else if (typeof obj === 'object' && obj !== null) {
-            //        console.log("Object is a non-null object.");
-            //        const newObj = {};
-            //        Object.keys(obj).forEach(key => {
-            //            console.log(`Processing object key "${key}":`, obj[key], "Type:", typeof obj[key]);
-            
-            //            // Check if it's an actual array or custom object
-            //            if (typeof obj[key] === 'object' && obj[key] !== null) {
-            //                console.log(`Key "${key}" properties:`, JSON.stringify(obj[key], null, 2));
-            //                console.log(`Is key "${key}" an array?`, Array.isArray(obj[key]));
-            
-            //                // Log the entries to understand if it's an iterable object or an array-like object
-            //                console.log(`Entries for key "${key}":`, Object.entries(obj[key]));
-            //            }
-            
-            //            try {
-            //                const value = SUPER.ui.i18n.removeEmpty(obj[key]);
-            //                console.log(`Result after recursive call for key "${key}":`, value);
-            
-            //                // New criteria: Check both length and number of entries to determine if the value should be kept
-            //                const hasEntries = Array.isArray(value) ? value.length > 0 : Object.entries(value).length > 0;
-            //                console.log(`Filtering key "${key}":`, value, "Has Entries:", hasEntries);
-            
-            //                if (value !== undefined && hasEntries) {
-            //                    newObj[key] = value;
-            //                }
-            //            } catch (error) {
-            //                console.error(`Error processing key "${key}":`, error);
-            //            }
-            //        });
-            //        const hasKeys = Object.keys(newObj).length > 0;
-            //        console.log("New object after filtering:", newObj, "Has keys:", hasKeys);
-            //        return hasKeys ? newObj : undefined;
-            //    }
-            
-            //    console.log("Return obj as is:", obj);
-            //    return obj;
-            //},
-
-            //removeEmpty: function(obj) {
-            //    console.log("Initial obj (deep copy):", JSON.parse(JSON.stringify(obj))); // Log a deep copy to preserve initial state
-            
-            //    if (Array.isArray(obj)) {
-            //        console.log("Object is an array. Length:", obj.length);
-            //        return obj
-            //            .map((item, index) => {
-            //                console.log(`Processing array item at index ${index}:`, item, "Type:", typeof item);
-            //                try {
-            //                    const result = SUPER.ui.i18n.removeEmpty(item);
-            //                    console.log(`Result after recursive call for item at index ${index}:`, result);
-            //                    return result;
-            //                } catch (error) {
-            //                    console.error(`Error processing array item at index ${index}:`, error);
-            //                    return undefined;
-            //                }
-            //            })
-            //            .filter((item, index) => {
-            //                const keepItem = item !== undefined && (Array.isArray(item) ? item.length > 0 : Object.keys(item).length > 0);
-            //                console.log(`Filtering array item at index ${index}:`, item, "Keep:", keepItem);
-            //                return keepItem;
-            //            });
-            //    } else if (typeof obj === 'object' && obj !== null) {
-            //        console.log("Object is a non-null object.");
-            //        const newObj = {};
-            //        Object.keys(obj).forEach(key => {
-            //            console.log(`Processing object key "${key}":`, obj[key], "Type:", typeof obj[key]);
-            
-            //            // Check if it's an actual array or custom object
-            //            if (typeof obj[key] === 'object' && obj[key] !== null) {
-            //                console.log(`Key "${key}" properties:`, JSON.stringify(obj[key], null, 2));
-            //                console.log(`Is key "${key}" an array?`, Array.isArray(obj[key]));
-            
-            //                // Log the entries to understand if it's an iterable object or an array-like object
-            //                console.log(`Entries for key "${key}":`, Object.entries(obj[key]));
-            //            }
-            
-            //            try {
-            //                const value = SUPER.ui.i18n.removeEmpty(obj[key]);
-            //                console.log(`Result after recursive call for key "${key}":`, value);
-            
-            //                // Check if it's a custom object pretending to be an empty array or empty object
-            //                const keepKey = value !== undefined && 
-            //                                (Array.isArray(value) ? value.length > 0 : Object.keys(value).length > 0);
-            
-            //                console.log(`Filtering key "${key}":`, value, "Keep:", keepKey);
-            
-            //                if (keepKey) {
-            //                    newObj[key] = value;
-            //                }
-            //            } catch (error) {
-            //                console.error(`Error processing key "${key}":`, error);
-            //            }
-            //        });
-            //        const hasKeys = Object.keys(newObj).length > 0;
-            //        console.log("New object after filtering:", newObj, "Has keys:", hasKeys);
-            //        return hasKeys ? newObj : undefined;
-            //    }
-            
-            //    console.log("Return obj as is:", obj);
-            //    return obj;
-            //},
-
-            //removeEmpty: function(obj) {
-            //    console.log("Initial obj (deep copy):", JSON.parse(JSON.stringify(obj))); // Log a deep copy to preserve initial state
-            
-            //    if (Array.isArray(obj)) {
-            //        console.log("Object is an array. Length:", obj.length);
-            //        return obj
-            //            .map((item, index) => {
-            //                console.log(`Processing array item at index ${index}:`, item, "Type:", typeof item);
-            //                try {
-            //                    const result = SUPER.ui.i18n.removeEmpty(item);
-            //                    console.log(`Result after recursive call for item at index ${index}:`, result);
-            //                    return result;
-            //                } catch (error) {
-            //                    console.error(`Error processing array item at index ${index}:`, error);
-            //                    return undefined;
-            //                }
-            //            })
-            //            .filter((item, index) => {
-            //                const keepItem = item !== undefined && (Array.isArray(item) ? item.length > 0 : Object.keys(item).length > 0);
-            //                console.log(`Filtering array item at index ${index}:`, item, "Keep:", keepItem);
-            //                return keepItem;
-            //            });
-            //    } else if (typeof obj === 'object' && obj !== null) {
-            //        console.log("Object is a non-null object.");
-            //        const newObj = {};
-            //        Object.keys(obj).forEach(key => {
-            //            console.log(`Processing object key "${key}":`, obj[key], "Type:", typeof obj[key]);
-            
-            //            // Print all properties if the value is an object or something unexpected
-            //            if (typeof obj[key] === 'object' && obj[key] !== null) {
-            //                console.log(`Key "${key}" properties:`, JSON.stringify(obj[key], null, 2));
-            //            }
-            
-            //            try {
-            //                const value = SUPER.ui.i18n.removeEmpty(obj[key]);
-            //                console.log(`Result after recursive call for key "${key}":`, value);
-            
-            //                const keepKey = value !== undefined && (Array.isArray(value) ? value.length > 0 : Object.keys(value).length > 0);
-            //                console.log(`Filtering key "${key}":`, value, "Keep:", keepKey);
-            
-            //                if (keepKey) {
-            //                    newObj[key] = value;
-            //                }
-            //            } catch (error) {
-            //                console.error(`Error processing key "${key}":`, error);
-            //            }
-            //        });
-            //        const hasKeys = Object.keys(newObj).length > 0;
-            //        console.log("New object after filtering:", newObj, "Has keys:", hasKeys);
-            //        return hasKeys ? newObj : undefined;
-            //    }
-            
-            //    console.log("Return obj as is:", obj);
-            //    return obj;
-            //},
-            
-            //removeEmpty: function(obj) {
-            //    console.log("Initial obj:", JSON.stringify(obj, null, 2)); // Log the initial object
-            
-            //    if (Array.isArray(obj)) {
-            //        console.log("Object is an array. Length:", obj.length);
-            //        return obj
-            //            .map((item, index) => {
-            //                console.log(`Processing array item at index ${index}:`, item);
-            //                try {
-            //                    const result = SUPER.ui.i18n.removeEmpty(item);
-            //                    console.log(`Result after recursive call for item at index ${index}:`, result);
-            //                    return result;
-            //                } catch (error) {
-            //                    console.error(`Error processing array item at index ${index}:`, error);
-            //                    return undefined;
-            //                }
-            //            })
-            //            .filter((item, index) => {
-            //                const keepItem = item !== undefined && (Array.isArray(item) ? item.length > 0 : Object.keys(item).length > 0);
-            //                console.log(`Filtering array item at index ${index}:`, item, "Keep:", keepItem);
-            //                return keepItem;
-            //            });
-            //    } else if (typeof obj === 'object' && obj !== null) {
-            //        console.log("Object is a non-null object.");
-            //        const newObj = {};
-            //        Object.keys(obj).forEach(key => {
-            //            console.log(`Processing object key "${key}":`, obj[key]);
-            //            try {
-            //                const value = SUPER.ui.i18n.removeEmpty(obj[key]);
-            //                console.log(`Result after recursive call for key "${key}":`, value);
-            
-            //                const keepKey = value !== undefined && (Array.isArray(value) ? value.length > 0 : Object.keys(value).length > 0);
-            //                console.log(`Filtering key "${key}":`, value, "Keep:", keepKey);
-            
-            //                if (keepKey) {
-            //                    newObj[key] = value;
-            //                }
-            //            } catch (error) {
-            //                console.error(`Error processing key "${key}":`, error);
-            //            }
-            //        });
-            //        const hasKeys = Object.keys(newObj).length > 0;
-            //        console.log("New object after filtering:", newObj, "Has keys:", hasKeys);
-            //        return hasKeys ? newObj : undefined;
-            //    }
-            
-            //    console.log("Return obj as is:", obj);
-            //    return obj;
-            //},
-
-            //removeEmpty: function(obj) {
-            //    debugger;
-            //    console.log("Initial obj:", JSON.stringify(obj, null, 2)); // Log the initial object
-            
-            //    if (Array.isArray(obj)) {
-            //        return obj
-            //            .map((item, index) => {
-            //                console.log(`Processing array item at index ${index}:`, item);
-            //                const result = SUPER.ui.i18n.removeEmpty(item);
-            //                console.log(`Result after recursive call for item at index ${index}:`, result);
-            //                return result;
-            //            })
-            //            .filter((item, index) => {
-            //                const keepItem = item !== undefined && (Array.isArray(item) ? item.length > 0 : Object.keys(item).length > 0);
-            //                console.log(`Filtering array item at index ${index}:`, item, "Keep:", keepItem);
-            //                return keepItem;
-            //            });
-            //    } else if (typeof obj === 'object' && obj !== null) {
-            //        const newObj = {};
-            //        Object.keys(obj).forEach(key => {
-            //            console.log(`Processing object key "${key}":`, obj[key]);
-            //            const value = SUPER.ui.i18n.removeEmpty(obj[key]);
-            //            console.log(`Result after recursive call for key "${key}":`, value);
-            
-            //            const keepKey = value !== undefined && (Array.isArray(value) ? value.length > 0 : Object.keys(value).length > 0);
-            //            console.log(`Filtering key "${key}":`, value, "Keep:", keepKey);
-            
-            //            if (keepKey) {
-            //                newObj[key] = value;
-            //            }
-            //        });
-            //        const hasKeys = Object.keys(newObj).length > 0;
-            //        console.log("New object after filtering:", newObj, "Has keys:", hasKeys);
-            //        return hasKeys ? newObj : undefined;
-            //    }
-            
-            //    console.log("Return obj as is:", obj);
-            //    return obj;
-            //},
-            
-            // removeEmpty: function(obj){
-            //     if (Array.isArray(obj)) {
-            //         return obj
-            //             .map(item => {
-            //                 return SUPER.ui.i18n.removeEmpty(item);
-            //             })
-            //             .filter(item => {
-            //                 return item !== undefined && (Array.isArray(item) ? item.length > 0 : Object.keys(item).length > 0);
-            //             });
-            //     } else if (typeof obj === 'object' && obj !== null) {
-            //         const newObj = {};
-            //         Object.keys(obj).forEach(key => {
-            //             const value = SUPER.ui.i18n.removeEmpty(obj[key]);
-            //             if (value !== undefined && (Array.isArray(value) ? value.length > 0 : Object.keys(value).length > 0)) {
-            //                 newObj[key] = value;
-            //             }
-            //         });
-            //         return Object.keys(newObj).length > 0 ? newObj : undefined;
-            //     }
-            //     return obj;
-            // },
-            // tmp const cleanedData = removeEmpty(data);
-            // tmp console.log(JSON.stringify(cleanedData, null, 2));
-            // tmp cleanUpData: function(data){
-            // tmp     for (const key in data) {
-            // tmp         if (Array.isArray(data[key])) {
-            // tmp             data[key] = data[key].filter(item => item !== null);
-            // tmp             if (data[key].length === 0) {
-            // tmp                 delete data[key];
-            // tmp             }
-            // tmp         } else if (typeof data[key] === 'object' && data[key] !== null) {
-            // tmp             SUPER.ui.i18n.cleanUpData(data[key]);
-            // tmp             if (Object.keys(data[key]).length === 0) {
-            // tmp                 delete data[key];
-            // tmp             }
-            // tmp         }
-            // tmp     }
-            // tmp },
             // Function to load image based on attachment ID
             reload_attachments: function(node){
                 if(node.value===''){
@@ -4196,6 +3513,17 @@
                             console.log(SUPER.ui.settings);
                             $('.super-form-settings .super-elements-container').html(data.settings);
                             // When switching from translating back to main language, restore the repeater items
+                            debugger;
+                            var i, nodes = document.querySelectorAll('input[value^="[super_listings"');
+                            for(i=0; i<nodes.length; i++){
+                                var repeater = nodes[i].closest('.sfui-repeater-item');
+                                var list_id = repeater.querySelector('input[name="id"]').value;
+                                var form_id = document.querySelector('.super-header input[name="form_id"]').value;
+                                var listingShortcode = '[super_listings ';
+                                if($i18n!=='') listingShortcode += 'i18n="'+$i18n+'"';
+                                listingShortcode += ' list="'+list_id+'" id="'+form_id+'"]';
+                                nodes[i].value = listingShortcode;
+                            }
                             if($i18n===''){
                                 var slug = 'stripe';
                                 var tab = document.querySelector('.super-tab-stripe');

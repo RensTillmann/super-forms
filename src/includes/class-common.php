@@ -1172,6 +1172,19 @@ class SUPER_Common {
         SUPER_Forms()->submission_i18n = (isset($_POST['i18n']) ? sanitize_text_field($_POST['i18n']) : '');
         return SUPER_Forms()->submission_i18n;
     }
+    public static function merge_i18n_options(array $array1, array $array2){
+        // Loop through each key-value pair in the second array
+        foreach($array2 as $key => $value){
+            // If the key exists in the first array and both values are arrays, merge recursively
+            if(array_key_exists($key, $array1) && is_array($value) && is_array($array1[$key])){
+                $array1[$key] = self::merge_i18n_options($array1[$key], $value);
+            } else {
+                // Otherwise, simply set the value in the first array
+                $array1[$key] = $value;
+            }
+        }
+        return $array1;
+    }
     /**
      * Font Awesome 5 Free backwards compatibility
      */

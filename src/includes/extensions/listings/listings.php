@@ -1069,27 +1069,27 @@ if(!class_exists('SUPER_Listings')) :
                                     'toggle' => true,
                                     'title' => esc_html__( 'Column settings', 'super-forms' ),
                                     'nodes' => array()
-                                ),
+                                )
+                            )
+                        )
+                    )
+                ),
+                array(
+                    'wrap' => false,
+                    'group' => true,
+                    'vertical' => true,
+                    'nodes' => array(
+                        array(
+                            'toggle' => true,
+                            'title' => esc_html__( 'Translations (raw)', 'super-forms' ),
+                            'notice' => 'hint', // hint/info
+                            'content' => esc_html__( 'Although you can edit existing translated strings below, you may find it easier to use the [Translations] tab instead.', 'super-forms' ),
+                            'nodes' => array(
                                 array(
-                                    'wrap' => false,
-                                    'group' => true,
-                                    'vertical' => true,
-                                    'nodes' => array(
-                                        array(
-                                            'toggle' => true,
-                                            'title' => esc_html__( 'Translations (raw)', 'super-forms' ),
-                                            'notice' => 'hint', // hint/info
-                                            'content' => esc_html__( 'Although you can edit existing translated strings below, you may find it easier to use the [Translations] tab instead.', 'super-forms' ),
-                                            'nodes' => array(
-                                                array(
-                                                    'name' => 'i18n',
-                                                    'type' => 'textarea',
-                                                    'default' => ''
-                                                )
-                                            )
-                                        )
-                                    )
-                                ),
+                                    'name' => 'i18n',
+                                    'type' => 'textarea',
+                                    'default' => ''
+                                )
                             )
                         )
                     )
@@ -1107,7 +1107,7 @@ if(!class_exists('SUPER_Listings')) :
                 //        ["placeholder"]=> string(9) "search..." 
                 //    } 
                 //    ["sort"]=> string(4) "true" 
-                $nodes[2]['nodes'][1]['nodes'][count($nodes[2]['nodes'][1]['nodes'])-2]['nodes'][] = array(
+                $nodes[2]['nodes'][1]['nodes'][count($nodes[2]['nodes'][1]['nodes'])-1]['nodes'][] = array(
                     'wrap' => false,
                     'group' => true,
                     'group_name' => $sk.'_column',
@@ -1165,7 +1165,8 @@ if(!class_exists('SUPER_Listings')) :
                                             'subline' => esc_html( 'Enter custom URL (use {tags} if needed):', 'super-forms' ),
                                             'type' => 'text',
                                             'default' => '',
-                                            'filter' => $sk.'_column.link.type;custom'
+                                            'filter' => $sk.'_column.link.type;custom',
+                                            'i18n' => true
                                         )
                                     )
                                 ),
@@ -1206,7 +1207,8 @@ if(!class_exists('SUPER_Listings')) :
                                                     'name' => 'placeholder',
                                                     'title' => esc_html( 'Filter placeholder', 'super-forms' ),
                                                     'type' => 'text',
-                                                    'default' => 'search...'
+                                                    'default' => 'search...',
+                                                    'i18n' => true
                                                 )
                                             )
                                         )
@@ -1224,7 +1226,7 @@ if(!class_exists('SUPER_Listings')) :
                     )
                 );
             }
-            $nodes[2]['nodes'][1]['nodes'][count($nodes[2]['nodes'][1]['nodes'])-2]['nodes'][] = array(
+            $nodes[2]['nodes'][1]['nodes'][count($nodes[2]['nodes'][1]['nodes'])-1]['nodes'][] = array(
                 'wrap' => false,
                 'group' => true,
                 'group_name' => 'custom_columns',
@@ -1300,7 +1302,8 @@ if(!class_exists('SUPER_Listings')) :
                                                         'title' => esc_html( 'Enter custom URL (use {tags} if needed):', 'super-forms' ),
                                                         'type' => 'text',
                                                         'default' => '',
-                                                        'filter' => 'link.type;custom'
+                                                        'filter' => 'link.type;custom',
+                                                        'i18n' => true
                                                     )
                                                 )
                                             ),
@@ -1342,6 +1345,7 @@ if(!class_exists('SUPER_Listings')) :
                                                                 'title' => esc_html( 'Filter placeholder', 'super-forms' ),
                                                                 'type' => 'text',
                                                                 'default' => 'search...',
+                                                                'i18n' => true
                                                             ),
                                                             array(
                                                                 'width_auto' => true,
@@ -1361,7 +1365,8 @@ if(!class_exists('SUPER_Listings')) :
                                                                 'type' => 'textarea',
                                                                 'placeholder' => "red|Red\ngreen|Green\nblue|Blue",
                                                                 'default' => "option_value1|Option Label 1\noption_value2|Option Label 2",
-                                                                'filter' => 'filter.type;dropdown'
+                                                                'filter' => 'filter.type;dropdown',
+                                                                'i18n' => true
                                                             )
                                                         )
                                                     )
@@ -1995,6 +2000,7 @@ if(!class_exists('SUPER_Listings')) :
             global $wpdb, $current_user;
 
             extract( shortcode_atts( array(
+                'i18n' => '', // Retrieve current language
                 'id' => '', // Retrieve entries from specific form ID
                 'list' => '' // Determine what list settings to use
             ), $atts ) );
@@ -2016,6 +2022,27 @@ if(!class_exists('SUPER_Listings')) :
             }
 
             $settings = SUPER_Common::get_form_settings($form_id);
+            error_log(json_encode($settings));
+            // First get the index of the current list based on the ID (code)
+            $index = -1;
+            foreach($settings['_listings']['lists'] as $k => $v){
+                error_log($v['id']);
+                error_log($id);
+                if($v['id']===$list){
+                    $index = $k;
+                    break;
+                }
+            }
+            error_log(json_encode($settings['_listings']['lists'][$index]));
+            if(!empty($i18n)){
+                $translated_options = ((isset($settings['_listings']['i18n']) && is_array($settings['_listings']['i18n'])) ? $settings['_listings']['i18n'] : array()); // In case this is a translated version
+                if(isset($translated_options[$i18n])){
+                    // Merge any options with translated options
+                    $settings['_listings']['lists'][$index] = SUPER_Common::merge_i18n_options($settings['_listings']['lists'][$index], $translations = $settings['_listings']['i18n'][$i18n]['lists'][$index]);
+                }
+            }
+            error_log(json_encode($settings['_listings']['lists'][$index]));
+
             
             // Load styles and scripts
             SUPER_Forms()->enqueue_element_styles();

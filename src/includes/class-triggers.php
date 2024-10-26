@@ -57,19 +57,6 @@ class SUPER_Triggers {
             }
         }
     }
-    private static function merge_i18n_options(array $array1, array $array2){
-        // Loop through each key-value pair in the second array
-        foreach($array2 as $key => $value){
-            // If the key exists in the first array and both values are arrays, merge recursively
-            if(array_key_exists($key, $array1) && is_array($value) && is_array($array1[$key])){
-                $array1[$key] = self::merge_i18n_options($array1[$key], $value);
-            } else {
-                // Otherwise, simply set the value in the first array
-                $array1[$key] = $value;
-            }
-        }
-        return $array1;
-    }
     public static function send_email($x){
         error_log('x: '.json_encode($x));
         extract($x);
@@ -84,7 +71,7 @@ class SUPER_Triggers {
             if(isset($translated_options[$i18n])){
                 // Merge any options with translated options
                 //$options = array_merge($options, $translated_options[$i18n]);
-                $options = self::merge_i18n_options($options, $translated_options[$i18n]);
+                $options = SUPER_Common::merge_i18n_options($options, $translated_options[$i18n]);
             }
         }
         $actionName = $action['action'];
