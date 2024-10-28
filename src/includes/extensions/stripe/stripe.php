@@ -1461,7 +1461,7 @@ if(!class_exists('SUPER_Stripe')) :
                 $sfsi['stripeData'] = $stripeData;
                 update_option('_sfsi_' . $sfsi_id, $sfsi );
                 // Create the checkout session via Stripe API
-                $expires_at = current_time('timestamp') - (3600 * 1.5);
+                $expires_at = current_time('timestamp') + (3600 * 1.5);
                 $stripeData['expires_at'] = $expires_at;
                 $checkout_session = \Stripe\Checkout\Session::create($stripeData);
             } catch( Exception $e ){
