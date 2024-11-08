@@ -1204,7 +1204,10 @@ if( !class_exists('SUPER_WooCommerce') ) :
             }
 
 			// @since 1.9.3 - check if we do not want to checkout to WooCommerce conditionally
-            $wcs['checkout'] = SUPER_Common::conditionally_wc_checkout($data, $settings) ? 'true' : 'false';
+            $wcs = SUPER_Common::get_form_woocommerce_settings($form_id);
+            if(!empty($wcs) && $wcs['checkout']=='true'){
+                $wcs['checkout'] = SUPER_Common::conditionally_wc_checkout($data, $wcs, $settings);
+            }
 
             // @since 1.2.2 - first reset order entry data
             SUPER_Common::setClientData( array( 'name'=> 'wc_entry_data', 'value'=>false  ) );

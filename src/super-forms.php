@@ -69,6 +69,10 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      4.2
         */
+        public $form_id;
+        public $list_id;
+        public $entry_id;
+        public $i18n;
         public $global_settings;
         public $default_settings;
         public $form_settings;
@@ -76,7 +80,6 @@ if(!class_exists('SUPER_Forms')) :
         public $listings_settings;
         public $pdf_settings;
         public $stripe_settings;
-        public $submission_i18n;
         public $commaForItemsDetected;
 
 
@@ -678,9 +681,6 @@ if(!class_exists('SUPER_Forms')) :
 
 
         public function parse_request(&$wp){
-            error_log('parse_request()');
-            // {"page":"","pagename":"sfssid\/cancel\/cs_test_b1ksxoJQnMaqWYsxx9r1S1hFGbRZS0gSQ6DtmIAXh2yQOtNmD6NOLMjwh1"}
-            error_log(json_encode($wp->query_vars));
             SUPER_Stripe::handle_webhooks($wp);
             // Sometimes, WordPress doesn’t flush rules correctly when triggered programmatically. Try manually visiting Settings > Permalinks after activating the plugin and click Save Changes to trigger a manual flush. This step may highlight whether it's a deeper issue within the rewrite rule system.
             if(isset($wp->query_vars['pagename'])){
@@ -3108,7 +3108,6 @@ if(!class_exists('SUPER_Forms')) :
             $s = SUPER_Common::get_form_pdf_settings($id);
             SUPER_Common::save_form_pdf_settings($s, $id);
 
-            error_log('get_form_stripe_settings(1)');
             $s = SUPER_Common::get_form_stripe_settings($id);
             SUPER_Common::save_form_stripe_settings($s, $id);
 

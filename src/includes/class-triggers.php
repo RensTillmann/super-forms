@@ -58,6 +58,7 @@ class SUPER_Triggers {
         }
     }
     public static function send_email($x){
+        error_log('Trigger: send_email()');
         error_log('x: '.json_encode($x));
         extract($x);
         error_log('sfsi: '.json_encode($sfsi));
@@ -168,19 +169,24 @@ class SUPER_Triggers {
                 unset($sfsi['post']);
                 unset($sfsi['settings']); // for scheduled actions we will grab the settings based on the form ID when executed
                 $triggerEventParameters = array(
-                    'eventName'  => $eventName,  // e.g. 'sf.after.submission'
-                    'triggerName'  => $triggerName,  // e.g. 'E-mail reminder #2'
-                    'actionName' => $actionName, // e.g. 'send_email'
-                    'order' => $action['order'], // e.g. 'send_email'
-                    'sfsi' => $sfsi
+                    'form_id'=>$form_id,
+                    'eventName'=>$eventName,  // e.g. 'sf.after.submission'
+                    'triggerName'=>$triggerName,  // e.g. 'E-mail reminder #2'
+                    'actionName'=>$actionName, // e.g. 'send_email'
+                    'order'=>$action['order'], // e.g. 'send_email'
+                    'sfsi'=>$sfsi
                 );
                 add_post_meta($scheduled_trigger_action_id, '_super_scheduled_trigger_action_data', $triggerEventParameters);
                 error_log('trigger action '.$actionName.' has been scheduled for '.$scheduled_real_date);
             }
             return true;
         }
+
         $loops = self::retrieve_email_loop_html($data, $settings, $options);
+        error_log('retrieve_email_loop_html()');
+        error_log(json_encode($loops));
         $email_loop = $options['loop_open'].$loops['email_loop'].$options['loop_close'];
+        error_log($email_loop);
         $attachments = $loops['attachments'];
         $string_attachments = $loops['string_attachments'];
         $email_body = $options['body'];

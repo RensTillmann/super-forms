@@ -20,7 +20,9 @@ if( isset($_POST['action']) && isset($_POST['entry_id']) && isset($_POST['form_i
             $html .= '</div>';
             echo $html;
         }else{
-            $list = SUPER_Listings::get_default_listings_settings($lists[$list_id]);
+            $list = SUPER_Listings::get_default_listings_settings(array('list'=>$lists[$list_id]));
+            error_log('$list:');
+            error_log(json_encode($list));
             $entry = get_post($entry_id);
             $allow = SUPER_Listings::get_action_permissions(array('list'=>$list, 'entry'=>$entry));
 
@@ -90,7 +92,7 @@ if( isset($_POST['action']) && isset($_POST['entry_id']) && isset($_POST['form_i
 
                 $entry_title = get_the_title($entry_id);
                 $entry_date = get_the_time('Y-m-d @ H:i:s', $entry_id);
-                $list = SUPER_Listings::get_default_listings_settings($lists[$list_id]);
+                $list = SUPER_Listings::get_default_listings_settings(array('list'=>$lists[$list_id]));
                 $data = get_post_meta( $entry_id, '_super_contact_entry_data', true );
                 $loops = SUPER_Common::retrieve_email_loop_html(
                     array(
@@ -101,6 +103,11 @@ if( isset($_POST['action']) && isset($_POST['entry_id']) && isset($_POST['form_i
                     )
                 );
                 $listing_loop = $loops['listing_loop'];
+                error_log('html_template before:');
+                error_log($html_template);
+                $html_template = wp_unslash($html_template);
+                error_log('html_template after:');
+                error_log($html_template);
                 $html = str_replace( '{loop_fields}', $listing_loop, $html_template);
                 $html = str_replace( '{listing_entry_id}', $entry_id, $html);
                 $html = str_replace( '{listing_form_id}', $form_id, $html);

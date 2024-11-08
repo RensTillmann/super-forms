@@ -2541,7 +2541,7 @@ msgstr "Identyfikator referencyjny klienta"
 #: super-forms.php:1844 includes/class-ajax.php:2452
 #: includes/admin/views/page-create-form.php:161
 msgid "Close"
-msgstr "Blisko"
+msgstr "Powrót"
 
 #: add-ons/super-forms-popups/super-forms-popups.php:865
 msgid "Close button background color (leave blank for none)"

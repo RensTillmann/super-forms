@@ -690,6 +690,7 @@ if(!class_exists('SUPER_Stripe')) :
         }
         public static function redirect_to_stripe_checkout($x){
             error_log('redirect_to_stripe_checkout()');
+            error_log(json_encode($x));
             extract( shortcode_atts( array(
                 'sfsi'=>array(),
                 'form_id'=>0,
@@ -704,7 +705,6 @@ if(!class_exists('SUPER_Stripe')) :
             $home_url = trailingslashit($domain);
             // Stripe checkout
             error_log('get_form_stripe_settings(5)');
-            error_log(SUPER_Forms()->submission_i18n);
             error_log(json_encode($settings));
             $s = SUPER_Common::get_form_stripe_settings($form_id);
             error_log('stripe settings:');

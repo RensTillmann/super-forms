@@ -5978,9 +5978,21 @@ class SUPER_Shortcodes {
             'entry_id' => '',
             'i18n' => ''
         ), $atts ) );
-
         $id = absint($id);
         $entry_id = absint($entry_id);
+
+        // When shortcode doesn't contain i18n parameter, try to get it from payload (used by Listings Add-on)
+        if(empty($i18n)) $i18n = SUPER_Common::get_payload_i18n();
+
+        SUPER_Forms()->form_id = $id;
+        SUPER_Forms()->list_id = $list_id;
+        SUPER_Forms()->entry_id = $entry_id;
+        SUPER_Forms()->i18n = $i18n;
+
+        error_log('form_id: '.SUPER_Forms()->form_id);
+        error_log('list_id: '.SUPER_Forms()->list_id);
+        error_log('entry_id: '.SUPER_Forms()->entry_id);
+        error_log('i18n: '.SUPER_Forms()->i18n);
 
         $editingContactEntry = false;
         if($id!==0 && $list_id!=='' && $entry_id!==0){
@@ -6044,7 +6056,7 @@ class SUPER_Shortcodes {
                 return $result;
             }else{
                 $lists = $settings['_listings']['lists'];
-                $list = SUPER_Listings::get_default_listings_settings($lists[$list_id]);
+                $list = SUPER_Listings::get_default_listings_settings(array('list'=>$lists[$list_id]));
                 $entry = get_post($entry_id);
                 $allow = SUPER_Listings::get_action_permissions(array('list'=>$list, 'entry'=>$entry));
                 // If we are editing an entry
@@ -6293,7 +6305,7 @@ class SUPER_Shortcodes {
                 // In case the overlay processing popup was disabled 
                 // via Listings settings when editing entries
                 if(isset($settings['_listings']) && isset($settings['_listings']['lists']) && isset($settings['_listings']['lists'][$list_id])){
-                    $list = SUPER_Listings::get_default_listings_settings($settings['_listings']['lists'][$list_id]);
+                    $list = SUPER_Listings::get_default_listings_settings(array('list'=>$settings['_listings']['lists'][$list_id]));
                     if($list['form_processing_overlay']!=='true') {
                         $settings['form_processing_overlay'] = 'false';
                     }
@@ -6324,6 +6336,10 @@ class SUPER_Shortcodes {
 
             // @since 4.7.0 - translation langauge switcher
             if(empty($settings['i18n_switch'])) $settings['i18n_switch'] = 'false';
+            if(isset($_POST['action']) && $_POST['action']==='super_listings_edit_entry'){
+                // When we are editing an entry via a listing that was already displayed in a specific translation, make sure we remove the language switcher (no need for that)
+                $settings['i18n_switch'] = 'false';
+            }
             if(empty($i18n) && $settings['i18n_switch']=='true'){
                 $translations = SUPER_Common::get_form_translations($form_id);
                 if(!empty($translations) && is_array($translations) && count($translations)>1 ){
