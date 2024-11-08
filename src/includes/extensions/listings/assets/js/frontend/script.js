@@ -170,6 +170,7 @@
         var entry_id = parent.dataset.id;
         var form_id = getParents(el, '.super-listings')[0].dataset.formId;
         var list_id = getParents(el, '.super-listings')[0].dataset.listId;
+        var i18n = getParents(el, '.super-listings')[0].dataset.i18n;
         // Create popup window and load the form + it's entry data
         var modal = document.createElement('div');
         modal.classList.add('super-listings-modal');
@@ -216,7 +217,8 @@
             action: 'super_listings_view_entry',
             entry_id: entry_id,
             form_id: form_id,
-            list_id: list_id
+            list_id: list_id,
+            i18n: i18n
         };
         params = jQuery.param(params);
         xhttp.send(params);
@@ -228,6 +230,7 @@
         var entry_id = parent.dataset.id;
         var form_id = getParents(el, '.super-listings')[0].dataset.formId;
         var list_id = getParents(el, '.super-listings')[0].dataset.listId;
+        var i18n = getParents(el, '.super-listings')[0].dataset.i18n;
         // Create popup window and load the form + it's entry data
         var modal = document.createElement('div');
         modal.classList.add('super-listings-modal');
@@ -284,7 +287,8 @@
             action: 'super_listings_edit_entry',
             entry_id: entry_id,
             form_id: form_id,
-            list_id: list_id
+            list_id: list_id,
+            i18n: i18n
         };
         params = jQuery.param(params);
         xhttp.send(params);

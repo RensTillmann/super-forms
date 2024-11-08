@@ -13,7 +13,11 @@
             activeMultipart = form.querySelector('.super-multipart-step.super-active'),
             children = Array.prototype.slice.call(activeMultipart.parentNode.children),
             total = form.querySelectorAll('.super-multipart').length,
-            currentStep = children.indexOf(activeMultipart);
+            currentStep = children.indexOf(activeMultipart),
+            waitForValidations = false,
+            gotValidationResults = false,
+            validationResult = true;
+
 
         if(dir==='prev'){
             // From first to last?
@@ -31,50 +35,71 @@
                 // @since 2.0.0 - validate multi-part before going to next step
                 validate = form.querySelector('.super-multipart.super-active').dataset.validate;
                 if(validate=='true'){
-                    result = SUPER.validate_form({el: target, form: form.querySelector('.super-multipart.super-active'), submitButton: target, validateMultipart: true, event: e});
-                    if(result!==true) return false;
+                    waitForValidations = true;
+                    SUPER.validate_form({el: target, form: form.querySelector('.super-multipart.super-active'), submitButton: target, validateMultipart: true, event: e}, function(hasErrors) {
+                        debugger;
+                        gotValidationResults = true;
+                        validationResult = hasErrors;
+                    });
                 }
                 index = currentStep+1;
             }
         }
-        for( i = 0; i < nodes.length; i++){
-            nodes[i].classList.remove('super-active');
-            steps[i].classList.remove('super-active');
-            if(i===index){
-                nodes[i].classList.add('super-active');
-                steps[i].classList.add('super-active');
-            }
-        }
-        
-        // Required for toggle field and other possible elements to rerender proper size
-        SUPER.init_super_responsive_form_fields({form: form});
 
-        // Update URL parameters
-        if(stepParams!=='false'){
-            window.location.hash = 'step-'+formId+'-'+(parseInt(index,10)+1);
-        }
-        
-        // Make sure to skip the multi-part if no visible elements are found
-        skip = SUPER.skipMultipart(target, form);
-        if(skip===true) return false;
-
-        // Update progress bar
-        progress = 100 / total;
-        progress = progress * (index+1);
-        form.querySelector('.super-multipart-progress-bar').style.width = progress+'%';
-        index = 0;
-        
-        nodes = form.querySelectorAll('.super-multipart');
-        for( i = 0; i < nodes.length; i++){
-            if(!nodes[i].querySelector('.super-error-active')){
-                form.querySelectorAll('.super-multipart-steps .super-multipart-step')[index].classList.remove('super-error');
+        var waiter = setInterval(function(){
+            debugger;
+            if(waitForValidations && !gotValidationResults){
+                // Waiting for validation to finish
+                return;
             }
-            index++;
-        }
-        SUPER.scrollToTopOfForm(e, form);
-        // Focus first TAB index field in next multi-part
-        multipart = form.querySelector('.super-multipart.super-active');
-        SUPER.focusFirstTabIndexField(e, form, multipart);
+            if(gotValidationResults && validationResult){
+                clearInterval(waiter);
+                // validation finished
+                if(validationResult===true) {
+                    return; // We got errors, don't continue
+                }
+            }
+            clearInterval(waiter);
+            for( i = 0; i < nodes.length; i++){
+                nodes[i].classList.remove('super-active');
+                steps[i].classList.remove('super-active');
+                if(i===index){
+                    nodes[i].classList.add('super-active');
+                    steps[i].classList.add('super-active');
+                }
+            }
+            
+            // Required for toggle field and other possible elements to rerender proper size
+            SUPER.init_super_responsive_form_fields({form: form});
+
+            // Update URL parameters
+            if(stepParams!=='false'){
+                window.location.hash = 'step-'+formId+'-'+(parseInt(index,10)+1);
+            }
+            
+            // Make sure to skip the multi-part if no visible elements are found
+            skip = SUPER.skipMultipart(target, form);
+            if(skip===true) return false;
+
+            // Update progress bar
+            progress = 100 / total;
+            progress = progress * (index+1);
+            form.querySelector('.super-multipart-progress-bar').style.width = progress+'%';
+            index = 0;
+            
+            nodes = form.querySelectorAll('.super-multipart');
+            for( i = 0; i < nodes.length; i++){
+                if(!nodes[i].querySelector('.super-error-active')){
+                    form.querySelectorAll('.super-multipart-steps .super-multipart-step')[index].classList.remove('super-error');
+                }
+                index++;
+            }
+            SUPER.scrollToTopOfForm(e, form);
+            // Focus first TAB index field in next multi-part
+            multipart = form.querySelector('.super-multipart.super-active');
+            SUPER.focusFirstTabIndexField(e, form, multipart);
+
+        }, 0);
     };
     // Make sure to skip the multi-part if no visible elements are found
     SUPER.skipMultipart = function(el, form, index, activeIndex){
@@ -2718,6 +2743,7 @@
                                 sf_nonce: $sf_nonce,
                             },
                             success: function (result) {
+                                debugger;
                                 SUPER.switched_language = true;
                                 var data = JSON.parse(result);
                                 if(data.error && data.error===true){
@@ -2738,6 +2764,8 @@
                                     }
                                     $form.find('form').html(data.html);
                                     $form.data('i18n', $i18n);
+                                    debugger;
+                                    $form[0].dataset.i18n = $i18n;
                                     // Store the translation language code in sessionStorage
                                     sessionStorage.setItem('sf_'+$form_id+'_i18n', $i18n);
                                 }
@@ -2969,49 +2997,72 @@
                 result,
                 progress,
                 multipart,
-                skip;
+                skip,
+                waitForValidations = false,
+                gotValidationResults = false,
+                validationResult = true;
 
             // @since 2.0.0 - validate multi-part before going to next step
             if(activeIndex < index){ // Always allow going to previous step
                 validate = currentActive.dataset.validate;
                 if(validate=='true'){
-                    result = SUPER.validate_form({el: el, form: currentActive, submitButton: el, validateMultipart: true, event: e});
-                    if(result!==true) return false;
+                    waitForValidations = true;
+                    SUPER.validate_form({el: el, form: currentActive, submitButton: el, validateMultipart: true, event: e}, function(hasErrors) {
+                        debugger;
+                        gotValidationResults = true;
+                        validationResult = hasErrors;
+                    });
                 }
             }
-            if(stepParams!=='false'){
-                window.location.hash = 'step-'+form_id+'-'+(parseInt(index,10)+1);
-            }
+            var waiter = setInterval(function(){
+                debugger;
+                if(waitForValidations && !gotValidationResults){
+                    // Waiting for validation to finish
+                    return;
+                }
+                if(gotValidationResults && validationResult){
+                    clearInterval(waiter);
+                    // validation finished
+                    if(validationResult===true) {
+                        return; // We got errors, don't continue
+                    }
+                }
+                clearInterval(waiter);
 
-            progress = 100 / total;
-            progress = progress * (index+1);
-            multipart = form.querySelectorAll('.super-multipart')[index];
-            if(form.querySelector('.super-multipart-progress-bar')){
-                form.querySelector('.super-multipart-progress-bar').style.width = progress+'%';
-            }
-            nodes = form.querySelectorAll('.super-multipart-step');
-            for ( i = 0; i < nodes.length; i++){
-                nodes[i].classList.remove('super-active');
-            }
-            nodes = form.querySelectorAll('.super-multipart');
-            for ( i = 0; i < nodes.length; i++){
-                nodes[i].classList.remove('super-active');
-            }
-            multipart.classList.add('super-active');
-            el.classList.add('super-active');
+                if(stepParams!=='false'){
+                    window.location.hash = 'step-'+form_id+'-'+(parseInt(index,10)+1);
+                }
 
-            // @since 3.3.0 - make sure to skip the multi-part if no visible elements are found
-            skip = SUPER.skipMultipart(el, form, index, activeIndex);
-            if(skip===true) return false;
+                progress = 100 / total;
+                progress = progress * (index+1);
+                multipart = form.querySelectorAll('.super-multipart')[index];
+                if(form.querySelector('.super-multipart-progress-bar')){
+                    form.querySelector('.super-multipart-progress-bar').style.width = progress+'%';
+                }
+                nodes = form.querySelectorAll('.super-multipart-step');
+                for ( i = 0; i < nodes.length; i++){
+                    nodes[i].classList.remove('super-active');
+                }
+                nodes = form.querySelectorAll('.super-multipart');
+                for ( i = 0; i < nodes.length; i++){
+                    nodes[i].classList.remove('super-active');
+                }
+                multipart.classList.add('super-active');
+                el.classList.add('super-active');
 
-            // Focus first TAB index field in next multi-part
-            SUPER.focusFirstTabIndexField(e, form, multipart);
+                // @since 3.3.0 - make sure to skip the multi-part if no visible elements are found
+                skip = SUPER.skipMultipart(el, form, index, activeIndex);
+                if(skip===true) return false;
 
-            // Update HTML element to reflect changes e.g foreach() and if statements
-            SUPER.init_replace_html_tags({form: form});
+                // Focus first TAB index field in next multi-part
+                SUPER.focusFirstTabIndexField(e, form, multipart);
 
-            // Required for toggle field and other possible elements to rerender proper size
-            SUPER.init_super_responsive_form_fields({form: form});
+                // Update HTML element to reflect changes e.g foreach() and if statements
+                SUPER.init_replace_html_tags({form: form});
+
+                // Required for toggle field and other possible elements to rerender proper size
+                SUPER.init_super_responsive_form_fields({form: form});
+            }, 0);
         });
         
         // Multi Part Next Prev Buttons

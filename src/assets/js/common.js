@@ -506,6 +506,7 @@ function SUPERreCaptcha(){
                     args.pdfSettings = SUPER.mergeTranslatedSettings(args.pdfSettings, $translatedSettings);
                 }
                 if(args.progressBar) args.progressBar.style.width = 0+'%';
+                debugger;
                 if(args.pdfSettings.generatingText===''){
                     args.loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+super_common_i18n.loadingOverlay.generating_pdf+'</span>';
                 }else{
@@ -524,6 +525,7 @@ function SUPERreCaptcha(){
                         args.pdfSettings = SUPER.mergeTranslatedSettings(args.pdfSettings, $translatedSettings);
                     }
                     if(args.progressBar) args.progressBar.style.width = 0+'%';
+                    debugger;
                     if(args.pdfSettings.generatingText===''){
                         args.loadingOverlay.querySelector('.super-inner-text').innerHTML = '<span>'+super_common_i18n.loadingOverlay.generating_pdf+'</span>';
                     }else{
@@ -3897,7 +3899,8 @@ function SUPERreCaptcha(){
     };
 
     // Validate the form
-    SUPER.validate_form = function(args){ // form, submitButton, validateMultipart, e, doingSubmit
+    SUPER.validate_form = function(args, callback){ // we use a callback in order to return true or false inside the interval
+    //SUPER.validate_form = function(args){ // form, submitButton, validateMultipart, e, doingSubmit
         SUPER.validationLookups = 0;
         SUPER.resetFocussedFields();
         SUPER.conditional_logic(args);
@@ -4043,10 +4046,16 @@ function SUPERreCaptcha(){
                     // Currently used by Stripe feature to check for invalid card numbers for instance
                     if(args.form.querySelectorAll('.super-error-active').length){
                         SUPER.scrollToError(args.form);
-                        return true;
+                        debugger;
+                        callback(true); // Indicate the validation failed
+                        return;
                     }
                     // @since 2.0.0 - multipart validation
-                    if(args.validateMultipart===true) return true;
+                    if(args.validateMultipart===true) {
+                        debugger;
+                        callback(false); // No errors found
+                        return;
+                    }
                     submitButtonName = args.submitButton.querySelector('.super-button-name');
                     args.submitButton.closest('.super-form-button').classList.add('super-loading');
                     oldHtml = submitButtonName.innerHTML;
@@ -4094,6 +4103,9 @@ function SUPERreCaptcha(){
 
                 }else{
                     SUPER.scrollToError(args.form, args.validateMultipart);
+                    debugger;
+                    callback(true); // Indicate the validation failed
+                    return;
                 }
                 SUPER.after_validating_form_hook(undefined, args.form);
             }
@@ -9168,6 +9180,7 @@ function SUPERreCaptcha(){
     }
 
     SUPER._pdf_generator_done_callback = function(args){
+        debugger;
         // Reset everything to how it was
         SUPER.pdf_generator_reset(args.form0);
         // Attach as file to form data
@@ -9226,7 +9239,7 @@ function SUPERreCaptcha(){
     }
 
     SUPER.pdf_generator_prepare = function(args, callback){
-        args.debugger = false;
+        args.debugger = true;
         var form = args.form0;
 
         // Define PDF tags
@@ -11227,6 +11240,7 @@ function SUPERreCaptcha(){
 
 
     SUPER.pdf_generator_reset = function(form){
+        debugger;
         // Only if not already canceled/reset
         if(form && !form.classList.contains('super-generating-pdf')){
             return false;
@@ -11255,6 +11269,12 @@ function SUPERreCaptcha(){
             }else{
                 nodes[i].classList.remove('super-active-origin');
             }
+        }
+        // Remove list markers (required for <li> items)
+        debugger;
+        nodes = form.querySelectorAll('.super-li-marker');
+        for(var i=0; i < nodes.length; i++){
+            nodes[i].remove();
         }
         // Reset ignore attributes
         nodes = document.body.querySelectorAll('[data-belongs-to-pages], [data-html2canvas-ignore="true"], .super-pdf-el-with-margin');

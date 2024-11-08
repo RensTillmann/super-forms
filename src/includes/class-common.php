@@ -110,6 +110,7 @@ class SUPER_Common {
     function add_metadata( $meta_type, $object_id, $meta_key, $meta_value, $unique = false ) { global $wpdb; if ( ! $meta_type || ! $meta_key || ! is_numeric( $object_id ) ) { return false; } $object_id = absint( $object_id ); $table = _get_meta_table( $meta_type ); if ( ! $table ) { return false; } $meta_subtype = get_object_subtype( $meta_type, $object_id ); $column = sanitize_key( $meta_type . '_id' ); $meta_key   = wp_unslash( $meta_key ); $meta_value = wp_unslash( $meta_value ); $meta_value = sanitize_meta( $meta_key, $meta_value, $meta_type, $meta_subtype ); $check = apply_filters( "add_{$meta_type}_metadata", null, $object_id, $meta_key, $meta_value, $unique ); if ( null !== $check ) { return $check; } if ( $unique && $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $table WHERE meta_key = %s AND $column = %d", $meta_key, $object_id)) ) { return false; } $_meta_value = $meta_value; $meta_value  = maybe_serialize( $meta_value ); do_action( "add_{$meta_type}_meta", $object_id, $meta_key, $_meta_value ); $result = $wpdb->insert( $table, array( $column      => $object_id, 'meta_key'   => $meta_key, 'meta_value' => $meta_value,)); if ( ! $result ) { return false; } $mid = (int) $wpdb->insert_id; wp_cache_delete( $object_id, $meta_type . '_meta' ); do_action( "added_{$meta_type}_meta", $mid, $object_id, $meta_key, $_meta_value ); return $mid; }
     function update_metadata( $meta_type, $object_id, $meta_key, $meta_value, $prev_value = '' ) { global $wpdb; if ( ! $meta_type || ! $meta_key || ! is_numeric( $object_id ) ) { return false; } $object_id = absint( $object_id ); $table = _get_meta_table( $meta_type ); if ( ! $table ) { return false; } $meta_subtype = get_object_subtype( $meta_type, $object_id ); $column    = sanitize_key( $meta_type . '_id' ); $id_column = ( 'user' === $meta_type ) ? 'umeta_id' : 'meta_id'; $raw_meta_key = $meta_key; $meta_key     = wp_unslash( $meta_key ); $passed_value = $meta_value; $meta_value   = wp_unslash( $meta_value ); $meta_value   = sanitize_meta( $meta_key, $meta_value, $meta_type, $meta_subtype ); $check = apply_filters( "update_{$meta_type}_metadata", null, $object_id, $meta_key, $meta_value, $prev_value ); if ( null !== $check ) { return (bool) $check; } if ( empty( $prev_value ) ) { $old_value = get_metadata_raw( $meta_type, $object_id, $meta_key ); if ( is_countable( $old_value ) && count( $old_value ) === 1 ) { if ( $old_value[0] === $meta_value ) { return false; } } } $meta_ids = $wpdb->get_col( $wpdb->prepare( "SELECT $id_column FROM $table WHERE meta_key = %s AND $column = %d", $meta_key, $object_id ) ); if ( empty( $meta_ids ) ) { return self::add_metadata( $meta_type, $object_id, $raw_meta_key, $passed_value ); } $_meta_value = $meta_value; $meta_value  = maybe_serialize( $meta_value ); $data  = compact( 'meta_value' ); $where = array( $column    => $object_id, 'meta_key' => $meta_key,); if ( ! empty( $prev_value ) ) { $prev_value          = maybe_serialize( $prev_value ); $where['meta_value'] = $prev_value; } foreach ( $meta_ids as $meta_id ) { do_action( "update_{$meta_type}_meta", $meta_id, $object_id, $meta_key, $_meta_value ); if ( 'post' === $meta_type ) { do_action( 'update_postmeta', $meta_id, $object_id, $meta_key, $meta_value ); } } $result = $wpdb->update( $table, $data, $where ); if ( ! $result ) { return false; } wp_cache_delete( $object_id, $meta_type . '_meta' ); foreach ( $meta_ids as $meta_id ) { do_action( "updated_{$meta_type}_meta", $meta_id, $object_id, $meta_key, $_meta_value ); if ( 'post' === $meta_type ) { do_action( 'updated_postmeta', $meta_id, $object_id, $meta_key, $meta_value ); } } return true; }
     public static function get_form_triggers($form_id){
+        error_log('get_form_triggers()');
         global $wpdb;
         $triggers = array();
         // Get global and specific triggers
@@ -122,6 +123,10 @@ class SUPER_Common {
         foreach($rows as $r){
             array_push($triggers, maybe_unserialize($r->meta_value));
         }
+        error_log('before: '.json_encode($triggers));
+        // Unslash it before returning
+        $triggers = wp_unslash($triggers);
+        error_log('after: '.json_encode($triggers));
         return $triggers;
     }
     public static function save_form_triggers($triggers, $form_id, $delete=true){
@@ -179,12 +184,10 @@ class SUPER_Common {
         return $defaultSettings;
     }
     public static function get_form_woocommerce_settings($form_id){
-        error_log(SUPER_Forms()->submission_i18n);
-        if(!empty(SUPER_Forms()->woocommerce_settings) && empty(SUPER_Forms()->submission_i18n)){
+        if(!empty(SUPER_Forms()->woocommerce_settings) && empty(SUPER_Forms()->i18n)){
             error_log('return existing woocommerce settings...');
             return SUPER_Forms()->woocommerce_settings;
         }
-        error_log(SUPER_Forms()->submission_i18n);
         $s = get_post_meta($form_id, '_woocommerce', true);
         if($s===false){ 
             $s = array(); 
@@ -193,11 +196,10 @@ class SUPER_Common {
         }
         // Merge translated settings
         error_log('merge translated settings for WOOCOMMERCE');
-        error_log(SUPER_Forms()->submission_i18n);
-        if(!empty($s['i18n']) && !empty($s['i18n'][SUPER_Forms()->submission_i18n])){
+        if(!empty($s['i18n']) && !empty($s['i18n'][SUPER_Forms()->i18n])){
             error_log('before merging');
             error_log(json_encode($s));
-            $translatedSettings = $s['i18n'][SUPER_Forms()->submission_i18n];
+            $translatedSettings = $s['i18n'][SUPER_Forms()->i18n];
             $s = self::mergeTranslatedSettings($s, $translatedSettings);
             unset($s['i18n']);
             error_log('after merging');
@@ -207,12 +209,10 @@ class SUPER_Common {
         return $s;
     }
     public static function get_form_listings_settings($form_id){
-        error_log(SUPER_Forms()->submission_i18n);
-        if(!empty(SUPER_Forms()->listings_settings) && empty(SUPER_Forms()->submission_i18n)){
+        if(!empty(SUPER_Forms()->listings_settings) && empty(SUPER_Forms()->i18n)){
             error_log('return existing listings settings...');
             return SUPER_Forms()->listings_settings;
         }
-        error_log(SUPER_Forms()->submission_i18n);
         $s = get_post_meta($form_id, '_listings', true);
         if($s===false){ 
             $s = array(); 
@@ -221,11 +221,10 @@ class SUPER_Common {
         }
         // Merge translated settings
         error_log('merge translated settings for LISTINGS');
-        error_log(SUPER_Forms()->submission_i18n);
-        if(!empty($s['i18n']) && !empty($s['i18n'][SUPER_Forms()->submission_i18n])){
+        if(!empty($s['i18n']) && !empty($s['i18n'][SUPER_Forms()->i18n])){
             error_log('before merging');
             error_log(json_encode($s));
-            $translatedSettings = $s['i18n'][SUPER_Forms()->submission_i18n];
+            $translatedSettings = $s['i18n'][SUPER_Forms()->i18n];
             $s = self::mergeTranslatedSettings($s, $translatedSettings);
             unset($s['i18n']);
             error_log('after merging');
@@ -235,12 +234,10 @@ class SUPER_Common {
         return $s;
     }
     public static function get_form_pdf_settings($form_id){
-        error_log(SUPER_Forms()->submission_i18n);
-        if(!empty(SUPER_Forms()->pdf_settings) && empty(SUPER_Forms()->submission_i18n)){
+        if(!empty(SUPER_Forms()->pdf_settings) && empty(SUPER_Forms()->i18n)){
             error_log('return existing pdf settings...');
             return SUPER_Forms()->pdf_settings;
         }
-        error_log(SUPER_Forms()->submission_i18n);
         if(!empty(SUPER_Forms()->pdf_settings)) return SUPER_Forms()->pdf_settings;
         $s = get_post_meta($form_id, '_pdf', true);
         if($s===false){ 
@@ -250,11 +247,10 @@ class SUPER_Common {
         }
         // Merge translated settings
         error_log('merge translated settings for PDF');
-        error_log(SUPER_Forms()->submission_i18n);
-        if(!empty($s['i18n']) && !empty($s['i18n'][SUPER_Forms()->submission_i18n])){
+        if(!empty($s['i18n']) && !empty($s['i18n'][SUPER_Forms()->i18n])){
             error_log('before merging');
             error_log(json_encode($s));
-            $translatedSettings = $s['i18n'][SUPER_Forms()->submission_i18n];
+            $translatedSettings = $s['i18n'][SUPER_Forms()->i18n];
             $s = self::mergeTranslatedSettings($s, $translatedSettings);
             unset($s['i18n']);
             error_log('after merging');
@@ -264,12 +260,10 @@ class SUPER_Common {
         return $s;
     }
     public static function get_form_stripe_settings($form_id){
-        error_log(SUPER_Forms()->submission_i18n);
-        if(!empty(SUPER_Forms()->stripe_settings) && empty(SUPER_Forms()->submission_i18n)){
+        if(!empty(SUPER_Forms()->stripe_settings) && empty(SUPER_Forms()->i18n)){
             error_log('return existing stripe settings...');
             return SUPER_Forms()->stripe_settings;
         }
-        error_log(SUPER_Forms()->submission_i18n);
         $s = get_post_meta($form_id, '_stripe', true);
         if($s===false){ 
             $s = array(); 
@@ -278,11 +272,10 @@ class SUPER_Common {
         }
         // Merge translated settings
         error_log('merge translated settings for STRIPE');
-        error_log(SUPER_Forms()->submission_i18n);
-        if(!empty($s['i18n']) && !empty($s['i18n'][SUPER_Forms()->submission_i18n])){
+        if(!empty($s['i18n']) && !empty($s['i18n'][SUPER_Forms()->i18n])){
             error_log('before merging');
             error_log(json_encode($s));
-            $translatedSettings = $s['i18n'][SUPER_Forms()->submission_i18n];
+            $translatedSettings = $s['i18n'][SUPER_Forms()->i18n];
             $s = self::mergeTranslatedSettings($s, $translatedSettings);
             unset($s['i18n']);
             error_log('after merging');
@@ -344,11 +337,13 @@ class SUPER_Common {
                 // Check if trigger function exists
                 if(method_exists('SUPER_Triggers', $av['action'])) {
                     $x = array(
+                        'form_id'=>$form_id,
                         'eventName'=>$eventName, 
                         'triggerName'=>$v['name'], 
                         'action'=>$av, 
-                        'sfsi'=>$sfsi
+                        'sfsi'=>$sfsi, 
                     );
+                    error_log('SFSI before triggering action: '.json_encode($sfsi));
                     call_user_func(array('SUPER_Triggers', $av['action']), $x);
                 }
             }
@@ -1169,8 +1164,8 @@ class SUPER_Common {
         return get_post_meta( $form_id, '_super_translations', true );
     }
     public static function get_payload_i18n(){
-        SUPER_Forms()->submission_i18n = (isset($_POST['i18n']) ? sanitize_text_field($_POST['i18n']) : '');
-        return SUPER_Forms()->submission_i18n;
+        SUPER_Forms()->i18n = (isset($_POST['i18n']) ? sanitize_text_field($_POST['i18n']) : '');
+        return SUPER_Forms()->i18n;
     }
     public static function merge_i18n_options(array $array1, array $array2){
         // Loop through each key-value pair in the second array
@@ -1514,7 +1509,6 @@ class SUPER_Common {
      * @since 3.8.0
      */
     public static function get_form_settings($form_id, $renew=false){
-        error_log('get_form_settings()');
         if($renew===false && isset(SUPER_Forms()->form_settings)){
             error_log('we already have the form setings, return it');
             return SUPER_Forms()->form_settings;
@@ -1532,6 +1526,7 @@ class SUPER_Common {
             $settings = $form_settings;
         }
 
+        error_log(json_encode($settings));
         $email_body = '';
         if(!empty($settings['email_body_open'])) $email_body .= $settings['email_body_open'] . "<br /><br />";
         unset($settings['email_body_open']);

@@ -1018,6 +1018,8 @@ if(!class_exists('SUPER_WC_Instant_Orders')) :
          *  @since      1.0.0
          */
         public static function redirect_to_woocommerce_order($x){
+            error_log('redirect_to_woocommerce_order()');
+            error_log(json_encode($x));
             extract( shortcode_atts( array(
                 'sfsi'=>array(),
                 'form_id'=>0,

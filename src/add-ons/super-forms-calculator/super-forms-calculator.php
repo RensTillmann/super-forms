@@ -158,8 +158,6 @@ if( !class_exists('SUPER_Calculator') ) :
         */
         private function init_hooks() {
             
-            error_log('init_hooks calculator');
-
             // Filters since 1.0.0
             add_filter( 'super_shortcodes_after_form_elements_filter', array( $this, 'add_calculator_element' ), 10, 2 );
             
@@ -512,7 +510,6 @@ if( !class_exists('SUPER_Calculator') ) :
          *  @since      1.0.0
         */
         public static function add_calculator_element( $array, $attributes ) {
-            error_log('add_calculator_element()');
 
             // Include the predefined arrays
             require( SUPER_PLUGIN_DIR . '/includes/shortcodes/predefined-arrays.php' );
