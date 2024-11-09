@@ -909,7 +909,7 @@ if( !class_exists('SUPER_PayPal') ) :
 				'edit.php?post_type=super_paypal_txn'
 			);
 			add_submenu_page(
-				null, 
+				'null_super_forms', // in later versions of PHP/WordPress you can't set this to `null`
 				esc_html__( 'View PayPal transaction', 'super-forms' ), 
 				esc_html__( 'View PayPal transaction', 'super-forms' ), 
 				'manage_options', 
@@ -932,7 +932,7 @@ if( !class_exists('SUPER_PayPal') ) :
 				'edit.php?post_type=super_paypal_sub'
 			);
 			add_submenu_page(
-				null, 
+				'null_super_forms', // in later versions of PHP/WordPress you can't set this to `null`
 				esc_html__( 'View PayPal subscription', 'super-forms' ), 
 				esc_html__( 'View PayPal subscription', 'super-forms' ), 
 				'manage_options', 

@@ -448,6 +448,50 @@ $array['html_elements'] = array(
             ),
         ),
 
+        'js_predefined' => array(
+            'name' => esc_html__( 'JavaScript', 'super-forms' ),
+            'icon' => 'square-js;fab',
+            'predefined' => array(
+                array(
+                    'tag' => 'js',
+                    'group' => 'html_elements',
+                    'data' => array(
+                        'name' => esc_html__( 'js', 'super-forms' ),
+                        'js' => sprintf( "(function(){%s    alert('Example');%s})();", "\n", "\n" )
+                    )
+                )
+            ),
+        ),
+        'js' => array(
+            'hidden' => true,
+            'callback' => 'SUPER_Shortcodes::js',
+            'name' => esc_html__( 'JavaScript', 'super-forms' ),
+            'icon' => 'square-js;fab',
+            'atts' => array(
+                'general' => array(
+                    'name' => esc_html__( 'General', 'super-forms' ),
+                    'fields' => array(
+                        'js' => array(
+                            'name'=>esc_html__( 'JavaScript code', 'super-forms' ),
+                            'label'=>esc_html__( 'You can use {tags} but remember that the script will be reloaded with tags being replaced/updated with their current values. This will happen whenever a field value is changed or conditional logic and or variable fields are triggered. This might not be desired depending on the code you wrote so keep this in mind.', 'super-forms' ),
+                            'type'=>'textarea',
+                            'default'=> ( !isset( $attributes['js']) ? '' : $attributes['js']),
+                            'i18n' => true
+                        )
+                    ),
+                ),
+                // @since 1.9
+                'advanced' => array(
+                    'name' => esc_html__( 'Advanced', 'super-forms' ),
+                    'fields' => array(
+                        'class' => $class,
+                        'wrapper_class' => $wrapper_class,
+                        'wrapper_id' => $wrapper_id
+                    ),
+                ),
+            ),
+        ),
+
         'divider_predefined' => array(
             'name' => esc_html__( 'Divider', 'super-forms' ),
             'icon' => 'minus',

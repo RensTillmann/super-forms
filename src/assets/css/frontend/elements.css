@@ -1598,10 +1598,11 @@ html[dir=rtl] .super-rtl .super-rating .super-field-wrapper .super-rating {
     font-size: 16px;
   }
 }
-.super-html {
+.super-html, .super-js {
   margin-bottom: 0px;
 }
-.super-html > textarea {
+.super-html > textarea,
+.super-js > textarea {
   display: none !important;
   visibility: hidden !important;
   height: 0px !important;
