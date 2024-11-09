@@ -1259,7 +1259,6 @@ class SUPER_Shortcodes {
                 // Range of the data you want to retrieve (e.g., "Sheet1!A1:C10")
                 $range = trim($atts[$prefix.'retrieve_method_google_sheet_range']);
                 // Credentials JSON
-                $atts[$prefix.'retrieve_method_google_sheet_credentials'] = wp_unslash($atts[$prefix.'retrieve_method_google_sheet_credentials']);
                 $credentials = json_decode(trim($atts[$prefix.'retrieve_method_google_sheet_credentials']), true);
                 if(!empty($credentials['client_id']) && !empty($credentials['client_email']) && !empty($credentials['private_key'])){
                     $client->setAuthConfig($credentials);
@@ -1534,10 +1533,6 @@ class SUPER_Shortcodes {
                         }
                     }
                 $result .= '</div>';
-            }
-            // Special use-case for google API credentials.json
-            if(!empty($data['retrieve_method_google_sheet_credentials'])){
-                $data['retrieve_method_google_sheet_credentials'] = wp_unslash($data['retrieve_method_google_sheet_credentials']);
             }
             $result .= '<textarea name="element-data">' . htmlentities( SUPER_Common::safe_json_encode( $data ), ENT_NOQUOTES | ENT_SUBSTITUTE | ENT_DISALLOWED ) . '</textarea>';
         $result .= '</div>';
@@ -4783,6 +4778,48 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
+    public static function js($x) {
+        extract(self::extract($x));
+        $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'html_elements', $tag);
+        $atts = wp_parse_args( $atts, $defaults );
+        $atts = self::merge_i18n($atts, $i18n);
+        if( !isset( $atts['class'] ) ) $atts['class'] = '';
+        $result = self::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings));
+        if(!isset($atts['js'])) $atts['js'] = '';
+        if( $atts['js']!='' ) { 
+            $re = '/foreach\(([-_a-zA-Z0-9]{1,})|([-_a-zA-Z0-9]{1,})\[.*?(\):)|(?:<%|{)([-_a-zA-Z0-9]{1,})(?:}|%>)|(?:<%|{)([-_a-zA-Z0-9]{1,});.*?(?:}|%>)|(?:<%|{)([-_a-zA-Z0-9]{1,})\[.*?(?:}|%>)|!?isset\(([-_a-zA-Z0-9]{1,})|([-_a-zA-Z0-9]{1,})\[.*?(\):)/';
+            $str = $atts['js'];
+            preg_match_all($re, $atts['js'], $matches, PREG_SET_ORDER, 0);
+            $data_fields = array();
+            foreach($matches as $k => $v){
+                $length = count($v);
+                if(empty($v[$length-1])) continue;
+                $fieldName = $v[$length-1];
+                $data_fields[$fieldName] = $fieldName;
+            }
+            $field_names = implode('}{', $data_fields);
+            $js = $atts['js'];
+            if( (!is_admin()) || ( (isset($_POST['action'])) && ($_POST['action']=='super_listings_edit_entry' || $_POST['action']=='super_language_switcher') ) ) {
+                $js_code = '';
+                if(empty($field_names)){
+                    $js_code = '<script>'.$js.'</script>';
+                }
+            }else{
+                if( !empty($_POST['action']) && ($_POST['action']==='super_load_preview' || $_POST['action']==='elementor_ajax') && is_admin()){
+                    $js_code = '<script>'.$js.'</script>';
+                }else{
+                    $js_code = htmlspecialchars(stripslashes($js_code));
+                }
+            }
+            $dataFields = '';
+            if(!empty($field_names)) $dataFields = ' data-fields="{' . $field_names . '}"';
+            $result .= '<div class="super-html-content' . ($atts['class']!='' ? ' ' . $atts['class'] : '') . '"' . ($dataFields ? $dataFields : '') . ' data-js="true">'.$js_code.'</div>';
+            $result .= '<textarea>'.$js.'</textarea>';
+        }
+        $result .= self::loop_conditions( $atts, $tag, $settings );
+        $result .= '</div>';
+        return $result;
+    }
 
     public static function divider($x) {
         extract(self::extract($x));
@@ -5182,8 +5219,9 @@ class SUPER_Shortcodes {
         
         // Form Elements
         $return .= '<div class="super-element draggable-element super-shortcode-'.$shortcode.'" data-elementtitle="'.$value['name'].'" data-shortcode="'.$shortcode.'" data-group="'.$group.'" data-droppingallowed="0">';
-            if( isset( $value['html'] ) ) {
-                $return .= $value['html'];
+            if(isset($value['js']) || isset($value['html'])){
+                if(isset($value['js'])) $return .= $value['js'];
+                if(isset($value['html'])) $return .= $value['html'];
             }else{
                 // Fontawesome 5+ compatibility
                 if(isset(explode(';', $value['icon'])[1])){
@@ -5198,7 +5236,10 @@ class SUPER_Shortcodes {
             if( isset( $value['predefined'] ) ) {
                 $pre = $value['predefined'];
                 $pre = htmlentities( SUPER_Common::safe_json_encode( $value['predefined'] ), ENT_NOQUOTES | ENT_SUBSTITUTE | ENT_DISALLOWED );
-                $return .= '<textarea class="predefined" style="display:none;">' . wp_unslash($pre) . '</textarea>';
+                if($shortcode!=='js_predefined'){
+                    $pre = wp_unslash($pre);
+                }
+                $return .= '<textarea class="predefined" style="display:none;">' . $pre . '</textarea>';
             }
         $return .= '</div>';
             

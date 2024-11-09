@@ -6273,7 +6273,19 @@ function SUPERreCaptcha(){
                     if(target.tagName==='A'){
                         target.href = html;
                     }else{
-                        target.innerHTML = html;
+                        if(target.dataset.js==='true'){
+                            var i, script = document.createElement('script');
+                            script.textContent = html;
+                            // Select all script elements inside the given target
+                            var scripts = target.querySelectorAll('script');
+                            // Loop through each script element and remove it
+                            for(i=0; i<scripts.length; i++){
+                                scripts[i].remove();
+                            }
+                            target.appendChild(script);
+                        }else{
+                            target.innerHTML = html;
+                        }
                     }
                 }
             }

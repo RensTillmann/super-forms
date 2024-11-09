@@ -261,7 +261,7 @@ if( !class_exists('SUPER_CSV_Attachment') ) :
                     $output[] = 'NULL';
                     continue;
                 }
-                if ( $encloseAll || preg_match( "/(?:${delimiter_esc}|${enclosure_esc}|\s)/", $field ) ) {
+                if ( $encloseAll || preg_match( "/(?:{$delimiter_esc}|{$enclosure_esc}|\s)/", $field ) ) {
                     $output[] = $enclosure . str_replace($enclosure, $enclosure . $enclosure, $field) . $enclosure;
                 }
                 else {
