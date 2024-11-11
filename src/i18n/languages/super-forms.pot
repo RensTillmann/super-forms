@@ -11822,7 +11822,7 @@ msgstr ""
 #: includes/class-settings.php:240
 #, php-format
 msgid ""
-"The following information has been send by the submitter:\n"
+"The following information has been sent by the submitter:\n"
 "\n"
 "%s\n"
 "\n"
@@ -12296,7 +12296,7 @@ msgid "This is the toggle value when the user enabled the toggle element"
 msgstr ""
 
 #: includes/admin/views/page-create-form.php:73
-msgid "This mail was send from"
+msgid "This mail was sent from"
 msgstr ""
 
 #: includes/shortcodes/layout-elements.php:188

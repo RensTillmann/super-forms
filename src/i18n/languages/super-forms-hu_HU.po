@@ -12529,7 +12529,7 @@ msgid "The filename of the attachment"
 msgstr "A melléklet fájlneve"
 
 #: includes/class-settings.php:240 includes/admin/views/page-create-form.php:77
-msgid "The following information has been send by the submitter:"
+msgid "The following information has been sent by the submitter:"
 msgstr "A benyújtó a következő információkat küldte el:"
 
 #: includes/class-shortcodes.php:6273
@@ -13088,7 +13088,7 @@ msgid "This is the toggle value when the user enabled the toggle element"
 msgstr "Ez a váltási érték, amikor a felhasználó engedélyezte a váltó elemet"
 
 #: includes/admin/views/page-create-form.php:73
-msgid "This mail was send from"
+msgid "This mail was sent from"
 msgstr "Ezt a levelet innen küldték:"
 
 #: includes/shortcodes/layout-elements.php:188

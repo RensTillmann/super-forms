@@ -12328,7 +12328,7 @@ msgid "The filename of the attachment"
 msgstr "منسلکہ کا فائل نام"
 
 #: includes/class-settings.php:240 includes/admin/views/page-create-form.php:77
-msgid "The following information has been send by the submitter:"
+msgid "The following information has been sent by the submitter:"
 msgstr "مندرجہ ذیل معلومات جمع کروانے والے کے ذریعہ ارسال کی گئی ہیں:"
 
 #: includes/class-shortcodes.php:6273
@@ -12883,7 +12883,7 @@ msgid "This is the toggle value when the user enabled the toggle element"
 msgstr "یہ ٹوگل قدر ہے جب صارف نے ٹوگل عنصر کو فعال کیا"
 
 #: includes/admin/views/page-create-form.php:73
-msgid "This mail was send from"
+msgid "This mail was sent from"
 msgstr "یہ میل بھیج دیا گیا تھا"
 
 #: includes/shortcodes/layout-elements.php:188

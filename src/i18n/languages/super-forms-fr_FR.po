@@ -12793,7 +12793,7 @@ msgstr "Le nom de fichier de la pièce jointe"
 #: includes/class-settings.php:240
 #, php-format
 msgid ""
-"The following information has been send by the submitter:\n"
+"The following information has been sent by the submitter:\n"
 "\n"
 "%s\n"
 "\n"
@@ -13369,7 +13369,7 @@ msgstr ""
 "de bascule"
 
 #: includes/admin/views/page-create-form.php:73
-msgid "This mail was send from"
+msgid "This mail was sent from"
 msgstr "Ce mail a été envoyé depuis"
 
 #: includes/shortcodes/layout-elements.php:188

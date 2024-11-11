@@ -12310,7 +12310,7 @@ msgid "The filename of the attachment"
 msgstr "نام فایل پیوست"
 
 #: includes/class-settings.php:240 includes/admin/views/page-create-form.php:77
-msgid "The following information has been send by the submitter:"
+msgid "The following information has been sent by the submitter:"
 msgstr "اطلاعات زیر توسط ارسال کننده ارسال شده است:"
 
 #: includes/class-shortcodes.php:6273
@@ -12856,7 +12856,7 @@ msgid "This is the toggle value when the user enabled the toggle element"
 msgstr "این مقدار ضامن است وقتی که کاربر عنصر ضامن را فعال کند"
 
 #: includes/admin/views/page-create-form.php:73
-msgid "This mail was send from"
+msgid "This mail was sent from"
 msgstr "این نامه از طرف ارسال شده است"
 
 #: includes/shortcodes/layout-elements.php:188

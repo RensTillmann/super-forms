@@ -11895,7 +11895,7 @@ msgid "The filename of the attachment"
 msgstr "附件的文件名"
 
 #: includes/class-settings.php:240 includes/admin/views/page-create-form.php:77
-msgid "The following information has been send by the submitter:"
+msgid "The following information has been sent by the submitter:"
 msgstr "提交者已發送以下信息："
 
 #: includes/class-shortcodes.php:6273
@@ -12380,7 +12380,7 @@ msgid "This is the toggle value when the user enabled the toggle element"
 msgstr "這是用戶啟用切換元素時的切換值"
 
 #: includes/admin/views/page-create-form.php:73
-msgid "This mail was send from"
+msgid "This mail was sent from"
 msgstr "這封郵件是從"
 
 #: includes/shortcodes/layout-elements.php:188

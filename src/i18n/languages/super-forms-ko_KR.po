@@ -11953,7 +11953,7 @@ msgid "The filename of the attachment"
 msgstr "첨부 파일의 파일 이름"
 
 #: includes/class-settings.php:240 includes/admin/views/page-create-form.php:77
-msgid "The following information has been send by the submitter:"
+msgid "The following information has been sent by the submitter:"
 msgstr "제출자가 다음 정보를 전송했습니다."
 
 #: includes/class-shortcodes.php:6273
@@ -12446,7 +12446,7 @@ msgid "This is the toggle value when the user enabled the toggle element"
 msgstr "사용자가 토글 요소를 활성화했을 때 토글 값입니다."
 
 #: includes/admin/views/page-create-form.php:73
-msgid "This mail was send from"
+msgid "This mail was sent from"
 msgstr "이 메일은"
 
 #: includes/shortcodes/layout-elements.php:188

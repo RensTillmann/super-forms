@@ -12430,7 +12430,7 @@ msgid "The filename of the attachment"
 msgstr "ಲಗತ್ತಿನ ಫೈಲ್ ಹೆಸರು"
 
 #: includes/class-settings.php:240 includes/admin/views/page-create-form.php:77
-msgid "The following information has been send by the submitter:"
+msgid "The following information has been sent by the submitter:"
 msgstr "ಕೆಳಗಿನ ಮಾಹಿತಿಯನ್ನು ಸಲ್ಲಿಸಿದವರು ಕಳುಹಿಸಿದ್ದಾರೆ:"
 
 #: includes/class-shortcodes.php:6273
@@ -12988,7 +12988,7 @@ msgid "This is the toggle value when the user enabled the toggle element"
 msgstr "ಟಾಗಲ್ ಅಂಶವನ್ನು ಬಳಕೆದಾರರು ಸಕ್ರಿಯಗೊಳಿಸಿದಾಗ ಇದು ಟಾಗಲ್ ಮೌಲ್ಯವಾಗಿದೆ"
 
 #: includes/admin/views/page-create-form.php:73
-msgid "This mail was send from"
+msgid "This mail was sent from"
 msgstr "ಈ ಮೇಲ್ ಅನ್ನು ಕಳುಹಿಸಲಾಗಿದೆ"
 
 #: includes/shortcodes/layout-elements.php:188

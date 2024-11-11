@@ -4969,7 +4969,7 @@
 
                     {
                         selector: 'input[name="wizard_header_from"]',
-                        description: '<h1>Enter the email address where the email was send from</h1>' + $tags_allowed,
+                        description: '<h1>Enter the email address where the email was sent from</h1>' + $tags_allowed,
                     },
 
                     {
@@ -4993,7 +4993,7 @@
                     },
                     {
                         selector: 'input[name="wizard_confirm_from"]',
-                        description: '<h1>Enter the email address where the email was send from</h1>' + $tags_allowed,
+                        description: '<h1>Enter the email address where the email was sent from</h1>' + $tags_allowed,
                     },
                     {
                         selector: 'input[name="wizard_confirm_from_name"]',

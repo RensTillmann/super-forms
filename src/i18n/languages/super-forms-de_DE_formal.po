@@ -12663,7 +12663,7 @@ msgid "The filename of the attachment"
 msgstr "Der Dateiname des Anhangs"
 
 #: includes/class-settings.php:240 includes/admin/views/page-create-form.php:77
-msgid "The following information has been send by the submitter:"
+msgid "The following information has been sent by the submitter:"
 msgstr "Die folgenden Informationen wurden verschickt:"
 
 #: includes/class-shortcodes.php:6273
@@ -13245,7 +13245,7 @@ msgstr ""
 "hat"
 
 #: includes/admin/views/page-create-form.php:73
-msgid "This mail was send from"
+msgid "This mail was sent from"
 msgstr "Diese Nachricht wurde versandt von"
 
 #: includes/shortcodes/layout-elements.php:188

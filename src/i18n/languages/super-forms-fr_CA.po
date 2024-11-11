@@ -12686,7 +12686,7 @@ msgid "The filename of the attachment"
 msgstr "Le nom de fichier de la pièce jointe"
 
 #: includes/class-settings.php:240 includes/admin/views/page-create-form.php:77
-msgid "The following information has been send by the submitter:"
+msgid "The following information has been sent by the submitter:"
 msgstr "Les informations suivantes ont été envoyées par l'expéditeur:"
 
 #: includes/class-shortcodes.php:6273
@@ -13268,7 +13268,7 @@ msgstr ""
 "de bascule"
 
 #: includes/admin/views/page-create-form.php:73
-msgid "This mail was send from"
+msgid "This mail was sent from"
 msgstr "Ce mail a été envoyé depuis"
 
 #: includes/shortcodes/layout-elements.php:188

@@ -470,7 +470,7 @@ if( !class_exists('SUPER_Email_Reminders') ) :
             // Insert reminder into database
             $post = array(
                 'post_type' => 'super_email_reminder',
-                'post_status' => 'queued', // `queued` = scheduled to be send, `send` = has been send
+                'post_status' => 'queued', // `queued` = scheduled to be send, `send` = has been sent
                 'post_parent' => $data['hidden_form_id']['value'] // Keep reference to the form
             );
             $reminder_id = wp_insert_post($post); 

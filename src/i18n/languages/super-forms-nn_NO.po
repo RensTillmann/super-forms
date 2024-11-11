@@ -11958,7 +11958,7 @@ msgid "The filename of the attachment"
 msgstr ""
 
 #: includes/class-settings.php:240 includes/admin/views/page-create-form.php:77
-msgid "The following information has been send by the submitter:"
+msgid "The following information has been sent by the submitter:"
 msgstr "Følgende informasjon er sendt av innsenderen:"
 
 #: includes/class-shortcodes.php:6273
@@ -12449,7 +12449,7 @@ msgid "This is the toggle value when the user enabled the toggle element"
 msgstr "Dette er veksleverdien når brukeren aktiverte veksleelementet"
 
 #: includes/admin/views/page-create-form.php:73
-msgid "This mail was send from"
+msgid "This mail was sent from"
 msgstr "Denne e-posten ble sendt fra"
 
 #: includes/shortcodes/layout-elements.php:188

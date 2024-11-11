@@ -12411,7 +12411,7 @@ msgid "The filename of the attachment"
 msgstr "Tên tệp của tệp đính kèm"
 
 #: includes/class-settings.php:240 includes/admin/views/page-create-form.php:77
-msgid "The following information has been send by the submitter:"
+msgid "The following information has been sent by the submitter:"
 msgstr "Người gửi đã gửi thông tin sau:"
 
 #: includes/class-shortcodes.php:6273
@@ -12971,7 +12971,7 @@ msgid "This is the toggle value when the user enabled the toggle element"
 msgstr "Đây là giá trị chuyển đổi khi người dùng bật yếu tố chuyển đổi"
 
 #: includes/admin/views/page-create-form.php:73
-msgid "This mail was send from"
+msgid "This mail was sent from"
 msgstr "Thư này được gửi từ"
 
 #: includes/shortcodes/layout-elements.php:188

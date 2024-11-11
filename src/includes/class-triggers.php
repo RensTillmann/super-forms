@@ -147,7 +147,7 @@ class SUPER_Triggers {
                     'post_title' => $eventName.'->'.$actionName,
                     'post_content' => maybe_serialize($action),
                     'post_type' => 'sf_scheduled_action', // max 20 characters long: varchar(20)
-                    'post_status' => 'queued', // `queued` = scheduled to be send, `send` = has been send
+                    'post_status' => 'queued', // `queued` = scheduled to be send, `send` = has been sent
                     'post_parent' => $form_id // Keep reference to the form
                 );
                 $scheduled_trigger_action_id = wp_insert_post($post);         

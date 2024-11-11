@@ -12557,7 +12557,7 @@ msgid "The filename of the attachment"
 msgstr "De bestandsnaam van de bijlage"
 
 #: includes/class-settings.php:240 includes/admin/views/page-create-form.php:77
-msgid "The following information has been send by the submitter:"
+msgid "The following information has been sent by the submitter:"
 msgstr "De volgende informatie is door de indiener verzonden:"
 
 #: includes/class-shortcodes.php:6273
@@ -13141,7 +13141,7 @@ msgstr ""
 "ingeschakeld"
 
 #: includes/admin/views/page-create-form.php:73
-msgid "This mail was send from"
+msgid "This mail was sent from"
 msgstr "Deze mail is verzonden vanaf"
 
 #: includes/shortcodes/layout-elements.php:188

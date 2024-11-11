@@ -12495,7 +12495,7 @@ msgid "The filename of the attachment"
 msgstr "Die lêernaam van die aanhegsel"
 
 #: includes/class-settings.php:240 includes/admin/views/page-create-form.php:77
-msgid "The following information has been send by the submitter:"
+msgid "The following information has been sent by the submitter:"
 msgstr "Die volgende inligting is deur die indiener gestuur:"
 
 #: includes/class-shortcodes.php:6273
@@ -13073,7 +13073,7 @@ msgstr ""
 "het"
 
 #: includes/admin/views/page-create-form.php:73
-msgid "This mail was send from"
+msgid "This mail was sent from"
 msgstr "Hierdie e-pos is gestuur vanaf"
 
 #: includes/shortcodes/layout-elements.php:188

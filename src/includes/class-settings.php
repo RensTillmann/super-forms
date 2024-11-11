@@ -262,7 +262,7 @@ class SUPER_Settings {
                 'email_body' => array(
                     'name' => esc_html__( 'Body content:', 'super-forms' ),
                     'label' => esc_html__( 'Use a custom email body. Use {loop_fields} to retrieve the loop.', 'super-forms' ),
-                    'default' => sprintf( esc_html__( "The following information has been send by the submitter:%sBest regards, %s", 'super-forms' ), '<br /><br /><table cellpadding="5">{loop_fields}</table><br /><br />', '{option_blogname}' ),
+                    'default' => sprintf( esc_html__( "The following information has been sent by the submitter:%sBest regards, %s", 'super-forms' ), '<br /><br /><table cellpadding="5">{loop_fields}</table><br /><br />', '{option_blogname}' ),
                     'type'=>'textarea',
                     'filter'=>true,
                     'parent'=>'send',
