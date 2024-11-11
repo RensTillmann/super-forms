@@ -789,7 +789,7 @@ class SUPER_Pages {
                                                                         'name' => 'body',
                                                                         'type' => 'textarea',
                                                                         'tinymce' => true,
-                                                                        'default' => sprintf( esc_html__( "The following information has been send by the submitter:%sBest regards, %s", 'super-forms' ), '<br /><br />{loop_fields}<br /><br />', '{option_blogname}' ),
+                                                                        'default' => sprintf( esc_html__( "The following information has been sent by the submitter:%sBest regards, %s", 'super-forms' ), '<br /><br />{loop_fields}<br /><br />', '{option_blogname}' ),
                                                                         'title' => esc_html__( 'Body', 'super-forms' ),
                                                                         'i18n' => true
                                                                     ),

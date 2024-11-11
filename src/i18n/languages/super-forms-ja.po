@@ -11935,7 +11935,7 @@ msgid "The filename of the attachment"
 msgstr "添付ファイルのファイル名"
 
 #: includes/class-settings.php:240 includes/admin/views/page-create-form.php:77
-msgid "The following information has been send by the submitter:"
+msgid "The following information has been sent by the submitter:"
 msgstr "以下の情報が提出者から送信されました。"
 
 #: includes/class-shortcodes.php:6273
@@ -12428,7 +12428,7 @@ msgid "This is the toggle value when the user enabled the toggle element"
 msgstr "これは、ユーザーがトグル要素を有効にしたときのトグル値です。"
 
 #: includes/admin/views/page-create-form.php:73
-msgid "This mail was send from"
+msgid "This mail was sent from"
 msgstr "このメールはから送信されました"
 
 #: includes/shortcodes/layout-elements.php:188

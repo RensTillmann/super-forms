@@ -12565,7 +12565,7 @@ msgid "The filename of the attachment"
 msgstr "Il nome del file dell'allegato"
 
 #: includes/class-settings.php:240 includes/admin/views/page-create-form.php:77
-msgid "The following information has been send by the submitter:"
+msgid "The following information has been sent by the submitter:"
 msgstr "Le seguenti informazioni sono state inviate dal mittente:"
 
 #: includes/class-shortcodes.php:6273
@@ -13154,7 +13154,7 @@ msgstr ""
 "abilitato l'elemento di attivazione"
 
 #: includes/admin/views/page-create-form.php:73
-msgid "This mail was send from"
+msgid "This mail was sent from"
 msgstr "Questa mail è stata inviata da"
 
 #: includes/shortcodes/layout-elements.php:188

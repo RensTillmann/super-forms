@@ -70,7 +70,7 @@
                         </div>
                         <div>
                             <span><?php echo esc_html__( 'Subject', 'super-forms' ); ?>:</span>
-                            <input type="text" name="wizard_header_subject" value="<?php echo esc_html__( 'This mail was send from', 'super-forms' ) . ' ' . $_SERVER["SERVER_NAME"]; ?>" />
+                            <input type="text" name="wizard_header_subject" value="<?php echo esc_html__( 'This mail was sent from', 'super-forms' ) . ' ' . $_SERVER["SERVER_NAME"]; ?>" />
                         </div>
                     </li>
                     <li>

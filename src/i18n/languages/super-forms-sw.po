@@ -12429,7 +12429,7 @@ msgid "The filename of the attachment"
 msgstr "Jina la faili la kiambatisho"
 
 #: includes/class-settings.php:240 includes/admin/views/page-create-form.php:77
-msgid "The following information has been send by the submitter:"
+msgid "The following information has been sent by the submitter:"
 msgstr "Habari ifuatayo imetumwa na mtoaji:"
 
 #: includes/class-shortcodes.php:6273
@@ -12994,7 +12994,7 @@ msgstr ""
 "Hii ndio thamani ya kugeuza wakati mtumiaji aliwezesha kipengele cha kugeuza"
 
 #: includes/admin/views/page-create-form.php:73
-msgid "This mail was send from"
+msgid "This mail was sent from"
 msgstr "Barua hii ilitumwa kutoka"
 
 #: includes/shortcodes/layout-elements.php:188
