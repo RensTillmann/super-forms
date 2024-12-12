@@ -4381,7 +4381,7 @@ msgid "Email attachments"
 msgstr "Adjuntos de correo electrónico"
 
 #: includes/class-settings.php:980 includes/class-settings.php:981
-msgid "Email headers"
+msgid "E-mail headers"
 msgstr "Encabezados de correo electrónico"
 
 #: includes/extensions/pdf-generator/pdf-generator.php:108

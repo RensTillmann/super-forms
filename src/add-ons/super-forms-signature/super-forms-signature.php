@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name: Super Forms - Signature
  * Description: Adds an extra element that allows users to sign their signature before submitting the form
- * Version:     1.8.4
+ * Version:     1.8.5
  * Plugin URI:  http://super-forms.com
  * Author URI:  http://super-forms.com
  * Author:      WebRehab
@@ -44,7 +44,7 @@ if( !class_exists('SUPER_Signature') ) :
          *
          *	@since		1.0.0
         */
-        public $version = '1.8.4';
+        public $version = '1.8.5';
 
 
         /**
@@ -200,6 +200,10 @@ if( !class_exists('SUPER_Signature') ) :
         */
         public static function add_dynamic_function( $functions ) {
             
+            // @since 6.4.0 responsive signature (reszie canvas upon turning mobile, also required for signatures that are inside a multi-part)
+            $functions['after_responsive_form_hook'][] = array(
+                'name' => 'init_signature_resize'
+            );
             // @since 1.2.2
             $functions['after_duplicating_column_hook'][] = array(
                 'name' => 'init_signature_after_duplicating_column'
@@ -381,8 +385,6 @@ if( !class_exists('SUPER_Signature') ) :
          *  @since      1.0.0
         */
         public static function add_signature_element( $array, $attributes ) {
-            error_log('add_signature_element()');
-
             // Include the predefined arrays
             require( SUPER_PLUGIN_DIR . '/includes/shortcodes/predefined-arrays.php' );
 

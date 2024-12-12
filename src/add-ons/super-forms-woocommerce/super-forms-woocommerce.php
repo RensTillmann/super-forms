@@ -1529,7 +1529,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                     ),
                 )
             );
-            $array['woocommerce_checkout'] = array(        
+            $array['woocommerce_checkout'] = array(
                 'hidden' => 'settings',
                 'name' => esc_html__( 'WooCommerce Checkout', 'super-forms' ),
                 'label' => esc_html__( 'WooCommerce Checkout', 'super-forms' ),

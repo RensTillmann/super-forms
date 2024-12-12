@@ -129,9 +129,9 @@ class SUPER_Shortcodes {
          *  @since      1.0.0
         */
         include( 'shortcodes/form-elements.php' );
-        error_log('before appy_filters(super_shortcodes_after_form_elements_filter)');
+        //error_log('before appy_filters(super_shortcodes_after_form_elements_filter)');
         $array = apply_filters( 'super_shortcodes_after_form_elements_filter', $array, $attr );
-        error_log('after appy_filters(super_shortcodes_after_form_elements_filter)');
+        //error_log('after appy_filters(super_shortcodes_after_form_elements_filter)');
         
 
         /** 
@@ -6030,10 +6030,10 @@ class SUPER_Shortcodes {
         SUPER_Forms()->entry_id = $entry_id;
         SUPER_Forms()->i18n = $i18n;
 
-        error_log('form_id: '.SUPER_Forms()->form_id);
-        error_log('list_id: '.SUPER_Forms()->list_id);
-        error_log('entry_id: '.SUPER_Forms()->entry_id);
-        error_log('i18n: '.SUPER_Forms()->i18n);
+        //error_log('form_id: '.SUPER_Forms()->form_id);
+        //error_log('list_id: '.SUPER_Forms()->list_id);
+        //error_log('entry_id: '.SUPER_Forms()->entry_id);
+        //error_log('i18n: '.SUPER_Forms()->i18n);
 
         $editingContactEntry = false;
         if($id!==0 && $list_id!=='' && $entry_id!==0){
@@ -6641,7 +6641,7 @@ class SUPER_Shortcodes {
             $combinedPossibleFileUploads = 0;
             foreach($elements as $v){
                 $combinedPossibleFileUploads += self::fileUploadcountMaxlength($v);
-                error_log($combinedPossibleFileUploads);
+                //error_log($combinedPossibleFileUploads);
             }
             if(current_user_can('administrator') && $combinedPossibleFileUploads>ini_get('max_file_uploads')){
                 $result .= '<div class="super-msg super-info">';

@@ -65,10 +65,10 @@ if(!class_exists('SUPER_PDF_Generator')) :
         }
         public static function add_tab_content($atts){
             extract($atts);
-            error_log('t3: '.json_encode($pdf));
+            //error_log('t3: '.json_encode($pdf));
             $slug = SUPER_PDF_Generator()->add_on_slug;
             $s = self::get_default_pdf_settings($pdf);
-            error_log('t4: '.json_encode($s));
+            //error_log('t4: '.json_encode($s));
             $logic = array( '==' => '== Equal', '!=' => '!= Not equal', '??' => '?? Contains', '!!' => '!! Not contains', '>'  => '&gt; Greater than', '<'  => '&lt;  Less than', '>=' => '&gt;= Greater than or equal to', '<=' => '&lt;= Less than or equal');
             // Page format
             $formats = array();

@@ -21,8 +21,8 @@ if( isset($_POST['action']) && isset($_POST['entry_id']) && isset($_POST['form_i
             echo $html;
         }else{
             $list = SUPER_Listings::get_default_listings_settings(array('list'=>$lists[$list_id]));
-            error_log('$list:');
-            error_log(json_encode($list));
+            //error_log('$list:');
+            //error_log(json_encode($list));
             $entry = get_post($entry_id);
             $allow = SUPER_Listings::get_action_permissions(array('list'=>$list, 'entry'=>$entry));
 
@@ -103,11 +103,11 @@ if( isset($_POST['action']) && isset($_POST['entry_id']) && isset($_POST['form_i
                     )
                 );
                 $listing_loop = $loops['listing_loop'];
-                error_log('html_template before:');
-                error_log($html_template);
+                //error_log('html_template before:');
+                //error_log($html_template);
                 $html_template = wp_unslash($html_template);
-                error_log('html_template after:');
-                error_log($html_template);
+                //error_log('html_template after:');
+                //error_log($html_template);
                 $html = str_replace( '{loop_fields}', $listing_loop, $html_template);
                 $html = str_replace( '{listing_entry_id}', $entry_id, $html);
                 $html = str_replace( '{listing_form_id}', $form_id, $html);

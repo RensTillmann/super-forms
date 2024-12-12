@@ -4370,7 +4370,7 @@ msgid "Email attachments"
 msgstr "E-mailbijlagen"
 
 #: includes/class-settings.php:980 includes/class-settings.php:981
-msgid "Email headers"
+msgid "E-mail headers"
 msgstr "E-mailkopteksten"
 
 #: includes/extensions/pdf-generator/pdf-generator.php:108

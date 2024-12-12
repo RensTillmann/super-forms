@@ -78,36 +78,12 @@ if( !class_exists('SUPER_XML_Attachment') ) :
             return $attachments;
         }
         public static function add_settings( $array, $x ) {
-            $array['xml_attachment'] = array(        
+            $array['xml_attachment'] = array(
                 'hidden' => 'settings',
-                'name' => esc_html__( 'XML Attachment', 'super-forms' ),
-                'label' => esc_html__( 'XML Attachment Settings', 'super-forms' ),
-                'fields' => array(
-                    'xml_attachment_enable' => array(
-                        'desc' => esc_html__( 'This will attach an XML file to the admin email', 'super-forms' ), 
-                        'default' => '',
-                        'type' => 'checkbox',
-                        'values' => array(
-                            'true' => esc_html__( 'Send XML attachment with form data to the admin email', 'super-forms' ),
-                        ),
-                        'filter' => true
-                    ),
-                    'xml_attachment_name' => array(
-                        'name'=> esc_html__( 'The filename of the attachment', 'super-forms' ),
-                        'default'=> 'super-xml-attachment',
-                        'filter'=>true,
-                        'parent'=>'xml_attachment_enable',
-                        'filter_value'=>'true'
-                    ),
-                    'xml_content' => array(
-                        'name'=> esc_html__( 'The XML content (use {tags}', 'super-forms' ),
-                        'desc'=> esc_html__( 'Use {tags} to retrieve form data', 'super-forms' ),
-                        'default'=> "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<submission>\n<email>{email}</email>\n<name>{name}</name>\n<date>{submission_date}</date>\n<message>{message}</message>\n</submission>",
-                        'type'=>'textarea', 
-                        'filter'=>true,
-                        'parent'=>'xml_attachment_enable',
-                        'filter_value'=>'true'
-                    )
+                'name' => esc_html__( 'XML Attachments', 'super-forms' ),
+                'label' => esc_html__( 'XML Attachments Settings', 'super-forms' ),
+                'html' => array(
+                    sprintf( esc_html__( '%s%sNote: %sXML attachment can be enabled via the [Triggers] TAB when sending an E-mail%s', 'super-forms' ), '<div class="sfui-notice sfui-desc">', '<strong>', '</strong>', '</div>' ),
                 )
             );
             return $array;

@@ -800,6 +800,138 @@ class SUPER_Pages {
                                                                         'type' => 'files', // file
                                                                         'default' => '',
                                                                         'i18n' => true
+                                                                    ),
+                                                                    array(
+                                                                        'wrap' => false,
+                                                                        'group' => true,
+                                                                        'group_name' => 'csv_attachment',
+                                                                        'vertical' => true,
+                                                                        'filter' => 'action;send_email',
+                                                                        'nodes' => array(
+                                                                            array(
+                                                                                'toggle' => true,
+                                                                                'title' => esc_html__( 'CSV Attachment', 'super-forms' ),
+                                                                                'vertical' => true, // sfui-vertical
+                                                                                'nodes' => array(
+                                                                                    array(
+                                                                                        'name' => 'enabled',
+                                                                                        'title' => esc_html__( 'Attach a CSV file with the form data', 'super-forms' ),
+                                                                                        'type' => 'checkbox',
+                                                                                        'default' => 'false'
+                                                                                    ),
+                                                                                    array(
+                                                                                        'wrap' => false,
+                                                                                        'group' => true, 
+                                                                                        'group_name' => '',
+                                                                                        'vertical' => true,
+                                                                                        'padding' => false,
+                                                                                        'filter' => 'csv_attachment.enabled;true',
+                                                                                        'nodes' => array(
+                                                                                            array(
+                                                                                                'name' => 'name',
+                                                                                                'title' => esc_html__( 'The filename of the attachment', 'super-forms' ),
+                                                                                                'type' => 'text',
+                                                                                                'default'=> 'super-csv-attachment',
+                                                                                                'reset'=>true,
+                                                                                                'i18n' => true
+                                                                                            ),
+                                                                                            array(
+                                                                                                'name' => 'save_as',
+                                                                                                'title'=> esc_html__( 'Choose what value to save for checkboxes & radio buttons', 'super-forms' ),
+                                                                                                'subline'=> esc_html__( 'When editing a field you can change these settings', 'super-forms' ),
+                                                                                                'type' => 'select', // dropdown
+                                                                                                'options' => array(
+                                                                                                    'admin_email_value' => esc_html__( 'Save the admin email value (default)', 'super-forms' ),
+                                                                                                    'confirm_email_value' => esc_html__( 'Save the confirmation email value', 'super-forms' ),
+                                                                                                    'entry_value' => esc_html__( 'Save the entry value', 'super-forms' ),
+                                                                                                ),
+                                                                                                'default'=>'admin_email_value',
+                                                                                                'reset'=>true
+                                                                                            ),
+                                                                                            array(
+                                                                                                'name' => 'delimiter',
+                                                                                                'title'=> esc_html__( 'Custom delimiter', 'super-forms' ),
+                                                                                                'subline' => esc_html__( 'Set a custom delimiter to separate the values on each row', 'super-forms' ), 
+                                                                                                'type' => 'text', // dropdown
+                                                                                                'default'=>',',
+                                                                                                'reset'=>true
+                                                                                            ),
+                                                                                            array(
+                                                                                                'name' => 'enclosure',
+                                                                                                'title'=> esc_html__( 'Custom enclosure', 'super-forms' ),
+                                                                                                'subline' => esc_html__( 'Set a custom enclosure character for values', 'super-forms' ), 
+                                                                                                'type' => 'text', // dropdown
+                                                                                                'default'=>'"',
+                                                                                                'reset'=>true
+                                                                                            ),
+                                                                                            array(
+                                                                                                'name' => 'exclude_fields',
+                                                                                                'type' => 'repeater',
+                                                                                                'title'=> esc_html__( 'Exclude fields from CSV file (put each field name on a new line)', 'super-forms' ),
+                                                                                                'subline'=> esc_html__( 'When saving the CSV these fields will be excluded from the CSV file', 'super-forms' ),
+                                                                                                'nodes' => array( // repeater item
+                                                                                                    array(
+                                                                                                        'name' => 'name',
+                                                                                                        'subline' => 'Field name',
+                                                                                                        'type' => 'text',
+                                                                                                        'default' => '',
+                                                                                                        'placeholder' => 'e.g. birth_date'
+                                                                                                    )
+                                                                                                )
+                                                                                            )
+                                                                                        )
+                                                                                    )
+                                                                                )
+                                                                            )
+                                                                        )
+                                                                    ),
+                                                                    array(
+                                                                        'wrap' => false,
+                                                                        'group' => true,
+                                                                        'group_name' => 'xml_attachment',
+                                                                        'vertical' => true,
+                                                                        'filter' => 'action;send_email',
+                                                                        'nodes' => array(
+                                                                            array(
+                                                                                'toggle' => true,
+                                                                                'title' => esc_html__( 'XML Attachment', 'super-forms' ),
+                                                                                'vertical' => true, // sfui-vertical
+                                                                                'nodes' => array(
+                                                                                    array(
+                                                                                        'name' => 'enabled',
+                                                                                        'title' => esc_html__( 'Attach a XML file with the form data', 'super-forms' ),
+                                                                                        'type' => 'checkbox',
+                                                                                        'default' => 'false'
+                                                                                    ),
+                                                                                    array(
+                                                                                        'wrap' => false,
+                                                                                        'group' => true, 
+                                                                                        'group_name' => '',
+                                                                                        'vertical' => true,
+                                                                                        'padding' => false,
+                                                                                        'filter' => 'xml_attachment.enabled;true',
+                                                                                        'nodes' => array(
+                                                                                            array(
+                                                                                                'name' => 'name',
+                                                                                                'title' => esc_html__( 'The filename of the attachment', 'super-forms' ),
+                                                                                                'type' => 'text',
+                                                                                                'default'=> 'super-xml-attachment',
+                                                                                                'reset'=>true,
+                                                                                                'i18n' => true
+                                                                                            ),
+                                                                                            array(
+                                                                                                'name' => 'content',
+                                                                                                'title'=> esc_html__( 'The XML content', 'super-forms' ),
+                                                                                                'subline'=> esc_html__( 'Use {tags} to retrieve form data', 'super-forms' ),
+                                                                                                'type'=>'textarea', 
+                                                                                                'default'=> "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<submission>\n<email>{email}</email>\n<name>{name}</name>\n<date>{submission_date}</date>\n<message>{message}</message>\n</submission>",
+                                                                                                'reset'=>true
+                                                                                            ),
+                                                                                        )
+                                                                                    )
+                                                                                )
+                                                                            )
+                                                                        )
                                                                     )
                                                                 )
                                                             ),
@@ -1116,7 +1248,7 @@ class SUPER_Pages {
         $listings = SUPER_Common::get_form_listings_settings($form_id);
 
         $pdf = SUPER_Common::get_form_pdf_settings($form_id);
-        error_log('get_form_stripe_settings(4)');
+        //error_log('get_form_stripe_settings(4)');
         $stripe = SUPER_Common::get_form_stripe_settings($form_id);
 
         // Retrieve all form setting fields with the correct default values

@@ -329,7 +329,7 @@ class SUPER_UI {
                         $value = $shortcode;
                     }
                 }
-                echo '<input type="'.$v['type'].'" name="'.$v['name'].'"'.(isset($v['readonly']) ? ' readonly="readonly"' : '').(isset($v['min']) ? ' min="'.$v['min'].'"' : '').(isset($v['max']) ? ' max="'.$v['max'].'"' : '').(isset($v['step']) ? ' step="'.$v['step'].'"' : '').(isset($v['placeholder']) ? ' placeholder="'.$v['placeholder'].'"' : '').' value="' . $value . '" onChange="SUPER.ui.updateSettings(event, this)" />';
+                echo '<input type="'.esc_attr($v['type']).'" name="'.esc_attr($v['name']).'"'.(isset($v['readonly']) ? ' readonly="readonly"' : '').(isset($v['min']) ? ' min="'.esc_attr($v['min']).'"' : '').(isset($v['max']) ? ' max="'.esc_attr($v['max']).'"' : '').(isset($v['step']) ? ' step="'.esc_attr($v['step']).'"' : '').(isset($v['placeholder']) ? ' placeholder="'.esc_attr($v['placeholder']).'"' : '').' value="' . esc_attr($value). '" onChange="SUPER.ui.updateSettings(event, this)" />';
                 self::subline($v);
             echo '</label>';
         }
@@ -344,7 +344,7 @@ class SUPER_UI {
                 if($v['type']==='radio'){
                     echo '<form class="sfui-setting">';
                     foreach($v['options'] as $ok => $ov){
-                        echo '<label onclick="SUPER.ui.updateSettings(event, this)"><input type="radio" name="'.$v['name'].'" value="'.$ok.'"'.(self::get_value($s, $name, null)===$ok ? ' checked="checked"' : '').'><span class="sfui-title">'.($ov).'</span></label>';
+                        echo '<label onclick="SUPER.ui.updateSettings(event, this)"><input type="radio" name="'.$v['name'].'" value="'.esc_attr($ok).'"'.(self::get_value($s, $name, null)===$ok ? ' checked="checked"' : '').'><span class="sfui-title">'.($ov).'</span></label>';
                     }
                     echo '</form>';
                 }
@@ -353,7 +353,7 @@ class SUPER_UI {
                         $hadLabel = false;
                         foreach($v['options'] as $ok => $ov){
                             if(!isset($ov['items'])){
-                                echo '<option'.(self::get_value($s, $name, null)===$ok ? ' selected="selected"' : '').' value="'.$ok.'">'.$ov.'</option>';
+                                echo '<option'.(self::get_value($s, $name, null)===$ok ? ' selected="selected"' : '').' value="'.esc_attr($ok).'">'.$ov.'</option>';
                                 continue;
                             }
                             if(isset($ov['label'])){
@@ -362,8 +362,7 @@ class SUPER_UI {
                             }
                             $count = 0;
                             foreach($ov['items'] as $ook => $oov){
-                                echo '<option'.(self::get_value($s, $name, null)===$ook ? ' selected="selected"' : '').' value="'.$ook.'">'.$oov.'</option>';
-                                //echo '<option value="'.$ook.'"'.($v['event']===$ook ? ' selected="selected"' : '').'>'.$oov.'</option>';
+                                echo '<option'.(self::get_value($s, $name, null)===$ook ? ' selected="selected"' : '').' value="'.esc_attr($ook).'">'.$oov.'</option>';
                                 $count++;
                                 if(count($ov['items'])===$count){
                                     echo '</optgroup>';
