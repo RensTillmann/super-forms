@@ -1516,21 +1516,21 @@ if(!class_exists('SUPER_Listings')) :
 
             $i18n = SUPER_Common::get_payload_i18n();
             if(!empty($i18n)){
-                error_log('$i18n: '.$i18n);
+                //error_log('$i18n: '.$i18n);
                 if(empty($form_id)) $form_id = absint($_POST['form_id']);
-                error_log('$form_id: '.$form_id);
+                //error_log('$form_id: '.$form_id);
                 if(empty($form_id)) $form_id = SUPER_Forms()->form_id;
-                error_log('$form_id: '.$form_id);
+                //error_log('$form_id: '.$form_id);
                 $settings = self::get_translated_settings($list['id'], $form_id, $i18n);
-                error_log('before: '.json_encode($list));
-                error_log(json_encode($settings));
+                //error_log('before: '.json_encode($list));
+                //error_log(json_encode($settings));
                 foreach($settings['_listings']['lists'] as $k => $v){
                     if($v['id']===$list['id']){
                         $list = $v;
                         break;
                     }
                 }
-                error_log('after: '.json_encode($list));
+                //error_log('after: '.json_encode($list));
             }
             if(empty($list['enabled'])) $list['enabled'] = 'false';
             if(empty($list['name'])) $list['name'] = 'Listing #1';
@@ -2022,7 +2022,7 @@ if(!class_exists('SUPER_Listings')) :
         }
         private static function get_translated_settings($list, $form_id, $i18n){
             $settings = SUPER_Common::get_form_settings($form_id);
-            error_log(json_encode($settings));
+            //error_log(json_encode($settings));
             // First get the index of the current list based on the ID (code)
             $index = -1;
             foreach($settings['_listings']['lists'] as $k => $v){
@@ -2031,7 +2031,7 @@ if(!class_exists('SUPER_Listings')) :
                     break;
                 }
             }
-            error_log(json_encode($settings['_listings']['lists'][$index]));
+            //error_log(json_encode($settings['_listings']['lists'][$index]));
             if(!empty($i18n)){
                 $translated_options = ((isset($settings['_listings']['i18n']) && is_array($settings['_listings']['i18n'])) ? $settings['_listings']['i18n'] : array()); // In case this is a translated version
                 if(isset($translated_options[$i18n])){
@@ -2039,7 +2039,7 @@ if(!class_exists('SUPER_Listings')) :
                     $settings['_listings']['lists'][$index] = SUPER_Common::merge_i18n_options($settings['_listings']['lists'][$index], $translations = $settings['_listings']['i18n'][$i18n]['lists'][$index]);
                 }
             }
-            error_log(json_encode($settings['_listings']['lists'][$index]));
+            //error_log(json_encode($settings['_listings']['lists'][$index]));
             return $settings;
         }
 
@@ -2056,9 +2056,9 @@ if(!class_exists('SUPER_Listings')) :
             SUPER_Forms()->form_id = $id;
             SUPER_Forms()->list_id = $list;
             SUPER_Forms()->i18n = $i18n;
-            error_log('listings_func: '.SUPER_Forms()->form_id);
-            error_log('listings_func: '.SUPER_Forms()->list_id);
-            error_log('listings_func: '.SUPER_Forms()->i18n);
+            //error_log('listings_func: '.SUPER_Forms()->form_id);
+            //error_log('listings_func: '.SUPER_Forms()->list_id);
+            //error_log('listings_func: '.SUPER_Forms()->i18n);
 
             if(!empty($_POST['action']) && ($_POST['action']==='elementor_ajax') && is_admin()){
                 return '<p style="color:red;font-size:12px;"><strong>' . esc_html__('Note', 'super-forms' ).':</strong> ' . esc_html__('Super Forms Listings will only be generated on the front-end', 'super-forms' ) . ' - <code>' . sprintf('[super_listings list="%d" id="%d"]', $list, $id) . '</code></p>';

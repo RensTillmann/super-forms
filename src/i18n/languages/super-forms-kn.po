@@ -4329,7 +4329,7 @@ msgid "Email attachments"
 msgstr "ಇಮೇಲ್ ಲಗತ್ತುಗಳು"
 
 #: includes/class-settings.php:980 includes/class-settings.php:981
-msgid "Email headers"
+msgid "E-mail headers"
 msgstr "ಇಮೇಲ್ ಶೀರ್ಷಿಕೆಗಳು"
 
 #: includes/extensions/pdf-generator/pdf-generator.php:108

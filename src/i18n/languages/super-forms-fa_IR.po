@@ -4264,7 +4264,7 @@ msgid "Email attachments"
 msgstr "پیوست های ایمیل"
 
 #: includes/class-settings.php:980 includes/class-settings.php:981
-msgid "Email headers"
+msgid "E-mail headers"
 msgstr "سرصفحه های ایمیل"
 
 #: includes/extensions/pdf-generator/pdf-generator.php:108

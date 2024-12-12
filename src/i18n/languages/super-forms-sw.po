@@ -4331,7 +4331,7 @@ msgid "Email attachments"
 msgstr "Viambatisho vya barua pepe"
 
 #: includes/class-settings.php:980 includes/class-settings.php:981
-msgid "Email headers"
+msgid "E-mail headers"
 msgstr "Vichwa vya barua pepe"
 
 #: includes/extensions/pdf-generator/pdf-generator.php:108

@@ -282,8 +282,8 @@
                         // super_create_form_`code`_tab
                         // super_create_form_`translations`_tab
                         // super_create_form_`triggers`_tab
-                        error_log('stripe1: '.json_encode($stripe));
-                        error_log('pdf1: '.json_encode($pdf));
+                        //error_log('stripe1: '.json_encode($stripe));
+                        //error_log('pdf1: '.json_encode($pdf));
                         do_action( 'super_create_form_' . $k . '_tab', array( 
                             'version'=>$version,
                             'form_id'=>$form_id, 

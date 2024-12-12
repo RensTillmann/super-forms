@@ -11,8 +11,18 @@
 
 ## TODO:
 
+- Issue with exporting entries and other files when Permalinks are set to use ID's will have to implement a fallback system
 - Issue with populating existing signature from first person, when using a form that requires two persons to sign the document.
 - Issue with Listings settings not merged correctly from latest version to Beta version
+
+## Dec 12, 2024 - Version 6.4.014-beta
+
+- **Changed:** Moved Admin and Confirmation E-mail settings over to Triggers TAB, making sure it is backward compatible with older versions of Super Forms
+- **Changed:** Display message for any Form Settings section to let user know these are moved to the Triggers TAB such as CSV Attachment, XML Attachment, E-mail document attachments, E-mail headers
+
+## Dec 04, 2024 - Version 6.4.013-beta
+
+- **Fix:** Signatures inside Multi-part not resizing correctly based on canvas size (also solves issue when resizing screen when user already signed the form)
 
 ## Aug 29, 2024 - Version 6.4.012-beta
 

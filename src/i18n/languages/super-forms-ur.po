@@ -4289,7 +4289,7 @@ msgid "Email attachments"
 msgstr "ای میل منسلکات"
 
 #: includes/class-settings.php:980 includes/class-settings.php:981
-msgid "Email headers"
+msgid "E-mail headers"
 msgstr "ای میل ہیڈر"
 
 #: includes/extensions/pdf-generator/pdf-generator.php:108

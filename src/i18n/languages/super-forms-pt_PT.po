@@ -4363,7 +4363,7 @@ msgid "Email attachments"
 msgstr "Anexos de email"
 
 #: includes/class-settings.php:980 includes/class-settings.php:981
-msgid "Email headers"
+msgid "E-mail headers"
 msgstr "Cabeçalhos de email"
 
 #: includes/extensions/pdf-generator/pdf-generator.php:108

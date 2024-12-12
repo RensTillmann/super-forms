@@ -106,12 +106,38 @@
 	SUPER.getSignatureDimensions = function(field, signaturePad, successCallback){
 		var img = new Image();
 		img.onload = function() {
-			successCallback(field, signaturePad, { width: img.width, height: img.height });
+			var h = signaturePad.canvas.clientHeight
+			var w = signaturePad.canvas.clientWidth
+			successCallback(field, signaturePad, { width: w, height: h });
 		};
 		img.onerror = function() {
 			successCallback(field, signaturePad, { width: 0, height: 0 });
 		};
 		img.src = field.value;
+	};
+	SUPER.init_signature_resize = function($classes, $form){
+		var formUid = $form.dataset.sfuid;
+		if(SUPER.signatures){
+			Object.keys(SUPER.signatures[formUid]).forEach(function(fieldName) {
+				var signaturePad = SUPER.signatures[formUid][fieldName];
+				var wrapper = signaturePad.canvas.closest('.super-field-wrapper');
+				var field = wrapper.querySelector('.super-shortcode-field');
+				SUPER.getSignatureDimensions(field, signaturePad, function(field, signaturePad, dimensions) {
+					// Set canvas to proper width
+					var canvasWrapper = signaturePad.canvas.parentNode;
+					var width = canvasWrapper.getBoundingClientRect().width;
+					var height = canvasWrapper.getBoundingClientRect().height;
+					signaturePad.canvas.width = width;
+					signaturePad.canvas.height = height;
+					if(field.value!==''){
+						signaturePad.fromDataURL(field.value, { ratio: 1, width: dimensions.width, height: dimensions.height, xOffset: 0, yOffset: 0 });
+					}
+				}, function(error) {
+					console.error('Error:', error);
+				});
+
+			})
+		}
 	};
 
     // @since 1.2.2 - remove initialized class from signature element after the column has been cloned

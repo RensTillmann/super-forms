@@ -36,7 +36,7 @@ class SUPER_Triggers {
             $triggerEventParameters = maybe_unserialize($v->triggerEventParameters);
             $triggerEventParameters['action'] = $trigger_options;
             $triggerEventParameters['scheduled_action_id'] = $scheduled_action_id;
-            error_log('$triggerEventParameters: '.json_encode($triggerEventParameters));
+            //error_log('$triggerEventParameters: '.json_encode($triggerEventParameters));
             //$eventName = $triggerEventParameters['eventName']; // the event name that triggers the action e.g. `sf.after.submission`
             //$triggerName = $triggerEventParameters['triggerName']; // the event name that triggers the action e.g. `sf.after.submission`
             //$actionName = $triggerEventParameters['actionName']; // the action name e.g. `send_email`
@@ -51,17 +51,17 @@ class SUPER_Triggers {
                 //    'sfsi'=>$sfsi, 
                 //    'scheduled_action_id'=>$scheduled_action_id
                 //);
-                error_log('$trigger_options[action]: '.$trigger_options['action']);
-                error_log('$x: '.json_encode($x));
+                //error_log('$trigger_options[action]: '.$trigger_options['action']);
+                //error_log('$x: '.json_encode($x));
                 call_user_func(array('SUPER_Triggers', $trigger_options['action']), $triggerEventParameters);
             }
         }
     }
     public static function send_email($x){
-        error_log('Trigger: send_email()');
-        error_log('x: '.json_encode($x));
+        //error_log('Trigger: send_email()');
+        //error_log('x: '.json_encode($x));
         extract($x);
-        error_log('sfsi: '.json_encode($sfsi));
+        //error_log('sfsi: '.json_encode($sfsi));
         extract($sfsi);
         // Check if we need to grab the settings
         if(!isset($settings)) $settings = SUPER_Common::get_form_settings($form_id);
@@ -177,16 +177,16 @@ class SUPER_Triggers {
                     'sfsi'=>$sfsi
                 );
                 add_post_meta($scheduled_trigger_action_id, '_super_scheduled_trigger_action_data', $triggerEventParameters);
-                error_log('trigger action '.$actionName.' has been scheduled for '.$scheduled_real_date);
+                //error_log('trigger action '.$actionName.' has been scheduled for '.$scheduled_real_date);
             }
             return true;
         }
 
         $loops = self::retrieve_email_loop_html($data, $settings, $options);
-        error_log('retrieve_email_loop_html()');
-        error_log(json_encode($loops));
+        //error_log('retrieve_email_loop_html()');
+        //error_log(json_encode($loops));
         $email_loop = $options['loop_open'].$loops['email_loop'].$options['loop_close'];
-        error_log($email_loop);
+        //error_log($email_loop);
         $attachments = $loops['attachments'];
         $string_attachments = $loops['string_attachments'];
         $email_body = $options['body'];

@@ -110,7 +110,7 @@ class SUPER_Common {
     function add_metadata( $meta_type, $object_id, $meta_key, $meta_value, $unique = false ) { global $wpdb; if ( ! $meta_type || ! $meta_key || ! is_numeric( $object_id ) ) { return false; } $object_id = absint( $object_id ); $table = _get_meta_table( $meta_type ); if ( ! $table ) { return false; } $meta_subtype = get_object_subtype( $meta_type, $object_id ); $column = sanitize_key( $meta_type . '_id' ); $meta_key   = wp_unslash( $meta_key ); $meta_value = wp_unslash( $meta_value ); $meta_value = sanitize_meta( $meta_key, $meta_value, $meta_type, $meta_subtype ); $check = apply_filters( "add_{$meta_type}_metadata", null, $object_id, $meta_key, $meta_value, $unique ); if ( null !== $check ) { return $check; } if ( $unique && $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $table WHERE meta_key = %s AND $column = %d", $meta_key, $object_id)) ) { return false; } $_meta_value = $meta_value; $meta_value  = maybe_serialize( $meta_value ); do_action( "add_{$meta_type}_meta", $object_id, $meta_key, $_meta_value ); $result = $wpdb->insert( $table, array( $column      => $object_id, 'meta_key'   => $meta_key, 'meta_value' => $meta_value,)); if ( ! $result ) { return false; } $mid = (int) $wpdb->insert_id; wp_cache_delete( $object_id, $meta_type . '_meta' ); do_action( "added_{$meta_type}_meta", $mid, $object_id, $meta_key, $_meta_value ); return $mid; }
     function update_metadata( $meta_type, $object_id, $meta_key, $meta_value, $prev_value = '' ) { global $wpdb; if ( ! $meta_type || ! $meta_key || ! is_numeric( $object_id ) ) { return false; } $object_id = absint( $object_id ); $table = _get_meta_table( $meta_type ); if ( ! $table ) { return false; } $meta_subtype = get_object_subtype( $meta_type, $object_id ); $column    = sanitize_key( $meta_type . '_id' ); $id_column = ( 'user' === $meta_type ) ? 'umeta_id' : 'meta_id'; $raw_meta_key = $meta_key; $meta_key     = wp_unslash( $meta_key ); $passed_value = $meta_value; $meta_value   = wp_unslash( $meta_value ); $meta_value   = sanitize_meta( $meta_key, $meta_value, $meta_type, $meta_subtype ); $check = apply_filters( "update_{$meta_type}_metadata", null, $object_id, $meta_key, $meta_value, $prev_value ); if ( null !== $check ) { return (bool) $check; } if ( empty( $prev_value ) ) { $old_value = get_metadata_raw( $meta_type, $object_id, $meta_key ); if ( is_countable( $old_value ) && count( $old_value ) === 1 ) { if ( $old_value[0] === $meta_value ) { return false; } } } $meta_ids = $wpdb->get_col( $wpdb->prepare( "SELECT $id_column FROM $table WHERE meta_key = %s AND $column = %d", $meta_key, $object_id ) ); if ( empty( $meta_ids ) ) { return self::add_metadata( $meta_type, $object_id, $raw_meta_key, $passed_value ); } $_meta_value = $meta_value; $meta_value  = maybe_serialize( $meta_value ); $data  = compact( 'meta_value' ); $where = array( $column    => $object_id, 'meta_key' => $meta_key,); if ( ! empty( $prev_value ) ) { $prev_value          = maybe_serialize( $prev_value ); $where['meta_value'] = $prev_value; } foreach ( $meta_ids as $meta_id ) { do_action( "update_{$meta_type}_meta", $meta_id, $object_id, $meta_key, $_meta_value ); if ( 'post' === $meta_type ) { do_action( 'update_postmeta', $meta_id, $object_id, $meta_key, $meta_value ); } } $result = $wpdb->update( $table, $data, $where ); if ( ! $result ) { return false; } wp_cache_delete( $object_id, $meta_type . '_meta' ); foreach ( $meta_ids as $meta_id ) { do_action( "updated_{$meta_type}_meta", $meta_id, $object_id, $meta_key, $_meta_value ); if ( 'post' === $meta_type ) { do_action( 'updated_postmeta', $meta_id, $object_id, $meta_key, $meta_value ); } } return true; }
     public static function get_form_triggers($form_id){
-        error_log('get_form_triggers()');
+        //error_log('get_form_triggers()');
         global $wpdb;
         $triggers = array();
         // Get global and specific triggers
@@ -123,10 +123,10 @@ class SUPER_Common {
         foreach($rows as $r){
             array_push($triggers, maybe_unserialize($r->meta_value));
         }
-        error_log('before: '.json_encode($triggers));
+        //error_log('before: '.json_encode($triggers));
         // Unslash it before returning
         $triggers = wp_unslash($triggers);
-        error_log('after: '.json_encode($triggers));
+        //error_log('after: '.json_encode($triggers));
         return $triggers;
     }
     public static function save_form_triggers($triggers, $form_id, $delete=true){
@@ -185,7 +185,7 @@ class SUPER_Common {
     }
     public static function get_form_woocommerce_settings($form_id){
         if(!empty(SUPER_Forms()->woocommerce_settings) && empty(SUPER_Forms()->i18n)){
-            error_log('return existing woocommerce settings...');
+            //error_log('return existing woocommerce settings...');
             return SUPER_Forms()->woocommerce_settings;
         }
         $s = get_post_meta($form_id, '_woocommerce', true);
@@ -195,22 +195,22 @@ class SUPER_Common {
             $s = maybe_unserialize($s); 
         }
         // Merge translated settings
-        error_log('merge translated settings for WOOCOMMERCE');
+        //error_log('merge translated settings for WOOCOMMERCE');
         if(!empty($s['i18n']) && !empty($s['i18n'][SUPER_Forms()->i18n])){
-            error_log('before merging');
-            error_log(json_encode($s));
+            //error_log('before merging');
+            //error_log(json_encode($s));
             $translatedSettings = $s['i18n'][SUPER_Forms()->i18n];
             $s = self::mergeTranslatedSettings($s, $translatedSettings);
             unset($s['i18n']);
-            error_log('after merging');
-            error_log(json_encode($s));
+            //error_log('after merging');
+            //error_log(json_encode($s));
         }
         SUPER_Forms()->woocommerce_settings = $s;
         return $s;
     }
     public static function get_form_listings_settings($form_id){
         if(!empty(SUPER_Forms()->listings_settings) && empty(SUPER_Forms()->i18n)){
-            error_log('return existing listings settings...');
+            //error_log('return existing listings settings...');
             return SUPER_Forms()->listings_settings;
         }
         $s = get_post_meta($form_id, '_listings', true);
@@ -220,22 +220,22 @@ class SUPER_Common {
             $s = maybe_unserialize($s); 
         }
         // Merge translated settings
-        error_log('merge translated settings for LISTINGS');
+        //error_log('merge translated settings for LISTINGS');
         if(!empty($s['i18n']) && !empty($s['i18n'][SUPER_Forms()->i18n])){
-            error_log('before merging');
-            error_log(json_encode($s));
+            //error_log('before merging');
+            //error_log(json_encode($s));
             $translatedSettings = $s['i18n'][SUPER_Forms()->i18n];
             $s = self::mergeTranslatedSettings($s, $translatedSettings);
             unset($s['i18n']);
-            error_log('after merging');
-            error_log(json_encode($s));
+            //error_log('after merging');
+            //error_log(json_encode($s));
         }
         SUPER_Forms()->listings_settings = $s;
         return $s;
     }
     public static function get_form_pdf_settings($form_id){
         if(!empty(SUPER_Forms()->pdf_settings) && empty(SUPER_Forms()->i18n)){
-            error_log('return existing pdf settings...');
+            //error_log('return existing pdf settings...');
             return SUPER_Forms()->pdf_settings;
         }
         if(!empty(SUPER_Forms()->pdf_settings)) return SUPER_Forms()->pdf_settings;
@@ -246,22 +246,22 @@ class SUPER_Common {
             $s = maybe_unserialize($s); 
         }
         // Merge translated settings
-        error_log('merge translated settings for PDF');
+        //error_log('merge translated settings for PDF');
         if(!empty($s['i18n']) && !empty($s['i18n'][SUPER_Forms()->i18n])){
-            error_log('before merging');
-            error_log(json_encode($s));
+            //error_log('before merging');
+            //error_log(json_encode($s));
             $translatedSettings = $s['i18n'][SUPER_Forms()->i18n];
             $s = self::mergeTranslatedSettings($s, $translatedSettings);
             unset($s['i18n']);
-            error_log('after merging');
-            error_log(json_encode($s));
+            //error_log('after merging');
+            //error_log(json_encode($s));
         }
         SUPER_Forms()->pdf_settings = $s;
         return $s;
     }
     public static function get_form_stripe_settings($form_id){
         if(!empty(SUPER_Forms()->stripe_settings) && empty(SUPER_Forms()->i18n)){
-            error_log('return existing stripe settings...');
+            //error_log('return existing stripe settings...');
             return SUPER_Forms()->stripe_settings;
         }
         $s = get_post_meta($form_id, '_stripe', true);
@@ -271,15 +271,15 @@ class SUPER_Common {
             $s = maybe_unserialize($s); 
         }
         // Merge translated settings
-        error_log('merge translated settings for STRIPE');
+        //error_log('merge translated settings for STRIPE');
         if(!empty($s['i18n']) && !empty($s['i18n'][SUPER_Forms()->i18n])){
-            error_log('before merging');
-            error_log(json_encode($s));
+            //error_log('before merging');
+            //error_log(json_encode($s));
             $translatedSettings = $s['i18n'][SUPER_Forms()->i18n];
             $s = self::mergeTranslatedSettings($s, $translatedSettings);
             unset($s['i18n']);
-            error_log('after merging');
-            error_log(json_encode($s));
+            //error_log('after merging');
+            //error_log(json_encode($s));
         }
         SUPER_Forms()->stripe_settings = $s;
         return $s;
@@ -301,17 +301,17 @@ class SUPER_Common {
         global $wpdb;
         error_log('triggerEvent('.$eventName.')');
         if(!class_exists('SUPER_Triggers')) require_once('class-triggers.php'); 
-        error_log('7.0: '.json_encode($atts));
+        //error_log('7.0: '.json_encode($atts));
         extract($atts);
-        error_log('7.1: '.json_encode($atts));
-        error_log('7.2: '.json_encode($sfsi_id));
+        //error_log('7.1: '.json_encode($atts));
+        //error_log('7.2: '.json_encode($sfsi_id));
         $sfsi = get_option( '_sfsi_' . $sfsi_id, array() );
         if(count($sfsi)>0){
-            error_log('7.3: '.json_encode($sfsi));
+            //error_log('7.3: '.json_encode($sfsi));
             extract($sfsi);
-            error_log('7.4: '.json_encode($sfsi));
+            //error_log('7.4: '.json_encode($sfsi));
         }
-        error_log('form_id: '.$form_id);
+        //error_log('form_id: '.$form_id);
         $triggers = self::get_form_triggers($form_id);
         usort($triggers, function($a, $b) {
             return absint($a['order']) - absint($b['order']);
@@ -343,7 +343,7 @@ class SUPER_Common {
                         'action'=>$av, 
                         'sfsi'=>$sfsi, 
                     );
-                    error_log('SFSI before triggering action: '.json_encode($sfsi));
+                    //error_log('SFSI before triggering action: '.json_encode($sfsi));
                     call_user_func(array('SUPER_Triggers', $av['action']), $x);
                 }
             }
@@ -1510,12 +1510,13 @@ class SUPER_Common {
      */
     public static function get_form_settings($form_id, $renew=false){
         if($renew===false && isset(SUPER_Forms()->form_settings)){
-            error_log('we already have the form setings, return it');
+            //error_log('we already have the form setings, return it');
             return SUPER_Forms()->form_settings;
         }
         $form_id = absint($form_id);
         if(!class_exists('SUPER_Settings'))  require_once('class-settings.php'); 
         $form_settings = get_post_meta($form_id, '_super_form_settings', true);
+        //error_log('form_settings: '.json_encode($form_settings));
         if(!$form_settings) $form_settings = array();
         $global_settings = self::get_global_settings();
         $defaults = SUPER_Settings::get_defaults($global_settings);
@@ -1526,7 +1527,7 @@ class SUPER_Common {
             $settings = $form_settings;
         }
 
-        error_log(json_encode($settings));
+        //error_log(json_encode($settings));
         $email_body = '';
         if(!empty($settings['email_body_open'])) $email_body .= $settings['email_body_open'] . "<br /><br />";
         unset($settings['email_body_open']);
@@ -1534,6 +1535,7 @@ class SUPER_Common {
         if(!empty($settings['email_body_close'])) $email_body .= "<br /><br />" . $settings['email_body_close'];
         unset($settings['email_body_close']);
         $settings['email_body'] = $email_body;
+        //error_log('EMAIL BODY: '. $settings['email_body']);
 
         $confirm_body = '';
         if(!empty($settings['confirm_body_open'])) $confirm_body .= $settings['confirm_body_open'] . "<br /><br />";
@@ -1542,17 +1544,235 @@ class SUPER_Common {
         if(!empty($settings['confirm_body_close'])) $confirm_body .= "<br /><br />" . $settings['confirm_body_close'];
         unset($settings['confirm_body_close']);
         $settings['confirm_body'] = $confirm_body;
+        //error_log('CONFIRM BODY: '. $settings['confirm_body']);
 
         // Update old `WooCommerce Checkout` settings format with new
         $s = $settings;
         // Get current form version
         $current_form_version = get_post_meta($form_id, '_super_version', true);
         // @Important, this check is against the Super Forms plugin version, not to be confused with the WordPress version!
+        //error_log($current_form_version);
         if(version_compare($current_form_version, '6.4', '<')){
+            //error_log("Define Triggers for this Form if not already, for instance, copy over E-mail settings and define Admin and Confirmation E-mails as triggers");
+            //error_log('send: '.$settings['send']);
+            //error_log('confirm: '.$settings['confirm']);
             // Get trigger settings
             $triggers = SUPER_Common::get_form_triggers($form_id);
+            //error_log('triggers: '.json_encode($triggers));
             // Regex to convert E-mail body settings to TinyMCE editor
             $regex = '/([\s\S]*?)(<[^\/<>]+?>[^\/<>]*?{loop_fields}[\s\S]*?>)([\s\S]*)|([\s\S]*?)({loop_fields})([\s\S]*)/';
+            // "email_template": "default_email_template",
+            // Add trigger for Admin E-mail
+            if( !empty($s['send']) && ($s['send']=='yes' || $s['send']=='true')){
+                $t = array(
+                    'enabled'=> 'true',
+                    'event'=> 'sf.after.submission',
+                    'name'=> 'Admin E-mail',
+                    'listen_to'=> '',
+                    'ids'=> '',
+                    'order'=> 1
+                );
+                // Grab the body, and extract the `loop open`, `loop` and `loop close` parts
+                $loop = $s['email_loop'];
+                $body = str_replace(array("\r", "\n"), '<br />', $s['email_body']);
+                //error_log('str_replace: '.$body);
+                preg_match($regex, $body, $m);
+                // Print the entire match result
+                $body = '';
+                $loop_open = '';
+                $loop_close = '';
+                //error_log('count($m): '.count($m));
+                if(count($m)===4 || count($m)===7){
+                    // Only if {loop_fields} tag was found
+                    if(count($m)===4){
+                        $body .= $m[1];
+                        $body .= '{loop_fields}';
+                        $body .= $m[3];
+                        $exploded = explode('{loop_fields}', $m[2]);
+                    }else{
+                        $body .= $m[4];
+                        $body .= '{loop_fields}';
+                        $body .= $m[6];
+                        $exploded = explode('{loop_fields}', $m[5]);
+                    }
+                    $loop_open = $exploded[0];
+                    $loop_close = $exploded[1];
+                }else{
+                    // {loop_fields} was not found just use the body
+                    $body = $s['email_body'];
+                }
+                $s['email_body'] = $body;
+                //error_log('$s[email_body]: '.$s['email_body']);
+                //error_log($s['admin_attachments']);
+                //error_log($s['confirm_attachments']);
+                // Only if line breaks was enabled:
+                if(!empty($s['email_body_nl2br']) && $s['email_body_nl2br']==='true'){
+                    $body = nl2br($body);
+                }
+
+                $csv_attachment = array('enabled' => 'false');
+                //error_log('csv_attachment_enable: ');
+                if(!empty($s['csv_attachment_enable']) && $s['csv_attachment_enable']==='true'){
+                    //error_log('true?');
+                    $csv_attachment = array(
+                        'enabled' => 'true',
+                        'name' => (!empty($s['csv_attachment_name']) ? $s['csv_attachment_name'] : 'super-csv-attachment'),
+                        'save_as' => (!empty($s['csv_attachment_save_as']) ? $s['csv_attachment_save_as'] : 'admin_email_value'),
+                        'exclude_fields' => (!empty($s['csv_attachment_save_as']) ? $s['csv_attachment_save_as'] : 'admin_email_value'),
+                        'delimiter' => (!empty($s['csv_attachment_delimiter']) ? $s['csv_attachment_delimiter'] : ','),
+                        'enclosure' => (!empty($s['csv_attachment_enclosure']) ? $s['csv_attachment_enclosure'] : '"')
+                    );
+                    $exclude = array();
+                    if(!empty($s['csv_attachment_exclude'])){
+                        $list = explode("\n", $s['csv_attachment_exclude']);
+                        foreach($list as $k => $v){
+                            $exclude[] = array('name'=>$v);
+                        }
+                    }
+                    $csv_attachment['exclude_fields'] = $exclude;
+                }
+
+                $xml_attachment = array('enabled' => 'false');
+                //error_log('xml_attachment_enable: ');
+                if(!empty($s['xml_attachment_enable']) && $s['xml_attachment_enable']==='true'){
+                    //error_log('true?');
+                    $xml_attachment = array(
+                        'enabled' => 'true',
+                        'name' => (!empty($s['xml_attachment_name']) ? $s['xml_attachment_name'] : 'super-xml-attachment'),
+                        'xml_content' => (!empty($s['xml_content']) ? $s['xml_content'] : '')
+                    );
+                }
+                $t['actions'] = array(
+                    array(
+                        'action' => 'send_email',
+                        'order' => '1',
+                        'conditions' => array(
+                            'enabled' => 'false',
+                            'f1' => '',
+                            'logic' => '==',
+                            'f2' => '',
+                        ),
+                        'data' => array(
+                            'to' => (!empty($s['header_to']) ? $s['header_to'] : ''),
+                            'from_email' => (!empty($s['header_from_type']) && ($s['header_from_type']==='default') ? '{option_admin_email}' : $s['header_from']),
+                            'from_name' => (!empty($s['header_from_type']) && ($s['header_from_type']==='default') ? '{option_blogname}' : $s['header_from_name']),
+                            'reply_to' => array( 
+                                'enabled' => (!empty($s['header_reply_enabled']) && ($s['header_reply_enabled']==='true') ? 'true' : 'false'),
+                                'email' => (!empty($s['header_reply']) ? $s['header_reply'] : ''),
+                                'name' => (!empty($s['header_reply_name']) ? $s['header_reply_name'] : '')
+                            ),
+                            'subject' => (!empty($s['header_subject']) ? $s['header_subject'] : ''),
+                            'body' => $body, 
+                            // 'line_breaks' => 'false', // no longer used since tinymce editor
+
+                            'loop_open' => $loop_open,
+                            'loop' => $loop,
+                            'loop_close' => $loop_close,
+
+                            'exclude_empty' => (!empty($s['email_exclude_empty']) && ($s['email_exclude_empty']==='true') ? 'true' : 'false'),
+
+                            'rtl' => (!empty($s['email_rtl']) && ($s['email_rtl']==='true') ? 'true' : 'false'),
+                            'cc' => (!empty($s['header_cc']) ? $s['header_cc'] : ''),
+                            'bcc' => (!empty($s['header_bcc']) ? $s['header_bcc'] : ''),
+                            'header_additional' => (!empty($s['header_additional']) ? $s['header_additional'] : ''),
+                            'attachments' => (!empty($s['admin_attachments']) ? $s['admin_attachments'] : ''),
+                            'csv_attachment' => $csv_attachment,
+                            'xml_attachment' => $xml_attachment,
+                            'content_type' => 'html',
+                            'charset' => 'UTF-8'
+                        )
+                    )
+                );
+                $triggers[] = $t;
+                //error_log('triggers: '.json_encode($triggers));
+            }
+            // Add trigger for Confirmation E-mail
+            if( !empty($s['confirm']) && ($s['confirm']=='yes' || $s['confirm']=='true') ) {
+                $t = array(
+                    'enabled'=> 'true',
+                    'event'=> 'sf.after.submission',
+                    'name'=> 'Confirmation E-mail',
+                    'listen_to'=> '',
+                    'ids'=> '',
+                    'order'=> 2
+                );
+                // Grab the body, and extract the `loop open`, `loop` and `loop close` parts
+                $body = '';
+                $body .= $s['confirm_body'];
+                $loop = $s['confirm_email_loop'];
+                $body = str_replace(array("\r", "\n"), '<br />', $body);
+                preg_match($regex, $body, $m);
+                // Print the entire match result
+                $body = '';
+                $loop_open = '';
+                $loop_close = '';
+                if(count($m)===4 || count($m)===7){
+                    // Only if {loop_fields} tag was found
+                    if(count($m)===4){
+                        $body .= $m[1];
+                        $body .= '{loop_fields}';
+                        $body .= $m[3];
+                        $exploded = explode('{loop_fields}', $m[2]);
+                    }else{
+                        $body .= $m[4];
+                        $body .= '{loop_fields}';
+                        $body .= $m[6];
+                        $exploded = explode('{loop_fields}', $m[5]);
+                    }
+                    $loop_open = $exploded[0];
+                    $loop_close = $exploded[1];
+                }else{
+                    // {loop_fields} was not found just use the body
+                    $body = $s['confirm_body'];
+                }
+                $s['confirm_body'] = $body;
+                // Only if line breaks was enabled:
+                if(!empty($s['confirm_body_nl2br']) && $s['confirm_body_nl2br']==='true'){
+                    $body = nl2br($body);
+                }
+                $t['actions'] = array(
+                    array(
+                        'action' => 'send_email',
+                        'order' => '1',
+                        'conditions' => array(
+                            'enabled' => 'false',
+                            'f1' => '',
+                            'logic' => '==',
+                            'f2' => '',
+                        ),
+                        'data' => array(
+                            'to' => (!empty($s['confirm_to']) ? $s['confirm_to'] : ''),
+                            'from_email' => (!empty($s['confirm_from_type']) && ($s['confirm_from_type']==='default') ? '{option_admin_email}' : $s['confirm_from']),
+                            'from_name' => (!empty($s['confirm_from_type']) && ($s['confirm_from_type']==='default') ? '{option_blogname}' : $s['confirm_from_name']),
+                            'reply_to' => array( 
+                                'enabled' => (!empty($s['confirm_reply_enabled']) && ($s['confirm_reply_enabled']==='true') ? 'true' : 'false'),
+                                'email' => (!empty($s['confirm_reply']) ? $s['confirm_reply'] : ''),
+                                'name' => (!empty($s['confirm_reply_name']) ? $s['confirm_reply_name'] : '')
+                            ),
+                            'subject' => (!empty($s['confirm_subject']) ? $s['confirm_subject'] : ''),
+                            'body' => $body, 
+                            // 'line_breaks' => 'false', // no longer used since tinymce editor
+
+                            'loop_open' => $loop_open,
+                            'loop' => $loop,
+                            'loop_close' => $loop_close,
+
+                            'exclude_empty' => (!empty($s['confirm_exclude_empty']) && ($s['confirm_exclude_empty']==='true') ? 'true' : 'false'),
+
+                            'rtl' => (!empty($s['confirm_rtl']) && ($s['confirm_rtl']==='true') ? 'true' : 'false'),
+                            'cc' => (!empty($s['confirm_header_cc']) ? $s['confirm_header_cc'] : ''),
+                            'bcc' => (!empty($s['confirm_header_bcc']) ? $s['confirm_header_bcc'] : ''),
+                            'header_additional' => (!empty($s['confirm_header_additional']) ? $s['confirm_header_additional'] : ''),
+                            'attachments' => (!empty($s['confirm_attachments']) ? $s['confirm_attachments'] : ''),
+                            'content_type' => 'html',
+                            'charset' => 'UTF-8',
+                        )
+                    )
+                );
+                $triggers[] = $t;
+                //error_log('triggers: '.json_encode($triggers));
+            }
+
             // Add trigger for E-mail reminders
             // Loop until we can't find reminder
             if(empty($s['email_reminder_amount'])) $s['email_reminder_amount'] = 3;
@@ -1560,7 +1780,7 @@ class SUPER_Common {
             if($limit==0) $limit = 3;
             $x = 1;
             while( $x <= $limit ) {
-                if( (!empty($s['email_reminder_' . $x])) && ($s['email_reminder_' . $x]=='true') ) {
+                if( !empty($s['email_reminder_' . $x]) && ($s['email_reminder_' . $x]=='yes' || $s['email_reminder_' . $x]=='true') ) {
                     unset($s['email_reminder_' . $x]);
                     $t = array(
                         'enabled'=> 'true',
@@ -1568,7 +1788,7 @@ class SUPER_Common {
                         'name'=> 'E-mail reminder #'.$x,
                         'listen_to'=> '',
                         'ids'=> '',
-                        'order'=> $x
+                        'order'=> $x*10
                     );
                     if(!empty($s['email_reminder_'.$x.'_time_method']) && $s['email_reminder_'.$x.'_time_method']==='fixed'){
                         $s['email_reminder_'.$x.'_time_method'] = 'time';
@@ -1604,6 +1824,7 @@ class SUPER_Common {
                         $loop_close = $exploded[1];
                     }
                     $s['email_reminder_'.$x.'_body'] = $body;
+                    //error_log($s['email_reminder_'.$x.'_attachments']);
                     // Only if line breaks was enabled:
                     if(!empty($s['email_reminder_'.$x.'_body_nl2br']) && $s['email_reminder_'.$x.'_body_nl2br']==='true'){
                         $body = nl2br($body);
@@ -1663,6 +1884,7 @@ class SUPER_Common {
                         )
                     );
                     $triggers[] = $t;
+                    //error_log('triggers: '.json_encode($triggers));
                 }
                 $x++;
             }
@@ -1752,7 +1974,10 @@ class SUPER_Common {
                     )
                 );
                 $triggers[] = $t;
+                //error_log('triggers: '.json_encode($triggers));
             }
+            //error_log('save form triggers: '.json_encode($triggers));
+            //error_log('form id: '.$form_id);
             SUPER_Common::save_form_triggers($triggers, $form_id, false);
 
             $s['_woocommerce'] = array();
@@ -2016,10 +2241,16 @@ class SUPER_Common {
             unset($s['woocommerce_signup_status']);
             unset($s['woocommerce_completed_user_role']);
             foreach($s as $ks => $kv){
-                if(strpos($ks, 'email_reminder_')!==false){
-                    unset($s[$ks]);
-                }
+                if(strpos($ks, 'email_reminder_')!==false) unset($s[$ks]);
             }
+            foreach($s as $ks => $kv){
+                if(strpos($ks, 'email_')===0) unset($s[$ks]);
+                if(strpos($ks, 'confirm_')===0) unset($s[$ks]);
+                if(strpos($ks, 'header_')===0) unset($s[$ks]);
+            }
+            unset($s['send']);
+            unset($s['confirm']);
+            //error_log('after cleanup: '. json_encode($s));
             update_post_meta($form_id, '_super_form_settings', $s);
             update_post_meta($form_id, '_super_version', SUPER_VERSION);
 
@@ -2027,6 +2258,8 @@ class SUPER_Common {
             self::save_form_listings_settings($s['_listings'], $form_id);
             self::save_form_pdf_settings($s['_pdf'], $form_id);
             self::save_form_stripe_settings($s['_stripe'], $form_id);
+
+
         }
 
         $s['_woocommerce'] = self::get_form_woocommerce_settings($form_id);

@@ -4149,7 +4149,7 @@ msgid "Email attachments"
 msgstr "メールの添付ファイル"
 
 #: includes/class-settings.php:980 includes/class-settings.php:981
-msgid "Email headers"
+msgid "E-mail headers"
 msgstr "メールヘッダー"
 
 #: includes/extensions/pdf-generator/pdf-generator.php:108

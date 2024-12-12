@@ -4285,7 +4285,7 @@ msgid "Email attachments"
 msgstr "ईमेल संलग्नक"
 
 #: includes/class-settings.php:980 includes/class-settings.php:981
-msgid "Email headers"
+msgid "E-mail headers"
 msgstr "ईमेल शीर्षलेख"
 
 #: includes/extensions/pdf-generator/pdf-generator.php:108

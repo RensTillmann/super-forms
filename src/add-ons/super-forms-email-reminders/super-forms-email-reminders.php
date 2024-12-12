@@ -510,129 +510,141 @@ if( !class_exists('SUPER_Email_Reminders') ) :
          *  @since      1.0.0
         */
         public static function add_settings( $array, $x ) {
-            $settings = $x['settings'];
-            // First reminder settings
-            $array['email_reminders'] = array(        
+            $array['email_reminders'] = array(
+                'hidden' => 'settings',
                 'name' => esc_html__( 'E-mail Reminders', 'super-forms' ),
                 'label' => esc_html__( 'E-mail Reminders', 'super-forms' ),
-                'html' => array( '<style>.super-settings .email-reminders-html-notice {display:none;}</style>', '<p class="email-reminders-html-notice">' . sprintf( esc_html__( 'Need to send more E-mail reminders? You can increase the amount here:%s%s%sSuper Forms > Settings > E-mail Reminders%s%s', 'super-forms' ), '<br />', '<a target="_blank" href="' . esc_url(admin_url()) . 'admin.php?page=super_settings#email-reminders">', '<strong>', '</strong>', '</a>' ) . '</p>' ),
-                'fields' => array(
-                    'email_reminder_amount' => array(
-                        'hidden' => true,
-                        'name' => esc_html__( 'Select how many individual E-mail reminders you require', 'super-forms' ),
-                        'desc' => esc_html__( 'If you need to send 10 reminders enter: 10', 'super-forms' ),
-                        'default' => '3'
-                    )
+                //'docs' => array(
+                //    array('title'=>'Sending to different departments conditionally', 'url'=>'/tutorials/sending-emails-to-different-department-based-on-selected-form-option')
+                //),
+                'html' => array(
+                    sprintf( esc_html__( '%s%sNote: %sE-mail Reminders settings have moved to the [Triggers] TAB%s', 'super-forms' ), '<div class="sfui-notice sfui-desc">', '<strong>', '</strong>', '</div>' ),
                 )
             );
-             
-            if(empty($settings['email_reminder_amount'])) $settings['email_reminder_amount'] = 3;
-            $limit = absint($settings['email_reminder_amount']);
-            if($limit==0) $limit = 3;
-
-            $x = 1;
-            while($x <= $limit) {
-                // Second reminder settings
-                $reminder_settings = array(
-                    'email_reminder_'.$x => array(
-                        'hidden_setting' => true,
-                        'desc' => sprintf( esc_html__( 'Enable email reminder #%s', 'super-forms' ), $x ), 
-                        'default' => '',
-                        'type' => 'checkbox',
-                        'values' => array(
-                            'true' => sprintf( esc_html__( 'Enable email reminder #%s', 'super-forms' ), $x ),
-                        ),
-                        'filter' => true
-                    ),
-                    'email_reminder_'.$x.'_base_date' => array(
-                        'hidden_setting' => true,
-                        'name'=> esc_html__( 'Send reminder based on the following date:', 'super-forms' ),
-                        'label'=> esc_html__( 'Must be English formatted date e.g: "25-03-2020". When using a datepicker that doesn\'t use the correct format, you can use the tag {date;timestamp} to retrieve the timestamp which will work correctly with any date format (leave blank to use the form submission date)', 'super-forms' ),
-                        'default'=> '',
-                        'filter'=>true,
-                        'parent'=>'email_reminder_'.$x,
-                        'filter_value'=>'true'
-                    ),
-                    'email_reminder_'.$x.'_date_offset' => array(
-                        'hidden_setting' => true,
-                        'name' => esc_html__( 'Define how many days after or before the reminder should be send based of the base date', 'super-forms' ),
-                        'label'=> esc_html__( '0 = The same day, 1 = Next day, 5 = Five days after, -1 = One day before, -3 = Three days before', 'super-forms' ),
-                        'default'=> '0',
-                        'filter'=>true,
-                        'parent'=>'email_reminder_'.$x,
-                        'filter_value'=>'true'
-                    ),
-                    'email_reminder_'.$x.'_time_method' => array(
-                        'hidden_setting' => true,
-                        'name' => esc_html__( 'Send reminder at a fixed time, or by offset', 'super-forms' ),
-                        'default'=> 'fixed',
-                        'type' => 'select', 
-                        'values' => array(
-                            'fixed' => esc_html__( 'Fixed (e.g: always at 09:00)', 'super-forms' ), 
-                            'offset' => esc_html__( 'Offset (e.g: 2 hours after date)', 'super-forms' ),
-                        ),
-                        'filter'=>true,
-                        'parent'=>'email_reminder_'.$x,
-                        'filter_value'=>'true'
-                    ),
-                    'email_reminder_'.$x.'_time_fixed' => array(
-                        'hidden_setting' => true,
-                        'name' => esc_html__( 'Define at what time the reminder should be send', 'super-forms' ),
-                        'label'=> esc_html__( 'Use 24h format e.g: 13:00, 09:30 etc.', 'super-forms' ),
-                        'default'=> '09:00',
-                        'filter'=>true,
-                        'parent'=>'email_reminder_'.$x.'_time_method',
-                        'filter_value'=>'fixed'
-                    ),
-                    'email_reminder_'.$x.'_time_offset' => array(
-                        'hidden_setting' => true,
-                        'name' => esc_html__( 'Define at what offset the reminder should be send based of the base time', 'super-forms' ),
-                        'label'=> esc_html__( 'Example: 2 = Two hours after, -5 = Five hours before<br />(the base time will be the time of the form submission)', 'super-forms' ),
-                        'default'=> '0',
-                        'filter'=>true,
-                        'parent'=>'email_reminder_'.$x.'_time_method',
-                        'filter_value'=>'offset'
-                    )
-                );
-                $array['email_reminders']['fields'] = array_merge($array['email_reminders']['fields'], $reminder_settings);
-
-
-                $fields = $array['confirmation_email_settings']['fields'];
-                $new_fields = array();
-                foreach($fields as $k => $v){
-                    if($k=='confirm'){
-                        unset($fields[$k]);
-                        continue;
-                    }
-                    if( !empty($v['parent']) ) {
-                        if($v['parent']=='confirm'){
-                            $v['parent'] = 'email_reminder_'.$x;
-                            $v['filter_value'] = 'true';
-                        }else{
-                            $v['parent'] = str_replace('confirm_', 'email_reminder_'.$x.'_', $v['parent']);
-                        }
-                    }
-                    unset($fields[$k]);
-                    $k = str_replace('confirm_', 'email_reminder_'.$x.'_', $k);
-                    $v['hidden_setting'] = true;
-                    $new_fields[$k] = $v;
-                }
-                $new_fields['email_reminder_'.$x.'_attachments'] = array(
-                    'hidden_setting' => true,
-                    'name' => sprintf( esc_html__( 'Attachments for reminder email #%s', 'super-forms' ), $x ),
-                    'desc' => esc_html__( 'Upload a file to send as attachment', 'super-forms' ),
-                    'default'=> '',
-                    'type' => 'file',
-                    'multiple' => 'true',
-                    'filter'=>true,
-                    'parent'=>'email_reminder_'.$x,
-                    'filter_value'=>'true'
-                );
-                $array['email_reminders']['fields'] = array_merge($array['email_reminders']['fields'], $new_fields);
-                $x++;
-            }
-
             return $array;
+            // tmp $settings = $x['settings'];
+            // tmp // First reminder settings
+            // tmp $array['email_reminders'] = array(        
+            // tmp     'name' => esc_html__( 'E-mail Reminders', 'super-forms' ),
+            // tmp     'label' => esc_html__( 'E-mail Reminders', 'super-forms' ),
+            // tmp     'html' => array( '<style>.super-settings .email-reminders-html-notice {display:none;}</style>', '<p class="email-reminders-html-notice">' . sprintf( esc_html__( 'Need to send more E-mail reminders? You can increase the amount here:%s%s%sSuper Forms > Settings > E-mail Reminders%s%s', 'super-forms' ), '<br />', '<a target="_blank" href="' . esc_url(admin_url()) . 'admin.php?page=super_settings#email-reminders">', '<strong>', '</strong>', '</a>' ) . '</p>' ),
+            // tmp     'fields' => array(
+            // tmp         'email_reminder_amount' => array(
+            // tmp             'hidden' => true,
+            // tmp             'name' => esc_html__( 'Select how many individual E-mail reminders you require', 'super-forms' ),
+            // tmp             'desc' => esc_html__( 'If you need to send 10 reminders enter: 10', 'super-forms' ),
+            // tmp             'default' => '3'
+            // tmp         )
+            // tmp     )
+            // tmp );
+            // tmp  
+            // tmp if(empty($settings['email_reminder_amount'])) $settings['email_reminder_amount'] = 3;
+            // tmp $limit = absint($settings['email_reminder_amount']);
+            // tmp if($limit==0) $limit = 3;
+
+            // tmp $x = 1;
+            // tmp while($x <= $limit) {
+            // tmp     // Second reminder settings
+            // tmp     $reminder_settings = array(
+            // tmp         'email_reminder_'.$x => array(
+            // tmp             'hidden_setting' => true,
+            // tmp             'desc' => sprintf( esc_html__( 'Enable email reminder #%s', 'super-forms' ), $x ), 
+            // tmp             'default' => '',
+            // tmp             'type' => 'checkbox',
+            // tmp             'values' => array(
+            // tmp                 'true' => sprintf( esc_html__( 'Enable email reminder #%s', 'super-forms' ), $x ),
+            // tmp             ),
+            // tmp             'filter' => true
+            // tmp         ),
+            // tmp         'email_reminder_'.$x.'_base_date' => array(
+            // tmp             'hidden_setting' => true,
+            // tmp             'name'=> esc_html__( 'Send reminder based on the following date:', 'super-forms' ),
+            // tmp             'label'=> esc_html__( 'Must be English formatted date e.g: "25-03-2020". When using a datepicker that doesn\'t use the correct format, you can use the tag {date;timestamp} to retrieve the timestamp which will work correctly with any date format (leave blank to use the form submission date)', 'super-forms' ),
+            // tmp             'default'=> '',
+            // tmp             'filter'=>true,
+            // tmp             'parent'=>'email_reminder_'.$x,
+            // tmp             'filter_value'=>'true'
+            // tmp         ),
+            // tmp         'email_reminder_'.$x.'_date_offset' => array(
+            // tmp             'hidden_setting' => true,
+            // tmp             'name' => esc_html__( 'Define how many days after or before the reminder should be send based of the base date', 'super-forms' ),
+            // tmp             'label'=> esc_html__( '0 = The same day, 1 = Next day, 5 = Five days after, -1 = One day before, -3 = Three days before', 'super-forms' ),
+            // tmp             'default'=> '0',
+            // tmp             'filter'=>true,
+            // tmp             'parent'=>'email_reminder_'.$x,
+            // tmp             'filter_value'=>'true'
+            // tmp         ),
+            // tmp         'email_reminder_'.$x.'_time_method' => array(
+            // tmp             'hidden_setting' => true,
+            // tmp             'name' => esc_html__( 'Send reminder at a fixed time, or by offset', 'super-forms' ),
+            // tmp             'default'=> 'fixed',
+            // tmp             'type' => 'select', 
+            // tmp             'values' => array(
+            // tmp                 'fixed' => esc_html__( 'Fixed (e.g: always at 09:00)', 'super-forms' ), 
+            // tmp                 'offset' => esc_html__( 'Offset (e.g: 2 hours after date)', 'super-forms' ),
+            // tmp             ),
+            // tmp             'filter'=>true,
+            // tmp             'parent'=>'email_reminder_'.$x,
+            // tmp             'filter_value'=>'true'
+            // tmp         ),
+            // tmp         'email_reminder_'.$x.'_time_fixed' => array(
+            // tmp             'hidden_setting' => true,
+            // tmp             'name' => esc_html__( 'Define at what time the reminder should be send', 'super-forms' ),
+            // tmp             'label'=> esc_html__( 'Use 24h format e.g: 13:00, 09:30 etc.', 'super-forms' ),
+            // tmp             'default'=> '09:00',
+            // tmp             'filter'=>true,
+            // tmp             'parent'=>'email_reminder_'.$x.'_time_method',
+            // tmp             'filter_value'=>'fixed'
+            // tmp         ),
+            // tmp         'email_reminder_'.$x.'_time_offset' => array(
+            // tmp             'hidden_setting' => true,
+            // tmp             'name' => esc_html__( 'Define at what offset the reminder should be send based of the base time', 'super-forms' ),
+            // tmp             'label'=> esc_html__( 'Example: 2 = Two hours after, -5 = Five hours before<br />(the base time will be the time of the form submission)', 'super-forms' ),
+            // tmp             'default'=> '0',
+            // tmp             'filter'=>true,
+            // tmp             'parent'=>'email_reminder_'.$x.'_time_method',
+            // tmp             'filter_value'=>'offset'
+            // tmp         )
+            // tmp     );
+            // tmp     $array['email_reminders']['fields'] = array_merge($array['email_reminders']['fields'], $reminder_settings);
+
+
+            // tmp     $fields = $array['confirmation_email_settings']['fields'];
+            // tmp     $new_fields = array();
+            // tmp     foreach($fields as $k => $v){
+            // tmp         if($k=='confirm'){
+            // tmp             unset($fields[$k]);
+            // tmp             continue;
+            // tmp         }
+            // tmp         if( !empty($v['parent']) ) {
+            // tmp             if($v['parent']=='confirm'){
+            // tmp                 $v['parent'] = 'email_reminder_'.$x;
+            // tmp                 $v['filter_value'] = 'true';
+            // tmp             }else{
+            // tmp                 $v['parent'] = str_replace('confirm_', 'email_reminder_'.$x.'_', $v['parent']);
+            // tmp             }
+            // tmp         }
+            // tmp         unset($fields[$k]);
+            // tmp         $k = str_replace('confirm_', 'email_reminder_'.$x.'_', $k);
+            // tmp         $v['hidden_setting'] = true;
+            // tmp         $new_fields[$k] = $v;
+            // tmp     }
+            // tmp     $new_fields['email_reminder_'.$x.'_attachments'] = array(
+            // tmp         'hidden_setting' => true,
+            // tmp         'name' => sprintf( esc_html__( 'Attachments for reminder email #%s', 'super-forms' ), $x ),
+            // tmp         'desc' => esc_html__( 'Upload a file to send as attachment', 'super-forms' ),
+            // tmp         'default'=> '',
+            // tmp         'type' => 'file',
+            // tmp         'multiple' => 'true',
+            // tmp         'filter'=>true,
+            // tmp         'parent'=>'email_reminder_'.$x,
+            // tmp         'filter_value'=>'true'
+            // tmp     );
+            // tmp     $array['email_reminders']['fields'] = array_merge($array['email_reminders']['fields'], $new_fields);
+            // tmp     $x++;
+            // tmp }
+
+            // tmp return $array;
         }
 
     }

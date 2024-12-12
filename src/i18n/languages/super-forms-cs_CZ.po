@@ -4292,7 +4292,7 @@ msgid "Email attachments"
 msgstr "E-mailové přílohy"
 
 #: includes/class-settings.php:980 includes/class-settings.php:981
-msgid "Email headers"
+msgid "E-mail headers"
 msgstr "Záhlaví e-mailu"
 
 #: includes/extensions/pdf-generator/pdf-generator.php:108

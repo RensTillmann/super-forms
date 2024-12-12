@@ -185,8 +185,8 @@
                         // Not in translation mode, make sure to delete the corresponding index from the translated version for this repeater
                         var tab = itemToDelete.closest('.super-tab-content');
                         var slug = tab.className.replace('super-active', '').replace('super-tab-content', '').replace('super-tab-', '').split(' ').join('');
-                        var i18nObject = SUPER.ui.settings['_'+slug].i18n[i18n];
-                        var mainLanguageObject = SUPER.ui.settings['_'+slug];
+                        //var i18nObject = SUPER.ui.settings['_'+slug].i18n[i18n];
+                        //var mainLanguageObject = SUPER.ui.settings['_'+slug];
                         var keyPath = [];
                         var parent = itemToDelete;
                         // Traverse up to build the key path
@@ -617,6 +617,7 @@
                 // Construct the nested object in i18nObject
                 var lastKey = field.name;
                 var obj = mainLanguageObject;
+                var parentIsArray = false;
                 keyPath.forEach(key => {
                     if(!isNaN(key)){
                         if(!obj[key]) obj[key] = {};

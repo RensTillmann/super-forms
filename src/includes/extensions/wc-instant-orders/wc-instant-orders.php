@@ -1018,8 +1018,8 @@ if(!class_exists('SUPER_WC_Instant_Orders')) :
          *  @since      1.0.0
          */
         public static function redirect_to_woocommerce_order($x){
-            error_log('redirect_to_woocommerce_order()');
-            error_log(json_encode($x));
+            //error_log('redirect_to_woocommerce_order()');
+            //error_log(json_encode($x));
             extract( shortcode_atts( array(
                 'sfsi'=>array(),
                 'form_id'=>0,
@@ -1050,9 +1050,9 @@ if(!class_exists('SUPER_WC_Instant_Orders')) :
             if($s['use_logged_in_email']==='true'){
                 // Check if user is logged in, or a newly user was registerd
                 $user_id = get_current_user_id();
-                error_log('user_id: '.$user_id);
-                error_log('Entry ID wc order redirect: '.$sfsi['entry_id']);
-                error_log('User ID wc order redirect: '.$sfsi['user_id']);
+                //error_log('user_id: '.$user_id);
+                //error_log('Entry ID wc order redirect: '.$sfsi['entry_id']);
+                //error_log('User ID wc order redirect: '.$sfsi['user_id']);
                 if(!empty($sfsi['user_id'])){
                     $user_id = $sfsi['user_id'];
                 }
@@ -1060,9 +1060,9 @@ if(!class_exists('SUPER_WC_Instant_Orders')) :
                 if(!empty($user_id)){
                     $email = SUPER_Common::get_user_email($user_id);
                 }
-                error_log('user_email: '.$email);
-                error_log('user_id after: '.$user_id);
-                error_log('user_email after: '.$email);
+                //error_log('user_email: '.$email);
+                //error_log('user_id after: '.$user_id);
+                //error_log('user_email after: '.$email);
                 $sfsi['user_id'] = $user_id;
             }
             $description = (isset($s['subscription_data']['description']) ? SUPER_Common::email_tags( $s['subscription_data']['description'], $data, $settings ) : '');
@@ -1076,11 +1076,12 @@ if(!class_exists('SUPER_WC_Instant_Orders')) :
                 'sf_post' => (isset($sfsi['created_post']) ? $sfsi['created_post'] : 0),
                 'sfsi_id' => $sfsi_id
             );
-            error_log('custom metadata for woocommerce order: ' . SUPER_Common::safe_json_encode($metadata));
+            //error_log('custom metadata for woocommerce order: ' . SUPER_Common::safe_json_encode($metadata));
             $sfsi = get_option( '_sfsi_' . $sfsi_id, array() );
-            error_log('sfsi: '.SUPER_Common::safe_json_encode($sfsi));
+            //error_log('sfsi: '.SUPER_Common::safe_json_encode($sfsi));
             $sfsi['entry_id'] = $entry_id;
-            error_log('14');update_option('_sfsi_' . $sfsi_id, $sfsi );
+            //error_log('14');
+            update_option('_sfsi_' . $sfsi_id, $sfsi );
 
             $line_items = array();
             foreach($s['line_items'] as $k => $v){

@@ -4459,7 +4459,7 @@ msgid "Email attachments"
 msgstr "Pièces jointes aux e-mails"
 
 #: includes/class-settings.php:940 includes/class-settings.php:941
-msgid "Email headers"
+msgid "E-mail headers"
 msgstr "En-têtes d'e-mail"
 
 #: includes/extensions/pdf-generator/pdf-generator.php:108

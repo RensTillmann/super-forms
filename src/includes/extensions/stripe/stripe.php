@@ -65,7 +65,7 @@ if(!class_exists('SUPER_Stripe')) :
         }
         public static function handle_webhooks($wp){
             if ( array_key_exists( 'sfssidr', $wp->query_vars ) ) {
-                error_log('Re-create a checkout session based on the retry URL {stripe_retry_payment_url} inside E-mails');
+                //error_log('Re-create a checkout session based on the retry URL {stripe_retry_payment_url} inside E-mails');
                 // This is used by the Stripe checkout.session.async_payment_failed
                 try{
                     $api = self::setAppInfo();
@@ -87,7 +87,7 @@ if(!class_exists('SUPER_Stripe')) :
             }
             if ( array_key_exists( 'sfssids', $wp->query_vars ) ) {
                 // Success URL
-                error_log('Returned from Stripe Checkout session via success URL');
+                //error_log('Returned from Stripe Checkout session via success URL');
                 // Do things
                 try{
                     $api = self::setAppInfo();
@@ -113,7 +113,7 @@ if(!class_exists('SUPER_Stripe')) :
             }
             if ( array_key_exists( 'sfssidc', $wp->query_vars ) ) {
                 // Cancel URL
-                error_log('Returned from Stripe Checkout session via cancel URL');
+                //error_log('Returned from Stripe Checkout session via cancel URL');
                 // Do things
                 try{
                     $api = self::setAppInfo();
@@ -139,7 +139,7 @@ if(!class_exists('SUPER_Stripe')) :
                     }
                 }
                 // Redirect to home URL instead
-                error_log('Redirect to home URL instead');
+                //error_log('Redirect to home URL instead');
                 wp_redirect(add_query_arg('sfr', $m['sfsi_id'], $sfsi['stripe_home_cancel_url']));
                 exit;
             }
@@ -171,13 +171,13 @@ if(!class_exists('SUPER_Stripe')) :
                         exit();
                     }
                     // Handle the checkout.session.completed event
-                    error_log('Stripe webhook event type: ' . $event->type);
+                    //error_log('Stripe webhook event type: ' . $event->type);
                     //error_log('Event object: ' . $event->data->object);
                     switch ($event->type) {
                         // Checkout session expired
                         case 'checkout.session.expired':
                             $stripe_session = $event->data->object;
-                            error_log('sfsi_id: '.$stripe_session->metadata->sfsi_id);
+                            //error_log('sfsi_id: '.$stripe_session->metadata->sfsi_id);
                             SUPER_Common::cleanupFormSubmissionInfo($stripe_session->metadata->sfsi_id, $event->type);
                             break;
                         case 'checkout.session.completed':
@@ -269,7 +269,7 @@ if(!class_exists('SUPER_Stripe')) :
                             break;
                         // Events for subscriptions
                         case 'customer.subscription.created':
-                            error_log('Subscription was created');
+                            //error_log('Subscription was created');
                             // Sent when the subscription is created. 
                             // The subscription status might be incomplete if customer authentication is required to complete the payment or if you set payment_behavior to default_incomplete.
                             // View subscription payment behavior to learn more.
@@ -277,38 +277,38 @@ if(!class_exists('SUPER_Stripe')) :
                         case 'customer.subscription.updated':
                             // Sent when the subscription is successfully started, after the payment is confirmed. 
                             // Also sent whenever a subscription is changed. For example, adding a coupon, applying a discount, adding an invoice item, and changing plans all trigger this event.
-                            error_log('Subscription was updated');
+                            //error_log('Subscription was updated');
                             self::afterSubscriptionUpdated($event);
                             break;
                         case 'customer.subscription.deleted':
                             // Sent when a customers subscription ends ("status": "canceled")
                             // This will also be the case for async payment failed (for delayed payment notifications like Sofort payments) 
-                            error_log('Subscription was deleted');
+                            //error_log('Subscription was deleted');
                             self::afterSubscriptionDeleted($event);
                             break;
                         case 'invoice.paid':
                             // Sent when the invoice is successfully paid. You can provision access to your product when you receive this event and the subscription status is active.
-                            error_log('Invoice has been paid');
+                            //error_log('Invoice has been paid');
                             break;
                         case 'invoice.payment_action_required':
                             // Sent when the invoice requires customer authentication. Learn how to handle the subscription when the invoice requires action.
                             // We let Stripe handle these emails: 
                             // https://dashboard.stripe.com/settings/billing/automatic > Manage failed payments > Customer emails > `Send emails to customers to update failed card payment methods`
-                            error_log('Action required from user');
+                            //error_log('Action required from user');
                             break;
                         case 'invoice.payment_failed':
                             // This event is triggered when the payment associated with an invoice fails. 
                             // It indicates that the payment attempt was unsuccessful. 
                             // You should handle this event to update your records, take appropriate actions based on your business logic (such as notifying the customer or canceling the order), 
                             // and provide an alternative payment method or resolve any issues causing the payment failure.
-                            error_log('Payment for invoice failed');
+                            //error_log('Payment for invoice failed');
                             break;
                         // Events for one-time payments
                         case 'payment_intent.succeeded':
-                            error_log('Payment succeeded :)');
+                            //error_log('Payment succeeded :)');
                             break;
                         case 'payment_intent.payment_failed':
-                            error_log('Payment failed :)');
+                            //error_log('Payment failed :)');
                             break;
 
                         // tmp case 'invoice.created':
@@ -423,31 +423,31 @@ if(!class_exists('SUPER_Stripe')) :
             $s = self::get_default_stripe_settings($settings);
             if(!empty($m['sf_entry'])){
                 // Maybe update entry status?
-                error_log('Update entry status');
+                //error_log('Update entry status');
                 foreach($s['subscription']['entry_status'] as $k => $v){
-                    error_log($v['status']);
-                    error_log($subscription->status);
+                    //error_log($v['status']);
+                    //error_log($subscription->status);
                     if($v['status']===$subscription->status){
-                        error_log('match');
+                        //error_log('match');
                         $value = trim($v['value']);
                         if($value==='') continue; // do not change if empty
                         $value = SUPER_Common::email_tags($value, $data, $settings);
                         update_post_meta($m['sf_entry'], '_super_contact_entry_status', $value);
-                        error_log('Updated entry status to '.$value.' for #'.$m['sf_entry']);
+                        //error_log('Updated entry status to '.$value.' for #'.$m['sf_entry']);
                         break;
                     }
                 }
             }
             if(!empty($m['sf_post'])){
                 // Maybe update post status?
-                error_log('Update post status');
+                //error_log('Update post status');
                 foreach($s['subscription']['post_status'] as $k => $v){
                     if($v['status']===$subscription->status){
                         $value = trim($v['value']);
                         if($value==='') continue; // do not change if empty
                         $value = SUPER_Common::email_tags($value, $data, $settings);
                         wp_update_post(array('ID'=>$m['sf_post'], 'post_status'=>$value));
-                        error_log('Updated post status to '.$value.' for #'.$m['sf_post']);
+                        //error_log('Updated post status to '.$value.' for #'.$m['sf_post']);
                         break;
                     }
                 }
@@ -455,7 +455,7 @@ if(!class_exists('SUPER_Stripe')) :
             // Never update user role or login status for Administrator accounts to prevent locking out themselves
             if(!empty($m['sf_user']) && !user_can($m['sf_user'], 'administrator')){
                 // Maybe update user role or user login status?
-                error_log('Update user role or user login status');
+                //error_log('Update user role or user login status');
                 // Update user login status
                 foreach($s['subscription']['login_status'] as $k => $v){
                     if($v['status']===$subscription->status){
@@ -463,7 +463,7 @@ if(!class_exists('SUPER_Stripe')) :
                         if($value==='') continue; // do not change if empty
                         $value = SUPER_Common::email_tags($value, $data, $settings);
                         update_user_meta($m['sf_user'], 'super_user_login_status', $value);
-                        error_log('Updated login status to '.$value.' for #'.$m['sf_user']);
+                        //error_log('Updated login status to '.$value.' for #'.$m['sf_user']);
                         break;
                     }
                 }
@@ -479,7 +479,7 @@ if(!class_exists('SUPER_Stripe')) :
                             error_log($result->get_error_message());
                             throw new Exception($result->get_error_message());
                         }
-                        error_log('Updated user role to '.$value.' for #'.$m['sf_user']);
+                        //error_log('Updated user role to '.$value.' for #'.$m['sf_user']);
                         break;
                     }
                 }
@@ -689,8 +689,8 @@ if(!class_exists('SUPER_Stripe')) :
             return $s;
         }
         public static function redirect_to_stripe_checkout($x){
-            error_log('redirect_to_stripe_checkout()');
-            error_log(json_encode($x));
+            //error_log('redirect_to_stripe_checkout()');
+            //error_log(json_encode($x));
             extract( shortcode_atts( array(
                 'sfsi'=>array(),
                 'form_id'=>0,
@@ -704,22 +704,22 @@ if(!class_exists('SUPER_Stripe')) :
             $domain = home_url(); // e.g: 'http://domain.com';
             $home_url = trailingslashit($domain);
             // Stripe checkout
-            error_log('get_form_stripe_settings(5)');
-            error_log(json_encode($settings));
+            //error_log('get_form_stripe_settings(5)');
+            //error_log(json_encode($settings));
             $s = SUPER_Common::get_form_stripe_settings($form_id);
-            error_log('stripe settings:');
-            error_log(json_encode($s));
+            //error_log('stripe settings:');
+            //error_log(json_encode($s));
 
 
             // Skip if Stripe checkout is not enabled
             if(empty($s)){
-                error_log('return 1');
-                error_log(json_encode($settings));
+                //error_log('return 1');
+                //error_log(json_encode($settings));
                 return true;
             }
             // Skip if Stripe checkout is not enabled
             if($s['enabled']!=='true') {
-                error_log('return 2');
+                //error_log('return 2');
                 return true;
             }
             // If conditional check is enabled
@@ -732,7 +732,7 @@ if(!class_exists('SUPER_Stripe')) :
                 $checkout = SUPER_Common::conditional_compare_check($f1, $logic, $f2);
             }
             if($checkout===false) {
-                error_log('return 3');
+                //error_log('return 3');
                 return true;
             }
             try{
@@ -800,7 +800,7 @@ if(!class_exists('SUPER_Stripe')) :
                 }
                 if(empty($user_id)){
                     // Guest checkout
-                    error_log('Stripe guest checkout');
+                    //error_log('Stripe guest checkout');
                 }else{
                     $sfsi['user_id'] = $user_id;
                     if(!empty($email)) $customer_email = $email;
@@ -809,49 +809,49 @@ if(!class_exists('SUPER_Stripe')) :
                         // Check if user is already connected to a stripe customer
                         $super_stripe_cus = get_user_meta($user_id, 'super_stripe_cus', true);
                         if(!empty($super_stripe_cus)){
-                            error_log('The current WP user has a Stripe customer ID connected, let\'s try to retrieve the Stripe customer based on this ID');
+                            //error_log('The current WP user has a Stripe customer ID connected, let\'s try to retrieve the Stripe customer based on this ID');
                             $customer = \Stripe\Customer::retrieve($super_stripe_cus);
                         }
                         if(empty($customer)){
-                            error_log('Based on the existing Stripe ID the WP user has, we could not find a Stripe customer, the Stripe customer might have been deleted in the Stripe dashboard');
+                            //error_log('Based on the existing Stripe ID the WP user has, we could not find a Stripe customer, the Stripe customer might have been deleted in the Stripe dashboard');
                             // Try to lookup by E-mail?
                             if($s['connect_stripe_email']==='true'){
-                                error_log('Let\'s try to find Stripe customer based on the current WP user E-mail address');
+                                //error_log('Let\'s try to find Stripe customer based on the current WP user E-mail address');
                                 $customers = \Stripe\Customer::all(array('email'=>$customer_email));
                                 if(!empty($customers) && !empty($customers->data)){
-                                    error_log('We found a Stripe customer based on this same E-mail address, we can use it, and update the connection with the WP user');
+                                    //error_log('We found a Stripe customer based on this same E-mail address, we can use it, and update the connection with the WP user');
                                     $customer = $customers->data[0];
                                 }
                             }
                         }
                         if(!empty($customer)){
-                            error_log('We can connect this Stripe customer to this WP account');
+                            //error_log('We can connect this Stripe customer to this WP account');
                             // Check if customer was deleted
                             if(!empty($customer['deleted']) && $customer['deleted']==true){
                                 // Customer was deleted, we should create a new
-                                error_log('Except this Stripe customer was deleted, so in this case we will have to create a new one');
+                                //error_log('Except this Stripe customer was deleted, so in this case we will have to create a new one');
                             }else{
                                 // The customer exists, make sure we do not create a new customer
-                                error_log('This Stripe customer still exists and was not deleted yet');
+                                //error_log('This Stripe customer still exists and was not deleted yet');
                                 $create_new_customer = false; 
                                 update_user_meta($user_id, 'super_stripe_cus', $customer->id);
                                 $customer = $customer->id;
-                                error_log('Stripe customer '.$customer.' is connected to WP user: '.$user_id);
+                                //error_log('Stripe customer '.$customer.' is connected to WP user: '.$user_id);
                             }
                         }
                         if($create_new_customer){
                             // Stripe customer doesn't exists, create a new Stripe customer with this E-mail address
-                            error_log('Create a new Stripe customer with this E-mail address');
+                            //error_log('Create a new Stripe customer with this E-mail address');
                             $customer = \Stripe\Customer::create(array('email' => $customer_email));
                             update_user_meta($user_id, 'super_stripe_cus', $customer->id);
                             $customer = $customer->id;
-                            error_log('Newly created Stripe customer '.$customer.' is connected to WP user: '.$user_id);
+                            //error_log('Newly created Stripe customer '.$customer.' is connected to WP user: '.$user_id);
                         }
                     }catch(Exception $e){
-                        error_log('1 Stripe error occured');
+                        //error_log('1 Stripe error occured');
                         error_log($e->getCode());
                         if($e->getCode()===0){
-                            error_log('Customer does not exist, create a new one?');
+                            //error_log('Customer does not exist, create a new one?');
                             // Customer doesn't exists, create a new customer
                             $customer = \Stripe\Customer::create(array('email' => $customer_email));
                             update_user_meta($user_id, 'super_stripe_cus', $customer->id);
@@ -1022,7 +1022,7 @@ if(!class_exists('SUPER_Stripe')) :
                     if(!is_array($v['tax_rates'])){
                         $v['tax_rates'] = explode(',', str_replace(' ', '', trim($v['tax_rates'])));
                     }
-                    error_log(json_encode($v['tax_rates']));
+                    //error_log(json_encode($v['tax_rates']));
                 }else{
                     unset($line_items[$k]['tax_rates']);
                 }
@@ -1469,7 +1469,7 @@ if(!class_exists('SUPER_Stripe')) :
                     // This seems to be the only way to detect if this error occurs, stripe doesn't return a specific Error code...
                     // Try to make the same request
                     try {
-                        error_log('Stripe: '.$e->getMessage());
+                        //error_log('Stripe: '.$e->getMessage());
                         unset($stripeData['customer']);
                         unset($stripeData['customer_update']);
                         $stripeData['customer_email'] = $customer_email;
@@ -1585,11 +1585,11 @@ if(!class_exists('SUPER_Stripe')) :
         public static function fulfillOrder($atts){
             extract($atts); 
             $sfsi = get_option( '_sfsi_' . $sfsi_id, array() );
-            error_log('8.0: '.json_encode($sfsi));
+            //error_log('8.0: '.json_encode($sfsi));
             if(count($sfsi)>0){
-                error_log('8.1: '.json_encode($sfsi));
+                //error_log('8.1: '.json_encode($sfsi));
                 extract($sfsi);
-                error_log('8.2: '.json_encode($sfsi));
+                //error_log('8.2: '.json_encode($sfsi));
             }
             $settings = SUPER_Common::get_form_settings($form_id);
             $stripe_settings = self::get_default_stripe_settings($settings);
@@ -1713,8 +1713,8 @@ if(!class_exists('SUPER_Stripe')) :
         public static function add_tab_content($atts){
             extract($atts);
             $slug = SUPER_Stripe()->add_on_slug;
-            error_log('add_tab_content()');
-            error_log(json_encode($stripe));
+            //error_log('add_tab_content()');
+            //error_log(json_encode($stripe));
             $s = self::get_default_stripe_settings($stripe);
             $logic = array( '==' => '== Equal', '!=' => '!= Not equal', '??' => '?? Contains', '!!' => '!! Not contains', '>'  => '&gt; Greater than', '<'  => '&lt;  Less than', '>=' => '&gt;= Greater than or equal to', '<=' => '&lt;= Less than or equal');
             $statuses = SUPER_Settings::get_entry_statuses();
@@ -2723,7 +2723,7 @@ if(!class_exists('SUPER_Stripe')) :
                 )
             );
             $prefix = array();
-            error_log('loop_over_tab_setting_nodes: '.json_encode($s));
+            //error_log('loop_over_tab_setting_nodes: '.json_encode($s));
             SUPER_UI::loop_over_tab_setting_nodes($s, $nodes, $prefix);
         }
         public static function add_settings($array, $x){

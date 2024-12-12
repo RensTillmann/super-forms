@@ -161,195 +161,206 @@ class SUPER_Settings {
          *
          *  @since      2.8.0
         */
-        $array['admin_email_settings'] = array(        
+        $array['admin_email_settings'] = array(
+            'hidden' => 'settings',
             'name' => esc_html__( 'Admin E-mail', 'super-forms' ),
             'label' => esc_html__( 'Admin E-mail', 'super-forms' ),
-            'fields' => array(
-                'send' => array(
-                    'docs' => array(array('title'=>'Sending to different departments conditionally', 'url'=>'/tutorials/sending-emails-to-different-department-based-on-selected-form-option')),
-                    'name' => esc_html__( 'Send admin email', 'super-forms' ),
-                    'label' => esc_html__( 'Send or do not send the admin emails', 'super-forms' ),
-                    'default' => 'yes',
-                    'filter'=>true,
-                    'type'=>'select',
-                    'values'=>array(
-                        'yes' => esc_html__( 'Send an admin email', 'super-forms' ),
-                        'no' => esc_html__( 'Do not send an admin email', 'super-forms' ),
-                    )
-                ),
-                'header_to' => array(
-                    'name' => esc_html__( 'Send email to:', 'super-forms' ),
-                    'label' => esc_html__( 'Recipient(s) email address separated with commas', 'super-forms' ),
-                    'placeholder' => esc_html__( 'your@email.com, your@email.com', 'super-forms' ),
-                    'default' => '{option_admin_email}',
-                    'filter'=>true,
-                    'parent'=>'send',
-                    'filter_value'=>'yes',
-                    
-                ),
-                'header_from_type' => array(
-                    'name'=> esc_html__( 'Send email from:', 'super-forms' ),
-                    'label' => esc_html__( 'Enter a custom email address or use the blog settings', 'super-forms' ) . '<br />(' . sprintf( esc_html__( 'if you encounter issues with receiving emails, try to use info@%1$s', 'super-forms' ), '<strong style="color:red;">'.str_replace('www.', '', $_SERVER["SERVER_NAME"]).'</strong>' ) . ')',
-                    'default' => 'default',
-                    'type'=>'select',
-                    'values'=>array(
-                        'default' => esc_html__(  'Default blog email and name', 'super-forms' ),
-                        'custom' => esc_html__(  'Custom from', 'super-forms' ),
-                    ),
-                    'filter'=>true,
-                    'parent'=>'send',
-                    'filter_value'=>'yes',
-                ),
-                'header_from' => array(
-                    'name' => esc_html__( 'From email:', 'super-forms' ),
-                    'label' => esc_html__( 'Example: info@companyname.com', 'super-forms' ),
-                    'default' =>  '{option_admin_email}',
-                    'placeholder' => esc_html__( 'Company Email Address', 'super-forms' ),
-                    'filter'=>true,
-                    'parent'=>'header_from_type',
-                    'filter_value'=>'custom',
-                    
-                ),
-                'header_from_name' => array(
-                    'name' => esc_html__( 'From name:', 'super-forms' ),
-                    'label' => esc_html__( 'Example: Company Name', 'super-forms' ),
-                    'default' =>  '{option_blogname}',
-                    'placeholder' => esc_html__( 'Your Company Name', 'super-forms' ),
-                    'filter'=>true,
-                    'parent'=>'header_from_type',
-                    'filter_value'=>'custom',
-                ),
-
-                // @since 2.8.0 - custom reply to headers
-                'header_reply_enabled' => array(
-                    'default' =>  '',
-                    'type' => 'checkbox',
-                    'values' => array(
-                        'true' => esc_html__( '(optional) Set a custom reply to header', 'super-forms' ),
-                    ),
-                    'filter'=>true,
-                    'parent'=>'send',
-                    'filter_value'=>'yes',
-                ),
-                'header_reply' => array(
-                    'name' => esc_html__( 'Reply to email:', 'super-forms' ),
-                    'label' => esc_html__( 'Example: no-reply@companyname.com', 'super-forms' ),
-                    'default' =>  '{option_admin_email}',
-                    'placeholder' => esc_html__( 'Company Email Address', 'super-forms' ),
-                    'filter'=>true,
-                    'parent'=>'header_reply_enabled',
-                    'filter_value'=>'true',
-                ),
-                'header_reply_name' => array(
-                    'name' => esc_html__( 'Reply to name:', 'super-forms' ),
-                    'label' => esc_html__( 'Example: Company Name', 'super-forms' ),
-                    'default' =>  '{option_blogname}',
-                    'placeholder' => esc_html__( 'Your Company Name', 'super-forms' ),
-                    'filter'=>true,
-                    'parent'=>'header_reply_enabled',
-                    'filter_value'=>'true',
-                ),
-                'header_subject' => array(
-                    'name' => esc_html__( 'Subject:', 'super-forms' ),
-                    'label' => esc_html__( 'The subject for this email', 'super-forms' ),
-                    'default' =>  'New question',
-                    'placeholder' => esc_html__( 'New question', 'super-forms' ),
-                    'filter'=>true,
-                    'parent'=>'send',
-                    'filter_value'=>'yes',
-                    'i18n'=>true
-                ),
-                'email_body' => array(
-                    'name' => esc_html__( 'Body content:', 'super-forms' ),
-                    'label' => esc_html__( 'Use a custom email body. Use {loop_fields} to retrieve the loop.', 'super-forms' ),
-                    'default' => sprintf( esc_html__( "The following information has been sent by the submitter:%sBest regards, %s", 'super-forms' ), '<br /><br /><table cellpadding="5">{loop_fields}</table><br /><br />', '{option_blogname}' ),
-                    'type'=>'textarea',
-                    'filter'=>true,
-                    'parent'=>'send',
-                    'filter_value'=>'yes',
-                    'i18n'=>true
-                ),
-                // @since 3.1.0 - auto line breaks
-                'email_body_nl2br' => array(
-                    'name' => esc_html__( 'Enable line breaks', 'super-forms' ),
-                    'label' => esc_html__( 'This will convert line breaks to [br /] tags in HTML emails', 'super-forms' ),
-                    'default' =>  'true',
-                    'type' => 'checkbox',
-                    'values' => array(
-                        'true' => esc_html__( 'Automatically add line breaks (enabled by default)', 'super-forms' ),
-                    ),
-                    'filter'=>true,
-                    'parent'=>'send',
-                    'filter_value'=>'yes',
-                ),
-                'email_loop' => array(
-                    'name' => esc_html__( 'Field Loop:', 'super-forms' ),
-                    'label' => esc_html__( '{loop_fields} inside the email body will be replaced with this content', 'super-forms' ) . '<br />' . esc_html__( 'Use a custom loop. Use {loop_label} and {loop_value} to retrieve values.', 'super-forms' ),
-                    'default' =>  '<tr><th valign="top" align="right">{loop_label}</th><td>{loop_value}</td></tr>',
-                    'type'=>'textarea',
-                    'filter'=>true,
-                    'parent'=>'send',
-                    'filter_value'=>'yes',
-                ),
-                // @since 4.5.0 - exclude empty values from email loop
-                'email_exclude_empty' => array(
-                    'name' => esc_html__( 'Exclude empty values from email loop', 'super-forms' ),
-                    'label' => esc_html__( 'This will strip out any fields that where not filled out by the user', 'super-forms' ),
-                    'default' =>  '',
-                    'type' => 'checkbox',
-                    'values' => array(
-                        'true' => esc_html__( 'Enable (exclude empty values)', 'super-forms' ),
-                    ),
-                    'filter'=>true,
-                    'parent'=>'send',
-                    'filter_value'=>'yes',
-                ),
-                // @since 4.9.5 - RTL E-mails
-                'email_rtl' => array(
-                    'name' => esc_html__( 'Enable RTL E-mails', 'super-forms' ),
-                    'label' => esc_html__( 'This will apply a right to left layout for your emails', 'super-forms' ),
-                    'default' =>  '',
-                    'type' => 'checkbox',
-                    'values' => array(
-                        'true' => esc_html__( 'Enable RTL E-mails', 'super-forms' ),
-                    ),
-                    'filter'=>true,
-                    'parent'=>'send',
-                    'filter_value'=>'yes',
-                    'i18n'=>true
-                ),
-                'header_cc' => array(
-                    'name' => esc_html__( 'CC:', 'super-forms' ),
-                    'label' => esc_html__( 'Send copy to following address(es)', 'super-forms' ),
-                    'default' =>  '',
-                    'placeholder' => esc_html__( 'someones@email.com, someones@emal.com', 'super-forms' ),
-                    'filter'=>true,
-                    'parent'=>'send',
-                    'filter_value'=>'yes',
-                    'i18n'=>true
-                ),
-                'header_bcc' => array(
-                    'name' => esc_html__( 'BCC:', 'super-forms' ),
-                    'label' => esc_html__( 'Send copy to following address(es), without being able to see the address', 'super-forms' ),
-                    'default' =>  '',
-                    'placeholder' => esc_html__( 'someones@email.com, someones@emal.com', 'super-forms' ),
-                    'filter'=>true,
-                    'parent'=>'send',
-                    'filter_value'=>'yes',
-                    'i18n'=>true
-                ),
-                'header_additional' => array(
-                    'name' => esc_html__('Additional Headers:', 'super-forms' ),
-                    'label' => esc_html__('Add any extra email headers here (put each header on a new line)', 'super-forms' ),
-                    'default' =>  '',
-                    'type' =>'textarea',
-                    'filter'=>true,
-                    'parent'=>'send',
-                    'filter_value'=>'yes',
-                    'i18n'=>true
-                )
+            'docs' => array(
+                array('title'=>'Sending to different departments conditionally', 'url'=>'/tutorials/sending-emails-to-different-department-based-on-selected-form-option')
             ),
+            'html' => array(
+                sprintf( esc_html__( '%s%sNote: %sFrom now on, you need to define E-mails via the [Triggers] TAB%s', 'super-forms' ), '<div class="sfui-notice sfui-desc">', '<strong>', '</strong>', '</div>' ),
+            )
         );
+        // tmp $array['admin_email_settings'] = array(
+        // tmp     'name' => esc_html__( 'Admin E-mail', 'super-forms' ),
+        // tmp     'label' => esc_html__( 'Admin E-mail', 'super-forms' ),
+        // tmp     'fields' => array(
+        // tmp         'send' => array(
+        // tmp             'docs' => array(array('title'=>'Sending to different departments conditionally', 'url'=>'/tutorials/sending-emails-to-different-department-based-on-selected-form-option')),
+        // tmp             'name' => esc_html__( 'Send admin email', 'super-forms' ),
+        // tmp             'label' => esc_html__( 'Send or do not send the admin emails', 'super-forms' ),
+        // tmp             'default' => 'yes',
+        // tmp             'filter'=>true,
+        // tmp             'type'=>'select',
+        // tmp             'values'=>array(
+        // tmp                 'yes' => esc_html__( 'Send an admin email', 'super-forms' ),
+        // tmp                 'no' => esc_html__( 'Do not send an admin email', 'super-forms' ),
+        // tmp             )
+        // tmp         ),
+        // tmp         'header_to' => array(
+        // tmp             'name' => esc_html__( 'Send email to:', 'super-forms' ),
+        // tmp             'label' => esc_html__( 'Recipient(s) email address separated with commas', 'super-forms' ),
+        // tmp             'placeholder' => esc_html__( 'your@email.com, your@email.com', 'super-forms' ),
+        // tmp             'default' => '{option_admin_email}',
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'send',
+        // tmp             'filter_value'=>'yes',
+        // tmp             
+        // tmp         ),
+        // tmp         'header_from_type' => array(
+        // tmp             'name'=> esc_html__( 'Send email from:', 'super-forms' ),
+        // tmp             'label' => esc_html__( 'Enter a custom email address or use the blog settings', 'super-forms' ) . '<br />(' . sprintf( esc_html__( 'if you encounter issues with receiving emails, try to use info@%1$s', 'super-forms' ), '<strong style="color:red;">'.str_replace('www.', '', $_SERVER["SERVER_NAME"]).'</strong>' ) . ')',
+        // tmp             'default' => 'default',
+        // tmp             'type'=>'select',
+        // tmp             'values'=>array(
+        // tmp                 'default' => esc_html__(  'Default blog email and name', 'super-forms' ),
+        // tmp                 'custom' => esc_html__(  'Custom from', 'super-forms' ),
+        // tmp             ),
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'send',
+        // tmp             'filter_value'=>'yes',
+        // tmp         ),
+        // tmp         'header_from' => array(
+        // tmp             'name' => esc_html__( 'From email:', 'super-forms' ),
+        // tmp             'label' => esc_html__( 'Example: info@companyname.com', 'super-forms' ),
+        // tmp             'default' =>  '{option_admin_email}',
+        // tmp             'placeholder' => esc_html__( 'Company Email Address', 'super-forms' ),
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'header_from_type',
+        // tmp             'filter_value'=>'custom',
+        // tmp             
+        // tmp         ),
+        // tmp         'header_from_name' => array(
+        // tmp             'name' => esc_html__( 'From name:', 'super-forms' ),
+        // tmp             'label' => esc_html__( 'Example: Company Name', 'super-forms' ),
+        // tmp             'default' =>  '{option_blogname}',
+        // tmp             'placeholder' => esc_html__( 'Your Company Name', 'super-forms' ),
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'header_from_type',
+        // tmp             'filter_value'=>'custom',
+        // tmp         ),
+
+        // tmp         // @since 2.8.0 - custom reply to headers
+        // tmp         'header_reply_enabled' => array(
+        // tmp             'default' =>  '',
+        // tmp             'type' => 'checkbox',
+        // tmp             'values' => array(
+        // tmp                 'true' => esc_html__( '(optional) Set a custom reply to header', 'super-forms' ),
+        // tmp             ),
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'send',
+        // tmp             'filter_value'=>'yes',
+        // tmp         ),
+        // tmp         'header_reply' => array(
+        // tmp             'name' => esc_html__( 'Reply to email:', 'super-forms' ),
+        // tmp             'label' => esc_html__( 'Example: no-reply@companyname.com', 'super-forms' ),
+        // tmp             'default' =>  '{option_admin_email}',
+        // tmp             'placeholder' => esc_html__( 'Company Email Address', 'super-forms' ),
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'header_reply_enabled',
+        // tmp             'filter_value'=>'true',
+        // tmp         ),
+        // tmp         'header_reply_name' => array(
+        // tmp             'name' => esc_html__( 'Reply to name:', 'super-forms' ),
+        // tmp             'label' => esc_html__( 'Example: Company Name', 'super-forms' ),
+        // tmp             'default' =>  '{option_blogname}',
+        // tmp             'placeholder' => esc_html__( 'Your Company Name', 'super-forms' ),
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'header_reply_enabled',
+        // tmp             'filter_value'=>'true',
+        // tmp         ),
+        // tmp         'header_subject' => array(
+        // tmp             'name' => esc_html__( 'Subject:', 'super-forms' ),
+        // tmp             'label' => esc_html__( 'The subject for this email', 'super-forms' ),
+        // tmp             'default' =>  'New question',
+        // tmp             'placeholder' => esc_html__( 'New question', 'super-forms' ),
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'send',
+        // tmp             'filter_value'=>'yes',
+        // tmp             'i18n'=>true
+        // tmp         ),
+        // tmp         'email_body' => array(
+        // tmp             'name' => esc_html__( 'Body content:', 'super-forms' ),
+        // tmp             'label' => esc_html__( 'Use a custom email body. Use {loop_fields} to retrieve the loop.', 'super-forms' ),
+        // tmp             'default' => sprintf( esc_html__( "The following information has been sent by the submitter:%sBest regards, %s", 'super-forms' ), '<br /><br /><table cellpadding="5">{loop_fields}</table><br /><br />', '{option_blogname}' ),
+        // tmp             'type'=>'textarea',
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'send',
+        // tmp             'filter_value'=>'yes',
+        // tmp             'i18n'=>true
+        // tmp         ),
+        // tmp         // @since 3.1.0 - auto line breaks
+        // tmp         'email_body_nl2br' => array(
+        // tmp             'name' => esc_html__( 'Enable line breaks', 'super-forms' ),
+        // tmp             'label' => esc_html__( 'This will convert line breaks to [br /] tags in HTML emails', 'super-forms' ),
+        // tmp             'default' =>  'true',
+        // tmp             'type' => 'checkbox',
+        // tmp             'values' => array(
+        // tmp                 'true' => esc_html__( 'Automatically add line breaks (enabled by default)', 'super-forms' ),
+        // tmp             ),
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'send',
+        // tmp             'filter_value'=>'yes',
+        // tmp         ),
+        // tmp         'email_loop' => array(
+        // tmp             'name' => esc_html__( 'Field Loop:', 'super-forms' ),
+        // tmp             'label' => esc_html__( '{loop_fields} inside the email body will be replaced with this content', 'super-forms' ) . '<br />' . esc_html__( 'Use a custom loop. Use {loop_label} and {loop_value} to retrieve values.', 'super-forms' ),
+        // tmp             'default' =>  '<tr><th valign="top" align="right">{loop_label}</th><td>{loop_value}</td></tr>',
+        // tmp             'type'=>'textarea',
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'send',
+        // tmp             'filter_value'=>'yes',
+        // tmp         ),
+        // tmp         // @since 4.5.0 - exclude empty values from email loop
+        // tmp         'email_exclude_empty' => array(
+        // tmp             'name' => esc_html__( 'Exclude empty values from email loop', 'super-forms' ),
+        // tmp             'label' => esc_html__( 'This will strip out any fields that where not filled out by the user', 'super-forms' ),
+        // tmp             'default' =>  '',
+        // tmp             'type' => 'checkbox',
+        // tmp             'values' => array(
+        // tmp                 'true' => esc_html__( 'Enable (exclude empty values)', 'super-forms' ),
+        // tmp             ),
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'send',
+        // tmp             'filter_value'=>'yes',
+        // tmp         ),
+        // tmp         // @since 4.9.5 - RTL E-mails
+        // tmp         'email_rtl' => array(
+        // tmp             'name' => esc_html__( 'Enable RTL E-mails', 'super-forms' ),
+        // tmp             'label' => esc_html__( 'This will apply a right to left layout for your emails', 'super-forms' ),
+        // tmp             'default' =>  '',
+        // tmp             'type' => 'checkbox',
+        // tmp             'values' => array(
+        // tmp                 'true' => esc_html__( 'Enable RTL E-mails', 'super-forms' ),
+        // tmp             ),
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'send',
+        // tmp             'filter_value'=>'yes',
+        // tmp             'i18n'=>true
+        // tmp         ),
+        // tmp         'header_cc' => array(
+        // tmp             'name' => esc_html__( 'CC:', 'super-forms' ),
+        // tmp             'label' => esc_html__( 'Send copy to following address(es)', 'super-forms' ),
+        // tmp             'default' =>  '',
+        // tmp             'placeholder' => esc_html__( 'someones@email.com, someones@emal.com', 'super-forms' ),
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'send',
+        // tmp             'filter_value'=>'yes',
+        // tmp             'i18n'=>true
+        // tmp         ),
+        // tmp         'header_bcc' => array(
+        // tmp             'name' => esc_html__( 'BCC:', 'super-forms' ),
+        // tmp             'label' => esc_html__( 'Send copy to following address(es), without being able to see the address', 'super-forms' ),
+        // tmp             'default' =>  '',
+        // tmp             'placeholder' => esc_html__( 'someones@email.com, someones@emal.com', 'super-forms' ),
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'send',
+        // tmp             'filter_value'=>'yes',
+        // tmp             'i18n'=>true
+        // tmp         ),
+        // tmp         'header_additional' => array(
+        // tmp             'name' => esc_html__('Additional Headers:', 'super-forms' ),
+        // tmp             'label' => esc_html__('Add any extra email headers here (put each header on a new line)', 'super-forms' ),
+        // tmp             'default' =>  '',
+        // tmp             'type' =>'textarea',
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'send',
+        // tmp             'filter_value'=>'yes',
+        // tmp             'i18n'=>true
+        // tmp         )
+        // tmp     ),
+        // tmp );
         $array = apply_filters( 'super_settings_after_admin_email_filter', $array, array( 'settings'=>$s, 'default'=>$default ) );
 
 
@@ -358,188 +369,199 @@ class SUPER_Settings {
          *
          *  @since      2.8.0
         */
-        $array['confirmation_email_settings'] = array(        
+        $array['confirmation_email_settings'] = array(
+            'hidden' => 'settings',
             'name' => esc_html__( 'Confirmation E-mail', 'super-forms' ),
             'label' => esc_html__( 'Confirmation E-mail', 'super-forms' ),
-            'fields' => array(
-                'confirm' => array(
-                    'docs' => array(array('title'=>'Retrieve user email with the use of tags', 'url'=>'/features/advanced/tags-system')),
-                    'name' => esc_html__( 'Send confirmation email', 'super-forms' ),
-                    'label' => esc_html__( 'Send or do not send confirmation emails', 'super-forms' ),
-                    'default' =>  'yes',
-                    'filter'=>true,
-                    'type'=>'select',
-                    'values'=>array(
-                        'yes' => esc_html__( 'Send a confirmation email', 'super-forms' ),
-                        'no' => esc_html__( 'Do not send a confirmation email', 'super-forms' ),
-                    )
-                ),
-                'confirm_to' => array(
-                    'name' => esc_html__( 'Send email to:', 'super-forms' ),
-                    'label' => esc_html__( 'Recipient(s) email address separated by commas', 'super-forms' ),
-                    'default' =>  '{email}',
-                    'filter'=>true,
-                    'parent'=>'confirm',
-                    'filter_value'=>'yes'
-                ),
-                'confirm_from_type' => array(
-                    'name'=> esc_html__( 'Send email from:', 'super-forms' ),
-                    'label' => esc_html__( 'Enter a custom email address or use the blog settings', 'super-forms' ) . '<br />(' . sprintf( esc_html__( 'if you encounter issues with receiving emails, try to use info@%1$s', 'super-forms' ), '<strong style="color:red;">'.str_replace('www.', '', $_SERVER["SERVER_NAME"]).'</strong>' ) . ')',
-                    'default' =>  'default',
-                    'filter'=>true,
-                    'parent'=>'confirm',
-                    'filter_value'=>'yes',   
-                    'type'=>'select',
-                    'values'=>array(
-                        'default' => esc_html__(  'Default blog email and name', 'super-forms' ),
-                        'custom' => esc_html__(  'Custom from', 'super-forms' ),
-                    )
-                ),
-                'confirm_from' => array(
-                    'name' => esc_html__( 'From email:', 'super-forms' ),
-                    'label' => esc_html__( 'Example: info@companyname.com', 'super-forms' ),
-                    'default' =>  '{option_admin_email}',
-                    'placeholder' => esc_html__( 'Company Email Address', 'super-forms' ),
-                    'filter'=>true,
-                    'parent'=>'confirm_from_type',
-                    'filter_value'=>'custom'
-                ),
-                'confirm_from_name' => array(
-                    'name' => esc_html__( 'From name:', 'super-forms' ),
-                    'label' => esc_html__( 'Example: Company Name', 'super-forms' ),
-                    'default' =>  '{option_blogname}',
-                    'placeholder' => esc_html__( 'Your Company Name', 'super-forms' ),
-                    'filter'=>true,
-                    'parent'=>'confirm_from_type',
-                    'filter_value'=>'custom'
-                ),
-
-                // @since 2.8.0 - custom reply to headers
-                'confirm_header_reply_enabled' => array(
-                    'default' =>  '',
-                    'type' => 'checkbox',
-                    'values' => array(
-                        'true' => esc_html__( '(optional) Set a custom reply to header', 'super-forms' ),
-                    ),
-                    'filter'=>true,
-                    'parent'=>'confirm',
-                    'filter_value'=>'yes'
-                ),
-                'confirm_header_reply' => array(
-                    'name' => esc_html__( 'Reply to email:', 'super-forms' ),
-                    'label' => esc_html__( 'Example: no-reply@companyname.com', 'super-forms' ),
-                    'default' =>  '{option_admin_email}',
-                    'placeholder' => esc_html__( 'Company Email Address', 'super-forms' ),
-                    'filter'=>true,
-                    'parent'=>'confirm_header_reply_enabled',
-                    'filter_value'=>'true',
-                ),
-                'confirm_header_reply_name' => array(
-                    'name' => esc_html__( 'Reply to name:', 'super-forms' ),
-                    'label' => esc_html__( 'Example: Company Name', 'super-forms' ),
-                    'default' =>  '{option_blogname}',
-                    'placeholder' => esc_html__( 'Your Company Name', 'super-forms' ),
-                    'filter'=>true,
-                    'parent'=>'confirm_header_reply_enabled',
-                    'filter_value'=>'true',
-                ),
-                'confirm_subject' => array(
-                    'name' => esc_html__( 'Subject:', 'super-forms' ),
-                    'label' => esc_html__( 'The confirmation subject for this email', 'super-forms' ),
-                    'default' =>  esc_html__( 'Thank you!', 'super-forms'  ),
-                    'filter'=>true,
-                    'parent'=>'confirm',
-                    'filter_value'=>'yes',
-                    'i18n'=>true
-                ),
-                'confirm_body' => array(
-                    'name' => esc_html__( 'Body content:', 'super-forms' ),
-                    'label' => esc_html__( 'Use a custom email body. Use {loop_fields} to retrieve the loop.', 'super-forms' ),
-                    'default' => sprintf( esc_html__( "Dear user,%sThank you for contacting us!%sWe will reply within 48 hours.%sBest Regards, %s"), '<br /><br />', '<br /><br /><table cellpadding="5">{loop_fields}</table><br /><br />', '<br /><br />', '{option_blogname}' ),
-                    'type'=>'textarea',
-                    'filter'=>true,
-                    'parent'=>'confirm',
-                    'filter_value'=>'yes',
-                    'i18n'=>true
-                ),
-                // @since 3.1.0 - auto line breaks
-                'confirm_body_nl2br' => array(
-                    'name' => esc_html__( 'Enable line breaks', 'super-forms' ),
-                    'label' => esc_html__( 'This will convert line breaks to [br /] tag in HTML emails', 'super-forms' ),
-                    'default' =>  'true',
-                    'type' => 'checkbox',
-                    'values' => array(
-                        'true' => esc_html__( 'Automatically add line breaks (enabled by default)', 'super-forms' ),
-                    ),
-                    'filter'=>true,
-                    'parent'=>'confirm',
-                    'filter_value'=>'yes'
-                ),
-                'confirm_email_loop' => array(
-                    'name' => esc_html__( 'Field Loop:', 'super-forms' ),
-                    'label' => esc_html__( '{loop_fields} inside the email body will be replaced with this content', 'super-forms' ) . '<br />' . esc_html__( 'Use a custom loop. Use {loop_label} and {loop_value} to retrieve values.', 'super-forms' ),
-                    'default' =>  '<tr><th valign="top" align="right">{loop_label}</th><td>{loop_value}</td></tr>',
-                    'type'=>'textarea',
-                    'filter'=>true,
-                    'parent'=>'confirm',
-                    'filter_value'=>'yes'
-                ),
-                // @since 4.5.0 - exclude empty values from email loop
-                'confirm_exclude_empty' => array(
-                    'name' => esc_html__( 'Exclude empty values from email loop', 'super-forms' ),
-                    'label' => esc_html__( 'This will strip out any fields that where not filled out by the user', 'super-forms' ),
-                    'default' =>  '',
-                    'type' => 'checkbox',
-                    'values' => array(
-                        'true' => esc_html__( 'Enable (exclude empty values)', 'super-forms' ),
-                    ),
-                    'filter'=>true,
-                    'parent'=>'confirm',
-                    'filter_value'=>'yes'
-                ),
-                // @since 4.9.5 - RTL E-mails
-                'confirm_rtl' => array(
-                    'name' => esc_html__( 'Enable RTL E-mails', 'super-forms' ),
-                    'label' => esc_html__( 'This will apply a right to left layout for your emails', 'super-forms' ),
-                    'default' =>  '',
-                    'type' => 'checkbox',
-                    'values' => array(
-                        'true' => esc_html__( 'Enable RTL E-mails', 'super-forms' ),
-                    ),
-                    'filter'=>true,
-                    'parent'=>'confirm',
-                    'filter_value'=>'yes'
-                ),
-
-                'confirm_header_cc' => array(
-                    'name' => esc_html__( 'CC:', 'super-forms' ),
-                    'label' => esc_html__( 'Send copy to following address(es)', 'super-forms' ),
-                    'default' =>  '',
-                    'placeholder' => esc_html__( 'someones@email.com, someones@emal.com', 'super-forms' ),
-                    'filter'=>true,
-                    'parent'=>'confirm',
-                    'filter_value'=>'yes'
-                ),
-                'confirm_header_bcc' => array(
-                    'name' => esc_html__( 'BCC:', 'super-forms' ),
-                    'label' => esc_html__( 'Send copy to following address(es), without being able to see the address', 'super-forms' ),
-                    'default' =>  '',
-                    'placeholder' => esc_html__( 'someones@email.com, someones@emal.com', 'super-forms' ),
-                    'filter'=>true,
-                    'parent'=>'confirm',
-                    'filter_value'=>'yes'
-                ),
-                'confirm_header_additional' => array(
-                    'name' => esc_html__('Additional Headers:', 'super-forms' ),
-                    'label' => esc_html__('Add any extra email headers here (put each header on a new line)', 'super-forms' ),
-                    'default' =>  '',
-                    'type' =>'textarea',
-                    'filter'=>true,
-                    'parent'=>'confirm',
-                    'filter_value'=>'yes'
-                )
+            'docs' => array(
+                array('title'=>'Retrieve user email with the use of tags', 'url'=>'/features/advanced/tags-system'),
             ),
+            'html' => array(
+                sprintf( esc_html__( '%s%sNote: %sFrom now on, you need to define E-mails via the [Triggers] TAB%s', 'super-forms' ), '<div class="sfui-notice sfui-desc">', '<strong>', '</strong>', '</div>' ),
+            )
         );
+        // tmp $array['confirmation_email_settings'] = array(
+        // tmp     'name' => esc_html__( 'Confirmation E-mail', 'super-forms' ),
+        // tmp     'label' => esc_html__( 'Confirmation E-mail', 'super-forms' ),
+        // tmp     'fields' => array(
+        // tmp         'confirm' => array(
+        // tmp             'docs' => array(array('title'=>'Retrieve user email with the use of tags', 'url'=>'/features/advanced/tags-system')),
+        // tmp             'name' => esc_html__( 'Send confirmation email', 'super-forms' ),
+        // tmp             'label' => esc_html__( 'Send or do not send confirmation emails', 'super-forms' ),
+        // tmp             'default' =>  'yes',
+        // tmp             'filter'=>true,
+        // tmp             'type'=>'select',
+        // tmp             'values'=>array(
+        // tmp                 'yes' => esc_html__( 'Send a confirmation email', 'super-forms' ),
+        // tmp                 'no' => esc_html__( 'Do not send a confirmation email', 'super-forms' ),
+        // tmp             )
+        // tmp         ),
+        // tmp         'confirm_to' => array(
+        // tmp             'name' => esc_html__( 'Send email to:', 'super-forms' ),
+        // tmp             'label' => esc_html__( 'Recipient(s) email address separated by commas', 'super-forms' ),
+        // tmp             'default' =>  '{email}',
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'confirm',
+        // tmp             'filter_value'=>'yes'
+        // tmp         ),
+        // tmp         'confirm_from_type' => array(
+        // tmp             'name'=> esc_html__( 'Send email from:', 'super-forms' ),
+        // tmp             'label' => esc_html__( 'Enter a custom email address or use the blog settings', 'super-forms' ) . '<br />(' . sprintf( esc_html__( 'if you encounter issues with receiving emails, try to use info@%1$s', 'super-forms' ), '<strong style="color:red;">'.str_replace('www.', '', $_SERVER["SERVER_NAME"]).'</strong>' ) . ')',
+        // tmp             'default' =>  'default',
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'confirm',
+        // tmp             'filter_value'=>'yes',   
+        // tmp             'type'=>'select',
+        // tmp             'values'=>array(
+        // tmp                 'default' => esc_html__(  'Default blog email and name', 'super-forms' ),
+        // tmp                 'custom' => esc_html__(  'Custom from', 'super-forms' ),
+        // tmp             )
+        // tmp         ),
+        // tmp         'confirm_from' => array(
+        // tmp             'name' => esc_html__( 'From email:', 'super-forms' ),
+        // tmp             'label' => esc_html__( 'Example: info@companyname.com', 'super-forms' ),
+        // tmp             'default' =>  '{option_admin_email}',
+        // tmp             'placeholder' => esc_html__( 'Company Email Address', 'super-forms' ),
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'confirm_from_type',
+        // tmp             'filter_value'=>'custom'
+        // tmp         ),
+        // tmp         'confirm_from_name' => array(
+        // tmp             'name' => esc_html__( 'From name:', 'super-forms' ),
+        // tmp             'label' => esc_html__( 'Example: Company Name', 'super-forms' ),
+        // tmp             'default' =>  '{option_blogname}',
+        // tmp             'placeholder' => esc_html__( 'Your Company Name', 'super-forms' ),
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'confirm_from_type',
+        // tmp             'filter_value'=>'custom'
+        // tmp         ),
+
+        // tmp         // @since 2.8.0 - custom reply to headers
+        // tmp         'confirm_header_reply_enabled' => array(
+        // tmp             'default' =>  '',
+        // tmp             'type' => 'checkbox',
+        // tmp             'values' => array(
+        // tmp                 'true' => esc_html__( '(optional) Set a custom reply to header', 'super-forms' ),
+        // tmp             ),
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'confirm',
+        // tmp             'filter_value'=>'yes'
+        // tmp         ),
+        // tmp         'confirm_header_reply' => array(
+        // tmp             'name' => esc_html__( 'Reply to email:', 'super-forms' ),
+        // tmp             'label' => esc_html__( 'Example: no-reply@companyname.com', 'super-forms' ),
+        // tmp             'default' =>  '{option_admin_email}',
+        // tmp             'placeholder' => esc_html__( 'Company Email Address', 'super-forms' ),
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'confirm_header_reply_enabled',
+        // tmp             'filter_value'=>'true',
+        // tmp         ),
+        // tmp         'confirm_header_reply_name' => array(
+        // tmp             'name' => esc_html__( 'Reply to name:', 'super-forms' ),
+        // tmp             'label' => esc_html__( 'Example: Company Name', 'super-forms' ),
+        // tmp             'default' =>  '{option_blogname}',
+        // tmp             'placeholder' => esc_html__( 'Your Company Name', 'super-forms' ),
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'confirm_header_reply_enabled',
+        // tmp             'filter_value'=>'true',
+        // tmp         ),
+        // tmp         'confirm_subject' => array(
+        // tmp             'name' => esc_html__( 'Subject:', 'super-forms' ),
+        // tmp             'label' => esc_html__( 'The confirmation subject for this email', 'super-forms' ),
+        // tmp             'default' =>  esc_html__( 'Thank you!', 'super-forms'  ),
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'confirm',
+        // tmp             'filter_value'=>'yes',
+        // tmp             'i18n'=>true
+        // tmp         ),
+        // tmp         'confirm_body' => array(
+        // tmp             'name' => esc_html__( 'Body content:', 'super-forms' ),
+        // tmp             'label' => esc_html__( 'Use a custom email body. Use {loop_fields} to retrieve the loop.', 'super-forms' ),
+        // tmp             'default' => sprintf( esc_html__( "Dear user,%sThank you for contacting us!%sWe will reply within 48 hours.%sBest Regards, %s"), '<br /><br />', '<br /><br /><table cellpadding="5">{loop_fields}</table><br /><br />', '<br /><br />', '{option_blogname}' ),
+        // tmp             'type'=>'textarea',
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'confirm',
+        // tmp             'filter_value'=>'yes',
+        // tmp             'i18n'=>true
+        // tmp         ),
+        // tmp         // @since 3.1.0 - auto line breaks
+        // tmp         'confirm_body_nl2br' => array(
+        // tmp             'name' => esc_html__( 'Enable line breaks', 'super-forms' ),
+        // tmp             'label' => esc_html__( 'This will convert line breaks to [br /] tag in HTML emails', 'super-forms' ),
+        // tmp             'default' =>  'true',
+        // tmp             'type' => 'checkbox',
+        // tmp             'values' => array(
+        // tmp                 'true' => esc_html__( 'Automatically add line breaks (enabled by default)', 'super-forms' ),
+        // tmp             ),
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'confirm',
+        // tmp             'filter_value'=>'yes'
+        // tmp         ),
+        // tmp         'confirm_email_loop' => array(
+        // tmp             'name' => esc_html__( 'Field Loop:', 'super-forms' ),
+        // tmp             'label' => esc_html__( '{loop_fields} inside the email body will be replaced with this content', 'super-forms' ) . '<br />' . esc_html__( 'Use a custom loop. Use {loop_label} and {loop_value} to retrieve values.', 'super-forms' ),
+        // tmp             'default' =>  '<tr><th valign="top" align="right">{loop_label}</th><td>{loop_value}</td></tr>',
+        // tmp             'type'=>'textarea',
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'confirm',
+        // tmp             'filter_value'=>'yes'
+        // tmp         ),
+        // tmp         // @since 4.5.0 - exclude empty values from email loop
+        // tmp         'confirm_exclude_empty' => array(
+        // tmp             'name' => esc_html__( 'Exclude empty values from email loop', 'super-forms' ),
+        // tmp             'label' => esc_html__( 'This will strip out any fields that where not filled out by the user', 'super-forms' ),
+        // tmp             'default' =>  '',
+        // tmp             'type' => 'checkbox',
+        // tmp             'values' => array(
+        // tmp                 'true' => esc_html__( 'Enable (exclude empty values)', 'super-forms' ),
+        // tmp             ),
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'confirm',
+        // tmp             'filter_value'=>'yes'
+        // tmp         ),
+        // tmp         // @since 4.9.5 - RTL E-mails
+        // tmp         'confirm_rtl' => array(
+        // tmp             'name' => esc_html__( 'Enable RTL E-mails', 'super-forms' ),
+        // tmp             'label' => esc_html__( 'This will apply a right to left layout for your emails', 'super-forms' ),
+        // tmp             'default' =>  '',
+        // tmp             'type' => 'checkbox',
+        // tmp             'values' => array(
+        // tmp                 'true' => esc_html__( 'Enable RTL E-mails', 'super-forms' ),
+        // tmp             ),
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'confirm',
+        // tmp             'filter_value'=>'yes'
+        // tmp         ),
+
+        // tmp         'confirm_header_cc' => array(
+        // tmp             'name' => esc_html__( 'CC:', 'super-forms' ),
+        // tmp             'label' => esc_html__( 'Send copy to following address(es)', 'super-forms' ),
+        // tmp             'default' =>  '',
+        // tmp             'placeholder' => esc_html__( 'someones@email.com, someones@emal.com', 'super-forms' ),
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'confirm',
+        // tmp             'filter_value'=>'yes'
+        // tmp         ),
+        // tmp         'confirm_header_bcc' => array(
+        // tmp             'name' => esc_html__( 'BCC:', 'super-forms' ),
+        // tmp             'label' => esc_html__( 'Send copy to following address(es), without being able to see the address', 'super-forms' ),
+        // tmp             'default' =>  '',
+        // tmp             'placeholder' => esc_html__( 'someones@email.com, someones@emal.com', 'super-forms' ),
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'confirm',
+        // tmp             'filter_value'=>'yes'
+        // tmp         ),
+        // tmp         'confirm_header_additional' => array(
+        // tmp             'name' => esc_html__('Additional Headers:', 'super-forms' ),
+        // tmp             'label' => esc_html__('Add any extra email headers here (put each header on a new line)', 'super-forms' ),
+        // tmp             'default' =>  '',
+        // tmp             'type' =>'textarea',
+        // tmp             'filter'=>true,
+        // tmp             'parent'=>'confirm',
+        // tmp             'filter_value'=>'yes'
+        // tmp         )
+        // tmp     ),
+        // tmp );
         $array = apply_filters( 'super_settings_after_confirmation_email_filter', $array, array( 'settings'=>$s, 'default'=>$default ) );
 
         /** 
@@ -960,27 +982,38 @@ class SUPER_Settings {
          *	@since		1.0.0
         */
         $array['email_headers'] = array(
-            'name' => esc_html__( 'Email headers', 'super-forms' ),
-            'label' => esc_html__( 'Email headers', 'super-forms' ),
-            'fields' => array(
-                'header_content_type' => array(
-                    'name' => esc_html__( 'Content type:', 'super-forms' ),
-                    'label' => esc_html__( 'The content type to use for this email', 'super-forms' ),
-                    'default' =>  'html',
-                    'type'=>'select',
-                    'values'=>array(
-                        'html'=>'HTML',
-                        'plain'=>'Plain text',
-                    )
-                ),
-                'header_charset' => array(
-                    'name' => esc_html__( 'Charset:', 'super-forms' ),
-                    'label' => sprintf( esc_html__( 'The charset to use for this email.%sExample: UTF-8 or ISO-8859-1', 'super-forms' ), '<br />' ),
-                    'default' =>  'UTF-8',
-                    'i18n'=>true
-                ),
+            'hidden' => 'settings',
+            'name' => esc_html__( 'E-mail headers', 'super-forms' ),
+            'label' => esc_html__( 'E-mail headers', 'super-forms' ),
+            //'docs' => array(
+            //    array('title'=>'Sending to different departments conditionally', 'url'=>'/tutorials/sending-emails-to-different-department-based-on-selected-form-option')
+            //),
+            'html' => array(
+                sprintf( esc_html__( '%s%sNote: %sE-mail headers can now be defined via the [Triggers] TAB when sending an E-mail%s', 'super-forms' ), '<div class="sfui-notice sfui-desc">', '<strong>', '</strong>', '</div>' ),
             )
         );
+        // tmp $array['email_headers'] = array(
+        // tmp     'name' => esc_html__( 'Email headers', 'super-forms' ),
+        // tmp     'label' => esc_html__( 'Email headers', 'super-forms' ),
+        // tmp     'fields' => array(
+        // tmp         'header_content_type' => array(
+        // tmp             'name' => esc_html__( 'Content type:', 'super-forms' ),
+        // tmp             'label' => esc_html__( 'The content type to use for this email', 'super-forms' ),
+        // tmp             'default' =>  'html',
+        // tmp             'type'=>'select',
+        // tmp             'values'=>array(
+        // tmp                 'html'=>'HTML',
+        // tmp                 'plain'=>'Plain text',
+        // tmp             )
+        // tmp         ),
+        // tmp         'header_charset' => array(
+        // tmp             'name' => esc_html__( 'Charset:', 'super-forms' ),
+        // tmp             'label' => sprintf( esc_html__( 'The charset to use for this email.%sExample: UTF-8 or ISO-8859-1', 'super-forms' ), '<br />' ),
+        // tmp             'default' =>  'UTF-8',
+        // tmp             'i18n'=>true
+        // tmp         ),
+        // tmp     )
+        // tmp );
         $array = apply_filters( 'super_settings_after_email_headers_filter', $array, array( 'settings'=>$s, 'default'=>$default ) );
 
         /** 
@@ -989,27 +1022,38 @@ class SUPER_Settings {
          *  @since      3.3.2
         */
         $array['email_attachments'] = array(
+            'hidden' => 'settings',
             'name' => esc_html__( 'Email attachments', 'super-forms' ),
             'label' => esc_html__( 'Email attachments', 'super-forms' ),
-            'fields' => array(
-                'admin_attachments' => array(
-                    'name' => esc_html__( 'Attachments for admin emails:', 'super-forms' ),
-                    'label' => esc_html__( 'Upload a file to send as attachment', 'super-forms' ),
-                    'default' =>  '',
-                    'type' => 'file',
-                    'multiple' => 'true',
-                    'i18n'=>true
-                ),
-                'confirm_attachments' => array(
-                    'name' => esc_html__( 'Attachments for confirmation emails:', 'super-forms' ),
-                    'label' => esc_html__( 'Upload a file to send as attachment', 'super-forms' ),
-                    'default' =>  '',
-                    'type' => 'file',
-                    'multiple' => 'true',
-                    'i18n'=>true
-                ),
+            //'docs' => array(
+            //    array('title'=>'Sending to different departments conditionally', 'url'=>'/tutorials/sending-emails-to-different-department-based-on-selected-form-option')
+            //),
+            'html' => array(
+                sprintf( esc_html__( '%s%sNote: %sE-mail attachments can now be defined via the [Triggers] TAB when sending an E-mail%s', 'super-forms' ), '<div class="sfui-notice sfui-desc">', '<strong>', '</strong>', '</div>' ),
             )
         );
+        // tmp $array['email_attachments'] = array(
+        // tmp     'name' => esc_html__( 'Email attachments', 'super-forms' ),
+        // tmp     'label' => esc_html__( 'Email attachments', 'super-forms' ),
+        // tmp     'fields' => array(
+        // tmp         'admin_attachments' => array(
+        // tmp             'name' => esc_html__( 'Attachments for admin emails:', 'super-forms' ),
+        // tmp             'label' => esc_html__( 'Upload a file to send as attachment', 'super-forms' ),
+        // tmp             'default' =>  '',
+        // tmp             'type' => 'file',
+        // tmp             'multiple' => 'true',
+        // tmp             'i18n'=>true
+        // tmp         ),
+        // tmp         'confirm_attachments' => array(
+        // tmp             'name' => esc_html__( 'Attachments for confirmation emails:', 'super-forms' ),
+        // tmp             'label' => esc_html__( 'Upload a file to send as attachment', 'super-forms' ),
+        // tmp             'default' =>  '',
+        // tmp             'type' => 'file',
+        // tmp             'multiple' => 'true',
+        // tmp             'i18n'=>true
+        // tmp         ),
+        // tmp     )
+        // tmp );
         $array = apply_filters( 'super_settings_after_email_attachments_filter', $array, array( 'settings'=>$s, 'default'=>$default ) );
 
 

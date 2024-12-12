@@ -4164,7 +4164,7 @@ msgid "Email attachments"
 msgstr "이메일 첨부"
 
 #: includes/class-settings.php:980 includes/class-settings.php:981
-msgid "Email headers"
+msgid "E-mail headers"
 msgstr "이메일 헤더"
 
 #: includes/extensions/pdf-generator/pdf-generator.php:108

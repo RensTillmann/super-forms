@@ -4322,7 +4322,7 @@ msgid "Email attachments"
 msgstr "Lampiran email"
 
 #: includes/class-settings.php:980 includes/class-settings.php:981
-msgid "Email headers"
+msgid "E-mail headers"
 msgstr "Header email"
 
 #: includes/extensions/pdf-generator/pdf-generator.php:108

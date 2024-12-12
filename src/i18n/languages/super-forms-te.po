@@ -4319,7 +4319,7 @@ msgid "Email attachments"
 msgstr "ఇమెయిల్ జోడింపులు"
 
 #: includes/class-settings.php:980 includes/class-settings.php:981
-msgid "Email headers"
+msgid "E-mail headers"
 msgstr "ఇమెయిల్ శీర్షికలు"
 
 #: includes/extensions/pdf-generator/pdf-generator.php:108
