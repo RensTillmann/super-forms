@@ -11,9 +11,14 @@
 
 ## TODO:
 
-- Issue with exporting entries and other files when Permalinks are set to use ID's will have to implement a fallback system
+- Update keys for new PayPal settings stored under Triggers and test the PayPal payment features 
 - Issue with populating existing signature from first person, when using a form that requires two persons to sign the document.
 - Issue with Listings settings not merged correctly from latest version to Beta version
+
+## Dec 13, 2024 - Version 6.4.015-beta
+
+- **Fix:** Issue with exporting entries and other files when Permalinks are set to default (using ID's)
+- **Changed:** Some settings from PayPal moved to Triggers tab such as, update entry status, update registered user login status and role, sending email after payment completed, updating post status of created post if any
 
 ## Dec 12, 2024 - Version 6.4.014-beta
 

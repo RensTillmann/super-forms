@@ -4065,43 +4065,41 @@ class SUPER_Ajax {
                 'string_attachments' => (isset($string_attachments) ? $string_attachments : array())
             );
             $attachments = apply_filters( 'super_attachments_filter', $attachments, array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id, 'attachments'=>$attachments ) );
-
             $sfsi['attachments'] = $attachments;
-            //error_log('@3 updating _sfsi_ data');
-            //error_log('5.3: '.$i18n);
+            error_log('@@@@@@@@BEFORE _sfsi_.'.$sfsi_id.': '.json_encode($sfsi));
+            if(!isset($sfsi['attachments'])){
+                error_log('@ attachments for _sfsi_'.$sfsi_id.' was not set');
+                $sfsi['attachments'] = $attachments;
+            }
             if(!isset($sfsi['i18n'])){
-                //error_log('@ i18n for _sfsi_'.$sfsi_id.' was not set');
+                error_log('@ i18n for _sfsi_'.$sfsi_id.' was not set');
                 $sfsi['i18n'] = $i18n;
             }
             if(!isset($sfsi['sfsi_id'])){
-                //error_log('@ sfs_uid for _sfsi_'.$sfsi_id.' was not set');
+                error_log('@ sfs_uid for _sfsi_'.$sfsi_id.' was not set');
                 $sfsi['sfsi_id'] = $sfsi_id;
             }
             if(!isset($sfsi['post'])){
-                //error_log('@ post for _sfsi_'.$sfsi_id.' was not set');
+                error_log('@ post for _sfsi_'.$sfsi_id.' was not set');
                 $sfsi['post'] = $_POST;
             }
             if(!isset($sfsi['data'])){
-                //error_log('@ data for _sfsi_'.$sfsi_id.' was not set');
+                error_log('@ data for _sfsi_'.$sfsi_id.' was not set');
                 $sfsi['data'] = $data;
             }
             if(!isset($sfsi['settings'])){
-                //error_log('@ settings for _sfsi_'.$sfsi_id.' was not set');
+                error_log('@ settings for _sfsi_'.$sfsi_id.' was not set');
                 $sfsi['settings'] = $settings;
             }
             if(!isset($sfsi['entry_id'])){
-                //error_log('@ entry_id for _sfsi_'.$sfsi_id.' was not set');
+                error_log('@ entry_id for _sfsi_'.$sfsi_id.' was not set');
                 $sfsi['entry_id'] = $contact_entry_id;
             }
-            if(!isset($sfsi['attachments'])){
-                //error_log('@ attachments for _sfsi_'.$sfsi_id.' was not set');
-                $sfsi['attachments'] = $attachments;
-            }
             if(!isset($sfsi['form_id'])){
-                //error_log('@ form_id for _sfsi_'.$sfsi_id.' was not set');
+                error_log('@ form_id for _sfsi_'.$sfsi_id.' was not set');
                 $sfsi['form_id'] = $form_id;
             }
-            //error_log('@@@@@@@@UPDATE _sfsi_.'.$sfsi_id.': '.json_encode($sfsi));
+            error_log('@@@@@@@@UPDATE _sfsi_.'.$sfsi_id.': '.json_encode($sfsi));
             update_option('_sfsi_' . $sfsi_id, $sfsi);
             SUPER_Common::triggerEvent('sf.after.submission', $sfsi);
             do_action( 'super_before_email_success_msg_action', array( 
@@ -4220,6 +4218,7 @@ class SUPER_Ajax {
             
             SUPER_Common::triggerEvent('sf.submission.finalized', $sfsi);
             // Clean up submission info
+            // If we are redirecting to Stripe or PayPal checkout we won't reach this (nothing to worry about here)
             //error_log('@@@@@@@@DELETE _sfsi_.'.$sfsi_id);
             delete_option('_sfsi_' . $sfsi_id);
             $response_data['sf_nonce'] = SUPER_Common::generate_nonce();

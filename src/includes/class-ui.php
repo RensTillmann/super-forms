@@ -241,7 +241,8 @@ class SUPER_UI {
                 echo '<span class="button super-insert-files"><i class="fas fa-plus"></i> Browse files</span>';
                 echo '<ul class="file-preview">';
                 $value = self::get_value($s, $name, null);
-                $files = explode(',', $value);
+                $files = array();
+                if(!empty($value)) $files = explode(',', $value);
                 foreach($files as $fv){
                     $file = get_attached_file($fv);
                     if($file) {
