@@ -452,31 +452,53 @@ class SUPER_Pages {
 
         // Get trigger settings
         $triggers = SUPER_Common::get_form_triggers($form_id);
+
+
+        // Statuses for both entries and posts (to trash and delete the entry or status)
+        $trashStatus = array('v'=>'trash', 'i'=>'('.esc_html__( 'put in recycle bin', 'super-forms' ).')');
+        $deleteStatus = array('v'=>'delete', 'i'=>'('.esc_html__( 'delete permanently', 'super-forms' ).')');
+
+        // Entry statuses
         $statuses = SUPER_Settings::get_entry_statuses();
-        if(!isset($statuses['delete'])) $statuses['delete'] = 'Delete';
-        $entryStatusesCode = '';
         foreach($statuses as $k => $v) {
             if($k==='') continue;
-            if($entryStatusesCode!=='') $entryStatusesCode .= ', ';
-            $entryStatusesCode .= '<code>'.$k.'</code>';
+            $entryStatusesValues[] = array('v'=>$k);
         }
+        $entryStatusesValues[] = $trashStatus;
+        $entryStatusesValues[] = $deleteStatus;
+        // Post statuses
+        $postStatusesValues = array();
+        $statuses = array('publish' => '('.esc_html__( 'default', 'super-forms' ).')', 'future' => '', 'draft' => '', 'pending' => '', 'private' => '');
+        foreach($statuses as $k => $v) {
+            $postStatusesValues[] = array('v'=>$k, 'i'=>$v);
+        }
+        $postStatusesValues[] = $trashStatus;
+        $postStatusesValues[] = $deleteStatus;
 
-        $postStatusesCode = '';
+        // User roles
+        global $wp_roles;
+        $all_roles = $wp_roles->roles;
+        $editable_roles = apply_filters( 'editable_roles', $all_roles );
+        $roleValues = array();
+        foreach( $editable_roles as $k => $v ) {
+            $roleValues[] = array('v'=>$k);
+        }
+        // Registered user login statuses
+        $userLoginStatusesValues = array();
         $statuses = array(
-            'publish' => esc_html__( 'Publish (default)', 'super-forms' ),
-            'future' => esc_html__( 'Future', 'super-forms' ),
-            'draft' => esc_html__( 'Draft', 'super-forms' ),
-            'pending' => esc_html__( 'Pending', 'super-forms' ),
-            'private' => esc_html__( 'Private', 'super-forms' ),
-            'trash' => esc_html__( 'Trash', 'super-forms' ),
-            'auto-draft' => esc_html__( 'Auto-Draft', 'super-forms' ),
-            'delete' => esc_html__( 'Delete', 'super-forms' )
+            'active' => '('.esc_html__( 'allow login', 'super-forms' ).')',
+            'pending' => '('.esc_html__( 'human verification required', 'super-forms' ).')',
+            'paused' => '('.esc_html__( 'temporarily disable login', 'super-forms' ).')',
+            'blocked' => '('.esc_html__( 'use this to ban a user', 'super-forms' ).')',
+            'payment_past_due' => '('.esc_html__( 'when subscription charge failed', 'super-forms' ).')',
+            'signup_payment_processing' => '('.esc_html__( 'signup payment is processing', 'super-forms' ) .')'
+            //'payment_processing' => esc_html__( 'Payment processing', 'super-forms' ),
+            //'payment_required' => esc_html__( 'Payment required', 'super-forms' ),
         );
         foreach($statuses as $k => $v) {
-            if($k==='') continue;
-            if($postStatusesCode!=='') $postStatusesCode .= ', ';
-            $postStatusesCode .= '<code>'.$k.'</code>';
+            $userLoginStatusesValues[] = array('v'=>$k, 'i'=>$v);
         }
+
 
         global $wp_roles;
         $all_roles = $wp_roles->roles;
@@ -493,23 +515,33 @@ class SUPER_Pages {
             array(
                 'label' => 'Super Forms',
                 'items' => array(
-                    'sf.before.submission' => 'Before form submission',
-                    'sf.after.submission' => 'After form submission',
-                    'sf.submission.validation' => 'Validate form data'
+                    'sf.before.submission' => 'Super Forms - Before form submission',
+                    'sf.after.submission' => 'Super Forms - After form submission',
+                    'sf.submission.validation' => 'Super Forms - Validate form data'
                 )
             ),
             array(
                 'label' => 'WooCommerce',
                 'items' => array(
-                    'wc.order.status.completed' => 'Order status changes to `completed`'
+                    'wc.order.status.completed' => 'WooCommerce - Order status changes to `completed`'
                 )
             ),
             array(
                 'label' => 'Stripe',
                 'items' => array(
-                    'stripe.checkout.session.completed' => 'Checkout session completed',
-                    'stripe.checkout.session.async_payment_failed' => 'Checkout session async payment failed',
-                    'stripe.fulfill_order' => 'Fulfill order'
+                    'stripe.checkout.session.completed' => 'Stripe - Checkout session completed',
+                    'stripe.checkout.session.async_payment_failed' => 'Stripe - Checkout session async payment failed',
+                    'stripe.fulfill_order' => 'Stripe - Fulfill order'
+                )
+            ),
+            array(
+                'label' => 'PayPal',
+                'items' => array(
+					'paypal.ipn.payment.verified' => 'PayPal - Fulfill order',
+					'paypal.ipn.payment.refunded' => 'PayPal - Payment refunded',
+					'paypal.ipn.subscription.payment.failed' => 'PayPal - Payment failed',
+					'paypal.ipn.subscription.changed' => 'PayPal - Subscription changed',
+					'paypal.ipn.subscription.expired' => 'PayPal - Subscription expired'
                 )
             )
         );
@@ -517,9 +549,16 @@ class SUPER_Pages {
         $actions = array(
             '' => '- choose an action - ',
             'send_email' => 'Send an E-mail',
-            'insert_db_row' => 'Insert row to database table',
-            'validate_field' => 'Validate field value',
-            'create_post' => 'Create a post/page/product'
+            'update_contact_entry_status' => 'Update Contact Entry Status',
+            'update_created_post_status' => 'Update Created Post Status',
+            'update_registered_user_login_status' => 'Update Registered User Login Status',
+            'update_registered_user_role' => 'Update Registered User Role'
+
+
+
+            // tmp 'insert_db_row' => 'Insert row to database table',
+            // tmp 'validate_field' => 'Validate field value',
+            // tmp 'create_post' => 'Create a post/page/product'
         );
         $logic = array( '==' => '== Equal', '!=' => '!= Not equal', '??' => '?? Contains', '!!' => '!! Not contains', '>'  => '&gt; Greater than', '<'  => '&lt;  Less than', '>=' => '&gt;= Greater than or equal to', '<=' => '&lt;= Less than or equal');
 
@@ -677,6 +716,78 @@ class SUPER_Pages {
                                                                     )
                                                                 )
                                                             )
+                                                        )
+                                                    ),
+                                                    array(
+                                                        'wrap' => false,
+                                                        'group' => true,
+                                                        'group_name' => 'data',
+                                                        'vertical' => true,
+                                                        'filter' => 'action;update_contact_entry_status',
+                                                        'nodes' => array(
+                                                            array(
+                                                                'name' => 'status',
+                                                                'title' => esc_html__( 'Update Contact Entry Status to', 'super-forms' ),
+                                                                'label' => sprintf( esc_html__( 'You can add custom statuses via %sSuper Forms > Settings > Backend Settings%s if needed', 'super-forms' ), '<a target="blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#backend-settings') . '">', '</a>' ),
+                                                                'accepted_values' => $entryStatusesValues,
+                                                                'type' => 'text',
+                                                                'default' => 'completed',
+                                                                'reset' => true
+                                                            ),
+                                                        )
+                                                    ),
+                                                    array(
+                                                        'wrap' => false,
+                                                        'group' => true,
+                                                        'group_name' => 'data',
+                                                        'vertical' => true,
+                                                        'filter' => 'action;update_created_post_status',
+                                                        'nodes' => array(
+                                                            array(
+                                                                'name' => 'status',
+                                                                'title' => esc_html__( 'Update Created Post Status to', 'super-forms' ),
+                                                                'label' => esc_html__( 'Used in combination with creating a new post after submitting a form', 'super-forms' ),
+                                                                'accepted_values' => $postStatusesValues,
+                                                                'type' => 'text',
+                                                                'default' => 'publish',
+                                                                'reset' => true
+                                                            ),
+                                                        )
+                                                    ),
+                                                    array(
+                                                        'wrap' => false,
+                                                        'group' => true,
+                                                        'group_name' => 'data',
+                                                        'vertical' => true,
+                                                        'filter' => 'action;update_registered_user_login_status',
+                                                        'nodes' => array(
+                                                            array(
+                                                                'name' => 'status',
+                                                                'title' => esc_html__( 'Update Registered User Login Status to', 'super-forms' ),
+                                                                'label' => esc_html__( 'Used in combination with the registartion of a new user after submitting a form', 'super-forms' ),
+                                                                'accepted_values' => $userLoginStatusesValues,
+                                                                'type' => 'text',
+                                                                'default' => 'active',
+                                                                'reset' => true
+                                                            ),
+                                                        )
+                                                    ),
+                                                    array(
+                                                        'wrap' => false,
+                                                        'group' => true,
+                                                        'group_name' => 'data',
+                                                        'vertical' => true,
+                                                        'filter' => 'action;update_registered_user_role',
+                                                        'nodes' => array(
+                                                            array(
+                                                                'name' => 'status',
+                                                                'title' => esc_html__( 'Update Registered User Role to', 'super-forms' ),
+                                                                'label' => esc_html__( 'Used in combination with the registartion of a new user after submitting a form', 'super-forms' ),
+                                                                'accepted_values' => $roleValues,
+                                                                'type' => 'text',
+                                                                'default' => 'active',
+                                                                'reset' => true
+                                                            ),
                                                         )
                                                     ),
                                                     array(
@@ -1182,6 +1293,7 @@ class SUPER_Pages {
                                                         'wrap' => false,
                                                         'group' => true,
                                                         'vertical' => true,
+                                                        'filter' => 'action;send_email',
                                                         'nodes' => array(
                                                             array(
                                                                 'toggle' => true,

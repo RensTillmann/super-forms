@@ -1717,28 +1717,26 @@ if(!class_exists('SUPER_Stripe')) :
             //error_log(json_encode($stripe));
             $s = self::get_default_stripe_settings($stripe);
             $logic = array( '==' => '== Equal', '!=' => '!= Not equal', '??' => '?? Contains', '!!' => '!! Not contains', '>'  => '&gt; Greater than', '<'  => '&lt;  Less than', '>=' => '&gt;= Greater than or equal to', '<=' => '&lt;= Less than or equal');
+            // Statuses for both entries and posts (to trash and delete the entry or status)
+            $trashStatus = array('v'=>'trash', 'i'=>'('.esc_html__( 'put in recycle bin', 'super-forms' ).')');
+            $deleteStatus = array('v'=>'delete', 'i'=>'('.esc_html__( 'delete permanently', 'super-forms' ).')');
+            // Entry statuses
             $statuses = SUPER_Settings::get_entry_statuses();
-            $entryStatusesValues = array(
-                array( 'v'=>'delete', 'i'=>'(to permanently delete the entry)'),
-                array( 'v'=>'trash', 'i'=>'(to trash the entry)')
-            );
+            $entryStatusesValues = array();
             foreach($statuses as $k => $v) {
                 if($k==='') continue;
                 $entryStatusesValues[] = array('v'=>$k);
             }
+            $entryStatusesValues[] = $trashStatus;
+            $entryStatusesValues[] = $deleteStatus;
+            // Post statuses
             $postStatusesValues = array();
-            $statuses = array(
-                'publish' => esc_html__( 'Publish (default)', 'super-forms' ),
-                'future' => esc_html__( 'Future', 'super-forms' ),
-                'draft' => esc_html__( 'Draft', 'super-forms' ),
-                'pending' => esc_html__( 'Pending', 'super-forms' ),
-                'private' => esc_html__( 'Private', 'super-forms' ),
-                'trash' => esc_html__( 'Trash', 'super-forms' ),
-                'auto-draft' => esc_html__( 'Auto-Draft', 'super-forms' )
-            );
+            $statuses = array('publish' => '('.esc_html__( 'default', 'super-forms' ).')', 'future' => '', 'draft' => '', 'pending' => '', 'private' => '');
             foreach($statuses as $k => $v) {
                 $postStatusesValues[] = array('v'=>$k, 'i'=>$v);
             }
+            $postStatusesValues[] = $trashStatus;
+            $postStatusesValues[] = $deleteStatus;
 
             global $wp_roles;
             $all_roles = $wp_roles->roles;
@@ -1748,13 +1746,14 @@ if(!class_exists('SUPER_Stripe')) :
                 $roleValues[] = array('v'=>$k);
             }
             $userLoginStatusesValues = array();
+
             $statuses = array(
-                'active' => esc_html__( 'Active (default)', 'super-forms' ),
-                'pending' => esc_html__( 'Pending', 'super-forms' ),
-                'paused' => esc_html__( 'Paused', 'super-forms' ),
-                'blocked' => esc_html__( 'Blocked', 'super-forms' ),
-                'payment_past_due' => esc_html__( 'Payment past due', 'super-forms' ),
-                'signup_payment_processing' => esc_html__( 'Signup payment processing', 'super-forms' )
+                'active' => '('.esc_html__( 'allow login', 'super-forms' ).')',
+                'pending' => '('.esc_html__( 'human verification required', 'super-forms' ).')',
+                'paused' => '('.esc_html__( 'temporarily disable login', 'super-forms' ).')',
+                'blocked' => '('.esc_html__( 'use this to ban a user', 'super-forms' ).')',
+                'payment_past_due' => '('.esc_html__( 'when subscription charge failed', 'super-forms' ).')',
+                'signup_payment_processing' => '('.esc_html__( 'signup payment is processing', 'super-forms' ) .')'
                 //'payment_processing' => esc_html__( 'Payment processing', 'super-forms' ),
                 //'payment_required' => esc_html__( 'Payment required', 'super-forms' ),
             );

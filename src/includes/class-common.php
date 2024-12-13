@@ -1516,18 +1516,18 @@ class SUPER_Common {
         $form_id = absint($form_id);
         if(!class_exists('SUPER_Settings'))  require_once('class-settings.php'); 
         $form_settings = get_post_meta($form_id, '_super_form_settings', true);
-        //error_log('form_settings: '.json_encode($form_settings));
+        error_log('form_settings: '.json_encode($form_settings));
         if(!$form_settings) $form_settings = array();
         $global_settings = self::get_global_settings();
         $defaults = SUPER_Settings::get_defaults($global_settings);
         $global_settings = array_merge( $defaults, $global_settings );
         if(is_array($form_settings)){
             $settings = array_merge( $global_settings, $form_settings );
+            error_log('merge with global settings: '.json_encode($settings));
         }else{
             $settings = $form_settings;
         }
 
-        //error_log(json_encode($settings));
         $email_body = '';
         if(!empty($settings['email_body_open'])) $email_body .= $settings['email_body_open'] . "<br /><br />";
         unset($settings['email_body_open']);
@@ -1535,7 +1535,6 @@ class SUPER_Common {
         if(!empty($settings['email_body_close'])) $email_body .= "<br /><br />" . $settings['email_body_close'];
         unset($settings['email_body_close']);
         $settings['email_body'] = $email_body;
-        //error_log('EMAIL BODY: '. $settings['email_body']);
 
         $confirm_body = '';
         if(!empty($settings['confirm_body_open'])) $confirm_body .= $settings['confirm_body_open'] . "<br /><br />";
@@ -1546,14 +1545,15 @@ class SUPER_Common {
         $settings['confirm_body'] = $confirm_body;
         //error_log('CONFIRM BODY: '. $settings['confirm_body']);
 
-        // Update old `WooCommerce Checkout` settings format with new
+        // Moving settings over to Triggers TAB
         $s = $settings;
+        error_log(json_encode($s));
         // Get current form version
         $current_form_version = get_post_meta($form_id, '_super_version', true);
         // @Important, this check is against the Super Forms plugin version, not to be confused with the WordPress version!
         //error_log($current_form_version);
         if(version_compare($current_form_version, '6.4', '<')){
-            //error_log("Define Triggers for this Form if not already, for instance, copy over E-mail settings and define Admin and Confirmation E-mails as triggers");
+            error_log("Define Triggers for this Form if not already, for instance, copy over E-mail settings and define Admin and Confirmation E-mails as triggers");
             //error_log('send: '.$settings['send']);
             //error_log('confirm: '.$settings['confirm']);
             // Get trigger settings
@@ -1562,6 +1562,222 @@ class SUPER_Common {
             // Regex to convert E-mail body settings to TinyMCE editor
             $regex = '/([\s\S]*?)(<[^\/<>]+?>[^\/<>]*?{loop_fields}[\s\S]*?>)([\s\S]*)|([\s\S]*?)({loop_fields})([\s\S]*)/';
             // "email_template": "default_email_template",
+
+            // Add trigger for PayPal payment completed E-mail if enabled
+            if(!empty($s['paypal_checkout']) && ($s['paypal_checkout']=='yes' || $s['paypal_checkout']=='true')){
+                error_log('paypal checkout is enabled...');
+                if(!empty($s['paypal_completed_email']) && ($s['paypal_completed_email']=='yes' || $s['paypal_completed_email']=='true')){
+                    error_log('email compelted enabled');
+                    $t = array(
+                        'enabled'=> 'true',
+                        'event'=> 'sf.after.submission',
+                        'name'=> 'Admin E-mail',
+                        'listen_to'=> '',
+                        'ids'=> '',
+                        'order'=> 1
+                    );
+                    // Grab the body, and extract the `loop open`, `loop` and `loop close` parts
+                    $body = '';
+                    if(!empty($s['paypal_completed_body_open'])) $body .= $s['paypal_completed_body_open'] . '<br />';
+                    error_log($body);
+                    unset($s['paypal_completed_body_open']);
+                    $body .= $s['paypal_completed_body'];
+                    error_log($body);
+                    if(!empty($s['paypal_completed_body_close'])) $body .= '<br />' . $s['paypal_completed_body_close'];
+                    error_log($body);
+                    unset($s['paypal_completed_body_close']);
+                    $loop_open = '<table cellpadding="5">';
+                    $loop = $s['paypal_completed_email_loop'];
+                    $loop_close = '</table>';
+                    $body = str_replace(array("\r", "\n"), '<br />', $body);
+                    error_log($body);
+                    $body_combined = $body;
+                    preg_match($regex, $body, $m);
+                    // Print the entire match result
+                    $body = '';
+                    if(count($m)===4 || count($m)===7){
+                        error_log('test1');
+                        // Only if {loop_fields} tag was found
+                        if(count($m)===4){
+                            $body .= $m[1];
+                            $body .= '{loop_fields}';
+                            $body .= $m[3];
+                            $exploded = explode('{loop_fields}', $m[2]);
+                        }else{
+                            $body .= $m[4];
+                            $body .= '{loop_fields}';
+                            $body .= $m[6];
+                            $exploded = explode('{loop_fields}', $m[5]);
+                        }
+                        $loop_open = $exploded[0];
+                        $loop_close = $exploded[1];
+                    }else{
+                        error_log('test2');
+                        error_log('$body_combined: '.$body_combined);
+                        $body = $body_combined;
+                    }
+                    $s['paypal_completed_body'] = $body;
+                    //error_log($s['email_reminder_'.$x.'_attachments']);
+                    // Only if line breaks was enabled:
+                    if(!empty($s['paypal_completed_body_nl2br']) && $s['paypal_completed_body_nl2br']==='true'){
+                        $body = nl2br($body);
+                    }
+
+                    $t['actions'] = array(
+                        array(
+                            'action' => 'send_email',
+                            'order' => '1',
+                            'conditions' => array(
+                                'enabled' => 'false',
+                                'f1' => '',
+                                'logic' => '==',
+                                'f2' => '',
+                            ),
+                            'data' => array(
+                                'to' => (!empty($s['paypal_completed_to']) ? $s['paypal_completed_to'] : ''),
+                                'from_email' => (!empty($s['paypal_completed_from_type']) && ($s['paypal_completed_from_type']==='default') ? '{option_admin_email}' : $s['paypal_completed_from']),
+                                'from_name' => (!empty($s['paypal_completed_from_type']) && ($s['paypal_completed_from_type']==='default') ? '{option_blogname}' : $s['paypal_completed_from_name']),
+                                'reply_to' => array( 
+                                    'enabled' => (!empty($s['paypal_completed_header_reply_enabled']) && ($s['paypal_completed_header_reply_enabled']==='true') ? 'true' : 'false'),
+                                    'email' => (!empty($s['paypal_completed_header_reply']) ? $s['paypal_completed_header_reply'] : ''),
+                                    'name' => (!empty($s['paypal_completed_header_reply_name']) ? $s['paypal_completed_header_reply_name'] : '')
+                                ),
+                                'subject' => (!empty($s['paypal_completed_subject']) ? $s['paypal_completed_subject'] : ''),
+                                'body' => $body, 
+                                // 'line_breaks' => 'false', // no longer used since tinymce editor
+                                'loop_open' => $loop_open,
+                                'loop' => $loop,
+                                'loop_close' => $loop_close,
+                                'exclude_empty' => (!empty($s['paypal_completed_exclude_empty']) && ($s['paypal_completed_exclude_empty']==='true') ? 'true' : 'false'),
+                                'rtl' => (!empty($s['paypal_completed_rtl']) && ($s['paypal_completed_rtl']==='true') ? 'true' : 'false'),
+                                'cc' => (!empty($s['paypal_completed_header_cc']) ? $s['paypal_completed_header_cc'] : ''),
+                                'bcc' => (!empty($s['paypal_completed_header_bcc']) ? $s['paypal_completed_header_bcc'] : ''),
+                                'header_additional' => (!empty($s['paypal_completed_header_additional']) ? $s['paypal_completed_header_additional'] : ''),
+                                'attachments' => (!empty($s['paypal_completed_attachments']) ? $s['paypal_completed_attachments'] : ''),
+                                'content_type' => 'html',
+                                'charset' => 'UTF-8'
+                            )
+                        )
+                    );
+                    $triggers[] = $t;
+                }
+                if(!empty($s['save_contact_entry']) && ($s['save_contact_entry']=='yes' || $s['save_contact_entry']=='true')){
+                    error_log('@@@@ save contact entry');
+                    // If we are also creating entries, add trigger to update entry status after payment completed
+                    error_log($s['paypal_completed_entry_status']);
+                    if(!empty($s['paypal_completed_entry_status'])){
+                        $t = array(
+                            'enabled'=> 'true',
+                            'event'=> 'paypal.ipn.payment.verified',
+                            'name'=> 'Update Contact Entry Status',
+                            'listen_to'=> '',
+                            'ids'=> '',
+                            'order'=> 1
+                        );
+                        $t['actions'] = array(
+                            array(
+                                'action' => 'update_contact_entry_status',
+                                'order' => '1',
+                                'conditions' => array(
+                                    'enabled' => 'false',
+                                    'f1' => '',
+                                    'logic' => '==',
+                                    'f2' => '',
+                                ),
+                                'data' => array('status' => $s['paypal_completed_entry_status'])
+                            )
+                        );
+                        $triggers[] = $t;
+                    }
+                }
+                if(!empty($s['frontend_posting_action']) && $s['frontend_posting_action']=='create_post'){
+                    error_log('@@@@ frontend posting');
+                    // If we are also creating posts, add trigger to update post status after payment completed
+                    //"paypal_completed_post_status": "future",
+                    error_log($s['paypal_completed_post_status']);
+                    if(!empty($s['paypal_completed_post_status'])){
+                        $t = array(
+                            'enabled'=> 'true',
+                            'event'=> 'paypal.ipn.payment.verified',
+                            'name'=> 'Update Created Post Status',
+                            'listen_to'=> '',
+                            'ids'=> '',
+                            'order'=> 1
+                        );
+                        $t['actions'] = array(
+                            array(
+                                'action' => 'update_created_post_status',
+                                'order' => '1',
+                                'conditions' => array(
+                                    'enabled' => 'false',
+                                    'f1' => '',
+                                    'logic' => '==',
+                                    'f2' => '',
+                                ),
+                                'data' => array('status' => $s['paypal_completed_post_status'])
+                            )
+                        );
+                        $triggers[] = $t;
+                    }
+                }
+                if(!empty($s['register_login_action']) && $s['register_login_action']=='register'){
+                    error_log('@@@@ register user');
+                    // If we are also registering a user, add trigger to update signup status and/or user role after payment completed
+                    error_log($s['paypal_completed_signup_status']);
+                    if(!empty($s['paypal_completed_signup_status'])){
+                        $t = array(
+                            'enabled'=> 'true',
+                            'event'=> 'paypal.ipn.payment.verified',
+                            'name'=> 'Update Registered User Login Status',
+                            'listen_to'=> '',
+                            'ids'=> '',
+                            'order'=> 1
+                        );
+                        $t['actions'] = array(
+                            array(
+                                'action' => 'update_registered_user_login_status',
+                                'order' => '1',
+                                'conditions' => array(
+                                    'enabled' => 'false',
+                                    'f1' => '',
+                                    'logic' => '==',
+                                    'f2' => '',
+                                ),
+                                'data' => array('status' => $s['paypal_completed_signup_status'])
+                            )
+                        );
+                        $triggers[] = $t;
+                    }
+                    error_log($s['paypal_completed_user_role']);
+                    if(!empty($s['paypal_completed_user_role'])){
+                        $t = array(
+                            'enabled'=> 'true',
+                            'event'=> 'paypal.ipn.payment.verified',
+                            'name'=> 'Update Registered User Role',
+                            'listen_to'=> '',
+                            'ids'=> '',
+                            'order'=> 1
+                        );
+                        $t['actions'] = array(
+                            array(
+                                'action' => 'update_registered_user_role',
+                                'order' => '1',
+                                'conditions' => array(
+                                    'enabled' => 'false',
+                                    'f1' => '',
+                                    'logic' => '==',
+                                    'f2' => '',
+                                ),
+                                'data' => array('status' => $s['paypal_completed_user_role'])
+                            )
+                        );
+                        $triggers[] = $t;
+                    }
+                }
+            }
+
+
+
             // Add trigger for Admin E-mail
             if( !empty($s['send']) && ($s['send']=='yes' || $s['send']=='true')){
                 $t = array(
@@ -1575,13 +1791,12 @@ class SUPER_Common {
                 // Grab the body, and extract the `loop open`, `loop` and `loop close` parts
                 $loop = $s['email_loop'];
                 $body = str_replace(array("\r", "\n"), '<br />', $s['email_body']);
-                //error_log('str_replace: '.$body);
+                $body_combined = $body;
                 preg_match($regex, $body, $m);
                 // Print the entire match result
                 $body = '';
                 $loop_open = '';
                 $loop_close = '';
-                //error_log('count($m): '.count($m));
                 if(count($m)===4 || count($m)===7){
                     // Only if {loop_fields} tag was found
                     if(count($m)===4){
@@ -1599,12 +1814,9 @@ class SUPER_Common {
                     $loop_close = $exploded[1];
                 }else{
                     // {loop_fields} was not found just use the body
-                    $body = $s['email_body'];
+                    $body = $body_combined;
                 }
                 $s['email_body'] = $body;
-                //error_log('$s[email_body]: '.$s['email_body']);
-                //error_log($s['admin_attachments']);
-                //error_log($s['confirm_attachments']);
                 // Only if line breaks was enabled:
                 if(!empty($s['email_body_nl2br']) && $s['email_body_nl2br']==='true'){
                     $body = nl2br($body);
@@ -1701,6 +1913,7 @@ class SUPER_Common {
                 $body .= $s['confirm_body'];
                 $loop = $s['confirm_email_loop'];
                 $body = str_replace(array("\r", "\n"), '<br />', $body);
+                $body_combined = $body;
                 preg_match($regex, $body, $m);
                 // Print the entire match result
                 $body = '';
@@ -1723,7 +1936,7 @@ class SUPER_Common {
                     $loop_close = $exploded[1];
                 }else{
                     // {loop_fields} was not found just use the body
-                    $body = $s['confirm_body'];
+                    $body = $body_combined;
                 }
                 $s['confirm_body'] = $body;
                 // Only if line breaks was enabled:
@@ -1804,6 +2017,7 @@ class SUPER_Common {
                     $loop = $s['email_reminder_'.$x.'_email_loop'];
                     $loop_close = '</table>';
                     $body = str_replace(array("\r", "\n"), '<br />', $body);
+                    $body_combined = $body;
                     preg_match($regex, $body, $m);
                     // Print the entire match result
                     $body = '';
@@ -1822,6 +2036,9 @@ class SUPER_Common {
                         }
                         $loop_open = $exploded[0];
                         $loop_close = $exploded[1];
+                    }else{
+                        // {loop_fields} was not found just use the body
+                        $body = $body_combined;
                     }
                     $s['email_reminder_'.$x.'_body'] = $body;
                     //error_log($s['email_reminder_'.$x.'_attachments']);
@@ -1902,6 +2119,7 @@ class SUPER_Common {
                 $loop = $s['woocommerce_completed_email_loop'];
                 $loop_close = '</table>';
                 $body = str_replace(array("\r", "\n"), '<br />', $body);
+                $body_combined = $body;
                 preg_match($regex, $body, $m);
                 // Print the entire match result
                 $body = '';
@@ -1920,6 +2138,9 @@ class SUPER_Common {
                     }
                     $loop_open = $exploded[0];
                     $loop_close = $exploded[1];
+                }else{
+                    // {loop_fields} was not found just use the body
+                    $body = $body_combined;
                 }
                 $s['woocommerce_completed_body'] = $body;
 
@@ -2254,12 +2475,10 @@ class SUPER_Common {
             update_post_meta($form_id, '_super_form_settings', $s);
             update_post_meta($form_id, '_super_version', SUPER_VERSION);
 
-            self::save_form_woocommerce_settings($s['_woocommerce'], $form_id);
-            self::save_form_listings_settings($s['_listings'], $form_id);
-            self::save_form_pdf_settings($s['_pdf'], $form_id);
-            self::save_form_stripe_settings($s['_stripe'], $form_id);
-
-
+            if(!empty($s['_woocommerce'])) self::save_form_woocommerce_settings($s['_woocommerce'], $form_id);
+            if(!empty($s['_listings'])) self::save_form_listings_settings($s['_listings'], $form_id);
+            if(!empty($s['_pd'])) self::save_form_pdf_settings($s['_pdf'], $form_id);
+            if(!empty($s['_stripe'])) self::save_form_stripe_settings($s['_stripe'], $form_id);
         }
 
         $s['_woocommerce'] = self::get_form_woocommerce_settings($form_id);
