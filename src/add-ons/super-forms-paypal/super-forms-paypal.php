@@ -649,7 +649,19 @@ if( !class_exists('SUPER_PayPal') ) :
 		}
 		public static function super_custom_columns($column, $post_id) {
 			$txn_data = get_post_meta( $post_id, '_super_txn_data', true );
-			$custom = explode( '|', $txn_data['custom'] );
+			$sfsi_id = $txn_data['custom'];
+			//$custom = explode( '|', $txn_data['custom'] );
+			//$custom = array($sfsi_id);
+			//$custom = array(
+			//	0 absint($atts['post']['form_id']),
+			//	1 $settings['paypal_payment_type'],
+			//	2 $atts['entry_id'],
+			//	3 get_current_user_id(),
+			//	4 absint($post_id), // Used only if Front-end Posting is enabled to update the post status after successfull payment.
+			//	5 absint($user_id) // Used only if Register & Login is enabled to update the user status after successfull payment.
+			//);
+
+			$form_id = wp_get_post_parent_id($post_id);
 
 			// Get currency code e.g: EUR
 			$currency_code = self::get_currency_code($txn_data);
@@ -745,7 +757,6 @@ if( !class_exists('SUPER_PayPal') ) :
 					}
 			        break;
 			    case 'pp_hidden_form_id':
-			    	$form_id = absint($custom[0]);
 					if ($form_id == 0) {
 						echo esc_html__( 'Unknown', 'super-forms');
 					} else {
@@ -957,6 +968,28 @@ if( !class_exists('SUPER_PayPal') ) :
 		        $time = get_the_time(false,$id);
 				$txn_data = get_post_meta( $id, '_super_txn_data', true );
 				$custom = explode( '|', $txn_data['custom'] );
+				if(count($custom)>1){
+					$entry_id  = (!empty($custom[2]) ? $custom[2] : 0);
+					$created_post   = (!empty($custom[4]) ? $custom[4] : 0);
+					//$custom = array(
+					//	0 absint($atts['post']['form_id']),
+					//	1 $settings['paypal_payment_type'],
+					//	2 $atts['entry_id'],
+					//	3 get_current_user_id(),
+					//	4 absint($post_id), // Used only if Front-end Posting is enabled to update the post status after successfull payment.
+					//	5 absint($user_id) // Used only if Register & Login is enabled to update the user status after successfull payment.
+					//);
+				}else{
+					// $sfsi_id = $txn_data['custom'];
+					// Since v6.4.015 and above, because
+					$entry_id = get_post_meta($id, '_super_contact_entry_id', true);
+					$created_post = get_post_meta($id, '_super_connected_post_id', true);
+				}
+
+				// Get parent (form)
+				$form_id = wp_get_post_parent_id($id);
+				// Get the author ID
+				$author_id = get_post_field('post_author', $id);
 				?>
 		        <script>
 		            jQuery('.toplevel_page_super_forms').removeClass('wp-not-current-submenu').addClass('wp-menu-open wp-has-current-submenu');
@@ -1001,18 +1034,23 @@ if( !class_exists('SUPER_PayPal') ) :
 		                                            </div>
 
 													<?php
-													if( (isset($custom[3])) && ($custom[3]!=0) ) {
-														$user_info = get_userdata($custom[3]);
+													// Check if the user exists
+													if ($author_id && get_userdata($author_id)){
+														// Get the author's user login
+														$user_login = get_the_author_meta('user_login', $author_id);
+														$edit_link = get_edit_user_link($author_id);
+														?>
+														<div class="misc-pub-section">
+															<?php echo '<span>' . esc_html__('Author', 'super-forms' ) . ':'; ?> <?php echo '<a href="' . esc_url($edit_link) . '"><strong>' . $user_login . '</strong></a></span>'; ?>
+														</div>
+														<?php
+													}
+													// Query to retrieve the contact entry post associated with this PayPal order
+													if(!empty($entry_id)){
 														echo '<div class="misc-pub-section">';
-		                                                	echo '<span>' . esc_html__( 'Submitted by user', 'super-forms' ) . ': <a href="' . esc_url(get_edit_user_link($user_info->ID)) . '"><strong>' . $user_info->display_name . '</strong></a></span>';
+		                                                	echo '<span>' . esc_html__( 'Contact Entry', 'super-forms' ) . ': <a href="' . esc_url('admin.php?page=super_contact_entry&id=' . $entry_id) . '"><strong>' . get_the_title($entry_id) . '</strong></a></span>';
 		                                            	echo '</div>';
-		                                           	}
-													if( (isset($custom[2])) && ($custom[2]!=0) ) {
-														echo '<div class="misc-pub-section">';
-		                                                	echo '<span>' . esc_html__( 'Contact Entry', 'super-forms' ) . ': <a href="' . esc_url('admin.php?page=super_contact_entry&id=' . $custom[2]) . '"><strong>' . get_the_title($custom[2]) . '</strong></a></span>';
-		                                            	echo '</div>';
-		                                           	}
-		                                           	
+													}
 													// Get subscription
 													$sub_id = 0;
 													if( isset($txn_data['subscr_id']) ) {
@@ -1028,36 +1066,23 @@ if( !class_exists('SUPER_PayPal') ) :
 	                                                		echo '<span>' . esc_html__( 'Based on subscription', 'super-forms' ) . ': <a href="' . esc_url('admin.php?page=super_paypal_sub&id=' . $post_id) . '"><strong>' . $sub_id . '</strong></a></span>';
 	                                            		echo '</div>';													
 		                                           	}
-
-		                                           	// Check if there was a post created 
-		                                           	if( (isset($custom[4])) && ($custom[4]!=0) ) {
-														$post_id = absint($custom[4]);
-														$edit_link = get_edit_post_link($post_id);
+													// Created post (front-end posting)
+													if(!empty($created_post)){
 														?>
 														<div class="misc-pub-section">
-		                                                	<?php echo '<span>' . esc_html__('Created Post', 'super-forms' ) . ':'; ?> <?php echo '<a href="' . esc_url($edit_link) . '"><strong>' . get_the_title( $post_id ) . '</strong></a></span>'; ?>
+		                                                	<?php echo '<span>' . esc_html__('Created Post', 'super-forms' ) . ':'; ?> <?php echo '<a href="' . esc_url(get_edit_post_link($created_post)) . '"><strong>' . get_the_title($created_post) . '</strong></a></span>'; ?>
 		                                            	</div>
 		                                           		<?php
 		                                           	}
-
-		                                           	// Check if there was a user created 
-		                                           	if( !empty($custom[5]) ) {
-														$user_id = absint($custom[5]);
-														$edit_link = get_edit_user_link($user_id);
-														$user_info = get_userdata( $user_id );
-		                                           		if( $user_info ) { // @since 1.0.1 - check if user exists
-															?>
-															<div class="misc-pub-section">
-			                                                	<?php echo '<span>' . esc_html__('Created User', 'super-forms' ) . ':'; ?> <?php echo '<a href="' . esc_url($edit_link) . '"><strong>' . $user_info->user_login . '</strong></a></span>'; ?>
-			                                            	</div>
-			                                           		<?php
-		                                           		}
-		                                           	}
-		                                           	?>
-
-													<div class="misc-pub-section">
-		                                                <?php echo '<span>' . esc_html__('Based on Form', 'super-forms' ) . ':'; ?> <?php echo '<a href="' . esc_url('admin.php?page=super_create_form&id=' . $custom[0]) . '"><strong>' . get_the_title( $custom[0] ) . '</strong></a></span>'; ?>
-		                                            </div>
+													// Check if the post exists
+													if($form_id && get_post($form_id)){
+														?>
+														<div class="misc-pub-section">
+															<?php echo '<span>' . esc_html__('Based on Form', 'super-forms' ) . ':'; ?> <?php echo '<a href="' . esc_url('admin.php?page=super_create_form&id=' . $form_id) . '"><strong>' . get_the_title($form_id) . '</strong></a></span>'; ?>
+														</div>
+														<?php 
+													}
+													?>
 
 		                                            <div class="clear"></div>
 		                                        </div>
@@ -1271,7 +1296,20 @@ if( !class_exists('SUPER_PayPal') ) :
 		        $date = get_the_date(false,$id);
 		        $time = get_the_time(false,$id);
 				$txn_data = get_post_meta( $id, '_super_txn_data', true );
-				$custom = explode( '|', $txn_data['custom'] );
+				//$sfsi_id = $txn_data['custom'];
+				//$custom = explode( '|', $txn_data['custom'] );
+				//$custom = array($sfsi_id);
+				//$custom = array(
+				//	0 absint($atts['post']['form_id']),
+				//	1 $settings['paypal_payment_type'],
+				//	2 $atts['entry_id'],
+				//	3 get_current_user_id(),
+				//	4 absint($post_id), // Used only if Front-end Posting is enabled to update the post status after successfull payment.
+				//	5 absint($user_id) // Used only if Register & Login is enabled to update the user status after successfull payment.
+				//);
+
+				// Get the parent ID of the post
+				$parent_id = wp_get_post_parent_id($id);
 				?>
 		        <script>
 		            jQuery('.toplevel_page_super_forms').removeClass('wp-not-current-submenu').addClass('wp-menu-open wp-has-current-submenu');
@@ -1308,7 +1346,7 @@ if( !class_exists('SUPER_PayPal') ) :
 		                                                <span><?php echo esc_html__('Submitted', 'super-forms' ) . ':'; ?> <strong><?php echo $date.' @ '.$time; ?></strong></span>
 		                                            </div>
 													<div class="misc-pub-section">
-		                                                <span><?php echo esc_html__('Based on Form', 'super-forms' ) . ':'; ?> <strong><?php echo '<a href="' . esc_url('admin.php?page=super_create_form&id=' . $custom[0]) . '">' . get_the_title( $custom[0] ) . '</a>'; ?></strong></span>
+		                                                <span><?php echo esc_html__('Based on Form', 'super-forms' ) . ':'; ?> <strong><?php echo '<a href="' . esc_url('admin.php?page=super_create_form&id=' . $parent_id) . '">' . get_the_title($parent_id) . '</a>'; ?></strong></span>
 		                                            </div>
 
 		                                            <div class="clear"></div>
@@ -1483,16 +1521,36 @@ if( !class_exists('SUPER_PayPal') ) :
                     exit;
 				}
 
-				// First retrieve the form settings
-				$custom = apply_filters( 'super_paypal_custom_data_filter', $_POST['custom'] );
-				$custom = explode('|', $custom);
-				$form_id = $custom[0];
+				// Retrieve submission info
+				$sfsi_id = sanitize_text_field($_POST['custom']);
+				$sfsi = get_option( '_sfsi_' . $sfsi_id, array() );
+                extract($sfsi);
+				// "i18n": "",
+				// "sfsi_id": "e21a7dfad2e730960f5b9b3059c494ff.1735403513",
+				// "data": "....",
+				// "form_id": 73046,
+				// "entry_id": "",
+				// "list_id": "",
+				error_log('PayPal sfsi: '.json_encode($sfsi));
+				error_log('form_id: '.$form_id);
+				//$custom = apply_filters( 'super_paypal_custom_data_filter', $_POST['custom'] );
+				//$custom = array(
+				//	0 absint($atts['post']['form_id']),
+				//	1 $settings['paypal_payment_type'],
+				//	2 $atts['entry_id'],
+				//	3 get_current_user_id(),
+				//	4 absint($post_id), // Used only if Front-end Posting is enabled to update the post status after successfull payment.
+				//	5 absint($user_id) // Used only if Register & Login is enabled to update the user status after successfull payment.
+				//);
 				if (!$form_id) return;
 				if (absint($form_id) == 0) return;
+				error_log('before: '.json_encode($settings));
 	            if (method_exists('SUPER_Common','get_form_settings')) {
 	                $settings = SUPER_Common::get_form_settings($form_id);
+					error_log('after 1: '.json_encode($settings));
 	            }else{
 	                $settings = get_post_meta(absint($form_id), '_super_form_settings', true);
+					error_log('after 2: '.json_encode($settings));
 	            }
 				if (!is_array($settings)) return;
 				// Check the receiver email to see if it matches your list of paypal email addresses
@@ -1557,17 +1615,17 @@ if( !class_exists('SUPER_PayPal') ) :
 						'post_status' => sanitize_text_field($post_status),
 						'post_type' => $post_type,
 						'post_title' => sanitize_text_field($post_title),
-						'post_parent' => absint($custom[0]),
-						'post_author' => absint($custom[3])
+						'post_parent' => absint($form_id),
+						'post_author' => absint($user_id)
 					);
-					$post_id = wp_insert_post($post);
+					$paypal_order_id = wp_insert_post($post);
 					if(isset($_POST['subscr_id'])){
-						add_post_meta($post_id, '_super_sub_id', $_POST['subscr_id']);
+						add_post_meta($paypal_order_id, '_super_sub_id', $_POST['subscr_id']);
 					}
 					if(isset($_POST['recurring_payment_id'])){
-						add_post_meta($post_id, '_super_sub_id', $_POST['recurring_payment_id']);
+						add_post_meta($paypal_order_id, '_super_sub_id', $_POST['recurring_payment_id']);
 					}
-					add_post_meta( $post_id, '_super_txn_data', $_POST );
+					add_post_meta( $paypal_order_id, '_super_txn_data', $_POST );
 					if( $_POST['txn_type']=='subscr_signup' ) {
 						$count = get_option( 'super_paypal_sub_count', 0 );
 						update_option( 'super_paypal_sub_count', ($count+1) );
@@ -1575,55 +1633,64 @@ if( !class_exists('SUPER_PayPal') ) :
 						$count = get_option( 'super_paypal_txn_count', 0 );
 						update_option( 'super_paypal_txn_count', ($count+1) );
 					}
-					if( (isset($custom[2])) && ($custom[2]!=0) ) {
-						$contact_entry_id = absint($custom[2]);
 
-						// Save paypal order ID to contact entry
-						update_post_meta( $contact_entry_id, '_super_contact_entry_paypal_order_id', $post_id );
+					// Grab sfsi data
+					error_log('$sfsi_id: '.$sfsi_id);
+					// Save paypal order ID to contact entry
+					if(!empty($entry_id)) {
+						update_post_meta($entry_id, '_super_contact_entry_paypal_order_id', $paypal_order_id);
+						update_post_meta($paypal_order_id, '_super_contact_entry_id', $entry_id);
+					}
+					// Save paypal order ID to created post (if front-end posting was enabled)
+					if(!empty($created_post)) {
+						update_post_meta($created_post, '_super_connected_paypal_order_id', $paypal_order_id);
+						update_post_meta($paypal_order_id, '_super_connected_post_id', $created_post);
+					}
 
-						// Update contact entry status after succesfull payment
-						if( !empty($settings['paypal_completed_entry_status']) ) {
-							update_post_meta( $contact_entry_id, '_super_contact_entry_status', $settings['paypal_completed_entry_status'] );
-						}
-					}
-					// Update post status after succesfull payment (only used for Front-end Posting)
-					$post_id = absint($custom[4]);
-					if( ($post_id!=0) && (!empty($settings['paypal_completed_post_status'])) ) {
-						wp_update_post( 
-							array(
-								'ID' => $post_id,
-								'post_status' => $settings['paypal_completed_post_status']
-							)
-						);
-					}
-					// Update user status after succesfull payment (only used for Register & Login)
-					$user_id = 0;
-					if( !empty($settings['register_login_action']) ) {
-						if( $settings['register_login_action']=='register' ) {
-							$user_id = absint($custom[5]);
-							if( $user_id!=0 ) {
-								// Update login status
-								if( !empty($settings['paypal_completed_signup_status']) ) {
-									update_user_meta( $user_id, 'super_user_login_status', $settings['paypal_completed_signup_status'] );
-								}
-								// Update user role
-								$user_role = '';
-								if( !empty($settings['paypal_completed_user_role']) ) {
-									$user_role = $settings['paypal_completed_user_role'];
-								}
-								if( !empty($user_role) ) {
-									$userdata = array(
-										'ID' => $user_id,
-										'role' => $user_role
-									);
-									$result = wp_update_user( $userdata );
-									if( is_wp_error( $result ) ) {
-										throw new Exception($result->get_error_message());
-									}
-								}
-							}
-						}
-					}
+					// moved to triggers // Update contact entry status after succesfull payment
+					// moved to triggers if( !empty($settings['paypal_completed_entry_status']) ) {
+					// moved to triggers 	update_post_meta( $contact_entry_id, '_super_contact_entry_status', $settings['paypal_completed_entry_status'] );
+					// moved to triggers }
+
+					// moved to triggers // Update post status after succesfull payment (only used for Front-end Posting)
+					// moved to triggers $paypal_order_id = absint($custom[4]);
+					// moved to triggers if( ($paypal_order_id!=0) && (!empty($settings['paypal_completed_post_status'])) ) {
+					// moved to triggers 	wp_update_post( 
+					// moved to triggers 		array(
+					// moved to triggers 			'ID' => $paypal_order_id,
+					// moved to triggers 			'post_status' => $settings['paypal_completed_post_status']
+					// moved to triggers 		)
+					// moved to triggers 	);
+					// moved to triggers }
+
+					// moved to triggers // Update user status after succesfull payment (only used for Register & Login)
+					// moved to triggers $user_id = 0;
+					// moved to triggers if( !empty($settings['register_login_action']) ) {
+					// moved to triggers 	if( $settings['register_login_action']=='register' ) {
+					// moved to triggers 		$user_id = absint($custom[5]);
+					// moved to triggers 		if( $user_id!=0 ) {
+					// moved to triggers 			// Update login status
+					// moved to triggers 			if( !empty($settings['paypal_completed_signup_status']) ) {
+					// moved to triggers 				update_user_meta( $user_id, 'super_user_login_status', $settings['paypal_completed_signup_status'] );
+					// moved to triggers 			}
+					// moved to triggers 			// Update user role
+					// moved to triggers 			$user_role = '';
+					// moved to triggers 			if( !empty($settings['paypal_completed_user_role']) ) {
+					// moved to triggers 				$user_role = $settings['paypal_completed_user_role'];
+					// moved to triggers 			}
+					// moved to triggers 			if( !empty($user_role) ) {
+					// moved to triggers 				$userdata = array(
+					// moved to triggers 					'ID' => $user_id,
+					// moved to triggers 					'role' => $user_role
+					// moved to triggers 				);
+					// moved to triggers 				$result = wp_update_user( $userdata );
+					// moved to triggers 				if( is_wp_error( $result ) ) {
+					// moved to triggers 					throw new Exception($result->get_error_message());
+					// moved to triggers 				}
+					// moved to triggers 			}
+					// moved to triggers 		}
+					// moved to triggers 	}
+					// moved to triggers }
 
 					// tmp // Send E-mail when payment was completed/successful
 					// tmp // Can only work if entry was created
@@ -1875,7 +1942,7 @@ if( !class_exists('SUPER_PayPal') ) :
 					// tmp 	}
 					// tmp }
 
-					do_action( 'super_after_paypal_ipn_payment_verified', array( 'post_id'=>$post_id, 'post'=>$_POST ) );
+					do_action( 'super_after_paypal_ipn_payment_verified', array( 'post_id'=>$paypal_order_id, 'post'=>$_POST ) );
 					SUPER_Common::triggerEvent('paypal.ipn.payment.verified', array('sfsi_id'=>$sfsi_id));
 
 				}
@@ -1984,25 +2051,25 @@ if( !class_exists('SUPER_PayPal') ) :
 				}
 
 				// Get Post ID and save it in custom parameter for paypal so we can update the post status after successfull payment complete
-				$post_id = SUPER_Common::getClientData( 'super_forms_created_post_id' );
-				if( $post_id==false ) {
-					$post_id = 0;
-            	}
+				// tmp $post_id = SUPER_Common::getClientData( 'super_forms_created_post_id' );
+				// tmp if( $post_id==false ) {
+				// tmp 	$post_id = 0;
+				// tmp }
 
 				// Get User ID and save it in custom parameter for paypal so we can update the user status after successfull payment complete
-				$user_id = SUPER_Common::getClientData( 'super_forms_registered_user_id' );
-				if( $user_id==false ) {
-					$user_id = 0;
-            	}
+				// $user_id = SUPER_Common::getClientData( 'super_forms_registered_user_id' );
+				// if( $user_id==false ) {
+				// 	$user_id = 0;
+				// }
 
-				$custom = array($sfsi_id);
+				//$custom = array($sfsi_id);
 				//$custom = array(
-				//	absint($atts['post']['form_id']),
-				//	$settings['paypal_payment_type'],
-				//	$atts['entry_id'],
-				//	get_current_user_id(),
-				//	absint($post_id), // Used only if Front-end Posting is enabled to update the post status after successfull payment.
-				//	absint($user_id) // Used only if Register & Login is enabled to update the user status after successfull payment.
+				//	0 absint($atts['post']['form_id']),
+				//	1 $settings['paypal_payment_type'],
+				//	2 $atts['entry_id'],
+				//	3 get_current_user_id(),
+				//	4 absint($post_id), // Used only if Front-end Posting is enabled to update the post status after successfull payment.
+				//	5 absint($user_id) // Used only if Register & Login is enabled to update the user status after successfull payment.
 				//);
 				$home_url = get_home_url() . "/";
 				if (strstr($home_url, '?')) {
@@ -2103,7 +2170,7 @@ if( !class_exists('SUPER_PayPal') ) :
 				$message .= '<input type="hidden" name="currency_code" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_currency_code'], $data, $settings)) . '" />';
 				
 				// Pass-through variable for your own tracking purposes, which buyers do not see.
-				$message .= '<input type="hidden" name="custom" value="' . esc_attr(implode("|", $custom)) . '">';
+				$message .= '<input type="hidden" name="custom" value="' . esc_attr($sfsi_id) . '">';
 				
 				// Pass-through variable you can use to identify your invoice number for this purchase.
 				if( !empty($settings['paypal_invoice']) ) {

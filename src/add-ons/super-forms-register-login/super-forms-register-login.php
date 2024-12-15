@@ -627,79 +627,20 @@ if( !class_exists('SUPER_Register_Login') ) :
                             'update' => esc_html__( 'Update current logged in user', 'super-forms' ),
                         ),
                     ),
-                    'register_custom_email_header' => array(
-                        'name'=> esc_html__( 'E-mail headers', 'super-forms' ),
-                        'label' => sprintf( esc_html__( 'Inherit headers from your Admin or Confirmation email settings.%1$s%2$sNote:%3$s you must define custom headers in case you are not sending Admin or Confirmation emails.', 'super-forms' ), '<br />', '<strong>', '</strong>' ),
-                        'default' =>  'admin',
-                        'type'=>'select',
-                        'values'=>array(
-                            'custom' => esc_html__(  'Use custom headers', 'super-forms' ),
-                            'admin' => esc_html__(  'Use headers defined for Admin emails (default)', 'super-forms' ),
-                            'confirmation' => esc_html__(  'Use headers defined for Confirmation emails', 'super-forms' )
-                        ),
-                        'filter' => true,
-                        'parent' => 'register_login_action',
-                        'filter_value' => 'register,login,reset_password',
-                    ),
-                    'register_header_from_type' => array(
-                        'name'=> esc_html__( 'Send email from:', 'super-forms' ),
-                        'desc' => esc_html__( 'Enter a custom email address or use the blog settings', 'super-forms' ),
-                        'default' =>  '{option_admin_email}',
-                        'type'=>'select',
-                        'values'=>array(
-                            'default' => esc_html__(  'Default blog email and name', 'super-forms' ),
-                            'custom' => esc_html__(  'Custom from', 'super-forms' ),
-                        ),
-                        'filter' => true,
-                        'parent' => 'register_custom_email_header',
-                        'filter_value' => 'custom'
-                    ),
-                    'register_header_from' => array(
-                        'name' => esc_html__( 'From email:', 'super-forms' ),
-                        'desc' => esc_html__( 'Example: info@companyname.com', 'super-forms' ),
-                        'default' =>  '{option_admin_email}',
-                        'placeholder' => esc_html__( 'Company Email Address', 'super-forms' ),
-                        'filter'=>true,
-                        'parent'=>'register_header_from_type',
-                        'filter_value'=>'custom',
-                    ),
-                    'register_header_from_name' => array(
-                        'name' => esc_html__( 'From name:', 'super-forms' ),
-                        'desc' => esc_html__( 'Example: Company Name', 'super-forms' ),
-                        'default' =>  '{option_blogname}',
-                        'placeholder' => esc_html__( 'Your Company Name', 'super-forms' ),
-                        'filter'=>true,
-                        'parent'=>'register_header_from_type',
-                        'filter_value'=>'custom',
-                    ),
-                    'register_header_reply_enabled' => array(
-                        'default' =>  '',
-                        'type' => 'checkbox',
-                        'values' => array(
-                            'true' => esc_html__( '(optional) Set a custom reply to header', 'super-forms' ),
-                        ),
-                        'filter' => true,
-                        'parent' => 'register_custom_email_header',
-                        'filter_value' => 'custom'
-                    ),
-                    'register_header_reply' => array(
-                        'name' => esc_html__( 'Reply to email:', 'super-forms' ),
-                        'desc' => esc_html__( 'Example: no-reply@companyname.com', 'super-forms' ),
-                        'default' =>  '{option_admin_email}',
-                        'placeholder' => esc_html__( 'Company Email Address', 'super-forms' ),
-                        'filter'=>true,
-                        'parent'=>'register_header_reply_enabled',
-                        'filter_value'=>'true',
-                    ),
-                    'register_header_reply_name' => array(
-                        'name' => esc_html__( 'Reply to name:', 'super-forms' ),
-                        'desc' => esc_html__( 'Example: Company Name', 'super-forms' ),
-                        'default' =>  '{option_blogname}',
-                        'placeholder' => esc_html__( 'Your Company Name', 'super-forms' ),
-                        'filter'=>true,
-                        'parent'=>'register_header_reply_enabled',
-                        'filter_value'=>'true',
-                    ),
+                    // tmp 'register_custom_email_header' => array(
+                    // tmp     'name'=> esc_html__( 'E-mail headers', 'super-forms' ),
+                    // tmp     'label' => sprintf( esc_html__( 'Inherit headers from your Admin or Confirmation email settings.%1$s%2$sNote:%3$s you must define custom headers in case you are not sending Admin or Confirmation emails.', 'super-forms' ), '<br />', '<strong>', '</strong>' ),
+                    // tmp     'default' =>  'custom',
+                    // tmp     'type'=>'select',
+                    // tmp     'values'=>array(
+                    // tmp         'custom' => esc_html__(  'Use custom headers', 'super-forms' ),
+                    // tmp         //'admin' => esc_html__(  'Use headers defined for Admin emails (default)', 'super-forms' ),
+                    // tmp         //'confirmation' => esc_html__(  'Use headers defined for Confirmation emails', 'super-forms' )
+                    // tmp     ),
+                    // tmp     'filter' => true,
+                    // tmp     'parent' => 'register_login_action',
+                    // tmp     'filter_value' => 'register,login,reset_password',
+                    // tmp ),
 
                     // @since 1.4.0 - option to register new user if user doesn't exists while updating user
                     'register_login_register_not_logged_in' => array(
@@ -811,25 +752,9 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'filter_value' => 'login',
                         'allow_empty' => true,
                     ),
-                    'register_activation_subject' => array(
-                        'name' => esc_html__( 'Verification E-mail Subject', 'super-forms' ),
-                        'label' => esc_html__( 'Example: Verify your account', 'super-forms' ),
-                        'default' =>  esc_html__( 'Verify your account', 'super-forms' ),
-                        'filter' => true,
-                        'parent' => 'register_login_activation',
-                        'filter_value' => 'verify,verify_login',
-                        'allow_empty' => true,
-                    ),
-                    'register_activation_email' => array(
-                        'name' => esc_html__( 'Verification E-mail Body', 'super-forms' ),
-                        'label' => esc_html__( 'The email message. You can use {email_verification_code} and {register_login_url}', 'super-forms' ),
-                        'type' => 'textarea',
-                        'default' =>  sprintf( esc_html__( 'Dear {user_login},%1$s%1$sThank you for registering! Before you can login you will need to verify your account.%1$sBelow you will find your verification code. You need this code to verify your account:%1$s%1$sVerification Code: %2$s{email_verification_code}%3$s%1$s%1$sClick %4$shere%5$s to verify your account with the provided code.%1$s%1$s%1$sBest regards,%1$s%1$s{option_blogname}', 'super-forms' ), "\n", '<strong>', '</strong>', '<a href="{register_login_url}?code={email_verification_code}">', '</a>' ),
-                        'filter' => true,
-                        'parent' => 'register_login_activation',
-                        'filter_value' => 'verify,verify_login',
-                        'allow_empty' => true,
-                    ),
+
+
+
                     'register_login_show_toolbar' => array(
                         'default' =>  'true',
                         'type' => 'checkbox',
@@ -928,27 +853,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'filter_value' => 'reset_password',
                         'allow_empty' => true,
                     ),
-                    'register_reset_password_subject' => array(
-                        'name' => esc_html__( 'Lost Password E-mail Subject', 'super-forms' ),
-                        'label' => esc_html__( 'Example: Your new password. You can use {user_login}', 'super-forms' ),
-                        'default' =>  esc_html__( 'Your new password', 'super-forms' ),
-                        'filter' => true,
-                        'parent' => 'register_login_action',
-                        'filter_value' => 'reset_password',
-                        'allow_empty' => true,
-                    ),
-                    'register_reset_password_email' => array(
-                        'name' => esc_html__( 'Lost Password E-mail Body', 'super-forms' ),
-                        'label' => esc_html__( 'The email message. You can use {user_login}, {register_generated_password} and {register_login_url}', 'super-forms' ),
-                        'type' => 'textarea',
-                        'default' =>  sprintf( 
-                            esc_html__( 
-                                'Dear {user_login},%1$s%1$sYou just requested to reset your password.%1$sUsername: %2$s{user_login}%3$s%1$sPassword: %2$s{register_generated_password}%3$s%1$s%1$sClick %4$shere%5$s to login with your new password.%1$s%1$s%1$sBest regards,%1$s%1$s{option_blogname}', 'super-forms' ), "\n", '<strong>', '</strong>', '<a href="{register_login_url}">', '</a>' ),
-                        'filter' => true,
-                        'parent' => 'register_login_action',
-                        'filter_value' => 'reset_password',
-                        'allow_empty' => true,
-                    ),
+
 
                     // @since 1.2.0 - not logged in user for when we are updating user data
                     'register_login_not_logged_in_msg' => array(
@@ -1003,6 +908,91 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'parent' => 'register_user_signup_status',
                         'filter_value' => 'pending,blocked'
                     ),
+
+
+                    // If we send an E-mail based on the defined settings we must set these headers
+                    'register_header_from_type' => array(
+                        'name'=> esc_html__( 'Send email from:', 'super-forms' ),
+                        'desc' => esc_html__( 'Enter a custom email address or use the blog settings', 'super-forms' ),
+                        'default' =>  '{option_admin_email}',
+                        'type'=>'select',
+                        'values'=>array(
+                            'default' => esc_html__(  'Default blog email and name', 'super-forms' ),
+                            'custom' => esc_html__(  'Custom from', 'super-forms' ),
+                        ),
+                        'filter' => true,
+                        'parent' => 'register_login_action',
+                        'filter_value' => 'register,reset_password'
+                    ),
+                    'register_header_from' => array(
+                        'name' => esc_html__( 'From email:', 'super-forms' ),
+                        'desc' => esc_html__( 'Example: info@companyname.com', 'super-forms' ),
+                        'default' =>  '{option_admin_email}',
+                        'placeholder' => esc_html__( 'Company Email Address', 'super-forms' ),
+                        'filter'=>true,
+                        'parent' => 'register_header_from_type',
+                        'filter_value' => 'custom'
+                    ),
+                    'register_header_from_name' => array(
+                        'name' => esc_html__( 'From name:', 'super-forms' ),
+                        'desc' => esc_html__( 'Example: Company Name', 'super-forms' ),
+                        'default' =>  '{option_blogname}',
+                        'placeholder' => esc_html__( 'Your Company Name', 'super-forms' ),
+                        'filter'=>true,
+                        'parent' => 'register_header_from_type',
+                        'filter_value' => 'custom'
+                    ),
+                    'register_header_reply_enabled' => array(
+                        'default' =>  '',
+                        'type' => 'checkbox',
+                        'values' => array(
+                            'true' => esc_html__( '(optional) Set a custom reply to header', 'super-forms' ),
+                        ),
+                        'filter' => true,
+                        'parent' => 'register_login_action',
+                        'filter_value' => 'register,reset_password'
+                    ),
+                    'register_header_reply' => array(
+                        'name' => esc_html__( 'Reply to email:', 'super-forms' ),
+                        'desc' => esc_html__( 'Example: no-reply@companyname.com', 'super-forms' ),
+                        'default' =>  '{option_admin_email}',
+                        'placeholder' => esc_html__( 'Company Email Address', 'super-forms' ),
+                        'filter'=>true,
+                        'parent'=>'register_header_reply_enabled',
+                        'filter_value'=>'true',
+                    ),
+                    'register_header_reply_name' => array(
+                        'name' => esc_html__( 'Reply to name:', 'super-forms' ),
+                        'desc' => esc_html__( 'Example: Company Name', 'super-forms' ),
+                        'default' =>  '{option_blogname}',
+                        'placeholder' => esc_html__( 'Your Company Name', 'super-forms' ),
+                        'filter'=>true,
+                        'parent'=>'register_header_reply_enabled',
+                        'filter_value'=>'true',
+                    ),
+
+                    // Account email verified
+                    'register_activation_subject' => array(
+                        'name' => esc_html__( 'Verification E-mail Subject', 'super-forms' ),
+                        'label' => esc_html__( 'Example: Verify your account', 'super-forms' ),
+                        'default' =>  esc_html__( 'Verify your account', 'super-forms' ),
+                        'filter' => true,
+                        'parent' => 'register_login_activation',
+                        'filter_value' => 'verify,verify_login',
+                        'allow_empty' => true,
+                    ),
+                    'register_activation_email' => array(
+                        'name' => esc_html__( 'Verification E-mail Body', 'super-forms' ),
+                        'label' => esc_html__( 'The email message. You can use {email_verification_code} and {register_login_url}', 'super-forms' ),
+                        'type' => 'textarea',
+                        'default' =>  sprintf( esc_html__( 'Dear {user_login},%1$s%1$sThank you for registering! Before you can login you will need to verify your account.%1$sBelow you will find your verification code. You need this code to verify your account:%1$s%1$sVerification Code: %2$s{email_verification_code}%3$s%1$s%1$sClick %4$shere%5$s to verify your account with the provided code.%1$s%1$s%1$sBest regards,%1$s%1$s{option_blogname}', 'super-forms' ), "\n", '<strong>', '</strong>', '<a href="{register_login_url}?code={email_verification_code}">', '</a>' ),
+                        'filter' => true,
+                        'parent' => 'register_login_activation',
+                        'filter_value' => 'verify,verify_login',
+                        'allow_empty' => true,
+                    ),
+
+                    // Account approved
                     'register_approve_subject' => array(
                         'name' => esc_html__( 'Approved E-mail Subject', 'super-forms' ),
                         'label' => esc_html__( 'Example: Your account has been approved', 'super-forms' ),
@@ -1022,6 +1012,31 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'filter_value' => 'true',
                         'allow_empty' => true,
                     ),
+
+                    // New password email
+                    'register_reset_password_subject' => array(
+                        'name' => esc_html__( 'Lost Password E-mail Subject', 'super-forms' ),
+                        'label' => esc_html__( 'Example: Your new password. You can use {user_login}', 'super-forms' ),
+                        'default' =>  esc_html__( 'Your new password', 'super-forms' ),
+                        'filter' => true,
+                        'parent' => 'register_login_action',
+                        'filter_value' => 'reset_password',
+                        'allow_empty' => true,
+                    ),
+                    'register_reset_password_email' => array(
+                        'name' => esc_html__( 'Lost Password E-mail Body', 'super-forms' ),
+                        'label' => esc_html__( 'The email message. You can use {user_login}, {register_generated_password} and {register_login_url}', 'super-forms' ),
+                        'type' => 'textarea',
+                        'default' =>  sprintf( 
+                            esc_html__( 
+                                'Dear {user_login},%1$s%1$sYou just requested to reset your password.%1$sUsername: %2$s{user_login}%3$s%1$sPassword: %2$s{register_generated_password}%3$s%1$s%1$sClick %4$shere%5$s to login with your new password.%1$s%1$s%1$sBest regards,%1$s%1$s{option_blogname}', 'super-forms' ), "\n", '<strong>', '</strong>', '<a href="{register_login_url}">', '</a>' ),
+                        'filter' => true,
+                        'parent' => 'register_login_action',
+                        'filter_value' => 'reset_password',
+                        'allow_empty' => true,
+                    ),
+
+
                     'register_approve_generate_pass' => array(
                         'desc' => esc_html__( 'This will generate a new password as soon as the user account has been approved', 'super-forms' ),
                         'label' => esc_html__( 'You can retrieve the generated password with {register_generated_password} in the email', 'super-forms' ),
@@ -1320,7 +1335,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         $data['user_login'] = $data['user_email'];
                     }
                     if(!isset($data['user_email'])){
-                        $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s field which is required in order to register a new user. Please %3$sedit%4$s your form and try again', 'super-forms' ), '<strong>user_email</strong>', '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $post['form_id'] )) . '">', '</a>' );
+                        $msg = sprintf( esc_html__( 'We couldn\'t find the %1$s field which is required in order to register a new user. Please %2$sedit%3$s your form and try again', 'super-forms' ), '<strong>user_email</strong>', '<a href="' . esc_url(get_admin_url() . 'admin.php?page=super_create_form&id=' . absint( $post['form_id'] )) . '">', '</a>' );
                         SUPER_Common::output_message( array(
                             'msg' => $msg,
                             'form_id' => absint($form_id)
@@ -1841,31 +1856,31 @@ if( !class_exists('SUPER_Register_Login') ) :
         }
         public static function get_email_headers($x){
             extract( shortcode_atts( array( 'settings'=>array(), 'data'=>array(), 'user'=>null), $x ) );
-            if(empty($settings['register_custom_email_header'])) $settings['register_custom_email_header'] = 'admin';
-            if($settings['register_custom_email_header']==='admin'){
-                // Use admin headers
-                $header_from = $settings['header_from'];
-                $header_from_name = $settings['header_from_name'];
-                $header_reply_enabled = $settings['header_reply_enabled'];
-                $header_reply = $settings['header_reply'];
-                $header_reply_name = $settings['header_reply_name'];
-            }
-            if($settings['register_custom_email_header']==='confirmation'){
-                // Use confirmation email headers
-                $header_from = $settings['confirm_from'];
-                $header_from_name = $settings['confirm_from_name'];
-                $header_reply_enabled = $settings['confirm_header_reply_enabled'];
-                $header_reply = $settings['confirm_header_reply'];
-                $header_reply_name = $settings['confirm_header_reply_name'];
-            }
-            if($settings['register_custom_email_header']==='custom'){
+            //if(empty($settings['register_custom_email_header'])) $settings['register_custom_email_header'] = 'custom';
+            //if($settings['register_custom_email_header']==='admin'){
+            //    // Use admin headers
+            //    $header_from = $settings['header_from'];
+            //    $header_from_name = $settings['header_from_name'];
+            //    $header_reply_enabled = $settings['header_reply_enabled'];
+            //    $header_reply = $settings['header_reply'];
+            //    $header_reply_name = $settings['header_reply_name'];
+            //}
+            //if($settings['register_custom_email_header']==='confirmation'){
+            //    // Use confirmation email headers
+            //    $header_from = $settings['confirm_from'];
+            //    $header_from_name = $settings['confirm_from_name'];
+            //    $header_reply_enabled = $settings['confirm_header_reply_enabled'];
+            //    $header_reply = $settings['confirm_header_reply'];
+            //    $header_reply_name = $settings['confirm_header_reply_name'];
+            //}
+            //if($settings['register_custom_email_header']==='custom'){
                 // Use custom headers
                 $header_from = $settings['register_header_from'];
                 $header_from_name = $settings['register_header_from_name'];
                 $header_reply_enabled = $settings['register_header_reply_enabled'];
                 $header_reply = $settings['register_header_reply'];
                 $header_reply_name = $settings['register_header_reply_name'];
-            }
+            //}
 
             // @since 1.6.1 - set native from headers
             if(!empty($header_from)){

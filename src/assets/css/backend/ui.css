@@ -5,6 +5,9 @@
   align-items: center;
   white-space: pre-wrap;
 }
+.super-form-settings .tab-content .sfui-notice {
+  display:block;
+}
 .sfui-setting.sfui-type-hidden {
   display: none;
 }
