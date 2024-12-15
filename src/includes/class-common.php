@@ -300,12 +300,14 @@ class SUPER_Common {
     public static function triggerEvent($eventName, $atts){
         global $wpdb;
         error_log('triggerEvent('.$eventName.')');
+        error_log(json_encode($atts));
         if(!class_exists('SUPER_Triggers')) require_once('class-triggers.php'); 
         //error_log('7.0: '.json_encode($atts));
         extract($atts);
         //error_log('7.1: '.json_encode($atts));
         //error_log('7.2: '.json_encode($sfsi_id));
         $sfsi = get_option( '_sfsi_' . $sfsi_id, array() );
+        error_log(json_encode($sfsi));
         if(count($sfsi)>0){
             //error_log('7.3: '.json_encode($sfsi));
             extract($sfsi);
@@ -1554,14 +1556,35 @@ class SUPER_Common {
         //error_log($current_form_version);
         if(version_compare($current_form_version, '6.4', '<')){
             error_log("Define Triggers for this Form if not already, for instance, copy over E-mail settings and define Admin and Confirmation E-mails as triggers");
-            //error_log('send: '.$settings['send']);
-            //error_log('confirm: '.$settings['confirm']);
             // Get trigger settings
             $triggers = SUPER_Common::get_form_triggers($form_id);
-            //error_log('triggers: '.json_encode($triggers));
             // Regex to convert E-mail body settings to TinyMCE editor
             $regex = '/([\s\S]*?)(<[^\/<>]+?>[^\/<>]*?{loop_fields}[\s\S]*?>)([\s\S]*)|([\s\S]*?)({loop_fields})([\s\S]*)/';
-            // "email_template": "default_email_template",
+            // --------------------
+
+            // Register & Login email conversion
+            if(!empty($s['register_custom_email_header']) && ($s['register_custom_email_header']==='admin' || $s['register_custom_email_header']==='confirmation')){
+                if($s['register_custom_email_header']==='admin'){
+                    // If admin grab from admin settings
+                    error_log('convert from admin');
+                    $s['register_header_from_type'] = $s['header_from_type'];
+                    $s['register_header_from'] = (!empty($s['header_from_type']) && ($s['header_from_type']==='default') ? '{option_admin_email}' : $s['header_from']);
+                    $s['register_header_from_name'] = (!empty($s['header_from_type']) && ($s['header_from_type']==='default') ? '{option_blogname}' : $s['header_from_name']);
+                    $s['register_header_reply_enabled'] = (!empty($s['header_reply_enabled']) && ($s['header_reply_enabled']==='true') ? 'true' : 'false');
+                    $s['register_header_reply'] = (!empty($s['header_reply']) ? $s['header_reply'] : '');
+                    $s['register_header_reply_name'] = (!empty($s['header_reply_name']) ? $s['header_reply_name'] : '');
+                }
+                if($s['register_custom_email_header']==='confirmation'){
+                    // If confirmation grab from confirmation settings
+                    error_log('convert from confirmation');
+                    $s['register_header_from_type'] = $s['confirm_from_type'];
+                    $s['register_header_from'] = (!empty($s['confirm_from_type']) && ($s['confirm_from_type']==='default') ? '{option_admin_email}' : $s['confirm_from']);
+                    $s['register_header_from_name'] = (!empty($s['confirm_from_type']) && ($s['confirm_from_type']==='default') ? '{option_blogname}' : $s['confirm_from_name']);
+                    $s['register_header_reply_enabled'] = (!empty($s['confirm_header_reply_enabled']) && ($s['confirm_header_reply_enabled']==='true') ? 'true' : 'false');
+                    $s['register_header_reply'] = (!empty($s['confirm_header_reply']) ? $s['confirm_header_reply'] : '');
+                    $s['register_header_reply_name'] = (!empty($s['confirm_header_reply_name']) ? $s['confirm_header_reply_name'] : '');
+                }
+            }
 
             // Add trigger for PayPal payment completed E-mail if enabled
             if(!empty($s['paypal_checkout']) && ($s['paypal_checkout']=='yes' || $s['paypal_checkout']=='true')){
@@ -1570,8 +1593,8 @@ class SUPER_Common {
                     error_log('email compelted enabled');
                     $t = array(
                         'enabled'=> 'true',
-                        'event'=> 'sf.after.submission',
-                        'name'=> 'Admin E-mail',
+                        'event'=> 'paypal.ipn.payment.verified',
+                        'name'=> 'PayPal Payment Completed E-mail',
                         'listen_to'=> '',
                         'ids'=> '',
                         'order'=> 1
@@ -1958,9 +1981,9 @@ class SUPER_Common {
                             'from_email' => (!empty($s['confirm_from_type']) && ($s['confirm_from_type']==='default') ? '{option_admin_email}' : $s['confirm_from']),
                             'from_name' => (!empty($s['confirm_from_type']) && ($s['confirm_from_type']==='default') ? '{option_blogname}' : $s['confirm_from_name']),
                             'reply_to' => array( 
-                                'enabled' => (!empty($s['confirm_reply_enabled']) && ($s['confirm_reply_enabled']==='true') ? 'true' : 'false'),
-                                'email' => (!empty($s['confirm_reply']) ? $s['confirm_reply'] : ''),
-                                'name' => (!empty($s['confirm_reply_name']) ? $s['confirm_reply_name'] : '')
+                                'enabled' => (!empty($s['confirm_header_reply_enabled']) && ($s['confirm_header_reply_enabled']==='true') ? 'true' : 'false'),
+                                'email' => (!empty($s['confirm_header_reply']) ? $s['confirm_header_reply'] : ''),
+                                'name' => (!empty($s['confirm_header_reply_name']) ? $s['confirm_header_reply_name'] : '')
                             ),
                             'subject' => (!empty($s['confirm_subject']) ? $s['confirm_subject'] : ''),
                             'body' => $body, 

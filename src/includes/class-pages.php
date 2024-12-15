@@ -517,7 +517,8 @@ class SUPER_Pages {
                 'items' => array(
                     'sf.before.submission' => 'Super Forms - Before form submission',
                     'sf.after.submission' => 'Super Forms - After form submission',
-                    'sf.submission.validation' => 'Super Forms - Validate form data'
+                    'sf.submission.validation' => 'Super Forms - Validate form data',
+                    'sf.after.account.registration' => 'Super Forms - After account registration'
                 )
             ),
             array(
@@ -549,6 +550,7 @@ class SUPER_Pages {
         $actions = array(
             '' => '- choose an action - ',
             'send_email' => 'Send an E-mail',
+            //'send_account_verification_email' => 'Send account verification E-mail (to verify email address)',
             'update_contact_entry_status' => 'Update Contact Entry Status',
             'update_created_post_status' => 'Update Created Post Status',
             'update_registered_user_login_status' => 'Update Registered User Login Status',
@@ -796,6 +798,7 @@ class SUPER_Pages {
                                                         'group_name' => 'data',
                                                         'vertical' => true,
                                                         'filter' => 'action;send_email',
+                                                        //'filter' => 'action;send_email,send_account_verification_email',
                                                         'nodes' => array(
                                                             array(
                                                                 'toggle' => true,
@@ -810,7 +813,8 @@ class SUPER_Pages {
                                                                         'type' => 'text',
                                                                         'default' => '{email}',
                                                                         'reset' => true,
-                                                                        'i18n' => true
+                                                                        'i18n' => true,
+                                                                        'filter' => 'action;send_email'
                                                                     ),
                                                                     array(
                                                                         'name' => 'from_email',
@@ -1293,6 +1297,7 @@ class SUPER_Pages {
                                                         'wrap' => false,
                                                         'group' => true,
                                                         'vertical' => true,
+                                                        //'filter' => 'action;send_email,send_account_verification_email',
                                                         'filter' => 'action;send_email',
                                                         'nodes' => array(
                                                             array(
