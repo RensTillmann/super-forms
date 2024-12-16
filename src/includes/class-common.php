@@ -313,18 +313,21 @@ class SUPER_Common {
             extract($sfsi);
             //error_log('7.4: '.json_encode($sfsi));
         }
-        //error_log('form_id: '.$form_id);
+        error_log('form_id: '.$form_id);
         $triggers = self::get_form_triggers($form_id);
         usort($triggers, function($a, $b) {
             return absint($a['order']) - absint($b['order']);
         });
         // Loop over all triggers, and filter out the ones that are inactive, and that do not match this event
+        error_log('triggers: '.json_encode($triggers));
         foreach($triggers as $k => $v){
             if(!isset($v['enabled'])) continue;
             if($v['enabled']!=='true') continue;
             if($v['event']!==$eventName) continue;
             // Match, execute actions
+            error_log('match');
             foreach($v['actions'] as $ak => $av){
+                error_log('action: '.$av['action']);
                 if(empty($av['action'])) continue;
                 // Check if action needs to be conditionally triggered
                 $execute = true;
@@ -345,9 +348,14 @@ class SUPER_Common {
                         'action'=>$av, 
                         'sfsi'=>$sfsi, 
                     );
-                    //error_log('SFSI before triggering action: '.json_encode($sfsi));
+                    error_log('SFSI before triggering action: '.json_encode($sfsi));
+                    error_log('action: '.$av['action']);
+                    error_log(json_encode($x));
                     call_user_func(array('SUPER_Triggers', $av['action']), $x);
+                }else{
+                    error_log("Trigger event `".$eventName."` tried to call an action named `".$av['action']."` but such action doesn't exist");
                 }
+
             }
         }
     }

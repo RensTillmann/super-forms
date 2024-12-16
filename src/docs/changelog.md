@@ -11,9 +11,14 @@
 
 ## TODO:
 
+- Test the PayPal trigger events/actions
 - Update keys for new PayPal settings stored under Triggers and test the PayPal payment features 
 - Issue with populating existing signature from first person, when using a form that requires two persons to sign the document.
 - Issue with Listings settings not merged correctly from latest version to Beta version
+
+## Dec 16, 2024 - Version 6.4.016-beta
+
+- **Fix:** Translation issues for Triggers tab
 
 ## Dec 13, 2024 - Version 6.4.015-beta
 

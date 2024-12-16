@@ -22,6 +22,7 @@ class SUPER_Triggers {
 
 
     public static function execute_scheduled_trigger_actions(){
+        //error_log('execute_scheduled_trigger_actions()');
         // Retrieve reminders from database based on post_meta named `_super_reminder_timestamp` based on the timestamp we can determine if we need to send the reminder yet
         global $wpdb;
         $current_timestamp = strtotime(current_time('Y-m-d H:i'));
@@ -33,6 +34,7 @@ class SUPER_Triggers {
         foreach($scheduled_actions as $k => $v){
             $scheduled_action_id = $v->post_id;
             $trigger_options = maybe_unserialize($v->post_content);
+            error_log('trigger_options: '.json_encode($trigger_options));
             $triggerEventParameters = maybe_unserialize($v->triggerEventParameters);
             $triggerEventParameters['action'] = $trigger_options;
             $triggerEventParameters['scheduled_action_id'] = $scheduled_action_id;
@@ -54,9 +56,89 @@ class SUPER_Triggers {
                 //error_log('$trigger_options[action]: '.$trigger_options['action']);
                 //error_log('$x: '.json_encode($x));
                 call_user_func(array('SUPER_Triggers', $trigger_options['action']), $triggerEventParameters);
+            }else{
+                error_log("Trigger event `".$triggerEventParameters['triggerName']."` tried to call an action named `".$trigger_options['action']."` but such action doesn't exist");
             }
         }
     }
+
+    public static function update_contact_entry_status($x){
+        error_log('update_contact_entry_status()');
+        extract($x);
+        extract($sfsi);
+        // Check if we need to grab the settings
+        if(!isset($settings)) $settings = SUPER_Common::get_form_settings($form_id);
+        error_log('Trigger action updated status of Contact Entry #'.$entry_id.' to: '.$action['data']['status']);
+        update_post_meta($entry_id, '_super_contact_entry_status', $action['data']['status']);
+    }
+    public static function update_created_post_status($x){
+        error_log('update_created_post_status()');
+        extract($x);
+        extract($sfsi);
+        // Check if we need to grab the settings
+        if(!isset($settings)) $settings = SUPER_Common::get_form_settings($form_id);
+        error_log('$action[data][status]: '.$action["data"]["status"]);
+        $action['data']['status'] = SUPER_Common::email_tags($action['data']['status'], $data, $settings);
+        $isDateValue = false;
+        $status = $action['data']['status'];
+        error_log('status: '.$status);
+        // Check if the status is already a timestamp
+        if (is_numeric($status) && (int)$status == $status && $status > 0) {
+            // Convert timestamp to datetime format
+            $timestamp = (int)$status;
+            error_log('timestamp 1: '.$timestamp);
+            $isDateValue = true;
+        } elseif (strtotime($status)) {
+            // Convert date string to timestamp
+            $timestamp = strtotime($status);
+            error_log('timestamp 2: '.$timestamp);
+            $isDateValue = true;
+        } else {
+            // Not a valid timestamp or date, exit or log an error
+        }
+        if($isDateValue===true){
+            // Format the timestamp for WordPress `post_date` and `post_date_gmt`
+            $post_date = date('Y-m-d H:i:s', $timestamp); // Local date
+            error_log('post_date: '.$post_date);
+            $post_date_gmt = gmdate('Y-m-d H:i:s', $timestamp); // GMT date
+            error_log('post_date_gmt: '.$post_date_gmt);
+            // Update the post with the future status and date
+            $update_data = [
+                'ID' => $created_post,
+                'post_date' => $post_date,
+                'post_date_gmt' => $post_date_gmt,
+                'post_status' => 'future',
+            ];
+            // Use WordPress wp_update_post to update the post
+            $result = wp_update_post($update_data);
+            // Check for errors
+            if(is_wp_error($result)){
+                error_log('Error updating post: ' . $result->get_error_message());
+            } else {
+                error_log('Trigger action updated status of Created Post #'.$created_post.' to future date: '.$post_date);
+            }
+        }else{
+            error_log('Trigger action updated status of Created Post #'.$created_post.' to: '.$action['data']['status']);
+            wp_update_post(array('ID'=>$created_post, 'post_status'=>$action['data']['status']));
+        }
+    }
+    public static function update_registered_user_login_status($x){
+        error_log('update_registered_user_login_status()');
+        extract($x);
+        extract($sfsi);
+        // Check if we need to grab the settings
+        if(!isset($settings)) $settings = SUPER_Common::get_form_settings($form_id);
+        error_log(json_encode($sfsi));
+    }
+    public static function update_registered_user_role($x){
+        error_log('update_registered_user_role()');
+        extract($x);
+        extract($sfsi);
+        // Check if we need to grab the settings
+        if(!isset($settings)) $settings = SUPER_Common::get_form_settings($form_id);
+        error_log(json_encode($sfsi));
+    }
+
     public static function send_email($x){
         //error_log('Trigger: send_email()');
         //error_log('x: '.json_encode($x));
@@ -65,8 +147,11 @@ class SUPER_Triggers {
         extract($sfsi);
         // Check if we need to grab the settings
         if(!isset($settings)) $settings = SUPER_Common::get_form_settings($form_id);
-        // Check if this trigger action needs to be scheduled
+        // Grab action name
+        $actionName = $action['action'];
+        // Get action options
         $options = $action['data'];
+        // Check for translations, and merge
         if(!empty($i18n)){
             $translated_options = ((isset($action['i18n']) && is_array($action['i18n'])) ? $action['i18n'] : array()); // In case this is a translated version
             if(isset($translated_options[$i18n])){
@@ -75,7 +160,7 @@ class SUPER_Triggers {
                 $options = SUPER_Common::merge_i18n_options($options, $translated_options[$i18n]);
             }
         }
-        $actionName = $action['action'];
+        // Check if this trigger action needs to be scheduled
         if($options['schedule']['enabled']==='true'){
             $schedules = $options['schedule']['schedules'];
             foreach($schedules as $k => $v){
