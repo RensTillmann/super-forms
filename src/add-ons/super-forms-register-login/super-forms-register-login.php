@@ -670,11 +670,11 @@ if( !class_exists('SUPER_Register_Login') ) :
 
                     // @since 1.2.6 - skip registration if user_login or user_email are not found
                     'register_login_action_skip_register' => array(
-                        'label' => esc_html__( 'This option is only usefull whenever you conditionally hide the user_login or user_email field', 'super-forms' ),
+                        'label' => esc_html__( 'This option is only usefull whenever you conditionally hide the user_email field', 'super-forms' ),
                         'default' =>  '',
                         'type' => 'checkbox',
                         'values' => array(
-                            'true' => esc_html__( 'Skip registration if user_login or user_email are not found', 'super-forms' ),
+                            'true' => esc_html__( 'Skip registration if user_email is not found', 'super-forms' ),
                         ),
                         'filter' => true,
                         'parent' => 'register_login_action',
@@ -1071,7 +1071,9 @@ if( !class_exists('SUPER_Register_Login') ) :
          *  @since      1.3.0
         */
         public static function before_email_success_msg( $atts ) {
+            error_log('before_email_success_msg()');
             $settings = $atts['settings'];
+            error_log($settings['register_login_action']);
             $data = $atts['data'];
             $form_id = $atts['form_id'];
 
@@ -1161,10 +1163,11 @@ if( !class_exists('SUPER_Register_Login') ) :
                     }
                 }
             }
-
             if( $settings['register_login_action']=='register' ) {
+                error_log('Register new user...');
                 $user_id = SUPER_Common::getClientData( 'super_forms_registered_user_id' );
                 $user_id = absint($user_id);
+                error_log('registered user id: '.$user_id);
                 if( $user_id!=0 ) {
                     // Save custom user meta
                     $meta_data = array();
@@ -1285,6 +1288,7 @@ if( !class_exists('SUPER_Register_Login') ) :
          *  @since      1.0.0
         */
         public static function before_sending_email( $x ) {
+            error_log('before_sending_email()');
             extract( shortcode_atts( array( 
                 'sfsi_id'=>'',
                 'data'=>array(), 
@@ -1325,12 +1329,15 @@ if( !class_exists('SUPER_Register_Login') ) :
             }
 
             if( $settings['register_login_action']=='register' ) {
+                error_log('Register new user... 2');
                 // @since 1.2.6 - skip registration if user_login or user_email couldn't be found or where conditionally hidden
                 if(!isset($settings['register_login_action_skip_register'])) $settings['register_login_action_skip_register'] = '';
-                if( ($settings['register_login_action_skip_register']=='true') && ( (!isset($data['user_login'])) || (!isset($data['user_email'])) ) ) {
-                    // do nothing
+                if(($settings['register_login_action_skip_register']=='true') && (!isset($data['user_email']))){
+                    // do nothing if we can't find `user_email` field (required to create new user)
+                    error_log('do nothing');
                 }else{
-                    // Before we proceed, lets check if we have at least a user_login and user_email field
+                    // Before we proceed, lets check if we have at least a user_email field
+                    // Because if user_login field doesn't exists we will set it to the user_email value
                     if((!isset($data['user_login'])) && (isset($data['user_email']))){
                         $data['user_login'] = $data['user_email'];
                     }
@@ -1350,10 +1357,12 @@ if( !class_exists('SUPER_Register_Login') ) :
                     // WooCommerce checkout
                     $wcs = SUPER_Common::get_form_woocommerce_settings($form_id);
                     if(!empty($wcs) && $wcs['checkout']=='true'){
+                        error_log('wc checkout');
                         $checkout = SUPER_Common::conditionally_wc_checkout($data, $wcs, $settings);
                     }
                     // PayPal checkout
                     if((isset($settings['paypal_checkout'])) && ($settings['paypal_checkout'] == 'true')){
+                        error_log('paypal checkout');
                         $checkout = true;
                         if(!empty($settings['conditionally_paypal_checkout'])){
                             if(!empty($settings['conditionally_paypal_checkout_check'])){
@@ -1371,10 +1380,10 @@ if( !class_exists('SUPER_Register_Login') ) :
                         }
                     }
                     // Stripe checkout
-                    //error_log('get_form_stripe_settings(2)');
                     $s = SUPER_Common::get_form_stripe_settings($form_id);
                     // Skip if Stripe checkout is not enabled
                     if(!empty($s) && $s['enabled']==='true'){
+                        error_log('stripe checkout');
                         // If conditional check is enabled
                         $checkout = true;
                         if($s['conditions']['enabled']==='true' && $s['logic']!==''){
@@ -1387,26 +1396,26 @@ if( !class_exists('SUPER_Register_Login') ) :
                     // Lets check if a user already exists with the same user_login or user_email
                     $user_login = sanitize_user($data['user_login']['value']);
                     $user_email = sanitize_email($data['user_email']['value']);
-                    //error_log($user_login);
-                    //error_log($user_email);
+                    error_log($user_login);
+                    error_log($user_email);
                     $username_exists = username_exists($user_login);
                     if($username_exists!==false){
-                        //error_log('username exists');
+                        error_log('username exists');
                         $user = get_user_by('login', $user_login);
                         if($user===false){
-                            //error_log('could not find user by login');
+                            error_log('could not find user by login');
                             $username_exists = false;
                         }else{
-                            //error_log('found user by login, lets grab the login status');
+                            error_log('found user by login, lets grab the login status');
                             $login_status = get_user_meta($user->ID, 'super_user_login_status', true);
-                            //error_log('login status: '.$login_status);
+                            error_log('login status: '.$login_status);
                             if($login_status==='signup_payment_processing'){
-                                //error_log('login status is signup_payment_processing');
-                                //error_log('we should delete this user');
+                                error_log('login status is signup_payment_processing');
+                                error_log('we should delete this user');
                                 wp_delete_user($user->ID);
                                 $username_exists = false;
                             }else{
-                                //error_log('do not delete this user, it already exists and has a different login status');
+                                error_log('do not delete this user, it already exists and has a different login status');
                                 // If the status is `payment_required` or `payment_past_due` then we won't delete the user, but use it's user ID instead and proceed to the checkout so they can make a payment
                                 // The `payment_required` could be used to request a new payment from the user
                                 // While `payment_past_due` could be used to indicate that the card on file wasn't able to be charged (might have been expired or any other reason)
@@ -1422,22 +1431,22 @@ if( !class_exists('SUPER_Register_Login') ) :
                     }
                     $email_exists = email_exists($user_email);        
                     if($email_exists!==false){
-                        //error_log('email exists');
+                        error_log('email exists');
                         $user = get_user_by('email', $user_email);
                         if($user===false){
-                            //error_log('could not find user by email');
+                            error_log('could not find user by email');
                             $email_exists = false;
                         }else{
-                            //error_log('found user by email, lets grab the login status');
+                            error_log('found user by email, lets grab the login status');
                             $login_status = get_user_meta($user->ID, 'super_user_login_status', true);
-                            //error_log('login status: '.$login_status);
+                            error_log('login status: '.$login_status);
                             if($login_status==='signup_payment_processing'){
-                                //error_log('login status is signup_payment_processing');
-                                //error_log('we should delete this user');
+                                error_log('login status is signup_payment_processing');
+                                error_log('we should delete this user');
                                 wp_delete_user($user->ID);
                                 $email_exists = false;
                             }else{
-                                //error_log('do not delete this user, it already exists and has a different login status');
+                                error_log('do not delete this user, it already exists and has a different login status');
                                 // If the status is `payment_required` or `payment_past_due` then we won't delete the user, but use it's user ID instead and proceed to the checkout so they can make a payment
                                 // The `payment_required` could be used to request a new payment from the user
                                 // While `payment_past_due` could be used to indicate that the card on file wasn't able to be charged (might have been expired or any other reason)
@@ -1452,7 +1461,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         }
                     }
                     if($create_new_user_account===true){
-                        //error_log('trying to create a new user account');
+                        error_log('trying to create a new user account');
                         if(($username_exists!=false) || ($email_exists!=false)){
                             $msg = esc_html__('Username or E-mail address already exists, please try again', 'super-forms');
                             SUPER_Common::output_message( array(
@@ -1507,6 +1516,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         }
                         // Insert the user and return the user ID
                         $user_id = wp_insert_user($userdata);
+                        error_log('wp_insert_user(): '.$user_id);
                         if(is_wp_error($user_id)){
                             $msg = $user_id->get_error_message();
                             SUPER_Common::setClientData( array( 'name'=> 'msg', 'value'=>array( 'data'=>$data, 'settings'=>$settings, 'msg'=>$msg, 'type'=>'error'  ) ) );
@@ -1516,13 +1526,14 @@ if( !class_exists('SUPER_Register_Login') ) :
                             ));
                         }
                     }else{
-                        //error_log('use existing account?');
+                        error_log('use existing account?');
                         $user_id = $user->ID;
-                        //error_log('user_id: '.$user_id);
+                        error_log('user_id: '.$user_id);
                     }
                     // Define user_id as the newly registered user_id
                     $sfsi = get_option( '_sfsi_' . $sfsi_id, array() );
                     $sfsi['user_id'] = $user_id;
+                    error_log('payment_past_due: '.$payment_past_due);
                     if($payment_past_due===false){
                         // @important - we only set `registered_user_id` when it's the first time the user registered
                         // when the user status is `payment_past_due` we do not create a new user
@@ -1597,17 +1608,17 @@ if( !class_exists('SUPER_Register_Login') ) :
                         }
                     }
                     if($checkout===true){
-                        //error_log('is paid signup form');
+                        error_log('is paid signup form');
                         // This is a paid signup form
                         if($payment_past_due===true){
                             // Do not change the status, this will be done once the payment is completed
-                            //error_log('status of user is set to `payment_past_due`, keep login status unchanged');
+                            error_log('status of user is set to `payment_past_due`, keep login status unchanged');
                         }else{
-                            //error_log('update login status to `signup_payment_processing`');
+                            error_log('update login status to `signup_payment_processing`');
                             update_user_meta($user_id, 'super_user_login_status', 'signup_payment_processing');
                         }
                     }else{
-                        //error_log('is not checkout, set to login status based on form settings');
+                        error_log('is not checkout, set to login status based on form settings');
                         update_user_meta($user_id, 'super_user_login_status', $settings['register_user_signup_status']);
                     }
 

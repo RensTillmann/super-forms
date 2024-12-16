@@ -468,7 +468,7 @@ class SUPER_Pages {
         $entryStatusesValues[] = $deleteStatus;
         // Post statuses
         $postStatusesValues = array();
-        $statuses = array('publish' => '('.esc_html__( 'default', 'super-forms' ).')', 'future' => '', 'draft' => '', 'pending' => '', 'private' => '');
+        $statuses = array('publish' => '('.esc_html__( 'default', 'super-forms' ).')', '{date;timestamp}' => '('.esc_html__( 'future/publish on specific date', 'super-forms' ).')', 'draft' => '', 'pending' => '', 'private' => '');
         foreach($statuses as $k => $v) {
             $postStatusesValues[] = array('v'=>$k, 'i'=>$v);
         }
@@ -745,6 +745,10 @@ class SUPER_Pages {
                                                         'vertical' => true,
                                                         'filter' => 'action;update_created_post_status',
                                                         'nodes' => array(
+                                                            array(
+                                                                'notice' => 'hint', // hint/info
+                                                                'content' => '<strong>'.esc_html__('Note', 'super-forms').':</strong> ' . sprintf( esc_html__('To schedule the post to become published automatically on a chosen date, simply enter the timestamp below. Must be English formatted date e.g: %s25-03-2025%s. When using a datepicker that doesn\'t use the correct format, you can use the tag %s{date;timestamp}%s (if your datepicker is named `date`) to retrieve the timestamp which will work correctly with any date format.', 'super-forms'), '<code>', '</code>', '<code>', '</code>')
+                                                            ),
                                                             array(
                                                                 'name' => 'status',
                                                                 'title' => esc_html__( 'Update Created Post Status to', 'super-forms' ),
