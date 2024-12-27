@@ -6937,6 +6937,8 @@ function SUPERreCaptcha(){
                         element.value = '';
                     }else{
                         innerNodes = field.querySelectorAll('.super-dropdown-list .super-item.super-active');
+                        new_placeholder = '';
+                        new_value = '';
                         for (ii = 0; ii < innerNodes.length; ii++) { 
                             if(new_value===''){
                                 new_value += innerNodes[ii].dataset.value;
