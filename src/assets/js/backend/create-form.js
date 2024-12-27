@@ -3700,11 +3700,18 @@
                     // Clean up trigger translations where needed
                     var i, json='', nodes = document.querySelectorAll('.sfui-setting [name="i18n"]');
                     for(i=0; i<nodes.length; i++){
-                        json = JSON.parse(nodes[i].value);
-                        if(json[$deleted_i18n]){
-                            delete json[$deleted_i18n];
+                        try {
+                            if(nodes[i].value!==''){
+                                json = JSON.parse(nodes[i].value);
+                                if(json[$deleted_i18n]){
+                                    delete json[$deleted_i18n];
+                                }
+                                nodes[i].value = JSON.stringify(json, undefined, 4);
+                            }
+                        } catch (e) {
+                            // Failed to parse json
+                            nodes[i].value = '';
                         }
-                        nodes[i].value = JSON.stringify(json, undefined, 4);
                     }
                 }
                 if ($('.super-create-form').hasClass('super-translation-mode')) {
