@@ -1598,7 +1598,8 @@ html[dir=rtl] .super-rtl .super-rating .super-field-wrapper .super-rating {
     font-size: 16px;
   }
 }
-.super-html, .super-js {
+.super-html,
+.super-js {
   margin-bottom: 0px;
 }
 .super-html > textarea,
@@ -6152,13 +6153,16 @@ html[dir=rtl] .super-timepicker-dialog .ui-timepicker-list li {
   padding-left: 0;
   padding-right: 15px;
 }
+html[dir=rtl] .super-form.super-rtl * {
+  direction: ltr !important;
+}
 html[dir=rtl] .super-form.super-rtl .super-heading-title,
 html[dir=rtl] .super-form.super-rtl .super-heading-description {
-  justify-content: flex-start;
+  justify-content: flex-end;
 }
 html[dir=rtl] .super-form.super-rtl .super-heading-title.super-align-left,
 html[dir=rtl] .super-form.super-rtl .super-heading-description.super-align-left {
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 html[dir=rtl] .super-form.super-rtl .super-heading-title.super-align-center,
 html[dir=rtl] .super-form.super-rtl .super-heading-description.super-align-center {
@@ -6166,17 +6170,17 @@ html[dir=rtl] .super-form.super-rtl .super-heading-description.super-align-cente
 }
 html[dir=rtl] .super-form.super-rtl .super-heading-title.super-align-right,
 html[dir=rtl] .super-form.super-rtl .super-heading-description.super-align-right {
-  justify-content: flex-start;
+  justify-content: flex-end;
 }
 html[dir=rtl] .super-form.super-rtl .super-multipart-steps {
-  flex-direction: row;
+  flex-direction: row-reverse;
 }
 html[dir=rtl] .super-form.super-rtl .display-horizontal .super-items-list {
-  flex-direction: row;
+  flex-direction: row-reverse;
 }
 html[dir=rtl] .super-form.super-rtl .super-checkbox .super-item,
 html[dir=rtl] .super-form.super-rtl .super-radio .super-item {
-  flex-direction: row;
+  flex-direction: row-reverse;
 }
 html[dir=rtl] .super-form.super-rtl.super-default-rounded .super-quantity .super-minus-button {
   border-radius: 0px 4px 4px 0px;
@@ -6185,22 +6189,22 @@ html[dir=rtl] .super-form.super-rtl.super-default-rounded .super-quantity .super
   border-radius: 4px 0px 0px 4px;
 }
 html[dir=rtl] .super-form.super-rtl .super-field:not(.super-icon-outside, .super-icon-inside).super-checkbox .super-field-wrapper, html[dir=rtl] .super-form.super-rtl .super-field:not(.super-icon-outside, .super-icon-inside).super-radio .super-field-wrapper, html[dir=rtl] .super-form.super-rtl .super-field:not(.super-icon-outside, .super-icon-inside).super-rating .super-field-wrapper {
-  justify-content: flex-start;
+  justify-content: flex-end;
 }
 html[dir=rtl] .super-form.super-rtl .display-horizontal .super-field-wrapper {
-  justify-content: flex-start;
+  justify-content: flex-end;
 }
 html[dir=rtl] .super-form.super-rtl .display-horizontal .super-items-list {
-  flex-direction: row;
+  flex-direction: row-reverse;
 }
 html[dir=rtl] .super-form.super-rtl .super-multipart-progress-inner {
-  flex-direction: row;
+  flex-direction: row-reverse;
 }
 html[dir=rtl] .super-form.super-rtl .super-dropdown:not(.super-open.super-focus, .super-filled) .super-adaptive-placeholder {
-  justify-content: flex-start;
+  justify-content: flex-end;
 }
 html[dir=rtl] .super-form.super-rtl .display-grid .super-items-list {
-  flex-direction: row;
+  flex-direction: row-reverse;
   flex-grow: 1;
 }
 html[dir=rtl] .super-form.super-rtl .super-checkbox.display-slider .carouseljs-track,
@@ -6212,31 +6216,31 @@ html[dir=rtl] .super-form.super-rtl .super-radio.display-slider .carouseljs-trac
   flex-grow: 1;
 }
 html[dir=rtl] .super-form.super-rtl .super-toggle {
-  flex-direction: row;
+  flex-direction: row-reverse;
 }
 html[dir=rtl] .super-form.super-rtl .super-color .super-field-wrapper {
-  justify-content: flex-start;
-}
-html[dir=rtl] .super-form.super-rtl .super-file .super-field-wrapper .super-fileupload-button {
-  flex-direction: row;
-}
-html[dir=rtl] .super-form.super-rtl .super-calculator.super-align-left .super-field-wrapper {
   justify-content: flex-end;
 }
-html[dir=rtl] .super-form.super-rtl .super-calculator.super-align-right .super-field-wrapper {
+html[dir=rtl] .super-form.super-rtl .super-file .super-field-wrapper .super-fileupload-button {
+  flex-direction: row-reverse;
+}
+html[dir=rtl] .super-form.super-rtl .super-calculator.super-align-left .super-field-wrapper {
   justify-content: flex-start;
+}
+html[dir=rtl] .super-form.super-rtl .super-calculator.super-align-right .super-field-wrapper {
+  justify-content: flex-end;
 }
 html[dir=rtl] .super-form.super-rtl .super-file .super-field-wrapper {
   align-items: flex-start;
 }
 html[dir=rtl] .super-form.super-rtl .super-file .super-field-wrapper .super-fileupload-files {
-  flex-direction: row;
+  flex-direction: row-reverse;
 }
 html[dir=rtl] .super-form.super-rtl .super-tabs-menu,
 html[dir=rtl] .super-form.super-rtl .super-accordion-header,
 html[dir=rtl] .super-form.super-rtl .super-int-phone_flag-container .super-int-phone_selected-flag,
 html[dir=rtl] .super-form.super-rtl .super-int-phone_country-list .super-int-phone_country {
-  flex-direction: row;
+  flex-direction: row-reverse;
 }
 
 .super-form {
