@@ -5475,24 +5475,26 @@ html[dir="rtl"]
     padding-right: 15px
   .super-form
     &.super-rtl
+      *
+        direction: ltr!important
       .super-heading-title,
       .super-heading-description
-        justify-content: flex-start
+        justify-content: flex-end
         &.super-align-left
-          justify-content: flex-end
+          justify-content: flex-start
         &.super-align-center
           justify-content: center
         &.super-align-right
-          justify-content: flex-start
+          justify-content: flex-end
       .super-multipart-steps
-        flex-direction: row
+        flex-direction: row-reverse
       .display-horizontal
         .super-items-list
-          flex-direction: row
+          flex-direction: row-reverse
       .super-checkbox,
       .super-radio
         .super-item
-          flex-direction: row
+          flex-direction: row-reverse
       &.super-default-rounded
         .super-quantity
           .super-minus-button
@@ -5504,18 +5506,18 @@ html[dir="rtl"]
         &.super-radio,
         &.super-rating
           .super-field-wrapper
-            justify-content: flex-start
+            justify-content: flex-end
       .display-horizontal
         .super-field-wrapper
-          justify-content: flex-start
+          justify-content: flex-end
         .super-items-list
-          flex-direction: row
+          flex-direction: row-reverse
       .super-multipart-progress-inner
-        flex-direction: row
+        flex-direction: row-reverse
       .super-dropdown:not(.super-open.super-focus, .super-filled) .super-adaptive-placeholder
-        justify-content: flex-start
+        justify-content: flex-end
       .display-grid .super-items-list
-        flex-direction: row
+        flex-direction: row-reverse
         flex-grow: 1
       .super-checkbox,
       .super-radio
@@ -5525,25 +5527,25 @@ html[dir="rtl"]
             .super-item
               flex-grow: 1
       .super-toggle
-        flex-direction: row
+        flex-direction: row-reverse
       .super-color .super-field-wrapper
-        justify-content: flex-start
-      .super-file .super-field-wrapper .super-fileupload-button
-        flex-direction: row
-      .super-calculator.super-align-left .super-field-wrapper
         justify-content: flex-end
-      .super-calculator.super-align-right .super-field-wrapper
+      .super-file .super-field-wrapper .super-fileupload-button
+        flex-direction: row-reverse
+      .super-calculator.super-align-left .super-field-wrapper
         justify-content: flex-start
+      .super-calculator.super-align-right .super-field-wrapper
+        justify-content: flex-end
       .super-file
         .super-field-wrapper
           align-items: flex-start
           .super-fileupload-files
-            flex-direction: row
+            flex-direction: row-reverse
       .super-tabs-menu,
       .super-accordion-header,
       .super-int-phone_flag-container .super-int-phone_selected-flag,
       .super-int-phone_country-list .super-int-phone_country
-        flex-direction: row
+        flex-direction: row-reverse
 
 .super-form
 
