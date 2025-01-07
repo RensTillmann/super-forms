@@ -3640,6 +3640,11 @@ $array['form_elements'] = array(
                         ),
                         'code_prefix' => array(
                             'name'=>esc_html__( 'Code prefix', 'super-forms' ),
+                            'docs' => array(
+                                array('title'=>'Example server {tags}', 'url'=>'/features/advanced/tags-system#retrieve-current-date-values-in-server-timestamp-utc-gmt'),
+                                array('title'=>'Example option {tags}', 'url'=>'/features/advanced/tags-system#retrieve-any-option-from-the-wp_options-database-table'),
+                            ),
+                            'label' => sprintf( esc_html__( 'Please note that the useage of %s{tags}%s are limited for this setting. You may use {server_***} tags like {server_year} or {option_****} tags, but form submission data can not be retrieved because the code is generated on page load so any {field_name_here} will not work.', 'super-forms' ), '<a target="_blank" href="https://docs.super-forms.com/features/advanced/tags-system#retrieve-current-date-values-in-server-timestamp-utc-gmt">', '</a>' ),
                             'default'=> ( !isset( $attributes['code_prefix']) ? '' : $attributes['code_prefix']),
                             'filter'=>true,
                             'parent'=>'enable_random_code',
@@ -3676,6 +3681,11 @@ $array['form_elements'] = array(
 
                         'code_suffix' => array(
                             'name'=>esc_html__( 'Code suffix', 'super-forms' ),
+                            'docs' => array(
+                                array('title'=>'Example server {tags}', 'url'=>'/features/advanced/tags-system#retrieve-current-date-values-in-server-timestamp-utc-gmt'),
+                                array('title'=>'Example option {tags}', 'url'=>'/features/advanced/tags-system#retrieve-any-option-from-the-wp_options-database-table'),
+                            ),
+                            'label' => sprintf( esc_html__( 'Please note that the useage of %s{tags}%s are limited for this setting. You may use {server_***} tags like {server_year} or {option_****} tags, but form submission data can not be retrieved because the code is generated on page load so any {field_name_here} will not work.', 'super-forms' ), '<a target="_blank" href="https://docs.super-forms.com/features/advanced/tags-system#retrieve-current-date-values-in-server-timestamp-utc-gmt">', '</a>' ),
                             'default'=> ( !isset( $attributes['code_suffix']) ? '' : $attributes['code_suffix']),
                             'filter'=>true,
                             'parent'=>'enable_random_code',

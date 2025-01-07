@@ -4487,6 +4487,10 @@ class SUPER_Shortcodes {
             if( !isset( $atts['code_suffix'] ) ) $atts['code_suffix'] = '';
             if( !isset( $atts['code_uppercase'] ) ) $atts['code_uppercase'] = '';
             if( !isset( $atts['code_lowercase'] ) ) $atts['code_lowercase'] = '';
+            // Since v6.4.017 - allow server tags for code prefix/suffix for instance `{server_year}`
+            // Note that below will not work with form data because the code is generated on page load and not after/during form submission
+            $atts['code_prefix'] = SUPER_Common::email_tags( $atts['code_prefix'], null, $settings);
+            $atts['code_suffix'] = SUPER_Common::email_tags( $atts['code_suffix'], null, $settings);
             $codeSettings = array(
                 'invoice_key' => $atts['code_invoice_key'],
                 'len' => $atts['code_length'],
