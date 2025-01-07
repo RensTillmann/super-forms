@@ -9253,7 +9253,7 @@ function SUPERreCaptcha(){
     }
 
     SUPER.pdf_generator_prepare = function(args, callback){
-        args.debugger = true;
+        args.debugger = false;
         var form = args.form0;
 
         // Define PDF tags
