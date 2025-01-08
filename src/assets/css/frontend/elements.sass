@@ -585,6 +585,7 @@ h1.super-thanks-title
   align-items: center
   flex-direction: column
   .super-max-width-wrapper
+    width: 100%
     position: relative
     display: inline-block
   &.super-initialized
@@ -1728,6 +1729,7 @@ textarea
   overflow: hidden
   > .super-padding
     padding: 10px
+    display: flex
     > .super-element-inner
       display: none
 
@@ -3080,9 +3082,6 @@ textarea
           right: 45px
         &.super-file .super-field-wrapper
           flex-direction: column
-        &.super-toggle
-          flex-direction: row
-          justify-content: flex-start
         &.super-open.super-focus
           .super-field-wrapper
             justify-content: flex-start
@@ -3198,20 +3197,28 @@ textarea
   &.super-rtl
     *
       direction: rtl
-    .super-tabs-menu
-      flex-direction: row-reverse
     .super-multipart.super-active
       .super-form-button
         &.super-next-multipart:nth-last-child(2),
         &.super-prev-multipart:nth-last-child(2)
           float: left
+    .super-multipart
+      .super-form-button
+        width: auto
+    .super-grid > .super-column .super-duplicate-column-fields > .super-duplicate-actions
+      > .super-add-duplicate,
+      > .super-delete-duplicate
+        right: initial
+        left: 0px
+      > .super-delete-duplicate
+        left: 25px
     .super-field
       &.bottom-left
         > .super-error-msg, 
         > .super-empty-error-msg
           width: 100%
           float: right
-          text-align: right
+          text-align: right 
     &.super-default-rounded 
       .super-quantity 
         .super-minus-button
@@ -3228,8 +3235,6 @@ textarea
       .super-autosuggest-tags
         flex-direction: row-reverse
     .super-accordion-header
-      display: flex
-      flex-direction: row-reverse
       &:after,
       &:before
         right: initial
@@ -3323,9 +3328,6 @@ textarea
           left: -21px
     .super-quantity
       justify-content: flex-end
-    .super-toggle
-      justify-content: flex-start
-      flex-direction: row-reverse
     .super-color
       .super-field-wrapper
         justify-content: flex-end
@@ -3333,13 +3335,10 @@ textarea
       .super-field-wrapper
         flex-direction: column
         align-items: flex-end
-        .super-fileupload-button
-          flex-direction: row-reverse
         .super-progress-bar
           float: none
         .super-fileupload-files
           width: 100%
-          flex-direction: row-reverse
     .super-prev-multipart
       float: right
     .super-next-multipart
@@ -5045,8 +5044,8 @@ textarea
         flex-direction: row-reverse
         .super-int-phone_selected-dial-code,
         .super-int-phone_arrow
-          margin-left: 0
-          margin-right: 6px
+          margin-left: 6px
+          margin-right: 0px
   &:not(.super-rtl)
     // Default rounded
     &.super-default-rounded
@@ -5425,71 +5424,63 @@ html[dir="rtl"]
   .super-timepicker-dialog .ui-timepicker-list li
     padding-left: 0
     padding-right: 15px
-  .super-form
-    &.super-rtl
-      .super-heading-title,
-      .super-heading-description
+
+.super-form
+  &.super-rtl
+    .super-heading-title,
+    .super-heading-description
+      &.super-align-left
         justify-content: flex-end
-        &.super-align-left
-          justify-content: flex-end
-        &.super-align-center
-          justify-content: center
-        &.super-align-right
-          justify-content: flex-start
-      .super-grid
-        flex-direction: row-reverse
-      .display-horizontal
-        .super-items-list
-          flex-direction: row
-      .display-horizontal,
-      .display-vertical,
-      .display-grid,
-      .display-slider
-        .super-item
-          padding-right: 0
-          padding-left: 30px
-      .super-checkbox,
-      .super-radio
-        .super-item
-          flex-direction: row
-      &.super-default-rounded
-        .super-quantity
-          .super-minus-button
-            border-radius: 0px 4px 4px 0px
-          .super-plus-button
-            border-radius: 4px 0px 0px 4px
-      .super-dropdown:not(.super-open.super-focus, .super-filled) .super-adaptive-placeholder
-        justify-content: flex-end
-      .display-grid .super-items-list
-        flex-direction: row-reverse
-        flex-grow: 1
-      .super-checkbox,
-      .super-radio
-        &.display-slider
-          .carouseljs-track
-            flex-grow: 1
-            .super-item
-              flex-grow: 1
-      .super-toggle
-        flex-direction: row-reverse
-      .super-color .super-field-wrapper
-        justify-content: flex-end
-      .super-file .super-field-wrapper .super-fileupload-button
-        flex-direction: row-reverse
-      .super-calculator.super-align-left .super-field-wrapper
+      &.super-align-center
+        justify-content: center
+      &.super-align-right
         justify-content: flex-start
-      .super-calculator.super-align-right .super-field-wrapper
-        justify-content: flex-end
-      .super-file
-        .super-field-wrapper
-          align-items: flex-start
-          .super-fileupload-files
-            flex-direction: row-reverse
-      .super-tabs-menu,
-      .super-accordion-header,
-      .super-int-phone_flag-container .super-int-phone_selected-flag,
-      .super-int-phone_country-list .super-int-phone_country
-        flex-direction: row-reverse
+    .super-grid
+      flex-direction: row-reverse
+    .display-horizontal
+      .super-items-list
+        flex-direction: row
+    .display-horizontal,
+    .display-vertical,
+    .display-grid,
+    .display-slider
+      .super-item
+        padding-right: 0
+        padding-left: 30px
+    .super-checkbox,
+    .super-radio
+      .super-item
+        flex-direction: row
+    .super-signature
+      display: flex
+      flex-direction: row
+    &.super-default-rounded
+      .super-quantity
+        .super-minus-button
+          border-radius: 0px 4px 4px 0px
+        .super-plus-button
+          border-radius: 4px 0px 0px 4px
+    .super-dropdown:not(.super-open.super-focus, .super-filled) .super-adaptive-placeholder
+      justify-content: flex-end
+    .display-grid .super-items-list
+      flex-direction: row-reverse
+      flex-grow: 1
+    .super-checkbox,
+    .super-radio
+      &.display-slider
+        .carouseljs-track
+          flex-grow: 1
+          .super-item
+            flex-grow: 1
+    .super-color .super-field-wrapper
+      justify-content: flex-end
+    .super-calculator.super-align-left .super-field-wrapper
+      justify-content: flex-start
+    .super-calculator.super-align-right .super-field-wrapper
+      justify-content: flex-end
+    .super-file
+      .super-field-wrapper
+        align-items: flex-start
 
 .super-form
 

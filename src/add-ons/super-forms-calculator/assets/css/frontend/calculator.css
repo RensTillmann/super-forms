@@ -24,6 +24,10 @@
 	font-size: 12px;
     padding-right: 5px;
 }
+.super-rtl .super-field.super-calculator .super-calculator-wrapper span.super-calculator-label {
+    padding-left: 5px;
+    padding-right: 0px;
+}
 .super-field.super-calculator .super-calculator-wrapper span.super-calculator-label.super-empty-label {
     padding-right: 0px;
 }

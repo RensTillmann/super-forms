@@ -538,6 +538,7 @@ h1.super-thanks-title {
   flex-direction: column;
 }
 .super-form .super-max-width-wrapper {
+  width: 100%;
   position: relative;
   display: inline-block;
 }
@@ -2024,6 +2025,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 }
 .super-accordion-content > .super-padding {
   padding: 10px;
+  display: flex;
 }
 .super-accordion-content > .super-padding > .super-element-inner {
   display: none;
@@ -3770,10 +3772,6 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 .super-form:not(.super-rtl) .super-icon-outside.super-icon-right.super-file .super-field-wrapper {
   flex-direction: column;
 }
-.super-form:not(.super-rtl) .super-icon-outside.super-icon-right.super-toggle {
-  flex-direction: row;
-  justify-content: flex-start;
-}
 .super-form:not(.super-rtl) .super-icon-outside.super-icon-right.super-open.super-focus .super-field-wrapper {
   justify-content: flex-start;
 }
@@ -3892,11 +3890,19 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 .super-form.super-rtl * {
   direction: rtl;
 }
-.super-form.super-rtl .super-tabs-menu {
-  flex-direction: row-reverse;
-}
 .super-form.super-rtl .super-multipart.super-active .super-form-button.super-next-multipart:nth-last-child(2), .super-form.super-rtl .super-multipart.super-active .super-form-button.super-prev-multipart:nth-last-child(2) {
   float: left;
+}
+.super-form.super-rtl .super-multipart .super-form-button {
+  width: auto;
+}
+.super-form.super-rtl .super-grid > .super-column .super-duplicate-column-fields > .super-duplicate-actions > .super-add-duplicate,
+.super-form.super-rtl .super-grid > .super-column .super-duplicate-column-fields > .super-duplicate-actions > .super-delete-duplicate {
+  right: initial;
+  left: 0px;
+}
+.super-form.super-rtl .super-grid > .super-column .super-duplicate-column-fields > .super-duplicate-actions > .super-delete-duplicate {
+  left: 25px;
 }
 .super-form.super-rtl .super-field.bottom-left > .super-error-msg,
 .super-form.super-rtl .super-field.bottom-left > .super-empty-error-msg {
@@ -3920,10 +3926,6 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   flex-direction: row-reverse;
 }
 .super-form.super-rtl .super-keyword-tags .super-autosuggest-tags {
-  flex-direction: row-reverse;
-}
-.super-form.super-rtl .super-accordion-header {
-  display: flex;
   flex-direction: row-reverse;
 }
 .super-form.super-rtl .super-accordion-header:after, .super-form.super-rtl .super-accordion-header:before {
@@ -4029,10 +4031,6 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 .super-form.super-rtl .super-quantity {
   justify-content: flex-end;
 }
-.super-form.super-rtl .super-toggle {
-  justify-content: flex-start;
-  flex-direction: row-reverse;
-}
 .super-form.super-rtl .super-color .super-field-wrapper {
   justify-content: flex-end;
 }
@@ -4040,15 +4038,11 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   flex-direction: column;
   align-items: flex-end;
 }
-.super-form.super-rtl .super-file .super-field-wrapper .super-fileupload-button {
-  flex-direction: row-reverse;
-}
 .super-form.super-rtl .super-file .super-field-wrapper .super-progress-bar {
   float: none;
 }
 .super-form.super-rtl .super-file .super-field-wrapper .super-fileupload-files {
   width: 100%;
-  flex-direction: row-reverse;
 }
 .super-form.super-rtl .super-prev-multipart {
   float: right;
@@ -5791,8 +5785,8 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 }
 .super-form.super-rtl .super-int-phone_flag-container .super-int-phone_selected-flag .super-int-phone_selected-dial-code,
 .super-form.super-rtl .super-int-phone_flag-container .super-int-phone_selected-flag .super-int-phone_arrow {
-  margin-left: 0;
-  margin-right: 6px;
+  margin-left: 6px;
+  margin-right: 0px;
 }
 .super-form:not(.super-rtl).super-default-rounded .super-shortcode:not(.super-dropup).super-focus.super-open .super-shortcode-field[type=int-phone] {
   border-radius: 4px;
@@ -6100,86 +6094,72 @@ html[dir=rtl] .super-timepicker-dialog .ui-timepicker-list li {
   padding-left: 0;
   padding-right: 15px;
 }
-html[dir=rtl] .super-form.super-rtl .super-heading-title,
-html[dir=rtl] .super-form.super-rtl .super-heading-description {
+
+.super-form.super-rtl .super-heading-title.super-align-left,
+.super-form.super-rtl .super-heading-description.super-align-left {
   justify-content: flex-end;
 }
-html[dir=rtl] .super-form.super-rtl .super-heading-title.super-align-left,
-html[dir=rtl] .super-form.super-rtl .super-heading-description.super-align-left {
-  justify-content: flex-end;
-}
-html[dir=rtl] .super-form.super-rtl .super-heading-title.super-align-center,
-html[dir=rtl] .super-form.super-rtl .super-heading-description.super-align-center {
+.super-form.super-rtl .super-heading-title.super-align-center,
+.super-form.super-rtl .super-heading-description.super-align-center {
   justify-content: center;
 }
-html[dir=rtl] .super-form.super-rtl .super-heading-title.super-align-right,
-html[dir=rtl] .super-form.super-rtl .super-heading-description.super-align-right {
+.super-form.super-rtl .super-heading-title.super-align-right,
+.super-form.super-rtl .super-heading-description.super-align-right {
   justify-content: flex-start;
 }
-html[dir=rtl] .super-form.super-rtl .super-grid {
+.super-form.super-rtl .super-grid {
   flex-direction: row-reverse;
 }
-html[dir=rtl] .super-form.super-rtl .display-horizontal .super-items-list {
+.super-form.super-rtl .display-horizontal .super-items-list {
   flex-direction: row;
 }
-html[dir=rtl] .super-form.super-rtl .display-horizontal .super-item,
-html[dir=rtl] .super-form.super-rtl .display-vertical .super-item,
-html[dir=rtl] .super-form.super-rtl .display-grid .super-item,
-html[dir=rtl] .super-form.super-rtl .display-slider .super-item {
+.super-form.super-rtl .display-horizontal .super-item,
+.super-form.super-rtl .display-vertical .super-item,
+.super-form.super-rtl .display-grid .super-item,
+.super-form.super-rtl .display-slider .super-item {
   padding-right: 0;
   padding-left: 30px;
 }
-html[dir=rtl] .super-form.super-rtl .super-checkbox .super-item,
-html[dir=rtl] .super-form.super-rtl .super-radio .super-item {
+.super-form.super-rtl .super-checkbox .super-item,
+.super-form.super-rtl .super-radio .super-item {
   flex-direction: row;
 }
-html[dir=rtl] .super-form.super-rtl.super-default-rounded .super-quantity .super-minus-button {
+.super-form.super-rtl .super-signature {
+  display: flex;
+  flex-direction: row;
+}
+.super-form.super-rtl.super-default-rounded .super-quantity .super-minus-button {
   border-radius: 0px 4px 4px 0px;
 }
-html[dir=rtl] .super-form.super-rtl.super-default-rounded .super-quantity .super-plus-button {
+.super-form.super-rtl.super-default-rounded .super-quantity .super-plus-button {
   border-radius: 4px 0px 0px 4px;
 }
-html[dir=rtl] .super-form.super-rtl .super-dropdown:not(.super-open.super-focus, .super-filled) .super-adaptive-placeholder {
+.super-form.super-rtl .super-dropdown:not(.super-open.super-focus, .super-filled) .super-adaptive-placeholder {
   justify-content: flex-end;
 }
-html[dir=rtl] .super-form.super-rtl .display-grid .super-items-list {
+.super-form.super-rtl .display-grid .super-items-list {
   flex-direction: row-reverse;
   flex-grow: 1;
 }
-html[dir=rtl] .super-form.super-rtl .super-checkbox.display-slider .carouseljs-track,
-html[dir=rtl] .super-form.super-rtl .super-radio.display-slider .carouseljs-track {
+.super-form.super-rtl .super-checkbox.display-slider .carouseljs-track,
+.super-form.super-rtl .super-radio.display-slider .carouseljs-track {
   flex-grow: 1;
 }
-html[dir=rtl] .super-form.super-rtl .super-checkbox.display-slider .carouseljs-track .super-item,
-html[dir=rtl] .super-form.super-rtl .super-radio.display-slider .carouseljs-track .super-item {
+.super-form.super-rtl .super-checkbox.display-slider .carouseljs-track .super-item,
+.super-form.super-rtl .super-radio.display-slider .carouseljs-track .super-item {
   flex-grow: 1;
 }
-html[dir=rtl] .super-form.super-rtl .super-toggle {
-  flex-direction: row-reverse;
-}
-html[dir=rtl] .super-form.super-rtl .super-color .super-field-wrapper {
+.super-form.super-rtl .super-color .super-field-wrapper {
   justify-content: flex-end;
 }
-html[dir=rtl] .super-form.super-rtl .super-file .super-field-wrapper .super-fileupload-button {
-  flex-direction: row-reverse;
-}
-html[dir=rtl] .super-form.super-rtl .super-calculator.super-align-left .super-field-wrapper {
+.super-form.super-rtl .super-calculator.super-align-left .super-field-wrapper {
   justify-content: flex-start;
 }
-html[dir=rtl] .super-form.super-rtl .super-calculator.super-align-right .super-field-wrapper {
+.super-form.super-rtl .super-calculator.super-align-right .super-field-wrapper {
   justify-content: flex-end;
 }
-html[dir=rtl] .super-form.super-rtl .super-file .super-field-wrapper {
+.super-form.super-rtl .super-file .super-field-wrapper {
   align-items: flex-start;
-}
-html[dir=rtl] .super-form.super-rtl .super-file .super-field-wrapper .super-fileupload-files {
-  flex-direction: row-reverse;
-}
-html[dir=rtl] .super-form.super-rtl .super-tabs-menu,
-html[dir=rtl] .super-form.super-rtl .super-accordion-header,
-html[dir=rtl] .super-form.super-rtl .super-int-phone_flag-container .super-int-phone_selected-flag,
-html[dir=rtl] .super-form.super-rtl .super-int-phone_country-list .super-int-phone_country {
-  flex-direction: row-reverse;
 }
 
 .super-form {
