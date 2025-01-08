@@ -1190,17 +1190,6 @@ textarea
         margin-right: -1px
         font-size: 14px
         cursor: pointer
-.super-rtl
-  .super-rating 
-    .super-field-wrapper
-      .super-rating
-        flex-direction: row-reverse
-html[dir="rtl"] 
-  .super-rtl
-    .super-rating
-      .super-field-wrapper
-        .super-rating
-          flex-direction: row
 .super-slider
   .slider
     width: auto
@@ -1667,9 +1656,6 @@ html[dir="rtl"]
 .super-tabs-menu
   display: flex
   flex-direction: row
-.super-rtl
-  .super-tabs-menu
-    flex-direction: row-reverse
 
 .super-accordion-item
   position: relative
@@ -2981,12 +2967,6 @@ html[dir="rtl"]
       &.super-prev-multipart:nth-last-child(2)
         width: auto
         float: right
-  &.super-rtl
-    .super-multipart.super-active
-      .super-form-button
-        &.super-next-multipart:nth-last-child(2),
-        &.super-prev-multipart:nth-last-child(2)
-          float: left
   /* Dropdowns */
   .super-dropdown
     &.super-filled
@@ -3216,6 +3196,22 @@ html[dir="rtl"]
             margin-left: 5px
   // RTL
   &.super-rtl
+    *
+      direction: rtl
+    .super-tabs-menu
+      flex-direction: row-reverse
+    .super-multipart.super-active
+      .super-form-button
+        &.super-next-multipart:nth-last-child(2),
+        &.super-prev-multipart:nth-last-child(2)
+          float: left
+    .super-field
+      &.bottom-left
+        > .super-error-msg, 
+        > .super-empty-error-msg
+          width: 100%
+          float: right
+          text-align: right
     &.super-default-rounded 
       .super-quantity 
         .super-minus-button
@@ -3269,14 +3265,15 @@ html[dir="rtl"]
       &:not(.super-open.super-focus, .super-filled)
         .super-adaptive-placeholder
           justify-content: flex-end
+
+    // Radio & Checkbox
     .super-checkbox, .super-radio
       .super-item
-        padding-right: 0
-        padding-left: 30px
-        flex-direction: row-reverse
-        .super-before
-          margin-right: 0
-          margin-left: 5px
+        flex-direction: row
+      .super-before
+        margin-right: 0
+        margin-left: 5px
+
     .super-rating .super-rating
       float: right
     .super-color,
@@ -3286,13 +3283,8 @@ html[dir="rtl"]
         justify-content: flex-end
     .display-grid
       .super-items-list
-        flex-direction: row-reverse
+        flex-direction: row
         flex-grow: 1
-    .display-horizontal
-      .super-field-wrapper
-        justify-content: flex-end
-      .super-items-list
-        flex-direction: row-reverse
     .super-checkbox,
     .super-radio,
     .super-color,
@@ -3319,22 +3311,11 @@ html[dir="rtl"]
       height: 100%
       float: right
     .super-multipart-steps
-      width: 100%
-      overflow: hidden
-    .super-multipart-steps .super-multipart-step
-      float: right
-      margin-right: 0
-      margin-left: 20px
-    .super-multipart-steps .super-multipart-step:after
-      right: inherit
-      left: -21px
-    .super-multipart-progress-inner
+      margin-left: 0
       display: flex
-      flex-direction: row-reverse
-    .super-multipart-steps
-      display: flex
-      flex-direction: row-reverse
+      flex-direction: row
       .super-multipart-step
+        float: right
         margin-right: 0
         margin-left: 20px
         &:after
@@ -3363,6 +3344,7 @@ html[dir="rtl"]
       float: right
     .super-next-multipart
       float: left
+      width: auto
     // RTL no icons
     .super-field:not(.super-icon-outside,.super-icon-inside)
       .super-autosuggest-tags
@@ -3380,11 +3362,6 @@ html[dir="rtl"]
       .super-dropdown-arrow
         right: initial
         left: 0
-      &.super-checkbox,
-      &.super-radio,
-      &.super-rating
-        .super-field-wrapper
-          justify-content: flex-end
     // RTL icons outside
     .super-icon-outside
       // RTL icons outside left
@@ -3413,12 +3390,6 @@ html[dir="rtl"]
         .super-dropdown-arrow
           right: initial
           left: 42px
-        &.super-checkbox,
-        &.super-radio,
-        &.super-rating,
-        &.super-color
-          .super-field-wrapper
-            justify-content: flex-end
       // RTL icons outside right
       &.super-icon-right
         .super-field-wrapper
@@ -3559,35 +3530,6 @@ html[dir="rtl"]
           .super-keyword-tag
             margin-right: 0px
             margin-left: 5px
-
-  // LTR
-  &:not(.super-rtl)
-    // LTR no icons
-    .super-field:not(.super-icon-outside,.super-icon-inside)
-      .super-adaptive-placeholder
-        left: 10px
-    // LTR icons outside
-    .super-icon-outside
-      // LTR icons outside left
-      &.super-icon-left
-        .super-adaptive-placeholder
-          left: 52px
-      // LTR icons outside right
-      &.super-icon-right
-        .super-adaptive-placeholder
-          left: 11px
-    // LTR icons inside
-    .super-icon-inside
-      // LTR icons inside left
-      &.super-icon-left
-        .super-adaptive-placeholder
-          left: 34px
-      // LTR icons inside right
-      &.super-icon-right
-        .super-adaptive-placeholder
-          left: 11px
-  // RTL
-  &.super-rtl
     .super-adaptive-placeholder
       left: initial
       right: 0
@@ -3621,6 +3563,34 @@ html[dir="rtl"]
       &.super-icon-right
         .super-adaptive-placeholder
           margin-right: 29px
+
+
+  // LTR
+  &:not(.super-rtl)
+    // LTR no icons
+    .super-field:not(.super-icon-outside,.super-icon-inside)
+      .super-adaptive-placeholder
+        left: 10px
+    // LTR icons outside
+    .super-icon-outside
+      // LTR icons outside left
+      &.super-icon-left
+        .super-adaptive-placeholder
+          left: 52px
+      // LTR icons outside right
+      &.super-icon-right
+        .super-adaptive-placeholder
+          left: 11px
+    // LTR icons inside
+    .super-icon-inside
+      // LTR icons inside left
+      &.super-icon-left
+        .super-adaptive-placeholder
+          left: 34px
+      // LTR icons inside right
+      &.super-icon-right
+        .super-adaptive-placeholder
+          left: 11px
 
   /* Default squared */
   &.super-default-squared
@@ -5450,24 +5420,6 @@ html[dir="rtl"]
       .super-field-wrapper
         margin-top: 20px
 
-.super-rtl
-  .super-heading-title,
-  .super-heading-description
-    justify-content: flex-end
-    &.super-align-left
-      justify-content: flex-start
-    &.super-align-center
-      justify-content: center
-    &.super-align-right
-      justify-content: flex-end
-  .super-checkbox,
-  .super-radio
-    &.display-slider
-      .carouseljs-track
-        flex-grow: 1
-        .super-item
-          flex-grow: 1
-
 // HTML dir="rtl" and RTL enabled on form:
 html[dir="rtl"]
   .super-timepicker-dialog .ui-timepicker-list li
@@ -5475,45 +5427,37 @@ html[dir="rtl"]
     padding-right: 15px
   .super-form
     &.super-rtl
-      *
-        direction: ltr!important
       .super-heading-title,
       .super-heading-description
         justify-content: flex-end
         &.super-align-left
-          justify-content: flex-start
+          justify-content: flex-end
         &.super-align-center
           justify-content: center
         &.super-align-right
-          justify-content: flex-end
-      .super-multipart-steps
+          justify-content: flex-start
+      .super-grid
         flex-direction: row-reverse
       .display-horizontal
         .super-items-list
-          flex-direction: row-reverse
+          flex-direction: row
+      .display-horizontal,
+      .display-vertical,
+      .display-grid,
+      .display-slider
+        .super-item
+          padding-right: 0
+          padding-left: 30px
       .super-checkbox,
       .super-radio
         .super-item
-          flex-direction: row-reverse
+          flex-direction: row
       &.super-default-rounded
         .super-quantity
           .super-minus-button
             border-radius: 0px 4px 4px 0px
           .super-plus-button
             border-radius: 4px 0px 0px 4px
-      .super-field:not(.super-icon-outside,.super-icon-inside)
-        &.super-checkbox,
-        &.super-radio,
-        &.super-rating
-          .super-field-wrapper
-            justify-content: flex-end
-      .display-horizontal
-        .super-field-wrapper
-          justify-content: flex-end
-        .super-items-list
-          flex-direction: row-reverse
-      .super-multipart-progress-inner
-        flex-direction: row-reverse
       .super-dropdown:not(.super-open.super-focus, .super-filled) .super-adaptive-placeholder
         justify-content: flex-end
       .display-grid .super-items-list
