@@ -1068,6 +1068,7 @@
     padding: 0px;
     font-size: 11px;
     line-height: 1.2;
+    direction: ltr;
 }
 
 .super-translation-mode .super-preview-elements .super-element .super-element-header .super-title {
@@ -1076,7 +1077,7 @@
 
 .super-preview-elements .super-element .super-element-header .super-title input {
     font-size: 11px;
-    padding: 0px 0px 0px 5px;
+    padding: 0px 5px 0px 5px;
     border: 1px dashed #929292;
     display: inline-block;
     width: auto;
