@@ -267,8 +267,6 @@ h1.super-thanks-title {
   line-height: normal;
   margin-bottom: 30px;
   font-size: 12px;
-  float: left;
-  width: 100%;
 }
 .super-msg:after {
   content: "\f071";
@@ -3653,6 +3651,10 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   height: 100%;
   align-items: center;
 }
+.super-form .super-multipart.super-active .super-form-button:nth-last-child(2) {
+  width: auto;
+  float: right;
+}
 .super-form .super-multipart.super-active .super-form-button.super-next-multipart:nth-last-child(2), .super-form .super-multipart.super-active .super-form-button.super-prev-multipart:nth-last-child(2) {
   width: auto;
   float: right;
@@ -3891,6 +3893,9 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   direction: rtl;
 }
 .super-form.super-rtl .super-multipart.super-active .super-form-button.super-next-multipart:nth-last-child(2), .super-form.super-rtl .super-multipart.super-active .super-form-button.super-prev-multipart:nth-last-child(2) {
+  float: left;
+}
+.super-form.super-rtl .super-multipart.super-active .super-form-button:nth-last-child(2) {
   float: left;
 }
 .super-form.super-rtl .super-multipart .super-form-button {

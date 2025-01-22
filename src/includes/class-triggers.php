@@ -25,7 +25,7 @@ class SUPER_Triggers {
         //error_log('execute_scheduled_trigger_actions()');
         // Retrieve reminders from database based on post_meta named `_super_reminder_timestamp` based on the timestamp we can determine if we need to send the reminder yet
         global $wpdb;
-        $current_timestamp = strtotime(current_time('Y-m-d H:i'));
+        $current_timestamp = strtotime(date('Y-m-d H:i', time()));
         $query = "SELECT post_id, meta_value AS timestamp, post_content,
         (SELECT meta_value FROM $wpdb->postmeta WHERE meta_key = '_super_scheduled_trigger_action_data' AND r.post_id = post_id) AS triggerEventParameters
         FROM $wpdb->postmeta AS r INNER JOIN $wpdb->posts ON ID = post_id
@@ -167,7 +167,7 @@ class SUPER_Triggers {
                 // Determine the date
                 if(empty($v['days'])) $v['days'] = 0;
                 if(empty($v['offset'])) $v['offset'] = 0;
-                if(empty($v['date'])) $v['date'] = current_time('Y-m-d');
+                if(empty($v['date'])) $v['date'] = date('Y-m-d', time());
                 $v['days'] = SUPER_Common::email_tags($v['days'], $data, $settings );
                 if(!is_numeric($v['days'])) $v['days'] = 0;
                 $v['offset'] = SUPER_Common::email_tags($v['offset'], $data, $settings );
@@ -182,8 +182,8 @@ class SUPER_Triggers {
                     $scheduled_date = date('Y-m-d', strtotime($base_date) + $days_offset);
                 }
                 // Send at a fixed time
-                $scheduled_time = current_time('H:i'); // instant by default
-                $scheduled_real_date = current_time('mysql');
+                $scheduled_time = date('H:i', time());
+                $scheduled_real_date = date('Y-m-d H:i:s', time());
                 if($v['method']==='time'){
                     $scheduled_time = SUPER_Common::email_tags($v['time'], $data, $settings);
                     // Test if time was set to 24 hour format
@@ -197,7 +197,7 @@ class SUPER_Triggers {
                 }
                 if($v['method']==='offset'){
                     // Send based of form submission + an time offset
-                    $base_time = current_time('H:i');
+                    $base_time = date('H:i', time());
                     // 3600 = 1 hour (60 minutes)
                     $offset = SUPER_Common::email_tags($v['offset'], $data, $settings);
                     $time_offset = 3600 * $offset;
@@ -210,12 +210,12 @@ class SUPER_Triggers {
                     $scheduled_real_date = $dateTime->format('Y-m-d H:i');
                 }
                 $scheduled_trigger_action_timestamp = strtotime($scheduled_real_date);
-                if($scheduled_trigger_action_timestamp < strtotime(current_time('mysql'))){
+                if($scheduled_trigger_action_timestamp < time()){
                     // Try to increase by 1 day
                     error_log('Super Forms [ERROR]: automatically increased ' . $scheduled_real_date . ' scheduled date with 1 day because it is in the past.');
                     $scheduled_real_date = date('Y-m-d H:i', strtotime($scheduled_real_date) + 86400);
                     $scheduled_trigger_action_timestamp = strtotime($scheduled_real_date);
-                    if($scheduled_trigger_action_timestamp < strtotime(current_time('mysql'))){
+                    if($scheduled_trigger_action_timestamp < time()){
                         // Just try to add 1 extra day to the current date
                         error_log('Super Forms [ERROR]: ' . $scheduled_real_date . ' can not be used as a schedule date for trigger '.$triggerName.' (form id: '.$form_id.') because it is in the past, please check your settings under [Triggers] tab on the form builder.');
                         SUPER_Common::output_message( array(

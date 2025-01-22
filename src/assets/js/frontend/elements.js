@@ -527,7 +527,7 @@
                 max = el.dataset.maxlength,
                 workDays,
                 weekends,
-                regex = /{([^\\\/\s"'+]*?)}/g,
+                regex,
                 range = el.dataset.range,
                 maxPicks =(el.dataset.maxpicks ? parseInt(el.dataset.maxpicks, 10) : 1),
                 firstDay = el.dataset.firstDay,
@@ -699,8 +699,7 @@
                     exclDaysOverride = (typeof this.dataset.exclDaysOverride !=='undefined' ? this.dataset.exclDaysOverride : undefined);
                     // Override date/days exclusion
                     if(typeof exclDaysOverride !== 'undefined'){
-                        regex = /{([^\\\/\s"'+]*?)}/g;
-                        exclDaysOverrideReplaced = SUPER.update_variable_fields.replace_tags({form: form, regex: regex, value: exclDaysOverride});
+                        exclDaysOverrideReplaced = SUPER.update_variable_fields.replace_tags({form: form, value: exclDaysOverride});
                         exclDaysOverrideReplaced = exclDaysOverrideReplaced.split("\n");
                         date = ('0' + dt.getDate()).slice(-2);
                         month = ('0' + (dt.getMonth()+1)).slice(-2);
@@ -778,8 +777,7 @@
                     }
                     // Exclude dates or a range of dates
                     if(typeof exclDates !== 'undefined'){
-                        regex = /{([^\\\/\s"'+]*?)}/g;
-                        exclDatesReplaced = SUPER.update_variable_fields.replace_tags({form: form, regex: regex, value: exclDates});
+                        exclDatesReplaced = SUPER.update_variable_fields.replace_tags({form: form, value: exclDates});
                         exclDatesReplaced = exclDatesReplaced.split("\n");
                         date = ('0' + dt.getDate()).slice(-2);
                         month = ('0' + (dt.getMonth()+1)).slice(-2);
@@ -1015,7 +1013,6 @@
             if (typeof $.fn.timepicker !== 'function') return false;
             var $this = $(this),
                 form = SUPER.get_frontend_or_backend_form({el: this}),
-                regex = /{([^\\\/\s"'+]*?)}/g,
                 $is_rtl = form.classList.contains('super-rtl'),
                 $orientation = 'l',
                 format = $this.data('format'),
@@ -1028,7 +1025,7 @@
                 $form_id,
                 $form_size;
             
-            this.value = SUPER.update_variable_fields.replace_tags({form: form, regex: regex, value: this.value});
+            this.value = SUPER.update_variable_fields.replace_tags({form: form, value: this.value});
             if(this.value.length===13){
                 // Convert timestamp to correct time format
                 this.value = SUPER.timestampTo24h(this.value);
@@ -1038,7 +1035,7 @@
             if(max==='') max = '23:59';
             if(typeof min !== 'undefined') {
                 min = min.toString();
-                min = SUPER.update_variable_fields.replace_tags({form: form, regex: regex, value: min});
+                min = SUPER.update_variable_fields.replace_tags({form: form, value: min});
                 if(min.indexOf(':')===-1){
                     if(min !== parseInt(min, 10)){
                         min = parseInt(min, 10);
@@ -1049,7 +1046,7 @@
             }
             if(typeof max !== 'undefined') {
                 max = max.toString();
-                max = SUPER.update_variable_fields.replace_tags({form: form, regex: regex, value: max});
+                max = SUPER.update_variable_fields.replace_tags({form: form, value: max});
                 if(max.indexOf(':')===-1){
                     if(max !== parseInt(max, 10)){
                         max = parseInt(max, 10);
@@ -2176,8 +2173,7 @@
         $doc.on('click', '.super-form .super-duplicate-column-fields .super-add-duplicate', function(){
             var i, x, nodes, el, parent, column, form, firstColumn, lastColumn,
                 found, limit, unique_field_names = {}, field_names = {}, field_labels = {}, counter = 0,
-                field, clone, added_fields_with_suffix = {}, foundElements = [], html_fields, suffix, name, 
-                regex = /{([^\\\/\s"'+]*?)}/g;
+                field, clone, name;
 
             el = $(this)[0];
             parent = el.closest('.super-duplicate-column-fields');

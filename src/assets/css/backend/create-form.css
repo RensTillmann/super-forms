@@ -1416,7 +1416,8 @@
 .super-element-settings .super-hidden {
     display:none!important;
 }
-.super-element-settings .super-field.super-error, .super-form-settings .super-field.super-error {
+.super-element-settings .super-field.super-error,
+.super-form-settings .super-field.super-error {
     border: 1px solid rgb(255,155,155);
     background-color: rgb(255,208,208);
     padding-left: 2px;
@@ -1425,6 +1426,7 @@
 }
 
 .super-element-settings .super-field-name,
+.sfui-setting .sf-docs,
 .super-element-settings .sf-docs,
 .super-form-settings .super-field-name {
     position: relative;
@@ -1433,6 +1435,7 @@
     color: black;
     float: left;
 }
+.sfui-setting .sf-docs,
 .super-element-settings .sf-docs,
 .super-form-settings .sf-docs {
     color:#aaaaaa;
@@ -1444,14 +1447,21 @@
     margin-bottom:4px;
     font-size: 12px;
 }
+.sfui-notice .sf-docs {
+    display:inline-block;
+    float:initial;
+    width:initial;
+}
+.sfui-setting .sf-docs,
 .super-form-settings .sf-docs {
     padding-left:5px;
 }
-
+.sfui-setting .sf-docs:hover,
 .super-element-settings .sf-docs:hover,
 .super-form-settings .sf-docs:hover{
     color:#737cff;
 }
+.sfui-setting .sf-docs:before,
 .super-element-settings .sf-docs:before,
 .super-form-settings .sf-docs:before{
     font-family: 'Font Awesome 5 Free';

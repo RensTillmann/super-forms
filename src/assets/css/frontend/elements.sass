@@ -299,8 +299,6 @@ h1.super-thanks-title
   line-height: normal
   margin-bottom: 30px
   font-size: 12px
-  float: left
-  width: 100%
   &:after
     content: unicode("f071")
     color: #FF9A9A
@@ -2964,6 +2962,10 @@ textarea
       align-items: center
   /* Multipart previous/next/submit buttons */
   .super-multipart.super-active
+    .super-form-button:nth-last-child(2)
+      width: auto
+      float: right
+  .super-multipart.super-active
     .super-form-button
       &.super-next-multipart:nth-last-child(2),
       &.super-prev-multipart:nth-last-child(2)
@@ -3202,6 +3204,8 @@ textarea
         &.super-next-multipart:nth-last-child(2),
         &.super-prev-multipart:nth-last-child(2)
           float: left
+      .super-form-button:nth-last-child(2)
+        float: left
     .super-multipart
       .super-form-button
         width: auto

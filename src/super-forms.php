@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.4.050
+ * Version:           6.4.052
  * Plugin URI:        http://super-forms.com
  * Author URI:        http://super-forms.com
  * Author:            WebRehab
@@ -43,7 +43,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '6.4.050';
+        public $version = '6.4.052';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -496,10 +496,10 @@ if(!class_exists('SUPER_Forms')) :
         }
         public static function super_client_data_register_garbage_collection() {
             if(!wp_next_scheduled('super_client_data_garbage_collection')){
-                wp_schedule_event(current_time('timestamp'), 'every_minute', 'super_client_data_garbage_collection');
+                wp_schedule_event(time(), 'every_minute', 'super_client_data_garbage_collection');
             }
             if(!wp_next_scheduled('super_scheduled_trigger_actions')){
-                wp_schedule_event(current_time('timestamp'), 'every_minute', 'super_scheduled_trigger_actions');
+                wp_schedule_event(time(), 'every_minute', 'super_scheduled_trigger_actions');
             }
         }
 
@@ -625,7 +625,7 @@ if(!class_exists('SUPER_Forms')) :
             header('Cache-Control: public');
             // The Expires header contains the date/time after which the response is considered stale.
             // "stale" means "not fresh"
-            header( 'Expires: ' . gmdate( 'D, d M Y H:i:s', current_time('timestamp') + 86400*30 ) . ' GMT' ); // +30 days
+            header( 'Expires: ' . gmdate( 'D, d M Y H:i:s', time() + 86400*30 ) . ' GMT' ); // +30 days
             // Only send back the requested resource (with a 200 status)
             // if it has been last modified after the given date.
             // If the request has not been modified since, send back a 304 without any body
@@ -651,7 +651,7 @@ if(!class_exists('SUPER_Forms')) :
             $upload_folder = $global_settings['file_upload_dir'];
             if(!isset($global_settings['file_upload_use_year_month_folders']) || !empty($global_settings['file_upload_use_year_month_folders'])) {
                 // Generate the yearly and monthly directories.
-                if(!isset($time)) $time = current_time('mysql');
+                if(!isset($time)) $time = current_time('mysql', true);
                 $y = substr($time, 0, 4);
                 $m = substr($time, 5, 2);
                 $dirs['subdir'] = "/$y/$m";
@@ -2990,6 +2990,7 @@ if(!class_exists('SUPER_Forms')) :
          * @since       1.0.0
         */
         public function duplicate_form_action() {
+            error_log('duplicate_form_action()');
 
             if ( empty( $_REQUEST['post'] ) ) {
                 wp_die( esc_html__( 'No form to duplicate has been supplied!', 'super-forms' ) );
@@ -3004,6 +3005,7 @@ if(!class_exists('SUPER_Forms')) :
 
             // Copy the page and insert it
             if ( ! empty( $post ) ) {
+                error_log('dupliacte_form()');
                 $new_id = $this->duplicate_form( $post );
                 do_action( 'super_duplicate_form', $new_id, $post );
                 wp_redirect( admin_url( 'admin.php?page=super_create_form&id=' . $new_id ) );
@@ -3013,6 +3015,7 @@ if(!class_exists('SUPER_Forms')) :
             }
         }
         public function duplicate_form( $post, $parent = 0, $post_status = '' ) {
+            error_log('dupliacte_form()');
             global $wpdb;
             $new_post_author = wp_get_current_user();
             $new_post_date = current_time( 'mysql' );
@@ -3068,6 +3071,7 @@ if(!class_exists('SUPER_Forms')) :
             return $post[0];
         }
         private function duplicate_form_post_meta( $id, $new_id ) {
+            error_log('duplicate_form_post_meta()');
             global $wpdb;
             $post_meta_infos = $wpdb->get_results( $wpdb->prepare( "SELECT meta_key, meta_value FROM $wpdb->postmeta WHERE post_id=%d AND meta_key;", absint( $id ) ) );
             if ( count( $post_meta_infos ) != 0 ) {
@@ -3097,6 +3101,7 @@ if(!class_exists('SUPER_Forms')) :
             add_post_meta( $new_id, '_super_elements', $elements );
             
             $s = SUPER_Common::get_form_triggers($id);
+            error_log('Triggers: '.json_encode($s));
             SUPER_Common::save_form_triggers($s, $id);
 
             $s = SUPER_Common::get_form_woocommerce_settings($id);

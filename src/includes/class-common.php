@@ -130,6 +130,7 @@ class SUPER_Common {
         return $triggers;
     }
     public static function save_form_triggers($triggers, $form_id, $delete=true){
+        error_log('save_form_triggers()');
         // First delete all local triggers for the current form
         global $wpdb;
         if($delete===true){
@@ -139,23 +140,31 @@ class SUPER_Common {
             $wpdb->query("DELETE FROM $wpdb->postmeta WHERE post_id = 0 AND meta_key LIKE '_super_specific_trigger-%'");
         }
         if(isset($triggers) && is_array($triggers)){
+            error_log('we have triggers to save');
             foreach($triggers as $trigger){
                 $triggerName = sanitize_title_with_dashes(trim($trigger['name']));
+                error_log($triggerName);
                 // Skip if no event was choosen
-                if(empty($trigger['event'])) continue; 
+                if(empty($trigger['event'])) {
+                    error_log('this trigger has no event, skip it');
+                    continue; 
+                }
                 // Only current form
                 if(empty($trigger['listen_to'])){
+                    error_log('listen to current form...');
                     add_post_meta( $form_id, '_super_trigger-'.$triggerName, $trigger );
                     continue;
                 }
                 // Global trigger (for all forms)
                 if(isset($trigger['listen_to']) && $trigger['listen_to']==='all'){
+                    error_log('listen to all forms...');
                     // Use our custom update_metadata function because we can't parse zero value otherwise
                     self::update_metadata( 'post', 0, '_super_global_trigger-'.$triggerName, $trigger );
                     continue;
                 }
                 // Specific forms only (by ID)
                 if(isset($trigger['listen_to']) && $trigger['listen_to']==='id'){
+                    error_log('listen to specific form ID...');
                     self::update_metadata( 'post', 0, '_super_specific_trigger-'.$triggerName, $trigger );
                     continue;
                 }
@@ -449,12 +458,12 @@ class SUPER_Common {
             }
         }
 
-        // $exp_var is used to only extend expiry of the cookie when `current_time('timestamp') > $exp_var`
+        // $exp_var is used to only extend expiry of the cookie when `time() > $exp_var`
         // that way we don't have to write to the database that many times
         // by default the expiry is set to 1 hour, and the expiry variant is set to 30 min.
 		$expires = apply_filters( 'super_cookie_expires_filter', $expires);
 		$exp_var = apply_filters( 'super_cookie_exp_var_filter', $exp_var);
-        $now = current_time('timestamp');
+        $now = time(); // UTC timestamp
         $expires = $now + $expires;
         $exp_var = $now + $exp_var;
 		// Returns true if the page is using SSL (checks if HTTPS or on Port 443).
@@ -482,6 +491,8 @@ class SUPER_Common {
                             update_option( '_sfsdata_' . $id, array('expires'=>$expires, 'exp_var'=>$exp_var), 'no' );
                             wp_cache_delete('_sfsdata_' . $id, 'options');
                         }
+                    }else{
+                        error_log('Super Forms: Headers already sent. Cannot set cookie.');
                     }
                 }
             }else{
@@ -499,6 +510,8 @@ class SUPER_Common {
                     update_option( '_sfsdata_' . $id, array('expires'=>$expires, 'exp_var'=>$exp_var), 'no' );
                     wp_cache_delete('_sfsdata_' . $id, 'options');
                 }
+            }else{
+                error_log('Super Forms: Headers already sent. Cannot set cookie.');
             }
         }
         return $id;
@@ -514,7 +527,7 @@ class SUPER_Common {
                 ), $x 
             )
         );
-        // $exp_var is used to only extend expiry of the cookie when `current_time('timestamp') > $exp_var`
+        // $exp_var is used to only extend expiry of the cookie when `time() > $exp_var`
         // that way we don't have to write to the database that many times
         // by default the expiry is set to 30 min., and the expiry variant is set to 10 min.
 
@@ -534,7 +547,7 @@ class SUPER_Common {
         if(strpos($name, 'unique_submission_id')===0){
             $name .= '_'.$form_id;
         }
-        $now = current_time('timestamp');
+        $now = time(); // UTC timestamp
         $force = false;
         if($name==='sf_nonce') $force = true;
         $key = self::startClientSession(array('force'=>$force));
@@ -567,7 +580,7 @@ class SUPER_Common {
         return $value;
     }
     public static function cleanupOldClientData($key, $clientData) {
-        $now = current_time('timestamp');
+        $now = time(); // UTC timestamp
         foreach($clientData as $name => $data){
             if(is_array($data)){
                 if($data['expires'] < $now){
@@ -608,6 +621,8 @@ class SUPER_Common {
                         $cookieName = '_sfs_id';
                         @setcookie( $cookieName, $key, $clientData['expires'], COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );
                     }
+                }else{
+                    error_log('Super Forms: Headers already sent. Cannot set cookie.');
                 }
             }
         }
@@ -627,7 +642,7 @@ class SUPER_Common {
         if(!isset($clientData[$name])) return false;
         if(!isset($clientData[$name]['value'])) return false;
         // If expired variation is reached, extend it
-        $now = current_time('timestamp');
+        $now = time(); // UTC timestamp
         if($clientData[$name]['exp_var'] < $now){
             // Default expiry filter
             $expires = apply_filters( 'super_client_data_expires_filter', 30*60 ); //1800, // Defaults to 30 min. (30*60)
@@ -647,6 +662,8 @@ class SUPER_Common {
                 $clientData['exp_var'] = $now + $exp_var;
                 $cookieName = '_sfs_id';
                 @setcookie( $cookieName, $key, $clientData['expires'], COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );
+            }else{
+                error_log('Super Forms: Headers already sent. Cannot set cookie.');
             }
             update_option( '_sfsdata_' . $key, $clientData, 'no' );
             wp_cache_delete('_sfsdata_' . $key, 'options');
@@ -694,7 +711,7 @@ class SUPER_Common {
         if($limit===0) $limit = 10; // Defaults to 100
         $limit = apply_filters( 'super_client_data_delete_limit_filter', absint($limit) ); // It's technically called a `Cookie name`, but we call it `key` here
         // Delete old deprecated sessions from previous Super Forms versions
-        $now = current_time('timestamp');
+        $now = time(); // UTC timestamp
         $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '\_super\_session\_%' LIMIT 5000");
         $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '\_sfs\_%' LIMIT 5000");
         $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '\_sfsdata\_%' AND SUBSTRING_INDEX(SUBSTRING_INDEX(option_value, ';', 2), ':', -1) < {$now}");
@@ -702,7 +719,7 @@ class SUPER_Common {
         $wpdb->query("DELETE FROM $wpdb->options WHERE option_name LIKE '\_sfsi\_%' AND SUBSTRING_INDEX(option_name, '.', -1) < {$now}");
         // Delete expired uploads/tmp/sf/xxxxxx folders
         $tmp_dir = wp_upload_dir()['basedir'] . '/tmp/sf/';
-        $now = current_time('timestamp');
+        $now = time(); // UTC timestamp
         $expired_dirs = array();
         if($handle = opendir($tmp_dir)){
             while(false !== ($entry = readdir($handle))) {
@@ -4451,7 +4468,7 @@ class SUPER_Common {
             $file_name = $v['filename']; // Desired file name for the image
             $image_data = $v['data']; // Base64 string
             $tmp_dir = wp_upload_dir()['basedir'] . '/tmp/sf/'; // Get the system's temporary directory path using WordPress function
-            $tmp_dir .= (current_time('timestamp')+120).'/'; // plus 2 minutes expiry
+            $tmp_dir .= (time()+120).'/'; // plus 2 minutes expiry
             $folderResult = SUPER_Common::generate_random_folder($tmp_dir);
             $tmp_dir = $folderResult['folderPath'];
             // Create the temporary directory if it doesn't exist

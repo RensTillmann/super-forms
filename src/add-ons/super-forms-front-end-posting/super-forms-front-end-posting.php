@@ -772,7 +772,7 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
 
                             
                             if ( $date_to && ! $date_from ) {
-                                $date_from = strtotime( 'NOW', current_time( 'timestamp' ) );
+                                $date_from = strtotime( 'NOW', time() );
                                 $product->set_date_on_sale_from($date_from);
                             }
 
@@ -782,10 +782,10 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                             } else {
                                 $product->set_price($regular_price);
                             }
-                            if ( '' !== $sale_price && $date_from && $date_from <= strtotime( 'NOW', current_time( 'timestamp' ) ) ) {
+                            if ( '' !== $sale_price && $date_from && $date_from <= strtotime( 'NOW', time() ) ) {
                                 $product->set_price($sale_price);
                             }
-                            if ( $date_to && $date_to < strtotime( 'NOW', current_time( 'timestamp' ) ) ) {
+                            if ( $date_to && $date_to < strtotime( 'NOW', time() ) ) {
                                 $product->set_price($regular_price);
                                 $product->set_date_on_sale_from('');
                                 $product->set_date_on_sale_to('');
