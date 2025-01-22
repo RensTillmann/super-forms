@@ -79,7 +79,7 @@ if(!class_exists('SUPER_Stripe')) :
                 $s = self::get_default_stripe_settings($settings);
                 $expiry = $s['retryPaymentEmail']['expiry']; // expiry in hours 1 = 1 hour, 0.5 = 30min.
                 // Calculate expiry for the retry checkout session
-                $expires_at = current_time('timestamp') + (3600 * $expiry);
+                $expires_at = time() + (3600 * $expiry);
                 $sfsi['stripeData']['expires_at'] = $expires_at;
                 $checkout_session = \Stripe\Checkout\Session::create($sfsi['stripeData']);
                 wp_redirect($checkout_session->url);
@@ -1343,7 +1343,7 @@ if(!class_exists('SUPER_Stripe')) :
 
                     // We don't use this, since it requires consent from the user
                     // // Expires after
-                    // 'expires_at' => current_time('timestamp') + (3600 * 0.5), // Configured to expire after 30 min. 
+                    // 'expires_at' => time() + (3600 * 0.5), // Configured to expire after 30 min. 
                     // // Allow recovery 
                     // 'consent_collection' => array(
                     //     'promotions' => 'auto', // Promotional consent is required to send recovery emails
@@ -1461,7 +1461,7 @@ if(!class_exists('SUPER_Stripe')) :
                 $sfsi['stripeData'] = $stripeData;
                 update_option('_sfsi_' . $sfsi_id, $sfsi );
                 // Create the checkout session via Stripe API
-                $expires_at = current_time('timestamp') + (3600 * 1.5);
+                $expires_at = time() + (3600 * 1.5);
                 $stripeData['expires_at'] = $expires_at;
                 $checkout_session = \Stripe\Checkout\Session::create($stripeData);
             } catch( Exception $e ){

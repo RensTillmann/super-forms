@@ -141,7 +141,7 @@ if( !class_exists('SUPER_Email_Reminders') ) :
             
             // Setup reminders cron job
             if ( ! wp_next_scheduled( 'super_cron_reminders' ) ) {
-                wp_schedule_event( current_time('timestamp'), 'every_minute', 'super_cron_reminders' );
+                wp_schedule_event( time(), 'every_minute', 'super_cron_reminders' );
             }
 
             // Send reminders (triggered by cron job)
@@ -219,7 +219,7 @@ if( !class_exists('SUPER_Email_Reminders') ) :
             FROM $wpdb->postmeta AS r
             INNER JOIN $wpdb->posts ON ID = post_id
             WHERE meta_key = '_super_reminder_timestamp'");
-            $current_timestamp = strtotime(current_time('Y-m-d H:i'));
+            $current_timestamp = time();
             foreach($reminders as $k => $v){
                 // If timestamp is smaller (in the past) or equal to current timestamp the we may proceed
                 if($v->timestamp <= $current_timestamp){
@@ -425,7 +425,7 @@ if( !class_exists('SUPER_Email_Reminders') ) :
             $data = $atts['data'];
             if(empty($settings['email_reminder_'.$suffix.'_date_offset'])) $settings['email_reminder_'.$suffix.'_date_offset'] = 0;
             if(empty($settings['email_reminder_'.$suffix.'_time_offset'])) $settings['email_reminder_'.$suffix.'_time_offset'] = 0;
-            if(empty($settings['email_reminder_'.$suffix.'_base_date'])) $settings['email_reminder_'.$suffix.'_base_date'] = current_time('Y-m-d');
+            if(empty($settings['email_reminder_'.$suffix.'_base_date'])) $settings['email_reminder_'.$suffix.'_base_date'] = date('Y-m-d', time());
             // 86400 = 1 day / 24 hours
             $offset = $settings['email_reminder_'.$suffix.'_date_offset'];
             $offset = 86400 * $offset;
@@ -451,7 +451,7 @@ if( !class_exists('SUPER_Email_Reminders') ) :
                 }
             }else{
                 // Send based of form submission + an offset
-                $base_time = current_time('H:i');
+                $base_time = date('H:i', time());
                 // 3600 = 1 hour / 60 minutes
                 $offset = 3600 * $settings['email_reminder_'.$suffix.'_time_offset'];
                 $reminder_time = date('H:i', strtotime($base_time) + $offset);
@@ -459,7 +459,7 @@ if( !class_exists('SUPER_Email_Reminders') ) :
             $reminder_real_date = date('Y-m-d H:i', strtotime($reminder_date.' '.$reminder_time));
 
             $reminder_date = strtotime($reminder_real_date);
-            if($reminder_date < strtotime(current_time('Y-m-d H:i'))){
+            if($reminder_date < strtotime(date('Y-m-d H:i', time()))){
                 error_log('Super Forms [ERROR]: ' . $reminder_real_date . ' can not be used as a reminder date because it is in the past, please check your settings under "Form Settings > E-mail Reminders"');
                 SUPER_Common::output_message( array(
                     'msg' => '<strong>' . $reminder_real_date . '</strong> ' . esc_html__( 'can not be used as a reminder date because it is in the past, please check your settings under "Form Settings > E-mail Reminders".', 'super-forms' ),

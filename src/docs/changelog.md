@@ -11,10 +11,16 @@
 
 ## TODO:
 
+- Duplicate form store local/global Triggers
 - Test the PayPal trigger events/actions
 - Update keys for new PayPal settings stored under Triggers and test the PayPal payment features 
 - Issue with populating existing signature from first person, when using a form that requires two persons to sign the document.
 - Issue with Listings settings not merged correctly from latest version to Beta version
+
+## Jan 21, 2025 - Version 6.4.052-beta
+
+- **Improved:** For large complex forms cache conditional logic lookup and cache field lookup for speed improvements
+- **Improved:** Make sure all calculations/logic is processed before displaying form to the user
 
 ## Dec 16, 2024 - Version 6.4.016-beta
 

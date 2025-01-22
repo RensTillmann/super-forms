@@ -372,7 +372,7 @@ class SUPER_Ajax {
         $result = setcookie(
             'super_forms[wp_admin]', // name
             $auth, // value
-            current_time('timestamp')+60*120, // expires after 15 minutes
+            time()+60*120, // expires after 15 minutes
             '',  // path
             '', // domain
             false, // secure (many WP dashboard might not have valid certificate, or are not forced to https protocol)
@@ -476,7 +476,7 @@ class SUPER_Ajax {
     public static function api_do_request($route, $custom_args, $method='echo'){
         $args = self::api_default_post_args($custom_args);
         if($route==='logout'){
-            setcookie('super_forms[wp_admin]', '', current_time('timestamp')-3600);
+            setcookie('super_forms[wp_admin]', '', time()-3600);
         }
         $api_endpoint = (isset($_POST['api_endpoint']) ? $_POST['api_endpoint'] : SUPER_API_ENDPOINT);
         $r = wp_remote_post($api_endpoint . '/' . $route, $args);

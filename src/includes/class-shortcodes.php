@@ -4790,6 +4790,7 @@ class SUPER_Shortcodes {
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
         $result = self::opening_tag(array('tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings));
         if(!isset($atts['js'])) $atts['js'] = '';
+        error_log($atts['js']);
         if( $atts['js']!='' ) { 
             $re = '/foreach\(([-_a-zA-Z0-9]{1,})|([-_a-zA-Z0-9]{1,})\[.*?(\):)|(?:<%|{)([-_a-zA-Z0-9]{1,})(?:}|%>)|(?:<%|{)([-_a-zA-Z0-9]{1,});.*?(?:}|%>)|(?:<%|{)([-_a-zA-Z0-9]{1,})\[.*?(?:}|%>)|!?isset\(([-_a-zA-Z0-9]{1,})|([-_a-zA-Z0-9]{1,})\[.*?(\):)/';
             $str = $atts['js'];
@@ -6370,14 +6371,14 @@ class SUPER_Shortcodes {
                 $result .= ' data-i18n="' . $i18n . '"';
             }
             $result .= '>';
+
+            // @since 3.0.0 - new loading method (gif stops/freezes animating when browser is doing javascript at background)
+            $result .= '<span class="super-load-icon"></span>';
             
             // @since 4.7.0 - improved method to center form and to give max width to the form
             if( !empty( $settings['theme_max_width'] ) ) {
                 $result .= '<div class="super-max-width-wrapper" style="max-width:' . $settings['theme_max_width'] . 'px;">';
             }
-
-            // @since 3.0.0 - new loading method (gif stops/freezes animating when browser is doing javascript at background)
-            $result .= '<span class="super-load-icon"></span>';
 
             // @since 4.7.0 - translation langauge switcher
             if(empty($settings['i18n_switch'])) $settings['i18n_switch'] = 'false';

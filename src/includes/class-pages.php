@@ -538,7 +538,7 @@ class SUPER_Pages {
             array(
                 'label' => 'PayPal',
                 'items' => array(
-					'paypal.ipn.payment.verified' => 'PayPal - Fulfill order',
+					'paypal.ipn.payment.verified' => 'PayPal - Order Fulfilled',
 					'paypal.ipn.payment.refunded' => 'PayPal - Payment refunded',
 					'paypal.ipn.subscription.payment.failed' => 'PayPal - Payment failed',
 					'paypal.ipn.subscription.changed' => 'PayPal - Subscription changed',
@@ -808,7 +808,7 @@ class SUPER_Pages {
                                                                 'toggle' => true,
                                                                 'title' => esc_html__( 'E-mail headers', 'super-forms' ),
                                                                 'notice' => 'hint', // hint/info
-                                                                'content' => sprintf( esc_html__( 'The `From email` should end with %s for E-mails to work. If you are using an email provider (Gmail, Yahoo, Outlook.com, etc) it should be the email address of that account. If you have problems with E-mail delivery you can read this guide on possible solutions: %sEmail delivery problems%s', 'super-forms' ), '<strong style="color:red;">@' . str_replace('www.', '', $_SERVER["SERVER_NAME"]) . '</strong>', '<a href="https://docs.super-forms.com/common-problems/index/email-delivery-problems">', '</a>' ),
+                                                                'content' => sprintf( esc_html__( 'The `From email` should end with %s for E-mails to work. If you are using an email provider (Gmail, Yahoo, Outlook.com, etc) it should be the email address of that account. If you have problems with E-mail delivery you can read this guide on possible solutions: %sEmail delivery problems%s', 'super-forms' ), '<strong style="color:red;">@' . str_replace('www.', '', $_SERVER["SERVER_NAME"]) . '</strong>', '<a class="sf-docs" target="_blank" href="https://docs.super-forms.com/common-problems/index/email-delivery-problems">', '</a>' ),
                                                                 'nodes' => array(
                                                                     array(
                                                                         'name' => 'to',

@@ -50,11 +50,10 @@
 				wrapper = calculatorFields[ii].querySelector('.super-calculator-wrapper');
 				superMath = wrapper.dataset.superMath;
 				if( superMath!='' ) {
-					regex = /{([^\\\/\s"'+]*?)}/g;
 					array = [];
 					i = 0;
 					match;
-					while ((match = regex.exec(superMath)) != null) {
+					while ((match = SUPER.tagsRegex.exec(superMath)) != null) {
 						array[i] = match[1];
 						i++;
 					}

@@ -117,7 +117,7 @@
 	};
 	SUPER.init_signature_resize = function($classes, $form){
 		var formUid = $form.dataset.sfuid;
-		if(SUPER.signatures){
+		if(SUPER.signatures && SUPER.signatures[formUid]){
 			Object.keys(SUPER.signatures[formUid]).forEach(function(fieldName) {
 				var signaturePad = SUPER.signatures[formUid][fieldName];
 				var wrapper = signaturePad.canvas.closest('.super-field-wrapper');

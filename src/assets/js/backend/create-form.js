@@ -3914,10 +3914,6 @@
             if ($parent.hasClass('super-theme-hide-icons-wizard')) SUPER.update_wizard_preview(null, null, $value, false);
         });
 
-        $doc.on('click', '.super-skip-wizard, .super-first-time-setup-bg', function () {
-            $('.super-first-time-setup, .super-first-time-setup-bg').removeClass('super-active');
-        });
-
         $doc.on('click', '.super-save-wizard', function () {
             $(this).addClass('super-loading').html('Saving settings...');
             SUPER.update_wizard_preview(null, null, null, true);
