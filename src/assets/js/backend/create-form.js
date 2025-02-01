@@ -2884,13 +2884,13 @@
                     }
                     // Complete:
                     SUPER.files = [];
-                    SUPER.init_super_form_frontend(function(formId){
+                    SUPER.init_super_form_frontend({callback:function(formId){
                         if(SUPER.form_js && SUPER.form_js[formId] && SUPER.form_js[formId]['_entry_data']){
                             var data = SUPER.form_js[formId]['_entry_data'];
                             if(data) SUPER.populate_form_with_entry_data(data, $('.super-live-preview .super-form')[0], false);
                         }
                         SUPER.after_preview_loaded_hook(formId);
-                    });
+                    }});
                 }
             };
             xhttp.onerror = function () {

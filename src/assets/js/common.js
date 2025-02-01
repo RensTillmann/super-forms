@@ -59,35 +59,45 @@ SUPER.getFormIdByAttributeID = function(form){
 SUPER.formFullyLoaded = {
     values: {}, 
     count: {}, 
-    timer: setInterval(function(){
+    timerFunction: function(){
         var i, nodes = document.querySelectorAll('.super-form:not(.super-form-loaded)');
-        if(nodes.length===0){
+        if (nodes.length === 0) {
             clearInterval(SUPER.formFullyLoaded.timer);
+            SUPER.formFullyLoaded.timer = null; // Mark timer as stopped
             return;
         }
-        for(i=0; i<nodes.length; i++){
+        for (i = 0; i < nodes.length; i++) {
             var sfuid = nodes[i].dataset.sfuid;
-            if(nodes[i].classList.contains('super-rendered') && !SUPER.after_field_change_blur_timeout[sfuid]){
+            if (nodes[i].classList.contains('super-rendered') && !SUPER.after_field_change_blur_timeout[sfuid]) {
                 // Form fully loaded
                 var formId = parseInt(nodes[i].id.replace('super-form-', ''), 10);
-                SUPER.after_form_fully_loaded({form:nodes[i], formId:formId, sfuid:sfuid});
+                SUPER.after_form_fully_loaded({ form: nodes[i], formId: formId, sfuid: sfuid });
                 continue;
             }
-            if(!SUPER.formFullyLoaded.values[sfuid]) SUPER.formFullyLoaded.values[sfuid] = null;
-            if(!SUPER.formFullyLoaded.count[sfuid]) SUPER.formFullyLoaded.count[sfuid] = 0;
-            if(SUPER.after_field_change_blur_timeout[sfuid] && SUPER.formFullyLoaded.values[sfuid]===SUPER.after_field_change_blur_timeout[sfuid]) SUPER.formFullyLoaded.count[sfuid]++;	
-            if(SUPER.formFullyLoaded.count[sfuid]>=3){
+            if (!SUPER.formFullyLoaded.values[sfuid]) SUPER.formFullyLoaded.values[sfuid] = null;
+            if (!SUPER.formFullyLoaded.count[sfuid]) SUPER.formFullyLoaded.count[sfuid] = 0;
+            if (SUPER.after_field_change_blur_timeout[sfuid] && SUPER.formFullyLoaded.values[sfuid] === SUPER.after_field_change_blur_timeout[sfuid]) {
+                SUPER.formFullyLoaded.count[sfuid]++;
+            }
+            if (SUPER.formFullyLoaded.count[sfuid] >= 3) {
                 // Form fully loaded
                 var formId = parseInt(nodes[i].id.replace('super-form-', ''), 10);
-                SUPER.after_form_fully_loaded({form:nodes[i], formId:formId, sfuid:sfuid});
+                SUPER.after_form_fully_loaded({ form: nodes[i], formId: formId, sfuid: sfuid });
                 continue;
             }
             // Update prev values for comparing
-            if(SUPER.after_field_change_blur_timeout[sfuid]) SUPER.formFullyLoaded.values[sfuid] = SUPER.after_field_change_blur_timeout[sfuid]; 
-        }; 
-    }, 100)
+            if (SUPER.after_field_change_blur_timeout[sfuid]) {
+                SUPER.formFullyLoaded.values[sfuid] = SUPER.after_field_change_blur_timeout[sfuid];
+            }
+        }
+    }
 };
+// Start check on page load
+SUPER.formFullyLoaded.timer = setInterval(SUPER.formFullyLoaded.timerFunction, 100);
+
+
 SUPER.after_form_fully_loaded = function(args){
+    // Mark as loaded
     args.form.classList.add('super-form-loaded');
     if(args.form.parentNode.closest('.super-live-preview') || args.form.classList.contains('preload-disabled')){
         if(!args.form.classList.contains('preload-disabled')){
@@ -757,13 +767,24 @@ function SUPERreCaptcha(){
             SUPER.resetFocussedFields();
             if(target.classList.contains('super-field')){
                 target.classList.add('super-focus');
+				if(target.classList.contains('super-dropdown')){
+					if(target.querySelector('.super-item.super-active')){
+						SUPER.scrollToElement(target.querySelector('.super-item.super-active'));
+					}
+				}
             }else{
                 if(target.closest('.super-field')) {
                     target.closest('.super-field').classList.add('super-focus');
+					if(target.closest('.super-field').classList.contains('super-dropdown')){
+						if(target.querySelector('.super-item.super-active')){
+							SUPER.scrollToElement(target.querySelector('.super-item.super-active'));
+						}
+					}
                 }
             }
         }
     };
+
     SUPER.scrollToElement = function(el){
         var pos = el.getBoundingClientRect();
         var margin = 50; // 50 pixels margin top/bottom
@@ -1001,7 +1022,9 @@ function SUPERreCaptcha(){
             }
             var field = form.querySelector('.super-shortcode-field:not(.super-fileupload)[name="'+name+'"], .super-active-files[name="'+name+'"]');
             if(typeof SUPER.cachedFields[form.id]==='undefined') SUPER.cachedFields[form.id] = {};
-            if(typeof SUPER.cachedFields[form.id][name]==='undefined') SUPER.cachedFields[form.id][name] = field;
+            if(typeof SUPER.cachedFields[form.id][name]==='undefined') {
+                SUPER.cachedFields[form.id][name] = field;
+            }
             return field;
         }
         // If regex is set to 'all' we want to search for multiple fields
@@ -1015,7 +1038,9 @@ function SUPERreCaptcha(){
 		}
 		var fields = form.querySelectorAll('.super-shortcode-field:not(.super-fileupload)[name'+regex+'="'+name+'"], .super-active-files[name="'+name+'"]');
 		if(typeof SUPER.cachedFields[form.id]==='undefined') SUPER.cachedFields[form.id] = {};
-		if(typeof SUPER.cachedFields[form.id][regex+'='+name]==='undefined') SUPER.cachedFields[form.id][regex+'='+name] = fields; 
+		if(typeof SUPER.cachedFields[form.id][regex+'='+name]==='undefined') {
+            SUPER.cachedFields[form.id][regex+'='+name] = fields; 
+        }
 		return fields;
     };
 
@@ -6098,7 +6123,7 @@ function SUPERreCaptcha(){
         //Rating
         SUPER.rating();
 
-        var forms = document.querySelectorAll('.super-form');
+        var forms = document.querySelectorAll('.super-form:not(.super-rendered)');
         Object.keys(forms).forEach(function(key) {
             $this = forms[key];
             if($this.id==='') return;
@@ -6193,7 +6218,9 @@ function SUPERreCaptcha(){
             
             if(SUPER.form_js && SUPER.form_js[formId] && SUPER.form_js[formId]['_entry_data']){
                 var data = SUPER.form_js[formId]['_entry_data'];
-                if(data) SUPER.populate_form_with_entry_data(data, args.form, args.clear);
+                if(data) {
+                    SUPER.populate_form_with_entry_data(data, args.form, args.clear);
+                }
             }
 
             // Trigger fake windows resize
@@ -7145,18 +7172,23 @@ function SUPERreCaptcha(){
         SUPER.after_form_cleared_hook(args.form);
     };
 
-
     // Populate form with entry data found after ajax call
     SUPER.populate_form_with_entry_data = function(data, form, clear){
         if(!data) return;
         if(typeof clear === 'undefined') clear = true;
-        var i,ii,iii,nodes,items,item,options,wrapper,input,innerNodes,firstValue,dropdown,setFieldValue,itemFirstValue,
+        var i,ii,iii,nodes,items,item,options,wrapper,input,innerNodes,firstValue,dropdown,setFieldValue,setFieldHtml,itemFirstValue,
             raw_value,html,files,element,field,stars,currentStar,
             switchBtn,activeItem,fieldName,
             updatedFields = {};        
 
         data = JSON.parse(data);
         if(data!==false && data.length!==0){
+            if(form.parentNode.classList.contains('super-listing-entry-wrapper')){
+                // Clear cache for this form
+                // Basically required whenever we are editing entry via Listings and the same form was previously loaded on the current page
+                SUPER.cachedConditionalLogicByFieldName = {};
+                SUPER.cachedFields[form.id] = {};
+            }
             var formId = 0;
             if(form.querySelector('input[name="hidden_form_id"]')){
                 formId = form.querySelector('input[name="hidden_form_id"]').value;
@@ -7252,26 +7284,28 @@ function SUPERreCaptcha(){
 
                 // Signature element
                 if(field.classList.contains('super-signature')){
-                    var canvasWrapper = field.querySelector('.super-signature-canvas');
-                    var canvas = canvasWrapper.querySelector('canvas');
-                    var width = canvasWrapper.getBoundingClientRect().width;
-                    var height = canvasWrapper.getBoundingClientRect().height;
-                    canvas.width = width;
-                    canvas.height = height;
-                    var formUid = field.closest('.super-form').dataset.sfuid;
-                    var fieldName = field.querySelector('.super-shortcode-field').name;
-                    if(typeof SUPER.signatures[formUid] === 'undefined') SUPER.signatures[formUid] = {};
-                    if(typeof SUPER.signatures[formUid][fieldName] === 'undefined') SUPER.signatures[formUid][fieldName] = {};
-                    var signaturePad = SUPER.signatures[formUid][fieldName]
-                    signaturePad.fromDataURL(raw_value, { ratio: 1, width: width, height: height, xOffset: 0, yOffset: 0 });
-                    // Remove clear button
-                    if(raw_value!==''){
-                        field.querySelector('.super-shortcode-field').dataset.disallowEdit = 'true';
-                        if(canvasWrapper.parentNode.querySelector('.super-signature-clear')){
-                            canvasWrapper.parentNode.querySelector('.super-signature-clear').remove();
-                            signaturePad.off();
+                    if(typeof $.fn.SuperSignaturePad === "function") {
+                        var canvasWrapper = field.querySelector('.super-signature-canvas');
+                        var canvas = canvasWrapper.querySelector('canvas');
+                        var width = canvasWrapper.getBoundingClientRect().width;
+                        var height = canvasWrapper.getBoundingClientRect().height;
+                        canvas.width = width;
+                        canvas.height = height;
+                        var formUid = field.closest('.super-form').dataset.sfuid;
+                        var fieldName = field.querySelector('.super-shortcode-field').name;
+                        if(typeof SUPER.signatures[formUid] === 'undefined') SUPER.signatures[formUid] = {};
+                        if(typeof SUPER.signatures[formUid][fieldName] === 'undefined') SUPER.signatures[formUid][fieldName] = {};
+                        var signaturePad = SUPER.signatures[formUid][fieldName]
+                        signaturePad.fromDataURL(raw_value, { ratio: 1, width: width, height: height, xOffset: 0, yOffset: 0 });
+                        // Remove clear button
+                        if(raw_value!==''){
+                            field.querySelector('.super-shortcode-field').dataset.disallowEdit = 'true';
+                            if(canvasWrapper.parentNode.querySelector('.super-signature-clear')){
+                                canvasWrapper.parentNode.querySelector('.super-signature-clear').remove();
+                                signaturePad.off();
+                            }
+                            field.classList.add('super-filled'); // Make sure to be able to delete signature to be able to draw a new one
                         }
-                        field.classList.add('super-filled'); // Make sure to be able to delete signature to be able to draw a new one
                     }
                     return true;
                 }
@@ -7334,26 +7368,29 @@ function SUPERreCaptcha(){
                 if(field.classList.contains('super-auto-suggest')){
                     dropdown = field.querySelector('.super-dropdown-list');
                     if(raw_value!==''){
+                        options = raw_value.split(',');
                         firstValue = raw_value; //.split(';')[0];
                         setFieldValue = '';
                         nodes = dropdown.querySelectorAll('.super-item.super-active');
                         for(ii=0;ii<nodes.length;ii++){
                             nodes[ii].classList.remove('super-active');
                         }
-                        nodes = dropdown.querySelectorAll('.super-item[data-value^="'+firstValue+'"]');
-                        for(ii=0;ii<nodes.length;ii++){
-                            if(options[ii]!==innerNodes[iii].dataset.value){
-                                // Important check, so we don't get duplicate selections for instance when having dropdown items `Son` and `Son-in-law`
-                                continue;
-                            }
-                            itemFirstValue = nodes[ii].dataset.value; //.split(';')[0];
-                            if(itemFirstValue==firstValue){
-                                field.querySelector('.super-field-wrapper').classList.add('super-overlap');
-                                nodes[ii].classList.add('super-active');
-                                if(setFieldValue===''){
-                                    setFieldValue += nodes[ii].innerText;
-                                }else{
-                                    setFieldValue += ','+nodes[ii].innerText;
+                        for(ii=0;ii<options.length;ii++){
+                            innerNodes = dropdown.querySelectorAll('.super-item[data-value^="'+firstValue+'"]');
+                            for(iii=0;iii<innerNodes.length;iii++){
+                                if(options[ii]!==innerNodes[iii].dataset.value){
+                                    // Important check, so we don't get duplicate selections for instance when having dropdown items `Son` and `Son-in-law`
+                                    continue;
+                                }
+                                itemFirstValue = innerNodes[iii].dataset.value; //.split(';')[0];
+                                if(itemFirstValue==firstValue){
+                                    field.querySelector('.super-field-wrapper').classList.add('super-overlap');
+                                    innerNodes[iii].classList.add('super-active');
+                                    if(setFieldValue===''){
+                                        setFieldValue += innerNodes[iii].innerText;
+                                    }else{
+                                        setFieldValue += ','+innerNodes[iii].innerText;
+                                    }
                                 }
                             }
                         }
@@ -7371,27 +7408,43 @@ function SUPERreCaptcha(){
                     if(raw_value!==''){
                         options = raw_value.split(',');
                         dropdown = field.querySelector('.super-dropdown-list');
-                        setFieldValue = '';
+						setFieldValue = '';
+						setFieldHtml = '';
                         nodes = dropdown.querySelectorAll('.super-item.super-active');
                         for(ii=0;ii<nodes.length;ii++){
                             nodes[ii].classList.remove('super-active');
-                        }
-                        for(ii=0;ii<options.length;ii++){
-                            innerNodes = dropdown.querySelectorAll('.super-item:not(.super-placeholder)[data-value^="'+options[ii]+'"]');
-                            for(iii=0;iii<innerNodes.length;iii++){
-                                if(options[ii]!==innerNodes[iii].dataset.value){
-                                    // Important check, so we don't get duplicate selections for instance when having dropdown items `Son` and `Son-in-law`
-                                    continue;
-                                }
-                                itemFirstValue = innerNodes[iii].dataset.value; //.split(';')[0];
-                                innerNodes[iii].classList.add('super-active');
-                                if(setFieldValue===''){
-                                    setFieldValue += itemFirstValue;
-                                }else{
-                                    setFieldValue += ','+itemFirstValue;
-                                }
-                            }
-                        }
+                        } 
+						if(element.dataset.minlength==='1' && element.dataset.maxlength==='1'){
+							// Check against full raw value only
+							innerNodes = dropdown.querySelectorAll('.super-item:not(.super-placeholder)[data-value="'+raw_value+'"]');
+							for ( iii = 0; iii < innerNodes.length; iii++){
+								setFieldValue = innerNodes[iii].dataset.value; 
+								setFieldHtml = innerNodes[iii].innerHTML;
+								innerNodes[iii].classList.add('super-active');
+							}
+							if(setFieldValue!==''){
+								dropdown.querySelector('.super-placeholder').innerHTML = setFieldHtml; 
+							}
+							element.value = setFieldValue;
+							return true;
+						}else{
+                            for(ii=0;ii<options.length;ii++){
+								innerNodes = dropdown.querySelectorAll('.super-item:not(.super-placeholder)[data-value^="'+options[ii]+'"]');
+                                for(iii=0;iii<innerNodes.length;iii++){
+                                    if(options[ii]!==innerNodes[iii].dataset.value){
+                                        // Important check, so we don't get duplicate selections for instance when having dropdown items `Son` and `Son-in-law`
+                                        continue;
+                                    }
+									itemFirstValue = innerNodes[iii].dataset.value; //.split(';')[0];
+									innerNodes[iii].classList.add('super-active');
+									if(setFieldValue===''){
+										setFieldValue += itemFirstValue;
+									}else{
+										setFieldValue += ','+itemFirstValue;
+                                    }
+								}
+							}
+						}
                         element.value = setFieldValue;
                     }else{
                         nodes = field.querySelectorAll('.super-dropdown-list .super-item.super-active');
@@ -7639,12 +7692,16 @@ function SUPERreCaptcha(){
         });
     }
     // init the form on the frontend
-    SUPER.init_super_form_frontend = function(callback){
+    SUPER.init_super_form_frontend = function(args){
+        if(typeof args==='undefined') args = { callback: null };
         // Do not do anything if all forms where intialized already
         if(document.querySelectorAll('.super-form').length===document.querySelectorAll('.super-form.super-initialized').length){
             return true;
         }
-
+        // Restart at later time:
+        if(SUPER.formFullyLoaded.timer===null){
+            SUPER.formFullyLoaded.timer = setInterval(SUPER.formFullyLoaded.timerFunction, 100);
+        }
         $('.super-form').each(function(){
             var formId = SUPER.getFormIdByAttributeID(this);
             if(typeof SUPER.preFlightMappings === 'undefined') SUPER.preFlightMappings = {};
@@ -7927,7 +7984,7 @@ function SUPERreCaptcha(){
                 // Example: http://domain.com/page#step-49344-3
                 //tmpSUPER.switch_to_step_and_or_field(form);
             }
-            SUPER.init_super_responsive_form_fields({form: form, callback: callback, formId: formId});
+            SUPER.init_super_responsive_form_fields({form: form, callback: args.callback, formId: formId});
         });
 
         $(window).resize(function() {
