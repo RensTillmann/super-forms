@@ -37,7 +37,6 @@
                 if(validate=='true'){
                     waitForValidations = true;
                     SUPER.validate_form({el: target, form: form.querySelector('.super-multipart.super-active'), submitButton: target, validateMultipart: true, event: e}, function(hasErrors) {
-                        debugger;
                         gotValidationResults = true;
                         validationResult = hasErrors;
                     });
@@ -47,7 +46,6 @@
         }
 
         var waiter = setInterval(function(){
-            debugger;
             if(waitForValidations && !gotValidationResults){
                 // Waiting for validation to finish
                 return;
@@ -966,46 +964,61 @@
             $(this).datepicker('show');
         });
 
-        function set_timepicker_dif($this){
+        function set_timepicker_dif($this) {
             var $value = $this.val(),
-                hours,minutes,AMPM,sHours,sMinutes,
-                $h,$m,$s,today,dd,mm,yyyy,d,$timestamp;
-
-            // @since 3.4.0 - If Ante/Post meridiem 12 hour format make sure to convert it to 24 hour format
-            if( $this.data('format')=='h:i A' ) {
-                if($value==='') $value = '12:00 AM';
-                hours = Number($value.match(/^(\d+)/)[1]);
-                minutes = Number($value.match(/:(\d+)/)[1]);
-                AMPM = $value.match(/\s(.*)$/)[1];
-                if(AMPM == 'PM' && hours<12) hours = hours+12;
-                if(AMPM == 'AM' && hours==12) hours = hours-12;
-                sHours = hours.toString();
-                sMinutes = minutes.toString();
-                if( hours<10 ) sHours = '0' + sHours;
-                if( minutes<10 ) sMinutes = '0' + sMinutes;
-                $value = sHours + ':' + sMinutes;
+                hours, minutes, AMPM, sHours, sMinutes,
+                $h, $m, $s, today, dd, mm, yyyy, d, $timestamp;
+        
+            // Handle Ante/Post meridiem 12-hour format
+            if ($this.data('format') === 'h:i A') {
+                if ($value === '') $value = '12:00 AM';
+        
+                // Safely extract hours and minutes
+                var hourMatch = $value.match(/^(\d+)/);
+                var minuteMatch = $value.match(/:(\d+)/);
+                var ampmMatch = $value.match(/\s(.*)$/);
+        
+                if (hourMatch && minuteMatch && ampmMatch) {
+                    hours = Number(hourMatch[1]);
+                    minutes = Number(minuteMatch[1]);
+                    AMPM = ampmMatch[1];
+        
+                    if (AMPM === 'PM' && hours < 12) hours += 12;
+                    if (AMPM === 'AM' && hours === 12) hours = 0;
+        
+                    sHours = hours.toString();
+                    sMinutes = minutes.toString();
+        
+                    if (hours < 10) sHours = '0' + sHours;
+                    if (minutes < 10) sMinutes = '0' + sMinutes;
+        
+                    $value = sHours + ':' + sMinutes;
+                } else {
+                    console.error("Invalid time format:", $value);
+                    $value = '00:00'; // Default to midnight if the format is invalid
+                }
             }
-
+        
+            // Split the value into hours, minutes, and seconds
             $value = $value.split(':');
-            if(typeof $value[0] === 'undefined') $value[0] = '00';
-            if(typeof $value[1] === 'undefined') $value[1] = '00';
-            $h = $value[0];
-            $m = $value[1].split(' ');
-            $m = $m[0];
-            if(typeof $value[2] === 'undefined'){
-                $s = '00';
-            }else{
-                $s = $value[2];
-            }
+            $h = $value[0] || '00';
+            $m = ($value[1] || '00').split(' ')[0];
+            $s = $value[2] || '00';
+        
+            // Create a Date object for the time
             today = new Date();
             dd = today.getDate();
             mm = today.getMonth();
             yyyy = today.getFullYear();
             d = new Date(Date.UTC(yyyy, mm, dd, $h, $m, $s));
+        
+            // Save the timestamp in the dataset
             $timestamp = d.getTime();
             $this[0].dataset.mathDiff = $timestamp;
-            SUPER.after_field_change_blur_hook({el: $this[0]});
-        }
+        
+            // Trigger the custom hook after the field change
+            SUPER.after_field_change_blur_hook({ el: $this[0] });
+        };
 
         // Init timepickers
         $('.super-timepicker:not(.ui-timepicker-input)').each(function(){
@@ -2492,7 +2505,7 @@
                     }
                 }
             }else{
-                if(!e.target.closest('.super-dropdown')){
+                if(e.target.closest('.super-dropdown') || e.target.closest('.super-dropdown-list')){
                     nodes = document.querySelectorAll('.super-dropdown.super-focus');
                     for(i = 0; i < nodes.length; i++){
                         nodes[i].classList.remove('super-focus');
@@ -2739,7 +2752,6 @@
                                 sf_nonce: $sf_nonce,
                             },
                             success: function (result) {
-                                debugger;
                                 SUPER.switched_language = true;
                                 var data = JSON.parse(result);
                                 if(data.error && data.error===true){
@@ -2760,7 +2772,6 @@
                                     }
                                     $form.find('form').html(data.html);
                                     $form.data('i18n', $i18n);
-                                    debugger;
                                     $form[0].dataset.i18n = $i18n;
                                     // Store the translation language code in sessionStorage
                                     sessionStorage.setItem('sf_'+$form_id+'_i18n', $i18n);
@@ -2771,7 +2782,7 @@
                                 $form.removeClass('super-rendered');
                                 $form.find('.super-multipart-progress').remove();
                                 $form.find('.super-multipart-steps').remove();
-                                SUPER.init_super_form_frontend();
+                                SUPER.init_super_form_frontend({form:$form[0]});
                                 SUPER.after_preview_loaded_hook($form_id);
                                 // Set language switch dropdown to `filled` state
                                 
@@ -3004,14 +3015,12 @@
                 if(validate=='true'){
                     waitForValidations = true;
                     SUPER.validate_form({el: el, form: currentActive, submitButton: el, validateMultipart: true, event: e}, function(hasErrors) {
-                        debugger;
                         gotValidationResults = true;
                         validationResult = hasErrors;
                     });
                 }
             }
             var waiter = setInterval(function(){
-                debugger;
                 if(waitForValidations && !gotValidationResults){
                     // Waiting for validation to finish
                     return;

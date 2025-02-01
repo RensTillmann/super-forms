@@ -270,7 +270,8 @@
                         }
                     }
                     SUPER.form_js[form_id]['_entry_data'] = JSON.stringify(result.entry_data);
-                    SUPER.init_super_form_frontend();
+                    var form = modal.querySelector('.super-form');
+                    SUPER.init_super_form_frontend({form:form});
                     loadingIcon.remove();
                 }
                 // Complete:

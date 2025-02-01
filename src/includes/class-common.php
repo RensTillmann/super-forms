@@ -1476,6 +1476,7 @@ class SUPER_Common {
         if(!isset(SUPER_Forms()->default_settings)){
             // First retrieve all the fields and their default value
             if( !class_exists( 'SUPER_Settings' ) )  require_once( 'class-settings.php' ); 
+            if(isset($settings['id'])) unset($settings['id']); // Make sure to unset this just in case it was added manually by accident, it would cause an infinite loop, this is just a quick and easy fix
             $fields = SUPER_Settings::fields( $settings );
             // Loop through all the settings and create a nice array so we can save it to our database
             $array = array();
