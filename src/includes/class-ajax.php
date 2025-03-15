@@ -950,6 +950,7 @@ class SUPER_Ajax {
         SUPER_Common::save_form_woocommerce_settings($s, $backup_id);
 
         $s = SUPER_Common::get_form_listings_settings($backup_id);
+        error_log('save_form_listings_settings($backup_id)');
         SUPER_Common::save_form_listings_settings($s, $backup_id);
 
         $s = SUPER_Common::get_form_pdf_settings($backup_id);
@@ -1903,6 +1904,7 @@ class SUPER_Ajax {
             add_post_meta( $form_id, '_super_elements', $elements );
             if(isset($v['triggers'])) SUPER_Common::save_form_triggers($v['triggers'], $form_id);
             if(isset($v['woocommerce'])) SUPER_Common::save_form_woocommerce_settings($v['woocommerce'], $form_id);
+            error_log('save_form_listings_settings(5)');
             if(isset($v['listings'])) SUPER_Common::save_form_listings_settings($v['listings'], $form_id);
             if(isset($v['pdf'])) SUPER_Common::save_form_pdf_settings($v['pdf'], $form_id);
             if(isset($v['stripe'])) SUPER_Common::save_form_stripe_settings($v['stripe'], $form_id);
@@ -2172,6 +2174,7 @@ class SUPER_Ajax {
         $local_secrets = (!empty($_POST['localSecrets']) ? $_POST['localSecrets'] : '');
         $global_secrets = (!empty($_POST['globalSecrets']) ? $_POST['globalSecrets'] : '');
         // We must delete/clear any translations that no longer exist
+        if(!is_array($elements)) $elements = array();
         $elements = self::clear_i18n($elements, $translations);
         // @since 3.9.0 - don't save settings that are the same as global settings
         // Get global settings
@@ -2272,6 +2275,7 @@ class SUPER_Ajax {
             add_post_meta( $form_id, '_super_local_secrets', $local_secrets );
             SUPER_Common::save_form_triggers($triggers, $form_id);
             SUPER_Common::save_form_woocommerce_settings($woocommerce, $form_id);
+            error_log('save_form_listings_settings(1)');
             SUPER_Common::save_form_listings_settings($listings, $form_id);
             SUPER_Common::save_form_pdf_settings($pdf, $form_id);
             SUPER_Common::save_form_stripe_settings($stripe, $form_id);
@@ -2284,6 +2288,7 @@ class SUPER_Ajax {
                 update_post_meta( $form_id, '_super_local_secrets', $local_secrets );
                 SUPER_Common::save_form_triggers($triggers, $form_id);
                 SUPER_Common::save_form_woocommerce_settings($woocommerce, $form_id);
+                error_log('save_form_listings_settings(2)');
                 SUPER_Common::save_form_listings_settings($listings, $form_id);
                 SUPER_Common::save_form_pdf_settings($pdf, $form_id);
                 SUPER_Common::save_form_stripe_settings($stripe, $form_id);
@@ -2294,6 +2299,7 @@ class SUPER_Ajax {
                 if(!empty($elements)) update_post_meta( $form_id, '_super_elements', $elements );
                 if(!empty($triggers)) SUPER_Common::save_form_triggers($triggers, $form_id);
                 if(!empty($woocommerce)) SUPER_Common::save_form_woocommerce_settings($woocommerce, $form_id);
+                error_log('save_form_listings_settings(3)');
                 if(!empty($listings)) SUPER_Common::save_form_listings_settings($listings, $form_id);
                 if(!empty($pdf)) SUPER_Common::save_form_pdf_settings($pdf, $form_id);
                 if(!empty($stripe)) SUPER_Common::save_form_stripe_settings($stripe, $form_id);
