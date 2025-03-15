@@ -297,6 +297,8 @@ class SUPER_Common {
         update_post_meta($form_id, '_woocommerce', $s);
     }
     public static function save_form_listings_settings($s, $form_id){
+        error_log('saving the following listings settings:');
+        error_log(json_encode($s));
         update_post_meta($form_id, '_listings', $s);
     }
     public static function save_form_pdf_settings($s, $form_id){
@@ -2843,7 +2845,7 @@ class SUPER_Common {
         $before = '';
         if(!empty(SUPER_Forms()->commaForItemsDetected)){
             $before .= '<div class="super-msg super-error" style="margin: 10px 0.5%;">';
-            $before .= '<strong>'.esc_html__('Alert', 'super-forms' ).':</strong> '.sprintf(esc_html__('We detected that the form contains comma\'s for one or more of your Checkbox/Radio/Dropdown items value. It is no longer recommended to have comma\'s as a value for any of these Elements. We strongly advice you to edit the below fields and making sure any comma\'s are deleted from the Items Value. The Item Label itself can still contain comma\'s. Also make sure that you are not comparing any existing Conditional Logic, Variable Conditions and other logic against these values with comma\'s, and if so make sure to properly update them so that your form behaves at it should after removing the comma\'s from the Item Value. For your reference, below a list of fields that are affected and contain comma\'s as their Item value:%s%s', 'super-forms' ), '<br />', '<strong>'.implode(', ', SUPER_Forms()->commaForItemsDetected).'</strong>');
+            $before .= '<strong>'.esc_html__('Alert', 'super-forms' ).':</strong> '.sprintf(esc_html__('We detected that one or more Checkbox, Radio, or Dropdown items in your form have values containing commas. Commas in item values are no longer allowed. After updating, check any Conditional Logic, Variable Conditions, or other form logic that reference these values and adjust them if needed to ensure your form functions correctly. Please edit and update the following fields to remove commas from their values:%s%s', 'super-forms' ), '<br />', '<strong>'.implode(', ', SUPER_Forms()->commaForItemsDetected).'</strong>');
             $before .= '<span class="super-close"></span>';
             $before .= '</div>';
         }

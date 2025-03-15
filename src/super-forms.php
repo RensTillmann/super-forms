@@ -3090,12 +3090,14 @@ if(!class_exists('SUPER_Forms')) :
             add_post_meta( $new_id, '_super_form_settings', $form_settings );
 
             $elements = get_post_meta( $id, '_super_elements', true );
-            if( !is_array($elements) ) {
-                $elements = json_decode( $elements, true );
+            if(!is_array($elements)){
+                $elements = json_decode($elements, true);
             }
-            foreach($elements as $k => $v){
-                if(!empty($elements[$k]['data']['retrieve_method_google_sheet_credentials'])){
-                    $elements[$k]['data']['retrieve_method_google_sheet_credentials'] = wp_slash($elements[$k]['data']['retrieve_method_google_sheet_credentials']);
+            if(is_array($elements)){
+                foreach($elements as $k => $v){
+                    if(!empty($elements[$k]['data']['retrieve_method_google_sheet_credentials'])){
+                        $elements[$k]['data']['retrieve_method_google_sheet_credentials'] = wp_slash($elements[$k]['data']['retrieve_method_google_sheet_credentials']);
+                    }
                 }
             }
             add_post_meta( $new_id, '_super_elements', $elements );

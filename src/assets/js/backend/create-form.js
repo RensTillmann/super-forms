@@ -428,6 +428,11 @@
             var i18n = document.querySelector('.super-create-form').dataset.i18n; 
             var tab = el.closest('.super-tab-content');
             var slug = tab.className.replace('super-active', '').replace('super-tab-content', '').replace('super-tab-', '').split(' ').join('');
+            if(slug==='lists' || slug==='listing' || slug==='listings'){
+                debugger;
+                debugger;
+                debugger;
+            }
             // Check how many translatable fields there are
             var translatableFields = tab.querySelectorAll('.sfui-i18n [name]');
             if(i18n && i18n!=='' && translatableFields.length>0){
@@ -988,6 +993,9 @@
         document.querySelector('.super-raw-code-woocommerce-settings textarea').value = SUPER.get_woocommerce_settings(string);
     };
     SUPER.update_listings_settings = function(string){
+        debugger;
+        debugger;
+        debugger;
         document.querySelector('.super-raw-code-listings-settings textarea').value = SUPER.get_listings_settings(string);
     };
     SUPER.update_pdf_settings = function(string){
@@ -3118,10 +3126,12 @@
 
         SUPER.initTinyMCE('.sfui-textarea-tinymce');
         document.querySelector('.super-raw-code-form-settings textarea').value = SUPER.get_form_settings(true);
-        debugger;
         var tmpValue = SUPER.get_trigger_settings(true);
         document.querySelector('.super-raw-code-trigger-settings textarea').value = tmpValue;
         document.querySelector('.super-raw-code-woocommerce-settings textarea').value = SUPER.get_woocommerce_settings(true);
+        debugger;
+        debugger;
+        debugger;
         document.querySelector('.super-raw-code-listings-settings textarea').value = SUPER.get_listings_settings(true);
         document.querySelector('.super-raw-code-pdf-settings textarea').value = SUPER.get_pdf_settings(true);
         document.querySelector('.super-raw-code-stripe-settings textarea').value = SUPER.get_stripe_settings(true);
@@ -3395,6 +3405,9 @@
                 document.querySelector('.super-raw-code-form-settings textarea').value = SUPER.get_form_settings(true);
                 document.querySelector('.super-raw-code-trigger-settings textarea').value = SUPER.get_trigger_settings(true);
                 document.querySelector('.super-raw-code-woocommerce-settings textarea').value = SUPER.get_woocommerce_settings(true);
+                debugger;
+                debugger;
+                debugger;
                 document.querySelector('.super-raw-code-listings-settings textarea').value = SUPER.get_listings_settings(true);
                 document.querySelector('.super-raw-code-pdf-settings textarea').value = SUPER.get_pdf_settings(true);
                 document.querySelector('.super-raw-code-stripe-settings textarea').value = SUPER.get_stripe_settings(true);
