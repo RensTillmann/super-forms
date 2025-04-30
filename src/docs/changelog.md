@@ -17,6 +17,10 @@
 - Issue with populating existing signature from first person, when using a form that requires two persons to sign the document.
 - Issue with Listings settings not merged correctly from latest version to Beta version
 
+## Apr 17, 2025 - Version 6.4.100-beta
+
+- **Fix:** Google no longer allows new users to use the `Places API (legacy)` service, from now on Super Forms only allows to use the new `Places API (New)` since Google did not provide a fallback check. Existing users should be able to use the legacy API but it is recommended to enable the `Places API (New)` in your Google Cloud Console to make your form future proof. This is only required for users that are using the `Address auto complete` feature
+
 ## Jan 21, 2025 - Version 6.4.052-beta
 
 - **Improved:** For large complex forms cache conditional logic lookup and cache field lookup for speed improvements

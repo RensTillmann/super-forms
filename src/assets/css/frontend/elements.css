@@ -2354,6 +2354,8 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   align-items: center;
   justify-content: center;
   position: relative;
+  max-width: 100%;
+  overflow-wrap: break-word;
 }
 .super-loading-overlay .super-inner-text {
   width: 100%;
@@ -2544,6 +2546,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   flex-shrink: 0;
   margin: 0px 0px 0px 0px;
   padding: 5px 30px 5px 0px;
+  max-width: 100%;
 }
 
 .display-slider .super-item {
@@ -2758,10 +2761,10 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   align-items: center;
   margin: 0;
   display: none;
-  white-space: nowrap;
   width: 100%;
   flex: 1;
   overflow: hidden;
+  white-space: pre;
 }
 .super-dropdown-list .super-placeholder {
   display: flex;
@@ -3694,7 +3697,7 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 .super-form .super-dropdown-list {
   overflow: hidden;
 }
-.super-form .super-focus.super-open .super-dropdown-list {
+.super-form .super-focus.super-open .super-dropdown-list, .super-form .super-focus.super-string-found .super-dropdown-list {
   overflow-y: auto;
 }
 .super-form .super-file .super-field-wrapper {

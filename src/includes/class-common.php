@@ -4462,7 +4462,6 @@ class SUPER_Common {
             $global_settings['smtp_enabled'] = 'disabled';
         }
 
-        $unlink_string_attachments = array();
         foreach($string_attachments as $k => $v){
             if( $v['encoding']=='base64' && $v['type']=='image/png' ) {
                 $v['data'] = substr( $v['data'], strpos( $v['data'], "," ) );
@@ -4488,8 +4487,6 @@ class SUPER_Common {
                 $phpmailer->SMTPKeepAlive = true;
                 $phpmailer->AddEmbeddedImage($file_path, $uid, $name);
             });
-            // Delete the temporary file after sending the email
-            $unlink_string_attachments[] = $tmp_dir;
         }
 
         if( $global_settings['smtp_enabled']=='disabled' ) {

@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.4.053
+ * Version:           6.4.100
  * Plugin URI:        http://super-forms.com
  * Author URI:        http://super-forms.com
  * Author:            WebRehab
@@ -43,7 +43,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '6.4.053';
+        public $version = '6.4.100';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -81,6 +81,7 @@ if(!class_exists('SUPER_Forms')) :
         public $pdf_settings;
         public $stripe_settings;
         public $commaForItemsDetected;
+        public $googleMapsApiEnqueued = false;
 
 
         /**
@@ -224,7 +225,9 @@ if(!class_exists('SUPER_Forms')) :
         */
         public function includes(){
             
+            error_log('includes()');
             include_once( 'includes/class-common.php' );
+            include_once( 'includes/class-rest-api.php' );
              
             if ( $this->is_request( 'admin' ) ) {
                 include_once( 'includes/class-install.php' );
@@ -245,6 +248,8 @@ if(!class_exists('SUPER_Forms')) :
             
             // Registers post types
             include_once('includes/class-post-types.php');
+
+
 
         }
 
@@ -1574,6 +1579,7 @@ if(!class_exists('SUPER_Forms')) :
 
             $i18n = array(
                 'ajaxurl'=>$ajax_url,
+                //'rest_url' => esc_url_raw(rest_url()),
                 'preload'=>(isset($settings['form_preload']) ? $settings['form_preload'] : '1'),
                 'duration'=>(isset($settings['form_duration']) ? $settings['form_duration'] : 500),
                 'dynamic_functions' => SUPER_Common::get_dynamic_functions(),
@@ -1639,6 +1645,7 @@ if(!class_exists('SUPER_Forms')) :
                     }
                     $url .= 'key=' . $settings['form_google_places_api'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init';
                     wp_enqueue_script( 'google-maps-api', $url, array( 'super-common' ), SUPER_VERSION, false );
+                    $this->googleMapsApiEnqueued = true;
                 }
 
                 $dir = SUPER_PLUGIN_FILE . 'assets/js/frontend/jquery-file-upload/';
@@ -1801,6 +1808,7 @@ if(!class_exists('SUPER_Forms')) :
                     'google' => array(
                         'maps' => array(
                             'api' => array(
+                                'key' => (!empty($global_settings['form_google_places_api']) ? $global_settings['form_google_places_api'] : ''),
                                 'language' => (!empty($global_settings['google_maps_api_language']) ? $global_settings['google_maps_api_language'] : ''),
                                 'region' => (!empty($global_settings['google_maps_api_region']) ? $global_settings['google_maps_api_region'] : '')
                             )
@@ -1864,11 +1872,15 @@ if(!class_exists('SUPER_Forms')) :
                 )
             );
 
+            $ajax_url = SUPER_Forms()->ajax_url();
+            $my_current_lang = apply_filters( 'wpml_current_language', NULL ); 
+            if ( $my_current_lang ) $ajax_url = add_query_arg( 'lang', $my_current_lang, $ajax_url );
+
             // @since 3.2.0 - filter hook for javascrip translation string and other manipulation
             $this->elements_i18n = apply_filters( 'super_elements_i18n_filter', 
                 array(
 
-                    'ajaxurl' => SUPER_Forms()->ajax_url(),
+                    'ajaxurl' => $ajax_url, // SUPER_Forms()->ajax_url(),
 
                     'failed_to_process_data' => $failed_to_process_data,
 
@@ -2144,6 +2156,7 @@ if(!class_exists('SUPER_Forms')) :
                     $name,
                     array(
                         'ajaxurl'=>$ajax_url,
+                        //'rest_url' => esc_url_raw(rest_url()),
                         'preload'=>$global_settings['form_preload'],
                         'duration'=>$global_settings['form_duration'],
                         'dynamic_functions' => SUPER_Common::get_dynamic_functions(),
@@ -2432,6 +2445,10 @@ if(!class_exists('SUPER_Forms')) :
             $frontend_path  = $assets_path . 'js/frontend/';
             $global_settings = SUPER_Common::get_global_settings();
 
+            $ajax_url = SUPER_Forms()->ajax_url();
+            $my_current_lang = apply_filters( 'wpml_current_language', NULL ); 
+            if ( $my_current_lang ) $ajax_url = add_query_arg( 'lang', $my_current_lang, $ajax_url );
+
             return apply_filters( 
                 'super_enqueue_scripts', 
                 array(   
@@ -2478,6 +2495,8 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'register', // Register because we need to localize it
                         'localize'=> array(
+                            'ajaxurl'=>$ajax_url,
+                            //'rest_url' => esc_url_raw(rest_url()),
                             'preload' => ( !isset( $global_settings['form_preload'] ) ? '1' : $global_settings['form_preload'] ),
                             'duration' => ( !isset( $global_settings['form_duration'] ) ? 500 : $global_settings['form_duration'] ),
                             'dynamic_functions' => SUPER_Common::get_dynamic_functions(),

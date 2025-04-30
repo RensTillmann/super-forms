@@ -3163,6 +3163,21 @@ class SUPER_Shortcodes {
                 $data_attributes .= ' data-distance-start="'.$atts['distance_start'].'"';
             }
             $distance_calculator_class .= ' super-distance-calculator';
+
+            if(SUPER_Forms()->googleMapsApiEnqueued===false){
+                if(!empty($settings['form_google_places_api'])){
+                    $url = '//maps.googleapis.com/maps/api/js?';
+                    if(!empty($settings['google_maps_api_region'])){
+                        $url .= 'region='.$settings['google_maps_api_region'].'&';
+                    }
+                    if(!empty($settings['google_maps_api_language'])){
+                        $url .= 'language='.$settings['google_maps_api_language'].'&';
+                    }
+                    $url .= 'key=' . $settings['form_google_places_api'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init';
+                    wp_enqueue_script( 'google-maps-api', $url, array( 'super-common' ), SUPER_VERSION, false );
+                    SUPER_Forms()->googleMapsApiEnqueued = true;
+                }
+            }
         }
 
         // @since 3.0.0 - google places autocomplete/fill address based on user input
@@ -3170,9 +3185,14 @@ class SUPER_Shortcodes {
         $address_auto_populate_class = '';
         if( !isset( $atts['enable_address_auto_complete'] ) ) $atts['enable_address_auto_complete'] = '';
         if( $atts['enable_address_auto_complete']=='true' ) {
-            $address_auto_populate_class = ' super-address-autopopulate';
+            $address_auto_populate_class = ' super-auto-suggest super-address-autopopulate';
             // @since 4.9.557 - Check if we need to filter by countrie(s) or  return by specific type
-            if( !empty( $atts['address_api_types'] ) ) $address_auto_complete_attr .= ' data-types="' . $atts['address_api_types'] . '"';
+            if( !empty( $atts['address_api_types'] ) ) {
+                if($atts['address_api_types']=='address') $atts['address_api_types'] = '';
+                if( !empty( $atts['address_api_types'] ) ) {
+                    $address_auto_complete_attr .= ' data-types="' . $atts['address_api_types'] . '"';
+                }
+            }
             if( !empty( $atts['address_api_countries'] ) ) $address_auto_complete_attr .= ' data-countries="' . $atts['address_api_countries'] . '"';
             if( !empty( $atts['address_normalize'] ) ) $address_auto_complete_attr .= ' data-normalize="' . $atts['address_normalize'] . '"';
             // Check if we need to auto populate fields with the retrieved data
@@ -3214,9 +3234,10 @@ class SUPER_Shortcodes {
                 $address_auto_complete_attr .= ' data-api-region="' . $atts['address_api_region'] . '"';
                 $url .= 'region='.$atts['address_api_region'].'&';
             }
-            $url .= 'key=' . $atts['address_api_key'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init';
+            $url .= 'key=' . $atts['address_api_key'] . '&v=beta&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init';
             wp_enqueue_script( 'google-maps-api', $url, array( 'super-common' ), SUPER_VERSION, false );
         }
+
 
         // @since   1.2.4 - auto suggest feature
         if( !isset( $atts['enable_auto_suggest'] ) ) $atts['enable_auto_suggest'] = '';

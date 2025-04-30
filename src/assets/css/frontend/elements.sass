@@ -1928,6 +1928,8 @@ textarea
     align-items: center
     justify-content: center
     position: relative
+    max-width: 100%
+    overflow-wrap: break-word
   .super-inner-text
     width: 100%
     text-align: center
@@ -2085,6 +2087,7 @@ textarea
     flex-shrink: 0
     margin: 0px 0px 0px 0px
     padding: 5px 30px 5px 0px
+    max-width: 100%
 .display-slider
   .super-item
     padding: 0px 0px 0px 0px
@@ -2220,10 +2223,10 @@ textarea
     align-items: center
     margin: 0
     display: none
-    white-space: nowrap
     width: 100%
     flex: 1
     overflow: hidden
+    white-space: pre
   .super-placeholder
     display: flex
 
@@ -3007,9 +3010,11 @@ textarea
     width: 100%
   .super-dropdown-list
     overflow: hidden
-  .super-focus.super-open
-    .super-dropdown-list
-      overflow-y: auto
+  .super-focus
+    &.super-open,
+    &.super-string-found
+      .super-dropdown-list
+        overflow-y: auto
   .super-file
     .super-field-wrapper
       flex-direction: column

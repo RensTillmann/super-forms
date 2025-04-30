@@ -58,7 +58,7 @@
         settings: {},
         tmpSettings: {}, // used for translation mode only
         getTabFieldValue: function(el,tab){
-            debugger;
+            //debugger;
             // First get the field value
             var value = el.value;
             //var type = el.type;
@@ -416,11 +416,11 @@
         // Update form settings
         updateSettings: function(e, el){
             if(el.tagName=='LABEL' && el.children[0].type=='radio'){
-                debugger;
+                //debugger;
                 el = el.querySelector('input');
             }
             if(el.tagName=='LABEL' && el.children[0].type=='checkbox'){
-                debugger;
+                //debugger;
                 el = el.querySelector('input');
             }
             SUPER.ui.showHideSubsettings(el);
@@ -429,9 +429,9 @@
             var tab = el.closest('.super-tab-content');
             var slug = tab.className.replace('super-active', '').replace('super-tab-content', '').replace('super-tab-', '').split(' ').join('');
             if(slug==='lists' || slug==='listing' || slug==='listings'){
-                debugger;
-                debugger;
-                debugger;
+                //debugger;
+                //debugger;
+                //debugger;
             }
             // Check how many translatable fields there are
             var translatableFields = tab.querySelectorAll('.sfui-i18n [name]');
@@ -659,7 +659,7 @@
                     }
                 });
                 // Value is different, keep it
-                debugger;
+                //debugger;
                 obj[lastKey] = value;
                 // Clean up the data object
                 data = SUPER.ui.i18n.removeEmpty(data);
@@ -848,9 +848,9 @@
             },
             getTranslatedValue: function(el, i18n_data, i18n, tab){
                 if(tab.className.indexOf('triggers')!==-1){
-                    debugger;
+                    //debugger;
                 }
-                debugger;
+                //debugger;
                 var field = el;
                 var keyPath = [];
                 var parent = field.parentElement;
@@ -868,8 +868,8 @@
                     }
                     parent = parent.parentElement;
                 }
-                debugger;
-                debugger;
+                //debugger;
+                //debugger;
                 var obj = i18n_data[i18n];
                 if(typeof obj !=='undefined'){
                     keyPath.forEach(key => {
@@ -993,9 +993,9 @@
         document.querySelector('.super-raw-code-woocommerce-settings textarea').value = SUPER.get_woocommerce_settings(string);
     };
     SUPER.update_listings_settings = function(string){
-        debugger;
-        debugger;
-        debugger;
+        //debugger;
+        //debugger;
+        //debugger;
         document.querySelector('.super-raw-code-listings-settings textarea').value = SUPER.get_listings_settings(string);
     };
     SUPER.update_pdf_settings = function(string){
@@ -1289,15 +1289,15 @@
                 // Do not return settings, instead update
             }else{
                 if(returnData){
-                    debugger;
+                    //debugger;
                     return SUPER.ui.settings['_'+slug];
                 }
             }
-            debugger;
+            //debugger;
             return SUPER.ui.settings['_'+slug];
         }
         if(returnData){
-            debugger;
+            //debugger;
             return SUPER.ui.settings['_'+slug];
         }
         // tmp if(SUPER.ui.settings['_'+slug]){
@@ -1315,14 +1315,14 @@
             tab = document.querySelector('.super-tab-content.super-tab-' + slug);
         }
         if (!tab) {
-            debugger;
+            //debugger;
             return settings;
         }
         // Get the current country flag
         var flag = document.querySelector(':scope .super-tabs > .super-tab-builder > .flag');
         // Remember the original value for translatable settings
         nodes = tab.querySelectorAll('.sfui-i18n [name]');
-        debugger;
+        //debugger;
         SUPER.add_country_flags(i18n, flag, nodes);
         if(SUPER.ui.i18n.translating) {
             for (i = 0; i < nodes.length; i++) {
@@ -1566,7 +1566,7 @@
             }
         }
         if (returnObj) {
-            debugger;
+            //debugger;
             return data;
         }
     
@@ -1650,7 +1650,7 @@
             }
         }
         // Return tab specific settings
-        debugger;
+        //debugger;
         return data;
         //settings['_' + slug] = data;
         //return settings;
@@ -1908,7 +1908,7 @@
 //        return settings;
 //    }
     SUPER.get_trigger_settings = function(string, returnData){
-        debugger;
+        //debugger;
         if(typeof string === 'undefined') string = false;
         if(typeof returnData === 'undefined') returnData = false;
         var $s = SUPER.get_tab_settings({}, 'triggers', undefined, undefined, returnData);
@@ -2876,6 +2876,7 @@
             return false;
         }
         if (!$this.hasClass('super-active')) {
+            debugger;
             $this.html('Loading...');
             $('.super-live-preview').html('');
             $('.super-live-preview').addClass('super-loading').css('display', 'block');
@@ -2891,6 +2892,7 @@
                         $this.html('Builder');
                     }
                     // Complete:
+                    SUPER.clearFormCache();
                     SUPER.files = [];
                     SUPER.init_super_form_frontend({callback:function(formId){
                         if(SUPER.form_js && SUPER.form_js[formId] && SUPER.form_js[formId]['_entry_data']){
@@ -3076,7 +3078,7 @@
     };
 
     jQuery(document).ready(function ($) {
-        debugger;
+        //debugger;
         SUPER.ui.init();
         SUPER.ui.showHideSubsettings();
         var resetBtns = document.querySelectorAll('.sfui-setting .super-reset-settings-buttons');
@@ -3129,9 +3131,9 @@
         var tmpValue = SUPER.get_trigger_settings(true);
         document.querySelector('.super-raw-code-trigger-settings textarea').value = tmpValue;
         document.querySelector('.super-raw-code-woocommerce-settings textarea').value = SUPER.get_woocommerce_settings(true);
-        debugger;
-        debugger;
-        debugger;
+        //debugger;
+        //debugger;
+        //debugger;
         document.querySelector('.super-raw-code-listings-settings textarea').value = SUPER.get_listings_settings(true);
         document.querySelector('.super-raw-code-pdf-settings textarea').value = SUPER.get_pdf_settings(true);
         document.querySelector('.super-raw-code-stripe-settings textarea').value = SUPER.get_stripe_settings(true);
@@ -3405,9 +3407,9 @@
                 document.querySelector('.super-raw-code-form-settings textarea').value = SUPER.get_form_settings(true);
                 document.querySelector('.super-raw-code-trigger-settings textarea').value = SUPER.get_trigger_settings(true);
                 document.querySelector('.super-raw-code-woocommerce-settings textarea').value = SUPER.get_woocommerce_settings(true);
-                debugger;
-                debugger;
-                debugger;
+                //debugger;
+                //debugger;
+                //debugger;
                 document.querySelector('.super-raw-code-listings-settings textarea').value = SUPER.get_listings_settings(true);
                 document.querySelector('.super-raw-code-pdf-settings textarea').value = SUPER.get_pdf_settings(true);
                 document.querySelector('.super-raw-code-stripe-settings textarea').value = SUPER.get_stripe_settings(true);
