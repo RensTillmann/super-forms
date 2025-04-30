@@ -1,6 +1,3 @@
-.super-demos {
-
-}
 .super-demos .plugin-card .column-compatibility span:before {
     display:none;
 }
@@ -10,6 +7,9 @@
 .super-demos .plugin-card .desc,
 .super-demos .plugin-card .name {
     margin-left:0px;
+}
+.super-demos .plugin-card .desc > p {
+    margin:0;
 }
 .super-demos .plugin-card .under-review {
     background-color: #ff6262;

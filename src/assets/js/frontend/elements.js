@@ -491,6 +491,7 @@
                 }
             }
         }
+        //debugger;
         SUPER.after_field_change_blur_hook({el: $this});
     };
 
@@ -1017,6 +1018,7 @@
             $this[0].dataset.mathDiff = $timestamp;
         
             // Trigger the custom hook after the field change
+            //debugger;
             SUPER.after_field_change_blur_hook({ el: $this[0] });
         };
 
@@ -1482,6 +1484,7 @@
             }
         }
         $.each(added_fields, function(name, field) {
+            //debugger;
             SUPER.after_field_change_blur_hook({form: args.clone, el: field});
         });
         return {
@@ -1645,7 +1648,7 @@
                             }
                         }
                     }
-                    if(field.classList.contains('super-dropdown')){
+                    if(field.classList.contains('super-dropdown') || field.classList.contains('super-auto-suggest')){
                         item = field.querySelector('.super-focus');
                         if(item) item.click();
                         e.preventDefault();
@@ -1734,8 +1737,14 @@
                         return false;
                     }
 
+                    // Autosuggest
+                    //debugger;
+                    if(field.classList.contains('super-auto-suggest')){
+
+                    }
                     // Dropdown
-                    if(field.classList.contains('super-dropdown')){
+                    if(field.classList.contains('super-dropdown') || field.classList.contains('super-auto-suggest')){
+                        //debugger;
                         var all = field.querySelectorAll('.super-item:not(.super-placeholder)');
                         current = field.querySelector('.super-focus');
                         if(!current){
@@ -2091,6 +2100,7 @@
                 $this.attr('data-word-count', $words);
                 $this.attr('data-chars-count', $chars);
                 $this.attr('data-allchars-count', $allChars);
+                //debugger;
                 SUPER.after_field_change_blur_hook({el: $this[0]});
             }, $time);
         });
@@ -2124,6 +2134,7 @@
                 if($new_value < $min) return false;
             }
             $input_field.val($new_value);
+            //debugger;
             SUPER.after_field_change_blur_hook({el: $input_field[0]});
         });
         // @since 4.9.0 - Quantity field only allow number input
@@ -2161,6 +2172,7 @@
             $this.toggleClass('super-active');
             $input_field.val($new_value);
             SUPER.focusField(this);
+            //debugger;
             SUPER.after_field_change_blur_hook({el: $input_field[0]});
         });
 
@@ -2176,9 +2188,11 @@
                     clearTimeout($calculation_threshold);
                 }
                 $calculation_threshold = setTimeout(function () {
+                    //debugger;
                     SUPER.after_field_change_blur_hook({el: $this[0]});
                 }, $threshold);
             }else{
+                //debugger;
                 SUPER.after_field_change_blur_hook({el: $this[0]});
             }
         });
@@ -2237,6 +2251,7 @@
             SUPER.append_dynamic_column_depth({form: form, clone: clone});
             SUPER.init_common_fields();
             SUPER.after_duplicating_column_hook(form, unique_field_names, clone);
+            //debugger;
             SUPER.after_field_change_blur_hook({form: clone, el: undefined});
         });
 
@@ -2280,6 +2295,7 @@
                 $wrapper.children('input[type="hidden"]').val('');
                 $this.parents('div:eq(0)').remove();
                 var field = $fieldWrapper.find('.super-active-files')[0];
+                //debugger;
                 SUPER.after_field_change_blur_hook({el: field, form: form});
                 removedFields[nodes[i].dataset.oname] = nodes[i];
             }
@@ -2370,27 +2386,27 @@
             $wrapper.children('input[type="hidden"]').val('');
             $this.parents('div:eq(0)').remove();
             var field = $fieldWrapper.find('.super-active-files')[0];
+            //debugger;
             SUPER.after_field_change_blur_hook({el: field, form: form});
         });
         
         // @since 1.2.4 - autosuggest text field
         // @since 4.4.0 - autosuggest speed improvements
         var autosuggestTimeout = null;
-        $doc.on('keyup', '.super-auto-suggest .super-shortcode-field', function () {
-            var i,
-                el = this,
-                parent = el.closest('.super-field'),
-                itemsToShow = [],
-                itemsToHide = [],
-                value,
-                text = '',
-                regex,
-                stringBold,
-                wrapper = el.closest('.super-field-wrapper'),
-                nodes = wrapper.querySelectorAll('.super-dropdown-list .super-item');
-
+        $doc.on('keyup', '.super-auto-suggest .super-shortcode-field:not(.super-address-autopopulate)', function () {
             if (autosuggestTimeout !== null) clearTimeout(autosuggestTimeout);
-            autosuggestTimeout = setTimeout(function () {
+            autosuggestTimeout = setTimeout(function(el){
+                var i,
+                    parent = el.closest('.super-field'),
+                    itemsToShow = [],
+                    itemsToHide = [],
+                    value,
+                    text = '',
+                    regex,
+                    stringBold,
+                    wrapper = el.closest('.super-field-wrapper'),
+                    nodes = wrapper.querySelectorAll('.super-dropdown-list .super-item');
+
                 value = el.value.toString();
                 if (value === '') {
                     parent.classList.remove('super-string-found');
@@ -2398,24 +2414,29 @@
                 }
                 for (i = 0; i < nodes.length; i++) {
                     var stringValue = nodes[i].dataset.searchValue.toString();
-                    if(el.dataset.logic.indexOf('_case')===-1){
-                        // If not case sensitive match, turn values to lowercase
-                        var stringValue_m = stringValue.toLowerCase();
-                        value = value.toLowerCase();
-                    }
-                    var isMatch = false;
-                    if(el.dataset.logic.indexOf('start')!==-1) isMatch = stringValue_m.startsWith(value);
-                    if(el.dataset.logic.indexOf('contains')!==-1) isMatch = stringValue_m.indexOf(value) !== -1;
-                    if(el.dataset.logic.indexOf('exact')!==-1) isMatch = stringValue_m === value;
-                    if( isMatch===true ) {
+                    if(!el.dataset.logic) {
+                        nodes[i].innerText = stringValue;
                         itemsToShow.push(nodes[i]);
-                        regex = RegExp([value].join('|'), 'gi');
-                        text = stringValue.split(';')[0];
-                        stringBold = text.replace(regex, '<span>$&</span>');
-                        stringBold = stringBold.replace(/ /g, '\u00a0');
-                        nodes[i].innerHTML = stringBold;
                     }else{
-                        itemsToHide.push(nodes[i]);
+                        if(el.dataset.logic.indexOf('_case')===-1){
+                            // If not case sensitive match, turn values to lowercase
+                            var stringValue_m = stringValue.toLowerCase();
+                            value = value.toLowerCase();
+                        }
+                        var isMatch = false;
+                        if(el.dataset.logic.indexOf('start')!==-1) isMatch = stringValue_m.startsWith(value);
+                        if(el.dataset.logic.indexOf('contains')!==-1) isMatch = stringValue_m.indexOf(value) !== -1;
+                        if(el.dataset.logic.indexOf('exact')!==-1) isMatch = stringValue_m === value;
+                        if( isMatch===true ) {
+                            itemsToShow.push(nodes[i]);
+                            regex = RegExp([value].join('|'), 'gi');
+                            text = stringValue.split(';')[0];
+                            stringBold = text.replace(regex, '<span>$&</span>');
+                            stringBold = stringBold.replace(/ /g, '\u00a0');
+                            nodes[i].innerHTML = stringBold;
+                        }else{
+                            itemsToHide.push(nodes[i]);
+                        }
                     }
                 }
                 [].forEach.call(itemsToShow, function (el) {
@@ -2430,11 +2451,12 @@
                 } else {
                     parent.classList.remove('super-string-found');
                 }
-            }, 250);
+            }, 250, this);
         });
 
         // Focus dropdowns
         $doc.on('click', '.super-dropdown-list:not(.super-autosuggest-tags-list)', function(e){
+            debugger;
             var i, nodes, field = e.target.closest('.super-field');
             if(field.classList.contains('super-auto-suggest')) return false;
             SUPER.focusForm(field);
@@ -2505,7 +2527,17 @@
                     }
                 }
             }else{
-                if(e.target.closest('.super-dropdown') || e.target.closest('.super-dropdown-list')){
+                if(!e.target.closest('.super-dropdown') && !e.target.closest('.super-auto-suggest') && !e.target.closest('.super-dropdown-list')){
+                    //.super-focus.super-filled.super-auto-suggest.super-string-found
+                    nodes = document.querySelectorAll('.super-auto-suggest.super-focus');
+                    for(i = 0; i < nodes.length; i++){
+                        nodes[i].classList.remove('super-focus');
+                        nodes[i].classList.remove('super-string-found');
+                    }
+                    nodes = document.querySelectorAll('.super-auto-suggest.super-string-found');
+                    for(i = 0; i < nodes.length; i++){
+                        nodes[i].classList.remove('super-string-found');
+                    }
                     nodes = document.querySelectorAll('.super-dropdown.super-focus');
                     for(i = 0; i < nodes.length; i++){
                         nodes[i].classList.remove('super-focus');
@@ -2595,16 +2627,24 @@
 
         // On choosing item, populate form with data
         $doc.on('click', '.super-wc-order-search .super-field-wrapper:not(.super-overlap) .super-dropdown-list .super-item, .super-auto-suggest .super-field-wrapper:not(.super-overlap) .super-dropdown-list .super-item', function(e){
+            debugger;
             var i, items,
                 wrapper = this.closest('.super-field-wrapper'),
-                parent = this.parentNode,
+                el = wrapper.querySelector('.super-shortcode-field');
+
+            if(el.classList.contains('super-address-autopopulate')) {
+                // We are using a custom click event for this
+                return;
+            } 
+
+            var parent = this.parentNode,
                 field = this.closest('.super-field'),
                 value = this.innerText,
-                el = wrapper.querySelector('.super-shortcode-field'),
                 form = SUPER.get_frontend_or_backend_form({el: el}),
                 validation = el.dataset.validation,
                 conditionalValidation = el.dataset.conditionalValidation,
                 populate = el.dataset.wcosp;
+
 
             items = parent.querySelectorAll('.super-item.super-active');
             for( i = 0; i < items.length; i++ ) {
@@ -2618,6 +2658,7 @@
             wrapper.classList.add('super-overlap');
             field.classList.add('super-filled');
             SUPER.handle_validations({event: e, el: el, form: form, validation: validation, conditionalValidation: conditionalValidation});
+            //debugger;
             SUPER.after_field_change_blur_hook({el: el});
             if(populate=='true'){
                 SUPER.populate_form_data_ajax({el: field, clear: false});
@@ -2638,11 +2679,13 @@
             wrapper.classList.remove('super-overlap');
             el.classList.remove('super-filled');
             field.focus();
+            //debugger;
             SUPER.after_field_change_blur_hook({el: field});
         });
 
         // Update dropdown
         $doc.on('click', '.super-dropdown .super-dropdown-list .super-item:not(.super-placeholder)', function(e){
+            debugger;
             SUPER.focusForm(this);
             SUPER.focusField(this);
             var i, nodes,
@@ -2818,6 +2861,7 @@
                 SUPER.handle_validations({el: input, form: form, validation: validation});
             }
 
+            //debugger;
             SUPER.after_field_change_blur_hook({el: input});
         });
 
@@ -2826,11 +2870,46 @@
             SUPER.scrollToElement(form);
         });
 
-        $doc.on('change input', '.super-shortcode-field', function (e){
+        var field_change_timeout = null;
+
+        // change keyup keydown blur
+        $doc.on('change input keyup keydown blur', '.super-shortcode-field', function (e){
+            console.log('type:', e.type)
             if(e.type==='input' && (this.type!=='datetime-local' && this.type!=='date')) return;
-            if(this.classList.contains('super-fileupload')) return false;
+            if(this.classList.contains('super-fileupload')) return;
+
+            if(this.classList.contains('super-address-autopopulate')){
+                //debugger;
+                return;
+            }
+            if(this.classList.contains('super-distance-calculator') && this.value.length<2){
+                debugger;
+                this.closest('.super-field-wrapper').classList.remove('super-calculating-distance');
+                var form = SUPER.get_frontend_or_backend_form({el: this}),
+                $origin_field = SUPER.field(form, this.dataset.distanceStart);
+                var $field = $origin_field.dataset.distanceField;
+                $field = SUPER.field(form, $field);
+                $field.value = '';
+                SUPER.after_field_change_blur_hook({el: $field});
+                return;
+            }
+            if(this.classList.contains('super-distance-calculator') && e.type!=='focusout'){
+                var newValue = this.value.trim();
+                var previousValue = this.dataset.previousValue || '';
+                // Value hasn't changed — skip API call
+                if(newValue===previousValue) return;
+                // Save the new value to compare next time
+                this.dataset.previousValue = newValue;
+                this.closest('.super-field-wrapper').classList.add('super-calculating-distance');
+                var el = this;
+                if(field_change_timeout!==null) clearTimeout(field_change_timeout);
+                field_change_timeout = setTimeout(function(el){
+                    SUPER.after_field_change_blur_hook({el: el});
+                }, 1000, el);
+                return;
+            }
             var keyCode = e.keyCode || e.which; 
-            if (keyCode != 9) { 
+            if (keyCode != 9) { // If not pressed TAB
                 var form = SUPER.get_frontend_or_backend_form({el: this}),
                     validation = this.dataset.validation,
                     conditionalValidation = this.dataset.conditionalValidation;
@@ -2839,18 +2918,23 @@
                 SUPER.after_field_change_blur_hook({el: this});
             }
         });
-        var field_change_timeout = null;
-        //$doc.on('keyup', '.super-text .super-shortcode-field', function(e) {
-        $doc.on('keyup', '.super-shortcode-field', function(e) {
-            var $this = $(this), $time = 250;
-            if(e.type!='keyup') $time = 0;
-            if (field_change_timeout !== null) {
-                clearTimeout(field_change_timeout);
-            }
-            field_change_timeout = setTimeout(function () {
-                SUPER.after_field_change_blur_hook({el: $this[0]});
-            }, $time);
-        });
+
+        // tmp //$doc.on('keyup', '.super-text .super-shortcode-field', function(e) {
+        // tmp $doc.on('keyup', '.super-shortcode-field:not(.super-address-autopopulate)', function(e) {
+        // tmp     //super-distance-calculator
+        // tmp     //if(this.classList.contains('super-address-autopopulate')) $time = 1000;
+        // tmp     //super-auto-suggest
+        // tmp     //super-address-autopopulate
+        // tmp     var $this = $(this), $time = 250;
+        // tmp     if(e.type!='keyup') $time = 0;
+        // tmp     if(this.classList.contains('super-distance-calculator')) $time = 1000;
+        // tmp     if (field_change_timeout !== null) {
+        // tmp         clearTimeout(field_change_timeout);
+        // tmp     }
+        // tmp     field_change_timeout = setTimeout(function () {
+        // tmp         SUPER.after_field_change_blur_hook({el: $this[0]});
+        // tmp     }, $time);
+        // tmp });
 
         SUPER.simulateRadioItemClicked = function(e, el){
             var $form,$this,$parent,$field,$active,$validation;
@@ -2883,6 +2967,7 @@
                 if(typeof $validation !== 'undefined' && $validation !== false){
                     SUPER.handle_validations({el: $field, form: $form, validation: $validation});
                 }
+                //debugger;
                 SUPER.after_field_change_blur_hook({el: $field});
             }
             return false;
@@ -2949,6 +3034,7 @@
                 if(typeof $validation !== 'undefined' && $validation !== false){
                     SUPER.handle_validations({el: $field, form: $form, validation: $validation});
                 }
+                //debugger;
                 SUPER.after_field_change_blur_hook({el: $field});
             }
             return false;
@@ -2975,6 +3061,7 @@
             if(typeof $validation !== 'undefined' && $validation !== false){
                 SUPER.handle_validations({el: this, form: $form, validation: $validation});
             }
+            //debugger;
             SUPER.after_field_change_blur_hook({el: this});
         });
         
@@ -3186,6 +3273,7 @@
                 }
                 // Scroll to bottom of tags container
                 tagsContainer.scrollTop = tagsContainer.scrollHeight;
+                //debugger;
                 SUPER.after_field_change_blur_hook({el: keywordField});
             },
             add: function(e, target){

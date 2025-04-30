@@ -27,6 +27,7 @@ class SUPER_Ajax {
      */
     public static function init() {
 
+        error_log('✅ init ajax');
         $ajax_events = array(
             
             // Ajax action                  => nopriv
@@ -115,6 +116,7 @@ class SUPER_Ajax {
             }
         }
     }
+
     public static function new_version_check(){
         if(($_POST['modifiedTime']+10) < get_post_modified_time('U', false, $_POST['form_id'])){
             echo 'true'; // there is a newer version
