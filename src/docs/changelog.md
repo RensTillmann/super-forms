@@ -17,6 +17,10 @@
 - Issue with populating existing signature from first person, when using a form that requires two persons to sign the document.
 - Issue with Listings settings not merged correctly from latest version to Beta version
 
+## May 15, 2025 - Version 6.4.101-beta
+
+- **Added:** Filters for Listings permissions: `super_listings_allow_display_filter`, `super_listings_allow_see_any_filter`, `super_listings_allow_view_any_filter`, `super_listings_allow_view_own_filter`, `super_listings_allow_edit_any_filter`, `super_listings_allow_edit_own_filter`, `super_listings_allow_delete_any_filter`, `super_listings_allow_delete_own_filter`, `super_listings_allow_change_entry_status_filter`
+
 ## Apr 17, 2025 - Version 6.4.100-beta
 
 - **Fix:** Google no longer allows new users to use the `Places API (legacy)` service, from now on Super Forms only allows to use the new `Places API (New)` since Google did not provide a fallback check. Existing users should be able to use the legacy API but it is recommended to enable the `Places API (New)` in your Google Cloud Console to make your form future proof. This is only required for users that are using the `Address auto complete` feature

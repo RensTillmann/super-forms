@@ -2170,6 +2170,7 @@ if(!class_exists('SUPER_Listings')) :
                 return do_shortcode($list['display']['message']);
             }
 
+
             $allowViewAny = $allow['allowViewAny'];
             $allowViewOwn = $allow['allowViewOwn'];
             $allowEditAny = $allow['allowEditAny'];
@@ -3198,6 +3199,7 @@ END AS paypalSubscriptionId
                     }
                 }
             }
+            $allowDisplay = apply_filters( 'super_listings_allow_display_filter', $allowDisplay );
 
             // SEE ANY (logged in users can always see their own entries in the list)
             $allowSeeAny = false;
@@ -3245,6 +3247,7 @@ END AS paypalSubscriptionId
                     }
                 }
             }
+            $allowSeeAny = apply_filters( 'super_listings_allow_see_any_filter', $allowSeeAny );
 
             // VIEW ANY (allow clicking the "view" icon which will open the entry data in a popup with a optional custom HTML template)
             $allowViewAny = false;
@@ -3292,6 +3295,8 @@ END AS paypalSubscriptionId
                     }
                 }
             }
+            $allowViewAny = apply_filters( 'super_listings_allow_view_any_filter', $allowViewAny );
+
             // VIEW OWN (allow clicking the "view" icon which will open the entry data in a popup with a optional custom HTML template)
             $allowViewOwn = false;
             if(!empty($list['view_own']) && isset($entry)) {
@@ -3303,6 +3308,7 @@ END AS paypalSubscriptionId
                     }
                 }
             }
+            $allowViewOwn = apply_filters( 'super_listings_allow_view_own_filter', $allowViewOwn );
 
             // EDIT ANY
             // Check if any user or own user is allowed to edit entry
@@ -3351,6 +3357,8 @@ END AS paypalSubscriptionId
                     }
                 }
             }
+            $allowEditAny = apply_filters( 'super_listings_allow_edit_any_filter', $allowEditAny );
+
             // EDIT OWN
             $allowEditOwn = false;
             if(!empty($list['edit_own']) && isset($entry)) {
@@ -3401,6 +3409,8 @@ END AS paypalSubscriptionId
                     }
                 }
             }
+            $allowEditOwn = apply_filters( 'super_listings_allow_edit_own_filter', $allowEditOwn );
+
             // DELETE ANY
             $allowDeleteAny = false;
             if(!empty($list['delete_any'])) {
@@ -3447,6 +3457,8 @@ END AS paypalSubscriptionId
                     }
                 }
             }
+            $allowDeleteAny = apply_filters( 'super_listings_allow_delete_any_filter', $allowDeleteAny );
+
             // DELETE OWN
             $allowDeleteOwn = false;
             if(!empty($list['delete_own']) && isset($entry)) {
@@ -3497,6 +3509,7 @@ END AS paypalSubscriptionId
                     }
                 }
             }
+            $allowDeleteOwn = apply_filters( 'super_listings_allow_delete_own_filter', $allowDeleteOwn );
 
             $allowChangeEntryStatus = false;
             if($allowEditAny===true){
@@ -3509,6 +3522,7 @@ END AS paypalSubscriptionId
                     }
                 }
             }
+            $allowChangeEntryStatus = apply_filters( 'super_listings_allow_change_entry_status_filter', $allowChangeEntryStatus );
 
             $return = array(
                 'allowDisplay' => $allowDisplay,
