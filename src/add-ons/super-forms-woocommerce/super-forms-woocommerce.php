@@ -1281,11 +1281,10 @@ if( !class_exists('SUPER_WooCommerce') ) :
                         // Check if multiple ID's found (separate by comma)
                         $multi_products = explode(',', $id);
                         foreach($multi_products as $product_id){
-                            $product_id = absint($product_id);
                             $products[] = array(
                                 'id' => $product_id,
                                 'quantity' => $qty,
-                                'variation_id' => absint($variation),
+                                'variation_id' => $variation,
                                 'price' => $price,
                                 'super_data' => $v['items']
                             );
@@ -1364,7 +1363,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                     }
                 }
 
-                global $wpdb;
+                $products = apply_filters( 'super_before_adding_wc_products_to_cart_filter', $products, array( 'settings'=>$settings, 'data'=>$data ) );
           
                 // Now add the product(s) to the cart
                 foreach($products as $k => $v){

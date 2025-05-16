@@ -17,6 +17,11 @@
 - Issue with populating existing signature from first person, when using a form that requires two persons to sign the document.
 - Issue with Listings settings not merged correctly from latest version to Beta version
 
+## May 16, 2025 - Version 6.4.102-beta
+
+- **Added:** Filter hook `super_before_adding_wc_products_to_cart_filter` which allows you to alter the WooCommerce checkout products that need to be added to the cart after submitting the form [add variable product by variation SKU example use case](https://docs.super-forms.com/developers/code-examples/variable-product-checkout-based-on-variation-sku)
+
+
 ## May 15, 2025 - Version 6.4.101-beta
 
 - **Added:** Filters for Listings permissions: `super_listings_allow_display_filter`, `super_listings_allow_see_any_filter`, `super_listings_allow_view_any_filter`, `super_listings_allow_view_own_filter`, `super_listings_allow_edit_any_filter`, `super_listings_allow_edit_own_filter`, `super_listings_allow_delete_any_filter`, `super_listings_allow_delete_own_filter`, `super_listings_allow_change_entry_status_filter`
