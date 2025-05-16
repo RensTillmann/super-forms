@@ -22,44 +22,36 @@ class SUPER_Triggers {
 
 
     public static function execute_scheduled_trigger_actions(){
-        //error_log('execute_scheduled_trigger_actions()');
+        error_log('execute_scheduled_trigger_actions() started');
         // Retrieve reminders from database based on post_meta named `_super_reminder_timestamp` based on the timestamp we can determine if we need to send the reminder yet
         global $wpdb;
         $current_timestamp = strtotime(date('Y-m-d H:i', time()));
+        error_log('Current timestamp for checking scheduled actions: ' . $current_timestamp);
         $query = "SELECT post_id, meta_value AS timestamp, post_content,
         (SELECT meta_value FROM $wpdb->postmeta WHERE meta_key = '_super_scheduled_trigger_action_data' AND r.post_id = post_id) AS triggerEventParameters
         FROM $wpdb->postmeta AS r INNER JOIN $wpdb->posts ON ID = post_id
         WHERE meta_key = '_super_scheduled_trigger_action_timestamp' AND meta_value < %d";
+        error_log('Executing query: ' . $wpdb->prepare($query, $current_timestamp));
         $scheduled_actions = $wpdb->get_results($wpdb->prepare($query, $current_timestamp));
+        error_log('Found ' . count($scheduled_actions) . ' scheduled actions to process');
         foreach($scheduled_actions as $k => $v){
             $scheduled_action_id = $v->post_id;
+            error_log('Processing scheduled action ID: ' . $scheduled_action_id);
             $trigger_options = maybe_unserialize($v->post_content);
             error_log('trigger_options: '.json_encode($trigger_options));
             $triggerEventParameters = maybe_unserialize($v->triggerEventParameters);
             $triggerEventParameters['action'] = $trigger_options;
             $triggerEventParameters['scheduled_action_id'] = $scheduled_action_id;
-            //error_log('$triggerEventParameters: '.json_encode($triggerEventParameters));
-            //$eventName = $triggerEventParameters['eventName']; // the event name that triggers the action e.g. `sf.after.submission`
-            //$triggerName = $triggerEventParameters['triggerName']; // the event name that triggers the action e.g. `sf.after.submission`
-            //$actionName = $triggerEventParameters['actionName']; // the action name e.g. `send_email`
-            //$av = $trigger_options; // the post_content will hold a serialized array with the action options
-            //$sfsi = $triggerEventParameters['sfsi']; // form submission data
+            error_log('triggerEventParameters: '.json_encode($triggerEventParameters));
             // Check if trigger function (action) exists e.g. send_email()
             if(method_exists('SUPER_Triggers', $triggerEventParameters['actionName'])) {
-                //$x = array(
-                //    'eventName'=>$eventName, 
-                //    'triggerName'=>$triggerName, 
-                //    'action'=>$trigger_options, 
-                //    'sfsi'=>$sfsi, 
-                //    'scheduled_action_id'=>$scheduled_action_id
-                //);
-                //error_log('$trigger_options[action]: '.$trigger_options['action']);
-                //error_log('$x: '.json_encode($x));
+                error_log('Calling action method: ' . $triggerEventParameters['actionName']);
                 call_user_func(array('SUPER_Triggers', $trigger_options['action']), $triggerEventParameters);
             }else{
                 error_log("Trigger event `".$triggerEventParameters['triggerName']."` tried to call an action named `".$trigger_options['action']."` but such action doesn't exist");
             }
         }
+        error_log('execute_scheduled_trigger_actions() completed');
     }
 
     public static function update_contact_entry_status($x){
@@ -200,16 +192,29 @@ class SUPER_Triggers {
                     $base_time = date('H:i', time());
                     // 3600 = 1 hour (60 minutes)
                     $offset = SUPER_Common::email_tags($v['offset'], $data, $settings);
-                    $time_offset = 3600 * $offset;
-                    $scheduled_time = date('H:i', strtotime($base_time) + $time_offset);
-                    $dateString = date('Y-m-d H:i', strtotime($scheduled_date.' '.$scheduled_time));
-                    $durationInHours = $v['offset']; // Change this value as needed
-                    $durationInSeconds = $time_offset; //$durationInHours * 3600;
-                    $dateTime = new DateTime($dateString);
-                    $dateTime->modify('+' . $durationInSeconds . ' seconds');
-                    $scheduled_real_date = $dateTime->format('Y-m-d H:i');
+                    error_log('Trigger offset value: ' . $offset);
+                    // Convert offset to float, fallback to 0 if conversion fails
+                    $offset = is_numeric($offset) ? (float)$offset : 0;
+                    if($offset==0){
+                        // For immediate sending, use current time including seconds
+                        $scheduled_trigger_action_timestamp = time();
+                        $scheduled_real_date = date('Y-m-d H:i:s', $scheduled_trigger_action_timestamp);
+                        error_log('Immediate sending mode (offset=0)');
+                    }else{
+                        $time_offset = 3600 * $offset;
+                        $scheduled_time = date('H:i', strtotime($base_time) + $time_offset);
+                        $dateString = date('Y-m-d H:i', strtotime($scheduled_date.' '.$scheduled_time));
+                        $durationInHours = $v['offset'];
+                        $durationInSeconds = $time_offset;
+                        $dateTime = new DateTime($dateString);
+                        $dateTime->modify('+' . $durationInSeconds . ' seconds');
+                        $scheduled_real_date = $dateTime->format('Y-m-d H:i:s');
+                        $scheduled_trigger_action_timestamp = strtotime($scheduled_real_date);
+                    }
                 }
-                $scheduled_trigger_action_timestamp = strtotime($scheduled_real_date);
+                error_log('scheduled_real_date: '.$scheduled_real_date);
+                error_log('scheduled_trigger_action_timestamp: '.$scheduled_trigger_action_timestamp);
+                error_log('time: '.time());
                 if($scheduled_trigger_action_timestamp < time()){
                     // Try to increase by 1 day
                     error_log('Super Forms [ERROR]: automatically increased ' . $scheduled_real_date . ' scheduled date with 1 day because it is in the past.');
@@ -235,7 +240,29 @@ class SUPER_Triggers {
                     'post_status' => 'queued', // `queued` = scheduled to be send, `send` = has been sent
                     'post_parent' => $form_id // Keep reference to the form
                 );
+                error_log('Creating scheduled action post with data: ' . json_encode($post));
+                
+                // Check if post type exists
+                if(!post_type_exists('sf_scheduled_action')) {
+                    error_log('ERROR: Post type sf_scheduled_action does not exist!');
+                    // Register the post type if it doesn't exist
+                    register_post_type('sf_scheduled_action', array(
+                        'public' => false,
+                        'label'  => 'Scheduled Actions'
+                    ));
+                    error_log('Registered sf_scheduled_action post type');
+                }
+                
                 $scheduled_trigger_action_id = wp_insert_post($post);         
+                error_log('Created scheduled action post with ID: ' . $scheduled_trigger_action_id);
+                
+                // Verify the post was created
+                $created_post = get_post($scheduled_trigger_action_id);
+                if($created_post) {
+                    error_log('Verified post exists with status: ' . $created_post->post_status);
+                } else {
+                    error_log('ERROR: Could not verify post exists after creation!');
+                }
                 if(is_wp_error($scheduled_trigger_action_id)){
                     $errors = $scheduled_trigger_action_id->get_error_messages();
                     foreach($errors as $error){
@@ -244,11 +271,11 @@ class SUPER_Triggers {
                             'msg' => 'Unable to create scheduled trigger action '.$triggerName.', '.$error,
                             'form_id' => $form_id
                         ));
-
                     }
                 }
                 // Save the timestamp for this reminder, we will use this to check when to send the reminder
-                add_post_meta($scheduled_trigger_action_id, '_super_scheduled_trigger_action_timestamp', $scheduled_trigger_action_timestamp);
+                $meta_result = add_post_meta($scheduled_trigger_action_id, '_super_scheduled_trigger_action_timestamp', $scheduled_trigger_action_timestamp);
+                error_log('Added timestamp meta with result: ' . ($meta_result ? 'true' : 'false'));
                 // Save the action options (settings)
                 // Save all submission data post meta for this reminder
                 unset($sfsi['post']);
@@ -351,7 +378,7 @@ class SUPER_Triggers {
 
                 // Skip dynamic data
                 if($k=='_super_dynamic_data') continue;
-                $row = $loop; //$settings['email_loop'];
+                $row = $loop;
                 if( !isset( $v['exclude'] ) ) {
                     $v['exclude'] = 0;
                 }
@@ -474,7 +501,7 @@ class SUPER_Triggers {
 
                     }
                 }
-                if( $v['exclude']==3 || ($settings['email_exclude_empty']=='true' && (empty($v['value']) || $v['value']=='0') )) {
+                if( $v['exclude']==3 || ($options['exclude_empty']==='true' && (empty($v['value']) || $v['value']=='0') )) {
                     // Exclude from admin email loop
                 }else{
                     $email_loop .= $row;
