@@ -3660,13 +3660,13 @@ class SUPER_Ajax {
         if(!isset($settings['email_exclude_empty'])) $settings['email_exclude_empty'] = '';
         if(!isset($settings['confirm_exclude_empty'])) $settings['confirm_exclude_empty'] = '';
 
-        $loops = SUPER_Common::retrieve_email_loop_html(array('data'=>$data, 'settings'=>$settings, 'exclude'=>array()));
-        $email_loop = $loops['email_loop'];
-        $confirm_loop = $loops['confirm_loop'];
-        $attachments = $loops['attachments'];
-        $confirm_attachments = $loops['confirm_attachments'];
-        $string_attachments = $loops['string_attachments'];
-        $confirm_string_attachments = $loops['confirm_string_attachments'];
+        // deprecated $loops = SUPER_Common::retrieve_email_loop_html(array('data'=>$data, 'settings'=>$settings, 'exclude'=>array()));
+        // deprecated $email_loop = $loops['email_loop'];
+        // deprecated $confirm_loop = $loops['confirm_loop'];
+        // deprecated $attachments = $loops['attachments'];
+        // deprecated $confirm_attachments = $loops['confirm_attachments'];
+        // deprecated $string_attachments = $loops['string_attachments'];
+        // deprecated $confirm_string_attachments = $loops['confirm_string_attachments'];
 
         // @since 4.9.5 - override setting with global email settings
         // If we made it to here, retrieve global settings and check if any settings have "Force" enabled
@@ -3722,171 +3722,171 @@ class SUPER_Ajax {
         // We must retrieve the new session info, because the register & login might have updated the `user_id` value
         $sfsi = get_option('_sfsi_' . $sfsi_id);
         //error_log('@@@@@@@@GET _sfsi_.'.$sfsi_id.': '.json_encode($sfsi));
-        if( $settings['send']=='yes' ) {
-            $email_body = $settings['email_body'];
-            $email_body = str_replace( '{loop_fields}', $email_loop, $email_body );
-            $email_body = apply_filters( 'super_before_sending_email_body_filter', $email_body, array( 'settings'=>$settings, 'email_loop'=>$email_loop, 'data'=>$data ) );
-            $email_body = SUPER_Common::email_tags( $email_body, $data, $settings );
-            
-            // @since 3.1.0 - optionally automatically add line breaks
-            if(!isset($settings['email_body_nl2br'])) $settings['email_body_nl2br'] = 'true';
-            if($settings['email_body_nl2br']=='true') $email_body = nl2br( $email_body );
-            
-            // @since 4.9.5 - RTL email setting
-            if(!isset($settings['email_rtl'])) $settings['email_rtl'] = '';
-            if($settings['email_rtl']=='true') $email_body =  '<div dir="rtl" style="text-align:right;">' . $email_body . '</div>';
+        // deprecated if( $settings['send']=='yes' ) {
+        // deprecated     $email_body = $settings['email_body'];
+        // deprecated     $email_body = str_replace( '{loop_fields}', $email_loop, $email_body );
+        // deprecated     $email_body = apply_filters( 'super_before_sending_email_body_filter', $email_body, array( 'settings'=>$settings, 'email_loop'=>$email_loop, 'data'=>$data ) );
+        // deprecated     $email_body = SUPER_Common::email_tags( $email_body, $data, $settings );
+        // deprecated     
+        // deprecated     // @since 3.1.0 - optionally automatically add line breaks
+        // deprecated     if(!isset($settings['email_body_nl2br'])) $settings['email_body_nl2br'] = 'true';
+        // deprecated     if($settings['email_body_nl2br']=='true') $email_body = nl2br( $email_body );
+        // deprecated     
+        // deprecated     // @since 4.9.5 - RTL email setting
+        // deprecated     if(!isset($settings['email_rtl'])) $settings['email_rtl'] = '';
+        // deprecated     if($settings['email_rtl']=='true') $email_body =  '<div dir="rtl" style="text-align:right;">' . $email_body . '</div>';
 
-            $email_body = do_shortcode($email_body);
-            if( !isset( $settings['header_from_type'] ) ) $settings['header_from_type'] = 'default';
-            if( $settings['header_from_type']=='default' ) {
-                $settings['header_from_name'] = get_option( 'blogname' );
-                $settings['header_from'] = get_option( 'admin_email' );
-            }
-            if( !isset( $settings['header_from_name'] ) ) $settings['header_from_name'] = get_option( 'blogname' );
-            if( !isset( $settings['header_from'] ) ) $settings['header_from'] = get_option( 'admin_email' );
+        // deprecated     $email_body = do_shortcode($email_body);
+        // deprecated     if( !isset( $settings['header_from_type'] ) ) $settings['header_from_type'] = 'default';
+        // deprecated     if( $settings['header_from_type']=='default' ) {
+        // deprecated         $settings['header_from_name'] = get_option( 'blogname' );
+        // deprecated         $settings['header_from'] = get_option( 'admin_email' );
+        // deprecated     }
+        // deprecated     if( !isset( $settings['header_from_name'] ) ) $settings['header_from_name'] = get_option( 'blogname' );
+        // deprecated     if( !isset( $settings['header_from'] ) ) $settings['header_from'] = get_option( 'admin_email' );
 
-            $to = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_to'], $data, $settings ) );
-            $from = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_from'], $data, $settings ) );
-            $from_name = SUPER_Common::decode( SUPER_Common::email_tags( $settings['header_from_name'], $data, $settings ) );
-            
-            $cc = '';
-            if( !empty($settings['header_cc']) ) {
-                $cc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_cc'], $data, $settings ) );
-            }
-            $bcc = '';
-            if( !empty($settings['header_bcc']) ) {
-                $bcc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_bcc'], $data, $settings ) );
-            }
-            
-            $subject = SUPER_Common::decode( SUPER_Common::email_tags( $settings['header_subject'], $data, $settings ) );
+        // deprecated     $to = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_to'], $data, $settings ) );
+        // deprecated     $from = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_from'], $data, $settings ) );
+        // deprecated     $from_name = SUPER_Common::decode( SUPER_Common::email_tags( $settings['header_from_name'], $data, $settings ) );
+        // deprecated     
+        // deprecated     $cc = '';
+        // deprecated     if( !empty($settings['header_cc']) ) {
+        // deprecated         $cc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_cc'], $data, $settings ) );
+        // deprecated     }
+        // deprecated     $bcc = '';
+        // deprecated     if( !empty($settings['header_bcc']) ) {
+        // deprecated         $bcc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_bcc'], $data, $settings ) );
+        // deprecated     }
+        // deprecated     
+        // deprecated     $subject = SUPER_Common::decode( SUPER_Common::email_tags( $settings['header_subject'], $data, $settings ) );
 
-            // @since 2.8.0 - custom reply to headers
-            if( !isset($settings['header_reply_enabled']) ) $settings['header_reply_enabled'] = false;
-            $reply = '';
-            $reply_name = '';
-            if( $settings['header_reply_enabled']==false ) {
-                $custom_reply = false;
-            }else{
-                $custom_reply = true;
-                if( !isset($settings['header_reply']) ) $settings['header_reply'] = '';
-                if( !isset($settings['header_reply_name']) ) $settings['header_reply_name'] = '';
-                $reply = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_reply'], $data, $settings ) );
-                $reply_name = SUPER_Common::decode( SUPER_Common::email_tags( $settings['header_reply_name'], $data, $settings ) );
-            }
+        // deprecated     // @since 2.8.0 - custom reply to headers
+        // deprecated     if( !isset($settings['header_reply_enabled']) ) $settings['header_reply_enabled'] = false;
+        // deprecated     $reply = '';
+        // deprecated     $reply_name = '';
+        // deprecated     if( $settings['header_reply_enabled']==false ) {
+        // deprecated         $custom_reply = false;
+        // deprecated     }else{
+        // deprecated         $custom_reply = true;
+        // deprecated         if( !isset($settings['header_reply']) ) $settings['header_reply'] = '';
+        // deprecated         if( !isset($settings['header_reply_name']) ) $settings['header_reply_name'] = '';
+        // deprecated         $reply = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['header_reply'], $data, $settings ) );
+        // deprecated         $reply_name = SUPER_Common::decode( SUPER_Common::email_tags( $settings['header_reply_name'], $data, $settings ) );
+        // deprecated     }
 
-            // @since 3.3.2 - default admin email attachments
-            if( !empty($settings['admin_attachments']) ) {
-                $email_attachments = explode( ',', $settings['admin_attachments'] );
-                foreach($email_attachments as $k => $v){
-                    $file = get_attached_file($v);
-                    if( $file ) {
-                        $url = wp_get_attachment_url($v);
-                        $filename = basename ( $file );
-                        $attachments[$filename] = $url;
-                    }
-                }
-            }
+        // deprecated     // @since 3.3.2 - default admin email attachments
+        // deprecated     if( !empty($settings['admin_attachments']) ) {
+        // deprecated         $email_attachments = explode( ',', $settings['admin_attachments'] );
+        // deprecated         foreach($email_attachments as $k => $v){
+        // deprecated             $file = get_attached_file($v);
+        // deprecated             if( $file ) {
+        // deprecated                 $url = wp_get_attachment_url($v);
+        // deprecated                 $filename = basename ( $file );
+        // deprecated                 $attachments[$filename] = $url;
+        // deprecated             }
+        // deprecated         }
+        // deprecated     }
 
-            // @since 2.0
-            $attachments = apply_filters( 'super_before_sending_email_attachments_filter', $attachments, array( 'atts'=>$sfsi, 'settings'=>$settings, 'data'=>$data, 'email_body'=>$email_body ) );
+        // deprecated     // @since 2.0
+        // deprecated     $attachments = apply_filters( 'super_before_sending_email_attachments_filter', $attachments, array( 'atts'=>$sfsi, 'settings'=>$settings, 'data'=>$data, 'email_body'=>$email_body ) );
 
-            // Send the email
-            $params = array( 'to'=>$to, 'from'=>$from, 'from_name'=>$from_name, 'custom_reply'=>$custom_reply, 'reply'=>$reply, 'reply_name'=>$reply_name, 'cc'=>$cc, 'bcc'=>$bcc, 'subject'=>$subject, 'body'=>$email_body, 'settings'=>$settings, 'attachments'=>$attachments, 'string_attachments'=>$string_attachments );
-            $mail = SUPER_Common::email( $params );
-            
-            // Return error message
-            if( !empty( $mail->ErrorInfo ) ) {
-                $msg = esc_html__( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
-                SUPER_Common::output_message( array( 
-                    'msg' => $msg,
-                    'form_id' => absint($form_id)
-                ));
-            }
-        }
-        if( $settings['confirm']=='yes' ) {
-            
-            // @since 2.8.0 - additional header support for confirmation emails
-            if( !isset($settings['confirm_header_additional']) ) $settings['confirm_header_additional'] = '';
-            $settings['header_additional'] = $settings['confirm_header_additional'];
-            $email_body = $settings['confirm_body'];
-            $email_body = str_replace( '{loop_fields}', $confirm_loop, $email_body );
-            $email_body = apply_filters( 'super_before_sending_confirm_body_filter', $email_body, array( 'settings'=>$settings, 'confirm_loop'=>$confirm_loop, 'data'=>$data ) );
-            $email_body = SUPER_Common::email_tags( $email_body, $data, $settings );
+        // deprecated     // Send the email
+        // deprecated     $params = array( 'to'=>$to, 'from'=>$from, 'from_name'=>$from_name, 'custom_reply'=>$custom_reply, 'reply'=>$reply, 'reply_name'=>$reply_name, 'cc'=>$cc, 'bcc'=>$bcc, 'subject'=>$subject, 'body'=>$email_body, 'settings'=>$settings, 'attachments'=>$attachments, 'string_attachments'=>$string_attachments );
+        // deprecated     $mail = SUPER_Common::email( $params );
+        // deprecated     
+        // deprecated     // Return error message
+        // deprecated     if( !empty( $mail->ErrorInfo ) ) {
+        // deprecated         $msg = esc_html__( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
+        // deprecated         SUPER_Common::output_message( array( 
+        // deprecated             'msg' => $msg,
+        // deprecated             'form_id' => absint($form_id)
+        // deprecated         ));
+        // deprecated     }
+        // deprecated }
+        // deprecated if( $settings['confirm']=='yes' ) {
+        // deprecated     
+        // deprecated     // @since 2.8.0 - additional header support for confirmation emails
+        // deprecated     if( !isset($settings['confirm_header_additional']) ) $settings['confirm_header_additional'] = '';
+        // deprecated     $settings['header_additional'] = $settings['confirm_header_additional'];
+        // deprecated     $email_body = $settings['confirm_body'];
+        // deprecated     $email_body = str_replace( '{loop_fields}', $confirm_loop, $email_body );
+        // deprecated     $email_body = apply_filters( 'super_before_sending_confirm_body_filter', $email_body, array( 'settings'=>$settings, 'confirm_loop'=>$confirm_loop, 'data'=>$data ) );
+        // deprecated     $email_body = SUPER_Common::email_tags( $email_body, $data, $settings );
 
-            // @since 3.1.0 - optionally automatically add line breaks
-            if(!isset($settings['confirm_body_nl2br'])) $settings['confirm_body_nl2br'] = 'true';
-            if($settings['confirm_body_nl2br']=='true') $email_body = nl2br( $email_body );
+        // deprecated     // @since 3.1.0 - optionally automatically add line breaks
+        // deprecated     if(!isset($settings['confirm_body_nl2br'])) $settings['confirm_body_nl2br'] = 'true';
+        // deprecated     if($settings['confirm_body_nl2br']=='true') $email_body = nl2br( $email_body );
 
-            // @since 4.9.5 - RTL email setting
-            if(!isset($settings['confirm_rtl'])) $settings['confirm_rtl'] = '';
-            if($settings['confirm_rtl']=='true') $email_body = '<div dir="rtl" style="text-align:right;">' . $email_body . '</div>';
-            
-            $email_body = do_shortcode($email_body);
-            if( !isset( $settings['confirm_from_type'] ) ) $settings['confirm_from_type'] = 'default';
-            if( $settings['confirm_from_type']=='default' ) {
-                $settings['confirm_from_name'] = get_option( 'blogname' );
-                $settings['confirm_from'] = get_option( 'admin_email' );
-            }
-            if( !isset( $settings['confirm_from_name'] ) ) $settings['confirm_from_name'] = get_option( 'blogname' );
-            if( !isset( $settings['confirm_from'] ) ) $settings['confirm_from'] = get_option( 'admin_email' );
-            $to = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_to'], $data, $settings ) );
-            $from = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_from'], $data, $settings ) );
-            $from_name = SUPER_Common::decode( SUPER_Common::email_tags( $settings['confirm_from_name'], $data, $settings ) );          
-            $subject = SUPER_Common::decode( SUPER_Common::email_tags( $settings['confirm_subject'], $data, $settings ) );
+        // deprecated     // @since 4.9.5 - RTL email setting
+        // deprecated     if(!isset($settings['confirm_rtl'])) $settings['confirm_rtl'] = '';
+        // deprecated     if($settings['confirm_rtl']=='true') $email_body = '<div dir="rtl" style="text-align:right;">' . $email_body . '</div>';
+        // deprecated     
+        // deprecated     $email_body = do_shortcode($email_body);
+        // deprecated     if( !isset( $settings['confirm_from_type'] ) ) $settings['confirm_from_type'] = 'default';
+        // deprecated     if( $settings['confirm_from_type']=='default' ) {
+        // deprecated         $settings['confirm_from_name'] = get_option( 'blogname' );
+        // deprecated         $settings['confirm_from'] = get_option( 'admin_email' );
+        // deprecated     }
+        // deprecated     if( !isset( $settings['confirm_from_name'] ) ) $settings['confirm_from_name'] = get_option( 'blogname' );
+        // deprecated     if( !isset( $settings['confirm_from'] ) ) $settings['confirm_from'] = get_option( 'admin_email' );
+        // deprecated     $to = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_to'], $data, $settings ) );
+        // deprecated     $from = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_from'], $data, $settings ) );
+        // deprecated     $from_name = SUPER_Common::decode( SUPER_Common::email_tags( $settings['confirm_from_name'], $data, $settings ) );          
+        // deprecated     $subject = SUPER_Common::decode( SUPER_Common::email_tags( $settings['confirm_subject'], $data, $settings ) );
 
-            // @since 2.8.0 - cc and bcc support for confirmation emails
-            $cc = '';
-            if( !empty($settings['confirm_header_cc']) ) {
-                $cc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_header_cc'], $data, $settings ) );
-            }
-            $bcc = '';
-            if( !empty($settings['confirm_header_bcc']) ) {
-                $bcc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_header_bcc'], $data, $settings ) );
-            }
+        // deprecated     // @since 2.8.0 - cc and bcc support for confirmation emails
+        // deprecated     $cc = '';
+        // deprecated     if( !empty($settings['confirm_header_cc']) ) {
+        // deprecated         $cc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_header_cc'], $data, $settings ) );
+        // deprecated     }
+        // deprecated     $bcc = '';
+        // deprecated     if( !empty($settings['confirm_header_bcc']) ) {
+        // deprecated         $bcc = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_header_bcc'], $data, $settings ) );
+        // deprecated     }
 
-            // @since 2.8.0 - custom reply to headers
-            if( !isset($settings['confirm_header_reply_enabled']) ) $settings['confirm_header_reply_enabled'] = false;
-            $reply = '';
-            $reply_name = '';
-            if( $settings['confirm_header_reply_enabled']==false ) {
-                $custom_reply = false;
-            }else{
-                $custom_reply = true;
-                if( !isset($settings['confirm_header_reply']) ) $settings['confirm_header_reply'] = '';
-                if( !isset($settings['confirm_header_reply_name']) ) $settings['confirm_header_reply_name'] = '';
-                $reply = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_header_reply'], $data, $settings ) );
-                $reply_name = SUPER_Common::decode( SUPER_Common::email_tags( $settings['confirm_header_reply_name'], $data, $settings ) );
-            }
+        // deprecated     // @since 2.8.0 - custom reply to headers
+        // deprecated     if( !isset($settings['confirm_header_reply_enabled']) ) $settings['confirm_header_reply_enabled'] = false;
+        // deprecated     $reply = '';
+        // deprecated     $reply_name = '';
+        // deprecated     if( $settings['confirm_header_reply_enabled']==false ) {
+        // deprecated         $custom_reply = false;
+        // deprecated     }else{
+        // deprecated         $custom_reply = true;
+        // deprecated         if( !isset($settings['confirm_header_reply']) ) $settings['confirm_header_reply'] = '';
+        // deprecated         if( !isset($settings['confirm_header_reply_name']) ) $settings['confirm_header_reply_name'] = '';
+        // deprecated         $reply = SUPER_Common::decode_email_header( SUPER_Common::email_tags( $settings['confirm_header_reply'], $data, $settings ) );
+        // deprecated         $reply_name = SUPER_Common::decode( SUPER_Common::email_tags( $settings['confirm_header_reply_name'], $data, $settings ) );
+        // deprecated     }
 
-            // @since 3.3.2 - default confirm email attachments
-            if( !empty($settings['confirm_attachments']) ) {
-                $email_attachments = explode( ',', $settings['confirm_attachments'] );
-                foreach($email_attachments as $k => $v){
-                    $file = get_attached_file($v);
-                    if( $file ) {
-                        $url = wp_get_attachment_url($v);
-                        $filename = basename ( $file );
-                        $confirm_attachments[$filename] = $url;
-                    }
-                }
-            }
+        // deprecated     // @since 3.3.2 - default confirm email attachments
+        // deprecated     if( !empty($settings['confirm_attachments']) ) {
+        // deprecated         $email_attachments = explode( ',', $settings['confirm_attachments'] );
+        // deprecated         foreach($email_attachments as $k => $v){
+        // deprecated             $file = get_attached_file($v);
+        // deprecated             if( $file ) {
+        // deprecated                 $url = wp_get_attachment_url($v);
+        // deprecated                 $filename = basename ( $file );
+        // deprecated                 $confirm_attachments[$filename] = $url;
+        // deprecated             }
+        // deprecated         }
+        // deprecated     }
 
-            // @since 2.0
-            $confirm_attachments = apply_filters( 'super_before_sending_email_confirm_attachments_filter', $confirm_attachments, array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$email_body )  );
+        // deprecated     // @since 2.0
+        // deprecated     $confirm_attachments = apply_filters( 'super_before_sending_email_confirm_attachments_filter', $confirm_attachments, array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$email_body )  );
 
-            // Send the email
-            $params = array( 'to'=>$to, 'from'=>$from, 'from_name'=>$from_name, 'custom_reply'=>$custom_reply, 'reply'=>$reply, 'reply_name'=>$reply_name, 'cc'=>$cc, 'bcc'=>$bcc, 'subject'=>$subject, 'body'=>$email_body, 'settings'=>$settings, 'attachments'=>$confirm_attachments, 'string_attachments'=>$confirm_string_attachments );
-            $mail = SUPER_Common::email( $params );
+        // deprecated     // Send the email
+        // deprecated     $params = array( 'to'=>$to, 'from'=>$from, 'from_name'=>$from_name, 'custom_reply'=>$custom_reply, 'reply'=>$reply, 'reply_name'=>$reply_name, 'cc'=>$cc, 'bcc'=>$bcc, 'subject'=>$subject, 'body'=>$email_body, 'settings'=>$settings, 'attachments'=>$confirm_attachments, 'string_attachments'=>$confirm_string_attachments );
+        // deprecated     $mail = SUPER_Common::email( $params );
 
-            // Return error message
-            if( !empty( $mail->ErrorInfo ) ) {
-                $msg = esc_html__( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
-                SUPER_Common::output_message( array( 
-                    'msg' => $msg,
-                    'form_id' => absint($form_id)
-                ));
-            }
-        }
+        // deprecated     // Return error message
+        // deprecated     if( !empty( $mail->ErrorInfo ) ) {
+        // deprecated         $msg = esc_html__( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
+        // deprecated         SUPER_Common::output_message( array( 
+        // deprecated             'msg' => $msg,
+        // deprecated             'form_id' => absint($form_id)
+        // deprecated         ));
+        // deprecated     }
+        // deprecated }
         if( $form_id!=0 ) {
 
             // @since 3.4.0 - Form Locker - Lock form after specific amount of submissions (based on total contact entries created)

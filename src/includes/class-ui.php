@@ -116,11 +116,11 @@ class SUPER_UI {
                 if(isset($v['wrap']) && $v['wrap']===false){
                     // don't wrap
                 }else{
-                    echo '<div class="4 sfui-setting'.(isset($v['i18n']) ? ' sfui-i18n' : '').(isset($v['width_full']) ? ' sfui-width-full' : '').(isset($v['width_auto']) ? ' sfui-width-auto' : '').(isset($v['type']) ? ' sfui-type-'.$v['type'] : '').(isset($v['inline']) ? ' sfui-inline' : '').(isset($v['vertical']) ? ' sfui-vertical' : '').((isset($v['padding']) && $v['padding']===false) ? ' sfui-no-padding' : '').'"'.(isset($v['filter']) ? ' data-f="'.$v['filter'].'"' : '').'>';
+                    echo '<div class="4 sfui-setting'.(isset($v['i18n']) ? ' sfui-i18n' : '').(isset($v['tinymce']) ? ' sfui-tinymce' : '').(isset($v['width_full']) ? ' sfui-width-full' : '').(isset($v['width_auto']) ? ' sfui-width-auto' : '').(isset($v['type']) ? ' sfui-type-'.$v['type'] : '').(isset($v['inline']) ? ' sfui-inline' : '').(isset($v['vertical']) ? ' sfui-vertical' : '').((isset($v['padding']) && $v['padding']===false) ? ' sfui-no-padding' : '').'"'.(isset($v['filter']) ? ' data-f="'.$v['filter'].'"' : '').'>';
                 }
                 self::print_field($s, $v, $prefix);
                 // Reset to default setting buttons
-                if(!empty($v['reset'])){
+                if(!empty($v['reset']) && empty($v['tinymce'])){
                     $name = $v['name'];
                     if(count($prefix)>0) $name = implode('.',$prefix).'.'.$v['name'];
                     $v['v'] = self::get_value($s, $name, null);
@@ -294,6 +294,12 @@ class SUPER_UI {
                 $value = wp_unslash($value);
                 $value = esc_textarea($value);
                 if($v['name']==='i18n' && $value==='[]') $value = '';
+                if(!empty($v['tinymce'])){
+                    $name = $v['name'];
+                    if(count($prefix)>0) $name = implode('.',$prefix).'.'.$v['name'];
+                    $v['v'] = self::get_value($s, $name, null);
+                    echo SUPER_Common::reset_setting_icons($v, false);
+                }
                 echo '<textarea'.(isset($v['tinymce']) ? ' class="sfui-textarea-tinymce"' : '').' name="'.$v['name'].'"'.(isset($v['placeholder']) ? ' placeholder="'.$v['placeholder'].'"' : '').' onchange="SUPER.ui.updateSettings(event, this)">' . $value . '</textarea>';
                 //echo '<textarea'.(isset($v['tinymce']) ? ' class="sfui-textarea-tinymce"' : '').' name="'.$v['name'].'"'.(isset($v['placeholder']) ? ' placeholder="'.$v['placeholder'].'"' : '').'>' . esc_textarea(wp_unslash(self::get_value($s, $name, $v))) . '</textarea>';
                 self::subline($v);

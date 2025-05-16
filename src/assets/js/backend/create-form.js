@@ -3029,13 +3029,21 @@
         if(typeof remove === 'undefined') remove = false;
         if(remove===true) tinymce.remove(selector);
         tinymce.init({
-            selector: selector, 
+            selector: selector,
 
             //var content = tinymce.get('your_editor_id').getContent();
             //content = content.replace(/{stripe_retry_payment_expiry_placeholder}/g, '{stripe_retry_payment_expiry}');
             //content = content.replace(/{stripe_retry_payment_url_placeholder}/g, '{stripe_retry_payment_url}');
             //tinymce.get('your_editor_id').setContent(content);
             setup: function(editor){
+                editor.on('init', function() {
+                    debugger;
+                    // When editor is initialized, get the textarea value and set it as content
+                    var textarea = editor.getElement();
+                    if(textarea.value) {
+                        editor.setContent(textarea.value);
+                    }
+                });
                 editor.on('BeforeSetContent', function(e) {
                     // Replace non-breaking spaces with regular spaces
                     // tmp e.content = e.content.replace(/\r?\n/g, '<br />');
@@ -3043,8 +3051,11 @@
                 });
                 editor.on('Change', function(e) {
                     // Required to store trigger translations properly
+                    debugger;
                     var input = editor.getElement();
-                    SUPER.ui.updateSettings(null, input)
+                    var content = editor.getContent();
+                    input.value = content; // Update textarea value to ensure it's preserved
+                    SUPER.ui.updateSettings(null, input);
                 });
             },
             // Other initialization options...
@@ -3068,11 +3079,27 @@
     SUPER.ui.positionResetBtns = function(p, input, btn){
         var parentRect = p.getBoundingClientRect();
         var inputRect = input.getBoundingClientRect();
-        var inputTopRelativeToParent = inputRect.top-parentRect.top;
+        var inputTopRelativeToParent;
+        
+        if(p.classList.contains('sfui-tinymce')){
+            debugger;
+            // For TinyMCE editors, we need to get position relative to the iframe
+            var editor = tinymce.get(input.id);
+            if(editor && editor.iframeElement){
+                var iframeRect = editor.iframeElement.getBoundingClientRect();
+                inputTopRelativeToParent = iframeRect.top - parentRect.top;
+            } else {
+                // Fallback if editor not initialized
+                inputTopRelativeToParent = inputRect.top - parentRect.top;
+            }
+        } else {
+            inputTopRelativeToParent = inputRect.top - parentRect.top;
+        }
+
         var btnRect = btn.getBoundingClientRect();
         btn.style.position = 'absolute';
         if(btnRect.height===0) btnRect.height = 19;
-        var btnTop =  inputTopRelativeToParent+((inputRect.height-btnRect.height)/2);
+        var btnTop = inputTopRelativeToParent+((inputRect.height-btnRect.height)/2);
         btn.style.top = btnTop+'px';
         btn.style.right = (parseFloat(getComputedStyle(p).paddingRight)+5)+'px';
     };
@@ -3086,31 +3113,41 @@
             var p = btn.closest('.sfui-setting'), input = p.querySelector('[name]');
             SUPER.ui.positionResetBtns(p, input, btn);
         });
-        $(document).on('mouseenter', '.sfui-setting [name]', function(e){
-            if(e.target!==this) return;
+        $(document).on('mouseenter', '.sfui-setting [name], .sfui-setting.sfui-tinymce > label', function(e){
+            debugger;
+            if(e.currentTarget!==this) return;
             // This condition ensures that the event target is the topmost `.sfui-setting` element
             var p = this.closest('.sfui-setting');
-            var btn = p.querySelector(':scope > .super-reset-settings-buttons');
+            var btn = p.querySelector(':scope > .super-reset-settings-buttons, :scope > label > .super-reset-settings-buttons');
             if(!btn) return;
             btn.style.display = 'flex';
             SUPER.ui.positionResetBtns(p, this, btn);
         });
-        $(document).on('mouseout', '.sfui-setting [name]', function(e){
-            if(e.target!==this) return;
+        $(document).on('mouseout', '.sfui-setting [name], .sfui-setting.sfui-tinymce > label', function(e){
+            if(e.currentTarget!==this) return;
             if(e.relatedTarget && e.relatedTarget.classList && e.relatedTarget.classList.contains('super-reset-settings-buttons')) return;
             if(e.relatedTarget && e.relatedTarget.parentNode && e.relatedTarget.parentNode.classList && e.relatedTarget.parentNode.classList.contains('super-reset-settings-buttons')) return;
             // This condition ensures that the event target is the topmost `.sfui-setting` element
             var p = this.closest('.sfui-setting');
-            var btn = p.querySelector(':scope > .super-reset-settings-buttons');
+            var btn = p.querySelector(':scope > .super-reset-settings-buttons, :scope > label > .super-reset-settings-buttons');
             if(!btn) return;
             btn.style.display = '';
         });
         $(document).on('click', '.sfui-setting .super-reset-default-value, .sfui-setting .super-reset-last-value', function(){
+            debugger;
             // If parent is settings tab
             var value = this.dataset.value;
-            var input = this.parentNode.closest('.sfui-setting').querySelector('[name]');
-            input.value = value;
-            SUPER.ui.updateSettings(null, input)
+            var p = this.parentNode.closest('.sfui-setting');
+            var input = p.querySelector('[name]');
+            if(p.classList.contains('sfui-tinymce')){
+                var editor = tinymce.get(input.id);
+                if(editor){
+                    editor.setContent(value);
+                }
+            }else{
+                input.value = value;
+            }
+            SUPER.ui.updateSettings(null, input);
             return;
         });
         SUPER.init_docs();
