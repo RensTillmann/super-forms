@@ -1297,33 +1297,33 @@ class SUPER_Pages {
                                                             )
                                                         )
                                                     ),
-                                                    array(
-                                                        'wrap' => false,
-                                                        'group' => true,
-                                                        'vertical' => true,
-                                                        //'filter' => 'action;send_email,send_account_verification_email',
-                                                        'filter' => 'action;send_email',
-                                                        'nodes' => array(
-                                                            array(
-                                                                'toggle' => true,
-                                                                'title' => esc_html__( 'Translations (raw)', 'super-forms' ),
-                                                                'notice' => 'hint', // hint/info
-                                                                'content' => esc_html__( 'Although you can edit existing translated strings below, you may find it easier to use the [Translations] tab instead.', 'super-forms' ),
-                                                                'nodes' => array(
-                                                                    array(
-                                                                        'name' => 'i18n',
-                                                                        'type' => 'textarea',
-                                                                        'default' => ''
-                                                                    )
-                                                                )
-                                                            )
-                                                        )
-                                                    )
                                                 )
                                             )
                                         )
                                     )
                                 )
+                            )
+                        )
+                    )
+                )
+            ),
+            array(
+                'wrap' => false,
+                'group' => true,
+                'vertical' => true,
+                //'filter' => 'action;send_email,send_account_verification_email',
+                //'filter' => 'action;send_email',
+                'nodes' => array(
+                    array(
+                        'toggle' => true,
+                        'title' => esc_html__( 'Translations (raw)', 'super-forms' ),
+                        'notice' => 'hint', // hint/info
+                        'content' => esc_html__( 'Although you can edit existing translated strings below, you may find it easier to use the [Translations] tab instead.', 'super-forms' ),
+                        'nodes' => array(
+                            array(
+                                'name' => 'i18n',
+                                'type' => 'textarea',
+                                'default' => ''
                             )
                         )
                     )

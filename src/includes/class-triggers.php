@@ -132,15 +132,13 @@ class SUPER_Triggers {
     }
 
     public static function send_email($x){
-        //error_log('Trigger: send_email()');
-        //error_log('x: '.json_encode($x));
         extract($x);
-        //error_log('sfsi: '.json_encode($sfsi));
         extract($sfsi);
         // Check if we need to grab the settings
         if(!isset($settings)) $settings = SUPER_Common::get_form_settings($form_id);
         // Grab action name
         $actionName = $action['action'];
+
         // Get action options
         $options = $action['data'];
         // Check for translations, and merge
@@ -148,15 +146,35 @@ class SUPER_Triggers {
             $translated_options = ((isset($action['i18n']) && is_array($action['i18n'])) ? $action['i18n'] : array()); // In case this is a translated version
             if(isset($translated_options[$i18n])){
                 // Merge any options with translated options
-                //$options = array_merge($options, $translated_options[$i18n]);
                 $options = SUPER_Common::merge_i18n_options($options, $translated_options[$i18n]);
             }
         }
         // Check if this trigger action needs to be scheduled
+        error_log('Checking if trigger action needs to be scheduled...');
+        error_log('Email body content: ' . print_r($options['body'], true));
+        $instant = false;
         if($options['schedule']['enabled']==='true'){
+            error_log('Schedule is enabled, processing schedules...');
             $schedules = $options['schedule']['schedules'];
             foreach($schedules as $k => $v){
+                error_log('Processing schedule #' . $k);
+                if($v['method']==='offset'){
+                    error_log('Schedule method is offset');
+                    $offset = SUPER_Common::email_tags($v['offset'], $data, $settings);
+                    error_log('Raw offset value: ' . $offset);
+                    $offset = is_numeric($offset) ? (float)$offset : 0;
+                    error_log('Parsed offset value: ' . $offset);
+                    if($offset==0){
+                        // Extract email sending logic into reusable function
+                        error_log('Offset is 0, sending email immediately');
+                        error_log('Email body before sending: ' . print_r($options['body'], true));
+                        $instant = true;
+                        self::send_trigger_email($data, $settings, $options, $x, $form_id, null);
+                        continue;
+                    }
+                }
                 // Determine the date
+                error_log('Determining schedule date...');
                 if(empty($v['days'])) $v['days'] = 0;
                 if(empty($v['offset'])) $v['offset'] = 0;
                 if(empty($v['date'])) $v['date'] = date('Y-m-d', time());
@@ -165,19 +183,27 @@ class SUPER_Triggers {
                 $v['offset'] = SUPER_Common::email_tags($v['offset'], $data, $settings );
                 // 86400 = 1 day (24 hours)
                 $days_offset = 86400 * $v['days'];
+                error_log('Days offset in seconds: ' . $days_offset);
+
                 if(strpos($v['date'], ';timestamp')!==false){
+                    error_log('Using timestamp date format');
                     $base_date = SUPER_Common::email_tags( $v['date'], $data, $settings );
                     $base_date = $base_date/1000;
                     $scheduled_date = date('Y-m-d', $base_date + $days_offset);
                 }else{
+                    error_log('Using standard date format');
                     $base_date = SUPER_Common::email_tags( $v['date'], $data, $settings );
                     $scheduled_date = date('Y-m-d', strtotime($base_date) + $days_offset);
                 }
+                error_log('Calculated scheduled_date: ' . $scheduled_date);
+
                 // Send at a fixed time
                 $scheduled_time = date('H:i', time());
                 $scheduled_real_date = date('Y-m-d H:i:s', time());
                 if($v['method']==='time'){
+                    error_log('Schedule method is fixed time');
                     $scheduled_time = SUPER_Common::email_tags($v['time'], $data, $settings);
+                    error_log('Fixed scheduled_time: ' . $scheduled_time);
                     // Test if time was set to 24 hour format
                     if(!preg_match("#([0-1]{1}[0-9]{1}|[2]{1}[0-3]{1}):[0-5]{1}[0-9]{1}#", $scheduled_time)){
                         SUPER_Common::output_message( array(
@@ -188,8 +214,10 @@ class SUPER_Triggers {
                     $scheduled_real_date = date('Y-m-d H:i', strtotime($scheduled_date.' '.$scheduled_time));
                 }
                 if($v['method']==='offset'){
+                    error_log('Schedule method is offset time');
                     // Send based of form submission + an time offset
                     $base_time = date('H:i', time());
+                    error_log('Base time: ' . $base_time);
                     // 3600 = 1 hour (60 minutes)
                     $offset = SUPER_Common::email_tags($v['offset'], $data, $settings);
                     error_log('Trigger offset value: ' . $offset);
@@ -199,9 +227,10 @@ class SUPER_Triggers {
                         // For immediate sending, use current time including seconds
                         $scheduled_trigger_action_timestamp = time();
                         $scheduled_real_date = date('Y-m-d H:i:s', $scheduled_trigger_action_timestamp);
-                        error_log('Immediate sending mode (offset=0)');
+                        error_log('Immediate sending mode (offset=0), scheduled_real_date: ' . $scheduled_real_date);
                     }else{
                         $time_offset = 3600 * $offset;
+                        error_log('Time offset in seconds: ' . $time_offset);
                         $scheduled_time = date('H:i', strtotime($base_time) + $time_offset);
                         $dateString = date('Y-m-d H:i', strtotime($scheduled_date.' '.$scheduled_time));
                         $durationInHours = $v['offset'];
@@ -210,18 +239,22 @@ class SUPER_Triggers {
                         $dateTime->modify('+' . $durationInSeconds . ' seconds');
                         $scheduled_real_date = $dateTime->format('Y-m-d H:i:s');
                         $scheduled_trigger_action_timestamp = strtotime($scheduled_real_date);
+                        error_log('Offset sending mode, scheduled_real_date: ' . $scheduled_real_date);
                     }
                 }
-                error_log('scheduled_real_date: '.$scheduled_real_date);
-                error_log('scheduled_trigger_action_timestamp: '.$scheduled_trigger_action_timestamp);
-                error_log('time: '.time());
+                error_log('Final scheduled_real_date: '.$scheduled_real_date);
+                error_log('Final scheduled_trigger_action_timestamp: '.$scheduled_trigger_action_timestamp);
+                error_log('Current time: '.time());
                 if($scheduled_trigger_action_timestamp < time()){
                     // Try to increase by 1 day
+                    error_log('Schedule is in past, adding 1 day');
                     error_log('Super Forms [ERROR]: automatically increased ' . $scheduled_real_date . ' scheduled date with 1 day because it is in the past.');
                     $scheduled_real_date = date('Y-m-d H:i', strtotime($scheduled_real_date) + 86400);
                     $scheduled_trigger_action_timestamp = strtotime($scheduled_real_date);
+                    error_log('New scheduled_real_date after adding 1 day: ' . $scheduled_real_date);
                     if($scheduled_trigger_action_timestamp < time()){
                         // Just try to add 1 extra day to the current date
+                        error_log('Schedule still in past after adding 1 day, throwing error');
                         error_log('Super Forms [ERROR]: ' . $scheduled_real_date . ' can not be used as a schedule date for trigger '.$triggerName.' (form id: '.$form_id.') because it is in the past, please check your settings under [Triggers] tab on the form builder.');
                         SUPER_Common::output_message( array(
                             'msg' => '<strong>' . $scheduled_real_date . '</strong> can not be used as a schedule date for trigger '.$triggerName.' because it is in the past, please check your settings under [Triggers] tab on the form builder.',
@@ -232,6 +265,8 @@ class SUPER_Triggers {
                 }
                 // Insert reminder into database
                 // Make sure to disabled the schedule so that when the action is called on the scheduled date, it won't re-create a new one and instead actually execute the action
+                error_log('Creating scheduled action post...');
+                error_log('Email body before serialization: ' . print_r($options['body'], true));
                 $action['data']['schedule']['enabled'] = 'false';
                 $post = array(
                     'post_title' => $eventName.'->'.$actionName,
@@ -260,6 +295,7 @@ class SUPER_Triggers {
                 $created_post = get_post($scheduled_trigger_action_id);
                 if($created_post) {
                     error_log('Verified post exists with status: ' . $created_post->post_status);
+                    error_log('Stored email body: ' . print_r(maybe_unserialize($created_post->post_content), true));
                 } else {
                     error_log('ERROR: Could not verify post exists after creation!');
                 }
@@ -289,31 +325,59 @@ class SUPER_Triggers {
                     'sfsi'=>$sfsi
                 );
                 add_post_meta($scheduled_trigger_action_id, '_super_scheduled_trigger_action_data', $triggerEventParameters);
-                //error_log('trigger action '.$actionName.' has been scheduled for '.$scheduled_real_date);
+                error_log('Added trigger event parameters to post meta');
             }
-            return true;
+        }
+        if($instant===false){
+            error_log('No instant sending required, sending trigger email normally');
+            error_log('Email body before normal sending: ' . print_r($options['body'], true));
+            // Extract email sending logic into reusable function
+            self::send_trigger_email($data, $settings, $options, $x, $form_id, $scheduled_action_id);
         }
 
+    }
+
+    public static function send_trigger_email($data, $settings, $options, $x, $form_id, $scheduled_action_id = null) {
+        error_log('Starting send_trigger_email()');
+        error_log('Form ID: ' . $form_id);
+        error_log('Scheduled action ID: ' . ($scheduled_action_id ? $scheduled_action_id : 'none'));
+
+        error_log('Retrieving email loop HTML...');
         $loops = self::retrieve_email_loop_html($data, $settings, $options);
-        //error_log('retrieve_email_loop_html()');
-        //error_log(json_encode($loops));
         $email_loop = $options['loop_open'].$loops['email_loop'].$options['loop_close'];
-        //error_log($email_loop);
         $attachments = $loops['attachments'];
         $string_attachments = $loops['string_attachments'];
+
+        error_log('Processing email body...');
         $email_body = $options['body'];
+        error_log('Original email body: ' . $email_body);
         $email_body = str_replace( '{loop_fields}', $email_loop, $email_body );
+        error_log('Email body after loop fields replacement: ' . $email_body);
         $email_body = apply_filters( 'super_before_sending_email_body_filter', $email_body, array( 'settings'=>$settings, 'email_loop'=>$email_loop, 'data'=>$data ) );
         $email_body = SUPER_Common::email_tags( $email_body, $data, $settings );
+        
         // @since 4.9.5 - RTL email setting
-        if(isset($options['rtl']) && $options['rtl']=='true') $email_body = '<div dir="rtl" style="text-align:right;">' . $email_body . '</div>';
+        if(isset($options['rtl']) && $options['rtl']=='true') {
+            error_log('Applying RTL formatting to email body');
+            $email_body = '<div dir="rtl" style="text-align:right;">' . $email_body . '</div>';
+        }
         $email_body = do_shortcode($email_body);
+        error_log('Final email body after all processing: ' . $email_body);
+
+        error_log('Processing email headers...');
         $to = SUPER_Common::decode_email_header(SUPER_Common::email_tags($options['to'], $data, $settings));
         $from = SUPER_Common::decode_email_header(SUPER_Common::email_tags($options['from_email'], $data, $settings));
         $from_name = SUPER_Common::decode(SUPER_Common::email_tags($options['from_name'], $data, $settings));
         $cc = SUPER_Common::decode_email_header(SUPER_Common::email_tags($options['cc'], $data, $settings));
         $bcc = SUPER_Common::decode_email_header(SUPER_Common::email_tags($options['bcc'], $data, $settings));
         $subject = SUPER_Common::decode(SUPER_Common::email_tags($options['subject'], $data, $settings));
+
+        error_log('Email headers processed:');
+        error_log('To: ' . $to);
+        error_log('From: ' . $from);
+        error_log('From Name: ' . $from_name);
+        error_log('Subject: ' . $subject);
+
         $email_params = array(
             'to'=>$to,
             'from'=>$from,
@@ -328,37 +392,62 @@ class SUPER_Triggers {
             'charset'=>SUPER_Common::email_tags($options['charset'], $data, $settings),
             'content_type'=>SUPER_Common::email_tags($options['content_type'], $data, $settings),
         );
+
         if($options['reply_to']['enabled']==='true'){
+            error_log('Setting custom reply-to headers');
             $email_params['custom_reply'] = true;
             $email_params['reply'] = SUPER_Common::decode_email_header(SUPER_Common::email_tags($options['reply_to']['email'], $data, $settings));
             $email_params['reply_name'] = SUPER_Common::decode(SUPER_Common::email_tags($options['reply_to']['name'], $data, $settings));
+            error_log('Reply-to: ' . $email_params['reply'] . ' (' . $email_params['reply_name'] . ')');
         }
+
+        error_log('Processing attachments...');
         $email_attachments = array();
-        if(isset($options['attachments'])) $email_attachments = explode( ',', $options['attachments'] );
+        if(isset($options['attachments']) && !empty($options['attachments'])) {
+            $email_attachments = explode( ',', $options['attachments'] );
+            error_log('Found ' . count($email_attachments) . ' attachments to process');
+        }
+
         foreach($email_attachments as $k => $v){
+            error_log('Processing attachment ID: ' . $v);
             $file = get_attached_file($v);
             if( $file ) {
                 $url = wp_get_attachment_url($v);
                 $filename = basename ( $file );
                 $attachments[$filename] = $url;
+                error_log('Added attachment: ' . $filename . ' (' . $url . ')');
+            } else {
+                error_log('Could not find file for attachment ID: ' . $v);
             }
         }
-        $attachments = apply_filters( 'super_before_sending_email_attachments_filter', $attachments, array( 'atts'=>$x, 'settings'=>$settings, 'data'=>$data, 'email_body'=>$email_body ) );
+
+        error_log('Processing attachments through filter...');
+        error_log('Current attachments before filter: ' . json_encode($attachments));
+        $attachments = apply_filters( 'super_before_sending_email_attachments_filter', $attachments, array( 'options'=>$options, 'atts'=>$x, 'settings'=>$settings, 'data'=>$data, 'email_body'=>$email_body ) );
+        error_log('Attachments after filter: ' . json_encode($attachments));
         $email_params['attachments'] = $attachments;
-        // Send the email
+        error_log('Added attachments to email parameters');
+
+        error_log('Sending email...');
         $mail = SUPER_Common::email( $email_params );
-        // Return error message
+
         if(!empty($mail->ErrorInfo)){
+            error_log('Email sending failed with error: ' . $mail->ErrorInfo);
             $msg = esc_html__( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
             SUPER_Common::output_message( array( 
                 'msg' => $msg,
                 'form_id' => absint($form_id)
             ));
         }else{
-            // If this was triggered based of a scheduled action, then delete it
-            if(!empty($scheduled_action_id)) wp_delete_post($scheduled_action_id, true);
+            error_log('Email sent successfully');
+            if(!empty($scheduled_action_id)) {
+                error_log('Deleting scheduled action post: ' . $scheduled_action_id);
+                wp_delete_post($scheduled_action_id, true);
+            }
         }
+        error_log('Completed send_trigger_email()');
     }
+
 
     public static function retrieve_email_loop_html($data, $settings, $options){
         if($options['exclude']['enabled']==='true'){

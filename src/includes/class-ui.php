@@ -295,6 +295,9 @@ class SUPER_UI {
                 $value = esc_textarea($value);
                 if($v['name']==='i18n' && $value==='[]') $value = '';
                 if(!empty($v['tinymce'])){
+                    error_log('#############################');
+                    error_log(json_encode($s));
+                    error_log(json_encode($v));
                     $name = $v['name'];
                     if(count($prefix)>0) $name = implode('.',$prefix).'.'.$v['name'];
                     $v['v'] = self::get_value($s, $name, null);

@@ -27,7 +27,6 @@ class SUPER_Ajax {
      */
     public static function init() {
 
-        error_log('✅ init ajax');
         $ajax_events = array(
             
             // Ajax action                  => nopriv
@@ -946,6 +945,7 @@ class SUPER_Ajax {
         update_post_meta( $form_id, '_super_version', $version );
 
         $s = SUPER_Common::get_form_triggers($backup_id);
+        error_log('save_form_triggers(2)');
         SUPER_Common::save_form_triggers($s, $backup_id);
 
         $s = SUPER_Common::get_form_woocommerce_settings($backup_id);
@@ -1904,6 +1904,7 @@ class SUPER_Ajax {
             $elements = $v['elements'];
             if(!is_array($elements)) $elements = json_decode( $elements, true );
             add_post_meta( $form_id, '_super_elements', $elements );
+            error_log('save_form_triggers(3)');
             if(isset($v['triggers'])) SUPER_Common::save_form_triggers($v['triggers'], $form_id);
             if(isset($v['woocommerce'])) SUPER_Common::save_form_woocommerce_settings($v['woocommerce'], $form_id);
             error_log('save_form_listings_settings(5)');
@@ -2275,6 +2276,7 @@ class SUPER_Ajax {
             add_post_meta( $form_id, '_super_elements', $elements );
             add_post_meta( $form_id, '_super_translations', $translations );
             add_post_meta( $form_id, '_super_local_secrets', $local_secrets );
+            error_log('save_form_triggers(4)');
             SUPER_Common::save_form_triggers($triggers, $form_id);
             SUPER_Common::save_form_woocommerce_settings($woocommerce, $form_id);
             error_log('save_form_listings_settings(1)');
@@ -2288,6 +2290,7 @@ class SUPER_Ajax {
                 update_post_meta( $form_id, '_super_elements', $elements );
                 update_post_meta( $form_id, '_super_translations', $translations );
                 update_post_meta( $form_id, '_super_local_secrets', $local_secrets );
+                error_log('save_form_triggers(5)');
                 SUPER_Common::save_form_triggers($triggers, $form_id);
                 SUPER_Common::save_form_woocommerce_settings($woocommerce, $form_id);
                 error_log('save_form_listings_settings(2)');
@@ -2299,6 +2302,7 @@ class SUPER_Ajax {
                 update_post_meta( $form_id, '_super_version', $version );
                 if(!empty($settings)) update_post_meta( $form_id, '_super_form_settings', $settings );
                 if(!empty($elements)) update_post_meta( $form_id, '_super_elements', $elements );
+                error_log('save_form_triggers(6)');
                 if(!empty($triggers)) SUPER_Common::save_form_triggers($triggers, $form_id);
                 if(!empty($woocommerce)) SUPER_Common::save_form_woocommerce_settings($woocommerce, $form_id);
                 error_log('save_form_listings_settings(3)');

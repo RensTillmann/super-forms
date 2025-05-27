@@ -6900,10 +6900,8 @@ function SUPERreCaptcha(){
         // For native datepickers update attributes
         nodes = document.querySelectorAll('.super-field-type-datetime-local .super-shortcode-field');
         for (i = 0; i < nodes.length; ++i) {
-            
             var el = nodes[i];
             if(el.value && el.value!==''){
-                
                 //parseFormat = ['mm-dd-yyTH:i'];
                 var parse = Date.parse(el.value);
                 //parse = Date.parseExact(el.value, parseFormat);
@@ -6922,18 +6920,25 @@ function SUPERreCaptcha(){
                     el.dataset.mathHour = hour;
                     el.dataset.mathMinute = minute;
                     el.dataset.mathSeconds = seconds;
-                    var dayIndex = parse.getDay();
-                    //var dayIndex = firstDate.getDay();
+                    firstDate = new Date(Date.UTC(year, month-1, day));
+                    var dayIndex = firstDate.getDay();
+                    //var dayIndex = parse.getDay();
                     el.dataset.mathDayw = dayIndex;
                     el.dataset.mathDayn = super_elements_i18n.dayNames[dayIndex]; // long (default)
                     el.dataset.mathDayns = super_elements_i18n.dayNamesShort[dayIndex]; // short
                     el.dataset.mathDaynss = super_elements_i18n.dayNamesMin[dayIndex]; // super short
+                    el.dataset.mathDiff = firstDate.getTime();
                     el.dataset.mathAge = SUPER.init_datepicker_get_age(month+'/'+day+'/'+year, 'years');
                     el.dataset.mathAgeMonths = SUPER.init_datepicker_get_age(month+'/'+day+'/'+year, 'months');
                     el.dataset.mathAgeDays = SUPER.init_datepicker_get_age(month+'/'+day+'/'+year, 'days');
                     // Set minutes to current minutes (UTC) + User local time UTC offset
-                    parse.setMinutes(parse.getMinutes() - parse.getTimezoneOffset());
-                    el.dataset.mathDiff = parse.getTime();
+                    //parse.setMinutes(parse.getMinutes() - parse.getTimezoneOffset());
+                    //el.dataset.mathDiff = parse.getTime();
+                    $date = Date.parseExact(day+'-'+month+'-'+year, parseFormat);
+                    if($date!==null){
+                        $date = $date.toString("dd-MM-yyyy");
+                        SUPER.init_connected_datepicker(el, $date, parseFormat, oneDay);
+                    }
                 }
             }else{
                 el.dataset.mathYear = '0';
@@ -10267,6 +10272,16 @@ function SUPERreCaptcha(){
                 var list = nodes[i].querySelectorAll(':scope > li');
                 applyMarkers(list);
             }
+        }else{
+            // Quick fix for issue where first line of textarea element is cut off
+            pdfPageContainer.querySelectorAll('textarea').forEach(textarea => {
+                const trimmed = textarea.value.trimStart();
+                if (!trimmed.startsWith('\n')) {
+                    textarea.value = '\n' + trimmed;
+                } else {
+                    textarea.value = trimmed; // remove excess leading spaces/tabs, keep existing \n
+                }
+            });
         }
         SUPER.recheckCanvasImages(args, function(){
             SUPER.init_super_responsive_form_fields({form: form, callback: function(formId){

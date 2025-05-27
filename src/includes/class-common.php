@@ -130,7 +130,10 @@ class SUPER_Common {
         return $triggers;
     }
     public static function save_form_triggers($triggers, $form_id, $delete=true){
-        error_log('save_form_triggers()');
+        error_log('=== SUPER FORMS: save_form_triggers() START ===');
+        error_log('Form ID: ' . $form_id);
+        error_log('Delete existing triggers: ' . ($delete ? 'true' : 'false'));
+        
         // First delete all local triggers for the current form
         global $wpdb;
         if($delete===true){
@@ -140,10 +143,20 @@ class SUPER_Common {
             $wpdb->query("DELETE FROM $wpdb->postmeta WHERE post_id = 0 AND meta_key LIKE '_super_specific_trigger-%'");
         }
         if(isset($triggers) && is_array($triggers)){
-            error_log('we have triggers to save');
+            error_log('Number of triggers to save: ' . count($triggers));
             foreach($triggers as $trigger){
                 $triggerName = sanitize_title_with_dashes(trim($trigger['name']));
-                error_log($triggerName);
+                error_log('Processing trigger: ' . $triggerName);
+                error_log('trigger: ' . json_encode($trigger));
+                
+                // Log email trigger details
+                if(isset($trigger['action']) && $trigger['action'] === 'send_email') {
+                    error_log('=== Email Trigger Details ===');
+                    error_log('Subject: ' . (isset($trigger['email_subject']) ? $trigger['email_subject'] : 'not set'));
+                    error_log('Body length: ' . (isset($trigger['email_body']) ? strlen($trigger['email_body']) : '0'));
+                    error_log('Body preview: ' . (isset($trigger['email_body']) ? substr($trigger['email_body'], 0, 100) . '...' : 'not set'));
+                }
+    
                 // Skip if no event was choosen
                 if(empty($trigger['event'])) {
                     error_log('this trigger has no event, skip it');
@@ -170,7 +183,9 @@ class SUPER_Common {
                 }
             }
         }
+        error_log('=== SUPER FORMS: save_form_triggers() END ===');
     }
+
     // Function to recursively merge the translated array with the default language
     public static function mergeTranslatedSettings($defaultSettings, $translatedSettings) {
         foreach ($translatedSettings as $key => $value) {
@@ -2250,6 +2265,7 @@ class SUPER_Common {
             }
             //error_log('save form triggers: '.json_encode($triggers));
             //error_log('form id: '.$form_id);
+            error_log('save_form_triggers(7)');
             SUPER_Common::save_form_triggers($triggers, $form_id, false);
 
             $s['_woocommerce'] = array();
