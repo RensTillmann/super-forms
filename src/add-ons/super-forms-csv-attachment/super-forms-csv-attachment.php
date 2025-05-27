@@ -141,7 +141,7 @@ if( !class_exists('SUPER_CSV_Attachment') ) :
                 add_filter( 'super_settings_after_custom_js_filter', array( $this, 'add_settings' ), 10, 2 );
             }
             if ( $this->is_request( 'ajax' ) ) {
-                add_action( 'super_before_sending_email_attachments_filter', array( $this, 'add_csv_attachment' ), 10, 2 );
+                add_filter( 'super_before_sending_email_attachments_filter', array( $this, 'add_csv_attachment' ), 10, 2 );
             }
         }
 
@@ -152,46 +152,71 @@ if( !class_exists('SUPER_CSV_Attachment') ) :
          *  @since      1.0.0
         */
         public static function add_csv_attachment( $attachments, $atts ) {
-            if( (isset($atts['settings']['csv_attachment_enable'])) && ($atts['settings']['csv_attachment_enable']=='true') ) {
-                if(!isset($atts['settings']['csv_attachment_name'])) {
-                    $csv_attachment_name = 'super-csv-attachment';
-                }else{
-                    // @since 1.1.2 - compatibility with {tags}
-                    $csv_attachment_name = SUPER_Common::email_tags( $atts['settings']['csv_attachment_name'], $atts['data'], $atts['settings'] );
+            error_log('add_csv_attachment() called');
+            //error_log('Raw $atts: ' . print_r($atts, true));
+            $data = isset($atts['data']) ? $atts['data'] : array();
+            $form_id = isset($atts['form_id']) ? $atts['form_id'] : null;
+            // Use options from trigger if present
+            $csv_settings = null;
+            if (isset($atts['options']['csv_attachment']) && is_array($atts['options']['csv_attachment'])) {
+                $csv_settings = $atts['options']['csv_attachment'];
+                error_log('Using $atts[options][csv_attachment] for settings');
+            } elseif (isset($atts['csv_attachment']) && is_array($atts['csv_attachment'])) {
+                $csv_settings = $atts['csv_attachment'];
+                error_log('Using $atts[csv_attachment] for settings');
+            } else {
+                // fallback to legacy
+                $csv_settings = isset($atts['settings']) ? $atts['settings'] : $atts;
+                error_log('Using legacy structure for CSV settings');
+            }
+            error_log('CSV settings: ' . print_r($csv_settings, true));
+            // Check if enabled
+            $enabled = isset($csv_settings['enabled']) ? $csv_settings['enabled'] : (isset($csv_settings['csv_attachment_enable']) ? $csv_settings['csv_attachment_enable'] : '');
+            if ($enabled === 'true') {
+                $csv_attachment_name = isset($csv_settings['name']) ? $csv_settings['name'] : (isset($csv_settings['csv_attachment_name']) ? $csv_settings['csv_attachment_name'] : 'super-csv-attachment');
+                $csv_attachment_name = SUPER_Common::email_tags($csv_attachment_name, $data, $csv_settings);
+                $save_as = isset($csv_settings['save_as']) ? $csv_settings['save_as'] : (isset($csv_settings['csv_attachment_save_as']) ? $csv_settings['csv_attachment_save_as'] : 'entry_value');
+                $excluded_fields = array();
+                if (isset($csv_settings['exclude_fields']) && is_array($csv_settings['exclude_fields'])) {
+                    foreach ($csv_settings['exclude_fields'] as $field) {
+                        if (isset($field['name']) && $field['name'] !== '') {
+                            $excluded_fields[] = $field['name'];
+                        }
+                    }
+                } elseif (isset($csv_settings['csv_attachment_exclude'])) {
+                    $excluded_fields = explode("\n", $csv_settings['csv_attachment_exclude']);
                 }
-                if(!isset($atts['settings']['csv_attachment_save_as'])) $atts['settings']['csv_attachment_save_as'] = 'entry_value';
-                if(!isset($atts['settings']['csv_attachment_exclude'])) $atts['settings']['csv_attachment_exclude'] = '';
-                $excluded_fields = explode( "\n", $atts['settings']['csv_attachment_exclude'] );
-
+                $delimiter = isset($csv_settings['delimiter']) ? $csv_settings['delimiter'] : (isset($csv_settings['csv_attachment_delimiter']) ? $csv_settings['csv_attachment_delimiter'] : ',');
+                $enclosure = isset($csv_settings['enclosure']) ? $csv_settings['enclosure'] : (isset($csv_settings['csv_attachment_enclosure']) ? $csv_settings['csv_attachment_enclosure'] : '"');
                 $rows = array();
-                foreach( $atts['data'] as $k => $v ) {
-                    if( !isset($v['name']) ) continue;
-                    if( !in_array( $v['name'], $excluded_fields ) ) {
+                foreach ($data as $k => $v) {
+                    if (!isset($v['name'])) continue;
+                    if (!in_array($v['name'], $excluded_fields)) {
                         $rows[0][] = $k;
                     }
                 }
-                foreach( $atts['data'] as $k => $v ) {
-                     if( !isset($v['name']) ) continue;
-                     if( !in_array( $v['name'], $excluded_fields ) ) {
-                        if( (isset($v['type'])) && ($v['type'] == 'files') ) {
+                foreach ($data as $k => $v) {
+                    if (!isset($v['name'])) continue;
+                    if (!in_array($v['name'], $excluded_fields)) {
+                        if ((isset($v['type'])) && ($v['type'] == 'files')) {
                             $files = '';
-                            if( ( isset( $v['files'] ) ) && ( count( $v['files'] )!=0 ) ) {
-                                foreach( $v['files'] as $fk => $fv ) {
-                                    if( $fk==0 ) {
+                            if ((isset($v['files'])) && (count($v['files']) != 0)) {
+                                foreach ($v['files'] as $fk => $fv) {
+                                    if ($fk == 0) {
                                         $files .= $fv['url'];
-                                    }else{
+                                    } else {
                                         $files .= PHP_EOL . $fv['url'];
                                     }
                                 }
                             }
                             $rows[1][] = $files;
-                        }else{
-                            if( !isset($v['value']) ) {
+                        } else {
+                            if (!isset($v['value'])) {
                                 $rows[1][] = '';
-                            }else{
-                                if( ($atts['settings']['csv_attachment_save_as']=='entry_value') && (isset($v['entry_value'])) ) {
+                            } else {
+                                if (($save_as == 'entry_value') && (isset($v['entry_value']))) {
                                     $v['value'] = $v['entry_value'];
-                                }elseif( ($atts['settings']['csv_attachment_save_as']=='confirm_email_value') && (isset($v['confirm_value'])) ) {
+                                } elseif (($save_as == 'confirm_email_value') && (isset($v['confirm_value']))) {
                                     $v['value'] = $v['confirm_value'];
                                 }
                                 $rows[1][] = stripslashes($v['value']);
@@ -200,46 +225,43 @@ if( !class_exists('SUPER_CSV_Attachment') ) :
                     }
                 }
                 try {
+                    error_log('form_id: ' . $form_id);
                     $d = wp_upload_dir();
                     $basename = sanitize_title_with_dashes($csv_attachment_name) . '.csv';
                     $filename = trailingslashit($d['path']) . $basename;
-                    $fp = fopen( $filename, 'w' );
-                    // @since 3.1.0 - write file header (byte order mark) for correct encoding to fix UTF-8 in Excel
-                    $bom = apply_filters( 'super_csv_bom_header_filter', chr(0xEF).chr(0xBB).chr(0xBF) );
-                    if(fwrite($fp, $bom)===false){
-                        // Print error message
-                        SUPER_Common::output_message( array(
+                    $fp = fopen($filename, 'w');
+                    $bom = apply_filters('super_csv_bom_header_filter', chr(0xEF) . chr(0xBB) . chr(0xBF));
+                    if (fwrite($fp, $bom) === false) {
+                        SUPER_Common::output_message(array(
                             'msg' => "Unable to write to file ($filename)",
-                            'form_id' => absint($atts['form_id'])
+                            'form_id' => absint($form_id)
                         ));
                     }
-                    // @since 1.1.1 - custom settings for delimiter and enclosure
-                    if(!isset($atts['settings']['csv_attachment_delimiter'])) $atts['settings']['csv_attachment_delimiter'] = ',';
-                    if(!isset($atts['settings']['csv_attachment_enclosure'])) $atts['settings']['csv_attachment_enclosure'] = '"';
-                    $delimiter = wp_unslash(sanitize_text_field($atts['settings']['csv_attachment_delimiter']));
-                    $enclosure = wp_unslash(sanitize_text_field($atts['settings']['csv_attachment_enclosure']));
-                    if(empty($delimiter)) $delimiter = ',';
-                    if(empty($enclosure)) $enclosure = '"';
-                    foreach ( $rows as $fields ) {
-                        fputcsv( $fp, $fields, $delimiter, $enclosure, PHP_EOL);
+                    $delimiter = wp_unslash(sanitize_text_field($delimiter));
+                    $enclosure = wp_unslash(sanitize_text_field($enclosure));
+                    if (empty($delimiter)) $delimiter = ',';
+                    if (empty($enclosure)) $enclosure = '"';
+                    foreach ($rows as $fields) {
+                        fputcsv($fp, $fields, $delimiter, $enclosure, PHP_EOL);
                     }
-                    fclose( $fp );
+                    fclose($fp);
                     $attachment = array(
                         'post_mime_type' => 'text/csv',
-                        'post_title'     => preg_replace( '/\.[^.]+$/', '', $basename ),
+                        'post_title'     => preg_replace('/\.[^.]+$/', '', $basename),
                         'post_content'   => '',
                         'post_status'    => 'inherit'
                     );
-                    $attachment_id = wp_insert_attachment( $attachment, $filename, 0 );
+                    $attachment_id = wp_insert_attachment($attachment, $filename, 0);
                     add_post_meta($attachment_id, 'super-forms-form-upload-file', true);
-                    $attach_data = wp_generate_attachment_metadata( $attachment_id, $filename );
-                    wp_update_attachment_metadata( $attachment_id,  $attach_data );
-                    $attachments['csv-form-data.csv'] = wp_get_attachment_url( $attachment_id );
+                    $attach_data = wp_generate_attachment_metadata($attachment_id, $filename);
+                    wp_update_attachment_metadata($attachment_id, $attach_data);
+                    $attachments['csv-form-data.csv'] = wp_get_attachment_url($attachment_id);
+                    error_log('CSV attachment created: ' . $filename . ' (ID: ' . $attachment_id . ')');
                 } catch (Exception $e) {
-                    // Print error message
-                    SUPER_Common::output_message( array(
+                    error_log('form_id: ' . $form_id);
+                    SUPER_Common::output_message(array(
                         'msg' => $e->getMessage(),
-                        'form_id' => absint($atts['form_id'])
+                        'form_id' => absint($form_id)
                     ));
                 }
             }

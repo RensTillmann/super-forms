@@ -225,9 +225,7 @@ if(!class_exists('SUPER_Forms')) :
         */
         public function includes(){
             
-            error_log('includes()');
             include_once( 'includes/class-common.php' );
-            include_once( 'includes/class-rest-api.php' );
              
             if ( $this->is_request( 'admin' ) ) {
                 include_once( 'includes/class-install.php' );
@@ -3123,6 +3121,7 @@ if(!class_exists('SUPER_Forms')) :
             
             $s = SUPER_Common::get_form_triggers($id);
             error_log('Triggers: '.json_encode($s));
+            error_log('save_form_triggers(1)');
             SUPER_Common::save_form_triggers($s, $id);
 
             $s = SUPER_Common::get_form_woocommerce_settings($id);

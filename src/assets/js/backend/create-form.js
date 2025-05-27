@@ -58,22 +58,19 @@
         settings: {},
         tmpSettings: {}, // used for translation mode only
         getTabFieldValue: function(el,tab){
-            //debugger;
-            // First get the field value
             var value = el.value;
-            //var type = el.type;
-            if(!el.type){
-                alert('not a field, might want to fix/check the create-form.js code...');
-            }
-            //if (type === 'checkbox') value = el.checked;
-            //if (type === 'radio') value = (tab.querySelector('[name="' + el.name + '"]:checked') ? tab.querySelector('[name="' + el.name + '"]:checked').value : '');
-            //if(firstValue!==value){
-            //    alert('value difference, might want to fix/check the create-form.js code...');
-            //}
-            if (value === true) value = "true";
-            if (value === false) value = "false";
+            if(el.name==='rtl') debugger;
+            if(el.name==='body') debugger;
+            if(!el.type) alert('not a field, might want to fix/check the create-form.js code...');
+            if(value === true) return 'true';
+            if(value === false) return 'false';
+            if(el.type === 'checkbox') return el.checked ? 'true' : 'false';
             if (el.tagName === 'TEXTAREA' && tinymce.get(el.id)) {
+                console.log('=== TinyMCE getValue() ===');
+                console.log('Element ID:', el.id);
+                console.log('Element name:', el.name);
                 value = tinymce.get(el.id).getContent();
+                console.log('TinyMCE content:', value);
             }
             return value;
         },
@@ -416,11 +413,9 @@
         // Update form settings
         updateSettings: function(e, el){
             if(el.tagName=='LABEL' && el.children[0].type=='radio'){
-                //debugger;
                 el = el.querySelector('input');
             }
             if(el.tagName=='LABEL' && el.children[0].type=='checkbox'){
-                //debugger;
                 el = el.querySelector('input');
             }
             SUPER.ui.showHideSubsettings(el);
@@ -429,8 +424,6 @@
             var tab = el.closest('.super-tab-content');
             var slug = tab.className.replace('super-active', '').replace('super-tab-content', '').replace('super-tab-', '').split(' ').join('');
             if(slug==='lists' || slug==='listing' || slug==='listings'){
-                //debugger;
-                //debugger;
                 //debugger;
             }
             // Check how many translatable fields there are
@@ -499,7 +492,9 @@
                         }
                     });
 
+                    debugger;
                     if(objCompare[lastKey]===value){
+                        debugger;
                         // When this value equals the on from the main language delete it
                         if(obj[lastKey]){
                             delete obj[lastKey];
@@ -659,7 +654,6 @@
                     }
                 });
                 // Value is different, keep it
-                //debugger;
                 obj[lastKey] = value;
                 // Clean up the data object
                 data = SUPER.ui.i18n.removeEmpty(data);
@@ -869,7 +863,6 @@
                     parent = parent.parentElement;
                 }
                 //debugger;
-                //debugger;
                 var obj = i18n_data[i18n];
                 if(typeof obj !=='undefined'){
                     keyPath.forEach(key => {
@@ -993,8 +986,6 @@
         document.querySelector('.super-raw-code-woocommerce-settings textarea').value = SUPER.get_woocommerce_settings(string);
     };
     SUPER.update_listings_settings = function(string){
-        //debugger;
-        //debugger;
         //debugger;
         document.querySelector('.super-raw-code-listings-settings textarea').value = SUPER.get_listings_settings(string);
     };
@@ -2678,6 +2669,9 @@
             if (typeof callback === "function") { 
                 SUPER.alertWhenSaving = false;
                 document.querySelector('.super-create-form .super-actions .super-save').innerHTML = '<i class="fas fa-save"></i>Saving...';
+                if(typeof tinymce !== 'undefined' && tinymce.triggerSave){
+                    tinymce.triggerSave();
+                }
                 callback(); // safe to trigger callback
                 return false;
             }
@@ -2876,7 +2870,6 @@
             return false;
         }
         if (!$this.hasClass('super-active')) {
-            debugger;
             $this.html('Loading...');
             $('.super-live-preview').html('');
             $('.super-live-preview').addClass('super-loading').css('display', 'block');
@@ -3026,6 +3019,8 @@
     };
 
     SUPER.initTinyMCE = function(selector, remove){
+        console.log('Initializing TinyMCE for selector:', selector);
+        console.log('current value: ', selector);
         if(typeof remove === 'undefined') remove = false;
         if(remove===true) tinymce.remove(selector);
         tinymce.init({
@@ -3037,29 +3032,33 @@
             //tinymce.get('your_editor_id').setContent(content);
             setup: function(editor){
                 editor.on('init', function() {
-                    debugger;
+                    console.log('TinyMCE editor initialized');
                     // When editor is initialized, get the textarea value and set it as content
                     var textarea = editor.getElement();
+                    console.log('Initial textarea value:', textarea.value);
                     if(textarea.value) {
                         editor.setContent(textarea.value);
+                        console.log('Set initial content from textarea');
                     }
                 });
                 editor.on('BeforeSetContent', function(e) {
+                    console.log('BeforeSetContent - Original content:', e.content);
                     // Replace non-breaking spaces with regular spaces
-                    // tmp e.content = e.content.replace(/\r?\n/g, '<br />');
                     e.content = e.content.replace(/%7B(.+?)%7D/g, '{$1}');
+                    console.log('BeforeSetContent - Modified content:', e.content);
                 });
                 editor.on('Change', function(e) {
+                    console.log('TinyMCE content changed');
                     // Required to store trigger translations properly
-                    debugger;
                     var input = editor.getElement();
                     var content = editor.getContent();
+                    console.log('New content:', content);
                     input.value = content; // Update textarea value to ensure it's preserved
+                    console.log('Updated textarea value:', input.value);
                     SUPER.ui.updateSettings(null, input);
                 });
             },
             // Other initialization options...
-            forced_root_block: false, // Disable the automatic insertion of <p> tags
             toolbar_mode: 'scrolling', //'floating', 'sliding', 'scrolling', or 'wrap'
             contextmenu: false,
             plugins: [
@@ -3082,7 +3081,6 @@
         var inputTopRelativeToParent;
         
         if(p.classList.contains('sfui-tinymce')){
-            debugger;
             // For TinyMCE editors, we need to get position relative to the iframe
             var editor = tinymce.get(input.id);
             if(editor && editor.iframeElement){
@@ -3105,7 +3103,6 @@
     };
 
     jQuery(document).ready(function ($) {
-        //debugger;
         SUPER.ui.init();
         SUPER.ui.showHideSubsettings();
         var resetBtns = document.querySelectorAll('.sfui-setting .super-reset-settings-buttons');
@@ -3114,7 +3111,6 @@
             SUPER.ui.positionResetBtns(p, input, btn);
         });
         $(document).on('mouseenter', '.sfui-setting [name], .sfui-setting.sfui-tinymce > label', function(e){
-            debugger;
             if(e.currentTarget!==this) return;
             // This condition ensures that the event target is the topmost `.sfui-setting` element
             var p = this.closest('.sfui-setting');
@@ -3134,7 +3130,6 @@
             btn.style.display = '';
         });
         $(document).on('click', '.sfui-setting .super-reset-default-value, .sfui-setting .super-reset-last-value', function(){
-            debugger;
             // If parent is settings tab
             var value = this.dataset.value;
             var p = this.parentNode.closest('.sfui-setting');
@@ -3168,9 +3163,6 @@
         var tmpValue = SUPER.get_trigger_settings(true);
         document.querySelector('.super-raw-code-trigger-settings textarea').value = tmpValue;
         document.querySelector('.super-raw-code-woocommerce-settings textarea').value = SUPER.get_woocommerce_settings(true);
-        //debugger;
-        //debugger;
-        //debugger;
         document.querySelector('.super-raw-code-listings-settings textarea').value = SUPER.get_listings_settings(true);
         document.querySelector('.super-raw-code-pdf-settings textarea').value = SUPER.get_pdf_settings(true);
         document.querySelector('.super-raw-code-stripe-settings textarea').value = SUPER.get_stripe_settings(true);
@@ -3444,9 +3436,6 @@
                 document.querySelector('.super-raw-code-form-settings textarea').value = SUPER.get_form_settings(true);
                 document.querySelector('.super-raw-code-trigger-settings textarea').value = SUPER.get_trigger_settings(true);
                 document.querySelector('.super-raw-code-woocommerce-settings textarea').value = SUPER.get_woocommerce_settings(true);
-                //debugger;
-                //debugger;
-                //debugger;
                 document.querySelector('.super-raw-code-listings-settings textarea').value = SUPER.get_listings_settings(true);
                 document.querySelector('.super-raw-code-pdf-settings textarea').value = SUPER.get_pdf_settings(true);
                 document.querySelector('.super-raw-code-stripe-settings textarea').value = SUPER.get_stripe_settings(true);

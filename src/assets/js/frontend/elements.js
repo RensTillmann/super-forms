@@ -491,7 +491,7 @@
                 }
             }
         }
-        //debugger;
+
         SUPER.after_field_change_blur_hook({el: $this});
     };
 
@@ -617,11 +617,18 @@
                     year = parse.toString('yyyy');
                     month = parse.toString('MM');
                     day = parse.toString('dd');
+                    hour = parse.toString('HH');
+                    minute = parse.toString('mm');
+                    seconds = parse.toString('ss');
                     el.dataset.mathYear = year;
                     el.dataset.mathMonth = month;
                     el.dataset.mathDay = day;
+                    el.dataset.mathHour = hour;
+                    el.dataset.mathMinute = minute;
+                    el.dataset.mathSeconds = seconds;
                     firstDate = new Date(Date.UTC(year, month-1, day));
                     var dayIndex = firstDate.getDay();
+                    //var dayIndex = parse.getDay();
                     el.dataset.mathDayw = dayIndex;
                     el.dataset.mathDayn = super_elements_i18n.dayNames[dayIndex]; // long (default)
                     el.dataset.mathDayns = super_elements_i18n.dayNamesShort[dayIndex]; // short
@@ -630,6 +637,9 @@
                     el.dataset.mathAge = SUPER.init_datepicker_get_age(month+'/'+day+'/'+year, 'years');
                     el.dataset.mathAgeMonths = SUPER.init_datepicker_get_age(month+'/'+day+'/'+year, 'months');
                     el.dataset.mathAgeDays = SUPER.init_datepicker_get_age(month+'/'+day+'/'+year, 'days');
+                    // Set minutes to current minutes (UTC) + User local time UTC offset
+                    //parse.setMinutes(parse.getMinutes() - parse.getTimezoneOffset());
+                    //el.dataset.mathDiff = parse.getTime();
                     $date = Date.parseExact(day+'-'+month+'-'+year, parseFormat);
                     if($date!==null){
                         $date = $date.toString("dd-MM-yyyy");
@@ -649,10 +659,8 @@
             var multiDatesClassName = 'super-datepicker-multidates',
                 singleDatesClassName = 'super-datepicker-singledates';
             var options = {
-                onClose: function( selectedDate ) {
-                    SUPER.init_connected_datepicker(this, selectedDate, parseFormat, oneDay);
-                },
-                beforeShowDay: function(dt) {
+                onSelect: function( selectedDate ) {
+                    debugger;
                     var el = this;
                     if(el.value!==''){
                         parse = Date.parseExact(el.value, parseFormat);
@@ -660,11 +668,18 @@
                             year = parse.toString('yyyy');
                             month = parse.toString('MM');
                             day = parse.toString('dd');
+                            hour = parse.toString('HH');
+                            minute = parse.toString('mm');
+                            seconds = parse.toString('ss');
                             el.dataset.mathYear = year;
                             el.dataset.mathMonth = month;
                             el.dataset.mathDay = day;
+                            el.dataset.mathHour = hour;
+                            el.dataset.mathMinute = minute;
+                            el.dataset.mathSeconds = seconds;
                             firstDate = new Date(Date.UTC(year, month-1, day));
                             var dayIndex = firstDate.getDay();
+                            //var dayIndex = parse.getDay();
                             el.dataset.mathDayw = dayIndex;
                             el.dataset.mathDayn = super_elements_i18n.dayNames[dayIndex]; // long (default)
                             el.dataset.mathDayns = super_elements_i18n.dayNamesShort[dayIndex]; // short
@@ -673,6 +688,9 @@
                             el.dataset.mathAge = SUPER.init_datepicker_get_age(month+'/'+day+'/'+year, 'years');
                             el.dataset.mathAgeMonths = SUPER.init_datepicker_get_age(month+'/'+day+'/'+year, 'months');
                             el.dataset.mathAgeDays = SUPER.init_datepicker_get_age(month+'/'+day+'/'+year, 'days');
+                            // Set minutes to current minutes (UTC) + User local time UTC offset
+                            //parse.setMinutes(parse.getMinutes() - parse.getTimezoneOffset());
+                            //el.dataset.mathDiff = parse.getTime();
                             $date = Date.parseExact(day+'-'+month+'-'+year, parseFormat);
                             if($date!==null){
                                 $date = $date.toString("dd-MM-yyyy");
@@ -688,7 +706,11 @@
                         el.dataset.mathDiff = '0';
                         el.dataset.mathAge = '0';
                     }
-
+                },
+                onClose: function( selectedDate ) {
+                    SUPER.init_connected_datepicker(this, selectedDate, parseFormat, oneDay);
+                },
+                beforeShowDay: function(dt) {
                     workDays = (this.dataset.workDays == 'true');
                     weekends = (this.dataset.weekends == 'true');
                     day = dt.getDay();
@@ -1018,7 +1040,6 @@
             $this[0].dataset.mathDiff = $timestamp;
         
             // Trigger the custom hook after the field change
-            //debugger;
             SUPER.after_field_change_blur_hook({ el: $this[0] });
         };
 
@@ -1484,7 +1505,6 @@
             }
         }
         $.each(added_fields, function(name, field) {
-            //debugger;
             SUPER.after_field_change_blur_hook({form: args.clone, el: field});
         });
         return {
@@ -1738,13 +1758,11 @@
                     }
 
                     // Autosuggest
-                    //debugger;
                     if(field.classList.contains('super-auto-suggest')){
 
                     }
                     // Dropdown
                     if(field.classList.contains('super-dropdown') || field.classList.contains('super-auto-suggest')){
-                        //debugger;
                         var all = field.querySelectorAll('.super-item:not(.super-placeholder)');
                         current = field.querySelector('.super-focus');
                         if(!current){
@@ -2100,7 +2118,6 @@
                 $this.attr('data-word-count', $words);
                 $this.attr('data-chars-count', $chars);
                 $this.attr('data-allchars-count', $allChars);
-                //debugger;
                 SUPER.after_field_change_blur_hook({el: $this[0]});
             }, $time);
         });
@@ -2134,7 +2151,6 @@
                 if($new_value < $min) return false;
             }
             $input_field.val($new_value);
-            //debugger;
             SUPER.after_field_change_blur_hook({el: $input_field[0]});
         });
         // @since 4.9.0 - Quantity field only allow number input
@@ -2172,7 +2188,6 @@
             $this.toggleClass('super-active');
             $input_field.val($new_value);
             SUPER.focusField(this);
-            //debugger;
             SUPER.after_field_change_blur_hook({el: $input_field[0]});
         });
 
@@ -2188,11 +2203,9 @@
                     clearTimeout($calculation_threshold);
                 }
                 $calculation_threshold = setTimeout(function () {
-                    //debugger;
                     SUPER.after_field_change_blur_hook({el: $this[0]});
                 }, $threshold);
             }else{
-                //debugger;
                 SUPER.after_field_change_blur_hook({el: $this[0]});
             }
         });
@@ -2251,7 +2264,6 @@
             SUPER.append_dynamic_column_depth({form: form, clone: clone});
             SUPER.init_common_fields();
             SUPER.after_duplicating_column_hook(form, unique_field_names, clone);
-            //debugger;
             SUPER.after_field_change_blur_hook({form: clone, el: undefined});
         });
 
@@ -2295,7 +2307,7 @@
                 $wrapper.children('input[type="hidden"]').val('');
                 $this.parents('div:eq(0)').remove();
                 var field = $fieldWrapper.find('.super-active-files')[0];
-                //debugger;
+                console.log('SUPER.after_field_change_blur_hook(10)');
                 SUPER.after_field_change_blur_hook({el: field, form: form});
                 removedFields[nodes[i].dataset.oname] = nodes[i];
             }
@@ -2386,7 +2398,7 @@
             $wrapper.children('input[type="hidden"]').val('');
             $this.parents('div:eq(0)').remove();
             var field = $fieldWrapper.find('.super-active-files')[0];
-            //debugger;
+            console.log('SUPER.after_field_change_blur_hook(11)');
             SUPER.after_field_change_blur_hook({el: field, form: form});
         });
         
@@ -2456,7 +2468,6 @@
 
         // Focus dropdowns
         $doc.on('click', '.super-dropdown-list:not(.super-autosuggest-tags-list)', function(e){
-            debugger;
             var i, nodes, field = e.target.closest('.super-field');
             if(field.classList.contains('super-auto-suggest')) return false;
             SUPER.focusForm(field);
@@ -2627,7 +2638,6 @@
 
         // On choosing item, populate form with data
         $doc.on('click', '.super-wc-order-search .super-field-wrapper:not(.super-overlap) .super-dropdown-list .super-item, .super-auto-suggest .super-field-wrapper:not(.super-overlap) .super-dropdown-list .super-item', function(e){
-            debugger;
             var i, items,
                 wrapper = this.closest('.super-field-wrapper'),
                 el = wrapper.querySelector('.super-shortcode-field');
@@ -2658,7 +2668,7 @@
             wrapper.classList.add('super-overlap');
             field.classList.add('super-filled');
             SUPER.handle_validations({event: e, el: el, form: form, validation: validation, conditionalValidation: conditionalValidation});
-            //debugger;
+            console.log('SUPER.after_field_change_blur_hook(12)');
             SUPER.after_field_change_blur_hook({el: el});
             if(populate=='true'){
                 SUPER.populate_form_data_ajax({el: field, clear: false});
@@ -2679,13 +2689,12 @@
             wrapper.classList.remove('super-overlap');
             el.classList.remove('super-filled');
             field.focus();
-            //debugger;
+            console.log('SUPER.after_field_change_blur_hook(13)');
             SUPER.after_field_change_blur_hook({el: field});
         });
 
         // Update dropdown
         $doc.on('click', '.super-dropdown .super-dropdown-list .super-item:not(.super-placeholder)', function(e){
-            debugger;
             SUPER.focusForm(this);
             SUPER.focusField(this);
             var i, nodes,
@@ -2861,7 +2870,7 @@
                 SUPER.handle_validations({el: input, form: form, validation: validation});
             }
 
-            //debugger;
+            console.log('SUPER.after_field_change_blur_hook(14)');
             SUPER.after_field_change_blur_hook({el: input});
         });
 
@@ -2879,17 +2888,16 @@
             if(this.classList.contains('super-fileupload')) return;
 
             if(this.classList.contains('super-address-autopopulate')){
-                //debugger;
                 return;
             }
             if(this.classList.contains('super-distance-calculator') && this.value.length<2){
-                debugger;
                 this.closest('.super-field-wrapper').classList.remove('super-calculating-distance');
                 var form = SUPER.get_frontend_or_backend_form({el: this}),
                 $origin_field = SUPER.field(form, this.dataset.distanceStart);
                 var $field = $origin_field.dataset.distanceField;
                 $field = SUPER.field(form, $field);
                 $field.value = '';
+                console.log('SUPER.after_field_change_blur_hook(15)');
                 SUPER.after_field_change_blur_hook({el: $field});
                 return;
             }
@@ -2904,6 +2912,7 @@
                 var el = this;
                 if(field_change_timeout!==null) clearTimeout(field_change_timeout);
                 field_change_timeout = setTimeout(function(el){
+                    console.log('SUPER.after_field_change_blur_hook(16)');
                     SUPER.after_field_change_blur_hook({el: el});
                 }, 1000, el);
                 return;
@@ -2915,6 +2924,7 @@
                     conditionalValidation = this.dataset.conditionalValidation;
                 if(validation==='restrict_to_items') return;
                 SUPER.handle_validations({event: e, el: this, form: form, validation: validation, conditionalValidation: conditionalValidation});
+                console.log('SUPER.after_field_change_blur_hook(17)');
                 SUPER.after_field_change_blur_hook({el: this});
             }
         });
@@ -2967,7 +2977,7 @@
                 if(typeof $validation !== 'undefined' && $validation !== false){
                     SUPER.handle_validations({el: $field, form: $form, validation: $validation});
                 }
-                //debugger;
+                console.log('SUPER.after_field_change_blur_hook(18)');
                 SUPER.after_field_change_blur_hook({el: $field});
             }
             return false;
@@ -3034,7 +3044,7 @@
                 if(typeof $validation !== 'undefined' && $validation !== false){
                     SUPER.handle_validations({el: $field, form: $form, validation: $validation});
                 }
-                //debugger;
+                console.log('SUPER.after_field_change_blur_hook(19)');
                 SUPER.after_field_change_blur_hook({el: $field});
             }
             return false;
@@ -3061,7 +3071,7 @@
             if(typeof $validation !== 'undefined' && $validation !== false){
                 SUPER.handle_validations({el: this, form: $form, validation: $validation});
             }
-            //debugger;
+            console.log('SUPER.after_field_change_blur_hook(20)');
             SUPER.after_field_change_blur_hook({el: this});
         });
         
@@ -3273,7 +3283,7 @@
                 }
                 // Scroll to bottom of tags container
                 tagsContainer.scrollTop = tagsContainer.scrollHeight;
-                //debugger;
+                console.log('SUPER.after_field_change_blur_hook(21)');
                 SUPER.after_field_change_blur_hook({el: keywordField});
             },
             add: function(e, target){
