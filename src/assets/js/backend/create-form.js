@@ -59,8 +59,6 @@
         tmpSettings: {}, // used for translation mode only
         getTabFieldValue: function(el,tab){
             var value = el.value;
-            if(el.name==='rtl') debugger;
-            if(el.name==='body') debugger;
             if(!el.type) alert('not a field, might want to fix/check the create-form.js code...');
             if(value === true) return 'true';
             if(value === false) return 'false';
@@ -423,9 +421,6 @@
             var i18n = document.querySelector('.super-create-form').dataset.i18n; 
             var tab = el.closest('.super-tab-content');
             var slug = tab.className.replace('super-active', '').replace('super-tab-content', '').replace('super-tab-', '').split(' ').join('');
-            if(slug==='lists' || slug==='listing' || slug==='listings'){
-                //debugger;
-            }
             // Check how many translatable fields there are
             var translatableFields = tab.querySelectorAll('.sfui-i18n [name]');
             if(i18n && i18n!=='' && translatableFields.length>0){
@@ -492,9 +487,7 @@
                         }
                     });
 
-                    debugger;
                     if(objCompare[lastKey]===value){
-                        debugger;
                         // When this value equals the on from the main language delete it
                         if(obj[lastKey]){
                             delete obj[lastKey];
@@ -841,10 +834,6 @@
                 xhttp.send(params);
             },
             getTranslatedValue: function(el, i18n_data, i18n, tab){
-                if(tab.className.indexOf('triggers')!==-1){
-                    //debugger;
-                }
-                //debugger;
                 var field = el;
                 var keyPath = [];
                 var parent = field.parentElement;
@@ -862,14 +851,13 @@
                     }
                     parent = parent.parentElement;
                 }
-                //debugger;
                 var obj = i18n_data[i18n];
                 if(typeof obj !=='undefined'){
                     keyPath.forEach(key => {
-                        if(key==='triggers[]') debugger;
                         if(!isNaN(key)){
                             obj = obj[key];
                         }else{
+                            if(!obj[key.replace('[]','')]) return;
                             obj = obj[key.replace('[]','')];
                         }
                         if(!obj) return;
@@ -986,7 +974,6 @@
         document.querySelector('.super-raw-code-woocommerce-settings textarea').value = SUPER.get_woocommerce_settings(string);
     };
     SUPER.update_listings_settings = function(string){
-        //debugger;
         document.querySelector('.super-raw-code-listings-settings textarea').value = SUPER.get_listings_settings(string);
     };
     SUPER.update_pdf_settings = function(string){
@@ -1196,6 +1183,8 @@
         }
     };
     SUPER.get_tab_settings = function(settings, slug, tab, data, returnData){
+        if(slug==='triggers') debugger;
+        if(slug==='stripe') debugger;
         if(typeof returnData === 'undefined') returnData = false;
         var nodes, i, i18n_data = null;
         var i18n = document.querySelector('.super-create-form').dataset.i18n;
@@ -1242,24 +1231,24 @@
                             var value = nodes[i].value;
                             var translatedValue = SUPER.ui.i18n.getTranslatedValue(nodes[i], i18n_data, i18n, tab);
                             if(translatedValue!==null){
-                                k = nodes[i].name.split('.').pop();
-                                if(!i18n_data[k]){
-                                    if(nodes[i].tagName === 'TEXTAREA' && tinymce.get(nodes[i].id)){
-                                        i18n_data[k] = nodes[i].nextElementSibling.value;
-                                        tinymce.get(nodes[i].id).setContent(translatedValue);
-                                    } else {
-                                        if(nodes[i].type === 'checkbox'){
-                                            nodes[i].checked = (translatedValue === 'true');
-                                        }else{
-                                            if (nodes[i].value !== translatedValue) {
-                                                // Re-load attachment image preview
-                                                if (nodes[i].parentNode.closest('.sfui-setting').classList.contains('sfui-type-files')) {
-                                                    nodes[i].value = translatedValue;
-                                                    SUPER.ui.i18n.reload_attachments(nodes[i]);
-                                                }
+                                //k = nodes[i].name.split('.').pop();
+                                //if(!i18n_data[k]){
+                                //}
+                                if(nodes[i].tagName === 'TEXTAREA' && tinymce.get(nodes[i].id)){
+                                    //i18n_data[k] = nodes[i].nextElementSibling.value;
+                                    tinymce.get(nodes[i].id).setContent(translatedValue);
+                                } else {
+                                    if(nodes[i].type === 'checkbox'){
+                                        nodes[i].checked = (translatedValue === 'true');
+                                    }else{
+                                        if (nodes[i].value !== translatedValue) {
+                                            // Re-load attachment image preview
+                                            if (nodes[i].parentNode.closest('.sfui-setting').classList.contains('sfui-type-files')) {
+                                                nodes[i].value = translatedValue;
+                                                SUPER.ui.i18n.reload_attachments(nodes[i]);
                                             }
-                                            nodes[i].value = translatedValue;
                                         }
+                                        nodes[i].value = translatedValue;
                                     }
                                 }
                             }
@@ -1280,19 +1269,15 @@
                 // Do not return settings, instead update
             }else{
                 if(returnData){
-                    //debugger;
                     return SUPER.ui.settings['_'+slug];
                 }
             }
-            //debugger;
             return SUPER.ui.settings['_'+slug];
         }
         if(returnData){
-            //debugger;
             return SUPER.ui.settings['_'+slug];
         }
         // tmp if(SUPER.ui.settings['_'+slug]){
-        // tmp     debugger;
         // tmp     return SUPER.ui.settings['_'+slug];
         // tmp }
         SUPER.ui.i18n.mainLanguage = (document.querySelector('.super-default-language .super-item.super-active') ? document.querySelector('.super-default-language .super-item.super-active').dataset.value : '');
@@ -1306,14 +1291,12 @@
             tab = document.querySelector('.super-tab-content.super-tab-' + slug);
         }
         if (!tab) {
-            //debugger;
             return settings;
         }
         // Get the current country flag
         var flag = document.querySelector(':scope .super-tabs > .super-tab-builder > .flag');
         // Remember the original value for translatable settings
         nodes = tab.querySelectorAll('.sfui-i18n [name]');
-        //debugger;
         SUPER.add_country_flags(i18n, flag, nodes);
         if(SUPER.ui.i18n.translating) {
             for (i = 0; i < nodes.length; i++) {
@@ -1557,7 +1540,6 @@
             }
         }
         if (returnObj) {
-            //debugger;
             return data;
         }
     
@@ -1641,7 +1623,6 @@
             }
         }
         // Return tab specific settings
-        //debugger;
         return data;
         //settings['_' + slug] = data;
         //return settings;
@@ -1899,11 +1880,10 @@
 //        return settings;
 //    }
     SUPER.get_trigger_settings = function(string, returnData){
-        //debugger;
         if(typeof string === 'undefined') string = false;
         if(typeof returnData === 'undefined') returnData = false;
         var $s = SUPER.get_tab_settings({}, 'triggers', undefined, undefined, returnData);
-        $s = $s['triggers'];
+        // should not do this! $s = $s['triggers'];
         if(string===true) {
             if(!isEmpty($s)) return JSON.stringify($s, undefined, 4);
             return '';

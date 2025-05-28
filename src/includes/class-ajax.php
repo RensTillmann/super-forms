@@ -2146,6 +2146,7 @@ class SUPER_Ajax {
      *  @since      1.0.0
     */
     public static function save_form() {
+        error_log('save_form()');
         // Normal form save:
         $action = (isset($_POST['action']) ? $_POST['action'] : '');
         $form_id = (!empty($_POST['form_id']) ? absint($_POST['form_id']) : 0);
@@ -2169,6 +2170,7 @@ class SUPER_Ajax {
             if(in_array($k, $re_slash)) $form_data[$k] = wp_slash($form_data[$k]);
         }
         extract($form_data);
+        error_log(json_encode($triggers));
         if(!isset($triggers)) $triggers = array();
         if(!isset($woocommerce)) $woocommerce = array();
         if(!isset($listings)) $listings = array();
