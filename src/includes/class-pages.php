@@ -632,8 +632,8 @@ class SUPER_Pages {
                         'wrap' => false,
                         'group' => true, // sfui-setting-group
                         'group_name' => '',
-                        'inline' => true, // sfui-inline
-                        //'vertical' => true, // sfui-vertical
+                        //'inline' => true, // sfui-inline
+                        'vertical' => true, // sfui-vertical
                         'filter' => 'event;!',
                         'nodes' => array(
                             array(
