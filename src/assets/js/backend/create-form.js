@@ -57,10 +57,40 @@
     SUPER.ui = {
         settings: {},
         tmpSettings: {}, // used for translation mode only
+        getKeyPath: function(field, tab) {
+            var keyPath = [];
+            var parent = field.parentElement;
+            var i18nField = null;
+            while (parent && parent !== tab) {
+                if (parent.classList.contains('sfui-repeater-item')) {
+                    var repeater = parent.parentElement;
+                    var index = Array.from(repeater.children).indexOf(parent);
+                    keyPath.unshift(index);
+                    if (!i18nField) {
+                        i18nField = parent.querySelector('textarea[name="i18n"], input[name="i18n"]');
+                    }
+                } else if (parent.hasAttribute('data-g')) {
+                    keyPath.unshift(parent.getAttribute('data-g'));
+                } else if (parent.hasAttribute('data-r')) {
+                    keyPath.unshift(parent.getAttribute('data-r') + '[]');
+                }
+                parent = parent.parentElement;
+            }
+
+            if(!i18nField){
+                debugger;
+                i18nField = tab.querySelector('textarea[name="i18n"], input[name="i18n"]');
+            }
+            return {
+                keyPath: keyPath,
+                i18nField: i18nField
+            };
+        },
         getTabFieldValue: function(el,tab){
+            debugger;
+            debugger;
+            debugger;
             var value = el.value;
-            //if(el.name==='rtl') debugger;
-            //if(el.name==='body') debugger;
             if(!el.type) alert('not a field, might want to fix/check the create-form.js code...');
             if(value === true) return 'true';
             if(value === false) return 'false';
@@ -189,8 +219,6 @@
                         // Not in translation mode, make sure to delete the corresponding index from the translated version for this repeater
                         var tab = itemToDelete.closest('.super-tab-content');
                         var slug = tab.className.replace('super-active', '').replace('super-tab-content', '').replace('super-tab-', '').split(' ').join('');
-                        //var i18nObject = SUPER.ui.settings['_'+slug].i18n[i18n];
-                        //var mainLanguageObject = SUPER.ui.settings['_'+slug];
                         var keyPath = [];
                         var parent = itemToDelete;
                         // Traverse up to build the key path
@@ -423,111 +451,154 @@
             var i18n = document.querySelector('.super-create-form').dataset.i18n; 
             var tab = el.closest('.super-tab-content');
             var slug = tab.className.replace('super-active', '').replace('super-tab-content', '').replace('super-tab-', '').split(' ').join('');
-            if(slug==='lists' || slug==='listing' || slug==='listings'){
-                //debugger;
-            }
             // Check how many translatable fields there are
-            var translatableFields = tab.querySelectorAll('.sfui-i18n [name]');
-            if(i18n && i18n!=='' && translatableFields.length>0){
-                // Translating
-                //var s = SUPER.get_stripe_settings(false, true);
-                // Now that we have all the settings for this language, we will find all the translatable field and re-generate the i18n JSON for this language
-                //console.log(s);
-                //console.log(translatableFields);
-                if(!SUPER.ui.settings['_'+slug].i18n) SUPER.ui.settings['_'+slug].i18n = {};
-                if(!SUPER.ui.settings['_'+slug].i18n[i18n]) SUPER.ui.settings['_'+slug].i18n[i18n] = {};
-                var i18nObject = SUPER.ui.settings['_'+slug].i18n[i18n];
-                var mainLanguageObject = SUPER.ui.settings['_'+slug];
-                translatableFields.forEach(field => {
-                    var value = SUPER.ui.getTabFieldValue(field,tab);
-                    var keyPath = [];
-                    var parent = field.parentElement;
-                    // Traverse up to build the key path
-                    while (parent && parent !== tab) {
-                        if(parent.classList.contains('sfui-repeater-item')){
-                            var repeater = parent.parentElement;
-                            var index = Array.from(repeater.children).indexOf(parent);
-                            keyPath.unshift(index);
-                        } else if (parent.hasAttribute('data-g')) {
-                            keyPath.unshift(parent.getAttribute('data-g'));
-                        } else if (parent.hasAttribute('data-r')) {
-                            // Find the index of the current repeater item
-                            keyPath.unshift(parent.getAttribute('data-r')+'[]');
-                        }
-                        parent = parent.parentElement;
-                    }
-                    // Construct the nested object in i18nObject
-                    if(field.name==='custom_tax_rate'){
-                    }
-                    if(field.name==='tax_rates'){
-                    }
-                    var lastKey = field.name;
-                    var obj = i18nObject;
-                    var objCompare = mainLanguageObject;
-                    var parentIsArray = false;
-                    keyPath.forEach(key => {
-                        if(!isNaN(key)){
-                            if(!obj[key]) obj[key] = {};
-                            obj = obj[key];
-                            objCompare = objCompare[key];
-                        }else{
-                            var tmpKey = key.replace('[]','');
-                            if(!obj[tmpKey] && key.indexOf('[]')!==-1){
-                                if(parentIsArray===true){
-                                    // Settings that are of type array() don't directly have children that are of type array
-                                    obj[tmpKey] = {};
-                                    parentIsArray = false;
-                                }else{
-                                    obj[tmpKey] = [];
-                                    parentIsArray = true;
-                                }
-                            }else{
-                                parentIsArray = false;
-                            }
-                            if(!obj[tmpKey]){
-                                obj[tmpKey] = {};
-                            }
-                            obj = obj[tmpKey];
-                            objCompare = objCompare[tmpKey];
-                        }
-                    });
+            //var translatableFields = tab.querySelectorAll('.sfui-i18n [name]');
+            var field = el;
+            var fieldName = field.name || field.getAttribute('name') || 'unknown';
+            //var fieldValue = SUPER.ui.getTabFieldValue(field, tab);
+            if(i18n!=='' && fieldName==='subject') debugger;
+            if(fieldName==='i18n') debugger;
+            var translatable = field.nextElementSibling && field.nextElementSibling.className === 'sfui-original-i18n-value';
+            if(i18n && i18n !== '' && translatable){
+                var { keyPath, i18nField } = SUPER.ui.getKeyPath(field, tab);
+                console.log('>>> keyPath:', keyPath);
 
-                    //debugger;
-                    if(objCompare[lastKey]===value){
-                        //debugger;
-                        // When this value equals the on from the main language delete it
-                        if(obj[lastKey]){
-                            delete obj[lastKey];
-                        }
-                    }else{
-                        // Value is different, keep it
-                        obj[lastKey] = value;
-                        if(obj.length===0){
-                            obj = {};
-                            obj[lastKey] = value;
-                        }
-                    }
-                });
-                // Clean up the data object
-                SUPER.ui.settings['_'+slug].i18n[i18n] = SUPER.ui.i18n.removeEmpty(SUPER.ui.settings['_'+slug].i18n[i18n]);
-                console.log(JSON.stringify(SUPER.ui.settings['_'+slug].i18n));
-                SUPER.ui.settings['_'+slug].i18n = JSON.parse(JSON.stringify(SUPER.ui.settings['_'+slug].i18n));
-                console.log(JSON.stringify(SUPER.ui.settings['_'+slug].i18n));
+                // Get keyPath of i18nField itself
+                var i18nKeyPath = SUPER.ui.getKeyPath(i18nField, tab).keyPath;
+                console.log('>>> i18nKeyPath:', i18nKeyPath);
 
-                var i18n_input_field = tab.querySelector('[name="i18n"]');
-                if(i18n_input_field){
-                    i18n_input_field.value = JSON.stringify(SUPER.ui.settings['_'+slug].i18n, undefined, 4);
-                }else{
-                    alert('Could not find i18n field to store translation settings for tab: '+slug);
+                // Remove shared leading segments safely
+                let sharedPrefixLength = 0;
+                for (let i = 0; i < Math.min(i18nKeyPath.length, keyPath.length); i++) {
+                    if (i18nKeyPath[i] === keyPath[i]) {
+                        sharedPrefixLength++;
+                    } else {
+                        break;
+                    }
                 }
-                return;
-            }else{
-                // Not translating or the tab doesn't have any translatable fields
-                //var s = SUPER.get_stripe_settings(false, true);
-                //console.log(s);
-                //return;
-            }
+                const strippedKeyPath = keyPath.slice(sharedPrefixLength);
+                console.log('✅ strippedKeyPath:', strippedKeyPath);
 
+                // Get existing JSON from i18nField or start fresh
+                let translationData = {};
+                try {
+                    translationData = i18nField.value ? JSON.parse(i18nField.value) : {};
+                } catch (e) {
+                    console.warn('⚠ Invalid JSON in i18n field. Starting fresh.');
+                }
+
+                // Get field values
+                const fieldValue = SUPER.ui.getTabFieldValue(field, tab);
+                const originalValueElement = field.parentNode.querySelector('.sfui-original-i18n-value');
+                const originalValue = originalValueElement ? (originalValueElement.value || originalValueElement.textContent || '') : '';
+
+                // Set translated value into nested structure
+                function setNestedI18nValue(obj, path, fieldName, lang, fieldValue, originalValue) {
+                    let current = obj;
+                    const stack = [];
+
+                    for (let i = 0; i < path.length; i++) {
+                        const rawKey = path[i];
+                        const key = String(rawKey);
+                        const isArrayIndex = /^\d+$/.test(key);
+                        const isArrayKey = key.includes('[]');
+
+                        if (isArrayKey) {
+                            const arrayKey = key.replace('[]', '');
+                            if (!current[arrayKey]) current[arrayKey] = [];
+                            stack.push({ parent: current, key: arrayKey });
+                            current = current[arrayKey];
+                        } else if (isArrayIndex) {
+                            const index = parseInt(key);
+                            while (current.length <= index) current.push({});
+                            stack.push({ parent: current, key: index });
+                            current = current[index];
+                        } else {
+                            if (!current[key]) current[key] = {};
+                            stack.push({ parent: current, key: key });
+                            current = current[key];
+                        }
+                    }
+
+                    if (!current[fieldName]) current[fieldName] = {};
+
+                    if (fieldValue === originalValue) {
+                        console.log(`🧹 Removing '${fieldName}' translation for lang '${lang}' because it's identical to original`);
+                        delete current[fieldName][lang];
+
+                        if (Object.keys(current[fieldName]).length === 0) {
+                            delete current[fieldName];
+                        }
+
+                        for (let i = stack.length - 1; i >= 0; i--) {
+                            const { parent, key } = stack[i];
+                            if (Array.isArray(parent)) {
+                                if (Object.keys(parent[key]).length === 0) {
+                                    parent[key] = {};
+                                } else {
+                                    break;
+                                }
+                            } else if (typeof parent[key] === 'object' && Object.keys(parent[key]).length === 0) {
+                                delete parent[key];
+                            } else {
+                                break;
+                            }
+                        }
+                    } else {
+                        current[fieldName][lang] = fieldValue;
+                    }
+                }
+
+                setNestedI18nValue(
+                    translationData,
+                    strippedKeyPath,
+                    fieldName,
+                    i18n,
+                    fieldValue,
+                    originalValue
+                );
+
+                i18nField.value = JSON.stringify(translationData, null, 2);
+                console.log('✅ Updated i18nField:', i18nField.value);
+
+                // Also store updated i18n data in SUPER.ui.settings
+                const target = SUPER.ui.settings['_' + slug] = SUPER.ui.settings['_' + slug] || {};
+                const i18nPath = i18nKeyPath.slice(); // Copy i18nKeyPath so we can traverse it
+                let current = target;
+
+                // Traverse and create structure
+                for (let i = 0; i < i18nPath.length; i++) {
+                    const rawKey = i18nPath[i];
+                    const key = String(rawKey);
+                    const isArrayIndex = /^\d+$/.test(key);
+                    const isArrayKey = key.includes('[]');
+
+                    if (isArrayKey) {
+                        const arrayKey = key.replace('[]', '');
+                        current[arrayKey] = current[arrayKey] || [];
+                        current = current[arrayKey];
+                    } else if (isArrayIndex) {
+                        const index = parseInt(key);
+                        while (current.length <= index) current.push({});
+                        current = current[index];
+                    } else {
+                        current[key] = current[key] || {};
+                        current = current[key];
+                    }
+                }
+
+                // Assign the parsed JSON value to the final i18n object
+                try {
+                    current['i18n'] = JSON.parse(i18nField.value);
+                    console.log('✅ Assigned i18n into SUPER.ui.settings:', current['i18n']);
+                } catch (e) {
+                    console.warn('⚠ Failed to parse i18nField.value:', i18nField.value);
+                }
+
+            }
+            debugger;
+            debugger;
+            debugger;
             // First get the field value
             var value = el.value;
             var type = el.type;
@@ -543,6 +614,340 @@
                 SUPER.ui.settings['_'+slug] = SUPER.ui.i18n.collectDataFromParents(SUPER.ui.settings['_'+slug], el, value, slug, tab);
             }
         },
+
+            // tmp if(i18n && i18n !== '' && translatable){
+            // tmp     // Check if value has changed by comparing to original value
+            // tmp     var originalValueElement = field.parentNode.querySelector('.sfui-original-i18n-value');
+            // tmp     var originalValue = originalValueElement ? (originalValueElement.value || originalValueElement.textContent || '') : '';
+            // tmp     // Skip if the value hasn't changed from original
+            // tmp     if (fieldValue === originalValue) {
+            // tmp         console.log('Field value unchanged, skipping:', fieldName);
+            // tmp         return; // Don't add to i18n JSON if value is identical to original
+            // tmp     }
+
+            // tmp     var { keyPath, i18nField } = SUPER.ui.getKeyPath(field, tab);
+            // tmp     console.log('>>> keyPath:', keyPath);
+
+            // tmp     // Get keyPath of i18nField itself
+            // tmp     var i18nKeyPath = SUPER.ui.getKeyPath(i18nField, tab).keyPath;
+            // tmp     console.log('>>> i18nKeyPath:', i18nKeyPath);
+
+            // tmp     // Remove shared leading segments safely (without mutating during iteration)
+            // tmp     let sharedPrefixLength = 0;
+            // tmp     for (let i = 0; i < Math.min(i18nKeyPath.length, keyPath.length); i++) {
+            // tmp         if (i18nKeyPath[i] === keyPath[i]) {
+            // tmp             sharedPrefixLength++;
+            // tmp         } else {
+            // tmp             break;
+            // tmp         }
+            // tmp     }
+            // tmp     const strippedKeyPath = keyPath.slice(sharedPrefixLength);
+            // tmp     console.log('✅ strippedKeyPath:', strippedKeyPath);
+            // tmp     // Get existing JSON from i18nField or start fresh
+            // tmp     let translationData = {};
+            // tmp     try {
+            // tmp         translationData = i18nField.value ? JSON.parse(i18nField.value) : {};
+            // tmp     } catch (e) {
+            // tmp         console.warn('⚠ Invalid JSON in i18n field. Starting fresh.');
+            // tmp     }
+
+            // tmp     // Set translated value into nested structure
+            // tmp     function setNestedI18nValue(obj, path, fieldName, lang, value) {
+            // tmp         let current = obj;
+            // tmp         for (let i = 0; i < path.length; i++) {
+            // tmp             const rawKey = path[i];
+            // tmp             const key = String(rawKey); // ✅ Ensure we always work with string
+
+            // tmp             const isArrayIndex = /^\d+$/.test(key);
+            // tmp             const isArrayKey = key.includes('[]');
+
+            // tmp             if (isArrayKey) {
+            // tmp                 const arrayKey = key.replace('[]', '');
+            // tmp                 if (!current[arrayKey]) current[arrayKey] = [];
+            // tmp                 current = current[arrayKey];
+            // tmp             } else if (isArrayIndex) {
+            // tmp                 const index = parseInt(key);
+            // tmp                 while (current.length <= index) current.push({});
+            // tmp                 current = current[index];
+            // tmp             } else {
+            // tmp                 if (!current[key]) current[key] = {};
+            // tmp                 current = current[key];
+            // tmp             }
+            // tmp         }
+
+            // tmp         if (!current[fieldName]) current[fieldName] = {};
+            // tmp         current[fieldName][lang] = value;
+            // tmp     }
+
+            // tmp     setNestedI18nValue(translationData, strippedKeyPath, fieldName, i18n, SUPER.ui.getTabFieldValue(field, tab));
+
+            // tmp     // Store back
+            // tmp     i18nField.value = JSON.stringify(translationData, null, 2);
+            // tmp     console.log('✅ Updated i18nField:', i18nField.value);
+            // tmp }
+
+            // if(i18n && i18n!=='' && translatable){
+            //     console.log('fieldName:', fieldName);
+            //     var { keyPath, i18nField } = SUPER.ui.getKeyPath(field, tab);
+            //     console.log('>>> keyPath for field:', fieldName, keyPath);
+            //     console.log('>>> i18nField:', i18nField);
+
+            //     // tmp translatableFields.forEach(field => {
+            //     // tmp     var keyPath = SUPER.ui.getKeyPath(field, tab);
+            //     // tmp     if(keyPath[0] === 'triggers[]'){
+            //     // tmp         debugger;
+            //     // tmp         var tmpKey = keyPath[0].replace('[]','');
+            //     // tmp         var dataRParent = field.closest('[data-r="' + tmpKey + '"]');
+            //     // tmp         
+            //     // tmp         // Fastest way: Find topmost repeater item within the data-r boundary
+            //     // tmp         var topmostRepeaterItem = null;
+            //     // tmp         var currentElement = field;
+            //     // tmp         
+            //     // tmp         while (currentElement && currentElement !== dataRParent.parentElement) {
+            //     // tmp             if (currentElement.classList?.contains('sfui-repeater-item')) {
+            //     // tmp                 topmostRepeaterItem = currentElement;
+            //     // tmp             }
+            //     // tmp             currentElement = currentElement.parentElement;
+            //     // tmp             
+            //     // tmp             // Stop if we've reached the data-r container
+            //     // tmp             if (currentElement === dataRParent) break;
+            //     // tmp         }
+            //     // tmp         
+            //     // tmp         // Find the first input/textarea named 'i18n' within the topmost repeater item
+            //     // tmp         var i18nField = topmostRepeaterItem?.querySelector('input[name="i18n"], textarea[name="i18n"]');
+            //     // tmp         
+            //     // tmp         if (i18nField && topmostRepeaterItem) {
+            //     // tmp             // Get existing translations from the i18n field (if any)
+            //     // tmp             var existingTranslations = {};
+            //     // tmp             try {
+            //     // tmp                 existingTranslations = i18nField.value ? JSON.parse(i18nField.value) : {};
+            //     // tmp             } catch (e) {
+            //     // tmp                 existingTranslations = {};
+            //     // tmp             }
+            //     // tmp             
+            //     // tmp             // Get the current field's translation value and field name using existing function
+            //     // tmp             var fieldValue = SUPER.ui.getTabFieldValue(field, tab);
+            //     // tmp             var fieldName = field.name || field.getAttribute('name') || 'unknown';
+            //     // tmp             
+            //     // tmp             // Check if value has changed by comparing to original value
+            //     // tmp             var originalValueElement = field.parentNode.querySelector('.sfui-original-i18n-value');
+            //     // tmp             var originalValue = originalValueElement ? (originalValueElement.value || originalValueElement.textContent || '') : '';
+            //     // tmp             
+            //     // tmp             // Skip if the value hasn't changed from original
+            //     // tmp             if (fieldValue === originalValue) {
+            //     // tmp                 console.log('Field value unchanged, skipping:', fieldName);
+            //     // tmp                 return; // Don't add to i18n JSON if value is identical to original
+            //     // tmp             }
+            //     // tmp             
+            //     // tmp             // Convert keyPath to nested object structure
+            //     // tmp             function setNestedValue(obj, keyPath, fieldName, value) {
+            //     // tmp                 var current = obj;
+            //     // tmp                 
+            //     // tmp                 for (var i = 0; i < keyPath.length; i++) {
+            //     // tmp                     var key = String(keyPath[i]); // Convert to string to ensure .includes() works
+            //     // tmp                     var isArrayKey = key.includes('[]');
+            //     // tmp                     var isIndexKey = /^\d+$/.test(key);
+            //     // tmp                     
+            //     // tmp                     if (isArrayKey) {
+            //     // tmp                         // Handle array notation like "triggers[]"
+            //     // tmp                         var arrayKey = key.replace('[]', '');
+            //     // tmp                         if (!current[arrayKey]) current[arrayKey] = [];
+            //     // tmp                         current = current[arrayKey];
+            //     // tmp                     } else if (isIndexKey) {
+            //     // tmp                         // Handle array index like "0"
+            //     // tmp                         var index = parseInt(key);
+            //     // tmp                         while (current.length <= index) {
+            //     // tmp                             current.push({});
+            //     // tmp                         }
+            //     // tmp                         current = current[index];
+            //     // tmp                     } else {
+            //     // tmp                         // Handle regular object key
+            //     // tmp                         if (!current[key]) current[key] = {};
+            //     // tmp                         current = current[key];
+            //     // tmp                     }
+            //     // tmp                 }
+            //     // tmp                 
+            //     // tmp                 // Set the final field name as the key with the value
+            //     // tmp                 current[fieldName] = value;
+            //     // tmp             }
+            //     // tmp             
+            //     // tmp             // Use the full keyPath array and set the nested value with field name
+            //     // tmp             setNestedValue(existingTranslations, keyPath, fieldName, fieldValue);
+            //     // tmp             
+            //     // tmp             // Update the i18n field with the pretty-formatted nested JSON
+            //     // tmp             i18nField.value = JSON.stringify(existingTranslations, null, 2);
+            //     // tmp             
+            //     // tmp             // Update SUPER.ui.settings to reflect the i18n textarea content
+            //     // tmp             // Get the keyPath for the i18n field itself to know where to store it in settings
+            //     // tmp             var i18nKeyPath = SUPER.ui.getKeyPath(i18nField, tab);
+            //     // tmp             
+            //     // tmp             // Update the global settings at the correct location
+            //     // tmp             function updateSettingsAtPath(settingsObj, keyPath, value, currentLang) {
+            //     // tmp                 var current = settingsObj;
+            //     // tmp                 
+            //     // tmp                 // Navigate through the keyPath structure
+            //     // tmp                 for (var i = 0; i < keyPath.length; i++) {
+            //     // tmp                     var key = String(keyPath[i]);
+            //     // tmp                     var isArrayKey = key.includes('[]');
+            //     // tmp                     var isIndexKey = /^\d+$/.test(key);
+            //     // tmp                     var isLastKey = (i === keyPath.length - 1);
+            //     // tmp                     
+            //     // tmp                     if (isArrayKey) {
+            //     // tmp                         var arrayKey = key.replace('[]', '');
+            //     // tmp                         if (!current[arrayKey]) current[arrayKey] = [];
+            //     // tmp                         current = current[arrayKey];
+            //     // tmp                     } else if (isIndexKey) {
+            //     // tmp                         var index = parseInt(key);
+            //     // tmp                         while (current.length <= index) {
+            //     // tmp                             current.push({});
+            //     // tmp                         }
+            //     // tmp                         if (isLastKey) {
+            //     // tmp                             // This shouldn't happen for i18n field, but handle it
+            //     // tmp                             current[index] = value;
+            //     // tmp                         } else {
+            //     // tmp                             current = current[index];
+            //     // tmp                         }
+            //     // tmp                     } else {
+            //     // tmp                         // Regular object key
+            //     // tmp                         if (isLastKey) {
+            //     // tmp                             // Last key - this is where we store the i18n data
+            //     // tmp                             if (!current[key]) current[key] = {};
+            //     // tmp                             current[key][currentLang] = value;
+            //     // tmp                         } else {
+            //     // tmp                             if (!current[key]) current[key] = {};
+            //     // tmp                             current = current[key];
+            //     // tmp                         }
+            //     // tmp                     }
+            //     // tmp                 }
+            //     // tmp             }
+            //     // tmp             
+            //     // tmp             // Ensure the settings structure exists
+            //     // tmp             if (!SUPER.ui.settings['_'+slug]) SUPER.ui.settings['_'+slug] = {};
+            //     // tmp             
+            //     // tmp             // Update settings with the i18n textarea content for the current language
+            //     // tmp             updateSettingsAtPath(SUPER.ui.settings['_'+slug], i18nKeyPath, existingTranslations, i18n);
+            //     // tmp             
+            //     // tmp             console.log('Updated nested i18n storage:', existingTranslations);
+            //     // tmp             console.log('Field keyPath:', keyPath);
+            //     // tmp         } else {
+            //     // tmp             console.log('No i18n storage field found in repeater item');
+            //     // tmp         }
+            //     // tmp     }
+            //     // tmp });
+
+            //     // tmp disabled// Translating
+            //     // tmp disabled//var s = SUPER.get_stripe_settings(false, true);
+            //     // tmp disabled// Now that we have all the settings for this language, we will find all the translatable field and re-generate the i18n JSON for this language
+            //     // tmp disabled//console.log(s);
+            //     // tmp disabled//console.log(translatableFields);
+            //     // tmp disabledif(!SUPER.ui.settings['_'+slug].i18n) SUPER.ui.settings['_'+slug].i18n = {};
+            //     // tmp disabledif(!SUPER.ui.settings['_'+slug].i18n[i18n]) SUPER.ui.settings['_'+slug].i18n[i18n] = {};
+            //     // tmp disabledvar i18nObject = SUPER.ui.settings['_'+slug].i18n[i18n];
+            //     // tmp disabledvar mainLanguageObject = SUPER.ui.settings['_'+slug];
+            //     // tmp disabledtranslatableFields.forEach(field => {
+            //     // tmp disabled    var value = SUPER.ui.getTabFieldValue(field,tab);
+            //     // tmp disabled    var keyPath = [];
+            //     // tmp disabled    var parent = field.parentElement;
+            //     // tmp disabled    // Traverse up to build the key path
+            //     // tmp disabled    while (parent && parent !== tab) {
+            //     // tmp disabled        if(parent.classList.contains('sfui-repeater-item')){
+            //     // tmp disabled            var repeater = parent.parentElement;
+            //     // tmp disabled            var index = Array.from(repeater.children).indexOf(parent);
+            //     // tmp disabled            keyPath.unshift(index);
+            //     // tmp disabled        } else if (parent.hasAttribute('data-g')) {
+            //     // tmp disabled            keyPath.unshift(parent.getAttribute('data-g'));
+            //     // tmp disabled        } else if (parent.hasAttribute('data-r')) {
+            //     // tmp disabled            // Find the index of the current repeater item
+            //     // tmp disabled            keyPath.unshift(parent.getAttribute('data-r')+'[]');
+            //     // tmp disabled        }
+            //     // tmp disabled        parent = parent.parentElement;
+            //     // tmp disabled    }
+            //     // tmp disabled    // Construct the nested object in i18nObject
+            //     // tmp disabled    if(field.name==='custom_tax_rate'){
+            //     // tmp disabled    }
+            //     // tmp disabled    if(field.name==='tax_rates'){
+            //     // tmp disabled    }
+            //     // tmp disabled    var lastKey = field.name;
+            //     // tmp disabled    var obj = i18nObject;
+            //     // tmp disabled    var objCompare = mainLanguageObject;
+            //     // tmp disabled    var parentIsArray = false;
+            //     // tmp disabled    keyPath.forEach(key => {
+            //     // tmp disabled        if(!isNaN(key)){
+            //     // tmp disabled            if(!obj[key]) obj[key] = {};
+            //     // tmp disabled            obj = obj[key];
+            //     // tmp disabled            objCompare = objCompare[key];
+            //     // tmp disabled        }else{
+            //     // tmp disabled            var tmpKey = key.replace('[]','');
+            //     // tmp disabled            if(!obj[tmpKey] && key.indexOf('[]')!==-1){
+            //     // tmp disabled                if(parentIsArray===true){
+            //     // tmp disabled                    // Settings that are of type array() don't directly have children that are of type array
+            //     // tmp disabled                    obj[tmpKey] = {};
+            //     // tmp disabled                    parentIsArray = false;
+            //     // tmp disabled                }else{
+            //     // tmp disabled                    obj[tmpKey] = [];
+            //     // tmp disabled                    parentIsArray = true;
+            //     // tmp disabled                }
+            //     // tmp disabled            }else{
+            //     // tmp disabled                parentIsArray = false;
+            //     // tmp disabled            }
+            //     // tmp disabled            if(!obj[tmpKey]){
+            //     // tmp disabled                obj[tmpKey] = {};
+            //     // tmp disabled            }
+            //     // tmp disabled            obj = obj[tmpKey];
+            //     // tmp disabled            objCompare = objCompare[tmpKey];
+            //     // tmp disabled        }
+            //     // tmp disabled    });
+
+            //     // tmp disabled    //debugger;
+            //     // tmp disabled    if(objCompare[lastKey]===value){
+            //     // tmp disabled        //debugger;
+            //     // tmp disabled        // When this value equals the on from the main language delete it
+            //     // tmp disabled        if(obj[lastKey]){
+            //     // tmp disabled            delete obj[lastKey];
+            //     // tmp disabled        }
+            //     // tmp disabled    }else{
+            //     // tmp disabled        // Value is different, keep it
+            //     // tmp disabled        obj[lastKey] = value;
+            //     // tmp disabled        if(obj.length===0){
+            //     // tmp disabled            obj = {};
+            //     // tmp disabled            obj[lastKey] = value;
+            //     // tmp disabled        }
+            //     // tmp disabled    }
+            //     // tmp disabled});
+            //     // tmp disabled// Clean up the data object
+            //     // tmp disabledSUPER.ui.settings['_'+slug].i18n[i18n] = SUPER.ui.i18n.removeEmpty(SUPER.ui.settings['_'+slug].i18n[i18n]);
+            //     // tmp disabledconsole.log(JSON.stringify(SUPER.ui.settings['_'+slug].i18n));
+            //     // tmp disabledSUPER.ui.settings['_'+slug].i18n = JSON.parse(JSON.stringify(SUPER.ui.settings['_'+slug].i18n));
+            //     // tmp disabledconsole.log(JSON.stringify(SUPER.ui.settings['_'+slug].i18n));
+
+            //     // tmp disabledvar i18n_input_field = tab.querySelector('[name="i18n"]');
+            //     // tmp disabledif(i18n_input_field){
+            //     // tmp disabled    i18n_input_field.value = JSON.stringify(SUPER.ui.settings['_'+slug].i18n, undefined, 4);
+            //     // tmp disabled}else{
+            //     // tmp disabled    alert('Could not find i18n field to store translation settings for tab: '+slug);
+            //     // tmp disabled}
+            //     return;
+            // }else{
+            //     // Not translating or the tab doesn't have any translatable fields
+            //     //var s = SUPER.get_stripe_settings(false, true);
+            //     //console.log(s);
+            //     //return;
+            // }
+
+            // // First get the field value
+            // var value = el.value;
+            // var type = el.type;
+            // //if (type === 'checkbox') value = el.checked;
+            // //if (type === 'radio') value = (tab.querySelector('[name="' + el.name + '"]:checked') ? tab.querySelector('[name="' + el.name + '"]:checked').value : '');
+            // if (value === true) value = "true";
+            // if (value === false) value = "false";
+            // if (el.tagName === 'TEXTAREA' && tinymce.get(el.id)) {
+            //     value = tinymce.get(el.id).getContent();
+            // }
+            // if(!i18n || i18n===''){
+            //     // On main language, update normal settings
+            //     SUPER.ui.settings['_'+slug] = SUPER.ui.i18n.collectDataFromParents(SUPER.ui.settings['_'+slug], el, value, slug, tab);
+            // }
 
         i18n: {
             translating: false,
@@ -603,28 +1008,28 @@
             
                 return data;
             },
-
             collectDataFromParents: function(data, el, value, slug, tab){
-                //if(!SUPER.ui.settings['_'+slug]) SUPER.ui.settings['_'+slug] = {};
-                var mainLanguageObject = data; // SUPER.ui.settings['_'+slug];
+                var mainLanguageObject = data;
                 var field = el;
                 var value = SUPER.ui.getTabFieldValue(field,tab);
-                var keyPath = [];
-                var parent = field.parentElement;
-                // Traverse up to build the key path
-                while (parent && parent !== tab) {
-                    if(parent.classList.contains('sfui-repeater-item')){
-                        var repeater = parent.parentElement;
-                        var index = Array.from(repeater.children).indexOf(parent);
-                        keyPath.unshift(index);
-                    } else if (parent.hasAttribute('data-g')) {
-                        keyPath.unshift(parent.getAttribute('data-g'));
-                    } else if (parent.hasAttribute('data-r')) {
-                        // Find the index of the current repeater item
-                        keyPath.unshift(parent.getAttribute('data-r')+'[]');
-                    }
-                    parent = parent.parentElement;
-                }
+                var { keyPath, i18nField } = SUPER.ui.getKeyPath(field, tab);
+                console.log('>>> keyPath:', keyPath);
+                //var keyPath = [];
+                //var parent = field.parentElement;
+                //// Traverse up to build the key path
+                //while (parent && parent !== tab) {
+                //    if(parent.classList.contains('sfui-repeater-item')){
+                //        var repeater = parent.parentElement;
+                //        var index = Array.from(repeater.children).indexOf(parent);
+                //        keyPath.unshift(index);
+                //    } else if (parent.hasAttribute('data-g')) {
+                //        keyPath.unshift(parent.getAttribute('data-g'));
+                //    } else if (parent.hasAttribute('data-r')) {
+                //        // Find the index of the current repeater item
+                //        keyPath.unshift(parent.getAttribute('data-r')+'[]');
+                //    }
+                //    parent = parent.parentElement;
+                //}
                 // Construct the nested object in i18nObject
                 var lastKey = field.name;
                 var obj = mainLanguageObject;
@@ -844,7 +1249,6 @@
                 if(tab.className.indexOf('triggers')!==-1){
                     //debugger;
                 }
-                //debugger;
                 var field = el;
                 var keyPath = [];
                 var parent = field.parentElement;
@@ -862,11 +1266,9 @@
                     }
                     parent = parent.parentElement;
                 }
-                //debugger;
                 var obj = i18n_data[i18n];
                 if(typeof obj !=='undefined'){
                     keyPath.forEach(key => {
-                        //if(key==='triggers[]') debugger;
                         if(!isNaN(key)){
                             obj = obj[key];
                         }else{
@@ -986,7 +1388,6 @@
         document.querySelector('.super-raw-code-woocommerce-settings textarea').value = SUPER.get_woocommerce_settings(string);
     };
     SUPER.update_listings_settings = function(string){
-        //debugger;
         document.querySelector('.super-raw-code-listings-settings textarea').value = SUPER.get_listings_settings(string);
     };
     SUPER.update_pdf_settings = function(string){
@@ -1198,43 +1599,144 @@
     SUPER.get_tab_settings = function(settings, slug, tab, data, returnData){
         if(slug==='triggers') debugger;
         if(typeof returnData === 'undefined') returnData = false;
-        var nodes, i, i18n_data = null;
-        var i18n = document.querySelector('.super-create-form').dataset.i18n;
+        var nodes, i, i18n_data = null, field, fieldName, newField,
+        i18n = document.querySelector('.super-create-form').dataset.i18n;
         if(SUPER.ui.settings['_'+slug]){
             // Get the current country flag
             var flag = document.querySelector(':scope .super-tabs > .super-tab-builder > .flag');
             // Remember the original value for translatable settings
-            if (typeof tab === 'undefined') {
+            if(typeof tab==='undefined'){
                 tab = document.querySelector('.super-tab-content.super-tab-' + slug);
             }
             nodes = tab.querySelectorAll('.sfui-i18n [name]');
             SUPER.add_country_flags(i18n, flag, nodes);
             if(SUPER.ui.i18n.translating) {
                 for (i = 0; i < nodes.length; i++) {
+                    field = nodes[i];
+                    fieldName = field.name;
+                    if(fieldName==='filename') debugger;
+                    if(fieldName==='subject') debugger;
+                    if(fieldName==='i18n') continue;
+                    console.log('>>> fieldName:', fieldName);
+                    var { keyPath, i18nField } = SUPER.ui.getKeyPath(field, tab);
+                    console.log('>>> keyPath:', keyPath);
+                    console.log('>>> i18nField:', i18nField);
                     // Skip if already exists
                     if (nodes[i].nextElementSibling && nodes[i].nextElementSibling.className === 'sfui-original-i18n-value') {
-                        continue;
-                    }
-                    if (nodes[i].type === 'textarea') {
-                        if (tinymce.get(nodes[i].id)) {
-                            var value = tinymce.get(nodes[i].id).getContent();
-                        } else {
-                            var value = nodes[i].value;
+                        debugger;
+                        //continue;
+                    }else{
+                        var fieldValue = SUPER.ui.getTabFieldValue(field, tab);
+                        console.log('>>> fieldValue:', fieldValue);
+                        if(nodes[i].type === 'textarea'){
+                            newField = document.createElement('textarea');
+                        }else{
+                            newField = document.createElement('input');
                         }
-                        var field = document.createElement('textarea');
-                    } else {
-                        var value = nodes[i].value;
-                        if (nodes[i].type === 'checkbox') {
-                            value = nodes[i].checked ? 'true' : 'false';
-                        }
-                        var field = document.createElement('input');
-                        field.type = 'hidden';
+                        newField.value = fieldValue;
+                        newField.className = 'sfui-original-i18n-value';
+                        newField.style.display = 'none';
+                        nodes[i].parentNode.insertBefore(newField, nodes[i].nextSibling);
                     }
-                    field.value = value;
-                    field.className = 'sfui-original-i18n-value';
-                    field.style.display = 'none';
-                    nodes[i].parentNode.insertBefore(field, nodes[i].nextSibling);
+                    // Get the translated value if it exists and update the field value with it
+                    if(i18nField && i18nField.value){
+                        try {
+                            var i18nData = JSON.parse(i18nField.value);
+                            // Find where the keyPath intersects with the i18n data structure
+                            var current = i18nData;
+                            var pathStartIndex = -1;
+                            // Try to find a matching key in the i18n data to determine where to start traversing
+                            for (var startIdx = 0; startIdx < keyPath.length; startIdx++) {
+                                var testKey = keyPath[startIdx];
+                                var cleanKey = typeof testKey === 'string' ? testKey.replace(/\[\]$/, '') : testKey;
+                                if (current && typeof current === 'object' && current.hasOwnProperty(cleanKey)) {
+                                    pathStartIndex = startIdx;
+                                    break;
+                                }
+                            }
+                            // If we found a starting point, traverse from there
+                            if(pathStartIndex >= 0){
+                                for (var j = pathStartIndex; j < keyPath.length; j++) {
+                                    var key = keyPath[j];
+                                    if (current && typeof current === 'object') {
+                                        if (Array.isArray(current) && !isNaN(key)) {
+                                            // Handle array index
+                                            current = current[parseInt(key)];
+                                        } else if (typeof key === 'string') {
+                                            // Handle object property (remove [] suffix if present)
+                                            var cleanKey = key.replace(/\[\]$/, '');
+                                            current = current[cleanKey];
+                                        }
+                                    } else {
+                                        current = null;
+                                        break;
+                                    }
+                                }
+                            }else{
+                                // If no intersection found, current remains as the root i18n data
+                                current = i18nData;
+                            }
+                            // Get the current language code
+                            debugger;
+                            //var currentLanguage = document.querySelector('.super-create-form').dataset.i18n;
+                            //var currentLanguage = SUPER.ui.i18n.lastLanguage;
+                            
+                            // Now look for the fieldName in the current object
+                            if (current && typeof current === 'object' && current[fieldName]) {
+                                var translatedValue = current[fieldName];
+                                // If translatedValue is an object (like {"am": "New question1nl"}),
+                                // get the value for the current language code
+                                if(typeof translatedValue === 'object' && translatedValue[i18n]){
+                                    translatedValue = translatedValue[i18n];
+                                }
+                                // Update the original field with the translated value
+                                if(translatedValue){
+                                    field.value = translatedValue;
+                                    console.log('>>> Updated field with translated value for language "' + i18n + '":', translatedValue);
+                                }
+                            }
+                        }catch(e){
+                            console.error('Error parsing i18n JSON:', e);
+                        }
+                    }
+                    // tmp // Get the translated value if it exists and update the field value with it
+                    // tmp if (i18nField && i18nField.value) {
+                    // tmp     try {
+                    // tmp         var json = JSON.parse(i18nField.value);
+
+                    // tmp         // Skip the top-level repeater key and its index if present
+                    // tmp         var kp = keyPath.slice(); // copy
+                    // tmp         if (kp.length >= 2 && typeof kp[0] === 'string' && kp[0].endsWith('[]') && typeof kp[1] === 'number') {
+                    // tmp             kp = kp.slice(2);
+                    // tmp         }
+
+                    // tmp         var obj = json;
+                    // tmp         for (var j = 0; j < kp.length; j++) {
+                    // tmp             var key = kp[j];
+                    // tmp             if (typeof key === 'string' && key.endsWith('[]')) {
+                    // tmp                 key = key.slice(0, -2);
+                    // tmp             }
+                    // tmp             obj = obj?.[key];
+                    // tmp             if (typeof kp[j + 1] === "number" && Array.isArray(obj)) {
+                    // tmp                 obj = obj[kp[j + 1]];
+                    // tmp                 j++;
+                    // tmp             }
+                    // tmp             if (!obj) break;
+                    // tmp         }
+
+                    // tmp         if (obj && obj[fieldName]) {
+                    // tmp             var firstLangKey = Object.keys(obj[fieldName])[0];
+                    // tmp             var translated = obj[fieldName][firstLangKey];
+                    // tmp             if (translated) nodes[i].value = translated;
+                    // tmp         }
+                    // tmp     } catch (e) {
+                    // tmp         console.warn('Failed to parse or lookup i18n JSON:', e);
+                    // tmp     }
+                    // tmp }
+
+
                 }
+
                 // Populate fields with i18n data
                 if(SUPER.ui.settings['_'+slug].i18n){
                     var i18n_data = JSON.parse(JSON.stringify(SUPER.ui.settings['_'+slug].i18n));
@@ -1281,21 +1783,14 @@
                 // Do not return settings, instead update
             }else{
                 if(returnData){
-                    //debugger;
                     return SUPER.ui.settings['_'+slug];
                 }
             }
-            //debugger;
             return SUPER.ui.settings['_'+slug];
         }
         if(returnData){
-            //debugger;
             return SUPER.ui.settings['_'+slug];
         }
-        // tmp if(SUPER.ui.settings['_'+slug]){
-        // tmp     debugger;
-        // tmp     return SUPER.ui.settings['_'+slug];
-        // tmp }
         SUPER.ui.i18n.mainLanguage = (document.querySelector('.super-default-language .super-item.super-active') ? document.querySelector('.super-default-language .super-item.super-active').dataset.value : '');
         var returnObj = false;
         if (typeof data === 'undefined') {
@@ -1307,16 +1802,17 @@
             tab = document.querySelector('.super-tab-content.super-tab-' + slug);
         }
         if (!tab) {
-            //debugger;
             return settings;
         }
         // Get the current country flag
         var flag = document.querySelector(':scope .super-tabs > .super-tab-builder > .flag');
         // Remember the original value for translatable settings
         nodes = tab.querySelectorAll('.sfui-i18n [name]');
-        //debugger;
         SUPER.add_country_flags(i18n, flag, nodes);
         if(SUPER.ui.i18n.translating) {
+            debugger;
+            debugger;
+            debugger;
             for (i = 0; i < nodes.length; i++) {
                 // Skip if already exists
                 if (nodes[i].nextElementSibling && nodes[i].nextElementSibling.className === 'sfui-original-i18n-value') {
@@ -1516,6 +2012,9 @@
                         }
                     }
                 } else {
+                    debugger;
+                    debugger;
+                    debugger;
                     var value = nodes[i].value;
                     var type = nodes[i].type;
                     k = nodes[i].name.split('.').pop();
@@ -1529,32 +2028,45 @@
                         //SUPER.ui.updateSettings(null, nodes[i]);
                     }
                     if (!data[k]) {
-                        if (nodes[i].name === 'i18n') {
-                            if (value === '' || value === '[]') {
-                                value = '{}';
-                            } else {
-                                try {
-                                    value = JSON.parse(value);
-                                    var changed = false;
-                                    Object.keys(value).forEach(function(key) {
-                                        if (Array.isArray(value[key])) {
-                                            value[key] = {};
-                                            changed = true;
-                                        }
-                                    });
-                                    if (changed) {
-                                        value = JSON.stringify(value, undefined, 4);
-                                    }
-                                }
-                                catch (e) {
-                                    console.error(e);
-                                    value = '{}';
-                                }
+                        if(nodes[i].name === 'i18n' && value!==''){
+                            debugger;
+                            try {
+                                value = JSON.parse(value);
                             }
-                            if (typeof value !== 'object') {
-                                value = JSON.parse(value, undefined, 4);
+                            catch (e) {
+                                console.error(e);
+                                value = '{}';
                             }
                         }
+                        // tmp if (nodes[i].name === 'i18n') {
+                        // tmp     debugger;
+                        // tmp     debugger;
+                        // tmp     debugger;
+                        // tmp     if (value === '' || value === '[]') {
+                        // tmp         value = '{}';
+                        // tmp     } else {
+                        // tmp         try {
+                        // tmp             value = JSON.parse(value);
+                        // tmp             var changed = false;
+                        // tmp             Object.keys(value).forEach(function(key) {
+                        // tmp                 if (Array.isArray(value[key])) {
+                        // tmp                     value[key] = {};
+                        // tmp                     changed = true;
+                        // tmp                 }
+                        // tmp             });
+                        // tmp             if (changed) {
+                        // tmp                 value = JSON.stringify(value, undefined, 4);
+                        // tmp             }
+                        // tmp         }
+                        // tmp         catch (e) {
+                        // tmp             console.error(e);
+                        // tmp             value = '{}';
+                        // tmp         }
+                        // tmp     }
+                        // tmp     if (typeof value !== 'object') {
+                        // tmp         value = JSON.parse(value, undefined, 4);
+                        // tmp     }
+                        // tmp }
                         data[k] = value;
                     }
                 }
@@ -1578,6 +2090,7 @@
         }else{
             // Store settings globally
             if((slug==='triggers' || slug==='stripe') && SUPER.ui.i18n.lastLanguage!=='' && SUPER.ui.i18n.lastLanguage!==SUPER.ui.i18n.mainLanguage){
+                debugger;
                 SUPER.ui.settings['_'+slug].i18n[SUPER.ui.i18n.lastLanguage] = data.i18n[SUPER.ui.i18n.lastLanguage];
                 data = SUPER.ui.settings['_'+slug];
                 // Adjust repeater items based on i18n_data
@@ -1904,7 +2417,7 @@
 //        return settings;
 //    }
     SUPER.get_trigger_settings = function(string, returnData){
-        //debugger;
+        debugger;
         if(typeof string === 'undefined') string = false;
         if(typeof returnData === 'undefined') returnData = false;
         var $s = SUPER.get_tab_settings({}, 'triggers', undefined, undefined, returnData);
@@ -3045,7 +3558,6 @@
                         editor.setContent(textarea.value);
                         console.log('Set initial content from textarea');
                     }
-                    debugger;
                     var input = editor.getElement();
                     var content = editor.getContent();
                     input.value = content;
@@ -3170,6 +3682,7 @@
 
         SUPER.initTinyMCE('.sfui-textarea-tinymce');
         document.querySelector('.super-raw-code-form-settings textarea').value = SUPER.get_form_settings(true);
+        debugger;
         var tmpValue = SUPER.get_trigger_settings(true);
         document.querySelector('.super-raw-code-trigger-settings textarea').value = tmpValue;
         document.querySelector('.super-raw-code-woocommerce-settings textarea').value = SUPER.get_woocommerce_settings(true);
@@ -4315,6 +4828,9 @@
         };
         // Retrieve all settings and their values
         SUPER.update_element_get_fields = function () {
+            debugger;
+            debugger;
+            debugger;
             var i, x, y,
                 nodes,
                 radios,
@@ -4407,6 +4923,9 @@
         };
         // Update settings to element-data
         SUPER.update_element_data = function ($button) {
+            debugger;
+            debugger;
+            debugger;
             // Before updating, check for errors
             SUPER.update_element_check_errors();
             // Add loading state to update button
@@ -4421,6 +4940,9 @@
         };
         // Push updates for saving (no need to press Update button)
         SUPER.update_element_push_updates = function () {
+            debugger;
+            debugger;
+            debugger;
             // Retrieve all settings and their values
             var $fields = SUPER.update_element_get_fields();
             // Update the currently editing field element data
@@ -4428,6 +4950,9 @@
         };
 
         $doc.on('click', '.super-element-settings .super-update-element', function () {
+            debugger;
+            debugger;
+            debugger;
             // Update element data (json code)
             // This json code holds all the settings for this specific element
             var $button = $(this);
