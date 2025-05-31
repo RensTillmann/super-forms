@@ -78,7 +78,6 @@
             }
 
             if(!i18nField){
-                debugger;
                 i18nField = tab.querySelector('textarea[name="i18n"], input[name="i18n"]');
             }
             return {
@@ -86,9 +85,25 @@
                 i18nField: i18nField
             };
         },
+        setTabFieldValue: function(field, value){
+            if(field.tagName === 'TEXTAREA' && tinymce.get(field.id)){
+                tinymce.get(field.id).setContent(value);
+            } else {
+                if(field.type === 'checkbox'){
+                    field.checked = (value === 'true');
+                }else{
+                    if (field.value !== value) {
+                        // Re-load attachment image preview
+                        if (field.parentNode.closest('.sfui-setting').classList.contains('sfui-type-files')) {
+                            field.value = value;
+                            SUPER.ui.i18n.reload_attachments(field);
+                        }
+                    }
+                    field.value = value;
+                }
+            }
+        },
         getTabFieldValue: function(el,tab){
-            debugger;
-            debugger;
             debugger;
             var value = el.value;
             if(!el.type) alert('not a field, might want to fix/check the create-form.js code...');
@@ -460,6 +475,7 @@
             if(fieldName==='i18n') debugger;
             var translatable = field.nextElementSibling && field.nextElementSibling.className === 'sfui-original-i18n-value';
             if(i18n && i18n !== '' && translatable){
+                debugger;
                 var { keyPath, i18nField } = SUPER.ui.getKeyPath(field, tab);
                 console.log('>>> keyPath:', keyPath);
 
@@ -589,6 +605,9 @@
 
                 // Assign the parsed JSON value to the final i18n object
                 try {
+                    debugger;
+                    debugger;
+                    debugger;
                     current['i18n'] = JSON.parse(i18nField.value);
                     console.log('✅ Assigned i18n into SUPER.ui.settings:', current['i18n']);
                 } catch (e) {
@@ -596,8 +615,6 @@
                 }
 
             }
-            debugger;
-            debugger;
             debugger;
             // First get the field value
             var value = el.value;
@@ -1352,22 +1369,23 @@
                     // Delete if exists 
                     if(nodes[i].nextElementSibling && nodes[i].nextElementSibling.className==='sfui-original-i18n-value'){
                         // Set value to this again
-                        if(nodes[i].tagName==='TEXTAREA' && tinymce.get(nodes[i].id)){
-                            tinymce.get(nodes[i].id).setContent(nodes[i].nextElementSibling.value);
-                        }else{
-                            if(nodes[i].type==='checkbox'){
-                                nodes[i].checked = (nodes[i].nextElementSibling.value==='true' ? true : false);
-                            }else{
-                                if(nodes[i].value!==nodes[i].nextElementSibling.value){
-                                    // Re-load attachment image preview
-                                    if(nodes[i].parentNode.closest('.sfui-setting').classList.contains('sfui-type-files')){
-                                        nodes[i].value = nodes[i].nextElementSibling.value;
-                                        SUPER.ui.i18n.reload_attachments(nodes[i]);
-                                    }
-                                    nodes[i].value = nodes[i].nextElementSibling.value;
-                                }
-                            }
-                        }
+                        SUPER.ui.setTabFieldValue(nodes[i], nodes[i].nextElementSibling.value);
+                        // if(nodes[i].tagName==='TEXTAREA' && tinymce.get(nodes[i].id)){
+                        //     tinymce.get(nodes[i].id).setContent(nodes[i].nextElementSibling.value);
+                        // }else{
+                        //     if(nodes[i].type==='checkbox'){
+                        //         nodes[i].checked = (nodes[i].nextElementSibling.value==='true' ? true : false);
+                        //     }else{
+                        //         if(nodes[i].value!==nodes[i].nextElementSibling.value){
+                        //             // Re-load attachment image preview
+                        //             if(nodes[i].parentNode.closest('.sfui-setting').classList.contains('sfui-type-files')){
+                        //                 nodes[i].value = nodes[i].nextElementSibling.value;
+                        //                 SUPER.ui.i18n.reload_attachments(nodes[i]);
+                        //             }
+                        //             nodes[i].value = nodes[i].nextElementSibling.value;
+                        //         }
+                        //     }
+                        // }
                         nodes[i].nextElementSibling.remove();
                         continue;
                     }
@@ -1599,7 +1617,7 @@
     SUPER.get_tab_settings = function(settings, slug, tab, data, returnData){
         if(slug==='triggers') debugger;
         if(typeof returnData === 'undefined') returnData = false;
-        var nodes, i, i18n_data = null, field, fieldName, newField,
+        var nodes, i, i18n_data = null, field, fieldName, newField, mainLanguageValue,
         i18n = document.querySelector('.super-create-form').dataset.i18n;
         if(SUPER.ui.settings['_'+slug]){
             // Get the current country flag
@@ -1612,10 +1630,12 @@
             SUPER.add_country_flags(i18n, flag, nodes);
             if(SUPER.ui.i18n.translating) {
                 for (i = 0; i < nodes.length; i++) {
+                    mainLanguageValue = undefined;
                     field = nodes[i];
                     fieldName = field.name;
-                    if(fieldName==='filename') debugger;
-                    if(fieldName==='subject') debugger;
+                    //if(fieldName==='filename') debugger;
+                    //if(fieldName==='subject') debugger;
+                    if(fieldName==='theme_ui_checkbox_inner') debugger;
                     if(fieldName==='i18n') continue;
                     console.log('>>> fieldName:', fieldName);
                     var { keyPath, i18nField } = SUPER.ui.getKeyPath(field, tab);
@@ -1623,6 +1643,7 @@
                     console.log('>>> i18nField:', i18nField);
                     // Skip if already exists
                     if (nodes[i].nextElementSibling && nodes[i].nextElementSibling.className === 'sfui-original-i18n-value') {
+                        mainLanguageValue = nodes[i].nextElementSibling.value;
                         debugger;
                         //continue;
                     }else{
@@ -1690,9 +1711,17 @@
                                     translatedValue = translatedValue[i18n];
                                 }
                                 // Update the original field with the translated value
-                                if(translatedValue){
-                                    field.value = translatedValue;
+                                if(typeof translatedValue !== 'object' && translatedValue){
+                                    SUPER.ui.setTabFieldValue(field, translatedValue);
                                     console.log('>>> Updated field with translated value for language "' + i18n + '":', translatedValue);
+                                }else{
+                                    if(mainLanguageValue){
+                                        SUPER.ui.setTabFieldValue(field, mainLanguageValue);
+                                        console.log('>>> Updated field with main language "' + i18n + '":', translatedValue);
+                                    }else{
+                                        console.log('>>> value unknown?')
+                                        SUPER.ui.setTabFieldValue(field, '');
+                                    }
                                 }
                             }
                         }catch(e){
@@ -1747,23 +1776,24 @@
                             if(translatedValue!==null){
                                 k = nodes[i].name.split('.').pop();
                                 if(!i18n_data[k]){
-                                    if(nodes[i].tagName === 'TEXTAREA' && tinymce.get(nodes[i].id)){
-                                        i18n_data[k] = nodes[i].nextElementSibling.value;
-                                        tinymce.get(nodes[i].id).setContent(translatedValue);
-                                    } else {
-                                        if(nodes[i].type === 'checkbox'){
-                                            nodes[i].checked = (translatedValue === 'true');
-                                        }else{
-                                            if (nodes[i].value !== translatedValue) {
-                                                // Re-load attachment image preview
-                                                if (nodes[i].parentNode.closest('.sfui-setting').classList.contains('sfui-type-files')) {
-                                                    nodes[i].value = translatedValue;
-                                                    SUPER.ui.i18n.reload_attachments(nodes[i]);
-                                                }
-                                            }
-                                            nodes[i].value = translatedValue;
-                                        }
-                                    }
+                                    SUPER.ui.setTabFieldValue(nodes[i], translatedValue);
+                                    //if(nodes[i].tagName === 'TEXTAREA' && tinymce.get(nodes[i].id)){
+                                    //    i18n_data[k] = nodes[i].nextElementSibling.value;
+                                    //    tinymce.get(nodes[i].id).setContent(translatedValue);
+                                    //} else {
+                                    //    if(nodes[i].type === 'checkbox'){
+                                    //        nodes[i].checked = (translatedValue === 'true');
+                                    //    }else{
+                                    //        if (nodes[i].value !== translatedValue) {
+                                    //            // Re-load attachment image preview
+                                    //            if (nodes[i].parentNode.closest('.sfui-setting').classList.contains('sfui-type-files')) {
+                                    //                nodes[i].value = translatedValue;
+                                    //                SUPER.ui.i18n.reload_attachments(nodes[i]);
+                                    //            }
+                                    //        }
+                                    //        nodes[i].value = translatedValue;
+                                    //    }
+                                    //}
                                 }
                             }
                         }
@@ -1973,44 +2003,44 @@
                             }
                         }
                     }
-                    if (i18n_data !== null) {
-                        if (Array.isArray(i18n_data[i18n])) {
-                            i18n_data[i18n] = {};
-                        }
-                        if (i18n_data[i18n]) {
-                            var value = nodes[i].value;
-                            k = nodes[i].name.split('.').pop();
-                            if (!data[k]) {
-                                if (nodes[i].tagName === 'TEXTAREA' && tinymce.get(nodes[i].id)) {
-                                    data[k] = nodes[i].nextElementSibling.value;
-                                    const translatedValue = SUPER.ui.i18n.getTranslatedValue(nodes[i], i18n_data, i18n, tab);
-                                    if (translatedValue !== null) {
-                                        tinymce.get(nodes[i].id).setContent(translatedValue);
-                                    }
-                                } else {
-                                    data[k] = nodes[i].nextElementSibling.value;
-                                    if (nodes[i].name === 'i18n') {
-                                        data[k] = JSON.parse(data[k], undefined, 4);
-                                    }
-                                    const translatedValue = SUPER.ui.i18n.getTranslatedValue(nodes[i], i18n_data, i18n, tab);
-                                    if (translatedValue !== null) {
-                                        if (nodes[i].type === 'checkbox') {
-                                            nodes[i].checked = (translatedValue === 'true');
-                                        } else {
-                                            if (nodes[i].value !== translatedValue) {
-                                                // Re-load attachment image preview
-                                                if (nodes[i].parentNode.closest('.sfui-setting').classList.contains('sfui-type-files')) {
-                                                    nodes[i].value = translatedValue;
-                                                    SUPER.ui.i18n.reload_attachments(nodes[i]);
-                                                }
-                                            }
-                                            nodes[i].value = translatedValue;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    // tmp if (i18n_data !== null) {
+                    // tmp     if (Array.isArray(i18n_data[i18n])) {
+                    // tmp         i18n_data[i18n] = {};
+                    // tmp     }
+                    // tmp     if (i18n_data[i18n]) {
+                    // tmp         var value = nodes[i].value;
+                    // tmp         k = nodes[i].name.split('.').pop();
+                    // tmp         if (!data[k]) {
+                    // tmp             if (nodes[i].tagName === 'TEXTAREA' && tinymce.get(nodes[i].id)) {
+                    // tmp                 data[k] = nodes[i].nextElementSibling.value;
+                    // tmp                 const translatedValue = SUPER.ui.i18n.getTranslatedValue(nodes[i], i18n_data, i18n, tab);
+                    // tmp                 if (translatedValue !== null) {
+                    // tmp                     tinymce.get(nodes[i].id).setContent(translatedValue);
+                    // tmp                 }
+                    // tmp             } else {
+                    // tmp                 data[k] = nodes[i].nextElementSibling.value;
+                    // tmp                 if (nodes[i].name === 'i18n') {
+                    // tmp                     data[k] = JSON.parse(data[k], undefined, 4);
+                    // tmp                 }
+                    // tmp                 const translatedValue = SUPER.ui.i18n.getTranslatedValue(nodes[i], i18n_data, i18n, tab);
+                    // tmp                 if (translatedValue !== null) {
+                    // tmp                     if (nodes[i].type === 'checkbox') {
+                    // tmp                         nodes[i].checked = (translatedValue === 'true');
+                    // tmp                     } else {
+                    // tmp                         if (nodes[i].value !== translatedValue) {
+                    // tmp                             // Re-load attachment image preview
+                    // tmp                             if (nodes[i].parentNode.closest('.sfui-setting').classList.contains('sfui-type-files')) {
+                    // tmp                                 nodes[i].value = translatedValue;
+                    // tmp                                 SUPER.ui.i18n.reload_attachments(nodes[i]);
+                    // tmp                             }
+                    // tmp                         }
+                    // tmp                         nodes[i].value = translatedValue;
+                    // tmp                     }
+                    // tmp                 }
+                    // tmp             }
+                    // tmp         }
+                    // tmp     }
+                    // tmp }
                 } else {
                     debugger;
                     debugger;
@@ -3310,6 +3340,7 @@
         params.action = 'super_save_form';
         params.form_id = $('.super-create-form input[name="form_id"]').val();
         params.title = $('.super-create-form input[name="title"]').val();
+        debugger;
         if(!super_create_form_i18n.version){
             params.formElements = document.querySelector('.super-raw-code-form-elements textarea').value;
             params.formSettings = document.querySelector('.super-raw-code-form-settings textarea').value;
@@ -3339,6 +3370,7 @@
         }
         params.localSecrets = localSecrets;
         params.globalSecrets = globalSecrets;
+        debugger;
         if(super_create_form_i18n.version){
             params.form_data = {
                 elements: document.querySelector('.super-raw-code-form-elements textarea').value,
@@ -3656,14 +3688,15 @@
             var value = this.dataset.value;
             var p = this.parentNode.closest('.sfui-setting');
             var input = p.querySelector('[name]');
-            if(p.classList.contains('sfui-tinymce')){
-                var editor = tinymce.get(input.id);
-                if(editor){
-                    editor.setContent(value);
-                }
-            }else{
-                input.value = value;
-            }
+            SUPER.ui.setTabFieldValue(input, value);
+            // if(p.classList.contains('sfui-tinymce')){
+            //     var editor = tinymce.get(input.id);
+            //     if(editor){
+            //         editor.setContent(value);
+            //     }
+            // }else{
+            //     input.value = value;
+            // }
             SUPER.ui.updateSettings(null, input);
             return;
         });
@@ -3682,9 +3715,7 @@
 
         SUPER.initTinyMCE('.sfui-textarea-tinymce');
         document.querySelector('.super-raw-code-form-settings textarea').value = SUPER.get_form_settings(true);
-        debugger;
-        var tmpValue = SUPER.get_trigger_settings(true);
-        document.querySelector('.super-raw-code-trigger-settings textarea').value = tmpValue;
+        document.querySelector('.super-raw-code-trigger-settings textarea').value = SUPER.get_trigger_settings(true);
         document.querySelector('.super-raw-code-woocommerce-settings textarea').value = SUPER.get_woocommerce_settings(true);
         document.querySelector('.super-raw-code-listings-settings textarea').value = SUPER.get_listings_settings(true);
         document.querySelector('.super-raw-code-pdf-settings textarea').value = SUPER.get_pdf_settings(true);
@@ -4829,8 +4860,6 @@
         // Retrieve all settings and their values
         SUPER.update_element_get_fields = function () {
             debugger;
-            debugger;
-            debugger;
             var i, x, y,
                 nodes,
                 radios,
@@ -4924,8 +4953,6 @@
         // Update settings to element-data
         SUPER.update_element_data = function ($button) {
             debugger;
-            debugger;
-            debugger;
             // Before updating, check for errors
             SUPER.update_element_check_errors();
             // Add loading state to update button
@@ -4941,8 +4968,6 @@
         // Push updates for saving (no need to press Update button)
         SUPER.update_element_push_updates = function () {
             debugger;
-            debugger;
-            debugger;
             // Retrieve all settings and their values
             var $fields = SUPER.update_element_get_fields();
             // Update the currently editing field element data
@@ -4950,8 +4975,6 @@
         };
 
         $doc.on('click', '.super-element-settings .super-update-element', function () {
-            debugger;
-            debugger;
             debugger;
             // Update element data (json code)
             // This json code holds all the settings for this specific element

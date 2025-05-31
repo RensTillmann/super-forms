@@ -2186,7 +2186,9 @@ class SUPER_Ajax {
         $global_settings = SUPER_Common::get_global_settings();
         // @since 4.7.0 - translation language switcher
         if(isset($i18n_disable_browser_translation)) $settings['i18n_disable_browser_translation'] = sanitize_text_field($i18n_disable_browser_translation);
+        error_log($i18n_switch);
         if(isset($i18n_switch)) $settings['i18n_switch'] = sanitize_text_field($i18n_switch);
+        error_log($settings['i18n_switch']);
         if(empty($form_id)){
             // Create a new form
             $form = array(

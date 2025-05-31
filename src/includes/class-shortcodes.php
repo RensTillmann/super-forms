@@ -6402,10 +6402,14 @@ class SUPER_Shortcodes {
             }
 
             // @since 4.7.0 - translation langauge switcher
+            error_log($settings['i18n_switch']);
             if(empty($settings['i18n_switch'])) $settings['i18n_switch'] = 'false';
+            error_log($settings['i18n_switch']);
             if(isset($_POST['action']) && $_POST['action']==='super_listings_edit_entry'){
                 // When we are editing an entry via a listing that was already displayed in a specific translation, make sure we remove the language switcher (no need for that)
+                error_log($settings['i18n_switch']);
                 $settings['i18n_switch'] = 'false';
+                error_log($settings['i18n_switch']);
             }
             if(empty($i18n) && $settings['i18n_switch']=='true'){
                 $translations = SUPER_Common::get_form_translations($form_id);
