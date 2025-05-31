@@ -259,10 +259,15 @@ class SUPER_Pages {
         $language_placeholder = esc_html__( 'Choose language', 'super-forms' );
         $flags_placeholder = esc_html__( 'Choose a flag', 'super-forms' );
         $flags = SUPER_Common::get_flags();
+        error_log($settings['i18n_switch']);
         if(empty($settings['i18n_disable_browser_translation'])) $settings['i18n_disable_browser_translation'] = 'true';
         if(empty($settings['i18n_switch'])) $settings['i18n_switch'] = 'false';
         ?>
         <div class="super-setting">
+            <?php
+            error_log(json_encode($settings));
+            error_log($settings['i18n_switch']);
+            ?>
             <div class="super-i18n-switch<?php echo ($settings['i18n_switch']=='true' ? ' super-active' : ''); ?>">
                 <?php echo esc_html__('Add Language Switch', 'super-forms' ) . ' <span>(' . esc_html__( 'this will add a dropdown at the top of your form from which the user can choose a language', 'super-forms') . ')</span>'; ?>
             </div>
