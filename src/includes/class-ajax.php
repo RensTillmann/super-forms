@@ -2179,6 +2179,7 @@ class SUPER_Ajax {
         $local_secrets = (!empty($_POST['localSecrets']) ? $_POST['localSecrets'] : '');
         $global_secrets = (!empty($_POST['globalSecrets']) ? $_POST['globalSecrets'] : '');
         // We must delete/clear any translations that no longer exist
+        if(!isset($elements)) $elements = array();
         if(!is_array($elements)) $elements = array();
         $elements = self::clear_i18n($elements, $translations);
         // @since 3.9.0 - don't save settings that are the same as global settings
@@ -2199,6 +2200,7 @@ class SUPER_Ajax {
             );
             $form_id = wp_insert_post($form);
             //$form_id = SUPER_Common::wp_insert_post_fast($form);
+            error_log('&&&&&& save_form_meta(1)');
             self::save_form_meta(
                 array(
                     'version'=>($action==='super_import_single_form' ? $version : SUPER_VERSION),
@@ -2228,18 +2230,31 @@ class SUPER_Ajax {
             );
             wp_update_post( $form );
             //SUPER_Common::wp_update_post_fast($form);
-            if(!empty($i18n)){
-                // Merge with existing form settings
+            // tmp if(!empty($i18n)){
+            // tmp     // Merge with existing form settings
+            // tmp     $form_settings = SUPER_Common::get_form_settings($form_id);
+            // tmp     error_log('&&&&&& $form_settings:');
+            // tmp     error_log(json_encode($form_settings));
+            // tmp     // Add language to the form settings
+            // tmp     $form_settings['i18n'][$i18n] = $settings;
+            // tmp     $settings = $form_settings;
+            // tmp     error_log('&&&&&& $settings:');
+            // tmp     error_log(json_encode($settings));
+            // tmp }else{
+                error_log('&&&&&& $settings 2.1:');
+                error_log(json_encode($settings));
                 $form_settings = SUPER_Common::get_form_settings($form_id);
-                // Add language to the form settings
-                $form_settings['i18n'][$i18n] = $settings;
-                $settings = $form_settings;
-            }else{
-                $form_settings = SUPER_Common::get_form_settings($form_id);
+                error_log('&&&&&& $form_settings 2.1:');
+                error_log(json_encode($form_settings));
                 if(!empty($form_settings['i18n'])){
+                    error_log('&&&&&& $form_settings.i18n 2:');
+                    error_log(json_encode($form_settings['i18n']));
                     $settings['i18n'] = $form_settings['i18n'];
                 }
-            }
+                error_log('&&&&&& $settings 2.2:');
+                error_log(json_encode($settings));
+            // tmp }
+            error_log('&&&&&& save_form_meta(2)');
             self::save_form_meta(
                 array(
                     'version'=>$version,
@@ -2273,8 +2288,11 @@ class SUPER_Ajax {
         }
     }
     public static function save_form_meta($x) {
+        error_log('save_form_meta()');
         extract($x);
         if($new===true){
+            error_log('@@@ save_form_meta() $settings(1):');
+            error_log(json_encode($settings));
             add_post_meta( $form_id, '_super_version', $version ); 
             add_post_meta( $form_id, '_super_form_settings', $settings );
             add_post_meta( $form_id, '_super_elements', $elements );
@@ -2289,6 +2307,8 @@ class SUPER_Ajax {
             SUPER_Common::save_form_stripe_settings($stripe, $form_id);
         }else{
             if($action==='super_save_form'){
+                error_log('@@@ save_form_meta() $settings(2):');
+                error_log(json_encode($settings));
                 update_post_meta( $form_id, '_super_version', SUPER_VERSION );
                 update_post_meta( $form_id, '_super_form_settings', $settings );
                 update_post_meta( $form_id, '_super_elements', $elements );
@@ -2304,6 +2324,8 @@ class SUPER_Ajax {
             }
             if($action==='super_import_single_form'){
                 update_post_meta( $form_id, '_super_version', $version );
+                error_log('@@@ save_form_meta() $settings(3):');
+                error_log(json_encode($settings));
                 if(!empty($settings)) update_post_meta( $form_id, '_super_form_settings', $settings );
                 if(!empty($elements)) update_post_meta( $form_id, '_super_elements', $elements );
                 error_log('save_form_triggers(6)');
@@ -2326,6 +2348,7 @@ class SUPER_Ajax {
                 );
                 $backup_id = wp_insert_post($form);
                 //$backup_id = SUPER_Common::wp_insert_post_fast($form);
+                error_log('&&&&&& save_form_meta(3)');
                 self::save_form_meta(
                     array(
                         'title'=>$title,

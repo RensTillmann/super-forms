@@ -139,6 +139,7 @@ SUPER.after_form_fully_loaded = function(args){
                     var $i18n = sessionStorage.getItem('sf_'+formId+'_i18n');
                     if(args.form.querySelector('.super-i18n-switcher li[data-value="'+$i18n+'"]')){
                         SUPER.switched_language = true;
+                        debugger;
                         args.form.dataset.i18n = $i18n;
                         args.form.querySelector('.super-i18n-switcher li[data-value="'+$i18n+'"]').click();
                         jQuery(args.form).fadeIn(500, function(){

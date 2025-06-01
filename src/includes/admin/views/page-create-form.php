@@ -115,6 +115,9 @@
                 }
                 $tabs = array(
                     'builder' => esc_html__( 'Builder', 'super-forms' ),
+                    'emails' => esc_html__( 'Emails', 'super-forms' ),
+                    'settings' => esc_html__( 'Settings', 'super-forms' ),
+                    'theme' => esc_html__( 'Theme', 'super-forms' ),
                     'translations' => esc_html__( 'Translations', 'super-forms' ),
                     'secrets' => esc_html__( 'Secrets', 'super-forms' ),
                     'triggers' => esc_html__( 'Triggers', 'super-forms' )
@@ -136,9 +139,12 @@
                         echo '<div class="super-tab-content super-tab-'.$k . ($current_tab==$k ? ' super-active' : '') . '">';
                         // Actions:
                         // super_create_form_`builder`_tab
-                        // super_create_form_`code`_tab
+                        // super_create_form_`emails`_tab
+                        // super_create_form_`settings`_tab
+                        // super_create_form_`theme`_tab
                         // super_create_form_`translations`_tab
                         // super_create_form_`triggers`_tab
+                        // super_create_form_`code`_tab
                         //error_log('stripe1: '.json_encode($stripe));
                         //error_log('pdf1: '.json_encode($pdf));
                         do_action( 'super_create_form_' . $k . '_tab', array( 

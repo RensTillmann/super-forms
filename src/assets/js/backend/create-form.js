@@ -104,7 +104,6 @@
             }
         },
         getTabFieldValue: function(el,tab){
-            debugger;
             var value = el.value;
             if(!el.type) alert('not a field, might want to fix/check the create-form.js code...');
             if(value === true) return 'true';
@@ -467,15 +466,10 @@
             var tab = el.closest('.super-tab-content');
             var slug = tab.className.replace('super-active', '').replace('super-tab-content', '').replace('super-tab-', '').split(' ').join('');
             // Check how many translatable fields there are
-            //var translatableFields = tab.querySelectorAll('.sfui-i18n [name]');
             var field = el;
             var fieldName = field.name || field.getAttribute('name') || 'unknown';
-            //var fieldValue = SUPER.ui.getTabFieldValue(field, tab);
-            if(i18n!=='' && fieldName==='subject') debugger;
-            if(fieldName==='i18n') debugger;
             var translatable = field.nextElementSibling && field.nextElementSibling.className === 'sfui-original-i18n-value';
             if(i18n && i18n !== '' && translatable){
-                debugger;
                 var { keyPath, i18nField } = SUPER.ui.getKeyPath(field, tab);
                 console.log('>>> keyPath:', keyPath);
 
@@ -606,8 +600,6 @@
                 // Assign the parsed JSON value to the final i18n object
                 try {
                     debugger;
-                    debugger;
-                    debugger;
                     current['i18n'] = JSON.parse(i18nField.value);
                     console.log('✅ Assigned i18n into SUPER.ui.settings:', current['i18n']);
                 } catch (e) {
@@ -615,7 +607,6 @@
                 }
 
             }
-            debugger;
             // First get the field value
             var value = el.value;
             var type = el.type;
@@ -712,7 +703,6 @@
             //     // tmp translatableFields.forEach(field => {
             //     // tmp     var keyPath = SUPER.ui.getKeyPath(field, tab);
             //     // tmp     if(keyPath[0] === 'triggers[]'){
-            //     // tmp         debugger;
             //     // tmp         var tmpKey = keyPath[0].replace('[]','');
             //     // tmp         var dataRParent = field.closest('[data-r="' + tmpKey + '"]');
             //     // tmp         
@@ -915,9 +905,7 @@
             //     // tmp disabled        }
             //     // tmp disabled    });
 
-            //     // tmp disabled    //debugger;
             //     // tmp disabled    if(objCompare[lastKey]===value){
-            //     // tmp disabled        //debugger;
             //     // tmp disabled        // When this value equals the on from the main language delete it
             //     // tmp disabled        if(obj[lastKey]){
             //     // tmp disabled            delete obj[lastKey];
@@ -1263,9 +1251,6 @@
                 xhttp.send(params);
             },
             getTranslatedValue: function(el, i18n_data, i18n, tab){
-                if(tab.className.indexOf('triggers')!==-1){
-                    //debugger;
-                }
                 var field = el;
                 var keyPath = [];
                 var parent = field.parentElement;
@@ -1396,8 +1381,14 @@
     SUPER.update_form_elements = function(string){
         document.querySelector('.super-raw-code-form-elements textarea').value = SUPER.get_form_elements(string);
     };
+    SUPER.update_emails_settings = function(string){
+        document.querySelector('.super-raw-code-emails-settings textarea').value = SUPER.get_emails_settings(string);
+    };
     SUPER.update_form_settings = function(string, el){
         document.querySelector('.super-raw-code-form-settings textarea').value = SUPER.get_form_settings(string, el);
+    };
+    SUPER.update_theme_settings = function(string){
+        document.querySelector('.super-raw-code-theme-settings textarea').value = SUPER.get_theme_settings(string);
     };
     SUPER.update_trigger_settings = function(string){
         document.querySelector('.super-raw-code-trigger-settings textarea').value = SUPER.get_trigger_settings(string);
@@ -1436,6 +1427,7 @@
         return $elements;
     };
     SUPER.get_form_settings = function(string, el){
+        debugger;
         if(typeof string === 'undefined') string = false;
         var specificTab = false;
         if(el){
@@ -1615,7 +1607,6 @@
         }
     };
     SUPER.get_tab_settings = function(settings, slug, tab, data, returnData){
-        if(slug==='triggers') debugger;
         if(typeof returnData === 'undefined') returnData = false;
         var nodes, i, i18n_data = null, field, fieldName, newField, mainLanguageValue,
         i18n = document.querySelector('.super-create-form').dataset.i18n;
@@ -1635,7 +1626,6 @@
                     fieldName = field.name;
                     //if(fieldName==='filename') debugger;
                     //if(fieldName==='subject') debugger;
-                    if(fieldName==='theme_ui_checkbox_inner') debugger;
                     if(fieldName==='i18n') continue;
                     console.log('>>> fieldName:', fieldName);
                     var { keyPath, i18nField } = SUPER.ui.getKeyPath(field, tab);
@@ -1644,8 +1634,6 @@
                     // Skip if already exists
                     if (nodes[i].nextElementSibling && nodes[i].nextElementSibling.className === 'sfui-original-i18n-value') {
                         mainLanguageValue = nodes[i].nextElementSibling.value;
-                        debugger;
-                        //continue;
                     }else{
                         var fieldValue = SUPER.ui.getTabFieldValue(field, tab);
                         console.log('>>> fieldValue:', fieldValue);
@@ -1697,11 +1685,6 @@
                                 // If no intersection found, current remains as the root i18n data
                                 current = i18nData;
                             }
-                            // Get the current language code
-                            debugger;
-                            //var currentLanguage = document.querySelector('.super-create-form').dataset.i18n;
-                            //var currentLanguage = SUPER.ui.i18n.lastLanguage;
-                            
                             // Now look for the fieldName in the current object
                             if (current && typeof current === 'object' && current[fieldName]) {
                                 var translatedValue = current[fieldName];
@@ -1840,9 +1823,6 @@
         nodes = tab.querySelectorAll('.sfui-i18n [name]');
         SUPER.add_country_flags(i18n, flag, nodes);
         if(SUPER.ui.i18n.translating) {
-            debugger;
-            debugger;
-            debugger;
             for (i = 0; i < nodes.length; i++) {
                 // Skip if already exists
                 if (nodes[i].nextElementSibling && nodes[i].nextElementSibling.className === 'sfui-original-i18n-value') {
@@ -1851,8 +1831,6 @@
                 if (nodes[i].type === 'textarea') {
                     if (tinymce.get(nodes[i].id)) {
                         var value = tinymce.get(nodes[i].id).getContent();
-                        //debugger;
-                        //SUPER.ui.updateSettings(null, nodes[i]);
                     } else {
                         var value = nodes[i].value;
                     }
@@ -2042,9 +2020,6 @@
                     // tmp     }
                     // tmp }
                 } else {
-                    debugger;
-                    debugger;
-                    debugger;
                     var value = nodes[i].value;
                     var type = nodes[i].type;
                     k = nodes[i].name.split('.').pop();
@@ -2054,12 +2029,9 @@
                     if (value === false) value = "false";
                     if (nodes[i].tagName === 'TEXTAREA' && tinymce.get(nodes[i].id)) {
                         value = tinymce.get(nodes[i].id).getContent();
-                        //debugger;
-                        //SUPER.ui.updateSettings(null, nodes[i]);
                     }
                     if (!data[k]) {
                         if(nodes[i].name === 'i18n' && value!==''){
-                            debugger;
                             try {
                                 value = JSON.parse(value);
                             }
@@ -2068,35 +2040,6 @@
                                 value = '{}';
                             }
                         }
-                        // tmp if (nodes[i].name === 'i18n') {
-                        // tmp     debugger;
-                        // tmp     debugger;
-                        // tmp     debugger;
-                        // tmp     if (value === '' || value === '[]') {
-                        // tmp         value = '{}';
-                        // tmp     } else {
-                        // tmp         try {
-                        // tmp             value = JSON.parse(value);
-                        // tmp             var changed = false;
-                        // tmp             Object.keys(value).forEach(function(key) {
-                        // tmp                 if (Array.isArray(value[key])) {
-                        // tmp                     value[key] = {};
-                        // tmp                     changed = true;
-                        // tmp                 }
-                        // tmp             });
-                        // tmp             if (changed) {
-                        // tmp                 value = JSON.stringify(value, undefined, 4);
-                        // tmp             }
-                        // tmp         }
-                        // tmp         catch (e) {
-                        // tmp             console.error(e);
-                        // tmp             value = '{}';
-                        // tmp         }
-                        // tmp     }
-                        // tmp     if (typeof value !== 'object') {
-                        // tmp         value = JSON.parse(value, undefined, 4);
-                        // tmp     }
-                        // tmp }
                         data[k] = value;
                     }
                 }
@@ -2104,7 +2047,6 @@
             }
         }
         if (returnObj) {
-            //debugger;
             return data;
         }
     
@@ -2189,7 +2131,6 @@
             }
         }
         // Return tab specific settings
-        //debugger;
         return data;
         //settings['_' + slug] = data;
         //return settings;
@@ -2446,8 +2387,27 @@
 //        settings['_'+slug] = data;
 //        return settings;
 //    }
+    SUPER.get_emails_settings = function(string, returnData){
+        if(typeof string === 'undefined') string = false;
+        if(typeof returnData === 'undefined') returnData = false;
+        var $s = SUPER.get_tab_settings({}, 'emails', undefined, undefined, returnData);
+        if(string===true) {
+            if(!isEmpty($s)) return JSON.stringify($s, undefined, 4);
+            return '';
+        }
+        return $s;
+    };
+    SUPER.get_theme_settings = function(string, returnData){
+        if(typeof string === 'undefined') string = false;
+        if(typeof returnData === 'undefined') returnData = false;
+        var $s = SUPER.get_tab_settings({}, 'theme', undefined, undefined, returnData);
+        if(string===true) {
+            if(!isEmpty($s)) return JSON.stringify($s, undefined, 4);
+            return '';
+        }
+        return $s;
+    };
     SUPER.get_trigger_settings = function(string, returnData){
-        debugger;
         if(typeof string === 'undefined') string = false;
         if(typeof returnData === 'undefined') returnData = false;
         var $s = SUPER.get_tab_settings({}, 'triggers', undefined, undefined, returnData);
@@ -2717,7 +2677,14 @@
     // Regenerate Element Final Output (inner)
     SUPER.regenerate_element_inner = function($history, $whatToUpdate){
         if (typeof $history === 'undefined') $history = true;
-        if (typeof $whatToUpdate === 'undefined') $whatToUpdate = ["form_settings", "trigger_settings", "listings_settings", "pdf_settings", "stripe_settings", "translation_settings"];
+        if (typeof $whatToUpdate === 'undefined') $whatToUpdate = [
+            "form_settings",
+            "trigger_settings",
+            "listings_settings",
+            "pdf_settings",
+            "stripe_settings",
+            "translation_settings"
+        ];
         var $elements, $old_code;
         SUPER.set_session_data('_super_builder_has_unsaved_changes', 'true');
         $old_code = document.querySelector('.super-raw-code-form-elements > textarea').value;
@@ -3340,7 +3307,6 @@
         params.action = 'super_save_form';
         params.form_id = $('.super-create-form input[name="form_id"]').val();
         params.title = $('.super-create-form input[name="title"]').val();
-        debugger;
         if(!super_create_form_i18n.version){
             params.formElements = document.querySelector('.super-raw-code-form-elements textarea').value;
             params.formSettings = document.querySelector('.super-raw-code-form-settings textarea').value;
@@ -3370,8 +3336,8 @@
         }
         params.localSecrets = localSecrets;
         params.globalSecrets = globalSecrets;
-        debugger;
         if(super_create_form_i18n.version){
+            debugger;
             params.form_data = {
                 elements: document.querySelector('.super-raw-code-form-elements textarea').value,
                 settings: document.querySelector('.super-raw-code-form-settings textarea').value,
@@ -3715,6 +3681,8 @@
 
         SUPER.initTinyMCE('.sfui-textarea-tinymce');
         document.querySelector('.super-raw-code-form-settings textarea').value = SUPER.get_form_settings(true);
+        document.querySelector('.super-raw-code-emails-settings textarea').value = SUPER.get_emails_settings(true);
+        document.querySelector('.super-raw-code-theme-settings textarea').value = SUPER.get_theme_settings(true);
         document.querySelector('.super-raw-code-trigger-settings textarea').value = SUPER.get_trigger_settings(true);
         document.querySelector('.super-raw-code-woocommerce-settings textarea').value = SUPER.get_woocommerce_settings(true);
         document.querySelector('.super-raw-code-listings-settings textarea').value = SUPER.get_listings_settings(true);
@@ -3988,6 +3956,8 @@
             // If code tab, update translation code
             if($this.hasClass('super-tab-code')){
                 document.querySelector('.super-raw-code-form-settings textarea').value = SUPER.get_form_settings(true);
+                document.querySelector('.super-raw-code-emails-settings textarea').value = SUPER.get_emails_settings(true);
+                document.querySelector('.super-raw-code-theme-settings textarea').value = SUPER.get_theme_settings(true);
                 document.querySelector('.super-raw-code-trigger-settings textarea').value = SUPER.get_trigger_settings(true);
                 document.querySelector('.super-raw-code-woocommerce-settings textarea').value = SUPER.get_woocommerce_settings(true);
                 document.querySelector('.super-raw-code-listings-settings textarea').value = SUPER.get_listings_settings(true);
@@ -4859,7 +4829,6 @@
         };
         // Retrieve all settings and their values
         SUPER.update_element_get_fields = function () {
-            debugger;
             var i, x, y,
                 nodes,
                 radios,
@@ -4952,7 +4921,6 @@
         };
         // Update settings to element-data
         SUPER.update_element_data = function ($button) {
-            debugger;
             // Before updating, check for errors
             SUPER.update_element_check_errors();
             // Add loading state to update button
@@ -4967,7 +4935,6 @@
         };
         // Push updates for saving (no need to press Update button)
         SUPER.update_element_push_updates = function () {
-            debugger;
             // Retrieve all settings and their values
             var $fields = SUPER.update_element_get_fields();
             // Update the currently editing field element data
@@ -4975,7 +4942,6 @@
         };
 
         $doc.on('click', '.super-element-settings .super-update-element', function () {
-            debugger;
             // Update element data (json code)
             // This json code holds all the settings for this specific element
             var $button = $(this);
@@ -5475,6 +5441,8 @@
                     form_id: $('.super-create-form input[name="form_id"]').val(),
                     formElements: document.querySelector('.super-raw-code-form-elements > textarea').value,
                     formSettings: SUPER.get_form_settings(),
+                    emailsSettings: SUPER.get_emails_settings(),
+                    themeSettings: SUPER.get_theme_settings(),
                     triggerSettings: SUPER.get_trigger_settings(),
                     woocommerceSettings: SUPER.get_woocommerce_settings(),
                     listingsSettings: SUPER.get_listings_settings(),

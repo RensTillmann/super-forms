@@ -45,7 +45,7 @@ if(!class_exists('SUPER_Forms')) :
         */
         public $version = '6.4.102';
         public $slug = 'super-forms';
-        public $apiUrl = 'https://api.super-forms.com/';
+        public $apiUrl = 'https://api.dev.super-forms.com/';
         public $apiVersion = 'v1';
         
         /**
@@ -1924,6 +1924,9 @@ if(!class_exists('SUPER_Forms')) :
 
             if($current_screen->id==='super-forms_page_super_create_form'){
                 add_action( 'super_create_form_builder_tab', array( 'SUPER_Pages', 'builder_tab' ), 10, 1 );
+                add_action( 'super_create_form_emails_tab', array( 'SUPER_Pages', 'emails_tab' ), 10, 1 );
+                //add_action( 'super_create_form_settings_tab', array( 'SUPER_Pages', 'settings_tab' ), 10, 1 );
+                //add_action( 'super_create_form_theme_tab', array( 'SUPER_Pages', 'theme_tab' ), 10, 1 );
                 add_action( 'super_create_form_code_tab', array( 'SUPER_Pages', 'code_tab' ), 10, 1 );
                 add_action( 'super_create_form_secrets_tab', array( 'SUPER_Pages', 'secrets_tab' ), 10, 1 );
                 add_action( 'super_create_form_translations_tab', array( 'SUPER_Pages', 'translations_tab' ), 10, 1 );
@@ -2561,6 +2564,7 @@ if(!class_exists('SUPER_Forms')) :
                             'override_newer_version_found' => esc_html__( "This form was changed in a different location while you where making changes here. Do you wish to override the other version?\n\n(a back-up of the other version will be available in case you need to revert back)", 'super-forms' ),
                             'confirm_deletion' => esc_html__( 'Please confirm deletion!', 'super-forms' ),
                             'confirm_import' => esc_html__( "Please confirm import!\nThis will override your current progress!", 'super-forms' ),
+                            'save_form_error' => esc_html__( 'Something went wrong while saving the form.', 'super-forms' ),
                             'export_form_error' => esc_html__( 'Something went wrong while exporting form data.', 'super-forms' ),
                             'import_form_error' => esc_html__( 'Something went wrong while importing form data.', 'super-forms' ),
                             'import_form_select_option' => esc_html__( 'Please select what you want to import!', 'super-forms' ),
@@ -3103,7 +3107,9 @@ if(!class_exists('SUPER_Forms')) :
                 $wpdb->query($sql_query);
             }
 
+            error_log('@@@get_form_settings(1)');
             $form_settings = SUPER_Common::get_form_settings($id);
+            error_log(json_encode($form_settings));
             add_post_meta( $new_id, '_super_form_settings', $form_settings );
 
             $elements = get_post_meta( $id, '_super_elements', true );
