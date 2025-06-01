@@ -2,7 +2,7 @@
 
 ## File Upload Element
 
-The `File Upload` element is very flexible and has many options to fullfill any usecase. Some of the features are:
+The `File Upload` element is very flexible and has many options to fulfill any usecase. Some of the features are:
 
 * Easily define allowed extensions e.g: `jpg|jpeg|png|gif|pdf`
 * Set a maximum file size in `MB`

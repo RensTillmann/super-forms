@@ -12,7 +12,7 @@
 - [Execute custom JS when a column becomes conditionally visible](#execute-custom-js-when-a-column-becomes-conditionally-visible)
 - [Toolset Plugin: Update comma separated string to Array for meta data saved via Front-end Posting](#toolset-plugin-update-comma-separated-string-to-array-for-meta-data-saved-via-front-end-posting)
 - [Toolset Plugin: Update file ID to file URL for meta data saved via Front-end Posting](#toolset-plugin-update-file-id-to-file-url-for-meta-data-saved-via-front-end-posting)
-- [Delete uploaded files after email has been send](#delete-uploaded-files-after-email-has-been-send)
+- [Delete uploaded files after email has been sent](#delete-uploaded-files-after-email-has-been-sent)
 - [Increase Cookie lifetime for client data such as form progression](#increase-cookie-lifetime-for-client-data-such-as-form-progression)
 - [Altering cookie secure and httponly parameters](#altering-cookie-secure-and-httponly-parameters)
 - [Define fake cronjob to clear old client data if cronjob is disabled on your server](#define-fake-cronjob-to-clear-old-client-data-if-cronjob-is-disabled-on-your-server)
@@ -380,7 +380,7 @@ function f4d_convert_file_id_to_url( $attr ) {
 add_action('super_front_end_posting_after_insert_post_action', 'f4d_convert_file_id_to_url', 10, 1);
 ```
 
-## Delete uploaded files after email has been send
+## Delete uploaded files after email has been sent
 
 ?> **NOTE:** This code should no longer be used if you wish to delete all the files, since you can do that via `Super Forms > Settings > File Upload Settings`.
 
