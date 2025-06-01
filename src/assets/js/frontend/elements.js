@@ -2824,6 +2824,7 @@
                                     }
                                     $form.find('form').html(data.html);
                                     $form.data('i18n', $i18n);
+                                    debugger;
                                     $form[0].dataset.i18n = $i18n;
                                     // Store the translation language code in sessionStorage
                                     sessionStorage.setItem('sf_'+$form_id+'_i18n', $i18n);

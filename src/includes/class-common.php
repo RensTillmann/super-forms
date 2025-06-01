@@ -221,13 +221,13 @@ class SUPER_Common {
         // Merge translated settings
         //error_log('merge translated settings for WOOCOMMERCE');
         if(!empty($s['i18n']) && !empty($s['i18n'][SUPER_Forms()->i18n])){
-            //error_log('before merging');
-            //error_log(json_encode($s));
+            error_log('before merging');
+            error_log(json_encode($s));
             $translatedSettings = $s['i18n'][SUPER_Forms()->i18n];
             $s = self::mergeTranslatedSettings($s, $translatedSettings);
             unset($s['i18n']);
-            //error_log('after merging');
-            //error_log(json_encode($s));
+            error_log('after merging');
+            error_log(json_encode($s));
         }
         SUPER_Forms()->woocommerce_settings = $s;
         return $s;
@@ -246,13 +246,13 @@ class SUPER_Common {
         // Merge translated settings
         //error_log('merge translated settings for LISTINGS');
         if(!empty($s['i18n']) && !empty($s['i18n'][SUPER_Forms()->i18n])){
-            //error_log('before merging');
-            //error_log(json_encode($s));
+            error_log('before merging');
+            error_log(json_encode($s));
             $translatedSettings = $s['i18n'][SUPER_Forms()->i18n];
             $s = self::mergeTranslatedSettings($s, $translatedSettings);
             unset($s['i18n']);
-            //error_log('after merging');
-            //error_log(json_encode($s));
+            error_log('after merging');
+            error_log(json_encode($s));
         }
         SUPER_Forms()->listings_settings = $s;
         return $s;
@@ -272,13 +272,13 @@ class SUPER_Common {
         // Merge translated settings
         //error_log('merge translated settings for PDF');
         if(!empty($s['i18n']) && !empty($s['i18n'][SUPER_Forms()->i18n])){
-            //error_log('before merging');
-            //error_log(json_encode($s));
+            error_log('before merging');
+            error_log(json_encode($s));
             $translatedSettings = $s['i18n'][SUPER_Forms()->i18n];
             $s = self::mergeTranslatedSettings($s, $translatedSettings);
             unset($s['i18n']);
-            //error_log('after merging');
-            //error_log(json_encode($s));
+            error_log('after merging');
+            error_log(json_encode($s));
         }
         SUPER_Forms()->pdf_settings = $s;
         return $s;
@@ -297,13 +297,13 @@ class SUPER_Common {
         // Merge translated settings
         //error_log('merge translated settings for STRIPE');
         if(!empty($s['i18n']) && !empty($s['i18n'][SUPER_Forms()->i18n])){
-            //error_log('before merging');
-            //error_log(json_encode($s));
+            error_log('before merging');
+            error_log(json_encode($s));
             $translatedSettings = $s['i18n'][SUPER_Forms()->i18n];
             $s = self::mergeTranslatedSettings($s, $translatedSettings);
             unset($s['i18n']);
-            //error_log('after merging');
-            //error_log(json_encode($s));
+            error_log('after merging');
+            error_log(json_encode($s));
         }
         SUPER_Forms()->stripe_settings = $s;
         return $s;
@@ -1555,13 +1555,14 @@ class SUPER_Common {
      */
     public static function get_form_settings($form_id, $renew=false){
         if($renew===false && isset(SUPER_Forms()->form_settings)){
-            //error_log('we already have the form setings, return it');
+            error_log('we already have the form setings, return it');
+            error_log(json_encode(SUPER_Forms()->form_settings));
             return SUPER_Forms()->form_settings;
         }
         $form_id = absint($form_id);
         if(!class_exists('SUPER_Settings'))  require_once('class-settings.php'); 
         $form_settings = get_post_meta($form_id, '_super_form_settings', true);
-        error_log('form_settings: '.json_encode($form_settings));
+        error_log('@@@ get_form_settings() $form_settings: '.json_encode($form_settings));
         if(!$form_settings) $form_settings = array();
         $global_settings = self::get_global_settings();
         $defaults = SUPER_Settings::get_defaults($global_settings);
@@ -2539,6 +2540,8 @@ class SUPER_Common {
             unset($s['send']);
             unset($s['confirm']);
             //error_log('after cleanup: '. json_encode($s));
+            error_log('@@@get_form_settings(2)');
+            error_log(json_encode($s));
             update_post_meta($form_id, '_super_form_settings', $s);
             update_post_meta($form_id, '_super_version', SUPER_VERSION);
 
@@ -2553,7 +2556,11 @@ class SUPER_Common {
         $s['_pdf'] = self::get_form_pdf_settings($form_id);
         $s['_stripe'] = self::get_form_stripe_settings($form_id);
 
+        error_log('@@@SUPER_Forms()->form_settings(1)');
+        error_log(json_encode(SUPER_Forms()->form_settings));
         SUPER_Forms()->form_settings = apply_filters( 'super_form_settings_filter', $s, array( 'id'=>$form_id ) );
+        error_log('@@@SUPER_Forms()->form_settings(2)');
+        error_log(json_encode(SUPER_Forms()->form_settings));
         return SUPER_Forms()->form_settings;
     }
 

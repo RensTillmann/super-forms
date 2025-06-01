@@ -196,10 +196,24 @@ class SUPER_Pages {
             echo '<textarea></textarea>';
         echo '</div>';
 
+        echo '<div class="super-raw-code-emails-settings">';
+            echo '<p class="sfui-notice sfui-yellow">';
+            echo sprintf( esc_html__( '%sEmails settings:%s', 'super-forms' ), '<strong>', '</strong>' );
+            echo '</p>';
+            echo '<textarea></textarea>';
+        echo '</div>';
+
         echo '<div class="super-raw-code-form-settings">';
             echo '<p class="sfui-notice sfui-yellow">';
             echo sprintf( esc_html__( '%sForm settings:%s', 'super-forms' ), '<strong>', '</strong>' );
             echo '<label class="super-retain-underlying-global-values"><input checked="checked" type="checkbox" name="retain_underlying_global_values" /><span>' . esc_html__( 'Retain underlying global value (recommended when exporting to other sites)', 'super-forms' ) . '</span></label>';
+            echo '</p>';
+            echo '<textarea></textarea>';
+        echo '</div>';
+        
+        echo '<div class="super-raw-code-theme-settings">';
+            echo '<p class="sfui-notice sfui-yellow">';
+            echo sprintf( esc_html__( '%sTheme settings:%s', 'super-forms' ), '<strong>', '</strong>' );
             echo '</p>';
             echo '<textarea></textarea>';
         echo '</div>';
@@ -438,6 +452,613 @@ class SUPER_Pages {
         </div>
         <?php
     }
+    public static function emails_tab($atts){
+        $form_id = $atts['form_id'];
+        $version = $atts['version'];
+        $settings = $atts['settings'];
+        $s = $atts['settings'];
+        // Get emails settings
+        $emails = (isset($s['_emails']) ? $s['_emails'] : array());
+        $logic = array( '==' => '== Equal', '!=' => '!= Not equal', '??' => '?? Contains', '!!' => '!! Not contains', '>'  => '&gt; Greater than', '<'  => '&lt;  Less than', '>=' => '&gt;= Greater than or equal to', '<=' => '&lt;= Less than or equal');
+        $nodes = array(
+            array(
+                'notice' => 'hint', // hint/info
+                'content' => '<strong>'.esc_html__('Note', 'super-forms').':</strong> ' . esc_html__('Make sure to define the correct From E-mail header so that it matches your domain name. If you want to send more E-mails you can define them under the [Triggers] tab.', 'super-forms')
+            ),
+            array(
+                'name' => 'emails',
+                'type' => 'repeater',
+                'nodes' => array( // repeater item
+                    array(
+                        //'width_auto' => false, // 'sfui-width-auto'
+                        'padding' => false,
+                        'wrap' => false,
+                        'group' => true, // sfui-setting-group
+                        'group_name' => '',
+                        'inline' => true, // sfui-inline
+                        //'vertical' => true, // sfui-vertical
+                        //'filter' => 'event;!',
+                        'nodes' => array(
+                            array(
+                                'width_auto' => true, // 'sfui-width-auto'
+                                'name' => 'enabled',
+                                'title' => 'Enabled',
+                                'type' => 'checkbox',
+                                'default' => ''
+                            ),
+                            array(
+                                'name' => 'description',
+                                'subline' => 'Describe what kind of E-mail this is e.g. Notify customer or Notify site owner',
+                                'type' => 'text',
+                                'default' => 'Notification E-mail',
+                                'placeholder' => 'e.g. E-mail customer that their request was submitted'
+                            )
+                        )
+                    ),
+                    array(
+                        'width_auto' => true, // 'sfui-width-auto'
+                        'wrap' => false,
+                        'group' => true, // sfui-setting-group
+                        'group_name' => 'conditions',
+                        'inline' => true, // sfui-inline
+                        //'vertical' => true, // sfui-vertical
+                        'filter' => 'enabled;true',
+                        'nodes' => array(
+                            array(
+                                'name' => 'enabled',
+                                'type' => 'checkbox',
+                                'default' => 'false',
+                                'title' => esc_html__( 'Only send this E-mail when below condition is met', 'super-forms' ),
+                                'nodes' => array(
+                                    array(
+                                        'padding' => false,
+                                        'sub' => true, // sfui-sub-settings
+                                        //'group' => true, // sfui-setting-group
+                                        'inline' => true, // sfui-inline
+                                        //'vertical' => true, // sfui-vertical
+                                        'filter' => 'conditions.enabled;true',
+                                        'nodes' => array(
+                                            array(
+                                                'name' => 'f1',
+                                                'type' => 'text',
+                                                'default' => '',
+                                                'placeholder' => 'e.g. {tag}',
+                                            ),
+                                            array(
+                                                'name' => 'logic',
+                                                'type' => 'select', // dropdown
+                                                'options' => $logic,
+                                                'default' => '',
+                                            ),
+                                            array(
+                                                'name' => 'f2',
+                                                'type' => 'text',
+                                                'default' => '',
+                                                'placeholder' => 'e.g. true'
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    array(
+                        'wrap' => false,
+                        'group' => true,
+                        'group_name' => 'data',
+                        'vertical' => true,
+                        //'filter' => 'enabled;true',
+                        'nodes' => array(
+                            array(
+                                'toggle' => true,
+                                'title' => esc_html__( 'E-mail headers', 'super-forms' ),
+                                'notice' => 'hint', // hint/info
+                                'content' => sprintf( esc_html__( 'The `From email` should end with %s for E-mails to work. If you are using an email provider (Gmail, Yahoo, Outlook.com, etc) it should be the email address of that account. If you have problems with E-mail delivery you can read this guide on possible solutions: %sEmail delivery problems%s', 'super-forms' ), '<strong style="color:red;">@' . str_replace('www.', '', $_SERVER["SERVER_NAME"]) . '</strong>', '<a class="sf-docs" target="_blank" href="https://docs.super-forms.com/common-problems/index/email-delivery-problems">', '</a>' ),
+                                'nodes' => array(
+                                    array(
+                                        'name' => 'to',
+                                        'title' => esc_html__( 'To', 'super-forms' ),
+                                        'subline' => esc_html__( 'Where the E-mail will be delivered to e.g. {email}', 'super-forms' ),
+                                        'type' => 'text',
+                                        'default' => '{email}',
+                                        'reset' => true,
+                                        'i18n' => true
+                                    ),
+                                    array(
+                                        'name' => 'from_email',
+                                        'title' => esc_html__( 'From email', 'super-forms' ),
+                                        'subline' => sprintf( esc_html__( 'Your company E-mail address e.g. info%s', 'super-forms' ), '<strong style="color:red;">@' . str_replace('www.', '', $_SERVER["SERVER_NAME"]) . '</strong>' ),
+                                        'type' => 'text',
+                                        'default' => 'no-reply@'.str_replace('www.', '', $_SERVER["SERVER_NAME"]),
+                                        'reset' => true,
+                                        'i18n' => true
+                                    ),
+                                    array(
+                                        'name' => 'from_name',
+                                        'title' => esc_html__( 'From name', 'super-forms' ),
+                                        'subline' => esc_html__( 'Your company name e.g. Starbucks', 'super-forms' ),
+                                        'type' => 'text',
+                                        'default' => '{option_blogname}',
+                                        'reset' => true,
+                                        'i18n' => true
+                                    ),
+                                    array(
+                                        'wrap' => false,
+                                        'width_full' => true,
+                                        'group' => true, 
+                                        'group_name' => 'reply_to',
+                                        'vertical' => true, 
+                                        'nodes' => array(
+                                            array(
+                                                'name' => 'enabled',
+                                                'title' => esc_html__( 'Reply to a different email address (optional)', 'super-forms' ),
+                                                'type' => 'checkbox',
+                                                'default' => 'false'
+                                            ),
+                                            array(
+                                                'wrap' => false,
+                                                'group' => true, 
+                                                'group_name' => '',
+                                                'inline' => true, 
+                                                'padding' => false,
+                                                'filter' => 'reply_to.enabled;true',
+                                                'nodes' => array(
+                                                    array(
+                                                        'name' => 'email',
+                                                        'title' => esc_html__( 'Reply-To email', 'super-forms' ),
+                                                        'subline' => esc_html__( 'The email address to reply to', 'super-forms' ),
+                                                        'type' => 'text',
+                                                        'default' => '',
+                                                        'i18n' => true
+                                                    ),
+                                                    array(
+                                                        'name' => 'name',
+                                                        'title' => esc_html__( 'Reply-To name (optional)', 'super-forms' ),
+                                                        'subline' => esc_html__( 'The name of the person or company', 'super-forms' ),
+                                                        'type' => 'text',
+                                                        'default' => '',
+                                                        'i18n' => true
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    ),
+                                )
+                            ),
+                            array(
+                                'toggle' => true,
+                                'title' => esc_html__( 'E-mail content', 'super-forms' ),
+                                'vertical' => true, // sfui-vertical
+                                'nodes' => array(
+                                    array(
+                                        'name' => 'subject',
+                                        'type' => 'text',
+                                        'default' => esc_html__( 'New question', 'super-forms' ),
+                                        'title' => esc_html__( 'Subject', 'super-forms' ),
+                                        'reset' => true,
+                                        'i18n' => true
+                                    ),
+                                    array(
+                                        'name' => 'body',
+                                        'type' => 'textarea',
+                                        'tinymce' => true,
+                                        'default' => sprintf( esc_html__( "The following information has been sent by the submitter:%sBest regards, %s", 'super-forms' ), '<br /><br />{loop_fields}<br /><br />', '{option_blogname}' ),
+                                        'title' => esc_html__( 'Body', 'super-forms' ),
+                                        'i18n' => true
+                                    ),
+                                    array(
+                                        'name' => 'attachments',
+                                        'title' => esc_html__( 'Attachments', 'super-forms' ),
+                                        'label' => esc_html__( 'Hold Ctrl to add multiple files', 'super-forms' ),
+                                        'type' => 'files', // file
+                                        'default' => '',
+                                        'i18n' => true
+                                    ),
+                                    array(
+                                        'wrap' => false,
+                                        'group' => true,
+                                        'group_name' => 'csv_attachment',
+                                        'vertical' => true,
+                                        'nodes' => array(
+                                            array(
+                                                'toggle' => true,
+                                                'title' => esc_html__( 'CSV Attachment', 'super-forms' ),
+                                                'vertical' => true, // sfui-vertical
+                                                'nodes' => array(
+                                                    array(
+                                                        'name' => 'enabled',
+                                                        'title' => esc_html__( 'Attach a CSV file with the form data', 'super-forms' ),
+                                                        'type' => 'checkbox',
+                                                        'default' => 'false'
+                                                    ),
+                                                    array(
+                                                        'wrap' => false,
+                                                        'group' => true, 
+                                                        'group_name' => '',
+                                                        'vertical' => true,
+                                                        'padding' => false,
+                                                        'filter' => 'csv_attachment.enabled;true',
+                                                        'nodes' => array(
+                                                            array(
+                                                                'name' => 'name',
+                                                                'title' => esc_html__( 'The filename of the attachment', 'super-forms' ),
+                                                                'type' => 'text',
+                                                                'default'=> 'super-csv-attachment',
+                                                                'reset'=>true,
+                                                                'i18n' => true
+                                                            ),
+                                                            array(
+                                                                'name' => 'save_as',
+                                                                'title'=> esc_html__( 'Choose what value to save for checkboxes & radio buttons', 'super-forms' ),
+                                                                'subline'=> esc_html__( 'When editing a field you can change these settings', 'super-forms' ),
+                                                                'type' => 'select', // dropdown
+                                                                'options' => array(
+                                                                    'admin_email_value' => esc_html__( 'Save the admin email value (default)', 'super-forms' ),
+                                                                    'confirm_email_value' => esc_html__( 'Save the confirmation email value', 'super-forms' ),
+                                                                    'entry_value' => esc_html__( 'Save the entry value', 'super-forms' ),
+                                                                ),
+                                                                'default'=>'admin_email_value',
+                                                                'reset'=>true
+                                                            ),
+                                                            array(
+                                                                'name' => 'delimiter',
+                                                                'title'=> esc_html__( 'Custom delimiter', 'super-forms' ),
+                                                                'subline' => esc_html__( 'Set a custom delimiter to separate the values on each row', 'super-forms' ), 
+                                                                'type' => 'text', // dropdown
+                                                                'default'=>',',
+                                                                'reset'=>true
+                                                            ),
+                                                            array(
+                                                                'name' => 'enclosure',
+                                                                'title'=> esc_html__( 'Custom enclosure', 'super-forms' ),
+                                                                'subline' => esc_html__( 'Set a custom enclosure character for values', 'super-forms' ), 
+                                                                'type' => 'text', // dropdown
+                                                                'default'=>'"',
+                                                                'reset'=>true
+                                                            ),
+                                                            array(
+                                                                'name' => 'exclude_fields',
+                                                                'type' => 'repeater',
+                                                                'title'=> esc_html__( 'Exclude fields from CSV file (put each field name on a new line)', 'super-forms' ),
+                                                                'subline'=> esc_html__( 'When saving the CSV these fields will be excluded from the CSV file', 'super-forms' ),
+                                                                'nodes' => array( // repeater item
+                                                                    array(
+                                                                        'name' => 'name',
+                                                                        'subline' => 'Field name',
+                                                                        'type' => 'text',
+                                                                        'default' => '',
+                                                                        'placeholder' => 'e.g. birth_date'
+                                                                    )
+                                                                )
+                                                            )
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    ),
+                                    array(
+                                        'wrap' => false,
+                                        'group' => true,
+                                        'group_name' => 'xml_attachment',
+                                        'vertical' => true,
+                                        'nodes' => array(
+                                            array(
+                                                'toggle' => true,
+                                                'title' => esc_html__( 'XML Attachment', 'super-forms' ),
+                                                'vertical' => true, // sfui-vertical
+                                                'nodes' => array(
+                                                    array(
+                                                        'name' => 'enabled',
+                                                        'title' => esc_html__( 'Attach a XML file with the form data', 'super-forms' ),
+                                                        'type' => 'checkbox',
+                                                        'default' => 'false'
+                                                    ),
+                                                    array(
+                                                        'wrap' => false,
+                                                        'group' => true, 
+                                                        'group_name' => '',
+                                                        'vertical' => true,
+                                                        'padding' => false,
+                                                        'filter' => 'xml_attachment.enabled;true',
+                                                        'nodes' => array(
+                                                            array(
+                                                                'name' => 'name',
+                                                                'title' => esc_html__( 'The filename of the attachment', 'super-forms' ),
+                                                                'type' => 'text',
+                                                                'default'=> 'super-xml-attachment',
+                                                                'reset'=>true,
+                                                                'i18n' => true
+                                                            ),
+                                                            array(
+                                                                'name' => 'content',
+                                                                'title'=> esc_html__( 'The XML content', 'super-forms' ),
+                                                                'subline'=> esc_html__( 'Use {tags} to retrieve form data', 'super-forms' ),
+                                                                'type'=>'textarea', 
+                                                                'default'=> "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<submission>\n<email>{email}</email>\n<name>{name}</name>\n<date>{submission_date}</date>\n<message>{message}</message>\n</submission>",
+                                                                'reset'=>true
+                                                            ),
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
+                            ),
+                            array(
+                                'toggle' => true,
+                                'title' => esc_html__( 'Advanced options', 'super-forms' ),
+                                'vertical' => true, // sfui-vertical
+                                'nodes' => array(
+                                    array(
+                                        'name' => 'loop_open',
+                                        'type' => 'textarea',
+                                        'default' => '<table cellpadding="5">',
+                                        'title' => esc_html__( 'Loop start HTML', 'super-forms' ),
+                                        'subline' => esc_html__( 'If your loop is a table, this should be the table opening tag', 'super-forms' ),                                                                         
+                                        'reset' => true
+                                    ),
+                                    array(
+                                        'name' => 'loop',
+                                        'type' => 'textarea',
+                                        'default' => '<tr><th valign="top" align="right">{loop_label}</th><td>{loop_value}</td></tr>',
+                                        'title' => esc_html__( 'Loop content', 'super-forms' ),
+                                        'subline' => esc_html__( 'The {loop_fields} tag will be replaced with this content. Use {loop_label} and {loop_value} to retrieve the field labels and their values', 'super-forms' ),
+                                        'reset' => true
+                                    ),
+                                    array(
+                                        'name' => 'loop_close',
+                                        'type' => 'textarea',
+                                        'default' => '</table>',
+                                        'title' => esc_html__( 'Loop end HTML', 'super-forms' ),
+                                        'subline' => esc_html__( 'If your loop is a table, this should be the table closing tag', 'super-forms' ),
+                                        'reset' => true
+                                    ),
+                                    array(
+                                        'name' => 'exclude_empty',
+                                        'type' => 'checkbox',
+                                        'default' => 'true',
+                                        'title' => esc_html__( 'Exclude empty values from {loop_fieds}', 'super-forms' ),
+                                        'subline' => esc_html__( 'This will strip out any fields that where not filled out by the user', 'super-forms' )
+                                    ),
+                                    array(
+                                        'wrap' => false,
+                                        'padding' => false,
+                                        'group' => true, // sfui-setting-group
+                                        'group_name' => 'exclude',
+                                        'vertical' => true, // sfui-vertical
+                                        'nodes' => array(
+                                            array(
+                                                'name' => 'enabled',
+                                                'type' => 'checkbox',
+                                                'default' => 'true',
+                                                'title' => 'Exclude specific fields from the {loop_fieds}'
+                                            ),
+                                            array(
+                                                'name' => 'exclude_fields',
+                                                'type' => 'repeater',
+                                                'filter' => 'exclude.enabled;true',
+                                                'nodes' => array( // repeater item
+                                                    array(
+                                                        'name' => 'name',
+                                                        'subline' => 'Field name',
+                                                        'type' => 'text',
+                                                        'default' => '',
+                                                        'placeholder' => 'e.g. birth_date'
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    ),
+                                    array(
+                                        'name' => 'rtl',
+                                        'type' => 'checkbox',
+                                        'default' => 'false',
+                                        'title' => esc_html__( 'Enable RTL E-mail layout', 'super-forms' ),
+                                        'subline' => esc_html__( 'This will apply a right to left layout for your emails.', 'super-forms' ),
+                                        'accepted_values' => array(
+                                            array('v'=>'true'), 
+                                            array('v'=>'false')
+                                        ),
+                                        'i18n' => true
+                                    ),
+                                    array(
+                                        'wrap' => false,
+                                        'padding' => false,
+                                        'group' => true, // sfui-setting-group
+                                        'group_name' => 'headers',
+                                        'vertical' => true, // sfui-vertical
+                                        //'filter' => '',
+                                        'nodes' => array(
+                                            array(
+                                                'name' => 'enabled',
+                                                'type' => 'checkbox',
+                                                'default' => 'false',
+                                                'title' => esc_html__( 'Define custom E-mail headers', 'super-forms' )
+                                            ),
+                                            array(
+                                                'name' => 'headers',
+                                                'inline' => true, // sfui-vertical
+                                                'type' => 'repeater',
+                                                'filter' => 'headers.enabled;true',
+                                                'nodes' => array( // repeater item
+                                                    array(
+                                                        'name' => 'name',
+                                                        'subline' => 'Header name/key',
+                                                        'type' => 'text',
+                                                        'default' => '',
+                                                        'placeholder' => 'e.g. X-Custom-Header'
+                                                    ),
+                                                    array(
+                                                        'vertical' => true,
+                                                        'name' => 'value',
+                                                        'subline' => 'Header value',
+                                                        'type' => 'text',
+                                                        'placeholder' => 'e.g. foobar'
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    ),
+                                    array(
+                                        'name' => 'cc',
+                                        'title' => esc_html__( 'CC', 'super-forms' ),
+                                        'subline' => esc_html__( 'Send copy to following address(es)', 'super-forms' ),
+                                        'type' => 'text',
+                                        'default' => '',
+                                    ),
+                                    array(
+                                        'name' => 'bcc',
+                                        'title' => esc_html__( 'BCC', 'super-forms' ),
+                                        'subline' => esc_html__( 'Send copy to following address(es), without being able to see the address', 'super-forms' ),
+                                        'type' => 'text',
+                                        'default' => '',
+                                    ),
+                                    array(
+                                        'name' => 'header_additional',
+                                        'title' => esc_html__( 'Additional Headers', 'super-forms' ),
+                                        'subline' => esc_html__( 'Add any extra email headers here', 'super-forms' ),
+                                        'type' => 'textarea',
+                                        'default' => '',
+                                    ),
+                                    array(
+                                        'name' => 'content_type',
+                                        'title' => 'Content type',
+                                        'subline' => '',
+                                        'accepted_values' => array(
+                                            array('v'=>'html', 'i'=>'(default)'), 
+                                            array('v'=>'plain','i'=>'(plain text)')
+                                        ),
+                                        'type' => 'text',
+                                        'default' => 'html'
+                                    ),
+                                    array(
+                                        'name' => 'charset',
+                                        'title' => 'Charset',
+                                        'subline' => 'The charset to use for this email. Example: UTF-8 or ISO-8859-1',
+                                        'type' => 'text',
+                                        'default' => 'UTF-8'
+                                    ),
+                                )
+                            ),
+                            array(
+                                'toggle' => true,
+                                'title' => esc_html__( 'Schedule (optional)', 'super-forms' ),
+                                'vertical' => true, // sfui-vertical
+                                'nodes' => array(
+                                    array(
+                                        'wrap' => false,
+                                        'padding' => false,
+                                        'group' => true,
+                                        'group_name' => 'schedule',
+                                        'vertical' => true,
+                                        'nodes' => array(
+                                            array(
+                                                'name' => 'enabled',
+                                                'type' => 'checkbox',
+                                                'default' => 'false',
+                                                'title' => esc_html__( 'Enable scheduled execution', 'super-forms' )
+                                            ),
+                                            array(
+                                                'name' => 'schedules',
+                                                'type' => 'repeater',
+                                                'inline' => true,
+                                                'filter' => 'schedule.enabled;true',
+                                                'nodes' => array(
+                                                    array(
+                                                        'name' => 'date',
+                                                        'title' => 'Base date (leave blank to use the event date)',
+                                                        'subline' => 'Must be English formatted date e.g: `25-03-2020`. When using a datepicker that doesn\'t use the correct format, you can use the tag <code>{date;timestamp}</code> to retrieve the timestamp which will work correctly with any date format (leave blank to use the form submission date)',
+                                                        'type' => 'text',
+                                                        'default' => ''
+                                                    ),
+                                                    array(
+                                                        'name' => 'days',
+                                                        'title' => 'Execute after or before (in days) based of the base date.',
+                                                        'subline' => '0 = The same day, 1 = One day after, 5 = Five days later, -1 = One day before, -3 = Three days before',
+                                                        'type' => 'text',
+                                                        'default' => '0'
+                                                    ),
+                                                    array(
+                                                        'name' => 'method',
+                                                        'title' => 'Execute at a specific time or offset',
+                                                        'subline' => '',
+                                                        'accepted_values' => array(
+                                                            array('v'=>'instant'), 
+                                                            array('v'=>'time','i'=>'(at a fixed time e.g. at 09:00)'),
+                                                            array('v'=>'offset','i'=>'(relative to the base date e.g. 2 hours after)')
+                                                        ),
+                                                        'type' => 'text',
+                                                        'default' => 'time'
+                                                    ),
+                                                    array(
+                                                        'name' => 'time',
+                                                        'title' => 'Time',
+                                                        'subline' => 'Use 24h format e.g: 09:30, 14:00, 18:30 etc.',
+                                                        'accepted_values' => array(
+                                                            array('v'=>'09:00'),
+                                                            array('v'=>'09:15'),
+                                                            array('v'=>'09:30', 'i'=>'etc.')
+                                                        ),
+                                                        'type' => 'text',
+                                                        'default' => '09:00',
+                                                        'filter' => 'method;time'
+                                                    ),
+                                                    array(
+                                                        'name' => 'offset',
+                                                        'title' => 'Offset',
+                                                        'subline' => 'Enter an offset based of the base date.',
+                                                        'accepted_values' => array(
+                                                            array('v'=>'0', 'i'=>'(instantly)'), 
+                                                            array('v'=>'0.08', 'i'=>'(after 5 min.)'), 
+                                                            array('v'=>'0.16', 'i'=>'(after 10 min.)'), 
+                                                            array('v'=>'0.5', 'i'=>'(after 30 min.)'), 
+                                                            array('v'=>'2', 'i'=>'(after two hours)'), 
+                                                            array('v'=>'-5', 'i'=>'(fie hours prior)')
+                                                        ),
+                                                        'type' => 'text',
+                                                        'default' => '0',
+                                                        'filter' => 'method;offset'
+                                                    )
+                                                )
+                                            )
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    array(
+                        'wrap' => false,
+                        'group' => true,
+                        'vertical' => true,
+                        'nodes' => array(
+                            array(
+                                'toggle' => true,
+                                'title' => esc_html__( 'Translations (raw)', 'super-forms' ),
+                                'notice' => 'hint', // hint/info
+                                'content' => esc_html__( 'Although you can edit existing translated strings below, you may find it easier to use the [Translations] tab instead.', 'super-forms' ),
+                                'nodes' => array(
+                                    array(
+                                        'name' => 'i18n',
+                                        'type' => 'textarea',
+                                        'default' => ''
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        );
+        $s = array('emails' => $emails);
+        $prefix = array();
+        SUPER_UI::loop_over_tab_setting_nodes($s, $nodes, $prefix);
+    }
+
+
+
     public static function get_default_trigger_settings($trigger) {
         if(empty($trigger['active'])) $trigger['active'] = 'true';
         if(empty($trigger['name'])) $trigger['name'] = 'Trigger #1';
