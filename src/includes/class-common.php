@@ -104,6 +104,30 @@ class SUPER_Common {
     // tmp     return $post_ID;
     // tmp }
     
+    public static function get_form_emails_settings($form_id){
+        if(!empty(SUPER_Forms()->emails_settings) && empty(SUPER_Forms()->i18n)){
+            //error_log('return existing woocommerce settings...');
+            return SUPER_Forms()->emails_settings;
+        }
+        $s = get_post_meta($form_id, '_emails', true);
+        if($s===false){ 
+            $s = array(); 
+        }else{ 
+            $s = maybe_unserialize($s); 
+        }
+        // Merge translated settings
+        if(!empty($s['i18n']) && !empty($s['i18n'][SUPER_Forms()->i18n])){
+            $translatedSettings = $s['i18n'][SUPER_Forms()->i18n];
+            $s = self::mergeTranslatedSettings($s, $translatedSettings);
+            unset($s['i18n']);
+        }
+        SUPER_Forms()->emails_settings = $s;
+        return $s;
+    }
+    public static function save_form_emails_settings($s, $form_id){
+        update_post_meta($form_id, '_emails', $s);
+    }
+
     /**
      * Get Form Triggers
      */

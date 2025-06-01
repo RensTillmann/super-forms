@@ -1659,6 +1659,7 @@ class SUPER_Ajax {
         $formSettings = $_POST['formSettings'];
         $formElements = wp_unslash($_POST['formElements']);
         $formElements = json_decode($formElements, true);
+        $emailsSettings = get_post_meta( $form_id, '_emails', true );
         $triggerSettings = get_post_meta( $form_id, '_super_triggers', true );
         $woocommerceSettings = get_post_meta( $form_id, '_super_woocommerce', true );
         $listingsSettings = get_post_meta( $form_id, '_super_listings', true );
@@ -1672,6 +1673,7 @@ class SUPER_Ajax {
             'title' => $title,
             'settings' => $formSettings,
             'elements' => $formElements,
+            'emails' => $emailsSettings,
             'triggers' => $triggerSettings,
             'woocommerce' => $woocommerceSettings,
             'listings' => $listingsSettings,
@@ -1720,6 +1722,7 @@ class SUPER_Ajax {
         // What do we need to import?
         $import_elements = (isset($_POST['elements']) ? $_POST['elements'] : 'false'); // Form elements
         $import_settings = (isset($_POST['settings']) ? $_POST['settings'] : 'false'); // Form settings
+        $import_emails = (isset($_POST['emails']) ? $_POST['emails'] : 'false'); // Emails
         $import_triggers = (isset($_POST['triggers']) ? $_POST['triggers'] : 'false'); // Triggers
         $import_woocommerce = (isset($_POST['woocommerce']) ? $_POST['woocommerce'] : 'false'); // WooCommerce settings
         $import_listings = (isset($_POST['listings']) ? $_POST['listings'] : 'false'); // Listings settings
@@ -1746,6 +1749,7 @@ class SUPER_Ajax {
             if(!empty($contents['version'])) $form_data['version'] = $contents['version'];
             if($import_elements=='true' && isset($contents['elements'])) $form_data['elements'] = $contents['elements'];
             if($import_settings=='true' && isset($contents['settings'])) $form_data['settings'] = $contents['settings'];
+            if($import_emails=='true' && isset($contents['emails'])) $form_data['emails'] = $contents['emails'];
             if($import_triggers=='true' && isset($contents['triggers'])) $form_data['triggers'] = $contents['triggers'];
             if($import_woocommerce=='true' && isset($contents['woocommerce'])) $form_data['woocommerce'] = $contents['woocommerce'];
             if($import_listings=='true' && isset($contents['listings'])) $form_data['listings'] = $contents['listings'];
@@ -1812,13 +1816,15 @@ class SUPER_Ajax {
             foreach( $forms as $k => $v ) {
                 $form_id = $v['ID'];
                 $settings = SUPER_Common::get_form_settings($form_id);
-                $elements = get_post_meta( $form_id, '_super_elements', true );
                 $forms[$k]['settings'] = $settings;
+                $elements = get_post_meta( $form_id, '_super_elements', true );
                 if(is_array($elements)){
                     $forms[$k]['elements'] = $elements;
                 }else{
                     $forms[$k]['elements'] = json_decode($elements, true);
                 }
+                $emails = get_post_meta( $form_id, '_emails', true );
+                $forms[$k]['emails'] = $emails;
                 $triggers = get_post_meta( $form_id, '_super_triggers', true );
                 $forms[$k]['triggers'] = $triggers;
                 $translations = get_post_meta( $form_id, '_super_translations', true );
@@ -1901,17 +1907,30 @@ class SUPER_Ajax {
             );
             $form_id = wp_insert_post($form);
             add_post_meta($form_id, '_super_form_settings', $v['settings']);
+
+            // Save elements JSON
             $elements = $v['elements'];
             if(!is_array($elements)) $elements = json_decode( $elements, true );
             add_post_meta( $form_id, '_super_elements', $elements );
+            // Save emails settings JSON
+            $emails = $v['emails'];
+            if(!is_array($emails)) $emails = json_decode( $emails, true );
+            add_post_meta( $form_id, '_emails', $emails );
+            // Save triggers settings JSON
             error_log('save_form_triggers(3)');
             if(isset($v['triggers'])) SUPER_Common::save_form_triggers($v['triggers'], $form_id);
+            // Save WooCommerce settings JSON
             if(isset($v['woocommerce'])) SUPER_Common::save_form_woocommerce_settings($v['woocommerce'], $form_id);
             error_log('save_form_listings_settings(5)');
+            // Save Listings settings JSON
             if(isset($v['listings'])) SUPER_Common::save_form_listings_settings($v['listings'], $form_id);
+            // Save PDF settings JSON
             if(isset($v['pdf'])) SUPER_Common::save_form_pdf_settings($v['pdf'], $form_id);
+            // Save Stripe settings JSON
             if(isset($v['stripe'])) SUPER_Common::save_form_stripe_settings($v['stripe'], $form_id);
+            // Save Translations settings JSON
             if(isset($v['translations'])) add_post_meta( $form_id, '_super_translations', $v['translations'] );
+            // Save Secrets JSON
             if(isset($v['secrets'])) add_post_meta( $form_id, '_super_local_secrets', $v['secrets'] );
         }
         wp_send_json_success();
@@ -2163,7 +2182,7 @@ class SUPER_Ajax {
             $form_data = wp_unslash($form_data);
             $form_data = json_decode($form_data, true);
         }
-        $re_slash = array('elements', 'settings', 'triggers', 'woocommerce', 'listings', 'pdf', 'stripe');
+        $re_slash = array('emails', 'elements', 'settings', 'triggers', 'woocommerce', 'listings', 'pdf', 'stripe');
         foreach($form_data as $k => $v){
             // Re-slash is required to keep "Custom regex" working e.g: \\d will become \\\\d
             // Re-slash is required to keep Custom CSS {content: '\x123';} working
@@ -2171,6 +2190,7 @@ class SUPER_Ajax {
         }
         extract($form_data);
         error_log(json_encode($triggers));
+        if(!isset($emails)) $emails = array();
         if(!isset($triggers)) $triggers = array();
         if(!isset($woocommerce)) $woocommerce = array();
         if(!isset($listings)) $listings = array();
@@ -2209,6 +2229,7 @@ class SUPER_Ajax {
                     'form_id'=>$form_id,
                     'settings'=>$settings,
                     'elements'=>$elements, 
+                    'emails'=>$emails, 
                     'triggers'=>$triggers, 
                     'woocommerce'=>$woocommerce, 
                     'listings'=>$listings, 
@@ -2263,6 +2284,7 @@ class SUPER_Ajax {
                     'form_id'=>$form_id,
                     'settings'=>$settings,
                     'elements'=>$elements, 
+                    'emails'=>$emails, 
                     'triggers'=>$triggers, 
                     'woocommerce'=>$woocommerce, 
                     'listings'=>$listings, 
@@ -2295,6 +2317,7 @@ class SUPER_Ajax {
             error_log(json_encode($settings));
             add_post_meta( $form_id, '_super_version', $version ); 
             add_post_meta( $form_id, '_super_form_settings', $settings );
+            add_post_meta( $form_id, '_emails', $emails );
             add_post_meta( $form_id, '_super_elements', $elements );
             add_post_meta( $form_id, '_super_translations', $translations );
             add_post_meta( $form_id, '_super_local_secrets', $local_secrets );
@@ -2312,6 +2335,7 @@ class SUPER_Ajax {
                 update_post_meta( $form_id, '_super_version', SUPER_VERSION );
                 update_post_meta( $form_id, '_super_form_settings', $settings );
                 update_post_meta( $form_id, '_super_elements', $elements );
+                update_post_meta( $form_id, '_emails', $emails );
                 update_post_meta( $form_id, '_super_translations', $translations );
                 update_post_meta( $form_id, '_super_local_secrets', $local_secrets );
                 error_log('save_form_triggers(5)');
@@ -2328,6 +2352,7 @@ class SUPER_Ajax {
                 error_log(json_encode($settings));
                 if(!empty($settings)) update_post_meta( $form_id, '_super_form_settings', $settings );
                 if(!empty($elements)) update_post_meta( $form_id, '_super_elements', $elements );
+                if(!empty($emails)) update_post_meta( $form_id, '_emails', $emails );
                 error_log('save_form_triggers(6)');
                 if(!empty($triggers)) SUPER_Common::save_form_triggers($triggers, $form_id);
                 if(!empty($woocommerce)) SUPER_Common::save_form_woocommerce_settings($woocommerce, $form_id);
@@ -2356,6 +2381,7 @@ class SUPER_Ajax {
                         'form_id'=>$backup_id,
                         'settings'=>$settings,
                         'elements'=>$elements, 
+                        'emails'=>$emails, 
                         'triggers'=>$triggers, 
                         'woocommerce'=>$woocommerce, 
                         'listings'=>$listings, 

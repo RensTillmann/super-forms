@@ -3130,6 +3130,9 @@ if(!class_exists('SUPER_Forms')) :
             error_log('save_form_triggers(1)');
             SUPER_Common::save_form_triggers($s, $id);
 
+            $s = SUPER_Common::get_form_emails_settings($id);
+            SUPER_Common::save_form_emails_settings($s, $id);
+
             $s = SUPER_Common::get_form_woocommerce_settings($id);
             SUPER_Common::save_form_woocommerce_settings($s, $id);
 

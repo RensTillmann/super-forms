@@ -139,7 +139,6 @@ SUPER.after_form_fully_loaded = function(args){
                     var $i18n = sessionStorage.getItem('sf_'+formId+'_i18n');
                     if(args.form.querySelector('.super-i18n-switcher li[data-value="'+$i18n+'"]')){
                         SUPER.switched_language = true;
-                        debugger;
                         args.form.dataset.i18n = $i18n;
                         args.form.querySelector('.super-i18n-switcher li[data-value="'+$i18n+'"]').click();
                         jQuery(args.form).fadeIn(500, function(){
@@ -642,7 +641,6 @@ function SUPERreCaptcha(){
                     Object.keys(updateHtml).forEach(function(fieldName) {
                         updateHtml[fieldName].filesWrapper.innerHTML = updateHtml[fieldName].html;
                         var field = SUPER.field(args.form0, fieldName);
-                        //debugger;
                         SUPER.after_field_change_blur_hook({el: field, form: args.form0});
                     });
 
@@ -827,7 +825,6 @@ function SUPERreCaptcha(){
         });
     };
     SUPER.focusNextTabField = function(e, next, form, skipNext){
-        //debugger;
         var i, nodes, parentTabElement, tabsElement, menuWrapper, menuNodes, contentsWrapper, contentNodes, keyCode = -1;
         if(e){
             keyCode = e.keyCode || e.which;
@@ -981,7 +978,6 @@ function SUPERreCaptcha(){
             return false;
         }
         if( next.querySelector('.super-shortcode-field').classList.contains('super-address-autopopulate')){
-            //debugger;
             SUPER.focusField(next);
             next.querySelector('.super-shortcode-field').focus();
             //next.classList.add('super-focus');
@@ -990,7 +986,6 @@ function SUPERreCaptcha(){
             return false;
         }
         if( next.classList.contains('super-dropdown') ) {
-            //debugger;
             next.classList.add('super-focus');
             next.classList.add('super-open');
             if(next.querySelector('input[name="super-dropdown-search"]')){
@@ -1235,7 +1230,6 @@ function SUPERreCaptcha(){
             $(this).prevAll('.super-rating-star').addClass('super-active');
             var $rating = $(this).index()+1;
             $(this).parent().find('input').val($rating);
-            //debugger;
             SUPER.after_field_change_blur_hook({el: $(this).parent().find('input')[0]});
         });
         $('.super-rating-star').on('mouseover',function(){
@@ -1357,7 +1351,6 @@ function SUPERreCaptcha(){
                                     // URL.revokeObjectURL(img.src); // free memory
                                 }
                             }
-                            //debugger;
                             SUPER.after_field_change_blur_hook({el: field, form: form});
                         }else{
                             data.context.remove();
@@ -1424,7 +1417,6 @@ function SUPERreCaptcha(){
                 customPlaceholder: function(selectedCountryPlaceholder) {
                     var adaptivePlaceholder = input.closest('.super-int-phone-field').querySelector('.super-adaptive-placeholder');
                     if(adaptivePlaceholder){
-                        debugger;
                         //adaptivePlaceholder.dataset.placeholder = selectedCountryPlaceholder;
                         if(input.closest('.super-shortcode').classList.contains('super-filled')){
                             // Is filled
@@ -1437,7 +1429,6 @@ function SUPERreCaptcha(){
                 },
             });
             this.addEventListener("countrychange", function() {
-                //debugger;
                 SUPER.after_field_change_blur_hook({el: this});
             });
             this.addEventListener("open:countrydropdown", function() {
@@ -1457,9 +1448,6 @@ function SUPERreCaptcha(){
     // @since 3.5.0 - calculate distance (google)
     var distance_calculator_timeout = null; 
     SUPER.calculate_distance = function(args){
-        //debugger;
-        //debugger;
-        //debugger;
         $('.super-msg.super-error.super-distance-calculation-error').remove();
         if(!args.el) return false;
         if(args.el.classList.contains('super-distance-calculator')){
@@ -1510,7 +1498,6 @@ function SUPERreCaptcha(){
                 $units = 'metric';
             }
             if( ($origin==='') || ($destination==='') ) {
-                debugger;
                 args.el.closest('.super-field-wrapper').classList.remove('super-calculating-distance');
                 var $field = $origin_field.dataset.distanceField;
                 $field = SUPER.field(form, $field);
@@ -1526,11 +1513,7 @@ function SUPERreCaptcha(){
             }
             if(distance_calculator_timeout !== null) clearTimeout(distance_calculator_timeout);
             distance_calculator_timeout = setTimeout(function () {
-                //debugger;
                 if(typeof google === 'undefined'){
-                    //debugger;
-                    //debugger;
-                    debugger;
                     console.log(super_common_i18n.google.maps.api.key)
                     var url = '//maps.googleapis.com/maps/api/js?';
                     var field = args.el;
@@ -1538,7 +1521,6 @@ function SUPERreCaptcha(){
                     if(field.dataset.apiLanguage!=='') url += 'language='+field.dataset.apiLanguage+'&';
                     url += 'key='+super_common_i18n.google.maps.api.key+'&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init'
                     $.getScript( url, function() {
-                        //debugger;
                         args.el.closest('.super-field-wrapper').classList.add('super-calculating-distance');
                         args.el.closest('.super-field-wrapper').classList.add('super-calculating-distance1');
                         if($origin!=='' && $destination!==''){
@@ -1549,7 +1531,6 @@ function SUPERreCaptcha(){
                         }
                     });
                 }else{
-                    //debugger;
                     args.el.closest('.super-field-wrapper').classList.add('super-calculating-distance');
                     args.el.closest('.super-field-wrapper').classList.add('super-calculating-distance2');
                     if($origin!=='' && $destination!==''){
@@ -1563,7 +1544,6 @@ function SUPERreCaptcha(){
         }
     };
     SUPER.calculateDistance = async function(args, form, value, origin, destination, units, origin_field, destination_field, destination_field2, type){
-        //debugger;
         try {
             if(!SUPER.DistanceMatrixService) SUPER.DistanceMatrixService = new google.maps.DistanceMatrixService();
             SUPER.DistanceMatrixService.getDistanceMatrix({
@@ -1574,18 +1554,15 @@ function SUPERreCaptcha(){
                 language: super_common_i18n.google.maps.api.language,
                 region: super_common_i18n.google.maps.api.region
               }, function(response, status){
-                //debugger;
                 if(status !== google.maps.DistanceMatrixStatus.OK){
                   alert('Google API Distance Matrix Error: ' + status);
                   console.error(respons);
                 } else {
-                    //debugger;
                     var $leg, $calculation_value;
                     $('.super-msg').remove();
                     var $field = origin_field.dataset.distanceField;
                     $field = SUPER.field(form, $field);
                     if(response.rows[0] && response.rows[0].elements[0].status===google.maps.DistanceMatrixStatus.OK){
-                        //debugger;
                         $leg = response.rows[0].elements[0];
                         // distance  - Distance in meters
                         if( value=='distance' ) $calculation_value = $leg.distance.value;
@@ -1597,23 +1574,16 @@ function SUPERreCaptcha(){
                         if( value=='dur_text' ) $calculation_value = $leg.duration.text;
                         $field.value = $calculation_value;
                     }else{
-                        //debugger;
                         var blurFields = true;
                         $leg = response.rows[0].elements[0];
                         if($leg.status==='ZERO_RESULTS'){
                             var $alert_msg = super_common_i18n.errors.distance_calculator.not_found; // No route could be found between the origin and destination.
                         }
                         if($leg.status==='NOT_FOUND') {
-                            //debugger;
-                            //debugger;
-                            //debugger;
                             blurFields = false;
                             var $alert_msg = super_common_i18n.errors.distance_calculator.not_found;
                         }else{
                             // INVALID_REQUEST // MAX_DIMENSIONS_EXCEEDED // MAX_ELEMENTS_EXCEEDED // OK // OVER_QUERY_LIMIT // REQUEST_DENIED // UNKNOWN_ERROR
-                            //debugger;
-                            //debugger;
-                            //debugger;
                             var $alert_msg = super_common_i18n.errors.distance_calculator.error+' ('+$leg.status+')';
                         }
                         $field.value = '';
@@ -1635,22 +1605,16 @@ function SUPERreCaptcha(){
                         SUPER.scrollToElement(form);
                     }
 
-                    //debugger;
                     if($field.value===''){
                         $field.closest('.super-shortcode').classList.remove('super-filled');
                     }else{
                         $field.closest('.super-shortcode').classList.add('super-filled');
                     }
-                    //debugger;
                     SUPER.after_field_change_blur_hook({el: $field});
-                    //debugger;
                     args.el.closest('.super-field-wrapper').classList.remove('super-calculating-distance');
                 }
             });
         }catch(error){
-            //debugger;
-            //debugger;
-            //debugger;
             console.error('Error fetching data:', error);
             alert(super_common_i18n.errors.distance_calculator.error);
         }
@@ -2365,14 +2329,12 @@ function SUPERreCaptcha(){
                                                                 v = v.replace('{','');
                                                                 $field = SUPER.field(args.form, v);
                                                                 if($field){
-                                                                    //debugger;
                                                                     SUPER.after_field_change_blur_hook({el: $field, form: args.form, skip: true});
                                                                 }
                                                             }
                                                         });
                                                     }
                                                 }
-                                                //debugger;
                                                 SUPER.after_field_change_blur_hook({el: $inner[key], form: args.form, skip: true});
                                             });
                                         });
@@ -2396,7 +2358,6 @@ function SUPERreCaptcha(){
                     }else{
                         field.closest('.super-shortcode').classList.add('super-filled');
                     }
-                    //debugger;
                     SUPER.after_field_change_blur_hook({el: field});
                 });
 
@@ -3029,7 +2990,6 @@ function SUPERreCaptcha(){
 
     // @since 3.0.0 - replace variable field {tags} with actual field values
     SUPER.update_variable_fields.replace_tags = function(args){
-        debugger;
         if(typeof args.bwc === 'undefined') args.bwc = false;
         if(typeof args.value !== 'undefined' && args.bwc){
             // If field name is empty do nothing
@@ -3039,7 +2999,6 @@ function SUPERreCaptcha(){
         }
         // First check if tag exists
         if(args.value==='' || typeof args.value==='undefined') return '';
-        debugger;
         var indexMapping = args.value;
         var formId = SUPER.getFormIdByAttributeID(args.form);
         if(typeof SUPER.preFlightMappings==='undefined') SUPER.preFlightMappings = {};
@@ -3540,9 +3499,7 @@ function SUPERreCaptcha(){
         return args.value;
     };
     SUPER.beforeReturnReplacedTagValue = function(args, formId, $name, indexMapping, value){
-        debugger;
         if(indexMapping!==value) {
-            debugger;
             if(typeof SUPER.preFlightMappings[formId].fieldNames[$name] === 'undefined') SUPER.preFlightMappings[formId].fieldNames[$name] = [];
             if(SUPER.preFlightMappings[formId].fieldNames[$name].indexOf(indexMapping)===-1){
                 SUPER.preFlightMappings[formId].fieldNames[$name].push(indexMapping);
@@ -3961,7 +3918,6 @@ function SUPERreCaptcha(){
         return SUPER.handle_validations_finish(args);
     };
     SUPER.handle_validations_finish = function(args){
-        debugger;
         var parent = args.el.closest('.super-field'),
             error = false,
             regex,
@@ -4209,7 +4165,6 @@ function SUPERreCaptcha(){
     // Validate the form
     SUPER.validate_form = function(args, callback){ // we use a callback in order to return true or false inside the interval
     //SUPER.validate_form = function(args){ // form, submitButton, validateMultipart, e, doingSubmit
-        debugger;
         SUPER.validationLookups = 0;
         SUPER.resetFocussedFields();
         SUPER.conditional_logic(args);
@@ -4520,6 +4475,7 @@ function SUPERreCaptcha(){
 
     // Define Javascript Filters/Hooks
     SUPER.save_form_params_filter = function(params){
+        debugger;
         var i, name, functions = super_common_i18n.dynamic_functions.save_form_params_filter;
         if(typeof functions !== 'undefined'){
             for( i = 0; i < functions.length; i++){
@@ -4527,6 +4483,17 @@ function SUPERreCaptcha(){
                 if(typeof SUPER[name] === 'undefined') continue;
                 params = SUPER[name](params);
             }
+        }
+        try{
+            params.form_data = JSON.parse(params.form_data);
+            params.form_data.emails = (document.querySelector('.super-raw-code-emails-settings textarea') ? document.querySelector('.super-raw-code-emails-settings textarea').value : '');
+            params.form_data.emails  = params.form_data.emails.trim();
+            if(params.form_data.emails!=='') params.form_data.emails = JSON.parse(params.form_data.emails);
+            params.form_data = JSON.stringify(params.form_data);
+        }catch(e){
+            alert('Unable to save form due to JSON parse error, check the browser console for more details.');
+            console.log(e);
+            return;
         }
         return params;
     };
@@ -4622,7 +4589,6 @@ function SUPERreCaptcha(){
                 var newValue = defaultValues[i].value;
                 // If values changed
                 if(oldValue!=newValue){
-                    //debugger;
                     SUPER.after_field_change_blur_hook({el: defaultValues[i]});
                 }
                 defaultValues[i].closest('.super-replace-tags').classList.remove('super-replace-tags');
@@ -4678,7 +4644,6 @@ function SUPERreCaptcha(){
         // tmp disabled not sure?     return;
         // tmp disabled not sure? }
         // tmp disabled not sure? // Otherwise continue
-        debugger;
         var formId = SUPER.getFormIdByAttributeID(args.form);
         if(typeof SUPER.preFlightMappings==='undefined') SUPER.preFlightMappings = {};
         if(typeof SUPER.preFlightMappings[formId]==='undefined') SUPER.preFlightMappings[formId] = {fieldNames: [], tags: {}}
@@ -4965,7 +4930,6 @@ function SUPERreCaptcha(){
 
                     // @since 3.2.0 - also save lat and lng for ACF google maps compatibility
                     if($this.hasClass('super-address-autopopulate')){
-                        //debugger;
                         $data[$this.attr('name')].type = 'google_address';
                         $data[$this.attr('name')].geometry = {
                             location: {
@@ -5810,7 +5774,6 @@ function SUPERreCaptcha(){
                                 if(SUPER.field_exists(args.form, $populateDistance)){
                                     field = SUPER.field(args.form, $populateDistance);
                                     field.value = totalDist; // indicates the distance in meters
-                                    //debugger;
                                     SUPER.after_field_change_blur_hook({el: field});
                                 }
                             }
@@ -5819,7 +5782,6 @@ function SUPERreCaptcha(){
                                 if(SUPER.field_exists(args.form, $populateDuration)){
                                     field = SUPER.field(args.form, $populateDuration);
                                     field.value = totalTime; // indicates the duration in seconds
-                                    //debugger;
                                     SUPER.after_field_change_blur_hook({el: field});
                                 }
                             }
@@ -5872,7 +5834,6 @@ function SUPERreCaptcha(){
             field.classList.add('super-autopopulate-init');
             args.el = field;
             if(typeof google === 'undefined'){
-                debugger;
                 url = '//maps.googleapis.com/maps/api/js?';
                 if(field.dataset.apiRegion!=='') url += 'region='+field.dataset.apiRegion+'&';
                 if(field.dataset.apiLanguage!=='') url += 'language='+field.dataset.apiLanguage+'&';
@@ -5926,13 +5887,9 @@ function SUPERreCaptcha(){
             }
         }
     
-        debugger;
         for (var [type, mapKey] of Object.entries(mapping)) {
-            debugger;
             var attr = $(el).data(`map-${mapKey}`);
-            debugger;
             if (attr) {
-                debugger;
                 var [fieldName] = attr.split('|');
                 var input = SUPER.field(form, fieldName);
                 if (input) {
@@ -5944,7 +5901,6 @@ function SUPERreCaptcha(){
         var fields = Array.from(fieldsSet);
     
         var typesData = el.dataset.types;
-        debugger;
         var types = typesData ? typesData.split(',').map(t => t.trim()) : undefined;
         var types = typesData ? typesData.split(',').map(t => t.trim()).filter(Boolean) : undefined;
         var countryData = el.dataset.countries;
@@ -5966,7 +5922,6 @@ function SUPERreCaptcha(){
                 var form_id = parseInt(form.id.replace('super-form-', ''), 10);
     
                 try {
-                    debugger;
                     var request = {
                         input: inputVal,
                         sessionToken: token,
@@ -5993,7 +5948,6 @@ function SUPERreCaptcha(){
                         var matchRegex = new RegExp(`(${searchValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'i');
     
                         for (var suggestion of suggestions) {
-                            debugger;
                             var place = suggestion.placePrediction.toPlace();
     
                             var li = document.createElement('li');
@@ -6022,7 +5976,6 @@ function SUPERreCaptcha(){
                                         SUPER.google_maps_api.populateFields(event, fieldsSet, place, el, form, mapping, true);
                                         return;
                                     }
-                                    debugger;
                                     var place = new Place({ id: currentTarget.dataset.value });
                                     await place.fetchFields({ fields });
                                     var lat = place.location?.lat();
@@ -6086,16 +6039,9 @@ function SUPERreCaptcha(){
         });
     };
     SUPER.google_maps_api.populateFields = function(event, fieldsSet, place, el, form, mapping, empty) {
-        debugger;
-        debugger;
-        debugger;
-        debugger;
         var lat = place.location?.lat();
         var lng = place.location?.lng();
         // Clone addressComponents if allowed
-        debugger;
-        debugger;
-        debugger;
         var addressComponents = Array.isArray(place.addressComponents) ? [...place.addressComponents] : [];
         if (lat && lng && fieldsSet.has('addressComponents')) {
             addressComponents.push({ longText: lat, shortText: lat, types: ["lat"] });
@@ -6124,7 +6070,6 @@ function SUPERreCaptcha(){
             SUPER.set_correct_placeholder_value_for_mapped_autocomplete_fields(event, form, empty, inputField, value);
         });
     
-        //debugger;
         SUPER.google_maps_api.updateFieldFromPlace(event, form, empty, place, el, 'displayName', 'map-name');
         SUPER.google_maps_api.updateFieldFromPlace(event, form, empty, place, el, 'formattedAddress', 'map-formatted_address');
         SUPER.google_maps_api.updateFieldFromPlace(event, form, empty, place, el, 'nationalPhoneNumber', 'map-formatted_phone_number');
@@ -6527,10 +6472,8 @@ function SUPERreCaptcha(){
         //Rating
         SUPER.rating();
 
-        debugger;
         var forms = document.querySelectorAll('.super-form:not(.super-rendered)');
         Object.keys(forms).forEach(function(key) {
-            debugger;
             $this = forms[key];
             if($this.id==='') return;
             var formId = SUPER.getFormIdByAttributeID($this);
@@ -6852,7 +6795,6 @@ function SUPERreCaptcha(){
                 if(field) {
                     field.value = html;
                     if(typeof args.skipHtmlUpdate==='undefined' || args.skipHtmlUpdate===false){
-                        //debugger;
                         SUPER.after_field_change_blur_hook({el: field, form: args.form, skipHtmlUpdate: true});
                     }
                 }
@@ -7291,7 +7233,6 @@ function SUPERreCaptcha(){
                 nodes[i].remove();
             }
         }else{
-            debugger;
             var formId = SUPER.getFormIdByAttributeID(args.form);
             SUPER.files[formId] = [];
             // Reset all preflight values
@@ -7563,7 +7504,6 @@ function SUPERreCaptcha(){
         if(typeof args.clone !== 'undefined') {
             // A column was duplicated
         }else{
-            //debugger;
             SUPER.after_field_change_blur_hook({form: main_form});
         }
 
@@ -7957,7 +7897,6 @@ function SUPERreCaptcha(){
             });
             // @since 2.4.0 - after inserting all the fields, update the conditional logic and variable fields
             Object.keys(updatedFields).forEach(function(key) {
-                //debugger;
                 SUPER.after_field_change_blur_hook({el: updatedFields[key]});
             });
         }
@@ -8098,7 +8037,6 @@ function SUPERreCaptcha(){
             success: function (result) {
                 el.value = result;
                 el.classList.add('super-generated');
-                //debugger;
                 SUPER.after_field_change_blur_hook({el: el});
             },
             error: function (xhr, ajaxOptions, thrownError) {
@@ -8120,7 +8058,6 @@ function SUPERreCaptcha(){
             SUPER.formFullyLoaded.timer = setInterval(SUPER.formFullyLoaded.timerFunction, 100);
         }
         $('.super-form').each(function(){
-            debugger;
             var formId = 0;
             if(!this.classList.contains('super-preview-elements')) formId = SUPER.getFormIdByAttributeID(this);
             if(typeof SUPER.preFlightMappings === 'undefined') SUPER.preFlightMappings = {};

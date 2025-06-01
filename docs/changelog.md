@@ -11,8 +11,47 @@
 
 ## TODO:
 
+- Duplicate form store local/global Triggers
+- Test the PayPal trigger events/actions
+- Update keys for new PayPal settings stored under Triggers and test the PayPal payment features 
 - Issue with populating existing signature from first person, when using a form that requires two persons to sign the document.
 - Issue with Listings settings not merged correctly from latest version to Beta version
+
+## May 16, 2025 - Version 6.4.102-beta
+
+- **Added:** Filter hook `super_before_adding_wc_products_to_cart_filter` which allows you to alter the WooCommerce checkout products that need to be added to the cart after submitting the form [add variable product by variation SKU example use case](https://docs.super-forms.com/developers/code-examples/variable-product-checkout-based-on-variation-sku)
+
+
+## May 15, 2025 - Version 6.4.101-beta
+
+- **Added:** Filters for Listings permissions: `super_listings_allow_display_filter`, `super_listings_allow_see_any_filter`, `super_listings_allow_view_any_filter`, `super_listings_allow_view_own_filter`, `super_listings_allow_edit_any_filter`, `super_listings_allow_edit_own_filter`, `super_listings_allow_delete_any_filter`, `super_listings_allow_delete_own_filter`, `super_listings_allow_change_entry_status_filter`
+
+## Apr 17, 2025 - Version 6.4.100-beta
+
+- **Fix:** Google no longer allows new users to use the `Places API (legacy)` service, from now on Super Forms only allows to use the new `Places API (New)` since Google did not provide a fallback check. Existing users should be able to use the legacy API but it is recommended to enable the `Places API (New)` in your Google Cloud Console to make your form future proof. This is only required for users that are using the `Address auto complete` feature
+
+## Jan 21, 2025 - Version 6.4.052-beta
+
+- **Improved:** For large complex forms cache conditional logic lookup and cache field lookup for speed improvements
+- **Improved:** Make sure all calculations/logic is processed before displaying form to the user
+
+## Dec 16, 2024 - Version 6.4.016-beta
+
+- **Fix:** Translation issues for Triggers tab
+
+## Dec 13, 2024 - Version 6.4.015-beta
+
+- **Fix:** Issue with exporting entries and other files when Permalinks are set to default (using ID's)
+- **Changed:** Some settings from PayPal moved to Triggers tab such as, update entry status, update registered user login status and role, sending email after payment completed, updating post status of created post if any
+
+## Dec 12, 2024 - Version 6.4.014-beta
+
+- **Changed:** Moved Admin and Confirmation E-mail settings over to Triggers TAB, making sure it is backward compatible with older versions of Super Forms
+- **Changed:** Display message for any Form Settings section to let user know these are moved to the Triggers TAB such as CSV Attachment, XML Attachment, E-mail document attachments, E-mail headers
+
+## Dec 04, 2024 - Version 6.4.013-beta
+
+- **Fix:** Signatures inside Multi-part not resizing correctly based on canvas size (also solves issue when resizing screen when user already signed the form)
 
 ## Aug 29, 2024 - Version 6.4.012-beta
 

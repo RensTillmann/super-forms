@@ -322,6 +322,10 @@
             }
             if(!tab) return;
             nodes = tab.querySelectorAll('.sfui-notice[data-f], .sfui-setting[data-f], .sfui-sub-settings[data-f], .sfui-setting-group[data-f]');
+            if(nodes.length===0){
+                tab = el.closest('.sfui-repeater-item');
+                nodes = tab.querySelectorAll('.sfui-notice[data-f], .sfui-setting[data-f], .sfui-sub-settings[data-f], .sfui-setting-group[data-f]');
+            }
             for(i=0; i < nodes.length; i++){
                 if(!nodes[i].dataset.f) continue;
                 value = '';
@@ -599,7 +603,6 @@
 
                 // Assign the parsed JSON value to the final i18n object
                 try {
-                    debugger;
                     current['i18n'] = JSON.parse(i18nField.value);
                     console.log('✅ Assigned i18n into SUPER.ui.settings:', current['i18n']);
                 } catch (e) {
@@ -1427,7 +1430,6 @@
         return $elements;
     };
     SUPER.get_form_settings = function(string, el){
-        debugger;
         if(typeof string === 'undefined') string = false;
         var specificTab = false;
         if(el){
@@ -1928,6 +1930,7 @@
                 for (ri = 0; ri < repeaterItems.length; ri++) {
                     if (!data[k]) data[k] = [];
                     if (!data[k][ri]) data[k][ri] = {};
+                    if(slug==='emails') debugger;
                     data[k][ri] = SUPER.get_tab_settings(settings, slug, repeaterItems[ri], data[k][ri]);
                 }
                 continue;
@@ -1937,6 +1940,7 @@
                 k = nodes[i].dataset.g;
                 if (!data[k]) data[k] = {};
                 // Lookup any inner fields
+                if(slug==='emails') debugger;
                 data[k] = SUPER.get_tab_settings(settings, slug, nodes[i], data[k]);
                 continue;
             }
@@ -2062,6 +2066,8 @@
         }else{
             // Store settings globally
             if((slug==='triggers' || slug==='stripe') && SUPER.ui.i18n.lastLanguage!=='' && SUPER.ui.i18n.lastLanguage!==SUPER.ui.i18n.mainLanguage){
+                debugger;
+                debugger;
                 debugger;
                 SUPER.ui.settings['_'+slug].i18n[SUPER.ui.i18n.lastLanguage] = data.i18n[SUPER.ui.i18n.lastLanguage];
                 data = SUPER.ui.settings['_'+slug];
@@ -2390,7 +2396,9 @@
     SUPER.get_emails_settings = function(string, returnData){
         if(typeof string === 'undefined') string = false;
         if(typeof returnData === 'undefined') returnData = false;
+        debugger;
         var $s = SUPER.get_tab_settings({}, 'emails', undefined, undefined, returnData);
+        $s = $s['emails'];
         if(string===true) {
             if(!isEmpty($s)) return JSON.stringify($s, undefined, 4);
             return '';
@@ -2679,6 +2687,8 @@
         if (typeof $history === 'undefined') $history = true;
         if (typeof $whatToUpdate === 'undefined') $whatToUpdate = [
             "form_settings",
+            "emails_settings",
+            "theme_settings",
             "trigger_settings",
             "listings_settings",
             "pdf_settings",
@@ -2694,6 +2704,8 @@
         SUPER.init_common_fields();
         const settingsMap = {
             form_settings: () => SUPER.update_form_settings(true),
+            emails_settings: () => SUPER.update_emails_settings(true),
+            theme_settings: () => SUPER.update_theme_settings(true),
             trigger_settings: () => SUPER.update_trigger_settings(true),
             listings_settings: () => SUPER.update_listings_settings(true),
             pdf_settings: () => SUPER.update_pdf_settings(true),
