@@ -837,7 +837,7 @@ class SUPER_Pages {
                                                         'label' => esc_html__( 'Upload a logo to use for this email template', 'super-forms' ),
                                                         'type' => 'file',
                                                         'default' => '',
-                                                        'filter' => 'slug;!none',
+                                                        'filter' => 'template.slug;email_template_1',
                                                         'i18n' => false
                                                     ),
                                                     array(
@@ -846,7 +846,7 @@ class SUPER_Pages {
                                                         'subline' => esc_html__( 'A title to display below your logo', 'super-forms' ),
                                                         'default' => esc_html__( 'Your title', 'super-forms' ),
                                                         'type' => 'text',
-                                                        'filter' => 'slug;!none',
+                                                        'filter' => 'template.slug;email_template_1',
                                                         'i18n' => true
                                                     ),
                                                     array(
@@ -855,7 +855,7 @@ class SUPER_Pages {
                                                         'subline' => esc_html__( 'A subtitle to display before the email body (content)', 'super-forms' ),
                                                         'default' => esc_html__( 'Your subtitle', 'super-forms' ),
                                                         'type' => 'text',
-                                                        'filter' => 'slug;!none',
+                                                        'filter' => 'template.slug;email_template_1',
                                                         'i18n' => true
                                                     ),
                                                     array(
@@ -864,7 +864,7 @@ class SUPER_Pages {
                                                         'subline' => esc_html__( 'Enter anything you like for the copyright section', 'super-forms' ),
                                                         'default' => esc_html__( '&copy; Company Name and Address 2016', 'super-forms' ),
                                                         'type' => 'textarea',
-                                                        'filter' => 'slug;!none',
+                                                        'filter' => 'template.slug;email_template_1',
                                                         'i18n' => true
                                                     ),
                                                     array(
@@ -873,7 +873,7 @@ class SUPER_Pages {
                                                         'subline' => esc_html__( 'Put each social icon on a new line', 'super-forms' ),
                                                         'default' => 'url_facebook_page|url_social_icon|Facebook',
                                                         'type' => 'textarea',
-                                                        'filter' => 'slug;!none',
+                                                        'filter' => 'template.slug;email_template_1',
                                                         'i18n' => false
                                                     ),
                                                     array(
@@ -890,7 +890,7 @@ class SUPER_Pages {
                                                                 'default' => '#ffffff'
                                                             ),
                                                         ),
-                                                        'filter' => 'slug;!none',
+                                                        'filter' => 'template.slug;email_template_1',
                                                         'i18n' => false
                                                     ),
                                                     array(
@@ -911,7 +911,7 @@ class SUPER_Pages {
                                                                 'default' => '#9e9e9e'
                                                             )
                                                         ),
-                                                        'filter' => 'slug;!none',
+                                                        'filter' => 'template.slug;email_template_1',
                                                         'i18n' => false
                                                     ),
                                                     array(
@@ -928,7 +928,7 @@ class SUPER_Pages {
                                                                 'default' => '#ffffff'
                                                             )
                                                         ),
-                                                        'filter' => 'slug;!none',
+                                                        'filter' => 'template.slug;email_template_1',
                                                         'i18n' => false
                                                     ),
                                                 )
