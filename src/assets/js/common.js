@@ -782,13 +782,15 @@ function SUPERreCaptcha(){
             if(!target.classList.contains('super-field')) target = target.closest('.super-field');
             if(!target) return;
             target.classList.add('super-focus');
-            var c1 = target.querySelector('.super-shortcode-field').classList.contains('super-auto-suggest');
-            var c2 = target.classList.contains('super-filled');
-            var c3 = target.querySelector('.super-dropdown-list > .super-item');
-            if(c1 && c2 && c3){
-                target.classList.add('super-string-found');
-                if(target.querySelector('.super-item.super-active')){
-                    SUPER.scrollToElement(target.querySelector('.super-item.super-active'));
+            if(target.querySelector('.super-shortcode-field')){
+                var c1 = target.querySelector('.super-shortcode-field').classList.contains('super-auto-suggest');
+                var c2 = target.classList.contains('super-filled');
+                var c3 = target.querySelector('.super-dropdown-list > .super-item');
+                if(c1 && c2 && c3){
+                    target.classList.add('super-string-found');
+                    if(target.querySelector('.super-item.super-active')){
+                        SUPER.scrollToElement(target.querySelector('.super-item.super-active'));
+                    }
                 }
             }
             if(target.classList.contains('super-dropdown')){

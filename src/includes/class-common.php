@@ -150,7 +150,12 @@ class SUPER_Common {
         //error_log('before: '.json_encode($triggers));
         // Unslash it before returning
         $triggers = wp_unslash($triggers);
-        //error_log('after: '.json_encode($triggers));
+        error_log('::::: triggers: '.json_encode($triggers));
+        $settings = SUPER_Common::get_form_settings($form_id);
+        error_log('::::: settings: '.json_encode($settings));
+        $emails = SUPER_Common::get_form_emails_settings($form_id);
+        error_log('::::: emails: '.json_encode($emails));
+		$triggers = apply_filters( 'super_triggers_filter', $triggers, array('id'=>$form_id));
         return $triggers;
     }
     public static function save_form_triggers($triggers, $form_id, $delete=true){

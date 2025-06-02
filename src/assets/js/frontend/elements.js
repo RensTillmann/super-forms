@@ -2831,12 +2831,34 @@
                                 }
                             },
                             complete: function(){
+                                debugger;
+                                //super-form super-form-73949 super-default-squared super-field-size-medium 
+                                //super-adaptive notranslate 
+                                //super-rendered 
+                                //super-form-loaded 
+                                //super-form-ready
+
                                 $form.removeClass('super-initialized');
                                 $form.removeClass('super-rendered');
+                                $form.removeClass('super-form-loaded');
+                                $form.removeClass('super-form-ready');
+
                                 $form.find('.super-multipart-progress').remove();
                                 $form.find('.super-multipart-steps').remove();
-                                SUPER.init_super_form_frontend({form:$form[0]});
-                                SUPER.after_preview_loaded_hook($form_id);
+
+                                // Complete:
+                                SUPER.clearFormCache();
+                                SUPER.files = [];
+                                SUPER.init_super_form_frontend({callback:function(formId){
+                                    if(SUPER.form_js && SUPER.form_js[formId] && SUPER.form_js[formId]['_entry_data']){
+                                        var data = SUPER.form_js[formId]['_entry_data'];
+                                        if(data) SUPER.populate_form_with_entry_data(data, $('.super-live-preview .super-form')[0], false);
+                                    }
+                                    SUPER.after_preview_loaded_hook(formId);
+                                }});
+
+                                //SUPER.init_super_form_frontend({form:$form[0]});
+                                //SUPER.after_preview_loaded_hook($form_id);
                                 // Set language switch dropdown to `filled` state
                                 
                                 var switcher = $form[0].querySelector('.super-i18n-switcher .super-dropdown');

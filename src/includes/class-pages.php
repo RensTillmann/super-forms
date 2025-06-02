@@ -453,12 +453,14 @@ class SUPER_Pages {
         <?php
     }
     public static function emails_tab($atts){
+        error_log('emails_tab()');
+        error_log(json_encode($atts));
         $form_id = $atts['form_id'];
         $version = $atts['version'];
         $settings = $atts['settings'];
         $s = $atts['settings'];
         // Get emails settings
-        $emails = (isset($s['_emails']) ? $s['_emails'] : array());
+        $emails = SUPER_Common::get_form_emails_settings($form_id);
         $logic = array( '==' => '== Equal', '!=' => '!= Not equal', '??' => '?? Contains', '!!' => '!! Not contains', '>'  => '&gt; Greater than', '<'  => '&lt;  Less than', '>=' => '&gt;= Greater than or equal to', '<=' => '&lt;= Less than or equal');
         $nodes = array(
             array(
@@ -708,13 +710,13 @@ class SUPER_Pages {
                                                                     ),
                                                                     array(
                                                                         'name' => 'save_as',
-                                                                        'title'=> esc_html__( 'Choose what value to save for checkboxes & radio buttons', 'super-forms' ),
-                                                                        'subline'=> esc_html__( 'When editing a field you can change these settings', 'super-forms' ),
+                                                                        'title'=> esc_html__( 'Choose what setting to use for dropdowns, checkboxes & radio buttons', 'super-forms' ),
+                                                                        'subline'=> esc_html__( 'When editing a field you can define how to process the selected option, either to use the Label, or to use the Value.', 'super-forms' ),
                                                                         'type' => 'select', // dropdown
                                                                         'options' => array(
-                                                                            'admin_email_value' => esc_html__( 'Save the admin email value (default)', 'super-forms' ),
-                                                                            'confirm_email_value' => esc_html__( 'Save the confirmation email value', 'super-forms' ),
-                                                                            'entry_value' => esc_html__( 'Save the entry value', 'super-forms' ),
+                                                                            'admin_email_value' => esc_html__( 'Use the admin email setting (default)', 'super-forms' ),
+                                                                            'confirm_email_value' => esc_html__( 'Use the confirmation email setting', 'super-forms' ),
+                                                                            'entry_value' => esc_html__( 'Use the contact entry setting', 'super-forms' ),
                                                                         ),
                                                                         'default'=>'admin_email_value',
                                                                         'reset'=>true
