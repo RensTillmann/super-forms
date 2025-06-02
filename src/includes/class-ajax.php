@@ -2313,8 +2313,8 @@ class SUPER_Ajax {
         error_log('save_form_meta()');
         extract($x);
         if($new===true){
-            error_log('@@@ save_form_meta() $settings(1):');
-            error_log(json_encode($settings));
+            error_log('@@@ save_form_meta() $emails(1):');
+            error_log(json_encode($emails));
             add_post_meta( $form_id, '_super_version', $version ); 
             add_post_meta( $form_id, '_super_form_settings', $settings );
             add_post_meta( $form_id, '_emails', $emails );
@@ -2330,8 +2330,8 @@ class SUPER_Ajax {
             SUPER_Common::save_form_stripe_settings($stripe, $form_id);
         }else{
             if($action==='super_save_form'){
-                error_log('@@@ save_form_meta() $settings(2):');
-                error_log(json_encode($settings));
+                error_log('@@@ save_form_meta() $emails(2):');
+                error_log(json_encode($emails));
                 update_post_meta( $form_id, '_super_version', SUPER_VERSION );
                 update_post_meta( $form_id, '_super_form_settings', $settings );
                 update_post_meta( $form_id, '_super_elements', $elements );
@@ -2348,8 +2348,8 @@ class SUPER_Ajax {
             }
             if($action==='super_import_single_form'){
                 update_post_meta( $form_id, '_super_version', $version );
-                error_log('@@@ save_form_meta() $settings(3):');
-                error_log(json_encode($settings));
+                error_log('@@@ save_form_meta() $emails(3):');
+                error_log(json_encode($emails));
                 if(!empty($settings)) update_post_meta( $form_id, '_super_form_settings', $settings );
                 if(!empty($elements)) update_post_meta( $form_id, '_super_elements', $elements );
                 if(!empty($emails)) update_post_meta( $form_id, '_emails', $emails );
