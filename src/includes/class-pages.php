@@ -809,6 +809,134 @@ class SUPER_Pages {
                                     ),
                                     array(
                                         'toggle' => true,
+                                        'title' => esc_html__( 'E-mail template', 'super-forms' ),
+                                        'vertical' => true, // sfui-vertical
+                                        'nodes' => array(
+                                            array(
+                                                'wrap' => false,
+                                                'group' => true,
+                                                'group_name' => 'template',
+                                                'vertical' => true,
+                                                'nodes' => array(
+                                                    array(
+                                                        'name' => 'slug',
+                                                        'title' => esc_html__( 'Select email template', 'super-forms' ),
+                                                        'subline' => esc_html__( 'Choose which email template you would like to use', 'super-forms' ),
+                                                        'type' => 'select',
+                                                        'options'=>array(
+                                                            'none' => esc_html__('Do not use the template', 'super-forms' ),
+                                                            'email_template_1' => esc_html__( 'Use E-mail template', 'super-forms' )
+                                                        ),
+                                                        'default' => 'default_email_template',
+                                                        'reset' => true,
+                                                        'i18n' => false
+                                                    ),
+                                                    array(
+                                                        'name' => 'logo',
+                                                        'title' => esc_html__( 'Logo', 'super-forms' ),
+                                                        'label' => esc_html__( 'Upload a logo to use for this email template', 'super-forms' ),
+                                                        'type' => 'file',
+                                                        'default' => '',
+                                                        'filter' => 'slug;!none',
+                                                        'i18n' => false
+                                                    ),
+                                                    array(
+                                                        'name' => 'title',
+                                                        'title' => esc_html__( 'Title', 'super-forms' ),
+                                                        'subline' => esc_html__( 'A title to display below your logo', 'super-forms' ),
+                                                        'default' => esc_html__( 'Your title', 'super-forms' ),
+                                                        'type' => 'text',
+                                                        'filter' => 'slug;!none',
+                                                        'i18n' => true
+                                                    ),
+                                                    array(
+                                                        'name' => 'subtitle',
+                                                        'title' => esc_html__( 'Subtitle', 'super-forms' ),
+                                                        'subline' => esc_html__( 'A subtitle to display before the email body (content)', 'super-forms' ),
+                                                        'default' => esc_html__( 'Your subtitle', 'super-forms' ),
+                                                        'type' => 'text',
+                                                        'filter' => 'slug;!none',
+                                                        'i18n' => true
+                                                    ),
+                                                    array(
+                                                        'name' => 'copyright',
+                                                        'title' => esc_html__( 'Copyright', 'super-forms' ),
+                                                        'subline' => esc_html__( 'Enter anything you like for the copyright section', 'super-forms' ),
+                                                        'default' => esc_html__( '&copy; Company Name and Address 2016', 'super-forms' ),
+                                                        'type' => 'textarea',
+                                                        'filter' => 'slug;!none',
+                                                        'i18n' => true
+                                                    ),
+                                                    array(
+                                                        'name' => 'socials',
+                                                        'title' => esc_html__( 'Social media icons', 'super-forms' ),
+                                                        'subline' => esc_html__( 'Put each social icon on a new line', 'super-forms' ),
+                                                        'default' => 'url_facebook_page|url_social_icon|Facebook',
+                                                        'type' => 'textarea',
+                                                        'filter' => 'slug;!none',
+                                                        'i18n' => false
+                                                    ),
+                                                    array(
+                                                        'name' => 'header_colors',
+                                                        'title' => esc_html__( 'Header colors', 'super-forms' ),
+                                                        'type' => 'multicolor',
+                                                        'colors' => array(
+                                                            'header_bg_color' => array(
+                                                                'label' => 'Header background color',
+                                                                'default' => '#5ba1d3'
+                                                            ),
+                                                            'header_title_color' => array(
+                                                                'label' => 'Header title color',
+                                                                'default' => '#ffffff'
+                                                            ),
+                                                        ),
+                                                        'filter' => 'slug;!none',
+                                                        'i18n' => false
+                                                    ),
+                                                    array(
+                                                        'name' => 'body_colors',
+                                                        'title' => esc_html__( 'Body colors', 'super-forms' ),
+                                                        'type' => 'multicolor',
+                                                        'colors' => array(
+                                                            'body_bg_color' => array(
+                                                                'label' => 'Body background color',
+                                                                'default' => '#ffffff'
+                                                            ),
+                                                            'body_subtitle_color' => array(
+                                                                'label' => 'Body subtitle color',
+                                                                'default' => '#474747'
+                                                            ),
+                                                            'body_font_color' => array(
+                                                                'label' => 'Body font color',
+                                                                'default' => '#9e9e9e'
+                                                            )
+                                                        ),
+                                                        'filter' => 'slug;!none',
+                                                        'i18n' => false
+                                                    ),
+                                                    array(
+                                                        'name' => 'footer_colors',
+                                                        'title' => esc_html__( 'Footer colors', 'super-forms' ),
+                                                        'type' => 'multicolor',
+                                                        'colors' => array(
+                                                            'footer_bg_color' => array(
+                                                                'label' => 'Footer background color',
+                                                                'default' => '#ee4c50'
+                                                            ),
+                                                            'footer_font_color' => array(
+                                                                'label' => 'Footer font color',
+                                                                'default' => '#ffffff'
+                                                            )
+                                                        ),
+                                                        'filter' => 'slug;!none',
+                                                        'i18n' => false
+                                                    ),
+                                                )
+                                            )
+                                        )
+                                    ),
+                                    array(
+                                        'toggle' => true,
                                         'title' => esc_html__( 'Advanced options', 'super-forms' ),
                                         'vertical' => true, // sfui-vertical
                                         'nodes' => array(
