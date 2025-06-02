@@ -151,13 +151,63 @@ class SUPER_Common {
         // Unslash it before returning
         $triggers = wp_unslash($triggers);
         error_log('::::: triggers: '.json_encode($triggers));
-        $settings = SUPER_Common::get_form_settings($form_id);
-        error_log('::::: settings: '.json_encode($settings));
-        $emails = SUPER_Common::get_form_emails_settings($form_id);
-        error_log('::::: emails: '.json_encode($emails));
-		$triggers = apply_filters( 'super_triggers_filter', $triggers, array('id'=>$form_id));
         return $triggers;
     }
+    
+    /**
+     * Convert Email tab settings to trigger format
+     */
+    public static function add_emails_as_trigger($triggers, $emails) {
+        $email_triggers = array();
+        
+        if (empty($emails) || !is_array($emails)) {
+            return $triggers;
+        }
+        
+        $order = 1;
+        foreach ($emails as $email_index => $email_settings) {
+            // Skip if this email is not enabled or doesn't have the basic required fields
+            if (empty($email_settings) || !is_array($email_settings)) {
+                continue;
+            }
+            
+            // Only add trigger if email is enabled
+            if (empty($email_settings['enabled']) || $email_settings['enabled'] !== 'true') {
+                continue;
+            }
+            
+            // Create trigger for this email using the email data directly
+            $email_triggers[] = array(
+                'name' => 'auto-email-' . $email_index,
+                'enabled' => 'true',
+                'event' => 'sf.after.submission',
+                'listen_to' => '',
+                'ids' => '',
+                'order' => $order,
+                'actions' => array(
+                    array(
+                        'action' => 'send_email',
+                        'order' => '1',
+                        'conditions' => array(
+                            'enabled' => 'false',
+                            'f1' => '',
+                            'logic' => '==',
+                            'f2' => ''
+                        ),
+                        'data' => $email_settings['data']
+                    )
+                ),
+                'i18n' => ''
+            );
+            
+            $order++;
+        }
+        if (!empty($email_triggers)) {
+            $triggers = array_merge($triggers, $email_triggers);
+        }
+        return $triggers;
+    }
+    
     public static function save_form_triggers($triggers, $form_id, $delete=true){
         error_log('=== SUPER FORMS: save_form_triggers() START ===');
         error_log('Form ID: ' . $form_id);
@@ -370,6 +420,10 @@ class SUPER_Common {
         }
         error_log('form_id: '.$form_id);
         $triggers = self::get_form_triggers($form_id);
+	// Add fixed Emails (if any) as a trigger for event sf.after.submission with action send_email
+        $emails = SUPER_Common::get_form_emails_settings($form_id);
+        $triggers = self::add_emails_as_trigger($triggers, $emails);
+	$triggers = apply_filters( 'super_triggers_filter', $triggers, array('sfsi'=>$sfsi));
         usort($triggers, function($a, $b) {
             return absint($a['order']) - absint($b['order']);
         });
