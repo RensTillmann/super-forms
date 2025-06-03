@@ -209,17 +209,36 @@ class SUPER_UI {
         if(count($prefix)>0){
             $name = implode('.',$prefix).'.'.$v['name'];
         }
+        // Is multicolor
+        if($v['type']==='multicolor'){
+            if(isset($v['title'])) echo '<span class="sfui-title'.((isset($v['label'])) ? ' sfui-no-padding' : '').'">' . $v['title'] . '</span>';
+            if(isset($v['label'])) echo '<span class="sfui-label">' . $v['label'] . '</span>';
+            if(isset($v['subline'])) echo '<span class="sfui-subline"><i>' . $v['subline'] . '</i></span>';
+            foreach($v['colors'] as $name => $color){
+                //echo '<div class="input super-field-type-multicolor">';
+                //    echo '<div class="super-color-picker-container">';
+                //        if(isset($color['label'])) echo = '<div class="super-color-picker-label">'.$color['label'].'</div>';
+                //        echo '<div class="super-color-picker">';
+                //            echo SUPER_Common::reset_setting_icons($v);
+                //            echo '<input type="text" id="field-'.$k.'" name="'.$k.'" class="super-element-field" value="'.esc_attr($v['v']).'" />';
+                //        echo '</div>';
+                //    echo '</div>';
+                //echo '</div>';
+                //
+                //
+                // sfui-type-multicolor input
+                $value = self::get_value($s, $name, $v);
+                echo '<input type="input" name="'.esc_attr($name).'" value="' . esc_attr($value). '" />';
+                if(isset($color['label'])) echo '<span class="sfui-label">' . $color['label'] . '</span>';
+                if(isset($color['subline'])) echo '<span class="sfui-subline"><i>' . $color['subline'] . '</i></span>';
+            }
+        }
         // Is field
         if($v['type']==='checkbox'){
             echo '<label onclick="SUPER.ui.updateSettings(event, this)">';
                 echo '<input type="checkbox" name="'.$v['name'].'" value="true"' . (self::get_value($s, $name, null)==='true' ? ' checked="checked"' : '') . ' />';
                 if(isset($v['title'])){
                     echo '<span class="sfui-title'.((isset($v['label'])) ? ' sfui-no-padding' : '').'">' . $v['title'] . '</span>';
-                    // tmp if(isset($v['reset']) && $v['reset']===false){
-                    // tmp     // Don't display reset buttons/icons
-                    // tmp }else{
-                    // tmp     echo SUPER_Common::reset_setting_icons($v);
-                    // tmp }
                 }
                 if(isset($v['label'])){
                     echo '<span class="sfui-label">' . $v['label'] . '</span>';

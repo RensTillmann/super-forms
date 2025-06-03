@@ -57,6 +57,27 @@
     SUPER.ui = {
         settings: {},
         tmpSettings: {}, // used for translation mode only
+        colorpickers: {
+            init: function(){
+                if($.isFunction($.fn.wpColorPicker)){
+                    debugger;
+                    var i, nodes = document.querySelectorAll('.sfui-type-multicolor > input');
+                    for(i=0; i<nodes.length; i++){
+                        if(!nodes[i].closest('.wp-picker-container')){
+                            $(nodes[i]).wpColorPicker({
+                                color: 'red',
+                                change: function(event, ui) {
+                                    this.value = ui.color.toString();
+                                    SUPER.ui.updateSettings(null, this);
+                                },
+                                palettes: ['#FFFFFF', '#000000', '#444444', '#8E8E8E', '#9A9A9A', '#CDCDCD', '#6E7177', '#F26C68', '#49B4B6' ]
+                            });
+                            //$(input).wpColorPicker('color', 'red');
+                        }
+                    }
+                }
+            }
+        },
         getKeyPath: function(field, tab) {
             var keyPath = [];
             var parent = field.parentElement;
@@ -109,13 +130,22 @@
             if(value === true) return 'true';
             if(value === false) return 'false';
             if(el.type === 'checkbox') return el.checked ? 'true' : 'false';
-            if (el.tagName === 'TEXTAREA' && tinymce.get(el.id)) {
+            if(el.tagName === 'TEXTAREA' && tinymce.get(el.id)){
                 console.log('=== TinyMCE getValue() ===');
                 console.log('Element ID:', el.id);
                 console.log('Element name:', el.name);
                 value = tinymce.get(el.id).getContent();
                 console.log('TinyMCE content:', value);
             }
+            if(el.closest('.sfui-type-multicolor')){
+                debugger;
+            }
+            //    console.log('=== TinyMCE getValue() ===');
+            //    console.log('Element ID:', el.id);
+            //    console.log('Element name:', el.name);
+            //    value = tinymce.get(el.id).getContent();
+            //    console.log('TinyMCE content:', value);
+            //}
             return value;
         },
         setRepeaterFieldValues: function(element, values){
@@ -287,6 +317,8 @@
         },
         // Init `code` auto fill values
         init: function(){
+            debugger;
+            this.colorpickers.init();
             $('.sfui-setting').on('click', '.sfui-title code, .sfui-label code, .sfui-subline code', function(){
             //$('.sfui-title code, .sfui-label code').on('click',function(){
                 if(this.closest('label')){
@@ -1381,6 +1413,7 @@
             },
         }
     };
+
     SUPER.update_form_elements = function(string){
         document.querySelector('.super-raw-code-form-elements textarea').value = SUPER.get_form_elements(string);
     };
@@ -1626,8 +1659,6 @@
                     mainLanguageValue = undefined;
                     field = nodes[i];
                     fieldName = field.name;
-                    //if(fieldName==='filename') debugger;
-                    //if(fieldName==='subject') debugger;
                     if(fieldName==='i18n') continue;
                     console.log('>>> fieldName:', fieldName);
                     var { keyPath, i18nField } = SUPER.ui.getKeyPath(field, tab);
@@ -1930,7 +1961,6 @@
                 for (ri = 0; ri < repeaterItems.length; ri++) {
                     if (!data[k]) data[k] = [];
                     if (!data[k][ri]) data[k][ri] = {};
-                    if(slug==='emails') debugger;
                     data[k][ri] = SUPER.get_tab_settings(settings, slug, repeaterItems[ri], data[k][ri]);
                 }
                 continue;
@@ -1940,7 +1970,6 @@
                 k = nodes[i].dataset.g;
                 if (!data[k]) data[k] = {};
                 // Lookup any inner fields
-                if(slug==='emails') debugger;
                 data[k] = SUPER.get_tab_settings(settings, slug, nodes[i], data[k]);
                 continue;
             }
@@ -2066,9 +2095,6 @@
         }else{
             // Store settings globally
             if((slug==='triggers' || slug==='stripe') && SUPER.ui.i18n.lastLanguage!=='' && SUPER.ui.i18n.lastLanguage!==SUPER.ui.i18n.mainLanguage){
-                debugger;
-                debugger;
-                debugger;
                 SUPER.ui.settings['_'+slug].i18n[SUPER.ui.i18n.lastLanguage] = data.i18n[SUPER.ui.i18n.lastLanguage];
                 data = SUPER.ui.settings['_'+slug];
                 // Adjust repeater items based on i18n_data
@@ -2396,7 +2422,6 @@
     SUPER.get_emails_settings = function(string, returnData){
         if(typeof string === 'undefined') string = false;
         if(typeof returnData === 'undefined') returnData = false;
-        debugger;
         var $s = SUPER.get_tab_settings({}, 'emails', undefined, undefined, returnData);
         $s = $s['emails'];
         if(string===true) {
@@ -3349,7 +3374,6 @@
         params.localSecrets = localSecrets;
         params.globalSecrets = globalSecrets;
         if(super_create_form_i18n.version){
-            debugger;
             params.form_data = {
                 elements: document.querySelector('.super-raw-code-form-elements textarea').value,
                 settings: document.querySelector('.super-raw-code-form-settings textarea').value,
