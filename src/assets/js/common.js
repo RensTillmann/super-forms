@@ -8645,6 +8645,7 @@ function SUPERreCaptcha(){
 
     // Init color pickers
     SUPER.init_color_pickers = function(){
+        debugger;
         if ( $.isFunction($.fn.wpColorPicker) ) {
             $('.super-color-picker').each(function(){
                 if($(this).find('.wp-picker-container').length===0){

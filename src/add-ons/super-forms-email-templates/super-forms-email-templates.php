@@ -161,7 +161,7 @@ if( !class_exists('SUPER_Email_Templates') ) :
             if ( $this->is_request( 'admin' ) ) {
                 
                 // Filters since 1.0.0
-                add_filter( 'super_settings_after_email_template_filter', array( $this, 'add_settings' ), 10, 2 );
+                //add_filter( 'super_settings_after_email_template_filter', array( $this, 'add_settings' ), 10, 2 );
             }
             // Following filters must be called outside "admin" scope, because some features will trigger outside of it
             // For instance with the WooCommerce Checkout feature whenever the Order status changed to "completed" it should fire the below filters
@@ -175,142 +175,142 @@ if( !class_exists('SUPER_Email_Templates') ) :
          *
          *  @since      1.0.0
         */
-        public static function add_settings( $array, $x ) {
-			$array['email_template']['fields']['email_template']['values']['email_template_1'] = esc_html__( 'E-mail Template 1', 'super-forms' );
-			$new_fields = array(
-	        	'email_template_1_logo' => array(
-	                'name' => esc_html__( 'E-mail logo', 'super-forms' ),
-	                'desc' => esc_html__( 'Upload a logo to use for this email template', 'super-forms' ),
-	                'default' => '',
-	                'type' => 'image',
-	                'filter' => true,
-	                'parent' => 'email_template',
-	                'filter_value' => 'email_template_1', 
-	            ),
-	            'email_template_1_title' => array(
-	                'name' => esc_html__( 'E-mail title', 'super-forms' ),
-	                'desc' => esc_html__( 'A title to display below your logo', 'super-forms' ),
-	                'default' => esc_html__( 'Your title', 'super-forms' ),
-	                'filter' => true,
-	                'parent' => 'email_template',
-	                'filter_value' => 'email_template_1',
-                    'allow_empty' => true,
-                    'i18n'=>true
-            	),
-            	'email_template_1_confirm_title' => array(
-	                'name' => esc_html__( 'E-mail title (confirm)', 'super-forms' ),
-	                'desc' => esc_html__( 'A title to display below your logo (used for confirmation emails)', 'super-forms' ),
-	                'default' => esc_html__( 'Your title', 'super-forms' ),
-	                'filter' => true,
-	                'parent' => 'email_template',
-	                'filter_value' => 'email_template_1',
-                    'allow_empty' => true,
-                    'i18n'=>true
-	            ),
-	            'email_template_1_subtitle' => array(
-	                'name' => esc_html__( 'E-mail subtitle', 'super-forms' ),
-	                'desc' => esc_html__( 'A subtitle to display before the email body (content)', 'super-forms' ),
-	                'default' => esc_html__( 'Your subtitle', 'super-forms' ),
-	                'filter' => true,
-	                'parent' => 'email_template',
-	                'filter_value' => 'email_template_1',
-                    'allow_empty' => true,
-                    'i18n'=>true
-	            ),
-	            'email_template_1_confirm_subtitle' => array(
-	                'name' => esc_html__( 'E-mail subtitle (confirm)', 'super-forms' ),
-	                'desc' => esc_html__( 'A subtitle to display before the email body (used for confirmation emails)', 'super-forms' ),
-	                'default' => esc_html__( 'Your subtitle', 'super-forms' ),
-	                'filter' => true,
-	                'parent' => 'email_template',
-	                'filter_value' => 'email_template_1', 
-                    'allow_empty' => true,
-                    'i18n'=>true
-	            ),
-	            'email_template_1_copyright' => array(
-	                'name' => esc_html__( 'E-mail copyright', 'super-forms' ),
-	                'desc' => esc_html__( 'Enter anything you like for the copyright section', 'super-forms' ),
-	                'default' => esc_html__( '&copy; Someone, somewhere 2016', 'super-forms' ),
-	                'placeholder' => esc_html__( '&copy; Someone, somewhere 2015', 'super-forms' ),
-	                'type' => 'textarea',
-	                'filter' => true,
-	                'parent' => 'email_template',
-	                'filter_value' => 'email_template_1',
-                    'allow_empty' => true,
-                    'i18n'=>true
-	            ),
-	            'email_template_1_socials' => array(
-	                'name' => esc_html__( 'E-mail social icons', 'super-forms' ),
-                    'desc' => esc_html__( 'Put each social icon on a new line', 'super-forms' ),
-	                'label' => sprintf( esc_html__( 'Put each on a new line, separate values by pipes%s%sExample:%s http://facebook.com/company|http://domain.com/fb-icon.png|Facebook', 'super-forms' ), '<br />', '<strong>', '</strong>' ),
-	                'default' => 'url_facebook_page|url_social_icon|Facebook',
-	                'placeholder' =>  'url_facebook_page|url_social_icon|Facebook',
-	                'type' => 'textarea',
-	                'filter' => true,
-	                'parent' => 'email_template',
-	                'filter_value' => 'email_template_1',
-                    'allow_empty' => true,
-	            ),
-	            'email_template_1_header_colors' => array(
-	                'name' => esc_html__( 'Header colors', 'super-forms' ),
-	                'type' => 'multicolor', 
-	                'colors' => array(
-	                    'email_template_1_header_bg_color' => array(
-	                        'label' => 'Header background color',
-	                		'default' => '#5ba1d3'
-	                    ),
-	                    'email_template_1_header_title_color' => array(
-	                        'label' => 'Header title color',
-	                		'default' => '#ffffff'
-	                    ),
-	                ),
-	                'filter' => true,
-	                'parent' => 'email_template',
-	                'filter_value' => 'email_template_1',
-	            ),
-	            'email_template_1_body_colors' => array(
-	                'name' => esc_html__( 'Body colors', 'super-forms' ),
-	                'type' => 'multicolor', 
-	                'colors' => array(
-	                    'email_template_1_body_bg_color' => array(
-	                        'label' => 'Body background color',
-	                		'default' => '#ffffff'
-	                    ),
-	                    'email_template_1_body_subtitle_color' => array(
-	                        'label' => 'Body subtitle color',
-	                		'default' => '#474747'
-	                    ),
-	                    'email_template_1_body_font_color' => array(
-	                        'label' => 'Body font color',
-	                		'default' => '#9e9e9e'
-	                    ),            
-	                ),
-	                'filter' => true,
-	                'parent' => 'email_template',
-	                'filter_value' => 'email_template_1',
-	            ),    
-	            'email_template_1_footer_colors' => array(
-	                'name' => esc_html__( 'Footer colors', 'super-forms' ),
-	                'type' => 'multicolor', 
-	                'colors' => array(
-	                    'email_template_1_footer_bg_color' => array(
-	                        'label' => 'Footer background color',
-	                		'default' => '#ee4c50'
-	                    ),
-	                    'email_template_1_footer_font_color' => array(
-	                        'label' => 'Footer font color',
-	                		'default' => '#ffffff'
-	                    ),
-	                ),
-	                'filter' => true,
-	                'parent' => 'email_template',
-	                'filter_value' => 'email_template_1',
-	            )
-			);
-	        $new_array = array_merge( $array['email_template']['fields'], $new_fields );
-			$array['email_template']['fields'] = $new_array;
-			return $array;
-        }
+        //public static function add_settings( $array, $x ) {
+		//	$array['email_template']['fields']['email_template']['values']['email_template_1'] = esc_html__( 'E-mail Template 1', 'super-forms' );
+		//	$new_fields = array(
+	    //    	'email_template_1_logo' => array(
+	    //            'name' => esc_html__( 'E-mail logo', 'super-forms' ),
+	    //            'desc' => esc_html__( 'Upload a logo to use for this email template', 'super-forms' ),
+	    //            'default' => '',
+	    //            'type' => 'image',
+	    //            'filter' => true,
+	    //            'parent' => 'email_template',
+	    //            'filter_value' => 'email_template_1', 
+	    //        ),
+	    //        'email_template_1_title' => array(
+	    //            'name' => esc_html__( 'E-mail title', 'super-forms' ),
+	    //            'desc' => esc_html__( 'A title to display below your logo', 'super-forms' ),
+	    //            'default' => esc_html__( 'Your title', 'super-forms' ),
+	    //            'filter' => true,
+	    //            'parent' => 'email_template',
+	    //            'filter_value' => 'email_template_1',
+        //            'allow_empty' => true,
+        //            'i18n'=>true
+        //    	),
+        //    	'email_template_1_confirm_title' => array(
+	    //            'name' => esc_html__( 'E-mail title (confirm)', 'super-forms' ),
+	    //            'desc' => esc_html__( 'A title to display below your logo (used for confirmation emails)', 'super-forms' ),
+	    //            'default' => esc_html__( 'Your title', 'super-forms' ),
+	    //            'filter' => true,
+	    //            'parent' => 'email_template',
+	    //            'filter_value' => 'email_template_1',
+        //            'allow_empty' => true,
+        //            'i18n'=>true
+	    //        ),
+	    //        'email_template_1_subtitle' => array(
+	    //            'name' => esc_html__( 'E-mail subtitle', 'super-forms' ),
+	    //            'desc' => esc_html__( 'A subtitle to display before the email body (content)', 'super-forms' ),
+	    //            'default' => esc_html__( 'Your subtitle', 'super-forms' ),
+	    //            'filter' => true,
+	    //            'parent' => 'email_template',
+	    //            'filter_value' => 'email_template_1',
+        //            'allow_empty' => true,
+        //            'i18n'=>true
+	    //        ),
+	    //        'email_template_1_confirm_subtitle' => array(
+	    //            'name' => esc_html__( 'E-mail subtitle (confirm)', 'super-forms' ),
+	    //            'desc' => esc_html__( 'A subtitle to display before the email body (used for confirmation emails)', 'super-forms' ),
+	    //            'default' => esc_html__( 'Your subtitle', 'super-forms' ),
+	    //            'filter' => true,
+	    //            'parent' => 'email_template',
+	    //            'filter_value' => 'email_template_1', 
+        //            'allow_empty' => true,
+        //            'i18n'=>true
+	    //        ),
+	    //        'email_template_1_copyright' => array(
+	    //            'name' => esc_html__( 'E-mail copyright', 'super-forms' ),
+	    //            'desc' => esc_html__( 'Enter anything you like for the copyright section', 'super-forms' ),
+	    //            'default' => esc_html__( '&copy; Someone, somewhere 2016', 'super-forms' ),
+	    //            'placeholder' => esc_html__( '&copy; Someone, somewhere 2015', 'super-forms' ),
+	    //            'type' => 'textarea',
+	    //            'filter' => true,
+	    //            'parent' => 'email_template',
+	    //            'filter_value' => 'email_template_1',
+        //            'allow_empty' => true,
+        //            'i18n'=>true
+	    //        ),
+	    //        'email_template_1_socials' => array(
+	    //            'name' => esc_html__( 'E-mail social icons', 'super-forms' ),
+        //            'desc' => esc_html__( 'Put each social icon on a new line', 'super-forms' ),
+	    //            'label' => sprintf( esc_html__( 'Put each on a new line, separate values by pipes%s%sExample:%s http://facebook.com/company|http://domain.com/fb-icon.png|Facebook', 'super-forms' ), '<br />', '<strong>', '</strong>' ),
+	    //            'default' => 'url_facebook_page|url_social_icon|Facebook',
+	    //            'placeholder' =>  'url_facebook_page|url_social_icon|Facebook',
+	    //            'type' => 'textarea',
+	    //            'filter' => true,
+	    //            'parent' => 'email_template',
+	    //            'filter_value' => 'email_template_1',
+        //            'allow_empty' => true,
+	    //        ),
+	    //        'email_template_1_header_colors' => array(
+	    //            'name' => esc_html__( 'Header colors', 'super-forms' ),
+	    //            'type' => 'multicolor', 
+	    //            'colors' => array(
+	    //                'email_template_1_header_bg_color' => array(
+	    //                    'label' => 'Header background color',
+	    //            		'default' => '#5ba1d3'
+	    //                ),
+	    //                'email_template_1_header_title_color' => array(
+	    //                    'label' => 'Header title color',
+	    //            		'default' => '#ffffff'
+	    //                ),
+	    //            ),
+	    //            'filter' => true,
+	    //            'parent' => 'email_template',
+	    //            'filter_value' => 'email_template_1',
+	    //        ),
+	    //        'email_template_1_body_colors' => array(
+	    //            'name' => esc_html__( 'Body colors', 'super-forms' ),
+	    //            'type' => 'multicolor', 
+	    //            'colors' => array(
+	    //                'email_template_1_body_bg_color' => array(
+	    //                    'label' => 'Body background color',
+	    //            		'default' => '#ffffff'
+	    //                ),
+	    //                'email_template_1_body_subtitle_color' => array(
+	    //                    'label' => 'Body subtitle color',
+	    //            		'default' => '#474747'
+	    //                ),
+	    //                'email_template_1_body_font_color' => array(
+	    //                    'label' => 'Body font color',
+	    //            		'default' => '#9e9e9e'
+	    //                ),            
+	    //            ),
+	    //            'filter' => true,
+	    //            'parent' => 'email_template',
+	    //            'filter_value' => 'email_template_1',
+	    //        ),    
+	    //        'email_template_1_footer_colors' => array(
+	    //            'name' => esc_html__( 'Footer colors', 'super-forms' ),
+	    //            'type' => 'multicolor', 
+	    //            'colors' => array(
+	    //                'email_template_1_footer_bg_color' => array(
+	    //                    'label' => 'Footer background color',
+	    //            		'default' => '#ee4c50'
+	    //                ),
+	    //                'email_template_1_footer_font_color' => array(
+	    //                    'label' => 'Footer font color',
+	    //            		'default' => '#ffffff'
+	    //                ),
+	    //            ),
+	    //            'filter' => true,
+	    //            'parent' => 'email_template',
+	    //            'filter_value' => 'email_template_1',
+	    //        )
+		//	);
+	    //    $new_array = array_merge( $array['email_template']['fields'], $new_fields );
+		//	$array['email_template']['fields'] = $new_array;
+		//	return $array;
+        //}
 
 
         /**

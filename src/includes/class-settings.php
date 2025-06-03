@@ -1062,23 +1062,23 @@ class SUPER_Settings {
          *
          *	@since		1.0.0
         */
-        $array['email_template'] = array(        
-            'name' => esc_html__( 'Email template', 'super-forms' ),
-            'label' => esc_html__( 'Email template', 'super-forms' ),
-            'fields' => array(        
-                'email_template' => array(
-                    'name' => esc_html__( 'Select email template', 'super-forms' ),
-                    'label' => esc_html__( 'Choose which email template you would like to use', 'super-forms' ),
-                    'type'=>'select',
-                    'default' =>  'default_email_template',
-                    'filter'=>true,
-                    'values'=>array(
-                        'default_email_template' => esc_html__('Default email template', 'super-forms' ),
-                    )
-                )
-            )
-        );
-        $array = apply_filters( 'super_settings_after_email_template_filter', $array, array( 'settings'=>$s, 'default'=>$default ) );
+        //$array['email_template'] = array(        
+        //    'name' => esc_html__( 'Email template', 'super-forms' ),
+        //    'label' => esc_html__( 'Email template', 'super-forms' ),
+        //    'fields' => array(        
+        //        'email_template' => array(
+        //            'name' => esc_html__( 'Select email template', 'super-forms' ),
+        //            'label' => esc_html__( 'Choose which email template you would like to use', 'super-forms' ),
+        //            'type'=>'select',
+        //            'default' =>  'default_email_template',
+        //            'filter'=>true,
+        //            'values'=>array(
+        //                'default_email_template' => esc_html__('Default email template', 'super-forms' ),
+        //            )
+        //        )
+        //    )
+        //);
+        //$array = apply_filters( 'super_settings_after_email_template_filter', $array, array( 'settings'=>$s, 'default'=>$default ) );
 
 
         /** 
