@@ -4477,7 +4477,6 @@ function SUPERreCaptcha(){
 
     // Define Javascript Filters/Hooks
     SUPER.save_form_params_filter = function(params){
-        debugger;
         var i, name, functions = super_common_i18n.dynamic_functions.save_form_params_filter;
         if(typeof functions !== 'undefined'){
             for( i = 0; i < functions.length; i++){
@@ -8645,7 +8644,6 @@ function SUPERreCaptcha(){
 
     // Init color pickers
     SUPER.init_color_pickers = function(){
-        debugger;
         if ( $.isFunction($.fn.wpColorPicker) ) {
             $('.super-color-picker').each(function(){
                 if($(this).find('.wp-picker-container').length===0){

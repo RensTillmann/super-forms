@@ -672,6 +672,7 @@ class SUPER_Pages {
                                                 'title' => esc_html__( 'Attachments', 'super-forms' ),
                                                 'label' => esc_html__( 'Hold Ctrl to add multiple files', 'super-forms' ),
                                                 'type' => 'files', // file
+                                                'multiple' => true,
                                                 'default' => '',
                                                 'i18n' => true
                                             ),
@@ -835,7 +836,8 @@ class SUPER_Pages {
                                                         'name' => 'logo',
                                                         'title' => esc_html__( 'Logo', 'super-forms' ),
                                                         'label' => esc_html__( 'Upload a logo to use for this email template', 'super-forms' ),
-                                                        'type' => 'file',
+                                                        'type' => 'files', // file
+                                                        'multiple' => false,
                                                         'default' => '',
                                                         'filter' => 'template.slug;email_template_1',
                                                         'i18n' => false
@@ -881,70 +883,99 @@ class SUPER_Pages {
                                                         'i18n' => false
                                                     ),
                                                     array(
-                                                        'name' => 'header_colors',
-                                                        'title' => esc_html__( 'Header colors', 'super-forms' ),
-                                                        'type' => 'multicolor',
-                                                        'colors' => array(
-                                                            'header_bg_color' => array(
+                                                        'wrap' => false,
+                                                        'group' => true,
+                                                        'group_name' => 'header_colors',
+                                                        'vertical' => true,
+                                                        'nodes' => array(
+                                                            array(
+                                                                'name' => 'bg',
                                                                 'inline' => true,
-                                                                'subline' => 'Header background color',
-                                                                'default' => '#5ba1d3'
+                                                                'subline' => esc_html__( 'Header background color', 'super-forms' ),
+                                                                'default' => '#5ba1d3',
+                                                                'type' => 'color',
+                                                                'filter' => 'template.slug;email_template_1',
+                                                                'reset' => true,
+                                                                'i18n' => false
                                                             ),
-                                                            'header_title_color' => array(
+                                                            array(
+                                                                'name' => 'title',
                                                                 'inline' => true,
-                                                                'subline' => 'Header title color',
-                                                                'default' => '#ffffff'
+                                                                'subline' => esc_html__( 'Header title color', 'super-forms' ),
+                                                                'default' => '#ffffff',
+                                                                'type' => 'color',
+                                                                'filter' => 'template.slug;email_template_1',
+                                                                'reset' => true,
+                                                                'i18n' => false
                                                             ),
-                                                        ),
-                                                        'filter' => 'template.slug;email_template_1',
-                                                        'reset' => true,
-                                                        'i18n' => false
+                                                        )
                                                     ),
                                                     array(
-                                                        'name' => 'body_colors',
-                                                        'title' => esc_html__( 'Body colors', 'super-forms' ),
-                                                        'type' => 'multicolor',
-                                                        'colors' => array(
-                                                            'body_bg_color' => array(
+                                                        'wrap' => false,
+                                                        'group' => true,
+                                                        'group_name' => 'body_colors',
+                                                        'vertical' => true,
+                                                        'nodes' => array(
+                                                            array(
+                                                                'name' => 'bg',
                                                                 'inline' => true,
-                                                                'subline' => 'Body background color',
-                                                                'default' => '#ffffff'
+                                                                'subline' => esc_html__( 'Body background color', 'super-forms' ),
+                                                                'default' => '#ffffff',
+                                                                'type' => 'color',
+                                                                'filter' => 'template.slug;email_template_1',
+                                                                'reset' => true,
+                                                                'i18n' => false
                                                             ),
-                                                            'body_subtitle_color' => array(
+                                                            array(
+                                                                'name' => 'subtitle',
                                                                 'inline' => true,
-                                                                'subline' => 'Body subtitle color',
-                                                                'default' => '#474747'
+                                                                'subline' => esc_html__( 'Body subtitle color', 'super-forms' ),
+                                                                'default' => '#474747',
+                                                                'type' => 'color',
+                                                                'filter' => 'template.slug;email_template_1',
+                                                                'reset' => true,
+                                                                'i18n' => false
                                                             ),
-                                                            'body_font_color' => array(
+                                                            array(
+                                                                'name' => 'font',
                                                                 'inline' => true,
-                                                                'subline' => 'Body font color',
-                                                                'default' => '#9e9e9e'
+                                                                'subline' => esc_html__( 'Body font color', 'super-forms' ),
+                                                                'default' => '#9e9e9e',
+                                                                'type' => 'color',
+                                                                'filter' => 'template.slug;email_template_1',
+                                                                'reset' => true,
+                                                                'i18n' => false
                                                             )
-                                                        ),
-                                                        'filter' => 'template.slug;email_template_1',
-                                                        'reset' => true,
-                                                        'i18n' => false
+                                                        )
                                                     ),
                                                     array(
-                                                        'name' => 'footer_colors',
-                                                        'title' => esc_html__( 'Footer colors', 'super-forms' ),
-                                                        'type' => 'multicolor',
-                                                        'colors' => array(
-                                                            'footer_bg_color' => array(
+                                                        'wrap' => false,
+                                                        'group' => true,
+                                                        'group_name' => 'footer_colors',
+                                                        'vertical' => true,
+                                                        'nodes' => array(
+                                                            array(
+                                                                'name' => 'bg',
                                                                 'inline' => true,
-                                                                'subline' => 'Footer background color',
-                                                                'default' => '#ee4c50'
+                                                                'subline' => esc_html__( 'Footer background color', 'super-forms' ),
+                                                                'default' => '#ee4c50',
+                                                                'type' => 'color',
+                                                                'filter' => 'template.slug;email_template_1',
+                                                                'reset' => true,
+                                                                'i18n' => false
                                                             ),
-                                                            'footer_font_color' => array(
+                                                            array(
+                                                                'name' => 'font',
                                                                 'inline' => true,
-                                                                'subline' => 'Footer font color',
-                                                                'default' => '#ffffff'
+                                                                'subline' => esc_html__( 'Footer font color', 'super-forms' ),
+                                                                'default' => '#ffffff',
+                                                                'type' => 'color',
+                                                                'filter' => 'template.slug;email_template_1',
+                                                                'reset' => true,
+                                                                'i18n' => false
                                                             )
-                                                        ),
-                                                        'filter' => 'template.slug;email_template_1',
-                                                        'reset' => true,
-                                                        'i18n' => false
-                                                    ),
+                                                        )
+                                                    )
                                                 )
                                             )
                                         )

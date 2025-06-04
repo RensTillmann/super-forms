@@ -154,19 +154,23 @@
             };
         },
         setTabFieldValue: function(field, value){
+            debugger;
             if(field.tagName === 'TEXTAREA' && tinymce.get(field.id)){
                 tinymce.get(field.id).setContent(value);
             } else {
                 if(field.type === 'checkbox'){
                     field.checked = (value === 'true');
                 }else{
+                    debugger;
                     if (field.value !== value) {
                         // Re-load attachment image preview
                         if(field.parentNode.closest('.sfui-setting').classList.contains('sfui-type-files')) {
                             field.value = value;
                             SUPER.ui.i18n.reload_attachments(field);
                         }
+                        debugger;
                         if(field.parentNode.closest('.sfui-colorpicker')){
+                            debugger;
                             $(field).wpColorPicker('color', value);
                         }
                     }
