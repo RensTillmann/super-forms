@@ -827,7 +827,7 @@ class SUPER_Pages {
                                                             'none' => esc_html__('Do not use the template', 'super-forms' ),
                                                             'email_template_1' => esc_html__( 'Use E-mail template', 'super-forms' )
                                                         ),
-                                                        'default' => 'default_email_template',
+                                                        'default' => 'none',
                                                         'reset' => true,
                                                         'i18n' => false
                                                     ),
@@ -847,6 +847,7 @@ class SUPER_Pages {
                                                         'default' => esc_html__( 'Your title', 'super-forms' ),
                                                         'type' => 'text',
                                                         'filter' => 'template.slug;email_template_1',
+                                                        'reset' => true,
                                                         'i18n' => true
                                                     ),
                                                     array(
@@ -856,6 +857,7 @@ class SUPER_Pages {
                                                         'default' => esc_html__( 'Your subtitle', 'super-forms' ),
                                                         'type' => 'text',
                                                         'filter' => 'template.slug;email_template_1',
+                                                        'reset' => true,
                                                         'i18n' => true
                                                     ),
                                                     array(
@@ -865,6 +867,7 @@ class SUPER_Pages {
                                                         'default' => esc_html__( '&copy; Company Name and Address 2016', 'super-forms' ),
                                                         'type' => 'textarea',
                                                         'filter' => 'template.slug;email_template_1',
+                                                        'reset' => true,
                                                         'i18n' => true
                                                     ),
                                                     array(
@@ -874,6 +877,7 @@ class SUPER_Pages {
                                                         'default' => 'url_facebook_page|url_social_icon|Facebook',
                                                         'type' => 'textarea',
                                                         'filter' => 'template.slug;email_template_1',
+                                                        'reset' => true,
                                                         'i18n' => false
                                                     ),
                                                     array(
@@ -882,15 +886,18 @@ class SUPER_Pages {
                                                         'type' => 'multicolor',
                                                         'colors' => array(
                                                             'header_bg_color' => array(
-                                                                'label' => 'Header background color',
+                                                                'inline' => true,
+                                                                'subline' => 'Header background color',
                                                                 'default' => '#5ba1d3'
                                                             ),
                                                             'header_title_color' => array(
-                                                                'label' => 'Header title color',
+                                                                'inline' => true,
+                                                                'subline' => 'Header title color',
                                                                 'default' => '#ffffff'
                                                             ),
                                                         ),
                                                         'filter' => 'template.slug;email_template_1',
+                                                        'reset' => true,
                                                         'i18n' => false
                                                     ),
                                                     array(
@@ -899,19 +906,23 @@ class SUPER_Pages {
                                                         'type' => 'multicolor',
                                                         'colors' => array(
                                                             'body_bg_color' => array(
-                                                                'label' => 'Body background color',
+                                                                'inline' => true,
+                                                                'subline' => 'Body background color',
                                                                 'default' => '#ffffff'
                                                             ),
                                                             'body_subtitle_color' => array(
-                                                                'label' => 'Body subtitle color',
+                                                                'inline' => true,
+                                                                'subline' => 'Body subtitle color',
                                                                 'default' => '#474747'
                                                             ),
                                                             'body_font_color' => array(
-                                                                'label' => 'Body font color',
+                                                                'inline' => true,
+                                                                'subline' => 'Body font color',
                                                                 'default' => '#9e9e9e'
                                                             )
                                                         ),
                                                         'filter' => 'template.slug;email_template_1',
+                                                        'reset' => true,
                                                         'i18n' => false
                                                     ),
                                                     array(
@@ -920,15 +931,18 @@ class SUPER_Pages {
                                                         'type' => 'multicolor',
                                                         'colors' => array(
                                                             'footer_bg_color' => array(
-                                                                'label' => 'Footer background color',
+                                                                'inline' => true,
+                                                                'subline' => 'Footer background color',
                                                                 'default' => '#ee4c50'
                                                             ),
                                                             'footer_font_color' => array(
-                                                                'label' => 'Footer font color',
+                                                                'inline' => true,
+                                                                'subline' => 'Footer font color',
                                                                 'default' => '#ffffff'
                                                             )
                                                         ),
                                                         'filter' => 'template.slug;email_template_1',
+                                                        'reset' => true,
                                                         'i18n' => false
                                                     ),
                                                 )
