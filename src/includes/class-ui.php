@@ -215,23 +215,19 @@ class SUPER_UI {
             if(isset($v['label'])) echo '<span class="sfui-label">' . $v['label'] . '</span>';
             if(isset($v['subline'])) echo '<span class="sfui-subline"><i>' . $v['subline'] . '</i></span>';
             foreach($v['colors'] as $name => $color){
-                //echo '<div class="input super-field-type-multicolor">';
-                //    echo '<div class="super-color-picker-container">';
-                //        if(isset($color['label'])) echo = '<div class="super-color-picker-label">'.$color['label'].'</div>';
-                //        echo '<div class="super-color-picker">';
-                //            echo SUPER_Common::reset_setting_icons($v);
-                //            echo '<input type="text" id="field-'.$k.'" name="'.$k.'" class="super-element-field" value="'.esc_attr($v['v']).'" />';
-                //        echo '</div>';
-                //    echo '</div>';
-                //echo '</div>';
-                //
-                //
-                // sfui-type-multicolor input
-                $value = self::get_value($s, $name, $v);
-                echo '<input type="input" name="'.esc_attr($name).'" value="' . esc_attr($value). '" />';
-                if(isset($color['label'])) echo '<span class="sfui-label">' . $color['label'] . '</span>';
-                if(isset($color['subline'])) echo '<span class="sfui-subline"><i>' . $color['subline'] . '</i></span>';
+                echo '<div class="sfui-colorpicker-wrap'.(isset($color['inline']) ? ' sfui-inline' : '').'">';
+                    //echo '<div class="6 sfui-setting'.(isset($v['toggle']) ? ' sfui-toggle' : '').((isset($v['padding']) && $v['padding']===false) ? ' sfui-no-padding' : '').(isset($v['vertical']) ? ' sfui-vertical' : '').(isset($v['inline']) ? ' sfui-inline' : '').'"'.(isset($v['filter']) ? ' data-f="'.$v['filter'].'"' : '').'>';
+                    if(isset($color['title'])) echo '<span class="sfui-title'.((isset($color['label'])) ? ' sfui-no-padding' : '').'">' . $color['title'] . '</span>';
+                    if(isset($color['label'])) echo '<span class="sfui-label">' . $color['label'] . '</span>';
+                    $value = self::get_value($s, $name, $color);
+                    echo '<label class="sfui-colorpicker">';
+                        echo '<input type="text" name="'.esc_attr($name).'" value="' . esc_attr($value). '" />';
+                    echo '</label>';
+                    echo SUPER_Common::reset_setting_icons($color, false);
+                    if(isset($color['subline'])) echo '<span class="sfui-subline"><i>' . $color['subline'] . '</i></span>';
+                echo '</div>';
             }
+            return;
         }
         // Is field
         if($v['type']==='checkbox'){
@@ -247,6 +243,7 @@ class SUPER_UI {
                     echo '<span class="sfui-subline"><i>' . $v['subline'] . '</i></span>';
                 }
             echo '</label>';
+            return;
         }
         if($v['type']==='files'){
             echo '<label>';
@@ -297,6 +294,7 @@ class SUPER_UI {
             echo '</div>';
             self::subline($v);
             echo '</label>';
+            return;
         }
         if($v['type']==='textarea'){
             echo '<label>';
@@ -326,6 +324,7 @@ class SUPER_UI {
                 //echo '<textarea'.(isset($v['tinymce']) ? ' class="sfui-textarea-tinymce"' : '').' name="'.$v['name'].'"'.(isset($v['placeholder']) ? ' placeholder="'.$v['placeholder'].'"' : '').'>' . esc_textarea(wp_unslash(self::get_value($s, $name, $v))) . '</textarea>';
                 self::subline($v);
             echo '</label>';
+            return;
         }
         if($v['type']==='text' || $v['type']==='hidden' || $v['type']==='number' || $v['type']==='date'){
             echo '<label>';
@@ -361,6 +360,7 @@ class SUPER_UI {
                 echo '<input type="'.esc_attr($v['type']).'" name="'.esc_attr($v['name']).'"'.(isset($v['readonly']) ? ' readonly="readonly"' : '').(isset($v['min']) ? ' min="'.esc_attr($v['min']).'"' : '').(isset($v['max']) ? ' max="'.esc_attr($v['max']).'"' : '').(isset($v['step']) ? ' step="'.esc_attr($v['step']).'"' : '').(isset($v['placeholder']) ? ' placeholder="'.esc_attr($v['placeholder']).'"' : '').' value="' . esc_attr($value). '" onChange="SUPER.ui.updateSettings(event, this)" />';
                 self::subline($v);
             echo '</label>';
+            return;
         }
         if($v['type']==='radio' || $v['type']==='select'){
             echo '<label>';
@@ -402,6 +402,7 @@ class SUPER_UI {
                 }
                 self::subline($v);
             echo '</label>';
+            return;
         }
     }
 }

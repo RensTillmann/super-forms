@@ -60,21 +60,68 @@
         colorpickers: {
             init: function(){
                 if($.isFunction($.fn.wpColorPicker)){
-                    debugger;
-                    var i, nodes = document.querySelectorAll('.sfui-type-multicolor > input');
+                    var i, nodes = document.querySelectorAll('.sfui-colorpicker > input');
                     for(i=0; i<nodes.length; i++){
                         if(!nodes[i].closest('.wp-picker-container')){
                             $(nodes[i]).wpColorPicker({
-                                color: 'red',
-                                change: function(event, ui) {
+                                change: function(event, ui){
                                     this.value = ui.color.toString();
-                                    SUPER.ui.updateSettings(null, this);
+                                    // Debounce updateSettings for this element
+                                    if (this._colorUpdateTimeout) clearTimeout(this._colorUpdateTimeout);
+                                    this._colorUpdateTimeout = setTimeout(() => {
+                                        SUPER.ui.updateSettings(null, this);
+                                    }, 500);
                                 },
-                                palettes: ['#FFFFFF', '#000000', '#444444', '#8E8E8E', '#9A9A9A', '#CDCDCD', '#6E7177', '#F26C68', '#49B4B6' ]
+                                palettes: [
+                                    // Neutrals
+                                    '#FFFFFF', '#000000', '#444444', '#8E8E8E', '#9A9A9A', '#CDCDCD', '#F5F5F5', '#E0E0E0',
+                                    // Blues
+                                    '#1976D2', // Material Blue 700
+                                    '#2196F3', // Material Blue 500
+                                    '#49B4B6', // your existing teal
+                                    '#00BCD4', // Cyan
+                                    // Greens
+                                    '#388E3C', // Material Green 700
+                                    '#4CAF50', // Material Green 500
+                                    '#8BC34A', // Light Green
+                                    // Yellows
+                                    '#FFEB3B', // Yellow
+                                    '#FFC107', // Amber
+                                    // Oranges
+                                    '#FF9800', // Orange
+                                    '#FF5722', // Deep Orange
+                                    // Reds
+                                    '#F44336', // Red
+                                    '#E91E63', // Pink
+                                    '#F26C68', // your existing red-orange
+                                    // Purples
+                                    '#9C27B0', // Purple
+                                    '#673AB7', // Deep Purple
+                                    // Misc
+                                    '#6E7177', // your gray blue
+                                    '#607D8B', // Blue Gray
+
+                                    // -- Added colors below --
+                                    '#795548', // Brown (Material Brown 500)
+                                    '#00E676', // Bright Green / Accent Green
+                                    '#FFA07A', // Light Salmon (Nice soft pastel)
+                                    '#FFD700'  // Gold (Classic gold for highlights)
+                                ]
                             });
-                            //$(input).wpColorPicker('color', 'red');
                         }
                     }
+                    document.querySelectorAll('.sfui-colorpicker-wrap').forEach(function(node) {
+                        var container = node.querySelector('.wp-picker-container');
+                        if(!container) return;
+                        var observer = new MutationObserver(function() {
+                            if(container.classList.contains('wp-picker-active')){
+                                node.classList.add('sfui-colorpicker-open');
+                            }else{
+                                node.classList.remove('sfui-colorpicker-open');
+                            }
+                        });
+                        observer.observe(container, {attributes: true, attributeFilter: ['class']});
+                    });
                 }
             }
         },
@@ -115,9 +162,12 @@
                 }else{
                     if (field.value !== value) {
                         // Re-load attachment image preview
-                        if (field.parentNode.closest('.sfui-setting').classList.contains('sfui-type-files')) {
+                        if(field.parentNode.closest('.sfui-setting').classList.contains('sfui-type-files')) {
                             field.value = value;
                             SUPER.ui.i18n.reload_attachments(field);
+                        }
+                        if(field.parentNode.closest('.sfui-colorpicker')){
+                            $(field).wpColorPicker('color', value);
                         }
                     }
                     field.value = value;
@@ -137,15 +187,6 @@
                 value = tinymce.get(el.id).getContent();
                 console.log('TinyMCE content:', value);
             }
-            if(el.closest('.sfui-type-multicolor')){
-                debugger;
-            }
-            //    console.log('=== TinyMCE getValue() ===');
-            //    console.log('Element ID:', el.id);
-            //    console.log('Element name:', el.name);
-            //    value = tinymce.get(el.id).getContent();
-            //    console.log('TinyMCE content:', value);
-            //}
             return value;
         },
         setRepeaterFieldValues: function(element, values){
@@ -317,10 +358,8 @@
         },
         // Init `code` auto fill values
         init: function(){
-            debugger;
             this.colorpickers.init();
             $('.sfui-setting').on('click', '.sfui-title code, .sfui-label code, .sfui-subline code', function(){
-            //$('.sfui-title code, .sfui-label code').on('click',function(){
                 if(this.closest('label')){
                     var input = this.closest('label').querySelector('input');
                     if(input){
@@ -3635,27 +3674,31 @@
         var parentRect = p.getBoundingClientRect();
         var inputRect = input.getBoundingClientRect();
         var inputTopRelativeToParent;
-        
-        if(p.classList.contains('sfui-tinymce')){
-            // For TinyMCE editors, we need to get position relative to the iframe
-            var editor = tinymce.get(input.id);
-            if(editor && editor.iframeElement){
-                var iframeRect = editor.iframeElement.getBoundingClientRect();
-                inputTopRelativeToParent = iframeRect.top - parentRect.top;
+        btn.style.position = 'absolute';
+        if(input.closest('.sfui-colorpicker-wrap')){
+            btn.style.top = '6px';
+            btn.style.right = '15px';
+        }else{
+            if(p.classList.contains('sfui-tinymce')){
+                // For TinyMCE editors, we need to get position relative to the iframe
+                var editor = tinymce.get(input.id);
+                if(editor && editor.iframeElement){
+                    var iframeRect = editor.iframeElement.getBoundingClientRect();
+                    inputTopRelativeToParent = iframeRect.top - parentRect.top;
+                } else {
+                    // Fallback if editor not initialized
+                    inputTopRelativeToParent = inputRect.top - parentRect.top;
+                }
             } else {
-                // Fallback if editor not initialized
                 inputTopRelativeToParent = inputRect.top - parentRect.top;
             }
-        } else {
-            inputTopRelativeToParent = inputRect.top - parentRect.top;
+            var btnRect = btn.getBoundingClientRect();
+            if(btnRect.height===0) btnRect.height = 19;
+            var btnTop = inputTopRelativeToParent+((inputRect.height-btnRect.height)/2);
+            btn.style.top = btnTop+'px';
+            btn.style.right = (parseFloat(getComputedStyle(p).paddingRight)+5)+'px';
         }
 
-        var btnRect = btn.getBoundingClientRect();
-        btn.style.position = 'absolute';
-        if(btnRect.height===0) btnRect.height = 19;
-        var btnTop = inputTopRelativeToParent+((inputRect.height-btnRect.height)/2);
-        btn.style.top = btnTop+'px';
-        btn.style.right = (parseFloat(getComputedStyle(p).paddingRight)+5)+'px';
     };
 
     jQuery(document).ready(function ($) {
@@ -3685,20 +3728,28 @@
             if(!btn) return;
             btn.style.display = '';
         });
+        // Mouse enters any child of the colorpicker wrap, show the button
+        $(document).on('mouseenter', '.sfui-colorpicker-wrap, .sfui-colorpicker-wrap *', function(e){
+            var wrap = $(this).closest('.sfui-colorpicker-wrap')[0];
+            var btn = wrap.querySelector('.super-reset-settings-buttons');
+            if (btn) {
+                btn.style.display = 'flex';
+                SUPER.ui.positionResetBtns(wrap, this, btn);
+            }
+        });
+        // Hide when the mouse leaves the whole colorpicker wrap area
+        $(document).on('mouseleave', '.sfui-colorpicker-wrap', function(e){
+            var wrap = this;
+            var btn = wrap.querySelector('.super-reset-settings-buttons');
+            if (btn) btn.style.display = '';
+        });
         $(document).on('click', '.sfui-setting .super-reset-default-value, .sfui-setting .super-reset-last-value', function(){
             // If parent is settings tab
             var value = this.dataset.value;
             var p = this.parentNode.closest('.sfui-setting');
+            if(this.parentNode.closest('.sfui-colorpicker-wrap')) p = this.parentNode.closest('.sfui-colorpicker-wrap');
             var input = p.querySelector('[name]');
             SUPER.ui.setTabFieldValue(input, value);
-            // if(p.classList.contains('sfui-tinymce')){
-            //     var editor = tinymce.get(input.id);
-            //     if(editor){
-            //         editor.setContent(value);
-            //     }
-            // }else{
-            //     input.value = value;
-            // }
             SUPER.ui.updateSettings(null, input);
             return;
         });
