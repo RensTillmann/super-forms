@@ -39,10 +39,12 @@ class SUPER_UI {
         foreach($nodes as $k => $v){
             if(isset($v['type']) && $v['type']==='repeater'){
                 echo '<div class="5 sfui-setting'.(isset($v['toggle']) ? ' sfui-toggle' : '').(isset($v['vertical']) ? ' sfui-vertical' : '').'"'.(isset($v['filter']) ? ' data-f="'.$v['filter'].'"' : '').'>';
-                    echo '<label'.(isset($v['toggle']) ? ' class="sfui-toggle-label"' : '').' onclick="SUPER.ui.toggle(event, this)">';
-                        if(isset($v['title'])) echo '<span class="sfui-title'.((isset($v['label'])) ? ' sfui-no-padding' : '').'">' . $v['title'] . '</span>';
-                        if(isset($v['label'])) echo '<span class="sfui-label">' . $v['label'] . '</span>';
-                    echo '</label>';
+                    if(isset($v['toggle']) && $v['toggle']===true){
+                        echo '<label'.(isset($v['toggle']) ? ' class="sfui-toggle-label"' : '').' onclick="SUPER.ui.toggle(event, this)">';
+                            if(isset($v['title'])) echo '<span class="sfui-title'.((isset($v['label'])) ? ' sfui-no-padding' : '').'">' . $v['title'] . '</span>';
+                            if(isset($v['label'])) echo '<span class="sfui-label">' . $v['label'] . '</span>';
+                        echo '</label>';
+                    }
                     $prefix[] = $v['name'];
                     echo '<div class="sfui-repeater" data-r="'.$v['name'].'">';
                         $name = $v['name'];
@@ -210,23 +212,23 @@ class SUPER_UI {
             $name = implode('.',$prefix).'.'.$v['name'];
         }
         // Is multicolor
-        if($v['type']==='multicolor'){
-            if(isset($v['title'])) echo '<span class="sfui-title'.((isset($v['label'])) ? ' sfui-no-padding' : '').'">' . $v['title'] . '</span>';
-            if(isset($v['label'])) echo '<span class="sfui-label">' . $v['label'] . '</span>';
-            if(isset($v['subline'])) echo '<span class="sfui-subline"><i>' . $v['subline'] . '</i></span>';
-            foreach($v['colors'] as $name => $color){
-                echo '<div class="sfui-colorpicker-wrap'.(isset($color['inline']) ? ' sfui-inline' : '').'">';
-                    //echo '<div class="6 sfui-setting'.(isset($v['toggle']) ? ' sfui-toggle' : '').((isset($v['padding']) && $v['padding']===false) ? ' sfui-no-padding' : '').(isset($v['vertical']) ? ' sfui-vertical' : '').(isset($v['inline']) ? ' sfui-inline' : '').'"'.(isset($v['filter']) ? ' data-f="'.$v['filter'].'"' : '').'>';
-                    if(isset($color['title'])) echo '<span class="sfui-title'.((isset($color['label'])) ? ' sfui-no-padding' : '').'">' . $color['title'] . '</span>';
-                    if(isset($color['label'])) echo '<span class="sfui-label">' . $color['label'] . '</span>';
-                    $value = self::get_value($s, $name, $color);
-                    echo '<label class="sfui-colorpicker">';
-                        echo '<input type="text" name="'.esc_attr($name).'" value="' . esc_attr($value). '" />';
-                    echo '</label>';
-                    echo SUPER_Common::reset_setting_icons($color, false);
-                    if(isset($color['subline'])) echo '<span class="sfui-subline"><i>' . $color['subline'] . '</i></span>';
-                echo '</div>';
-            }
+        if($v['type']==='color'){
+            //if(isset($v['title'])) echo '<span class="sfui-title'.((isset($v['label'])) ? ' sfui-no-padding' : '').'">' . $v['title'] . '</span>';
+            //if(isset($v['label'])) echo '<span class="sfui-label">' . $v['label'] . '</span>';
+            //if(isset($v['subline'])) echo '<span class="sfui-subline"><i>' . $v['subline'] . '</i></span>';
+            echo '<div class="sfui-colorpicker-wrap'.(isset($v['inline']) ? ' sfui-inline' : '').'">';
+                //echo '<div class="6 sfui-setting'.(isset($v['toggle']) ? ' sfui-toggle' : '').((isset($v['padding']) && $v['padding']===false) ? ' sfui-no-padding' : '').(isset($v['vertical']) ? ' sfui-vertical' : '').(isset($v['inline']) ? ' sfui-inline' : '').'"'.(isset($v['filter']) ? ' data-f="'.$v['filter'].'"' : '').'>';
+                if(isset($v['title'])) echo '<span class="sfui-title'.((isset($v['label'])) ? ' sfui-no-padding' : '').'">' . $v['title'] . '</span>';
+                if(isset($v['label'])) echo '<span class="sfui-label">' . $v['label'] . '</span>';
+                $value = self::get_value($s, $name, $v);
+                error_log('$value: '.$value);
+                echo '<label class="sfui-colorpicker">';
+                    echo '<input type="text" name="'.esc_attr($v['name']).'" value="' . esc_attr($value). '" />';
+                echo '</label>';
+                $v['v'] = $value;
+                echo SUPER_Common::reset_setting_icons($v, false);
+                if(isset($v['subline'])) echo '<span class="sfui-subline"><i>' . $v['subline'] . '</i></span>';
+            echo '</div>';
             return;
         }
         // Is field
@@ -253,7 +255,7 @@ class SUPER_UI {
             if(isset($v['label'])){
                 echo '<span class="sfui-label">' . $v['label'] . '</span>';
             }
-            echo '<div class="image-field browse-files" data-file-type="" data-multiple="true">';
+            echo '<div class="image-field browse-files" data-file-type="" data-multiple="' . (!empty($v['multiple']) ? 'true' : 'false') . '">';
                 echo '<span class="button super-insert-files"><i class="fas fa-plus"></i> Browse files</span>';
                 echo '<ul class="file-preview">';
                 $value = self::get_value($s, $name, null);
