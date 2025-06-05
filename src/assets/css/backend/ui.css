@@ -533,6 +533,15 @@
 .sfui-sub-settings.sfui-active > .sfui-setting.sfui-toggle.sfui-open > .sfui-repeater {
   padding: 0 10px;
 }
+/* Ensure repeaters within toggles are properly hidden/shown */
+.sfui-toggle > .sfui-repeater {
+  display: none !important;
+}
+.sfui-toggle.sfui-open > .sfui-repeater {
+  display: flex !important;
+  flex-direction: column;
+  padding: 0 10px;
+}
 .sfui-toggle {
   margin-bottom: 10px;
 }
