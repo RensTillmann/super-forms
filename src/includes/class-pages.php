@@ -505,16 +505,20 @@ class SUPER_Pages {
                     //    //'content' => sprintf( esc_html__( 'The `From email` should end with %s for E-mails to work. If you are using an email provider (Gmail, Yahoo, Outlook.com, etc) it should be the email address of that account. If you have problems with E-mail delivery you can read this guide on possible solutions: %sEmail delivery problems%s', 'super-forms' ), '<strong style="color:red;">@' . str_replace('www.', '', $_SERVER["SERVER_NAME"]) . '</strong>', '<a class="sf-docs" target="_blank" href="https://docs.super-forms.com/common-problems/index/email-delivery-problems">', '</a>' ),
                     //    'nodes' => array(
 
+                    // Split layout wrapper - forces side-by-side layout
                     array(
-                        //'width_auto' => false, // 'sfui-width-auto'
-                        'wrap' => false,
-                        'group' => true, // sfui-setting-group
-                        'group_name' => '',
-                        //'inline' => true, // sfui-inline
-                        'vertical' => true, // sfui-vertical
-                        'filter' => 'enabled;true',
-                        'toggle' => true,
-                        'title' => esc_html__( 'E-mail settings', 'super-forms' ),
+                        'inline' => true, // Force inline layout for side-by-side display
+                        'nodes' => array(
+                            // Email Settings Toggle (50% width, left side)
+                            array(
+                                'wrap' => false,
+                                'group' => true, // sfui-setting-group
+                                'group_name' => '',
+                                'vertical' => true, // sfui-vertical
+                                'width' => 50, // Split layout - 50% width
+                                'filter' => 'enabled;true',
+                                'toggle' => true,
+                                'title' => esc_html__( 'E-mail settings', 'super-forms' ),
                         'nodes' => array(
                             array(
                                 'width_auto' => true, // 'sfui-width-auto'
@@ -1241,6 +1245,24 @@ class SUPER_Pages {
                                                 'default' => ''
                                             )
                                         )
+                                    )
+                                )
+                            )
+                        )
+                            ),
+
+                            // Email Preview Toggle (50% width, right side)
+                            array(
+                                'toggle' => true,
+                                'title' => esc_html__( 'E-mail Preview', 'super-forms' ),
+                                'vertical' => true, // sfui-vertical
+                                'width' => 50, // Split layout - 50% width
+                                'filter' => 'enabled;true',
+                                'nodes' => array(
+                                    array(
+                                        'type' => 'email_preview',
+                                        'name' => 'preview', // Dummy name required for field processing
+                                        'wrap' => false // Don't wrap in additional containers
                                     )
                                 )
                             )

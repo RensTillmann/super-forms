@@ -3086,3 +3086,138 @@ body:not(.tox-fullscreen) .super-builder .tox-editor-header .tox-menubar .tox-mb
 .super-element-settings .super-field.super-field-type-color .super-field-input {
   width: auto;
 }
+
+/* Split layout support for custom width setting groups */
+.sfui-setting-group.sfui-width-custom {
+    display: inline-block;
+    vertical-align: top;
+    box-sizing: border-box;
+    padding-right: 15px;
+}
+
+.sfui-setting-group.sfui-width-custom:last-child {
+    padding-right: 0;
+}
+
+/* Handle toggle elements with custom width */
+.sfui-setting.sfui-toggle.sfui-width-custom {
+    display: inline-block;
+    vertical-align: top;
+    box-sizing: border-box;
+    padding-right: 15px;
+    margin-bottom: 0;
+}
+
+.sfui-setting.sfui-toggle.sfui-width-custom:last-child {
+    padding-right: 0;
+}
+
+/* Ensure parent container allows side-by-side layout */
+.sfui-setting.sfui-toggle.sfui-width-custom + .sfui-setting.sfui-toggle.sfui-width-custom {
+    margin-left: 0;
+}
+
+/* Force parent container to allow inline layout */
+.sfui-setting.sfui-toggle.sfui-width-custom {
+    float: left;
+}
+
+/* Clear after custom width toggles */
+.sfui-setting.sfui-toggle.sfui-width-custom:last-child::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+/* Email preview styles */
+.super-email-preview {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    height: fit-content;
+    padding: 10px;
+}
+
+/* Sticky email preview styles */
+.super-email-preview.sticky {
+    position: fixed;
+    top: 50px;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    overflow-y: auto;
+}
+
+.super-email-client {
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    width: 100%;
+}
+
+.super-email-header {
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    padding: 12px 16px;
+    font-size: 12px;
+    color: #6c757d;
+}
+
+.super-email-header .email-field {
+    margin-bottom: 6px;
+    line-height: 1.4;
+}
+
+.super-email-header .email-field:last-child {
+    margin-bottom: 0;
+}
+
+.super-email-header .email-label {
+    font-weight: 600;
+    min-width: 80px;
+    display: inline-block;
+}
+
+.super-email-header .email-value {
+    color: #495057;
+}
+
+.super-email-subject {
+    background: #fff;
+    border-bottom: 1px solid #e9ecef;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #212529;
+}
+
+.super-email-attachments {
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    padding: 8px 16px;
+    font-size: 11px;
+    color: #6c757d;
+}
+
+.super-email-body {
+    padding: 16px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: #212529;
+    min-height: 200px;
+    background: white;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.super-email-body p {
+    margin: 0 0 12px 0;
+}
+
+.super-email-body p:last-child {
+    margin-bottom: 0;
+}
+
+.super-email-empty {
+    color: #adb5bd;
+    font-style: italic;
+}
