@@ -283,10 +283,16 @@ SUPER.filtering = {
                     node = currentScope.querySelector('[name="'+fieldName+'"]');
                 }
             } else {
-                // Handle nested group paths
-                if (parts.length === 2) node = tab.querySelector('[data-g="'+parts[0]+'"] [name="'+parts[1]+'"]');
-                if (parts.length === 3) node = tab.querySelector('[data-g="'+parts[0]+'"] [data-g="'+parts[1]+'"] [name="'+parts[2]+'"]');
-                if (parts.length === 4) node = tab.querySelector('[data-g="'+parts[0]+'"] [data-g="'+parts[1]+'"] [data-g="'+parts[2]+'"] [name="'+parts[3]+'"]');
+                // Handle nested group paths dynamically
+                var selector = '';
+                // Build selector for all group parts except the last one
+                for (var i = 0; i < parts.length - 1; i++) {
+                    selector += '[data-g="' + parts[i] + '"] ';
+                }
+                // Add the final field name selector
+                selector += '[name="' + parts[parts.length - 1] + '"]';
+                
+                node = tab.querySelector(selector);
             }
             
             return node;

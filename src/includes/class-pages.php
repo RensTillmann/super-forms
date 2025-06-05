@@ -1457,7 +1457,10 @@ class SUPER_Pages {
                         'group_name' => '',
                         //'inline' => true, // sfui-inline
                         'vertical' => true, // sfui-vertical
-                        'filter' => 'event;!',
+                        'filter' => array(
+                            array('field' => 'enabled', 'operator' => '=', 'value' => 'true'),
+                            array('field' => 'event', 'operator' => '!=', 'value' => '')
+                        ),
                         'nodes' => array(
                             array(
                                 'toggle' => true,
