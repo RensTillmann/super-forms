@@ -102,6 +102,240 @@ SUPER.formFullyLoaded = {
 // Start check on page load
 SUPER.formFullyLoaded.timer = setInterval(SUPER.formFullyLoaded.timerFunction, 100);
 
+// Shared filtering functions for admin conditional logic
+SUPER.filtering = {
+    
+    // Enhanced filtering system for both settings page and form builder
+    showHideSubsettings: function(triggeredBy, context) {
+        var allNodes;
+        
+        // Determine context - either settings page or form builder
+        if (context === 'settings') {
+            allNodes = document.querySelectorAll('.super-filter[data-parent], .super-filter[data-f]');
+        } else if (context === 'form-builder') {
+            var tab = triggeredBy ? 
+                (triggeredBy.closest('.sfui-setting-group') || triggeredBy.closest('.super-tab-content')) : 
+                document.querySelector('.super-tabs-content');
+            if (!tab) return;
+            
+            allNodes = tab.querySelectorAll('.sfui-notice[data-f], .sfui-setting[data-f], .sfui-sub-settings[data-f], .sfui-setting-group[data-f]');
+            if (allNodes.length === 0 && triggeredBy) {
+                tab = triggeredBy.closest('.sfui-repeater-item');
+                if (tab) {
+                    allNodes = tab.querySelectorAll('.sfui-notice[data-f], .sfui-setting[data-f], .sfui-sub-settings[data-f], .sfui-setting-group[data-f]');
+                }
+            }
+        } else {
+            // Auto-detect context based on DOM
+            if (document.querySelector('.super-settings')) {
+                return this.showHideSubsettings(triggeredBy, 'settings');
+            } else if (document.querySelector('.super-create-form')) {
+                return this.showHideSubsettings(triggeredBy, 'form-builder');
+            }
+            return;
+        }
+        
+        // Process each filtered element
+        for (var i = 0; i < allNodes.length; i++) {
+            var currentNode = allNodes[i];
+            
+            // Handle legacy format for settings page
+            if (context === 'settings' && currentNode.hasAttribute('data-parent')) {
+                var parentField = currentNode.getAttribute('data-parent');
+                var expectedValue = currentNode.getAttribute('data-filtervalue') || '';
+                var parentElement = document.querySelector('.super-element-field[name="'+parentField+'"]');
+                
+                if (parentElement) {
+                    var currentValue = this.getFieldValue(parentElement);
+                    var shouldShow = false;
+                    
+                    if (expectedValue === '') {
+                        shouldShow = currentValue !== '';
+                    } else if (expectedValue.indexOf(',') > -1) {
+                        shouldShow = expectedValue.split(',').indexOf(currentValue) !== -1;
+                    } else {
+                        shouldShow = currentValue === expectedValue;
+                    }
+                    
+                    this.setElementVisibility(currentNode, shouldShow, context, triggeredBy);
+                }
+            }
+            // Handle new array format (both contexts)
+            else if (currentNode.hasAttribute('data-f')) {
+                var filterAttr = currentNode.getAttribute('data-f');
+                var filterConditions;
+                
+                try {
+                    filterConditions = JSON.parse(filterAttr);
+                    if (!Array.isArray(filterConditions)) {
+                        filterConditions = [filterConditions];
+                    }
+                } catch(e) {
+                    // Legacy string format fallback
+                    var legacyFilter = filterAttr.split(';');
+                    var field = legacyFilter[0];
+                    var value = legacyFilter[1] || '';
+                    var operator = '=';
+                    
+                    // Handle special operators in legacy format
+                    if (value === '!') {
+                        operator = '!';
+                        value = '';
+                    } else if (value.startsWith('!') && value.length > 1) {
+                        operator = '!=';
+                        value = value.substring(1);
+                    }
+                    
+                    filterConditions = [{
+                        field: field,
+                        operator: operator,
+                        value: value
+                    }];
+                }
+                
+                // Evaluate all conditions (AND logic)
+                var showElement = true;
+                for (var condIndex = 0; condIndex < filterConditions.length; condIndex++) {
+                    var condition = filterConditions[condIndex];
+                    var conditionMet = this.evaluateFilterCondition(condition, context, triggeredBy);
+                    if (!conditionMet) {
+                        showElement = false;
+                        break;
+                    }
+                }
+                
+                this.setElementVisibility(currentNode, showElement, context, triggeredBy);
+            }
+        }
+    },
+    
+    evaluateFilterCondition: function(condition, context, triggeredBy) {
+        var field = condition.field;
+        var operator = condition.operator || '=';
+        var expectedValue = condition.value;
+        
+        var fieldElement = this.findFieldElement(field, context, triggeredBy);
+        if (!fieldElement) return false;
+        
+        var currentValue = this.getFieldValue(fieldElement);
+        
+        switch(operator) {
+            case '=':
+                if (Array.isArray(expectedValue)) {
+                    return expectedValue.indexOf(currentValue) !== -1;
+                }
+                return currentValue === expectedValue;
+                
+            case '!=':
+                if (Array.isArray(expectedValue)) {
+                    return expectedValue.indexOf(currentValue) === -1;
+                }
+                return currentValue !== expectedValue;
+                
+            case '??':
+                return currentValue.indexOf(expectedValue) !== -1;
+                
+            case '!??':
+                return currentValue.indexOf(expectedValue) === -1;
+                
+            case '!':
+                return currentValue !== '';
+                
+            default:
+                return currentValue === expectedValue;
+        }
+    },
+    
+    findFieldElement: function(fieldName, context, triggeredBy) {
+        if (context === 'settings') {
+            return document.querySelector('.super-element-field[name="'+fieldName+'"]');
+        } else if (context === 'form-builder') {
+            // For form-builder context, we need to handle the specific tab context properly
+            var tab;
+            if (triggeredBy) {
+                tab = triggeredBy.closest('.sfui-setting-group');
+                if (!tab) {
+                    tab = triggeredBy.closest('.super-tab-content');
+                }
+            } else {
+                tab = document.querySelector('.super-tabs-content');
+            }
+            if (!tab) return null;
+            
+            var parts = fieldName.split('.');
+            var node;
+            
+            if (parts.length === 1) {
+                node = tab.querySelector('[name="'+fieldName+'"]');
+                // Traverse up the repeater hierarchy to find the field
+                var currentScope = tab;
+                while (!node && currentScope) {
+                    // Stop at the main tab content level
+                    if (currentScope.classList && currentScope.classList.contains('super-tab-content')) {
+                        break;
+                    }
+                    // For triggers tab, don't break at triggers level, continue to look in parent scopes
+                    // This allows finding fields like "action" within action repeater items
+                    var parentRepeater = currentScope.parentNode ? currentScope.parentNode.closest('.sfui-repeater-item') : null;
+                    if (!parentRepeater) break;
+                    
+                    currentScope = parentRepeater;
+                    node = currentScope.querySelector('[name="'+fieldName+'"]');
+                }
+            } else {
+                // Handle nested group paths
+                if (parts.length === 2) node = tab.querySelector('[data-g="'+parts[0]+'"] [name="'+parts[1]+'"]');
+                if (parts.length === 3) node = tab.querySelector('[data-g="'+parts[0]+'"] [data-g="'+parts[1]+'"] [name="'+parts[2]+'"]');
+                if (parts.length === 4) node = tab.querySelector('[data-g="'+parts[0]+'"] [data-g="'+parts[1]+'"] [data-g="'+parts[2]+'"] [name="'+parts[3]+'"]');
+            }
+            
+            return node;
+        }
+        return null;
+    },
+    
+    getFieldValue: function(element) {
+        if (!element) return '';
+        
+        if (element.type === 'checkbox') {
+            return element.checked ? element.value : '';
+        } else if (element.type === 'radio') {
+            var checked = document.querySelector('input[name="'+element.name+'"]:checked');
+            return checked ? checked.value : '';
+        } else if (element.tagName === 'SELECT') {
+            return element.value;
+        } else {
+            return element.value || '';
+        }
+    },
+    
+    setElementVisibility: function(element, isVisible, context, triggeredBy) {
+        if (context === 'settings') {
+            if (isVisible) {
+                element.style.display = '';
+            } else {
+                element.style.display = 'none';
+            }
+        } else if (context === 'form-builder') {
+            // Remove active class
+            element.classList.remove('sfui-active');
+            
+            // Add active class if visible
+            if (isVisible) {
+                if (element.classList.contains('sfui-notice')) element.classList.add('sfui-active');
+                if (element.classList.contains('sfui-setting')) element.classList.add('sfui-active');
+                if (element.classList.contains('sfui-setting-group')) element.classList.add('sfui-active');
+                if (element.classList.contains('sfui-sub-settings')) element.classList.add('sfui-active');
+                
+                // if direct parent is sfui-settings-group, make it active 
+                if (triggeredBy && element.parentNode.classList.contains('sfui-setting-group')) {
+                    element.parentNode.classList.add('sfui-active');
+                }
+            }
+        }
+    }
+};
+
 
 SUPER.after_form_fully_loaded = function(args){
     // Mark as loaded

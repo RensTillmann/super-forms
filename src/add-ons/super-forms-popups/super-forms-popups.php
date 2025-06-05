@@ -671,7 +671,7 @@ if( !class_exists('SUPER_Popup') ) :
                     'popup_enabled' => array(
                         'default' =>  '',
                         'type' => 'checkbox',
-                        'filter'=>true,
+                        // No filter needed - this is a top-level setting
                         'values' => array(
                             'true' => esc_html__( 'Enable Popup', 'super-forms' ),
                         ),
@@ -679,73 +679,93 @@ if( !class_exists('SUPER_Popup') ) :
                     'popup_logged_in' => array(
                         'default' =>  'true',
                         'type' => 'checkbox',
-                        'filter'=>true,
+                        'filter' => array(
+                            'field' => 'popup_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                         'values' => array(
                             'true' => esc_html__( 'Show popup to logged in users', 'super-forms' ),
                         ),
-                        'parent' => 'popup_enabled',
-                        'filter_value' => 'true',
                         'allow_empty' => true,
                     ),
                     'popup_not_logged_in' => array(
                         'default' =>  'true',
                         'type' => 'checkbox',
-                        'filter'=>true,
+                        // No filter needed - this is a top-level setting
                         'values' => array(
                             'true' => esc_html__( 'Show popup to none logged in users', 'super-forms' ),
                         ),
-                        'parent' => 'popup_enabled',
-                        'filter_value' => 'true',
+                        'filter' => array(
+                            'field' => 'popup_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                         'allow_empty' => true,
                     ),
                     'popup_page_load' => array(
                         'default' =>  'true',
                         'type' => 'checkbox',
-                        'filter'=>true,
+                        // No filter needed - this is a top-level setting
                         'values' => array(
                             'true' => esc_html__( 'Display popup on page load', 'super-forms' ),
                         ),
-                        'parent' => 'popup_enabled',
-                        'filter_value' => 'true',
+                        'filter' => array(
+                            'field' => 'popup_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                         'allow_empty' => true,
                     ),
                     'popup_exit_intent' => array(
                         'default' =>  '',
                         'type' => 'checkbox',
-                        'filter'=>true,
+                        // No filter needed - this is a top-level setting
                         'values' => array(
                             'true' => esc_html__( 'Display popup on exit intent', 'super-forms' ),
                         ),
-                        'parent' => 'popup_enabled',
-                        'filter_value' => 'true',
+                        'filter' => array(
+                            'field' => 'popup_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_leave' => array(
                         'default' =>  '',
                         'type' => 'checkbox',
-                        'filter'=>true,
+                        // No filter needed - this is a top-level setting
                         'values' => array(
                             'true' => esc_html__( 'Display popup on page leave/close/exit', 'super-forms' ),
                         ),
-                        'parent' => 'popup_enabled',
-                        'filter_value' => 'true',
+                        'filter' => array(
+                            'field' => 'popup_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_leave_msg' => array(
                         'name' => esc_html__( 'Allert message text (browser requires this)', 'super-forms' ),
                         'default' =>  esc_html__( "Wait stay with us! Please take the time to fill out our form!?", "super-forms" ),
-                        'filter'=>true,
-                        'parent' => 'popup_leave',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_leave',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                         'allow_empty' => true,
                     ),
                     'popup_enable_scrolling' => array(
                         'default' =>  '',
                         'type' => 'checkbox',
-                        'filter'=>true,
+                        // No filter needed - this is a top-level setting
                         'values' => array(
                             'true' => esc_html__( 'Display popup after xx% scrolled', 'super-forms' ),
                         ),
-                        'parent' => 'popup_enabled',
-                        'filter_value' => 'true',
+                        'filter' => array(
+                            'field' => 'popup_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_scrolled' => array(
                         'default' =>  '0',
@@ -753,19 +773,25 @@ if( !class_exists('SUPER_Popup') ) :
                         'min'=>0,
                         'max'=>100,
                         'steps'=>1,
-                        'filter'=>true,
-                        'parent' => 'popup_enable_scrolling',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_enable_scrolling',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_enable_seconds' => array(
                         'default' =>  '',
                         'type' => 'checkbox',
-                        'filter'=>true,
+                        // No filter needed - this is a top-level setting
                         'values' => array(
                             'true' => esc_html__( 'Display popup after X seconds', 'super-forms' ),
                         ),
-                        'parent' => 'popup_enabled',
-                        'filter_value' => 'true',
+                        'filter' => array(
+                            'field' => 'popup_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_seconds' => array(
                         'default' =>  '0',
@@ -773,19 +799,25 @@ if( !class_exists('SUPER_Popup') ) :
                         'min'=>0,
                         'max'=>100,
                         'steps'=>1,
-                        'filter'=>true,
-                        'parent' => 'popup_enable_seconds',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_enable_seconds',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_enable_inactivity' => array(
                         'default' =>  '',
                         'type' => 'checkbox',
-                        'filter'=>true,
+                        // No filter needed - this is a top-level setting
                         'values' => array(
                             'true' => esc_html__( 'Display popup after X seconds of inactivity', 'super-forms' ),
                         ),
-                        'parent' => 'popup_enabled',
-                        'filter_value' => 'true',
+                        'filter' => array(
+                            'field' => 'popup_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_inactivity' => array(
                         'default' =>  '0',
@@ -793,116 +825,154 @@ if( !class_exists('SUPER_Popup') ) :
                         'min'=>0,
                         'max'=>100,
                         'steps'=>1,
-                        'filter'=>true,
-                        'parent' => 'popup_enable_inactivity',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_enable_inactivity',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_enable_schedule' => array(
                         'default' =>  '',
                         'type' => 'checkbox',
-                        'filter'=>true,
+                        // No filter needed - this is a top-level setting
                         'values' => array(
                             'true' => esc_html__( 'Display popup between date range (schedule)', 'super-forms' ),
                         ),
-                        'parent' => 'popup_enabled',
-                        'filter_value' => 'true',
+                        'filter' => array(
+                            'field' => 'popup_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_from' => array(
                         'name' => esc_html__( 'From date', 'super-forms' ),
                         'desc' => esc_html__( 'From date (yyyy-mm-dd): Display the popup within specific date range', 'super-forms' ),
                         'default' =>  date('Y-m-d', time()),
-                        'parent' => 'popup_enable_schedule',
-                        'filter_value' => 'true',
-                        'filter'=>true,
+                        'filter' => array(
+                            'field' => 'popup_enable_schedule',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
+                        // No filter needed - this is a top-level setting
                     ), 
                     'popup_till' => array(
                         'name' => esc_html__( 'Till date', 'super-forms' ),
                         'desc' => esc_html__( 'Till date (yyyy-mm-dd): Display the popup within specific date range', 'super-forms' ),
                         'default' =>  date('Y-m-d', time()),
-                        'parent' => 'popup_enable_schedule',
-                        'filter_value' => 'true',
-                        'filter'=>true,
+                        'filter' => array(
+                            'field' => 'popup_enable_schedule',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
+                        // No filter needed - this is a top-level setting
                     ),
                     'popup_disable_closing' => array(
                         'default' =>  '',
                         'type' => 'checkbox',
-                        'filter'=>true,
+                        // No filter needed - this is a top-level setting
                         'values' => array(
                             'true' => esc_html__( 'Disable popup closing', 'super-forms' ),
                         ),
-                        'parent' => 'popup_enabled',
-                        'filter_value' => 'true',
+                        'filter' => array(
+                            'field' => 'popup_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_close_btn' => array(
                         'default' =>  'true',
                         'type' => 'checkbox',
-                        'filter'=>true,
+                        // No filter needed - this is a top-level setting
                         'values' => array(
                             'true' => esc_html__( 'Display close (X) button', 'super-forms' ),
                         ),
-                        'parent' => 'popup_enabled',
-                        'filter_value' => 'true',
+                        'filter' => array(
+                            'field' => 'popup_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                         'allow_empty' => true,
                     ),
                     'popup_clear_form' => array(
                         'default' =>  '',
                         'type' => 'checkbox',
-                        'filter'=>true,
+                        // No filter needed - this is a top-level setting
                         'values' => array(
                             'true' => esc_html__( 'Clear form after closing popup', 'super-forms' ),
                         ),
-                        'parent' => 'popup_enabled',
-                        'filter_value' => 'true',
+                        'filter' => array(
+                            'field' => 'popup_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                         'allow_empty' => true,
                     ),
                     'popup_close_btn_icon_color' => array(
                         'name' => esc_html__( 'Close button icon color', 'super-forms' ),
                         'type'=>'color',  
                         'default' =>  '#fff',
-                        'filter'=>true,
-                        'parent' => 'popup_close_btn',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_close_btn',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_close_btn_bg_color' => array(
                         'name' => esc_html__( 'Close button background color (leave blank for none)', 'super-forms' ),
                         'type'=>'color',  
                         'default' =>  '#00bc65',
-                        'filter'=>true,
-                        'parent' => 'popup_close_btn',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_close_btn',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_close_btn_label' => array(
                         'name' => esc_html__( 'Close button label text e.g: Close', 'super-forms' ),
                         'type'=>'text',  
                         'default' =>  '',
-                        'filter'=>true,
-                        'parent' => 'popup_close_btn',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_close_btn',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_close_btn_label_color' => array(
                         'name' => esc_html__( 'Close button label color', 'super-forms' ),
                         'type'=>'color',  
                         'default' =>  '#00bc65',
-                        'filter'=>true,
-                        'parent' => 'popup_close_btn',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_close_btn',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_close_btn_label_bg_color' => array(
                         'name' => esc_html__( 'Close button label bg color', 'super-forms' ),
                         'type'=>'color',  
                         'default' =>  '#00bc65',
-                        'filter'=>true,
-                        'parent' => 'popup_close_btn',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_close_btn',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_close_btn_label_padding' => array(
                         'name' => esc_html__( 'Close button label paddings e.g: 0px 0px 0px 0px', 'super-forms' ),
                         'label' => esc_html__( '(leave blank for default paddings)', 'super-forms' ),
                         'default' =>  '',
                         'type'=>'text',
-                        'filter'=>true,
-                        'parent'=>'popup_close_btn',
-                        'filter_value'=>'true'
+                        'filter' => array(
+                            'field' => 'popup_close_btn',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_close_btn_icon_size' => array(
                         'name' => esc_html__( 'Close button icon size in pixels (px)', 'super-forms' ),
@@ -911,9 +981,12 @@ if( !class_exists('SUPER_Popup') ) :
                         'min'=>10,
                         'max'=>50,
                         'steps'=>1,
-                        'filter'=>true,
-                        'parent' => 'popup_close_btn',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_close_btn',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_close_btn_border' => array(
                         'name' => esc_html__( 'Close button border size in pixels (px)', 'super-forms' ),
@@ -922,17 +995,23 @@ if( !class_exists('SUPER_Popup') ) :
                         'min'=>0,
                         'max'=>10,
                         'steps'=>1,
-                        'filter'=>true,
-                        'parent' => 'popup_close_btn',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_close_btn',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_close_btn_border_color' => array(
                         'name' => esc_html__( 'Close button border color', 'super-forms' ),
                         'type'=>'color',  
                         'default' =>  '',
-                        'filter'=>true,
-                        'parent' => 'popup_close_btn',
-                        'filter_value' => 'true',  
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_close_btn',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),  
                     ),
                     'popup_close_btn_top' => array(
                         'name' => esc_html__( 'Close button position top in pixels (px)', 'super-forms' ),
@@ -941,9 +1020,12 @@ if( !class_exists('SUPER_Popup') ) :
                         'min'=>-100,
                         'max'=>100,
                         'steps'=>1,
-                        'filter'=>true,
-                        'parent' => 'popup_close_btn',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_close_btn',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_close_btn_right' => array(
                         'name' => esc_html__( 'Close button position right in pixels (px)', 'super-forms' ),
@@ -952,18 +1034,23 @@ if( !class_exists('SUPER_Popup') ) :
                         'min'=>-100,
                         'max'=>100,
                         'steps'=>1,
-                        'filter'=>true,
-                        'parent' => 'popup_close_btn',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_close_btn',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_close_btn_padding' => array(
                         'name' => esc_html__( 'Close button paddings e.g: 0px 0px 0px 0px', 'super-forms' ),
                         'label' => esc_html__( '(leave blank for default paddings)', 'super-forms' ),
                         'default' =>  '',
                         'type'=>'text',
-                        'filter'=>true,
-                        'parent'=>'popup_close_btn',
-                        'filter_value'=>'true'
+                        'filter' => array(
+                            'field' => 'popup_close_btn',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_close_btn_radius' => array(
                         'name' => esc_html__( 'Close button border radius in pixels (px)', 'super-forms' ),
@@ -972,29 +1059,37 @@ if( !class_exists('SUPER_Popup') ) :
                         'min'=>0,
                         'max'=>100,
                         'steps'=>1,
-                        'filter'=>true,
-                        'parent' => 'popup_close_btn',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_close_btn',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_enable_padding' => array(
                         'default' =>  '',
                         'type' => 'checkbox', 
-                        'filter'=>true,
+                        // No filter needed - this is a top-level setting
                         'values' => array(
                             'true' => esc_html__( 'Enable custom popup padding', 'super-forms' ),
                         ),
-                        'filter'=>true,
-                        'parent' => 'popup_enabled',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_padding' => array(
                         'name' => esc_html__( 'Popup paddings e.g: 0px 0px 0px 0px', 'super-forms' ),
                         'label' => esc_html__( '(leave blank for default paddings)', 'super-forms' ),
                         'default' =>  '',
                         'type'=>'text',
-                        'filter'=>true,
-                        'parent'=>'popup_enable_padding',
-                        'filter_value'=>'true'
+                        'filter' => array(
+                            'field' => 'popup_enable_padding',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_expire_trigger' => array(
                         'name' => esc_html__( 'Enable expiration cookie (show popup only once)', 'super-forms' ),
@@ -1006,9 +1101,12 @@ if( !class_exists('SUPER_Popup') ) :
                             'close' => esc_html__( 'When popup has been closed', 'super-forms' ),
                             'submit' => esc_html__( 'When form has been submitted', 'super-forms' ),
                         ),
-                        'parent' => 'popup_enabled',
-                        'filter_value' => 'true',
-                        'filter'=>true,
+                        'filter' => array(
+                            'field' => 'popup_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
+                        // No filter needed - this is a top-level setting
                     ),
                     'popup_expire' => array(
                         'name' => esc_html__( 'Expiration time in days', 'super-forms' ),
@@ -1017,9 +1115,11 @@ if( !class_exists('SUPER_Popup') ) :
                         'min'=>1,
                         'max'=>365,
                         'steps'=>1,
-                        'filter'=>true,
-                        'parent' => 'popup_expire_trigger',
-                        'filter_value' => 'view,close,submit',
+                        'filter' => array(
+                            'field' => 'popup_expire_trigger',
+                            'operator' => '=',
+                            'value' => array('view', 'close', 'submit')
+                        ),
                     ),
 
                     'popup_width' => array(
@@ -1029,25 +1129,34 @@ if( !class_exists('SUPER_Popup') ) :
                         'min'=>360,
                         'max'=>1000,
                         'steps'=>10,
-                        'filter'=>true,
-                        'parent' => 'popup_enabled',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_background_color' => array(
                         'name' => esc_html__( 'Popup background color', 'super-forms' ),
                         'type'=>'color',  
                         'default' =>  '#ffffff',
-                        'filter'=>true,
-                        'parent' => 'popup_enabled',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_overlay_color' => array(
                         'name' => esc_html__( 'Body overlay color', 'super-forms' ),
                         'type'=>'color',  
                         'default' =>  '#000000',
-                        'filter'=>true,
-                        'parent' => 'popup_enabled',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ), 
                     'popup_overlay_opacity' => array(
                         'name' => esc_html__( 'Body overlay opacity', 'super-forms' ),
@@ -1056,23 +1165,29 @@ if( !class_exists('SUPER_Popup') ) :
                         'min'=>0,
                         'max'=>1,
                         'steps'=>0.1,
-                        'filter'=>true,
-                        'parent' => 'popup_enabled',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_background_image' => array(
                         'name' => esc_html__( 'Background Image', 'super-forms' ),
                         'type'=>'image',
-                        'filter'=>true,
+                        // No filter needed - this is a top-level setting
                         'default' =>  '0',
-                        'parent' => 'popup_enabled',
-                        'filter_value' => 'true',
+                        'filter' => array(
+                            'field' => 'popup_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_background_image_repeat' => array(
                         'name' => esc_html__( 'Background Image Repeat', 'super-forms' ),
-                        'filter'=>true,
+                        // No filter needed - this is a top-level setting
                         'type'=>'select',
-                        'filter'=>true,
+                        // No filter needed - this is a top-level setting
                         'default' =>  'no-repeat',
                         'values'=>array( 
                             'no-repeat' => esc_html__( 'No (no-repeat)', 'super-forms' ),
@@ -1080,12 +1195,15 @@ if( !class_exists('SUPER_Popup') ) :
                             'repeat-x' => esc_html__( 'Repeat X (repeat-x)', 'super-forms' ),
                             'repeat-y' => esc_html__( 'Repeat Y (repeat-y)', 'super-forms' ),
                         ),
-                        'parent' => 'popup_enabled',
-                        'filter_value' => 'true',
+                        'filter' => array(
+                            'field' => 'popup_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_background_image_size' => array(
                         'name' => esc_html__( 'Background Image Size', 'super-forms' ),
-                        'filter'=>true,
+                        // No filter needed - this is a top-level setting
                         'type'=>'select',
                         'default' =>  'cover',
                         'values'=>array( 
@@ -1093,13 +1211,16 @@ if( !class_exists('SUPER_Popup') ) :
                             'contain' => esc_html__( 'Contain / Fit (contain)', 'super-forms' ),
                             'cover' => esc_html__( 'Cover / Fit (cover)', 'super-forms' ) 
                         ),
-                        'parent' => 'popup_enabled',
-                        'filter_value' => 'true',
+                        'filter' => array(
+                            'field' => 'popup_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_slide' => array(
                         'name' => esc_html__( 'Popup slide in', 'super-forms' ),
                         'desc' => esc_html__( 'Slide in: From Top, Right, Bottom or Left', 'super-forms' ),
-                        'filter'=>true,
+                        // No filter needed - this is a top-level setting
                         'type'=>'select',
                         'default' =>  'none',
                         'values'=>array(
@@ -1109,8 +1230,11 @@ if( !class_exists('SUPER_Popup') ) :
                             'from_bottom' => esc_html__( 'From Bottom', 'super-forms' ),
                             'from_left' => esc_html__( 'From Left', 'super-forms' ),
                         ),
-                        'parent' => 'popup_enabled',
-                        'filter_value' => 'true',
+                        'filter' => array(
+                            'field' => 'popup_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ), 
                     'popup_slide_duration' => array(
                         'name' => esc_html__( 'Popup Slide In duration in milliseconds', 'super-forms' ),
@@ -1120,9 +1244,11 @@ if( !class_exists('SUPER_Popup') ) :
                         'min'=>0,
                         'max'=>5000,
                         'steps'=>100,
-                        'filter'=>true,
-                        'parent' => 'popup_slide',
-                        'filter_value' => 'from_top,from_right,from_bottom,from_left',
+                        'filter' => array(
+                            'field' => 'popup_slide',
+                            'operator' => '=',
+                            'value' => array('from_top', 'from_right', 'from_bottom', 'from_left')
+                        ),
                     ),
                     'popup_fade_duration' => array(
                         'name' => esc_html__( 'Popup FadeIn duration in milliseconds', 'super-forms' ),
@@ -1132,9 +1258,12 @@ if( !class_exists('SUPER_Popup') ) :
                         'min'=>0,
                         'max'=>5000,
                         'steps'=>100,
-                        'filter'=>true,
-                        'parent' => 'popup_enabled',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_fade_out_duration' => array(
                         'name' => esc_html__( 'Popup FadeOut duration in milliseconds', 'super-forms' ),
@@ -1144,14 +1273,17 @@ if( !class_exists('SUPER_Popup') ) :
                         'min'=>0,
                         'max'=>5000,
                         'steps'=>100,
-                        'filter'=>true,
-                        'parent' => 'popup_enabled',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_sticky' => array(
                         'name' => esc_html__( 'Make popup sticky', 'super-forms' ),
                         'desc' => esc_html__( 'Stick to top, right, bottom or left', 'super-forms' ),
-                        'filter'=>true,
+                        // No filter needed - this is a top-level setting
                         'type'=>'select',
                         'default' =>  'default',
                         'values'=>array(
@@ -1161,18 +1293,24 @@ if( !class_exists('SUPER_Popup') ) :
                             'bottom' => esc_html__( 'Bottom', 'super-forms' ),
                             'left' => esc_html__( 'Left', 'super-forms' ),
                         ),
-                        'parent' => 'popup_enabled',
-                        'filter_value' => 'true',
+                        'filter' => array(
+                            'field' => 'popup_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_enable_borders' => array(
                         'default' =>  '',
                         'type' => 'checkbox',
-                        'filter'=>true,
+                        // No filter needed - this is a top-level setting
                         'values' => array(
                             'true' => esc_html__( 'Enable Popup Border', 'super-forms' ),
                         ),
-                        'parent' => 'popup_enabled',
-                        'filter_value' => 'true',
+                        'filter' => array(
+                            'field' => 'popup_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_border_size' => array(
                         'name' => esc_html__( 'Border size in pixels (px)', 'super-forms' ),
@@ -1181,28 +1319,37 @@ if( !class_exists('SUPER_Popup') ) :
                         'min'=>0,
                         'max'=>10,
                         'steps'=>1,
-                        'filter'=>true,
-                        'parent' => 'popup_enable_borders',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_enable_borders',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_border_color' => array(
                         'name' => esc_html__( 'Border color', 'super-forms' ),
                         'type'=>'color',  
                         'default' =>  '#00bc65',
-                        'filter'=>true,
-                        'parent' => 'popup_enable_borders',
-                        'filter_value' => 'true',  
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_enable_borders',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),  
                     ),
                     'popup_border_radius_top_left' => array(
                         'name' => esc_html__( 'Border Radius Top Left', 'super-forms' ), 
                         'default' =>  '10',
                         'type'=>'slider',
-                        'filter'=>true,
+                        // No filter needed - this is a top-level setting
                         'min'=>0,
                         'max'=>200,
                         'steps'=>1,
-                        'parent' => 'popup_enable_borders',
-                        'filter_value' => 'true',
+                        'filter' => array(
+                            'field' => 'popup_enable_borders',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_border_radius_top_right' => array(
                         'name' => esc_html__( 'Border Radius Top Right', 'super-forms' ), 
@@ -1210,10 +1357,13 @@ if( !class_exists('SUPER_Popup') ) :
                         'type'=>'slider',
                         'min'=>0,
                         'max'=>200,
-                        'filter'=>true,
+                        // No filter needed - this is a top-level setting
                         'steps'=>1,
-                        'parent' => 'popup_enable_borders',
-                        'filter_value' => 'true',
+                        'filter' => array(
+                            'field' => 'popup_enable_borders',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_border_radius_bottom_left' => array(
                         'name' => esc_html__( 'Border Radius Bottom Left', 'super-forms' ), 
@@ -1222,9 +1372,12 @@ if( !class_exists('SUPER_Popup') ) :
                         'min'=>0,
                         'max'=>200,
                         'steps'=>1,
-                        'filter'=>true,
-                        'parent' => 'popup_enable_borders',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_enable_borders',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_border_radius_bottom_right' => array(
                         'name' => esc_html__( 'Border Radius Bottom Right', 'super-forms' ), 
@@ -1233,20 +1386,26 @@ if( !class_exists('SUPER_Popup') ) :
                         'min'=>0,
                         'max'=>200,
                         'steps'=>1,
-                        'filter'=>true,
-                        'parent' => 'popup_enable_borders',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_enable_borders',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
 
                     'popup_enable_shadows' => array(
                         'default' =>  '',
                         'type' => 'checkbox',
-                        'filter'=>true,
+                        // No filter needed - this is a top-level setting
                         'values' => array(
                             'true' => esc_html__( 'Enable Popup Shadows', 'super-forms' ),
                         ),
-                        'parent' => 'popup_enabled',
-                        'filter_value' => 'true',
+                        'filter' => array(
+                            'field' => 'popup_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_shadow_horizontal_length' => array(
                         'name' => esc_html__( 'Shadow Horizontal Length', 'super-forms' ),
@@ -1255,9 +1414,12 @@ if( !class_exists('SUPER_Popup') ) :
                         'min'=>-200,
                         'max'=>200,
                         'steps'=>1,
-                        'filter'=>true,
-                        'parent' => 'popup_enable_shadows',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_enable_shadows',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_shadow_vertical_length' => array(
                         'name' => esc_html__( 'Shadow Vertical Length', 'super-forms' ),
@@ -1266,9 +1428,12 @@ if( !class_exists('SUPER_Popup') ) :
                         'min'=>-200,
                         'max'=>200,
                         'steps'=>1,
-                        'filter'=>true,
-                        'parent' => 'popup_enable_shadows',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_enable_shadows',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_blur_radius' => array(
                         'name' => esc_html__( 'Shadow Blur Radius', 'super-forms' ),
@@ -1277,9 +1442,12 @@ if( !class_exists('SUPER_Popup') ) :
                         'min'=>0,
                         'max'=>300,
                         'steps'=>1,
-                        'filter'=>true,
-                        'parent' => 'popup_enable_shadows',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_enable_shadows',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_spread_radius' => array(
                         'name' => esc_html__( 'Shadow Spread Radius', 'super-forms' ),
@@ -1288,17 +1456,23 @@ if( !class_exists('SUPER_Popup') ) :
                         'min'=>-200,
                         'max'=>200,
                         'steps'=>1,
-                        'filter'=>true,
-                        'parent' => 'popup_enable_shadows',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_enable_shadows',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_shadow_color' => array(
                         'name' => esc_html__( 'Shadow Color', 'super-forms' ),
                         'type'=>'color',  
                         'default' =>  '#000000',
-                        'filter'=>true,
-                        'parent' => 'popup_enable_shadows',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_enable_shadows',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'popup_shadow_opacity' => array(
                         'name' => esc_html__( 'Shadow Opacity', 'super-forms' ),
@@ -1307,9 +1481,12 @@ if( !class_exists('SUPER_Popup') ) :
                         'min'=>0,
                         'max'=>1,
                         'steps'=>0.05,
-                        'filter'=>true,
-                        'parent' => 'popup_enable_shadows',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'popup_enable_shadows',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                  ), 
             ); 

@@ -258,7 +258,7 @@ if( !class_exists('SUPER_Mailster') ) :
                         'desc' => esc_html__( 'This will save a subscriber for Mailster', 'super-forms' ), 
                         'default' =>  '',
                         'type' => 'checkbox', 
-                        'filter'=>true,
+                        // No filter needed - this is a top-level setting
                         'values' => array(
                             'true' => esc_html__( 'Add Mailster subscriber', 'super-forms' ),
                         )
@@ -269,12 +269,15 @@ if( !class_exists('SUPER_Mailster') ) :
                         'hidden_setting' => true,
                         'default' =>  '',
                         'type' => 'checkbox',
-                        'filter'=>true,
+                        // No filter needed - this is a top-level setting
                         'values' => array(
                             'true' => esc_html__( 'Conditionally save subscriber based on user data', 'super-forms' ),
                         ),
-                        'parent' => 'mailster_enabled',
-                        'filter_value' => 'true',
+                        'filter' => array(
+                            'field' => 'mailster_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'mailster_conditionally_save_check' => array(
                         'hidden_setting' => true,
@@ -283,7 +286,7 @@ if( !class_exists('SUPER_Mailster') ) :
                         'label' => esc_html__( 'Your are allowed to enter field {tags} to do the check', 'super-forms' ),
                         'default' =>  '',
                         'placeholder' => "{fieldname},value",
-                        'filter'=>true,
+                        // No filter needed - this is a top-level setting
                         'parent' => 'mailster_conditionally_save',
                         'filter_value' => 'true',
                         'allow_empty'=>true,
@@ -293,9 +296,12 @@ if( !class_exists('SUPER_Mailster') ) :
                         'name' => esc_html__( 'Subscriber email address', 'super-forms' ), 
                         'desc' => esc_html__( 'This will save the entered email by the user as the subsriber email address', 'super-forms' ), 
                         'default' =>  '{email}',
-                        'filter'=>true,
-                        'parent' => 'mailster_enabled',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'mailster_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                         'allow_empty' => true,
                     ),
                     'mailster_fields' => array(
@@ -304,9 +310,12 @@ if( !class_exists('SUPER_Mailster') ) :
                         'desc' => esc_html__( 'Enter the  fields that need to be saved for a subscriber', 'super-forms' ), 
                         'default' =>  "lastname|last_name\nfirstname|first_name",
                         'type' => 'textarea',
-                        'filter'=>true,
-                        'parent' => 'mailster_enabled',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'mailster_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                         'allow_empty' => true,
                     ),
                     'mailster_lists' => array(
@@ -314,9 +323,12 @@ if( !class_exists('SUPER_Mailster') ) :
                         'label' => esc_html__( 'You are allowed to use a {tag} if you want to allow the user to choose a list from your form', 'super-forms' ),
                         'desc' => esc_html__( 'Enter the list ID\'s or enter a {tag}', 'super-forms' ), 
                         'default' =>  '{lists}',
-                        'filter'=>true,
-                        'parent' => 'mailster_enabled',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'mailster_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                         'allow_empty' => true,
                     ),
 

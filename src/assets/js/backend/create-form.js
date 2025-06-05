@@ -377,159 +377,19 @@
             });
         },
         // Show/Hide sub settings
+        // Supports both legacy string format and new array-based conditional logic
+        // Legacy: data-f="field_name;value" 
+        // New: data-f='[{"field":"field_name","operator":"=","value":"expected_value"}]'
+        // Operators: =, !=, ??, !??, !
+        // Examples:
+        // - Show when field equals value: [{"field":"my_field","operator":"=","value":"enabled"}]
+        // - Show when field does NOT equal value: [{"field":"my_field","operator":"!=","value":"disabled"}]
+        // - Show when field contains text: [{"field":"my_field","operator":"??","value":"search_text"}]
+        // - Show when field does NOT contain text: [{"field":"my_field","operator":"!??","value":"unwanted"}]
+        // - Show when field is not empty: [{"field":"my_field","operator":"!"}]
+        // - Multiple conditions (AND logic): [{"field":"field1","operator":"=","value":"yes"},{"field":"field2","operator":"!=","value":"no"}]
         showHideSubsettings: function(el){
-            var i,
-                nodes,
-                filter,
-                value,
-                node,
-                tab;
-
-            if(el){
-                //sfui-setting-group sfui-inline
-                //data-g
-                tab = el.closest('.sfui-setting-group');
-                if(!tab){
-                    tab = el.closest('.super-tab-content');
-                } 
-            }else{
-                tab = document.querySelector('.super-tabs-content');
-            }
-            if(!tab) return;
-            nodes = tab.querySelectorAll('.sfui-notice[data-f], .sfui-setting[data-f], .sfui-sub-settings[data-f], .sfui-setting-group[data-f]');
-            if(nodes.length===0){
-                tab = el.closest('.sfui-repeater-item');
-                nodes = tab.querySelectorAll('.sfui-notice[data-f], .sfui-setting[data-f], .sfui-sub-settings[data-f], .sfui-setting-group[data-f]');
-            }
-            for(i=0; i < nodes.length; i++){
-                if(!nodes[i].dataset.f) continue;
-                value = '';
-                filter = nodes[i].dataset.f.split(';');
-                tab = nodes[i].closest('.super-tab-content');
-                if(nodes[i].closest('.sfui-repeater-item')){
-                    tab = nodes[i].closest('.sfui-repeater-item');
-                }
-                var parts = filter[0].split('.');
-                if(parts.length===1){
-                    node = tab.querySelector('[name="'+filter[0]+'"]');
-                    while(!node){
-                        if(tab.parentNode.dataset.r==='triggers') break;
-                        if(tab.classList.contains('super-tab-content')) break;
-                        tab = tab.parentNode.closest('.sfui-repeater-item');
-                        if(!tab) break;
-                        node = tab.querySelector('[name="'+filter[0]+'"]');
-                    }
-                }else{
-                    if(parts.length===2) node = tab.querySelector('[data-g="'+parts[0]+'"] [name="'+parts[1]+'"]');
-                    if(parts.length===3) node = tab.querySelector('[data-g="'+parts[0]+'"] [data-g="'+parts[1]+'"] [name="'+parts[2]+'"]');
-                    if(parts.length===4) node = tab.querySelector('[data-g="'+parts[0]+'"] [data-g="'+parts[1]+'"] [data-g="'+parts[2]+'"] [name="'+parts[3]+'"]');
-                }
-                if(node){
-                    // Input
-                    if(node.type==='text'){
-                        value = node.value;
-                        nodes[i].classList.remove('sfui-active');
-                        if(filter[1][0]==='!'){
-                            
-                            if(filter[1]==='!'){
-                                
-                                if(value!==''){
-                                    nodes[i].classList.add('sfui-active');
-                                    if(node===el) if(nodes[i].parentNode.classList.contains('sfui-setting-group')) nodes[i].parentNode.classList.add('sfui-active');
-                                }
-                            }else{
-                                if(filter[1]===value){
-                                    filter[1] = filter[1].replace('!', '');
-                                    nodes[i].classList.add('sfui-active');
-                                    if(node===el) if(nodes[i].parentNode.classList.contains('sfui-setting-group')) nodes[i].parentNode.classList.add('sfui-active');
-                                }
-                            }
-                        }else{
-                            if(filter[1]===value){
-                                nodes[i].classList.add('sfui-active');
-                                // if direct parent is sfui-settings-group, make it active 
-                                if(node===el) if(nodes[i].parentNode.classList.contains('sfui-setting-group')) nodes[i].parentNode.classList.add('sfui-active');
-                            }
-                        }
-                        continue;
-                    }
-                    // Radio, Checkbox, Select (dropdown)?
-                    if(node.type==='checkbox' || node.type==='radio'){
-                        if(node.type==='radio'){
-                            var selected = node.closest('form').querySelector('input[name="'+node.name+'"]:checked');
-                            if(selected) {
-                                
-                                value = selected.value;
-                            }
-                        }else{
-                            value = (node.checked ? node.value : '');
-                        }
-                        nodes[i].classList.remove('sfui-active');
-                        if(filter[1][0]==='!'){
-                            
-                            if(filter[1]==='!'){
-                                
-                                if(value!==''){
-                                    nodes[i].classList.add('sfui-active');
-                                    if(node===el) if(nodes[i].parentNode.classList.contains('sfui-setting-group')) nodes[i].parentNode.classList.add('sfui-active');
-                                }
-                            }else{
-                                filter[1] = filter[1].replace('!', '');
-                                if(filter[1]!==value){
-                                    nodes[i].classList.add('sfui-active');
-                                    if(node===el) if(nodes[i].parentNode.classList.contains('sfui-setting-group')) nodes[i].parentNode.classList.add('sfui-active');
-                                }
-                            }
-                        }else{
-                            if(filter[1]===value){
-                                nodes[i].classList.add('sfui-active');
-                                // if direct parent is sfui-settings-group, make it active 
-                                if(node===el) if(nodes[i].parentNode.classList.contains('sfui-setting-group')) nodes[i].parentNode.classList.add('sfui-active');
-                            }
-                        }
-                        continue;
-                    }
-                    if(node.type==='select-one'){
-                        value = node.options[node.selectedIndex].value;
-                        if(nodes[i].classList.contains('sfui-notice')) nodes[i].classList.remove('sfui-active');
-                        if(nodes[i].classList.contains('sfui-setting')) nodes[i].classList.remove('sfui-active');
-                        if(nodes[i].classList.contains('sfui-setting-group')) nodes[i].classList.remove('sfui-active');
-                        //if(nodes[i].parentNode.querySelector('.sfui-sub-settings')) nodes[i].parentNode.querySelector('.sfui-sub-settings').classList.remove('sfui-active');
-                        if(filter[1][0]==='!'){
-                            if(filter[1]==='!'){
-                                if(value!==''){
-                                    if(nodes[i].classList.contains('sfui-notice')) nodes[i].classList.add('sfui-active');
-                                    if(nodes[i].classList.contains('sfui-setting')) nodes[i].classList.add('sfui-active');
-                                    if(nodes[i].classList.contains('sfui-setting-group')) nodes[i].classList.add('sfui-active');
-                                    if(nodes[i].classList.contains('sfui-sub-settings')) nodes[i].classList.add('sfui-active');
-                                    //if(nodes[i].parentNode.querySelector('.sfui-sub-settings')) nodes[i].parentNode.querySelector('.sfui-sub-settings').classList.add('sfui-active');
-                                    if(node===el) if(nodes[i].parentNode.classList.contains('sfui-setting-group')) nodes[i].parentNode.classList.add('sfui-active');
-                                }
-                            }else{
-                                if(filter[1]===value){
-                                    filter[1] = filter[1].replace('!', '');
-                                    if(nodes[i].classList.contains('sfui-notice')) nodes[i].classList.add('sfui-active');
-                                    if(nodes[i].classList.contains('sfui-setting')) nodes[i].classList.add('sfui-active');
-                                    if(nodes[i].classList.contains('sfui-setting-group')) nodes[i].classList.add('sfui-active');
-                                    if(nodes[i].classList.contains('sfui-sub-settings')) nodes[i].classList.add('sfui-active');
-                                    //if(nodes[i].parentNode.querySelector('.sfui-sub-settings')) nodes[i].parentNode.querySelector('.sfui-sub-settings').classList.add('sfui-active');
-                                    if(node===el) if(nodes[i].parentNode.classList.contains('sfui-setting-group')) nodes[i].parentNode.classList.add('sfui-active');
-                                }
-                            }
-                        }else{
-                            if(filter[1].split(',').indexOf(value)!==-1){
-                                if(nodes[i].classList.contains('sfui-notice')) nodes[i].classList.add('sfui-active');
-                                if(nodes[i].classList.contains('sfui-setting')) nodes[i].classList.add('sfui-active');
-                                if(nodes[i].classList.contains('sfui-setting-group')) nodes[i].classList.add('sfui-active');
-                                if(nodes[i].classList.contains('sfui-sub-settings')) nodes[i].classList.add('sfui-active');
-                                //if(nodes[i].parentNode.querySelector('.sfui-sub-settings')) nodes[i].parentNode.querySelector('.sfui-sub-settings').classList.add('sfui-active');
-                                if(node===el) if(nodes[i].parentNode.classList.contains('sfui-setting-group')) nodes[i].parentNode.classList.add('sfui-active');
-                            }
-                        }
-                        continue;
-                    }
-                }
-            }
+            SUPER.filtering.showHideSubsettings(el, 'form-builder');
         },
         // Update form settings
         updateSettings: function(e, el){
