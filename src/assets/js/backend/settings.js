@@ -9,14 +9,46 @@
         function checkForDependencies(dependencies, el){
             if(el.querySelector('.super-element-field')){
                 var name = el.querySelector('.super-element-field').name;
+                // Check for legacy format dependencies
                 var i, nodes = document.querySelectorAll('.super-filter[data-parent="'+name+'"]');
                 for(i=0; i<nodes.length; i++){
                     dependencies.push(nodes[i]);
                     // Check if this field has any dependencies too
                     dependencies = checkForDependencies(dependencies, nodes[i]);
                 }
+                // Check for new format dependencies
+                var newFormatNodes = document.querySelectorAll('.super-filter[data-f]');
+                for(i=0; i<newFormatNodes.length; i++){
+                    if(isFieldDependentOn(newFormatNodes[i], name)){
+                        dependencies.push(newFormatNodes[i]);
+                        dependencies = checkForDependencies(dependencies, newFormatNodes[i]);
+                    }
+                }
             }
             return dependencies;
+        }
+
+        function isFieldDependentOn(filterElement, fieldName){
+            var filterAttr = filterElement.getAttribute('data-f');
+            if(!filterAttr) return false;
+            
+            try {
+                var filterConditions = JSON.parse(filterAttr);
+                if(!Array.isArray(filterConditions)) {
+                    filterConditions = [filterConditions];
+                }
+                
+                for(var i=0; i<filterConditions.length; i++){
+                    if(filterConditions[i].field === fieldName){
+                        return true;
+                    }
+                }
+            } catch(e) {
+                // Legacy string format: "field;value"
+                var parts = filterAttr.split(';');
+                return parts[0] === fieldName;
+            }
+            return false;
         }
         function resetSearch(){
             if(document.querySelector('.super-settings.super-display-search-results')){
@@ -82,6 +114,21 @@
             }
         });
 
+        // Use shared filtering functions from common.js
+        function showHideSubsettings(triggeredBy){
+            SUPER.filtering.showHideSubsettings(triggeredBy, 'settings');
+        }
+
+        // Add event listeners for field changes to trigger filtering
+        $doc.on('change keyup', '.super-element-field', function(){
+            showHideSubsettings(this);
+        });
+
+        // Initialize filtering on page load
+        $(document).ready(function(){
+            showHideSubsettings();
+        });
+
         SUPER.init_color_pickers();
         SUPER.init_image_browser();
        
@@ -102,6 +149,9 @@
                 }
             });
             $field.val($selected);
+            
+            // Trigger filtering after checkbox value change
+            showHideSubsettings($field[0]);
         });
        
         var dateFormat = "dd-mm-yy";

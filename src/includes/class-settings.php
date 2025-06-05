@@ -17,6 +17,42 @@ if( !class_exists( 'SUPER_Settings' ) ) :
 
 /**
  * SUPER_Settings Class
+ * 
+ * Filter Documentation:
+ * ====================
+ * Settings can use conditional visibility filters to show/hide based on other field values.
+ * 
+ * Legacy Format (still supported):
+ * 'filter' => true,
+ * 'parent' => 'parent_field_name',
+ * 'filter_value' => 'expected_value'
+ * 
+ * New Array Format (enhanced):
+ * 'filter' => array(
+ *     'field' => 'field_name',
+ *     'operator' => '=',  // =, !=, ??, !??, !
+ *     'value' => 'expected_value'
+ * )
+ * 
+ * Multiple Conditions (AND logic):
+ * 'filter' => array(
+ *     array('field' => 'field1', 'operator' => '=', 'value' => 'yes'),
+ *     array('field' => 'field2', 'operator' => '!=', 'value' => 'no'),
+ *     array('field' => 'field3', 'operator' => '??', 'value' => 'contains_this')
+ * )
+ * 
+ * Available Operators:
+ * = : equals (default)
+ * != : not equals
+ * ?? : contains
+ * !?? : does not contain
+ * ! : not empty
+ * 
+ * Examples:
+ * - Show when enabled: array('field' => 'my_setting', 'operator' => '=', 'value' => 'enabled')
+ * - Hide when disabled: array('field' => 'my_setting', 'operator' => '!=', 'value' => 'disabled')
+ * - Show when contains text: array('field' => 'my_setting', 'operator' => '??', 'value' => 'search')
+ * - Show when not empty: array('field' => 'my_setting', 'operator' => '!')
  */
 class SUPER_Settings {
     
@@ -786,7 +822,7 @@ class SUPER_Settings {
                         'true' => esc_html__('Only allow logged in users to download secure/private files', 'super-forms' )
                     ),
                     'type' => 'checkbox',
-                    'filter' => true,
+                    // No filter needed - this is a top-level setting
                 ),                
                 'file_upload_auth_roles' => array(
                     'name' => esc_html__('Only allow the following user roles to download secure/private files:', 'super-forms' ),
@@ -798,9 +834,11 @@ class SUPER_Settings {
                             'super-forms' 
                         ), '<br />', '<strong>', '</strong>', implode(', ', $roles)
                     ),
-                    'filter' => true,
-                    'parent' => 'file_upload_auth',
-                    'filter_value' => 'true',
+                    'filter' => array(
+                        'field' => 'file_upload_auth',
+                        'operator' => '=',
+                        'value' => 'true'
+                    ),
                 ),
                 'file_upload_dir' => array(
                     'name' => esc_html__('Select where files should be uploaded to', 'super-forms' ),
@@ -830,7 +868,7 @@ class SUPER_Settings {
                         ), '<br />', '<code>', '</code>', '<strong>', '</strong>', '<strong style="color:red;">', '</strong>'
                     ),
                     'default' =>  SUPER_FORMS_UPLOAD_DIR ,
-                    'filter' => true
+                    // No filter needed - this is a top-level setting
                 ),
                 // For future improvements:
                 // - upload to Google Drive
@@ -858,7 +896,7 @@ class SUPER_Settings {
                     'name' => esc_html__( 'Set mailer to use SMTP', 'super-forms' ),
                     'label' => esc_html__( 'Use the default wp_mail() or use SMTP to send emails', 'super-forms' ),
                     'default' =>  'disabled',
-                    'filter' => true,
+                    // No filter needed - this is a top-level setting
                     'type' => 'select',
                     'values' => array(
                         'disabled' => esc_html__( 'Disabled', 'super-forms' ),
@@ -870,9 +908,12 @@ class SUPER_Settings {
                     'label' => esc_html__( 'Example: smtp1.example.com;smtp2.example.com', 'super-forms' ),
                     'default' =>  'smtp1.example.com;smtp2.example.com',
                     'placeholder' => esc_html__( 'Your SMTP server', 'super-forms' ),
-                    'filter' => true,
-                    'parent' => 'smtp_enabled',
-                    'filter_value' => 'enabled',
+                    // Example of new array-based filter format - shows when smtp_enabled equals 'enabled'
+                    'filter' => array(
+                        'field' => 'smtp_enabled',
+                        'operator' => '=',
+                        'value' => 'enabled'
+                    ),
                 ),
                 'smtp_auth' => array(
                     'name' => esc_html__( 'Enable SMTP authentication', 'super-forms' ),
@@ -882,24 +923,30 @@ class SUPER_Settings {
                         'disabled' => esc_html__( 'Disabled', 'super-forms' ),
                         'enabled' => esc_html__( 'Enabled', 'super-forms' )
                     ),
-                    'filter' => true,
-                    'parent' => 'smtp_enabled',
-                    'filter_value' => 'enabled',
+                    'filter' => array(
+                        'field' => 'smtp_enabled',
+                        'operator' => '=',
+                        'value' => 'enabled'
+                    ),
                 ),
                 'smtp_username' => array(
                     'name' => esc_html__( 'SMTP username', 'super-forms' ),
                     'default' =>  '',
-                    'filter' => true,
-                    'parent' => 'smtp_enabled',
-                    'filter_value' => 'enabled',
+                    'filter' => array(
+                        'field' => 'smtp_enabled',
+                        'operator' => '=',
+                        'value' => 'enabled'
+                    ),
                 ),
                 'smtp_password' => array(
                     'name' => esc_html__( 'SMTP password', 'super-forms' ),
                     'default' =>  '',
                     'type' => 'password',
-                    'filter' => true,
-                    'parent' => 'smtp_enabled',
-                    'filter_value' => 'enabled',
+                    'filter' => array(
+                        'field' => 'smtp_enabled',
+                        'operator' => '=',
+                        'value' => 'enabled'
+                    ),
                 ),                                
                 'smtp_secure' => array(
                     'name' => esc_html__( 'Enable TLS or SSL encryption', 'super-forms' ),
@@ -910,26 +957,32 @@ class SUPER_Settings {
                         'ssl' => esc_html__( 'SSL', 'super-forms' ),
                         'tls' => esc_html__( 'TLS', 'super-forms' )
                     ),
-                    'filter' => true,
-                    'parent' => 'smtp_enabled',
-                    'filter_value' => 'enabled',
+                    'filter' => array(
+                        'field' => 'smtp_enabled',
+                        'operator' => '=',
+                        'value' => 'enabled'
+                    ),
                 ),
                 'smtp_port' => array(
                     'name' => esc_html__( 'TCP port to connect to', 'super-forms' ),
                     'label' => sprintf( esc_html__( 'SMTP – port 25 or 2525 or 587%sSecure SMTP (SSL / TLS) – port 465 or 25 or 587, 2526', 'super-forms' ), '<br />' ),
                     'default' =>  '465',
-                    'filter' => true,
-                    'parent' => 'smtp_enabled',
-                    'filter_value' => 'enabled',
+                    'filter' => array(
+                        'field' => 'smtp_enabled',
+                        'operator' => '=',
+                        'value' => 'enabled'
+                    ),
                     'width' => 100, 
                 ),
                 'smtp_timeout' => array(
                     'name' => esc_html__( 'Timeout (seconds)', 'super-forms' ),
                     'default' =>  30 ,
                     'width' => 100, 
-                    'filter' => true,
-                    'parent' => 'smtp_enabled',
-                    'filter_value' => 'enabled',
+                    'filter' => array(
+                        'field' => 'smtp_enabled',
+                        'operator' => '=',
+                        'value' => 'enabled'
+                    ),
                 ),
                 'smtp_keep_alive' => array(
                     'name' => esc_html__( 'Keep connection open after each message', 'super-forms' ),
@@ -939,9 +992,11 @@ class SUPER_Settings {
                         'disabled' => esc_html__( 'Disabled', 'super-forms' ),
                         'enabled' => esc_html__( 'Enabled', 'super-forms' ),
                     ),
-                    'filter' => true,
-                    'parent' => 'smtp_enabled',
-                    'filter_value' => 'enabled',
+                    'filter' => array(
+                        'field' => 'smtp_enabled',
+                        'operator' => '=',
+                        'value' => 'enabled'
+                    ),
                 ),
                 'smtp_debug' => array(
                     'name' => esc_html__( 'SMTP debug output mode', 'super-forms' ),
@@ -954,9 +1009,11 @@ class SUPER_Settings {
                         3 => esc_html__( '3 - As 2 plus connection status', 'super-forms' ),
                         4 => esc_html__( '4 - Low-level data output', 'super-forms' ),
                     ),
-                    'filter' => true,
-                    'parent' => 'smtp_enabled',
-                    'filter_value' => 'enabled',
+                    'filter' => array(
+                        'field' => 'smtp_enabled',
+                        'operator' => '=',
+                        'value' => 'enabled'
+                    ),
                 ),
                 'smtp_debug_output_mode' => array(
                     'name' => esc_html__( 'How to handle debug output', 'super-forms' ),
@@ -967,9 +1024,11 @@ class SUPER_Settings {
                         'html' => esc_html__( 'HTML - Output escaped, line breaks converted to `<br>`, appropriate for browser output', 'super-forms' ),
                         'error_log' => esc_html__( 'ERROR_LOG - Output to error log as configured in php.ini', 'super-forms' ),
                     ),
-                    'filter' => true,
-                    'parent' => 'smtp_debug',
-                    'filter_value' => '1,2,3,4',
+                    'filter' => array(
+                        'field' => 'smtp_debug',
+                        'operator' => '=',
+                        'value' => array('1', '2', '3', '4')
+                    ),
                 )
             )
         );
@@ -1443,7 +1502,7 @@ class SUPER_Settings {
                 'form_post_option' => array(
                     'default' =>  '',
                     'type' => 'checkbox',
-                    'filter' => true,
+                    // No filter needed - this is a top-level setting
                     'values' => array(
                         'true' => esc_html__( 'Enable form POST method', 'super-forms' ),
                     )
@@ -1451,9 +1510,11 @@ class SUPER_Settings {
                 'form_post_url' => array(
                     'name' => esc_html__( 'Enter a custom form post URL', 'super-forms' ),
                     'default' =>  '',
-                    'filter' => true,
-                    'parent' => 'form_post_option',
-                    'filter_value' => 'true'
+                    'filter' => array(
+                        'field' => 'form_post_option',
+                        'operator' => '=',
+                        'value' => 'true'
+                    )
                 ),
 
                 // @since 3.6.0 - Custom parameter string for POST method
@@ -1463,9 +1524,11 @@ class SUPER_Settings {
                     'values' => array(
                         'true' => esc_html__( 'Enable custom parameter string for POST method', 'super-forms' ),
                     ),
-                    'filter' => true,
-                    'parent' => 'form_post_option',
-                    'filter_value' => 'true'
+                    'filter' => array(
+                        'field' => 'form_post_option',
+                        'operator' => '=',
+                        'value' => 'true'
+                    )
                 ),
                 'form_post_parameters' => array(
                     'name' => esc_html__( 'Enter custom parameter string', 'super-forms' ),
@@ -1483,9 +1546,11 @@ class SUPER_Settings {
                     'values' => array(
                         'true' => esc_html__( 'Include dynamic data (enable this when using dynamic columns)', 'super-forms' ),
                     ),
-                    'filter' => true,
-                    'parent' => 'form_post_custom',
-                    'filter_value' => 'true'  
+                    'filter' => array(
+                        'field' => 'form_post_custom',
+                        'operator' => '=',
+                        'value' => 'true'
+                    )  
                 ),
                 'form_post_json' => array(
                     'default' =>  '',
@@ -1493,9 +1558,11 @@ class SUPER_Settings {
                     'values' => array(
                         'true' => esc_html__( 'Send data as JSON string', 'super-forms' ),
                     ),
-                    'filter' => true,
-                    'parent' => 'form_post_custom',
-                    'filter_value' => 'true'   
+                    'filter' => array(
+                        'field' => 'form_post_custom',
+                        'operator' => '=',
+                        'value' => 'true'
+                    )   
                 ),
                 'form_post_timeout' => array(
                     'name' => esc_html__( 'Post timeout in seconds', 'super-forms' ),
@@ -1534,7 +1601,7 @@ class SUPER_Settings {
                     'desc' => esc_html__( 'Disable \'Enter\' keyboard button (preventing to submit form on pressing Enter)', 'super-forms' ),
                     'default' =>  '',
                     'type' => 'checkbox',
-                    'filter' => true,
+                    // No filter needed - this is a top-level setting
                     'values' => array(
                         'true' => esc_html__( 'Prevent submitting form on pressing "Enter" keyboard button', 'super-forms' ),
                     )
@@ -1542,7 +1609,7 @@ class SUPER_Settings {
                 'form_redirect_option' => array(
                     'name' => esc_html__( 'Form redirect option', 'super-forms' ),
                     'default' =>  '',
-                    'filter' => true,
+                    // No filter needed - this is a top-level setting
                     'type' => 'select',
                     'values' => array(
                         '' => esc_html__( 'No Redirect', 'super-forms' ),
@@ -1554,9 +1621,11 @@ class SUPER_Settings {
                 'form_redirect' => array(
                     'name' => esc_html__('Enter a custom URL to redirect to', 'super-forms' ),
                     'default' =>  '',
-                    'filter' => true,
-                    'parent' => 'form_redirect_option',
-                    'filter_value' => 'custom',
+                    'filter' => array(
+                        'field' => 'form_redirect_option',
+                        'operator' => '=',
+                        'value' => 'custom'
+                    ),
                     'i18n'=>true
                 ),
                 'form_redirect_page' => array(
@@ -1564,9 +1633,11 @@ class SUPER_Settings {
                     'default' =>  '',
                     'type' =>'select',
                     'values' => SUPER_Common::list_posts_by_type_array('page'),
-                    'filter' => true,
-                    'parent' => 'form_redirect_option',
-                    'filter_value' => 'page',
+                    'filter' => array(
+                        'field' => 'form_redirect_option',
+                        'operator' => '=',
+                        'value' => 'page'
+                    ),
                     'i18n'=>true
                 ),
 
@@ -1576,7 +1647,7 @@ class SUPER_Settings {
                     'hidden' => true,
                     'default' =>  '',
                     'type' => 'checkbox',
-                    'filter' => true,
+                    // No filter needed - this is a top-level setting
                     'values' => array(
                         'true' => esc_html__( 'Enable Google Analytics Tracking', 'super-forms' ),
                     )
@@ -1587,9 +1658,11 @@ class SUPER_Settings {
                     'label' => esc_html__( 'Put the tracking code here and replace \'UA-XXXXX-Y\' with the property ID (also called the "tracking ID") of the Google Analytics property you wish to track.<br />(only add if you are sure this code hasn\'t been placed elsewhere yet, otherwise leave empty)', 'super-forms' ),
                     'default' =>  '',
                     'type'=>'textarea',
-                    'filter' => true,
-                    'parent' => 'form_enable_ga_tracking',
-                    'filter_value' => 'true',
+                    'filter' => array(
+                        'field' => 'form_enable_ga_tracking',
+                        'operator' => '=',
+                        'value' => 'true'
+                    ),
                     'placeholder' => "(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){\n(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),\nm=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)\n})(window,document,'script','https://www.google-analytics.com/analytics.js','ga');\n\nga('create', 'UA-XXXXX-Y', 'auto');"
                 ),
                 'form_ga_tracking' => array(

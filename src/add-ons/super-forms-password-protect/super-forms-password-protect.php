@@ -447,18 +447,22 @@ if( !class_exists('SUPER_Password_Protect') ) :
                         'name' => esc_html__( 'Password', 'super-forms' ),
                         'desc' => esc_html__( 'Enter a password to protect the form', 'super-forms' ),
                         'default' =>  wp_generate_password( 24 ),
-                        'filter' => true,
-                        'parent' => 'password_protect',
-                        'filter_value' => 'true',
+                        'filter' => array(
+                            'field' => 'password_protect',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'password_protect_incorrect_msg' => array(
                         'name' => esc_html__( 'Incorrect password message', 'super-forms' ), 
                         'desc' => esc_html__( 'The message to display when an incorrect password was entered', 'super-forms' ), 
                         'default' =>  esc_html__( 'Incorrect password, please try again!', 'super-forms' ),
                         'type' => 'textarea',
-                        'filter'=>true,
-                        'parent' => 'password_protect',
-                        'filter_value' => 'true',
+                        'filter' => array(
+                            'field' => 'password_protect',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                         'allow_empty' => true,
                     ),
 
@@ -477,9 +481,12 @@ if( !class_exists('SUPER_Password_Protect') ) :
                         'type' => 'select',
                         'multiple' => true,
                         'default' =>  '',
-                        'filter' => true,
-                        'parent' => 'password_protect_roles',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'password_protect_roles',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                         'values' => $roles,
                     ),
                     'password_protect_hide' => array(
@@ -490,8 +497,11 @@ if( !class_exists('SUPER_Password_Protect') ) :
                         'values' => array(
                             'true' => esc_html__( 'Hide form from locked out users', 'super-forms' ),
                         ),
-                        'parent' => 'password_protect_roles',
-                        'filter_value' => 'true',
+                        'filter' => array(
+                            'field' => 'password_protect_roles',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'password_protect_show_msg' => array(
                         'desc' => esc_html__( 'Display a message to the locked out user', 'super-forms' ), 
@@ -501,8 +511,11 @@ if( !class_exists('SUPER_Password_Protect') ) :
                         'values' => array(
                             'true' => esc_html__( 'Display a message to the locked out user', 'super-forms' ),
                         ),
-                        'parent' => 'password_protect_roles',
-                        'filter_value' => 'true',
+                        'filter' => array(
+                            'field' => 'password_protect_roles',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                         'allow_empty' => true,
                     ),
                     'password_protect_msg' => array(
@@ -511,8 +524,11 @@ if( !class_exists('SUPER_Password_Protect') ) :
                         'default' =>  esc_html__( 'You do not have permission to submit this form!', 'super-forms' ),
                         'type' => 'textarea',
                         'filter'=>true,
-                        'parent' => 'password_protect_show_msg',
-                        'filter_value' => 'true',
+                        'filter' => array(
+                            'field' => 'password_protect_show_msg',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                         'allow_empty' => true,
                     ),
 
@@ -533,8 +549,11 @@ if( !class_exists('SUPER_Password_Protect') ) :
                         'values' => array(
                             'true' => esc_html__( 'Hide form from not logged in users', 'super-forms' ),
                         ),
-                        'parent' => 'password_protect_login',
-                        'filter_value' => 'true',
+                        'filter' => array(
+                            'field' => 'password_protect_login',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'password_protect_show_login_msg' => array(
                         'desc' => esc_html__( 'Display a message to the logged out user', 'super-forms' ), 
@@ -544,8 +563,11 @@ if( !class_exists('SUPER_Password_Protect') ) :
                         'values' => array(
                             'true' => esc_html__( 'Display a message to the logged out user', 'super-forms' ),
                         ),
-                        'parent' => 'password_protect_login',
-                        'filter_value' => 'true',
+                        'filter' => array(
+                            'field' => 'password_protect_login',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                         'allow_empty' => true,
                     ),
                     'password_protect_login_msg' => array(
@@ -554,8 +576,11 @@ if( !class_exists('SUPER_Password_Protect') ) :
                         'default' =>  esc_html__( 'You are currently not logged in. In order to submit the form make sure you are logged in!', 'super-forms' ),
                         'type' => 'textarea',
                         'filter'=>true,
-                        'parent' => 'password_protect_show_login_msg',
-                        'filter_value' => 'true',
+                        'filter' => array(
+                            'field' => 'password_protect_show_login_msg',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                         'allow_empty' => true,
                     ),
 
@@ -568,8 +593,11 @@ if( !class_exists('SUPER_Password_Protect') ) :
                             'true' => esc_html__( 'Only display after user tried to submit the form', 'super-forms' ),
                         ),
                         'filter'=>true,
-                        'parent' => 'password_protect_show_login_msg',
-                        'filter_value' => 'true',
+                        'filter' => array(
+                            'field' => 'password_protect_show_login_msg',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                         'allow_empty' => true,
                     ),
 

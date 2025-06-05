@@ -617,7 +617,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'name' => esc_html__( 'Actions', 'super-forms' ),
                         'label' => esc_html__( 'Select what the form should do (register, login, update or reset a password)', 'super-forms' ),
                         'default' =>  'none',
-                        'filter' => true,
+                        // No filter needed - this is a top-level setting
                         'type' => 'select',
                         'values' => array(
                             'none' => esc_html__( 'None (do nothing)', 'super-forms' ),
@@ -649,7 +649,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'values' => array(
                             'true' => esc_html__( 'Register new user if user is not logged in', 'super-forms' ),
                         ),
-                        'filter' => true,
+                        // No filter needed - this is a top-level setting
                         'parent' => 'register_login_action',
                         'filter_value' => 'update'
                     ),
@@ -663,7 +663,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'values' => array(
                             'true' => esc_html__( 'Update user based on user_id field or GET or POST', 'super-forms' ),
                         ),
-                        'filter' => true,
+                        // No filter needed - this is a top-level setting
                         'parent' => 'register_login_action',
                         'filter_value' => 'update'
                     ),
@@ -676,7 +676,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'values' => array(
                             'true' => esc_html__( 'Skip registration if user_email is not found', 'super-forms' ),
                         ),
-                        'filter' => true,
+                        // No filter needed - this is a top-level setting
                         'parent' => 'register_login_action',
                         'filter_value' => 'register'
                     ),
@@ -687,16 +687,19 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'type' => 'select',
                         'multiple' => true,
                         'default' =>  '',
-                        'filter' => true,
-                        'parent' => 'register_login_action',
-                        'filter_value' => 'login',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'register_login_action',
+                            'operator' => '=',
+                            'value' => 'login'
+                        ),
                         'values' => $roles,
                     ),
                     'register_user_role' => array(
                         'name' => esc_html__( 'User role', 'super-forms' ),
                         'label' => esc_html__( 'What user role should this user get?', 'super-forms' ) . '<br />' . esc_html__('Available roles', 'super-forms') . ': '.(implode(', ', $rolesString)),
                         'default' =>  'subscriber',
-                        'filter' => true,
+                        // No filter needed - this is a top-level setting
                         'parent' => 'register_login_action',
                         'filter_value' => 'register'
                     ),
@@ -705,9 +708,12 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'label' => esc_html__( 'Optionally let users verify their account or let them instantly login without verification', 'super-forms' ),
                         'type' => 'select',
                         'default' =>  'verify',
-                        'filter' => true,
-                        'parent' => 'register_login_action',
-                        'filter_value' => 'register',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'register_login_action',
+                            'operator' => '=',
+                            'value' => 'register'
+                        ),
                         'values' => array(
                             'verify' => esc_html__( 'Send verification email (default)', 'super-forms' ),
                             'verify_login' => esc_html__( 'Send verification email and automatically login', 'super-forms' ),
@@ -720,7 +726,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'name' => esc_html__( 'Login page URL', 'super-forms' ),
                         'label' => esc_html__( 'URL of your login page where you placed the login form, here users can verify their email address', 'super-forms' ),
                         'default' =>  get_site_url() . '/login/',
-                        'filter' => true,
+                        // No filter needed - this is a top-level setting
                         'parent' => 'register_login_action',
                         'filter_value' => 'register,login,reset_password,update',
                         'allow_empty' => true,
@@ -729,27 +735,36 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'name' => esc_html__( 'Welcome back message', 'super-forms' ),
                         'label' => esc_html__( 'Display a welcome message after user has logged in (leave blank for no message)', 'super-forms' ),
                         'default' =>  esc_html__( 'Welcome back {user_login}!', 'super-forms' ),
-                        'filter' => true,
-                        'parent' => 'register_login_action',
-                        'filter_value' => 'login',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'register_login_action',
+                            'operator' => '=',
+                            'value' => 'login'
+                        ),
                         'allow_empty' => true,
                     ),
                     'register_incorrect_code_msg' => array(
                         'name' => esc_html__( 'Incorrect activation code message', 'super-forms' ),
                         'label' => esc_html__( 'Display a message when the activation code is incorrect', 'super-forms' ),
                         'default' =>  esc_html__( 'The combination username, password and activation code is incorrect!', 'super-forms' ),
-                        'filter' => true,
-                        'parent' => 'register_login_action',
-                        'filter_value' => 'login',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'register_login_action',
+                            'operator' => '=',
+                            'value' => 'login'
+                        ),
                         'allow_empty' => true,
                     ),
                     'register_account_activated_msg' => array(
                         'name' => esc_html__( 'Account verified message', 'super-forms' ),
                         'label' => esc_html__( 'Display a message when account has been verified', 'super-forms' ),
                         'default' =>  esc_html__( 'Hello {user_login}, your account has been verified!', 'super-forms' ),
-                        'filter' => true,
-                        'parent' => 'register_login_action',
-                        'filter_value' => 'login',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'register_login_action',
+                            'operator' => '=',
+                            'value' => 'login'
+                        ),
                         'allow_empty' => true,
                     ),
 
@@ -761,7 +776,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'values' => array(
                             'true' => esc_html__( 'Show Toolbar when viewing site (enabled by default)', 'super-forms' ),
                         ),
-                        'filter' => true,
+                        // No filter needed - this is a top-level setting
                         'parent' => 'register_login_action',
                         'filter_value' => 'register,update',
                         'allow_empty' => true,
@@ -772,9 +787,12 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'type' => 'textarea',
                         'default' =>  '',
                         'placeholder' => "field_name|meta_key\nbilling_first_name|billing_first_name\nbilling_last_name|billing_last_name\nbilling_company|billing_company\nbilling_address_1|billing_address_1\nbilling_address_2|billing_address_2\nbilling_city|billing_city\nbilling_postcode|billing_postcode\nbilling_country|billing_country\nbilling_state|billing_state\nbilling_phone|billing_phone\nbilling_email|billing_email\nshipping_first_name|shipping_first_name\nshipping_last_name|shipping_last_name\nshipping_company|shipping_company\nshipping_address_1|shipping_address_1\nshipping_address_2|shipping_address_2\nshipping_city|shipping_city\nshipping_postcode|shipping_postcode\nshipping_country|shipping_country\nshipping_state|shipping_state",
-                        'filter' => true,
-                        'parent' => 'register_login_action',
-                        'filter_value' => 'register',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'register_login_action',
+                            'operator' => '=',
+                            'value' => 'register'
+                        ),
                         'allow_empty' => true,
                     ),
                     'register_login_multisite_enabled' => array(
@@ -784,7 +802,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'values' => array(
                             'true' => esc_html__( 'Create new Multi-site after registration', 'super-forms' ),
                         ),
-                        'filter' => true,
+                        // No filter needed - this is a top-level setting
                         'parent' => 'register_login_action',
                         'filter_value' => 'register'
                     ),
@@ -792,7 +810,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'name' => esc_html__( 'Domain name for blog', 'super-forms' ),
                         'label' => esc_html__( 'Default: None', 'super-forms' ),
                         'default' =>  '{user_email}',
-                        'filter' => true,
+                        // No filter needed - this is a top-level setting
                         'parent' => 'register_login_multisite_enabled',
                         'filter_value' => 'true',
                         'allow_empty' => true,
@@ -801,7 +819,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'name' => esc_html__( 'Path to the blog', 'super-forms' ),
                         'label' => esc_html__( 'Default: None', 'super-forms' ),
                         'default' =>  '{user_email}',
-                        'filter' => true,
+                        // No filter needed - this is a top-level setting
                         'parent' => 'register_login_multisite_enabled',
                         'filter_value' => 'true',
                         'allow_empty' => true,
@@ -810,7 +828,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'name' => esc_html__( 'Title for blog', 'super-forms' ),
                         'label' => esc_html__( 'Default: None', 'super-forms' ),
                         'default' =>  '{user_email}',
-                        'filter' => true,
+                        // No filter needed - this is a top-level setting
                         'parent' => 'register_login_multisite_enabled',
                         'filter_value' => 'true',
                         'allow_empty' => true,
@@ -819,7 +837,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'name' => esc_html__( 'Site ID, if running multiple networks', 'super-forms' ),
                         'label' => esc_html__( 'Default: 1', 'super-forms' ),
                         'default' =>  '1',
-                        'filter' => true,
+                        // No filter needed - this is a top-level setting
                         'parent' => 'register_login_multisite_enabled',
                         'filter_value' => 'true',
                         'allow_empty' => true,
@@ -830,7 +848,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'values' => array(
                             'true' => esc_html__( 'Send site credentials to the user email', 'super-forms' ),
                         ),
-                        'filter' => true,
+                        // No filter needed - this is a top-level setting
                         'parent' => 'register_login_multisite_enabled',
                         'filter_value' => 'true',
                         'allow_empty' => true,
@@ -839,7 +857,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'name' => esc_html__( 'Success message', 'super-forms' ),
                         'label' => esc_html__( 'Display a message after user has reset their password (leave blank for no message)', 'super-forms' ),
                         'default' =>  esc_html__( 'Your password has been reset. We have just send you a new password to your email address.', 'super-forms' ),
-                        'filter' => true,
+                        // No filter needed - this is a top-level setting
                         'parent' => 'register_login_action',
                         'filter_value' => 'reset_password',
                         'allow_empty' => true,
@@ -848,7 +866,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'name' => esc_html__( 'Not found message', 'super-forms' ),
                         'label' => esc_html__( 'Display a message when no user was found (leave blank for no message)', 'super-forms' ),
                         'default' =>  esc_html__( 'We couldn\'t find a user with the given email address!', 'super-forms' ),
-                        'filter' => true,
+                        // No filter needed - this is a top-level setting
                         'parent' => 'register_login_action',
                         'filter_value' => 'reset_password',
                         'allow_empty' => true,
@@ -861,7 +879,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'label' => esc_html__( 'Display a message when no user is logged in', 'super-forms' ),
                         'type' => 'textarea',
                         'default' =>  sprintf( esc_html__( 'You must be logged in to submit this form. Click %shere%s to login!', 'super-forms' ), '<a href="{register_login_url}">', '</a>' ),
-                        'filter' => true,
+                        // No filter needed - this is a top-level setting
                         'parent' => 'register_login_action',
                         'filter_value' => 'update',
                         'allow_empty' => true,
@@ -872,7 +890,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'desc' => esc_html__( 'Useful for external plugins such as WooCommerce.', 'super-forms' ),
                         'type' => 'textarea',
                         'default' =>  "billing_first_name|billing_first_name\nbilling_last_name|billing_last_name\nbilling_company|billing_company\nbilling_address_1|billing_address_1\nbilling_address_2|billing_address_2\nbilling_city|billing_city\nbilling_postcode|billing_postcode\nbilling_country|billing_country\nbilling_state|billing_state\nbilling_phone|billing_phone\nbilling_email|billing_email\nshipping_first_name|shipping_first_name\nshipping_last_name|shipping_last_name\nshipping_company|shipping_company\nshipping_address_1|shipping_address_1\nshipping_address_2|shipping_address_2\nshipping_city|shipping_city\nshipping_postcode|shipping_postcode\nshipping_country|shipping_country\nshipping_state|shipping_state",
-                        'filter' => true,
+                        // No filter needed - this is a top-level setting
                         'parent' => 'register_login_action',
                         'filter_value' => 'update',
                         'allow_empty' => true,
@@ -882,9 +900,12 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'label' => esc_html__( 'Only set this to "Pending" if you wish to manually verify registrations of users.', 'super-forms' ),
                         'type' => 'select',
                         'default' =>  'active',
-                        'filter' => true,
-                        'parent' => 'register_login_action',
-                        'filter_value' => 'register',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'register_login_action',
+                            'operator' => '=',
+                            'value' => 'register'
+                        ),
                         'values' => array(
                             'active' => esc_html__( 'Active (default)', 'super-forms' ),
                             'pending' => esc_html__( 'Pending', 'super-forms' ),
@@ -904,7 +925,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'values' => array(
                             'true' => esc_html__( 'Send approve email when account is activated by admin', 'super-forms' ),
                         ),
-                        'filter' => true,
+                        // No filter needed - this is a top-level setting
                         'parent' => 'register_user_signup_status',
                         'filter_value' => 'pending,blocked'
                     ),
@@ -920,7 +941,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                             'default' => esc_html__(  'Default blog email and name', 'super-forms' ),
                             'custom' => esc_html__(  'Custom from', 'super-forms' ),
                         ),
-                        'filter' => true,
+                        // No filter needed - this is a top-level setting
                         'parent' => 'register_login_action',
                         'filter_value' => 'register,reset_password'
                     ),
@@ -948,7 +969,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'values' => array(
                             'true' => esc_html__( '(optional) Set a custom reply to header', 'super-forms' ),
                         ),
-                        'filter' => true,
+                        // No filter needed - this is a top-level setting
                         'parent' => 'register_login_action',
                         'filter_value' => 'register,reset_password'
                     ),
@@ -976,7 +997,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'name' => esc_html__( 'Verification E-mail Subject', 'super-forms' ),
                         'label' => esc_html__( 'Example: Verify your account', 'super-forms' ),
                         'default' =>  esc_html__( 'Verify your account', 'super-forms' ),
-                        'filter' => true,
+                        // No filter needed - this is a top-level setting
                         'parent' => 'register_login_activation',
                         'filter_value' => 'verify,verify_login',
                         'allow_empty' => true,
@@ -986,7 +1007,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'label' => esc_html__( 'The email message. You can use {email_verification_code} and {register_login_url}', 'super-forms' ),
                         'type' => 'textarea',
                         'default' =>  sprintf( esc_html__( 'Dear {user_login},%1$s%1$sThank you for registering! Before you can login you will need to verify your account.%1$sBelow you will find your verification code. You need this code to verify your account:%1$s%1$sVerification Code: %2$s{email_verification_code}%3$s%1$s%1$sClick %4$shere%5$s to verify your account with the provided code.%1$s%1$s%1$sBest regards,%1$s%1$s{option_blogname}', 'super-forms' ), "\n", '<strong>', '</strong>', '<a href="{register_login_url}?code={email_verification_code}">', '</a>' ),
-                        'filter' => true,
+                        // No filter needed - this is a top-level setting
                         'parent' => 'register_login_activation',
                         'filter_value' => 'verify,verify_login',
                         'allow_empty' => true,
@@ -997,7 +1018,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'name' => esc_html__( 'Approved E-mail Subject', 'super-forms' ),
                         'label' => esc_html__( 'Example: Your account has been approved', 'super-forms' ),
                         'default' =>  esc_html__( 'Account has been approved', 'super-forms' ),
-                        'filter' => true,
+                        // No filter needed - this is a top-level setting
                         'parent' => 'register_send_approve_email',
                         'filter_value' => 'true',
                         'allow_empty' => true,
@@ -1007,7 +1028,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'label' => esc_html__( 'The email message.', 'super-forms' ),
                         'type' => 'textarea',
                         'default' =>  sprintf( esc_html__( 'Dear {user_login},%1$s%1$sYour account has been approved and can now be used!%1$s%1$sUsername: %2$s{user_login}%3$s%1$sPassword: %2$s{user_pass}%3$s%1$s%1$sClick %4$shere%5$s to login into your account.%1$s%1$s%1$sBest regards,%1$s%1$s{option_blogname}', 'super-forms' ), "\n", '<strong>', '</strong>', '<a href="{register_login_url}">', '</a>' ),
-                        'filter' => true,
+                        // No filter needed - this is a top-level setting
                         'parent' => 'register_send_approve_email',
                         'filter_value' => 'true',
                         'allow_empty' => true,
@@ -1018,7 +1039,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'name' => esc_html__( 'Lost Password E-mail Subject', 'super-forms' ),
                         'label' => esc_html__( 'Example: Your new password. You can use {user_login}', 'super-forms' ),
                         'default' =>  esc_html__( 'Your new password', 'super-forms' ),
-                        'filter' => true,
+                        // No filter needed - this is a top-level setting
                         'parent' => 'register_login_action',
                         'filter_value' => 'reset_password',
                         'allow_empty' => true,
@@ -1030,7 +1051,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'default' =>  sprintf( 
                             esc_html__( 
                                 'Dear {user_login},%1$s%1$sYou just requested to reset your password.%1$sUsername: %2$s{user_login}%3$s%1$sPassword: %2$s{register_generated_password}%3$s%1$s%1$sClick %4$shere%5$s to login with your new password.%1$s%1$s%1$sBest regards,%1$s%1$s{option_blogname}', 'super-forms' ), "\n", '<strong>', '</strong>', '<a href="{register_login_url}">', '</a>' ),
-                        'filter' => true,
+                        // No filter needed - this is a top-level setting
                         'parent' => 'register_login_action',
                         'filter_value' => 'reset_password',
                         'allow_empty' => true,
@@ -1045,7 +1066,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'values' => array(
                             'true' => esc_html__( 'Generate new password on the fly when sending approve email', 'super-forms' ),
                         ),
-                        'filter' => true,
+                        // No filter needed - this is a top-level setting
                         'parent' => 'register_send_approve_email',
                         'filter_value' => 'true'
                     ),
@@ -1054,7 +1075,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         'name' => esc_html__( 'User role', 'super-forms' ),
                         'label' => esc_html__( '(optional) Update the current user role or leave blank to keep the current role', 'super-forms' ) . '<br />' . esc_html__('Available roles', 'super-forms') . ': '.(implode(', ', $rolesString)),
                         'default' =>  '',
-                        'filter' => true,
+                        // No filter needed - this is a top-level setting
                         'parent' => 'register_login_action',
                         'filter_value' => 'update'
                     )

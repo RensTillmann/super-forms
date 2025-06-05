@@ -24,13 +24,25 @@ class SUPER_Field_Types {
     public static function loop_over_fields($fk, $fv){
         $styles = '';
         $filter = '';
-        if( isset( $fv['filter'] ) ) $filter = ' super-filter';
-        $parent = '';
         $hidden = '';
-        if( isset( $fv['parent'] ) ) {
-            $parent = 'data-parent="' . $fv['parent'] . '"';
-            $hidden = ' super-hidden';
+        $data_attributes = '';
+        
+        // Handle both legacy and new array-based filter formats
+        if( isset( $fv['filter'] ) ) {
+            $filter = ' super-filter';
+            
+            // Legacy format support
+            if( isset( $fv['parent'] ) && isset( $fv['filter_value'] ) ) {
+                $data_attributes .= ' data-parent="' . esc_attr($fv['parent']) . '"';
+                $data_attributes .= ' data-filtervalue="' . esc_attr($fv['filter_value']) . '"';
+                $hidden = ' super-hidden';
+            }
+            // New array format support - encode as JSON for JavaScript processing
+            elseif( is_array($fv['filter']) || ($fv['filter'] !== true && $fv['filter'] !== false) ) {
+                $data_attributes .= ' data-f="' . esc_attr(is_array($fv['filter']) ? wp_json_encode($fv['filter']) : $fv['filter']) . '"';
+            }
         }
+        
         if( isset( $fv['hidden_setting'] ) ) {
             $styles = 'display:none;';
         }
@@ -41,9 +53,8 @@ class SUPER_Field_Types {
 
         $force_save = '';
         if( isset( $fv['force_save'] ) ) $force_save = ' data-force-save="true"';
-        $filter_value = '';
-        if( isset( $fv['filter_value'] ) ) $filter_value = ' data-filtervalue="' . $fv['filter_value'] . '"';
-        echo '<div class="super-field super-field-' . $fk . $filter . $hidden . '" ' . $parent . $force_save . $filter_value . $styles . '>';
+        
+        echo '<div class="super-field super-field-' . $fk . $filter . $hidden . '"' . $data_attributes . $force_save . $styles . '>';
             echo '<div class="super-field-info">';
                 if( (!isset($fv['name'])) && (!isset($fv['desc'])) ) {
                     echo '&nbsp;';

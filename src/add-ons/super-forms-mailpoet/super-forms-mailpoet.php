@@ -302,7 +302,7 @@ if( !class_exists('SUPER_MailPoet') ) :
                         'desc' => esc_html__( 'This will save a subscriber for MailPoet', 'super-forms' ), 
                         'default' =>  '',
                         'type' => 'checkbox', 
-                        'filter'=>true,
+                        // No filter needed - this is a top-level setting
                         'values' => array(
                             'true' => esc_html__( 'Add MailPoet subscriber', 'super-forms' ),
                         )
@@ -311,12 +311,15 @@ if( !class_exists('SUPER_MailPoet') ) :
                         'hidden_setting' => true,
                         'default' =>  '',
                         'type' => 'checkbox',
-                        'filter'=>true,
+                        // No filter needed - this is a top-level setting
                         'values' => array(
                             'true' => esc_html__( 'Conditionally save subscriber based on user data', 'super-forms' ),
                         ),
-                        'parent' => 'mailpoet_enabled',
-                        'filter_value' => 'true',
+                        'filter' => array(
+                            'field' => 'mailpoet_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                     ),
                     'mailpoet_conditionally_save_check' => array(
                         'hidden_setting' => true,
@@ -325,34 +328,46 @@ if( !class_exists('SUPER_MailPoet') ) :
                         'label' => esc_html__( 'Your are allowed to enter field {tags} to do the check', 'super-forms' ),
                         'default' =>  '',
                         'placeholder' => "{fieldname},value",
-                        'filter'=>true,
-                        'parent' => 'mailpoet_conditionally_save',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'mailpoet_conditionally_save',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                         'allow_empty'=>true,
                     ),
                     'mailpoet_email' => array(
                         'name' => esc_html__( 'Subscriber email address', 'super-forms' ), 
                         'desc' => esc_html__( 'This will save the entered email by the user as the subsriber email address', 'super-forms' ), 
                         'default' =>  '{email}',
-                        'filter'=>true,
-                        'parent' => 'mailpoet_enabled',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'mailpoet_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                         'allow_empty' => true,
                     ),
                     'mailpoet_fname' => array(
                         'name' => esc_html__( 'First name (optional)', 'super-forms' ), 
                         'default' =>  '{first_name}',
-                        'filter'=>true,
-                        'parent' => 'mailpoet_enabled',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'mailpoet_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                         'allow_empty' => true,
                     ),
                     'mailpoet_lname' => array(
                         'name' => esc_html__( 'Last name (optional)', 'super-forms' ), 
                         'default' =>  '{last_name}',
-                        'filter'=>true,
-                        'parent' => 'mailpoet_enabled',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'mailpoet_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                         'allow_empty' => true,
                     ),
                     'mailpoet_fields' => array(
@@ -360,18 +375,24 @@ if( !class_exists('SUPER_MailPoet') ) :
                         'label' => sprintf( esc_html__( 'Put each on a new line. Example format:%scf_1|{form_field_name}%scf_2|{form_field_name2}%s%s', 'super-forms' ), '<pre>', '<br />', '</pre>', $fieldsList ),
                         'default' =>  '',
                         'type' => 'textarea',
-                        'filter'=>true,
-                        'parent' => 'mailpoet_enabled',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'mailpoet_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                         'allow_empty' => true,
                     ),
                     'mailpoet_lists' => array(
                         'name' => esc_html__( 'Subscriber list ID(\'s) separated by comma\'s', 'super-forms' ), 
                         'label' => esc_html__( 'You are allowed to use {tags} if you want to allow the user to choose a list from dropdown or radio/checkbox in your form', 'super-forms' ),
                         'default' =>  '{lists}',
-                        'filter'=>true,
-                        'parent' => 'mailpoet_enabled',
-                        'filter_value' => 'true',
+                        // No filter needed - this is a top-level setting
+                        'filter' => array(
+                            'field' => 'mailpoet_enabled',
+                            'operator' => '=',
+                            'value' => 'true'
+                        ),
                         'allow_empty' => true,
                     ),
 

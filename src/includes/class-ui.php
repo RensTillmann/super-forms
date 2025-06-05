@@ -38,7 +38,7 @@ class SUPER_UI {
     public static function loop_over_tab_setting_nodes($s, $nodes, $prefix){
         foreach($nodes as $k => $v){
             if(isset($v['type']) && $v['type']==='repeater'){
-                echo '<div class="5 sfui-setting'.(isset($v['toggle']) ? ' sfui-toggle' : '').(isset($v['vertical']) ? ' sfui-vertical' : '').'"'.(isset($v['filter']) ? ' data-f="'.$v['filter'].'"' : '').'>';
+                echo '<div class="5 sfui-setting'.(isset($v['toggle']) ? ' sfui-toggle' : '').(isset($v['vertical']) ? ' sfui-vertical' : '').'"'.(isset($v['filter']) ? ' data-f="'.esc_attr(is_array($v['filter']) ? wp_json_encode($v['filter']) : $v['filter']).'"' : '').'>';
                     if(isset($v['toggle']) && $v['toggle']===true){
                         echo '<label'.(isset($v['toggle']) ? ' class="sfui-toggle-label"' : '').' onclick="SUPER.ui.toggle(event, this)">';
                             if(isset($v['title'])) echo '<span class="sfui-title'.((isset($v['label'])) ? ' sfui-no-padding' : '').'">' . $v['title'] . '</span>';
@@ -101,13 +101,13 @@ class SUPER_UI {
             }
             if(isset($v['toggle']) && $v['toggle']===true){
                 // just a wrapper with inline or filters
-                echo '<div class="6 sfui-setting'.(isset($v['toggle']) ? ' sfui-toggle' : '').((isset($v['padding']) && $v['padding']===false) ? ' sfui-no-padding' : '').(isset($v['vertical']) ? ' sfui-vertical' : '').(isset($v['inline']) ? ' sfui-inline' : '').'"'.(isset($v['filter']) ? ' data-f="'.$v['filter'].'"' : '').'>';
+                echo '<div class="6 sfui-setting'.(isset($v['toggle']) ? ' sfui-toggle' : '').((isset($v['padding']) && $v['padding']===false) ? ' sfui-no-padding' : '').(isset($v['vertical']) ? ' sfui-vertical' : '').(isset($v['inline']) ? ' sfui-inline' : '').'"'.(isset($v['filter']) ? ' data-f="'.esc_attr(is_array($v['filter']) ? wp_json_encode($v['filter']) : $v['filter']).'"' : '').'>';
                     echo '<label'.(isset($v['toggle']) ? ' class="sfui-toggle-label"' : '').' onclick="SUPER.ui.toggle(event, this)">';
                         if(isset($v['title'])) echo '<span class="sfui-title'.((isset($v['label'])) ? ' sfui-no-padding' : '').'">' . $v['title'] . '</span>';
                         if(isset($v['label'])) echo '<span class="sfui-label">' . $v['label'] . '</span>';
                     echo '</label>';
                     if(isset($v['notice'])){
-                        echo '<div class="sfui-notice'.($v['notice']==='info' ? ' sfui-yellow' : '').($v['notice']==='hint' ? ' sfui-desc' : '').'"'.(isset($v['filter']) ? ' data-f="'.$v['filter'].'"' : '').'><p>'.$v['content'].'</p></div>';
+                        echo '<div class="sfui-notice'.($v['notice']==='info' ? ' sfui-yellow' : '').($v['notice']==='hint' ? ' sfui-desc' : '').'"'.(isset($v['filter']) ? ' data-f="'.esc_attr(is_array($v['filter']) ? wp_json_encode($v['filter']) : $v['filter']).'"' : '').'><p>'.$v['content'].'</p></div>';
                     }
                     if(isset($v['nodes']) && is_array($v['nodes'])) self::loop_over_tab_setting_nodes($s, $v['nodes'], $prefix);
                 echo '</div>';
@@ -118,7 +118,7 @@ class SUPER_UI {
                 if(isset($v['wrap']) && $v['wrap']===false){
                     // don't wrap
                 }else{
-                    echo '<div class="4 sfui-setting'.(isset($v['i18n']) ? ' sfui-i18n' : '').(isset($v['tinymce']) ? ' sfui-tinymce' : '').(isset($v['width_full']) ? ' sfui-width-full' : '').(isset($v['width_auto']) ? ' sfui-width-auto' : '').(isset($v['type']) ? ' sfui-type-'.$v['type'] : '').(isset($v['inline']) ? ' sfui-inline' : '').(isset($v['vertical']) ? ' sfui-vertical' : '').((isset($v['padding']) && $v['padding']===false) ? ' sfui-no-padding' : '').'"'.(isset($v['filter']) ? ' data-f="'.$v['filter'].'"' : '').'>';
+                    echo '<div class="4 sfui-setting'.(isset($v['i18n']) ? ' sfui-i18n' : '').(isset($v['tinymce']) ? ' sfui-tinymce' : '').(isset($v['width_full']) ? ' sfui-width-full' : '').(isset($v['width_auto']) ? ' sfui-width-auto' : '').(isset($v['type']) ? ' sfui-type-'.$v['type'] : '').(isset($v['inline']) ? ' sfui-inline' : '').(isset($v['vertical']) ? ' sfui-vertical' : '').((isset($v['padding']) && $v['padding']===false) ? ' sfui-no-padding' : '').'"'.(isset($v['filter']) ? ' data-f="'.esc_attr(is_array($v['filter']) ? wp_json_encode($v['filter']) : $v['filter']).'"' : '').'>';
                 }
                 self::print_field($s, $v, $prefix);
                 // Reset to default setting buttons
@@ -136,13 +136,13 @@ class SUPER_UI {
                 // Not a field, either sub, group or just a wrapper with inline or filters
                 if(isset($v['sub']) && $v['sub']===true){
                     // sub
-                    echo '<div class="sfui-sub-settings'.((isset($v['padding']) && $v['padding']===false) ? ' sfui-no-padding' : '').(isset($v['inline']) ? ' sfui-inline' : '').'"'.(isset($v['filter']) ? ' data-f="'.$v['filter'].'"' : '').'>';
+                    echo '<div class="sfui-sub-settings'.((isset($v['padding']) && $v['padding']===false) ? ' sfui-no-padding' : '').(isset($v['inline']) ? ' sfui-inline' : '').'"'.(isset($v['filter']) ? ' data-f="'.esc_attr(is_array($v['filter']) ? wp_json_encode($v['filter']) : $v['filter']).'"' : '').'>';
                         if(isset($v['nodes']) && is_array($v['nodes'])) self::loop_over_tab_setting_nodes($s, $v['nodes'], $prefix);
                     echo '</div>';
                 }
                 if(isset($v['group']) && $v['group']===true){
                     // group
-                    echo '<div class="3 sfui-setting-group'.((isset($v['padding']) && $v['padding']===false) ? ' sfui-no-padding' : '').(isset($v['width_full']) ? ' sfui-width-full' : '').(isset($v['width_auto']) ? ' sfui-width-auto' : '').(isset($v['vertical']) ? ' sfui-vertical' : '').(isset($v['inline']) ? ' sfui-inline' : '').'"'.(!empty($v['group_name']) ? ' data-g="'.$v['group_name'].'"' : '').(isset($v['filter']) ? ' data-f="'.$v['filter'].'"' : '').'>';
+                    echo '<div class="3 sfui-setting-group'.((isset($v['padding']) && $v['padding']===false) ? ' sfui-no-padding' : '').(isset($v['width_full']) ? ' sfui-width-full' : '').(isset($v['width_auto']) ? ' sfui-width-auto' : '').(isset($v['vertical']) ? ' sfui-vertical' : '').(isset($v['inline']) ? ' sfui-inline' : '').'"'.(!empty($v['group_name']) ? ' data-g="'.$v['group_name'].'"' : '').(isset($v['filter']) ? ' data-f="'.esc_attr(is_array($v['filter']) ? wp_json_encode($v['filter']) : $v['filter']).'"' : '').'>';
                         if(isset($v['wrap']) && $v['wrap']===false){
                             // don't wrap
                         }else{
@@ -163,7 +163,7 @@ class SUPER_UI {
                 }
                 if(!isset($v['sub']) && !isset($v['group']) && !isset($v['notice'])){
                     // just a wrapper with inline or filters
-                    echo '<div class="1 sfui-setting'.((isset($v['padding']) && $v['padding']===false) ? ' sfui-no-padding' : '').(isset($v['vertical']) ? ' sfui-vertical' : '').(isset($v['inline']) ? ' sfui-inline' : '').'"'.(isset($v['filter']) ? ' data-f="'.$v['filter'].'"' : '').'>';
+                    echo '<div class="1 sfui-setting'.((isset($v['padding']) && $v['padding']===false) ? ' sfui-no-padding' : '').(isset($v['vertical']) ? ' sfui-vertical' : '').(isset($v['inline']) ? ' sfui-inline' : '').'"'.(isset($v['filter']) ? ' data-f="'.esc_attr(is_array($v['filter']) ? wp_json_encode($v['filter']) : $v['filter']).'"' : '').'>';
                         if(isset($v['nodes']) && is_array($v['nodes'])) self::loop_over_tab_setting_nodes($s, $v['nodes'], $prefix);
                     echo '</div>';
                 }
@@ -181,7 +181,7 @@ class SUPER_UI {
                 // tmp error_log('after closing group: ' . SUPER_Common::safe_json_encode($prefix));
             }
             if(isset($v['notice'])){
-                echo '<div class="sfui-notice'.($v['notice']==='info' ? ' sfui-yellow' : '').($v['notice']==='hint' ? ' sfui-desc' : '').'"'.(isset($v['filter']) ? ' data-f="'.$v['filter'].'"' : '').'><p>'.$v['content'].'</p></div>';
+                echo '<div class="sfui-notice'.($v['notice']==='info' ? ' sfui-yellow' : '').($v['notice']==='hint' ? ' sfui-desc' : '').'"'.(isset($v['filter']) ? ' data-f="'.esc_attr(is_array($v['filter']) ? wp_json_encode($v['filter']) : $v['filter']).'"' : '').'><p>'.$v['content'].'</p></div>';
                 continue;
             }
 
