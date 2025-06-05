@@ -173,7 +173,7 @@ SUPER.filtering = {
                 } catch(e) {
                     // Legacy string format fallback
                     var legacyFilter = filterAttr.split(';');
-                    var field = legacyFilter[0];
+                    var field = legacyFilter[0]; // Keep full field name including dots for nested fields
                     var value = legacyFilter[1] || '';
                     var operator = '=';
                     
@@ -187,7 +187,7 @@ SUPER.filtering = {
                     }
                     
                     filterConditions = [{
-                        field: field,
+                        field: field, // This now preserves "reply_to.enabled" instead of just "enabled"
                         operator: operator,
                         value: value
                     }];
@@ -292,7 +292,19 @@ SUPER.filtering = {
                 // Add the final field name selector
                 selector += '[name="' + parts[parts.length - 1] + '"]';
                 
+                console.log('Looking for nested field:', fieldName, 'with selector:', selector);
                 node = tab.querySelector(selector);
+                console.log('Found nested field:', !!node);
+                
+                // If not found in current tab, try searching in the specific repeater item context
+                if (!node && triggeredBy) {
+                    var repeaterItem = triggeredBy.closest('.sfui-repeater-item');
+                    if (repeaterItem) {
+                        console.log('Searching in repeater item context');
+                        node = repeaterItem.querySelector(selector);
+                        console.log('Found in repeater item:', !!node);
+                    }
+                }
             }
             
             return node;

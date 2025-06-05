@@ -101,7 +101,11 @@ class SUPER_UI {
             }
             if(isset($v['toggle']) && $v['toggle']===true){
                 // just a wrapper with inline or filters
-                echo '<div class="6 sfui-setting'.(isset($v['toggle']) ? ' sfui-toggle' : '').((isset($v['padding']) && $v['padding']===false) ? ' sfui-no-padding' : '').(isset($v['vertical']) ? ' sfui-vertical' : '').(isset($v['inline']) ? ' sfui-inline' : '').'"'.(isset($v['filter']) ? ' data-f="'.esc_attr(is_array($v['filter']) ? wp_json_encode($v['filter']) : $v['filter']).'"' : '').'>';
+                $width_style = '';
+                if(isset($v['width']) && is_numeric($v['width'])) {
+                    $width_style = ' style="width: '.$v['width'].'%;"';
+                }
+                echo '<div class="6 sfui-setting'.(isset($v['toggle']) ? ' sfui-toggle' : '').((isset($v['padding']) && $v['padding']===false) ? ' sfui-no-padding' : '').(isset($v['width']) ? ' sfui-width-custom' : '').(isset($v['vertical']) ? ' sfui-vertical' : '').(isset($v['inline']) ? ' sfui-inline' : '').'"'.(isset($v['filter']) ? ' data-f="'.esc_attr(is_array($v['filter']) ? wp_json_encode($v['filter']) : $v['filter']).'"' : '').$width_style.'>';
                     echo '<label'.(isset($v['toggle']) ? ' class="sfui-toggle-label"' : '').' onclick="SUPER.ui.toggle(event, this)">';
                         if(isset($v['title'])) echo '<span class="sfui-title'.((isset($v['label'])) ? ' sfui-no-padding' : '').'">' . $v['title'] . '</span>';
                         if(isset($v['label'])) echo '<span class="sfui-label">' . $v['label'] . '</span>';
@@ -142,7 +146,11 @@ class SUPER_UI {
                 }
                 if(isset($v['group']) && $v['group']===true){
                     // group
-                    echo '<div class="3 sfui-setting-group'.((isset($v['padding']) && $v['padding']===false) ? ' sfui-no-padding' : '').(isset($v['width_full']) ? ' sfui-width-full' : '').(isset($v['width_auto']) ? ' sfui-width-auto' : '').(isset($v['vertical']) ? ' sfui-vertical' : '').(isset($v['inline']) ? ' sfui-inline' : '').'"'.(!empty($v['group_name']) ? ' data-g="'.$v['group_name'].'"' : '').(isset($v['filter']) ? ' data-f="'.esc_attr(is_array($v['filter']) ? wp_json_encode($v['filter']) : $v['filter']).'"' : '').'>';
+                    $width_style = '';
+                    if(isset($v['width']) && is_numeric($v['width'])) {
+                        $width_style = ' style="width: '.$v['width'].'%;"';
+                    }
+                    echo '<div class="3 sfui-setting-group'.((isset($v['padding']) && $v['padding']===false) ? ' sfui-no-padding' : '').(isset($v['width_full']) ? ' sfui-width-full' : '').(isset($v['width_auto']) ? ' sfui-width-auto' : '').(isset($v['width']) ? ' sfui-width-custom' : '').(isset($v['vertical']) ? ' sfui-vertical' : '').(isset($v['inline']) ? ' sfui-inline' : '').'"'.(!empty($v['group_name']) ? ' data-g="'.$v['group_name'].'"' : '').(isset($v['filter']) ? ' data-f="'.esc_attr(is_array($v['filter']) ? wp_json_encode($v['filter']) : $v['filter']).'"' : '').$width_style.'>';
                         if(isset($v['wrap']) && $v['wrap']===false){
                             // don't wrap
                         }else{
@@ -296,6 +304,45 @@ class SUPER_UI {
             echo '</div>';
             self::subline($v);
             echo '</label>';
+            return;
+        }
+        if($v['type']==='email_preview'){
+            echo '<div class="super-email-preview">
+                <div class="super-email-client">
+                    <div class="super-email-header">
+                        <div class="email-field">
+                            <span class="email-label">' . esc_html__('To:', 'super-forms') . '</span>
+                            <span class="email-value super-preview-to">' . esc_html__('Select recipients...', 'super-forms') . '</span>
+                        </div>
+                        <div class="email-field">
+                            <span class="email-label">' . esc_html__('From:', 'super-forms') . '</span>
+                            <span class="email-value super-preview-from">' . esc_html__('Enter from email...', 'super-forms') . '</span>
+                        </div>
+                        <div class="email-field super-preview-reply-to-wrapper" style="display:none;">
+                            <span class="email-label">' . esc_html__('Reply-To:', 'super-forms') . '</span>
+                            <span class="email-value super-preview-reply-to"></span>
+                        </div>
+                        <div class="email-field super-preview-cc-wrapper" style="display:none;">
+                            <span class="email-label">' . esc_html__('CC:', 'super-forms') . '</span>
+                            <span class="email-value super-preview-cc"></span>
+                        </div>
+                        <div class="email-field super-preview-bcc-wrapper" style="display:none;">
+                            <span class="email-label">' . esc_html__('BCC:', 'super-forms') . '</span>
+                            <span class="email-value super-preview-bcc"></span>
+                        </div>
+                    </div>
+                    <div class="super-email-subject">
+                        <span class="super-preview-subject super-email-empty">' . esc_html__('Enter email subject...', 'super-forms') . '</span>
+                    </div>
+                    <div class="super-email-attachments super-preview-attachments" style="display:none;">
+                        <strong>📎 ' . esc_html__('Attachments:', 'super-forms') . '</strong>
+                        <span class="super-preview-attachment-list"></span>
+                    </div>
+                    <div class="super-email-body">
+                        <div class="super-preview-body super-email-empty">' . esc_html__('Enter email body content...', 'super-forms') . '</div>
+                    </div>
+                </div>
+            </div>';
             return;
         }
         if($v['type']==='textarea'){

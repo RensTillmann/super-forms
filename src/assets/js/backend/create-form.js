@@ -6371,6 +6371,481 @@
 
         // Required for fields like Toggle element to be rendered properly
         SUPER.init_super_responsive_form_fields({form: $('.super-preview-elements')[0]});
+        
+        // Clean Email Preview System - preview-centric approach
+        var pausedPreviews = new Set(); // Track paused previews
+        
+        function updateSingleEmailPreview(emailPreview) {
+            // Only update if the toggle is open (has sfui-open class) and not paused by mouse hover
+            var toggle = emailPreview.closest('.sfui-toggle');
+            if (!toggle || !toggle.classList.contains('sfui-open')) {
+                return;
+            }
+            
+            // Skip if user is hovering over this preview
+            if (pausedPreviews.has(emailPreview)) {
+                return;
+            }
+            
+            // Find the repeater item that contains this email preview
+            var repeaterItem = emailPreview.closest('.sfui-repeater-item');
+            if (!repeaterItem) return;
+            
+            var previewTo = emailPreview.querySelector('.super-preview-to');
+            var previewFrom = emailPreview.querySelector('.super-preview-from');
+            var previewReplyTo = emailPreview.querySelector('.super-preview-reply-to');
+            var previewReplyToWrapper = emailPreview.querySelector('.super-preview-reply-to-wrapper');
+            var previewSubject = emailPreview.querySelector('.super-preview-subject');
+            var previewBody = emailPreview.querySelector('.super-preview-body');
+            var previewCc = emailPreview.querySelector('.super-preview-cc');
+            var previewBcc = emailPreview.querySelector('.super-preview-bcc');
+            var previewCcWrapper = emailPreview.querySelector('.super-preview-cc-wrapper');
+            var previewBccWrapper = emailPreview.querySelector('.super-preview-bcc-wrapper');
+            var previewAttachments = emailPreview.querySelector('.super-preview-attachments');
+            var previewAttachmentList = emailPreview.querySelector('.super-preview-attachment-list');
+            
+            // Get field values from within the same repeater item
+            var toField = repeaterItem.querySelector('[name="to"]');
+            var fromEmailField = repeaterItem.querySelector('[name="from_email"]');
+            var fromNameField = repeaterItem.querySelector('[name="from_name"]');
+            var subjectField = repeaterItem.querySelector('[name="subject"]');
+            var bodyField = repeaterItem.querySelector('[name="body"]');
+            var ccField = repeaterItem.querySelector('[name="cc"]');
+            var bccField = repeaterItem.querySelector('[name="bcc"]');
+            var attachmentsField = repeaterItem.querySelector('[name="attachments"]');
+            
+            // Reply-to fields (nested within reply_to group) - more specific selectors
+            var replyToEnabledField = repeaterItem.querySelector('[data-g="reply_to"] [name="enabled"]');
+            var replyToEmailField = repeaterItem.querySelector('[data-g="reply_to"] [name="email"]');
+            var replyToNameField = repeaterItem.querySelector('[data-g="reply_to"] [name="name"]');
+            
+            // Update To field
+            if (toField && previewTo) {
+                var toValue = toField.value.trim();
+                if (toValue) {
+                    previewTo.textContent = toValue;
+                    previewTo.classList.remove('super-email-empty');
+                } else {
+                    previewTo.textContent = 'Select recipients...';
+                    previewTo.classList.add('super-email-empty');
+                }
+            }
+            
+            // Update From field
+            if (fromEmailField && previewFrom) {
+                var fromEmailValue = fromEmailField.value.trim();
+                var fromNameValue = fromNameField ? fromNameField.value.trim() : '';
+                var displayFrom = '';
+                
+                if (fromNameValue && fromEmailValue) {
+                    displayFrom = fromNameValue + ' <' + fromEmailValue + '>';
+                } else if (fromEmailValue) {
+                    displayFrom = fromEmailValue;
+                }
+                
+                if (displayFrom) {
+                    previewFrom.textContent = displayFrom;
+                    previewFrom.classList.remove('super-email-empty');
+                } else {
+                    previewFrom.textContent = 'Enter from email...';
+                    previewFrom.classList.add('super-email-empty');
+                }
+            }
+            
+            // Update Reply-To field
+            if (previewReplyTo && previewReplyToWrapper) {
+                // First check if Reply-To is enabled
+                var replyToEnabled = replyToEnabledField ? replyToEnabledField.checked : false;
+                
+                if (replyToEnabled) {
+                    var replyToEmailValue = replyToEmailField ? replyToEmailField.value.trim() : '';
+                    var replyToNameValue = replyToNameField ? replyToNameField.value.trim() : '';
+                    var displayReplyTo = '';
+                    
+                    if (replyToNameValue && replyToEmailValue) {
+                        displayReplyTo = replyToNameValue + ' <' + replyToEmailValue + '>';
+                    } else if (replyToEmailValue) {
+                        displayReplyTo = replyToEmailValue;
+                    }
+                    
+                    if (displayReplyTo) {
+                        previewReplyTo.textContent = displayReplyTo;
+                        previewReplyToWrapper.style.display = 'block';
+                    } else {
+                        previewReplyToWrapper.style.display = 'none';
+                    }
+                } else {
+                    // Reply-To is disabled, hide the field
+                    previewReplyToWrapper.style.display = 'none';
+                }
+            }
+            
+            // Update CC field
+            if (ccField && previewCc && previewCcWrapper) {
+                var ccValue = ccField.value.trim();
+                if (ccValue) {
+                    previewCc.textContent = ccValue;
+                    previewCcWrapper.style.display = 'block';
+                } else {
+                    previewCcWrapper.style.display = 'none';
+                }
+            }
+            
+            // Update BCC field
+            if (bccField && previewBcc && previewBccWrapper) {
+                var bccValue = bccField.value.trim();
+                if (bccValue) {
+                    previewBcc.textContent = bccValue;
+                    previewBccWrapper.style.display = 'block';
+                } else {
+                    previewBccWrapper.style.display = 'none';
+                }
+            }
+            
+            // Update Subject field
+            if (subjectField && previewSubject) {
+                var subjectValue = subjectField.value.trim();
+                if (subjectValue) {
+                    previewSubject.textContent = subjectValue;
+                    previewSubject.classList.remove('super-email-empty');
+                } else {
+                    previewSubject.textContent = 'Enter email subject...';
+                    previewSubject.classList.add('super-email-empty');
+                }
+            }
+            
+            // Update Body field
+            if (bodyField && previewBody) {
+                var bodyValue = '';
+                
+                // Check if TinyMCE editor exists for this field
+                var editorId = bodyField.id;
+                if (window.tinymce && editorId && tinymce.get(editorId)) {
+                    // Use getContent() for TinyMCE - get HTML content, not text
+                    bodyValue = tinymce.get(editorId).getContent().trim();
+                } else {
+                    // Fallback to textarea value
+                    bodyValue = bodyField.value.trim();
+                }
+                
+                if (bodyValue) {
+                    // If it's plain text, convert newlines to HTML
+                    if (bodyValue.indexOf('<') === -1) {
+                        bodyValue = bodyValue.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
+                        if (!bodyValue.startsWith('<p>')) {
+                            bodyValue = '<p>' + bodyValue + '</p>';
+                        }
+                    }
+                    previewBody.innerHTML = bodyValue;
+                    previewBody.classList.remove('super-email-empty');
+                } else {
+                    previewBody.textContent = 'Enter email body content...';
+                    previewBody.classList.add('super-email-empty');
+                }
+            }
+            
+            // Update Attachments
+            if (previewAttachments && previewAttachmentList) {
+                var attachmentList = [];
+                
+                // Handle regular file attachments - get filenames directly from the file-preview HTML
+                if (attachmentsField && attachmentsField.value.trim()) {
+                    // Find the file-preview container within this repeater item
+                    var filePreview = repeaterItem.querySelector('.file-preview');
+                    if (filePreview) {
+                        // Get all file items (li elements with data-file attribute)
+                        var fileItems = filePreview.querySelectorAll('li[data-file]');
+                        fileItems.forEach(function(fileItem) {
+                            // Get the filename from the link text (not the delete link)
+                            var fileLink = fileItem.querySelector('a:not(.super-delete)');
+                            if (fileLink) {
+                                var fileName = fileLink.textContent.trim();
+                                var editUrl = fileLink.href;
+                                attachmentList.push('<a href="' + editUrl + '" target="_blank">' + fileName + '</a>');
+                            }
+                        });
+                    }
+                }
+                
+                // Check for CSV attachment setting (nested field name)
+                var csvAttachmentField = repeaterItem.querySelector('[name="csv_attachment.enabled"]');
+                if (csvAttachmentField && csvAttachmentField.checked) {
+                    attachmentList.push('<span>📄 form-entries.csv</span>');
+                }
+                
+                // Check for XML attachment setting (nested field name)
+                var xmlAttachmentField = repeaterItem.querySelector('[name="xml_attachment.enabled"]');
+                if (xmlAttachmentField && xmlAttachmentField.checked) {
+                    attachmentList.push('<span>📄 form-entries.xml</span>');
+                }
+                
+                if (attachmentList.length > 0) {
+                    previewAttachmentList.innerHTML = attachmentList.join(', ');
+                    previewAttachments.style.display = 'block';
+                } else {
+                    previewAttachments.style.display = 'none';
+                }
+            }
+        }
+        
+        // Clean Email Preview System - Variables
+        var emailPreviewIntervals = new Map();
+        
+        // Initialize email preview for a specific preview element
+        function initializeEmailPreview(emailPreview) {
+            console.log('initializeEmailPreview called for:', emailPreview);
+            
+            // Set up toggle open/close handler for this specific preview
+            var toggle = emailPreview.closest('.sfui-toggle');
+            console.log('Toggle found:', !!toggle);
+            if (!toggle) return;
+            
+            // Mark this preview as initialized to avoid duplicates
+            if (emailPreview._superFormsInitialized) {
+                console.log('Email preview already initialized, skipping');
+                return;
+            }
+            emailPreview._superFormsInitialized = true;
+            console.log('Initializing email preview');
+            
+            // Function to handle toggle state changes
+            function handleToggleState() {
+                var isOpen = toggle.classList.contains('sfui-open');
+                console.log('Toggle state changed, isOpen:', isOpen);
+                
+                if (isOpen) {
+                    console.log('Starting interval for email preview');
+                    
+                    // Start interval for this preview
+                    if (emailPreviewIntervals.has(emailPreview)) {
+                        clearInterval(emailPreviewIntervals.get(emailPreview));
+                    }
+                    
+                    var interval = setInterval(function() {
+                        updateSingleEmailPreview(emailPreview);
+                    }, 500);
+                    
+                    emailPreviewIntervals.set(emailPreview, interval);
+                    
+                    // Initial update
+                    updateSingleEmailPreview(emailPreview);
+                } else {
+                    console.log('Stopping interval for email preview');
+                    
+                    // Stop interval
+                    if (emailPreviewIntervals.has(emailPreview)) {
+                        clearInterval(emailPreviewIntervals.get(emailPreview));
+                        emailPreviewIntervals.delete(emailPreview);
+                    }
+                }
+            }
+            
+            // Check initial state immediately
+            console.log('Checking initial toggle state...');
+            handleToggleState();
+            
+            // Handle toggle clicks for this specific preview
+            var toggleLabel = toggle.querySelector('.sfui-toggle-label');
+            if (toggleLabel) {
+                $(toggleLabel).on('click.emailPreview', function() {
+                    setTimeout(handleToggleState, 100);
+                });
+            }
+        }
+        
+        // Handle mouse enter/leave for pausing updates
+        var pausedPreviews = new Set();
+        
+        $doc.on('mouseenter', '.super-email-preview', function() {
+            pausedPreviews.add(this);
+            console.log('Paused updates for email preview (mouse enter)');
+        });
+        
+        $doc.on('mouseleave', '.super-email-preview', function() {
+            pausedPreviews.delete(this);
+            console.log('Resumed updates for email preview (mouse leave)');
+            // Immediate update when mouse leaves
+            updateSingleEmailPreview(this);
+        });
+        
+        // Watch for new email previews being added
+        if (window.MutationObserver) {
+            var emailsTabObserver = new MutationObserver(function(mutations) {
+                console.log('MutationObserver triggered, mutations:', mutations.length);
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+                        console.log('Child nodes added:', mutation.addedNodes.length);
+                        mutation.addedNodes.forEach(function(node) {
+                            if (node.nodeType === 1) {
+                                console.log('Processing element node:', node.className);
+                                
+                                // Check for email previews in the new node
+                                var emailPreviews = node.querySelectorAll ? node.querySelectorAll('.super-email-preview') : [];
+                                console.log('Email previews found via querySelectorAll:', emailPreviews.length);
+                                
+                                // Also check if the node itself is an email preview
+                                if (node.classList && node.classList.contains('super-email-preview')) {
+                                    emailPreviews = [node];
+                                    console.log('Node itself is an email preview');
+                                }
+                                
+                                // Also check for email previews that might be nested deeper
+                                if (emailPreviews.length === 0) {
+                                    // Try to find email previews in any descendant nodes
+                                    setTimeout(function() {
+                                        var nestedPreviews = node.querySelectorAll ? node.querySelectorAll('.super-email-preview') : [];
+                                        console.log('Delayed check for nested email previews:', nestedPreviews.length);
+                                        for (var j = 0; j < nestedPreviews.length; j++) {
+                                            console.log('Initializing nested email preview');
+                                            initializeEmailPreview(nestedPreviews[j]);
+                                        }
+                                    }, 500); // Wait for DOM to be fully constructed
+                                }
+                                
+                                // Initialize each email preview found
+                                for (var i = 0; i < emailPreviews.length; i++) {
+                                    console.log('Initializing email preview', i);
+                                    initializeEmailPreview(emailPreviews[i]);
+                                }
+                            }
+                        });
+                    }
+                });
+            });
+            
+            // Start observing the emails tab
+            var emailsTab = document.querySelector('.super-tab-emails');
+            if (emailsTab) {
+                console.log('Starting MutationObserver on emails tab');
+                emailsTabObserver.observe(emailsTab, {
+                    childList: true,
+                    subtree: true
+                });
+            } else {
+                console.log('Could not find emails tab for MutationObserver');
+            }
+        }
+        
+        // Initialize existing email previews
+        document.querySelectorAll('.super-email-preview').forEach(function(emailPreview) {
+            initializeEmailPreview(emailPreview);
+        });
+        
+        // Sticky email preview functionality
+        function initializeStickyEmailPreviews() {
+            // Function to update the list of email previews
+            function updateEmailPreviewsList() {
+                return document.querySelectorAll('.super-email-preview');
+            }
+            
+            function handleScroll() {
+                var emailPreviews = updateEmailPreviewsList();
+                emailPreviews.forEach(function(emailPreview) {
+                    var toggle = emailPreview.closest('.sfui-toggle');
+                    if (!toggle || !toggle.classList.contains('sfui-open')) {
+                        return; // Skip if toggle is not open
+                    }
+                    
+                    var repeaterItem = emailPreview.closest('.sfui-repeater-item');
+                    if (!repeaterItem) return;
+                    
+                    var previewRect = emailPreview.getBoundingClientRect();
+                    var repeaterRect = repeaterItem.getBoundingClientRect();
+                    var windowHeight = window.innerHeight;
+                    
+                    // Calculate optimal height based on window size
+                    var maxPreviewHeight = Math.min(windowHeight - 100, 800);
+                    var emailClient = emailPreview.querySelector('.super-email-client');
+                    var emailBody = emailPreview.querySelector('.super-email-body');
+                    
+                    // Sticky positioning logic
+                    var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                    var toggleRect = toggle.getBoundingClientRect();
+                    var shouldStick = toggleRect.top <= 50;
+                    
+                    // Get toggle width for proper constraints
+                    var toggleWidth = toggleRect.width;
+                    var currentPreviewHeight = previewRect.height;
+                    
+                    // Reset all positioning first
+                    emailPreview.classList.remove('sticky', 'sticky-bottom');
+                    emailPreview.style.maxHeight = '';
+                    emailPreview.style.width = '';
+                    emailPreview.style.left = '';
+                    emailPreview.style.top = '';
+                    emailPreview.style.bottom = '';
+                    
+                    if (!shouldStick) {
+                        // Normal positioning - not sticky
+                        return;
+                    }
+                    
+                    // Calculate constraints for sticky positioning
+                    var repeaterBottom = repeaterRect.bottom;
+                    var stickyTop = 50;
+                    var bottomMargin = 20; // Add 20px margin from bottom
+                    var availableHeight = repeaterBottom - stickyTop - bottomMargin;
+                    
+                    // Check if we have enough space for sticky positioning
+                    if (availableHeight < 200) {
+                        // Not enough space, revert to normal positioning
+                        return;
+                    }
+                    
+                    // Apply sticky positioning with constrained height
+                    emailPreview.classList.add('sticky');
+                    emailPreview.style.width = toggleWidth + 'px';
+                    emailPreview.style.left = toggleRect.left + 'px';
+                    
+                    // Always use the smaller of maxPreviewHeight or availableHeight
+                    var constrainedHeight = Math.min(maxPreviewHeight, availableHeight);
+                    emailPreview.style.maxHeight = constrainedHeight + 'px';
+                    
+                    // Set dynamic heights based on the final constrained height
+                    if (emailClient) {
+                        // Leave some room for padding and proper scrollbar display
+                        emailClient.style.maxHeight = (constrainedHeight - 10) + 'px';
+                    }
+                    if (emailBody) {
+                        var headerHeight = 120; // Approximate height of email header + subject + attachments
+                        var scrollbarBuffer = 15; // Extra space for scrollbar arrows and padding
+                        var bodyMaxHeight = Math.max(100, constrainedHeight - headerHeight - scrollbarBuffer);
+                        emailBody.style.maxHeight = bodyMaxHeight + 'px';
+                    }
+                });
+            }
+            
+            // Add scroll listener with throttling for better performance
+            var scrollTimeout;
+            function throttledHandleScroll() {
+                if (scrollTimeout) return;
+                scrollTimeout = setTimeout(function() {
+                    handleScroll();
+                    scrollTimeout = null;
+                }, 16); // ~60fps
+            }
+            
+            window.addEventListener('scroll', throttledHandleScroll);
+            window.addEventListener('resize', throttledHandleScroll);
+            
+            // Initial call
+            handleScroll();
+        }
+        
+        // Initialize sticky behavior
+        initializeStickyEmailPreviews();
+        
+        // Backup method: Check for new email previews every 2 seconds
+        setInterval(function() {
+            var allPreviews = document.querySelectorAll('.super-email-preview');
+            console.log('Backup check: Found', allPreviews.length, 'email previews');
+            allPreviews.forEach(function(emailPreview) {
+                if (!emailPreview._superFormsInitialized) {
+                    console.log('Backup check: Found uninitialized email preview, initializing...');
+                    initializeEmailPreview(emailPreview);
+                }
+            });
+        }, 2000);
     });
 
     window.addEventListener('beforeunload', function (e) {
