@@ -745,8 +745,9 @@ class SUPER_Pages {
                                                                     array(
                                                                         'name' => 'exclude_fields',
                                                                         'type' => 'repeater',
-                                                                        'title'=> esc_html__( 'Exclude fields from CSV file (put each field name on a new line)', 'super-forms' ),
-                                                                        'subline'=> esc_html__( 'When saving the CSV these fields will be excluded from the CSV file', 'super-forms' ),
+                                                                        'toggle' => true,
+                                                                        'title'=> esc_html__( 'Exclude fields from CSV file', 'super-forms' ),
+                                                                        'label'=> esc_html__( 'When saving the CSV these fields will be excluded from the CSV file', 'super-forms' ),
                                                                         'nodes' => array( // repeater item
                                                                             array(
                                                                                 'name' => 'name',
@@ -1834,8 +1835,9 @@ class SUPER_Pages {
                                                                                             array(
                                                                                                 'name' => 'exclude_fields',
                                                                                                 'type' => 'repeater',
-                                                                                                'title'=> esc_html__( 'Exclude fields from CSV file (put each field name on a new line)', 'super-forms' ),
-                                                                                                'subline'=> esc_html__( 'When saving the CSV these fields will be excluded from the CSV file', 'super-forms' ),
+                                                                                                'toggle' => true,
+                                                                                                'title'=> esc_html__( 'Exclude fields from CSV file', 'super-forms' ),
+                                                                                                'label'=> esc_html__( 'When saving the CSV these fields will be excluded from the CSV file', 'super-forms' ),
                                                                                                 'nodes' => array( // repeater item
                                                                                                     array(
                                                                                                         'name' => 'name',

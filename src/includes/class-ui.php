@@ -41,12 +41,12 @@ class SUPER_UI {
                 echo '<div class="5 sfui-setting'.(isset($v['toggle']) ? ' sfui-toggle' : '').(isset($v['vertical']) ? ' sfui-vertical' : '').'"'.(isset($v['filter']) ? ' data-f="'.esc_attr(is_array($v['filter']) ? wp_json_encode($v['filter']) : $v['filter']).'"' : '').'>';
                     if(isset($v['toggle']) && $v['toggle']===true){
                         echo '<label'.(isset($v['toggle']) ? ' class="sfui-toggle-label"' : '').' onclick="SUPER.ui.toggle(event, this)">';
-                            if(isset($v['title'])) echo '<span class="sfui-title'.((isset($v['label'])) ? ' sfui-no-padding' : '').'">' . $v['title'] . '</span>';
-                            if(isset($v['label'])) echo '<span class="sfui-label">' . $v['label'] . '</span>';
+                            if(isset($v['title'])) echo '<span class="sfui-title">' . $v['title'] . '</span>';
                         echo '</label>';
                     }
                     $prefix[] = $v['name'];
                     echo '<div class="sfui-repeater" data-r="'.$v['name'].'">';
+                        if(isset($v['label'])) echo '<div class="sfui-label">' . $v['label'] . '</div>';
                         $name = $v['name'];
                         if(count($prefix)>0) {
                             $name = implode('.',$prefix); //.'.'.$v['name'];
