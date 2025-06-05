@@ -6568,15 +6568,27 @@
                 }
                 
                 // Check for CSV attachment setting (nested field name)
-                var csvAttachmentField = repeaterItem.querySelector('[name="csv_attachment.enabled"]');
+                var csvAttachmentField = repeaterItem.querySelector('[data-g="csv_attachment"] [name="enabled"]');
                 if (csvAttachmentField && csvAttachmentField.checked) {
-                    attachmentList.push('<span>📄 form-entries.csv</span>');
+                    var csvNameField = repeaterItem.querySelector('[data-g="csv_attachment"] [name="name"]');
+                    var csvFilename = (csvNameField && csvNameField.value.trim()) ? csvNameField.value.trim() : 'form-entries.csv';
+                    // Ensure .csv extension
+                    if (!csvFilename.toLowerCase().endsWith('.csv')) {
+                        csvFilename += '.csv';
+                    }
+                    attachmentList.push('<span>' + csvFilename + '</span>');
                 }
                 
                 // Check for XML attachment setting (nested field name)
-                var xmlAttachmentField = repeaterItem.querySelector('[name="xml_attachment.enabled"]');
+                var xmlAttachmentField = repeaterItem.querySelector('[data-g="xml_attachment"] [name="enabled"]');
                 if (xmlAttachmentField && xmlAttachmentField.checked) {
-                    attachmentList.push('<span>📄 form-entries.xml</span>');
+                    var xmlNameField = repeaterItem.querySelector('[data-g="xml_attachment"] [name="name"]');
+                    var xmlFilename = (xmlNameField && xmlNameField.value.trim()) ? xmlNameField.value.trim() : 'form-entries.xml';
+                    // Ensure .xml extension
+                    if (!xmlFilename.toLowerCase().endsWith('.xml')) {
+                        xmlFilename += '.xml';
+                    }
+                    attachmentList.push('<span>' + xmlFilename + '</span>');
                 }
                 
                 if (attachmentList.length > 0) {
