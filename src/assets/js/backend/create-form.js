@@ -6679,6 +6679,160 @@
             // Immediate update when mouse leaves
             updateSingleEmailPreview(this);
         });
+
+        // Handle test email data type selection
+        $doc.on('change', 'input[name="super_test_email_data_type"]', function() {
+            var $entryOptions = $(this).closest('.super-test-email-options').find('.super-test-email-entry-options');
+            if ($(this).val() === 'entry') {
+                $entryOptions.show();
+            } else {
+                $entryOptions.hide();
+            }
+        });
+
+        // Handle send test email button click
+        $doc.on('click', '.super-send-test-email', function(e) {
+            e.preventDefault();
+            
+            var $button = $(this);
+            var $controls = $button.closest('.super-test-email-controls');
+            var $status = $controls.find('.super-test-email-status');
+            var $emailPreview = $controls.closest('.super-email-preview');
+            
+            // Get selected data type
+            var dataType = $controls.find('input[name="super_test_email_data_type"]:checked').val();
+            var entryId = '';
+            if (dataType === 'entry') {
+                entryId = $controls.find('.super-test-email-entry-id').val();
+            }
+            
+            // Get test recipient
+            var testRecipient = $controls.find('.super-test-email-recipient-input').val();
+            if (!testRecipient) {
+                $status.removeClass('success loading').addClass('error').html(super_common_i18n.errors.invalid_email).show();
+                return;
+            }
+            
+            // Find the current email repeater item
+            var $repeaterItem = $emailPreview.closest('.sfui-repeater-item');
+            if (!$repeaterItem.length) {
+                $status.removeClass('success loading').addClass('error').html('Could not find email settings').show();
+                return;
+            }
+            
+            // Collect email settings from the repeater item using same approach as live preview
+            var toField = $repeaterItem.find('[name="to"]')[0];
+            var fromEmailField = $repeaterItem.find('[name="from_email"]')[0];
+            var fromNameField = $repeaterItem.find('[name="from_name"]')[0];
+            var subjectField = $repeaterItem.find('[name="subject"]')[0];
+            var bodyField = $repeaterItem.find('[name="body"]')[0];
+            var ccField = $repeaterItem.find('[name="cc"]')[0];
+            var bccField = $repeaterItem.find('[name="bcc"]')[0];
+            var attachmentsField = $repeaterItem.find('[name="attachments"]')[0];
+            
+            var emailSettings = {
+                to: toField ? toField.value : '',
+                from: fromEmailField ? fromEmailField.value : '',
+                from_name: fromNameField ? fromNameField.value : '',
+                subject: subjectField ? subjectField.value : '',
+                cc: ccField ? ccField.value : '',
+                bcc: bccField ? bccField.value : ''
+            };
+            
+            // Check if Reply-To is enabled (nested within reply_to group)
+            var replyToEnabledField = $repeaterItem.find('[data-g="reply_to"] [name="enabled"]')[0];
+            if (replyToEnabledField && replyToEnabledField.checked) {
+                var replyToEmailField = $repeaterItem.find('[data-g="reply_to"] [name="email"]')[0];
+                var replyToNameField = $repeaterItem.find('[data-g="reply_to"] [name="name"]')[0];
+                emailSettings.reply = replyToEmailField ? replyToEmailField.value : '';
+                emailSettings.reply_name = replyToNameField ? replyToNameField.value : '';
+            }
+            
+            // Get body content from TinyMCE editor
+            if (bodyField) {
+                var bodyValue = '';
+                var editorId = bodyField.id;
+                if (window.tinymce && editorId && tinymce.get(editorId)) {
+                    bodyValue = tinymce.get(editorId).getContent().trim();
+                } else {
+                    bodyValue = bodyField.value.trim();
+                }
+                emailSettings.body = bodyValue;
+            }
+            
+            // Collect attachments the same way as live preview
+            emailSettings.attachments = [];
+            
+            // Handle regular file attachments - get attachment IDs from file-preview HTML
+            if (attachmentsField && attachmentsField.value.trim()) {
+                var filePreview = $repeaterItem.find('.file-preview')[0];
+                if (filePreview) {
+                    var fileItems = filePreview.querySelectorAll('li[data-file]');
+                    fileItems.forEach(function(fileItem) {
+                        var attachmentId = fileItem.getAttribute('data-file');
+                        if (attachmentId) {
+                            emailSettings.attachments.push(attachmentId);
+                        }
+                    });
+                }
+            }
+            
+            // Check CSV attachment settings (nested field name)
+            var csvAttachmentField = $repeaterItem.find('[data-g="csv_attachment"] [name="enabled"]')[0];
+            if (csvAttachmentField && csvAttachmentField.checked) {
+                var csvNameField = $repeaterItem.find('[data-g="csv_attachment"] [name="name"]')[0];
+                var csvFilename = (csvNameField && csvNameField.value.trim()) ? csvNameField.value.trim() : 'form-entries.csv';
+                emailSettings.csv_enabled = true;
+                emailSettings.csv_filename = csvFilename;
+            }
+            
+            // Check XML attachment settings (nested field name)
+            var xmlAttachmentField = $repeaterItem.find('[data-g="xml_attachment"] [name="enabled"]')[0];
+            if (xmlAttachmentField && xmlAttachmentField.checked) {
+                var xmlNameField = $repeaterItem.find('[data-g="xml_attachment"] [name="name"]')[0];
+                var xmlFilename = (xmlNameField && xmlNameField.value.trim()) ? xmlNameField.value.trim() : 'form-entries.xml';
+                emailSettings.xml_enabled = true;
+                emailSettings.xml_filename = xmlFilename;
+            }
+            
+            // Disable button and show loading
+            $button.prop('disabled', true);
+            $status.removeClass('success error').addClass('loading').html('<span class="dashicons dashicons-update super-spin"></span> ' + super_common_i18n.loading).show();
+            
+            // Prepare AJAX data
+            var ajaxData = {
+                action: 'super_send_test_email',
+                form_id: $('.super-create-form input[name="form_id"]').val(),
+                data_type: dataType,
+                entry_id: entryId,
+                test_recipient: testRecipient,
+                email_settings: emailSettings
+            };
+            
+            // Send AJAX request
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: ajaxData,
+                success: function(response) {
+                    $button.prop('disabled', false);
+                    if (response.success) {
+                        $status.removeClass('loading error').addClass('success').html('<span class="dashicons dashicons-yes"></span> ' + response.data.message).show();
+                    } else {
+                        $status.removeClass('loading success').addClass('error').html('<span class="dashicons dashicons-no"></span> ' + response.data.message).show();
+                    }
+                    
+                    // Hide status after 5 seconds
+                    setTimeout(function() {
+                        $status.fadeOut();
+                    }, 5000);
+                },
+                error: function(xhr, status, error) {
+                    $button.prop('disabled', false);
+                    $status.removeClass('loading success').addClass('error').html('<span class="dashicons dashicons-no"></span> ' + super_common_i18n.errors.failed).show();
+                }
+            });
+        });
         
         // Watch for new email previews being added
         if (window.MutationObserver) {
@@ -6787,6 +6941,12 @@
                     emailPreview.style.top = '';
                     emailPreview.style.bottom = '';
                     
+                    // Reset parent toggle min-height when not sticky
+                    var parentToggle = emailPreview.closest('.sfui-toggle');
+                    if (parentToggle && !shouldStick) {
+                        parentToggle.style.minHeight = '';
+                    }
+                    
                     if (!shouldStick) {
                         // Normal positioning - not sticky
                         return;
@@ -6799,9 +6959,16 @@
                     var availableHeight = repeaterBottom - stickyTop - bottomMargin;
                     
                     // Check if we have enough space for sticky positioning
-                    if (availableHeight < 200) {
+                    if (availableHeight < 100) {
                         // Not enough space, revert to normal positioning
                         return;
+                    }
+                    
+                    // Set min-height on parent toggle to prevent scrollbar issues
+                    var parentToggle = emailPreview.closest('.sfui-toggle');
+                    if (parentToggle) {
+                        var currentHeight = parentToggle.offsetHeight;
+                        parentToggle.style.minHeight = Math.max(400, currentHeight) + 'px';
                     }
                     
                     // Apply sticky positioning with constrained height
@@ -6818,11 +6985,23 @@
                         // Leave some room for padding and proper scrollbar display
                         emailClient.style.maxHeight = (constrainedHeight - 10) + 'px';
                     }
-                    if (emailBody) {
-                        var headerHeight = 120; // Approximate height of email header + subject + attachments
+                    if (emailBody && emailClient) {
+                        // Calculate height of all children except the email body and test email controls (which are absolutely positioned)
+                        var totalOtherHeight = 0;
+                        var clientChildren = emailClient.children;
+                        
+                        for (var i = 0; i < clientChildren.length; i++) {
+                            var child = clientChildren[i];
+                            // Skip email body and absolutely positioned test email controls
+                            if (child !== emailBody && !child.classList.contains('super-test-email-controls')) {
+                                totalOtherHeight += child.offsetHeight;
+                            }
+                        }
+                        
                         var scrollbarBuffer = 15; // Extra space for scrollbar arrows and padding
-                        var bodyMaxHeight = Math.max(100, constrainedHeight - headerHeight - scrollbarBuffer);
+                        var bodyMaxHeight = Math.max(100, constrainedHeight - totalOtherHeight - scrollbarBuffer);
                         emailBody.style.maxHeight = bodyMaxHeight + 'px';
+                        emailBody.style.overflowY = 'auto'; // Ensure scrolling is enabled
                     }
                 });
             }

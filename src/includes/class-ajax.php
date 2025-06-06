@@ -106,6 +106,8 @@ class SUPER_Ajax {
 
             'ui_i18n_reload_attachments' => false, // used for triggers to reload the correct attachment image when switching between translations
 
+            'send_test_email' => false, // Send test email from form builder
+
         );
         foreach ( $ajax_events as $ajax_event => $nopriv ) {
             add_action( 'wp_ajax_super_' . $ajax_event, array( __CLASS__, $ajax_event ) );
@@ -4302,6 +4304,439 @@ class SUPER_Ajax {
             ));
             die();
         }
+    }
+
+    /**
+     * Send test email from form builder
+     *
+     * @since 1.0.0
+     */
+    public static function send_test_email() {
+        // Check permissions (admin-only feature)
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => esc_html__('You do not have permission to send test emails', 'super-forms')));
+        }
+
+        // Get parameters
+        $form_id = absint($_POST['form_id']);
+        $data_type = sanitize_text_field($_POST['data_type']);
+        $entry_id = sanitize_text_field($_POST['entry_id']);
+        $test_recipient = sanitize_email($_POST['test_recipient']);
+        $email_settings = isset($_POST['email_settings']) ? $_POST['email_settings'] : array();
+
+        if (!$test_recipient || !is_email($test_recipient)) {
+            wp_send_json_error(array('message' => esc_html__('Invalid test recipient email address', 'super-forms')));
+        }
+
+        // Check if form exists (if form_id is 0, it's a new unsaved form)
+        $form_exists = ($form_id > 0);
+        $settings = array();
+        $elements = array();
+        
+        if ($form_exists) {
+            // Get form settings
+            $settings = SUPER_Common::get_form_settings($form_id);
+            if (!$settings) {
+                wp_send_json_error(array('message' => esc_html__('Form not found', 'super-forms')));
+            }
+            
+            // Get form elements from meta data
+            $elements = get_post_meta($form_id, '_super_elements', true);
+            if (!is_array($elements)) {
+                $elements = array();
+            }
+        } else {
+            // For unsaved forms, force dummy data
+            $data_type = 'dummy';
+            // Use default settings
+            $settings = SUPER_Common::get_default_settings();
+            $elements = array();
+        }
+
+        // Prepare data based on type
+        $data = array();
+        
+        if ($data_type === 'entry' && $form_exists) {
+            // Try to get entry data
+            $entry = null;
+            
+            if ($entry_id) {
+                // Get specific entry
+                $entry = get_post($entry_id);
+                if ($entry && $entry->post_type === 'super_contact_entry' && $entry->post_parent == $form_id) {
+                    // Valid entry found
+                } else {
+                    $entry = null;
+                }
+            } else {
+                // Get latest entry for this form
+                $args = array(
+                    'post_type' => 'super_contact_entry',
+                    'post_status' => array('super_unread', 'super_read'),
+                    'post_parent' => $form_id,
+                    'posts_per_page' => 1,
+                    'orderby' => 'date',
+                    'order' => 'DESC'
+                );
+                $entries = get_posts($args);
+                if (!empty($entries)) {
+                    $entry = $entries[0];
+                }
+            }
+            
+            if ($entry) {
+                // Get entry data from post meta
+                $entry_data = get_post_meta($entry->ID, '_super_contact_entry_data', true);
+                if (is_array($entry_data)) {
+                    $data = $entry_data;
+                }
+            } else {
+                // Fall back to dummy data if entry not found
+                $data_type = 'dummy';
+            }
+        }
+        
+        if ($data_type === 'dummy' || !$form_exists) {
+            // Generate dummy data
+            $dummy_data = self::generate_dummy_data($elements);
+            $data = $dummy_data['data'];
+        }
+
+        // Use email settings from JavaScript if provided, otherwise use defaults
+        if (!empty($email_settings) && is_array($email_settings)) {
+            $email_config = array(
+                'to' => $test_recipient, // Override recipient for test
+                'from' => sanitize_email($email_settings['from']) ?: get_option('admin_email'),
+                'from_name' => sanitize_text_field($email_settings['from_name']) ?: get_bloginfo('name'),
+                'reply' => isset($email_settings['reply']) ? sanitize_email($email_settings['reply']) : '',
+                'reply_name' => isset($email_settings['reply_name']) ? sanitize_text_field($email_settings['reply_name']) : '',
+                'cc' => sanitize_text_field($email_settings['cc']) ?: '',
+                'bcc' => sanitize_text_field($email_settings['bcc']) ?: '',
+                'subject' => '[TEST] ' . sanitize_text_field($email_settings['subject']) ?: '[TEST] Form Submission',
+                'body' => wp_kses_post($email_settings['body']) ?: 'Form submission data:<br><br>{loop_fields}',
+                'attachments' => isset($email_settings['attachments']) ? $email_settings['attachments'] : array(),
+                'csv_enabled' => isset($email_settings['csv_enabled']) ? $email_settings['csv_enabled'] : false,
+                'csv_filename' => isset($email_settings['csv_filename']) ? sanitize_text_field($email_settings['csv_filename']) : '',
+                'xml_enabled' => isset($email_settings['xml_enabled']) ? $email_settings['xml_enabled'] : false,
+                'xml_filename' => isset($email_settings['xml_filename']) ? sanitize_text_field($email_settings['xml_filename']) : ''
+            );
+        } else {
+            // Fallback if no email settings provided
+            $email_config = array(
+                'to' => $test_recipient,
+                'from' => get_option('admin_email'),
+                'from_name' => get_bloginfo('name'),
+                'reply' => '',
+                'reply_name' => '',
+                'cc' => '',
+                'bcc' => '',
+                'subject' => '[TEST] Form Submission Test',
+                'body' => 'This is a test email from your form:<br><br>{loop_fields}<br><br>Best regards,<br>{option_blogname}',
+                'attachments' => array()
+            );
+        }
+
+        // Create the action structure expected by send_email
+        $action = array(
+            'action' => 'send_email',
+            'data' => $email_config
+        );
+
+        // Create a minimal trigger structure
+        $trigger = array(
+            'trigger' => 'email',
+            'actions' => array($action)
+        );
+
+        // Prepare submission info
+        $sfsi = array(
+            'form_id' => $form_id,
+            'data' => $data,
+            'files' => array(),
+            'settings' => $settings,
+            'i18n' => '',
+            'entry_id' => 0,
+            'generated_files' => array()
+        );
+
+        // For test emails, manually replace {loop_fields} with dummy data
+        $processed_body = $email_config['body'];
+        if (strpos($processed_body, '{loop_fields}') !== false) {
+            $loop_fields_content = '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">';
+            foreach ($data as $field_name => $field_data) {
+                if (isset($field_data['label']) && isset($field_data['value'])) {
+                    $loop_fields_content .= '<tr>';
+                    $loop_fields_content .= '<td><strong>' . esc_html($field_data['label']) . '</strong></td>';
+                    $loop_fields_content .= '<td>' . esc_html($field_data['value']) . '</td>';
+                    $loop_fields_content .= '</tr>';
+                }
+            }
+            $loop_fields_content .= '</table>';
+            $processed_body = str_replace('{loop_fields}', $loop_fields_content, $processed_body);
+        }
+        
+        // Process attachments - convert attachment IDs to file paths
+        $attachments = array();
+        
+        if (!empty($email_config['attachments']) && is_array($email_config['attachments'])) {
+            foreach ($email_config['attachments'] as $attachment_id) {
+                $attachment_id = absint($attachment_id);
+                
+                if ($attachment_id > 0) {
+                    // Get attachment URL (SUPER_Common::email expects URLs)
+                    $file_url = wp_get_attachment_url($attachment_id);
+                    if ($file_url) {
+                        $attachments[] = $file_url;
+                    }
+                }
+            }
+        }
+        
+        // Process other email tags
+        $body = SUPER_Common::email_tags($processed_body, $data, $settings);
+        $subject = SUPER_Common::email_tags($email_config['subject'], $data, $settings);
+        $to = SUPER_Common::email_tags($email_config['to'], $data, $settings);
+        $from = SUPER_Common::email_tags($email_config['from'], $data, $settings);
+        $from_name = SUPER_Common::email_tags($email_config['from_name'], $data, $settings);
+        $reply = SUPER_Common::email_tags($email_config['reply'], $data, $settings);
+        $reply_name = SUPER_Common::email_tags($email_config['reply_name'], $data, $settings);
+        
+        // Add attachment info to body for testing
+        if (!empty($attachments)) {
+            $attachment_info = '<br><br><strong>Attachments being sent:</strong><br>';
+            foreach ($attachments as $attachment_url) {
+                $attachment_info .= '- ' . basename($attachment_url) . '<br>';
+                $attachment_info .= '- URL: ' . $attachment_url . '<br>';
+            }
+            $body .= $attachment_info;
+        } else {
+            $body .= '<br><br><strong>No attachments to send</strong><br>';
+        }
+        
+        
+        // Handle CSV attachment
+        if (!empty($email_config['csv_enabled'])) {
+            // Generate CSV content (this would need to be implemented based on form data)
+            $csv_filename = !empty($email_config['csv_filename']) ? $email_config['csv_filename'] : 'form-entries.csv';
+            // Note: For test email, we can skip actual CSV generation or create a simple test CSV
+        }
+        
+        // Handle XML attachment  
+        if (!empty($email_config['xml_enabled'])) {
+            // Generate XML content (this would need to be implemented based on form data)
+            $xml_filename = !empty($email_config['xml_filename']) ? $email_config['xml_filename'] : 'form-entries.xml';
+            // Note: For test email, we can skip actual XML generation or create a simple test XML
+        }
+        
+        // Send email using SUPER_Common::email method
+        $email_params = array(
+            'to' => $to,
+            'from' => $from,
+            'from_name' => $from_name,
+            'reply' => $reply,
+            'reply_name' => $reply_name,
+            'cc' => $email_config['cc'],
+            'bcc' => $email_config['bcc'],
+            'subject' => $subject,
+            'body' => $body,
+            'settings' => $settings,
+            'attachments' => $attachments
+        );
+        
+        $result = SUPER_Common::email($email_params);
+        
+        if ($result['result']) {
+            wp_send_json_success(array(
+                'message' => sprintf(
+                    esc_html__('Test email sent successfully to %s', 'super-forms'), 
+                    $test_recipient
+                )
+            ));
+        } else {
+            wp_send_json_error(array(
+                'message' => sprintf(
+                    esc_html__('Failed to send test email: %s', 'super-forms'), 
+                    $result['error']
+                )
+            ));
+        }
+    }
+
+    /**
+     * Generate dummy data based on form elements
+     *
+     * @param array $elements Form elements
+     * @return array
+     */
+    private static function generate_dummy_data($elements) {
+        $data = array();
+        
+        // If no elements provided, generate basic dummy data
+        if (empty($elements)) {
+            $data = array(
+                'first_name' => array(
+                    'name' => 'first_name',
+                    'label' => 'First Name',
+                    'value' => 'John',
+                    'type' => 'text'
+                ),
+                'last_name' => array(
+                    'name' => 'last_name',
+                    'label' => 'Last Name',
+                    'value' => 'Doe',
+                    'type' => 'text'
+                ),
+                'email' => array(
+                    'name' => 'email',
+                    'label' => 'Email',
+                    'value' => 'john.doe@example.com',
+                    'type' => 'email'
+                ),
+                'message' => array(
+                    'name' => 'message',
+                    'label' => 'Message',
+                    'value' => 'This is a test message to verify email functionality.',
+                    'type' => 'textarea'
+                )
+            );
+            return array('data' => $data);
+        }
+        
+        // Helper function to process elements recursively
+        $process_elements = function($elements) use (&$data, &$process_elements) {
+            if (!is_array($elements)) return;
+            
+            foreach ($elements as $element) {
+                if (isset($element['tag'])) {
+                    $tag = $element['tag'];
+                    // The element structure uses 'data' array for attributes
+                    $element_data = isset($element['data']) ? $element['data'] : array();
+                    $name = isset($element_data['name']) ? $element_data['name'] : '';
+                    $label = isset($element_data['email']) ? $element_data['email'] : ucfirst(str_replace('_', ' ', $name));
+                    
+                    if ($name) {
+                        switch ($tag) {
+                            case 'text':
+                            case 'name':
+                                $data[$name] = array(
+                                    'name' => $name,
+                                    'label' => $label,
+                                    'value' => 'Test ' . ucfirst(str_replace('_', ' ', $name)),
+                                    'type' => 'text'
+                                );
+                                break;
+                                
+                            case 'email':
+                                $data[$name] = array(
+                                    'name' => $name,
+                                    'label' => $label,
+                                    'value' => 'test@example.com',
+                                    'type' => 'email'
+                                );
+                                break;
+                                
+                            case 'phone':
+                                $data[$name] = array(
+                                    'name' => $name,
+                                    'label' => $label,
+                                    'value' => '+1234567890',
+                                    'type' => 'phone'
+                                );
+                                break;
+                                
+                            case 'textarea':
+                                $data[$name] = array(
+                                    'name' => $name,
+                                    'label' => $label,
+                                    'value' => 'This is test content for the ' . $label . ' field.',
+                                    'type' => 'textarea'
+                                );
+                                break;
+                                
+                            case 'dropdown':
+                            case 'radio':
+                                // For radio, use the first option
+                                $value = 'Option 1';
+                                if (isset($element_data['radio_items']) && is_array($element_data['radio_items']) && !empty($element_data['radio_items'])) {
+                                    $value = $element_data['radio_items'][0]['label'];
+                                }
+                                $data[$name] = array(
+                                    'name' => $name,
+                                    'label' => $label,
+                                    'value' => $value,
+                                    'type' => $tag
+                                );
+                                break;
+                                
+                            case 'checkbox':
+                                $data[$name] = array(
+                                    'name' => $name,
+                                    'label' => $label,
+                                    'value' => 'Checked',
+                                    'type' => 'checkbox'
+                                );
+                                break;
+                                
+                            case 'number':
+                            case 'currency':
+                            case 'quantity':
+                                $data[$name] = array(
+                                    'name' => $name,
+                                    'label' => $label,
+                                    'value' => '123',
+                                    'type' => $tag
+                                );
+                                break;
+                                
+                            case 'date':
+                                $data[$name] = array(
+                                    'name' => $name,
+                                    'label' => $label,
+                                    'value' => date('Y-m-d'),
+                                    'type' => 'date'
+                                );
+                                break;
+                                
+                            case 'time':
+                                $data[$name] = array(
+                                    'name' => $name,
+                                    'label' => $label,
+                                    'value' => date('H:i'),
+                                    'type' => 'time'
+                                );
+                                break;
+                                
+                            case 'file':
+                                $data[$name] = array(
+                                    'name' => $name,
+                                    'label' => $label,
+                                    'value' => 'test-file.pdf',
+                                    'type' => 'files',
+                                    'files' => array(
+                                        array(
+                                            'name' => $name,
+                                            'label' => $label,
+                                            'value' => 'test-file.pdf',
+                                            'url' => site_url('/wp-content/uploads/test-file.pdf'),
+                                            'attachment' => 0
+                                        )
+                                    )
+                                );
+                                break;
+                        }
+                    }
+                }
+                
+                // Process child elements
+                if (isset($element['inner']) && is_array($element['inner'])) {
+                    $process_elements($element['inner']);
+                }
+            }
+        };
+        
+        $process_elements($elements);
+        
+        return array('data' => $data);
     }
 }
 endif;

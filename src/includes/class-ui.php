@@ -229,7 +229,6 @@ class SUPER_UI {
                 if(isset($v['title'])) echo '<span class="sfui-title'.((isset($v['label'])) ? ' sfui-no-padding' : '').'">' . $v['title'] . '</span>';
                 if(isset($v['label'])) echo '<span class="sfui-label">' . $v['label'] . '</span>';
                 $value = self::get_value($s, $name, $v);
-                error_log('$value: '.$value);
                 echo '<label class="sfui-colorpicker">';
                     echo '<input type="text" name="'.esc_attr($v['name']).'" value="' . esc_attr($value). '" />';
                 echo '</label>';
@@ -341,6 +340,39 @@ class SUPER_UI {
                     <div class="super-email-body">
                         <div class="super-preview-body super-email-empty">' . esc_html__('Enter email body content...', 'super-forms') . '</div>
                     </div>
+                    <div class="super-test-email-controls">
+                        <div class="super-test-email-options">
+                            <div class="super-test-email-type-wrapper">
+                                <label class="super-test-email-type">
+                                    <input type="radio" name="super_test_email_data_type" value="dummy" checked />
+                                    <span>' . esc_html__('Use dummy data', 'super-forms') . '</span>
+                                </label>
+                                <label class="super-test-email-type">
+                                    <input type="radio" name="super_test_email_data_type" value="entry" />
+                                    <span>' . esc_html__('Use contact entry data', 'super-forms') . '</span>
+                                </label>
+                            </div>
+                            <div class="super-test-email-entry-options" style="display:none;">
+                                <input type="text" 
+                                       name="super_test_email_entry_id" 
+                                       placeholder="' . esc_attr__('Entry ID (leave empty for latest)', 'super-forms') . '" 
+                                       class="super-test-email-entry-id" />
+                            </div>
+                            <div class="super-test-email-action-wrapper">
+                                <div class="super-test-email-recipient">
+                                    <input type="email" 
+                                           name="super_test_email_recipient" 
+                                           placeholder="' . esc_attr__('Test email recipient', 'super-forms') . '" 
+                                           class="super-test-email-recipient-input" 
+                                           value="' . esc_attr(get_option('admin_email')) . '" />
+                                </div>
+                                <span class="button button-primary super-send-test-email">
+                                    <i class="fas fa-envelope"></i> ' . esc_html__('Send Test Email', 'super-forms') . '
+                                </span>
+                            </div>
+                            <div class="super-test-email-status"></div>
+                        </div>
+                    </div>
                 </div>
             </div>';
             return;
@@ -361,9 +393,6 @@ class SUPER_UI {
                 $value = esc_textarea($value);
                 if($v['name']==='i18n' && $value==='[]') $value = '';
                 if(!empty($v['tinymce'])){
-                    error_log('#############################');
-                    error_log(json_encode($s));
-                    error_log(json_encode($v));
                     $name = $v['name'];
                     if(count($prefix)>0) $name = implode('.',$prefix).'.'.$v['name'];
                     $v['v'] = self::get_value($s, $name, null);

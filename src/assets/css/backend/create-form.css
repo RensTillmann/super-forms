@@ -3134,6 +3134,11 @@ body:not(.tox-fullscreen) .super-builder .tox-editor-header .tox-menubar .tox-mb
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     height: fit-content;
     padding: 10px;
+    flex-direction: column;
+}
+.sfui-toggle.sfui-open .super-email-preview {
+    display: flex;
+    flex-direction: column;
 }
 
 /* Sticky email preview styles */
@@ -3220,4 +3225,112 @@ body:not(.tox-fullscreen) .super-builder .tox-editor-header .tox-menubar .tox-mb
 .super-email-empty {
     color: #adb5bd;
     font-style: italic;
+}
+
+/* Test Email Controls */
+.super-email-client {
+    position: relative;
+}
+
+.super-email-body {
+    padding-bottom: 140px; /* Space for fixed test email controls */
+}
+
+.super-test-email-controls {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 15px;
+    background: #f9f9f9;
+    border-top: 1px solid #ddd;
+    border-radius: 0 0 4px 4px;
+}
+
+.super-test-email-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.super-test-email-type-wrapper {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    align-items: center;
+}
+
+.super-test-email-type {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.super-test-email-type input[type="radio"] {
+    margin: 0;
+}
+
+.super-test-email-entry-id {
+    width: 200px;
+    padding: 5px 10px;
+}
+
+.super-test-email-action-wrapper {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+}
+
+.super-test-email-recipient {
+    flex: 1;
+}
+
+.super-test-email-recipient-input {
+    width: 100%;
+    padding: 5px 10px;
+}
+
+.super-send-test-email {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    white-space: nowrap;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.super-send-test-email i {
+    line-height: 1;
+    vertical-align: middle;
+}
+
+.super-test-email-status {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 4px;
+    display: none;
+}
+
+.super-test-email-status.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+    display: block;
+}
+
+.super-test-email-status.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    display: block;
+}
+
+.super-test-email-status.loading {
+    background: #cce5ff;
+    color: #004085;
+    border: 1px solid #b8daff;
+    display: block;
 }
