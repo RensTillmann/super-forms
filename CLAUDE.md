@@ -125,3 +125,7 @@ No debugging guidelines defined try to use your best approach
 ### Working with build in extensions:
 - Super Forms comes with build-in extensions such as Listings, Stripe, PDF generator
 - These are located inside `/src/includes/extensions` and mostly require paymnet either via yearly manual payment or subscription via our third party custom build license system under Super Forms > Licenses
+
+## Project Workflow Reminder
+- After finishing making edits to files, run command `bash sync-to-webserver.sh` to sync the changes to the remote server
+- Always run the `sync-to-webserver.sh` script after making all the changes

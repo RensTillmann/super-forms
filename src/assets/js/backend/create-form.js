@@ -6375,6 +6375,54 @@
         // Clean Email Preview System - preview-centric approach
         var pausedPreviews = new Set(); // Track paused previews
         
+        // Process {loop_fields} tag with dummy data for live preview
+        function processLoopFieldsForPreview(bodyValue, repeaterItem) {
+            // Dummy data matching the PHP version
+            var dummyData = {
+                'first_name': { label: 'First Name', value: 'John' },
+                'last_name': { label: 'Last Name', value: 'Doe' },
+                'email': { label: 'E-mail address', value: 'john.doe@example.com' },
+                'phone': { label: 'Phone number', value: '+1 (555) 123-4567' },
+                'question': { label: 'Question', value: 'What services are you interested in?<br />I am particularly interested in web development and design services.<br /><br /><br />Regards John' },
+                'choice': { label: 'Select your preference', value: 'First choice' },
+                'message': { label: 'Message', value: 'This is a test message to verify email functionality.' }
+            };
+            
+            // Get loop settings from the repeater item
+            var loopOpenField = repeaterItem.querySelector('[name="loop_open"]');
+            var loopField = repeaterItem.querySelector('[name="loop"]');
+            var loopCloseField = repeaterItem.querySelector('[name="loop_close"]');
+            var excludeEmptyField = repeaterItem.querySelector('[name="exclude_empty"]');
+            
+            var loopOpen = loopOpenField ? loopOpenField.value : '<table cellpadding="5">';
+            var loopTemplate = loopField ? loopField.value : '<tr><th valign="top" align="right">{loop_label}</th><td>{loop_value}</td></tr>';
+            var loopClose = loopCloseField ? loopCloseField.value : '</table>';
+            var excludeEmpty = excludeEmptyField ? excludeEmptyField.checked : true;
+            
+            // Build the loop content
+            var emailLoop = '';
+            for (var fieldName in dummyData) {
+                var fieldData = dummyData[fieldName];
+                
+                // Skip empty fields if exclude_empty is enabled
+                if (excludeEmpty && !fieldData.value) {
+                    continue;
+                }
+                
+                // Process each field using the user's loop template
+                var row = loopTemplate;
+                row = row.replace(/{loop_label}/g, fieldData.label);
+                row = row.replace(/{loop_value}/g, fieldData.value);
+                emailLoop += row;
+            }
+            
+            // Wrap with loop_open and loop_close
+            var loopFieldsContent = loopOpen + emailLoop + loopClose;
+            
+            // Replace {loop_fields} with the processed content
+            return bodyValue.replace(/{loop_fields}/g, loopFieldsContent);
+        }
+        
         function updateSingleEmailPreview(emailPreview) {
             // Only update if the toggle is open (has sfui-open class) and not paused by mouse hover
             var toggle = emailPreview.closest('.sfui-toggle');
@@ -6529,6 +6577,11 @@
                 }
                 
                 if (bodyValue) {
+                    // Process {loop_fields} with dummy data if present
+                    if (bodyValue.indexOf('{loop_fields}') !== -1) {
+                        bodyValue = processLoopFieldsForPreview(bodyValue, repeaterItem);
+                    }
+                    
                     // If it's plain text, convert newlines to HTML
                     if (bodyValue.indexOf('<') === -1) {
                         bodyValue = bodyValue.replace(/\n\n/g, '</p><p>').replace(/\n/g, '<br>');
@@ -6794,6 +6847,17 @@
                 emailSettings.xml_enabled = true;
                 emailSettings.xml_filename = xmlFilename;
             }
+            
+            // Collect loop settings from Advanced options
+            var loopOpenField = $repeaterItem.find('[name="loop_open"]')[0];
+            var loopField = $repeaterItem.find('[name="loop"]')[0];
+            var loopCloseField = $repeaterItem.find('[name="loop_close"]')[0];
+            var excludeEmptyField = $repeaterItem.find('[name="exclude_empty"]')[0];
+            
+            emailSettings.loop_open = loopOpenField ? loopOpenField.value : '<table cellpadding="5">';
+            emailSettings.loop = loopField ? loopField.value : '<tr><th valign="top" align="right">{loop_label}</th><td>{loop_value}</td></tr>';
+            emailSettings.loop_close = loopCloseField ? loopCloseField.value : '</table>';
+            emailSettings.exclude_empty = excludeEmptyField ? excludeEmptyField.checked : true;
             
             // Disable button and show loading
             $button.prop('disabled', true);

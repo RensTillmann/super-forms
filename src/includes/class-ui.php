@@ -351,12 +351,12 @@ class SUPER_UI {
                                     <input type="radio" name="super_test_email_data_type" value="entry" />
                                     <span>' . esc_html__('Use contact entry data', 'super-forms') . '</span>
                                 </label>
-                            </div>
-                            <div class="super-test-email-entry-options" style="display:none;">
-                                <input type="text" 
-                                       name="super_test_email_entry_id" 
-                                       placeholder="' . esc_attr__('Entry ID (leave empty for latest)', 'super-forms') . '" 
-                                       class="super-test-email-entry-id" />
+                                <div class="super-test-email-entry-options" style="display:none;">
+                                    <input type="text" 
+                                           name="super_test_email_entry_id" 
+                                           placeholder="' . esc_attr__('Entry ID (leave empty for latest)', 'super-forms') . '" 
+                                           class="super-test-email-entry-id" />
+                                </div>
                             </div>
                             <div class="super-test-email-action-wrapper">
                                 <div class="super-test-email-recipient">

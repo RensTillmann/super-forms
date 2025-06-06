@@ -4418,7 +4418,11 @@ class SUPER_Ajax {
                 'csv_enabled' => isset($email_settings['csv_enabled']) ? $email_settings['csv_enabled'] : false,
                 'csv_filename' => isset($email_settings['csv_filename']) ? sanitize_text_field($email_settings['csv_filename']) : '',
                 'xml_enabled' => isset($email_settings['xml_enabled']) ? $email_settings['xml_enabled'] : false,
-                'xml_filename' => isset($email_settings['xml_filename']) ? sanitize_text_field($email_settings['xml_filename']) : ''
+                'xml_filename' => isset($email_settings['xml_filename']) ? sanitize_text_field($email_settings['xml_filename']) : '',
+                'loop_open' => isset($email_settings['loop_open']) ? wp_kses_post($email_settings['loop_open']) : '<table cellpadding="5">',
+                'loop' => isset($email_settings['loop']) ? wp_kses_post($email_settings['loop']) : '<tr><th valign="top" align="right">{loop_label}</th><td>{loop_value}</td></tr>',
+                'loop_close' => isset($email_settings['loop_close']) ? wp_kses_post($email_settings['loop_close']) : '</table>',
+                'exclude_empty' => isset($email_settings['exclude_empty']) ? $email_settings['exclude_empty'] : true
             );
         } else {
             // Fallback if no email settings provided
@@ -4432,7 +4436,11 @@ class SUPER_Ajax {
                 'bcc' => '',
                 'subject' => '[TEST] Form Submission Test',
                 'body' => 'This is a test email from your form:<br><br>{loop_fields}<br><br>Best regards,<br>{option_blogname}',
-                'attachments' => array()
+                'attachments' => array(),
+                'loop_open' => '<table cellpadding="5">',
+                'loop' => '<tr><th valign="top" align="right">{loop_label}</th><td>{loop_value}</td></tr>',
+                'loop_close' => '</table>',
+                'exclude_empty' => true
             );
         }
 
@@ -4459,19 +4467,27 @@ class SUPER_Ajax {
             'generated_files' => array()
         );
 
-        // For test emails, manually replace {loop_fields} with dummy data
+        // For test emails, manually replace {loop_fields} with dummy data using user's loop settings
         $processed_body = $email_config['body'];
         if (strpos($processed_body, '{loop_fields}') !== false) {
-            $loop_fields_content = '<table border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">';
+            $email_loop = '';
             foreach ($data as $field_name => $field_data) {
                 if (isset($field_data['label']) && isset($field_data['value'])) {
-                    $loop_fields_content .= '<tr>';
-                    $loop_fields_content .= '<td><strong>' . esc_html($field_data['label']) . '</strong></td>';
-                    $loop_fields_content .= '<td>' . esc_html($field_data['value']) . '</td>';
-                    $loop_fields_content .= '</tr>';
+                    // Skip empty fields if exclude_empty is enabled
+                    if ($email_config['exclude_empty'] && empty($field_data['value'])) {
+                        continue;
+                    }
+                    
+                    // Process each field using the user's loop template
+                    $row = $email_config['loop'];
+                    $row = str_replace('{loop_label}', esc_html($field_data['label']), $row);
+                    $row = str_replace('{loop_value}', nl2br(esc_html($field_data['value'])), $row);
+                    $email_loop .= $row;
                 }
             }
-            $loop_fields_content .= '</table>';
+            
+            // Wrap with loop_open and loop_close
+            $loop_fields_content = $email_config['loop_open'] . $email_loop . $email_config['loop_close'];
             $processed_body = str_replace('{loop_fields}', $loop_fields_content, $processed_body);
         }
         
@@ -4500,19 +4516,6 @@ class SUPER_Ajax {
         $from_name = SUPER_Common::email_tags($email_config['from_name'], $data, $settings);
         $reply = SUPER_Common::email_tags($email_config['reply'], $data, $settings);
         $reply_name = SUPER_Common::email_tags($email_config['reply_name'], $data, $settings);
-        
-        // Add attachment info to body for testing
-        if (!empty($attachments)) {
-            $attachment_info = '<br><br><strong>Attachments being sent:</strong><br>';
-            foreach ($attachments as $attachment_url) {
-                $attachment_info .= '- ' . basename($attachment_url) . '<br>';
-                $attachment_info .= '- URL: ' . $attachment_url . '<br>';
-            }
-            $body .= $attachment_info;
-        } else {
-            $body .= '<br><br><strong>No attachments to send</strong><br>';
-        }
-        
         
         // Handle CSV attachment
         if (!empty($email_config['csv_enabled'])) {
@@ -4571,8 +4574,9 @@ class SUPER_Ajax {
     private static function generate_dummy_data($elements) {
         $data = array();
         
-        // If no elements provided, generate basic dummy data
-        if (empty($elements)) {
+        // Always generate comprehensive dummy data for test emails
+        // If no elements provided, or for test email purposes, generate basic dummy data
+        if (empty($elements) || true) { // Always use dummy data for test emails
             $data = array(
                 'first_name' => array(
                     'name' => 'first_name',
@@ -4588,15 +4592,27 @@ class SUPER_Ajax {
                 ),
                 'email' => array(
                     'name' => 'email',
-                    'label' => 'Email',
+                    'label' => 'E-mail address',
                     'value' => 'john.doe@example.com',
                     'type' => 'email'
                 ),
-                'message' => array(
-                    'name' => 'message',
-                    'label' => 'Message',
-                    'value' => 'This is a test message to verify email functionality.',
-                    'type' => 'textarea'
+                'phone' => array(
+                    'name' => 'phone',
+                    'label' => 'Phone number',
+                    'value' => '+1 (555) 123-4567',
+                    'type' => 'phone'
+                ),
+                'question' => array(
+                    'name' => 'question',
+                    'label' => 'Question',
+                    'value' => "What services are you interested in?\nI am particularly interested in web development and design services.\n\nRegards John",
+                    'type' => 'text'
+                ),
+                'choice' => array(
+                    'name' => 'choice',
+                    'label' => 'Select your preference',
+                    'value' => 'First choice',
+                    'type' => 'radio'
                 )
             );
             return array('data' => $data);
@@ -4612,7 +4628,7 @@ class SUPER_Ajax {
                     // The element structure uses 'data' array for attributes
                     $element_data = isset($element['data']) ? $element['data'] : array();
                     $name = isset($element_data['name']) ? $element_data['name'] : '';
-                    $label = isset($element_data['email']) ? $element_data['email'] : ucfirst(str_replace('_', ' ', $name));
+                    $label = isset($element_data['label']) ? $element_data['label'] : ucfirst(str_replace('_', ' ', $name));
                     
                     if ($name) {
                         switch ($tag) {
