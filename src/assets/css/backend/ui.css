@@ -253,6 +253,7 @@
 .sfui-repeater>.sfui-repeater-item.sfui-inline {
   align-items: flex-start;
 }
+.sfui-setting input[type="email"],
 .sfui-setting input[type="text"],
 .sfui-setting textarea,
 .sfui-setting select {
