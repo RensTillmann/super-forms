@@ -3256,8 +3256,10 @@ body:not(.tox-fullscreen) .super-builder .tox-editor-header .tox-menubar .tox-mb
 .super-test-email-type-wrapper {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     gap: 20px;
     align-items: center;
+    min-height: 30px;
 }
 
 .super-test-email-type {
@@ -3271,24 +3273,34 @@ body:not(.tox-fullscreen) .super-builder .tox-editor-header .tox-menubar .tox-mb
     margin: 0;
 }
 
+.super-test-email-entry-options {
+    display: flex;
+    align-items: center;
+}
+
 .super-test-email-entry-id {
-    width: 200px;
+    width: 250px;
+    min-width: 250px;
+    max-width: 250px;
     padding: 5px 10px;
 }
 
 .super-test-email-action-wrapper {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     gap: 10px;
-    align-items: center;
+    align-items: flex-start;
 }
 
 .super-test-email-recipient {
-    flex: 1;
+    flex: 0 0 auto;
 }
 
 .super-test-email-recipient-input {
-    width: 100%;
+    width: 250px;
+    min-width: 250px;
+    max-width: 250px;
     padding: 5px 10px;
 }
 

@@ -8,7 +8,7 @@ REMOTE_HOST="gnldm1014.siteground.biz"
 REMOTE_PORT="18765"
 REMOTE_USER="u2669-dvgugyayggy5"
 REMOTE_PATH="/home/u2669-dvgugyayggy5/www/f4d.nl/public_html/dev/wp-content/plugins/super-forms/"
-PRIVATE_KEY="~/.ssh/id_rsa"
+PRIVATE_KEY="~/.ssh/id_sftp"
 LOCAL_PATH="/projects/super-forms/src/"
 
 # Colors for output
@@ -25,8 +25,8 @@ echo "Remote Path: $REMOTE_PATH"
 echo "==============================="
 
 # Check if private key exists
-if [ ! -f ~/.ssh/id_rsa ]; then
-    echo -e "${RED}❌ Private key not found at ~/.ssh/id_rsa${NC}"
+if [ ! -f ~/.ssh/id_sftp ]; then
+    echo -e "${RED}❌ Private key not found at ~/.ssh/id_sftp${NC}"
     exit 1
 fi
 
@@ -38,13 +38,13 @@ if ! command -v rsync &> /dev/null; then
 fi
 
 # Confirm before sync
-echo -e "${YELLOW}⚠️  This will sync all files to the remote server.${NC}"
-read -p "Do you want to continue? (y/N): " -n 1 -r
-echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    echo "Sync cancelled."
-    exit 0
-fi
+#echo -e "${YELLOW}⚠️  This will sync all files to the remote server.${NC}"
+#read -p "Do you want to continue? (y/N): " -n 1 -r
+#echo
+#if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+#    echo "Sync cancelled."
+#    exit 0
+#fi
 
 echo -e "${GREEN}📡 Starting sync of /src folder...${NC}"
 

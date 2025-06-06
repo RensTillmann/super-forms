@@ -2203,13 +2203,8 @@ class SUPER_Pages {
             $form_id = absint( $_GET['id'] );
             $title = get_the_title( $form_id );
             // @since 3.1.0 - get all Backups for this form.
-            $args = array(
-                'post_parent' => $form_id,
-                'post_type' => 'super_form',
-                'post_status' => 'backup',
-                'posts_per_page' => -1 //Make sure all matching backups will be retrieved
-            );
-            $backups = get_posts( $args );
+            global $wpdb;
+            $backups = $wpdb->get_results($wpdb->prepare("SELECT ID, post_date FROM $wpdb->posts WHERE post_parent = %d AND post_type = %s AND post_status = %s ORDER BY post_date DESC", $form_id, 'super_form', 'backup'));
         }else{
             $form_id = 0;
             $title = esc_html__( 'Form Name', 'super-forms' );
