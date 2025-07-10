@@ -3690,6 +3690,15 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 			if ( ! $form_settings ) {
 				$form_settings = array();
 			}
+			
+			// Fix: Ensure form settings are properly unserialized
+			if ( is_string( $form_settings ) ) {
+				$form_settings = maybe_unserialize( $form_settings );
+				if ( ! is_array( $form_settings ) ) {
+					$form_settings = array();
+				}
+			}
+			
 			$global_settings = self::get_global_settings();
 			$defaults        = SUPER_Settings::get_defaults( $global_settings );
 			$global_settings = array_merge( $defaults, $global_settings );
@@ -3697,7 +3706,7 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 				$settings = array_merge( $global_settings, $form_settings );
 				error_log( 'merge with global settings: ' . json_encode( $settings ) );
 			} else {
-				$settings = $form_settings;
+				$settings = $global_settings; // Fix: Use global settings as fallback instead of string
 			}
 
 			$email_body = '';

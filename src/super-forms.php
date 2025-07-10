@@ -27,6 +27,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit; // Exit if accessed directly
 }
 
+// Load required classes before plugin class definition to fix activation hook dependencies
+if ( ! class_exists( 'SUPER_Settings' ) ) {
+	require_once dirname( __FILE__ ) . '/includes/class-settings.php';
+}
+if ( ! class_exists( 'SUPER_Install' ) ) {
+	require_once dirname( __FILE__ ) . '/includes/class-install.php';
+}
+
 if ( ! class_exists( 'SUPER_Forms' ) ) :
 
 
