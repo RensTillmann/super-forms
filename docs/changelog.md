@@ -1,5 +1,41 @@
 # Super Forms - Changelog
 
+## Work in Progress
+
+### Currently Active Development
+- **Email Preview System:** Improving live email preview functionality with dummy data support
+- **Form Builder UI:** Enhancing backend form creation interface and user experience
+- **Tab Settings:** Optimizing colorpicker fields and dynamic group path handling
+- **Conditional Logic:** Refining filter systems and validation workflows
+
+### Development Infrastructure Improvements
+- **WordPress Coding Standards:** Full codebase compliance with PHPCS and WordPress standards
+- **Security Validation:** Automated security checks for nonces, sanitization, and capability verification  
+- **Code Quality:** Real-time validation hooks and automated formatting
+- **Plugin Development:** WordPress.org compliance preparation and validation tools
+
+---
+
+## July 10, 2025 - Version 6.4.110
+
+### Development Infrastructure & Code Quality
+- **Added:** Comprehensive WordPress plugin development automation framework
+- **Added:** PHPCS integration with WordPress coding standards validation
+- **Added:** Automated security validation for WordPress best practices
+- **Added:** Claude Code hooks for real-time code quality assurance
+- **Added:** WordPress.org Plugin Check integration for compliance validation
+- **Added:** Custom security scanner for WordPress-specific vulnerabilities
+- **Improved:** Codebase formatting - Applied WordPress coding standards to 478+ files
+- **Improved:** Code quality with 6,378+ automated PHPCS fixes across entire codebase
+- **Improved:** Development workflow with automated validation and sync processes
+
+### Form Builder & UI Enhancements
+- **Improved:** Email preview functionality with enhanced live preview system
+- **Improved:** Backend form builder interface and user experience
+- **Improved:** Tab settings handling for colorpicker and group configurations
+- **Improved:** CSV exclude fields repeater UI with collapsible toggle functionality
+
+---
 
 ## Listings Add-on now available! More info here:
 
