@@ -1,0 +1,82 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Running command validation hook...' && python3 -c \"import json, sys, re; data = json.load(sys.stdin); cmd = data.get('tool_input', {}).get('command', ''); issues = []; issues.extend(['Use \\'rg\\' (ripgrep) instead of \\'grep\\' for better performance'] if re.search(r'\\bgrep\\b(?!.*\\|)', cmd) else []); issues.extend(['Use \\'rg --files\\' instead of \\'find\\' for better performance'] if re.search(r'\\bfind\\s+\\S+\\s+-name\\b', cmd) else []); [print(f'• {msg}', file=sys.stderr) for msg in issues]; sys.exit(2 if issues else 0)\""
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Pre-validation: WordPress development checks...' && python3 -c \"import json, sys, re; data = json.load(sys.stdin); file_path = data.get('tool_input', {}).get('file_path', ''); issues = []; issues.extend(['WordPress files should use proper prefixes (super_forms_, SUPER_FORMS_)'] if file_path.endswith('.php') and 'src/' in file_path else []); issues.extend(['Consider WordPress security: sanitization, nonces, capability checks'] if file_path.endswith('.php') and any(x in file_path for x in ['admin', 'ajax', 'form']) else []); [print(f'• {msg}', file=sys.stderr) for msg in issues]; sys.exit(0)\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Running WordPress PHPCS validation...' && if [ -f composer.json ] && [ -f phpcs.xml ] && grep -q 'wp-coding-standards' composer.json; then if [ -f vendor/bin/phpcs ]; then vendor/bin/phpcs --report=summary --standard=phpcs.xml src/ 2>/dev/null || echo 'PHPCS validation completed with issues - check wp-plugin-guidelines.md'; else echo 'PHPCS not installed - run: composer install --dev'; fi; fi"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Running JavaScript validation...' && if [ -f package.json ] && grep -q '\"jshint\"' package.json; then npm run jshint 2>/dev/null || echo 'JSHint check completed with warnings'; fi"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'WordPress Plugin Check validation...' && if command -v wp >/dev/null 2>&1; then wp plugin check super-forms --format=summary 2>/dev/null || echo 'Plugin Check: Install via wp plugin install plugin-check --activate'; else echo 'WP-CLI not available for Plugin Check'; fi"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'WordPress security validation...' && python3 -c \"import json, sys, re, os; data = json.load(sys.stdin); file_path = data.get('tool_input', {}).get('file_path', ''); content = data.get('tool_input', {}).get('content', '') or data.get('tool_input', {}).get('new_string', ''); issues = []; issues.extend(['Missing nonce verification'] if file_path.endswith('.php') and re.search(r'\\$_POST|\\$_GET|\\$_REQUEST', content) and not re.search(r'wp_verify_nonce|wp_nonce_field', content) else []); issues.extend(['Missing input sanitization'] if file_path.endswith('.php') and re.search(r'\\$_(POST|GET|REQUEST)', content) and not re.search(r'sanitize_|esc_|wp_kses', content) else []); issues.extend(['Missing capability check'] if file_path.endswith('.php') and re.search(r'admin|manage|delete', content) and not re.search(r'current_user_can|is_admin', content) else []); [print(f'⚠️  {msg}', file=sys.stderr) for msg in issues]; sys.exit(0)\""
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo 'Syncing to webserver...' && if [ -f sync-to-webserver.sh ]; then bash sync-to-webserver.sh; else echo 'sync-to-webserver.sh not found, skipping sync'; fi"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '🎯 WordPress Plugin Development Session Complete!' && echo '' && echo 'Final validation checklist:' && echo '- Frontend forms load correctly' && echo '- Admin functionality works' && echo '- No JavaScript console errors' && echo '- Database queries optimized' && echo '- Security measures implemented' && echo '' && if [ -f composer.json ] && [ -f vendor/bin/phpcs ]; then echo 'Running final PHPCS check...'; vendor/bin/phpcs --report=summary --standard=phpcs.xml src/ 2>/dev/null || echo 'PHPCS issues found - review before deployment'; fi && if [ -f package.json ] && grep -q '\"jshint\"' package.json; then echo 'Running final JSHint check...'; npm run jshint 2>/dev/null || echo 'JSHint warnings found'; fi && echo '' && echo 'Remember: Test the actual functionality before claiming it works!'"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -129,3 +129,140 @@ No debugging guidelines defined try to use your best approach
 ## Project Workflow Reminder
 - After finishing making edits to files, run command `bash sync-to-webserver.sh` to sync the changes to the remote server
 - Always run the `sync-to-webserver.sh` script after making all the changes
+
+## Memory: Tab Settings Grouping
+- Tab settings are sometimes grouped with attributes `data-g` or `data-r` for repeater elements
+
+## WordPress Plugin Development Protocol
+
+### Core WordPress Development Principles
+- **WordPress Standards First**: Always follow WordPress Coding Standards (WPCS)
+- **Security by Design**: Implement sanitization, nonces, and capability checks
+- **Performance Minded**: Optimize queries, use caching, conditional loading
+- **Accessibility Required**: Ensure WCAG 2.1 AA compliance
+- **Translation Ready**: All strings must be translatable with proper text domain
+
+### WordPress-Specific Testing Requirements
+- **Frontend Validation**: Always test forms render correctly on frontend
+- **Admin Functionality**: Verify all admin features work without errors
+- **Database Operations**: Confirm all database queries execute properly
+- **JavaScript Console**: Check for JS errors in browser console
+- **Plugin Lifecycle**: Test activation, deactivation, and uninstall processes
+- **Security Verification**: Confirm nonces, sanitization, and capability checks
+- **Performance Impact**: Monitor query count and page load times
+
+### WordPress Development Stack Requirements
+- **PHPCS**: Run WordPress Coding Standards validation
+- **Plugin Check**: Use WordPress.org Plugin Check tool
+- **Security Scanning**: Regular WPScan vulnerability checks
+- **Database Optimization**: Monitor Query Monitor for performance
+- **Accessibility Testing**: Use accessibility validation tools
+
+### WordPress-Specific File Change Protocol
+When editing WordPress plugin files, ALWAYS:
+1. Follow WordPress naming conventions (prefix with `super_forms_`)
+2. Use WordPress functions instead of native PHP when available
+3. Implement proper error handling with WP_Error
+4. Add inline documentation with PHPDoc standards
+5. Test both frontend and admin functionality
+
+### Why We Ship Broken Code (And How to Stop)
+
+Every AI assistant has done this: Made a change, thought "that looks right," told the user it's fixed, and then... it wasn't. The user comes back frustrated. We apologize. We try again. We waste everyone's time.
+
+This happens because we're optimizing for speed over correctness. We see the code, understand the logic, and our pattern-matching says "this should work." But "should work" and "does work" are different universes.
+
+#### The Protocol: Before You Say "Fixed"
+
+**1. The 30-Second Reality Check**
+Can you answer ALL of these with "yes"?
+
+□ Did I run/build the code?
+□ Did I trigger the exact feature I changed?
+□ Did I see the expected result with my own observation (including in the front-end GUI)?
+□ Did I check for error messages (console/logs/terminal)?
+□ Would I bet $100 of my own money this works?
+
+**2. Common Lies We Tell Ourselves**
+- "The logic is correct, so it must work" → **Logic ≠ Working Code**
+- "I fixed the obvious issue" → **The bug is never what you think**
+- "It's a simple change" → **Simple changes cause complex failures**
+- "The pattern matches working code" → **Context matters**
+
+**3. The Embarrassment Test**
+Before claiming something is fixed, ask yourself:
+> "If the user screen-records themselves trying this feature and it fails,
+> will I feel embarrassed when I see the video?"
+
+If yes, you haven't tested enough.
+
+#### Red Flags in Your Own Responses
+
+If you catch yourself writing these phrases, STOP and actually test:
+- "This should work now"
+- "I've fixed the issue" (for the 2nd+ time)
+- "Try it now" (without having tried it yourself)
+- "The logic is correct so..."
+- "I've made the necessary changes"
+
+#### The Minimum Viable Test
+
+For any change, no matter how small:
+
+1. **UI Changes**: Actually click the button/link/form
+2. **API Changes**: Make the actual API call with curl/PostMan
+3. **Data Changes**: Query the database to verify the state
+4. **Logic Changes**: Run the specific scenario that uses that logic
+5. **Config Changes**: Restart the service and verify it loads
+
+#### WordPress-Specific Testing Requirements
+
+1. **Form Changes**: Load the form on frontend and test submission
+2. **Admin Changes**: Access the admin area and verify functionality
+3. **Database Changes**: Check WordPress database tables directly
+4. **JavaScript Changes**: Open browser console and test interactions
+5. **Plugin Changes**: Test activation, deactivation, and functionality
+
+#### The Professional Pride Principle
+
+Every time you claim something is fixed without testing, you're saying:
+- "I value my time more than yours"
+- "I'm okay with you discovering my mistakes"
+- "I don't take pride in my craft"
+
+That's not who we want to be.
+
+#### Make It a Ritual
+
+Before typing "fixed" or "should work now":
+1. Pause
+2. Run the actual test
+3. See the actual result
+4. Only then respond
+
+**Time saved by skipping tests: 30 seconds**
+**Time wasted when it doesn't work: 30 minutes**
+**User trust lost: Immeasurable**
+
+#### Bottom Line
+
+The user isn't paying you to write code. They're paying you to solve problems. Untested code isn't a solution—it's a guess.
+
+**Test your work. Every time. No exceptions.**
+
+---
+*Remember: The user describing a bug for the third time isn't thinking "wow, this AI is really trying." They're thinking "why am I wasting my time with this incompetent tool?"*
+
+### WordPress Plugin Guidelines Reference
+
+For comprehensive WordPress plugin development guidelines, security best practices, and automated validation processes, refer to `wp-plugin-guidelines.md` in this project.
+
+**Key Guidelines to Remember:**
+- Always sanitize user input with WordPress functions
+- Use nonces for all form submissions and AJAX requests
+- Escape all output with appropriate WordPress functions
+- Check user capabilities before allowing admin actions
+- Follow WordPress naming conventions for all code elements
+- Use WordPress APIs instead of native PHP functions
+- Implement proper error handling with WP_Error
+- Test both frontend and admin functionality thoroughly

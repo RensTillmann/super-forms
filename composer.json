@@ -1,0 +1,70 @@
+{
+    "name": "super-forms/super-forms",
+    "description": "WordPress drag & drop form builder plugin with various add-ons and extensions",
+    "type": "wordpress-plugin",
+    "license": "GPL-2.0-or-later",
+    "authors": [
+        {
+            "name": "Super Forms Team",
+            "email": "info@feeling4design.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "composer/installers": true
+        },
+        "sort-packages": true,
+        "optimize-autoloader": true
+    },
+    "require": {
+        "php": ">=7.4",
+        "composer/installers": "^1.12|^2.0"
+    },
+    "require-dev": {
+        "wp-coding-standards/wpcs": "^3.0",
+        "phpcompatibility/php-compatibility": "^9.0",
+        "phpcompatibility/phpcompatibility-wp": "^2.0",
+        "squizlabs/php_codesniffer": "^3.7",
+        "phpunit/phpunit": "^9.5",
+        "yoast/phpunit-polyfills": "^1.0",
+        "brain/monkey": "^2.6",
+        "automattic/vipwpcs": "^3.0"
+    },
+    "scripts": {
+        "phpcs": "phpcs --standard=phpcs.xml --report=summary",
+        "phpcs:fix": "phpcbf --standard=phpcs.xml",
+        "phpcs:report": "phpcs --standard=phpcs.xml --report=full",
+        "phpcs:security": "phpcs --standard=phpcs.xml --report=security",
+        "compatibility": "phpcs --standard=PHPCompatibilityWP --runtime-set testVersion 7.4- .",
+        "test": "phpunit",
+        "test:coverage": "phpunit --coverage-html coverage",
+        "validate": [
+            "@phpcs",
+            "@compatibility"
+        ],
+        "fix": [
+            "@phpcs:fix"
+        ],
+        "pre-commit": [
+            "@validate"
+        ]
+    },
+    "extra": {
+        "installer-paths": {
+            "vendor/{$vendor}/{$name}/": ["type:wordpress-plugin", "type:wordpress-theme"]
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "SuperForms\\": "src/includes/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "SuperForms\\Tests\\": "tests/"
+        }
+    }
+}
