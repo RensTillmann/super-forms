@@ -880,12 +880,97 @@ class SUPER_Pages {
                                                     array(
                                                         'name' => 'socials',
                                                         'title' => esc_html__( 'Social media icons', 'super-forms' ),
-                                                        'subline' => esc_html__( 'Put each social icon on a new line', 'super-forms' ),
-                                                        'default' => 'url_facebook_page|url_social_icon|Facebook',
-                                                        'type' => 'textarea',
+                                                        'type' => 'repeater',
                                                         'filter' => 'template.slug;email_template_1',
-                                                        'reset' => true,
-                                                        'i18n' => false
+                                                        'nodes' => array(
+                                                            array(
+                                                                'group' => true,
+                                                                'inline' => true,
+                                                                'nodes' => array(
+                                                                    array(
+                                                                        'name' => 'name',
+                                                                        'title' => esc_html__( 'Platform name', 'super-forms' ),
+                                                                        'type' => 'text',
+                                                                        'placeholder' => esc_attr__( 'Facebook', 'super-forms' ),
+                                                                        'default' => ''
+                                                                    ),
+                                                                    array(
+                                                                        'name' => 'url',
+                                                                        'title' => esc_html__( 'URL', 'super-forms' ),
+                                                                        'type' => 'text',
+                                                                        'placeholder' => esc_attr__( 'https://facebook.com/yourpage', 'super-forms' ),
+                                                                        'default' => ''
+                                                                    )
+                                                                )
+                                                            ),
+                                                            array(
+                                                                'group' => true,
+                                                                'vertical' => true,
+                                                                'nodes' => array(
+                                                                    array(
+                                                                        'name' => 'icon_type',
+                                                                        'title' => esc_html__( 'Icon type', 'super-forms' ),
+                                                                        'type' => 'select',
+                                                                        'default' => 'none',
+                                                                        'options' => array(
+                                                                            'none' => esc_html__( 'No icon (text only)', 'super-forms' ),
+                                                                            'upload' => esc_html__( 'Upload image', 'super-forms' ),
+                                                                            'fontawesome' => esc_html__( 'Font Awesome brand icon', 'super-forms' ),
+                                                                            'url' => esc_html__( 'Direct URL to icon', 'super-forms' )
+                                                                        )
+                                                                    ),
+                                                                    array(
+                                                                        'name' => 'color',
+                                                                        'title' => esc_html__( 'Icon/text color', 'super-forms' ),
+                                                                        'type' => 'color',
+                                                                        'default' => '#ffffff',
+                                                                        'reset' => true,
+                                                                        'i18n' => false
+                                                                    )
+                                                                )
+                                                            ),
+                                                            array(
+                                                                'name' => 'icon_upload',
+                                                                'title' => esc_html__( 'Upload icon image', 'super-forms' ),
+                                                                'type' => 'files',
+                                                                'multiple' => false,
+                                                                'default' => '',
+                                                                'filter' => 'icon_type;upload'
+                                                            ),
+                                                            array(
+                                                                'name' => 'icon_fontawesome',
+                                                                'title' => esc_html__( 'Font Awesome brand icon', 'super-forms' ),
+                                                                'type' => 'icon_picker',
+                                                                'default' => '',
+                                                                'filter' => 'icon_type;fontawesome'
+                                                            ),
+                                                            array(
+                                                                'name' => 'icon_url',
+                                                                'title' => esc_html__( 'Direct URL to icon', 'super-forms' ),
+                                                                'type' => 'text',
+                                                                'placeholder' => esc_attr__( 'https://yoursite.com/icon.png', 'super-forms' ),
+                                                                'default' => '',
+                                                                'filter' => 'icon_type;url'
+                                                            )
+                                                        )
+                                                    ),
+                                                    array(
+                                                        'wrap' => false,
+                                                        'group' => true,
+                                                        'group_name' => 'email_colors',
+                                                        'vertical' => true,
+                                                        'nodes' => array(
+                                                            array(
+                                                                'name' => 'bg',
+                                                                'inline' => true,
+                                                                'subline' => esc_html__( 'Email background color', 'super-forms' ),
+                                                                'default' => '#f4f4f4',
+                                                                'type' => 'color',
+                                                                'filter' => 'template.slug;email_template_1',
+                                                                'reset' => true,
+                                                                'i18n' => false
+                                                            )
+                                                        )
                                                     ),
                                                     array(
                                                         'wrap' => false,

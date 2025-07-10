@@ -6374,6 +6374,24 @@
         
         // Clean Email Preview System - preview-centric approach
         var pausedPreviews = new Set(); // Track paused previews
+        var lastEmailContent = new Map(); // Cache last content for each preview to prevent unnecessary updates
+        
+        // Generate a content hash for comparison
+        function getContentHash(content) {
+            // Simple hash function to detect content changes without being sensitive to minor whitespace differences
+            var hash = 0;
+            if (!content || content.length === 0) return hash;
+            
+            // Normalize content by removing extra whitespace
+            var normalized = content.replace(/\s+/g, ' ').trim();
+            
+            for (var i = 0; i < normalized.length; i++) {
+                var char = normalized.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // Convert to 32bit integer
+            }
+            return hash;
+        }
         
         // Process {loop_fields} tag with dummy data for live preview
         function processLoopFieldsForPreview(bodyValue, repeaterItem) {
@@ -6421,6 +6439,278 @@
             
             // Replace {loop_fields} with the processed content
             return bodyValue.replace(/{loop_fields}/g, loopFieldsContent);
+        }
+        
+        // Process email template for live preview
+        function processEmailTemplateForPreview(bodyValue, repeaterItem) {
+            console.log('processEmailTemplateForPreview called with bodyValue:', bodyValue);
+            
+            // Check if email template is enabled - look within template group
+            var templateGroup = repeaterItem.querySelector('[data-g="template"]');
+            if (!templateGroup) {
+                console.log('Template group not found');
+                return bodyValue;
+            }
+            
+            var templateSlugField = templateGroup.querySelector('[name="slug"]');
+            console.log('Template slug field found:', templateSlugField);
+            console.log('Template slug value:', templateSlugField ? templateSlugField.value : 'not found');
+            
+            if (!templateSlugField || templateSlugField.value !== 'email_template_1') {
+                console.log('Template not enabled, returning original bodyValue');
+                return bodyValue;
+            }
+            
+            console.log('Template is enabled, proceeding with template processing');
+            
+            // Get template settings from the repeater item
+            var templateSettings = getTemplateSettings(repeaterItem);
+            console.log('Template settings:', templateSettings);
+            
+            // Build responsive email template HTML
+            var templateHTML = buildEmailTemplateHTML(bodyValue, templateSettings);
+            console.log('Generated template HTML:', templateHTML);
+            
+            return templateHTML;
+        }
+        
+        // Get template settings from repeater item
+        function getTemplateSettings(repeaterItem) {
+            console.log('getTemplateSettings called with repeaterItem:', repeaterItem);
+            
+            var settings = {
+                logo: '',
+                title: 'Your title',
+                subtitle: 'Your subtitle',
+                copyright: '&copy; Company Name and Address 2016',
+                socials: [],
+                email_bg: '#f4f4f4',
+                header_bg: '#5ba1d3',
+                header_title: '#ffffff',
+                body_bg: '#ffffff',
+                body_subtitle: '#474747',
+                body_font: '#9e9e9e',
+                footer_bg: '#ee4c50',
+                footer_font: '#ffffff'
+            };
+            
+            // Get template group
+            var templateGroup = repeaterItem.querySelector('[data-g="template"]');
+            if (templateGroup) {
+                // Get logo from file upload within template group
+                var logoField = templateGroup.querySelector('[name="logo"]');
+                console.log('Logo field found:', logoField);
+                if (logoField && logoField.value) {
+                    // Get image preview URL if available
+                    var filePreview = templateGroup.querySelector('.file-preview img');
+                    console.log('File preview found:', filePreview);
+                    if (filePreview) {
+                        settings.logo = filePreview.src;
+                    }
+                }
+                
+                // Get text fields within template group
+                var titleField = templateGroup.querySelector('[name="title"]');
+                console.log('Title field found:', titleField, 'value:', titleField ? titleField.value : 'N/A');
+                if (titleField && titleField.value.trim()) settings.title = titleField.value.trim();
+                
+                var subtitleField = templateGroup.querySelector('[name="subtitle"]');
+                console.log('Subtitle field found:', subtitleField, 'value:', subtitleField ? subtitleField.value : 'N/A');
+                if (subtitleField && subtitleField.value.trim()) settings.subtitle = subtitleField.value.trim();
+                
+                var copyrightField = templateGroup.querySelector('[name="copyright"]');
+                console.log('Copyright field found:', copyrightField, 'value:', copyrightField ? copyrightField.value : 'N/A');
+                if (copyrightField && copyrightField.value.trim()) settings.copyright = copyrightField.value.trim();
+                
+                // Get socials repeater data
+                var socialsRepeater = templateGroup.querySelector('[data-r="socials"]');
+                console.log('Socials repeater found:', socialsRepeater);
+                if (socialsRepeater) {
+                    var socialItems = [];
+                    var socialsItems = socialsRepeater.querySelectorAll('.sfui-repeater-item');
+                    console.log('Social items found:', socialsItems.length);
+                    
+                    socialsItems.forEach(function(item) {
+                        var urlField = item.querySelector('[name="url"]');
+                        var nameField = item.querySelector('[name="name"]');
+                        var iconTypeField = item.querySelector('[name="icon_type"]');
+                        var iconUploadField = item.querySelector('[name="icon_upload"]');
+                        var iconFontawesomeField = item.querySelector('[name="icon_fontawesome"]');
+                        var iconUrlField = item.querySelector('[name="icon_url"]');
+                        var colorField = item.querySelector('[name="color"]');
+                        
+                        var url = urlField ? urlField.value.trim() : '';
+                        var name = nameField ? nameField.value.trim() : '';
+                        var iconType = iconTypeField ? iconTypeField.value : 'none';
+                        var color = colorField ? colorField.value : '#ffffff';
+                        var icon = '';
+                        
+                        // Get icon based on type
+                        if (iconType === 'upload' && iconUploadField && iconUploadField.value) {
+                            var filePreview = item.querySelector('.file-preview img');
+                            if (filePreview) {
+                                icon = filePreview.src;
+                            }
+                        } else if (iconType === 'fontawesome' && iconFontawesomeField) {
+                            icon = iconFontawesomeField.value.trim();
+                        } else if (iconType === 'url' && iconUrlField) {
+                            icon = iconUrlField.value.trim();
+                        }
+                        
+                        console.log('Social item:', { url: url, name: name, iconType: iconType, icon: icon, color: color });
+                        
+                        if (url && name) {
+                            socialItems.push({
+                                url: url,
+                                name: name,
+                                iconType: iconType,
+                                icon: icon,
+                                color: color
+                            });
+                        }
+                    });
+                    
+                    settings.socials = socialItems;
+                    console.log('Final socials array:', settings.socials);
+                }
+            }
+            
+            // Get color fields from their respective groups
+            var emailColorsGroup = repeaterItem.querySelector('[data-g="email_colors"]');
+            if (emailColorsGroup) {
+                var emailBgField = emailColorsGroup.querySelector('[name="bg"]');
+                console.log('Email BG field found:', emailBgField, 'value:', emailBgField ? emailBgField.value : 'N/A');
+                if (emailBgField && emailBgField.value) settings.email_bg = emailBgField.value;
+            }
+            
+            var headerColorsGroup = repeaterItem.querySelector('[data-g="header_colors"]');
+            if (headerColorsGroup) {
+                var headerBgField = headerColorsGroup.querySelector('[name="bg"]');
+                console.log('Header BG field found:', headerBgField, 'value:', headerBgField ? headerBgField.value : 'N/A');
+                if (headerBgField && headerBgField.value) settings.header_bg = headerBgField.value;
+                
+                var headerTitleField = headerColorsGroup.querySelector('[name="title"]');
+                console.log('Header title field found:', headerTitleField, 'value:', headerTitleField ? headerTitleField.value : 'N/A');
+                if (headerTitleField && headerTitleField.value) settings.header_title = headerTitleField.value;
+            }
+            
+            var bodyColorsGroup = repeaterItem.querySelector('[data-g="body_colors"]');
+            if (bodyColorsGroup) {
+                var bodyBgField = bodyColorsGroup.querySelector('[name="bg"]');
+                console.log('Body BG field found:', bodyBgField, 'value:', bodyBgField ? bodyBgField.value : 'N/A');
+                if (bodyBgField && bodyBgField.value) settings.body_bg = bodyBgField.value;
+                
+                var bodySubtitleField = bodyColorsGroup.querySelector('[name="subtitle"]');
+                console.log('Body subtitle field found:', bodySubtitleField, 'value:', bodySubtitleField ? bodySubtitleField.value : 'N/A');
+                if (bodySubtitleField && bodySubtitleField.value) settings.body_subtitle = bodySubtitleField.value;
+                
+                var bodyFontField = bodyColorsGroup.querySelector('[name="font"]');
+                console.log('Body font field found:', bodyFontField, 'value:', bodyFontField ? bodyFontField.value : 'N/A');
+                if (bodyFontField && bodyFontField.value) settings.body_font = bodyFontField.value;
+            }
+            
+            var footerColorsGroup = repeaterItem.querySelector('[data-g="footer_colors"]');
+            if (footerColorsGroup) {
+                var footerBgField = footerColorsGroup.querySelector('[name="bg"]');
+                console.log('Footer BG field found:', footerBgField, 'value:', footerBgField ? footerBgField.value : 'N/A');
+                if (footerBgField && footerBgField.value) settings.footer_bg = footerBgField.value;
+                
+                var footerFontField = footerColorsGroup.querySelector('[name="font"]');
+                console.log('Footer font field found:', footerFontField, 'value:', footerFontField ? footerFontField.value : 'N/A');
+                if (footerFontField && footerFontField.value) settings.footer_font = footerFontField.value;
+            }
+            
+            return settings;
+        }
+        
+        // Build responsive email template HTML
+        function buildEmailTemplateHTML(bodyContent, settings) {
+            // Check if we have any content for title, subtitle, copyright or socials to determine default values
+            var hasTitle = settings.title && settings.title.trim() && settings.title !== 'Your title';
+            var hasSubtitle = settings.subtitle && settings.subtitle.trim() && settings.subtitle !== 'Your subtitle';
+            var hasCopyright = settings.copyright && settings.copyright.trim() && settings.copyright !== '&copy; Company Name and Address 2016';
+            var hasSocials = settings.socials && Array.isArray(settings.socials) && settings.socials.length > 0;
+            
+            // Process social media icons
+            var socialIconsHTML = '';
+            if (hasSocials) {
+                socialIconsHTML = '<td align="right" style="vertical-align:top;"><table cellpadding="0" cellspacing="0" border="0"><tr>';
+                
+                settings.socials.forEach(function(social) {
+                    if (social.url && social.name) {
+                        var linkColor = social.color || '#ffffff';
+                        
+                        if (social.iconType === 'fontawesome' && social.icon) {
+                            // Font Awesome icon
+                            socialIconsHTML += '<td style="padding-left:8px;"><a href="' + social.url + '" target="_blank" style="color:' + linkColor + ';text-decoration:none;font-size:18px;"><i class="' + social.icon + '"></i></a></td>';
+                        } else if ((social.iconType === 'upload' || social.iconType === 'url') && social.icon) {
+                            // Image icon (uploaded or URL)
+                            socialIconsHTML += '<td style="padding-left:8px;"><a href="' + social.url + '" target="_blank"><img src="' + social.icon + '" alt="' + social.name + '" style="display:block;width:24px;height:24px;" border="0"></a></td>';
+                        } else {
+                            // Text fallback (no icon or icon type is 'none')
+                            socialIconsHTML += '<td style="padding-left:8px;"><a href="' + social.url + '" target="_blank" style="color:' + linkColor + ';text-decoration:none;font-size:12px;font-weight:bold;">' + social.name + '</a></td>';
+                        }
+                    }
+                });
+                
+                socialIconsHTML += '</tr></table></td>';
+            }
+            
+            // Build the complete email template
+            var template = '<div style="background-color:' + settings.email_bg + ';padding:20px 10px;font-family:Arial,sans-serif;line-height:1.6;">' +
+                '<table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;margin:0 auto;background-color:#ffffff;border-radius:8px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.1);">';
+            
+            // Header Section - only include if we have logo or title
+            if (settings.logo || hasTitle) {
+                template += '<tr><td style="background-color:' + settings.header_bg + ';padding:40px 30px;text-align:center;">';
+                
+                // Logo - use a unique id to help with caching
+                if (settings.logo) {
+                    template += '<img src="' + settings.logo + '" alt="Logo" style="max-width:200px;height:auto;margin-bottom:20px;display:block;margin-left:auto;margin-right:auto;" data-logo-url="' + settings.logo + '">';
+                }
+                
+                // Title - only include if not empty and not default
+                if (hasTitle) {
+                    template += '<h1 style="margin:0;color:' + settings.header_title + ';font-size:28px;font-weight:bold;">' + settings.title + '</h1>';
+                }
+                
+                template += '</td></tr>';
+            }
+            
+            // Body Section
+            template += '<tr><td style="background-color:' + settings.body_bg + ';padding:40px 30px;">';
+            
+            // Subtitle - only include if not empty and not default
+            if (hasSubtitle) {
+                template += '<h2 style="margin:0 0 20px 0;color:' + settings.body_subtitle + ';font-size:20px;font-weight:bold;">' + settings.subtitle + '</h2>';
+            }
+            
+            // Body Content
+            template += '<div style="color:' + settings.body_font + ';font-size:16px;line-height:1.6;">' + bodyContent + '</div>' +
+                '</td></tr>';
+            
+            // Footer Section - only include if we have copyright or socials
+            if (hasCopyright || hasSocials) {
+                template += '<tr><td style="background-color:' + settings.footer_bg + ';padding:30px;">' +
+                    '<table width="100%" cellpadding="0" cellspacing="0" border="0">' +
+                    '<tr>';
+                
+                if (hasCopyright) {
+                    template += '<td style="color:' + settings.footer_font + ';font-size:14px;vertical-align:top;">' + settings.copyright + '</td>';
+                } else if (hasSocials) {
+                    // If no copyright but we have socials, add empty cell to maintain layout
+                    template += '<td style="color:' + settings.footer_font + ';font-size:14px;vertical-align:top;"></td>';
+                }
+                
+                template += socialIconsHTML +
+                    '</tr></table>' +
+                    '</td></tr>';
+            }
+            
+            template += '</table>' +
+                '</div>';
+            
+            return template;
         }
         
         function updateSingleEmailPreview(emailPreview) {
@@ -6589,7 +6879,25 @@
                             bodyValue = '<p>' + bodyValue + '</p>';
                         }
                     }
-                    previewBody.innerHTML = bodyValue;
+                    
+                    // Apply email template if enabled
+                    console.log('About to call processEmailTemplateForPreview');
+                    bodyValue = processEmailTemplateForPreview(bodyValue, repeaterItem);
+                    console.log('After processEmailTemplateForPreview, bodyValue:', bodyValue);
+                    
+                    // Only update if content has actually changed to prevent image flickering
+                    var previewId = emailPreview.id || 'preview-' + Array.prototype.indexOf.call(emailPreview.parentNode.children, emailPreview);
+                    var contentHash = getContentHash(bodyValue);
+                    var lastContentHash = lastEmailContent.get(previewId);
+                    
+                    if (lastContentHash !== contentHash) {
+                        console.log('Content changed, updating preview (hash:', lastContentHash, '->', contentHash, ')');
+                        lastEmailContent.set(previewId, contentHash);
+                        previewBody.innerHTML = bodyValue;
+                    } else {
+                        console.log('Content unchanged, skipping update');
+                    }
+                    
                     previewBody.classList.remove('super-email-empty');
                 } else {
                     previewBody.textContent = 'Enter email body content...';
@@ -7110,6 +7418,124 @@
             var $msg = 'Changes you made may not be saved.';
             e.returnValue = $msg;
             return $msg;
+        }
+    });
+
+    // Font Awesome Brand Icons for Social Media Icon Picker
+    var fontAwesomeBrandIcons = [
+        'fab fa-42-group', 'fab fa-500px', 'fab fa-accessible-icon', 'fab fa-accusoft', 'fab fa-adn', 'fab fa-adversal', 'fab fa-affiliatetheme', 'fab fa-airbnb', 'fab fa-algolia', 'fab fa-alipay', 'fab fa-amazon', 'fab fa-amazon-pay', 'fab fa-amilia', 'fab fa-android', 'fab fa-angellist', 'fab fa-angrycreative', 'fab fa-angular', 'fab fa-app-store', 'fab fa-app-store-ios', 'fab fa-apper', 'fab fa-apple', 'fab fa-apple-pay', 'fab fa-artstation', 'fab fa-asymmetrik', 'fab fa-atlassian', 'fab fa-audible', 'fab fa-autoprefixer', 'fab fa-avianex', 'fab fa-aviato', 'fab fa-aws', 'fab fa-bandcamp', 'fab fa-battle-net', 'fab fa-behance', 'fab fa-behance-square', 'fab fa-bilibili', 'fab fa-bimobject', 'fab fa-bitbucket', 'fab fa-bitcoin', 'fab fa-bity', 'fab fa-black-tie', 'fab fa-blackberry', 'fab fa-blogger', 'fab fa-blogger-b', 'fab fa-bluetooth', 'fab fa-bluetooth-b', 'fab fa-bootstrap', 'fab fa-bots', 'fab fa-btc', 'fab fa-buffer', 'fab fa-buromobelexperte', 'fab fa-buy-n-large', 'fab fa-buysellads', 'fab fa-canadian-maple-leaf', 'fab fa-cc-amazon-pay', 'fab fa-cc-amex', 'fab fa-cc-apple-pay', 'fab fa-cc-diners-club', 'fab fa-cc-discover', 'fab fa-cc-jcb', 'fab fa-cc-mastercard', 'fab fa-cc-paypal', 'fab fa-cc-stripe', 'fab fa-cc-visa', 'fab fa-centercode', 'fab fa-centos', 'fab fa-chrome', 'fab fa-chromecast', 'fab fa-cloudflare', 'fab fa-cloudscale', 'fab fa-cloudsmith', 'fab fa-cloudversify', 'fab fa-cmplid', 'fab fa-codepen', 'fab fa-codiepie', 'fab fa-confluence', 'fab fa-connectdevelop', 'fab fa-contao', 'fab fa-cotton-bureau', 'fab fa-cpanel', 'fab fa-creative-commons', 'fab fa-creative-commons-by', 'fab fa-creative-commons-nc', 'fab fa-creative-commons-nc-eu', 'fab fa-creative-commons-nc-jp', 'fab fa-creative-commons-nd', 'fab fa-creative-commons-pd', 'fab fa-creative-commons-pd-alt', 'fab fa-creative-commons-remix', 'fab fa-creative-commons-sa', 'fab fa-creative-commons-sampling', 'fab fa-creative-commons-sampling-plus', 'fab fa-creative-commons-share', 'fab fa-creative-commons-zero', 'fab fa-critical-role', 'fab fa-css3', 'fab fa-css3-alt', 'fab fa-cuttlefish', 'fab fa-d-and-d', 'fab fa-d-and-d-beyond', 'fab fa-dailymotion', 'fab fa-dashcube', 'fab fa-deezer', 'fab fa-delicious', 'fab fa-deploydog', 'fab fa-deskpro', 'fab fa-dev', 'fab fa-deviantart', 'fab fa-dhl', 'fab fa-diaspora', 'fab fa-digg', 'fab fa-digital-ocean', 'fab fa-discord', 'fab fa-discourse', 'fab fa-dochub', 'fab fa-docker', 'fab fa-draft2digital', 'fab fa-dribbble', 'fab fa-dribbble-square', 'fab fa-dropbox', 'fab fa-drupal', 'fab fa-dyalog', 'fab fa-earlybirds', 'fab fa-ebay', 'fab fa-edge', 'fab fa-edge-legacy', 'fab fa-elementor', 'fab fa-ello', 'fab fa-ember', 'fab fa-empire', 'fab fa-envira', 'fab fa-erlang', 'fab fa-ethereum', 'fab fa-etsy', 'fab fa-evernote', 'fab fa-expeditedssl', 'fab fa-facebook', 'fab fa-facebook-f', 'fab fa-facebook-messenger', 'fab fa-facebook-square', 'fab fa-fantasy-flight-games', 'fab fa-fedex', 'fab fa-fedora', 'fab fa-figma', 'fab fa-firefox', 'fab fa-firefox-browser', 'fab fa-first-order', 'fab fa-first-order-alt', 'fab fa-firstdraft', 'fab fa-flickr', 'fab fa-flipboard', 'fab fa-fly', 'fab fa-font-awesome', 'fab fa-fonticons', 'fab fa-fonticons-fi', 'fab fa-fort-awesome', 'fab fa-fort-awesome-alt', 'fab fa-forumbee', 'fab fa-foursquare', 'fab fa-free-code-camp', 'fab fa-freebsd', 'fab fa-fulcrum', 'fab fa-galactic-republic', 'fab fa-galactic-senate', 'fab fa-get-pocket', 'fab fa-gg', 'fab fa-gg-circle', 'fab fa-git', 'fab fa-git-alt', 'fab fa-git-square', 'fab fa-github', 'fab fa-github-alt', 'fab fa-github-square', 'fab fa-gitkraken', 'fab fa-gitlab', 'fab fa-gitter', 'fab fa-glide', 'fab fa-glide-g', 'fab fa-gofore', 'fab fa-golang', 'fab fa-goodreads', 'fab fa-goodreads-g', 'fab fa-google', 'fab fa-google-drive', 'fab fa-google-pay', 'fab fa-google-play', 'fab fa-google-plus', 'fab fa-google-plus-g', 'fab fa-google-plus-square', 'fab fa-google-wallet', 'fab fa-gratipay', 'fab fa-grav', 'fab fa-gripfire', 'fab fa-grunt', 'fab fa-guilded', 'fab fa-gulp', 'fab fa-hacker-news', 'fab fa-hacker-news-square', 'fab fa-hackerrank', 'fab fa-hashnode', 'fab fa-hips', 'fab fa-hire-a-helper', 'fab fa-hive', 'fab fa-hooli', 'fab fa-hornbill', 'fab fa-hotjar', 'fab fa-houzz', 'fab fa-html5', 'fab fa-hubspot', 'fab fa-ideal', 'fab fa-imdb', 'fab fa-instagram', 'fab fa-instagram-square', 'fab fa-instalod', 'fab fa-intercom', 'fab fa-internet-explorer', 'fab fa-invision', 'fab fa-ioxhost', 'fab fa-itch-io', 'fab fa-itunes', 'fab fa-itunes-note', 'fab fa-java', 'fab fa-jedi-order', 'fab fa-jenkins', 'fab fa-jira', 'fab fa-joget', 'fab fa-joomla', 'fab fa-js', 'fab fa-js-square', 'fab fa-jsfiddle', 'fab fa-kaggle', 'fab fa-keybase', 'fab fa-keycdn', 'fab fa-kickstarter', 'fab fa-kickstarter-k', 'fab fa-korvue', 'fab fa-laravel', 'fab fa-lastfm', 'fab fa-lastfm-square', 'fab fa-leanpub', 'fab fa-less', 'fab fa-line', 'fab fa-linkedin', 'fab fa-linkedin-in', 'fab fa-linode', 'fab fa-linux', 'fab fa-lyft', 'fab fa-magento', 'fab fa-mailchimp', 'fab fa-mandalorian', 'fab fa-markdown', 'fab fa-mastodon', 'fab fa-maxcdn', 'fab fa-mdb', 'fab fa-medapps', 'fab fa-medium', 'fab fa-medrt', 'fab fa-meetup', 'fab fa-megaport', 'fab fa-mendeley', 'fab fa-microblog', 'fab fa-microsoft', 'fab fa-mix', 'fab fa-mixcloud', 'fab fa-mixer', 'fab fa-mizuni', 'fab fa-modx', 'fab fa-monero', 'fab fa-napster', 'fab fa-neos', 'fab fa-nimblr', 'fab fa-node', 'fab fa-node-js', 'fab fa-npm', 'fab fa-ns8', 'fab fa-nutritionix', 'fab fa-octopus-deploy', 'fab fa-odnoklassniki', 'fab fa-odnoklassniki-square', 'fab fa-old-republic', 'fab fa-opencart', 'fab fa-openid', 'fab fa-opera', 'fab fa-optin-monster', 'fab fa-orcid', 'fab fa-osi', 'fab fa-padlet', 'fab fa-page4', 'fab fa-pagelines', 'fab fa-palfed', 'fab fa-patreon', 'fab fa-paypal', 'fab fa-perbyte', 'fab fa-periscope', 'fab fa-phabricator', 'fab fa-phoenix-framework', 'fab fa-phoenix-squadron', 'fab fa-php', 'fab fa-pied-piper', 'fab fa-pied-piper-alt', 'fab fa-pied-piper-hat', 'fab fa-pied-piper-pp', 'fab fa-pied-piper-square', 'fab fa-pinterest', 'fab fa-pinterest-p', 'fab fa-pinterest-square', 'fab fa-pix', 'fab fa-playstation', 'fab fa-product-hunt', 'fab fa-pushed', 'fab fa-python', 'fab fa-qq', 'fab fa-quinscape', 'fab fa-quora', 'fab fa-r-project', 'fab fa-raspberry-pi', 'fab fa-ravelry', 'fab fa-react', 'fab fa-reacteurope', 'fab fa-readme', 'fab fa-rebel', 'fab fa-red-river', 'fab fa-reddit', 'fab fa-reddit-alien', 'fab fa-reddit-square', 'fab fa-redhat', 'fab fa-renren', 'fab fa-replyd', 'fab fa-researchgate', 'fab fa-resolving', 'fab fa-rev', 'fab fa-rocketchat', 'fab fa-rockrms', 'fab fa-rust', 'fab fa-safari', 'fab fa-salesforce', 'fab fa-sass', 'fab fa-schlix', 'fab fa-scribd', 'fab fa-searchengin', 'fab fa-sellcast', 'fab fa-sellsy', 'fab fa-servicestack', 'fab fa-shirtsinbulk', 'fab fa-shopify', 'fab fa-shopware', 'fab fa-simplybuilt', 'fab fa-sistrix', 'fab fa-sith', 'fab fa-sitrox', 'fab fa-sketch', 'fab fa-skyatlas', 'fab fa-skype', 'fab fa-slack', 'fab fa-slideshare', 'fab fa-snapchat', 'fab fa-snapchat-square', 'fab fa-soundcloud', 'fab fa-sourcetree', 'fab fa-speakap', 'fab fa-speaker-deck', 'fab fa-spotify', 'fab fa-square-font-awesome', 'fab fa-square-font-awesome-stroke', 'fab fa-squarespace', 'fab fa-stack-exchange', 'fab fa-stack-overflow', 'fab fa-stackpath', 'fab fa-staylinked', 'fab fa-steam', 'fab fa-steam-square', 'fab fa-steam-symbol', 'fab fa-sticker-mule', 'fab fa-strava', 'fab fa-stripe', 'fab fa-stripe-s', 'fab fa-studiovinari', 'fab fa-stumbleupon', 'fab fa-stumbleupon-circle', 'fab fa-superpowers', 'fab fa-supple', 'fab fa-suse', 'fab fa-swift', 'fab fa-symfony', 'fab fa-teamspeak', 'fab fa-telegram', 'fab fa-tencent-weibo', 'fab fa-the-red-yeti', 'fab fa-themeco', 'fab fa-themeisle', 'fab fa-think-peaks', 'fab fa-tiktok', 'fab fa-trade-federation', 'fab fa-trello', 'fab fa-tumblr', 'fab fa-tumblr-square', 'fab fa-twitch', 'fab fa-twitter', 'fab fa-twitter-square', 'fab fa-typo3', 'fab fa-uber', 'fab fa-ubuntu', 'fab fa-uikit', 'fab fa-umbraco', 'fab fa-uncharted', 'fab fa-uniregistry', 'fab fa-unity', 'fab fa-unsplash', 'fab fa-untappd', 'fab fa-ups', 'fab fa-usb', 'fab fa-usps', 'fab fa-ussunnah', 'fab fa-vaadin', 'fab fa-viacoin', 'fab fa-viadeo', 'fab fa-viadeo-square', 'fab fa-viber', 'fab fa-vimeo', 'fab fa-vimeo-square', 'fab fa-vimeo-v', 'fab fa-vine', 'fab fa-vk', 'fab fa-vnv', 'fab fa-vuejs', 'fab fa-watchman-monitoring', 'fab fa-waze', 'fab fa-weebly', 'fab fa-weibo', 'fab fa-weixin', 'fab fa-whatsapp', 'fab fa-whatsapp-square', 'fab fa-whmcs', 'fab fa-wikipedia-w', 'fab fa-windows', 'fab fa-wirsindhandwerk', 'fab fa-wix', 'fab fa-wizards-of-the-coast', 'fab fa-wodu', 'fab fa-wolf-pack-battalion', 'fab fa-wordpress', 'fab fa-wordpress-simple', 'fab fa-wpbeginner', 'fab fa-wpexplorer', 'fab fa-wpforms', 'fab fa-wpressr', 'fab fa-xbox', 'fab fa-xing', 'fab fa-xing-square', 'fab fa-y-combinator', 'fab fa-yahoo', 'fab fa-yammer', 'fab fa-yandex', 'fab fa-yandex-international', 'fab fa-yarn', 'fab fa-yelp', 'fab fa-yoast', 'fab fa-youtube', 'fab fa-youtube-square', 'fab fa-zhihu'
+    ];
+
+    // Social Media Icon Picker functionality
+    $(document).on('click', '.super-social-icon-picker-btn', function(e) {
+        e.preventDefault();
+        
+        var button = $(this);
+        var picker = button.closest('.super-social-icon-picker');
+        var hiddenInput = picker.find('input[type="hidden"]');
+        var display = picker.find('.super-social-icon-display');
+        
+        // Create modal if it doesn't exist
+        if (!$('#super-social-icon-modal').length) {
+            var modalHTML = '<div id="super-social-icon-modal" class="super-modal" style="display:none;">' +
+                '<div class="super-modal-content">' +
+                    '<div class="super-modal-header">' +
+                        '<span class="super-modal-close">&times;</span>' +
+                        '<h3>Choose Font Awesome Brand Icon</h3>' +
+                    '</div>' +
+                    '<div class="super-modal-body">' +
+                        '<div class="super-icon-search-wrapper">' +
+                            '<input type="text" id="super-icon-search" placeholder="Search icons..." />' +
+                        '</div>' +
+                        '<div class="super-icon-grid"></div>' +
+                    '</div>' +
+                    '<div class="super-modal-footer">' +
+                        '<button type="button" class="button super-modal-cancel">Cancel</button>' +
+                        '<button type="button" class="button button-primary super-modal-clear">Clear Selection</button>' +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+            
+            $('body').append(modalHTML);
+            
+            // Populate icon grid
+            var iconGrid = $('#super-social-icon-modal .super-icon-grid');
+            fontAwesomeBrandIcons.forEach(function(iconClass) {
+                iconGrid.append('<div class="super-icon-item" data-icon="' + iconClass + '"><i class="' + iconClass + '"></i><span>' + iconClass.replace('fab fa-', '') + '</span></div>');
+            });
+        }
+        
+        // Show modal
+        $('#super-social-icon-modal').show();
+        
+        // Highlight current selection
+        var currentValue = hiddenInput.val();
+        $('.super-icon-item').removeClass('selected');
+        if (currentValue) {
+            $('.super-icon-item[data-icon="' + currentValue + '"]').addClass('selected');
+        }
+        
+        // Store reference to current picker
+        $('#super-social-icon-modal').data('currentPicker', picker);
+    });
+
+    // Modal close functionality
+    $(document).on('click', '.super-modal-close, .super-modal-cancel', function() {
+        $('#super-social-icon-modal').hide();
+    });
+
+    // Icon selection
+    $(document).on('click', '.super-icon-item', function() {
+        var iconClass = $(this).data('icon');
+        var picker = $('#super-social-icon-modal').data('currentPicker');
+        
+        // Update hidden input
+        var hiddenInput = picker.find('input[type="hidden"]');
+        hiddenInput.val(iconClass).trigger('change');
+        
+        // Update display
+        var display = picker.find('.super-social-icon-display');
+        display.find('i').attr('class', iconClass);
+        display.find('.super-social-icon-name').text(iconClass);
+        
+        // Close modal
+        $('#super-social-icon-modal').hide();
+    });
+
+    // Clear selection
+    $(document).on('click', '.super-modal-clear', function() {
+        var picker = $('#super-social-icon-modal').data('currentPicker');
+        
+        // Clear hidden input
+        var hiddenInput = picker.find('input[type="hidden"]');
+        hiddenInput.val('').trigger('change');
+        
+        // Reset display
+        var display = picker.find('.super-social-icon-display');
+        display.find('i').attr('class', 'fas fa-plus');
+        display.find('.super-social-icon-name').text('Select an icon');
+        
+        // Close modal
+        $('#super-social-icon-modal').hide();
+    });
+
+    // Search functionality
+    $(document).on('keyup', '#super-icon-search', function() {
+        var searchTerm = $(this).val().toLowerCase();
+        $('.super-icon-item').each(function() {
+            var iconName = $(this).data('icon').toLowerCase();
+            if (iconName.includes(searchTerm)) {
+                $(this).show();
+            } else {
+                $(this).hide();
+            }
+        });
+    });
+
+    // Close modal when clicking outside
+    $(document).on('click', '#super-social-icon-modal', function(e) {
+        if (e.target === this) {
+            $(this).hide();
         }
     });
 

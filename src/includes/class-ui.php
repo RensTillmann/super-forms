@@ -482,6 +482,32 @@ class SUPER_UI {
             echo '</label>';
             return;
         }
+        if($v['type']==='icon_picker'){
+            echo '<label>';
+                if(isset($v['title'])){
+                    echo '<span class="sfui-title'.((isset($v['label'])) ? ' sfui-no-padding' : '').'">' . $v['title'] . '</span>';
+                }
+                if(isset($v['label'])){
+                    echo '<span class="sfui-label">' . $v['label'] . '</span>';
+                }
+                $value = self::get_value($s, $name, $v);
+                echo '<div class="super-social-icon-picker">';
+                    echo '<div class="super-social-icon-display">';
+                        if($value){
+                            echo '<i class="' . esc_attr($value) . '"></i>';
+                            echo '<span class="super-social-icon-name">' . esc_html($value) . '</span>';
+                        } else {
+                            echo '<i class="fas fa-plus"></i>';
+                            echo '<span class="super-social-icon-name">' . esc_html__('Select an icon', 'super-forms') . '</span>';
+                        }
+                    echo '</div>';
+                    echo '<button type="button" class="super-social-icon-picker-btn button">' . esc_html__('Choose Icon', 'super-forms') . '</button>';
+                    echo '<input type="hidden" name="' . esc_attr($v['name']) . '" value="' . esc_attr($value) . '" onchange="SUPER.ui.updateSettings(event, this)" />';
+                echo '</div>';
+                self::subline($v);
+            echo '</label>';
+            return;
+        }
     }
 }
 endif;
