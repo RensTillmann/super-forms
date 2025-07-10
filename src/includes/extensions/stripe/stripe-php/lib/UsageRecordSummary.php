@@ -13,7 +13,7 @@ namespace Stripe;
  * @property string $subscription_item The ID of the subscription item this summary is describing.
  * @property int $total_usage The total usage within this usage period.
  */
-class UsageRecordSummary extends ApiResource
-{
-    const OBJECT_NAME = 'usage_record_summary';
+class UsageRecordSummary extends ApiResource {
+
+	const OBJECT_NAME = 'usage_record_summary';
 }

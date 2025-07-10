@@ -22,109 +22,104 @@ namespace Stripe\Terminal;
  * @property string $serial_number Serial number of the reader.
  * @property null|string $status The networking status of the reader.
  */
-class Reader extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'terminal.reader';
+class Reader extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Create;
-    use \Stripe\ApiOperations\Delete;
-    use \Stripe\ApiOperations\Retrieve;
-    use \Stripe\ApiOperations\Update;
+	const OBJECT_NAME = 'terminal.reader';
 
-    const DEVICE_TYPE_BBPOS_CHIPPER2X = 'bbpos_chipper2x';
-    const DEVICE_TYPE_BBPOS_WISEPAD3 = 'bbpos_wisepad3';
-    const DEVICE_TYPE_BBPOS_WISEPOS_E = 'bbpos_wisepos_e';
-    const DEVICE_TYPE_MOBILE_PHONE_READER = 'mobile_phone_reader';
-    const DEVICE_TYPE_SIMULATED_WISEPOS_E = 'simulated_wisepos_e';
-    const DEVICE_TYPE_STRIPE_M2 = 'stripe_m2';
-    const DEVICE_TYPE_VERIFONE_P400 = 'verifone_P400';
+	use \Stripe\ApiOperations\All;
+	use \Stripe\ApiOperations\Create;
+	use \Stripe\ApiOperations\Delete;
+	use \Stripe\ApiOperations\Retrieve;
+	use \Stripe\ApiOperations\Update;
 
-    const STATUS_OFFLINE = 'offline';
-    const STATUS_ONLINE = 'online';
+	const DEVICE_TYPE_BBPOS_CHIPPER2X     = 'bbpos_chipper2x';
+	const DEVICE_TYPE_BBPOS_WISEPAD3      = 'bbpos_wisepad3';
+	const DEVICE_TYPE_BBPOS_WISEPOS_E     = 'bbpos_wisepos_e';
+	const DEVICE_TYPE_MOBILE_PHONE_READER = 'mobile_phone_reader';
+	const DEVICE_TYPE_SIMULATED_WISEPOS_E = 'simulated_wisepos_e';
+	const DEVICE_TYPE_STRIPE_M2           = 'stripe_m2';
+	const DEVICE_TYPE_VERIFONE_P400       = 'verifone_P400';
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Terminal\Reader the canceled reader
-     */
-    public function cancelAction($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/cancel_action';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+	const STATUS_OFFLINE = 'offline';
+	const STATUS_ONLINE  = 'online';
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Terminal\Reader the canceled reader
+	 */
+	public function cancelAction( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/cancel_action';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Terminal\Reader the processed reader
-     */
-    public function processPaymentIntent($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/process_payment_intent';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+		return $this;
+	}
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Terminal\Reader the processed reader
+	 */
+	public function processPaymentIntent( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/process_payment_intent';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Terminal\Reader the processed reader
-     */
-    public function processSetupIntent($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/process_setup_intent';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+		return $this;
+	}
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Terminal\Reader the processed reader
+	 */
+	public function processSetupIntent( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/process_setup_intent';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Terminal\Reader the refunded reader
-     */
-    public function refundPayment($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/refund_payment';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+		return $this;
+	}
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Terminal\Reader the refunded reader
+	 */
+	public function refundPayment( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/refund_payment';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Terminal\Reader the seted reader
-     */
-    public function setReaderDisplay($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/set_reader_display';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+		return $this;
+	}
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Terminal\Reader the seted reader
+	 */
+	public function setReaderDisplay( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/set_reader_display';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
+
+		return $this;
+	}
 }

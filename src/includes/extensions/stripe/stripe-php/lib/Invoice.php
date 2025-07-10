@@ -121,193 +121,184 @@ namespace Stripe;
  * @property null|\Stripe\StripeObject $transfer_data The account (if any) the payment will be attributed to for tax reporting, and where funds from the payment will be transferred to for the invoice.
  * @property null|int $webhooks_delivered_at Invoices are automatically paid or sent 1 hour after webhooks are delivered, or until all webhook delivery attempts have <a href="https://stripe.com/docs/billing/webhooks#understand">been exhausted</a>. This field tracks the time when webhooks for this invoice were successfully delivered. If the invoice had no webhooks to deliver, this will be set while the invoice is being created.
  */
-class Invoice extends ApiResource
-{
-    const OBJECT_NAME = 'invoice';
+class Invoice extends ApiResource {
 
-    use ApiOperations\All;
-    use ApiOperations\Create;
-    use ApiOperations\Delete;
-    use ApiOperations\NestedResource;
-    use ApiOperations\Retrieve;
-    use ApiOperations\Search;
-    use ApiOperations\Update;
+	const OBJECT_NAME = 'invoice';
 
-    const BILLING_REASON_AUTOMATIC_PENDING_INVOICE_ITEM_INVOICE = 'automatic_pending_invoice_item_invoice';
-    const BILLING_REASON_MANUAL = 'manual';
-    const BILLING_REASON_QUOTE_ACCEPT = 'quote_accept';
-    const BILLING_REASON_SUBSCRIPTION = 'subscription';
-    const BILLING_REASON_SUBSCRIPTION_CREATE = 'subscription_create';
-    const BILLING_REASON_SUBSCRIPTION_CYCLE = 'subscription_cycle';
-    const BILLING_REASON_SUBSCRIPTION_THRESHOLD = 'subscription_threshold';
-    const BILLING_REASON_SUBSCRIPTION_UPDATE = 'subscription_update';
-    const BILLING_REASON_UPCOMING = 'upcoming';
+	use ApiOperations\All;
+	use ApiOperations\Create;
+	use ApiOperations\Delete;
+	use ApiOperations\NestedResource;
+	use ApiOperations\Retrieve;
+	use ApiOperations\Search;
+	use ApiOperations\Update;
 
-    const COLLECTION_METHOD_CHARGE_AUTOMATICALLY = 'charge_automatically';
-    const COLLECTION_METHOD_SEND_INVOICE = 'send_invoice';
+	const BILLING_REASON_AUTOMATIC_PENDING_INVOICE_ITEM_INVOICE = 'automatic_pending_invoice_item_invoice';
+	const BILLING_REASON_MANUAL                                 = 'manual';
+	const BILLING_REASON_QUOTE_ACCEPT                           = 'quote_accept';
+	const BILLING_REASON_SUBSCRIPTION                           = 'subscription';
+	const BILLING_REASON_SUBSCRIPTION_CREATE                    = 'subscription_create';
+	const BILLING_REASON_SUBSCRIPTION_CYCLE                     = 'subscription_cycle';
+	const BILLING_REASON_SUBSCRIPTION_THRESHOLD                 = 'subscription_threshold';
+	const BILLING_REASON_SUBSCRIPTION_UPDATE                    = 'subscription_update';
+	const BILLING_REASON_UPCOMING                               = 'upcoming';
 
-    const CUSTOMER_TAX_EXEMPT_EXEMPT = 'exempt';
-    const CUSTOMER_TAX_EXEMPT_NONE = 'none';
-    const CUSTOMER_TAX_EXEMPT_REVERSE = 'reverse';
+	const COLLECTION_METHOD_CHARGE_AUTOMATICALLY = 'charge_automatically';
+	const COLLECTION_METHOD_SEND_INVOICE         = 'send_invoice';
 
-    const STATUS_DRAFT = 'draft';
-    const STATUS_OPEN = 'open';
-    const STATUS_PAID = 'paid';
-    const STATUS_UNCOLLECTIBLE = 'uncollectible';
-    const STATUS_VOID = 'void';
+	const CUSTOMER_TAX_EXEMPT_EXEMPT  = 'exempt';
+	const CUSTOMER_TAX_EXEMPT_NONE    = 'none';
+	const CUSTOMER_TAX_EXEMPT_REVERSE = 'reverse';
 
-    const BILLING_CHARGE_AUTOMATICALLY = 'charge_automatically';
-    const BILLING_SEND_INVOICE = 'send_invoice';
+	const STATUS_DRAFT         = 'draft';
+	const STATUS_OPEN          = 'open';
+	const STATUS_PAID          = 'paid';
+	const STATUS_UNCOLLECTIBLE = 'uncollectible';
+	const STATUS_VOID          = 'void';
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Invoice the finalized invoice
-     */
-    public function finalizeInvoice($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/finalize';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+	const BILLING_CHARGE_AUTOMATICALLY = 'charge_automatically';
+	const BILLING_SEND_INVOICE         = 'send_invoice';
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Invoice the finalized invoice
+	 */
+	public function finalizeInvoice( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/finalize';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Invoice the uncollectible invoice
-     */
-    public function markUncollectible($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/mark_uncollectible';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+		return $this;
+	}
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Invoice the uncollectible invoice
+	 */
+	public function markUncollectible( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/mark_uncollectible';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Invoice the paid invoice
-     */
-    public function pay($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/pay';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+		return $this;
+	}
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Invoice the paid invoice
+	 */
+	public function pay( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/pay';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Invoice the sent invoice
-     */
-    public function sendInvoice($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/send';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+		return $this;
+	}
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Invoice the sent invoice
+	 */
+	public function sendInvoice( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/send';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Invoice the upcoming invoice
-     */
-    public static function upcoming($params = null, $opts = null)
-    {
-        $url = static::classUrl() . '/upcoming';
-        list($response, $opts) = static::_staticRequest('get', $url, $params, $opts);
-        $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
-        $obj->setLastResponse($response);
+		return $this;
+	}
 
-        return $obj;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Invoice the upcoming invoice
+	 */
+	public static function upcoming( $params = null, $opts = null ) {
+		$url                   = static::classUrl() . '/upcoming';
+		list($response, $opts) = static::_staticRequest( 'get', $url, $params, $opts );
+		$obj                   = \Stripe\Util\Util::convertToStripeObject( $response->json, $opts );
+		$obj->setLastResponse( $response );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Collection<\Stripe\InvoiceLineItem> list of invoice line items
-     */
-    public static function upcomingLines($params = null, $opts = null)
-    {
-        $url = static::classUrl() . '/upcoming/lines';
-        list($response, $opts) = static::_staticRequest('get', $url, $params, $opts);
-        $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
-        $obj->setLastResponse($response);
+		return $obj;
+	}
 
-        return $obj;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Collection<\Stripe\InvoiceLineItem> list of invoice line items
+	 */
+	public static function upcomingLines( $params = null, $opts = null ) {
+		$url                   = static::classUrl() . '/upcoming/lines';
+		list($response, $opts) = static::_staticRequest( 'get', $url, $params, $opts );
+		$obj                   = \Stripe\Util\Util::convertToStripeObject( $response->json, $opts );
+		$obj->setLastResponse( $response );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Invoice the voided invoice
-     */
-    public function voidInvoice($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/void';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+		return $obj;
+	}
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Invoice the voided invoice
+	 */
+	public function voidInvoice( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/void';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\SearchResult<\Stripe\Invoice> the invoice search results
-     */
-    public static function search($params = null, $opts = null)
-    {
-        $url = '/v1/invoices/search';
+		return $this;
+	}
 
-        return static::_requestPage($url, \Stripe\SearchResult::class, $params, $opts);
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\SearchResult<\Stripe\Invoice> the invoice search results
+	 */
+	public static function search( $params = null, $opts = null ) {
+		$url = '/v1/invoices/search';
 
-    const PATH_LINES = '/lines';
+		return static::_requestPage( $url, \Stripe\SearchResult::class, $params, $opts );
+	}
 
-    /**
-     * @param string $id the ID of the invoice on which to retrieve the invoice line items
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Collection<\Stripe\InvoiceLineItem> the list of invoice line items
-     */
-    public static function allLines($id, $params = null, $opts = null)
-    {
-        return self::_allNestedResources($id, static::PATH_LINES, $params, $opts);
-    }
+	const PATH_LINES = '/lines';
+
+	/**
+	 * @param string            $id the ID of the invoice on which to retrieve the invoice line items
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Collection<\Stripe\InvoiceLineItem> the list of invoice line items
+	 */
+	public static function allLines( $id, $params = null, $opts = null ) {
+		return self::_allNestedResources( $id, static::PATH_LINES, $params, $opts );
+	}
 }

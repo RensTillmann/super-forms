@@ -12,85 +12,77 @@ namespace Stripe\Util;
  * In the context of stripe-php, this is useful because the API will return headers with different
  * case depending on whether HTTP/2 is used or not (with HTTP/2, headers are always in lowercase).
  */
-class CaseInsensitiveArray implements \ArrayAccess, \Countable, \IteratorAggregate
-{
-    private $container = [];
+class CaseInsensitiveArray implements \ArrayAccess, \Countable, \IteratorAggregate {
 
-    public function __construct($initial_array = [])
-    {
-        $this->container = \array_change_key_case($initial_array, \CASE_LOWER);
-    }
+	private $container = array();
 
-    /**
-     * @return int
-     */
-    #[\ReturnTypeWillChange]
-    public function count()
-    {
-        return \count($this->container);
-    }
+	public function __construct( $initial_array = array() ) {
+		$this->container = \array_change_key_case( $initial_array, \CASE_LOWER );
+	}
 
-    /**
-     * @return \ArrayIterator
-     */
-    #[\ReturnTypeWillChange]
-    public function getIterator()
-    {
-        return new \ArrayIterator($this->container);
-    }
+	/**
+	 * @return int
+	 */
+	#[\ReturnTypeWillChange]
+	public function count() {
+		return \count( $this->container );
+	}
 
-    /**
-     * @return void
-     */
-    #[\ReturnTypeWillChange]
-    public function offsetSet($offset, $value)
-    {
-        $offset = self::maybeLowercase($offset);
-        if (null === $offset) {
-            $this->container[] = $value;
-        } else {
-            $this->container[$offset] = $value;
-        }
-    }
+	/**
+	 * @return \ArrayIterator
+	 */
+	#[\ReturnTypeWillChange]
+	public function getIterator() {
+		return new \ArrayIterator( $this->container );
+	}
 
-    /**
-     * @return bool
-     */
-    #[\ReturnTypeWillChange]
-    public function offsetExists($offset)
-    {
-        $offset = self::maybeLowercase($offset);
+	/**
+	 * @return void
+	 */
+	#[\ReturnTypeWillChange]
+	public function offsetSet( $offset, $value ) {
+		$offset = self::maybeLowercase( $offset );
+		if ( null === $offset ) {
+			$this->container[] = $value;
+		} else {
+			$this->container[ $offset ] = $value;
+		}
+	}
 
-        return isset($this->container[$offset]);
-    }
+	/**
+	 * @return bool
+	 */
+	#[\ReturnTypeWillChange]
+	public function offsetExists( $offset ) {
+		$offset = self::maybeLowercase( $offset );
 
-    /**
-     * @return void
-     */
-    #[\ReturnTypeWillChange]
-    public function offsetUnset($offset)
-    {
-        $offset = self::maybeLowercase($offset);
-        unset($this->container[$offset]);
-    }
+		return isset( $this->container[ $offset ] );
+	}
 
-    /**
-     * @return mixed
-     */
-    #[\ReturnTypeWillChange]
-    public function offsetGet($offset)
-    {
-        $offset = self::maybeLowercase($offset);
+	/**
+	 * @return void
+	 */
+	#[\ReturnTypeWillChange]
+	public function offsetUnset( $offset ) {
+		$offset = self::maybeLowercase( $offset );
+		unset( $this->container[ $offset ] );
+	}
 
-        return isset($this->container[$offset]) ? $this->container[$offset] : null;
-    }
+	/**
+	 * @return mixed
+	 */
+	#[\ReturnTypeWillChange]
+	public function offsetGet( $offset ) {
+		$offset = self::maybeLowercase( $offset );
 
-    private static function maybeLowercase($v)
-    {
-        if (\is_string($v)) {
-            return \strtolower($v);
-        }
+		return isset( $this->container[ $offset ] ) ? $this->container[ $offset ] : null;
+	}
 
-        return $v;
-    }
+	private static function maybeLowercase( $v ) {
+		if ( \is_string( $v ) ) {
+			return \strtolower( $v );
+		}
+
+		return $v;
+	}
 }

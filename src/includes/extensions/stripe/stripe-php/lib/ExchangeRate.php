@@ -36,10 +36,10 @@ namespace Stripe;
  * @property string $object String representing the object's type. Objects of the same type share the same value.
  * @property \Stripe\StripeObject $rates Hash where the keys are supported currencies and the values are the exchange rate at which the base id currency converts to the key currency.
  */
-class ExchangeRate extends ApiResource
-{
-    const OBJECT_NAME = 'exchange_rate';
+class ExchangeRate extends ApiResource {
 
-    use ApiOperations\All;
-    use ApiOperations\Retrieve;
+	const OBJECT_NAME = 'exchange_rate';
+
+	use ApiOperations\All;
+	use ApiOperations\Retrieve;
 }

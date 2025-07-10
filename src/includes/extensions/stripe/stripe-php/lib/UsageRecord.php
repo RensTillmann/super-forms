@@ -19,7 +19,7 @@ namespace Stripe;
  * @property string $subscription_item The ID of the subscription item this usage record contains data for.
  * @property int $timestamp The timestamp when this usage occurred.
  */
-class UsageRecord extends ApiResource
-{
-    const OBJECT_NAME = 'usage_record';
+class UsageRecord extends ApiResource {
+
+	const OBJECT_NAME = 'usage_record';
 }

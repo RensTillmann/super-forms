@@ -18,10 +18,10 @@ namespace Stripe\Climate;
  * @property string $name The Climate product's name.
  * @property \Stripe\Climate\Supplier[] $suppliers The carbon removal suppliers that fulfill orders for this Climate product.
  */
-class Product extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'climate.product';
+class Product extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Retrieve;
+	const OBJECT_NAME = 'climate.product';
+
+	use \Stripe\ApiOperations\All;
+	use \Stripe\ApiOperations\Retrieve;
 }

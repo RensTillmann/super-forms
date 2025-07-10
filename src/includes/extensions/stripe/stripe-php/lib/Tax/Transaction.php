@@ -24,67 +24,64 @@ namespace Stripe\Tax;
  * @property int $tax_date Timestamp of date at which the tax rules and rates in effect applies for the calculation.
  * @property string $type If <code>reversal</code>, this transaction reverses an earlier transaction.
  */
-class Transaction extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'tax.transaction';
+class Transaction extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\Retrieve;
+	const OBJECT_NAME = 'tax.transaction';
 
-    const TYPE_REVERSAL = 'reversal';
-    const TYPE_TRANSACTION = 'transaction';
+	use \Stripe\ApiOperations\Retrieve;
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Tax\Transaction the created transaction
-     */
-    public static function createFromCalculation($params = null, $opts = null)
-    {
-        $url = static::classUrl() . '/create_from_calculation';
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $opts);
-        $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
-        $obj->setLastResponse($response);
+	const TYPE_REVERSAL    = 'reversal';
+	const TYPE_TRANSACTION = 'transaction';
 
-        return $obj;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Tax\Transaction the created transaction
+	 */
+	public static function createFromCalculation( $params = null, $opts = null ) {
+		$url                   = static::classUrl() . '/create_from_calculation';
+		list($response, $opts) = static::_staticRequest( 'post', $url, $params, $opts );
+		$obj                   = \Stripe\Util\Util::convertToStripeObject( $response->json, $opts );
+		$obj->setLastResponse( $response );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Tax\Transaction the created transaction
-     */
-    public static function createReversal($params = null, $opts = null)
-    {
-        $url = static::classUrl() . '/create_reversal';
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $opts);
-        $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
-        $obj->setLastResponse($response);
+		return $obj;
+	}
 
-        return $obj;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Tax\Transaction the created transaction
+	 */
+	public static function createReversal( $params = null, $opts = null ) {
+		$url                   = static::classUrl() . '/create_reversal';
+		list($response, $opts) = static::_staticRequest( 'post', $url, $params, $opts );
+		$obj                   = \Stripe\Util\Util::convertToStripeObject( $response->json, $opts );
+		$obj->setLastResponse( $response );
 
-    /**
-     * @param string $id
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Collection<\Stripe\Tax\TransactionLineItem> list of transaction line items
-     */
-    public static function allLineItems($id, $params = null, $opts = null)
-    {
-        $url = static::resourceUrl($id) . '/line_items';
-        list($response, $opts) = static::_staticRequest('get', $url, $params, $opts);
-        $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
-        $obj->setLastResponse($response);
+		return $obj;
+	}
 
-        return $obj;
-    }
+	/**
+	 * @param string            $id
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Collection<\Stripe\Tax\TransactionLineItem> list of transaction line items
+	 */
+	public static function allLineItems( $id, $params = null, $opts = null ) {
+		$url                   = static::resourceUrl( $id ) . '/line_items';
+		list($response, $opts) = static::_staticRequest( 'get', $url, $params, $opts );
+		$obj                   = \Stripe\Util\Util::convertToStripeObject( $response->json, $opts );
+		$obj->setLastResponse( $response );
+
+		return $obj;
+	}
 }

@@ -12,20 +12,19 @@ namespace Stripe\Service\Tax;
  * @property SettingsService $settings
  * @property TransactionService $transactions
  */
-class TaxServiceFactory extends \Stripe\Service\AbstractServiceFactory
-{
-    /**
-     * @var array<string, string>
-     */
-    private static $classMap = [
-        'calculations' => CalculationService::class,
-        'registrations' => RegistrationService::class,
-        'settings' => SettingsService::class,
-        'transactions' => TransactionService::class,
-    ];
+class TaxServiceFactory extends \Stripe\Service\AbstractServiceFactory {
 
-    protected function getServiceClass($name)
-    {
-        return \array_key_exists($name, self::$classMap) ? self::$classMap[$name] : null;
-    }
+	/**
+	 * @var array<string, string>
+	 */
+	private static $classMap = array(
+		'calculations'  => CalculationService::class,
+		'registrations' => RegistrationService::class,
+		'settings'      => SettingsService::class,
+		'transactions'  => TransactionService::class,
+	);
+
+	protected function getServiceClass( $name ) {
+		return \array_key_exists( $name, self::$classMap ) ? self::$classMap[ $name ] : null;
+	}
 }

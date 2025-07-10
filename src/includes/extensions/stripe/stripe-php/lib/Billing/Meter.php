@@ -21,69 +21,66 @@ namespace Stripe\Billing;
  * @property int $updated Time at which the object was last updated. Measured in seconds since the Unix epoch.
  * @property \Stripe\StripeObject $value_settings
  */
-class Meter extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'billing.meter';
+class Meter extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Create;
-    use \Stripe\ApiOperations\NestedResource;
-    use \Stripe\ApiOperations\Retrieve;
-    use \Stripe\ApiOperations\Update;
+	const OBJECT_NAME = 'billing.meter';
 
-    const EVENT_TIME_WINDOW_DAY = 'day';
-    const EVENT_TIME_WINDOW_HOUR = 'hour';
+	use \Stripe\ApiOperations\All;
+	use \Stripe\ApiOperations\Create;
+	use \Stripe\ApiOperations\NestedResource;
+	use \Stripe\ApiOperations\Retrieve;
+	use \Stripe\ApiOperations\Update;
 
-    const STATUS_ACTIVE = 'active';
-    const STATUS_INACTIVE = 'inactive';
+	const EVENT_TIME_WINDOW_DAY  = 'day';
+	const EVENT_TIME_WINDOW_HOUR = 'hour';
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Billing\Meter the deactivated meter
-     */
-    public function deactivate($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/deactivate';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+	const STATUS_ACTIVE   = 'active';
+	const STATUS_INACTIVE = 'inactive';
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Billing\Meter the deactivated meter
+	 */
+	public function deactivate( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/deactivate';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Billing\Meter the reactivated meter
-     */
-    public function reactivate($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/reactivate';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+		return $this;
+	}
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Billing\Meter the reactivated meter
+	 */
+	public function reactivate( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/reactivate';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
 
-    const PATH_EVENT_SUMMARIES = '/event_summaries';
+		return $this;
+	}
 
-    /**
-     * @param string $id the ID of the meter on which to retrieve the meter event summaries
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Collection<\Stripe\Billing\MeterEventSummary> the list of meter event summaries
-     */
-    public static function allEventSummaries($id, $params = null, $opts = null)
-    {
-        return self::_allNestedResources($id, static::PATH_EVENT_SUMMARIES, $params, $opts);
-    }
+	const PATH_EVENT_SUMMARIES = '/event_summaries';
+
+	/**
+	 * @param string            $id the ID of the meter on which to retrieve the meter event summaries
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Collection<\Stripe\Billing\MeterEventSummary> the list of meter event summaries
+	 */
+	public static function allEventSummaries( $id, $params = null, $opts = null ) {
+		return self::_allNestedResources( $id, static::PATH_EVENT_SUMMARIES, $params, $opts );
+	}
 }

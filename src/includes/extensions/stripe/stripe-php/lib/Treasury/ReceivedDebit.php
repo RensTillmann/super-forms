@@ -24,22 +24,22 @@ namespace Stripe\Treasury;
  * @property string $status Status of the ReceivedDebit. ReceivedDebits are created with a status of either <code>succeeded</code> (approved) or <code>failed</code> (declined). The failure reason can be found under the <code>failure_code</code>.
  * @property null|string|\Stripe\Treasury\Transaction $transaction The Transaction associated with this object.
  */
-class ReceivedDebit extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'treasury.received_debit';
+class ReceivedDebit extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Retrieve;
+	const OBJECT_NAME = 'treasury.received_debit';
 
-    const FAILURE_CODE_ACCOUNT_CLOSED = 'account_closed';
-    const FAILURE_CODE_ACCOUNT_FROZEN = 'account_frozen';
-    const FAILURE_CODE_INSUFFICIENT_FUNDS = 'insufficient_funds';
-    const FAILURE_CODE_OTHER = 'other';
+	use \Stripe\ApiOperations\All;
+	use \Stripe\ApiOperations\Retrieve;
 
-    const NETWORK_ACH = 'ach';
-    const NETWORK_CARD = 'card';
-    const NETWORK_STRIPE = 'stripe';
+	const FAILURE_CODE_ACCOUNT_CLOSED     = 'account_closed';
+	const FAILURE_CODE_ACCOUNT_FROZEN     = 'account_frozen';
+	const FAILURE_CODE_INSUFFICIENT_FUNDS = 'insufficient_funds';
+	const FAILURE_CODE_OTHER              = 'other';
 
-    const STATUS_FAILED = 'failed';
-    const STATUS_SUCCEEDED = 'succeeded';
+	const NETWORK_ACH    = 'ach';
+	const NETWORK_CARD   = 'card';
+	const NETWORK_STRIPE = 'stripe';
+
+	const STATUS_FAILED    = 'failed';
+	const STATUS_SUCCEEDED = 'succeeded';
 }

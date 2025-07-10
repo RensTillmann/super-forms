@@ -17,7 +17,7 @@ namespace Stripe\Treasury;
  * @property null|\Stripe\StripeObject $outbound_payments Settings related to Outbound Payments features on a Financial Account
  * @property null|\Stripe\StripeObject $outbound_transfers OutboundTransfers contains outbound transfers features for a FinancialAccount.
  */
-class FinancialAccountFeatures extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'treasury.financial_account_features';
+class FinancialAccountFeatures extends \Stripe\ApiResource {
+
+	const OBJECT_NAME = 'treasury.financial_account_features';
 }

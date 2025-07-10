@@ -1,8 +1,8 @@
-/* -------------------------------------------------------------- 
-  
-   reset.css
-   * Resets default browser CSS.
-   
+/* --------------------------------------------------------------
+
+	reset.css
+	* Resets default browser CSS.
+
 -------------------------------------------------------------- */
 
 html, body, div, span, object, iframe,
@@ -11,18 +11,18 @@ a, abbr, acronym, address, code,
 del, dfn, em, img, q, dl, dt, dd, ol, ul, li,
 fieldset, form, label, legend,
 table, caption, tbody, tfoot, thead, tr, th, td {
-  margin: 0;
-  padding: 0;
-  border: 0;
-  font-weight: inherit;
-  font-style: inherit;
-  font-size: 100%;
-  font-family: inherit;
-  vertical-align: baseline;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-weight: inherit;
+	font-style: inherit;
+	font-size: 100%;
+	font-family: inherit;
+	vertical-align: baseline;
 }
 
-body { 
-  line-height: 1.5; 
+body {
+	line-height: 1.5;
 }
 
 /* Tables still need 'cellspacing="0"' in the markup. */

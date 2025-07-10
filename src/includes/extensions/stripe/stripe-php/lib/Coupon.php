@@ -27,17 +27,17 @@ namespace Stripe;
  * @property int $times_redeemed Number of times this coupon has been applied to a customer.
  * @property bool $valid Taking account of the above properties, whether this coupon can still be applied to a customer.
  */
-class Coupon extends ApiResource
-{
-    const OBJECT_NAME = 'coupon';
+class Coupon extends ApiResource {
 
-    use ApiOperations\All;
-    use ApiOperations\Create;
-    use ApiOperations\Delete;
-    use ApiOperations\Retrieve;
-    use ApiOperations\Update;
+	const OBJECT_NAME = 'coupon';
 
-    const DURATION_FOREVER = 'forever';
-    const DURATION_ONCE = 'once';
-    const DURATION_REPEATING = 'repeating';
+	use ApiOperations\All;
+	use ApiOperations\Create;
+	use ApiOperations\Delete;
+	use ApiOperations\Retrieve;
+	use ApiOperations\Update;
+
+	const DURATION_FOREVER   = 'forever';
+	const DURATION_ONCE      = 'once';
+	const DURATION_REPEATING = 'repeating';
 }

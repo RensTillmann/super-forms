@@ -11,7 +11,7 @@ namespace Stripe;
  * @property int $created Time at which the object was created. Measured in seconds since the Unix epoch.
  * @property string $url The URL for the login link.
  */
-class LoginLink extends ApiResource
-{
-    const OBJECT_NAME = 'login_link';
+class LoginLink extends ApiResource {
+
+	const OBJECT_NAME = 'login_link';
 }

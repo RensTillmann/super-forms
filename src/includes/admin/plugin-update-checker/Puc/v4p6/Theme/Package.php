@@ -1,5 +1,5 @@
 <?php
-if ( !class_exists('Puc_v4p6_Theme_Package', false) ):
+if ( ! class_exists( 'Puc_v4p6_Theme_Package', false ) ) :
 
 	class Puc_v4p6_Theme_Package extends Puc_v4p6_InstalledPackage {
 		/**
@@ -12,22 +12,22 @@ if ( !class_exists('Puc_v4p6_Theme_Package', false) ):
 		 */
 		protected $theme;
 
-		public function __construct($stylesheet, $updateChecker) {
+		public function __construct( $stylesheet, $updateChecker ) {
 			$this->stylesheet = $stylesheet;
-			$this->theme = wp_get_theme($this->stylesheet);
+			$this->theme      = wp_get_theme( $this->stylesheet );
 
-			parent::__construct($updateChecker);
+			parent::__construct( $updateChecker );
 		}
 
 		public function getInstalledVersion() {
-			return $this->theme->get('Version');
+			return $this->theme->get( 'Version' );
 		}
 
 		public function getAbsoluteDirectoryPath() {
-			if ( method_exists($this->theme, 'get_stylesheet_directory') ) {
-				return $this->theme->get_stylesheet_directory(); //Available since WP 3.4.
+			if ( method_exists( $this->theme, 'get_stylesheet_directory' ) ) {
+				return $this->theme->get_stylesheet_directory(); // Available since WP 3.4.
 			}
-			return get_theme_root($this->stylesheet) . '/' . $this->stylesheet;
+			return get_theme_root( $this->stylesheet ) . '/' . $this->stylesheet;
 		}
 
 		/**
@@ -37,9 +37,9 @@ if ( !class_exists('Puc_v4p6_Theme_Package', false) ):
 		 * @param string $defaultValue
 		 * @return string Either the value of the header, or $defaultValue if the header doesn't exist or is empty.
 		 */
-		public function getHeaderValue($headerName, $defaultValue = '') {
-			$value = $this->theme->get($headerName);
-			if ( ($headerName === false) || ($headerName === '') ) {
+		public function getHeaderValue( $headerName, $defaultValue = '' ) {
+			$value = $this->theme->get( $headerName );
+			if ( ( $headerName === false ) || ( $headerName === '' ) ) {
 				return $defaultValue;
 			}
 			return $value;

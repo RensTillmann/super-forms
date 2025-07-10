@@ -66,12 +66,12 @@ namespace Stripe;
  * @property null|\Stripe\StripeObject $wechat_pay
  * @property null|\Stripe\StripeObject $zip
  */
-class PaymentMethodConfiguration extends ApiResource
-{
-    const OBJECT_NAME = 'payment_method_configuration';
+class PaymentMethodConfiguration extends ApiResource {
 
-    use ApiOperations\All;
-    use ApiOperations\Create;
-    use ApiOperations\Retrieve;
-    use ApiOperations\Update;
+	const OBJECT_NAME = 'payment_method_configuration';
+
+	use ApiOperations\All;
+	use ApiOperations\Create;
+	use ApiOperations\Retrieve;
+	use ApiOperations\Update;
 }

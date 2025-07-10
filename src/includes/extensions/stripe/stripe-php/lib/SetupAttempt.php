@@ -26,9 +26,9 @@ namespace Stripe;
  * @property string $status Status of this SetupAttempt, one of <code>requires_confirmation</code>, <code>requires_action</code>, <code>processing</code>, <code>succeeded</code>, <code>failed</code>, or <code>abandoned</code>.
  * @property string $usage The value of <a href="https://stripe.com/docs/api/setup_intents/object#setup_intent_object-usage">usage</a> on the SetupIntent at the time of this confirmation, one of <code>off_session</code> or <code>on_session</code>.
  */
-class SetupAttempt extends ApiResource
-{
-    const OBJECT_NAME = 'setup_attempt';
+class SetupAttempt extends ApiResource {
 
-    use ApiOperations\All;
+	const OBJECT_NAME = 'setup_attempt';
+
+	use ApiOperations\All;
 }

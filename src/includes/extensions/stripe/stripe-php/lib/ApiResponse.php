@@ -7,39 +7,38 @@ use Stripe\Util\CaseInsensitiveArray;
 /**
  * Class ApiResponse.
  */
-class ApiResponse
-{
-    /**
-     * @var null|array|CaseInsensitiveArray
-     */
-    public $headers;
+class ApiResponse {
 
-    /**
-     * @var string
-     */
-    public $body;
+	/**
+	 * @var null|array|CaseInsensitiveArray
+	 */
+	public $headers;
 
-    /**
-     * @var null|array
-     */
-    public $json;
+	/**
+	 * @var string
+	 */
+	public $body;
 
-    /**
-     * @var int
-     */
-    public $code;
+	/**
+	 * @var null|array
+	 */
+	public $json;
 
-    /**
-     * @param string $body
-     * @param int $code
-     * @param null|array|CaseInsensitiveArray $headers
-     * @param null|array $json
-     */
-    public function __construct($body, $code, $headers, $json)
-    {
-        $this->body = $body;
-        $this->code = $code;
-        $this->headers = $headers;
-        $this->json = $json;
-    }
+	/**
+	 * @var int
+	 */
+	public $code;
+
+	/**
+	 * @param string                          $body
+	 * @param int                             $code
+	 * @param null|array|CaseInsensitiveArray $headers
+	 * @param null|array                      $json
+	 */
+	public function __construct( $body, $code, $headers, $json ) {
+		$this->body    = $body;
+		$this->code    = $code;
+		$this->headers = $headers;
+		$this->json    = $json;
+	}
 }

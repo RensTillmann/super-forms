@@ -22,7 +22,7 @@ namespace Stripe;
  * @property string $status The status of the mandate notification. Valid statuses are <code>pending</code> or <code>submitted</code>.
  * @property string $type The type of source this mandate notification is attached to. Should be the source type identifier code for the payment method, such as <code>three_d_secure</code>.
  */
-class SourceMandateNotification extends ApiResource
-{
-    const OBJECT_NAME = 'source_mandate_notification';
+class SourceMandateNotification extends ApiResource {
+
+	const OBJECT_NAME = 'source_mandate_notification';
 }

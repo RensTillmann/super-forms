@@ -25,9 +25,9 @@ namespace Stripe;
  * @property bool $livemode Has the value <code>true</code> if the object exists in live mode or the value <code>false</code> if the object exists in test mode.
  * @property \Stripe\StripeObject[] $pending Funds that aren't available in the balance yet. You can find the pending balance for each currency and each payment type in the <code>source_types</code> property.
  */
-class Balance extends SingletonApiResource
-{
-    const OBJECT_NAME = 'balance';
+class Balance extends SingletonApiResource {
 
-    use ApiOperations\SingletonRetrieve;
+	const OBJECT_NAME = 'balance';
+
+	use ApiOperations\SingletonRetrieve;
 }

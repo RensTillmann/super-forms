@@ -35,55 +35,53 @@ namespace Stripe\Identity;
  * @property null|string $verification_flow The configuration token of a Verification Flow from the dashboard.
  * @property null|\Stripe\StripeObject $verified_outputs The user’s verified data.
  */
-class VerificationSession extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'identity.verification_session';
+class VerificationSession extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Create;
-    use \Stripe\ApiOperations\Retrieve;
-    use \Stripe\ApiOperations\Update;
+	const OBJECT_NAME = 'identity.verification_session';
 
-    const STATUS_CANCELED = 'canceled';
-    const STATUS_PROCESSING = 'processing';
-    const STATUS_REQUIRES_INPUT = 'requires_input';
-    const STATUS_VERIFIED = 'verified';
+	use \Stripe\ApiOperations\All;
+	use \Stripe\ApiOperations\Create;
+	use \Stripe\ApiOperations\Retrieve;
+	use \Stripe\ApiOperations\Update;
 
-    const TYPE_DOCUMENT = 'document';
-    const TYPE_ID_NUMBER = 'id_number';
-    const TYPE_VERIFICATION_FLOW = 'verification_flow';
+	const STATUS_CANCELED       = 'canceled';
+	const STATUS_PROCESSING     = 'processing';
+	const STATUS_REQUIRES_INPUT = 'requires_input';
+	const STATUS_VERIFIED       = 'verified';
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Identity\VerificationSession the canceled verification session
-     */
-    public function cancel($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/cancel';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+	const TYPE_DOCUMENT          = 'document';
+	const TYPE_ID_NUMBER         = 'id_number';
+	const TYPE_VERIFICATION_FLOW = 'verification_flow';
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Identity\VerificationSession the canceled verification session
+	 */
+	public function cancel( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/cancel';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Identity\VerificationSession the redacted verification session
-     */
-    public function redact($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/redact';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+		return $this;
+	}
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Identity\VerificationSession the redacted verification session
+	 */
+	public function redact( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/redact';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
+
+		return $this;
+	}
 }

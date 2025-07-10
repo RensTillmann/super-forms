@@ -13,7 +13,7 @@ namespace Stripe;
  * @property \Stripe\Entitlements\Feature $entitlement_feature A feature represents a monetizable ability or functionality in your system. Features can be assigned to products, and when those products are purchased, Stripe will create an entitlement to the feature for the purchasing customer.
  * @property bool $livemode Has the value <code>true</code> if the object exists in live mode or the value <code>false</code> if the object exists in test mode.
  */
-class ProductFeature extends ApiResource
-{
-    const OBJECT_NAME = 'product_feature';
+class ProductFeature extends ApiResource {
+
+	const OBJECT_NAME = 'product_feature';
 }

@@ -22,18 +22,18 @@ namespace Stripe\Treasury;
  * @property \Stripe\StripeObject $status_transitions
  * @property null|string|\Stripe\Treasury\Transaction $transaction The Transaction associated with this object.
  */
-class CreditReversal extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'treasury.credit_reversal';
+class CreditReversal extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Create;
-    use \Stripe\ApiOperations\Retrieve;
+	const OBJECT_NAME = 'treasury.credit_reversal';
 
-    const NETWORK_ACH = 'ach';
-    const NETWORK_STRIPE = 'stripe';
+	use \Stripe\ApiOperations\All;
+	use \Stripe\ApiOperations\Create;
+	use \Stripe\ApiOperations\Retrieve;
 
-    const STATUS_CANCELED = 'canceled';
-    const STATUS_POSTED = 'posted';
-    const STATUS_PROCESSING = 'processing';
+	const NETWORK_ACH    = 'ach';
+	const NETWORK_STRIPE = 'stripe';
+
+	const STATUS_CANCELED   = 'canceled';
+	const STATUS_POSTED     = 'posted';
+	const STATUS_PROCESSING = 'processing';
 }

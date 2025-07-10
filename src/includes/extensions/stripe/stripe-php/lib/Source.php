@@ -55,122 +55,119 @@ namespace Stripe;
  * @property null|string $usage Either <code>reusable</code> or <code>single_use</code>. Whether this source should be reusable or not. Some source types may or may not be reusable by construction, while others may leave the option at creation. If an incompatible value is passed, an error will be returned.
  * @property null|\Stripe\StripeObject $wechat
  */
-class Source extends ApiResource
-{
-    const OBJECT_NAME = 'source';
+class Source extends ApiResource {
 
-    use ApiOperations\Create;
-    use ApiOperations\Retrieve;
-    use ApiOperations\Update;
+	const OBJECT_NAME = 'source';
 
-    const FLOW_CODE_VERIFICATION = 'code_verification';
-    const FLOW_NONE = 'none';
-    const FLOW_RECEIVER = 'receiver';
-    const FLOW_REDIRECT = 'redirect';
+	use ApiOperations\Create;
+	use ApiOperations\Retrieve;
+	use ApiOperations\Update;
 
-    const STATUS_CANCELED = 'canceled';
-    const STATUS_CHARGEABLE = 'chargeable';
-    const STATUS_CONSUMED = 'consumed';
-    const STATUS_FAILED = 'failed';
-    const STATUS_PENDING = 'pending';
+	const FLOW_CODE_VERIFICATION = 'code_verification';
+	const FLOW_NONE              = 'none';
+	const FLOW_RECEIVER          = 'receiver';
+	const FLOW_REDIRECT          = 'redirect';
 
-    const TYPE_ACH_CREDIT_TRANSFER = 'ach_credit_transfer';
-    const TYPE_ACH_DEBIT = 'ach_debit';
-    const TYPE_ACSS_DEBIT = 'acss_debit';
-    const TYPE_ALIPAY = 'alipay';
-    const TYPE_AU_BECS_DEBIT = 'au_becs_debit';
-    const TYPE_BANCONTACT = 'bancontact';
-    const TYPE_CARD = 'card';
-    const TYPE_CARD_PRESENT = 'card_present';
-    const TYPE_EPS = 'eps';
-    const TYPE_GIROPAY = 'giropay';
-    const TYPE_IDEAL = 'ideal';
-    const TYPE_KLARNA = 'klarna';
-    const TYPE_MULTIBANCO = 'multibanco';
-    const TYPE_P24 = 'p24';
-    const TYPE_SEPA_CREDIT_TRANSFER = 'sepa_credit_transfer';
-    const TYPE_SEPA_DEBIT = 'sepa_debit';
-    const TYPE_SOFORT = 'sofort';
-    const TYPE_THREE_D_SECURE = 'three_d_secure';
-    const TYPE_WECHAT = 'wechat';
+	const STATUS_CANCELED   = 'canceled';
+	const STATUS_CHARGEABLE = 'chargeable';
+	const STATUS_CONSUMED   = 'consumed';
+	const STATUS_FAILED     = 'failed';
+	const STATUS_PENDING    = 'pending';
 
-    const USAGE_REUSABLE = 'reusable';
-    const USAGE_SINGLE_USE = 'single_use';
+	const TYPE_ACH_CREDIT_TRANSFER  = 'ach_credit_transfer';
+	const TYPE_ACH_DEBIT            = 'ach_debit';
+	const TYPE_ACSS_DEBIT           = 'acss_debit';
+	const TYPE_ALIPAY               = 'alipay';
+	const TYPE_AU_BECS_DEBIT        = 'au_becs_debit';
+	const TYPE_BANCONTACT           = 'bancontact';
+	const TYPE_CARD                 = 'card';
+	const TYPE_CARD_PRESENT         = 'card_present';
+	const TYPE_EPS                  = 'eps';
+	const TYPE_GIROPAY              = 'giropay';
+	const TYPE_IDEAL                = 'ideal';
+	const TYPE_KLARNA               = 'klarna';
+	const TYPE_MULTIBANCO           = 'multibanco';
+	const TYPE_P24                  = 'p24';
+	const TYPE_SEPA_CREDIT_TRANSFER = 'sepa_credit_transfer';
+	const TYPE_SEPA_DEBIT           = 'sepa_debit';
+	const TYPE_SOFORT               = 'sofort';
+	const TYPE_THREE_D_SECURE       = 'three_d_secure';
+	const TYPE_WECHAT               = 'wechat';
 
-    use ApiOperations\NestedResource;
+	const USAGE_REUSABLE   = 'reusable';
+	const USAGE_SINGLE_USE = 'single_use';
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\UnexpectedValueException if the source is not attached to a customer
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Source the detached source
-     */
-    public function detach($params = null, $opts = null)
-    {
-        self::_validateParams($params);
+	use ApiOperations\NestedResource;
 
-        $id = $this['id'];
-        if (!$id) {
-            $class = static::class;
-            $msg = "Could not determine which URL to request: {$class} instance "
-             . "has invalid ID: {$id}";
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\UnexpectedValueException if the source is not attached to a customer
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Source the detached source
+	 */
+	public function detach( $params = null, $opts = null ) {
+		self::_validateParams( $params );
 
-            throw new Exception\UnexpectedValueException($msg, null);
-        }
+		$id = $this['id'];
+		if ( ! $id ) {
+			$class = static::class;
+			$msg   = "Could not determine which URL to request: {$class} instance "
+			. "has invalid ID: {$id}";
 
-        if ($this['customer']) {
-            $base = Customer::classUrl();
-            $parentExtn = \urlencode(Util\Util::utf8($this['customer']));
-            $extn = \urlencode(Util\Util::utf8($id));
-            $url = "{$base}/{$parentExtn}/sources/{$extn}";
+			throw new Exception\UnexpectedValueException( $msg, null );
+		}
 
-            list($response, $opts) = $this->_request('delete', $url, $params, $opts);
-            $this->refreshFrom($response, $opts);
+		if ( $this['customer'] ) {
+			$base       = Customer::classUrl();
+			$parentExtn = \urlencode( Util\Util::utf8( $this['customer'] ) );
+			$extn       = \urlencode( Util\Util::utf8( $id ) );
+			$url        = "{$base}/{$parentExtn}/sources/{$extn}";
 
-            return $this;
-        }
-        $message = 'This source object does not appear to be currently attached '
-               . 'to a customer object.';
+			list($response, $opts) = $this->_request( 'delete', $url, $params, $opts );
+			$this->refreshFrom( $response, $opts );
 
-        throw new Exception\UnexpectedValueException($message);
-    }
+			return $this;
+		}
+		$message = 'This source object does not appear to be currently attached '
+				. 'to a customer object.';
 
-    /**
-     * @param string $id
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Collection<\Stripe\SourceTransaction> list of source transactions
-     */
-    public static function allSourceTransactions($id, $params = null, $opts = null)
-    {
-        $url = static::resourceUrl($id) . '/source_transactions';
-        list($response, $opts) = static::_staticRequest('get', $url, $params, $opts);
-        $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
-        $obj->setLastResponse($response);
+		throw new Exception\UnexpectedValueException( $message );
+	}
 
-        return $obj;
-    }
+	/**
+	 * @param string            $id
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Collection<\Stripe\SourceTransaction> list of source transactions
+	 */
+	public static function allSourceTransactions( $id, $params = null, $opts = null ) {
+		$url                   = static::resourceUrl( $id ) . '/source_transactions';
+		list($response, $opts) = static::_staticRequest( 'get', $url, $params, $opts );
+		$obj                   = \Stripe\Util\Util::convertToStripeObject( $response->json, $opts );
+		$obj->setLastResponse( $response );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Source the verified source
-     */
-    public function verify($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/verify';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+		return $obj;
+	}
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Source the verified source
+	 */
+	public function verify( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/verify';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
+
+		return $this;
+	}
 }

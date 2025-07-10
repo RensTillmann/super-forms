@@ -14,12 +14,12 @@ namespace Stripe\Billing;
  * @property string $status The meter event adjustment's status.
  * @property string $type Specifies whether to cancel a single event or a range of events for a time period. Time period cancellation is not supported yet.
  */
-class MeterEventAdjustment extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'billing.meter_event_adjustment';
+class MeterEventAdjustment extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\Create;
+	const OBJECT_NAME = 'billing.meter_event_adjustment';
 
-    const STATUS_COMPLETE = 'complete';
-    const STATUS_PENDING = 'pending';
+	use \Stripe\ApiOperations\Create;
+
+	const STATUS_COMPLETE = 'complete';
+	const STATUS_PENDING  = 'pending';
 }

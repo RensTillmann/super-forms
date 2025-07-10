@@ -53,74 +53,71 @@ namespace Stripe;
  * @property string $status <a href="https://stripe.com/docs/payments/intents#intent-statuses">Status</a> of this SetupIntent, one of <code>requires_payment_method</code>, <code>requires_confirmation</code>, <code>requires_action</code>, <code>processing</code>, <code>canceled</code>, or <code>succeeded</code>.
  * @property string $usage <p>Indicates how the payment method is intended to be used in the future.</p><p>Use <code>on_session</code> if you intend to only reuse the payment method when the customer is in your checkout flow. Use <code>off_session</code> if your customer may or may not be in your checkout flow. If not provided, this value defaults to <code>off_session</code>.</p>
  */
-class SetupIntent extends ApiResource
-{
-    const OBJECT_NAME = 'setup_intent';
+class SetupIntent extends ApiResource {
 
-    use ApiOperations\All;
-    use ApiOperations\Create;
-    use ApiOperations\Retrieve;
-    use ApiOperations\Update;
+	const OBJECT_NAME = 'setup_intent';
 
-    const CANCELLATION_REASON_ABANDONED = 'abandoned';
-    const CANCELLATION_REASON_DUPLICATE = 'duplicate';
-    const CANCELLATION_REASON_REQUESTED_BY_CUSTOMER = 'requested_by_customer';
+	use ApiOperations\All;
+	use ApiOperations\Create;
+	use ApiOperations\Retrieve;
+	use ApiOperations\Update;
 
-    const STATUS_CANCELED = 'canceled';
-    const STATUS_PROCESSING = 'processing';
-    const STATUS_REQUIRES_ACTION = 'requires_action';
-    const STATUS_REQUIRES_CONFIRMATION = 'requires_confirmation';
-    const STATUS_REQUIRES_PAYMENT_METHOD = 'requires_payment_method';
-    const STATUS_SUCCEEDED = 'succeeded';
+	const CANCELLATION_REASON_ABANDONED             = 'abandoned';
+	const CANCELLATION_REASON_DUPLICATE             = 'duplicate';
+	const CANCELLATION_REASON_REQUESTED_BY_CUSTOMER = 'requested_by_customer';
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\SetupIntent the canceled setup intent
-     */
-    public function cancel($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/cancel';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+	const STATUS_CANCELED                = 'canceled';
+	const STATUS_PROCESSING              = 'processing';
+	const STATUS_REQUIRES_ACTION         = 'requires_action';
+	const STATUS_REQUIRES_CONFIRMATION   = 'requires_confirmation';
+	const STATUS_REQUIRES_PAYMENT_METHOD = 'requires_payment_method';
+	const STATUS_SUCCEEDED               = 'succeeded';
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\SetupIntent the canceled setup intent
+	 */
+	public function cancel( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/cancel';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\SetupIntent the confirmed setup intent
-     */
-    public function confirm($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/confirm';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+		return $this;
+	}
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\SetupIntent the confirmed setup intent
+	 */
+	public function confirm( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/confirm';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\SetupIntent the verified setup intent
-     */
-    public function verifyMicrodeposits($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/verify_microdeposits';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+		return $this;
+	}
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\SetupIntent the verified setup intent
+	 */
+	public function verifyMicrodeposits( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/verify_microdeposits';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
+
+		return $this;
+	}
 }

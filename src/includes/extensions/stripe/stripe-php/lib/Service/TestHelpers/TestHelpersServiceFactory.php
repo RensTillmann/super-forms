@@ -15,23 +15,22 @@ namespace Stripe\Service\TestHelpers;
  * @property TestClockService $testClocks
  * @property Treasury\TreasuryServiceFactory $treasury
  */
-class TestHelpersServiceFactory extends \Stripe\Service\AbstractServiceFactory
-{
-    /**
-     * @var array<string, string>
-     */
-    private static $classMap = [
-        'confirmationTokens' => ConfirmationTokenService::class,
-        'customers' => CustomerService::class,
-        'issuing' => Issuing\IssuingServiceFactory::class,
-        'refunds' => RefundService::class,
-        'terminal' => Terminal\TerminalServiceFactory::class,
-        'testClocks' => TestClockService::class,
-        'treasury' => Treasury\TreasuryServiceFactory::class,
-    ];
+class TestHelpersServiceFactory extends \Stripe\Service\AbstractServiceFactory {
 
-    protected function getServiceClass($name)
-    {
-        return \array_key_exists($name, self::$classMap) ? self::$classMap[$name] : null;
-    }
+	/**
+	 * @var array<string, string>
+	 */
+	private static $classMap = array(
+		'confirmationTokens' => ConfirmationTokenService::class,
+		'customers'          => CustomerService::class,
+		'issuing'            => Issuing\IssuingServiceFactory::class,
+		'refunds'            => RefundService::class,
+		'terminal'           => Terminal\TerminalServiceFactory::class,
+		'testClocks'         => TestClockService::class,
+		'treasury'           => Treasury\TreasuryServiceFactory::class,
+	);
+
+	protected function getServiceClass( $name ) {
+		return \array_key_exists( $name, self::$classMap ) ? self::$classMap[ $name ] : null;
+	}
 }

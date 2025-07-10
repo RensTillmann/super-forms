@@ -24,7 +24,7 @@ namespace Stripe;
  * @property null|string $unit_amount_decimal Same as <code>unit_amount</code>, but contains a decimal value with at most 12 decimal places.
  * @property null|string $unit_amount_excluding_tax The amount in cents (or local equivalent) representing the unit amount being credited for this line item, excluding all tax and discounts.
  */
-class CreditNoteLineItem extends ApiResource
-{
-    const OBJECT_NAME = 'credit_note_line_item';
+class CreditNoteLineItem extends ApiResource {
+
+	const OBJECT_NAME = 'credit_note_line_item';
 }

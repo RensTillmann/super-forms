@@ -16,9 +16,9 @@ namespace Stripe;
  * @property int $expires_at The timestamp at which this customer session will expire.
  * @property bool $livemode Has the value <code>true</code> if the object exists in live mode or the value <code>false</code> if the object exists in test mode.
  */
-class CustomerSession extends ApiResource
-{
-    const OBJECT_NAME = 'customer_session';
+class CustomerSession extends ApiResource {
 
-    use ApiOperations\Create;
+	const OBJECT_NAME = 'customer_session';
+
+	use ApiOperations\Create;
 }

@@ -21,10 +21,10 @@ namespace Stripe;
  * @property string[] $supported_transfer_countries Countries that can accept transfers from the specified country.
  * @property \Stripe\StripeObject $verification_fields
  */
-class CountrySpec extends ApiResource
-{
-    const OBJECT_NAME = 'country_spec';
+class CountrySpec extends ApiResource {
 
-    use ApiOperations\All;
-    use ApiOperations\Retrieve;
+	const OBJECT_NAME = 'country_spec';
+
+	use ApiOperations\All;
+	use ApiOperations\Retrieve;
 }

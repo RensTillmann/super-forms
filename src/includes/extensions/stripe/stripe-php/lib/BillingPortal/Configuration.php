@@ -21,12 +21,12 @@ namespace Stripe\BillingPortal;
  * @property null|\Stripe\StripeObject $metadata Set of <a href="https://stripe.com/docs/api/metadata">key-value pairs</a> that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
  * @property int $updated Time at which the object was last updated. Measured in seconds since the Unix epoch.
  */
-class Configuration extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'billing_portal.configuration';
+class Configuration extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Create;
-    use \Stripe\ApiOperations\Retrieve;
-    use \Stripe\ApiOperations\Update;
+	const OBJECT_NAME = 'billing_portal.configuration';
+
+	use \Stripe\ApiOperations\All;
+	use \Stripe\ApiOperations\Create;
+	use \Stripe\ApiOperations\Retrieve;
+	use \Stripe\ApiOperations\Update;
 }

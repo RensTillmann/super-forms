@@ -11,7 +11,7 @@ namespace Stripe;
  * @property string $source_transaction The payment object that caused this tax to be inflicted.
  * @property string $type The type of tax (VAT).
  */
-class PlatformTaxFee extends ApiResource
-{
-    const OBJECT_NAME = 'platform_tax_fee';
+class PlatformTaxFee extends ApiResource {
+
+	const OBJECT_NAME = 'platform_tax_fee';
 }

@@ -20,23 +20,23 @@ namespace Stripe\Issuing;
  * @property string $status The usage state of the token.
  * @property null|string $wallet_provider The digital wallet for this token, if one was used.
  */
-class Token extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'issuing.token';
+class Token extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Retrieve;
-    use \Stripe\ApiOperations\Update;
+	const OBJECT_NAME = 'issuing.token';
 
-    const NETWORK_MASTERCARD = 'mastercard';
-    const NETWORK_VISA = 'visa';
+	use \Stripe\ApiOperations\All;
+	use \Stripe\ApiOperations\Retrieve;
+	use \Stripe\ApiOperations\Update;
 
-    const STATUS_ACTIVE = 'active';
-    const STATUS_DELETED = 'deleted';
-    const STATUS_REQUESTED = 'requested';
-    const STATUS_SUSPENDED = 'suspended';
+	const NETWORK_MASTERCARD = 'mastercard';
+	const NETWORK_VISA       = 'visa';
 
-    const WALLET_PROVIDER_APPLE_PAY = 'apple_pay';
-    const WALLET_PROVIDER_GOOGLE_PAY = 'google_pay';
-    const WALLET_PROVIDER_SAMSUNG_PAY = 'samsung_pay';
+	const STATUS_ACTIVE    = 'active';
+	const STATUS_DELETED   = 'deleted';
+	const STATUS_REQUESTED = 'requested';
+	const STATUS_SUSPENDED = 'suspended';
+
+	const WALLET_PROVIDER_APPLE_PAY   = 'apple_pay';
+	const WALLET_PROVIDER_GOOGLE_PAY  = 'google_pay';
+	const WALLET_PROVIDER_SAMSUNG_PAY = 'samsung_pay';
 }

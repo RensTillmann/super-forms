@@ -22,35 +22,34 @@ namespace Stripe\Issuing;
  * @property string|\Stripe\Issuing\Transaction $transaction The transaction being disputed.
  * @property null|\Stripe\StripeObject $treasury <a href="https://stripe.com/docs/api/treasury">Treasury</a> details related to this dispute if it was created on a [FinancialAccount](/docs/api/treasury/financial_accounts
  */
-class Dispute extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'issuing.dispute';
+class Dispute extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Create;
-    use \Stripe\ApiOperations\Retrieve;
-    use \Stripe\ApiOperations\Update;
+	const OBJECT_NAME = 'issuing.dispute';
 
-    const STATUS_EXPIRED = 'expired';
-    const STATUS_LOST = 'lost';
-    const STATUS_SUBMITTED = 'submitted';
-    const STATUS_UNSUBMITTED = 'unsubmitted';
-    const STATUS_WON = 'won';
+	use \Stripe\ApiOperations\All;
+	use \Stripe\ApiOperations\Create;
+	use \Stripe\ApiOperations\Retrieve;
+	use \Stripe\ApiOperations\Update;
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Issuing\Dispute the submited dispute
-     */
-    public function submit($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/submit';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+	const STATUS_EXPIRED     = 'expired';
+	const STATUS_LOST        = 'lost';
+	const STATUS_SUBMITTED   = 'submitted';
+	const STATUS_UNSUBMITTED = 'unsubmitted';
+	const STATUS_WON         = 'won';
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Issuing\Dispute the submited dispute
+	 */
+	public function submit( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/submit';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
+
+		return $this;
+	}
 }

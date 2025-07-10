@@ -1,6 +1,6 @@
 <?php
 
-if ( !class_exists('Puc_v4p6_DebugBar_PluginPanel', false) ):
+if ( ! class_exists( 'Puc_v4p6_DebugBar_PluginPanel', false ) ) :
 
 	class Puc_v4p6_DebugBar_PluginPanel extends Puc_v4p6_DebugBar_Panel {
 		/**
@@ -9,19 +9,19 @@ if ( !class_exists('Puc_v4p6_DebugBar_PluginPanel', false) ):
 		protected $updateChecker;
 
 		protected function displayConfigHeader() {
-			$this->row('Plugin file', htmlentities($this->updateChecker->pluginFile));
+			$this->row( 'Plugin file', htmlentities( $this->updateChecker->pluginFile ) );
 			parent::displayConfigHeader();
 		}
 
 		protected function getMetadataButton() {
 			$requestInfoButton = '';
-			if ( function_exists('get_submit_button') ) {
+			if ( function_exists( 'get_submit_button' ) ) {
 				$requestInfoButton = get_submit_button(
 					'Request Info',
 					'secondary',
 					'puc-request-info-button',
 					false,
-					array('id' => $this->updateChecker->getUniqueName('request-info-button'))
+					array( 'id' => $this->updateChecker->getUniqueName( 'request-info-button' ) )
 				);
 			}
 			return $requestInfoButton;
@@ -30,7 +30,7 @@ if ( !class_exists('Puc_v4p6_DebugBar_PluginPanel', false) ):
 		protected function getUpdateFields() {
 			return array_merge(
 				parent::getUpdateFields(),
-				array('homepage', 'upgrade_notice', 'tested',)
+				array( 'homepage', 'upgrade_notice', 'tested' )
 			);
 		}
 	}

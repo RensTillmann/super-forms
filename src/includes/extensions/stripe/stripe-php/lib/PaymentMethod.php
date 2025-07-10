@@ -58,84 +58,82 @@ namespace Stripe;
  * @property null|\Stripe\StripeObject $wechat_pay
  * @property null|\Stripe\StripeObject $zip
  */
-class PaymentMethod extends ApiResource
-{
-    const OBJECT_NAME = 'payment_method';
+class PaymentMethod extends ApiResource {
 
-    use ApiOperations\All;
-    use ApiOperations\Create;
-    use ApiOperations\Retrieve;
-    use ApiOperations\Update;
+	const OBJECT_NAME = 'payment_method';
 
-    const TYPE_ACSS_DEBIT = 'acss_debit';
-    const TYPE_AFFIRM = 'affirm';
-    const TYPE_AFTERPAY_CLEARPAY = 'afterpay_clearpay';
-    const TYPE_ALIPAY = 'alipay';
-    const TYPE_AMAZON_PAY = 'amazon_pay';
-    const TYPE_AU_BECS_DEBIT = 'au_becs_debit';
-    const TYPE_BACS_DEBIT = 'bacs_debit';
-    const TYPE_BANCONTACT = 'bancontact';
-    const TYPE_BLIK = 'blik';
-    const TYPE_BOLETO = 'boleto';
-    const TYPE_CARD = 'card';
-    const TYPE_CARD_PRESENT = 'card_present';
-    const TYPE_CASHAPP = 'cashapp';
-    const TYPE_CUSTOMER_BALANCE = 'customer_balance';
-    const TYPE_EPS = 'eps';
-    const TYPE_FPX = 'fpx';
-    const TYPE_GIROPAY = 'giropay';
-    const TYPE_GRABPAY = 'grabpay';
-    const TYPE_IDEAL = 'ideal';
-    const TYPE_INTERAC_PRESENT = 'interac_present';
-    const TYPE_KLARNA = 'klarna';
-    const TYPE_KONBINI = 'konbini';
-    const TYPE_LINK = 'link';
-    const TYPE_MOBILEPAY = 'mobilepay';
-    const TYPE_OXXO = 'oxxo';
-    const TYPE_P24 = 'p24';
-    const TYPE_PAYNOW = 'paynow';
-    const TYPE_PAYPAL = 'paypal';
-    const TYPE_PIX = 'pix';
-    const TYPE_PROMPTPAY = 'promptpay';
-    const TYPE_REVOLUT_PAY = 'revolut_pay';
-    const TYPE_SEPA_DEBIT = 'sepa_debit';
-    const TYPE_SOFORT = 'sofort';
-    const TYPE_SWISH = 'swish';
-    const TYPE_US_BANK_ACCOUNT = 'us_bank_account';
-    const TYPE_WECHAT_PAY = 'wechat_pay';
-    const TYPE_ZIP = 'zip';
+	use ApiOperations\All;
+	use ApiOperations\Create;
+	use ApiOperations\Retrieve;
+	use ApiOperations\Update;
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\PaymentMethod the attached payment method
-     */
-    public function attach($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/attach';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+	const TYPE_ACSS_DEBIT        = 'acss_debit';
+	const TYPE_AFFIRM            = 'affirm';
+	const TYPE_AFTERPAY_CLEARPAY = 'afterpay_clearpay';
+	const TYPE_ALIPAY            = 'alipay';
+	const TYPE_AMAZON_PAY        = 'amazon_pay';
+	const TYPE_AU_BECS_DEBIT     = 'au_becs_debit';
+	const TYPE_BACS_DEBIT        = 'bacs_debit';
+	const TYPE_BANCONTACT        = 'bancontact';
+	const TYPE_BLIK              = 'blik';
+	const TYPE_BOLETO            = 'boleto';
+	const TYPE_CARD              = 'card';
+	const TYPE_CARD_PRESENT      = 'card_present';
+	const TYPE_CASHAPP           = 'cashapp';
+	const TYPE_CUSTOMER_BALANCE  = 'customer_balance';
+	const TYPE_EPS               = 'eps';
+	const TYPE_FPX               = 'fpx';
+	const TYPE_GIROPAY           = 'giropay';
+	const TYPE_GRABPAY           = 'grabpay';
+	const TYPE_IDEAL             = 'ideal';
+	const TYPE_INTERAC_PRESENT   = 'interac_present';
+	const TYPE_KLARNA            = 'klarna';
+	const TYPE_KONBINI           = 'konbini';
+	const TYPE_LINK              = 'link';
+	const TYPE_MOBILEPAY         = 'mobilepay';
+	const TYPE_OXXO              = 'oxxo';
+	const TYPE_P24               = 'p24';
+	const TYPE_PAYNOW            = 'paynow';
+	const TYPE_PAYPAL            = 'paypal';
+	const TYPE_PIX               = 'pix';
+	const TYPE_PROMPTPAY         = 'promptpay';
+	const TYPE_REVOLUT_PAY       = 'revolut_pay';
+	const TYPE_SEPA_DEBIT        = 'sepa_debit';
+	const TYPE_SOFORT            = 'sofort';
+	const TYPE_SWISH             = 'swish';
+	const TYPE_US_BANK_ACCOUNT   = 'us_bank_account';
+	const TYPE_WECHAT_PAY        = 'wechat_pay';
+	const TYPE_ZIP               = 'zip';
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\PaymentMethod the attached payment method
+	 */
+	public function attach( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/attach';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\PaymentMethod the detached payment method
-     */
-    public function detach($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/detach';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+		return $this;
+	}
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\PaymentMethod the detached payment method
+	 */
+	public function detach( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/detach';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
+
+		return $this;
+	}
 }

@@ -16,9 +16,9 @@ namespace Stripe\Billing;
  * @property \Stripe\StripeObject $payload The payload of the event.
  * @property int $timestamp The timestamp passed in when creating the event. Measured in seconds since the Unix epoch.
  */
-class MeterEvent extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'billing.meter_event';
+class MeterEvent extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\Create;
+	const OBJECT_NAME = 'billing.meter_event';
+
+	use \Stripe\ApiOperations\Create;
 }

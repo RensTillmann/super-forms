@@ -44,128 +44,122 @@ namespace Stripe;
  * @property \Stripe\StripeObject $total_details
  * @property null|\Stripe\StripeObject $transfer_data The account (if any) the payments will be attributed to for tax reporting, and where funds from each payment will be transferred to for each of the invoices.
  */
-class Quote extends ApiResource
-{
-    const OBJECT_NAME = 'quote';
+class Quote extends ApiResource {
 
-    use ApiOperations\All;
-    use ApiOperations\Create;
-    use ApiOperations\Retrieve;
-    use ApiOperations\Update;
+	const OBJECT_NAME = 'quote';
 
-    const COLLECTION_METHOD_CHARGE_AUTOMATICALLY = 'charge_automatically';
-    const COLLECTION_METHOD_SEND_INVOICE = 'send_invoice';
+	use ApiOperations\All;
+	use ApiOperations\Create;
+	use ApiOperations\Retrieve;
+	use ApiOperations\Update;
 
-    const STATUS_ACCEPTED = 'accepted';
-    const STATUS_CANCELED = 'canceled';
-    const STATUS_DRAFT = 'draft';
-    const STATUS_OPEN = 'open';
+	const COLLECTION_METHOD_CHARGE_AUTOMATICALLY = 'charge_automatically';
+	const COLLECTION_METHOD_SEND_INVOICE         = 'send_invoice';
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Quote the accepted quote
-     */
-    public function accept($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/accept';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+	const STATUS_ACCEPTED = 'accepted';
+	const STATUS_CANCELED = 'canceled';
+	const STATUS_DRAFT    = 'draft';
+	const STATUS_OPEN     = 'open';
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Quote the accepted quote
+	 */
+	public function accept( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/accept';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Quote the canceled quote
-     */
-    public function cancel($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/cancel';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+		return $this;
+	}
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Quote the canceled quote
+	 */
+	public function cancel( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/cancel';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Quote the finalized quote
-     */
-    public function finalizeQuote($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/finalize';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+		return $this;
+	}
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Quote the finalized quote
+	 */
+	public function finalizeQuote( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/finalize';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
 
-    /**
-     * @param string $id
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Collection<\Stripe\LineItem> list of line items
-     */
-    public static function allComputedUpfrontLineItems($id, $params = null, $opts = null)
-    {
-        $url = static::resourceUrl($id) . '/computed_upfront_line_items';
-        list($response, $opts) = static::_staticRequest('get', $url, $params, $opts);
-        $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
-        $obj->setLastResponse($response);
+		return $this;
+	}
 
-        return $obj;
-    }
+	/**
+	 * @param string            $id
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Collection<\Stripe\LineItem> list of line items
+	 */
+	public static function allComputedUpfrontLineItems( $id, $params = null, $opts = null ) {
+		$url                   = static::resourceUrl( $id ) . '/computed_upfront_line_items';
+		list($response, $opts) = static::_staticRequest( 'get', $url, $params, $opts );
+		$obj                   = \Stripe\Util\Util::convertToStripeObject( $response->json, $opts );
+		$obj->setLastResponse( $response );
 
-    /**
-     * @param string $id
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Collection<\Stripe\LineItem> list of line items
-     */
-    public static function allLineItems($id, $params = null, $opts = null)
-    {
-        $url = static::resourceUrl($id) . '/line_items';
-        list($response, $opts) = static::_staticRequest('get', $url, $params, $opts);
-        $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
-        $obj->setLastResponse($response);
+		return $obj;
+	}
 
-        return $obj;
-    }
+	/**
+	 * @param string            $id
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Collection<\Stripe\LineItem> list of line items
+	 */
+	public static function allLineItems( $id, $params = null, $opts = null ) {
+		$url                   = static::resourceUrl( $id ) . '/line_items';
+		list($response, $opts) = static::_staticRequest( 'get', $url, $params, $opts );
+		$obj                   = \Stripe\Util\Util::convertToStripeObject( $response->json, $opts );
+		$obj->setLastResponse( $response );
 
-    /**
-     * @param callable $readBodyChunkCallable
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return void
-     */
-    public function pdf($readBodyChunkCallable, $params = null, $opts = null)
-    {
-        $opts = \Stripe\Util\RequestOptions::parse($opts);
-        if (!isset($opts->apiBase)) {
-            $opts->apiBase = \Stripe\Stripe::$apiUploadBase;
-        }
-        $url = $this->instanceUrl() . '/pdf';
-        $this->_requestStream('get', $url, $readBodyChunkCallable, $params, $opts);
-    }
+		return $obj;
+	}
+
+	/**
+	 * @param callable          $readBodyChunkCallable
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return void
+	 */
+	public function pdf( $readBodyChunkCallable, $params = null, $opts = null ) {
+		$opts = \Stripe\Util\RequestOptions::parse( $opts );
+		if ( ! isset( $opts->apiBase ) ) {
+			$opts->apiBase = \Stripe\Stripe::$apiUploadBase;
+		}
+		$url = $this->instanceUrl() . '/pdf';
+		$this->_requestStream( 'get', $url, $readBodyChunkCallable, $params, $opts );
+	}
 }

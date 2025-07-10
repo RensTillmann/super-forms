@@ -13,21 +13,20 @@ namespace Stripe\Service\TestHelpers\Treasury;
  * @property ReceivedCreditService $receivedCredits
  * @property ReceivedDebitService $receivedDebits
  */
-class TreasuryServiceFactory extends \Stripe\Service\AbstractServiceFactory
-{
-    /**
-     * @var array<string, string>
-     */
-    private static $classMap = [
-        'inboundTransfers' => InboundTransferService::class,
-        'outboundPayments' => OutboundPaymentService::class,
-        'outboundTransfers' => OutboundTransferService::class,
-        'receivedCredits' => ReceivedCreditService::class,
-        'receivedDebits' => ReceivedDebitService::class,
-    ];
+class TreasuryServiceFactory extends \Stripe\Service\AbstractServiceFactory {
 
-    protected function getServiceClass($name)
-    {
-        return \array_key_exists($name, self::$classMap) ? self::$classMap[$name] : null;
-    }
+	/**
+	 * @var array<string, string>
+	 */
+	private static $classMap = array(
+		'inboundTransfers'  => InboundTransferService::class,
+		'outboundPayments'  => OutboundPaymentService::class,
+		'outboundTransfers' => OutboundTransferService::class,
+		'receivedCredits'   => ReceivedCreditService::class,
+		'receivedDebits'    => ReceivedDebitService::class,
+	);
+
+	protected function getServiceClass( $name ) {
+		return \array_key_exists( $name, self::$classMap ) ? self::$classMap[ $name ] : null;
+	}
 }

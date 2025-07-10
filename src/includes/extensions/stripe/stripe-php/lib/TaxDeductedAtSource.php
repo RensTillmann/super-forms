@@ -11,7 +11,7 @@ namespace Stripe;
  * @property int $period_start The start of the invoicing period. This TDS applies to Stripe fees collected during this invoicing period.
  * @property string $tax_deduction_account_number The TAN that was supplied to Stripe when TDS was assessed
  */
-class TaxDeductedAtSource extends ApiResource
-{
-    const OBJECT_NAME = 'tax_deducted_at_source';
+class TaxDeductedAtSource extends ApiResource {
+
+	const OBJECT_NAME = 'tax_deducted_at_source';
 }

@@ -11,19 +11,18 @@ namespace Stripe\Service\Climate;
  * @property ProductService $products
  * @property SupplierService $suppliers
  */
-class ClimateServiceFactory extends \Stripe\Service\AbstractServiceFactory
-{
-    /**
-     * @var array<string, string>
-     */
-    private static $classMap = [
-        'orders' => OrderService::class,
-        'products' => ProductService::class,
-        'suppliers' => SupplierService::class,
-    ];
+class ClimateServiceFactory extends \Stripe\Service\AbstractServiceFactory {
 
-    protected function getServiceClass($name)
-    {
-        return \array_key_exists($name, self::$classMap) ? self::$classMap[$name] : null;
-    }
+	/**
+	 * @var array<string, string>
+	 */
+	private static $classMap = array(
+		'orders'    => OrderService::class,
+		'products'  => ProductService::class,
+		'suppliers' => SupplierService::class,
+	);
+
+	protected function getServiceClass( $name ) {
+		return \array_key_exists( $name, self::$classMap ) ? self::$classMap[ $name ] : null;
+	}
 }

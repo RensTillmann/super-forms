@@ -13,52 +13,49 @@ namespace Stripe;
  * @property bool $livemode Has the value <code>true</code> if the object exists in live mode or the value <code>false</code> if the object exists in test mode.
  * @property \Stripe\StripeObject $settings
  */
-class CashBalance extends ApiResource
-{
-    const OBJECT_NAME = 'cash_balance';
+class CashBalance extends ApiResource {
 
-    /**
-     * @return string the API URL for this balance transaction
-     */
-    public function instanceUrl()
-    {
-        $customer = $this['customer'];
-        $customer = Util\Util::utf8($customer);
+	const OBJECT_NAME = 'cash_balance';
 
-        $base = Customer::classUrl();
-        $customerExtn = \urlencode($customer);
+	/**
+	 * @return string the API URL for this balance transaction
+	 */
+	public function instanceUrl() {
+		$customer = $this['customer'];
+		$customer = Util\Util::utf8( $customer );
 
-        return "{$base}/{$customerExtn}/cash_balance";
-    }
+		$base         = Customer::classUrl();
+		$customerExtn = \urlencode( $customer );
 
-    /**
-     * @param array|string $_id
-     * @param null|array|string $_opts
-     *
-     * @throws \Stripe\Exception\BadMethodCallException
-     */
-    public static function retrieve($_id, $_opts = null)
-    {
-        $msg = 'Customer Cash Balance cannot be retrieved without a ' .
-               'customer ID. Retrieve a Customer Cash Balance using ' .
-               "`Customer::retrieveCashBalance('customer_id')`.";
+		return "{$base}/{$customerExtn}/cash_balance";
+	}
 
-        throw new Exception\BadMethodCallException($msg);
-    }
+	/**
+	 * @param array|string      $_id
+	 * @param null|array|string $_opts
+	 *
+	 * @throws \Stripe\Exception\BadMethodCallException
+	 */
+	public static function retrieve( $_id, $_opts = null ) {
+		$msg = 'Customer Cash Balance cannot be retrieved without a ' .
+				'customer ID. Retrieve a Customer Cash Balance using ' .
+				"`Customer::retrieveCashBalance('customer_id')`.";
 
-    /**
-     * @param string $_id
-     * @param null|array $_params
-     * @param null|array|string $_options
-     *
-     * @throws \Stripe\Exception\BadMethodCallException
-     */
-    public static function update($_id, $_params = null, $_options = null)
-    {
-        $msg = 'Customer Cash Balance cannot be updated without a ' .
-        'customer ID. Retrieve a Customer Cash Balance using ' .
-        "`Customer::updateCashBalance('customer_id')`.";
+		throw new Exception\BadMethodCallException( $msg );
+	}
 
-        throw new Exception\BadMethodCallException($msg);
-    }
+	/**
+	 * @param string            $_id
+	 * @param null|array        $_params
+	 * @param null|array|string $_options
+	 *
+	 * @throws \Stripe\Exception\BadMethodCallException
+	 */
+	public static function update( $_id, $_params = null, $_options = null ) {
+		$msg = 'Customer Cash Balance cannot be updated without a ' .
+		'customer ID. Retrieve a Customer Cash Balance using ' .
+		"`Customer::updateCashBalance('customer_id')`.";
+
+		throw new Exception\BadMethodCallException( $msg );
+	}
 }

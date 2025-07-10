@@ -27,12 +27,12 @@ namespace Stripe;
  * @property null|\Stripe\StripeObject $shipping Shipping information collected on this ConfirmationToken.
  * @property bool $use_stripe_sdk Indicates whether the Stripe SDK is used to handle confirmation flow. Defaults to <code>true</code> on ConfirmationToken.
  */
-class ConfirmationToken extends ApiResource
-{
-    const OBJECT_NAME = 'confirmation_token';
+class ConfirmationToken extends ApiResource {
 
-    use ApiOperations\Retrieve;
+	const OBJECT_NAME = 'confirmation_token';
 
-    const SETUP_FUTURE_USAGE_OFF_SESSION = 'off_session';
-    const SETUP_FUTURE_USAGE_ON_SESSION = 'on_session';
+	use ApiOperations\Retrieve;
+
+	const SETUP_FUTURE_USAGE_OFF_SESSION = 'off_session';
+	const SETUP_FUTURE_USAGE_ON_SESSION  = 'on_session';
 }

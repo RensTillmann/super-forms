@@ -24,28 +24,27 @@ namespace Stripe\Tax;
  * @property \Stripe\StripeObject[] $tax_breakdown Breakdown of individual tax amounts that add up to the total.
  * @property int $tax_date Timestamp of date at which the tax rules and rates in effect applies for the calculation.
  */
-class Calculation extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'tax.calculation';
+class Calculation extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\Create;
+	const OBJECT_NAME = 'tax.calculation';
 
-    /**
-     * @param string $id
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Collection<\Stripe\Tax\CalculationLineItem> list of calculation line items
-     */
-    public static function allLineItems($id, $params = null, $opts = null)
-    {
-        $url = static::resourceUrl($id) . '/line_items';
-        list($response, $opts) = static::_staticRequest('get', $url, $params, $opts);
-        $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
-        $obj->setLastResponse($response);
+	use \Stripe\ApiOperations\Create;
 
-        return $obj;
-    }
+	/**
+	 * @param string            $id
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Collection<\Stripe\Tax\CalculationLineItem> list of calculation line items
+	 */
+	public static function allLineItems( $id, $params = null, $opts = null ) {
+		$url                   = static::resourceUrl( $id ) . '/line_items';
+		list($response, $opts) = static::_staticRequest( 'get', $url, $params, $opts );
+		$obj                   = \Stripe\Util\Util::convertToStripeObject( $response->json, $opts );
+		$obj->setLastResponse( $response );
+
+		return $obj;
+	}
 }

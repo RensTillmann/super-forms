@@ -11,19 +11,18 @@ namespace Stripe\Service\Billing;
  * @property MeterEventService $meterEvents
  * @property MeterService $meters
  */
-class BillingServiceFactory extends \Stripe\Service\AbstractServiceFactory
-{
-    /**
-     * @var array<string, string>
-     */
-    private static $classMap = [
-        'meterEventAdjustments' => MeterEventAdjustmentService::class,
-        'meterEvents' => MeterEventService::class,
-        'meters' => MeterService::class,
-    ];
+class BillingServiceFactory extends \Stripe\Service\AbstractServiceFactory {
 
-    protected function getServiceClass($name)
-    {
-        return \array_key_exists($name, self::$classMap) ? self::$classMap[$name] : null;
-    }
+	/**
+	 * @var array<string, string>
+	 */
+	private static $classMap = array(
+		'meterEventAdjustments' => MeterEventAdjustmentService::class,
+		'meterEvents'           => MeterEventService::class,
+		'meters'                => MeterService::class,
+	);
+
+	protected function getServiceClass( $name ) {
+		return \array_key_exists( $name, self::$classMap ) ? self::$classMap[ $name ] : null;
+	}
 }

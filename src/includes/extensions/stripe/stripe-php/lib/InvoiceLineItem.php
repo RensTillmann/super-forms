@@ -31,9 +31,9 @@ namespace Stripe;
  * @property string $type A string identifying the type of the source of this line item, either an <code>invoiceitem</code> or a <code>subscription</code>.
  * @property null|string $unit_amount_excluding_tax The amount in cents (or local equivalent) representing the unit amount for this line item, excluding all tax and discounts.
  */
-class InvoiceLineItem extends ApiResource
-{
-    const OBJECT_NAME = 'line_item';
+class InvoiceLineItem extends ApiResource {
 
-    use ApiOperations\Update;
+	const OBJECT_NAME = 'line_item';
+
+	use ApiOperations\Update;
 }

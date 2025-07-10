@@ -17,13 +17,13 @@ namespace Stripe\Terminal;
  * @property null|\Stripe\StripeObject $tipping
  * @property null|\Stripe\StripeObject $verifone_p400
  */
-class Configuration extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'terminal.configuration';
+class Configuration extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Create;
-    use \Stripe\ApiOperations\Delete;
-    use \Stripe\ApiOperations\Retrieve;
-    use \Stripe\ApiOperations\Update;
+	const OBJECT_NAME = 'terminal.configuration';
+
+	use \Stripe\ApiOperations\All;
+	use \Stripe\ApiOperations\Create;
+	use \Stripe\ApiOperations\Delete;
+	use \Stripe\ApiOperations\Retrieve;
+	use \Stripe\ApiOperations\Update;
 }

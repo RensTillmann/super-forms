@@ -15,9 +15,9 @@ namespace Stripe;
  * @property int $expires_at The timestamp at which this account link will expire.
  * @property string $url The URL for the account link.
  */
-class AccountLink extends ApiResource
-{
-    const OBJECT_NAME = 'account_link';
+class AccountLink extends ApiResource {
 
-    use ApiOperations\Create;
+	const OBJECT_NAME = 'account_link';
+
+	use ApiOperations\Create;
 }

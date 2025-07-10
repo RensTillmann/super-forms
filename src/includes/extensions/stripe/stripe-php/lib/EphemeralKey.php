@@ -12,31 +12,30 @@ namespace Stripe;
  * @property bool $livemode Has the value <code>true</code> if the object exists in live mode or the value <code>false</code> if the object exists in test mode.
  * @property null|string $secret The key's secret. You can use this value to make authorized requests to the Stripe API.
  */
-class EphemeralKey extends ApiResource
-{
-    const OBJECT_NAME = 'ephemeral_key';
+class EphemeralKey extends ApiResource {
 
-    use ApiOperations\Create {
-        create as protected _create;
-    }
+	const OBJECT_NAME = 'ephemeral_key';
 
-    use ApiOperations\Delete;
+	use ApiOperations\Create {
+		create as protected _create;
+	}
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\InvalidArgumentException if stripe_version is missing
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\EphemeralKey the created key
-     */
-    public static function create($params = null, $opts = null)
-    {
-        if (!$opts || !isset($opts['stripe_version'])) {
-            throw new Exception\InvalidArgumentException('stripe_version must be specified to create an ephemeral key');
-        }
+	use ApiOperations\Delete;
 
-        return self::_create($params, $opts);
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\InvalidArgumentException if stripe_version is missing
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\EphemeralKey the created key
+	 */
+	public static function create( $params = null, $opts = null ) {
+		if ( ! $opts || ! isset( $opts['stripe_version'] ) ) {
+			throw new Exception\InvalidArgumentException( 'stripe_version must be specified to create an ephemeral key' );
+		}
+
+		return self::_create( $params, $opts );
+	}
 }

@@ -16,7 +16,7 @@ namespace Stripe\Billing;
  * @property string $meter The meter associated with this usage summary.
  * @property int $start_time Start timestamp for this usage summary (inclusive).
  */
-class MeterEventSummary extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'billing.meter_event_summary';
+class MeterEventSummary extends \Stripe\ApiResource {
+
+	const OBJECT_NAME = 'billing.meter_event_summary';
 }

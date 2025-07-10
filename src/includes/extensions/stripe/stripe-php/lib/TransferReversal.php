@@ -30,47 +30,45 @@ namespace Stripe;
  * @property null|string|\Stripe\Refund $source_refund ID of the refund responsible for the transfer reversal.
  * @property string|\Stripe\Transfer $transfer ID of the transfer that was reversed.
  */
-class TransferReversal extends ApiResource
-{
-    const OBJECT_NAME = 'transfer_reversal';
+class TransferReversal extends ApiResource {
 
-    use ApiOperations\Update {
-        save as protected _save;
-    }
+	const OBJECT_NAME = 'transfer_reversal';
 
-    /**
-     * @return string the API URL for this Stripe transfer reversal
-     */
-    public function instanceUrl()
-    {
-        $id = $this['id'];
-        $transfer = $this['transfer'];
-        if (!$id) {
-            throw new Exception\UnexpectedValueException(
-                'Could not determine which URL to request: ' .
-                "class instance has invalid ID: {$id}",
-                null
-            );
-        }
-        $id = Util\Util::utf8($id);
-        $transfer = Util\Util::utf8($transfer);
+	use ApiOperations\Update {
+		save as protected _save;
+	}
 
-        $base = Transfer::classUrl();
-        $transferExtn = \urlencode($transfer);
-        $extn = \urlencode($id);
+	/**
+	 * @return string the API URL for this Stripe transfer reversal
+	 */
+	public function instanceUrl() {
+		$id       = $this['id'];
+		$transfer = $this['transfer'];
+		if ( ! $id ) {
+			throw new Exception\UnexpectedValueException(
+				'Could not determine which URL to request: ' .
+				"class instance has invalid ID: {$id}",
+				null
+			);
+		}
+		$id       = Util\Util::utf8( $id );
+		$transfer = Util\Util::utf8( $transfer );
 
-        return "{$base}/{$transferExtn}/reversals/{$extn}";
-    }
+		$base         = Transfer::classUrl();
+		$transferExtn = \urlencode( $transfer );
+		$extn         = \urlencode( $id );
 
-    /**
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return TransferReversal the saved reversal
-     */
-    public function save($opts = null)
-    {
-        return $this->_save($opts);
-    }
+		return "{$base}/{$transferExtn}/reversals/{$extn}";
+	}
+
+	/**
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return TransferReversal the saved reversal
+	 */
+	public function save( $opts = null ) {
+		return $this->_save( $opts );
+	}
 }

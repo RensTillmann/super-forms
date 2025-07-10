@@ -23,18 +23,18 @@ namespace Stripe\Treasury;
  * @property \Stripe\StripeObject $status_transitions
  * @property null|string|\Stripe\Treasury\Transaction $transaction The Transaction associated with this object.
  */
-class DebitReversal extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'treasury.debit_reversal';
+class DebitReversal extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Create;
-    use \Stripe\ApiOperations\Retrieve;
+	const OBJECT_NAME = 'treasury.debit_reversal';
 
-    const NETWORK_ACH = 'ach';
-    const NETWORK_CARD = 'card';
+	use \Stripe\ApiOperations\All;
+	use \Stripe\ApiOperations\Create;
+	use \Stripe\ApiOperations\Retrieve;
 
-    const STATUS_FAILED = 'failed';
-    const STATUS_PROCESSING = 'processing';
-    const STATUS_SUCCEEDED = 'succeeded';
+	const NETWORK_ACH  = 'ach';
+	const NETWORK_CARD = 'card';
+
+	const STATUS_FAILED     = 'failed';
+	const STATUS_PROCESSING = 'processing';
+	const STATUS_SUCCEEDED  = 'succeeded';
 }

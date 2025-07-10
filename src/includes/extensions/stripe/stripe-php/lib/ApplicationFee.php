@@ -20,71 +20,67 @@ namespace Stripe;
  * @property bool $refunded Whether the fee has been fully refunded. If the fee is only partially refunded, this attribute will still be false.
  * @property \Stripe\Collection<\Stripe\ApplicationFeeRefund> $refunds A list of refunds that have been applied to the fee.
  */
-class ApplicationFee extends ApiResource
-{
-    const OBJECT_NAME = 'application_fee';
+class ApplicationFee extends ApiResource {
 
-    use ApiOperations\All;
-    use ApiOperations\NestedResource;
-    use ApiOperations\Retrieve;
+	const OBJECT_NAME = 'application_fee';
 
-    const PATH_REFUNDS = '/refunds';
+	use ApiOperations\All;
+	use ApiOperations\NestedResource;
+	use ApiOperations\Retrieve;
 
-    /**
-     * @param string $id the ID of the application fee on which to retrieve the application fee refunds
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Collection<\Stripe\ApplicationFeeRefund> the list of application fee refunds
-     */
-    public static function allRefunds($id, $params = null, $opts = null)
-    {
-        return self::_allNestedResources($id, static::PATH_REFUNDS, $params, $opts);
-    }
+	const PATH_REFUNDS = '/refunds';
 
-    /**
-     * @param string $id the ID of the application fee on which to create the application fee refund
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\ApplicationFeeRefund
-     */
-    public static function createRefund($id, $params = null, $opts = null)
-    {
-        return self::_createNestedResource($id, static::PATH_REFUNDS, $params, $opts);
-    }
+	/**
+	 * @param string            $id the ID of the application fee on which to retrieve the application fee refunds
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Collection<\Stripe\ApplicationFeeRefund> the list of application fee refunds
+	 */
+	public static function allRefunds( $id, $params = null, $opts = null ) {
+		return self::_allNestedResources( $id, static::PATH_REFUNDS, $params, $opts );
+	}
 
-    /**
-     * @param string $id the ID of the application fee to which the application fee refund belongs
-     * @param string $refundId the ID of the application fee refund to retrieve
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\ApplicationFeeRefund
-     */
-    public static function retrieveRefund($id, $refundId, $params = null, $opts = null)
-    {
-        return self::_retrieveNestedResource($id, static::PATH_REFUNDS, $refundId, $params, $opts);
-    }
+	/**
+	 * @param string            $id the ID of the application fee on which to create the application fee refund
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\ApplicationFeeRefund
+	 */
+	public static function createRefund( $id, $params = null, $opts = null ) {
+		return self::_createNestedResource( $id, static::PATH_REFUNDS, $params, $opts );
+	}
 
-    /**
-     * @param string $id the ID of the application fee to which the application fee refund belongs
-     * @param string $refundId the ID of the application fee refund to update
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\ApplicationFeeRefund
-     */
-    public static function updateRefund($id, $refundId, $params = null, $opts = null)
-    {
-        return self::_updateNestedResource($id, static::PATH_REFUNDS, $refundId, $params, $opts);
-    }
+	/**
+	 * @param string            $id the ID of the application fee to which the application fee refund belongs
+	 * @param string            $refundId the ID of the application fee refund to retrieve
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\ApplicationFeeRefund
+	 */
+	public static function retrieveRefund( $id, $refundId, $params = null, $opts = null ) {
+		return self::_retrieveNestedResource( $id, static::PATH_REFUNDS, $refundId, $params, $opts );
+	}
+
+	/**
+	 * @param string            $id the ID of the application fee to which the application fee refund belongs
+	 * @param string            $refundId the ID of the application fee refund to update
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\ApplicationFeeRefund
+	 */
+	public static function updateRefund( $id, $refundId, $params = null, $opts = null ) {
+		return self::_updateNestedResource( $id, static::PATH_REFUNDS, $refundId, $params, $opts );
+	}
 }

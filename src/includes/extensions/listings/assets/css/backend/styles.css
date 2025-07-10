@@ -1,93 +1,93 @@
 .super-sub-settings span {
-  font-weight:initial;
+	font-weight:initial;
 }
 
 div[data-name="custom_columns"] li {
-  position:relative;
-  border: 1px dashed #c5c5c5;
-  padding: 5px 0px 7px 10px;
-  background-color: #f7f7f7;
-  margin: 10px 0px 0px 0px;
+	position:relative;
+	border: 1px dashed #c5c5c5;
+	padding: 5px 0px 7px 10px;
+	background-color: #f7f7f7;
+	margin: 10px 0px 0px 0px;
 }
 div[data-name="custom_columns"] .super-text:nth-child(3) {
-  max-width: 200px;
+	max-width: 200px;
 }
 div[data-name="custom_columns"] .super-text:nth-child(4) {
-  max-width: 300px;
+	max-width: 300px;
 }
 div[data-name="custom_columns"] .super-text:nth-child(5) {
-  max-width: 140px;
+	max-width: 140px;
 }
 .super-sub-settings .super-add-column,
 .super-sub-settings .super-delete-column {
-    float: left;
-    margin-top: 17px;
-    height: 30px;
-    width: 31px;
-    -webkit-border-radius: 30px;
-    -moz-border-radius: 30px;
-    border-radius: 30px;
-    background-color: #69ba00;
-    text-align: center;
-    cursor: pointer;
-    padding: 5px 0px 0px 0px;
+	float: left;
+	margin-top: 17px;
+	height: 30px;
+	width: 31px;
+	-webkit-border-radius: 30px;
+	-moz-border-radius: 30px;
+	border-radius: 30px;
+	background-color: #69ba00;
+	text-align: center;
+	cursor: pointer;
+	padding: 5px 0px 0px 0px;
 }
 .super-sub-settings .super-delete-column {
-    background-color: #f5234b;
-    margin-left: 5px;
+	background-color: #f5234b;
+	margin-left: 5px;
 }
 .super-sub-settings .super-add-column:hover {
-    background-color: #5ea700;
+	background-color: #5ea700;
 }
 .super-sub-settings .super-delete-column:hover {
-    background-color: #de153b;
+	background-color: #de153b;
 }
 .super-sub-settings .super-add-column:before,
 .super-sub-settings .super-delete-column:before {
-    content:'\f067';
-    font-weight:900;
-    font-family: 'Font awesome 5 free';
-    font-size:16px;
-    color:#ffffff;
-    text-align:center;
+	content:'\f067';
+	font-weight:900;
+	font-family: 'Font awesome 5 free';
+	font-size:16px;
+	color:#ffffff;
+	text-align:center;
 }
 .super-sub-settings .super-delete-column:before {
-    content:'\f1f8';
+	content:'\f1f8';
 }
 
 
 .super-sub-settings .sort-up,
 .super-sub-settings .sort-down {
-  border:1px solid gainsboro;
-  float:left;
-  width:auto;
-  height:20px;
-  position:absolute;
-  left:-25px;
-  top: -1px;
-  padding:0px 2px 0px 2px;
+	border:1px solid gainsboro;
+	float:left;
+	width:auto;
+	height:20px;
+	position:absolute;
+	left:-25px;
+	top: -1px;
+	padding:0px 2px 0px 2px;
 }
 .super-sub-settings .sort-up:before,
 .super-sub-settings .sort-down:before {
-    content:'\f077';
-    font-weight:900;
-    font-family: 'Font awesome 5 free';  
-    float:left;
-    font-size:16px;
-    color:#dadada;
+	content:'\f077';
+	font-weight:900;
+	font-family: 'Font awesome 5 free';
+	float:left;
+	font-size:16px;
+	color:#dadada;
 }
 .super-sub-settings .sort-up:hover:before,
 .super-sub-settings .sort-down:hover:before {
-    color:#989898;
-    cursor:pointer;
+	color:#989898;
+	cursor:pointer;
 }
 .super-sub-settings .sort-down:before {
-  content:'\f078';
+	content:'\f078';
 }
 .super-sub-settings .sort-down {
-  top: 18px;
+	top: 18px;
 }
 .create-listing {
-  float: left;
-  width: 100%;
+	float: left;
+	width: 100%;
 }

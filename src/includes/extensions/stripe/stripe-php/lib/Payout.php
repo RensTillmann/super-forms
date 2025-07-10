@@ -38,78 +38,76 @@ namespace Stripe;
  * @property string $status Current status of the payout: <code>paid</code>, <code>pending</code>, <code>in_transit</code>, <code>canceled</code> or <code>failed</code>. A payout is <code>pending</code> until it's submitted to the bank, when it becomes <code>in_transit</code>. The status changes to <code>paid</code> if the transaction succeeds, or to <code>failed</code> or <code>canceled</code> (within 5 business days). Some payouts that fail might initially show as <code>paid</code>, then change to <code>failed</code>.
  * @property string $type Can be <code>bank_account</code> or <code>card</code>.
  */
-class Payout extends ApiResource
-{
-    const OBJECT_NAME = 'payout';
+class Payout extends ApiResource {
 
-    use ApiOperations\All;
-    use ApiOperations\Create;
-    use ApiOperations\Retrieve;
-    use ApiOperations\Update;
+	const OBJECT_NAME = 'payout';
 
-    const METHOD_INSTANT = 'instant';
-    const METHOD_STANDARD = 'standard';
+	use ApiOperations\All;
+	use ApiOperations\Create;
+	use ApiOperations\Retrieve;
+	use ApiOperations\Update;
 
-    const RECONCILIATION_STATUS_COMPLETED = 'completed';
-    const RECONCILIATION_STATUS_IN_PROGRESS = 'in_progress';
-    const RECONCILIATION_STATUS_NOT_APPLICABLE = 'not_applicable';
+	const METHOD_INSTANT  = 'instant';
+	const METHOD_STANDARD = 'standard';
 
-    const STATUS_CANCELED = 'canceled';
-    const STATUS_FAILED = 'failed';
-    const STATUS_IN_TRANSIT = 'in_transit';
-    const STATUS_PAID = 'paid';
-    const STATUS_PENDING = 'pending';
+	const RECONCILIATION_STATUS_COMPLETED      = 'completed';
+	const RECONCILIATION_STATUS_IN_PROGRESS    = 'in_progress';
+	const RECONCILIATION_STATUS_NOT_APPLICABLE = 'not_applicable';
 
-    const TYPE_BANK_ACCOUNT = 'bank_account';
-    const TYPE_CARD = 'card';
+	const STATUS_CANCELED   = 'canceled';
+	const STATUS_FAILED     = 'failed';
+	const STATUS_IN_TRANSIT = 'in_transit';
+	const STATUS_PAID       = 'paid';
+	const STATUS_PENDING    = 'pending';
 
-    const FAILURE_ACCOUNT_CLOSED = 'account_closed';
-    const FAILURE_ACCOUNT_FROZEN = 'account_frozen';
-    const FAILURE_BANK_ACCOUNT_RESTRICTED = 'bank_account_restricted';
-    const FAILURE_BANK_OWNERSHIP_CHANGED = 'bank_ownership_changed';
-    const FAILURE_COULD_NOT_PROCESS = 'could_not_process';
-    const FAILURE_DEBIT_NOT_AUTHORIZED = 'debit_not_authorized';
-    const FAILURE_DECLINED = 'declined';
-    const FAILURE_INCORRECT_ACCOUNT_HOLDER_ADDRESS = 'incorrect_account_holder_address';
-    const FAILURE_INCORRECT_ACCOUNT_HOLDER_NAME = 'incorrect_account_holder_name';
-    const FAILURE_INCORRECT_ACCOUNT_HOLDER_TAX_ID = 'incorrect_account_holder_tax_id';
-    const FAILURE_INSUFFICIENT_FUNDS = 'insufficient_funds';
-    const FAILURE_INVALID_ACCOUNT_NUMBER = 'invalid_account_number';
-    const FAILURE_INVALID_CURRENCY = 'invalid_currency';
-    const FAILURE_NO_ACCOUNT = 'no_account';
-    const FAILURE_UNSUPPORTED_CARD = 'unsupported_card';
+	const TYPE_BANK_ACCOUNT = 'bank_account';
+	const TYPE_CARD         = 'card';
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Payout the canceled payout
-     */
-    public function cancel($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/cancel';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+	const FAILURE_ACCOUNT_CLOSED                   = 'account_closed';
+	const FAILURE_ACCOUNT_FROZEN                   = 'account_frozen';
+	const FAILURE_BANK_ACCOUNT_RESTRICTED          = 'bank_account_restricted';
+	const FAILURE_BANK_OWNERSHIP_CHANGED           = 'bank_ownership_changed';
+	const FAILURE_COULD_NOT_PROCESS                = 'could_not_process';
+	const FAILURE_DEBIT_NOT_AUTHORIZED             = 'debit_not_authorized';
+	const FAILURE_DECLINED                         = 'declined';
+	const FAILURE_INCORRECT_ACCOUNT_HOLDER_ADDRESS = 'incorrect_account_holder_address';
+	const FAILURE_INCORRECT_ACCOUNT_HOLDER_NAME    = 'incorrect_account_holder_name';
+	const FAILURE_INCORRECT_ACCOUNT_HOLDER_TAX_ID  = 'incorrect_account_holder_tax_id';
+	const FAILURE_INSUFFICIENT_FUNDS               = 'insufficient_funds';
+	const FAILURE_INVALID_ACCOUNT_NUMBER           = 'invalid_account_number';
+	const FAILURE_INVALID_CURRENCY                 = 'invalid_currency';
+	const FAILURE_NO_ACCOUNT                       = 'no_account';
+	const FAILURE_UNSUPPORTED_CARD                 = 'unsupported_card';
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Payout the canceled payout
+	 */
+	public function cancel( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/cancel';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Payout the reversed payout
-     */
-    public function reverse($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/reverse';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+		return $this;
+	}
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Payout the reversed payout
+	 */
+	public function reverse( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/reverse';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
+
+		return $this;
+	}
 }

@@ -21,18 +21,18 @@ namespace Stripe;
  * @property null|string|\Stripe\TaxCode $tax_code A <a href="https://stripe.com/docs/tax/tax-categories">tax code</a> ID. The Shipping tax code is <code>txcd_92010001</code>.
  * @property string $type The type of calculation to use on the shipping rate. Can only be <code>fixed_amount</code> for now.
  */
-class ShippingRate extends ApiResource
-{
-    const OBJECT_NAME = 'shipping_rate';
+class ShippingRate extends ApiResource {
 
-    use ApiOperations\All;
-    use ApiOperations\Create;
-    use ApiOperations\Retrieve;
-    use ApiOperations\Update;
+	const OBJECT_NAME = 'shipping_rate';
 
-    const TAX_BEHAVIOR_EXCLUSIVE = 'exclusive';
-    const TAX_BEHAVIOR_INCLUSIVE = 'inclusive';
-    const TAX_BEHAVIOR_UNSPECIFIED = 'unspecified';
+	use ApiOperations\All;
+	use ApiOperations\Create;
+	use ApiOperations\Retrieve;
+	use ApiOperations\Update;
 
-    const TYPE_FIXED_AMOUNT = 'fixed_amount';
+	const TAX_BEHAVIOR_EXCLUSIVE   = 'exclusive';
+	const TAX_BEHAVIOR_INCLUSIVE   = 'inclusive';
+	const TAX_BEHAVIOR_UNSPECIFIED = 'unspecified';
+
+	const TYPE_FIXED_AMOUNT = 'fixed_amount';
 }

@@ -28,57 +28,55 @@ namespace Stripe;
  * @property null|string|\Stripe\Subscription $subscription ID of the subscription managed by the subscription schedule.
  * @property null|string|\Stripe\TestHelpers\TestClock $test_clock ID of the test clock this subscription schedule belongs to.
  */
-class SubscriptionSchedule extends ApiResource
-{
-    const OBJECT_NAME = 'subscription_schedule';
+class SubscriptionSchedule extends ApiResource {
 
-    use ApiOperations\All;
-    use ApiOperations\Create;
-    use ApiOperations\Retrieve;
-    use ApiOperations\Update;
+	const OBJECT_NAME = 'subscription_schedule';
 
-    const END_BEHAVIOR_CANCEL = 'cancel';
-    const END_BEHAVIOR_NONE = 'none';
-    const END_BEHAVIOR_RELEASE = 'release';
-    const END_BEHAVIOR_RENEW = 'renew';
+	use ApiOperations\All;
+	use ApiOperations\Create;
+	use ApiOperations\Retrieve;
+	use ApiOperations\Update;
 
-    const STATUS_ACTIVE = 'active';
-    const STATUS_CANCELED = 'canceled';
-    const STATUS_COMPLETED = 'completed';
-    const STATUS_NOT_STARTED = 'not_started';
-    const STATUS_RELEASED = 'released';
+	const END_BEHAVIOR_CANCEL  = 'cancel';
+	const END_BEHAVIOR_NONE    = 'none';
+	const END_BEHAVIOR_RELEASE = 'release';
+	const END_BEHAVIOR_RENEW   = 'renew';
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\SubscriptionSchedule the canceled subscription schedule
-     */
-    public function cancel($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/cancel';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+	const STATUS_ACTIVE      = 'active';
+	const STATUS_CANCELED    = 'canceled';
+	const STATUS_COMPLETED   = 'completed';
+	const STATUS_NOT_STARTED = 'not_started';
+	const STATUS_RELEASED    = 'released';
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\SubscriptionSchedule the canceled subscription schedule
+	 */
+	public function cancel( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/cancel';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\SubscriptionSchedule the released subscription schedule
-     */
-    public function release($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/release';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+		return $this;
+	}
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\SubscriptionSchedule the released subscription schedule
+	 */
+	public function release( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/release';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
+
+		return $this;
+	}
 }

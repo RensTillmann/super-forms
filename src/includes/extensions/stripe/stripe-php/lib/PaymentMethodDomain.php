@@ -21,29 +21,28 @@ namespace Stripe;
  * @property bool $livemode Has the value <code>true</code> if the object exists in live mode or the value <code>false</code> if the object exists in test mode.
  * @property \Stripe\StripeObject $paypal Indicates the status of a specific payment method on a payment method domain.
  */
-class PaymentMethodDomain extends ApiResource
-{
-    const OBJECT_NAME = 'payment_method_domain';
+class PaymentMethodDomain extends ApiResource {
 
-    use ApiOperations\All;
-    use ApiOperations\Create;
-    use ApiOperations\Retrieve;
-    use ApiOperations\Update;
+	const OBJECT_NAME = 'payment_method_domain';
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\PaymentMethodDomain the validated payment method domain
-     */
-    public function validate($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/validate';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+	use ApiOperations\All;
+	use ApiOperations\Create;
+	use ApiOperations\Retrieve;
+	use ApiOperations\Update;
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\PaymentMethodDomain the validated payment method domain
+	 */
+	public function validate( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/validate';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
+
+		return $this;
+	}
 }

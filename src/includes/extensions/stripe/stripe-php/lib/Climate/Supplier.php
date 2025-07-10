@@ -15,14 +15,14 @@ namespace Stripe\Climate;
  * @property string $name Name of this carbon removal supplier.
  * @property string $removal_pathway The scientific pathway used for carbon removal.
  */
-class Supplier extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'climate.supplier';
+class Supplier extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Retrieve;
+	const OBJECT_NAME = 'climate.supplier';
 
-    const REMOVAL_PATHWAY_BIOMASS_CARBON_REMOVAL_AND_STORAGE = 'biomass_carbon_removal_and_storage';
-    const REMOVAL_PATHWAY_DIRECT_AIR_CAPTURE = 'direct_air_capture';
-    const REMOVAL_PATHWAY_ENHANCED_WEATHERING = 'enhanced_weathering';
+	use \Stripe\ApiOperations\All;
+	use \Stripe\ApiOperations\Retrieve;
+
+	const REMOVAL_PATHWAY_BIOMASS_CARBON_REMOVAL_AND_STORAGE = 'biomass_carbon_removal_and_storage';
+	const REMOVAL_PATHWAY_DIRECT_AIR_CAPTURE                 = 'direct_air_capture';
+	const REMOVAL_PATHWAY_ENHANCED_WEATHERING                = 'enhanced_weathering';
 }

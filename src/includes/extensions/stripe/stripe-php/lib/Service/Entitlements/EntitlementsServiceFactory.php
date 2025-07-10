@@ -10,18 +10,17 @@ namespace Stripe\Service\Entitlements;
  * @property ActiveEntitlementService $activeEntitlements
  * @property FeatureService $features
  */
-class EntitlementsServiceFactory extends \Stripe\Service\AbstractServiceFactory
-{
-    /**
-     * @var array<string, string>
-     */
-    private static $classMap = [
-        'activeEntitlements' => ActiveEntitlementService::class,
-        'features' => FeatureService::class,
-    ];
+class EntitlementsServiceFactory extends \Stripe\Service\AbstractServiceFactory {
 
-    protected function getServiceClass($name)
-    {
-        return \array_key_exists($name, self::$classMap) ? self::$classMap[$name] : null;
-    }
+	/**
+	 * @var array<string, string>
+	 */
+	private static $classMap = array(
+		'activeEntitlements' => ActiveEntitlementService::class,
+		'features'           => FeatureService::class,
+	);
+
+	protected function getServiceClass( $name ) {
+		return \array_key_exists( $name, self::$classMap ) ? self::$classMap[ $name ] : null;
+	}
 }

@@ -33,11 +33,11 @@ namespace Stripe\Forwarding;
  * @property null|\Stripe\StripeObject $response_details The response that the destination endpoint returned to us. We redact any sensitive fields.
  * @property null|string $url The destination URL for the forwarded request. Must be supported by the config.
  */
-class Request extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'forwarding.request';
+class Request extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Create;
-    use \Stripe\ApiOperations\Retrieve;
+	const OBJECT_NAME = 'forwarding.request';
+
+	use \Stripe\ApiOperations\All;
+	use \Stripe\ApiOperations\Create;
+	use \Stripe\ApiOperations\Retrieve;
 }

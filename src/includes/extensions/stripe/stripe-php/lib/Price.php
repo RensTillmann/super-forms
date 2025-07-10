@@ -34,41 +34,40 @@ namespace Stripe;
  * @property null|int $unit_amount The unit amount in cents (or local equivalent) to be charged, represented as a whole integer if possible. Only set if <code>billing_scheme=per_unit</code>.
  * @property null|string $unit_amount_decimal The unit amount in cents (or local equivalent) to be charged, represented as a decimal string with at most 12 decimal places. Only set if <code>billing_scheme=per_unit</code>.
  */
-class Price extends ApiResource
-{
-    const OBJECT_NAME = 'price';
+class Price extends ApiResource {
 
-    use ApiOperations\All;
-    use ApiOperations\Create;
-    use ApiOperations\Retrieve;
-    use ApiOperations\Search;
-    use ApiOperations\Update;
+	const OBJECT_NAME = 'price';
 
-    const BILLING_SCHEME_PER_UNIT = 'per_unit';
-    const BILLING_SCHEME_TIERED = 'tiered';
+	use ApiOperations\All;
+	use ApiOperations\Create;
+	use ApiOperations\Retrieve;
+	use ApiOperations\Search;
+	use ApiOperations\Update;
 
-    const TAX_BEHAVIOR_EXCLUSIVE = 'exclusive';
-    const TAX_BEHAVIOR_INCLUSIVE = 'inclusive';
-    const TAX_BEHAVIOR_UNSPECIFIED = 'unspecified';
+	const BILLING_SCHEME_PER_UNIT = 'per_unit';
+	const BILLING_SCHEME_TIERED   = 'tiered';
 
-    const TIERS_MODE_GRADUATED = 'graduated';
-    const TIERS_MODE_VOLUME = 'volume';
+	const TAX_BEHAVIOR_EXCLUSIVE   = 'exclusive';
+	const TAX_BEHAVIOR_INCLUSIVE   = 'inclusive';
+	const TAX_BEHAVIOR_UNSPECIFIED = 'unspecified';
 
-    const TYPE_ONE_TIME = 'one_time';
-    const TYPE_RECURRING = 'recurring';
+	const TIERS_MODE_GRADUATED = 'graduated';
+	const TIERS_MODE_VOLUME    = 'volume';
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\SearchResult<\Stripe\Price> the price search results
-     */
-    public static function search($params = null, $opts = null)
-    {
-        $url = '/v1/prices/search';
+	const TYPE_ONE_TIME  = 'one_time';
+	const TYPE_RECURRING = 'recurring';
 
-        return static::_requestPage($url, \Stripe\SearchResult::class, $params, $opts);
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\SearchResult<\Stripe\Price> the price search results
+	 */
+	public static function search( $params = null, $opts = null ) {
+		$url = '/v1/prices/search';
+
+		return static::_requestPage( $url, \Stripe\SearchResult::class, $params, $opts );
+	}
 }

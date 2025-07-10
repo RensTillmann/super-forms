@@ -16,32 +16,31 @@ namespace Stripe\Tax;
  * @property string $status The <code>active</code> status indicates you have all required settings to calculate tax. A status can transition out of <code>active</code> when new required settings are introduced.
  * @property \Stripe\StripeObject $status_details
  */
-class Settings extends \Stripe\SingletonApiResource
-{
-    const OBJECT_NAME = 'tax.settings';
+class Settings extends \Stripe\SingletonApiResource {
 
-    use \Stripe\ApiOperations\SingletonRetrieve;
+	const OBJECT_NAME = 'tax.settings';
 
-    const STATUS_ACTIVE = 'active';
-    const STATUS_PENDING = 'pending';
+	use \Stripe\ApiOperations\SingletonRetrieve;
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return static the updated resource
-     */
-    public static function update($params = null, $opts = null)
-    {
-        self::_validateParams($params);
-        $url = '/v1/tax/settings';
+	const STATUS_ACTIVE  = 'active';
+	const STATUS_PENDING = 'pending';
 
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $opts);
-        $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
-        $obj->setLastResponse($response);
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return static the updated resource
+	 */
+	public static function update( $params = null, $opts = null ) {
+		self::_validateParams( $params );
+		$url = '/v1/tax/settings';
 
-        return $obj;
-    }
+		list($response, $opts) = static::_staticRequest( 'post', $url, $params, $opts );
+		$obj                   = \Stripe\Util\Util::convertToStripeObject( $response->json, $opts );
+		$obj->setLastResponse( $response );
+
+		return $obj;
+	}
 }

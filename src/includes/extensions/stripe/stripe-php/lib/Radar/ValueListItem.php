@@ -17,12 +17,12 @@ namespace Stripe\Radar;
  * @property string $value The value of the item.
  * @property string $value_list The identifier of the value list this item belongs to.
  */
-class ValueListItem extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'radar.value_list_item';
+class ValueListItem extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Create;
-    use \Stripe\ApiOperations\Delete;
-    use \Stripe\ApiOperations\Retrieve;
+	const OBJECT_NAME = 'radar.value_list_item';
+
+	use \Stripe\ApiOperations\All;
+	use \Stripe\ApiOperations\Create;
+	use \Stripe\ApiOperations\Delete;
+	use \Stripe\ApiOperations\Retrieve;
 }

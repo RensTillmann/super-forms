@@ -20,24 +20,24 @@ namespace Stripe\Radar;
  * @property \Stripe\StripeObject $metadata Set of <a href="https://stripe.com/docs/api/metadata">key-value pairs</a> that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
  * @property string $name The name of the value list.
  */
-class ValueList extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'radar.value_list';
+class ValueList extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Create;
-    use \Stripe\ApiOperations\Delete;
-    use \Stripe\ApiOperations\Retrieve;
-    use \Stripe\ApiOperations\Update;
+	const OBJECT_NAME = 'radar.value_list';
 
-    const ITEM_TYPE_CARD_BIN = 'card_bin';
-    const ITEM_TYPE_CARD_FINGERPRINT = 'card_fingerprint';
-    const ITEM_TYPE_CASE_SENSITIVE_STRING = 'case_sensitive_string';
-    const ITEM_TYPE_COUNTRY = 'country';
-    const ITEM_TYPE_CUSTOMER_ID = 'customer_id';
-    const ITEM_TYPE_EMAIL = 'email';
-    const ITEM_TYPE_IP_ADDRESS = 'ip_address';
-    const ITEM_TYPE_SEPA_DEBIT_FINGERPRINT = 'sepa_debit_fingerprint';
-    const ITEM_TYPE_STRING = 'string';
-    const ITEM_TYPE_US_BANK_ACCOUNT_FINGERPRINT = 'us_bank_account_fingerprint';
+	use \Stripe\ApiOperations\All;
+	use \Stripe\ApiOperations\Create;
+	use \Stripe\ApiOperations\Delete;
+	use \Stripe\ApiOperations\Retrieve;
+	use \Stripe\ApiOperations\Update;
+
+	const ITEM_TYPE_CARD_BIN                    = 'card_bin';
+	const ITEM_TYPE_CARD_FINGERPRINT            = 'card_fingerprint';
+	const ITEM_TYPE_CASE_SENSITIVE_STRING       = 'case_sensitive_string';
+	const ITEM_TYPE_COUNTRY                     = 'country';
+	const ITEM_TYPE_CUSTOMER_ID                 = 'customer_id';
+	const ITEM_TYPE_EMAIL                       = 'email';
+	const ITEM_TYPE_IP_ADDRESS                  = 'ip_address';
+	const ITEM_TYPE_SEPA_DEBIT_FINGERPRINT      = 'sepa_debit_fingerprint';
+	const ITEM_TYPE_STRING                      = 'string';
+	const ITEM_TYPE_US_BANK_ACCOUNT_FINGERPRINT = 'us_bank_account_fingerprint';
 }

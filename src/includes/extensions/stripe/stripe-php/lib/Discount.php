@@ -23,7 +23,7 @@ namespace Stripe;
  * @property null|string $subscription The subscription that this coupon is applied to, if it is applied to a particular subscription.
  * @property null|string $subscription_item The subscription item that this coupon is applied to, if it is applied to a particular subscription item.
  */
-class Discount extends ApiResource
-{
-    const OBJECT_NAME = 'discount';
+class Discount extends ApiResource {
+
+	const OBJECT_NAME = 'discount';
 }

@@ -20,14 +20,14 @@ namespace Stripe\FinancialConnections;
  * @property string $transaction_refresh The token of the transaction refresh that last updated or created this transaction.
  * @property int $updated Time at which the object was last updated. Measured in seconds since the Unix epoch.
  */
-class Transaction extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'financial_connections.transaction';
+class Transaction extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Retrieve;
+	const OBJECT_NAME = 'financial_connections.transaction';
 
-    const STATUS_PENDING = 'pending';
-    const STATUS_POSTED = 'posted';
-    const STATUS_VOID = 'void';
+	use \Stripe\ApiOperations\All;
+	use \Stripe\ApiOperations\Retrieve;
+
+	const STATUS_PENDING = 'pending';
+	const STATUS_POSTED  = 'posted';
+	const STATUS_VOID    = 'void';
 }

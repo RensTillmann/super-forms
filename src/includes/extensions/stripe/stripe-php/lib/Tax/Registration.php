@@ -21,16 +21,16 @@ namespace Stripe\Tax;
  * @property bool $livemode Has the value <code>true</code> if the object exists in live mode or the value <code>false</code> if the object exists in test mode.
  * @property string $status The status of the registration. This field is present for convenience and can be deduced from <code>active_from</code> and <code>expires_at</code>.
  */
-class Registration extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'tax.registration';
+class Registration extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Create;
-    use \Stripe\ApiOperations\Retrieve;
-    use \Stripe\ApiOperations\Update;
+	const OBJECT_NAME = 'tax.registration';
 
-    const STATUS_ACTIVE = 'active';
-    const STATUS_EXPIRED = 'expired';
-    const STATUS_SCHEDULED = 'scheduled';
+	use \Stripe\ApiOperations\All;
+	use \Stripe\ApiOperations\Create;
+	use \Stripe\ApiOperations\Retrieve;
+	use \Stripe\ApiOperations\Update;
+
+	const STATUS_ACTIVE    = 'active';
+	const STATUS_EXPIRED   = 'expired';
+	const STATUS_SCHEDULED = 'scheduled';
 }

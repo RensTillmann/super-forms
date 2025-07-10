@@ -26,32 +26,32 @@ namespace Stripe;
  * @property null|string $state <a href="https://en.wikipedia.org/wiki/ISO_3166-2:US">ISO 3166-2 subdivision code</a>, without country prefix. For example, &quot;NY&quot; for New York, United States.
  * @property null|string $tax_type The high-level tax type, such as <code>vat</code> or <code>sales_tax</code>.
  */
-class TaxRate extends ApiResource
-{
-    const OBJECT_NAME = 'tax_rate';
+class TaxRate extends ApiResource {
 
-    use ApiOperations\All;
-    use ApiOperations\Create;
-    use ApiOperations\Retrieve;
-    use ApiOperations\Update;
+	const OBJECT_NAME = 'tax_rate';
 
-    const JURISDICTION_LEVEL_CITY = 'city';
-    const JURISDICTION_LEVEL_COUNTRY = 'country';
-    const JURISDICTION_LEVEL_COUNTY = 'county';
-    const JURISDICTION_LEVEL_DISTRICT = 'district';
-    const JURISDICTION_LEVEL_MULTIPLE = 'multiple';
-    const JURISDICTION_LEVEL_STATE = 'state';
+	use ApiOperations\All;
+	use ApiOperations\Create;
+	use ApiOperations\Retrieve;
+	use ApiOperations\Update;
 
-    const TAX_TYPE_AMUSEMENT_TAX = 'amusement_tax';
-    const TAX_TYPE_COMMUNICATIONS_TAX = 'communications_tax';
-    const TAX_TYPE_GST = 'gst';
-    const TAX_TYPE_HST = 'hst';
-    const TAX_TYPE_IGST = 'igst';
-    const TAX_TYPE_JCT = 'jct';
-    const TAX_TYPE_LEASE_TAX = 'lease_tax';
-    const TAX_TYPE_PST = 'pst';
-    const TAX_TYPE_QST = 'qst';
-    const TAX_TYPE_RST = 'rst';
-    const TAX_TYPE_SALES_TAX = 'sales_tax';
-    const TAX_TYPE_VAT = 'vat';
+	const JURISDICTION_LEVEL_CITY     = 'city';
+	const JURISDICTION_LEVEL_COUNTRY  = 'country';
+	const JURISDICTION_LEVEL_COUNTY   = 'county';
+	const JURISDICTION_LEVEL_DISTRICT = 'district';
+	const JURISDICTION_LEVEL_MULTIPLE = 'multiple';
+	const JURISDICTION_LEVEL_STATE    = 'state';
+
+	const TAX_TYPE_AMUSEMENT_TAX      = 'amusement_tax';
+	const TAX_TYPE_COMMUNICATIONS_TAX = 'communications_tax';
+	const TAX_TYPE_GST                = 'gst';
+	const TAX_TYPE_HST                = 'hst';
+	const TAX_TYPE_IGST               = 'igst';
+	const TAX_TYPE_JCT                = 'jct';
+	const TAX_TYPE_LEASE_TAX          = 'lease_tax';
+	const TAX_TYPE_PST                = 'pst';
+	const TAX_TYPE_QST                = 'qst';
+	const TAX_TYPE_RST                = 'rst';
+	const TAX_TYPE_SALES_TAX          = 'sales_tax';
+	const TAX_TYPE_VAT                = 'vat';
 }

@@ -26,19 +26,19 @@ namespace Stripe\Issuing;
  * @property string $status Specifies whether to permit authorizations on this cardholder's cards.
  * @property string $type One of <code>individual</code> or <code>company</code>. See <a href="https://stripe.com/docs/issuing/other/choose-cardholder">Choose a cardholder type</a> for more details.
  */
-class Cardholder extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'issuing.cardholder';
+class Cardholder extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Create;
-    use \Stripe\ApiOperations\Retrieve;
-    use \Stripe\ApiOperations\Update;
+	const OBJECT_NAME = 'issuing.cardholder';
 
-    const STATUS_ACTIVE = 'active';
-    const STATUS_BLOCKED = 'blocked';
-    const STATUS_INACTIVE = 'inactive';
+	use \Stripe\ApiOperations\All;
+	use \Stripe\ApiOperations\Create;
+	use \Stripe\ApiOperations\Retrieve;
+	use \Stripe\ApiOperations\Update;
 
-    const TYPE_COMPANY = 'company';
-    const TYPE_INDIVIDUAL = 'individual';
+	const STATUS_ACTIVE   = 'active';
+	const STATUS_BLOCKED  = 'blocked';
+	const STATUS_INACTIVE = 'inactive';
+
+	const TYPE_COMPANY    = 'company';
+	const TYPE_INDIVIDUAL = 'individual';
 }

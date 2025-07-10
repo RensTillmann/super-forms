@@ -26,74 +26,71 @@ namespace Stripe;
  * @property null|\Stripe\StripeObject $metadata Set of <a href="https://stripe.com/docs/api/metadata">key-value pairs</a> that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
  * @property string $type Transaction type: <code>adjustment</code>, <code>applied_to_invoice</code>, <code>credit_note</code>, <code>initial</code>, <code>invoice_overpaid</code>, <code>invoice_too_large</code>, <code>invoice_too_small</code>, <code>unspent_receiver_credit</code>, or <code>unapplied_from_invoice</code>. See the <a href="https://stripe.com/docs/billing/customer/balance#types">Customer Balance page</a> to learn more about transaction types.
  */
-class CustomerBalanceTransaction extends ApiResource
-{
-    const OBJECT_NAME = 'customer_balance_transaction';
+class CustomerBalanceTransaction extends ApiResource {
 
-    const TYPE_ADJUSTMENT = 'adjustment';
-    const TYPE_APPLIED_TO_INVOICE = 'applied_to_invoice';
-    const TYPE_CREDIT_NOTE = 'credit_note';
-    const TYPE_INITIAL = 'initial';
-    const TYPE_INVOICE_OVERPAID = 'invoice_overpaid';
-    const TYPE_INVOICE_TOO_LARGE = 'invoice_too_large';
-    const TYPE_INVOICE_TOO_SMALL = 'invoice_too_small';
-    const TYPE_UNSPENT_RECEIVER_CREDIT = 'unspent_receiver_credit';
+	const OBJECT_NAME = 'customer_balance_transaction';
 
-    const TYPE_ADJUSTEMENT = 'adjustment';
+	const TYPE_ADJUSTMENT              = 'adjustment';
+	const TYPE_APPLIED_TO_INVOICE      = 'applied_to_invoice';
+	const TYPE_CREDIT_NOTE             = 'credit_note';
+	const TYPE_INITIAL                 = 'initial';
+	const TYPE_INVOICE_OVERPAID        = 'invoice_overpaid';
+	const TYPE_INVOICE_TOO_LARGE       = 'invoice_too_large';
+	const TYPE_INVOICE_TOO_SMALL       = 'invoice_too_small';
+	const TYPE_UNSPENT_RECEIVER_CREDIT = 'unspent_receiver_credit';
 
-    /**
-     * @return string the API URL for this balance transaction
-     */
-    public function instanceUrl()
-    {
-        $id = $this['id'];
-        $customer = $this['customer'];
-        if (!$id) {
-            throw new Exception\UnexpectedValueException(
-                "Could not determine which URL to request: class instance has invalid ID: {$id}",
-                null
-            );
-        }
-        $id = Util\Util::utf8($id);
-        $customer = Util\Util::utf8($customer);
+	const TYPE_ADJUSTEMENT = 'adjustment';
 
-        $base = Customer::classUrl();
-        $customerExtn = \urlencode($customer);
-        $extn = \urlencode($id);
+	/**
+	 * @return string the API URL for this balance transaction
+	 */
+	public function instanceUrl() {
+		$id       = $this['id'];
+		$customer = $this['customer'];
+		if ( ! $id ) {
+			throw new Exception\UnexpectedValueException(
+				"Could not determine which URL to request: class instance has invalid ID: {$id}",
+				null
+			);
+		}
+		$id       = Util\Util::utf8( $id );
+		$customer = Util\Util::utf8( $customer );
 
-        return "{$base}/{$customerExtn}/balance_transactions/{$extn}";
-    }
+		$base         = Customer::classUrl();
+		$customerExtn = \urlencode( $customer );
+		$extn         = \urlencode( $id );
 
-    /**
-     * @param array|string $_id
-     * @param null|array|string $_opts
-     *
-     * @throws \Stripe\Exception\BadMethodCallException
-     */
-    public static function retrieve($_id, $_opts = null)
-    {
-        $msg = 'Customer Balance Transactions cannot be retrieved without a ' .
-               'customer ID. Retrieve a Customer Balance Transaction using ' .
-               "`Customer::retrieveBalanceTransaction('customer_id', " .
-               "'balance_transaction_id')`.";
+		return "{$base}/{$customerExtn}/balance_transactions/{$extn}";
+	}
 
-        throw new Exception\BadMethodCallException($msg);
-    }
+	/**
+	 * @param array|string      $_id
+	 * @param null|array|string $_opts
+	 *
+	 * @throws \Stripe\Exception\BadMethodCallException
+	 */
+	public static function retrieve( $_id, $_opts = null ) {
+		$msg = 'Customer Balance Transactions cannot be retrieved without a ' .
+				'customer ID. Retrieve a Customer Balance Transaction using ' .
+				"`Customer::retrieveBalanceTransaction('customer_id', " .
+				"'balance_transaction_id')`.";
 
-    /**
-     * @param string $_id
-     * @param null|array $_params
-     * @param null|array|string $_options
-     *
-     * @throws \Stripe\Exception\BadMethodCallException
-     */
-    public static function update($_id, $_params = null, $_options = null)
-    {
-        $msg = 'Customer Balance Transactions cannot be updated without a ' .
-               'customer ID. Update a Customer Balance Transaction using ' .
-               "`Customer::updateBalanceTransaction('customer_id', " .
-               "'balance_transaction_id', \$updateParams)`.";
+		throw new Exception\BadMethodCallException( $msg );
+	}
 
-        throw new Exception\BadMethodCallException($msg);
-    }
+	/**
+	 * @param string            $_id
+	 * @param null|array        $_params
+	 * @param null|array|string $_options
+	 *
+	 * @throws \Stripe\Exception\BadMethodCallException
+	 */
+	public static function update( $_id, $_params = null, $_options = null ) {
+		$msg = 'Customer Balance Transactions cannot be updated without a ' .
+				'customer ID. Update a Customer Balance Transaction using ' .
+				"`Customer::updateBalanceTransaction('customer_id', " .
+				"'balance_transaction_id', \$updateParams)`.";
+
+		throw new Exception\BadMethodCallException( $msg );
+	}
 }

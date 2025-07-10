@@ -27,113 +27,108 @@ namespace Stripe\FinancialConnections;
  * @property string[] $supported_payment_method_types The <a href="https://stripe.com/docs/api/payment_methods/object#payment_method_object-type">PaymentMethod type</a>(s) that can be created from this account.
  * @property null|\Stripe\StripeObject $transaction_refresh The state of the most recent attempt to refresh the account transactions.
  */
-class Account extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'financial_connections.account';
+class Account extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Retrieve;
+	const OBJECT_NAME = 'financial_connections.account';
 
-    const CATEGORY_CASH = 'cash';
-    const CATEGORY_CREDIT = 'credit';
-    const CATEGORY_INVESTMENT = 'investment';
-    const CATEGORY_OTHER = 'other';
+	use \Stripe\ApiOperations\All;
+	use \Stripe\ApiOperations\Retrieve;
 
-    const STATUS_ACTIVE = 'active';
-    const STATUS_DISCONNECTED = 'disconnected';
-    const STATUS_INACTIVE = 'inactive';
+	const CATEGORY_CASH       = 'cash';
+	const CATEGORY_CREDIT     = 'credit';
+	const CATEGORY_INVESTMENT = 'investment';
+	const CATEGORY_OTHER      = 'other';
 
-    const SUBCATEGORY_CHECKING = 'checking';
-    const SUBCATEGORY_CREDIT_CARD = 'credit_card';
-    const SUBCATEGORY_LINE_OF_CREDIT = 'line_of_credit';
-    const SUBCATEGORY_MORTGAGE = 'mortgage';
-    const SUBCATEGORY_OTHER = 'other';
-    const SUBCATEGORY_SAVINGS = 'savings';
+	const STATUS_ACTIVE       = 'active';
+	const STATUS_DISCONNECTED = 'disconnected';
+	const STATUS_INACTIVE     = 'inactive';
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\FinancialConnections\Account the disconnected account
-     */
-    public function disconnect($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/disconnect';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+	const SUBCATEGORY_CHECKING       = 'checking';
+	const SUBCATEGORY_CREDIT_CARD    = 'credit_card';
+	const SUBCATEGORY_LINE_OF_CREDIT = 'line_of_credit';
+	const SUBCATEGORY_MORTGAGE       = 'mortgage';
+	const SUBCATEGORY_OTHER          = 'other';
+	const SUBCATEGORY_SAVINGS        = 'savings';
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\FinancialConnections\Account the disconnected account
+	 */
+	public function disconnect( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/disconnect';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
 
-    /**
-     * @param string $id
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Collection<\Stripe\FinancialConnections\AccountOwner> list of account owners
-     */
-    public static function allOwners($id, $params = null, $opts = null)
-    {
-        $url = static::resourceUrl($id) . '/owners';
-        list($response, $opts) = static::_staticRequest('get', $url, $params, $opts);
-        $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
-        $obj->setLastResponse($response);
+		return $this;
+	}
 
-        return $obj;
-    }
+	/**
+	 * @param string            $id
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Collection<\Stripe\FinancialConnections\AccountOwner> list of account owners
+	 */
+	public static function allOwners( $id, $params = null, $opts = null ) {
+		$url                   = static::resourceUrl( $id ) . '/owners';
+		list($response, $opts) = static::_staticRequest( 'get', $url, $params, $opts );
+		$obj                   = \Stripe\Util\Util::convertToStripeObject( $response->json, $opts );
+		$obj->setLastResponse( $response );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\FinancialConnections\Account the refreshed account
-     */
-    public function refreshAccount($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/refresh';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+		return $obj;
+	}
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\FinancialConnections\Account the refreshed account
+	 */
+	public function refreshAccount( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/refresh';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\FinancialConnections\Account the subscribed account
-     */
-    public function subscribe($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/subscribe';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+		return $this;
+	}
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\FinancialConnections\Account the subscribed account
+	 */
+	public function subscribe( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/subscribe';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\FinancialConnections\Account the unsubscribed account
-     */
-    public function unsubscribe($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/unsubscribe';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+		return $this;
+	}
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\FinancialConnections\Account the unsubscribed account
+	 */
+	public function unsubscribe( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/unsubscribe';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
+
+		return $this;
+	}
 }

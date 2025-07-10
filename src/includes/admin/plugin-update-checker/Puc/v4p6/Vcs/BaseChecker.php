@@ -1,5 +1,5 @@
 <?php
-if ( !interface_exists('Puc_v4p6_Vcs_BaseChecker', false) ):
+if ( ! interface_exists( 'Puc_v4p6_Vcs_BaseChecker', false ) ) :
 
 	interface Puc_v4p6_Vcs_BaseChecker {
 		/**
@@ -8,7 +8,7 @@ if ( !interface_exists('Puc_v4p6_Vcs_BaseChecker', false) ):
 		 * @param string $branch
 		 * @return $this
 		 */
-		public function setBranch($branch);
+		public function setBranch( $branch );
 
 		/**
 		 * Set authentication credentials.
@@ -16,7 +16,7 @@ if ( !interface_exists('Puc_v4p6_Vcs_BaseChecker', false) ):
 		 * @param array|string $credentials
 		 * @return $this
 		 */
-		public function setAuthentication($credentials);
+		public function setAuthentication( $credentials );
 
 		/**
 		 * @return Puc_v4p6_Vcs_Api

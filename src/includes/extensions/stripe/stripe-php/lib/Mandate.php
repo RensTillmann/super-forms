@@ -19,16 +19,16 @@ namespace Stripe;
  * @property string $status The mandate status indicates whether or not you can use it to initiate a payment.
  * @property string $type The type of the mandate.
  */
-class Mandate extends ApiResource
-{
-    const OBJECT_NAME = 'mandate';
+class Mandate extends ApiResource {
 
-    use ApiOperations\Retrieve;
+	const OBJECT_NAME = 'mandate';
 
-    const STATUS_ACTIVE = 'active';
-    const STATUS_INACTIVE = 'inactive';
-    const STATUS_PENDING = 'pending';
+	use ApiOperations\Retrieve;
 
-    const TYPE_MULTI_USE = 'multi_use';
-    const TYPE_SINGLE_USE = 'single_use';
+	const STATUS_ACTIVE   = 'active';
+	const STATUS_INACTIVE = 'inactive';
+	const STATUS_PENDING  = 'pending';
+
+	const TYPE_MULTI_USE  = 'multi_use';
+	const TYPE_SINGLE_USE = 'single_use';
 }

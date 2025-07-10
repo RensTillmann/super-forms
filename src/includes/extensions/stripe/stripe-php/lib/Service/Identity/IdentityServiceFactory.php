@@ -10,18 +10,17 @@ namespace Stripe\Service\Identity;
  * @property VerificationReportService $verificationReports
  * @property VerificationSessionService $verificationSessions
  */
-class IdentityServiceFactory extends \Stripe\Service\AbstractServiceFactory
-{
-    /**
-     * @var array<string, string>
-     */
-    private static $classMap = [
-        'verificationReports' => VerificationReportService::class,
-        'verificationSessions' => VerificationSessionService::class,
-    ];
+class IdentityServiceFactory extends \Stripe\Service\AbstractServiceFactory {
 
-    protected function getServiceClass($name)
-    {
-        return \array_key_exists($name, self::$classMap) ? self::$classMap[$name] : null;
-    }
+	/**
+	 * @var array<string, string>
+	 */
+	private static $classMap = array(
+		'verificationReports'  => VerificationReportService::class,
+		'verificationSessions' => VerificationSessionService::class,
+	);
+
+	protected function getServiceClass( $name ) {
+		return \array_key_exists( $name, self::$classMap ) ? self::$classMap[ $name ] : null;
+	}
 }

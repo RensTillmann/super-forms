@@ -16,7 +16,7 @@ namespace Stripe\FinancialConnections;
  * @property null|string $raw_address The raw physical address of the owner.
  * @property null|int $refreshed_at The timestamp of the refresh that updated this owner.
  */
-class AccountOwner extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'financial_connections.account_owner';
+class AccountOwner extends \Stripe\ApiResource {
+
+	const OBJECT_NAME = 'financial_connections.account_owner';
 }

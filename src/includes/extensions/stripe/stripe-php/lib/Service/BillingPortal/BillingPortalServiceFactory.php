@@ -10,18 +10,17 @@ namespace Stripe\Service\BillingPortal;
  * @property ConfigurationService $configurations
  * @property SessionService $sessions
  */
-class BillingPortalServiceFactory extends \Stripe\Service\AbstractServiceFactory
-{
-    /**
-     * @var array<string, string>
-     */
-    private static $classMap = [
-        'configurations' => ConfigurationService::class,
-        'sessions' => SessionService::class,
-    ];
+class BillingPortalServiceFactory extends \Stripe\Service\AbstractServiceFactory {
 
-    protected function getServiceClass($name)
-    {
-        return \array_key_exists($name, self::$classMap) ? self::$classMap[$name] : null;
-    }
+	/**
+	 * @var array<string, string>
+	 */
+	private static $classMap = array(
+		'configurations' => ConfigurationService::class,
+		'sessions'       => SessionService::class,
+	);
+
+	protected function getServiceClass( $name ) {
+		return \array_key_exists( $name, self::$classMap ) ? self::$classMap[ $name ] : null;
+	}
 }

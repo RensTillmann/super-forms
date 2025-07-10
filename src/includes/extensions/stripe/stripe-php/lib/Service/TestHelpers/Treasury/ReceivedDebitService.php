@@ -10,22 +10,21 @@ namespace Stripe\Service\TestHelpers\Treasury;
 /**
  * @psalm-import-type RequestOptionsArray from \Stripe\Util\RequestOptions
  */
-class ReceivedDebitService extends \Stripe\Service\AbstractService
-{
-    /**
-     * Use this endpoint to simulate a test mode ReceivedDebit initiated by a third
-     * party. In live mode, you can’t directly create ReceivedDebits initiated by third
-     * parties.
-     *
-     * @param null|array $params
-     * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Treasury\ReceivedDebit
-     */
-    public function create($params = null, $opts = null)
-    {
-        return $this->request('post', '/v1/test_helpers/treasury/received_debits', $params, $opts);
-    }
+class ReceivedDebitService extends \Stripe\Service\AbstractService {
+
+	/**
+	 * Use this endpoint to simulate a test mode ReceivedDebit initiated by a third
+	 * party. In live mode, you can’t directly create ReceivedDebits initiated by third
+	 * parties.
+	 *
+	 * @param null|array                                           $params
+	 * @param null|RequestOptionsArray|\Stripe\Util\RequestOptions $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Treasury\ReceivedDebit
+	 */
+	public function create( $params = null, $opts = null ) {
+		return $this->request( 'post', '/v1/test_helpers/treasury/received_debits', $params, $opts );
+	}
 }

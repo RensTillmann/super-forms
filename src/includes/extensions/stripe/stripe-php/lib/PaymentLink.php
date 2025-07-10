@@ -45,45 +45,44 @@ namespace Stripe;
  * @property null|\Stripe\StripeObject $transfer_data The account (if any) the payments will be attributed to for tax reporting, and where funds from each payment will be transferred to.
  * @property string $url The public URL that can be shared with customers.
  */
-class PaymentLink extends ApiResource
-{
-    const OBJECT_NAME = 'payment_link';
+class PaymentLink extends ApiResource {
 
-    use ApiOperations\All;
-    use ApiOperations\Create;
-    use ApiOperations\Retrieve;
-    use ApiOperations\Update;
+	const OBJECT_NAME = 'payment_link';
 
-    const BILLING_ADDRESS_COLLECTION_AUTO = 'auto';
-    const BILLING_ADDRESS_COLLECTION_REQUIRED = 'required';
+	use ApiOperations\All;
+	use ApiOperations\Create;
+	use ApiOperations\Retrieve;
+	use ApiOperations\Update;
 
-    const CUSTOMER_CREATION_ALWAYS = 'always';
-    const CUSTOMER_CREATION_IF_REQUIRED = 'if_required';
+	const BILLING_ADDRESS_COLLECTION_AUTO     = 'auto';
+	const BILLING_ADDRESS_COLLECTION_REQUIRED = 'required';
 
-    const PAYMENT_METHOD_COLLECTION_ALWAYS = 'always';
-    const PAYMENT_METHOD_COLLECTION_IF_REQUIRED = 'if_required';
+	const CUSTOMER_CREATION_ALWAYS      = 'always';
+	const CUSTOMER_CREATION_IF_REQUIRED = 'if_required';
 
-    const SUBMIT_TYPE_AUTO = 'auto';
-    const SUBMIT_TYPE_BOOK = 'book';
-    const SUBMIT_TYPE_DONATE = 'donate';
-    const SUBMIT_TYPE_PAY = 'pay';
+	const PAYMENT_METHOD_COLLECTION_ALWAYS      = 'always';
+	const PAYMENT_METHOD_COLLECTION_IF_REQUIRED = 'if_required';
 
-    /**
-     * @param string $id
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Collection<\Stripe\LineItem> list of line items
-     */
-    public static function allLineItems($id, $params = null, $opts = null)
-    {
-        $url = static::resourceUrl($id) . '/line_items';
-        list($response, $opts) = static::_staticRequest('get', $url, $params, $opts);
-        $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
-        $obj->setLastResponse($response);
+	const SUBMIT_TYPE_AUTO   = 'auto';
+	const SUBMIT_TYPE_BOOK   = 'book';
+	const SUBMIT_TYPE_DONATE = 'donate';
+	const SUBMIT_TYPE_PAY    = 'pay';
 
-        return $obj;
-    }
+	/**
+	 * @param string            $id
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Collection<\Stripe\LineItem> list of line items
+	 */
+	public static function allLineItems( $id, $params = null, $opts = null ) {
+		$url                   = static::resourceUrl( $id ) . '/line_items';
+		list($response, $opts) = static::_staticRequest( 'get', $url, $params, $opts );
+		$obj                   = \Stripe\Util\Util::convertToStripeObject( $response->json, $opts );
+		$obj->setLastResponse( $response );
+
+		return $obj;
+	}
 }

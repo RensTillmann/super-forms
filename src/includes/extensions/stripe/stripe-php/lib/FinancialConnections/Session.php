@@ -18,10 +18,10 @@ namespace Stripe\FinancialConnections;
  * @property null|string[] $prefetch Data features requested to be retrieved upon account creation.
  * @property null|string $return_url For webview integrations only. Upon completing OAuth login in the native browser, the user will be redirected to this URL to return to your app.
  */
-class Session extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'financial_connections.session';
+class Session extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\Create;
-    use \Stripe\ApiOperations\Retrieve;
+	const OBJECT_NAME = 'financial_connections.session';
+
+	use \Stripe\ApiOperations\Create;
+	use \Stripe\ApiOperations\Retrieve;
 }

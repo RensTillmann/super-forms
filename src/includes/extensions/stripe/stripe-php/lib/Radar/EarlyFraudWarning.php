@@ -19,18 +19,18 @@ namespace Stripe\Radar;
  * @property bool $livemode Has the value <code>true</code> if the object exists in live mode or the value <code>false</code> if the object exists in test mode.
  * @property null|string|\Stripe\PaymentIntent $payment_intent ID of the Payment Intent this early fraud warning is for, optionally expanded.
  */
-class EarlyFraudWarning extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'radar.early_fraud_warning';
+class EarlyFraudWarning extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Retrieve;
+	const OBJECT_NAME = 'radar.early_fraud_warning';
 
-    const FRAUD_TYPE_CARD_NEVER_RECEIVED = 'card_never_received';
-    const FRAUD_TYPE_FRAUDULENT_CARD_APPLICATION = 'fraudulent_card_application';
-    const FRAUD_TYPE_MADE_WITH_COUNTERFEIT_CARD = 'made_with_counterfeit_card';
-    const FRAUD_TYPE_MADE_WITH_LOST_CARD = 'made_with_lost_card';
-    const FRAUD_TYPE_MADE_WITH_STOLEN_CARD = 'made_with_stolen_card';
-    const FRAUD_TYPE_MISC = 'misc';
-    const FRAUD_TYPE_UNAUTHORIZED_USE_OF_CARD = 'unauthorized_use_of_card';
+	use \Stripe\ApiOperations\All;
+	use \Stripe\ApiOperations\Retrieve;
+
+	const FRAUD_TYPE_CARD_NEVER_RECEIVED         = 'card_never_received';
+	const FRAUD_TYPE_FRAUDULENT_CARD_APPLICATION = 'fraudulent_card_application';
+	const FRAUD_TYPE_MADE_WITH_COUNTERFEIT_CARD  = 'made_with_counterfeit_card';
+	const FRAUD_TYPE_MADE_WITH_LOST_CARD         = 'made_with_lost_card';
+	const FRAUD_TYPE_MADE_WITH_STOLEN_CARD       = 'made_with_stolen_card';
+	const FRAUD_TYPE_MISC                        = 'misc';
+	const FRAUD_TYPE_UNAUTHORIZED_USE_OF_CARD    = 'unauthorized_use_of_card';
 }

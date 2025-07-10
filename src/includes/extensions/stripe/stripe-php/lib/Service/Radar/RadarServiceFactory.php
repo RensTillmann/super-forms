@@ -11,19 +11,18 @@ namespace Stripe\Service\Radar;
  * @property ValueListItemService $valueListItems
  * @property ValueListService $valueLists
  */
-class RadarServiceFactory extends \Stripe\Service\AbstractServiceFactory
-{
-    /**
-     * @var array<string, string>
-     */
-    private static $classMap = [
-        'earlyFraudWarnings' => EarlyFraudWarningService::class,
-        'valueListItems' => ValueListItemService::class,
-        'valueLists' => ValueListService::class,
-    ];
+class RadarServiceFactory extends \Stripe\Service\AbstractServiceFactory {
 
-    protected function getServiceClass($name)
-    {
-        return \array_key_exists($name, self::$classMap) ? self::$classMap[$name] : null;
-    }
+	/**
+	 * @var array<string, string>
+	 */
+	private static $classMap = array(
+		'earlyFraudWarnings' => EarlyFraudWarningService::class,
+		'valueListItems'     => ValueListItemService::class,
+		'valueLists'         => ValueListService::class,
+	);
+
+	protected function getServiceClass( $name ) {
+		return \array_key_exists( $name, self::$classMap ) ? self::$classMap[ $name ] : null;
+	}
 }

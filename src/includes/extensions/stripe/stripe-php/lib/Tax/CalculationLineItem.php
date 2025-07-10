@@ -17,10 +17,10 @@ namespace Stripe\Tax;
  * @property null|\Stripe\StripeObject[] $tax_breakdown Detailed account of taxes relevant to this line item.
  * @property string $tax_code The <a href="https://stripe.com/docs/tax/tax-categories">tax code</a> ID used for this resource.
  */
-class CalculationLineItem extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'tax.calculation_line_item';
+class CalculationLineItem extends \Stripe\ApiResource {
 
-    const TAX_BEHAVIOR_EXCLUSIVE = 'exclusive';
-    const TAX_BEHAVIOR_INCLUSIVE = 'inclusive';
+	const OBJECT_NAME = 'tax.calculation_line_item';
+
+	const TAX_BEHAVIOR_EXCLUSIVE = 'exclusive';
+	const TAX_BEHAVIOR_INCLUSIVE = 'inclusive';
 }

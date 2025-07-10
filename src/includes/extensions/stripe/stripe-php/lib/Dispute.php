@@ -29,51 +29,50 @@ namespace Stripe;
  * @property string $reason Reason given by cardholder for dispute. Possible values are <code>bank_cannot_process</code>, <code>check_returned</code>, <code>credit_not_processed</code>, <code>customer_initiated</code>, <code>debit_not_authorized</code>, <code>duplicate</code>, <code>fraudulent</code>, <code>general</code>, <code>incorrect_account_details</code>, <code>insufficient_funds</code>, <code>product_not_received</code>, <code>product_unacceptable</code>, <code>subscription_canceled</code>, or <code>unrecognized</code>. Learn more about <a href="https://stripe.com/docs/disputes/categories">dispute reasons</a>.
  * @property string $status Current status of dispute. Possible values are <code>warning_needs_response</code>, <code>warning_under_review</code>, <code>warning_closed</code>, <code>needs_response</code>, <code>under_review</code>, <code>won</code>, or <code>lost</code>.
  */
-class Dispute extends ApiResource
-{
-    const OBJECT_NAME = 'dispute';
+class Dispute extends ApiResource {
 
-    use ApiOperations\All;
-    use ApiOperations\Retrieve;
-    use ApiOperations\Update;
+	const OBJECT_NAME = 'dispute';
 
-    const REASON_BANK_CANNOT_PROCESS = 'bank_cannot_process';
-    const REASON_CHECK_RETURNED = 'check_returned';
-    const REASON_CREDIT_NOT_PROCESSED = 'credit_not_processed';
-    const REASON_CUSTOMER_INITIATED = 'customer_initiated';
-    const REASON_DEBIT_NOT_AUTHORIZED = 'debit_not_authorized';
-    const REASON_DUPLICATE = 'duplicate';
-    const REASON_FRAUDULENT = 'fraudulent';
-    const REASON_GENERAL = 'general';
-    const REASON_INCORRECT_ACCOUNT_DETAILS = 'incorrect_account_details';
-    const REASON_INSUFFICIENT_FUNDS = 'insufficient_funds';
-    const REASON_PRODUCT_NOT_RECEIVED = 'product_not_received';
-    const REASON_PRODUCT_UNACCEPTABLE = 'product_unacceptable';
-    const REASON_SUBSCRIPTION_CANCELED = 'subscription_canceled';
-    const REASON_UNRECOGNIZED = 'unrecognized';
+	use ApiOperations\All;
+	use ApiOperations\Retrieve;
+	use ApiOperations\Update;
 
-    const STATUS_LOST = 'lost';
-    const STATUS_NEEDS_RESPONSE = 'needs_response';
-    const STATUS_UNDER_REVIEW = 'under_review';
-    const STATUS_WARNING_CLOSED = 'warning_closed';
-    const STATUS_WARNING_NEEDS_RESPONSE = 'warning_needs_response';
-    const STATUS_WARNING_UNDER_REVIEW = 'warning_under_review';
-    const STATUS_WON = 'won';
+	const REASON_BANK_CANNOT_PROCESS       = 'bank_cannot_process';
+	const REASON_CHECK_RETURNED            = 'check_returned';
+	const REASON_CREDIT_NOT_PROCESSED      = 'credit_not_processed';
+	const REASON_CUSTOMER_INITIATED        = 'customer_initiated';
+	const REASON_DEBIT_NOT_AUTHORIZED      = 'debit_not_authorized';
+	const REASON_DUPLICATE                 = 'duplicate';
+	const REASON_FRAUDULENT                = 'fraudulent';
+	const REASON_GENERAL                   = 'general';
+	const REASON_INCORRECT_ACCOUNT_DETAILS = 'incorrect_account_details';
+	const REASON_INSUFFICIENT_FUNDS        = 'insufficient_funds';
+	const REASON_PRODUCT_NOT_RECEIVED      = 'product_not_received';
+	const REASON_PRODUCT_UNACCEPTABLE      = 'product_unacceptable';
+	const REASON_SUBSCRIPTION_CANCELED     = 'subscription_canceled';
+	const REASON_UNRECOGNIZED              = 'unrecognized';
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Dispute the closed dispute
-     */
-    public function close($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/close';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+	const STATUS_LOST                   = 'lost';
+	const STATUS_NEEDS_RESPONSE         = 'needs_response';
+	const STATUS_UNDER_REVIEW           = 'under_review';
+	const STATUS_WARNING_CLOSED         = 'warning_closed';
+	const STATUS_WARNING_NEEDS_RESPONSE = 'warning_needs_response';
+	const STATUS_WARNING_UNDER_REVIEW   = 'warning_under_review';
+	const STATUS_WON                    = 'won';
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Dispute the closed dispute
+	 */
+	public function close( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/close';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
+
+		return $this;
+	}
 }

@@ -58,156 +58,149 @@ namespace Stripe;
  * @property null|\Stripe\StripeObject $transfer_data The data that automatically creates a Transfer after the payment finalizes. Learn more about the <a href="https://stripe.com/docs/payments/connected-accounts">use case for connected accounts</a>.
  * @property null|string $transfer_group A string that identifies the resulting payment as part of a group. Learn more about the <a href="https://stripe.com/docs/connect/separate-charges-and-transfers">use case for connected accounts</a>.
  */
-class PaymentIntent extends ApiResource
-{
-    const OBJECT_NAME = 'payment_intent';
+class PaymentIntent extends ApiResource {
 
-    use ApiOperations\All;
-    use ApiOperations\Create;
-    use ApiOperations\Retrieve;
-    use ApiOperations\Search;
-    use ApiOperations\Update;
+	const OBJECT_NAME = 'payment_intent';
 
-    const CANCELLATION_REASON_ABANDONED = 'abandoned';
-    const CANCELLATION_REASON_AUTOMATIC = 'automatic';
-    const CANCELLATION_REASON_DUPLICATE = 'duplicate';
-    const CANCELLATION_REASON_FAILED_INVOICE = 'failed_invoice';
-    const CANCELLATION_REASON_FRAUDULENT = 'fraudulent';
-    const CANCELLATION_REASON_REQUESTED_BY_CUSTOMER = 'requested_by_customer';
-    const CANCELLATION_REASON_VOID_INVOICE = 'void_invoice';
+	use ApiOperations\All;
+	use ApiOperations\Create;
+	use ApiOperations\Retrieve;
+	use ApiOperations\Search;
+	use ApiOperations\Update;
 
-    const CAPTURE_METHOD_AUTOMATIC = 'automatic';
-    const CAPTURE_METHOD_AUTOMATIC_ASYNC = 'automatic_async';
-    const CAPTURE_METHOD_MANUAL = 'manual';
+	const CANCELLATION_REASON_ABANDONED             = 'abandoned';
+	const CANCELLATION_REASON_AUTOMATIC             = 'automatic';
+	const CANCELLATION_REASON_DUPLICATE             = 'duplicate';
+	const CANCELLATION_REASON_FAILED_INVOICE        = 'failed_invoice';
+	const CANCELLATION_REASON_FRAUDULENT            = 'fraudulent';
+	const CANCELLATION_REASON_REQUESTED_BY_CUSTOMER = 'requested_by_customer';
+	const CANCELLATION_REASON_VOID_INVOICE          = 'void_invoice';
 
-    const CONFIRMATION_METHOD_AUTOMATIC = 'automatic';
-    const CONFIRMATION_METHOD_MANUAL = 'manual';
+	const CAPTURE_METHOD_AUTOMATIC       = 'automatic';
+	const CAPTURE_METHOD_AUTOMATIC_ASYNC = 'automatic_async';
+	const CAPTURE_METHOD_MANUAL          = 'manual';
 
-    const SETUP_FUTURE_USAGE_OFF_SESSION = 'off_session';
-    const SETUP_FUTURE_USAGE_ON_SESSION = 'on_session';
+	const CONFIRMATION_METHOD_AUTOMATIC = 'automatic';
+	const CONFIRMATION_METHOD_MANUAL    = 'manual';
 
-    const STATUS_CANCELED = 'canceled';
-    const STATUS_PROCESSING = 'processing';
-    const STATUS_REQUIRES_ACTION = 'requires_action';
-    const STATUS_REQUIRES_CAPTURE = 'requires_capture';
-    const STATUS_REQUIRES_CONFIRMATION = 'requires_confirmation';
-    const STATUS_REQUIRES_PAYMENT_METHOD = 'requires_payment_method';
-    const STATUS_SUCCEEDED = 'succeeded';
+	const SETUP_FUTURE_USAGE_OFF_SESSION = 'off_session';
+	const SETUP_FUTURE_USAGE_ON_SESSION  = 'on_session';
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\PaymentIntent the applied payment intent
-     */
-    public function applyCustomerBalance($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/apply_customer_balance';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+	const STATUS_CANCELED                = 'canceled';
+	const STATUS_PROCESSING              = 'processing';
+	const STATUS_REQUIRES_ACTION         = 'requires_action';
+	const STATUS_REQUIRES_CAPTURE        = 'requires_capture';
+	const STATUS_REQUIRES_CONFIRMATION   = 'requires_confirmation';
+	const STATUS_REQUIRES_PAYMENT_METHOD = 'requires_payment_method';
+	const STATUS_SUCCEEDED               = 'succeeded';
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\PaymentIntent the applied payment intent
+	 */
+	public function applyCustomerBalance( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/apply_customer_balance';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\PaymentIntent the canceled payment intent
-     */
-    public function cancel($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/cancel';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+		return $this;
+	}
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\PaymentIntent the canceled payment intent
+	 */
+	public function cancel( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/cancel';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\PaymentIntent the captured payment intent
-     */
-    public function capture($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/capture';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+		return $this;
+	}
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\PaymentIntent the captured payment intent
+	 */
+	public function capture( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/capture';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\PaymentIntent the confirmed payment intent
-     */
-    public function confirm($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/confirm';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+		return $this;
+	}
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\PaymentIntent the confirmed payment intent
+	 */
+	public function confirm( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/confirm';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\PaymentIntent the incremented payment intent
-     */
-    public function incrementAuthorization($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/increment_authorization';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+		return $this;
+	}
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\PaymentIntent the incremented payment intent
+	 */
+	public function incrementAuthorization( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/increment_authorization';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\PaymentIntent the verified payment intent
-     */
-    public function verifyMicrodeposits($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/verify_microdeposits';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+		return $this;
+	}
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\PaymentIntent the verified payment intent
+	 */
+	public function verifyMicrodeposits( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/verify_microdeposits';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\SearchResult<\Stripe\PaymentIntent> the payment intent search results
-     */
-    public static function search($params = null, $opts = null)
-    {
-        $url = '/v1/payment_intents/search';
+		return $this;
+	}
 
-        return static::_requestPage($url, \Stripe\SearchResult::class, $params, $opts);
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\SearchResult<\Stripe\PaymentIntent> the payment intent search results
+	 */
+	public static function search( $params = null, $opts = null ) {
+		$url = '/v1/payment_intents/search';
+
+		return static::_requestPage( $url, \Stripe\SearchResult::class, $params, $opts );
+	}
 }

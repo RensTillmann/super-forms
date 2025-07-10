@@ -32,44 +32,43 @@ namespace Stripe;
  * @property null|string $status Status of the refund. This can be <code>pending</code>, <code>requires_action</code>, <code>succeeded</code>, <code>failed</code>, or <code>canceled</code>. Learn more about <a href="https://stripe.com/docs/refunds#failed-refunds">failed refunds</a>.
  * @property null|string|\Stripe\TransferReversal $transfer_reversal This refers to the transfer reversal object if the accompanying transfer reverses. This is only applicable if the charge was created using the destination parameter.
  */
-class Refund extends ApiResource
-{
-    const OBJECT_NAME = 'refund';
+class Refund extends ApiResource {
 
-    use ApiOperations\All;
-    use ApiOperations\Create;
-    use ApiOperations\Retrieve;
-    use ApiOperations\Update;
+	const OBJECT_NAME = 'refund';
 
-    const FAILURE_REASON_EXPIRED_OR_CANCELED_CARD = 'expired_or_canceled_card';
-    const FAILURE_REASON_LOST_OR_STOLEN_CARD = 'lost_or_stolen_card';
-    const FAILURE_REASON_UNKNOWN = 'unknown';
+	use ApiOperations\All;
+	use ApiOperations\Create;
+	use ApiOperations\Retrieve;
+	use ApiOperations\Update;
 
-    const REASON_DUPLICATE = 'duplicate';
-    const REASON_EXPIRED_UNCAPTURED_CHARGE = 'expired_uncaptured_charge';
-    const REASON_FRAUDULENT = 'fraudulent';
-    const REASON_REQUESTED_BY_CUSTOMER = 'requested_by_customer';
+	const FAILURE_REASON_EXPIRED_OR_CANCELED_CARD = 'expired_or_canceled_card';
+	const FAILURE_REASON_LOST_OR_STOLEN_CARD      = 'lost_or_stolen_card';
+	const FAILURE_REASON_UNKNOWN                  = 'unknown';
 
-    const STATUS_CANCELED = 'canceled';
-    const STATUS_FAILED = 'failed';
-    const STATUS_PENDING = 'pending';
-    const STATUS_REQUIRES_ACTION = 'requires_action';
-    const STATUS_SUCCEEDED = 'succeeded';
+	const REASON_DUPLICATE                 = 'duplicate';
+	const REASON_EXPIRED_UNCAPTURED_CHARGE = 'expired_uncaptured_charge';
+	const REASON_FRAUDULENT                = 'fraudulent';
+	const REASON_REQUESTED_BY_CUSTOMER     = 'requested_by_customer';
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Refund the canceled refund
-     */
-    public function cancel($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/cancel';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+	const STATUS_CANCELED        = 'canceled';
+	const STATUS_FAILED          = 'failed';
+	const STATUS_PENDING         = 'pending';
+	const STATUS_REQUIRES_ACTION = 'requires_action';
+	const STATUS_SUCCEEDED       = 'succeeded';
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Refund the canceled refund
+	 */
+	public function cancel( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/cancel';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
+
+		return $this;
+	}
 }

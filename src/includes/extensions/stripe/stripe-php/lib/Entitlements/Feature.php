@@ -16,12 +16,12 @@ namespace Stripe\Entitlements;
  * @property \Stripe\StripeObject $metadata Set of key-value pairs that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
  * @property string $name The feature's name, for your own purpose, not meant to be displayable to the customer.
  */
-class Feature extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'entitlements.feature';
+class Feature extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Create;
-    use \Stripe\ApiOperations\Retrieve;
-    use \Stripe\ApiOperations\Update;
+	const OBJECT_NAME = 'entitlements.feature';
+
+	use \Stripe\ApiOperations\All;
+	use \Stripe\ApiOperations\Create;
+	use \Stripe\ApiOperations\Retrieve;
+	use \Stripe\ApiOperations\Update;
 }

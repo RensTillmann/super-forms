@@ -7,20 +7,19 @@ namespace Stripe\ApiOperations;
  *
  * This trait should only be applied to classes that derive from StripeObject.
  */
-trait All
-{
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Collection of ApiResources
-     */
-    public static function all($params = null, $opts = null)
-    {
-        $url = static::classUrl();
+trait All {
 
-        return static::_requestPage($url, \Stripe\Collection::class, $params, $opts);
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Collection of ApiResources
+	 */
+	public static function all( $params = null, $opts = null ) {
+		$url = static::classUrl();
+
+		return static::_requestPage( $url, \Stripe\Collection::class, $params, $opts );
+	}
 }

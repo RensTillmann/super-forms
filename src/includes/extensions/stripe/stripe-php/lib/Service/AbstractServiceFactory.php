@@ -12,58 +12,55 @@ namespace Stripe\Service;
  * 2. Lazily initialize each service instance the first time the property for
  *    a given service is used.
  */
-abstract class AbstractServiceFactory
-{
-    /** @var \Stripe\StripeClientInterface */
-    private $client;
+abstract class AbstractServiceFactory {
 
-    /** @var array<string, AbstractService|AbstractServiceFactory> */
-    private $services;
+	/** @var \Stripe\StripeClientInterface */
+	private $client;
 
-    /**
-     * @param \Stripe\StripeClientInterface $client
-     */
-    public function __construct($client)
-    {
-        $this->client = $client;
-        $this->services = [];
-    }
+	/** @var array<string, AbstractService|AbstractServiceFactory> */
+	private $services;
 
-    /**
-     * @param string $name
-     *
-     * @return null|string
-     */
-    abstract protected function getServiceClass($name);
+	/**
+	 * @param \Stripe\StripeClientInterface $client
+	 */
+	public function __construct( $client ) {
+		$this->client   = $client;
+		$this->services = array();
+	}
 
-    /**
-     * @param string $name
-     *
-     * @return null|AbstractService|AbstractServiceFactory
-     */
-    public function __get($name)
-    {
-        return $this->getService($name);
-    }
+	/**
+	 * @param string $name
+	 *
+	 * @return null|string
+	 */
+	abstract protected function getServiceClass( $name );
 
-    /**
-     * @param string $name
-     *
-     * @return null|AbstractService|AbstractServiceFactory
-     */
-    public function getService($name)
-    {
-        $serviceClass = $this->getServiceClass($name);
-        if (null !== $serviceClass) {
-            if (!\array_key_exists($name, $this->services)) {
-                $this->services[$name] = new $serviceClass($this->client);
-            }
+	/**
+	 * @param string $name
+	 *
+	 * @return null|AbstractService|AbstractServiceFactory
+	 */
+	public function __get( $name ) {
+		return $this->getService( $name );
+	}
 
-            return $this->services[$name];
-        }
+	/**
+	 * @param string $name
+	 *
+	 * @return null|AbstractService|AbstractServiceFactory
+	 */
+	public function getService( $name ) {
+		$serviceClass = $this->getServiceClass( $name );
+		if ( null !== $serviceClass ) {
+			if ( ! \array_key_exists( $name, $this->services ) ) {
+				$this->services[ $name ] = new $serviceClass( $this->client );
+			}
 
-        \trigger_error('Undefined property: ' . static::class . '::$' . $name);
+			return $this->services[ $name ];
+		}
 
-        return null;
-    }
+		\trigger_error( 'Undefined property: ' . static::class . '::$' . $name );
+
+		return null;
+	}
 }

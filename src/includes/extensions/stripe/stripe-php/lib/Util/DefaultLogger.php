@@ -6,24 +6,23 @@ namespace Stripe\Util;
  * A very basic implementation of LoggerInterface that has just enough
  * functionality that it can be the default for this library.
  */
-class DefaultLogger implements LoggerInterface
-{
-    /** @var int */
-    public $messageType = 0;
+class DefaultLogger implements LoggerInterface {
 
-    /** @var null|string */
-    public $destination;
+	/** @var int */
+	public $messageType = 0;
 
-    public function error($message, array $context = [])
-    {
-        if (\count($context) > 0) {
-            throw new \Stripe\Exception\BadMethodCallException('DefaultLogger does not currently implement context. Please implement if you need it.');
-        }
+	/** @var null|string */
+	public $destination;
 
-        if (null === $this->destination) {
-            \error_log($message, $this->messageType);
-        } else {
-            \error_log($message, $this->messageType, $this->destination);
-        }
-    }
+	public function error( $message, array $context = array() ) {
+		if ( \count( $context ) > 0 ) {
+			throw new \Stripe\Exception\BadMethodCallException( 'DefaultLogger does not currently implement context. Please implement if you need it.' );
+		}
+
+		if ( null === $this->destination ) {
+			\error_log( $message, $this->messageType );
+		} else {
+			\error_log( $message, $this->messageType, $this->destination );
+		}
+	}
 }

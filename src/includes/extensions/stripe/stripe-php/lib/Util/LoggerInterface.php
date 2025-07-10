@@ -22,13 +22,13 @@ namespace Stripe\Util;
  * can be made by implementors is that if an Exception instance is given
  * to produce a stack trace, it MUST be in a key named "exception".
  */
-interface LoggerInterface
-{
-    /**
-     * Runtime errors that do not require immediate action but should typically
-     * be logged and monitored.
-     *
-     * @param string $message
-     */
-    public function error($message, array $context = []);
+interface LoggerInterface {
+
+	/**
+	 * Runtime errors that do not require immediate action but should typically
+	 * be logged and monitored.
+	 *
+	 * @param string $message
+	 */
+	public function error( $message, array $context = array() );
 }

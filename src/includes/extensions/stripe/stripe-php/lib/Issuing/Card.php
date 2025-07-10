@@ -32,28 +32,28 @@ namespace Stripe\Issuing;
  * @property string $type The type of the card.
  * @property null|\Stripe\StripeObject $wallets Information relating to digital wallets (like Apple Pay and Google Pay).
  */
-class Card extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'issuing.card';
+class Card extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Create;
-    use \Stripe\ApiOperations\Retrieve;
-    use \Stripe\ApiOperations\Update;
+	const OBJECT_NAME = 'issuing.card';
 
-    const CANCELLATION_REASON_DESIGN_REJECTED = 'design_rejected';
-    const CANCELLATION_REASON_LOST = 'lost';
-    const CANCELLATION_REASON_STOLEN = 'stolen';
+	use \Stripe\ApiOperations\All;
+	use \Stripe\ApiOperations\Create;
+	use \Stripe\ApiOperations\Retrieve;
+	use \Stripe\ApiOperations\Update;
 
-    const REPLACEMENT_REASON_DAMAGED = 'damaged';
-    const REPLACEMENT_REASON_EXPIRED = 'expired';
-    const REPLACEMENT_REASON_LOST = 'lost';
-    const REPLACEMENT_REASON_STOLEN = 'stolen';
+	const CANCELLATION_REASON_DESIGN_REJECTED = 'design_rejected';
+	const CANCELLATION_REASON_LOST            = 'lost';
+	const CANCELLATION_REASON_STOLEN          = 'stolen';
 
-    const STATUS_ACTIVE = 'active';
-    const STATUS_CANCELED = 'canceled';
-    const STATUS_INACTIVE = 'inactive';
+	const REPLACEMENT_REASON_DAMAGED = 'damaged';
+	const REPLACEMENT_REASON_EXPIRED = 'expired';
+	const REPLACEMENT_REASON_LOST    = 'lost';
+	const REPLACEMENT_REASON_STOLEN  = 'stolen';
 
-    const TYPE_PHYSICAL = 'physical';
-    const TYPE_VIRTUAL = 'virtual';
+	const STATUS_ACTIVE   = 'active';
+	const STATUS_CANCELED = 'canceled';
+	const STATUS_INACTIVE = 'inactive';
+
+	const TYPE_PHYSICAL = 'physical';
+	const TYPE_VIRTUAL  = 'virtual';
 }

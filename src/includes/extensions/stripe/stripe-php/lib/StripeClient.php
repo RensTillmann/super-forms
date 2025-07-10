@@ -76,24 +76,22 @@ namespace Stripe;
  * @property \Stripe\Service\WebhookEndpointService $webhookEndpoints
  * // The end of the section generated from our OpenAPI spec
  */
-class StripeClient extends BaseStripeClient
-{
-    /**
-     * @var \Stripe\Service\CoreServiceFactory
-     */
-    private $coreServiceFactory;
+class StripeClient extends BaseStripeClient {
 
-    public function __get($name)
-    {
-        return $this->getService($name);
-    }
+	/**
+	 * @var \Stripe\Service\CoreServiceFactory
+	 */
+	private $coreServiceFactory;
 
-    public function getService($name)
-    {
-        if (null === $this->coreServiceFactory) {
-            $this->coreServiceFactory = new \Stripe\Service\CoreServiceFactory($this);
-        }
+	public function __get( $name ) {
+		return $this->getService( $name );
+	}
 
-        return $this->coreServiceFactory->getService($name);
-    }
+	public function getService( $name ) {
+		if ( null === $this->coreServiceFactory ) {
+			$this->coreServiceFactory = new \Stripe\Service\CoreServiceFactory( $this );
+		}
+
+		return $this->coreServiceFactory->getService( $name );
+	}
 }

@@ -32,14 +32,14 @@ namespace Stripe\Identity;
  * @property null|string $verification_flow The configuration token of a Verification Flow from the dashboard.
  * @property null|string $verification_session ID of the VerificationSession that created this report.
  */
-class VerificationReport extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'identity.verification_report';
+class VerificationReport extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Retrieve;
+	const OBJECT_NAME = 'identity.verification_report';
 
-    const TYPE_DOCUMENT = 'document';
-    const TYPE_ID_NUMBER = 'id_number';
-    const TYPE_VERIFICATION_FLOW = 'verification_flow';
+	use \Stripe\ApiOperations\All;
+	use \Stripe\ApiOperations\Retrieve;
+
+	const TYPE_DOCUMENT          = 'document';
+	const TYPE_ID_NUMBER         = 'id_number';
+	const TYPE_VERIFICATION_FLOW = 'verification_flow';
 }

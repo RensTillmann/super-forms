@@ -20,45 +20,43 @@ namespace Stripe;
  * @property string|\Stripe\ApplicationFee $fee ID of the application fee that was refunded.
  * @property null|\Stripe\StripeObject $metadata Set of <a href="https://stripe.com/docs/api/metadata">key-value pairs</a> that you can attach to an object. This can be useful for storing additional information about the object in a structured format.
  */
-class ApplicationFeeRefund extends ApiResource
-{
-    const OBJECT_NAME = 'fee_refund';
+class ApplicationFeeRefund extends ApiResource {
 
-    use ApiOperations\Update {
-        save as protected _save;
-    }
+	const OBJECT_NAME = 'fee_refund';
 
-    /**
-     * @return string the API URL for this Stripe refund
-     */
-    public function instanceUrl()
-    {
-        $id = $this['id'];
-        $fee = $this['fee'];
-        if (!$id) {
-            throw new Exception\UnexpectedValueException(
-                'Could not determine which URL to request: ' .
-                "class instance has invalid ID: {$id}",
-                null
-            );
-        }
-        $id = Util\Util::utf8($id);
-        $fee = Util\Util::utf8($fee);
+	use ApiOperations\Update {
+		save as protected _save;
+	}
 
-        $base = ApplicationFee::classUrl();
-        $feeExtn = \urlencode($fee);
-        $extn = \urlencode($id);
+	/**
+	 * @return string the API URL for this Stripe refund
+	 */
+	public function instanceUrl() {
+		$id  = $this['id'];
+		$fee = $this['fee'];
+		if ( ! $id ) {
+			throw new Exception\UnexpectedValueException(
+				'Could not determine which URL to request: ' .
+				"class instance has invalid ID: {$id}",
+				null
+			);
+		}
+		$id  = Util\Util::utf8( $id );
+		$fee = Util\Util::utf8( $fee );
 
-        return "{$base}/{$feeExtn}/refunds/{$extn}";
-    }
+		$base    = ApplicationFee::classUrl();
+		$feeExtn = \urlencode( $fee );
+		$extn    = \urlencode( $id );
 
-    /**
-     * @param null|array|string $opts
-     *
-     * @return ApplicationFeeRefund the saved refund
-     */
-    public function save($opts = null)
-    {
-        return $this->_save($opts);
-    }
+		return "{$base}/{$feeExtn}/refunds/{$extn}";
+	}
+
+	/**
+	 * @param null|array|string $opts
+	 *
+	 * @return ApplicationFeeRefund the saved refund
+	 */
+	public function save( $opts = null ) {
+		return $this->_save( $opts );
+	}
 }

@@ -31,39 +31,38 @@ namespace Stripe\Climate;
  * @property null|int $product_substituted_at Time at which the order's product was substituted for a different product. Measured in seconds since the Unix epoch.
  * @property string $status The current status of this order.
  */
-class Order extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'climate.order';
+class Order extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Create;
-    use \Stripe\ApiOperations\Retrieve;
-    use \Stripe\ApiOperations\Update;
+	const OBJECT_NAME = 'climate.order';
 
-    const CANCELLATION_REASON_EXPIRED = 'expired';
-    const CANCELLATION_REASON_PRODUCT_UNAVAILABLE = 'product_unavailable';
-    const CANCELLATION_REASON_REQUESTED = 'requested';
+	use \Stripe\ApiOperations\All;
+	use \Stripe\ApiOperations\Create;
+	use \Stripe\ApiOperations\Retrieve;
+	use \Stripe\ApiOperations\Update;
 
-    const STATUS_AWAITING_FUNDS = 'awaiting_funds';
-    const STATUS_CANCELED = 'canceled';
-    const STATUS_CONFIRMED = 'confirmed';
-    const STATUS_DELIVERED = 'delivered';
-    const STATUS_OPEN = 'open';
+	const CANCELLATION_REASON_EXPIRED             = 'expired';
+	const CANCELLATION_REASON_PRODUCT_UNAVAILABLE = 'product_unavailable';
+	const CANCELLATION_REASON_REQUESTED           = 'requested';
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Climate\Order the canceled order
-     */
-    public function cancel($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/cancel';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+	const STATUS_AWAITING_FUNDS = 'awaiting_funds';
+	const STATUS_CANCELED       = 'canceled';
+	const STATUS_CONFIRMED      = 'confirmed';
+	const STATUS_DELIVERED      = 'delivered';
+	const STATUS_OPEN           = 'open';
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Climate\Order the canceled order
+	 */
+	public function cancel( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/cancel';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
+
+		return $this;
+	}
 }

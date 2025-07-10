@@ -12,10 +12,10 @@ namespace Stripe;
  * @property string $description A detailed description of which types of products the tax code represents.
  * @property string $name A short name for the tax code.
  */
-class TaxCode extends ApiResource
-{
-    const OBJECT_NAME = 'tax_code';
+class TaxCode extends ApiResource {
 
-    use ApiOperations\All;
-    use ApiOperations\Retrieve;
+	const OBJECT_NAME = 'tax_code';
+
+	use ApiOperations\All;
+	use ApiOperations\Retrieve;
 }

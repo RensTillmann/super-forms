@@ -23,24 +23,24 @@ namespace Stripe\Treasury;
  * @property string $status Status of the Transaction.
  * @property \Stripe\StripeObject $status_transitions
  */
-class Transaction extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'treasury.transaction';
+class Transaction extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Retrieve;
+	const OBJECT_NAME = 'treasury.transaction';
 
-    const FLOW_TYPE_CREDIT_REVERSAL = 'credit_reversal';
-    const FLOW_TYPE_DEBIT_REVERSAL = 'debit_reversal';
-    const FLOW_TYPE_INBOUND_TRANSFER = 'inbound_transfer';
-    const FLOW_TYPE_ISSUING_AUTHORIZATION = 'issuing_authorization';
-    const FLOW_TYPE_OTHER = 'other';
-    const FLOW_TYPE_OUTBOUND_PAYMENT = 'outbound_payment';
-    const FLOW_TYPE_OUTBOUND_TRANSFER = 'outbound_transfer';
-    const FLOW_TYPE_RECEIVED_CREDIT = 'received_credit';
-    const FLOW_TYPE_RECEIVED_DEBIT = 'received_debit';
+	use \Stripe\ApiOperations\All;
+	use \Stripe\ApiOperations\Retrieve;
 
-    const STATUS_OPEN = 'open';
-    const STATUS_POSTED = 'posted';
-    const STATUS_VOID = 'void';
+	const FLOW_TYPE_CREDIT_REVERSAL       = 'credit_reversal';
+	const FLOW_TYPE_DEBIT_REVERSAL        = 'debit_reversal';
+	const FLOW_TYPE_INBOUND_TRANSFER      = 'inbound_transfer';
+	const FLOW_TYPE_ISSUING_AUTHORIZATION = 'issuing_authorization';
+	const FLOW_TYPE_OTHER                 = 'other';
+	const FLOW_TYPE_OUTBOUND_PAYMENT      = 'outbound_payment';
+	const FLOW_TYPE_OUTBOUND_TRANSFER     = 'outbound_transfer';
+	const FLOW_TYPE_RECEIVED_CREDIT       = 'received_credit';
+	const FLOW_TYPE_RECEIVED_DEBIT        = 'received_debit';
+
+	const STATUS_OPEN   = 'open';
+	const STATUS_POSTED = 'posted';
+	const STATUS_VOID   = 'void';
 }

@@ -22,12 +22,12 @@ namespace Stripe;
  * @property \Stripe\StripeObject $restrictions
  * @property int $times_redeemed Number of times this promotion code has been used.
  */
-class PromotionCode extends ApiResource
-{
-    const OBJECT_NAME = 'promotion_code';
+class PromotionCode extends ApiResource {
 
-    use ApiOperations\All;
-    use ApiOperations\Create;
-    use ApiOperations\Retrieve;
-    use ApiOperations\Update;
+	const OBJECT_NAME = 'promotion_code';
+
+	use ApiOperations\All;
+	use ApiOperations\Create;
+	use ApiOperations\Retrieve;
+	use ApiOperations\Update;
 }

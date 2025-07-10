@@ -15,17 +15,17 @@ namespace Stripe\Issuing;
  * @property string $status Whether this physical bundle can be used to create cards.
  * @property string $type Whether this physical bundle is a standard Stripe offering or custom-made for you.
  */
-class PhysicalBundle extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'issuing.physical_bundle';
+class PhysicalBundle extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Retrieve;
+	const OBJECT_NAME = 'issuing.physical_bundle';
 
-    const STATUS_ACTIVE = 'active';
-    const STATUS_INACTIVE = 'inactive';
-    const STATUS_REVIEW = 'review';
+	use \Stripe\ApiOperations\All;
+	use \Stripe\ApiOperations\Retrieve;
 
-    const TYPE_CUSTOM = 'custom';
-    const TYPE_STANDARD = 'standard';
+	const STATUS_ACTIVE   = 'active';
+	const STATUS_INACTIVE = 'inactive';
+	const STATUS_REVIEW   = 'review';
+
+	const TYPE_CUSTOM   = 'custom';
+	const TYPE_STANDARD = 'standard';
 }

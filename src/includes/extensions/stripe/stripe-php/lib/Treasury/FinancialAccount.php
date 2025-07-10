@@ -25,50 +25,48 @@ namespace Stripe\Treasury;
  * @property \Stripe\StripeObject $status_details
  * @property string[] $supported_currencies The currencies the FinancialAccount can hold a balance in. Three-letter <a href="https://www.iso.org/iso-4217-currency-codes.html">ISO currency code</a>, in lowercase.
  */
-class FinancialAccount extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'treasury.financial_account';
+class FinancialAccount extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Create;
-    use \Stripe\ApiOperations\Retrieve;
-    use \Stripe\ApiOperations\Update;
+	const OBJECT_NAME = 'treasury.financial_account';
 
-    const STATUS_CLOSED = 'closed';
-    const STATUS_OPEN = 'open';
+	use \Stripe\ApiOperations\All;
+	use \Stripe\ApiOperations\Create;
+	use \Stripe\ApiOperations\Retrieve;
+	use \Stripe\ApiOperations\Update;
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Treasury\FinancialAccountFeatures the retrieved financial account features
-     */
-    public function retrieveFeatures($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/features';
-        list($response, $opts) = $this->_request('get', $url, $params, $opts);
-        $obj = \Stripe\Util\Util::convertToStripeObject($response, $opts);
-        $obj->setLastResponse($response);
+	const STATUS_CLOSED = 'closed';
+	const STATUS_OPEN   = 'open';
 
-        return $obj;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Treasury\FinancialAccountFeatures the retrieved financial account features
+	 */
+	public function retrieveFeatures( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/features';
+		list($response, $opts) = $this->_request( 'get', $url, $params, $opts );
+		$obj                   = \Stripe\Util\Util::convertToStripeObject( $response, $opts );
+		$obj->setLastResponse( $response );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Treasury\FinancialAccountFeatures the updated financial account features
-     */
-    public function updateFeatures($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/features';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+		return $obj;
+	}
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Treasury\FinancialAccountFeatures the updated financial account features
+	 */
+	public function updateFeatures( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/features';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
+
+		return $this;
+	}
 }

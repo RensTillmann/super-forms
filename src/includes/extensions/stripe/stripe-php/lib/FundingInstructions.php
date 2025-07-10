@@ -17,9 +17,9 @@ namespace Stripe;
  * @property string $funding_type The <code>funding_type</code> of the returned instructions
  * @property bool $livemode Has the value <code>true</code> if the object exists in live mode or the value <code>false</code> if the object exists in test mode.
  */
-class FundingInstructions extends ApiResource
-{
-    const OBJECT_NAME = 'funding_instructions';
+class FundingInstructions extends ApiResource {
 
-    const FUNDING_TYPE_BANK_TRANSFER = 'bank_transfer';
+	const OBJECT_NAME = 'funding_instructions';
+
+	const FUNDING_TYPE_BANK_TRANSFER = 'bank_transfer';
 }

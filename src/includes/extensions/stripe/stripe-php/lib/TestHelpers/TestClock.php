@@ -18,33 +18,32 @@ namespace Stripe\TestHelpers;
  * @property null|string $name The custom name supplied at creation.
  * @property string $status The status of the Test Clock.
  */
-class TestClock extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'test_helpers.test_clock';
+class TestClock extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Create;
-    use \Stripe\ApiOperations\Delete;
-    use \Stripe\ApiOperations\Retrieve;
+	const OBJECT_NAME = 'test_helpers.test_clock';
 
-    const STATUS_ADVANCING = 'advancing';
-    const STATUS_INTERNAL_FAILURE = 'internal_failure';
-    const STATUS_READY = 'ready';
+	use \Stripe\ApiOperations\All;
+	use \Stripe\ApiOperations\Create;
+	use \Stripe\ApiOperations\Delete;
+	use \Stripe\ApiOperations\Retrieve;
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\TestHelpers\TestClock the advanced test clock
-     */
-    public function advance($params = null, $opts = null)
-    {
-        $url = $this->instanceUrl() . '/advance';
-        list($response, $opts) = $this->_request('post', $url, $params, $opts);
-        $this->refreshFrom($response, $opts);
+	const STATUS_ADVANCING        = 'advancing';
+	const STATUS_INTERNAL_FAILURE = 'internal_failure';
+	const STATUS_READY            = 'ready';
 
-        return $this;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\TestHelpers\TestClock the advanced test clock
+	 */
+	public function advance( $params = null, $opts = null ) {
+		$url                   = $this->instanceUrl() . '/advance';
+		list($response, $opts) = $this->_request( 'post', $url, $params, $opts );
+		$this->refreshFrom( $response, $opts );
+
+		return $this;
+	}
 }

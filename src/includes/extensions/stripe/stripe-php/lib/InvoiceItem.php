@@ -41,13 +41,13 @@ namespace Stripe;
  * @property null|int $unit_amount Unit amount (in the <code>currency</code> specified) of the invoice item.
  * @property null|string $unit_amount_decimal Same as <code>unit_amount</code>, but contains a decimal value with at most 12 decimal places.
  */
-class InvoiceItem extends ApiResource
-{
-    const OBJECT_NAME = 'invoiceitem';
+class InvoiceItem extends ApiResource {
 
-    use ApiOperations\All;
-    use ApiOperations\Create;
-    use ApiOperations\Delete;
-    use ApiOperations\Retrieve;
-    use ApiOperations\Update;
+	const OBJECT_NAME = 'invoiceitem';
+
+	use ApiOperations\All;
+	use ApiOperations\Create;
+	use ApiOperations\Delete;
+	use ApiOperations\Retrieve;
+	use ApiOperations\Update;
 }

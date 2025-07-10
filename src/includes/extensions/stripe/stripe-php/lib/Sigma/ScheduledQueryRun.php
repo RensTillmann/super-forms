@@ -22,15 +22,14 @@ namespace Stripe\Sigma;
  * @property string $status The query's execution status, which will be <code>completed</code> for successful runs, and <code>canceled</code>, <code>failed</code>, or <code>timed_out</code> otherwise.
  * @property string $title Title of the query.
  */
-class ScheduledQueryRun extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'scheduled_query_run';
+class ScheduledQueryRun extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Retrieve;
+	const OBJECT_NAME = 'scheduled_query_run';
 
-    public static function classUrl()
-    {
-        return '/v1/sigma/scheduled_query_runs';
-    }
+	use \Stripe\ApiOperations\All;
+	use \Stripe\ApiOperations\Retrieve;
+
+	public static function classUrl() {
+		return '/v1/sigma/scheduled_query_runs';
+	}
 }

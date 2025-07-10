@@ -21,17 +21,17 @@ namespace Stripe\Issuing;
  * @property \Stripe\StripeObject $rejection_reasons
  * @property string $status Whether this personalization design can be used to create cards.
  */
-class PersonalizationDesign extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'issuing.personalization_design';
+class PersonalizationDesign extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Create;
-    use \Stripe\ApiOperations\Retrieve;
-    use \Stripe\ApiOperations\Update;
+	const OBJECT_NAME = 'issuing.personalization_design';
 
-    const STATUS_ACTIVE = 'active';
-    const STATUS_INACTIVE = 'inactive';
-    const STATUS_REJECTED = 'rejected';
-    const STATUS_REVIEW = 'review';
+	use \Stripe\ApiOperations\All;
+	use \Stripe\ApiOperations\Create;
+	use \Stripe\ApiOperations\Retrieve;
+	use \Stripe\ApiOperations\Update;
+
+	const STATUS_ACTIVE   = 'active';
+	const STATUS_INACTIVE = 'inactive';
+	const STATUS_REJECTED = 'rejected';
+	const STATUS_REVIEW   = 'review';
 }

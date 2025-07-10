@@ -12,7 +12,7 @@ namespace Stripe;
  * @property string|\Stripe\Account $destination ID of the account that funds are being collected for.
  * @property bool $livemode Has the value <code>true</code> if the object exists in live mode or the value <code>false</code> if the object exists in test mode.
  */
-class ConnectCollectionTransfer extends ApiResource
-{
-    const OBJECT_NAME = 'connect_collection_transfer';
+class ConnectCollectionTransfer extends ApiResource {
+
+	const OBJECT_NAME = 'connect_collection_transfer';
 }

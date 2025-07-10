@@ -20,45 +20,43 @@ namespace Stripe;
  * @property string $subscription The <code>subscription</code> this <code>subscription_item</code> belongs to.
  * @property null|\Stripe\TaxRate[] $tax_rates The tax rates which apply to this <code>subscription_item</code>. When set, the <code>default_tax_rates</code> on the subscription do not apply to this <code>subscription_item</code>.
  */
-class SubscriptionItem extends ApiResource
-{
-    const OBJECT_NAME = 'subscription_item';
+class SubscriptionItem extends ApiResource {
 
-    use ApiOperations\All;
-    use ApiOperations\Create;
-    use ApiOperations\Delete;
-    use ApiOperations\NestedResource;
-    use ApiOperations\Retrieve;
-    use ApiOperations\Update;
+	const OBJECT_NAME = 'subscription_item';
 
-    const PATH_USAGE_RECORDS = '/usage_records';
+	use ApiOperations\All;
+	use ApiOperations\Create;
+	use ApiOperations\Delete;
+	use ApiOperations\NestedResource;
+	use ApiOperations\Retrieve;
+	use ApiOperations\Update;
 
-    /**
-     * @param string $id the ID of the subscription item on which to create the usage record
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\UsageRecord
-     */
-    public static function createUsageRecord($id, $params = null, $opts = null)
-    {
-        return self::_createNestedResource($id, static::PATH_USAGE_RECORDS, $params, $opts);
-    }
-    const PATH_USAGE_RECORD_SUMMARIES = '/usage_record_summaries';
+	const PATH_USAGE_RECORDS = '/usage_records';
 
-    /**
-     * @param string $id the ID of the subscription item on which to retrieve the usage record summaries
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Collection<\Stripe\UsageRecordSummary> the list of usage record summaries
-     */
-    public static function allUsageRecordSummaries($id, $params = null, $opts = null)
-    {
-        return self::_allNestedResources($id, static::PATH_USAGE_RECORD_SUMMARIES, $params, $opts);
-    }
+	/**
+	 * @param string            $id the ID of the subscription item on which to create the usage record
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\UsageRecord
+	 */
+	public static function createUsageRecord( $id, $params = null, $opts = null ) {
+		return self::_createNestedResource( $id, static::PATH_USAGE_RECORDS, $params, $opts );
+	}
+	const PATH_USAGE_RECORD_SUMMARIES = '/usage_record_summaries';
+
+	/**
+	 * @param string            $id the ID of the subscription item on which to retrieve the usage record summaries
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Collection<\Stripe\UsageRecordSummary> the list of usage record summaries
+	 */
+	public static function allUsageRecordSummaries( $id, $params = null, $opts = null ) {
+		return self::_allNestedResources( $id, static::PATH_USAGE_RECORD_SUMMARIES, $params, $opts );
+	}
 }

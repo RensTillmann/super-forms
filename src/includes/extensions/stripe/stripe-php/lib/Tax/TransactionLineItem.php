@@ -19,13 +19,13 @@ namespace Stripe\Tax;
  * @property string $tax_code The <a href="https://stripe.com/docs/tax/tax-categories">tax code</a> ID used for this resource.
  * @property string $type If <code>reversal</code>, this line item reverses an earlier transaction.
  */
-class TransactionLineItem extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'tax.transaction_line_item';
+class TransactionLineItem extends \Stripe\ApiResource {
 
-    const TAX_BEHAVIOR_EXCLUSIVE = 'exclusive';
-    const TAX_BEHAVIOR_INCLUSIVE = 'inclusive';
+	const OBJECT_NAME = 'tax.transaction_line_item';
 
-    const TYPE_REVERSAL = 'reversal';
-    const TYPE_TRANSACTION = 'transaction';
+	const TAX_BEHAVIOR_EXCLUSIVE = 'exclusive';
+	const TAX_BEHAVIOR_INCLUSIVE = 'inclusive';
+
+	const TYPE_REVERSAL    = 'reversal';
+	const TYPE_TRANSACTION = 'transaction';
 }

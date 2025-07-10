@@ -25,46 +25,44 @@ namespace Stripe\Apps;
  * @property null|string $payload The plaintext secret value to be stored.
  * @property \Stripe\StripeObject $scope
  */
-class Secret extends \Stripe\ApiResource
-{
-    const OBJECT_NAME = 'apps.secret';
+class Secret extends \Stripe\ApiResource {
 
-    use \Stripe\ApiOperations\All;
-    use \Stripe\ApiOperations\Create;
+	const OBJECT_NAME = 'apps.secret';
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Apps\Secret the deleted secret
-     */
-    public static function deleteWhere($params = null, $opts = null)
-    {
-        $url = static::classUrl() . '/delete';
-        list($response, $opts) = static::_staticRequest('post', $url, $params, $opts);
-        $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
-        $obj->setLastResponse($response);
+	use \Stripe\ApiOperations\All;
+	use \Stripe\ApiOperations\Create;
 
-        return $obj;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Apps\Secret the deleted secret
+	 */
+	public static function deleteWhere( $params = null, $opts = null ) {
+		$url                   = static::classUrl() . '/delete';
+		list($response, $opts) = static::_staticRequest( 'post', $url, $params, $opts );
+		$obj                   = \Stripe\Util\Util::convertToStripeObject( $response->json, $opts );
+		$obj->setLastResponse( $response );
 
-    /**
-     * @param null|array $params
-     * @param null|array|string $opts
-     *
-     * @throws \Stripe\Exception\ApiErrorException if the request fails
-     *
-     * @return \Stripe\Apps\Secret the finded secret
-     */
-    public static function find($params = null, $opts = null)
-    {
-        $url = static::classUrl() . '/find';
-        list($response, $opts) = static::_staticRequest('get', $url, $params, $opts);
-        $obj = \Stripe\Util\Util::convertToStripeObject($response->json, $opts);
-        $obj->setLastResponse($response);
+		return $obj;
+	}
 
-        return $obj;
-    }
+	/**
+	 * @param null|array        $params
+	 * @param null|array|string $opts
+	 *
+	 * @throws \Stripe\Exception\ApiErrorException if the request fails
+	 *
+	 * @return \Stripe\Apps\Secret the finded secret
+	 */
+	public static function find( $params = null, $opts = null ) {
+		$url                   = static::classUrl() . '/find';
+		list($response, $opts) = static::_staticRequest( 'get', $url, $params, $opts );
+		$obj                   = \Stripe\Util\Util::convertToStripeObject( $response->json, $opts );
+		$obj->setLastResponse( $response );
+
+		return $obj;
+	}
 }

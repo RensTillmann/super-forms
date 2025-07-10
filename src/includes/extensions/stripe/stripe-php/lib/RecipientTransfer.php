@@ -30,7 +30,7 @@ namespace Stripe;
  * @property string $status
  * @property string $type
  */
-class RecipientTransfer extends ApiResource
-{
-    const OBJECT_NAME = 'recipient_transfer';
+class RecipientTransfer extends ApiResource {
+
+	const OBJECT_NAME = 'recipient_transfer';
 }
