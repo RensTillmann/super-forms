@@ -13,3 +13,30 @@ usd2.PHP
 *.swp
 *.swn
 .vscode
+
+# Composer
+vendor/
+composer.phar
+
+# IDE and Editor files
+.idea/
+*.sublime-project
+*.sublime-workspace
+.vscode/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# PHP
+*.log
+.phpunit.result.cache
+
+# Security reports (optional - you might want to commit these)
+*-report.json
+*-report.txt
