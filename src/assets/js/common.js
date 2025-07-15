@@ -104,40 +104,210 @@ SUPER.formFullyLoaded.timer = setInterval(SUPER.formFullyLoaded.timerFunction, 1
 
 // Shared filtering functions for admin conditional logic
 SUPER.filtering = {
+    _isProcessing: false,
+    _debounceTimer: null,
+    _pendingUpdates: new Set(),
+    _dependencyMap: new Map(), // Maps field names to elements that depend on them
+    _conditionCache: new Map(), // Caches condition results
     
     // Enhanced filtering system for both settings page and form builder
     showHideSubsettings: function(triggeredBy, context) {
-        var allNodes;
+        var self = this;
         
-        // Determine context - either settings page or form builder
+        // Add to pending updates
+        if (triggeredBy) {
+            self._pendingUpdates.add(triggeredBy);
+        }
+        
+        // Clear existing timer
+        if (self._debounceTimer) {
+            clearTimeout(self._debounceTimer);
+        }
+        
+        // Debounce the actual processing
+        self._debounceTimer = setTimeout(function() {
+            self._processShowHideSubsettings(triggeredBy, context);
+            self._pendingUpdates.clear();
+        }, 300); // 300ms debounce
+    },
+    
+    buildDependencyMap: function(context) {
+        var self = this;
+        self._dependencyMap.clear();
+        self._conditionCache.clear();
+        
+        var allNodes;
         if (context === 'settings') {
             allNodes = document.querySelectorAll('.super-filter[data-parent], .super-filter[data-f]');
         } else if (context === 'form-builder') {
-            var tab = triggeredBy ? 
-                (triggeredBy.closest('.sfui-setting-group') || triggeredBy.closest('.super-tab-content')) : 
-                document.querySelector('.super-tabs-content');
-            if (!tab) return;
+            var container = document.querySelector('.super-tabs-content');
+            if (!container) return;
+            allNodes = container.querySelectorAll('.sfui-notice[data-f], .sfui-setting[data-f], .sfui-sub-settings[data-f], .sfui-setting-group[data-f]');
+        }
+        
+        if (!allNodes) return;
+        
+        // Build dependency map and field-to-node map for circular detection
+        var fieldToNode = new Map();
+        
+        for (var i = 0; i < allNodes.length; i++) {
+            var node = allNodes[i];
+            var conditions = self._parseFilterConditions(node);
             
-            allNodes = tab.querySelectorAll('.sfui-notice[data-f], .sfui-setting[data-f], .sfui-sub-settings[data-f], .sfui-setting-group[data-f]');
-            if (allNodes.length === 0 && triggeredBy) {
-                tab = triggeredBy.closest('.sfui-repeater-item');
-                if (tab) {
-                    allNodes = tab.querySelectorAll('.sfui-notice[data-f], .sfui-setting[data-f], .sfui-sub-settings[data-f], .sfui-setting-group[data-f]');
+            // Map node to its field name if it has one
+            var nodeField = node.querySelector('[name]');
+            if (nodeField && nodeField.name) {
+                fieldToNode.set(nodeField.name, node);
+            }
+            
+            for (var j = 0; j < conditions.length; j++) {
+                var fieldName = conditions[j].field;
+                if (!self._dependencyMap.has(fieldName)) {
+                    self._dependencyMap.set(fieldName, []);
+                }
+                self._dependencyMap.get(fieldName).push(node);
+            }
+        }
+        
+        // Detect circular dependencies
+        self._detectCircularDependencies(fieldToNode);
+    },
+    
+    _detectCircularDependencies: function(fieldToNode) {
+        var self = this;
+        var visited = new Set();
+        var recursionStack = new Set();
+        
+        function hasCycle(fieldName, path) {
+            if (recursionStack.has(fieldName)) {
+                console.warn('Super Forms: Circular dependency detected:', path.concat(fieldName).join(' -> '));
+                return true;
+            }
+            
+            if (visited.has(fieldName)) {
+                return false;
+            }
+            
+            visited.add(fieldName);
+            recursionStack.add(fieldName);
+            
+            // Get nodes that this field affects
+            var dependentNodes = self._dependencyMap.get(fieldName) || [];
+            
+            for (var i = 0; i < dependentNodes.length; i++) {
+                var nodeField = dependentNodes[i].querySelector('[name]');
+                if (nodeField && nodeField.name) {
+                    if (hasCycle(nodeField.name, path.concat(fieldName))) {
+                        return true;
+                    }
                 }
             }
-        } else {
-            // Auto-detect context based on DOM
-            if (document.querySelector('.super-settings')) {
-                return this.showHideSubsettings(triggeredBy, 'settings');
-            } else if (document.querySelector('.super-create-form')) {
-                return this.showHideSubsettings(triggeredBy, 'form-builder');
+            
+            recursionStack.delete(fieldName);
+            return false;
+        }
+        
+        // Check each field for cycles
+        fieldToNode.forEach(function(node, fieldName) {
+            if (!visited.has(fieldName)) {
+                hasCycle(fieldName, []);
             }
-            return;
+        });
+    },
+    
+    _parseFilterConditions: function(node) {
+        var filterAttr = node.getAttribute('data-f');
+        if (!filterAttr) return [];
+        
+        try {
+            var conditions = JSON.parse(filterAttr);
+            return Array.isArray(conditions) ? conditions : [conditions];
+        } catch(e) {
+            // Legacy format parsing
+            var parts = filterAttr.split(';');
+            return [{
+                field: parts[0],
+                operator: '=',
+                value: parts[1] || ''
+            }];
+        }
+    },
+    
+    _processShowHideSubsettings: function(triggeredBy, context) {
+        // Prevent infinite recursion
+        if (this._isProcessing) return;
+        this._isProcessing = true;
+        
+        var self = this;
+        var allNodes;
+        var nodesToProcess;
+        
+        // Build dependency map if empty
+        if (self._dependencyMap.size === 0) {
+            self.buildDependencyMap(context);
+        }
+        
+        // If triggered by specific field, only process dependent nodes
+        if (triggeredBy && triggeredBy.name) {
+            var fieldName = triggeredBy.name;
+            var dependentNodes = self._dependencyMap.get(fieldName) || [];
+            
+            // Also check for nested field paths
+            var parentGroups = [];
+            var parent = triggeredBy.parentElement;
+            while (parent) {
+                if (parent.hasAttribute('data-g')) {
+                    parentGroups.unshift(parent.getAttribute('data-g'));
+                }
+                parent = parent.parentElement;
+            }
+            
+            if (parentGroups.length > 0) {
+                var fullPath = parentGroups.join('.') + '.' + fieldName;
+                var nestedDependents = self._dependencyMap.get(fullPath) || [];
+                dependentNodes = dependentNodes.concat(nestedDependents);
+            }
+            
+            nodesToProcess = dependentNodes;
+        } else {
+            // Process all nodes on initial load
+            if (context === 'settings') {
+                allNodes = document.querySelectorAll('.super-filter[data-parent], .super-filter[data-f]');
+            } else if (context === 'form-builder') {
+                var tab = triggeredBy ? 
+                    (triggeredBy.closest('.sfui-setting-group') || triggeredBy.closest('.super-tab-content')) : 
+                    document.querySelector('.super-tabs-content');
+                if (!tab) {
+                    self._isProcessing = false;
+                    return;
+                }
+                
+                allNodes = tab.querySelectorAll('.sfui-notice[data-f], .sfui-setting[data-f], .sfui-sub-settings[data-f], .sfui-setting-group[data-f]');
+                if (allNodes.length === 0 && triggeredBy) {
+                    tab = triggeredBy.closest('.sfui-repeater-item');
+                    if (tab) {
+                        allNodes = tab.querySelectorAll('.sfui-notice[data-f], .sfui-setting[data-f], .sfui-sub-settings[data-f], .sfui-setting-group[data-f]');
+                    }
+                }
+            } else {
+                // Auto-detect context based on DOM
+                if (document.querySelector('.super-settings')) {
+                    self._isProcessing = false;
+                    return this.showHideSubsettings(triggeredBy, 'settings');
+                } else if (document.querySelector('.super-create-form')) {
+                    self._isProcessing = false;
+                    return this.showHideSubsettings(triggeredBy, 'form-builder');
+                }
+                self._isProcessing = false;
+                return;
+            }
+            nodesToProcess = allNodes;
         }
         
         // Process each filtered element
-        for (var i = 0; i < allNodes.length; i++) {
-            var currentNode = allNodes[i];
+        var nodes = nodesToProcess || [];
+        for (var i = 0; i < nodes.length; i++) {
+            var currentNode = nodes[i];
             
             // Handle legacy format for settings page
             if (context === 'settings' && currentNode.hasAttribute('data-parent')) {
@@ -207,6 +377,9 @@ SUPER.filtering = {
                 this.setElementVisibility(currentNode, showElement, context, triggeredBy);
             }
         }
+        
+        // Reset processing flag
+        this._isProcessing = false;
     },
     
     evaluateFilterCondition: function(condition, context, triggeredBy) {
@@ -215,7 +388,20 @@ SUPER.filtering = {
         var expectedValue = condition.value;
         
         var fieldElement = this.findFieldElement(field, context, triggeredBy);
-        if (!fieldElement) return false;
+        if (!fieldElement) {
+            // Log warning for missing field only once
+            if (!this._missingFieldWarnings) {
+                this._missingFieldWarnings = new Set();
+            }
+            if (!this._missingFieldWarnings.has(field)) {
+                // Only warn if not in initial load phase
+                if (document.readyState === 'complete') {
+                    console.warn('Super Forms: Filter condition references non-existent field:', field);
+                }
+                this._missingFieldWarnings.add(field);
+            }
+            return false;
+        }
         
         var currentValue = this.getFieldValue(fieldElement);
         
@@ -292,17 +478,17 @@ SUPER.filtering = {
                 // Add the final field name selector
                 selector += '[name="' + parts[parts.length - 1] + '"]';
                 
-                console.log('Looking for nested field:', fieldName, 'with selector:', selector);
+                // console.log('Looking for nested field:', fieldName, 'with selector:', selector);
                 node = tab.querySelector(selector);
-                console.log('Found nested field:', !!node);
+                // console.log('Found nested field:', !!node);
                 
                 // If not found in current tab, try searching in the specific repeater item context
                 if (!node && triggeredBy) {
                     var repeaterItem = triggeredBy.closest('.sfui-repeater-item');
                     if (repeaterItem) {
-                        console.log('Searching in repeater item context');
+                        // console.log('Searching in repeater item context');
                         node = repeaterItem.querySelector(selector);
-                        console.log('Found in repeater item:', !!node);
+                        // console.log('Found in repeater item:', !!node);
                     }
                 }
             }
@@ -316,7 +502,8 @@ SUPER.filtering = {
         if (!element) return '';
         
         if (element.type === 'checkbox') {
-            return element.checked ? element.value : '';
+            // For form builder checkboxes, return 'true' or 'false' string to match filter conditions
+            return element.checked ? 'true' : 'false';
         } else if (element.type === 'radio') {
             var checked = document.querySelector('input[name="'+element.name+'"]:checked');
             return checked ? checked.value : '';
@@ -327,27 +514,55 @@ SUPER.filtering = {
         }
     },
     
+    _domUpdateQueue: [],
+    _rafId: null,
+    
     setElementVisibility: function(element, isVisible, context, triggeredBy) {
-        if (context === 'settings') {
-            if (isVisible) {
-                element.style.display = '';
-            } else {
-                element.style.display = 'none';
-            }
-        } else if (context === 'form-builder') {
-            // Remove active class
-            element.classList.remove('sfui-active');
+        // Queue DOM updates for batching
+        this._domUpdateQueue.push({
+            element: element,
+            isVisible: isVisible,
+            context: context,
+            triggeredBy: triggeredBy
+        });
+        
+        // Schedule batch update
+        if (!this._rafId) {
+            this._rafId = requestAnimationFrame(this._processDomUpdates.bind(this));
+        }
+    },
+    
+    _processDomUpdates: function() {
+        var updates = this._domUpdateQueue;
+        this._domUpdateQueue = [];
+        this._rafId = null;
+        
+        // Process all queued updates
+        for (var i = 0; i < updates.length; i++) {
+            var update = updates[i];
+            var element = update.element;
+            var isVisible = update.isVisible;
+            var context = update.context;
+            var triggeredBy = update.triggeredBy;
             
-            // Add active class if visible
-            if (isVisible) {
-                if (element.classList.contains('sfui-notice')) element.classList.add('sfui-active');
-                if (element.classList.contains('sfui-setting')) element.classList.add('sfui-active');
-                if (element.classList.contains('sfui-setting-group')) element.classList.add('sfui-active');
-                if (element.classList.contains('sfui-sub-settings')) element.classList.add('sfui-active');
+            if (context === 'settings') {
+                if (isVisible) {
+                    element.style.display = '';
+                } else {
+                    element.style.display = 'none';
+                }
+            } else if (context === 'form-builder') {
+                // Remove active class
+                element.classList.remove('sfui-active');
                 
-                // if direct parent is sfui-settings-group, make it active 
-                if (triggeredBy && element.parentNode.classList.contains('sfui-setting-group')) {
-                    element.parentNode.classList.add('sfui-active');
+                // Add active class if visible
+                if (isVisible) {
+                    element.classList.add('sfui-active');
+                    
+                    // if direct parent is sfui-settings-group, make it active 
+                    if (triggeredBy && element.parentNode.classList.contains('sfui-setting-group')) {
+                        element.parentNode.classList.add('sfui-active');
+                    }
                 }
             }
         }
@@ -365,7 +580,7 @@ SUPER.after_form_fully_loaded = function(args){
                     args.form.classList.add('super-initialized');
                     jQuery(args.form).fadeIn(500, function(){
                         SUPER.switch_to_step_and_or_field(args.form);
-                        console.log('Form fully loaded:', args);
+                        // console.log('Form fully loaded:', args);
                         args.form.classList.add('super-form-ready');
                         SUPER.after_form_ready.hook(args);
                     });
@@ -376,7 +591,7 @@ SUPER.after_form_fully_loaded = function(args){
         if(!args.form.classList.contains('super-initialized')) {
             args.form.classList.add('super-initialized');
             SUPER.switch_to_step_and_or_field(args.form);
-            console.log('Form fully loaded:', args);
+            // console.log('Form fully loaded:', args);
             args.form.classList.add('super-form-ready');
             SUPER.after_form_ready.hook(args);
         }
@@ -395,7 +610,7 @@ SUPER.after_form_fully_loaded = function(args){
                         args.form.querySelector('.super-i18n-switcher li[data-value="'+$i18n+'"]').click();
                         jQuery(args.form).fadeIn(500, function(){
                             SUPER.switch_to_step_and_or_field(args.form);
-                            console.log('Form fully loaded:', args);
+                            // console.log('Form fully loaded:', args);
                             args.form.classList.add('super-form-ready');
                             SUPER.after_form_ready.hook(args);
                         });
@@ -404,7 +619,7 @@ SUPER.after_form_fully_loaded = function(args){
                 }
                 jQuery(args.form).fadeIn(500, function(){
                     SUPER.switch_to_step_and_or_field(args.form);
-                    console.log('Form fully loaded:', args);
+                    // console.log('Form fully loaded:', args);
                     args.form.classList.add('super-form-ready');
                     SUPER.after_form_ready.hook(args);
                 });

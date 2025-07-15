@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  wordpress:
+    image: wordpress:6.8-php8.1-apache
+    ports:
+      - "8080:80"
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: superforms
+      WORDPRESS_DB_PASSWORD: superforms123
+      WORDPRESS_DB_NAME: superforms_test
+      WORDPRESS_TABLE_PREFIX: sf_
+      # Auto-install WordPress with admin user
+      WORDPRESS_ADMIN_USER: admin
+      WORDPRESS_ADMIN_PASSWORD: admin
+      WORDPRESS_ADMIN_EMAIL: admin@superforms.test
+      # Configure PHP settings for file uploads
+      PHP_INI_SCAN_DIR: "/usr/local/etc/php/conf.d:/var/www/html"
+    volumes:
+      # Mount the Super Forms plugin source
+      - ../src:/var/www/html/wp-content/plugins/super-forms
+      # WordPress data persistence
+      - wordpress_data:/var/www/html
+      # Test scripts and setup
+      - ./scripts:/scripts
+      - ./exports:/scripts/../exports
+      - ./setup-wordpress.sh:/setup-wordpress.sh
+      - ./php-overrides.ini:/usr/local/etc/php/conf.d/uploads.ini
+      # Mount the XML export file for automatic import
+      - ./superforms-export.xml:/scripts/superforms-export.xml
+    depends_on:
+      - db
+    restart: unless-stopped
+    command: bash -c "bash /setup-wordpress.sh && apache2-foreground"
+
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: superforms_test
+      MYSQL_USER: superforms
+      MYSQL_PASSWORD: superforms123
+      MYSQL_ROOT_PASSWORD: rootpass123
+    volumes:
+      - db_data:/var/lib/mysql
+    restart: unless-stopped
+
+  # WP-CLI for WordPress management
+  wpcli:
+    image: wordpress:cli-php8.1
+    volumes:
+      - ../src:/var/www/html/wp-content/plugins/super-forms
+      - wordpress_data:/var/www/html
+      - ./scripts:/scripts
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: superforms
+      WORDPRESS_DB_PASSWORD: superforms123
+      WORDPRESS_DB_NAME: superforms_test
+    depends_on:
+      - db
+      - wordpress
+    profiles:
+      - cli
+
+volumes:
+  wordpress_data:
+  db_data:
+
+networks:
+  default:
+    name: superforms_test_network

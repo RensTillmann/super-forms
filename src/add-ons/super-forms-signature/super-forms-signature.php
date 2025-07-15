@@ -531,11 +531,17 @@ if ( ! class_exists( 'SUPER_Signature' ) ) :
 				return $data;
 			}
 			if ( ( strpos( $v['value'], 'data:image/png;base64,' ) !== false ) || ( strpos( $v['value'], 'data:image/jpeg;base64,' ) !== false ) ) {
-				$signature_filename           = $v['name'] . '.png';
+				// Determine the actual image type
+				if ( strpos( $v['value'], 'data:image/jpeg;base64,' ) !== false ) {
+					$signature_filename = $v['name'] . '.jpg';
+					$signature_type     = 'image/jpeg';
+				} else {
+					$signature_filename = $v['name'] . '.png';
+					$signature_type     = 'image/png';
+				}
 				$signature_contact_image_data = $v['value'];
 				$signature_data               = substr( $signature_contact_image_data, strpos( $signature_contact_image_data, ',' ) );
 				$signature_encoding           = 'base64';
-				$signature_type               = 'image/png';
 				$string_attachment            = array(
 					'data'     => $signature_data,
 					'filename' => $signature_filename,

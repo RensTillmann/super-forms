@@ -40,3 +40,38 @@ Thumbs.db
 # Security reports (optional - you might want to commit these)
 *-report.json
 *-report.txt
+
+# Test data with potential sensitive information
+test/scripts/superforms-export.xml
+test/exports/
+test/SENSITIVE_DATA_FINDINGS.md
+
+# Files that might contain API keys or credentials
+**/config.local.php
+**/credentials.json
+**/.env
+**/.env.local
+**/*.key
+**/*.pem
+
+# Additional log files
+phpcbf-output.log
+
+# Claude AI assistant files
+.claude/
+
+# Test results and temporary test data
+test/test-results.json
+test/scripts/test-results.json
+test/superforms-export.xml
+test/exports/original/*.json
+
+# Temporary test/debug scripts (uncomment if these are temporary)
+# test/scripts/debug-*.php
+# test/scripts/test-*.php
+# test/scripts/fix-*.php
+
+# Lock files (typically committed, uncomment only if you don't want them)
+# package-lock.json
+# composer.lock
+# test/package-lock.json

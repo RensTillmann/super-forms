@@ -987,7 +987,8 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 			$tmp_dir      = wp_upload_dir()['basedir'] . '/tmp/sf/';
 			$now          = time(); // UTC timestamp
 			$expired_dirs = array();
-			if ( $handle = opendir( $tmp_dir ) ) {
+			// Check if directory exists before trying to open it
+			if ( is_dir( $tmp_dir ) && ( $handle = opendir( $tmp_dir ) ) ) {
 				while ( false !== ( $entry = readdir( $handle ) ) ) {
 					if ( $entry != '.' && $entry != '..' ) {
 						$dir_path = $tmp_dir . $entry;
@@ -3676,6 +3677,17 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 		 * @since 3.8.0
 		 */
 		public static function get_form_settings( $form_id, $renew = false ) {
+			// Add recursion guard to prevent infinite loops
+			static $migration_in_progress = array();
+			if ( isset( $migration_in_progress[$form_id] ) ) {
+				// Return basic settings without migration
+				$form_settings = get_post_meta( $form_id, '_super_form_settings', true );
+				if ( empty( $form_settings ) ) {
+					$form_settings = array();
+				}
+				return $form_settings;
+			}
+			
 			if ( $renew === false && isset( SUPER_Forms()->form_settings ) ) {
 				error_log( 'we already have the form setings, return it' );
 				error_log( json_encode( SUPER_Forms()->form_settings ) );
@@ -3741,13 +3753,153 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 			$current_form_version = get_post_meta( $form_id, '_super_version', true );
 			// @Important, this check is against the Super Forms plugin version, not to be confused with the WordPress version!
 			// error_log($current_form_version);
-			if ( version_compare( $current_form_version, '6.4', '<' ) ) {
-				error_log( 'Define Triggers for this Form if not already, for instance, copy over E-mail settings and define Admin and Confirmation E-mails as triggers' );
+			
+			// Check if _emails field exists, if not we need to migrate legacy settings
+			$existing_emails = get_post_meta( $form_id, '_emails', true );
+			$needs_email_migration = empty( $existing_emails ) && ( ! empty( $s['send'] ) || ! empty( $s['confirm'] ) );
+			$has_reminder_settings = ! empty( $s['email_reminder_amount'] ) && intval( $s['email_reminder_amount'] ) > 0;
+			
+			// Check if migration has already been completed by checking form version
+			// Handle empty version (old forms) by treating them as needing migration
+			$migration_completed = false;
+			if ( ! empty( $current_form_version ) ) {
+				$migration_completed = version_compare( $current_form_version, SUPER_VERSION, '>=' );
+			}
+			
+			// error_log( "MIGRATION DEBUG: form_id=$form_id, version=$current_form_version, existing_emails=" . json_encode($existing_emails) . ", has_reminder_settings=" . ($has_reminder_settings ? 'true' : 'false') . ", migration_completed=" . ($migration_completed ? 'true' : 'false') );
+			
+			if ( ! $migration_completed && ( version_compare( $current_form_version, '6.4', '<' ) || $needs_email_migration || ( empty( $existing_emails ) && $has_reminder_settings ) ) ) { 
+				// error_log( 'Define Triggers for this Form if not already, for instance, copy over E-mail settings and define Admin and Confirmation E-mails as triggers' );
+				// Set recursion guard
+				$migration_in_progress[$form_id] = true;
 				// Get trigger settings
 				$triggers = self::get_form_triggers( $form_id );
 				// Regex to convert E-mail body settings to TinyMCE editor
 				$regex = '/([\s\S]*?)(<[^\/<>]+?>[^\/<>]*?{loop_fields}[\s\S]*?>)([\s\S]*)|([\s\S]*?)({loop_fields})([\s\S]*)/';
 				// --------------------
+				// Email migration: Convert legacy email settings to new _emails meta field
+				$emails = array();
+				
+				// Admin Email migration
+				if ( ! empty( $s['send'] ) && ( $s['send'] == 'yes' || $s['send'] == 'true' ) ) {
+					$emails[] = array(
+						'enabled' => 'true',
+						'name' => 'Admin E-mail',
+						'data' => array(
+							'to' => ( ! empty( $s['header_to'] ) ? $s['header_to'] : '' ),
+							'from_email' => ( ! empty( $s['header_from_type'] ) && ( $s['header_from_type'] === 'default' ) ? '{option_admin_email}' : ( ! empty( $s['header_from'] ) ? $s['header_from'] : '' ) ),
+							'from_name' => ( ! empty( $s['header_from_type'] ) && ( $s['header_from_type'] === 'default' ) ? '{option_blogname}' : ( ! empty( $s['header_from_name'] ) ? $s['header_from_name'] : '' ) ),
+							'reply_to' => array(
+								'enabled' => ( ! empty( $s['header_reply_enabled'] ) && ( $s['header_reply_enabled'] === 'true' ) ? 'true' : 'false' ),
+								'email' => ( ! empty( $s['header_reply'] ) ? $s['header_reply'] : '' ),
+								'name' => ( ! empty( $s['header_reply_name'] ) ? $s['header_reply_name'] : '' ),
+							),
+							'subject' => ( ! empty( $s['header_subject'] ) ? $s['header_subject'] : '' ),
+							'body' => ( ! empty( $s['email_body'] ) ? $s['email_body'] : '' ),
+							'loop_open' => ( ! empty( $s['email_loop'] ) ? '<table cellpadding="5">' : '' ),
+							'loop' => ( ! empty( $s['email_loop'] ) ? $s['email_loop'] : '' ),
+							'loop_close' => ( ! empty( $s['email_loop'] ) ? '</table>' : '' ),
+							'exclude_empty' => ( ! empty( $s['email_exclude_empty'] ) && ( $s['email_exclude_empty'] === 'true' ) ? 'true' : 'false' ),
+							'rtl' => ( ! empty( $s['email_rtl'] ) && ( $s['email_rtl'] === 'true' ) ? 'true' : 'false' ),
+							'cc' => ( ! empty( $s['header_cc'] ) ? $s['header_cc'] : '' ),
+							'bcc' => ( ! empty( $s['header_bcc'] ) ? $s['header_bcc'] : '' ),
+							'header_additional' => ( ! empty( $s['header_additional'] ) ? $s['header_additional'] : '' ),
+							'attachments' => ( ! empty( $s['admin_attachments'] ) ? $s['admin_attachments'] : '' ),
+							'content_type' => 'html',
+							'charset' => 'UTF-8',
+						),
+					);
+				}
+				
+				// Confirmation Email migration
+				if ( ! empty( $s['confirm'] ) && ( $s['confirm'] == 'yes' || $s['confirm'] == 'true' ) ) {
+					$emails[] = array(
+						'enabled' => 'true',
+						'name' => 'Confirmation E-mail',
+						'data' => array(
+							'to' => ( ! empty( $s['confirm_to'] ) ? $s['confirm_to'] : '' ),
+							'from_email' => ( ! empty( $s['confirm_from_type'] ) && ( $s['confirm_from_type'] === 'default' ) ? '{option_admin_email}' : ( ! empty( $s['confirm_from'] ) ? $s['confirm_from'] : '' ) ),
+							'from_name' => ( ! empty( $s['confirm_from_type'] ) && ( $s['confirm_from_type'] === 'default' ) ? '{option_blogname}' : ( ! empty( $s['confirm_from_name'] ) ? $s['confirm_from_name'] : '' ) ),
+							'reply_to' => array(
+								'enabled' => ( ! empty( $s['confirm_header_reply_enabled'] ) && ( $s['confirm_header_reply_enabled'] === 'true' ) ? 'true' : 'false' ),
+								'email' => ( ! empty( $s['confirm_header_reply'] ) ? $s['confirm_header_reply'] : '' ),
+								'name' => ( ! empty( $s['confirm_header_reply_name'] ) ? $s['confirm_header_reply_name'] : '' ),
+							),
+							'subject' => ( ! empty( $s['confirm_subject'] ) ? $s['confirm_subject'] : '' ),
+							'body' => ( ! empty( $s['confirm_body'] ) ? $s['confirm_body'] : '' ),
+							'loop_open' => ( ! empty( $s['confirm_email_loop'] ) ? '<table cellpadding="5">' : '' ),
+							'loop' => ( ! empty( $s['confirm_email_loop'] ) ? $s['confirm_email_loop'] : '' ),
+							'loop_close' => ( ! empty( $s['confirm_email_loop'] ) ? '</table>' : '' ),
+							'exclude_empty' => ( ! empty( $s['confirm_exclude_empty'] ) && ( $s['confirm_exclude_empty'] === 'true' ) ? 'true' : 'false' ),
+							'rtl' => ( ! empty( $s['confirm_rtl'] ) && ( $s['confirm_rtl'] === 'true' ) ? 'true' : 'false' ),
+							'cc' => ( ! empty( $s['confirm_header_cc'] ) ? $s['confirm_header_cc'] : '' ),
+							'bcc' => ( ! empty( $s['confirm_header_bcc'] ) ? $s['confirm_header_bcc'] : '' ),
+							'header_additional' => ( ! empty( $s['confirm_header_additional'] ) ? $s['confirm_header_additional'] : '' ),
+							'attachments' => ( ! empty( $s['confirm_attachments'] ) ? $s['confirm_attachments'] : '' ),
+							'content_type' => 'html',
+							'charset' => 'UTF-8',
+						),
+					);
+				}
+				
+				// Email Reminders migration
+				for ( $i = 1; $i <= 3; $i++ ) {
+					$reminder_key = 'email_reminder_' . $i;
+					if ( ! empty( $s[$reminder_key] ) && ( $s[$reminder_key] == 'yes' || $s[$reminder_key] == 'true' || $s[$reminder_key] === true ) ) {
+						$emails[] = array(
+							'enabled' => 'true',
+							'name' => 'Email Reminder #' . $i,
+							'data' => array(
+								'to' => ( ! empty( $s[$reminder_key . '_to'] ) ? $s[$reminder_key . '_to'] : '' ),
+								'from_email' => ( ! empty( $s[$reminder_key . '_from_type'] ) && ( $s[$reminder_key . '_from_type'] === 'default' ) ? '{option_admin_email}' : ( ! empty( $s[$reminder_key . '_from'] ) ? $s[$reminder_key . '_from'] : '' ) ),
+								'from_name' => ( ! empty( $s[$reminder_key . '_from_type'] ) && ( $s[$reminder_key . '_from_type'] === 'default' ) ? '{option_blogname}' : ( ! empty( $s[$reminder_key . '_from_name'] ) ? $s[$reminder_key . '_from_name'] : '' ) ),
+								'reply_to' => array(
+									'enabled' => ( ! empty( $s[$reminder_key . '_header_reply_enabled'] ) && ( $s[$reminder_key . '_header_reply_enabled'] === 'true' ) ? 'true' : 'false' ),
+									'email' => ( ! empty( $s[$reminder_key . '_header_reply'] ) ? $s[$reminder_key . '_header_reply'] : '' ),
+									'name' => ( ! empty( $s[$reminder_key . '_header_reply_name'] ) ? $s[$reminder_key . '_header_reply_name'] : '' ),
+								),
+								'subject' => ( ! empty( $s[$reminder_key . '_subject'] ) ? $s[$reminder_key . '_subject'] : '' ),
+								'body' => ( ! empty( $s[$reminder_key . '_body'] ) ? $s[$reminder_key . '_body'] : '' ),
+								'loop_open' => ( ! empty( $s[$reminder_key . '_email_loop'] ) ? '<table cellpadding="5">' : '' ),
+								'loop' => ( ! empty( $s[$reminder_key . '_email_loop'] ) ? $s[$reminder_key . '_email_loop'] : '' ),
+								'loop_close' => ( ! empty( $s[$reminder_key . '_email_loop'] ) ? '</table>' : '' ),
+								'exclude_empty' => ( ! empty( $s[$reminder_key . '_exclude_empty'] ) && ( $s[$reminder_key . '_exclude_empty'] === 'true' ) ? 'true' : 'false' ),
+								'rtl' => ( ! empty( $s[$reminder_key . '_rtl'] ) && ( $s[$reminder_key . '_rtl'] === 'true' ) ? 'true' : 'false' ),
+								'cc' => ( ! empty( $s[$reminder_key . '_header_cc'] ) ? $s[$reminder_key . '_header_cc'] : '' ),
+								'bcc' => ( ! empty( $s[$reminder_key . '_header_bcc'] ) ? $s[$reminder_key . '_header_bcc'] : '' ),
+								'header_additional' => ( ! empty( $s[$reminder_key . '_header_additional'] ) ? $s[$reminder_key . '_header_additional'] : '' ),
+								'attachments' => ( ! empty( $s[$reminder_key . '_attachments'] ) ? $s[$reminder_key . '_attachments'] : '' ),
+								'content_type' => 'html',
+								'charset' => 'UTF-8',
+								// Email reminder specific fields - use correct UI structure
+								'schedule' => array(
+									'enabled' => 'true',
+									'schedules' => array(
+										array(
+											'date' => ( ! empty( $s[$reminder_key . '_base_date'] ) ? $s[$reminder_key . '_base_date'] : '' ),
+											'days' => ( ! empty( $s[$reminder_key . '_date_offset'] ) ? $s[$reminder_key . '_date_offset'] : '0' ),
+											'method' => ( ! empty( $s[$reminder_key . '_time_method'] ) && $s[$reminder_key . '_time_method'] === 'fixed' ? 'time' : $s[$reminder_key . '_time_method'] ),
+											'time' => ( ! empty( $s[$reminder_key . '_time_fixed'] ) ? $s[$reminder_key . '_time_fixed'] : '09:00' ),
+										),
+									),
+								),
+							),
+						);
+					}
+				}
+				
+				// Save migrated emails to _emails meta field
+				if ( ! empty( $emails ) ) {
+					update_post_meta( $form_id, '_emails', $emails );
+					error_log( 'Migrated emails to _emails meta field: ' . json_encode( $emails ) );
+				}
+				
+				// Mark migration as completed by updating form version
+				update_post_meta( $form_id, '_super_version', SUPER_VERSION );
+				// error_log( "MIGRATION COMPLETED: Updated form version to " . SUPER_VERSION . " for form $form_id" );
+				
+				// Clear recursion guard
+				unset( $migration_in_progress[$form_id] );
 
 				// Register & Login email conversion
 				if ( ! empty( $s['register_custom_email_header'] ) && ( $s['register_custom_email_header'] === 'admin' || $s['register_custom_email_header'] === 'confirmation' ) ) {
@@ -3990,8 +4142,9 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 					}
 				}
 
-				// Add trigger for Admin E-mail
-				if ( ! empty( $s['send'] ) && ( $s['send'] == 'yes' || $s['send'] == 'true' ) ) {
+				// REMOVED: Admin emails are now stored in _emails meta field and converted to triggers at runtime
+				// This prevents duplicate email processing
+				if ( false && ! empty( $s['send'] ) && ( $s['send'] == 'yes' || $s['send'] == 'true' ) ) {
 					$t = array(
 						'enabled'   => 'true',
 						'event'     => 'sf.after.submission',
@@ -4110,8 +4263,9 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 					$triggers[] = $t;
 					// error_log('triggers: '.json_encode($triggers));
 				}
-				// Add trigger for Confirmation E-mail
-				if ( ! empty( $s['confirm'] ) && ( $s['confirm'] == 'yes' || $s['confirm'] == 'true' ) ) {
+				// REMOVED: Confirmation emails are now stored in _emails meta field and converted to triggers at runtime
+				// This prevents duplicate email processing
+				if ( false && ! empty( $s['confirm'] ) && ( $s['confirm'] == 'yes' || $s['confirm'] == 'true' ) ) {
 					$t = array(
 						'enabled'   => 'true',
 						'event'     => 'sf.after.submission',
@@ -4198,8 +4352,9 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 					// error_log('triggers: '.json_encode($triggers));
 				}
 
-				// Add trigger for E-mail reminders
-				// Loop until we can't find reminder
+				// REMOVED: Email reminders are now stored in _emails meta field and converted to triggers at runtime
+				// This prevents duplicate email processing
+				if ( false ) {
 				if ( empty( $s['email_reminder_amount'] ) ) {
 					$s['email_reminder_amount'] = 3;
 				}
@@ -4325,6 +4480,7 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 					}
 					++$x;
 				}
+				} // End of disabled email reminders section
 				// Add trigger for WooCommerce email after order completed
 				if ( ! empty( $s['woocommerce_checkout'] ) && $s['woocommerce_checkout'] === 'true' && ! empty( $s['woocommerce_completed_email'] ) && $s['woocommerce_completed_email'] === 'true' ) {
 					$t = array();
@@ -5342,27 +5498,40 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 		 * @since 1.0.0
 		 */
 		public static function generate_random_folder( $folder ) {
-			// Random folder must be 13 characters long
-			// Since 32 bit system only allow a maximum of 2147483647 as int value
-			// we will generate 2 random numbers separately and combine them as one
-			$folderName = rand( 1000000, 9999999 ) . rand( 100000, 999999 );
-			$folderPath = trailingslashit( $folder ) . $folderName;
-			if ( file_exists( $folderPath ) ) {
-				self::generate_random_folder( $folder );
-			} else {
-				if ( ! mkdir( $folderPath, 0755, true ) ) {
-					$error = error_get_last();
-					self::output_message(
-						array(
-							'msg' => '<strong>' . esc_html__( 'Upload failed', 'super-forms' ) . ':</strong> ' . $error['message'],
-						)
+			// Use WordPress random functions for better security
+			$max_attempts = 10;
+			$attempt = 0;
+			
+			while ( $attempt < $max_attempts ) {
+				// Generate cryptographically secure random folder name
+				$folderName = wp_generate_password( 13, false, false );
+				$folderPath = trailingslashit( $folder ) . $folderName;
+				
+				if ( ! file_exists( $folderPath ) ) {
+					if ( ! wp_mkdir_p( $folderPath ) ) {
+						$error = error_get_last();
+						self::output_message(
+							array(
+								'msg' => '<strong>' . esc_html__( 'Upload failed', 'super-forms' ) . ':</strong> ' . $error['message'],
+							)
+						);
+						return false;
+					}
+					return array(
+						'folderPath' => $folderPath,
+						'folderName' => $folderName,
 					);
 				}
-				return array(
-					'folderPath' => $folderPath,
-					'folderName' => $folderName,
-				);
+				$attempt++;
 			}
+			
+			// If we couldn't create a unique folder after max attempts
+			self::output_message(
+				array(
+					'msg' => '<strong>' . esc_html__( 'Upload failed', 'super-forms' ) . ':</strong> ' . esc_html__( 'Could not create unique temporary folder', 'super-forms' ),
+				)
+			);
+			return false;
 		}
 
 		public static function docs( $v ) {
@@ -6972,7 +7141,7 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 			}
 
 			foreach ( $string_attachments as $k => $v ) {
-				if ( $v['encoding'] == 'base64' && $v['type'] == 'image/png' ) {
+				if ( $v['encoding'] == 'base64' && ( $v['type'] == 'image/png' || $v['type'] == 'image/jpeg' ) ) {
 					$v['data'] = substr( $v['data'], strpos( $v['data'], ',' ) );
 					$v['data'] = base64_decode( $v['data'] );
 				}
@@ -6981,6 +7150,10 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 				$tmp_dir      = wp_upload_dir()['basedir'] . '/tmp/sf/'; // Get the system's temporary directory path using WordPress function
 				$tmp_dir     .= ( time() + 120 ) . '/'; // plus 2 minutes expiry
 				$folderResult = self::generate_random_folder( $tmp_dir );
+				if ( ! $folderResult ) {
+					// Skip this attachment if folder creation failed
+					continue;
+				}
 				$tmp_dir      = $folderResult['folderPath'];
 				// Create the temporary directory if it doesn't exist
 				wp_mkdir_p( $tmp_dir );

@@ -154,23 +154,19 @@
             };
         },
         setTabFieldValue: function(field, value){
-            debugger;
             if(field.tagName === 'TEXTAREA' && tinymce.get(field.id)){
                 tinymce.get(field.id).setContent(value);
             } else {
                 if(field.type === 'checkbox'){
                     field.checked = (value === 'true');
                 }else{
-                    debugger;
                     if (field.value !== value) {
                         // Re-load attachment image preview
                         if(field.parentNode.closest('.sfui-setting').classList.contains('sfui-type-files')) {
                             field.value = value;
                             SUPER.ui.i18n.reload_attachments(field);
                         }
-                        debugger;
                         if(field.parentNode.closest('.sfui-colorpicker')){
-                            debugger;
                             $(field).wpColorPicker('color', value);
                         }
                     }
@@ -392,14 +388,18 @@
             SUPER.filtering.showHideSubsettings(el, 'form-builder');
         },
         // Update form settings
-        updateSettings: function(e, el){
+        updateSettings: function(e, el, isProgrammatic){
             if(el.tagName=='LABEL' && el.children[0].type=='radio'){
                 el = el.querySelector('input');
             }
             if(el.tagName=='LABEL' && el.children[0].type=='checkbox'){
                 el = el.querySelector('input');
             }
-            SUPER.ui.showHideSubsettings(el);
+            
+            // Skip filtering for programmatic changes that don't affect visibility
+            if (!isProgrammatic) {
+                SUPER.ui.showHideSubsettings(el);
+            }
 
             var i18n = document.querySelector('.super-create-form').dataset.i18n; 
             var tab = el.closest('.super-tab-content');
@@ -548,8 +548,8 @@
             // First get the field value
             var value = el.value;
             var type = el.type;
-            //if (type === 'checkbox') value = el.checked;
-            //if (type === 'radio') value = (tab.querySelector('[name="' + el.name + '"]:checked') ? tab.querySelector('[name="' + el.name + '"]:checked').value : '');
+            if (type === 'checkbox') value = el.checked;
+            if (type === 'radio') value = (tab.querySelector('[name="' + el.name + '"]:checked') ? tab.querySelector('[name="' + el.name + '"]:checked').value : '');
             if (value === true) value = "true";
             if (value === false) value = "false";
             if (el.tagName === 'TEXTAREA' && tinymce.get(el.id)) {
@@ -1087,7 +1087,7 @@
                 // tmp return data;
             },
             removeEmpty: function(obj) {
-                console.log("Initial obj (deep copy):", JSON.parse(JSON.stringify(obj))); // Log a deep copy to preserve initial state
+                // console.log("Initial obj (deep copy):", JSON.parse(JSON.stringify(obj))); // Log a deep copy to preserve initial state
                 function hasNamedProperties(item) {
                     // Check if the item is an object with named properties
                     return typeof item === 'object' && !Array.isArray(item) && Object.keys(item).length > 0;
@@ -1100,10 +1100,10 @@
                     console.log("Object is an array. Length:", obj.length);
                     return obj
                         .map((item, index) => {
-                            console.log(`Processing array item at index ${index}:`, item, "Type:", typeof item);
+                            // console.log(`Processing array item at index ${index}:`, item, "Type:", typeof item);
                             try {
                                 const result = SUPER.ui.i18n.removeEmpty(item);
-                                console.log(`Result after recursive call for item at index ${index}:`, result);
+                                // console.log(`Result after recursive call for item at index ${index}:`, result);
                                 return result;
                             } catch (error) {
                                 console.error(`Error processing array item at index ${index}:`, error);
@@ -1116,14 +1116,14 @@
                                  (hasNamedProperties(item)) || 
                                  isNonEmptyArrayWithNamedProperties(item) || 
                                  (Object.entries(item).length > 0));
-                            console.log(`Filtering array item at index ${index}:`, item, "Keep:", keepItem);
+                            // console.log(`Filtering array item at index ${index}:`, item, "Keep:", keepItem);
                             return keepItem;
                         });
                 } else if (typeof obj === 'object' && obj !== null) {
                     console.log("Object is a non-null object.");
                     const newObj = {};
                     Object.keys(obj).forEach(key => {
-                        console.log(`Processing object key "${key}":`, obj[key], "Type:", typeof obj[key]);
+                        // console.log(`Processing object key "${key}":`, obj[key], "Type:", typeof obj[key]);
             
                         try {
                             const beforeRemoveEmpty = JSON.parse(JSON.stringify(obj[key]));
@@ -1132,15 +1132,15 @@
                                 delete obj[key]; 
                                 return;
                             }
-                            console.log(`Before recursive call for key "${key}":`, beforeRemoveEmpty);
-                            console.log(`Result after recursive call for key "${key}":`, value);
+                            // console.log(`Before recursive call for key "${key}":`, beforeRemoveEmpty);
+                            // console.log(`Result after recursive call for key "${key}":`, value);
             
                             // New criteria: Check both length, named properties, and entries to determine if the original value should be kept
                             const hasEntries = (Array.isArray(obj[key]) && obj[key].length > 0) || 
                                                hasNamedProperties(obj[key]) || 
                                                isNonEmptyArrayWithNamedProperties(obj[key]) || 
                                                Object.entries(obj[key]).length > 0;
-                            console.log(`Filtering key "${key}":`, obj[key], "Has Entries:", hasEntries);
+                            // console.log(`Filtering key "${key}":`, obj[key], "Has Entries:", hasEntries);
                             if(obj[key] !== undefined && hasEntries) {
                                 newObj[key] = obj[key];
                             }
@@ -1149,7 +1149,7 @@
                         }
                     });
                     const hasKeys = Object.keys(newObj).length > 0;
-                    console.log("New object after filtering:", newObj, "Has keys:", hasKeys);
+                    // console.log("New object after filtering:", newObj, "Has keys:", hasKeys);
                     return hasKeys ? newObj : undefined;
                 }
             
@@ -3621,6 +3621,25 @@
 
         $('body.wp-admin').addClass('folded');
         init_form_settings_container_heights();
+        
+        // Set up event delegation for form settings changes
+        $(document).on('change keyup', '.super-tabs-content input:not(.sfui-colorpicker input), .super-tabs-content select, .super-tabs-content textarea:not(.sfui-textarea-tinymce)', function(e) {
+            // Ignore if this is a programmatic change
+            if (this.dataset.programmaticChange) {
+                delete this.dataset.programmaticChange;
+                return;
+            }
+            
+            // Debounce keyup events
+            if (e.type === 'keyup') {
+                if (this._keyupTimeout) clearTimeout(this._keyupTimeout);
+                this._keyupTimeout = setTimeout(() => {
+                    SUPER.ui.updateSettings(e, this);
+                }, 500);
+            } else {
+                SUPER.ui.updateSettings(e, this);
+            }
+        });
 
         var $doc = $(document),
             $super_hints,
@@ -6461,7 +6480,7 @@
                 return bodyValue;
             }
             
-            console.log('Template is enabled, proceeding with template processing');
+            // console.log('Template is enabled, proceeding with template processing');
             
             // Get template settings from the repeater item
             var templateSettings = getTemplateSettings(repeaterItem);
@@ -7215,7 +7234,7 @@
                         console.log('Child nodes added:', mutation.addedNodes.length);
                         mutation.addedNodes.forEach(function(node) {
                             if (node.nodeType === 1) {
-                                console.log('Processing element node:', node.className);
+                                // console.log('Processing element node:', node.className);
                                 
                                 // Check for email previews in the new node
                                 var emailPreviews = node.querySelectorAll ? node.querySelectorAll('.super-email-preview') : [];
@@ -7398,16 +7417,37 @@
         // Initialize sticky behavior
         initializeStickyEmailPreviews();
         
-        // Backup method: Check for new email previews every 2 seconds
-        setInterval(function() {
+        // Backup method: Check for new email previews periodically (without logging)
+        var backupCheckInterval = setInterval(function() {
             var allPreviews = document.querySelectorAll('.super-email-preview');
-            console.log('Backup check: Found', allPreviews.length, 'email previews');
+            // Only process if there are uninitialized previews
+            var hasUninitialized = false;
             allPreviews.forEach(function(emailPreview) {
                 if (!emailPreview._superFormsInitialized) {
-                    console.log('Backup check: Found uninitialized email preview, initializing...');
+                    hasUninitialized = true;
                     initializeEmailPreview(emailPreview);
                 }
             });
+            // Stop checking if all are initialized and we're on a stable state
+            if (!hasUninitialized && allPreviews.length > 0) {
+                clearInterval(backupCheckInterval);
+                // Set up a mutation observer instead for new elements
+                var observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        mutation.addedNodes.forEach(function(node) {
+                            if (node.nodeType === 1 && node.classList && node.classList.contains('super-email-preview')) {
+                                if (!node._superFormsInitialized) {
+                                    initializeEmailPreview(node);
+                                }
+                            }
+                        });
+                    });
+                });
+                var container = document.querySelector('.super-tabs-content');
+                if (container) {
+                    observer.observe(container, { childList: true, subtree: true });
+                }
+            }
         }, 2000);
     });
 
