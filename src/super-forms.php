@@ -2054,6 +2054,7 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 			if ( $current_screen->id === 'super-forms_page_super_create_form' ) {
 				add_action( 'super_create_form_builder_tab', array( 'SUPER_Pages', 'builder_tab' ), 10, 1 );
 				add_action( 'super_create_form_emails_tab', array( 'SUPER_Pages', 'emails_tab' ), 10, 1 );
+				add_action( 'super_create_form_emails_v2_tab', array( 'SUPER_Pages', 'emails_v2_tab' ), 10, 1 );
 				// add_action( 'super_create_form_settings_tab', array( 'SUPER_Pages', 'settings_tab' ), 10, 1 );
 				// add_action( 'super_create_form_theme_tab', array( 'SUPER_Pages', 'theme_tab' ), 10, 1 );
 				add_action( 'super_create_form_code_tab', array( 'SUPER_Pages', 'code_tab' ), 10, 1 );
@@ -2428,6 +2429,17 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 						'screen'  => array( 'super-forms_page_super_create_form' ),
 						'method'  => 'enqueue',
 					),
+					// @since v7.0.0 - Emails v2 React app
+					'super-emails-v2'              => array(
+						'src'     => $backend_path . 'emails-v2.css',
+						'deps'    => '',
+						'version' => SUPER_VERSION,
+						'media'   => 'all',
+						'screen'  => array(
+							'super-forms_page_super_create_form',
+						),
+						'method'  => 'enqueue',
+					),
 					'super-flags'                  => array(
 						'src'     => $frontend_path . 'flags.css',
 						'deps'    => '',
@@ -2747,6 +2759,15 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 						'deps'    => array( 'jquery' ),
 						'version' => SUPER_VERSION,
 						'footer'  => false,
+						'screen'  => array( 'super-forms_page_super_create_form' ),
+						'method'  => 'enqueue',
+					),
+					// @since v7.0.0 - Emails v2 React app
+					'super-emails-v2'            => array(
+						'src'     => $backend_path . 'emails-v2.js',
+						'deps'    => array( 'jquery' ),
+						'version' => SUPER_VERSION,
+						'footer'  => true,
 						'screen'  => array( 'super-forms_page_super_create_form' ),
 						'method'  => 'enqueue',
 					),

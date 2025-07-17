@@ -126,9 +126,28 @@ No debugging guidelines defined try to use your best approach
 - Super Forms comes with build-in extensions such as Listings, Stripe, PDF generator
 - These are located inside `/src/includes/extensions` and mostly require paymnet either via yearly manual payment or subscription via our third party custom build license system under Super Forms > Licenses
 
-## Project Workflow Reminder
-- After finishing making edits to files, run command `bash sync-to-webserver.sh` to sync the changes to the remote server
-- Always run the `sync-to-webserver.sh` script after making all the changes
+## Development Workflow
+
+### React Components (Email Builder v2)
+When developing React components in `/src/react/emails-v2/`:
+
+1. **Start webpack watch mode** (in a separate terminal):
+   ```bash
+   cd /projects/super-forms/src/react/emails-v2
+   npm run watch
+   ```
+   This automatically recompiles React components when you save changes.
+
+2. **Clear browser cache** after changes:
+   - Hard refresh: Ctrl+F5 (Windows/Linux) or Cmd+Shift+R (Mac)
+   - Or enable "Disable cache" in browser DevTools
+
+3. **Important**: React component changes need to be compiled to:
+   - `/src/assets/js/backend/emails-v2.js`
+   - `/src/assets/css/backend/emails-v2.css`
+
+### Remote Server Sync
+- ⚠️ Stop syncing to webserver unless told otherwise
 
 ## Memory: Tab Settings Grouping
 - Tab settings are sometimes grouped with attributes `data-g` or `data-r` for repeater elements

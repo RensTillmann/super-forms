@@ -118,6 +118,7 @@
 				$tabs         = array(
 					'builder'      => esc_html__( 'Builder', 'super-forms' ),
 					'emails'       => esc_html__( 'Emails', 'super-forms' ),
+					'emails_v2'    => esc_html__( 'Emails v2', 'super-forms' ),
 					'settings'     => esc_html__( 'Settings', 'super-forms' ),
 					'theme'        => esc_html__( 'Theme', 'super-forms' ),
 					'translations' => esc_html__( 'Translations', 'super-forms' ),

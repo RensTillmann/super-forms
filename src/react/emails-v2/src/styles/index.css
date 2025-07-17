@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom base styles for emails v2 */
+.super-emails-v2-container {
+  @apply ev2-relative ev2-w-full;
+  min-height: 600px;
+  height: calc(100vh - 200px); /* Adjust based on WordPress admin header/footer */
+}
+
+/* Ensure proper font rendering in WordPress admin */
+.super-emails-v2-container * {
+  @apply ev2-font-sans;
+}
+
+/* Loading state */
+.super-emails-v2-loading {
+  @apply ev2-flex ev2-items-center ev2-justify-center ev2-min-h-[200px];
+}
+
+/* Custom scrollbar for better UX */
+.super-emails-v2-container ::-webkit-scrollbar {
+  @apply ev2-w-2;
+}
+
+.super-emails-v2-container ::-webkit-scrollbar-track {
+  @apply ev2-bg-gray-100;
+}
+
+.super-emails-v2-container ::-webkit-scrollbar-thumb {
+  @apply ev2-bg-gray-400 hover:ev2-bg-gray-500 ev2-rounded;
+}
+
+/* Email content iframe styles */
+.ev2-email-content iframe {
+  background: white;
+  min-height: 400px;
+}
+
+/* Animations */
+@layer utilities {
+  .ev2-transition-accordion {
+    transition: height 0.3s ease-in-out, opacity 0.3s ease-in-out;
+  }
+}

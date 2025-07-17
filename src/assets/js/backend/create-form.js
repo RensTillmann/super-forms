@@ -3623,7 +3623,21 @@
         init_form_settings_container_heights();
         
         // Set up event delegation for form settings changes
-        $(document).on('change keyup', '.super-tabs-content input:not(.sfui-colorpicker input), .super-tabs-content select, .super-tabs-content textarea:not(.sfui-textarea-tinymce)', function(e) {
+        // For checkboxes, only listen to 'change' event which fires after the state is updated
+        $(document).on('change', '.super-tabs-content input[type="checkbox"]', function(e) {
+            // Ignore if this is a programmatic change
+            if (this.dataset.programmaticChange) {
+                delete this.dataset.programmaticChange;
+                return;
+            }
+            console.log('Checkbox change event, checked state:', this.checked);
+            console.log('Checkbox name:', this.name);
+            console.log('Checkbox parent data-g:', this.closest('[data-g]') ? this.closest('[data-g]').getAttribute('data-g') : 'none');
+            SUPER.ui.updateSettings(e, this);
+        });
+        
+        // For other inputs, continue using change/keyup
+        $(document).on('change keyup', '.super-tabs-content input:not(.sfui-colorpicker input):not([type="checkbox"]), .super-tabs-content select, .super-tabs-content textarea:not(.sfui-textarea-tinymce)', function(e) {
             // Ignore if this is a programmatic change
             if (this.dataset.programmaticChange) {
                 delete this.dataset.programmaticChange;

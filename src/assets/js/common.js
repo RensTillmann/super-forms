@@ -112,6 +112,11 @@ SUPER.filtering = {
     
     // Enhanced filtering system for both settings page and form builder
     showHideSubsettings: function(triggeredBy, context) {
+        console.log('=== showHideSubsettings called ===');
+        console.log('triggeredBy:', triggeredBy);
+        console.log('triggeredBy name:', triggeredBy ? triggeredBy.name : 'no name');
+        console.log('context:', context);
+        
         var self = this;
         
         // Add to pending updates
@@ -126,12 +131,14 @@ SUPER.filtering = {
         
         // Debounce the actual processing
         self._debounceTimer = setTimeout(function() {
+            console.log('=== Executing _processShowHideSubsettings after debounce ===');
             self._processShowHideSubsettings(triggeredBy, context);
             self._pendingUpdates.clear();
         }, 300); // 300ms debounce
     },
     
     buildDependencyMap: function(context) {
+        console.log('=== Building dependency map ===');
         var self = this;
         self._dependencyMap.clear();
         self._conditionCache.clear();
@@ -162,6 +169,7 @@ SUPER.filtering = {
             
             for (var j = 0; j < conditions.length; j++) {
                 var fieldName = conditions[j].field;
+                console.log('Adding dependency:', fieldName, '->', node);
                 if (!self._dependencyMap.has(fieldName)) {
                     self._dependencyMap.set(fieldName, []);
                 }
@@ -171,6 +179,12 @@ SUPER.filtering = {
         
         // Detect circular dependencies
         self._detectCircularDependencies(fieldToNode);
+        
+        // Log dependency map contents
+        console.log('Dependency map contents:');
+        self._dependencyMap.forEach(function(nodes, field) {
+            console.log('  Field "' + field + '" affects', nodes.length, 'nodes');
+        });
     },
     
     _detectCircularDependencies: function(fieldToNode) {
@@ -234,6 +248,10 @@ SUPER.filtering = {
     },
     
     _processShowHideSubsettings: function(triggeredBy, context) {
+        console.log('=== _processShowHideSubsettings called ===');
+        console.log('context:', context);
+        console.log('triggeredBy:', triggeredBy);
+        
         // Prevent infinite recursion
         if (this._isProcessing) return;
         this._isProcessing = true;
@@ -244,15 +262,19 @@ SUPER.filtering = {
         
         // Build dependency map if empty
         if (self._dependencyMap.size === 0) {
+            console.log('Building dependency map...');
             self.buildDependencyMap(context);
         }
         
         // If triggered by specific field, only process dependent nodes
         if (triggeredBy && triggeredBy.name) {
             var fieldName = triggeredBy.name;
-            var dependentNodes = self._dependencyMap.get(fieldName) || [];
+            console.log('Triggered field name:', fieldName);
+            console.log('Triggered element:', triggeredBy);
+            console.log('Is checkbox:', triggeredBy.type === 'checkbox');
+            console.log('Checkbox checked state at trigger:', triggeredBy.checked);
             
-            // Also check for nested field paths
+            // Check for nested field paths FIRST
             var parentGroups = [];
             var parent = triggeredBy.parentElement;
             while (parent) {
@@ -261,14 +283,28 @@ SUPER.filtering = {
                 }
                 parent = parent.parentElement;
             }
+            console.log('Parent groups:', parentGroups);
             
+            var dependentNodes = [];
+            
+            // If we have parent groups, use the full path as the primary lookup
             if (parentGroups.length > 0) {
                 var fullPath = parentGroups.join('.') + '.' + fieldName;
+                console.log('Full path:', fullPath);
                 var nestedDependents = self._dependencyMap.get(fullPath) || [];
-                dependentNodes = dependentNodes.concat(nestedDependents);
+                console.log('Nested dependents for', fullPath + ':', nestedDependents.length);
+                dependentNodes = nestedDependents;
             }
             
+            // Also check for just the field name (for non-nested references)
+            var simpleDependents = self._dependencyMap.get(fieldName) || [];
+            console.log('Simple dependents for', fieldName + ':', simpleDependents.length);
+            
+            // Combine both sets of dependents
+            dependentNodes = dependentNodes.concat(simpleDependents);
+            
             nodesToProcess = dependentNodes;
+            console.log('Total nodes to process:', nodesToProcess.length);
         } else {
             // Process all nodes on initial load
             if (context === 'settings') {
@@ -283,10 +319,13 @@ SUPER.filtering = {
                 }
                 
                 allNodes = tab.querySelectorAll('.sfui-notice[data-f], .sfui-setting[data-f], .sfui-sub-settings[data-f], .sfui-setting-group[data-f]');
+                console.log('Found nodes in tab:', allNodes.length);
                 if (allNodes.length === 0 && triggeredBy) {
                     tab = triggeredBy.closest('.sfui-repeater-item');
+                    console.log('Trying repeater item context:', tab);
                     if (tab) {
                         allNodes = tab.querySelectorAll('.sfui-notice[data-f], .sfui-setting[data-f], .sfui-sub-settings[data-f], .sfui-setting-group[data-f]');
+                        console.log('Found nodes in repeater item:', allNodes.length);
                     }
                 }
             } else {
@@ -306,8 +345,11 @@ SUPER.filtering = {
         
         // Process each filtered element
         var nodes = nodesToProcess || [];
+        console.log('Processing nodes:', nodes.length);
         for (var i = 0; i < nodes.length; i++) {
             var currentNode = nodes[i];
+            console.log('Processing node:', currentNode);
+            console.log('Node data-f:', currentNode.getAttribute('data-f'));
             
             // Handle legacy format for settings page
             if (context === 'settings' && currentNode.hasAttribute('data-parent')) {
@@ -367,13 +409,15 @@ SUPER.filtering = {
                 var showElement = true;
                 for (var condIndex = 0; condIndex < filterConditions.length; condIndex++) {
                     var condition = filterConditions[condIndex];
-                    var conditionMet = this.evaluateFilterCondition(condition, context, triggeredBy);
+                    // Pass the current node as context for finding fields in the same group
+                    var conditionMet = this.evaluateFilterCondition(condition, context, triggeredBy, currentNode);
                     if (!conditionMet) {
                         showElement = false;
                         break;
                     }
                 }
                 
+                console.log('Setting visibility for node:', currentNode, 'showElement:', showElement);
                 this.setElementVisibility(currentNode, showElement, context, triggeredBy);
             }
         }
@@ -382,12 +426,42 @@ SUPER.filtering = {
         this._isProcessing = false;
     },
     
-    evaluateFilterCondition: function(condition, context, triggeredBy) {
+    evaluateFilterCondition: function(condition, context, triggeredBy, evaluatingNode) {
+        console.log('=== evaluateFilterCondition ===');
         var field = condition.field;
         var operator = condition.operator || '=';
         var expectedValue = condition.value;
+        console.log('Looking for field:', field);
+        console.log('Expected value:', expectedValue);
+        console.log('Operator:', operator);
+        console.log('Evaluating node:', evaluatingNode);
         
-        var fieldElement = this.findFieldElement(field, context, triggeredBy);
+        // When looking for fields, use the evaluatingNode to find fields in the same group context
+        var searchContext = evaluatingNode || triggeredBy;
+        
+        // Get the parent groups of the evaluating node to ensure we find the right field
+        if (evaluatingNode) {
+            var nodeGroups = this.getParentGroups(evaluatingNode);
+            console.log('DEBUG: Evaluating node parent groups:', nodeGroups);
+        }
+        
+        // Special handling: If the triggered field has parent groups but the evaluating node doesn't,
+        // we need to look for the field in the triggered field's context
+        var fieldElement;
+        if (triggeredBy && this.getParentGroups(triggeredBy).length > 0 && 
+            evaluatingNode && this.getParentGroups(evaluatingNode).length === 0) {
+            console.log('DEBUG: Using triggered field context for lookup');
+            // Build the full path for the field based on triggered field's groups
+            var triggeredGroups = this.getParentGroups(triggeredBy);
+            var fullFieldPath = triggeredGroups.join('.') + '.' + field;
+            console.log('DEBUG: Looking for field with full path:', fullFieldPath);
+            fieldElement = this.findFieldElement(fullFieldPath, context, evaluatingNode);
+        } else {
+            fieldElement = this.findFieldElement(field, context, searchContext);
+        }
+        console.log('Found element:', fieldElement);
+        console.log('Element name attribute:', fieldElement ? fieldElement.getAttribute('name') : 'N/A');
+        console.log('Element id:', fieldElement ? fieldElement.id : 'N/A');
         if (!fieldElement) {
             // Log warning for missing field only once
             if (!this._missingFieldWarnings) {
@@ -404,6 +478,10 @@ SUPER.filtering = {
         }
         
         var currentValue = this.getFieldValue(fieldElement);
+        console.log('Current value:', currentValue);
+        console.log('Field element checked property:', fieldElement.checked);
+        console.log('Field element type:', fieldElement.type);
+        console.log('Comparing:', currentValue, operator, expectedValue);
         
         switch(operator) {
             case '=':
@@ -432,6 +510,18 @@ SUPER.filtering = {
         }
     },
     
+    getParentGroups: function(element) {
+        var groups = [];
+        var parent = element.parentElement;
+        while (parent) {
+            if (parent.hasAttribute('data-g')) {
+                groups.unshift(parent.getAttribute('data-g'));
+            }
+            parent = parent.parentElement;
+        }
+        return groups;
+    },
+    
     findFieldElement: function(fieldName, context, triggeredBy) {
         if (context === 'settings') {
             return document.querySelector('.super-element-field[name="'+fieldName+'"]');
@@ -439,9 +529,23 @@ SUPER.filtering = {
             // For form-builder context, we need to handle the specific tab context properly
             var tab;
             if (triggeredBy) {
-                tab = triggeredBy.closest('.sfui-setting-group');
-                if (!tab) {
-                    tab = triggeredBy.closest('.super-tab-content');
+                // When triggeredBy is the evaluating node, we need to find fields within the same group context
+                // Check if we're looking for a field within a data group
+                var dataGroup = triggeredBy.closest('[data-g]');
+                if (dataGroup) {
+                    // Look within the same data group first
+                    tab = dataGroup;
+                } else {
+                    // First try to find the closest repeater item context
+                    var repeaterItem = triggeredBy.closest('.sfui-repeater-item');
+                    if (repeaterItem) {
+                        tab = repeaterItem;
+                    } else {
+                        tab = triggeredBy.closest('.sfui-setting-group');
+                        if (!tab) {
+                            tab = triggeredBy.closest('.super-tab-content');
+                        }
+                    }
                 }
             } else {
                 tab = document.querySelector('.super-tabs-content');
@@ -452,7 +556,14 @@ SUPER.filtering = {
             var node;
             
             if (parts.length === 1) {
+                console.log('DEBUG findFieldElement: Looking for simple field:', fieldName);
+                console.log('DEBUG findFieldElement: Initial search scope:', tab);
+                console.log('DEBUG findFieldElement: Scope has data-g:', tab.getAttribute ? tab.getAttribute('data-g') : 'N/A');
                 node = tab.querySelector('[name="'+fieldName+'"]');
+                console.log('DEBUG findFieldElement: Found in initial scope?', !!node);
+                if (node) {
+                    console.log('DEBUG findFieldElement: Found node parent groups:', this.getParentGroups(node));
+                }
                 // Traverse up the repeater hierarchy to find the field
                 var currentScope = tab;
                 while (!node && currentScope) {
@@ -478,17 +589,18 @@ SUPER.filtering = {
                 // Add the final field name selector
                 selector += '[name="' + parts[parts.length - 1] + '"]';
                 
-                // console.log('Looking for nested field:', fieldName, 'with selector:', selector);
-                node = tab.querySelector(selector);
-                // console.log('Found nested field:', !!node);
+                console.log('Looking for nested field:', fieldName, 'with selector:', selector);
+                // Start search from document root for nested paths
+                node = document.querySelector(selector);
+                console.log('Found nested field:', !!node);
                 
                 // If not found in current tab, try searching in the specific repeater item context
                 if (!node && triggeredBy) {
                     var repeaterItem = triggeredBy.closest('.sfui-repeater-item');
                     if (repeaterItem) {
-                        // console.log('Searching in repeater item context');
+                        console.log('Searching in repeater item context');
                         node = repeaterItem.querySelector(selector);
-                        // console.log('Found in repeater item:', !!node);
+                        console.log('Found in repeater item:', !!node);
                     }
                 }
             }
@@ -502,6 +614,10 @@ SUPER.filtering = {
         if (!element) return '';
         
         if (element.type === 'checkbox') {
+            console.log('DEBUG getFieldValue: checkbox element:', element);
+            console.log('DEBUG getFieldValue: checkbox name:', element.name);
+            console.log('DEBUG getFieldValue: checkbox.checked:', element.checked);
+            console.log('DEBUG getFieldValue: returning:', element.checked ? 'true' : 'false');
             // For form builder checkboxes, return 'true' or 'false' string to match filter conditions
             return element.checked ? 'true' : 'false';
         } else if (element.type === 'radio') {
@@ -552,12 +668,16 @@ SUPER.filtering = {
                     element.style.display = 'none';
                 }
             } else if (context === 'form-builder') {
+                console.log('DOM Update - Element:', element, 'isVisible:', isVisible);
+                console.log('Current classes before update:', element.className);
+                
                 // Remove active class
                 element.classList.remove('sfui-active');
                 
                 // Add active class if visible
                 if (isVisible) {
                     element.classList.add('sfui-active');
+                    console.log('Added sfui-active class');
                     
                     // if direct parent is sfui-settings-group, make it active 
                     if (triggeredBy && element.parentNode.classList.contains('sfui-setting-group')) {

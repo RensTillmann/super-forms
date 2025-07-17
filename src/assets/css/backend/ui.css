@@ -171,6 +171,10 @@
 .sfui-setting-group[data-f]:not(.sfui-active) {
 	display: none;
 }
+/* Fix for elements with sfui-active class to ensure they are visible */
+.sfui-setting[data-f].sfui-active {
+	display: flex !important;
+}
 .sfui-btn {
 	display: flex;
 	justify-content: center;

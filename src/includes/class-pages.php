@@ -2754,5 +2754,60 @@ if ( ! class_exists( 'SUPER_Pages' ) ) :
 				<?php
 			}
 		}
+
+		/**
+		 * Handle TAB outputs for emails v2 tab (React-based email settings)
+		 */
+		public static function emails_v2_tab( $atts ) {
+			$form_id = $atts['form_id'];
+			$settings = $atts['settings'];
+			$translations = $atts['translations'];
+			
+			// Get existing email settings
+			$emails = SUPER_Common::get_form_emails_settings( $form_id );
+			
+			// Convert PHP arrays to JSON for React
+			$emails_json = wp_json_encode( $emails );
+			$translations_json = wp_json_encode( $translations );
+			$settings_json = wp_json_encode( $settings );
+			
+			?>
+			<div id="super-emails-v2-root" class="super-emails-v2-container">
+				<!-- React app will mount here -->
+				<div class="super-emails-v2-loading">
+					<p><?php echo esc_html__( 'Loading Email Settings...', 'super-forms' ); ?></p>
+				</div>
+			</div>
+			
+			<script>
+				// Pass data to React app
+				window.superEmailsV2Data = {
+					formId: <?php echo absint( $form_id ); ?>,
+					emails: <?php echo $emails_json; ?>,
+					translations: <?php echo $translations_json; ?>,
+					settings: <?php echo $settings_json; ?>,
+					ajaxUrl: '<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>',
+					nonce: '<?php echo wp_create_nonce( 'super_save_form_emails' ); ?>',
+					i18n: {
+						addEmail: '<?php echo esc_js( __( 'Add Email', 'super-forms' ) ); ?>',
+						deleteEmail: '<?php echo esc_js( __( 'Delete Email', 'super-forms' ) ); ?>',
+						emailSettings: '<?php echo esc_js( __( 'Email Settings', 'super-forms' ) ); ?>',
+						basicSettings: '<?php echo esc_js( __( 'Basic Settings', 'super-forms' ) ); ?>',
+						emailHeaders: '<?php echo esc_js( __( 'Email Headers', 'super-forms' ) ); ?>',
+						emailContent: '<?php echo esc_js( __( 'Email Content', 'super-forms' ) ); ?>',
+						attachments: '<?php echo esc_js( __( 'Attachments', 'super-forms' ) ); ?>',
+						advancedOptions: '<?php echo esc_js( __( 'Advanced Options', 'super-forms' ) ); ?>',
+						conditionalLogic: '<?php echo esc_js( __( 'Conditional Logic', 'super-forms' ) ); ?>',
+						scheduleSettings: '<?php echo esc_js( __( 'Schedule Settings', 'super-forms' ) ); ?>',
+						preview: '<?php echo esc_js( __( 'Preview', 'super-forms' ) ); ?>',
+						sendTestEmail: '<?php echo esc_js( __( 'Send Test Email', 'super-forms' ) ); ?>',
+						saving: '<?php echo esc_js( __( 'Saving...', 'super-forms' ) ); ?>',
+						saved: '<?php echo esc_js( __( 'Saved!', 'super-forms' ) ); ?>',
+						error: '<?php echo esc_js( __( 'Error saving settings', 'super-forms' ) ); ?>'
+					}
+				};
+			</script>
+			<?php
+		}
 	}
 endif;
