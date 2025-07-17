@@ -3,7 +3,7 @@ import useEmailStore from './hooks/useEmailStore';
 import EmailList from './components/EmailList';
 import EmailEditor from './components/EmailEditor';
 import EmailClientBuilder from './components/Preview/EmailClientBuilder';
-import PropertyPanel from './components/Builder/PropertyPanel';
+import CapabilityBasedPropertyPanel from './components/PropertyPanels/CapabilityBasedPropertyPanel';
 import useEmailBuilder from './hooks/useEmailBuilder';
 
 function App({ formId, emails, translations, settings, ajaxUrl, nonce, i18n }) {
@@ -15,7 +15,7 @@ function App({ formId, emails, translations, settings, ajaxUrl, nonce, i18n }) {
     save
   } = useEmailStore();
   
-  const { selectedElementId } = useEmailBuilder();
+  const { selectedElementId, setSelectedElementId, elements, updateElement } = useEmailBuilder();
 
   // Initialize store on mount
   useEffect(() => {
@@ -64,7 +64,11 @@ function App({ formId, emails, translations, settings, ajaxUrl, nonce, i18n }) {
           {/* Email Editor or Element Properties */}
           <div className="ev2-flex-1 ev2-min-w-0">
             {selectedElementId ? (
-              <PropertyPanel />
+              <CapabilityBasedPropertyPanel
+                element={elements.find(el => el.id === selectedElementId)}
+                onElementUpdate={updateElement}
+                onClose={() => setSelectedElementId(null)}
+              />
             ) : activeEmailId ? (
               <EmailEditor />
             ) : (

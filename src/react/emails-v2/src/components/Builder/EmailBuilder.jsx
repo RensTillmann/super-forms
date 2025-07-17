@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import Canvas from './Canvas';
 import ElementPalette from './ElementPalette';
-import PropertyPanel from './PropertyPanel';
+import CapabilityBasedPropertyPanel from '../PropertyPanels/CapabilityBasedPropertyPanel';
 import useEmailBuilder from '../../hooks/useEmailBuilder';
 
 function EmailBuilder({ email, onChange }) {
-  const { selectedElementId, setElements, elements } = useEmailBuilder();
+  const { selectedElementId, setSelectedElementId, setElements, elements, updateElement } = useEmailBuilder();
 
   // Initialize elements from email template if it exists
   useEffect(() => {
@@ -39,9 +39,11 @@ function EmailBuilder({ email, onChange }) {
 
       {/* Properties Panel */}
       {selectedElementId && (
-        <div className="ev2-w-80 ev2-bg-white ev2-border-l ev2-overflow-y-auto">
-          <PropertyPanel />
-        </div>
+        <CapabilityBasedPropertyPanel
+          element={elements.find(el => el.id === selectedElementId)}
+          onElementUpdate={updateElement}
+          onClose={() => setSelectedElementId(null)}
+        />
       )}
     </div>
   );

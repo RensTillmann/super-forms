@@ -3,7 +3,7 @@ import { DndContext, DragOverlay, closestCenter } from '@dnd-kit/core';
 import useEmailBuilder from '../../hooks/useEmailBuilder';
 import useEmailStore from '../../hooks/useEmailStore';
 import ElementPaletteHorizontal from './ElementPaletteHorizontal';
-import PropertyPanel from './PropertyPanel';
+import CapabilityBasedPropertyPanel from '../PropertyPanels/CapabilityBasedPropertyPanel';
 import CanvasIntegrated from './CanvasIntegrated';
 import GmailChrome from '../Preview/ClientChrome/GmailChrome';
 import OutlookChrome from '../Preview/ClientChrome/OutlookChrome';
@@ -21,6 +21,7 @@ function EmailBuilderIntegrated({ email, onChange, onClose }) {
   const [isMobile, setIsMobile] = useState(false);
   const { 
     selectedElementId, 
+    setSelectedElementId,
     setElements, 
     elements,
     isDragging,
@@ -181,9 +182,14 @@ function EmailBuilderIntegrated({ email, onChange, onClose }) {
 
           {/* Properties Panel */}
           {selectedElementId && (
-            <div className="ev2-w-80 ev2-bg-white ev2-border-l ev2-overflow-y-auto">
-              <PropertyPanel />
-            </div>
+            <CapabilityBasedPropertyPanel
+              element={elements.find(el => el.id === selectedElementId)}
+              onElementUpdate={(id, property, value) => {
+                // TODO: Implement updateElement in useEmailBuilder
+                console.log('Update element:', id, property, value);
+              }}
+              onClose={() => setSelectedElementId(null)}
+            />
           )}
         </div>
 

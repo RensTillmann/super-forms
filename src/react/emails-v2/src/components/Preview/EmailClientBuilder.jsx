@@ -5,7 +5,7 @@ import GmailChrome from './ClientChrome/GmailChrome';
 import { Globe } from 'lucide-react';
 import ElementPaletteHorizontal from '../Builder/ElementPaletteHorizontal';
 import CanvasIntegrated from '../Builder/CanvasIntegrated';
-import PropertyPanel from '../Builder/PropertyPanel';
+import CapabilityBasedPropertyPanel from '../PropertyPanels/CapabilityBasedPropertyPanel';
 import useEmailStore from '../../hooks/useEmailStore';
 import useEmailBuilder from '../../hooks/useEmailBuilder';
 
