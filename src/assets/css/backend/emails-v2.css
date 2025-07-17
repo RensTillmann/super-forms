@@ -560,6 +560,9 @@ video {
 .ev2-right-2\.5 {
   right: 0.625rem;
 }
+.ev2-right-4 {
+  right: 1rem;
+}
 .ev2-top-0 {
   top: 0px;
 }
@@ -568,6 +571,9 @@ video {
 }
 .ev2-top-2 {
   top: 0.5rem;
+}
+.ev2-top-4 {
+  top: 1rem;
 }
 .ev2-top-5 {
   top: 1.25rem;
@@ -985,6 +991,11 @@ video {
 .ev2-gap-6 {
   gap: 1.5rem;
 }
+.ev2-space-x-0 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-x-reverse: 0;
+  margin-right: calc(0px * var(--tw-space-x-reverse));
+  margin-left: calc(0px * calc(1 - var(--tw-space-x-reverse)));
+}
 .ev2-space-y-1 > :not([hidden]) ~ :not([hidden]) {
   --tw-space-y-reverse: 0;
   margin-top: calc(0.25rem * calc(1 - var(--tw-space-y-reverse)));
@@ -1004,6 +1015,11 @@ video {
   --tw-space-y-reverse: 0;
   margin-top: calc(1rem * calc(1 - var(--tw-space-y-reverse)));
   margin-bottom: calc(1rem * var(--tw-space-y-reverse));
+}
+.ev2-space-y-6 > :not([hidden]) ~ :not([hidden]) {
+  --tw-space-y-reverse: 0;
+  margin-top: calc(1.5rem * calc(1 - var(--tw-space-y-reverse)));
+  margin-bottom: calc(1.5rem * var(--tw-space-y-reverse));
 }
 .ev2-divide-y > :not([hidden]) ~ :not([hidden]) {
   --tw-divide-y-reverse: 0;
@@ -1095,6 +1111,10 @@ video {
 .ev2-border-blue-400 {
   --tw-border-opacity: 1;
   border-color: rgb(96 165 250 / var(--tw-border-opacity, 1));
+}
+.ev2-border-blue-500 {
+  --tw-border-opacity: 1;
+  border-color: rgb(59 130 246 / var(--tw-border-opacity, 1));
 }
 .ev2-border-gray-200 {
   --tw-border-opacity: 1;

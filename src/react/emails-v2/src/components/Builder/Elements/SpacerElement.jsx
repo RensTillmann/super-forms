@@ -1,13 +1,19 @@
 import React from 'react';
 
 function SpacerElement({ element }) {
-  const { height } = element.props;
+  const { height = 20 } = element.props;
 
   return (
     <div 
-      style={{ height: `${height}px` }}
-      className="ev2-bg-transparent"
-    />
+      className="element-content ev2-bg-transparent"
+      style={{ 
+        height: `${height}px`,
+        fontSize: '0',
+        lineHeight: '0'
+      }}
+    >
+      &nbsp;
+    </div>
   );
 }
 

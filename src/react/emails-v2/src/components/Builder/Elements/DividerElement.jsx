@@ -1,23 +1,29 @@
 import React from 'react';
 
 function DividerElement({ element }) {
-  const { height, color, style, margin } = element.props;
+  const { 
+    height = 1, 
+    color = '#cccccc', 
+    style = 'solid',
+    align = 'center',
+    width = '100%'
+  } = element.props;
 
   return (
-    <div
-      style={{
-        marginTop: `${margin.top}px`,
-        marginBottom: `${margin.bottom}px`,
-      }}
-    >
+    <div className="element-content" style={{ textAlign: align }}>
       <hr
         style={{
           height: `${height}px`,
-          backgroundColor: color,
+          width: width,
+          backgroundColor: style === 'solid' ? color : 'transparent',
           border: 'none',
           borderTop: style === 'dashed' ? `${height}px dashed ${color}` : 
                      style === 'dotted' ? `${height}px dotted ${color}` : undefined,
           margin: 0,
+          // Email-friendly divider styles
+          display: 'block',
+          fontSize: '0',
+          lineHeight: '0'
         }}
       />
     </div>
