@@ -3,7 +3,11 @@ import { useDroppable } from '@dnd-kit/core';
 import clsx from 'clsx';
 
 function ColumnsElement({ element, renderElements }) {
-  const { columns, gap, stackOnMobile } = element.props;
+  const { 
+    columns = 2, 
+    gap = 16, 
+    stackOnMobile = true 
+  } = element.props;
 
   // Ensure we have the right number of column containers
   const columnChildren = Array(columns).fill(null).map((_, index) => {
@@ -12,7 +16,7 @@ function ColumnsElement({ element, renderElements }) {
 
   return (
     <div 
-      className="ev2-flex ev2-flex-wrap"
+      className="element-content ev2-flex ev2-flex-wrap"
       style={{ gap: `${gap}px` }}
       data-stack-mobile={stackOnMobile}
     >

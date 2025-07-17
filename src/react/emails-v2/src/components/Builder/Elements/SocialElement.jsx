@@ -34,10 +34,16 @@ const socialIcons = {
 };
 
 function SocialElement({ element }) {
-  const { icons, iconSize, iconColor, spacing, align } = element.props;
+  const { 
+    icons = ['facebook', 'twitter', 'instagram'], 
+    iconSize = 32, 
+    iconColor = '#333333', 
+    spacing = 8, 
+    align = 'left' 
+  } = element.props;
 
   return (
-    <div style={{ textAlign: align }}>
+    <div className="element-content" style={{ textAlign: align }}>
       <div 
         className="ev2-inline-flex ev2-items-center"
         style={{ gap: `${spacing}px` }}
