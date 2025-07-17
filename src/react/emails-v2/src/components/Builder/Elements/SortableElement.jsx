@@ -50,6 +50,16 @@ function SortableElement({ element, index, parentId, isSelected, onSelect, rende
     onSelect();
   };
 
+  const handleElementUpdate = (elementId, property, value) => {
+    // TODO: Implement element property updates through useEmailBuilder hook
+    console.log('Element update:', elementId, property, value);
+  };
+
+  const handleCapabilityAction = (elementId, action, data) => {
+    // TODO: Implement capability-based actions (color picker, link editor, etc.)
+    console.log('Capability action:', elementId, action, data);
+  };
+
   return (
     <div
       ref={setNodeRef}
@@ -107,6 +117,9 @@ function SortableElement({ element, index, parentId, isSelected, onSelect, rende
           element={element} 
           renderElements={renderElements}
           isSelected={isSelected}
+          isHovered={isHovered && !isDragging}
+          onElementUpdate={handleElementUpdate}
+          onCapabilityAction={handleCapabilityAction}
         />
       </div>
     </div>

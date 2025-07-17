@@ -1,4 +1,5 @@
 import React from 'react';
+import UniversalElementWrapper from './UniversalElementWrapper';
 import SectionElement from './SectionElement';
 import TextElement from './TextElement';
 import ButtonElement from './ButtonElement';
@@ -21,7 +22,14 @@ const elementComponents = {
   formData: FormDataElement,
 };
 
-function ElementRenderer({ element, renderElements, isSelected }) {
+function ElementRenderer({ 
+  element, 
+  renderElements, 
+  isSelected, 
+  isHovered = false,
+  onElementUpdate,
+  onCapabilityAction 
+}) {
   const Component = elementComponents[element.type];
   
   if (!Component) {
@@ -33,11 +41,20 @@ function ElementRenderer({ element, renderElements, isSelected }) {
   }
 
   return (
-    <Component 
-      element={element} 
-      renderElements={renderElements}
+    <UniversalElementWrapper
+      element={element}
       isSelected={isSelected}
-    />
+      isHovered={isHovered}
+      renderElements={renderElements}
+      onElementUpdate={onElementUpdate}
+      onCapabilityAction={onCapabilityAction}
+    >
+      <Component 
+        element={element} 
+        renderElements={renderElements}
+        // Note: isSelected no longer needed here - wrapper handles it
+      />
+    </UniversalElementWrapper>
   );
 }
 
