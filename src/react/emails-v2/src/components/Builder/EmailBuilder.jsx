@@ -1,25 +1,52 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import Canvas from './Canvas';
 import ElementPalette from './ElementPalette';
-import CapabilityBasedPropertyPanel from '../PropertyPanels/CapabilityBasedPropertyPanel';
-import useEmailBuilder from '../../hooks/useEmailBuilder';
+import OptimizedPropertyPanel from '../PropertyPanels/OptimizedPropertyPanel';
+import { useEmailBuilderStore } from '../../hooks/useEmailBuilder';
+
+// Simplified - no external functions needed
+
+// Helper function to find element in tree
+const findElement = (elements, id) => {
+  for (const element of elements) {
+    if (element.id === id) {
+      return element;
+    }
+    if (element.children && element.children.length > 0) {
+      if (element.type === 'columns') {
+        // Handle column structure
+        for (const column of element.children) {
+          const found = findElement(column.children || [], id);
+          if (found) return found;
+        }
+      } else {
+        const found = findElement(element.children, id);
+        if (found) return found;
+      }
+    }
+  }
+  return null;
+};
 
 function EmailBuilder({ email, onChange }) {
-  const { selectedElementId, setSelectedElementId, setElements, elements, updateElement } = useEmailBuilder();
+  const selectedElementId = useEmailBuilderStore(state => state.selectedElementId);
+  
+  console.log('EmailBuilder render - selectedElementId:', selectedElementId);
 
   // Initialize elements from email template if it exists
   useEffect(() => {
     if (email?.template && typeof email.template === 'object' && email.template.elements) {
-      setElements(email.template.elements);
+      useEmailBuilderStore.getState().setElements(email.template.elements);
     }
-  }, [email?.template, setElements]);
+  }, [email?.template]);
 
   // Handle changes from the builder
   const handleBuilderChange = (html) => {
     if (onChange) {
       // Store both the elements and generated HTML
+      const currentElements = useEmailBuilderStore.getState().elements;
       onChange({
-        elements: elements,
+        elements: currentElements,
         html: html
       });
     }
@@ -37,13 +64,23 @@ function EmailBuilder({ email, onChange }) {
         <Canvas email={email} onChange={handleBuilderChange} />
       </div>
 
-      {/* Properties Panel */}
+      {/* Properties Panel - Don't show for email wrapper (background-only element) */}
       {selectedElementId && (
-        <CapabilityBasedPropertyPanel
-          element={elements.find(el => el.id === selectedElementId)}
-          onElementUpdate={updateElement}
-          onClose={() => setSelectedElementId(null)}
-        />
+        (() => {
+          const elements = useEmailBuilderStore.getState().elements;
+          const selectedElement = findElement(elements, selectedElementId);
+          // Don't show property panel for email wrapper - it only uses the color picker
+          if (selectedElement?.type === 'emailWrapper') {
+            return null;
+          }
+          return (
+            <div className="ev2-w-80 ev2-bg-gray-50 ev2-border-l ev2-overflow-y-auto">
+              <OptimizedPropertyPanel
+                elementId={selectedElementId}
+              />
+            </div>
+          );
+        })()
       )}
     </div>
   );

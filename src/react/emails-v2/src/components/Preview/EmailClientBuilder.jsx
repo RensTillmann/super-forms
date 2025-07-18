@@ -5,7 +5,7 @@ import GmailChrome from './ClientChrome/GmailChrome';
 import { Globe } from 'lucide-react';
 import ElementPaletteHorizontal from '../Builder/ElementPaletteHorizontal';
 import CanvasIntegrated from '../Builder/CanvasIntegrated';
-import CapabilityBasedPropertyPanel from '../PropertyPanels/CapabilityBasedPropertyPanel';
+import OptimizedPropertyPanel from '../PropertyPanels/OptimizedPropertyPanel';
 import useEmailStore from '../../hooks/useEmailStore';
 import useEmailBuilder from '../../hooks/useEmailBuilder';
 
@@ -42,10 +42,15 @@ function EmailClientBuilder() {
 
   // Initialize builder elements from email template
   useEffect(() => {
-    if (activeEmail?.template && typeof activeEmail.template === 'object' && activeEmail.template.elements) {
-      setElements(activeEmail.template.elements);
+    if (activeEmail) {
+      if (activeEmail.template && typeof activeEmail.template === 'object' && activeEmail.template.elements) {
+        setElements(activeEmail.template.elements);
+      } else {
+        // Initialize new email with system elements
+        setElements([]);
+      }
     }
-  }, [activeEmail?.template, setElements]);
+  }, [activeEmail, setElements]);
 
   // Update email template when elements change
   useEffect(() => {

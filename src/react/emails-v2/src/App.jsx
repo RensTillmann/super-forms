@@ -3,8 +3,8 @@ import useEmailStore from './hooks/useEmailStore';
 import EmailList from './components/EmailList';
 import EmailEditor from './components/EmailEditor';
 import EmailClientBuilder from './components/Preview/EmailClientBuilder';
-import CapabilityBasedPropertyPanel from './components/PropertyPanels/CapabilityBasedPropertyPanel';
-import useEmailBuilder from './hooks/useEmailBuilder';
+import OptimizedPropertyPanel from './components/PropertyPanels/OptimizedPropertyPanel';
+import { useEmailBuilderStore } from './hooks/useEmailBuilder';
 
 function App({ formId, emails, translations, settings, ajaxUrl, nonce, i18n }) {
   const { 
@@ -15,7 +15,8 @@ function App({ formId, emails, translations, settings, ajaxUrl, nonce, i18n }) {
     save
   } = useEmailStore();
   
-  const { selectedElementId, setSelectedElementId, elements, updateElement } = useEmailBuilder();
+  const selectedElementId = useEmailBuilderStore(state => state.selectedElementId);
+  const setSelectedElementId = useEmailBuilderStore.getState().selectElement;
 
   // Initialize store on mount
   useEffect(() => {
@@ -61,12 +62,11 @@ function App({ formId, emails, translations, settings, ajaxUrl, nonce, i18n }) {
 
         {/* Main Content Area - Split View */}
         <div className="ev2-flex-1 ev2-flex ev2-gap-4">
-          {/* Email Editor or Element Properties */}
-          <div className="ev2-flex-1 ev2-min-w-0">
+          {/* Email Editor or Element Properties - 50% width */}
+          <div className="ev2-w-1/2 ev2-min-w-0">
             {selectedElementId ? (
-              <CapabilityBasedPropertyPanel
-                element={elements.find(el => el.id === selectedElementId)}
-                onElementUpdate={updateElement}
+              <OptimizedPropertyPanel
+                elementId={selectedElementId}
                 onClose={() => setSelectedElementId(null)}
               />
             ) : activeEmailId ? (
@@ -85,7 +85,7 @@ function App({ formId, emails, translations, settings, ajaxUrl, nonce, i18n }) {
             )}
           </div>
 
-          {/* Email Builder - Always Visible */}
+          {/* Email Builder - 50% width */}
           <div className="ev2-w-1/2 ev2-min-w-[400px] ev2-bg-white ev2-rounded-lg ev2-shadow-sm ev2-border ev2-border-gray-200 ev2-overflow-hidden">
             <EmailClientBuilder />
           </div>

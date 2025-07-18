@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { v4 as uuidv4 } from 'uuid';
+import { useMemo } from 'react';
 
 const useEmailBuilderStore = create((set, get) => ({
   // Canvas state
@@ -25,6 +26,39 @@ const useEmailBuilderStore = create((set, get) => ({
   
   // Element types
   elementTypes: {
+    emailWrapper: {
+      id: 'emailWrapper',
+      name: 'Email Wrapper',
+      icon: '📧',
+      isSystemElement: true,
+      canDelete: false,
+      defaultProps: {
+        backgroundColor: '#f5f5f5', // Light grey default
+      }
+    },
+    emailContainer: {
+      id: 'emailContainer', 
+      name: 'Email Container',
+      icon: '📄',
+      isSystemElement: true,
+      canDelete: false,
+      defaultProps: {
+        width: '600px',
+        margin: { top: 0, right: 'auto', bottom: 0, left: 'auto' },
+        border: { top: 0, right: 0, bottom: 0, left: 0 },
+        borderStyle: 'solid',
+        borderColor: '#e5e5e5',
+        padding: { top: 60, right: 30, bottom: 60, left: 30 },
+        backgroundColor: '#ffffff',
+        backgroundImage: '',
+        backgroundImageId: null,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        boxShadow: 'none',
+        borderRadius: 0,
+      }
+    },
     section: {
       id: 'section',
       name: 'Section',
@@ -60,11 +94,14 @@ const useEmailBuilderStore = create((set, get) => ({
       icon: '📝',
       defaultProps: {
         content: '<p>Enter your text here...</p>',
-        fontSize: 14,
+        fontSize: 16,
         fontFamily: 'Arial, sans-serif',
         color: '#333333',
         lineHeight: 1.6,
         align: 'left',
+        width: '100%',
+        margin: { top: 0, right: 0, bottom: 0, left: 0 },
+        padding: { top: 0, right: 0, bottom: 0, left: 0 },
       }
     },
     image: {
@@ -142,10 +179,21 @@ const useEmailBuilderStore = create((set, get) => ({
   
   // Actions
   addElement: (type, parentId = null, position = null) => {
+    console.log('🚀 addElement called:', { type, parentId, position });
+    
     const { elementTypes } = get();
     const elementType = elementTypes[type];
     
-    if (!elementType) return;
+    if (!elementType) {
+      console.error('❌ Element type not found:', type);
+      return;
+    }
+    
+    // Don't allow manual creation of system elements
+    if (elementType.isSystemElement) {
+      console.log('⚠️ Skipping system element creation:', type);
+      return;
+    }
     
     const newElement = {
       id: uuidv4(),
@@ -154,24 +202,62 @@ const useEmailBuilderStore = create((set, get) => ({
       children: [],
     };
     
+    console.log('📝 Created new element:', newElement);
+    
     set((state) => {
+      console.log('📊 Current state before adding:', state.elements);
+      const elements = get().ensureSystemElements(state.elements);
+      console.log('📊 State after ensuring system elements:', elements);
+      
       if (parentId) {
-        // Add to parent's children
-        return {
-          elements: addToParent(state.elements, parentId, newElement, position),
+        console.log('📎 Adding to parent:', parentId);
+        const result = {
+          elements: addToParent(elements, parentId, newElement, position),
         };
+        console.log('📊 Final state after addToParent:', result.elements);
+        return result;
       } else {
-        // Add to root
-        const elements = [...state.elements];
-        if (position !== null) {
-          elements.splice(position, 0, newElement);
+        console.log('📎 Adding to root - finding email container...');
+        // For root additions, add to email container instead
+        const findElementByType = (elements, type) => {
+          for (const element of elements) {
+            if (element.type === type) {
+              return element;
+            }
+            if (element.children && element.children.length > 0) {
+              const found = findElementByType(element.children, type);
+              if (found) return found;
+            }
+          }
+          return null;
+        };
+        
+        const container = findElementByType(elements, 'emailContainer');
+        console.log('📧 Found email container:', container);
+        
+        if (container) {
+          console.log('📎 Adding to email container:', container.id);
+          const result = {
+            elements: addToParent(elements, container.id, newElement, position),
+          };
+          console.log('📊 Final state after addToParent to container:', result.elements);
+          return result;
         } else {
-          elements.push(newElement);
+          console.log('⚠️ No email container found, adding to root');
+          // Fallback to root if no container found
+          const resultElements = [...elements];
+          if (position !== null) {
+            resultElements.splice(position, 0, newElement);
+          } else {
+            resultElements.push(newElement);
+          }
+          console.log('📊 Final state (root fallback):', resultElements);
+          return { elements: resultElements };
         }
-        return { elements };
       }
     });
     
+    console.log('✅ addElement completed, returning:', newElement.id);
     return newElement.id;
   },
   
@@ -213,7 +299,9 @@ const useEmailBuilderStore = create((set, get) => ({
   },
   
   selectElement: (id) => {
+    console.log('selectElement called with id:', id);
     set({ selectedElementId: id });
+    console.log('selectedElementId set to:', id);
   },
   
   clearCanvas: () => {
@@ -224,7 +312,61 @@ const useEmailBuilderStore = create((set, get) => ({
   },
 
   setElements: (elements) => {
-    set({ elements: elements || [] });
+    const systemElements = get().ensureSystemElements(elements || []);
+    set({ elements: systemElements });
+  },
+  
+  // Ensure system elements (email wrapper and container) are always present
+  ensureSystemElements: (elements) => {
+    const { elementTypes } = get();
+    let result = [...elements];
+    
+    // Helper function to find element recursively
+    const findElementByType = (elements, type) => {
+      for (const element of elements) {
+        if (element.type === type) {
+          return element;
+        }
+        if (element.children && element.children.length > 0) {
+          const found = findElementByType(element.children, type);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+    
+    // Check if email wrapper exists (should be at root level)
+    let wrapper = result.find(el => el.type === 'emailWrapper');
+    if (!wrapper) {
+      wrapper = {
+        id: `email-wrapper-${Date.now()}`,
+        type: 'emailWrapper',
+        props: { ...elementTypes.emailWrapper.defaultProps },
+        children: []
+      };
+      result.unshift(wrapper); // Add at beginning
+    }
+    
+    // Check if email container exists (should be child of wrapper)
+    let container = findElementByType([wrapper], 'emailContainer');
+    if (!container) {
+      container = {
+        id: `email-container-${Date.now()}`,
+        type: 'emailContainer', 
+        props: { ...elementTypes.emailContainer.defaultProps },
+        children: []
+      };
+      wrapper.children.unshift(container); // Add as first child of wrapper
+    }
+    
+    // Move any existing user content to be children of the container
+    const userElements = result.filter(el => el.type !== 'emailWrapper');
+    if (userElements.length > 0) {
+      container.children.push(...userElements);
+      result = result.filter(el => el.type === 'emailWrapper');
+    }
+    
+    return result;
   },
   
   // Template actions
@@ -314,17 +456,52 @@ const findElement = (elements, id) => {
   return null;
 };
 
-// Custom hook with computed values
+// Custom hook with optimized selectors
 const useEmailBuilder = () => {
-  const store = useEmailBuilderStore();
+  // Get stable function references (these don't change)
+  const selectElement = useEmailBuilderStore(state => state.selectElement);
+  const updateElement = useEmailBuilderStore(state => state.updateElement);
+  const addElement = useEmailBuilderStore(state => state.addElement);
+  const deleteElement = useEmailBuilderStore(state => state.deleteElement);
+  const moveElement = useEmailBuilderStore(state => state.moveElement);
+  const setElements = useEmailBuilderStore(state => state.setElements);
+  const clearCanvas = useEmailBuilderStore(state => state.clearCanvas);
+  const generateHtml = useEmailBuilderStore(state => state.generateHtml);
+  const startDrag = useEmailBuilderStore(state => state.startDrag);
+  const endDrag = useEmailBuilderStore(state => state.endDrag);
   
-  const selectedElement = store.selectedElementId 
-    ? findElement(store.elements, store.selectedElementId)
-    : null;
+  // Only subscribe to specific state when needed
+  const selectedElementId = useEmailBuilderStore(state => state.selectedElementId);
+  const isDragging = useEmailBuilderStore(state => state.isDragging);
+  const draggedElement = useEmailBuilderStore(state => state.draggedElement);
+  const elementTypes = useEmailBuilderStore(state => state.elementTypes);
+  
+  // Optimized selector for elements - re-render when structure OR properties change
+  const elements = useEmailBuilderStore(state => state.elements);
+  
+  const selectedElement = useMemo(() => {
+    return selectedElementId 
+      ? findElement(elements, selectedElementId)
+      : null;
+  }, [selectedElementId, elements]);
   
   return {
-    ...store,
+    elements,
+    selectedElementId,
     selectedElement,
+    isDragging,
+    draggedElement,
+    elementTypes,
+    selectElement,
+    updateElement,
+    addElement,
+    deleteElement,
+    moveElement,
+    setElements,
+    clearCanvas,
+    generateHtml,
+    startDrag,
+    endDrag,
   };
 };
 
@@ -341,10 +518,58 @@ useEmailBuilder.getState = () => {
   };
 };
 
+// Optimized hook for PropertyPanel - only subscribes to selected element
+export const useSelectedElement = () => {
+  const selectedElementId = useEmailBuilderStore(state => state.selectedElementId);
+  const updateElement = useEmailBuilderStore(state => state.updateElement);
+  const selectElement = useEmailBuilderStore(state => state.selectElement);
+  
+  // Only get the selected element from store - SIMPLIFIED to avoid comparison issues
+  const element = useEmailBuilderStore(state => {
+    console.log('useSelectedElement selector called');
+    if (!selectedElementId) return null;
+    const found = findElementById(state.elements, selectedElementId);
+    console.log('Found element in selector:', found?.id, found?.type);
+    return found;
+  });
+  
+  return {
+    element,
+    selectedElementId,
+    updateElement,
+    selectElement
+  };
+};
+
+// Helper function to find element by ID in the store
+function findElementById(elements, id) {
+  for (const element of elements) {
+    if (element.id === id) {
+      return element;
+    }
+    if (element.children && element.children.length > 0) {
+      if (element.type === 'columns') {
+        for (const column of element.children) {
+          const found = findElementById(column.children || [], id);
+          if (found) return found;
+        }
+      } else {
+        const found = findElementById(element.children, id);
+        if (found) return found;
+      }
+    }
+  }
+  return null;
+}
+
+export { useEmailBuilderStore };
 export default useEmailBuilder;
 
 // Helper functions
 function addToParent(elements, parentId, newElement, position) {
+  console.log('🔧 addToParent called:', { parentId, newElement, position });
+  console.log('🔧 Elements structure:', elements);
+  
   // Handle column drops - parentId format: "parentElementId-col-columnIndex"
   if (parentId && parentId.includes('-col-')) {
     const [actualParentId, , columnIndex] = parentId.split('-');
@@ -387,13 +612,18 @@ function addToParent(elements, parentId, newElement, position) {
   // Regular parent handling
   return elements.map(element => {
     if (element.id === parentId) {
+      console.log('🎯 Found target parent element:', element);
       const children = [...element.children];
       if (position !== null && position !== undefined) {
         children.splice(position, 0, newElement);
+        console.log('📝 Added at position', position, '- new children:', children);
       } else {
         children.push(newElement);
+        console.log('📝 Added at end - new children:', children);
       }
-      return { ...element, children };
+      const result = { ...element, children };
+      console.log('✅ Updated parent element:', result);
+      return result;
     }
     if (element.children && element.children.length > 0) {
       return {

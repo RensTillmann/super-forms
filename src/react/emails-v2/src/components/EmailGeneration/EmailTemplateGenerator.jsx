@@ -202,6 +202,10 @@ class EmailTemplateGenerator {
    */
   getElementContentHTML(element) {
     switch (element.type) {
+      case 'emailWrapper':
+        return this.generateEmailWrapperHTML(element);
+      case 'emailContainer':
+        return this.generateEmailContainerHTML(element);
       case 'text':
         return this.generateTextHTML(element);
       case 'button':
@@ -340,6 +344,47 @@ class EmailTemplateGenerator {
   /**
    * Generate section element HTML (container)
    */
+  /**
+   * Generate email wrapper HTML (outermost container)
+   */
+  generateEmailWrapperHTML(element) {
+    const { children = [], backgroundColor = '#f5f5f5' } = element.props;
+    
+    return `<div style="width: 100%; min-height: 100vh; background-color: ${backgroundColor}; margin: 0; padding: 0;">
+        ${children.map(child => this.generateElementHTML(child)).join('')}
+    </div>`;
+  }
+
+  /**
+   * Generate email container HTML (main content area)
+   */
+  generateEmailContainerHTML(element) {
+    const { 
+      children = [], 
+      width = '600px',
+      backgroundColor = '#ffffff',
+      padding = { top: 0, right: 0, bottom: 0, left: 0 },
+      margin = { top: 0, right: 'auto', bottom: 0, left: 'auto' },
+      border = { top: 0, right: 0, bottom: 0, left: 0 },
+      borderStyle = 'solid',
+      borderColor = '#e5e5e5',
+      borderRadius = 0,
+      boxShadow = 'none'
+    } = element.props;
+    
+    const paddingStyle = `${padding.top}px ${padding.right}px ${padding.bottom}px ${padding.left}px`;
+    const borderWidth = `${border.top}px ${border.right}px ${border.bottom}px ${border.left}px`;
+    const marginStyle = `${margin.top}px ${margin.right === 'auto' ? 'auto' : margin.right + 'px'} ${margin.bottom}px ${margin.left === 'auto' ? 'auto' : margin.left + 'px'}`;
+    
+    return `<table role="presentation" cellspacing="0" cellpadding="0" border="0" style="width: ${width}; margin: ${marginStyle}; background-color: ${backgroundColor}; ${borderRadius ? `border-radius: ${borderRadius}px;` : ''} ${boxShadow !== 'none' ? `box-shadow: ${boxShadow};` : ''} ${border.top > 0 || border.right > 0 || border.bottom > 0 || border.left > 0 ? `border: ${borderWidth} ${borderStyle} ${borderColor};` : ''}">
+        <tr>
+            <td style="padding: ${paddingStyle};">
+                ${children.map(child => this.generateElementHTML(child)).join('')}
+            </td>
+        </tr>
+    </table>`;
+  }
+
   generateSectionHTML(element) {
     const { children = [], backgroundColor = 'transparent' } = element.props;
     

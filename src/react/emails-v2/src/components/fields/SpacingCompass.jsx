@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import clsx from 'clsx';
 import { Link, Unlink, Image, Palette } from 'lucide-react';
 import ColorPicker from './ColorPicker';
@@ -53,6 +53,29 @@ function SpacingCompass({
 
   const [showImageInput, setShowImageInput] = useState(false);
   const [showBorderColor, setShowBorderColor] = useState(false);
+  
+  // Debounced color change for smooth performance
+  const colorChangeTimeoutRef = useRef(null);
+  const [localBackgroundColor, setLocalBackgroundColor] = useState(backgroundColor);
+  
+  const debouncedBackgroundColorChange = useCallback((color) => {
+    setLocalBackgroundColor(color); // Update UI immediately
+    
+    // Clear previous timeout
+    if (colorChangeTimeoutRef.current) {
+      clearTimeout(colorChangeTimeoutRef.current);
+    }
+    
+    // Set new timeout for actual update
+    colorChangeTimeoutRef.current = setTimeout(() => {
+      onBackgroundColorChange(color);
+    }, 150); // 150ms debounce
+  }, [onBackgroundColorChange]);
+  
+  // Sync local state when prop changes (from external updates)
+  useEffect(() => {
+    setLocalBackgroundColor(backgroundColor);
+  }, [backgroundColor]);
 
   const handleMarginChange = (side, value) => {
     const numValue = parseInt(value) || 0;
@@ -200,7 +223,13 @@ function SpacingCompass({
       )}
       
       {/* Simple margin layer - starting from scratch */}
-      <div className="ev2-relative ev2-mx-auto ev2-bg-orange-100 ev2-border-2 ev2-border-dashed ev2-border-orange-300 ev2-rounded-lg ev2-w-fit ev2-h-fit ev2-p-12">
+      <div 
+        className="ev2-relative ev2-mx-auto ev2-bg-orange-100 ev2-border-2 ev2-border-dashed ev2-border-orange-300 ev2-rounded-lg ev2-w-fit ev2-h-fit ev2-p-12"
+        {...(process.env.NODE_ENV === 'development' && {
+          'data-spacing-layer': 'margin',
+          'data-testid': 'spacing-margin-layer'
+        })}
+      >
         
         {/* Margin label positioned to the left of the top input */}
         <span className="ev2-absolute ev2-top-2 ev2-left-1/2 ev2-transform -ev2-translate-x-1/2 -ev2-translate-x-[80px] ev2-text-sm ev2-font-medium ev2-text-orange-600">
@@ -307,7 +336,13 @@ function SpacingCompass({
         )}
 
         {/* Border layer - positioned inside margin layer */}
-        <div className="ev2-relative ev2-bg-purple-100 ev2-border-2 ev2-border-dashed ev2-border-purple-300 ev2-rounded-lg ev2-w-fit ev2-h-fit ev2-p-12 ev2-mx-5">
+        <div 
+          className="ev2-relative ev2-bg-purple-100 ev2-border-2 ev2-border-dashed ev2-border-purple-300 ev2-rounded-lg ev2-w-fit ev2-h-fit ev2-p-12 ev2-mx-5"
+          {...(process.env.NODE_ENV === 'development' && {
+            'data-spacing-layer': 'border',
+            'data-testid': 'spacing-border-layer'
+          })}
+        >
           
           {/* Border label positioned to the left of the top input */}
           <span className="ev2-absolute ev2-top-2 ev2-left-1/2 ev2-transform -ev2-translate-x-1/2 -ev2-translate-x-[80px] ev2-text-sm ev2-font-medium ev2-text-purple-600">
@@ -457,7 +492,13 @@ function SpacingCompass({
           )}
 
           {/* Padding layer - positioned inside border layer */}
-          <div className="ev2-relative ev2-bg-blue-100 ev2-border-2 ev2-border-dashed ev2-border-blue-300 ev2-rounded-lg ev2-w-fit ev2-h-fit ev2-p-12 ev2-mx-5">
+          <div 
+            className="ev2-relative ev2-bg-blue-100 ev2-border-2 ev2-border-dashed ev2-border-blue-300 ev2-rounded-lg ev2-w-fit ev2-h-fit ev2-p-12 ev2-mx-5"
+            {...(process.env.NODE_ENV === 'development' && {
+              'data-spacing-layer': 'padding',
+              'data-testid': 'spacing-padding-layer'
+            })}
+          >
             
             {/* Padding label positioned to the left of the top input */}
             <span className="ev2-absolute ev2-top-2 ev2-left-1/2 ev2-transform -ev2-translate-x-1/2 -ev2-translate-x-[80px] ev2-text-sm ev2-font-medium ev2-text-blue-600">
@@ -564,7 +605,13 @@ function SpacingCompass({
             )}
 
             {/* Inner content area - where background controls go */}
-            <div className="ev2-bg-white ev2-border-2 ev2-border-dashed ev2-border-gray-300 ev2-rounded-lg ev2-flex ev2-items-center ev2-justify-center ev2-w-[300px] ev2-h-[200px] ev2-mx-5">
+            <div 
+              className="ev2-bg-white ev2-border-2 ev2-border-dashed ev2-border-gray-300 ev2-rounded-lg ev2-flex ev2-items-center ev2-justify-center ev2-w-[300px] ev2-h-[200px] ev2-mx-5"
+              {...(process.env.NODE_ENV === 'development' && {
+                'data-spacing-layer': 'content',
+                'data-testid': 'spacing-content-area'
+              })}
+            >
               
               {/* Background Controls - centered in the inner area */}
               <div className="ev2-flex ev2-items-center ev2-gap-3">
@@ -573,10 +620,10 @@ function SpacingCompass({
                 <div className="ev2-flex ev2-flex-col ev2-items-center ev2-gap-1">
                   <input
                     type="color"
-                    value={backgroundColor}
+                    value={localBackgroundColor}
                     onChange={(e) => {
                       e.stopPropagation();
-                      onBackgroundColorChange(e.target.value);
+                      debouncedBackgroundColorChange(e.target.value);
                     }}
                     onFocus={(e) => e.stopPropagation()}
                     onBlur={(e) => e.stopPropagation()}
@@ -714,5 +761,8 @@ function SpacingCompass({
     </div>
   );
 }
+
+// Add display name for better React DevTools debugging
+SpacingCompass.displayName = 'SpacingCompass';
 
 export default SpacingCompass;

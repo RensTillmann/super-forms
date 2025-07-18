@@ -22,7 +22,8 @@ function SpacingLayer({
   backgroundImage,
   borderRadius,
   children,
-  className
+  className,
+  isResizing = false
 }) {
   
   // Build inline styles for maximum email client compatibility
@@ -100,11 +101,20 @@ function SpacingLayer({
     <div
       className={clsx(
         'spacing-layer',
-        'ev2-transition-all ev2-duration-200', // Smooth transitions for builder
+        // Only apply transitions when NOT resizing to avoid lag
+        !isResizing && 'ev2-transition-all ev2-duration-200',
         className
       )}
       style={buildStyles()}
       {...getEmailAttributes()}
+      {...(process.env.NODE_ENV === 'development' && {
+        'data-debug-spacing': 'true',
+        'data-debug-margin': margin ? JSON.stringify(margin) : 'none',
+        'data-debug-border': border?.width ? JSON.stringify(border.width) : 'none',
+        'data-debug-padding': padding ? JSON.stringify(padding) : 'none',
+        'data-debug-bg-color': backgroundColor || 'transparent',
+        'data-debug-bg-image': backgroundImage?.url || 'none'
+      })}
     >
       {children}
     </div>

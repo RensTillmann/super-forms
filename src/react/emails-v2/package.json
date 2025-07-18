@@ -17,11 +17,13 @@
     "framer-motion": "^10.16.16",
     "i18next": "^23.7.16",
     "lucide-react": "^0.525.0",
+    "quill": "^2.0.3",
     "react": "^18.2.0",
     "react-color": "^2.19.3",
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.48.2",
     "react-i18next": "^14.0.0",
+    "react-quill": "^2.0.0",
     "uuid": "^9.0.1",
     "zustand": "^4.4.7"
   },

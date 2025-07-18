@@ -3,12 +3,34 @@ import { DndContext, DragOverlay, closestCenter } from '@dnd-kit/core';
 import useEmailBuilder from '../../hooks/useEmailBuilder';
 import useEmailStore from '../../hooks/useEmailStore';
 import ElementPaletteHorizontal from './ElementPaletteHorizontal';
-import CapabilityBasedPropertyPanel from '../PropertyPanels/CapabilityBasedPropertyPanel';
+import OptimizedPropertyPanel from '../PropertyPanels/OptimizedPropertyPanel';
 import CanvasIntegrated from './CanvasIntegrated';
 import GmailChrome from '../Preview/ClientChrome/GmailChrome';
 import OutlookChrome from '../Preview/ClientChrome/OutlookChrome';
 import AppleMailChrome from '../Preview/ClientChrome/AppleMailChrome';
 import { ChevronLeft, ChevronRight, Monitor, Smartphone, X } from 'lucide-react';
+
+// Helper function to find element in tree
+const findElement = (elements, id) => {
+  for (const element of elements) {
+    if (element.id === id) {
+      return element;
+    }
+    if (element.children && element.children.length > 0) {
+      if (element.type === 'columns') {
+        // Handle column structure
+        for (const column of element.children) {
+          const found = findElement(column.children || [], id);
+          if (found) return found;
+        }
+      } else {
+        const found = findElement(element.children, id);
+        if (found) return found;
+      }
+    }
+  }
+  return null;
+};
 
 const EMAIL_CLIENTS = [
   { id: 'gmail-desktop', name: 'Gmail', icon: '📧', component: GmailChrome },
@@ -21,7 +43,7 @@ function EmailBuilderIntegrated({ email, onChange, onClose }) {
   const [isMobile, setIsMobile] = useState(false);
   const { 
     selectedElementId, 
-    setSelectedElementId,
+    selectElement,
     setElements, 
     elements,
     isDragging,
@@ -67,17 +89,43 @@ function EmailBuilderIntegrated({ email, onChange, onClose }) {
     const activeData = active.data.current;
     const overData = over.data.current;
 
+    console.log('🎯 Drag End Event:', {
+      activeId: active.id,
+      overId: over.id,
+      activeData,
+      overData
+    });
+
     if (activeData.type === 'new-element') {
       // Adding new element from palette
-      const position = overData?.position !== undefined ? overData.position : null;
-      const parentId = overData?.parentId || null;
+      let position = overData?.position !== undefined ? overData.position : null;
+      let parentId = overData?.parentId || null;
+      
+      // Handle email container drop zones
+      if (overData?.type === 'email-container-drop' || overData?.type === 'email-container-empty-drop') {
+        parentId = overData.parentId;
+        position = 0; // Always add at the beginning for container drops
+        console.log('📧 Email container drop detected:', { parentId, position });
+      }
+      
+      console.log('➕ Adding element:', { 
+        elementType: activeData.elementType, 
+        parentId, 
+        position 
+      });
       
       addElement(activeData.elementType, parentId, position);
     } else if (activeData.type === 'canvas-element') {
       // Moving existing element
       if (active.id !== over.id) {
-        const position = overData?.position !== undefined ? overData.position : null;
-        const parentId = overData?.parentId || null;
+        let position = overData?.position !== undefined ? overData.position : null;
+        let parentId = overData?.parentId || null;
+        
+        // Handle email container drop zones for moves too
+        if (overData?.type === 'email-container-drop' || overData?.type === 'email-container-empty-drop') {
+          parentId = overData.parentId;
+          position = 0;
+        }
         
         moveElement(active.id, parentId, position);
       }
@@ -180,16 +228,21 @@ function EmailBuilderIntegrated({ email, onChange, onClose }) {
             </div>
           </div>
 
-          {/* Properties Panel */}
+          {/* Properties Panel - Don't show for email wrapper (background-only element) */}
           {selectedElementId && (
-            <CapabilityBasedPropertyPanel
-              element={elements.find(el => el.id === selectedElementId)}
-              onElementUpdate={(id, property, value) => {
-                // TODO: Implement updateElement in useEmailBuilder
-                console.log('Update element:', id, property, value);
-              }}
-              onClose={() => setSelectedElementId(null)}
-            />
+            (() => {
+              const selectedElement = findElement(elements, selectedElementId);
+              // Don't show property panel for email wrapper - it only uses the color picker
+              if (selectedElement?.type === 'emailWrapper') {
+                return null;
+              }
+              return (
+                <OptimizedPropertyPanel
+                  elementId={selectedElementId}
+                  onClose={() => selectElement(null)}
+                />
+              );
+            })()
           )}
         </div>
 

@@ -1,5 +1,7 @@
 import React from 'react';
 import UniversalElementWrapper from './UniversalElementWrapper';
+import EmailWrapperElement from './EmailWrapperElement';
+import EmailContainerElement from './EmailContainerElement';
 import SectionElement from './SectionElement';
 import TextElement from './TextElement';
 import ButtonElement from './ButtonElement';
@@ -11,6 +13,8 @@ import SocialElement from './SocialElement';
 import FormDataElement from './FormDataElement';
 
 const elementComponents = {
+  emailWrapper: EmailWrapperElement,
+  emailContainer: EmailContainerElement,
   section: SectionElement,
   text: TextElement,
   button: ButtonElement,
@@ -28,7 +32,8 @@ function ElementRenderer({
   isSelected, 
   isHovered = false,
   onElementUpdate,
-  onCapabilityAction 
+  onCapabilityAction,
+  onEdit
 }) {
   const Component = elementComponents[element.type];
   
@@ -48,6 +53,7 @@ function ElementRenderer({
       renderElements={renderElements}
       onElementUpdate={onElementUpdate}
       onCapabilityAction={onCapabilityAction}
+      onEdit={onEdit}
     >
       <Component 
         element={element} 

@@ -10,6 +10,66 @@
  */
 
 export const elementCapabilities = {
+  // System elements - email canvas and wrapper
+  emailWrapper: {
+    resizable: false,
+    background: { 
+      color: true, 
+      image: false  // Background images not recommended for email clients
+    },
+    spacing: { 
+      margin: false,  // Email client background doesn't need spacing
+      padding: false, 
+      border: false 
+    },
+    typography: false,
+    alignment: false,
+    interactive: false,
+    layout: {
+      fullWidth: true,
+      canDelete: false,
+      isSystemElement: true,
+      backgroundOnly: true  // Special flag for background-only elements
+    },
+    display: {
+      showInBuilder: true,
+      selectable: true
+    }
+  },
+  
+  emailContainer: {
+    resizable: false,
+    background: { 
+      color: true, 
+      image: true 
+    },
+    spacing: { 
+      margin: true, 
+      padding: true, 
+      border: true 
+    },
+    typography: false,
+    alignment: { 
+      horizontal: true, 
+      vertical: false 
+    },
+    interactive: false,
+    layout: {
+      canDelete: false,
+      isSystemElement: true,
+      droppable: true,
+      widthOptions: ['600px', '700px']
+    },
+    effects: {
+      borderRadius: true,
+      shadow: true
+    },
+    display: {
+      showInBuilder: true,
+      selectable: true
+    }
+  },
+  
   // Text elements - content focused
   text: {
     resizable: { 
@@ -144,7 +204,9 @@ export const elementCapabilities = {
       horizontal: true, 
       vertical: true,
       minWidth: 200,
-      minHeight: 50
+      minHeight: 50,
+      maxWidth: 700,  // Email-friendly max width
+      defaultWidth: 600  // Industry standard email width
     },
     background: { 
       color: true, 
@@ -165,6 +227,7 @@ export const elementCapabilities = {
     layout: {
       fullWidth: true,
       contained: true,  // Can be contained within page width
+      centered: true,   // Center horizontally for email compatibility
       columns: true,    // Can contain multiple columns
       droppable: true   // Can accept child elements
     },

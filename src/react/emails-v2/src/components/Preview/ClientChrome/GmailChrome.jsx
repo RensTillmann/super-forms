@@ -62,7 +62,12 @@ function GmailChrome({ email, isMobile, isBuilder, renderBody }) {
               </div>
             </div>
             
-            {isBuilder && renderBody ? renderBody() : <EmailContent email={email} />}
+            {/* Mobile Email Container */}
+            <div className="ev2-bg-white ev2-p-2">
+              <div className="ev2-bg-white ev2-min-h-[400px] ev2-p-0">
+                {isBuilder && renderBody ? renderBody() : <EmailContent email={email} />}
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -133,8 +138,11 @@ function GmailChrome({ email, isMobile, isBuilder, renderBody }) {
 
       {/* Email Content */}
       <div className="ev2-flex-1 ev2-overflow-auto">
-        <div className="ev2-max-w-4xl ev2-mx-auto ev2-p-6">
-          {isBuilder && renderBody ? renderBody() : <EmailContent email={email} />}
+        {/* Email Preview Container - Max 1000px for realistic email client viewport */}
+        <div className="ev2-max-w-[1000px] ev2-mx-auto ev2-bg-white">
+          <div className="ev2-bg-white ev2-min-h-[600px] ev2-p-0">
+            {isBuilder && renderBody ? renderBody() : <EmailContent email={email} />}
+          </div>
           
           {/* Reply Section */}
           <div className="ev2-mt-8 ev2-border-t ev2-pt-6">

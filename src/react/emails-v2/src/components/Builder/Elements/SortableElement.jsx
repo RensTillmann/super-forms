@@ -5,10 +5,15 @@ import clsx from 'clsx';
 import { Pencil, Trash2, GripVertical } from 'lucide-react';
 import ElementRenderer from './ElementRenderer';
 import useEmailBuilder from '../../../hooks/useEmailBuilder';
+import { getElementCapabilities } from '../../../capabilities/elementCapabilities';
 
 function SortableElement({ element, index, parentId, isSelected, onSelect, renderElements }) {
   const [isHovered, setIsHovered] = useState(false);
   const { deleteElement } = useEmailBuilder();
+  
+  // Get element capabilities to check if it's a system element
+  const capabilities = getElementCapabilities(element.type);
+  const isSystemElement = capabilities.layout?.isSystemElement;
   
   const {
     attributes,
@@ -19,6 +24,7 @@ function SortableElement({ element, index, parentId, isSelected, onSelect, rende
     isDragging,
   } = useSortable({
     id: element.id,
+    disabled: isSystemElement, // Disable dragging for system elements
     data: {
       type: 'canvas-element',
       elementId: element.id,
@@ -46,6 +52,31 @@ function SortableElement({ element, index, parentId, isSelected, onSelect, rende
   };
 
   const handleElementClick = (e) => {
+    // Email wrapper should not be selectable - it only has direct color picker
+    if (element.type === 'emailWrapper') {
+      // Don't select wrapper, it has no property panel
+      e.stopPropagation();
+      return;
+    }
+    
+    // For email containers, only handle clicks within the visual bounds
+    if (element.type === 'emailContainer') {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const clickX = e.clientX;
+      const containerWidth = parseInt(element.props?.width || '600px');
+      const containerLeft = rect.left + (rect.width - containerWidth) / 2;
+      const containerRight = containerLeft + containerWidth;
+      
+      // Only select container if click is within its visual bounds
+      if (clickX >= containerLeft && clickX <= containerRight) {
+        e.stopPropagation();
+        onSelect();
+      }
+      // Otherwise, let the click bubble up but don't select anything
+      return;
+    }
+    
+    // For all other elements, handle normally
     e.stopPropagation();
     onSelect();
   };
@@ -67,14 +98,35 @@ function SortableElement({ element, index, parentId, isSelected, onSelect, rende
       className={clsx(
         'ev2-relative ev2-group ev2-transition-all ev2-duration-200',
         isDragging && 'ev2-z-50',
-        isHovered && !isDragging && !isSelected && 'ev2-ring-2 ev2-ring-gray-400 ev2-ring-opacity-40'
+        isSystemElement && 'ev2-cursor-default' // System elements aren't draggable
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      {...({
+        // Always visible identification
+        'data-component': 'SortableElement',
+        'data-element-type': element.type,
+        'data-element-id': element.id,
+        'data-is-system': isSystemElement ? 'true' : 'false',
+        'data-is-sortable': isSystemElement ? 'false' : 'true',
+        'data-is-selected': isSelected ? 'true' : 'false',
+        'data-is-hovered': isHovered ? 'true' : 'false',
+        'data-is-dragging': isDragging ? 'true' : 'false',
+        
+        // Development debugging attributes (always show when not production)  
+        ...(!process.env.NODE_ENV || process.env.NODE_ENV !== 'production') && {
+          'data-debug-index': index,
+          'data-debug-parent-id': parentId || 'root',
+          'data-debug-transform': transform ? 'active' : 'none',
+          'data-debug-transition': transition ? 'active' : 'none',
+          'data-debug-disabled': isSystemElement ? 'true' : 'false'
+        }
+      })}
     >
 
-      {/* Action Buttons - Centered */}
-      {isHovered && !isDragging && (
+      {/* Action Buttons */}
+      {isHovered && !isDragging && !isSystemElement && (
+        /* Regular Element - Centered action buttons */
         <div className="ev2-absolute ev2-inset-0 ev2-flex ev2-items-center ev2-justify-center ev2-z-20 ev2-pointer-events-none">
           <div className="ev2-flex ev2-gap-2 ev2-pointer-events-auto">
             {/* Edit Button */}
@@ -120,6 +172,7 @@ function SortableElement({ element, index, parentId, isSelected, onSelect, rende
           isHovered={isHovered && !isDragging}
           onElementUpdate={handleElementUpdate}
           onCapabilityAction={handleCapabilityAction}
+          onEdit={handleEdit}
         />
       </div>
     </div>

@@ -1,7 +1,7 @@
-import { create } from 'zustand';
+import { createWithEqualityFn } from 'zustand/traditional';
 import { devtools } from 'zustand/middleware';
 
-const useEmailStore = create(devtools((set, get) => ({
+const useEmailStore = createWithEqualityFn(devtools((set, get) => ({
   // State
   emails: [],
   activeEmailId: null,

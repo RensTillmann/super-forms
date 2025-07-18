@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, memo, useMemo } from 'react';
 import { getElementCapabilities, hasCapability } from '../../capabilities/elementCapabilities';
 
 /**
@@ -13,11 +13,12 @@ function CapabilityBasedPropertyPanel({
   onClose 
 }) {
   const [activeTab, setActiveTab] = useState('content');
-  const capabilities = getElementCapabilities(element.type);
   
   if (!element) {
     return null;
   }
+  
+  const capabilities = useMemo(() => getElementCapabilities(element.type), [element.type]);
 
   // Generate available tabs based on capabilities
   const availableTabs = [];
@@ -52,9 +53,17 @@ function CapabilityBasedPropertyPanel({
 
   const updateProperty = (property, value) => {
     if (onElementUpdate) {
-      onElementUpdate(element.id, property, value);
+      onElementUpdate(element.id, { 
+        props: { 
+          ...element.props, 
+          [property]: value 
+        } 
+      });
     }
   };
+
+  // Alias for backward compatibility
+  const onUpdate = updateProperty;
 
   return (
     <div className="ev2-fixed ev2-right-4 ev2-top-4 ev2-bottom-4 ev2-w-80 ev2-bg-white ev2-border ev2-border-gray-200 ev2-rounded-lg ev2-shadow-lg ev2-z-50 ev2-flex ev2-flex-col">
@@ -197,6 +206,44 @@ function ContentTab({ element, capabilities, onUpdate }) {
             max="200"
           />
         </div>
+      )}
+
+      {element.type === 'section' && (
+        <>
+          <div className="ev2-p-4 ev2-bg-blue-50 ev2-border ev2-border-blue-200 ev2-rounded">
+            <h4 className="ev2-text-sm ev2-font-medium ev2-text-blue-800 ev2-mb-2">📦 Section Container</h4>
+            <p className="ev2-text-sm ev2-text-blue-700">
+              This is a container element that can hold other elements. Use the <strong>Spacing</strong>, <strong>Background</strong>, and <strong>Layout</strong> tabs to customize its appearance.
+            </p>
+          </div>
+          
+          <div>
+            <label className="ev2-block ev2-text-sm ev2-font-medium ev2-text-gray-700 ev2-mb-1">
+              Section Name (for organization)
+            </label>
+            <input
+              type="text"
+              value={props.name || ''}
+              onChange={(e) => onUpdate('name', e.target.value)}
+              className="ev2-w-full ev2-p-2 ev2-border ev2-border-gray-300 ev2-rounded ev2-text-sm"
+              placeholder="e.g., Header, Body, Footer"
+            />
+          </div>
+
+          <div>
+            <label className="ev2-block ev2-text-sm ev2-font-medium ev2-text-gray-700 ev2-mb-1">
+              Minimum Height (px)
+            </label>
+            <input
+              type="number"
+              value={props.minHeight || 50}
+              onChange={(e) => onUpdate('minHeight', parseInt(e.target.value))}
+              className="ev2-w-full ev2-p-2 ev2-border ev2-border-gray-300 ev2-rounded ev2-text-sm"
+              min="20"
+              max="500"
+            />
+          </div>
+        </>
       )}
     </div>
   );
@@ -542,6 +589,16 @@ function LayoutTab({ element, capabilities, onUpdate }) {
       )}
     </div>
   );
-}
+// Custom comparison function to prevent re-renders when element content hasn't changed
+const MemoizedCapabilityBasedPropertyPanel = memo(CapabilityBasedPropertyPanel, (prevProps, nextProps) => {
+  // Don't re-render if element ID and props are the same
+  if (prevProps.element?.id === nextProps.element?.id && 
+      JSON.stringify(prevProps.element?.props) === JSON.stringify(nextProps.element?.props)) {
+    return true;
+  }
+  return false;
+});
 
-export default CapabilityBasedPropertyPanel;
+MemoizedCapabilityBasedPropertyPanel.displayName = 'CapabilityBasedPropertyPanel';
+
+export default MemoizedCapabilityBasedPropertyPanel;

@@ -11,7 +11,18 @@ function CanvasIntegrated() {
     isDragging,
     selectElement,
     selectedElementId,
+    setElements,
   } = useEmailBuilder();
+  
+  // Removed debug logging to prevent render loops
+  
+  // Ensure system elements are always present
+  React.useEffect(() => {
+    if (!elements || elements.length === 0) {
+      // Initialize with system elements
+      setElements([]);
+    }
+  }, [elements, setElements]);
 
   const renderElements = (elements, parentId = null) => {
     if (!elements || elements.length === 0) {
@@ -29,28 +40,54 @@ function CanvasIntegrated() {
       );
     }
 
+    // Filter out system elements from sortable items since they have fixed positions
+    const sortableItems = elements
+      .filter(el => el.type !== 'emailWrapper' && el.type !== 'emailContainer')
+      .map(el => el.id);
+      
+    // Separate system elements from regular elements
+    const systemElements = elements.filter(el => el.type === 'emailWrapper' || el.type === 'emailContainer');
+    const regularElements = elements.filter(el => el.type !== 'emailWrapper' && el.type !== 'emailContainer');
+    
     return (
-      <SortableContext items={elements.map(el => el.id)} strategy={verticalListSortingStrategy}>
-        <DropZone parentId={parentId} position={0} />
-        {elements.map((element, index) => (
-          <React.Fragment key={element.id}>
+      <>
+        {/* Render system elements first without sortable wrapper or dropzones */}
+        {systemElements.map((element) => (
+          <div key={element.id} className="system-element-container">
             <SortableElement
               element={element}
-              index={index}
+              index={0} // System elements don't need real index
               parentId={parentId}
               isSelected={selectedElementId === element.id}
               onSelect={() => selectElement(element.id)}
               renderElements={renderElements}
             />
-            <DropZone parentId={parentId} position={index + 1} />
-          </React.Fragment>
+          </div>
         ))}
-      </SortableContext>
+        
+        {/* Render regular elements with sortable context and dropzones */}
+        <SortableContext items={sortableItems} strategy={verticalListSortingStrategy}>
+          <DropZone parentId={parentId} position={0} elementCount={regularElements.length} />
+          {regularElements.map((element, index) => (
+            <React.Fragment key={element.id}>
+              <SortableElement
+                element={element}
+                index={index}
+                parentId={parentId}
+                isSelected={selectedElementId === element.id}
+                onSelect={() => selectElement(element.id)}
+                renderElements={renderElements}
+              />
+              <DropZone parentId={parentId} position={index + 1} elementCount={regularElements.length} />
+            </React.Fragment>
+          ))}
+        </SortableContext>
+      </>
     );
   };
 
-  // Droppable zone component
-  function DropZone({ parentId, position, children }) {
+  // Droppable zone component  
+  function DropZone({ parentId, position, children, elementCount = 0 }) {
     const { setNodeRef, isOver } = useDroppable({
       id: `dropzone-${parentId || 'root'}-${position}`,
       data: {
@@ -60,16 +97,43 @@ function CanvasIntegrated() {
       }
     });
 
+    // Check if this DropZone should be hidden (only hide specific problematic ones)
+    const shouldHide = (
+      // Hide DropZone at position 0 when parentId is null (root level, above wrapper)
+      (position === 0 && !parentId) ||
+      // Hide DropZone at position 0 when parent is email-wrapper (above container inside wrapper)  
+      (position === 0 && parentId && parentId.includes('email-wrapper')) ||
+      // Hide DropZone after wrapper (position 1 at root level, between wrapper and next element)
+      (position === 1 && !parentId)
+      // REMOVED: Don't hide DropZones in email-container - users need them to drop elements!
+    );
+
     return (
       <div
         ref={setNodeRef}
         className={clsx(
-          'ev2-min-h-[4px] ev2-transition-all ev2-relative',
-          isDragging && 'ev2-min-h-[8px]',
-          isOver && 'ev2-min-h-[30px]'
+          shouldHide ? 'ev2-min-h-0' : 'ev2-min-h-[4px]',
+          'ev2-transition-all ev2-relative',
+          !shouldHide && isDragging && 'ev2-min-h-[8px]',
+          !shouldHide && isOver && 'ev2-min-h-[30px]'
         )}
+        {...({
+          // Always visible identification
+          'data-component': 'DropZone',
+          'data-parent-id': parentId || 'root',
+          'data-position': position,
+          'data-is-over': isOver ? 'true' : 'false',
+          'data-should-hide': shouldHide ? 'true' : 'false',
+          
+          // Development debugging attributes (always show when not production)
+          ...(!process.env.NODE_ENV || process.env.NODE_ENV !== 'production') && {
+            'data-debug-element-count': elementCount,
+            'data-debug-droppable-id': `dropzone-${parentId || 'root'}-${position}`,
+            'data-debug-is-dragging': isDragging ? 'true' : 'false'
+          }
+        })}
       >
-        {isOver && (
+        {!shouldHide && isOver && (
           <div className="ev2-absolute ev2-inset-x-0 ev2-top-1/2 ev2--translate-y-1/2 ev2-h-1 ev2-bg-blue-500 ev2-rounded" />
         )}
         {children}
