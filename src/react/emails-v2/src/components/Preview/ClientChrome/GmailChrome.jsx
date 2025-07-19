@@ -1,7 +1,8 @@
 import React from 'react';
 import EmailContent from '../EmailContent';
+import InlineEditableField from '../../shared/InlineEditableField';
 
-function GmailChrome({ email, isMobile, isBuilder, renderBody }) {
+function GmailChrome({ email, isMobile, isBuilder, renderBody, updateEmailField, activeEmailId }) {
   const fromName = email.from_name || 'Sender Name';
   const fromEmail = email.from_email || 'sender@example.com';
   const subject = email.subject || 'Email Subject';
@@ -17,6 +18,13 @@ function GmailChrome({ email, isMobile, isBuilder, renderBody }) {
     minute: '2-digit',
     hour12: true 
   });
+
+  // Helper function to update email fields
+  const handleFieldUpdate = (field, value) => {
+    if (updateEmailField && activeEmailId) {
+      updateEmailField(activeEmailId, field, value);
+    }
+  };
 
   if (isMobile) {
     return (
@@ -47,7 +55,16 @@ function GmailChrome({ email, isMobile, isBuilder, renderBody }) {
         {/* Mobile Content */}
         <div className="ev2-flex-1 ev2-overflow-auto">
           <div className="ev2-p-4">
-            <h2 className="ev2-text-lg ev2-font-normal ev2-text-gray-900 ev2-mb-4">{subject}</h2>
+            {isBuilder ? (
+              <InlineEditableField
+                value={email.subject}
+                onChange={(value) => handleFieldUpdate('subject', value)}
+                placeholder="Email Subject"
+                className="ev2-text-lg ev2-font-normal ev2-text-gray-900 ev2-mb-4"
+              />
+            ) : (
+              <h2 className="ev2-text-lg ev2-font-normal ev2-text-gray-900 ev2-mb-4">{subject}</h2>
+            )}
             
             <div className="ev2-flex ev2-items-start ev2-gap-3 ev2-mb-4">
               <div className="ev2-w-10 ev2-h-10 ev2-bg-gray-300 ev2-rounded-full ev2-flex ev2-items-center ev2-justify-center ev2-text-gray-600 ev2-font-medium">
@@ -55,10 +72,34 @@ function GmailChrome({ email, isMobile, isBuilder, renderBody }) {
               </div>
               <div className="ev2-flex-1">
                 <div className="ev2-flex ev2-items-center ev2-gap-2">
-                  <span className="ev2-font-medium ev2-text-gray-900">{fromName}</span>
+                  {isBuilder ? (
+                    <InlineEditableField
+                      value={email.from_name}
+                      onChange={(value) => handleFieldUpdate('from_name', value)}
+                      placeholder="Sender Name"
+                      className="ev2-font-medium ev2-text-gray-900"
+                    />
+                  ) : (
+                    <span className="ev2-font-medium ev2-text-gray-900">{fromName}</span>
+                  )}
                   <span className="ev2-text-xs ev2-text-gray-500">{previewDate}</span>
                 </div>
-                <div className="ev2-text-sm ev2-text-gray-600">to me</div>
+                <div className="ev2-text-sm ev2-text-gray-600">
+                  {isBuilder ? (
+                    <>
+                      <span>to </span>
+                      <InlineEditableField
+                        value={email.to}
+                        onChange={(value) => handleFieldUpdate('to', value)}
+                        placeholder="recipient@example.com"
+                        type="email"
+                        className="ev2-text-sm ev2-text-gray-600"
+                      />
+                    </>
+                  ) : (
+                    <>to me</>
+                  )}
+                </div>
               </div>
             </div>
             
@@ -90,7 +131,16 @@ function GmailChrome({ email, isMobile, isBuilder, renderBody }) {
               {/* Subject Line with Labels */}
               <div className="ev2-flex ev2-items-center ev2-justify-between ev2-mb-2">
                 <div className="ev2-flex ev2-items-center ev2-gap-3">
-                  <h1 className="ev2-text-xl ev2-font-normal ev2-text-gray-900">{subject}</h1>
+                  {isBuilder ? (
+                    <InlineEditableField
+                      value={email.subject}
+                      onChange={(value) => handleFieldUpdate('subject', value)}
+                      placeholder="Email Subject"
+                      className="ev2-text-xl ev2-font-normal ev2-text-gray-900"
+                    />
+                  ) : (
+                    <h1 className="ev2-text-xl ev2-font-normal ev2-text-gray-900">{subject}</h1>
+                  )}
                   <span className="ev2-px-2 ev2-py-0.5 ev2-bg-gray-100 ev2-text-xs ev2-text-gray-600 ev2-rounded">
                     Inbox
                   </span>
@@ -113,13 +163,74 @@ function GmailChrome({ email, isMobile, isBuilder, renderBody }) {
               <div className="ev2-flex ev2-items-center ev2-justify-between">
                 <div>
                   <div className="ev2-flex ev2-items-center ev2-gap-2">
-                    <span className="ev2-font-medium ev2-text-gray-900">{fromName}</span>
-                    <span className="ev2-text-sm ev2-text-gray-600">&lt;{fromEmail}&gt;</span>
+                    {isBuilder ? (
+                      <>
+                        <InlineEditableField
+                          value={email.from_name}
+                          onChange={(value) => handleFieldUpdate('from_name', value)}
+                          placeholder="Sender Name"
+                          className="ev2-font-medium ev2-text-gray-900"
+                        />
+                        <span className="ev2-text-sm ev2-text-gray-600">&lt;</span>
+                        <InlineEditableField
+                          value={email.from_email}
+                          onChange={(value) => handleFieldUpdate('from_email', value)}
+                          placeholder="sender@example.com"
+                          type="email"
+                          className="ev2-text-sm ev2-text-gray-600"
+                        />
+                        <span className="ev2-text-sm ev2-text-gray-600">&gt;</span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="ev2-font-medium ev2-text-gray-900">{fromName}</span>
+                        <span className="ev2-text-sm ev2-text-gray-600">&lt;{fromEmail}&gt;</span>
+                      </>
+                    )}
                   </div>
                   <div className="ev2-text-sm ev2-text-gray-600">
-                    to {to}
-                    {cc && <span>, cc: {cc}</span>}
-                    {bcc && <span>, bcc: {bcc}</span>}
+                    {isBuilder ? (
+                      <>
+                        <span>to </span>
+                        <InlineEditableField
+                          value={email.to}
+                          onChange={(value) => handleFieldUpdate('to', value)}
+                          placeholder="recipient@example.com"
+                          type="email"
+                          className="ev2-text-sm ev2-text-gray-600"
+                        />
+                        {(email.cc || isBuilder) && (
+                          <>
+                            <span>, cc: </span>
+                            <InlineEditableField
+                              value={email.cc}
+                              onChange={(value) => handleFieldUpdate('cc', value)}
+                              placeholder="cc@example.com"
+                              type="email"
+                              className="ev2-text-sm ev2-text-gray-600"
+                            />
+                          </>
+                        )}
+                        {(email.bcc || isBuilder) && (
+                          <>
+                            <span>, bcc: </span>
+                            <InlineEditableField
+                              value={email.bcc}
+                              onChange={(value) => handleFieldUpdate('bcc', value)}
+                              placeholder="bcc@example.com"
+                              type="email"
+                              className="ev2-text-sm ev2-text-gray-600"
+                            />
+                          </>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        to {to}
+                        {cc && <span>, cc: {cc}</span>}
+                        {bcc && <span>, bcc: {bcc}</span>}
+                      </>
+                    )}
                   </div>
                 </div>
                 <div className="ev2-flex ev2-items-center ev2-gap-2">

@@ -194,6 +194,8 @@ function EmailClientBuilder() {
               isMobile={selectedClient === 'mobile'}
               isBuilder={true}
               renderBody={() => <CanvasIntegrated isMobile={selectedClient === 'mobile'} />}
+              updateEmailField={updateEmailField}
+              activeEmailId={activeEmailId}
             />
           </div>
           
