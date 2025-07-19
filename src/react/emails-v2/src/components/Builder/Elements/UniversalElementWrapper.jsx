@@ -26,7 +26,8 @@ function UniversalElementWrapper({
   children,
   onElementUpdate,
   onCapabilityAction,
-  onEdit
+  onEdit,
+  isMobile
 }) {
   const wrapperRef = useRef(null);
   const [isResizing, setIsResizing] = useState(false);
@@ -222,8 +223,9 @@ function UniversalElementWrapper({
         }),
         // Email container styling - centered with specified width
         ...(element.type === 'emailContainer' && {
-          width: width || '600px',
-          margin: '0 auto',
+          width: isMobile ? '100%' : (width || '600px'),
+          maxWidth: isMobile ? '100%' : (width || '600px'),
+          margin: isMobile ? '0' : '0 auto',
           display: 'block',
           minHeight: '200px', // Reasonable minimum height
           ...(element.props.boxShadow && element.props.boxShadow !== 'none' && { boxShadow: element.props.boxShadow }),

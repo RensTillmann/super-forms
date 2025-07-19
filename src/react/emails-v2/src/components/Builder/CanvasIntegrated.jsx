@@ -5,7 +5,7 @@ import useEmailBuilder from '../../hooks/useEmailBuilder';
 import SortableElement from './Elements/SortableElement';
 import clsx from 'clsx';
 
-function CanvasIntegrated() {
+function CanvasIntegrated({ isMobile = false }) {
   const {
     elements,
     isDragging,
@@ -61,6 +61,7 @@ function CanvasIntegrated() {
               isSelected={selectedElementId === element.id}
               onSelect={() => selectElement(element.id)}
               renderElements={renderElements}
+              isMobile={isMobile}
             />
           </div>
         ))}
@@ -77,6 +78,7 @@ function CanvasIntegrated() {
                 isSelected={selectedElementId === element.id}
                 onSelect={() => selectElement(element.id)}
                 renderElements={renderElements}
+                isMobile={isMobile}
               />
               <DropZone parentId={parentId} position={index + 1} elementCount={regularElements.length} />
             </React.Fragment>

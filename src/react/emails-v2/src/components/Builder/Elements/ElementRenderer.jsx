@@ -33,7 +33,8 @@ function ElementRenderer({
   isHovered = false,
   onElementUpdate,
   onCapabilityAction,
-  onEdit
+  onEdit,
+  isMobile
 }) {
   const Component = elementComponents[element.type];
   
@@ -54,6 +55,7 @@ function ElementRenderer({
       onElementUpdate={onElementUpdate}
       onCapabilityAction={onCapabilityAction}
       onEdit={onEdit}
+      isMobile={isMobile}
     >
       <Component 
         element={element} 

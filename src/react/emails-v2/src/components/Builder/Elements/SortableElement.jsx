@@ -7,7 +7,7 @@ import ElementRenderer from './ElementRenderer';
 import useEmailBuilder from '../../../hooks/useEmailBuilder';
 import { getElementCapabilities } from '../../../capabilities/elementCapabilities';
 
-function SortableElement({ element, index, parentId, isSelected, onSelect, renderElements }) {
+function SortableElement({ element, index, parentId, isSelected, onSelect, renderElements, isMobile }) {
   const [isHovered, setIsHovered] = useState(false);
   const { deleteElement } = useEmailBuilder();
   
@@ -171,6 +171,7 @@ function SortableElement({ element, index, parentId, isSelected, onSelect, rende
           isSelected={isSelected}
           isHovered={isHovered && !isDragging}
           onElementUpdate={handleElementUpdate}
+          isMobile={isMobile}
           onCapabilityAction={handleCapabilityAction}
           onEdit={handleEdit}
         />
