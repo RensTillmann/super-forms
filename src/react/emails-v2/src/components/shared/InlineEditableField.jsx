@@ -37,6 +37,11 @@ function InlineEditableField({
     }
   }, [isEditing]);
 
+  // Update editValue when value prop changes
+  useEffect(() => {
+    setEditValue(value || '');
+  }, [value]);
+
   const handleSave = () => {
     if (onChange && editValue !== value) {
       onChange(editValue);
@@ -78,9 +83,10 @@ function InlineEditableField({
           onKeyDown={handleKeyDown}
           onBlur={handleSave}
           className={clsx(
-            'ev2-bg-white ev2-border ev2-border-gray-300 ev2-rounded ev2-px-2 ev2-py-1',
-            'ev2-text-sm ev2-outline-none focus:ev2-border-blue-500',
-            multiline && 'ev2-resize-none ev2-min-h-[60px]',
+            'ev2-bg-white ev2-border ev2-border-gray-300 ev2-rounded ev2-px-2 ev2-py-0.5',
+            'ev2-outline-none focus:ev2-border-blue-500',
+            'ev2-h-[28px]', // Fixed height for input
+            multiline && 'ev2-resize-none ev2-min-h-[60px] ev2-h-auto',
             className
           )}
           placeholder={placeholder}
@@ -108,11 +114,11 @@ function InlineEditableField({
   }
 
   return (
-    <div
+    <span
       className={clsx(
         'ev2-inline-flex ev2-items-center ev2-gap-1 ev2-cursor-pointer ev2-group',
-        'hover:ev2-bg-gray-50 ev2-rounded ev2-px-2 ev2-py-1 ev2--mx-2 ev2--my-1',
-        'ev2-transition-colors',
+        'ev2-border ev2-border-transparent ev2-rounded ev2-px-2 ev2-py-0.5',
+        'ev2-h-[28px]', // Same height as input
         className
       )}
       onClick={handleClick}
@@ -121,15 +127,14 @@ function InlineEditableField({
       title="Click to edit"
     >
       <span className={clsx(
-        !value && 'ev2-text-gray-400',
-        'ev2-text-sm'
+        !value && 'ev2-text-gray-400'
       )}>
         {value || placeholder}
       </span>
       {showEditIcon && isHovered && (
         <Pencil className="ev2-w-3 ev2-h-3 ev2-text-gray-400 ev2-opacity-0 group-hover:ev2-opacity-100 ev2-transition-opacity" />
       )}
-    </div>
+    </span>
   );
 }
 

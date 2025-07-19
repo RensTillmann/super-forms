@@ -10,7 +10,7 @@ const EMAIL_CLIENTS = [
 
 function EmailClient() {
   const [selectedClient, setSelectedClient] = useState('desktop');
-  const { activeEmailId, emails } = useEmailStore();
+  const { activeEmailId, emails, updateEmailField } = useEmailStore();
   
   const activeEmail = emails.find(e => e.id === activeEmailId);
   const ClientComponent = EMAIL_CLIENTS.find(c => c.id === selectedClient)?.component || GmailChrome;
@@ -62,6 +62,8 @@ function EmailClient() {
         <ClientComponent 
           email={activeEmail} 
           isMobile={selectedClient === 'mobile'}
+          updateEmailField={updateEmailField}
+          activeEmailId={activeEmailId}
         />
       </div>
     </div>
