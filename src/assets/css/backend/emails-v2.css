@@ -1605,9 +1605,6 @@ video {
 .ev2-mt-6 {
   margin-top: 1.5rem;
 }
-.ev2-mt-8 {
-  margin-top: 2rem;
-}
 .ev2-block {
   display: block;
 }
@@ -1686,9 +1683,6 @@ video {
 }
 .ev2-min-h-\[30px\] {
   min-height: 30px;
-}
-.ev2-min-h-\[400px\] {
-  min-height: 400px;
 }
 .ev2-min-h-\[4px\] {
   min-height: 4px;

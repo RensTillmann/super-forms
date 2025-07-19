@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { DndContext, DragOverlay, closestCenter } from '@dnd-kit/core';
 import clsx from 'clsx';
 import GmailChrome from './ClientChrome/GmailChrome';
-import { Globe } from 'lucide-react';
+import { Globe, Monitor, Smartphone } from 'lucide-react';
 import ElementPaletteHorizontal from '../Builder/ElementPaletteHorizontal';
 import CanvasIntegrated from '../Builder/CanvasIntegrated';
 import OptimizedPropertyPanel from '../PropertyPanels/OptimizedPropertyPanel';
@@ -10,8 +10,8 @@ import useEmailStore from '../../hooks/useEmailStore';
 import useEmailBuilder from '../../hooks/useEmailBuilder';
 
 const EMAIL_CLIENTS = [
-  { id: 'desktop', name: 'Desktop', icon: '💻', component: GmailChrome },
-  { id: 'mobile', name: 'Mobile', icon: '📱', component: GmailChrome },
+  { id: 'desktop', name: 'Desktop', icon: Monitor, component: GmailChrome },
+  { id: 'mobile', name: 'Mobile', icon: Smartphone, component: GmailChrome },
 ];
 
 function EmailClientBuilder() {
@@ -163,22 +163,25 @@ function EmailClientBuilder() {
             </div>
             
             <div className="ev2-flex ev2-gap-1">
-              {EMAIL_CLIENTS.map((client) => (
-                <button
-                  key={client.id}
-                  onClick={() => setSelectedClient(client.id)}
-                  className={clsx(
-                    'ev2-px-3 ev2-py-1 ev2-rounded-md ev2-text-sm ev2-transition-colors',
-                    selectedClient === client.id
-                      ? 'ev2-bg-primary-500 ev2-text-white'
-                      : 'ev2-bg-gray-100 ev2-text-gray-600 hover:ev2-bg-gray-200'
-                  )}
-                  title={client.name}
-                >
-                  <span className="ev2-mr-1">{client.icon}</span>
-                  <span className="ev2-hidden sm:ev2-inline">{client.name}</span>
-                </button>
-              ))}
+              {EMAIL_CLIENTS.map((client) => {
+                const IconComponent = client.icon;
+                return (
+                  <button
+                    key={client.id}
+                    onClick={() => setSelectedClient(client.id)}
+                    className={clsx(
+                      'ev2-px-3 ev2-py-1 ev2-rounded-md ev2-text-sm ev2-transition-colors ev2-flex ev2-items-center ev2-gap-1',
+                      selectedClient === client.id
+                        ? 'ev2-bg-primary-500 ev2-text-white'
+                        : 'ev2-bg-gray-100 ev2-text-gray-600 hover:ev2-bg-gray-200'
+                    )}
+                    title={client.name}
+                  >
+                    <IconComponent className="ev2-w-4 ev2-h-4" />
+                    <span className="ev2-hidden sm:ev2-inline">{client.name}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>

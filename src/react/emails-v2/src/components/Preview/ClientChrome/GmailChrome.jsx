@@ -5,7 +5,7 @@ function GmailChrome({ email, isMobile, isBuilder, renderBody }) {
   const fromName = email.from_name || 'Sender Name';
   const fromEmail = email.from_email || 'sender@example.com';
   const subject = email.subject || 'Email Subject';
-  const to = email.to || '{email}';
+  const to = email.to || 'recipient@example.com';
   const cc = email.cc || '';
   const bcc = email.bcc || '';
   
