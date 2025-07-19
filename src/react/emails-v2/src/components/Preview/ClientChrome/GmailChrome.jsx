@@ -1,6 +1,7 @@
 import React from 'react';
 import EmailContent from '../EmailContent';
 import InlineEditableField from '../../shared/InlineEditableField';
+import ScheduledIndicator from '../../shared/ScheduledIndicator';
 
 function GmailChrome({ email, isMobile, isBuilder, renderBody, updateEmailField, activeEmailId }) {
   const fromName = email.from_name || 'Sender Name';
@@ -144,6 +145,9 @@ function GmailChrome({ email, isMobile, isBuilder, renderBody, updateEmailField,
                   <span className="ev2-px-2 ev2-py-0.5 ev2-bg-gray-100 ev2-text-xs ev2-text-gray-600 ev2-rounded">
                     Inbox
                   </span>
+                  {email.scheduled_date && (
+                    <ScheduledIndicator scheduledDate={email.scheduled_date} />
+                  )}
                 </div>
                 <div className="ev2-flex ev2-items-center ev2-gap-2">
                   <button className="ev2-p-1 hover:ev2-bg-gray-100 ev2-rounded">

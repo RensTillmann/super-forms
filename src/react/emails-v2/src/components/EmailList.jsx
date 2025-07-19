@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -17,10 +17,13 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { Clock } from 'lucide-react';
 import useEmailStore from '../hooks/useEmailStore';
+import ScheduledIndicator from './shared/ScheduledIndicator';
+import EmailSchedulingModal from './EmailSchedulingModal';
 import clsx from 'clsx';
 
-function SortableEmailItem({ email, isActive, onSelect, onDelete }) {
+function SortableEmailItem({ email, isActive, onSelect, onDelete, onSchedule }) {
   const {
     attributes,
     listeners,
@@ -67,24 +70,44 @@ function SortableEmailItem({ email, isActive, onSelect, onDelete }) {
           <h4 className="ev2-font-medium ev2-text-sm ev2-text-gray-900 ev2-truncate">
             {email.description || 'Untitled Email'}
           </h4>
-          <p className="ev2-text-xs ev2-text-gray-500 ev2-truncate ev2-mt-0.5">
-            {email.to || 'No recipient'}
-          </p>
+          <div className="ev2-flex ev2-items-center ev2-gap-2 ev2-mt-0.5">
+            <p className="ev2-text-xs ev2-text-gray-500 ev2-truncate">
+              {email.to || 'No recipient'}
+            </p>
+            {email.scheduled_date && (
+              <ScheduledIndicator scheduledDate={email.scheduled_date} size="small" />
+            )}
+          </div>
         </div>
         
-        {/* Delete Button */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete(email.id);
-          }}
-          className="ev2-opacity-0 group-hover:ev2-opacity-100 ev2-transition-opacity ev2-p-1 hover:ev2-bg-red-50 ev2-rounded"
-          title="Delete email"
-        >
-          <svg className="ev2-w-4 ev2-h-4 ev2-text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-        </button>
+        {/* Action Buttons */}
+        <div className="ev2-flex ev2-items-center ev2-gap-1">
+          {/* Schedule Button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onSchedule(email.id);
+            }}
+            className="ev2-opacity-0 group-hover:ev2-opacity-100 ev2-transition-opacity ev2-p-1 hover:ev2-bg-blue-50 ev2-rounded"
+            title="Schedule email"
+          >
+            <Clock className="ev2-w-4 ev2-h-4 ev2-text-blue-500" />
+          </button>
+          
+          {/* Delete Button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete(email.id);
+            }}
+            className="ev2-opacity-0 group-hover:ev2-opacity-100 ev2-transition-opacity ev2-p-1 hover:ev2-bg-red-50 ev2-rounded"
+            title="Delete email"
+          >
+            <svg className="ev2-w-4 ev2-h-4 ev2-text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -97,8 +120,12 @@ function EmailList() {
     setActiveEmailId, 
     addEmail, 
     removeEmail, 
-    reorderEmails 
+    reorderEmails,
+    updateEmailField
   } = useEmailStore();
+  
+  const [schedulingEmailId, setSchedulingEmailId] = useState(null);
+  const [showSchedulingModal, setShowSchedulingModal] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -130,6 +157,21 @@ function EmailList() {
     }
   };
 
+  const handleSchedule = (emailId) => {
+    setSchedulingEmailId(emailId);
+    setShowSchedulingModal(true);
+  };
+
+  const handleScheduleUpdate = (scheduledDate) => {
+    if (schedulingEmailId) {
+      updateEmailField(schedulingEmailId, 'scheduled_date', scheduledDate);
+      setShowSchedulingModal(false);
+      setSchedulingEmailId(null);
+    }
+  };
+
+  const schedulingEmail = emails.find(e => e.id === schedulingEmailId);
+
   return (
     <div className="ev2-bg-gray-50 ev2-rounded-lg ev2-p-4 ev2-h-full">
       <div className="ev2-flex ev2-items-center ev2-justify-between ev2-mb-4">
@@ -160,6 +202,7 @@ function EmailList() {
                   isActive={email.id === activeEmailId}
                   onSelect={setActiveEmailId}
                   onDelete={handleDelete}
+                  onSchedule={handleSchedule}
                 />
               ))}
             </div>
@@ -179,6 +222,17 @@ function EmailList() {
           </button>
         </div>
       )}
+      
+      {/* Scheduling Modal */}
+      <EmailSchedulingModal
+        isOpen={showSchedulingModal}
+        onClose={() => {
+          setShowSchedulingModal(false);
+          setSchedulingEmailId(null);
+        }}
+        onSchedule={handleScheduleUpdate}
+        currentSchedule={schedulingEmail?.scheduled_date}
+      />
     </div>
   );
 }
