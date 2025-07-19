@@ -64,7 +64,7 @@ function GmailChrome({ email, isMobile, isBuilder, renderBody }) {
             
             {/* Mobile Email Container */}
             <div className="ev2-bg-white ev2-p-2">
-              <div className="ev2-bg-white ev2-min-h-[400px] ev2-p-0">
+              <div className="ev2-bg-white ev2-min-h-[200px] ev2-p-0">
                 {isBuilder && renderBody ? renderBody() : <EmailContent email={email} />}
               </div>
             </div>
@@ -140,20 +140,20 @@ function GmailChrome({ email, isMobile, isBuilder, renderBody }) {
       <div className="ev2-flex-1 ev2-overflow-auto">
         {/* Email Preview Container - Max 1000px for realistic email client viewport */}
         <div className="ev2-max-w-[1000px] ev2-mx-auto ev2-bg-white">
-          <div className="ev2-bg-white ev2-min-h-[600px] ev2-p-0">
+          <div className="ev2-bg-white ev2-min-h-[200px] ev2-p-0">
             {isBuilder && renderBody ? renderBody() : <EmailContent email={email} />}
           </div>
           
           {/* Reply Section */}
-          <div className="ev2-mt-8 ev2-border-t ev2-pt-6">
+          <div className="ev2-border-t ev2-pt-6 ev2-pl-6">
             <div className="ev2-flex ev2-gap-3">
-              <button className="ev2-px-4 ev2-py-2 ev2-bg-white ev2-border ev2-rounded-full ev2-text-sm ev2-font-medium ev2-text-gray-700 hover:ev2-bg-gray-50">
+              <button className="ev2-px-4 ev2-py-2 ev2-bg-white ev2-border ev2-rounded-full ev2-text-sm ev2-font-medium ev2-text-gray-700 ev2-cursor-not-allowed" disabled>
                 <svg className="ev2-w-4 ev2-h-4 ev2-inline-block ev2-mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
                 </svg>
                 Reply
               </button>
-              <button className="ev2-px-4 ev2-py-2 ev2-bg-white ev2-border ev2-rounded-full ev2-text-sm ev2-font-medium ev2-text-gray-700 hover:ev2-bg-gray-50">
+              <button className="ev2-px-4 ev2-py-2 ev2-bg-white ev2-border ev2-rounded-full ev2-text-sm ev2-font-medium ev2-text-gray-700 ev2-cursor-not-allowed" disabled>
                 <svg className="ev2-w-4 ev2-h-4 ev2-inline-block ev2-mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                 </svg>

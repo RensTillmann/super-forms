@@ -29,6 +29,10 @@ Super Forms is a WordPress drag & drop form builder plugin with various add-ons 
 - `npm run sass` - Compile SASS files
 - `npm run zip` - Create distribution zip files
 
+### React Development (Email Builder v2)
+- `npm run watch` - **REQUIRED for all React development** (development mode with debugging)
+- `npm run build` - **PRODUCTION ONLY** (minified, no debugging - DO NOT use during development)
+
 ### Code Quality
 - `npm run jshint` - Run JSHint on source files
 
@@ -131,20 +135,61 @@ No debugging guidelines defined try to use your best approach
 ### React Components (Email Builder v2)
 When developing React components in `/src/react/emails-v2/`:
 
-1. **Start webpack watch mode** (in a separate terminal):
+1. **Development Mode (REQUIRED for all development work)**:
    ```bash
    cd /projects/super-forms/src/react/emails-v2
    npm run watch
    ```
-   This automatically recompiles React components when you save changes.
+   This runs webpack in development mode with:
+   - **Unminified code** for debugging
+   - **React DevTools support** (Components & Profiler tabs)  
+   - **Source maps** for easier debugging
+   - **Automatic recompilation** when files change
+   
+   **⚠️ ALWAYS use `npm run watch` during development - NEVER use `npm run build`**
 
-2. **Clear browser cache** after changes:
-   - Hard refresh: Ctrl+F5 (Windows/Linux) or Cmd+Shift+R (Mac)
-   - Or enable "Disable cache" in browser DevTools
+2. **Production Mode (ONLY for final releases)**:
+   ```bash
+   cd /projects/super-forms/src/react/emails-v2
+   npm run build
+   ```
+   **⚠️ WARNING**: Use ONLY for final production releases. 
+   - No debugging capabilities
+   - Minified code makes troubleshooting impossible
+   - Component names are obfuscated
+   - Should NEVER be used during development or testing
 
-3. **Important**: React component changes need to be compiled to:
-   - `/src/assets/js/backend/emails-v2.js`
+3. **Development Debugging Setup**:
+   - **Install React DevTools** browser extension
+   - **Open DevTools** (F12) → look for **Components** and **Profiler** tabs
+   - **Development build required** - component names only visible in dev mode
+   - **Hard refresh** after switching modes: Ctrl+F5 (Windows/Linux) or Cmd+Shift+R (Mac)
+
+4. **React Component Debugging**:
+   - **Components tab**: View component tree, props, and state in real-time
+   - **Console logs**: Added throughout components for debugging
+   - **State changes**: Watch state updates live in React DevTools
+   - **Event handlers**: Debug onClick, onChange events through Components tab
+
+5. **Compiled Output**: React component changes compile to:
+   - `/src/assets/js/backend/emails-v2.js` (5.7MB dev vs 424KB prod)
    - `/src/assets/css/backend/emails-v2.css`
+
+**⚠️ Important**: Always use `npm run watch` (development mode) when debugging React components. Production builds remove all debugging capabilities.
+
+### UI Component Guidelines
+
+#### Icons
+- **ONLY use Lucide React icons** for all UI components
+- Import from `lucide-react`: `import { IconName } from 'lucide-react'`
+- **Never use custom SVG icons** - always find appropriate Lucide icon
+- Standard icon sizing: `className="ev2-w-4 ev2-h-4"` for buttons, `ev2-w-5 ev2-h-5` for larger elements
+- Examples: `<Palette />`, `<Pencil />`, `<Upload />`, `<Settings />`, etc.
+
+#### UI Consistency
+- Use Tailwind CSS with `ev2-` prefix for all styling
+- Follow existing component patterns and naming conventions
+- Maintain consistent spacing, colors, and interaction patterns
 
 ### Remote Server Sync
 - ⚠️ Stop syncing to webserver unless told otherwise
@@ -184,6 +229,62 @@ When editing WordPress plugin files, ALWAYS:
 3. Implement proper error handling with WP_Error
 4. Add inline documentation with PHPDoc standards
 5. Test both frontend and admin functionality
+
+## Automated Code Quality Hooks
+
+### React/JavaScript File Changes - MANDATORY VALIDATION
+After ANY change to React/JavaScript files (`.js`, `.jsx`, `.ts`, `.tsx`):
+
+**HOOK 1: Build Validation (MANDATORY)**
+```bash
+cd /projects/super-forms/src/react/emails-v2 && npm run build
+```
+- **FAIL** → Fix syntax errors immediately, re-run until pass
+- **PASS** → Continue with changes
+
+**HOOK 2: Development Mode Validation (MANDATORY)**
+```bash  
+cd /projects/super-forms/src/react/emails-v2 && npm run watch &
+```
+- Always run in development mode for debugging
+- Check browser console for errors
+- Verify functionality works as expected
+
+**HOOK 3: Syntax Pre-Check (RECOMMENDED)**
+Before making complex changes, run:
+```bash
+cd /projects/super-forms/src/react/emails-v2 && npx eslint src/ --ext .js,.jsx
+```
+
+### Auto-Fix Protocol for Common Errors
+
+**JavaScript/React Syntax Errors:**
+1. **Missing commas in object spreads** - Always check `...condition && { }` syntax
+2. **Unclosed parentheses/braces** - Count opening/closing brackets
+3. **Import statement errors** - Verify all imports exist and are spelled correctly
+4. **JSX syntax errors** - Ensure proper JSX attribute syntax
+
+**Zustand Store Errors:**
+- Use `createWithEqualityFn` from `zustand/traditional` instead of deprecated `create`
+
+**WordPress PHP Errors:**
+- Run `composer run phpcs` for WordPress Coding Standards
+- Test in WordPress admin area after changes
+
+### Error Recovery Workflow
+
+When build fails:
+1. **READ THE ERROR** - Don't guess, read the exact line number and error
+2. **FIX IMMEDIATELY** - Don't continue with other changes  
+3. **RE-RUN BUILD** - Verify fix works
+4. **COMMIT WORKING CODE** - Only commit when build passes
+
+### Pre-Edit Checklist
+Before editing complex files:
+- [ ] Know the exact line numbers to change
+- [ ] Understand the surrounding syntax context  
+- [ ] Have a plan for testing the change
+- [ ] Build is currently passing
 
 ### Why We Ship Broken Code (And How to Stop)
 

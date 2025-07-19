@@ -35,11 +35,18 @@ function App({ formId, emails, translations, settings, ajaxUrl, nonce, i18n }) {
   }, [isDirty]);
 
   const handleSave = async () => {
+    // Skip saving in development mode if WordPress context is not available
+    if (!formId || !ajaxUrl || !nonce) {
+      console.log('🔧 Development mode: Skipping WordPress save (no backend context)');
+      return { success: true };
+    }
+    
     const result = await save(formId, ajaxUrl, nonce);
     if (result.success) {
       // Update the hidden textarea in the Code tab
       updateCodeTab();
     }
+    return result;
   };
 
   const updateCodeTab = () => {
@@ -62,7 +69,12 @@ function App({ formId, emails, translations, settings, ajaxUrl, nonce, i18n }) {
 
         {/* Main Content Area - Split View */}
         <div className="ev2-flex-1 ev2-flex ev2-gap-4">
-          {/* Email Editor or Element Properties - 50% width */}
+          {/* Email Preview - 50% width (moved to left) */}
+          <div className="ev2-w-1/2 ev2-min-w-[400px] ev2-bg-white ev2-rounded-lg ev2-shadow-sm ev2-border ev2-border-gray-200 ev2-overflow-hidden">
+            <EmailClientBuilder />
+          </div>
+
+          {/* Email Editor or Element Properties - 50% width (moved to right) */}
           <div className="ev2-w-1/2 ev2-min-w-0">
             {selectedElementId ? (
               <OptimizedPropertyPanel
@@ -76,18 +88,13 @@ function App({ formId, emails, translations, settings, ajaxUrl, nonce, i18n }) {
                 <div>
                   <svg className="ev2-mx-auto ev2-h-12 ev2-w-12 ev2-text-gray-300 ev2-mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" 
+                      d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2v10a2 2 0 002 2z" 
                     />
                   </svg>
                   <p className="ev2-text-lg">{i18n.selectEmail || 'Select an email to edit'}</p>
                 </div>
               </div>
             )}
-          </div>
-
-          {/* Email Builder - 50% width */}
-          <div className="ev2-w-1/2 ev2-min-w-[400px] ev2-bg-white ev2-rounded-lg ev2-shadow-sm ev2-border ev2-border-gray-200 ev2-overflow-hidden">
-            <EmailClientBuilder />
           </div>
         </div>
       </div>

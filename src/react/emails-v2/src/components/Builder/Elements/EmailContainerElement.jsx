@@ -37,7 +37,7 @@ function EmailContainerElement({ element, renderElements }) {
 
   return (
     <div 
-      className="email-container-content ev2-w-full ev2-h-full ev2-min-h-[100vh] ev2-relative"
+      className="email-container-content ev2-w-full ev2-h-full ev2-min-h-[200px] ev2-relative"
       {...({
         // Always visible identification
         'data-component': 'EmailContainerElement',
@@ -49,7 +49,7 @@ function EmailContainerElement({ element, renderElements }) {
         // Development debugging attributes
         ...(!process.env.NODE_ENV || process.env.NODE_ENV !== 'production') && {
           'data-debug-width': element.props?.width || '600px',
-          'data-debug-min-height': '100vh',
+          'data-debug-min-height': '200px',
           'data-debug-role': 'email-content-canvas',
           'data-debug-main-drop-over': isMainDropOver ? 'true' : 'false',
           'data-debug-empty-drop-over': isEmptyDropOver ? 'true' : 'false'
@@ -66,7 +66,7 @@ function EmailContainerElement({ element, renderElements }) {
         <div 
           ref={setEmptyDropRef}
           className={clsx(
-            "ev2-h-full ev2-min-h-[400px] ev2-flex ev2-flex-col ev2-items-center ev2-justify-center ev2-text-gray-400 ev2-transition-all",
+            "ev2-h-full ev2-min-h-[150px] ev2-flex ev2-flex-col ev2-items-center ev2-justify-center ev2-text-gray-400 ev2-transition-all",
             isEmptyDropOver && "ev2-bg-blue-50 ev2-border-2 ev2-border-blue-300 ev2-border-dashed"
           )}
         >

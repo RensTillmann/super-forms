@@ -151,7 +151,7 @@ function CanvasIntegrated() {
   return (
     <div 
       className={clsx(
-        'ev2-min-h-[400px] ev2-transition-colors',
+        'ev2-min-h-[100px] ev2-transition-colors',
         isDragging && 'ev2-bg-gray-50'
       )}
       onClick={handleCanvasClick}

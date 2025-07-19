@@ -216,17 +216,16 @@ function UniversalElementWrapper({
         // Email wrapper styling - full width with background
         ...(element.type === 'emailWrapper' && {
           width: '100%',
-          minHeight: '100vh',
+          minHeight: '200px',
           display: 'block',
           backgroundColor: backgroundColor !== 'transparent' ? backgroundColor : '#f5f5f5'
         }),
-        // Email container styling - centered with specified width and full height
+        // Email container styling - centered with specified width
         ...(element.type === 'emailContainer' && {
           width: width || '600px',
           margin: '0 auto',
           display: 'block',
-          minHeight: '100vh', // Fill the full viewport height like the wrapper
-          height: '100%', // Fill parent height
+          minHeight: '200px', // Reasonable minimum height
           ...(element.props.boxShadow && element.props.boxShadow !== 'none' && { boxShadow: element.props.boxShadow }),
           ...(element.props.borderRadius && { borderRadius: `${element.props.borderRadius}px` })
         })

@@ -3,6 +3,7 @@ import clsx from 'clsx';
 import { Link, Unlink, Image, Palette } from 'lucide-react';
 import ColorPicker from './ColorPicker';
 import MediaLibraryButton from './MediaLibraryButton';
+import DraggableNumberInput from './DraggableNumberInput';
 
 function SpacingCompass({ 
   label,
@@ -237,8 +238,7 @@ function SpacingCompass({
         </span>
         
         {/* Margin Top Input - centered */}
-        <input
-          type="number"
+        <DraggableNumberInput
           min={min}
           max={max}
           value={margin.top}
@@ -252,6 +252,8 @@ function SpacingCompass({
           data-no-super-forms="true"
           className="ev2-absolute ev2-top-2 ev2-left-1/2 ev2-transform -ev2-translate-x-1/2 ev2-w-12 ev2-h-8 ev2-text-sm ev2-text-center ev2-border-2 ev2-border-orange-400 ev2-rounded-md focus:ev2-ring-2 focus:ev2-ring-orange-500 focus:ev2-border-transparent ev2-transition-all ev2-bg-white ev2-shadow-sm hover:ev2-shadow-md hover:ev2-border-orange-500"
           title={`margin ${isMarginLinked ? '(all sides)' : 'top'}`}
+          sensitivity={0.5}
+          step={1}
         />
         
         {/* Link button positioned to the right of the centered input */}
@@ -272,8 +274,7 @@ function SpacingCompass({
         {/* Margin Right Input */}
         {(!isMarginLinked || margin.right !== margin.top) && (
           <div className="ev2-absolute ev2-right-2.5 ev2-top-1/2 ev2-transform -ev2-translate-y-1/2">
-            <input
-              type="number"
+            <DraggableNumberInput
               min={min}
               max={max}
               value={margin.right}
@@ -287,6 +288,8 @@ function SpacingCompass({
               data-no-super-forms="true"
               className="ev2-w-12 ev2-h-8 ev2-text-sm ev2-text-center ev2-border-2 ev2-border-orange-400 ev2-rounded-md focus:ev2-ring-2 focus:ev2-ring-orange-500 focus:ev2-border-transparent ev2-transition-all ev2-bg-white ev2-shadow-sm hover:ev2-shadow-md hover:ev2-border-orange-500"
               title="margin right"
+              sensitivity={0.5}
+              step={1}
             />
           </div>
         )}
@@ -316,8 +319,7 @@ function SpacingCompass({
         {/* Margin Left Input */}
         {(!isMarginLinked || margin.left !== margin.top) && (
           <div className="ev2-absolute ev2-left-2.5 ev2-top-1/2 ev2-transform -ev2-translate-y-1/2">
-            <input
-              type="number"
+            <DraggableNumberInput
               min={min}
               max={max}
               value={margin.left}
@@ -331,6 +333,8 @@ function SpacingCompass({
               data-no-super-forms="true"
               className="ev2-w-12 ev2-h-8 ev2-text-sm ev2-text-center ev2-border-2 ev2-border-orange-400 ev2-rounded-md focus:ev2-ring-2 focus:ev2-ring-orange-500 focus:ev2-border-transparent ev2-transition-all ev2-bg-white ev2-shadow-sm hover:ev2-shadow-md hover:ev2-border-orange-500"
               title="margin left"
+              sensitivity={0.5}
+              step={1}
             />
           </div>
         )}

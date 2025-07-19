@@ -9,7 +9,7 @@ function EmailWrapperElement({ element, renderElements }) {
 
   return (
     <div 
-      className="email-wrapper-content ev2-w-full ev2-min-h-[100vh] ev2-relative"
+      className="email-wrapper-content ev2-w-full ev2-min-h-[200px] ev2-relative"
       {...({
         // Always visible identification
         'data-component': 'EmailWrapperElement',
@@ -21,13 +21,13 @@ function EmailWrapperElement({ element, renderElements }) {
         // Development debugging attributes
         ...(!process.env.NODE_ENV || process.env.NODE_ENV !== 'production') && {
           'data-debug-background': element.props?.backgroundColor || 'default',
-          'data-debug-min-height': '100vh',
+          'data-debug-min-height': '200px',
           'data-debug-role': 'email-client-container'
         }
       })}
     >
       {children.length > 0 ? renderElements(children, element.id) : (
-        <div className="ev2-p-8 ev2-text-center ev2-text-gray-400 ev2-border-2 ev2-border-dashed ev2-border-purple-200 ev2-rounded-lg ev2-min-h-[400px] ev2-flex ev2-flex-col ev2-items-center ev2-justify-center">
+        <div className="ev2-p-6 ev2-text-center ev2-text-gray-400 ev2-border-2 ev2-border-dashed ev2-border-purple-200 ev2-rounded-lg ev2-min-h-[150px] ev2-flex ev2-flex-col ev2-items-center ev2-justify-center">
           <div className="ev2-mb-4">
             <div className="ev2-text-4xl ev2-mb-2">📧</div>
             <h3 className="ev2-text-lg ev2-font-medium ev2-text-gray-600 ev2-mb-2">Email Client Background</h3>
