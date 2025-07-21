@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
 
 // Global reference to the WordPress media frame
@@ -9,12 +9,7 @@ let globalMediaFrame = null;
  * Opens WordPress media modal for file selection
  */
 function MediaLibraryModal({ onSelect, onClose, title = "Select Media" }) {
-  const isOpenRef = useRef(false);
-
   useEffect(() => {
-    // Prevent double execution
-    if (isOpenRef.current) return;
-    isOpenRef.current = true;
 
     // Check if wp.media is available
     if (typeof wp === 'undefined' || !wp.media) {

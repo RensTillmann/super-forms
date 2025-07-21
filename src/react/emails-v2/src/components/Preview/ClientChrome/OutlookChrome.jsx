@@ -1,5 +1,6 @@
 import React from 'react';
 import EmailContent from '../EmailContent';
+import { User } from 'lucide-react';
 
 function OutlookChrome({ email, isMobile, isBuilder, renderBody }) {
   const fromName = email.from_name || 'Sender Name';
@@ -44,8 +45,8 @@ function OutlookChrome({ email, isMobile, isBuilder, renderBody }) {
           <div className="ev2-p-4 ev2-border-b">
             <h2 className="ev2-text-lg ev2-font-semibold ev2-text-gray-900 ev2-mb-2">{subject}</h2>
             <div className="ev2-flex ev2-items-center ev2-gap-3 ev2-mb-2">
-              <div className="ev2-w-10 ev2-h-10 ev2-bg-blue-500 ev2-rounded-full ev2-flex ev2-items-center ev2-justify-center ev2-text-white ev2-font-medium">
-                {fromName.charAt(0).toUpperCase()}
+              <div className="ev2-w-10 ev2-h-10 ev2-bg-blue-500 ev2-rounded-full ev2-flex ev2-items-center ev2-justify-center ev2-text-white">
+                <User className="ev2-w-6 ev2-h-6" />
               </div>
               <div>
                 <div className="ev2-font-medium ev2-text-gray-900">{fromName}</div>
@@ -94,8 +95,8 @@ function OutlookChrome({ email, isMobile, isBuilder, renderBody }) {
         <h1 className="ev2-text-xl ev2-font-semibold ev2-text-gray-900 ev2-mb-3">{subject}</h1>
         
         <div className="ev2-flex ev2-items-start ev2-gap-3">
-          <div className="ev2-w-12 ev2-h-12 ev2-bg-blue-500 ev2-rounded ev2-flex ev2-items-center ev2-justify-center ev2-text-white ev2-font-medium">
-            {fromName.charAt(0).toUpperCase()}
+          <div className="ev2-w-12 ev2-h-12 ev2-bg-blue-500 ev2-rounded ev2-flex ev2-items-center ev2-justify-center ev2-text-white">
+            <User className="ev2-w-7 ev2-h-7" />
           </div>
           <div className="ev2-flex-1">
             <div className="ev2-flex ev2-items-center ev2-justify-between">

@@ -74,8 +74,12 @@ function SortableEmailItem({ email, isActive, onSelect, onDelete, onSchedule }) 
             <p className="ev2-text-xs ev2-text-gray-500 ev2-truncate">
               {email.to || 'No recipient'}
             </p>
-            {email.scheduled_date && (
-              <ScheduledIndicator scheduledDate={email.scheduled_date} size="small" />
+            {(email.scheduled_date || email.schedule) && (
+              <ScheduledIndicator 
+                scheduledDate={email.scheduled_date} 
+                schedule={email.schedule} 
+                size="small" 
+              />
             )}
           </div>
         </div>
@@ -162,9 +166,9 @@ function EmailList() {
     setShowSchedulingModal(true);
   };
 
-  const handleScheduleUpdate = (scheduledDate) => {
+  const handleScheduleUpdate = (scheduleData) => {
     if (schedulingEmailId) {
-      updateEmailField(schedulingEmailId, 'scheduled_date', scheduledDate);
+      updateEmailField(schedulingEmailId, 'schedule', scheduleData);
       setShowSchedulingModal(false);
       setSchedulingEmailId(null);
     }
@@ -231,7 +235,7 @@ function EmailList() {
           setSchedulingEmailId(null);
         }}
         onSchedule={handleScheduleUpdate}
-        currentSchedule={schedulingEmail?.scheduled_date}
+        currentSchedule={schedulingEmail?.schedule}
       />
     </div>
   );

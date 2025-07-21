@@ -20,7 +20,8 @@ function InlineEditableField({
   className = '',
   multiline = false,
   type = 'text',
-  showEditIcon = true
+  showEditIcon = true,
+  noPadding = false
 }) {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState(value || '');
@@ -83,9 +84,10 @@ function InlineEditableField({
           onKeyDown={handleKeyDown}
           onBlur={handleSave}
           className={clsx(
-            'ev2-bg-white ev2-border ev2-border-gray-300 ev2-rounded ev2-px-2 ev2-py-0.5',
+            'ev2-bg-white ev2-border ev2-border-gray-300 ev2-rounded',
+            !noPadding && 'ev2-px-2 ev2-py-0.5',
             'ev2-outline-none focus:ev2-border-blue-500',
-            'ev2-h-[28px]', // Fixed height for input
+            !noPadding && 'ev2-h-[28px]', // Fixed height for input only when padding
             multiline && 'ev2-resize-none ev2-min-h-[60px] ev2-h-auto',
             className
           )}
@@ -117,8 +119,9 @@ function InlineEditableField({
     <span
       className={clsx(
         'ev2-inline-flex ev2-items-center ev2-gap-1 ev2-cursor-pointer ev2-group',
-        'ev2-border ev2-border-transparent ev2-rounded ev2-px-2 ev2-py-0.5',
-        'ev2-h-[28px]', // Same height as input
+        'ev2-border ev2-border-transparent ev2-rounded',
+        !noPadding && 'ev2-px-2 ev2-py-0.5',
+        !noPadding && 'ev2-h-[28px]', // Same height as input only when padding
         className
       )}
       onClick={handleClick}

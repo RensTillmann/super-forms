@@ -179,17 +179,21 @@ When developing React components in `/src/react/emails-v2/`:
 
 ### UI Component Guidelines
 
-#### Icons
-- **ONLY use Lucide React icons** for all UI components
+#### Icons - CRITICAL RULES
+- **ONLY use Lucide React icons** for ALL UI components - NO EXCEPTIONS
+- **NEVER use emoji icons (❌ 📧 🔔 📅 etc.)** - ALWAYS replace with Lucide icons
+- **NEVER use custom SVG icons** - always find appropriate Lucide icon
 - Import from `lucide-react`: `import { IconName } from 'lucide-react'`
-- **Never use custom SVG icons** - always find appropriate Lucide icon
 - Standard icon sizing: `className="ev2-w-4 ev2-h-4"` for buttons, `ev2-w-5 ev2-h-5` for larger elements
-- Examples: `<Palette />`, `<Pencil />`, `<Upload />`, `<Settings />`, etc.
+- Examples: `<Mail />`, `<Bell />`, `<Calendar />`, `<Settings />`, etc.
+- Documentation, examples, and help text MUST use Lucide icons, NOT emojis
+- If tempted to use an emoji, STOP and find the appropriate Lucide icon instead
 
 #### UI Consistency
 - Use Tailwind CSS with `ev2-` prefix for all styling
 - Follow existing component patterns and naming conventions
 - Maintain consistent spacing, colors, and interaction patterns
+- Always use Lucide icons for visual elements in the UI - no emoji icons anywhere
 
 ### Remote Server Sync
 - ⚠️ Stop syncing to webserver unless told otherwise

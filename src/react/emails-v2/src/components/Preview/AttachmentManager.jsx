@@ -163,7 +163,7 @@ function AttachmentManager({ attachments = [], onChange, isBuilder = false }) {
   }
 
   return (
-    <div className="ev2-border-t ev2-pt-4">
+    <div className="ev2-border-t ev2-pt-4 ev2-mt-2.5">
       {/* Attach files button */}
       {isBuilder && (
         <button

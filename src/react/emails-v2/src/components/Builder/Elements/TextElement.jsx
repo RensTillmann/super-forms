@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import FloatingToolbar from './FloatingToolbar';
 import { useEmailBuilderStore } from '../../../hooks/useEmailBuilder';
+import useEmailBuilder from '../../../hooks/useEmailBuilder';
 
 function TextElement({ element }) {
   const { 
@@ -20,34 +21,64 @@ function TextElement({ element }) {
   const [showToolbar, setShowToolbar] = useState(false);
   const contentRef = useRef(null);
   const updateElement = useEmailBuilderStore.getState().updateElement;
+  const deleteElement = useEmailBuilderStore.getState().deleteElement;
+  const selectElement = useEmailBuilderStore.getState().selectElement;
+  const { setEditingTextElement, moveElementUpDown, isDragging } = useEmailBuilder();
 
-  // Handle double-click to start editing
-  const handleDoubleClick = (e) => {
-    e.stopPropagation();
-    setIsEditing(true);
-    
-    // Focus the content editable div
-    setTimeout(() => {
-      if (contentRef.current) {
-        contentRef.current.focus();
-        
-        // Select all text
-        const range = document.createRange();
-        const selection = window.getSelection();
-        range.selectNodeContents(contentRef.current);
-        selection.removeAllRanges();
-        selection.addRange(range);
-        
-        // Show toolbar
-        showFloatingToolbar();
+  // Set initial content when not editing
+  useEffect(() => {
+    if (!isEditing && contentRef.current) {
+      // Only update if content has actually changed to prevent cursor jumping
+      if (contentRef.current.innerHTML !== (content || '')) {
+        contentRef.current.innerHTML = content || '';
       }
-    }, 0);
+    }
+  }, [content, isEditing]);
+
+  // Handle click to start editing
+  const handleClick = (e) => {
+    e.stopPropagation();
+    if (!isEditing) {
+      // Select the element to show properties
+      selectElement(element.id);
+      
+      setIsEditing(true);
+      setEditingTextElement(element.id); // Track that this element is being edited
+      
+      // Set the content before editing
+      if (contentRef.current) {
+        contentRef.current.innerHTML = content || '';
+      }
+      
+      // Focus the content editable div
+      setTimeout(() => {
+        if (contentRef.current) {
+          contentRef.current.focus();
+          
+          // Place cursor at the end
+          const selection = window.getSelection();
+          const range = document.createRange();
+          range.selectNodeContents(contentRef.current);
+          range.collapse(false);
+          selection.removeAllRanges();
+          selection.addRange(range);
+          
+          // Show toolbar
+          showFloatingToolbar();
+        }
+      }, 0);
+    }
   };
 
   // Handle click outside to finish editing
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (isEditing && contentRef.current && !contentRef.current.contains(event.target)) {
+        // Check if the click is on the floating toolbar
+        const toolbar = document.querySelector('.ev2-fixed.ev2-z-50'); // Floating toolbar selector
+        if (toolbar && toolbar.contains(event.target)) {
+          return; // Don't finish editing if clicking on toolbar
+        }
         finishEditing();
       }
     };
@@ -65,24 +96,80 @@ function TextElement({ element }) {
   const handleTextSelection = () => {
     if (!isEditing) return;
     
-    const selection = window.getSelection();
-    if (selection.rangeCount > 0 && !selection.isCollapsed) {
-      showFloatingToolbar();
-    } else {
-      setShowToolbar(false);
-    }
+    // Keep toolbar visible during entire editing session
+    // Only update position if needed
+    showFloatingToolbar();
   };
+  
+  // Re-show toolbar when drag ends if still editing
+  useEffect(() => {
+    if (!isDragging && isEditing && contentRef.current) {
+      // Re-show toolbar after drag ends
+      showFloatingToolbar();
+    }
+  }, [isDragging]);
+  
+  // Update toolbar position on scroll and resize
+  useEffect(() => {
+    if (!isEditing || !showToolbar) return;
+    
+    const updateToolbarPosition = () => {
+      if (contentRef.current) {
+        const rect = contentRef.current.getBoundingClientRect();
+        const toolbarHeight = 50; // Approximate toolbar height including padding
+        setToolbarPosition({
+          x: rect.left + rect.width / 2,
+          y: rect.top - toolbarHeight - 20 // Position toolbar height + 20px above element
+        });
+      }
+    };
+    
+    // Listen to scroll events on window and all scrollable ancestors
+    const scrollableElements = [];
+    let element = contentRef.current;
+    
+    while (element) {
+      // Check if element is scrollable
+      const style = window.getComputedStyle(element);
+      if (
+        element.scrollHeight > element.clientHeight ||
+        style.overflowY === 'scroll' ||
+        style.overflowY === 'auto' ||
+        style.overflow === 'scroll' ||
+        style.overflow === 'auto'
+      ) {
+        scrollableElements.push(element);
+        element.addEventListener('scroll', updateToolbarPosition, { passive: true });
+      }
+      element = element.parentElement;
+    }
+    
+    // Also listen to window scroll and resize
+    window.addEventListener('scroll', updateToolbarPosition, { passive: true });
+    window.addEventListener('resize', updateToolbarPosition, { passive: true });
+    
+    // Initial position update
+    updateToolbarPosition();
+    
+    // Cleanup
+    return () => {
+      scrollableElements.forEach(el => {
+        el.removeEventListener('scroll', updateToolbarPosition);
+      });
+      window.removeEventListener('scroll', updateToolbarPosition);
+      window.removeEventListener('resize', updateToolbarPosition);
+    };
+  }, [isEditing, showToolbar]);
 
   // Show floating toolbar
   const showFloatingToolbar = () => {
-    const selection = window.getSelection();
-    if (selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      const rect = range.getBoundingClientRect();
+    if (contentRef.current) {
+      const rect = contentRef.current.getBoundingClientRect();
+      const toolbarHeight = 50; // Approximate toolbar height including padding
       
       setToolbarPosition({
         x: rect.left + rect.width / 2,
-        y: rect.top
+        y: rect.top - toolbarHeight - 20 // Position toolbar height + 20px above element
       });
       setShowToolbar(true);
     }
@@ -105,6 +192,7 @@ function TextElement({ element }) {
     setIsEditing(false);
     setShowToolbar(false);
     setToolbarPosition(null);
+    setEditingTextElement(null); // Clear editing state
   };
 
   // Handle keyboard shortcuts
@@ -122,7 +210,14 @@ function TextElement({ element }) {
 
   // Format text using document.execCommand
   const handleFormatText = (command) => {
-    document.execCommand(command, false, null);
+    if (command === 'createLink') {
+      const url = prompt('Enter URL:');
+      if (url) {
+        document.execCommand('createLink', false, url);
+      }
+    } else {
+      document.execCommand(command, false, null);
+    }
     contentRef.current?.focus();
   };
 
@@ -171,6 +266,49 @@ function TextElement({ element }) {
     }, 300);
   };
 
+  // Handle element controls
+  const handleDelete = () => {
+    finishEditing();
+    deleteElement(element.id);
+  };
+  
+  const handleMoveUp = () => {
+    moveElementUpDown(element.id, 'up');
+  };
+  
+  const handleMoveDown = () => {
+    moveElementUpDown(element.id, 'down');
+  };
+  
+  const handleStartDrag = (e) => {
+    // We need to trigger the drag on the parent SortableElement
+    // First, finish editing and hide toolbar
+    finishEditing();
+    
+    // Find the parent sortable element and trigger its drag
+    const sortableElement = e.target.closest('[data-component="SortableElement"]');
+    if (sortableElement) {
+      // Find the drag handle in the sortable element
+      const dragHandle = sortableElement.querySelector('[data-drag-handle="true"]');
+      if (dragHandle) {
+        // Simulate mousedown on the drag handle
+        const mouseDownEvent = new MouseEvent('mousedown', {
+          bubbles: true,
+          cancelable: true,
+          view: window,
+          clientX: e.clientX,
+          clientY: e.clientY,
+        });
+        dragHandle.dispatchEvent(mouseDownEvent);
+      }
+    }
+  };
+  
+  const handleSave = () => {
+    // Save changes and exit edit mode
+    finishEditing();
+  };
+
   return (
     <>
       <div
@@ -192,11 +330,11 @@ function TextElement({ element }) {
           paddingBottom: `${padding.bottom}px`,
           paddingLeft: `${padding.left}px`,
           cursor: isEditing ? 'text' : 'pointer',
+          minHeight: '1em', // Ensure minimum height even when empty
         }}
         contentEditable={isEditing}
         suppressContentEditableWarning={true}
-        dangerouslySetInnerHTML={!isEditing ? { __html: content } : undefined}
-        onDoubleClick={handleDoubleClick}
+        onClick={handleClick}
         onKeyDown={isEditing ? handleKeyDown : undefined}
         onInput={isEditing ? handleInput : undefined}
         onMouseUp={isEditing ? handleTextSelection : undefined}
@@ -219,23 +357,29 @@ function TextElement({ element }) {
         })}
       />
 
-      {/* Floating Toolbar */}
+      {/* Floating Toolbar - Hide when dragging */}
       <FloatingToolbar
         position={toolbarPosition}
-        isVisible={showToolbar && isEditing}
+        isVisible={showToolbar && isEditing && !isDragging}
         onFormatText={handleFormatText}
         onAlignText={handleAlignText}
         onFontSize={handleFontSize}
         onTextColor={handleTextColor}
+        onDelete={handleDelete}
+        onMoveUp={handleMoveUp}
+        onMoveDown={handleMoveDown}
+        onStartDrag={handleStartDrag}
+        onSave={handleSave}
         currentAlign={align}
         currentFontSize={fontSize}
         currentColor={color}
+        showElementControls={true}
       />
 
       {/* Editing instructions */}
       {isEditing && (
         <div className="ev2-absolute ev2-bottom-[-30px] ev2-left-0 ev2-right-0 ev2-text-xs ev2-text-gray-500 ev2-text-center ev2-bg-white ev2-px-2 ev2-py-1 ev2-rounded ev2-shadow-sm">
-          Double-click to edit • Press Ctrl+Enter or click outside to finish • ESC to cancel
+          Press Ctrl+Enter or click outside to finish • ESC to cancel
         </div>
       )}
     </>

@@ -8,6 +8,7 @@ const useEmailBuilderStore = create((set, get) => ({
   selectedElementId: null,
   isDragging: false,
   draggedElement: null,
+  editingTextElementId: null, // Track which text element is currently being edited
   
   // Template state
   currentTemplate: null,
@@ -44,7 +45,7 @@ const useEmailBuilderStore = create((set, get) => ({
       canDelete: false,
       defaultProps: {
         width: '600px',
-        margin: { top: 0, right: 'auto', bottom: 0, left: 'auto' },
+        margin: { top: 50, right: 'auto', bottom: 50, left: 'auto' },
         border: { top: 0, right: 0, bottom: 0, left: 0 },
         borderStyle: 'solid',
         borderColor: '#e5e5e5',
@@ -93,7 +94,7 @@ const useEmailBuilderStore = create((set, get) => ({
       name: 'Text',
       icon: '📝',
       defaultProps: {
-        content: '<p>Enter your text here...</p>',
+        content: 'Click to edit this text...',
         fontSize: 16,
         fontFamily: 'Arial, sans-serif',
         color: '#333333',
@@ -286,12 +287,39 @@ const useEmailBuilderStore = create((set, get) => ({
       
       if (!element) return state;
       
+      // Don't allow moving system elements
+      if (element.type === 'emailWrapper' || element.type === 'emailContainer') {
+        console.log('⚠️ Cannot move system elements');
+        return state;
+      }
+      
       // Add to new position
       if (targetId) {
         elements = addToParent(elements, targetId, element, position);
       } else {
-        // Add to root at position
-        elements.splice(position, 0, element);
+        // For root additions, add to email container instead
+        const findElementByType = (elements, type) => {
+          for (const element of elements) {
+            if (element.type === type) {
+              return element;
+            }
+            if (element.children && element.children.length > 0) {
+              const found = findElementByType(element.children, type);
+              if (found) return found;
+            }
+          }
+          return null;
+        };
+        
+        const container = findElementByType(elements, 'emailContainer');
+        if (container) {
+          console.log('📎 Moving to email container:', container.id);
+          elements = addToParent(elements, container.id, element, position);
+        } else {
+          console.log('⚠️ No email container found, cannot add element');
+          // Don't add to root if no container found
+          return state;
+        }
       }
       
       return { elements };
@@ -432,6 +460,38 @@ const useEmailBuilderStore = create((set, get) => ({
       draggedElement: null,
     });
   },
+  
+  // Text editing state
+  setEditingTextElement: (elementId) => {
+    set({ editingTextElementId: elementId });
+  },
+  
+  // Move element up or down within its parent
+  moveElementUpDown: (elementId, direction) => {
+    const state = get();
+    const info = findElementParentAndPosition(state.elements, elementId);
+    
+    if (!info) {
+      console.log('Element not found:', elementId);
+      return;
+    }
+    
+    const { parent, parentId, position } = info;
+    const siblings = parent ? parent.children : state.elements;
+    
+    // Calculate new position
+    const newPosition = direction === 'up' ? position - 1 : position + 1;
+    
+    // Check bounds
+    if (newPosition < 0 || newPosition >= siblings.length) {
+      console.log('Cannot move element beyond bounds');
+      return;
+    }
+    
+    // Use existing moveElement function
+    const targetParentId = parentId || null;
+    get().moveElement(elementId, targetParentId, newPosition);
+  },
 }));
 
 // Helper function to find element in tree
@@ -456,6 +516,29 @@ const findElement = (elements, id) => {
   return null;
 };
 
+// Helper function to find element's parent and position
+const findElementParentAndPosition = (elements, elementId, parent = null, parentId = null) => {
+  for (let i = 0; i < elements.length; i++) {
+    const element = elements[i];
+    if (element.id === elementId) {
+      return { parent, parentId, position: i };
+    }
+    if (element.children && element.children.length > 0) {
+      if (element.type === 'columns') {
+        // Handle column structure
+        for (const column of element.children) {
+          const found = findElementParentAndPosition(column.children || [], elementId, column, column.id);
+          if (found) return found;
+        }
+      } else {
+        const found = findElementParentAndPosition(element.children, elementId, element, element.id);
+        if (found) return found;
+      }
+    }
+  }
+  return null;
+};
+
 // Custom hook with optimized selectors
 const useEmailBuilder = () => {
   // Get stable function references (these don't change)
@@ -469,12 +552,15 @@ const useEmailBuilder = () => {
   const generateHtml = useEmailBuilderStore(state => state.generateHtml);
   const startDrag = useEmailBuilderStore(state => state.startDrag);
   const endDrag = useEmailBuilderStore(state => state.endDrag);
+  const setEditingTextElement = useEmailBuilderStore(state => state.setEditingTextElement);
+  const moveElementUpDown = useEmailBuilderStore(state => state.moveElementUpDown);
   
   // Only subscribe to specific state when needed
   const selectedElementId = useEmailBuilderStore(state => state.selectedElementId);
   const isDragging = useEmailBuilderStore(state => state.isDragging);
   const draggedElement = useEmailBuilderStore(state => state.draggedElement);
   const elementTypes = useEmailBuilderStore(state => state.elementTypes);
+  const editingTextElementId = useEmailBuilderStore(state => state.editingTextElementId);
   
   // Optimized selector for elements - re-render when structure OR properties change
   const elements = useEmailBuilderStore(state => state.elements);
@@ -492,6 +578,7 @@ const useEmailBuilder = () => {
     isDragging,
     draggedElement,
     elementTypes,
+    editingTextElementId,
     selectElement,
     updateElement,
     addElement,
@@ -502,6 +589,8 @@ const useEmailBuilder = () => {
     generateHtml,
     startDrag,
     endDrag,
+    setEditingTextElement,
+    moveElementUpDown,
   };
 };
 

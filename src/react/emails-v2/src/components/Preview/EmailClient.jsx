@@ -58,7 +58,7 @@ function EmailClient() {
       </div>
 
       {/* Email Client Preview */}
-      <div className="ev2-flex-1 ev2-overflow-hidden">
+      <div className="ev2-flex-1 ev2-overflow-hidden ev2-relative">
         <ClientComponent 
           email={activeEmail} 
           isMobile={selectedClient === 'mobile'}

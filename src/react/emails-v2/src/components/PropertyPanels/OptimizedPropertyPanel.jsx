@@ -2,14 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { getElementCapabilities } from '../../capabilities/elementCapabilities';
 import { useEmailBuilderStore } from '../../hooks/useEmailBuilder';
 import SpacingCompass from '../fields/SpacingCompass';
-import EmailTextEditor from '../fields/EmailTextEditor';
-import EmailTinyMCEEditor from '../fields/EmailTinyMCEEditor';
-// Commented out WordPress editors - keeping only Quill.js and TinyMCE for better email compatibility
-// import EmailGutenbergEditor from '../fields/EmailGutenbergEditor';
-// import SimpleWordPressEditor from '../fields/SimpleWordPressEditor';
-// import WordPressRichTextEditor from '../fields/WordPressRichTextEditor';
-// import WordPressBlockEditor from '../fields/WordPressBlockEditor';
-// import FullWordPressEditor from '../fields/FullWordPressEditor';
+// Text editors removed - editing happens inline in the preview
+// import EmailTextEditor from '../fields/EmailTextEditor';
+// import EmailTinyMCEEditor from '../fields/EmailTinyMCEEditor';
 import ErrorBoundary from '../ErrorBoundary';
 
 /**
@@ -191,78 +186,13 @@ function OptimizedPropertyPanelInner({ elementId, onClose }) {
               <div className="ev2-p-4 ev2-bg-blue-50 ev2-border ev2-border-blue-200 ev2-rounded ev2-space-y-3">
                 <h4 className="ev2-text-sm ev2-font-medium ev2-text-blue-800 ev2-mb-3">📝 Text Content</h4>
                 
-                {/* Editor Selection Toggle - Simplified */}
-                <div className="ev2-mb-4 ev2-p-3 ev2-bg-white ev2-border ev2-border-blue-200 ev2-rounded">
-                  <label className="ev2-text-xs ev2-font-medium ev2-text-blue-700 ev2-mb-2 ev2-block">
-                    📝 Email Text Editor
-                  </label>
-                  <div className="ev2-flex ev2-gap-2 ev2-flex-wrap">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedEditor('quill')}
-                      className={`ev2-px-3 ev2-py-1 ev2-text-xs ev2-rounded ev2-border ev2-transition-colors ${
-                        selectedEditor === 'quill' 
-                          ? 'ev2-bg-blue-100 ev2-border-blue-300 ev2-text-blue-700' 
-                          : 'ev2-bg-white ev2-border-gray-300 ev2-text-gray-700 hover:ev2-bg-gray-50'
-                      }`}
-                    >
-                      📄 Quill.js (Modern)
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedEditor('tinymce')}
-                      className={`ev2-px-3 ev2-py-1 ev2-text-xs ev2-rounded ev2-border ev2-transition-colors ${
-                        selectedEditor === 'tinymce' 
-                          ? 'ev2-bg-blue-100 ev2-border-blue-300 ev2-text-blue-700' 
-                          : 'ev2-bg-white ev2-border-gray-300 ev2-text-gray-700 hover:ev2-bg-gray-50'
-                      }`}
-                    >
-                      🔧 TinyMCE (Classic)
-                    </button>
-                  </div>
-                  <p className="ev2-text-xs ev2-text-gray-600 ev2-mt-1">
-                    {selectedEditor === 'quill' 
-                      ? 'Modern React editor with excellent UX and email-compatible output' 
-                      : 'WordPress integrated editor with media library and proven email compatibility'
-                    }
+                {/* Content editing happens inline in the preview - rich text editors removed from properties panel */}
+                <div className="ev2-p-3 ev2-bg-white ev2-border ev2-border-blue-200 ev2-rounded">
+                  <p className="ev2-text-sm ev2-text-gray-700">
+                    ✏️ Click on the text in the preview to edit it directly. 
                   </p>
-                </div>
-                
-                {/* Commented out WordPress editors for cleaner, email-focused experience */}
-                {/* All WordPress editors removed - they were complex and not email-optimized */}
-                
-                {/* Rich Text Content */}
-                <div>
-                  <label className="ev2-text-sm ev2-font-medium ev2-text-gray-700 ev2-mb-2 ev2-block">
-                    Content
-                  </label>
-                  
-                  {/* Simplified Editor Rendering - Only Quill.js and TinyMCE */}
-                  {selectedEditor === 'quill' ? (
-                    <EmailTextEditor
-                      value={localProps.content || '<p>Enter your text here...</p>'}
-                      onChange={(emailHTML) => updateProperty('content', emailHTML)}
-                      placeholder="Enter your text here..."
-                      className="ev2-border ev2-border-gray-300 ev2-rounded-md"
-                      lineHeight={localProps.lineHeight || 1.6}
-                    />
-                  ) : (
-                    <EmailTinyMCEEditor
-                      value={localProps.content || '<p>Enter your text here...</p>'}
-                      onChange={(emailHTML) => updateProperty('content', emailHTML)}
-                      placeholder="Enter your text here..."
-                      className="ev2-border ev2-border-gray-300 ev2-rounded-md"
-                      lineHeight={localProps.lineHeight || 1.6}
-                    />
-                  )}
-                  
-                  {/* All WordPress editors removed for cleaner email-focused experience */}
-                  
-                  <p className="ev2-text-xs ev2-text-gray-500 ev2-mt-1">
-                    {selectedEditor === 'quill' 
-                      ? 'Quill.js - Modern React rich text editor with excellent email compatibility' 
-                      : 'TinyMCE - WordPress integrated editor with media library and proven email support'
-                    }
+                  <p className="ev2-text-xs ev2-text-gray-600 ev2-mt-1">
+                    The floating toolbar will appear when you select text, allowing you to format with bold, italic, underline, and more.
                   </p>
                 </div>
 

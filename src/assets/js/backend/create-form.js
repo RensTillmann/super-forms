@@ -557,6 +557,15 @@
             }
             if(!i18n || i18n===''){
                 // On main language, update normal settings
+                // Guard against Email v2 tab which doesn't have settings in the same format
+                if (slug === 'email-v2') {
+                    console.log('Skipping updateSettings for Email v2 tab');
+                    return;
+                }
+                // Initialize settings object if it doesn't exist
+                if (!SUPER.ui.settings['_'+slug]) {
+                    SUPER.ui.settings['_'+slug] = {};
+                }
                 SUPER.ui.settings['_'+slug] = SUPER.ui.i18n.collectDataFromParents(SUPER.ui.settings['_'+slug], el, value, slug, tab);
             }
         },
@@ -1002,7 +1011,12 @@
                     }
                 });
                 // Value is different, keep it
-                obj[lastKey] = value;
+                // Guard against obj being undefined (can happen with Email v2 tab)
+                if (obj) {
+                    obj[lastKey] = value;
+                } else {
+                    console.warn('Cannot set property on undefined object in collectDataFromParents', { lastKey, value, keyPath });
+                }
                 // Clean up the data object
                 data = SUPER.ui.i18n.removeEmpty(data);
                 return data;

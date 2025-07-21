@@ -9,7 +9,7 @@ import { getElementCapabilities } from '../../../capabilities/elementCapabilitie
 
 function SortableElement({ element, index, parentId, isSelected, onSelect, renderElements, isMobile }) {
   const [isHovered, setIsHovered] = useState(false);
-  const { deleteElement } = useEmailBuilder();
+  const { deleteElement, editingTextElementId } = useEmailBuilder();
   
   // Get element capabilities to check if it's a system element
   const capabilities = getElementCapabilities(element.type);
@@ -49,6 +49,18 @@ function SortableElement({ element, index, parentId, isSelected, onSelect, rende
   const handleEdit = (e) => {
     e.stopPropagation();
     onSelect();
+    
+    // For text elements, also trigger inline editing
+    if (element.type === 'text') {
+      // We need to find the text element and trigger its click handler
+      setTimeout(() => {
+        const textElement = e.target.closest('[data-component="SortableElement"]')
+          ?.querySelector('[data-component="TextElement"]');
+        if (textElement) {
+          textElement.click();
+        }
+      }, 50); // Small delay to ensure property panel opens first
+    }
   };
 
   const handleElementClick = (e) => {
@@ -124,8 +136,8 @@ function SortableElement({ element, index, parentId, isSelected, onSelect, rende
       })}
     >
 
-      {/* Action Buttons */}
-      {isHovered && !isDragging && !isSystemElement && (
+      {/* Action Buttons - Hide when text is being edited */}
+      {isHovered && !isDragging && !isSystemElement && editingTextElementId !== element.id && (
         /* Regular Element - Centered action buttons */
         <div className="ev2-absolute ev2-inset-0 ev2-flex ev2-items-center ev2-justify-center ev2-z-20 ev2-pointer-events-none">
           <div className="ev2-flex ev2-gap-2 ev2-pointer-events-auto">
@@ -151,6 +163,7 @@ function SortableElement({ element, index, parentId, isSelected, onSelect, rende
             <button
               {...listeners}
               {...attributes}
+              data-drag-handle="true"
               className="ev2-p-2 ev2-bg-white ev2-rounded-full ev2-shadow-lg hover:ev2-shadow-xl ev2-transition-all hover:ev2-scale-110 ev2-cursor-move"
               title="Drag to reposition"
             >

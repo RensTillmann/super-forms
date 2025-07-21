@@ -33,6 +33,7 @@ function UniversalElementWrapper({
   const [isResizing, setIsResizing] = useState(false);
   const [resizeDirection, setResizeDirection] = useState(null);
   const [showColorPicker, setShowColorPicker] = useState(false);
+  const [tempColor, setTempColor] = useState(null);
   
   // Get updateElement function from store
   const updateElement = useEmailBuilderStore(state => state.updateElement);
@@ -132,25 +133,55 @@ function UniversalElementWrapper({
   // Handle background color picker for wrapper
   const handleBackgroundColorClick = (e) => {
     e.stopPropagation();
+    setTempColor(element.props?.backgroundColor || '#ffffff');
     setShowColorPicker(true);
   };
 
-  // Handle color change
+  // Handle color change (preview only)
   const handleColorChange = (color) => {
+    setTempColor(color);
+    // Preview the color immediately
     updateElement(element.id, {
       props: {
         ...element.props,
         backgroundColor: color
       }
     });
+  };
+
+  // Apply the selected color and close picker
+  const handleApplyColor = () => {
+    if (tempColor) {
+      updateElement(element.id, {
+        props: {
+          ...element.props,
+          backgroundColor: tempColor
+        }
+      });
+    }
     setShowColorPicker(false);
+    setTempColor(null);
+  };
+
+  // Cancel color selection and revert
+  const handleCancelColor = () => {
+    // Revert to original color
+    const originalColor = element.props?.backgroundColor || '#ffffff';
+    updateElement(element.id, {
+      props: {
+        ...element.props,
+        backgroundColor: originalColor
+      }
+    });
+    setShowColorPicker(false);
+    setTempColor(null);
   };
 
   // Close color picker when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (showColorPicker && wrapperRef.current && !wrapperRef.current.contains(event.target)) {
-        setShowColorPicker(false);
+        handleCancelColor();
       }
     };
 
@@ -162,7 +193,9 @@ function UniversalElementWrapper({
 
   // Determine if spacing should be applied based on capabilities
   // Email wrapper is background-only and shouldn't have spacing
+  // Email container should apply margin internally, not to wrapper
   const shouldApplySpacing = element.type !== 'emailWrapper' && 
+                           element.type !== 'emailContainer' &&
                            (hasCapability(element.type, 'spacing.margin') || 
                             hasCapability(element.type, 'spacing.border') || 
                             hasCapability(element.type, 'spacing.padding'));
@@ -227,9 +260,8 @@ function UniversalElementWrapper({
           maxWidth: isMobile ? '100%' : (width || '600px'),
           margin: isMobile ? '0' : '0 auto',
           display: 'block',
-          minHeight: '200px', // Reasonable minimum height
-          ...(element.props.boxShadow && element.props.boxShadow !== 'none' && { boxShadow: element.props.boxShadow }),
-          ...(element.props.borderRadius && { borderRadius: `${element.props.borderRadius}px` })
+          minHeight: '200px' // Reasonable minimum height
+          // boxShadow and borderRadius are now handled by SpacingLayer
         })
       }}
       {...({
@@ -281,7 +313,7 @@ function UniversalElementWrapper({
                 handleBackgroundColorClick(e);
               } else {
                 // For other system elements, use normal edit
-                onEdit();
+                onEdit(e);
               }
             }}
             className="ev2-p-1.5 ev2-bg-blue-500 ev2-text-white ev2-rounded ev2-shadow-lg hover:ev2-shadow-xl ev2-transition-all hover:ev2-scale-110"
@@ -314,6 +346,21 @@ function UniversalElementWrapper({
       {showColorPicker && element.type === 'emailWrapper' && (
         <div className="ev2-absolute ev2-top-10 ev2-left-1 ev2-z-[70] ev2-pointer-events-auto">
           <div className="ev2-bg-white ev2-rounded-lg ev2-shadow-xl ev2-border ev2-p-3 ev2-min-w-[200px]">
+            {/* Buttons at the top */}
+            <div className="ev2-flex ev2-gap-2 ev2-mb-3">
+              <button
+                onClick={handleCancelColor}
+                className="ev2-flex-1 ev2-px-3 ev2-py-1.5 ev2-text-sm ev2-text-gray-600 ev2-bg-gray-100 hover:ev2-bg-gray-200 ev2-rounded ev2-transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleApplyColor}
+                className="ev2-flex-1 ev2-px-3 ev2-py-1.5 ev2-text-sm ev2-text-white ev2-bg-blue-500 hover:ev2-bg-blue-600 ev2-rounded ev2-transition-colors"
+              >
+                Apply
+              </button>
+            </div>
             <div className="ev2-text-xs ev2-font-medium ev2-text-gray-700 ev2-mb-2">Background Color</div>
             <div className="ev2-grid ev2-grid-cols-6 ev2-gap-2 ev2-mb-3">
               {/* Common email background colors */}
@@ -334,7 +381,12 @@ function UniversalElementWrapper({
                 <button
                   key={color}
                   onClick={() => handleColorChange(color)}
-                  className="ev2-w-6 ev2-h-6 ev2-rounded ev2-border-2 ev2-border-gray-300 hover:ev2-border-blue-500 ev2-transition-colors"
+                  className={clsx(
+                    "ev2-w-6 ev2-h-6 ev2-rounded ev2-border-2 ev2-transition-colors",
+                    tempColor === color 
+                      ? "ev2-border-blue-500 ev2-ring-2 ev2-ring-blue-200" 
+                      : "ev2-border-gray-300 hover:ev2-border-blue-500"
+                  )}
                   style={{ backgroundColor: color }}
                   title={color}
                 />
@@ -343,7 +395,7 @@ function UniversalElementWrapper({
             <div className="ev2-text-xs ev2-text-gray-500 ev2-mb-2">Custom Color</div>
             <input
               type="color"
-              value={element.props?.backgroundColor || '#ffffff'}
+              value={tempColor || element.props?.backgroundColor || '#ffffff'}
               onChange={(e) => handleColorChange(e.target.value)}
               className="ev2-w-full ev2-h-8 ev2-rounded ev2-border ev2-border-gray-300"
             />

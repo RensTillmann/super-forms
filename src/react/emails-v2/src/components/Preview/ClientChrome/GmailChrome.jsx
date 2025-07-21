@@ -3,6 +3,7 @@ import EmailContent from '../EmailContent';
 import InlineEditableField from '../../shared/InlineEditableField';
 import ScheduledIndicator from '../../shared/ScheduledIndicator';
 import AttachmentManager from '../AttachmentManager';
+import { User } from 'lucide-react';
 
 function GmailChrome({ email, isMobile, isBuilder, renderBody, updateEmailField, activeEmailId }) {
   const fromName = email.from_name || 'Sender Name';
@@ -63,14 +64,15 @@ function GmailChrome({ email, isMobile, isBuilder, renderBody, updateEmailField,
                 onChange={(value) => handleFieldUpdate('subject', value)}
                 placeholder="Email Subject"
                 className="ev2-text-lg ev2-font-normal ev2-text-gray-900 ev2-mb-4"
+                noPadding={true}
               />
             ) : (
               <h2 className="ev2-text-lg ev2-font-normal ev2-text-gray-900 ev2-mb-4">{subject}</h2>
             )}
             
-            <div className="ev2-flex ev2-items-start ev2-gap-3 ev2-mb-4">
-              <div className="ev2-w-10 ev2-h-10 ev2-bg-gray-300 ev2-rounded-full ev2-flex ev2-items-center ev2-justify-center ev2-text-gray-600 ev2-font-medium">
-                {fromName.charAt(0).toUpperCase()}
+            <div className="ev2-flex ev2-items-start ev2-gap-5 ev2-mb-4">
+              <div className="ev2-w-10 ev2-h-10 ev2-bg-gray-300 ev2-rounded-full ev2-flex ev2-items-center ev2-justify-center ev2-text-gray-600">
+                <User className="ev2-w-6 ev2-h-6" />
               </div>
               <div className="ev2-flex-1">
                 <div className="ev2-flex ev2-items-center ev2-gap-2">
@@ -80,6 +82,7 @@ function GmailChrome({ email, isMobile, isBuilder, renderBody, updateEmailField,
                       onChange={(value) => handleFieldUpdate('from_name', value)}
                       placeholder="Sender Name"
                       className="ev2-font-medium ev2-text-gray-900"
+                      noPadding={true}
                     />
                   ) : (
                     <span className="ev2-font-medium ev2-text-gray-900">{fromName}</span>
@@ -156,10 +159,10 @@ function GmailChrome({ email, isMobile, isBuilder, renderBody, updateEmailField,
       <div className="ev2-border-b ev2-bg-white">
         {/* Combined Header with Profile and Subject */}
         <div className="ev2-px-4 ev2-py-3">
-          <div className="ev2-flex ev2-items-start ev2-gap-3">
+          <div className="ev2-flex ev2-items-start ev2-gap-5">
             {/* Profile Picture */}
-            <div className="ev2-w-10 ev2-h-10 ev2-bg-gray-300 ev2-rounded-full ev2-flex ev2-items-center ev2-justify-center ev2-text-gray-600 ev2-font-medium ev2-flex-shrink-0">
-              {fromName.charAt(0).toUpperCase()}
+            <div className="ev2-w-10 ev2-h-10 ev2-bg-gray-300 ev2-rounded-full ev2-flex ev2-items-center ev2-justify-center ev2-text-gray-600 ev2-flex-shrink-0">
+              <User className="ev2-w-6 ev2-h-6" />
             </div>
             {/* Content Area */}
             <div className="ev2-flex-1">
@@ -173,6 +176,7 @@ function GmailChrome({ email, isMobile, isBuilder, renderBody, updateEmailField,
                       placeholder="Email Subject"
                       className="ev2-text-[1.375rem] ev2-font-normal ev2-text-gray-900"
                       style={{ fontFamily: '"Google Sans", Roboto, RobotoDraft, Helvetica, Arial, sans-serif' }}
+                      noPadding={true}
                     />
                   ) : (
                     <h1 className="ev2-text-[1.375rem] ev2-font-normal ev2-text-gray-900" style={{ fontFamily: '"Google Sans", Roboto, RobotoDraft, Helvetica, Arial, sans-serif' }}>{subject}</h1>
@@ -180,8 +184,11 @@ function GmailChrome({ email, isMobile, isBuilder, renderBody, updateEmailField,
                   <span className="ev2-px-2 ev2-py-0.5 ev2-bg-gray-100 ev2-text-xs ev2-text-gray-600 ev2-rounded">
                     Inbox
                   </span>
-                  {email.scheduled_date && (
-                    <ScheduledIndicator scheduledDate={email.scheduled_date} />
+                  {(email.scheduled_date || email.schedule) && (
+                    <ScheduledIndicator 
+                      scheduledDate={email.scheduled_date}
+                      schedule={email.schedule}
+                    />
                   )}
                 </div>
                 <div className="ev2-flex ev2-items-center ev2-gap-2">
@@ -199,9 +206,9 @@ function GmailChrome({ email, isMobile, isBuilder, renderBody, updateEmailField,
               </div>
               
               {/* From/To Details */}
-              <div className="ev2-flex ev2-items-center ev2-justify-between">
+              <div className="ev2-flex ev2-items-center ev2-justify-between ev2-mt-2">
                 <div>
-                  <div className="ev2-flex ev2-items-center ev2-gap-2">
+                  <div className="ev2-flex ev2-items-center">
                     {isBuilder ? (
                       <>
                         <InlineEditableField
@@ -209,14 +216,16 @@ function GmailChrome({ email, isMobile, isBuilder, renderBody, updateEmailField,
                           onChange={(value) => handleFieldUpdate('from_name', value)}
                           placeholder="Sender Name"
                           className="ev2-font-medium ev2-text-gray-900"
+                          noPadding={true}
                         />
-                        <span className="ev2-text-sm ev2-text-gray-600">&lt;</span>
+                        <span className="ev2-text-sm ev2-text-gray-600 ev2-ml-2.5">&lt;</span>
                         <InlineEditableField
                           value={email.from_email}
                           onChange={(value) => handleFieldUpdate('from_email', value)}
                           placeholder="sender@example.com"
                           type="email"
                           className="ev2-text-sm ev2-text-gray-600"
+                          noPadding={true}
                         />
                         <span className="ev2-text-sm ev2-text-gray-600">&gt;</span>
                       </>

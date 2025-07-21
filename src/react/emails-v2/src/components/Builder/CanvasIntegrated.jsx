@@ -99,15 +99,13 @@ function CanvasIntegrated({ isMobile = false }) {
       }
     });
 
-    // Check if this DropZone should be hidden (only hide specific problematic ones)
+    // Check if this DropZone should be hidden
     const shouldHide = (
-      // Hide DropZone at position 0 when parentId is null (root level, above wrapper)
-      (position === 0 && !parentId) ||
+      // Hide ALL DropZones at root level (parentId is null) - nothing should be dropped outside email structure
+      !parentId ||
       // Hide DropZone at position 0 when parent is email-wrapper (above container inside wrapper)  
-      (position === 0 && parentId && parentId.includes('email-wrapper')) ||
-      // Hide DropZone after wrapper (position 1 at root level, between wrapper and next element)
-      (position === 1 && !parentId)
-      // REMOVED: Don't hide DropZones in email-container - users need them to drop elements!
+      (position === 0 && parentId && parentId.includes('email-wrapper'))
+      // Allow all DropZones inside email-container for user content
     );
 
     return (

@@ -21,6 +21,7 @@ function SpacingLayer({
   backgroundColor,
   backgroundImage,
   borderRadius,
+  boxShadow,
   children,
   className,
   isResizing = false
@@ -75,6 +76,14 @@ function SpacingLayer({
       // Add vendor prefixes for better email client support
       styles.WebkitBorderRadius = `${borderRadius}px`;
       styles.MozBorderRadius = `${borderRadius}px`;
+    }
+    
+    // Box shadow (note: not all email clients support box-shadow)
+    if (boxShadow && boxShadow !== 'none') {
+      styles.boxShadow = boxShadow;
+      // Add vendor prefixes for better email client support
+      styles.WebkitBoxShadow = boxShadow;
+      styles.MozBoxShadow = boxShadow;
     }
     
     return styles;
