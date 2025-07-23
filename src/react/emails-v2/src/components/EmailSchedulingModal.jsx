@@ -11,6 +11,7 @@ function EmailSchedulingModal({ isOpen, onClose, onSchedule, currentSchedule }) 
   const [schedules, setSchedules] = useState(currentSchedule?.schedules || []);
   const [showDocs, setShowDocs] = useState(false);
   const [expandedUseCase, setExpandedUseCase] = useState(null);
+  const [validationErrors, setValidationErrors] = useState({});
 
   // Update state when currentSchedule changes
   React.useEffect(() => {
@@ -42,46 +43,66 @@ function EmailSchedulingModal({ isOpen, onClose, onSchedule, currentSchedule }) 
         ? { ...schedule, [field]: value }
         : schedule
     ));
+    // Clear validation error for this field when user starts typing
+    const errorKey = `${id}_${field}`;
+    if (validationErrors[errorKey]) {
+      setValidationErrors(prev => {
+        const newErrors = { ...prev };
+        delete newErrors[errorKey];
+        return newErrors;
+      });
+    }
+  };
+
+  // Get error message for a field
+  const getFieldError = (scheduleId, fieldName) => {
+    return validationErrors[`${scheduleId}_${fieldName}`] || null;
+  };
+
+  // Check if field has error
+  const hasFieldError = (scheduleId, fieldName) => {
+    return Boolean(validationErrors[`${scheduleId}_${fieldName}`]);
   };
 
 
   const handleSave = () => {
     // Validate schedules
-    const errors = [];
+    const fieldErrors = {};
     
     schedules.forEach((schedule, index) => {
-      const scheduleNum = index + 1;
+      const scheduleId = schedule.id;
       
       // Validate days offset (required)
       if (!schedule.daysOffset && schedule.daysOffset !== '0') {
-        errors.push(`Schedule ${scheduleNum}: Days offset is required`);
+        fieldErrors[`${scheduleId}_daysOffset`] = 'Days offset is required';
       }
       
       // Validate execution method (required)
       if (!schedule.executionMethod) {
-        errors.push(`Schedule ${scheduleNum}: Execution method is required`);
+        fieldErrors[`${scheduleId}_executionMethod`] = 'Execution method is required';
       }
       
       // Validate based on execution method
-      if (schedule.executionMethod === 'time' && !schedule.time) {
-        errors.push(`Schedule ${scheduleNum}: Time is required for "At specific time" execution`);
+      if ((schedule.executionMethod === 'time' || schedule.executionMethod.includes('time')) && !schedule.time) {
+        fieldErrors[`${scheduleId}_time`] = 'Time is required for "time" execution method';
       }
       
-      if (schedule.executionMethod === 'offset' && !schedule.offset && schedule.offset !== '0') {
-        errors.push(`Schedule ${scheduleNum}: Offset is required for "Time offset" execution`);
+      if ((schedule.executionMethod === 'offset' || schedule.executionMethod.includes('offset')) && !schedule.offset && schedule.offset !== '0') {
+        fieldErrors[`${scheduleId}_offset`] = 'Offset is required for "offset" execution method';
       }
       
       // Validate date format if provided and not a tag
       if (schedule.baseDate && !schedule.baseDate.includes('{')) {
         const dateRegex = /^\d{2}-\d{2}-\d{4}$/;
         if (!dateRegex.test(schedule.baseDate)) {
-          errors.push(`Schedule ${scheduleNum}: Base date must be in DD-MM-YYYY format`);
+          fieldErrors[`${scheduleId}_baseDate`] = 'Base date must be in DD-MM-YYYY format';
         }
       }
     });
     
-    if (errors.length > 0) {
-      alert('Please fix the following errors:\n\n' + errors.join('\n'));
+    setValidationErrors(fieldErrors);
+    
+    if (Object.keys(fieldErrors).length > 0) {
       return;
     }
     
@@ -95,6 +116,7 @@ function EmailSchedulingModal({ isOpen, onClose, onSchedule, currentSchedule }) 
   const handleCancel = () => {
     // Reset to original values
     setSchedules(currentSchedule?.schedules || []);
+    setValidationErrors({});
     onClose();
   };
 
@@ -180,16 +202,23 @@ function EmailSchedulingModal({ isOpen, onClose, onSchedule, currentSchedule }) 
                               <Tag className="ev2-w-3 ev2-h-3 ev2-text-blue-600" />
                             )}
                           </label>
-                          <div className="ev2-relative">
-                            <Calendar className="ev2-absolute ev2-left-3 ev2-top-1/2 ev2--translate-y-1/2 ev2-w-4 ev2-h-4 ev2-text-gray-400" />
-                            <input
-                              type="text"
-                              value={schedule.baseDate}
-                              onChange={(e) => updateSchedule(schedule.id, 'baseDate', e.target.value)}
-                              className="ev2-w-full ev2-pl-10 ev2-pr-3 ev2-py-2 ev2-text-sm ev2-border ev2-border-gray-300 ev2-rounded-lg focus:ev2-outline-none focus:ev2-ring-2 focus:ev2-ring-blue-500 focus:ev2-border-transparent ev2-font-mono"
-                              placeholder="DD-MM-YYYY or {date}"
-                            />
-                          </div>
+                          <input
+                            type="text"
+                            value={schedule.baseDate}
+                            onChange={(e) => updateSchedule(schedule.id, 'baseDate', e.target.value)}
+                            className={clsx(
+                              "ev2-w-full ev2-px-3 ev2-py-2 ev2-text-sm ev2-border ev2-rounded-lg focus:ev2-outline-none focus:ev2-ring-2 focus:ev2-border-transparent ev2-font-mono",
+                              hasFieldError(schedule.id, 'baseDate') 
+                                ? "ev2-border-red-500 focus:ev2-ring-red-500" 
+                                : "ev2-border-gray-300 focus:ev2-ring-blue-500"
+                            )}
+                            placeholder="DD-MM-YYYY or {date;timestamp}"
+                          />
+                          {getFieldError(schedule.id, 'baseDate') && (
+                            <p className="ev2-mt-1 ev2-text-xs ev2-text-red-600">
+                              {getFieldError(schedule.id, 'baseDate')}
+                            </p>
+                          )}
                         </div>
 
                         {/* Days offset */}
@@ -204,37 +233,57 @@ function EmailSchedulingModal({ isOpen, onClose, onSchedule, currentSchedule }) 
                             type="text"
                             value={schedule.daysOffset}
                             onChange={(e) => updateSchedule(schedule.id, 'daysOffset', e.target.value)}
-                            className="ev2-w-full ev2-px-3 ev2-py-2 ev2-text-sm ev2-border ev2-border-gray-300 ev2-rounded-lg focus:ev2-outline-none focus:ev2-ring-2 focus:ev2-ring-blue-500 focus:ev2-border-transparent ev2-font-mono"
+                            className={clsx(
+                              "ev2-w-full ev2-px-3 ev2-py-2 ev2-text-sm ev2-border ev2-rounded-lg focus:ev2-outline-none focus:ev2-ring-2 focus:ev2-border-transparent ev2-font-mono",
+                              hasFieldError(schedule.id, 'daysOffset') 
+                                ? "ev2-border-red-500 focus:ev2-ring-red-500" 
+                                : "ev2-border-gray-300 focus:ev2-ring-blue-500"
+                            )}
                             placeholder="0, 1, -1, or {tag}"
                           />
+                          {getFieldError(schedule.id, 'daysOffset') && (
+                            <p className="ev2-mt-1 ev2-text-xs ev2-text-red-600">
+                              {getFieldError(schedule.id, 'daysOffset')}
+                            </p>
+                          )}
                         </div>
 
                         {/* Execution method */}
                         <div>
-                          <label className="ev2-block ev2-text-xs ev2-font-medium ev2-text-gray-700 ev2-mb-1">
-                            Execution method
+                          <label className="ev2-flex ev2-items-center ev2-gap-2 ev2-text-xs ev2-font-medium ev2-text-gray-700 ev2-mb-1">
+                            <span>Execution method</span>
+                            {schedule.executionMethod && schedule.executionMethod.includes('{') && (
+                              <Tag className="ev2-w-3 ev2-h-3 ev2-text-blue-600" />
+                            )}
                           </label>
-                          <select
+                          <input
+                            type="text"
                             value={schedule.executionMethod}
                             onChange={(e) => updateSchedule(schedule.id, 'executionMethod', e.target.value)}
-                            className="ev2-w-full ev2-px-3 ev2-py-2 ev2-text-sm ev2-border ev2-border-gray-300 ev2-rounded-lg focus:ev2-outline-none focus:ev2-ring-2 focus:ev2-ring-blue-500 focus:ev2-border-transparent"
-                          >
-                            <option value="">- Select -</option>
-                            <option value="instant">Instant</option>
-                            <option value="time">At specific time</option>
-                            <option value="offset">Time offset</option>
-                          </select>
+                            className={clsx(
+                              "ev2-w-full ev2-px-3 ev2-py-2 ev2-text-sm ev2-border ev2-rounded-lg focus:ev2-outline-none focus:ev2-ring-2 focus:ev2-border-transparent ev2-font-mono",
+                              hasFieldError(schedule.id, 'executionMethod') 
+                                ? "ev2-border-red-500 focus:ev2-ring-red-500" 
+                                : "ev2-border-gray-300 focus:ev2-ring-blue-500"
+                            )}
+                            placeholder="instant, time, offset, or {tag}"
+                          />
+                          {getFieldError(schedule.id, 'executionMethod') && (
+                            <p className="ev2-mt-1 ev2-text-xs ev2-text-red-600">
+                              {getFieldError(schedule.id, 'executionMethod')}
+                            </p>
+                          )}
                         </div>
                       </div>
 
                       {/* Help text */}
                       <div className="ev2-text-xs ev2-text-gray-500 ev2-mb-4">
-                        <p className="ev2-mb-1"><strong>Base date:</strong> Leave blank for submission date, or use DD-MM-YYYY format or {'{tags}'}</p>
+                        <p className="ev2-mb-1"><strong>Base date:</strong> Leave blank for submission date, or use DD-MM-YYYY format or {'{date;timestamp}'}</p>
                         <p><strong>Days offset:</strong> 0 = same day, 1 = next day, -1 = previous day</p>
                       </div>
 
                       {/* Time input (only for time method) */}
-                      {schedule.executionMethod === 'time' && (
+                      {(schedule.executionMethod === 'time' || schedule.executionMethod.includes('time')) && (
                         <div>
                           <label className="ev2-flex ev2-items-center ev2-gap-2 ev2-text-xs ev2-font-medium ev2-text-gray-700 ev2-mb-1">
                             <span>Time (24h format)</span>
@@ -242,16 +291,23 @@ function EmailSchedulingModal({ isOpen, onClose, onSchedule, currentSchedule }) 
                               <Tag className="ev2-w-3 ev2-h-3 ev2-text-blue-600" />
                             )}
                           </label>
-                          <div className="ev2-relative">
-                            <Clock className="ev2-absolute ev2-left-3 ev2-top-1/2 ev2--translate-y-1/2 ev2-w-4 ev2-h-4 ev2-text-gray-400" />
-                            <input
-                              type="text"
-                              value={schedule.time || ''}
-                              onChange={(e) => updateSchedule(schedule.id, 'time', e.target.value)}
-                              className="ev2-w-full ev2-pl-10 ev2-pr-3 ev2-py-2 ev2-text-sm ev2-border ev2-border-gray-300 ev2-rounded-lg focus:ev2-outline-none focus:ev2-ring-2 focus:ev2-ring-blue-500 focus:ev2-border-transparent ev2-font-mono"
-                              placeholder="14:30"
-                            />
-                          </div>
+                          <input
+                            type="text"
+                            value={schedule.time || ''}
+                            onChange={(e) => updateSchedule(schedule.id, 'time', e.target.value)}
+                            className={clsx(
+                              "ev2-w-full ev2-px-3 ev2-py-2 ev2-text-sm ev2-border ev2-rounded-lg focus:ev2-outline-none focus:ev2-ring-2 focus:ev2-border-transparent ev2-font-mono",
+                              hasFieldError(schedule.id, 'time') 
+                                ? "ev2-border-red-500 focus:ev2-ring-red-500" 
+                                : "ev2-border-gray-300 focus:ev2-ring-blue-500"
+                            )}
+                            placeholder="14:30"
+                          />
+                          {getFieldError(schedule.id, 'time') && (
+                            <p className="ev2-mt-1 ev2-text-xs ev2-text-red-600">
+                              {getFieldError(schedule.id, 'time')}
+                            </p>
+                          )}
                           <p className="ev2-mt-1 ev2-text-xs ev2-text-gray-500">
                             Use 24h format: 09:00, 14:30, 18:00 or {'{field_name}'}
                           </p>
@@ -259,7 +315,7 @@ function EmailSchedulingModal({ isOpen, onClose, onSchedule, currentSchedule }) 
                       )}
 
                       {/* Offset input (only for offset method) */}
-                      {schedule.executionMethod === 'offset' && (
+                      {(schedule.executionMethod === 'offset' || schedule.executionMethod.includes('offset')) && (
                         <div>
                           <label className="ev2-flex ev2-items-center ev2-gap-2 ev2-text-xs ev2-font-medium ev2-text-gray-700 ev2-mb-1">
                             <span>Offset (in hours)</span>
@@ -271,9 +327,19 @@ function EmailSchedulingModal({ isOpen, onClose, onSchedule, currentSchedule }) 
                             type="text"
                             value={schedule.offset || '0'}
                             onChange={(e) => updateSchedule(schedule.id, 'offset', e.target.value)}
-                            className="ev2-w-full ev2-px-3 ev2-py-2 ev2-text-sm ev2-border ev2-border-gray-300 ev2-rounded-lg focus:ev2-outline-none focus:ev2-ring-2 focus:ev2-ring-blue-500 focus:ev2-border-transparent ev2-font-mono"
+                            className={clsx(
+                              "ev2-w-full ev2-px-3 ev2-py-2 ev2-text-sm ev2-border ev2-rounded-lg focus:ev2-outline-none focus:ev2-ring-2 focus:ev2-border-transparent ev2-font-mono",
+                              hasFieldError(schedule.id, 'offset') 
+                                ? "ev2-border-red-500 focus:ev2-ring-red-500" 
+                                : "ev2-border-gray-300 focus:ev2-ring-blue-500"
+                            )}
                             placeholder="0"
                           />
+                          {getFieldError(schedule.id, 'offset') && (
+                            <p className="ev2-mt-1 ev2-text-xs ev2-text-red-600">
+                              {getFieldError(schedule.id, 'offset')}
+                            </p>
+                          )}
                           <p className="ev2-mt-1 ev2-text-xs ev2-text-gray-500">
                             0 = instantly, 0.08 = 5 min, 0.5 = 30 min, 2 = 2 hours, -5 = 5 hours before
                           </p>

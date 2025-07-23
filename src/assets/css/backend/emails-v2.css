@@ -545,9 +545,6 @@ video {
 .ev2-left-2\.5 {
   left: 0.625rem;
 }
-.ev2-left-3 {
-  left: 0.75rem;
-}
 .ev2-left-4 {
   left: 1rem;
 }
@@ -1224,6 +1221,10 @@ video {
   --tw-border-opacity: 1;
   border-color: rgb(252 165 165 / var(--tw-border-opacity, 1));
 }
+.ev2-border-red-500 {
+  --tw-border-opacity: 1;
+  border-color: rgb(239 68 68 / var(--tw-border-opacity, 1));
+}
 .ev2-border-transparent {
   border-color: transparent;
 }
@@ -1467,17 +1468,11 @@ video {
 .ev2-pb-3 {
   padding-bottom: 0.75rem;
 }
-.ev2-pl-10 {
-  padding-left: 2.5rem;
-}
 .ev2-pl-6 {
   padding-left: 1.5rem;
 }
 .ev2-pr-2 {
   padding-right: 0.5rem;
-}
-.ev2-pr-3 {
-  padding-right: 0.75rem;
 }
 .ev2-pt-4 {
   padding-top: 1rem;
@@ -1877,423 +1872,456 @@ video {
 
 /* Animations */
 
+/* Targeted WordPress Admin Style Overrides */
+/* Only override specific WordPress styles that interfere with our components */
+.wp-core-ui .super-emails-v2-container {
+  /* Reset WordPress form input styles */
+  input[type="text"][class*="ev2-"],
+  input[type="email"][class*="ev2-"],
+  input[type="number"][class*="ev2-"],
+  input[type="password"][class*="ev2-"],
+  input[type="search"][class*="ev2-"],
+  input[type="tel"][class*="ev2-"],
+  input[type="url"][class*="ev2-"],
+  input[type="date"][class*="ev2-"],
+  input[type="datetime-local"][class*="ev2-"],
+  input[type="month"][class*="ev2-"],
+  input[type="time"][class*="ev2-"],
+  input[type="week"][class*="ev2-"],
+  select[class*="ev2-"],
+  textarea[class*="ev2-"] {
+    /* Remove WordPress default styling */
+    min-height: auto !important;
+    line-height: inherit !important;
+    box-shadow: none !important;
+    /* Let our Tailwind classes handle these */
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background-color: transparent !important;
+    /* Remove WordPress transitions */
+    transition: none;
+  }
+  
+  /* Reset WordPress button styles */
+  button[class*="ev2-"],
+  input[type="button"][class*="ev2-"],
+  input[type="submit"][class*="ev2-"],
+  input[type="reset"][class*="ev2-"],
+  .button[class*="ev2-"],
+  .button-primary[class*="ev2-"],
+  .button-secondary[class*="ev2-"] {
+    /* Remove WordPress button styling */
+    min-height: auto !important;
+    line-height: inherit !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: none !important;
+    background-image: none !important;
+    /* Remove WordPress button transitions */
+    transition: none;
+    /* Ensure pointer cursor */
+    cursor: pointer;
+  }
+  
+  /* Ensure checkboxes and radios maintain their appearance */
+  input[type="checkbox"][class*="ev2-"],
+  input[type="radio"][class*="ev2-"] {
+    /* Reset size constraints but keep native appearance */
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    /* Keep clickable */
+    cursor: pointer;
+  }
+  
+  /* Remove WordPress focus styles - we use Tailwind focus utilities */
+  input[class*="ev2-"]:focus,
+  select[class*="ev2-"]:focus,
+  textarea[class*="ev2-"]:focus,
+  button[class*="ev2-"]:focus {
+    box-shadow: none !important;
+    outline: none !important;
+    border-color: transparent !important;
+  }
+  
+  /* Ensure WordPress link styles don't affect our components */
+  a[class*="ev2-"] {
+    text-decoration: none !important;
+    box-shadow: none !important;
+  }
+  
+  /* WordPress sometimes adds margins to form elements */
+  label[class*="ev2-"],
+  fieldset[class*="ev2-"] {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
+
+/* Additional specificity for WordPress admin area */
+body.wp-admin .super-emails-v2-container {
+  /* Ensure our select dropdowns don't get WordPress styling */
+  select[class*="ev2-"] {
+    background-image: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+  }
+  
+  /* WordPress admin often forces colors on disabled elements */
+  input[class*="ev2-"]:disabled,
+  select[class*="ev2-"]:disabled,
+  textarea[class*="ev2-"]:disabled,
+  button[class*="ev2-"]:disabled {
+    opacity: 0.5; /* Use opacity instead of color changes */
+    background-color: transparent !important;
+    color: inherit !important;
+  }
+}
 .last\:ev2-border-b-0:last-child {
   border-bottom-width: 0px;
 }
-
 .hover\:ev2-scale-110:hover {
   --tw-scale-x: 1.1;
   --tw-scale-y: 1.1;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
-
 .hover\:ev2-border-blue-500:hover {
   --tw-border-opacity: 1;
   border-color: rgb(59 130 246 / var(--tw-border-opacity, 1));
 }
-
 .hover\:ev2-border-gray-300:hover {
   --tw-border-opacity: 1;
   border-color: rgb(209 213 219 / var(--tw-border-opacity, 1));
 }
-
 .hover\:ev2-border-gray-400:hover {
   --tw-border-opacity: 1;
   border-color: rgb(156 163 175 / var(--tw-border-opacity, 1));
 }
-
 .hover\:ev2-border-orange-500:hover {
   --tw-border-opacity: 1;
   border-color: rgb(249 115 22 / var(--tw-border-opacity, 1));
 }
-
 .hover\:ev2-border-purple-500:hover {
   --tw-border-opacity: 1;
   border-color: rgb(168 85 247 / var(--tw-border-opacity, 1));
 }
-
 .hover\:ev2-bg-blue-50:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(239 246 255 / var(--tw-bg-opacity, 1));
 }
-
 .hover\:ev2-bg-blue-600:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(37 99 235 / var(--tw-bg-opacity, 1));
 }
-
 .hover\:ev2-bg-blue-700:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(29 78 216 / var(--tw-bg-opacity, 1));
 }
-
 .hover\:ev2-bg-gray-100:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(243 244 246 / var(--tw-bg-opacity, 1));
 }
-
 .hover\:ev2-bg-gray-200:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(229 231 235 / var(--tw-bg-opacity, 1));
 }
-
 .hover\:ev2-bg-gray-50:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(249 250 251 / var(--tw-bg-opacity, 1));
 }
-
 .hover\:ev2-bg-green-50:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(240 253 244 / var(--tw-bg-opacity, 1));
 }
-
 .hover\:ev2-bg-green-600:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(22 163 74 / var(--tw-bg-opacity, 1));
 }
-
 .hover\:ev2-bg-orange-50:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(255 247 237 / var(--tw-bg-opacity, 1));
 }
-
 .hover\:ev2-bg-orange-600:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(234 88 12 / var(--tw-bg-opacity, 1));
 }
-
 .hover\:ev2-bg-primary-200:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(191 219 254 / var(--tw-bg-opacity, 1));
 }
-
 .hover\:ev2-bg-primary-600:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(37 99 235 / var(--tw-bg-opacity, 1));
 }
-
 .hover\:ev2-bg-primary-700:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(29 78 216 / var(--tw-bg-opacity, 1));
 }
-
 .hover\:ev2-bg-purple-50:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(250 245 255 / var(--tw-bg-opacity, 1));
 }
-
 .hover\:ev2-bg-purple-600:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(147 51 234 / var(--tw-bg-opacity, 1));
 }
-
 .hover\:ev2-bg-red-100:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(254 226 226 / var(--tw-bg-opacity, 1));
 }
-
 .hover\:ev2-bg-red-50:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(254 242 242 / var(--tw-bg-opacity, 1));
 }
-
 .hover\:ev2-bg-red-700:hover {
   --tw-bg-opacity: 1;
   background-color: rgb(185 28 28 / var(--tw-bg-opacity, 1));
 }
-
 .hover\:ev2-bg-opacity-50:hover {
   --tw-bg-opacity: 0.5;
 }
-
 .hover\:ev2-text-blue-700:hover {
   --tw-text-opacity: 1;
   color: rgb(29 78 216 / var(--tw-text-opacity, 1));
 }
-
 .hover\:ev2-text-gray-600:hover {
   --tw-text-opacity: 1;
   color: rgb(75 85 99 / var(--tw-text-opacity, 1));
 }
-
 .hover\:ev2-text-gray-700:hover {
   --tw-text-opacity: 1;
   color: rgb(55 65 81 / var(--tw-text-opacity, 1));
 }
-
 .hover\:ev2-text-gray-900:hover {
   --tw-text-opacity: 1;
   color: rgb(17 24 39 / var(--tw-text-opacity, 1));
 }
-
 .hover\:ev2-text-primary-700:hover {
   --tw-text-opacity: 1;
   color: rgb(29 78 216 / var(--tw-text-opacity, 1));
 }
-
 .hover\:ev2-text-red-500:hover {
   --tw-text-opacity: 1;
   color: rgb(239 68 68 / var(--tw-text-opacity, 1));
 }
-
 .hover\:ev2-text-red-700:hover {
   --tw-text-opacity: 1;
   color: rgb(185 28 28 / var(--tw-text-opacity, 1));
 }
-
 .hover\:ev2-opacity-50:hover {
   opacity: 0.5;
 }
-
 .hover\:ev2-opacity-70:hover {
   opacity: 0.7;
 }
-
 .hover\:ev2-opacity-75:hover {
   opacity: 0.75;
 }
-
 .hover\:ev2-opacity-80:hover {
   opacity: 0.8;
 }
-
 .hover\:ev2-shadow-lg:hover {
   --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
-
 .hover\:ev2-shadow-md:hover {
   --tw-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
-
 .hover\:ev2-shadow-sm:hover {
   --tw-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --tw-shadow-colored: 0 1px 2px 0 var(--tw-shadow-color);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
-
 .hover\:ev2-shadow-xl:hover {
   --tw-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
   --tw-shadow-colored: 0 20px 25px -5px var(--tw-shadow-color), 0 8px 10px -6px var(--tw-shadow-color);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
-
 .focus\:ev2-border-blue-500:focus {
   --tw-border-opacity: 1;
   border-color: rgb(59 130 246 / var(--tw-border-opacity, 1));
 }
-
 .focus\:ev2-border-transparent:focus {
   border-color: transparent;
 }
-
 .focus\:ev2-outline-none:focus {
   outline: 2px solid transparent;
   outline-offset: 2px;
 }
-
 .focus\:ev2-ring-1:focus {
   --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
   --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(1px + var(--tw-ring-offset-width)) var(--tw-ring-color);
   box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
 }
-
 .focus\:ev2-ring-2:focus {
   --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
   --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
   box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
 }
-
 .focus\:ev2-ring-blue-500:focus {
   --tw-ring-opacity: 1;
   --tw-ring-color: rgb(59 130 246 / var(--tw-ring-opacity, 1));
 }
-
 .focus\:ev2-ring-orange-500:focus {
   --tw-ring-opacity: 1;
   --tw-ring-color: rgb(249 115 22 / var(--tw-ring-opacity, 1));
 }
-
 .focus\:ev2-ring-primary-500:focus {
   --tw-ring-opacity: 1;
   --tw-ring-color: rgb(59 130 246 / var(--tw-ring-opacity, 1));
 }
-
 .focus\:ev2-ring-purple-500:focus {
   --tw-ring-opacity: 1;
   --tw-ring-color: rgb(168 85 247 / var(--tw-ring-opacity, 1));
 }
-
+.focus\:ev2-ring-red-500:focus {
+  --tw-ring-opacity: 1;
+  --tw-ring-color: rgb(239 68 68 / var(--tw-ring-opacity, 1));
+}
 .focus\:ev2-ring-offset-2:focus {
   --tw-ring-offset-width: 2px;
 }
-
 .disabled\:ev2-opacity-50:disabled {
   opacity: 0.5;
 }
-
 .ev2-group:hover .group-hover\:ev2-text-blue-600 {
   --tw-text-opacity: 1;
   color: rgb(37 99 235 / var(--tw-text-opacity, 1));
 }
-
 .ev2-group:hover .group-hover\:ev2-text-gray-800 {
   --tw-text-opacity: 1;
   color: rgb(31 41 55 / var(--tw-text-opacity, 1));
 }
-
 .ev2-group:hover .group-hover\:ev2-opacity-100 {
   opacity: 1;
 }
-
 @media (min-width: 640px) {
 
   .sm\:ev2-inline {
     display: inline;
   }
 }
-
 .\[\&\:\:-moz-range-thumb\]\:ev2-h-5::-moz-range-thumb {
   height: 1.25rem;
 }
-
 .\[\&\:\:-moz-range-thumb\]\:ev2-w-5::-moz-range-thumb {
   width: 1.25rem;
 }
-
 .\[\&\:\:-moz-range-thumb\]\:ev2-appearance-none::-moz-range-thumb {
   -moz-appearance: none;
        appearance: none;
 }
-
 .\[\&\:\:-moz-range-thumb\]\:ev2-rounded-full::-moz-range-thumb {
   border-radius: 9999px;
 }
-
 .\[\&\:\:-moz-range-thumb\]\:ev2-border-2::-moz-range-thumb {
   border-width: 2px;
 }
-
 .\[\&\:\:-moz-range-thumb\]\:ev2-border-primary-500::-moz-range-thumb {
   --tw-border-opacity: 1;
   border-color: rgb(59 130 246 / var(--tw-border-opacity, 1));
 }
-
 .\[\&\:\:-moz-range-thumb\]\:ev2-bg-white::-moz-range-thumb {
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
 }
-
 .\[\&\:\:-moz-range-thumb\]\:ev2-shadow-md::-moz-range-thumb {
   --tw-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
-
 .\[\&\:\:-moz-range-thumb\]\:ev2-transition-all::-moz-range-thumb {
   -moz-transition-property: all;
   transition-property: all;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
 }
-
 .\[\&\:\:-moz-range-thumb\]\:hover\:ev2-scale-110:hover::-moz-range-thumb {
   --tw-scale-x: 1.1;
   --tw-scale-y: 1.1;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
-
 .\[\&\:\:-moz-range-thumb\]\:hover\:ev2-shadow-lg:hover::-moz-range-thumb {
   --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
-
 .\[\&\:\:-webkit-slider-thumb\]\:ev2-h-5::-webkit-slider-thumb {
   height: 1.25rem;
 }
-
 .\[\&\:\:-webkit-slider-thumb\]\:ev2-w-5::-webkit-slider-thumb {
   width: 1.25rem;
 }
-
 .\[\&\:\:-webkit-slider-thumb\]\:ev2-appearance-none::-webkit-slider-thumb {
   -webkit-appearance: none;
           appearance: none;
 }
-
 .\[\&\:\:-webkit-slider-thumb\]\:ev2-rounded-full::-webkit-slider-thumb {
   border-radius: 9999px;
 }
-
 .\[\&\:\:-webkit-slider-thumb\]\:ev2-border-2::-webkit-slider-thumb {
   border-width: 2px;
 }
-
 .\[\&\:\:-webkit-slider-thumb\]\:ev2-border-primary-500::-webkit-slider-thumb {
   --tw-border-opacity: 1;
   border-color: rgb(59 130 246 / var(--tw-border-opacity, 1));
 }
-
 .\[\&\:\:-webkit-slider-thumb\]\:ev2-bg-white::-webkit-slider-thumb {
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity, 1));
 }
-
 .\[\&\:\:-webkit-slider-thumb\]\:ev2-shadow-md::-webkit-slider-thumb {
   --tw-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
-
 .\[\&\:\:-webkit-slider-thumb\]\:ev2-transition-all::-webkit-slider-thumb {
   -webkit-transition-property: all;
   transition-property: all;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
 }
-
 .\[\&\:\:-webkit-slider-thumb\]\:hover\:ev2-scale-110:hover::-webkit-slider-thumb {
   --tw-scale-x: 1.1;
   --tw-scale-y: 1.1;
   transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
 }
-
 .\[\&\:\:-webkit-slider-thumb\]\:hover\:ev2-shadow-lg:hover::-webkit-slider-thumb {
   --tw-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
   --tw-shadow-colored: 0 10px 15px -3px var(--tw-shadow-color), 0 4px 6px -4px var(--tw-shadow-color);
   box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
 }
-
 .\[\&\:focus-visible\:\:-moz-range-thumb\]\:ev2-ring-2:focus-visible::-moz-range-thumb {
   --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
   --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
   box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
 }
-
 .\[\&\:focus-visible\:\:-moz-range-thumb\]\:ev2-ring-primary-500:focus-visible::-moz-range-thumb {
   --tw-ring-opacity: 1;
   --tw-ring-color: rgb(59 130 246 / var(--tw-ring-opacity, 1));
 }
-
 .\[\&\:focus-visible\:\:-moz-range-thumb\]\:ev2-ring-offset-2:focus-visible::-moz-range-thumb {
   --tw-ring-offset-width: 2px;
 }
-
 .\[\&\:focus-visible\:\:-webkit-slider-thumb\]\:ev2-ring-2:focus-visible::-webkit-slider-thumb {
   --tw-ring-offset-shadow: var(--tw-ring-inset) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
   --tw-ring-shadow: var(--tw-ring-inset) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color);
   box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow, 0 0 #0000);
 }
-
 .\[\&\:focus-visible\:\:-webkit-slider-thumb\]\:ev2-ring-primary-500:focus-visible::-webkit-slider-thumb {
   --tw-ring-opacity: 1;
   --tw-ring-color: rgb(59 130 246 / var(--tw-ring-opacity, 1));
 }
-
 .\[\&\:focus-visible\:\:-webkit-slider-thumb\]\:ev2-ring-offset-2:focus-visible::-webkit-slider-thumb {
   --tw-ring-offset-width: 2px;
 }

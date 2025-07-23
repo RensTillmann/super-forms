@@ -44,3 +44,116 @@
     transition: height 0.3s ease-in-out, opacity 0.3s ease-in-out;
   }
 }
+
+/* Targeted WordPress Admin Style Overrides */
+/* Only override specific WordPress styles that interfere with our components */
+.wp-core-ui .super-emails-v2-container {
+  /* Reset WordPress form input styles */
+  input[type="text"][class*="ev2-"],
+  input[type="email"][class*="ev2-"],
+  input[type="number"][class*="ev2-"],
+  input[type="password"][class*="ev2-"],
+  input[type="search"][class*="ev2-"],
+  input[type="tel"][class*="ev2-"],
+  input[type="url"][class*="ev2-"],
+  input[type="date"][class*="ev2-"],
+  input[type="datetime-local"][class*="ev2-"],
+  input[type="month"][class*="ev2-"],
+  input[type="time"][class*="ev2-"],
+  input[type="week"][class*="ev2-"],
+  select[class*="ev2-"],
+  textarea[class*="ev2-"] {
+    /* Remove WordPress default styling */
+    min-height: auto !important;
+    line-height: inherit !important;
+    box-shadow: none !important;
+    /* Let our Tailwind classes handle these */
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background-color: transparent !important;
+    /* Remove WordPress transitions */
+    transition: none;
+  }
+  
+  /* Reset WordPress button styles */
+  button[class*="ev2-"],
+  input[type="button"][class*="ev2-"],
+  input[type="submit"][class*="ev2-"],
+  input[type="reset"][class*="ev2-"],
+  .button[class*="ev2-"],
+  .button-primary[class*="ev2-"],
+  .button-secondary[class*="ev2-"] {
+    /* Remove WordPress button styling */
+    min-height: auto !important;
+    line-height: inherit !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: none !important;
+    background-image: none !important;
+    /* Remove WordPress button transitions */
+    transition: none;
+    /* Ensure pointer cursor */
+    cursor: pointer;
+  }
+  
+  /* Ensure checkboxes and radios maintain their appearance */
+  input[type="checkbox"][class*="ev2-"],
+  input[type="radio"][class*="ev2-"] {
+    /* Reset size constraints but keep native appearance */
+    width: auto !important;
+    height: auto !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    /* Keep clickable */
+    cursor: pointer;
+  }
+  
+  /* Remove WordPress focus styles - we use Tailwind focus utilities */
+  input[class*="ev2-"]:focus,
+  select[class*="ev2-"]:focus,
+  textarea[class*="ev2-"]:focus,
+  button[class*="ev2-"]:focus {
+    box-shadow: none !important;
+    outline: none !important;
+    border-color: transparent !important;
+  }
+  
+  /* Ensure WordPress link styles don't affect our components */
+  a[class*="ev2-"] {
+    text-decoration: none !important;
+    box-shadow: none !important;
+  }
+  
+  /* WordPress sometimes adds margins to form elements */
+  label[class*="ev2-"],
+  fieldset[class*="ev2-"] {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
+
+/* Additional specificity for WordPress admin area */
+body.wp-admin .super-emails-v2-container {
+  /* Ensure our select dropdowns don't get WordPress styling */
+  select[class*="ev2-"] {
+    background-image: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    appearance: none !important;
+  }
+  
+  /* WordPress admin often forces colors on disabled elements */
+  input[class*="ev2-"]:disabled,
+  select[class*="ev2-"]:disabled,
+  textarea[class*="ev2-"]:disabled,
+  button[class*="ev2-"]:disabled {
+    opacity: 0.5; /* Use opacity instead of color changes */
+    background-color: transparent !important;
+    color: inherit !important;
+  }
+}
