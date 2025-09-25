@@ -219,7 +219,7 @@ if ( ! class_exists( 'SUPER_UI' ) ) :
 				}
 				echo '<span class="sfui-subline"><i>' . $v['subline'];
 				if ( ! empty( $v['accepted_values'] ) ) {
-					echo ' ' . esc_html( 'Accepted values', 'super-forms' ) . ': ';
+					echo ' ' . esc_html__( 'Accepted values', 'super-forms' ) . ': ';
 					$x = 0;
 					foreach ( $v['accepted_values'] as $iv ) {
 						if ( $iv['v'] === 'signup_payment_processing' ) {
