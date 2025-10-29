@@ -9,7 +9,10 @@ REMOTE_PORT="18765"
 REMOTE_USER="u2669-dvgugyayggy5"
 REMOTE_PATH="/home/u2669-dvgugyayggy5/www/f4d.nl/public_html/dev/wp-content/plugins/super-forms/"
 PRIVATE_KEY="~/.ssh/id_sftp"
-LOCAL_PATH="/projects/super-forms/src/"
+
+# Get the directory where this script is located
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+LOCAL_PATH="$SCRIPT_DIR/src/"
 
 # Colors for output
 RED='\033[0;31m'
