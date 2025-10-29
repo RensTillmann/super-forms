@@ -1,6 +1,3 @@
-# Ignore build files
-build/*
-
 # Mac OS X dumps these all over the place.
 .DS_Store
 
@@ -19,17 +16,5 @@ clover.xml
 # Ignore IDE's configuration files
 .idea
 
-# Ignore PHP CS Fixer local config and cache
-.php_cs
+# Ignore PHP CS Fixer cache
 .php_cs.cache
-.php-cs-fixer.cache
-
-# Ignore PHPStan local config
-.phpstan.neon
-
-# Ignore phpDocumentor's local config and artifacts
-.phpdoc/*
-phpdoc.xml
-
-# Ignore cached PHPUnit results.
-.phpunit.result.cache

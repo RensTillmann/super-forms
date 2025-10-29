@@ -11334,6 +11334,32 @@ function SUPERreCaptcha(){
         if(args.debugger===true) l = ((pos.left)/args.scale)*args.convertFromPixel;
         return { w: w, h: h, t: t, l: l }
     }
+    // Helper: temporarily reveal hidden ancestors to measure, then restore
+    SUPER.withTemporarilyShown = function(el, measureFn) {
+        var changed = [];
+        var cur = el;
+        while (cur && cur !== document.body) {
+            var cs = window.getComputedStyle(cur);
+            if (cs && (cs.display === 'none' || cs.visibility === 'hidden')) {
+                var prev = { el: cur, display: cur.style.display, visibility: cur.style.visibility };
+                changed.push(prev);
+                // Make it participate in layout but remain invisible
+                cur.style.display = 'block';
+                cur.style.visibility = 'hidden';
+            }
+            cur = cur.parentElement;
+        }
+        try {
+            return measureFn();
+        } finally {
+            // Restore original styles
+            for (var i = 0; i < changed.length; i++) {
+                var item = changed[i];
+                item.el.style.display = item.display;
+                item.el.style.visibility = item.visibility;
+            }
+        }
+    };
     SUPER.pdf_rgba2hex = function(args, rgba, setters, lineWidth){
         if(typeof args.lineWidth==='undefined') lineWidth = 1; // 1px by default
         if(args.renderingMode==='invisible') rgba = 'rgba(0,0,0,0)';
@@ -11655,17 +11681,60 @@ function SUPERreCaptcha(){
             // Signature
             if(el.classList.contains('super-signature')){
                 node = el.querySelector('.super-signature-canvas');
+                var fieldName = el.closest('.super-shortcode').querySelector('.super-shortcode-field').name;
+
+                // Colors + rect styles
                 color = getComputedStyle(node).borderColor;  
                 bgColor = getComputedStyle(node).backgroundColor;
                 SUPER.pdf_rgba2hex(args, color, ['drawColor']);
                 SUPER.pdf_rgba2hex(args, bgColor, ['fillColor']);
-                pos = SUPER.pdf_get_native_el_position(node, args);
+
+                // Measure with fallback for hidden steps
+                pos = SUPER.withTemporarilyShown(node, function() {
+                    return SUPER.pdf_get_native_el_position(node, args);
+                });
+
+                // If still zero, derive width/height from CSS or default
+                if (!pos.w || !pos.h) {
+                    // try the signature container's inline style height (e.g. 100px)
+                    var cssH = parseFloat(getComputedStyle(node).height) || 100;
+                    var cssW = parseFloat(getComputedStyle(node).width) || 300;
+                    pos.w = SUPER.pdf_px2unit ? SUPER.pdf_px2unit(cssW, args) : cssW;
+                    pos.h = SUPER.pdf_px2unit ? SUPER.pdf_px2unit(cssH, args) : cssH;
+                    // If left/top were zero, also get a best-effort box from the .super-shortcode wrapper
+                    if (!pos.l && !pos.t) {
+                        var wrapper = el.closest('.super-shortcode');
+                        if (wrapper) {
+                            var wPos = SUPER.withTemporarilyShown(wrapper, function() {
+                                return SUPER.pdf_get_native_el_position(wrapper, args);
+                            });
+                            if (wPos) { 
+                                pos.l = wPos.l; 
+                                pos.t = wPos.t; 
+                            }
+                        }
+                    }
+                }
+
+                // Draw the background rectangle
                 args._pdf.rect(pos.l, pos.t, pos.w, pos.h, 'FD');
-                var canvas = node.children[0];
-                var src = canvas.toDataURL('image/png');
-                pos = SUPER.pdf_get_native_el_position(canvas, args);
-                var fieldName = el.closest('.super-shortcode').querySelector('.super-shortcode-field').name;
-                args._pdf.addImage(src, 'JPEG', pos.l, pos.t, pos.w, pos.h, fieldName, args.pdfSettings.imageQuality, 0);
+
+                // Prefer the stored dataURL on the hidden textarea
+                var stored = el.querySelector('textarea.super-shortcode-field');
+                var src = stored && stored.value && stored.value.startsWith('data:image') ? stored.value : null;
+
+                // Fallback to live canvas if present and has bitmap (rarely needed)
+                if (!src) {
+                    var liveCanvas = node.querySelector('canvas');
+                    if (!liveCanvas || !liveCanvas.width || !liveCanvas.height) {
+                        // nothing to render (keep the rect)
+                        continue;
+                    }
+                    src = liveCanvas.toDataURL('image/png');
+                }
+
+                // Draw the signature image. We don't strictly need intrinsic size; fill rect.
+                args._pdf.addImage(src, 'PNG', pos.l, pos.t, pos.w, pos.h, fieldName, args.pdfSettings.imageQuality, 0);
                 continue;
             }
             // Accordion header
