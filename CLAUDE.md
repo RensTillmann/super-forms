@@ -1,3 +1,6 @@
+
+@sessions/CLAUDE.sessions.md
+
 # Super Forms - Project Configuration
 
 ## Task Management Guidelines
