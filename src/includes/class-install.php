@@ -44,6 +44,85 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 				// Now save the settings to the database
 				update_option( 'super_settings', $default_settings );
 			}
+
+			// Create database tables
+			self::create_tables();
+
+			// Initialize migration state tracking
+			self::init_migration_state();
+
+			// Update database version
+			self::update_db_version();
+		}
+
+		/**
+		 * Create database tables
+		 *
+		 * @since 6.0.0
+		 */
+		private static function create_tables() {
+			global $wpdb;
+
+			$charset_collate = $wpdb->get_charset_collate();
+			if ( empty( $charset_collate ) ) {
+				$charset_collate = 'DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci';
+			}
+
+			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
+
+			// EAV table for contact entry data
+			$table_name = $wpdb->prefix . 'superforms_entry_data';
+
+			$sql = "CREATE TABLE $table_name (
+				id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+				entry_id BIGINT(20) UNSIGNED NOT NULL,
+				field_name VARCHAR(255) NOT NULL,
+				field_value LONGTEXT,
+				field_type VARCHAR(50),
+				field_label VARCHAR(255),
+				created_at DATETIME NOT NULL,
+				PRIMARY KEY (id),
+				KEY entry_id (entry_id),
+				KEY field_name (field_name),
+				KEY entry_field (entry_id, field_name),
+				KEY field_value (field_value(191))
+			) ENGINE=InnoDB $charset_collate;";
+
+			dbDelta( $sql );
+		}
+
+		/**
+		 * Initialize migration state tracking
+		 *
+		 * @since 6.0.0
+		 */
+		private static function init_migration_state() {
+			// Only initialize if not already set
+			$migration = get_option( 'superforms_eav_migration' );
+			if ( false === $migration ) {
+				$migration_state = array(
+					'status'               => 'not_started',
+					'using_storage'        => 'serialized',
+					'total_entries'        => 0,
+					'migrated_entries'     => 0,
+					'failed_entries'       => array(),
+					'started_at'           => '',
+					'completed_at'         => '',
+					'last_processed_id'    => 0,
+					'verification_passed'  => false,
+					'rollback_available'   => false,
+				);
+				update_option( 'superforms_eav_migration', $migration_state );
+			}
+		}
+
+		/**
+		 * Update database version
+		 *
+		 * @since 6.0.0
+		 */
+		private static function update_db_version() {
+			update_option( 'superforms_db_version', '1.0.0' );
 		}
 
 
