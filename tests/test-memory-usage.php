@@ -5,7 +5,7 @@
 
 require_once 'class-test-helpers.php';
 
-class $(echo $file | sed 's/-/_/g;s/test_//;s/\b\(.\)/\u\1/g') extends SUPER_Test_Helpers {
+class Test_Memory_Usage extends SUPER_Test_Helpers {
 	public function test_placeholder() {
 		$this->markTestSkipped( 'Test not yet implemented' );
 	}

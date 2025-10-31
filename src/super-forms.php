@@ -234,6 +234,7 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 		public function includes() {
 
 			include_once 'includes/class-common.php';
+		include_once 'includes/class-data-access.php';
 
 			if ( $this->is_request( 'admin' ) ) {
 				include_once 'includes/class-install.php';
