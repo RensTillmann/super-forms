@@ -1213,7 +1213,10 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				$entry = $wpdb->get_results( "SELECT ID FROM $table WHERE $query AND post_status IN ('publish','super_unread','super_read') AND post_type = 'super_contact_entry' LIMIT 1" );
 				$data  = array();
 				if ( isset( $entry[0] ) ) {
-					$data = get_post_meta( $entry[0]->ID, '_super_contact_entry_data', true );
+					$data = SUPER_Data_Access::get_entry_data( $entry[0]->ID );
+				if ( is_wp_error( $data ) ) {
+					$data = array();
+				}
 					unset( $data['hidden_form_id'] );
 					$entry_status = get_post_meta( absint( $entry[0]->ID ), '_super_contact_entry_status', true );
 					// If entry status is empty, return the post status instead
@@ -1273,7 +1276,10 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			$entry_status = $_POST['entry_status'];
 			update_post_meta( $id, '_super_contact_entry_status', $entry_status );
 
-			$data = get_post_meta( $id, '_super_contact_entry_data', true );
+			$data = SUPER_Data_Access::get_entry_data( $id );
+			if ( is_wp_error( $data ) ) {
+				$data = array();
+			}
 			// If doesn't exist, we don't have to do anything, must be of type Array
 			if ( ( $data !== '' ) && ( is_array( $data ) ) ) {
 				foreach ( $data as $k => $v ) {
@@ -1282,7 +1288,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 						$data[ $k ]['value'] = $new_data[ $k ];
 					}
 				}
-				update_post_meta( $id, '_super_contact_entry_data', $data );
+				SUPER_Data_Access::save_entry_data( $id, $data );
 			}
 			SUPER_Common::output_message(
 				array(
@@ -1729,7 +1735,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				);
 				$contact_entry_id = wp_insert_post( $post );
 				if ( $contact_entry_id != 0 ) {
-					add_post_meta( $contact_entry_id, '_super_contact_entry_data', $data );
+					SUPER_Data_Access::save_entry_data( $contact_entry_id, $data );
 					add_post_meta( $contact_entry_id, '_super_contact_entry_ip', $ip_address );
 					if ( isset( $v['post_title'] ) ) {
 						$contact_entry_title = $v['post_title'];
@@ -4935,7 +4941,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 					$update_entry_status = $final_entry_data['update_entry_status']['value'];
 					unset( $final_entry_data['update_entry_status'] );
 				}
-				$result = update_post_meta( $entry_id, '_super_contact_entry_data', $final_entry_data );
+				$result = SUPER_Data_Access::save_entry_data( $entry_id, $final_entry_data );
 
 				// Check if we prevent saving duplicate entry titles
 				// Return error message to user
@@ -4994,7 +5000,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 
 			$global_settings = SUPER_Common::get_global_settings();
 			if ( $settings['save_contact_entry'] == 'yes' ) {
-				add_post_meta( $contact_entry_id, '_super_contact_entry_data', $final_entry_data );
+				SUPER_Data_Access::save_entry_data( $contact_entry_id, $final_entry_data );
 				if ( ( isset( $global_settings['backend_contact_entry_list_ip'] ) ) && ( $global_settings['backend_contact_entry_list_ip'] == 'true' ) ) {
 					add_post_meta( $contact_entry_id, '_super_contact_entry_ip', SUPER_Common::real_ip() );
 				}
@@ -5837,7 +5843,10 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 
 				if ( $entry ) {
 					// Get entry data from post meta
-					$entry_data = get_post_meta( $entry->ID, '_super_contact_entry_data', true );
+					$entry_data = SUPER_Data_Access::get_entry_data( $entry->ID );
+				if ( is_wp_error( $entry_data ) ) {
+					$entry_data = array();
+				}
 					if ( is_array( $entry_data ) ) {
 						$data = $entry_data;
 					}

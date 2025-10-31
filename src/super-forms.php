@@ -1065,7 +1065,10 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 						wp_delete_attachment( $attachment->ID, true );
 					}
 					// Must also delete private uploaded files (if any)
-					$contact_entry_data = get_post_meta( $post_id, '_super_contact_entry_data', true );
+					$contact_entry_data = SUPER_Data_Access::get_entry_data( $post_id );
+				if ( is_wp_error( $contact_entry_data ) ) {
+					$contact_entry_data = array();
+				}
 					if ( is_array( $contact_entry_data ) ) {
 						foreach ( $contact_entry_data as $k => $v ) {
 							if ( isset( $v['type'] ) && ( $v['type'] == 'files' ) ) {
@@ -2156,7 +2159,10 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 			return $columns;
 		}
 		public function super_custom_columns( $column, $post_id ) {
-			$contact_entry_data = get_post_meta( $post_id, '_super_contact_entry_data' );
+			$contact_entry_data = SUPER_Data_Access::get_entry_data( $post_id );
+		if ( is_wp_error( $contact_entry_data ) ) {
+			$contact_entry_data = array();
+		}
 			if ( $column == 'hidden_form_id' ) {
 				if ( isset( $contact_entry_data[0][ $column ] ) ) {
 					$form_id = $contact_entry_data[0][ $column ]['value'];
@@ -3179,8 +3185,11 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 				$sql_query .= implode( ' UNION ALL ', $sql_query_sel );
 				$wpdb->query( $sql_query );
 			}
-			$entry_data = get_post_meta( $id, '_super_contact_entry_data', true );
-			add_post_meta( $new_id, '_super_contact_entry_data', $entry_data );
+			$entry_data = SUPER_Data_Access::get_entry_data( $id );
+			if ( is_wp_error( $entry_data ) ) {
+				$entry_data = array();
+			}
+			SUPER_Data_Access::save_entry_data( $new_id, $entry_data );
 
 			$entry_ip = get_post_meta( $id, '_super_contact_entry_ip', true );
 			add_post_meta( $new_id, '_super_contact_entry_ip', $entry_ip );

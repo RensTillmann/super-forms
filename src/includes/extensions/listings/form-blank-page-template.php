@@ -104,7 +104,10 @@ if ( isset( $_POST['action'] ) && isset( $_POST['entry_id'] ) && isset( $_POST['
 				$entry_title  = get_the_title( $entry_id );
 				$entry_date   = get_the_time( 'Y-m-d @ H:i:s', $entry_id );
 				$list         = SUPER_Listings::get_default_listings_settings( array( 'list' => $lists[ $list_id ] ) );
-				$data         = get_post_meta( $entry_id, '_super_contact_entry_data', true );
+				$data = SUPER_Data_Access::get_entry_data( $entry_id );
+			if ( is_wp_error( $data ) ) {
+				$data = array();
+			}
 				$loops        = SUPER_Common::retrieve_email_loop_html(
 					array(
 						'listing_loop' => $listing_loop,
@@ -139,7 +142,10 @@ $return = array(
 );
 if ( $_POST['action'] === 'super_listings_edit_entry' ) {
 	// JS injection to populate form with entry data
-	$entry_data = get_post_meta( $entry_id, '_super_contact_entry_data', true );
+	$entry_data = SUPER_Data_Access::get_entry_data( $entry_id );
+	if ( is_wp_error( $entry_data ) ) {
+		$entry_data = array();
+	}
 	if ( isset( $entry_data ) ) {
 		if ( absint( $form_id ) !== 0 && ! empty( $entry_data ) && is_array( $entry_data ) && count( $entry_data ) !== 0 ) {
 			$return['entry_data'] = $entry_data;

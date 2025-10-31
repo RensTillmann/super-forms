@@ -234,7 +234,10 @@ if ( ! class_exists( 'SUPER_Frontend_Posting' ) ) :
 			if ( isset( $atts['data'] ) ) {
 				$data = $atts['data'];
 			} elseif ( $settings['save_contact_entry'] == 'yes' ) {
-					$data = get_post_meta( $atts['entry_id'], '_super_contact_entry_data', true );
+					$data = SUPER_Data_Access::get_entry_data( $atts['entry_id'] );
+				if ( is_wp_error( $data ) ) {
+					$data = array();
+				}
 			} else {
 				$data = $atts['post']['data'];
 			}

@@ -2496,7 +2496,10 @@ if ( ! class_exists( 'SUPER_Pages' ) ) :
 				$ip              = get_post_meta( $entry_id, '_super_contact_entry_ip', true );
 				$entry_status    = get_post_meta( $entry_id, '_super_contact_entry_status', true );
 				$global_settings = SUPER_Common::get_global_settings();
-				$data            = get_post_meta( $_GET['id'], '_super_contact_entry_data', true );
+				$data = SUPER_Data_Access::get_entry_data( $_GET['id'] );
+			if ( is_wp_error( $data ) ) {
+				$data = array();
+			}
 				if ( is_array( $data ) ) {
 					foreach ( $data as $k => $v ) {
 						if ( ( isset( $v['type'] ) ) && (

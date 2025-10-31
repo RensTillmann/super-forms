@@ -4291,7 +4291,10 @@ if ( ! class_exists( 'SUPER_Shortcodes' ) ) :
 					}
 					$entry = $wpdb->get_row( "SELECT ID FROM $table WHERE $query AND post_status IN ('publish','super_unread','super_read') AND post_type = 'super_contact_entry'" );
 					if ( $entry ) {
-						$data = get_post_meta( $entry->ID, '_super_contact_entry_data', true );
+						$data = SUPER_Data_Access::get_entry_data( $entry->ID );
+					if ( is_wp_error( $data ) ) {
+						$data = array();
+					}
 						unset( $data['hidden_form_id'] );
 						$skip_fields = explode( '|', $skip );
 						foreach ( $skip_fields as $field_name ) {
@@ -7654,7 +7657,10 @@ if ( ! class_exists( 'SUPER_Shortcodes' ) ) :
 						$allowEditOwn = $allow['allowEditOwn'];
 						if ( $allowEditAny || $allowEditOwn ) {
 							// Allow edit
-							$entry_data       = get_post_meta( $entry_id, '_super_contact_entry_data', true );
+							$entry_data = SUPER_Data_Access::get_entry_data( $entry_id );
+						if ( is_wp_error( $entry_data ) ) {
+							$entry_data = array();
+						}
 							$contact_entry_id = $entry_id;
 						} else {
 							$result = '<strong>' . esc_html__( 'Error', 'super-forms' ) . ':</strong> ' . esc_html__( 'No permission to edit this entry', 'super-forms' );
@@ -7791,12 +7797,18 @@ if ( ! class_exists( 'SUPER_Shortcodes' ) ) :
 				if ( $contact_entry_id != 0 ) {
 					// If Admin, we are allowed to access this data directly
 					if ( current_user_can( 'administrator' ) ) {
-						$entry_data = get_post_meta( $contact_entry_id, '_super_contact_entry_data', true );
+						$entry_data = SUPER_Data_Access::get_entry_data( $contact_entry_id );
+					if ( is_wp_error( $entry_data ) ) {
+						$entry_data = array();
+					}
 					} else {
 						// User must be logged in to access this data, or transient with entry ID should be available
 						$authenticated_entry_id = get_transient( 'super_form_authenticated_entry_id_' . $contact_entry_id );
 						if ( $authenticated_entry_id !== false ) {
-							$entry_data = get_post_meta( $authenticated_entry_id, '_super_contact_entry_data', true );
+							$entry_data = SUPER_Data_Access::get_entry_data( $authenticated_entry_id );
+							if ( is_wp_error( $entry_data ) ) {
+								$entry_data = array();
+							}
 							delete_transient( 'super_form_authenticated_entry_id_' . $contact_entry_id );
 						} else {
 							$current_user_id = get_current_user_id();
@@ -7824,7 +7836,10 @@ if ( ! class_exists( 'SUPER_Shortcodes' ) ) :
                             LIMIT 1"
 								);
 								if ( isset( $entry[0] ) ) {
-									$entry_data       = get_post_meta( $entry[0]->ID, '_super_contact_entry_data', true );
+									$entry_data = SUPER_Data_Access::get_entry_data( $entry[0]->ID );
+									if ( is_wp_error( $entry_data ) ) {
+										$entry_data = array();
+									}
 									$contact_entry_id = $entry[0]->ID;
 								}
 							}
@@ -7864,7 +7879,10 @@ if ( ! class_exists( 'SUPER_Shortcodes' ) ) :
 								if ( ! empty( $settings['update_contact_entry'] ) ) {
 									$contact_entry_id = absint( $entry[0]->ID );
 								}
-								$entry_data = get_post_meta( $entry[0]->ID, '_super_contact_entry_data', true );
+								$entry_data = SUPER_Data_Access::get_entry_data( $entry[0]->ID );
+								if ( is_wp_error( $entry_data ) ) {
+									$entry_data = array();
+								}
 							}
 						}
 					}

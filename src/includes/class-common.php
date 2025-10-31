@@ -5029,7 +5029,10 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
             WHERE meta_key = '_super_contact_entry_wc_order_id' 
             AND meta_value = '" . absint( $order_id ) . "'"
 			);
-			$data             = get_post_meta( absint( $contact_entry_id ), '_super_contact_entry_data', true );
+			$data = SUPER_Data_Access::get_entry_data( absint( $contact_entry_id ) );
+		if ( is_wp_error( $data ) ) {
+			$data = array();
+		}
 			if ( ! empty( $data ) ) {
 				unset( $data['hidden_form_id'] );
 				$data['hidden_contact_entry_id']     = array(
