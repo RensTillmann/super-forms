@@ -13,6 +13,7 @@ description: Tasks related to database structure, data storage, performance opti
 - `h-implement-eav-contact-entry-storage/` - Implement EAV storage migration with backwards compatibility, 30-60x performance improvement, and zero-downtime migration strategy
 
 ### Medium Priority
+- `m-refactor-eav-migration-status-cache.md` - Cache EAV migration status to eliminate redundant get_option() calls across multiple methods
 
 ### Low Priority
 
