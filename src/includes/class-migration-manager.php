@@ -21,7 +21,7 @@ class SUPER_Migration_Manager {
      * Batch size for processing entries
      * @var int
      */
-    const BATCH_SIZE = 1000;
+    const BATCH_SIZE = 10;
 
     /**
      * Initialize migration (called once when user starts migration)
