@@ -335,6 +335,110 @@ class SUPER_Data_Access {
 
         return false;
     }
+
+    /**
+     * Bulk fetch entry data for multiple entries (optimized for list views)
+     *
+     * Fetches data for multiple entries in a single query to avoid N+1 problem.
+     * Returns data indexed by entry_id for easy lookup.
+     *
+     * @since 6.0.0
+     * @param array $entry_ids Array of entry IDs to fetch
+     * @return array Entry data indexed by entry_id
+     */
+    public static function get_bulk_entry_data($entry_ids) {
+        if (empty($entry_ids) || !is_array($entry_ids)) {
+            return array();
+        }
+
+        // Sanitize entry IDs
+        $entry_ids = array_map('absint', $entry_ids);
+        $entry_ids = array_filter($entry_ids);
+
+        if (empty($entry_ids)) {
+            return array();
+        }
+
+        $migration = get_option('superforms_eav_migration');
+
+        // Determine storage method
+        $use_eav = false;
+        if (!empty($migration) && $migration['status'] === 'completed') {
+            $use_eav = ($migration['using_storage'] === 'eav');
+        }
+
+        $results = array();
+
+        if ($use_eav) {
+            // Fetch from EAV tables using single query
+            global $wpdb;
+            $table = $wpdb->prefix . 'superforms_entry_data';
+            $ids_placeholder = implode(',', array_fill(0, count($entry_ids), '%d'));
+
+            $query = "SELECT entry_id, field_name, field_value, field_type, field_label
+                      FROM $table
+                      WHERE entry_id IN ($ids_placeholder)
+                      ORDER BY entry_id, field_name";
+
+            $rows = $wpdb->get_results($wpdb->prepare($query, $entry_ids));
+
+            // Group by entry_id
+            foreach ($rows as $row) {
+                if (!isset($results[$row->entry_id])) {
+                    $results[$row->entry_id] = array();
+                }
+
+                $field_value = $row->field_value;
+
+                // Decode JSON for repeater fields
+                if (strpos($row->field_name, '[') !== false || self::looks_like_json($field_value)) {
+                    $decoded = json_decode($field_value, true);
+                    if ($decoded !== null) {
+                        $field_value = $decoded;
+                    }
+                }
+
+                $results[$row->entry_id][$row->field_name] = array(
+                    'value' => $field_value,
+                    'type' => $row->field_type,
+                    'label' => $row->field_label,
+                );
+            }
+
+            // Fallback to serialized for entries with no EAV data
+            foreach ($entry_ids as $entry_id) {
+                if (!isset($results[$entry_id])) {
+                    $serialized = self::get_from_serialized($entry_id);
+                    if (!empty($serialized)) {
+                        $results[$entry_id] = $serialized;
+                    }
+                }
+            }
+        } else {
+            // Fetch from serialized (pre-migration or rolled back)
+            foreach ($entry_ids as $entry_id) {
+                $data = self::get_from_serialized($entry_id);
+                if (!empty($data)) {
+                    $results[$entry_id] = $data;
+                }
+            }
+        }
+
+        return $results;
+    }
+
+    /**
+     * Check if string looks like JSON
+     *
+     * @param string $value Value to check
+     * @return bool True if looks like JSON
+     */
+    private static function looks_like_json($value) {
+        if (!is_string($value)) {
+            return false;
+        }
+        return (strpos($value, '{') === 0 || strpos($value, '[') === 0);
+    }
 }
 
 endif;

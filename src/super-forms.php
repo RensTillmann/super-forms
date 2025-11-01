@@ -2150,6 +2150,7 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 				add_filter( 'manage_super_contact_entry_posts_columns', array( $this, 'super_contact_entry_columns' ), 999999 );
 				add_filter( 'manage_super_form_posts_columns', array( $this, 'super_form_columns' ), 999999 );
 				add_action( 'manage_super_contact_entry_posts_custom_column', array( $this, 'super_custom_columns' ), 10, 2 );
+			add_filter( 'the_posts', array( $this, 'bulk_fetch_entry_data' ), 10, 2 );
 				add_filter( 'post_row_actions', array( $this, 'super_remove_row_actions' ), 10, 1 );
 				add_filter( 'get_edit_post_link', array( $this, 'edit_post_link' ), 99, 3 );
 				add_action( 'bulk_edit_custom_box', array( $this, 'display_custom_quickedit_super_contact_entry' ), 10, 2 );
@@ -2212,12 +2213,67 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 				}
 			}
 			return $columns;
+	}
+
+	/**
+	 * Bulk fetch entry data for contact entries list (performance optimization)
+	 *
+	 * Pre-fetches all entry data in a single query to avoid N+1 problem
+	 * when displaying contact entries list.
+	 *
+	 * @since 6.0.0
+	 * @param array    $posts Array of post objects
+	 * @param WP_Query $query Query object
+	 * @return array Modified posts array
+	 */
+	public function bulk_fetch_entry_data( $posts, $query ) {
+		// Only run on contact entry list pages in admin
+		if ( ! is_admin() || empty( $posts ) ) {
+			return $posts;
 		}
-		public function super_custom_columns( $column, $post_id ) {
-			$contact_entry_data = SUPER_Data_Access::get_entry_data( $post_id );
-		if ( is_wp_error( $contact_entry_data ) ) {
-			$contact_entry_data = array();
+
+		// Check if this is a contact entry query
+		$is_contact_entry_query = false;
+		foreach ( $posts as $post ) {
+			if ( $post->post_type === 'super_contact_entry' ) {
+				$is_contact_entry_query = true;
+				break;
+			}
 		}
+
+		if ( ! $is_contact_entry_query ) {
+			return $posts;
+		}
+
+		// Extract entry IDs
+		$entry_ids = array();
+		foreach ( $posts as $post ) {
+			if ( $post->post_type === 'super_contact_entry' ) {
+				$entry_ids[] = $post->ID;
+			}
+		}
+
+		// Bulk fetch all entry data
+		$bulk_data = SUPER_Data_Access::get_bulk_entry_data( $entry_ids );
+
+		// Cache data in global for use by super_custom_columns
+		$GLOBALS['super_bulk_entry_data'] = $bulk_data;
+
+		return $posts;
+	}
+
+	public function super_custom_columns( $column, $post_id ) {
+			// Check if we have bulk-fetched data in cache (performance optimization)
+			if ( isset( $GLOBALS['super_bulk_entry_data'][ $post_id ] ) ) {
+				// Use pre-fetched data from bulk query
+				$contact_entry_data = array( $GLOBALS['super_bulk_entry_data'][ $post_id ] );
+			} else {
+				// Fallback to individual fetch if not in cache
+				$contact_entry_data = SUPER_Data_Access::get_entry_data( $post_id );
+				if ( is_wp_error( $contact_entry_data ) ) {
+					$contact_entry_data = array();
+				}
+			}
 			if ( $column == 'hidden_form_id' ) {
 				if ( isset( $contact_entry_data[0][ $column ] ) ) {
 					$form_id = $contact_entry_data[0][ $column ]['value'];
