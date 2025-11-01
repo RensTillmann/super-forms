@@ -2468,6 +2468,16 @@ if ( ! class_exists( 'SUPER_Pages' ) ) :
 		}
 
 
+	/**
+	 * EAV Migration Control Page
+	 *
+	 * @since 6.0.0
+	 */
+	public static function migration() {
+		include_once SUPER_PLUGIN_DIR . '/includes/admin/views/page-migration.php';
+	}
+
+
 		/**
 		 * List of all the contact entries
 		 */

@@ -59,6 +59,14 @@ if ( ! class_exists( 'SUPER_Menu' ) ) :
 				'super_settings',
 				'SUPER_Pages::settings'
 			);
+		add_submenu_page(
+			'super_forms',
+			esc_html__( 'Migration', 'super-forms' ),
+			esc_html__( 'Migration', 'super-forms' ),
+			'manage_options',
+			'super_migration',
+			'SUPER_Pages::migration'
+		);
 			add_submenu_page(
 				'super_forms',
 				esc_html__( 'Contact Entries', 'super-forms' ),
