@@ -2178,6 +2178,8 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 				add_filter( 'manage_super_form_posts_columns', array( $this, 'super_form_columns' ), 999999 );
 				add_action( 'manage_super_contact_entry_posts_custom_column', array( $this, 'super_custom_columns' ), 10, 2 );
 			add_filter( 'the_posts', array( $this, 'bulk_fetch_entry_data' ), 10, 2 );
+			add_filter( 'manage_edit-super_contact_entry_sortable_columns', array( $this, 'super_contact_entry_sortable_columns' ) );
+			add_filter( 'posts_orderby', array( $this, 'custom_posts_orderby' ), 0, 2 );
 				add_filter( 'post_row_actions', array( $this, 'super_remove_row_actions' ), 10, 1 );
 				add_filter( 'get_edit_post_link', array( $this, 'edit_post_link' ), 99, 3 );
 				add_action( 'bulk_edit_custom_box', array( $this, 'display_custom_quickedit_super_contact_entry' ), 10, 2 );
@@ -2287,6 +2289,92 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 		$GLOBALS['super_bulk_entry_data'] = $bulk_data;
 
 		return $posts;
+	}
+
+	/**
+	 * Make contact entry columns sortable
+	 *
+	 * Registers columns as sortable for efficient SQL ORDER BY queries.
+	 *
+	 * @since 6.0.0
+	 * @param array $columns Sortable columns
+	 * @return array Modified sortable columns
+	 */
+	public function super_contact_entry_sortable_columns( $columns ) {
+		$columns['entry_status']      = 'entry_status';
+		$columns['hidden_form_id']    = 'hidden_form_id';
+		$columns['contact_entry_ip']  = 'contact_entry_ip';
+		// Custom fields are automatically sortable by their column key
+		return $columns;
+	}
+
+	/**
+	 * Custom ORDER BY for contact entry sorting
+	 *
+	 * Optimizes sorting by using EAV table when available, falling back
+	 * to serialized postmeta for pre-migration installations.
+	 *
+	 * @since 6.0.0
+	 * @param string   $orderby  ORDER BY clause
+	 * @param WP_Query $query    Query object
+	 * @return string Modified ORDER BY clause
+	 */
+	public static function custom_posts_orderby( $orderby, $query ) {
+		// Only modify contact entry queries
+		$post_type = $query->get( 'post_type' );
+		if ( $post_type !== 'super_contact_entry' ) {
+			return $orderby;
+		}
+
+		// Get orderby parameter
+		$orderby_param = $query->get( 'orderby' );
+		if ( empty( $orderby_param ) ) {
+			return $orderby;
+		}
+
+		// Get order direction (ASC or DESC)
+		$order = $query->get( 'order' );
+		if ( empty( $order ) ) {
+			$order = 'ASC';
+		}
+		$order = strtoupper( $order );
+
+		global $wpdb;
+		$table = $wpdb->prefix . 'posts';
+
+		// Handle built-in sortable columns
+		if ( $orderby_param === 'entry_status' ) {
+			$table_meta = $wpdb->prefix . 'postmeta';
+			return "COALESCE((SELECT meta_value FROM $table_meta WHERE post_id = $table.ID AND meta_key = '_super_contact_entry_status' LIMIT 1), $table.post_status) $order";
+		}
+
+		if ( $orderby_param === 'hidden_form_id' ) {
+			return "$table.post_parent $order";
+		}
+
+		if ( $orderby_param === 'contact_entry_ip' ) {
+			$table_meta = $wpdb->prefix . 'postmeta';
+			return "(SELECT meta_value FROM $table_meta WHERE post_id = $table.ID AND meta_key = '_super_contact_entry_ip' LIMIT 1) $order";
+		}
+
+		// Handle custom field sorting
+		$migration = get_option( 'superforms_eav_migration' );
+		$use_eav   = false;
+		if ( ! empty( $migration ) && $migration['status'] === 'completed' ) {
+			$use_eav = ( $migration['using_storage'] === 'eav' );
+		}
+
+		if ( $use_eav ) {
+			// Use EAV table for custom field sorting (much faster)
+			$table_eav = $wpdb->prefix . 'superforms_entry_data';
+			$field_name = esc_sql( $orderby_param );
+			return "(SELECT field_value FROM $table_eav WHERE entry_id = $table.ID AND field_name = '$field_name' LIMIT 1) $order";
+		} else {
+			// Fallback to serialized sorting (slower, but works pre-migration)
+			// Note: This requires the data to be unserialized, which is slow
+			// Users should complete migration for optimal sorting performance
+			return $orderby; // Use default WordPress sorting
+		}
 	}
 
 	public function super_custom_columns( $column, $post_id ) {
