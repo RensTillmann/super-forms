@@ -108,6 +108,12 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 
 				'send_test_email'               => false, // Send test email from form builder
 
+
+			// EAV Migration handlers
+			'migration_start'               => false, // @since 6.0.0 - Start EAV migration
+			'migration_process_batch'       => false, // @since 6.0.0 - Process migration batch
+			'migration_get_status'          => false, // @since 6.0.0 - Get migration status
+			'migration_rollback'            => false, // @since 6.0.0 - Rollback to serialized
 			);
 			foreach ( $ajax_events as $ajax_event => $nopriv ) {
 				add_action( 'wp_ajax_super_' . $ajax_event, array( __CLASS__, $ajax_event ) );
@@ -6220,6 +6226,90 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 
 			return array( 'data' => $data );
 		}
+
+	/**
+	 * Start EAV migration
+	 *
+	 * @since 6.0.0
+	 */
+	public static function migration_start() {
+		// Check permissions
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'You do not have permission to start migration', 'super-forms' ) ) );
+		}
+
+		// Start the migration
+		$result = SUPER_Migration_Manager::start_migration();
+
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+		}
+
+		wp_send_json_success( $result );
+	}
+
+	/**
+	 * Process migration batch
+	 *
+	 * @since 6.0.0
+	 */
+	public static function migration_process_batch() {
+		// Check permissions
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'You do not have permission to process migration', 'super-forms' ) ) );
+		}
+
+		// Process a batch
+		$result = SUPER_Migration_Manager::process_batch();
+
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+		}
+
+		wp_send_json_success( $result );
+	}
+
+	/**
+	 * Get migration status
+	 *
+	 * @since 6.0.0
+	 */
+	public static function migration_get_status() {
+		// Check permissions
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'You do not have permission to view migration status', 'super-forms' ) ) );
+		}
+
+		// Get status
+		$status = SUPER_Migration_Manager::get_migration_status();
+
+		if ( empty( $status ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'No migration status found', 'super-forms' ) ) );
+		}
+
+		wp_send_json_success( $status );
+	}
+
+	/**
+	 * Rollback migration to serialized storage
+	 *
+	 * @since 6.0.0
+	 */
+	public static function migration_rollback() {
+		// Check permissions
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'You do not have permission to rollback migration', 'super-forms' ) ) );
+		}
+
+		// Rollback
+		$result = SUPER_Migration_Manager::rollback_migration();
+
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+		}
+
+		wp_send_json_success( $result );
+	}
 	}
 endif;
 SUPER_Ajax::init();

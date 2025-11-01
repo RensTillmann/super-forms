@@ -235,6 +235,7 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 
 			include_once 'includes/class-common.php';
 		include_once 'includes/class-data-access.php';
+	include_once 'includes/class-migration-manager.php';
 
 			if ( $this->is_request( 'admin' ) ) {
 				include_once 'includes/class-install.php';
