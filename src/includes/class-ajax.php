@@ -1325,33 +1325,52 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			}
 			$order_by_filter = "entry.post_date $order_by";
 
-			global $wpdb;
-			$table      = $wpdb->prefix . 'posts';
-			$table_meta = $wpdb->prefix . 'postmeta';
-			$entries    = $wpdb->get_results(
-				"
-        SELECT ID, post_title, post_date, post_author, post_status, meta.meta_value AS data
+		global $wpdb;
+		$table      = $wpdb->prefix . 'posts';
+		$table_meta = $wpdb->prefix . 'postmeta';
+
+		// Check if using EAV storage for optimized export
+		$migration = get_option( 'superforms_eav_migration' );
+		$use_eav   = false;
+		if ( ! empty( $migration ) && $migration['status'] === 'completed' ) {
+			$use_eav = ( $migration['using_storage'] === 'eav' );
+		}
+
+		// First, get entry IDs and basic post data (no serialized data)
+		$entries    = $wpdb->get_results(
+			"
+        SELECT ID, post_title, post_date, post_author, post_status
         FROM $table AS entry
-        INNER JOIN $table_meta AS meta ON meta.post_id = entry.ID  AND meta.meta_key = '_super_contact_entry_data'
         WHERE entry.post_status IN ('publish','super_unread','super_read') AND entry.post_type = 'super_contact_entry' AND entry.ID IN ($query)
         ORDER BY $order_by_filter"
-			);
+		);
 
-			foreach ( $entries as $k => $v ) {
-				$data                               = unserialize( $v->data );
-				$data['entry_id']['value']          = $v->ID;
-				$data['entry_title']['value']       = $v->post_title;
-				$data['entry_date']['value']        = $v->post_date;
-				$data['entry_author']['value']      = $v->post_author;
-				$data['entry_status']['value']      = $v->post_status;
-				$data['entry_ip']['value']          = get_post_meta( $v->ID, '_super_contact_entry_ip', true );
-				$data['entry_wc_order_id']['value'] = get_post_meta( $v->ID, '_super_contact_entry_wc_order_id', true );
+		// Extract entry IDs for bulk fetching
+		$entry_ids = array();
+		foreach ( $entries as $entry ) {
+			$entry_ids[] = $entry->ID;
+		}
 
-				// @since 3.4.0 - custom entry status
-				$data['entry_custom_status']['value'] = get_post_meta( $v->ID, '_super_contact_entry_status', true );
+		// Bulk fetch entry data using optimized method
+		$bulk_data = SUPER_Data_Access::get_bulk_entry_data( $entry_ids );
 
-				$entries[ $k ] = $data;
-			}
+		foreach ( $entries as $k => $v ) {
+			// Get entry data from bulk fetch
+			$data = isset( $bulk_data[ $v->ID ] ) ? $bulk_data[ $v->ID ] : array();
+
+			$data['entry_id']['value']          = $v->ID;
+			$data['entry_title']['value']       = $v->post_title;
+			$data['entry_date']['value']        = $v->post_date;
+			$data['entry_author']['value']      = $v->post_author;
+			$data['entry_status']['value']      = $v->post_status;
+			$data['entry_ip']['value']          = get_post_meta( $v->ID, '_super_contact_entry_ip', true );
+			$data['entry_wc_order_id']['value'] = get_post_meta( $v->ID, '_super_contact_entry_wc_order_id', true );
+
+			// @since 3.4.0 - custom entry status
+			$data['entry_custom_status']['value'] = get_post_meta( $v->ID, '_super_contact_entry_status', true );
+
+			$entries[ $k ] = $data;
+		}
 			// Filter to alter for instance the "entry_date" format from 19:00 to 06:00 Pm
 			$entries = apply_filters( 'super_export_selected_entries_filter', $entries );
 
@@ -2205,53 +2224,81 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				$till        = date_i18n( 'Y-m-d', strtotime( $till ) );
 				$range_query = " AND ((entry.post_date LIKE '$from%' OR entry.post_date LIKE '$till%') OR (entry.post_date BETWEEN '$from' AND '$till'))";
 			}
-			$table      = $wpdb->prefix . 'posts';
-			$table_meta = $wpdb->prefix . 'postmeta';
-			$entries    = $wpdb->get_results(
-				"SELECT ID, post_title, post_date, post_author, post_status, meta.meta_value AS data
+		$table      = $wpdb->prefix . 'posts';
+		$table_meta = $wpdb->prefix . 'postmeta';
+
+		// Check if using EAV storage for optimized export
+		$migration = get_option( 'superforms_eav_migration' );
+		$use_eav   = false;
+		if ( ! empty( $migration ) && $migration['status'] === 'completed' ) {
+			$use_eav = ( $migration['using_storage'] === 'eav' );
+		}
+
+		// First, get entry IDs and basic post data (no serialized data yet)
+		$entries    = $wpdb->get_results(
+			"SELECT ID, post_title, post_date, post_author, post_status
         FROM $table AS entry
-        INNER JOIN $table_meta AS meta ON meta.post_id = entry.ID  AND meta.meta_key = '_super_contact_entry_data'
         WHERE entry.post_status IN ('publish','super_unread','super_read') AND entry.post_type = 'super_contact_entry' $form_filter $range_query
         ORDER BY $order_by_filter"
+		);
+
+		if ( empty( $entries ) ) {
+			SUPER_Common::output_message(
+				array(
+					'msg' => esc_html__( 'No entries found to export', 'super-forms' ),
+				)
 			);
+		}
 
-			$rows      = array();
-			$columns   = array();
-			$rows[0][] = 'entry_id';
-			$rows[0][] = 'entry_title';
-			$rows[0][] = 'entry_date';
-			$rows[0][] = 'entry_author';
-			$rows[0][] = 'entry_status';
-			$columns[] = 'entry_id';
-			$columns[] = 'entry_title';
-			$columns[] = 'entry_date';
-			$columns[] = 'entry_author';
-			$columns[] = 'entry_status';
-			foreach ( $entries as $k => $v ) {
-				$data = unserialize( $v->data );
-				foreach ( $data as $dk => $dv ) {
-					if ( ! in_array( $dk, $columns ) ) {
-						$columns[] = $dk;
-						$rows[0][] = $dk;
-					}
+		// Extract entry IDs for bulk fetching
+		$entry_ids = array();
+		foreach ( $entries as $entry ) {
+			$entry_ids[] = $entry->ID;
+		}
+
+		// Bulk fetch entry data using optimized method
+		$bulk_data = SUPER_Data_Access::get_bulk_entry_data( $entry_ids );
+
+		$rows      = array();
+		$columns   = array();
+		$rows[0][] = 'entry_id';
+		$rows[0][] = 'entry_title';
+		$rows[0][] = 'entry_date';
+		$rows[0][] = 'entry_author';
+		$rows[0][] = 'entry_status';
+		$columns[] = 'entry_id';
+		$columns[] = 'entry_title';
+		$columns[] = 'entry_date';
+		$columns[] = 'entry_author';
+		$columns[] = 'entry_status';
+
+		foreach ( $entries as $k => $v ) {
+			// Get entry data from bulk fetch
+			$data = isset( $bulk_data[ $v->ID ] ) ? $bulk_data[ $v->ID ] : array();
+
+			foreach ( $data as $dk => $dv ) {
+				if ( ! in_array( $dk, $columns ) ) {
+					$columns[] = $dk;
+					$rows[0][] = $dk;
 				}
-				$data['entry_id']['value']          = $v->ID;
-				$data['entry_title']['value']       = $v->post_title;
-				$data['entry_date']['value']        = $v->post_date;
-				$data['entry_author']['value']      = $v->post_author;
-				$data['entry_status']['value']      = $v->post_status;
-				$data['entry_ip']['value']          = get_post_meta( $v->ID, '_super_contact_entry_ip', true );
-				$data['entry_wc_order_id']['value'] = get_post_meta( $v->ID, '_super_contact_entry_wc_order_id', true );
-
-				// @since 3.4.0 - custom entry status
-				$data['entry_custom_status']['value'] = get_post_meta( $v->ID, '_super_contact_entry_status', true );
-
-				$entries[ $k ] = $data;
 			}
-			$rows[0][] = 'entry_ip';
-			$columns[] = 'entry_ip';
-			$rows[0][] = 'entry_wc_order_id';
-			$columns[] = 'entry_wc_order_id';
+			$data['entry_id']['value']          = $v->ID;
+			$data['entry_title']['value']       = $v->post_title;
+			$data['entry_date']['value']        = $v->post_date;
+			$data['entry_author']['value']      = $v->post_author;
+			$data['entry_status']['value']      = $v->post_status;
+			$data['entry_ip']['value']          = get_post_meta( $v->ID, '_super_contact_entry_ip', true );
+			$data['entry_wc_order_id']['value'] = get_post_meta( $v->ID, '_super_contact_entry_wc_order_id', true );
+
+			// @since 3.4.0 - custom entry status
+			$data['entry_custom_status']['value'] = get_post_meta( $v->ID, '_super_contact_entry_status', true );
+
+			$entries[ $k ] = $data;
+		}
+		$rows[0][] = 'entry_ip';
+		$columns[] = 'entry_ip';
+		$rows[0][] = 'entry_wc_order_id';
+		$columns[] = 'entry_wc_order_id';
 
 			foreach ( $entries as $k => $v ) {
 				foreach ( $columns as $cv ) {
