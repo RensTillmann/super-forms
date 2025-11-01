@@ -131,6 +131,64 @@ $nonce            = wp_create_nonce( 'super-form-builder' );
 
 		<div class="super-migration-log"></div>
 	</div>
+
+	<?php if ( ! empty( $migration_status ) && $migration_status['status'] === 'completed' ) : ?>
+	<div class="super-validation-card">
+		<h2><?php echo esc_html__( 'Data Integrity Validation', 'super-forms' ); ?></h2>
+
+		<div class="sfui-notice sfui-blue">
+			<p><?php echo esc_html__( 'Validate that the migration was successful by comparing data in both storage methods. This checks for any data loss or corruption during the migration process.', 'super-forms' ); ?></p>
+		</div>
+
+		<div class="super-validation-status" style="display: none;">
+			<table class="widefat">
+				<tbody>
+					<tr>
+						<th><?php echo esc_html__( 'Validation Status', 'super-forms' ); ?>:</th>
+						<td><span class="super-validation-status-text">-</span></td>
+					</tr>
+					<tr>
+						<th><?php echo esc_html__( 'Entries Validated', 'super-forms' ); ?>:</th>
+						<td><span class="super-validation-processed">0</span> / <span class="super-validation-total">0</span></td>
+					</tr>
+					<tr>
+						<th><?php echo esc_html__( 'Valid Entries', 'super-forms' ); ?>:</th>
+						<td><span class="super-validation-valid">0</span></td>
+					</tr>
+					<tr>
+						<th><?php echo esc_html__( 'Invalid Entries', 'super-forms' ); ?>:</th>
+						<td><span class="super-validation-invalid">0</span></td>
+					</tr>
+					<tr class="super-validation-progress-row">
+						<th><?php echo esc_html__( 'Progress', 'super-forms' ); ?>:</th>
+						<td>
+							<div class="super-validation-progress-bar">
+								<div class="super-validation-progress-fill" style="width: 0%;"></div>
+							</div>
+							<span class="super-validation-progress-text">0%</span>
+						</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+
+		<div class="super-validation-controls">
+			<button type="button" class="button button-primary super-validation-start">
+				<?php echo esc_html__( 'Start Validation', 'super-forms' ); ?>
+			</button>
+			<button type="button" class="button button-secondary super-validation-stop" style="display: none;">
+				<?php echo esc_html__( 'Stop Validation', 'super-forms' ); ?>
+			</button>
+		</div>
+
+		<div class="super-validation-results" style="display: none;">
+			<h3><?php echo esc_html__( 'Validation Results', 'super-forms' ); ?></h3>
+			<div class="super-validation-results-content"></div>
+		</div>
+
+		<div class="super-validation-log"></div>
+	</div>
+	<?php endif; ?>
 </div>
 
 <input type="hidden" id="super-migration-nonce" value="<?php echo esc_attr( $nonce ); ?>" />
@@ -285,6 +343,135 @@ $nonce            = wp_create_nonce( 'super-form-builder' );
 }
 
 .super-migration-log-entry.success {
+	border-left-color: #00a32a;
+	background: #edfaef;
+}
+
+/* Validation Styles */
+.super-validation-card {
+	background: #fff;
+	border: 1px solid #ccd0d4;
+	padding: 20px;
+	margin: 20px 0;
+}
+
+.super-validation-card h2 {
+	margin-top: 0;
+	border-bottom: 1px solid #ccd0d4;
+	padding-bottom: 10px;
+}
+
+.super-validation-status {
+	margin: 20px 0;
+}
+
+.super-validation-status table {
+	margin: 20px 0;
+}
+
+.super-validation-status th {
+	width: 200px;
+	text-align: left;
+	font-weight: 600;
+}
+
+.super-validation-progress-bar {
+	width: 100%;
+	height: 30px;
+	background: #f0f0f1;
+	border-radius: 3px;
+	overflow: hidden;
+	margin: 5px 0;
+}
+
+.super-validation-progress-fill {
+	height: 100%;
+	background: linear-gradient(90deg, #00a32a 0%, #008a24 100%);
+	transition: width 0.3s ease;
+}
+
+.super-validation-progress-text {
+	display: inline-block;
+	font-weight: 600;
+	color: #00a32a;
+}
+
+.super-validation-controls {
+	margin: 20px 0;
+	text-align: center;
+}
+
+.super-validation-controls .button {
+	margin: 0 5px;
+}
+
+.super-validation-results {
+	margin: 20px 0;
+}
+
+.super-validation-results h3 {
+	margin-top: 20px;
+	font-size: 16px;
+	border-bottom: 1px solid #ccd0d4;
+	padding-bottom: 10px;
+}
+
+.super-validation-results-content {
+	margin: 15px 0;
+}
+
+.validation-error-item {
+	padding: 10px 15px;
+	margin: 10px 0;
+	background: #fcf0f1;
+	border-left: 4px solid #d63638;
+	border-radius: 3px;
+}
+
+.validation-error-item h4 {
+	margin: 0 0 8px 0;
+	color: #d63638;
+	font-size: 14px;
+}
+
+.validation-error-item ul {
+	margin: 5px 0 0 20px;
+	font-size: 13px;
+}
+
+.validation-error-item ul li {
+	margin: 3px 0;
+}
+
+.super-validation-log {
+	margin: 20px 0;
+	padding: 15px;
+	background: #f6f7f7;
+	border-radius: 3px;
+	max-height: 300px;
+	overflow-y: auto;
+	display: none;
+}
+
+.super-validation-log.active {
+	display: block;
+}
+
+.super-validation-log-entry {
+	margin: 5px 0;
+	padding: 8px 12px;
+	background: #fff;
+	border-left: 3px solid #00a32a;
+	font-family: monospace;
+	font-size: 13px;
+}
+
+.super-validation-log-entry.error {
+	border-left-color: #d63638;
+	background: #fcf0f1;
+}
+
+.super-validation-log-entry.success {
 	border-left-color: #00a32a;
 	background: #edfaef;
 }
@@ -451,6 +638,177 @@ jQuery(document).ready(function($) {
 				$('.super-migration-rollback').prop('disabled', false).text('<?php echo esc_js( __( 'Rollback to Serialized Storage', 'super-forms' ) ); ?>');
 			}
 		});
+	});
+
+	// Validation functionality
+	var validationRunning = false;
+	var validationStopped = false;
+
+	function addValidationLog(message, type) {
+		var $log = $('.super-validation-log');
+		var $entry = $('<div class="super-validation-log-entry ' + (type || '') + '"></div>').text(message);
+		$log.addClass('active').append($entry);
+		$log.scrollTop($log[0].scrollHeight);
+	}
+
+	function updateValidationProgress(processed, total, valid, invalid) {
+		var percentage = total > 0 ? Math.round((processed / total) * 100) : 0;
+
+		$('.super-validation-processed').text(processed.toLocaleString());
+		$('.super-validation-total').text(total.toLocaleString());
+		$('.super-validation-valid').text(valid.toLocaleString());
+		$('.super-validation-invalid').text(invalid.toLocaleString());
+		$('.super-validation-progress-fill').css('width', percentage + '%');
+		$('.super-validation-progress-text').text(percentage + '%');
+
+		if (processed === 0 && total === 0) {
+			$('.super-validation-status-text').html('<span class="sfui-badge sfui-grey"><?php echo esc_js( __( 'Not Started', 'super-forms' ) ); ?></span>');
+		} else if (processed < total) {
+			$('.super-validation-status-text').html('<span class="sfui-badge sfui-blue"><?php echo esc_js( __( 'Validating...', 'super-forms' ) ); ?></span>');
+		} else if (invalid === 0) {
+			$('.super-validation-status-text').html('<span class="sfui-badge sfui-green"><?php echo esc_js( __( 'All Valid', 'super-forms' ) ); ?></span>');
+		} else {
+			$('.super-validation-status-text').html('<span class="sfui-badge sfui-yellow"><?php echo esc_js( __( 'Validation Complete', 'super-forms' ) ); ?></span>');
+		}
+	}
+
+	function processValidationBatch(entryIds, offset, batchSize) {
+		if (validationStopped) {
+			validationRunning = false;
+			validationStopped = false;
+			$('.super-validation-start').prop('disabled', false).text('<?php echo esc_js( __( 'Start Validation', 'super-forms' ) ); ?>');
+			$('.super-validation-stop').hide();
+			addValidationLog('Validation stopped by user', 'error');
+			return;
+		}
+
+		var currentBatch = entryIds.slice(offset, offset + batchSize);
+
+		if (currentBatch.length === 0) {
+			validationRunning = false;
+			$('.super-validation-start').prop('disabled', false).text('<?php echo esc_js( __( 'Start Validation', 'super-forms' ) ); ?>');
+			$('.super-validation-stop').hide();
+			addValidationLog('Validation complete', 'success');
+			return;
+		}
+
+		$.ajax({
+			url: ajaxurl,
+			type: 'POST',
+			data: {
+				action: 'super_validate_entries',
+				security: migrationNonce,
+				entry_ids: currentBatch
+			},
+			success: function(response) {
+				if (response.success) {
+					var data = response.data;
+					var currentValid = parseInt($('.super-validation-valid').text().replace(/,/g, '')) + data.valid;
+					var currentInvalid = parseInt($('.super-validation-invalid').text().replace(/,/g, '')) + data.invalid;
+					var processed = offset + currentBatch.length;
+
+					updateValidationProgress(processed, entryIds.length, currentValid, currentInvalid);
+
+					addValidationLog('Validated ' + currentBatch.length + ' entries: ' + data.valid + ' valid, ' + data.invalid + ' invalid', data.invalid > 0 ? 'error' : 'success');
+
+					// Display errors if any
+					if (data.invalid > 0 && data.errors) {
+						$('.super-validation-results').show();
+						var $content = $('.super-validation-results-content');
+
+						Object.keys(data.errors).forEach(function(entryId) {
+							var error = data.errors[entryId];
+							var $errorItem = $('<div class="validation-error-item"></div>');
+							$errorItem.append('<h4>Entry ID: ' + entryId + ' - ' + error.error + '</h4>');
+
+							if (error.mismatches && error.mismatches.length > 0) {
+								var $list = $('<ul></ul>');
+								error.mismatches.forEach(function(mismatch) {
+									var listItem = '<strong>' + mismatch.field + '</strong>: ' + mismatch.issue;
+									if (mismatch.serialized_value) {
+										listItem += ' (Serialized: ' + mismatch.serialized_value + ' | EAV: ' + mismatch.eav_value + ')';
+									}
+									$list.append('<li>' + listItem + '</li>');
+								});
+								$errorItem.append($list);
+							} else if (error.missing_fields) {
+								$errorItem.append('<p>' + error.missing_fields + ' fields missing in EAV</p>');
+							} else if (error.extra_fields) {
+								$errorItem.append('<p>' + error.extra_fields + ' extra fields in EAV</p>');
+							}
+
+							$content.append($errorItem);
+						});
+					}
+
+					// Continue with next batch
+					processValidationBatch(entryIds, offset + batchSize, batchSize);
+				} else {
+					addValidationLog('Error during validation: ' + (response.data && response.data.message ? response.data.message : 'Unknown error'), 'error');
+					validationRunning = false;
+					$('.super-validation-start').prop('disabled', false).text('<?php echo esc_js( __( 'Start Validation', 'super-forms' ) ); ?>');
+					$('.super-validation-stop').hide();
+				}
+			},
+			error: function() {
+				addValidationLog('AJAX error occurred', 'error');
+				validationRunning = false;
+				$('.super-validation-start').prop('disabled', false).text('<?php echo esc_js( __( 'Start Validation', 'super-forms' ) ); ?>');
+				$('.super-validation-stop').hide();
+			}
+		});
+	}
+
+	$('.super-validation-start').on('click', function() {
+		if (validationRunning) {
+			return;
+		}
+
+		$(this).prop('disabled', true).text('<?php echo esc_js( __( 'Starting...', 'super-forms' ) ); ?>');
+
+		// Reset UI
+		$('.super-validation-status').show();
+		$('.super-validation-results').hide();
+		$('.super-validation-results-content').empty();
+		$('.super-validation-log').empty();
+		validationStopped = false;
+		updateValidationProgress(0, 0, 0, 0);
+
+		// Get all entry IDs
+		$.ajax({
+			url: ajaxurl,
+			type: 'POST',
+			data: {
+				action: 'super_get_entry_ids',
+				security: migrationNonce
+			},
+			success: function(response) {
+				if (response.success && response.data.entry_ids) {
+					addValidationLog('Starting validation of ' + response.data.entry_ids.length + ' entries', 'success');
+					validationRunning = true;
+					$('.super-validation-start').text('<?php echo esc_js( __( 'Validating...', 'super-forms' ) ); ?>');
+					$('.super-validation-stop').show();
+					updateValidationProgress(0, response.data.entry_ids.length, 0, 0);
+					processValidationBatch(response.data.entry_ids, 0, 50); // Process 50 entries per batch
+				} else {
+					addValidationLog('Error: ' + (response.data && response.data.message ? response.data.message : 'No entries found'), 'error');
+					$('.super-validation-start').prop('disabled', false).text('<?php echo esc_js( __( 'Start Validation', 'super-forms' ) ); ?>');
+				}
+			},
+			error: function() {
+				addValidationLog('AJAX error occurred', 'error');
+				$('.super-validation-start').prop('disabled', false).text('<?php echo esc_js( __( 'Start Validation', 'super-forms' ) ); ?>');
+			}
+		});
+	});
+
+	$('.super-validation-stop').on('click', function() {
+		if (!validationRunning) {
+			return;
+		}
+
+		validationStopped = true;
+		$(this).prop('disabled', true).text('<?php echo esc_js( __( 'Stopping...', 'super-forms' ) ); ?>');
 	});
 });
 </script>

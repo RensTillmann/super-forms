@@ -114,6 +114,10 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			'migration_process_batch'       => false, // @since 6.0.0 - Process migration batch
 			'migration_get_status'          => false, // @since 6.0.0 - Get migration status
 			'migration_rollback'            => false, // @since 6.0.0 - Rollback to serialized
+
+			// Data Validation handlers
+			'get_entry_ids'                 => false, // @since 6.0.0 - Get all entry IDs for validation
+			'validate_entries'              => false, // @since 6.0.0 - Validate entry data integrity
 			);
 			foreach ( $ajax_events as $ajax_event => $nopriv ) {
 				add_action( 'wp_ajax_super_' . $ajax_event, array( __CLASS__, $ajax_event ) );
@@ -6356,6 +6360,63 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 		}
 
 		wp_send_json_success( $result );
+	}
+
+	/**
+	 * Get all entry IDs for validation
+	 *
+	 * @since 6.0.0
+	 */
+	public static function get_entry_ids() {
+		// Check permissions
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'You do not have permission to access entry IDs', 'super-forms' ) ) );
+		}
+
+		global $wpdb;
+		$table = $wpdb->prefix . 'posts';
+
+		// Get all contact entry IDs
+		$entry_ids = $wpdb->get_col(
+			"SELECT ID FROM $table
+			WHERE post_type = 'super_contact_entry'
+			AND post_status IN ('publish', 'super_unread', 'super_read')
+			ORDER BY ID ASC"
+		);
+
+		if ( empty( $entry_ids ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'No entries found', 'super-forms' ) ) );
+		}
+
+		wp_send_json_success( array( 'entry_ids' => array_map( 'intval', $entry_ids ) ) );
+	}
+
+	/**
+	 * Validate entry data integrity
+	 *
+	 * @since 6.0.0
+	 */
+	public static function validate_entries() {
+		// Check permissions
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'You do not have permission to validate entries', 'super-forms' ) ) );
+		}
+
+		// Get entry IDs from request
+		$entry_ids = isset( $_POST['entry_ids'] ) ? array_map( 'intval', $_POST['entry_ids'] ) : array();
+
+		if ( empty( $entry_ids ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'No entry IDs provided', 'super-forms' ) ) );
+		}
+
+		// Validate the entries using the Data Access class
+		$results = SUPER_Data_Access::bulk_validate_integrity( $entry_ids );
+
+		if ( ! $results || ( isset( $results['success'] ) && ! $results['success'] ) ) {
+			wp_send_json_error( array( 'message' => isset( $results['error'] ) ? $results['error'] : esc_html__( 'Validation failed', 'super-forms' ) ) );
+		}
+
+		wp_send_json_success( $results );
 	}
 	}
 endif;

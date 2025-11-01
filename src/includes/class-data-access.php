@@ -439,6 +439,158 @@ class SUPER_Data_Access {
         }
         return (strpos($value, '{') === 0 || strpos($value, '[') === 0);
     }
+
+    /**
+     * Validate data integrity between EAV and serialized storage
+     *
+     * Compares entry data from both storage methods to ensure migration
+     * was successful and no data was lost or corrupted.
+     *
+     * @since 6.0.0
+     * @param int $entry_id Entry ID to validate
+     * @return array Validation result with status and details
+     */
+    public static function validate_entry_integrity($entry_id) {
+        if (empty($entry_id) || !is_numeric($entry_id)) {
+            return array(
+                'valid' => false,
+                'error' => 'Invalid entry ID'
+            );
+        }
+
+        // Get data from both storage methods
+        $eav_data        = self::get_from_eav_tables($entry_id);
+        $serialized_data = self::get_from_serialized($entry_id);
+
+        // If both empty, entry has no data (valid but empty)
+        if (empty($eav_data) && empty($serialized_data)) {
+            return array(
+                'valid' => true,
+                'message' => 'Entry has no data in either storage'
+            );
+        }
+
+        // If one is empty but not the other, data mismatch
+        if (empty($eav_data) && !empty($serialized_data)) {
+            return array(
+                'valid' => false,
+                'error' => 'Data exists in serialized but not in EAV',
+                'missing_fields' => count($serialized_data)
+            );
+        }
+
+        if (empty($serialized_data) && !empty($eav_data)) {
+            return array(
+                'valid' => false,
+                'error' => 'Data exists in EAV but not in serialized',
+                'extra_fields' => count($eav_data)
+            );
+        }
+
+        // Compare field counts
+        $eav_count = count($eav_data);
+        $ser_count = count($serialized_data);
+
+        if ($eav_count !== $ser_count) {
+            return array(
+                'valid' => false,
+                'error' => 'Field count mismatch',
+                'eav_count' => $eav_count,
+                'serialized_count' => $ser_count,
+                'difference' => abs($eav_count - $ser_count)
+            );
+        }
+
+        // Compare field values
+        $mismatches = array();
+        foreach ($serialized_data as $field_name => $field_data) {
+            if (!isset($eav_data[$field_name])) {
+                $mismatches[] = array(
+                    'field' => $field_name,
+                    'issue' => 'Missing in EAV'
+                );
+                continue;
+            }
+
+            // Compare values (handle arrays/objects)
+            $ser_value = isset($field_data['value']) ? $field_data['value'] : '';
+            $eav_value = isset($eav_data[$field_name]['value']) ? $eav_data[$field_name]['value'] : '';
+
+            // Normalize for comparison
+            $ser_normalized = is_array($ser_value) ? json_encode($ser_value) : (string)$ser_value;
+            $eav_normalized = is_array($eav_value) ? json_encode($eav_value) : (string)$eav_value;
+
+            if ($ser_normalized !== $eav_normalized) {
+                $mismatches[] = array(
+                    'field' => $field_name,
+                    'issue' => 'Value mismatch',
+                    'serialized_value' => substr($ser_normalized, 0, 100),
+                    'eav_value' => substr($eav_normalized, 0, 100)
+                );
+            }
+        }
+
+        // Check for extra fields in EAV
+        foreach ($eav_data as $field_name => $field_data) {
+            if (!isset($serialized_data[$field_name])) {
+                $mismatches[] = array(
+                    'field' => $field_name,
+                    'issue' => 'Extra field in EAV'
+                );
+            }
+        }
+
+        if (!empty($mismatches)) {
+            return array(
+                'valid' => false,
+                'error' => 'Data mismatches found',
+                'mismatches' => $mismatches,
+                'mismatch_count' => count($mismatches)
+            );
+        }
+
+        return array(
+            'valid' => true,
+            'message' => 'Data matches perfectly',
+            'field_count' => $eav_count
+        );
+    }
+
+    /**
+     * Bulk validate entry integrity for multiple entries
+     *
+     * @since 6.0.0
+     * @param array $entry_ids Array of entry IDs to validate
+     * @return array Validation summary with results
+     */
+    public static function bulk_validate_integrity($entry_ids) {
+        if (empty($entry_ids) || !is_array($entry_ids)) {
+            return array(
+                'success' => false,
+                'error' => 'Invalid entry IDs'
+            );
+        }
+
+        $results = array(
+            'total' => count($entry_ids),
+            'valid' => 0,
+            'invalid' => 0,
+            'errors' => array()
+        );
+
+        foreach ($entry_ids as $entry_id) {
+            $validation = self::validate_entry_integrity($entry_id);
+
+            if ($validation['valid']) {
+                $results['valid']++;
+            } else {
+                $results['invalid']++;
+                $results['errors'][$entry_id] = $validation;
+            }
+        }
+
+        return $results;
+    }
 }
 
 endif;
