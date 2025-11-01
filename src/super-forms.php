@@ -1492,7 +1492,61 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 					echo '</div>';
 				}
 			}
+
+			// Show EAV migration notices
+			$this->show_migration_notices();
 		}
+
+
+	/**
+	 * Show EAV migration admin notices
+	 *
+	 * @since 6.0.0
+	 */
+	public function show_migration_notices() {
+		$migration_status = SUPER_Migration_Manager::get_migration_status();
+		if ( empty( $migration_status ) ) {
+			return;
+		}
+
+		$screen = get_current_screen();
+		// Only show on Super Forms admin pages
+		if ( ! $screen || strpos( $screen->id, 'super' ) === false ) {
+			return;
+		}
+
+		// Migration in progress
+		if ( $migration_status['status'] === 'in_progress' ) {
+			$progress = $migration_status['total_entries'] > 0 ? round( ( $migration_status['migrated_entries'] / $migration_status['total_entries'] ) * 100, 2 ) : 0;
+			echo '<div class="notice notice-info"><p>';
+			printf(
+				esc_html__( '%1$sEAV Migration in Progress:%2$s %3$d of %4$d entries migrated (%5$s%%). %6$sView Migration Page%7$s', 'super-forms' ),
+				'<strong>',
+				'</strong>',
+				$migration_status['migrated_entries'],
+				$migration_status['total_entries'],
+				$progress,
+				'<a href="' . esc_url( admin_url( 'admin.php?page=super_migration' ) ) . '">',
+				'</a>'
+			);
+			echo '</p></div>';
+		}
+
+		// Migration completed - show success notice once
+		if ( $migration_status['status'] === 'completed' && $migration_status['using_storage'] === 'eav' ) {
+			if ( ! get_user_meta( get_current_user_id(), 'super_migration_completed_dismissed', true ) ) {
+				echo '<div class="notice notice-success is-dismissible" data-dismissible="super_migration_completed"><p>';
+				printf(
+					esc_html__( '%1$sEAV Migration Complete!%2$s Your contact entries are now using optimized storage. %3$sView Migration Page%4$s', 'super-forms' ),
+					'<strong>',
+					'</strong>',
+					'<a href="' . esc_url( admin_url( 'admin.php?page=super_migration' ) ) . '">',
+					'</a>'
+				);
+				echo '</p></div>';
+			}
+		}
+	}
 
 
 		/**
