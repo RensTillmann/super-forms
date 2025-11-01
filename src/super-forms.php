@@ -1630,7 +1630,20 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 				$s          = sanitize_text_field( $_GET['s'] );
 				$where     .= ' AND (';
 					$where .= "($table.post_title LIKE '%$s%') OR ($table.post_excerpt LIKE '%$s%') OR ($table.post_content LIKE '%$s%') OR";
+
+				// Use EAV table search if available (much faster with indexed field_value)
+				$migration = get_option( 'superforms_eav_migration' );
+				$use_eav   = false;
+				if ( ! empty( $migration ) && $migration['status'] === 'completed' ) {
+					$use_eav = ( $migration['using_storage'] === 'eav' );
+				}
+
+				if ( $use_eav ) {
+					$table_eav = $wpdb->prefix . 'superforms_entry_data';
+					$where    .= "($table_eav.field_value LIKE '%$s%') OR";
+				} else {
 					$where .= "($table_meta.meta_key = '_super_contact_entry_data' AND $table_meta.meta_value LIKE '%$s%') OR";
+				}
 					$where .= "($table_meta.meta_key = '_super_contact_entry_ip' AND $table_meta.meta_value LIKE '%$s%') OR";
 					$where .= "($table_meta.meta_key = '_super_contact_entry_status' AND $table_meta.meta_value LIKE '%$s%')"; // @since 3.4.0 - custom entry status
 				$where     .= ')';
@@ -1676,7 +1689,21 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 				$prefix      = $wpdb->prefix;
 				$table_posts = $wpdb->prefix . 'posts';
 				$table_meta  = $wpdb->prefix . 'postmeta';
-				$join        = "INNER JOIN $table_meta ON $table_meta.post_id = $table_posts.ID";
+				// Check if using EAV storage
+				$migration = get_option( 'superforms_eav_migration' );
+				$use_eav   = false;
+				if ( ! empty( $migration ) && $migration['status'] === 'completed' ) {
+					$use_eav = ( $migration['using_storage'] === 'eav' );
+				}
+
+				if ( $use_eav ) {
+					// Join EAV table (indexed field_value - much faster)
+					$table_eav = $wpdb->prefix . 'superforms_entry_data';
+					$join      = "INNER JOIN $table_eav ON $table_eav.entry_id = $table_posts.ID";
+				} else {
+					// Fallback to postmeta join (pre-migration)
+					$join      = "INNER JOIN $table_meta ON $table_meta.post_id = $table_posts.ID";
+				}
 			}
 			return $join;
 		}
