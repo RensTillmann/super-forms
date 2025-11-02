@@ -1505,9 +1505,6 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 	 */
 	public function show_migration_notices() {
 		$migration_status = SUPER_Migration_Manager::get_migration_status();
-		if ( empty( $migration_status ) ) {
-			return;
-		}
 
 		$screen = get_current_screen();
 		// Only show on Super Forms admin pages
@@ -1515,7 +1512,41 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 			return;
 		}
 
-		// Migration in progress
+		// Phase 1: Pre-migration warning (not started)
+		if ( empty( $migration_status ) || $migration_status['status'] === 'not_started' ) {
+			// Count entries to show in notice
+			global $wpdb;
+			$entry_count = $wpdb->get_var(
+				"SELECT COUNT(*) FROM {$wpdb->posts}
+				WHERE post_type = 'super_contact_entry'
+				AND post_status IN ('publish', 'super_read', 'super_unread')"
+			);
+
+			if ( $entry_count > 0 ) {
+				echo '<div class="notice notice-warning" style="border-left-color: #f0b429;"><p>';
+				printf(
+					esc_html__( '%1$sSuper Forms Database Update Required%2$s', 'super-forms' ),
+					'<strong>',
+					'</strong>'
+				);
+				echo '<br>';
+				printf(
+					esc_html__( 'A new version of Super Forms requires a database update to improve performance. %1$d contact entries need to be migrated.', 'super-forms' ),
+					$entry_count
+				);
+				echo '</p><p>';
+				echo '<a href="' . esc_url( admin_url( 'admin.php?page=super_migration' ) ) . '" class="button button-primary">';
+				echo esc_html__( 'Start Database Update', 'super-forms' );
+				echo '</a> ';
+				echo '<a href="' . esc_url( admin_url( 'admin.php?page=super_migration' ) ) . '" class="button button-secondary">';
+				echo esc_html__( 'Learn More', 'super-forms' );
+				echo '</a>';
+				echo '</p></div>';
+			}
+			return;
+		}
+
+		// Phase 2: Migration in progress
 		if ( $migration_status['status'] === 'in_progress' ) {
 			$progress = $migration_status['total_entries'] > 0 ? round( ( $migration_status['migrated_entries'] / $migration_status['total_entries'] ) * 100, 2 ) : 0;
 			echo '<div class="notice notice-info"><p>';
@@ -1532,7 +1563,7 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 			echo '</p></div>';
 		}
 
-		// Migration completed - show success notice once
+		// Phase 3: Migration completed - show success notice once
 		if ( $migration_status['status'] === 'completed' && $migration_status['using_storage'] === 'eav' ) {
 			if ( ! get_user_meta( get_current_user_id(), 'super_migration_completed_dismissed', true ) ) {
 				echo '<div class="notice notice-success is-dismissible" data-dismissible="super_migration_completed"><p>';
@@ -1543,6 +1574,53 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 					'<a href="' . esc_url( admin_url( 'admin.php?page=super_migration' ) ) . '">',
 					'</a>'
 				);
+				echo '</p></div>';
+			}
+		}
+
+		// Phase 4: Rollback warning - show impact of rolling back
+		if ( $migration_status['status'] === 'completed' && $migration_status['using_storage'] === 'serialized' ) {
+			// This means we rolled back after migration
+			if ( ! get_user_meta( get_current_user_id(), 'super_migration_rollback_dismissed', true ) ) {
+				global $wpdb;
+
+				// Count entries edited/created after migration
+				$migration_completed_date = isset( $migration_status['completed_at'] ) ? $migration_status['completed_at'] : '';
+				$affected_count           = 0;
+
+				if ( ! empty( $migration_completed_date ) ) {
+					$affected_count = $wpdb->get_var(
+						$wpdb->prepare(
+							"SELECT COUNT(*) FROM {$wpdb->posts}
+							WHERE post_type = 'super_contact_entry'
+							AND post_modified > %s
+							AND post_status IN ('publish', 'super_read', 'super_unread')",
+							$migration_completed_date
+						)
+					);
+				}
+
+				echo '<div class="notice notice-error is-dismissible" data-dismissible="super_migration_rollback"><p>';
+				printf(
+					esc_html__( '%1$sStorage Rolled Back to Serialized%2$s', 'super-forms' ),
+					'<strong>',
+					'</strong>'
+				);
+				echo '<br>';
+				echo esc_html__( 'Contact entries are currently using the old serialized storage method.', 'super-forms' );
+				if ( $affected_count > 0 ) {
+					echo '<br>';
+					printf(
+						esc_html__( '%1$sWarning:%2$s %3$d entries were modified after migration. These changes may be lost if you re-migrate.', 'super-forms' ),
+						'<strong>',
+						'</strong>',
+						$affected_count
+					);
+				}
+				echo '</p><p>';
+				echo '<a href="' . esc_url( admin_url( 'admin.php?page=super_migration' ) ) . '" class="button button-primary">';
+				echo esc_html__( 'View Migration Status', 'super-forms' );
+				echo '</a>';
 				echo '</p></div>';
 			}
 		}

@@ -2408,6 +2408,13 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 				}
 			}
 
+			// Check if migration is complete and using EAV storage
+			$migration = get_option( 'superforms_eav_migration' );
+			$use_eav   = false;
+			if ( ! empty( $migration ) && $migration['status'] === 'completed' ) {
+				$use_eav = ( $migration['using_storage'] === 'eav' );
+			}
+
 			// Check if we need to filter on a column
 			$filterColumns = array();
 			foreach ( $_GET as $gk => $gv ) {
@@ -2421,6 +2428,9 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 			// Filter by entry data
 			$having               = '';
 			$filter_by_entry_data = '';
+			$filters              = ''; // Initialize filters variable
+			$eav_joins            = ''; // EAV table joins for filtering
+			$eav_join_counter     = 0; // Counter for unique EAV table aliases
 			// Now first check if this is a custom column
 			// Custom column always starts with underscore
 			$x = 0;
@@ -2433,12 +2443,24 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 						$customColumns = $list['custom_columns']['columns'];
 						foreach ( $customColumns as $cv ) {
 							if ( $cv['field_name'] == $fck ) {
-								$fckLength             = strlen( $fck );
-								$filter_by_entry_data .= ", SUBSTRING_INDEX( SUBSTRING_INDEX( SUBSTRING_INDEX(meta.meta_value, 's:4:\"name\";s:$fckLength:\"$fck\";s:5:\"value\";', -1), '\";s:', 1), ':\"', -1) AS filterValue_" . $x;
-								if ( ! empty( $having ) ) {
-									$having .= ' AND filterValue_' . $x . " LIKE '%$fcv%'";
+								if ( $use_eav ) {
+									// EAV query - use indexed JOIN instead of SUBSTRING_INDEX
+									$eav_alias  = 'eav_filter_' . $eav_join_counter;
+									$eav_joins .= " LEFT JOIN {$wpdb->prefix}superforms_entry_data AS {$eav_alias} ON {$eav_alias}.entry_id = post.ID AND {$eav_alias}.field_name = '" . esc_sql( $fck ) . "'";
+									if ( ! empty( $filters ) ) {
+										$filters .= ' AND';
+									}
+									$filters .= " {$eav_alias}.field_value LIKE '%" . esc_sql( $fcv ) . "%'";
+									$eav_join_counter++;
 								} else {
-									$having .= ' HAVING filterValue_' . $x . " LIKE '%$fcv%'";
+									// Old serialized query - use SUBSTRING_INDEX
+									$fckLength             = strlen( $fck );
+									$filter_by_entry_data .= ", SUBSTRING_INDEX( SUBSTRING_INDEX( SUBSTRING_INDEX(meta.meta_value, 's:4:\"name\";s:$fckLength:\"$fck\";s:5:\"value\";', -1), '\";s:', 1), ':\"', -1) AS filterValue_" . $x;
+									if ( ! empty( $having ) ) {
+										$having .= ' AND filterValue_' . $x . " LIKE '%$fcv%'";
+									} else {
+										$having .= ' HAVING filterValue_' . $x . " LIKE '%$fcv%'";
+									}
 								}
 								break;
 							}
@@ -2632,8 +2654,17 @@ END AS paypalSubscriptionId
 					$customColumns = $list['custom_columns']['columns'];
 					foreach ( $customColumns as $cv ) {
 						if ( $cv['field_name'] == $sc ) {
-							$scLength            = strlen( $sc );
-							$order_by_entry_data = ", SUBSTRING_INDEX( SUBSTRING_INDEX( SUBSTRING_INDEX(meta.meta_value, 's:4:\"name\";s:$scLength:\"$sc\";s:5:\"value\";', -1), '\";s:', 1), ':\"', -1) AS orderValue";
+							if ( $use_eav ) {
+								// EAV query - use indexed JOIN for sorting
+								$eav_alias  = 'eav_sort_' . $eav_join_counter;
+								$eav_joins .= " LEFT JOIN {$wpdb->prefix}superforms_entry_data AS {$eav_alias} ON {$eav_alias}.entry_id = post.ID AND {$eav_alias}.field_name = '" . esc_sql( $sc ) . "'";
+								$order_by_entry_data = ", {$eav_alias}.field_value AS orderValue";
+								$eav_join_counter++;
+							} else {
+								// Old serialized query - use SUBSTRING_INDEX
+								$scLength            = strlen( $sc );
+								$order_by_entry_data = ", SUBSTRING_INDEX( SUBSTRING_INDEX( SUBSTRING_INDEX(meta.meta_value, 's:4:\"name\";s:$scLength:\"$sc\";s:5:\"value\";', -1), '\";s:', 1), ':\"', -1) AS orderValue";
+							}
 							break;
 						}
 					}
@@ -2754,6 +2785,7 @@ END AS paypalSubscriptionId
                 LEFT JOIN $wpdb->usermeta AS author_firstname ON author_firstname.user_id = post.post_author AND author_firstname.meta_key = 'first_name'
                 LEFT JOIN $wpdb->usermeta AS author_lastname ON author_lastname.user_id = post.post_author AND author_lastname.meta_key = 'last_name'
                 LEFT JOIN $wpdb->usermeta AS author_nickname ON author_nickname.user_id = post.post_author AND author_nickname.meta_key = 'nickname'
+                $eav_joins
                 WHERE post.post_type = 'super_contact_entry' AND post.post_status != 'trash'
                 $where
                 $having
@@ -2796,6 +2828,7 @@ END AS paypalSubscriptionId
                 LEFT JOIN $wpdb->usermeta AS author_firstname ON author_firstname.user_id = post.post_author AND author_firstname.meta_key = 'first_name'
                 LEFT JOIN $wpdb->usermeta AS author_lastname ON author_lastname.user_id = post.post_author AND author_lastname.meta_key = 'last_name'
                 LEFT JOIN $wpdb->usermeta AS author_nickname ON author_nickname.user_id = post.post_author AND author_nickname.meta_key = 'nickname'
+                $eav_joins
                 WHERE post.post_type = 'super_contact_entry' AND post.post_status != 'trash'
                 $whereWithoutFilters
             ) a";
