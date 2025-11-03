@@ -352,11 +352,11 @@ $nonce = wp_create_nonce('super-form-builder');
         $triggered_by = !empty($migration_status['auto_triggered_by']) ? $migration_status['auto_triggered_by'] : '';
         $health_checks = !empty($migration_status['health_check_count']) ? $migration_status['health_check_count'] : 0;
         ?>
-        
+
         <h3 style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd;">
             <?php echo esc_html__('Background Migration:', 'super-forms'); ?>
         </h3>
-        
+
         <table class="widefat" style="max-width: 600px;">
             <tbody>
                 <tr>
