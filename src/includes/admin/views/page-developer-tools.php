@@ -341,6 +341,83 @@ $nonce = wp_create_nonce('super-form-builder');
             </tbody>
         </table>
 
+        <!-- Background Migration Status -->
+        <?php
+        $bg_status = class_exists('SUPER_Background_Migration') ? SUPER_Background_Migration::get_status() : array();
+        $bg_enabled = !empty($bg_status['enabled']) ? $bg_status['enabled'] : false;
+        $bg_locked = !empty($bg_status['locked']) ? $bg_status['locked'] : false;
+        $using_as = !empty($bg_status['using_action_scheduler']) ? $bg_status['using_action_scheduler'] : false;
+        $has_scheduled = !empty($bg_status['has_scheduled_batches']) ? $bg_status['has_scheduled_batches'] : false;
+        $last_batch = !empty($migration_status['last_batch_processed_at']) ? $migration_status['last_batch_processed_at'] : '';
+        $triggered_by = !empty($migration_status['auto_triggered_by']) ? $migration_status['auto_triggered_by'] : '';
+        $health_checks = !empty($migration_status['health_check_count']) ? $migration_status['health_check_count'] : 0;
+        ?>
+        
+        <h3 style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd;">
+            <?php echo esc_html__('Background Migration:', 'super-forms'); ?>
+        </h3>
+        
+        <table class="widefat" style="max-width: 600px;">
+            <tbody>
+                <tr>
+                    <th style="width: 200px;"><?php echo esc_html__('Background Processing:', 'super-forms'); ?></th>
+                    <td>
+                        <?php if ($bg_enabled): ?>
+                            <span class="sfui-badge sfui-green">● Enabled</span>
+                        <?php else: ?>
+                            <span class="sfui-badge sfui-grey">○ Disabled</span>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+                <tr>
+                    <th><?php echo esc_html__('Processing Engine:', 'super-forms'); ?></th>
+                    <td>
+                        <?php if ($using_as): ?>
+                            <strong>Action Scheduler</strong>
+                            <?php if (function_exists('as_get_scheduler')): ?>
+                                (<a href="<?php echo admin_url('tools.php?page=action-scheduler'); ?>" target="_blank">View Queue</a>)
+                            <?php endif; ?>
+                        <?php else: ?>
+                            WP-Cron (Fallback)
+                        <?php endif; ?>
+                    </td>
+                </tr>
+                <tr>
+                    <th><?php echo esc_html__('Current State:', 'super-forms'); ?></th>
+                    <td>
+                        <?php if ($bg_locked): ?>
+                            <span class="sfui-badge sfui-blue">● Processing</span>
+                        <?php elseif ($has_scheduled): ?>
+                            <span class="sfui-badge sfui-orange">● Scheduled</span>
+                        <?php else: ?>
+                            <span class="sfui-badge sfui-grey">○ Idle</span>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+                <?php if ($last_batch): ?>
+                <tr>
+                    <th><?php echo esc_html__('Last Batch Processed:', 'super-forms'); ?></th>
+                    <td><?php echo esc_html($last_batch); ?></td>
+                </tr>
+                <?php endif; ?>
+                <?php if ($triggered_by): ?>
+                <tr>
+                    <th><?php echo esc_html__('Triggered By:', 'super-forms'); ?></th>
+                    <td><?php echo esc_html(ucfirst($triggered_by)); ?></td>
+                </tr>
+                <?php endif; ?>
+                <tr>
+                    <th><?php echo esc_html__('Health Checks:', 'super-forms'); ?></th>
+                    <td><?php echo number_format($health_checks); ?> completed</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p style="background: #f0f8ff; padding: 12px; border-left: 4px solid #2271b1; margin-top: 15px;">
+            <strong>ℹ️ About Background Migration:</strong><br>
+            When enabled, migration runs completely in the background. You can safely close your browser—the migration will continue on the server. Daily health checks ensure completion even if interrupted. Entries are verified after migration and serialized data is preserved as backup.
+        </p>
+
         <!-- Actions -->
         <h3 style="margin-top: 20px;"><?php echo esc_html__('Actions:', 'super-forms'); ?></h3>
         <p>
