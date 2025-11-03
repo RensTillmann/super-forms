@@ -373,6 +373,64 @@ class SUPER_Migration_Manager {
 
         return update_option('superforms_eav_migration', $migration_state);
     }
+
+    /**
+     * Force complete migration without actually migrating data (for testing only)
+     *
+     * @since 6.0.0
+     * @return array|WP_Error Migration state or error
+     */
+    public static function force_complete() {
+        $migration = get_option('superforms_eav_migration', array());
+
+        if (empty($migration)) {
+            return new WP_Error('not_started', __('Migration not started', 'super-forms'));
+        }
+
+        // Count total entries
+        global $wpdb;
+        $total = $wpdb->get_var("
+            SELECT COUNT(*)
+            FROM {$wpdb->posts}
+            WHERE post_type = 'super_contact_entry'
+            AND post_status IN ('publish', 'super_read', 'super_unread')
+        ");
+
+        $migration['status'] = 'completed';
+        $migration['using_storage'] = 'eav';
+        $migration['total_entries'] = $total;
+        $migration['migrated_entries'] = $total;  // Pretend all migrated
+        $migration['completed_at'] = current_time('mysql');
+
+        update_option('superforms_eav_migration', $migration);
+
+        // Log warning for debugging
+        error_log('[Super Forms Developer Tools] Force completed migration without migrating data - FOR TESTING ONLY');
+
+        return $migration;
+    }
+
+    /**
+     * Force switch to EAV storage without migrating (for testing only)
+     *
+     * @since 6.0.0
+     * @return array|WP_Error Migration state or error
+     */
+    public static function force_switch_eav() {
+        $migration = get_option('superforms_eav_migration', array());
+
+        if (empty($migration)) {
+            return new WP_Error('not_started', __('Migration not started', 'super-forms'));
+        }
+
+        $migration['using_storage'] = 'eav';
+        update_option('superforms_eav_migration', $migration);
+
+        // Log warning for debugging
+        error_log('[Super Forms Developer Tools] Force switched to EAV storage - FOR TESTING ONLY');
+
+        return $migration;
+    }
 }
 
 endif;

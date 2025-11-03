@@ -114,10 +114,31 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			'migration_process_batch'       => false, // @since 6.0.0 - Process migration batch
 			'migration_get_status'          => false, // @since 6.0.0 - Get migration status
 			'migration_rollback'            => false, // @since 6.0.0 - Rollback to serialized
+			'migration_reset'               => false, // @since 6.0.0 - Reset migration to not_started
+			'migration_force_complete'      => false, // @since 6.0.0 - Force complete without migrating
+			'migration_force_eav'           => false, // @since 6.0.0 - Force switch to EAV
 
 			// Data Validation handlers
 			'get_entry_ids'                 => false, // @since 6.0.0 - Get all entry IDs for validation
 			'validate_entries'              => false, // @since 6.0.0 - Validate entry data integrity
+
+			// Developer Tools handlers
+			'dev_generate_entries'          => false, // @since 6.0.0 - Generate test entries
+			'dev_delete_test_entries'       => false, // @since 6.0.0 - Delete test entries
+			'dev_get_test_count'            => false, // @since 6.0.0 - Get test entry count
+			'dev_run_verification'          => false, // @since 6.0.0 - Run verification tests
+			'dev_run_benchmarks'            => false, // @since 6.0.0 - Run performance benchmarks
+			'dev_get_db_stats'              => false, // @since 6.0.0 - Get database statistics
+			'dev_get_sample_entry'          => false, // @since 6.0.0 - Get sample entry data
+			'dev_analyze_table'             => false, // @since 6.0.0 - Run ANALYZE TABLE
+			'dev_get_previous_benchmarks'    => false, // @since 6.0.0 - Get previous benchmark results
+			'dev_view_logs'                 => false, // @since 6.0.0 - View migration/PHP error logs
+			'dev_toggle_query_debug'        => false, // @since 6.0.0 - Toggle query debugging
+			'dev_get_query_log'             => false, // @since 6.0.0 - Get query debug log
+			'import_csv_entries'            => false, // @since 6.0.0 - Import CSV for Developer Tools
+			'dev_execute_sql'               => false, // @since 6.0.0 - Execute whitelisted SQL
+			'dev_cleanup_data'              => false, // @since 6.0.0 - Cleanup data operations
+			'dev_optimize_tables'           => false, // @since 6.0.0 - Database maintenance
 			);
 			foreach ( $ajax_events as $ajax_event => $nopriv ) {
 				add_action( 'wp_ajax_super_' . $ajax_event, array( __CLASS__, $ajax_event ) );
@@ -6363,6 +6384,69 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 	}
 
 	/**
+	 * Reset migration to not_started (Developer Tools)
+	 *
+	 * @since 6.0.0
+	 */
+	public static function migration_reset() {
+		// Check permissions
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'You do not have permission to reset migration', 'super-forms' ) ) );
+		}
+
+		// Reset migration
+		$result = SUPER_Migration_Manager::reset_migration();
+
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+		}
+
+		wp_send_json_success( array( 'message' => esc_html__( 'Migration reset successfully', 'super-forms' ) ) );
+	}
+
+	/**
+	 * Force complete migration without migrating (Developer Tools)
+	 *
+	 * @since 6.0.0
+	 */
+	public static function migration_force_complete() {
+		// Check permissions
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'You do not have permission to force complete migration', 'super-forms' ) ) );
+		}
+
+		// Force complete
+		$result = SUPER_Migration_Manager::force_complete();
+
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+		}
+
+		wp_send_json_success( $result );
+	}
+
+	/**
+	 * Force switch to EAV storage (Developer Tools)
+	 *
+	 * @since 6.0.0
+	 */
+	public static function migration_force_eav() {
+		// Check permissions
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'You do not have permission to force EAV switch', 'super-forms' ) ) );
+		}
+
+		// Force switch to EAV
+		$result = SUPER_Migration_Manager::force_switch_eav();
+
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+		}
+
+		wp_send_json_success( $result );
+	}
+
+	/**
 	 * Get all entry IDs for validation
 	 *
 	 * @since 6.0.0
@@ -6417,6 +6501,731 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 		}
 
 		wp_send_json_success( $results );
+	}
+
+	/**
+	 * Generate test entries (Developer Tools)
+	 *
+	 * @since 6.0.0
+	 */
+	public static function dev_generate_entries() {
+		// Check permissions
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Unauthorized', 'super-forms' ) ) );
+		}
+
+		// Sanitize inputs
+		$count = isset( $_POST['count'] ) ? absint( $_POST['count'] ) : 10;
+		$form_id = isset( $_POST['form_id'] ) ? absint( $_POST['form_id'] ) : 0;
+		$date_mode = isset( $_POST['date_mode'] ) ? sanitize_text_field( $_POST['date_mode'] ) : 'today';
+		$complexity = isset( $_POST['complexity'] ) ? (array) $_POST['complexity'] : array( 'basic_text' );
+		$batch_offset = isset( $_POST['batch_offset'] ) ? absint( $_POST['batch_offset'] ) : 0;
+
+		// Validate
+		if ( $count > 100 ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Max 100 entries per batch', 'super-forms' ) ) );
+		}
+
+		if ( $count < 1 ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Count must be at least 1', 'super-forms' ) ) );
+		}
+
+		// Sanitize complexity array
+		$complexity = array_map( 'sanitize_text_field', $complexity );
+
+		// Generate entries
+		$result = SUPER_Developer_Tools::generate_test_entries( array(
+			'count' => $count,
+			'form_id' => $form_id,
+			'date_mode' => $date_mode,
+			'complexity' => $complexity,
+			'batch_offset' => $batch_offset
+		) );
+
+		// Send response
+		if ( isset( $result['failed'] ) && $result['failed'] > 0 ) {
+			wp_send_json_error( array(
+				'message' => sprintf( __( 'Generated %d, failed %d', 'super-forms' ), $result['generated'], $result['failed'] ),
+				'data' => $result
+			) );
+		}
+
+		wp_send_json_success( $result );
+	}
+
+	/**
+	 * Delete test entries (Developer Tools)
+	 *
+	 * @since 6.0.0
+	 */
+	public static function dev_delete_test_entries() {
+		// Check permissions
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Unauthorized', 'super-forms' ) ) );
+		}
+
+		// Delete test entries
+		$result = SUPER_Developer_Tools::delete_test_entries();
+
+		// Send response
+		wp_send_json_success( $result );
+	}
+
+	/**
+	 * Get test entry count (Developer Tools)
+	 *
+	 * @since 6.0.0
+	 */
+	public static function dev_get_test_count() {
+		// Check permissions
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Unauthorized', 'super-forms' ) ) );
+		}
+
+		// Get count
+		$count = SUPER_Developer_Tools::get_test_entry_count();
+
+		// Send response
+		wp_send_json_success( array( 'count' => $count ) );
+	}
+
+	/**
+	 * Run verification tests (Developer Tools)
+	 *
+	 * @since 6.0.0
+	 */
+	public static function dev_run_verification() {
+		// Check permissions
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Unauthorized', 'super-forms' ) ) );
+		}
+
+		// Get test selection
+		$tests = isset( $_POST['tests'] ) ? (array) $_POST['tests'] : array();
+
+		if ( empty( $tests ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'No tests selected', 'super-forms' ) ) );
+		}
+
+		// Run each selected test
+		$results = array();
+		foreach ( $tests as $test ) {
+			$method = 'test_' . sanitize_key( $test );
+			if ( method_exists( 'SUPER_Developer_Tools', $method ) ) {
+				$results[ $test ] = call_user_func( array( 'SUPER_Developer_Tools', $method ), null );
+			}
+		}
+
+		// Calculate summary
+		$passed = 0;
+		$failed = 0;
+		foreach ( $results as $result ) {
+			if ( isset( $result['passed'] ) && $result['passed'] ) {
+				$passed++;
+			} else {
+				$failed++;
+			}
+		}
+
+		// Send response
+		wp_send_json_success( array(
+			'results' => $results,
+			'summary' => array(
+				'passed' => $passed,
+				'failed' => $failed,
+				'total' => count( $results )
+			)
+		) );
+	}
+
+	/**
+	 * Run Performance Benchmarks
+	 *
+	 * @since 6.0.0
+	 */
+	public static function dev_run_benchmarks() {
+		// Check permissions
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Unauthorized', 'super-forms' ) ) );
+		}
+
+		// Get benchmark selection and entry count
+		$benchmarks = isset( $_POST['benchmarks'] ) ? (array) $_POST['benchmarks'] : array();
+		$entry_count = isset( $_POST['entry_count'] ) ? absint( $_POST['entry_count'] ) : 100;
+
+		if ( empty( $benchmarks ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'No benchmarks selected', 'super-forms' ) ) );
+		}
+
+		// Run each selected benchmark
+		$results = array();
+		foreach ( $benchmarks as $benchmark ) {
+			$method = 'benchmark_' . sanitize_key( $benchmark );
+			if ( method_exists( 'SUPER_Developer_Tools', $method ) ) {
+				$result = call_user_func( array( 'SUPER_Developer_Tools', $method ), $entry_count );
+
+				if ( is_wp_error( $result ) ) {
+					$results[ $benchmark ] = array(
+						'error' => true,
+						'message' => $result->get_error_message()
+					);
+				} else {
+					$results[ $benchmark ] = $result;
+				}
+			}
+		}
+
+		// Store results for comparison
+		update_option( 'superforms_last_benchmark_results', $results );
+
+		// Send response
+		wp_send_json_success( array(
+			'results' => $results,
+			'timestamp' => current_time( 'mysql' )
+		) );
+	}
+
+	/**
+	 * Get Previous Benchmark Results
+	 *
+	 * @since 6.0.0
+	 */
+	public static function dev_get_previous_benchmarks() {
+		// Check permissions
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Unauthorized', 'super-forms' ) ) );
+		}
+
+		// Retrieve stored benchmark results
+		$previous_results = get_option( 'superforms_last_benchmark_results', null );
+
+		if ( ! $previous_results ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'No previous benchmark results found', 'super-forms' ) ) );
+		}
+
+		// Get timestamp from option metadata (if available)
+		$timestamp = get_option( 'superforms_last_benchmark_timestamp', '' );
+
+		wp_send_json_success( array(
+			'results' => $previous_results,
+			'timestamp' => $timestamp
+		) );
+	}
+
+	/**
+	 * Get Database Statistics
+	 *
+	 * @since 6.0.0
+	 */
+	public static function dev_get_db_stats() {
+		// Check permissions
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Unauthorized', 'super-forms' ) ) );
+		}
+
+		$stats = array(
+			'serialized_count' => SUPER_Developer_Tools::get_serialized_count(),
+			'eav_stats' => SUPER_Developer_Tools::get_eav_stats(),
+			'index_status' => SUPER_Developer_Tools::get_index_status()
+		);
+
+		wp_send_json_success( $stats );
+	}
+
+	/**
+	 * Get Sample Entry Data
+	 *
+	 * @since 6.0.0
+	 */
+	public static function dev_get_sample_entry() {
+		// Check permissions
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Unauthorized', 'super-forms' ) ) );
+		}
+
+		global $wpdb;
+
+		// Get a random entry ID
+		$entry_id = $wpdb->get_var("
+			SELECT ID
+			FROM {$wpdb->posts}
+			WHERE post_type = 'super_contact_entry'
+			AND post_status IN ('publish', 'super_read', 'super_unread')
+			ORDER BY RAND()
+			LIMIT 1
+		");
+
+		if (!$entry_id) {
+			wp_send_json_error( array( 'message' => esc_html__( 'No contact entries found', 'super-forms' ) ) );
+		}
+
+		$sample_data = SUPER_Developer_Tools::get_sample_entry_data($entry_id);
+
+		if (is_wp_error($sample_data)) {
+			wp_send_json_error( array( 'message' => $sample_data->get_error_message() ) );
+		}
+
+		wp_send_json_success( $sample_data );
+	}
+
+	/**
+	 * Run ANALYZE TABLE on EAV table
+	 *
+	 * @since 6.0.0
+	 */
+	public static function dev_analyze_table() {
+		// Check permissions
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Unauthorized', 'super-forms' ) ) );
+		}
+
+		global $wpdb;
+
+		$table_name = $wpdb->prefix . 'superforms_entry_data';
+
+		// Run ANALYZE TABLE
+		$result = $wpdb->get_results("ANALYZE TABLE {$table_name}");
+
+		if ($wpdb->last_error) {
+			wp_send_json_error( array( 'message' => $wpdb->last_error ) );
+		}
+
+		// Get updated table stats
+		$table_info = $wpdb->get_row($wpdb->prepare("
+			SELECT 
+				table_rows,
+				avg_row_length,
+				data_length,
+				index_length,
+				data_free,
+				ROUND((data_length + index_length) / 1024 / 1024, 2) as size_mb
+			FROM information_schema.TABLES
+			WHERE table_schema = DATABASE()
+			AND table_name = %s
+		", $table_name));
+
+		wp_send_json_success( array(
+			'analyze_result' => $result,
+			'table_info' => $table_info
+		) );
+	}
+
+	/**
+	 * Execute Whitelisted SQL Query
+	 *
+	 * @since 6.0.0
+	 */
+	public static function dev_execute_sql() {
+		// Check permissions
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Unauthorized', 'super-forms' ) ) );
+		}
+
+		$query_key = isset( $_POST['query_key'] ) ? sanitize_text_field( $_POST['query_key'] ) : '';
+		$result = SUPER_Developer_Tools::execute_whitelisted_sql( $query_key );
+
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+		}
+
+		wp_send_json_success( array( 'results' => $result ) );
+	}
+
+	/**
+	 * Cleanup Data Operations
+	 *
+	 * @since 6.0.0
+	 */
+	public static function dev_cleanup_data() {
+		// Check permissions
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Unauthorized', 'super-forms' ) ) );
+		}
+
+		$action = isset( $_POST['cleanup_action'] ) ? sanitize_text_field( $_POST['cleanup_action'] ) : '';
+
+		$result = null;
+		switch ( $action ) {
+			case 'delete_test_entries':
+				$result = SUPER_Developer_Tools::delete_test_entries();
+				break;
+			case 'delete_all_entries':
+				$result = SUPER_Developer_Tools::delete_all_entries();
+				break;
+			case 'delete_all_eav':
+				$result = SUPER_Developer_Tools::delete_all_eav_data();
+				break;
+			case 'delete_all_serialized':
+				$result = SUPER_Developer_Tools::delete_all_serialized_data();
+				break;
+			case 'vacuum_orphaned':
+				$result = SUPER_Developer_Tools::vacuum_orphaned_data();
+				break;
+			default:
+				wp_send_json_error( array( 'message' => esc_html__( 'Invalid cleanup action', 'super-forms' ) ) );
+		}
+
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+		}
+
+		wp_send_json_success( $result );
+	}
+
+	/**
+	 * Database Maintenance Operations
+	 *
+	 * @since 6.0.0
+	 */
+	public static function dev_optimize_tables() {
+		// Check permissions
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Unauthorized', 'super-forms' ) ) );
+		}
+
+		$action = isset( $_POST['optimize_action'] ) ? sanitize_text_field( $_POST['optimize_action'] ) : '';
+
+		$result = null;
+		switch ( $action ) {
+			case 'optimize':
+				$result = SUPER_Developer_Tools::optimize_tables();
+				break;
+			case 'rebuild_indexes':
+				$result = SUPER_Developer_Tools::rebuild_indexes();
+				break;
+			default:
+				wp_send_json_error( array( 'message' => esc_html__( 'Invalid optimize action', 'super-forms' ) ) );
+		}
+
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+		}
+
+		wp_send_json_success( $result );
+	}
+
+	/**
+	 * View Logs (Migration or PHP Errors)
+	 *
+	 * @since 6.0.0
+	 */
+	public static function dev_view_logs() {
+		// Check permissions
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Unauthorized', 'super-forms' ) ) );
+		}
+
+		$log_type = isset( $_POST['log_type'] ) ? sanitize_text_field( $_POST['log_type'] ) : 'migration';
+
+		// Determine log file path
+		if ( defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
+			if ( is_string( WP_DEBUG_LOG ) ) {
+				$log_file = WP_DEBUG_LOG;
+			} else {
+				$log_file = WP_CONTENT_DIR . '/debug.log';
+			}
+		} else {
+			wp_send_json_error( array( 
+				'message' => esc_html__( 'WP_DEBUG_LOG is not enabled. Please enable it in wp-config.php to view logs.', 'super-forms' ) 
+			) );
+		}
+
+		if ( ! file_exists( $log_file ) || ! is_readable( $log_file ) ) {
+			wp_send_json_error( array( 
+				'message' => esc_html__( 'Log file not found or not readable.', 'super-forms' ) 
+			) );
+		}
+
+		// Read last 100 lines from log file
+		$lines = array();
+		$file = new SplFileObject( $log_file );
+		$file->seek( PHP_INT_MAX );
+		$last_line = $file->key();
+		$start_line = max( 0, $last_line - 100 );
+
+		$file->seek( $start_line );
+		while ( ! $file->eof() ) {
+			$line = $file->current();
+			
+			// Filter by log type
+			if ( $log_type === 'migration' ) {
+				if ( stripos( $line, 'Super Forms Migration' ) !== false || 
+				     stripos( $line, 'Super Forms Developer Tools' ) !== false ) {
+					$lines[] = $line;
+				}
+			} else {
+				// PHP errors - show all
+				$lines[] = $line;
+			}
+			
+			$file->next();
+		}
+
+		if ( empty( $lines ) ) {
+			$log_content = 'No ' . ( $log_type === 'migration' ? 'migration' : 'PHP error' ) . ' logs found in the last 100 entries.';
+		} else {
+			$log_content = implode( '', $lines );
+		}
+
+		wp_send_json_success( array( 'log_content' => $log_content ) );
+	}
+
+	/**
+	 * Toggle Query Debugging
+	 *
+	 * @since 6.0.0
+	 */
+	public static function dev_toggle_query_debug() {
+		// Check permissions
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Unauthorized', 'super-forms' ) ) );
+		}
+
+		$enabled = isset( $_POST['enabled'] ) && $_POST['enabled'] === 'true';
+
+		if ( $enabled ) {
+			// Enable SAVEQUERIES
+			if ( ! defined( 'SAVEQUERIES' ) ) {
+				define( 'SAVEQUERIES', true );
+			}
+			update_option( 'superforms_query_debug_enabled', true );
+			update_option( 'superforms_query_log', array() ); // Clear previous log
+		} else {
+			update_option( 'superforms_query_debug_enabled', false );
+			delete_option( 'superforms_query_log' );
+		}
+
+		wp_send_json_success( array( 'enabled' => $enabled ) );
+	}
+
+	/**
+	 * Get Query Debug Log
+	 *
+	 * @since 6.0.0
+	 */
+	public static function dev_get_query_log() {
+		// Check permissions
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Unauthorized', 'super-forms' ) ) );
+		}
+
+		global $wpdb;
+
+		$queries = array();
+
+		// Get recent queries from $wpdb->queries if SAVEQUERIES is enabled
+		if ( defined( 'SAVEQUERIES' ) && SAVEQUERIES && isset( $wpdb->queries ) ) {
+			// Get last 20 queries
+			$recent_queries = array_slice( $wpdb->queries, -20 );
+			
+			foreach ( $recent_queries as $query ) {
+				$queries[] = array(
+					'sql' => $query[0],
+					'time' => $query[1],
+					'stack' => isset( $query[2] ) ? $query[2] : ''
+				);
+			}
+		}
+
+		wp_send_json_success( array( 'queries' => $queries ) );
+	}
+
+	/**
+	 * Import CSV entries for Developer Tools
+	 * Simplified import handler with automatic column mapping
+	 * 
+	 * @since 6.0.0
+	 */
+	public static function import_csv_entries() {
+		// Check permissions
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Unauthorized', 'super-forms' ) ) );
+		}
+
+		// Verify nonce
+		check_ajax_referer( 'super-devtools-nonce', 'security' );
+
+		// Check for uploaded file
+		if ( ! isset( $_FILES['csv_file'] ) || $_FILES['csv_file']['error'] !== UPLOAD_ERR_OK ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'File upload failed', 'super-forms' ) ) );
+		}
+
+		$file = $_FILES['csv_file']['tmp_name'];
+		$filename = sanitize_file_name( $_FILES['csv_file']['name'] );
+		$filesize = size_format( $_FILES['csv_file']['size'], 2 );
+
+		// Handle both uploaded files and preloaded files
+		$file = null;
+		$filename = '';
+		$filesize = '';
+
+		if ( isset( $_POST['preloaded_file'] ) && ! empty( $_POST['preloaded_file'] ) ) {
+			// Using preloaded file from server
+			$preloaded_filename = sanitize_file_name( $_POST['preloaded_file'] );
+			$upload_dir = wp_upload_dir();
+			$file = $upload_dir['basedir'] . '/' . $preloaded_filename;
+
+			if ( ! file_exists( $file ) || ! is_readable( $file ) ) {
+				wp_send_json_error( array( 'message' => esc_html__( 'Preloaded file not found or not readable: ', 'super-forms' ) . $preloaded_filename ) );
+			}
+
+			$filename = $preloaded_filename;
+			$filesize = size_format( filesize( $file ), 2 );
+		} elseif ( isset( $_FILES['csv_file'] ) && $_FILES['csv_file']['error'] === UPLOAD_ERR_OK ) {
+			// Using uploaded file
+			$file = $_FILES['csv_file']['tmp_name'];
+			$filename = sanitize_file_name( $_FILES['csv_file']['name'] );
+			$filesize = size_format( $_FILES['csv_file']['size'], 2 );
+		} else {
+			wp_send_json_error( array( 'message' => esc_html__( 'No file provided (upload or preloaded)', 'super-forms' ) ) );
+		}
+		
+		
+		// Get options
+		$tag_as_test = isset( $_POST['tag_as_test'] ) && $_POST['tag_as_test'] === '1';
+		$auto_migrate = isset( $_POST['auto_migrate'] ) && $_POST['auto_migrate'] === '1';
+
+		// Parse CSV
+		$entries = array();
+		$headers = array();
+		$unique_forms = array();
+		$unique_fields = array();
+		$error_count = 0;
+		$imported_count = 0;
+
+		if ( ( $handle = fopen( $file, 'r' ) ) !== false ) {
+			// Check for UTF-8 BOM
+			$bom = "\xef\xbb\xbf";
+			if ( fgets( $handle, 4 ) !== $bom ) {
+				rewind( $handle );
+			}
+
+			$row = 0;
+			while ( ( $data = fgetcsv( $handle, 0, ',', '"' ) ) !== false ) {
+				// First row is headers
+				if ( $row === 0 ) {
+					$headers = $data;
+					$row++;
+					continue;
+				}
+
+				// Build entry data from CSV row
+				$entry_data = array();
+				$form_id = 0;
+				$entry_title = '';
+				$entry_date = '';
+				$entry_author = 0;
+				$entry_status = 'super_unread';
+				$entry_ip = '';
+
+				foreach ( $data as $col_index => $value ) {
+					if ( ! isset( $headers[ $col_index ] ) ) {
+						continue;
+					}
+
+					$field_name = $headers[ $col_index ];
+
+					// Handle special columns
+					if ( $field_name === 'entry_title' ) {
+						$entry_title = $value;
+						continue;
+					} elseif ( $field_name === 'entry_date' ) {
+						$entry_date = $value;
+						continue;
+					} elseif ( $field_name === 'entry_author' ) {
+						$entry_author = absint( $value );
+						continue;
+					} elseif ( $field_name === 'entry_status' ) {
+						$entry_status = $value;
+						continue;
+					} elseif ( $field_name === 'hidden_form_id' ) {
+						$form_id = absint( $value );
+						if ( $form_id > 0 ) {
+							$unique_forms[ $form_id ] = true;
+						}
+						continue;
+					} elseif ( $field_name === 'entry_id' || $field_name === 'contact_entry_id' || $field_name === 'hidden_contact_entry_id' ) {
+						// Skip entry ID columns (will be auto-generated)
+						continue;
+					} elseif ( $field_name === 'entry_ip' ) {
+						$entry_ip = $value;
+						continue;
+					}
+
+					// Skip empty values
+					if ( $value === '' ) {
+						continue;
+					}
+
+					// Track unique fields
+					$unique_fields[ $field_name ] = true;
+
+					// Add to entry data
+					$entry_data[ $field_name ] = array(
+						'name' => $field_name,
+						'value' => $value,
+						'type' => 'text', // Default type
+						'label' => ucwords( str_replace( '_', ' ', $field_name ) ),
+					);
+				}
+
+				// Create contact entry
+				if ( ! empty( $entry_data ) ) {
+					$post_args = array(
+						'post_status' => $entry_status,
+						'post_type' => 'super_contact_entry',
+						'post_parent' => $form_id,
+						'post_author' => $entry_author,
+					);
+
+					if ( ! empty( $entry_title ) ) {
+						$post_args['post_title'] = $entry_title;
+					}
+
+					if ( ! empty( $entry_date ) ) {
+						$post_args['post_date'] = $entry_date;
+						$post_args['post_date_gmt'] = get_gmt_from_date( $entry_date );
+					}
+
+					$contact_entry_id = wp_insert_post( $post_args );
+
+					if ( $contact_entry_id && ! is_wp_error( $contact_entry_id ) ) {
+						// Save entry data using migration-aware Data Access Layer
+						SUPER_Data_Access::save_entry_data( $contact_entry_id, $entry_data );
+
+						// Add IP address
+						if ( ! empty( $entry_ip ) ) {
+							add_post_meta( $contact_entry_id, '_super_contact_entry_ip', $entry_ip );
+						}
+
+						// Tag as test entry if requested
+						if ( $tag_as_test ) {
+							add_post_meta( $contact_entry_id, '_super_test_entry', '1' );
+						}
+
+						$imported_count++;
+					} else {
+						$error_count++;
+					}
+				}
+
+				$row++;
+			}
+
+			fclose( $handle );
+		}
+
+		// Return statistics
+		wp_send_json_success( array(
+			'total' => $row - 1, // Exclude header row
+			'imported' => $imported_count,
+			'forms' => count( $unique_forms ),
+			'fields' => count( $unique_fields ),
+			'filesize' => $filesize,
+			'errors' => $error_count,
+			'filename' => $filename,
+			'tagged_as_test' => $tag_as_test,
+		) );
 	}
 	}
 endif;

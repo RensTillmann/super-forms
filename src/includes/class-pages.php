@@ -2477,6 +2477,15 @@ if ( ! class_exists( 'SUPER_Pages' ) ) :
 		include_once SUPER_PLUGIN_DIR . '/includes/admin/views/page-migration.php';
 	}
 
+	/**
+	 * Developer Tools Page (DEBUG mode only)
+	 *
+	 * @since 6.0.0
+	 */
+	public static function developer_tools() {
+		include_once SUPER_PLUGIN_DIR . '/includes/admin/views/page-developer-tools.php';
+	}
+
 
 		/**
 		 * List of all the contact entries

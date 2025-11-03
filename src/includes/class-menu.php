@@ -67,6 +67,17 @@ if ( ! class_exists( 'SUPER_Menu' ) ) :
 			'super_migration',
 			'SUPER_Pages::migration'
 		);
+			// Developer Tools (DEBUG mode only)
+			if ( defined( 'DEBUG_SF' ) && DEBUG_SF === true ) {
+				add_submenu_page(
+					'super_forms',
+					esc_html__( 'Developer Tools', 'super-forms' ),
+					esc_html__( 'Developer Tools', 'super-forms' ),
+					'manage_options',
+					'super_developer_tools',
+					'SUPER_Pages::developer_tools'
+				);
+			}
 			add_submenu_page(
 				'super_forms',
 				esc_html__( 'Contact Entries', 'super-forms' ),
