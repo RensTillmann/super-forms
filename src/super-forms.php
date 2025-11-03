@@ -162,6 +162,12 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 		 */
 		public function __construct() {
 			$this->define_constants();
+
+		// Load Action Scheduler FIRST (before plugins_loaded)
+		// Required for automatic background migration system
+		if ( file_exists( SUPER_PLUGIN_DIR . '/includes/lib/action-scheduler/action-scheduler.php' ) ) {
+			require_once SUPER_PLUGIN_DIR . '/includes/lib/action-scheduler/action-scheduler.php';
+		}
 			$this->includes();
 			$this->init_hooks();
 			do_action( 'super_loaded' );
@@ -236,6 +242,7 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 			include_once 'includes/class-common.php';
 		include_once 'includes/class-data-access.php';
 	include_once 'includes/class-migration-manager.php';
+	include_once 'includes/class-background-migration.php';
 
 			if ( $this->is_request( 'admin' ) ) {
 				include_once 'includes/class-install.php';
@@ -982,6 +989,11 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 							}
 							// Send API request that the plugin has been updated
 							self::api_post( 'update' );
+
+							// Schedule background migration if needed (automatic detection on update)
+							if ( class_exists( 'SUPER_Background_Migration' ) ) {
+								SUPER_Background_Migration::schedule_if_needed( 'update' );
+							}
 						}
 					}
 				}

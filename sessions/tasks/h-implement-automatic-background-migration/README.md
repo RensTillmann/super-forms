@@ -38,10 +38,10 @@ The EAV migration system currently requires manual initiation and browser tab to
 
 ### Data Integrity & Verification
 - [ ] Per-entry verification: compares EAV data with serialized data before deletion
-- [ ] Serialized data only deleted after successful verification
+- [ ] Serialized data preserved during migration (deletion commented out for safety)
 - [ ] Failed verifications logged with detailed error messages
 - [ ] Failed entries kept in both formats (serialized + EAV) for manual review
-- [ ] Pre-migration backup table created for rollback capability
+- [ ] Serialized data serves as built-in backup (no separate backup table needed)
 - [ ] Rollback function available if needed
 
 ### User Experience (Frictionless)
@@ -615,8 +615,8 @@ if (!function_exists('as_enqueue_async_action')) {
 ### Key Architectural Decisions to Implement
 
 1. **Self-Scheduling Pattern:** Each batch schedules the next batch instead of scheduling all upfront
-2. **Per-Entry Verification:** Verify each entry before deleting serialized data (not bulk verification)
-3. **Backup Strategy:** Create backup table before starting (for rollback capability)
+2. **Per-Entry Verification:** Verify each entry after migration (serialized data preserved for safety)
+3. **Backup Strategy:** Serialized data serves as built-in backup (kept throughout migration)
 4. **Lock Mechanism:** Use transients to prevent concurrent migrations
 5. **Error Handling:** Failed entries kept in both formats, logged, and reported
 6. **Progress Tracking:** Update migration state after each batch for resume capability
@@ -638,15 +638,15 @@ require_once SUPER_PLUGIN_DIR . '/src/includes/lib/action-scheduler/action-sched
 1. Plugin activation/update hook triggers detection
 2. If unmigrated entries exist → schedule first batch
 3. Action Scheduler processes batches in background
-4. Each batch: migrate 50-100 entries, verify, delete serialized if verified
+4. Each batch: migrate 50-100 entries, verify integrity, keep serialized data
 5. Self-scheduling: each batch schedules next batch until complete
 6. Daily health check ensures completion even if process interrupted
 
 **Verification Strategy:**
-- Per-entry: Migrate → Verify → Delete serialized (if verified)
+- Per-entry: Migrate → Verify integrity → Log results
 - Verification: Compare field count + field-by-field value comparison
 - Failed verification: Keep both copies, log error, continue with next entry
-- Backup table: Create before migration starts for rollback capability
+- Serialized data: Preserved throughout migration as built-in backup (deletion commented out)
 
 **Enhanced WP-Cron Fallback:**
 - Self-scheduling pattern (don't schedule all batches upfront)

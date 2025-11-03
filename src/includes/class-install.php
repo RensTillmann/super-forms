@@ -51,6 +51,11 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 			// Initialize migration state tracking
 			self::init_migration_state();
 
+		// Schedule background migration if needed (automatic detection)
+		if ( class_exists( 'SUPER_Background_Migration' ) ) {
+			SUPER_Background_Migration::schedule_if_needed( 'activation' );
+		}
+
 			// Update database version
 			self::update_db_version();
 		}
@@ -101,16 +106,23 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 			$migration = get_option( 'superforms_eav_migration' );
 			if ( false === $migration ) {
 				$migration_state = array(
-					'status'               => 'not_started',
-					'using_storage'        => 'serialized',
-					'total_entries'        => 0,
-					'migrated_entries'     => 0,
-					'failed_entries'       => array(),
-					'started_at'           => '',
-					'completed_at'         => '',
-					'last_processed_id'    => 0,
-					'verification_passed'  => false,
-					'rollback_available'   => false,
+					'status'                     => 'not_started',
+					'using_storage'              => 'serialized',
+					'total_entries'              => 0,
+					'migrated_entries'           => 0,
+					'failed_entries'             => array(),
+					'started_at'                 => '',
+					'completed_at'               => '',
+					'last_processed_id'          => 0,
+					'verification_passed'        => false,
+					'rollback_available'         => false,
+					// Background processing fields
+					'background_enabled'         => false,
+					'last_batch_processed_at'    => '',
+					'last_schedule_attempt'      => '',
+					'auto_triggered_by'          => '',
+					'health_check_count'         => 0,
+					'last_health_check'          => '',
 				);
 				update_option( 'superforms_eav_migration', $migration_state );
 			}

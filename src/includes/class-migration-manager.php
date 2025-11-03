@@ -228,6 +228,42 @@ class SUPER_Migration_Manager {
             }
         }
 
+        // Verify migration was successful (compare EAV data with serialized data)
+        if (class_exists('SUPER_Data_Access')) {
+            $validation = SUPER_Data_Access::validate_entry_integrity($entry_id);
+
+            if ($validation && isset($validation['valid']) && $validation['valid'] === true) {
+                // Verification passed - serialized data can be deleted in future
+                // NOTE: Keeping serialized data for now as additional safety measure
+                // Uncomment when ready to enable automatic cleanup:
+                // delete_post_meta($entry_id, '_super_contact_entry_data');
+
+                // Log successful verification
+                if (class_exists('SUPER_Background_Migration')) {
+                    SUPER_Background_Migration::log("Entry {$entry_id} migrated and verified successfully (serialized data kept)");
+                }
+            } else {
+                // Verification failed - keep both copies for manual review
+                $error_msg = isset($validation['error']) ? $validation['error'] : 'Unknown validation error';
+
+                // Log verification failure
+                if (class_exists('SUPER_Background_Migration')) {
+                    SUPER_Background_Migration::log("Entry {$entry_id} migration verification FAILED: {$error_msg}. Keeping both copies.", 'warning');
+                }
+
+                // Return error so it's tracked in failed_entries
+                return new WP_Error(
+                    'verification_failed',
+                    "Verification failed: {$error_msg}. Entry migrated but serialized data kept as backup."
+                );
+            }
+        } else {
+            // No verification available - keep serialized data as safety measure
+            if (class_exists('SUPER_Background_Migration')) {
+                SUPER_Background_Migration::log("Entry {$entry_id} migrated but verification unavailable, keeping serialized data", 'warning');
+            }
+        }
+
         return true;
     }
 
