@@ -42,4 +42,5 @@
 | `super_enqueue_styles` | [super-forms.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_enqueue_styles) |
 | `super_enqueue_scripts` | [super-forms.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_enqueue_scripts) |
 | `super_after_contact_entry_data_filter` | [includes/class-pages.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_after_contact_entry_data_filter) |
+| `super_forms_migration_batch_size` | [includes/class-background-migration.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_forms_migration_batch_size) |
 | **Deprecated** `super_settings_after_smtp_server_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_after_smtp_server_filter) |

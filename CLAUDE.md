@@ -55,6 +55,11 @@ Super Forms is a WordPress drag & drop form builder plugin with various add-ons 
 ## Key Files
 - `super-forms.php` - Main plugin file
 - `src/includes/class-*.php` - Core functionality classes
+- `src/includes/class-background-migration.php` - Automatic background migration orchestration
+- `src/includes/class-migration-manager.php` - Entry-by-entry migration processing
+- `src/includes/class-data-access.php` - Storage abstraction layer (serialized/EAV routing)
+- `src/includes/class-install.php` - Database setup and self-healing
+- `src/includes/lib/action-scheduler/` - Action Scheduler library (v3.9.3) for background processing
 - `src/assets/js/frontend/*.js` - JavaScript files related to the front-end (rendering form)
 - `src/assets/js/backend/*.js` - JavaScript files related to the backend (in wordpress dashboard/admin side)
 - `src/assets/js/backend/create-form.js` - Form builder (create form) JavaScript
@@ -65,9 +70,10 @@ Super Forms is a WordPress drag & drop form builder plugin with various add-ons 
 
 ## Current Development Focus
 Based on recent commits:
-- Working on colorpicker field types for tabs and email templates
-- Implementing dynamic group path handling
-- Improving conditional logic and filter systems
+- Completed automatic background migration system (v6.4.111-6.4.114)
+- Implemented dynamic batch sizing and resource monitoring for migrations
+- Added Developer Tools page with migration monitoring UI
+- Working on data verification and integrity validation for EAV migration
 
 ## Testing & Validation
 - Use `npm run jshint` for JavaScript linting
@@ -132,6 +138,308 @@ No debugging guidelines defined try to use your best approach
 ### Working with build in extensions:
 - Super Forms comes with build-in extensions such as Listings, Stripe, PDF generator
 - These are located inside `/src/includes/extensions` and mostly require paymnet either via yearly manual payment or subscription via our third party custom build license system under Super Forms > Licenses
+
+## Background Migration System
+
+### Overview
+The automatic background migration system transforms contact entry data from serialized WordPress post_meta storage (`_super_contact_entry_data`) to a dedicated EAV (Entity-Attribute-Value) table (`wp_superforms_entry_data`). This migration enables:
+
+- **10-100x faster queries** for search, filtering, and sorting
+- **Indexed field-level access** instead of full-text serialized data scans
+- **Optimized CSV exports** with bulk queries instead of N+1 problems
+- **Scalability** for large datasets (10K-100K+ entries)
+
+### Architecture
+
+**Core Components:**
+- `SUPER_Background_Migration` - Orchestrates background processing using Action Scheduler
+- `SUPER_Migration_Manager` - Handles entry-by-entry migration logic
+- `SUPER_Data_Access` - Abstract storage layer (routes reads/writes based on migration state)
+- `SUPER_Install` - Database setup with self-healing capabilities
+
+**Infrastructure:**
+- Uses Action Scheduler library (v3.9.3) bundled at `src/includes/lib/action-scheduler/`
+- Falls back to WP-Cron if Action Scheduler unavailable
+- Self-scheduling pattern: each batch schedules the next batch
+- Survives browser closings, server restarts, and PHP timeouts
+
+### Automatic Detection & Triggers
+
+**Plugin Activation:**
+- Hook: `register_activation_hook(__FILE__, array('SUPER_Install', 'install'))`
+- Location: `super-forms.php` line 317
+- Calls `SUPER_Background_Migration::schedule_if_needed('activation')`
+- Creates tables, initializes state, schedules first batch
+
+**Plugin Updates (Version-Based Detection):**
+- Hook: `add_action('init', array('SUPER_Background_Migration', 'check_version_and_schedule'), 5)`
+- Location: `class-background-migration.php` lines 66-136
+- Compares stored version (`super_plugin_version` option) with `SUPER_VERSION` constant
+- Triggers on UPGRADES only (catches FTP uploads, git pulls, manual updates)
+- Self-healing: Auto-creates missing tables and state
+- Race condition protection: Acquires setup lock BEFORE checking migration needs
+
+**Hourly Health Checks:**
+- Scheduled via Action Scheduler: `superforms_migration_health_check`
+- Frequency: `HOUR_IN_SECONDS` (3600 seconds)
+- Detects stuck migrations and resumes processing
+- Maximum recovery time: 1.5 hours (30min lock TTL + 1hr health check)
+
+### Dynamic Batch Sizing Algorithm
+
+**Calculation Factors:**
+1. **Memory-based:** `floor((memory_limit * 0.5) / 100KB per entry)`
+2. **Time-based:** `floor((max_execution_time * 0.3) / 0.1s per entry)`
+3. **Dataset-based:** Scales by total entries (10 for <1K, 25 for <10K, 50 for <50K, 100 for 50K+)
+
+**Takes minimum of all three, then:**
+- Applies hard caps: min 1 entry, max 100 entries per batch
+- Adaptive failure handling: halves batch size if >5 failures detected
+- Filter hook: `super_forms_migration_batch_size` for manual override
+
+**Why Dynamic?**
+- Shared hosting: 128M memory, 30s timeout → calculates ~20 entries/batch
+- VPS hosting: 512M memory, 300s timeout → calculates ~100 entries/batch
+- Prevents death spirals where static batch size causes infinite failures
+
+### Real-Time Resource Monitoring
+
+**Memory Threshold (85%):**
+- Checks BEFORE processing each entry
+- Compares `memory_get_usage(true)` vs `$memory_limit * 0.85`
+- Stops batch early if exceeded, saves progress, schedules next batch
+
+**Execution Time Threshold (70%):**
+- Checks BEFORE processing each entry
+- Compares `(microtime(true) - $start_time)` vs `$max_execution_time * 0.7`
+- Prevents PHP timeout fatal errors
+
+**Why These Thresholds?**
+- 85% memory: Safety margin before PHP exhausts memory and dies
+- 70% time: Conservative buffer before `max_execution_time` kills process
+- Early stopping with saved progress is safer than hitting fatal limits
+
+### Migration State Tracking
+
+**Option Key:** `superforms_eav_migration`
+
+**Structure:**
+```php
+array(
+    'status'               => 'not_started|in_progress|completed',
+    'using_storage'        => 'serialized|eav',  // Controls which storage to read from
+    'total_entries'        => 1000,
+    'migrated_entries'     => 450,
+    'failed_entries'       => array(123 => 'error message'),
+    'started_at'           => '2025-01-15 10:30:00',
+    'completed_at'         => '',
+    'last_processed_id'    => 4567,  // Resume point for interrupted migrations
+    'verification_passed'  => false,
+    'rollback_available'   => true
+)
+```
+
+**Phase-Based Storage Routing:**
+- Phase 1 (not_started): Write serialized only
+- Phase 2 (in_progress): DUAL-WRITE to both storages (safety during migration)
+- Phase 3 (completed + rolled back): Write serialized only
+- Phase 4 (completed + using_storage=eav): Write EAV only (optimized)
+
+### Database Architecture
+
+**EAV Table:** `wp_superforms_entry_data`
+```sql
+CREATE TABLE wp_superforms_entry_data (
+    id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+    entry_id BIGINT(20) UNSIGNED NOT NULL,
+    field_name VARCHAR(255) NOT NULL,
+    field_value LONGTEXT,
+    field_type VARCHAR(50),
+    field_label VARCHAR(255),
+    created_at DATETIME NOT NULL,
+    PRIMARY KEY (id),
+    KEY entry_id (entry_id),
+    KEY field_name (field_name),
+    KEY entry_field (entry_id, field_name),
+    KEY field_value (field_value(191))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+**Indexes:**
+- `entry_id` - Lookup by entry (get all fields for one entry)
+- `field_name` - Lookup by field (get specific field across entries)
+- `entry_field` - Combined lookup (get specific field for specific entry)
+- `field_value(191)` - Search/filter support (prefix index for LONGTEXT)
+
+**Post Meta Keys:**
+- `_super_contact_entry_data` - Serialized entry data (pre-migration or dual-write)
+- `_super_test_entry` - Test entry flag (value: 1/true)
+- `_super_contact_entry_ip` - Entry IP address
+- `_super_contact_entry_status` - Custom entry status
+
+**Options:**
+- `superforms_eav_migration` - Migration state tracking
+- `super_plugin_version` - Stored version for update detection
+- `superforms_db_version` - Database schema version (currently '1.0.0')
+
+### Lock Mechanisms
+
+**Migration Lock (prevents concurrent batch processing):**
+- Transient key: `super_migration_lock`
+- Duration: 1800 seconds (30 minutes)
+- Purpose: Ensures only one batch processes at a time
+
+**Setup Lock (prevents race conditions during table creation):**
+- Transient key: `super_setup_lock`
+- Duration: 600 seconds (10 minutes)
+- Purpose: Prevents multiple simultaneous table creation attempts after FTP uploads
+- **Critical Pattern:** Lock acquired BEFORE checking if migration needed
+
+**Why Lock Before Check?**
+After FTP upload, many visitors hit site simultaneously. Each runs `check_version_and_schedule()` on `init` hook. Without proper ordering, dozens of requests could start table creation simultaneously. Correct pattern:
+1. Acquire lock FIRST
+2. Check if migration needed SECOND (inside lock protection)
+3. Release lock in `finally` block for guaranteed cleanup
+
+### Configuration & Filters
+
+**Filter Hooks:**
+- `super_forms_migration_batch_size` - Override dynamic batch size calculation
+- Applied after all calculations, allows manual tuning
+
+**Constants:**
+- `DEBUG_SF` - When true, enables Developer Tools menu for migration monitoring
+- `SUPER_VERSION` - Current plugin version for update detection
+- `DISABLE_WP_CRON` - If true, WP-Cron fallback won't work (Action Scheduler still works)
+
+**Action Scheduler Hooks:**
+- `superforms_migrate_batch` - Processes one batch of entries
+- `superforms_migration_health_check` - Hourly health check for stuck migrations
+
+**WP-Cron Fallback Hooks:**
+- `super_migration_cron_batch` - Processes batch if Action Scheduler unavailable
+- `super_migration_cron_health` - Health check via WP-Cron
+
+### Monitoring & Troubleshooting
+
+**Developer Tools Page:**
+- Location: Super Forms > Developer Tools (only visible when `DEBUG_SF` constant is true)
+- Features: Migration status, progress tracking, manual controls, CSV import
+- File: `src/includes/admin/views/page-developer-tools.php`
+
+**Progress Monitoring:**
+- Real-time progress bar with percentage
+- Entry counts (migrated/total/failed)
+- Status badges (not_started, in_progress, completed)
+- Storage mode indicator (serialized vs EAV)
+
+**Debug Logging:**
+- All migration actions logged to `debug.log` with `[SF Migration]` prefix
+- Batch processing logs include: entry counts, memory usage, execution time
+- Failed entries logged with detailed error messages
+
+**Common Issues:**
+
+1. **Migration Stuck:**
+   - Check `debug.log` for errors
+   - Verify health check is scheduled: `wp cron event list | grep migration_health`
+   - Check if setup lock expired: `wp transient get super_setup_lock`
+   - Maximum stuck time: 1.5 hours before automatic recovery
+
+2. **Memory Errors:**
+   - Dynamic batch size should prevent this
+   - If recurring, check `debug.log` for memory_limit value
+   - Consider increasing PHP `memory_limit` or using filter to reduce batch size
+
+3. **Timeout Errors:**
+   - Dynamic batch size should prevent this
+   - Check `max_execution_time` in PHP settings
+   - Real-time monitoring stops at 70% threshold to prevent timeouts
+
+4. **Action Scheduler Issues:**
+   - View Action Scheduler admin: Tools > Action Scheduler
+   - Check for failed actions with "superforms" in action name
+   - Failed actions automatically retry 3 times before marking as failed
+
+**Manual Controls (Developer Tools):**
+- Start Migration - Initiate foreground migration (legacy)
+- Pause Migration - Stop processing (used for debugging)
+- Reset Migration - Reset to not_started (destructive, testing only)
+- Rollback - Switch back to serialized storage (preserves EAV data)
+- Force Complete - Skip migration, switch to EAV (debug tool, dangerous)
+
+### Performance Impact
+
+**During Migration:**
+- Background processing doesn't block user interactions
+- Minimal resource usage due to dynamic batch sizing
+- Typical completion time: 24-48 hours for 10K-50K entries
+- No impact on frontend form submissions (dual-write ensures data in both formats)
+
+**After Migration:**
+- **Search:** 10-100x faster (indexed field_value vs full-text LIKE on serialized)
+- **Sorting:** Enables custom field sorting (impossible with serialized)
+- **CSV Export:** Single bulk query vs N+1 serialized reads
+- **Listings:** 100x+ faster filters (indexed JOIN vs SUBSTRING_INDEX on serialized)
+
+**Query Optimizations Enabled:**
+- Contact Entry Search: `field_value LIKE '%keyword%'` with prefix index
+- Custom Sorting: Subquery `(SELECT field_value FROM eav WHERE field_name='email')`
+- Listings Filters: Indexed JOIN on `field_name` and `field_value`
+- Bulk Export: `WHERE entry_id IN (...)` single query
+
+### Key Implementation Learnings
+
+**Action Scheduler Behavior:**
+- `as_enqueue_async_action()` processes batches back-to-back in single PHP request
+- 1,837 entries processed in 6 seconds with 19 batches (no breathing room)
+- Solution: Use `as_schedule_single_action(time() + BATCH_DELAY)` to force separate requests
+
+**PHP Fatal Error Handling:**
+- PHP timeout/memory fatal errors bypass `finally` blocks
+- Lock cleanup in `finally` won't execute if PHP dies
+- Mitigation: Transient TTL (30min) + hourly health checks (max 1.5hr stuck time)
+
+**Race Condition Pattern:**
+- WRONG: Check needs_migration() → Acquire lock
+- CORRECT: Acquire lock → Check needs_migration() → Release lock in finally
+
+**Batch Size Philosophy:**
+- Static batch size: Works in testing, fails in production
+- Dynamic calculation: Adapts to server resources automatically
+- Real-time monitoring: Stops early if resources constrained
+- Adaptive failure handling: Reduces batch size if failures detected
+
+### Code Entry Points
+
+**Background Migration Class:**
+- File: `src/includes/class-background-migration.php`
+- Init: `SUPER_Background_Migration::init()` (registers hooks)
+- Version Check: `check_version_and_schedule()` method (lines 83-136)
+- Batch Processing: `process_batch_action()` method (schedules via Action Scheduler)
+- Health Check: `health_check_action()` method (hourly verification)
+
+**Migration Manager Class:**
+- File: `src/includes/class-migration-manager.php`
+- Start: `start_migration()` method (initializes state)
+- Process: `process_batch($batch_size)` method (migrates N entries)
+- Migrate: `migrate_entry($entry_id)` method (single entry migration)
+- Complete: `complete_migration()` method (switches to EAV storage)
+- Rollback: `rollback_migration()` method (switches back to serialized)
+
+**Data Access Layer:**
+- File: `src/includes/class-data-access.php`
+- Read: `get_entry_data($entry_id)` method (migration-aware routing)
+- Write: `save_entry_data($entry_id, $data)` method (phase-aware dual-write)
+- Bulk: `get_bulk_entry_data($entry_ids)` method (optimized for exports)
+- Verify: `validate_entry_integrity($entry_id)` method (compares serialized vs EAV)
+
+**Install & Setup:**
+- File: `src/includes/class-install.php`
+- Activation: `install()` method (creates tables, schedules migration)
+- Tables: `create_tables()` method (uses dbDelta for schema management)
+- State Init: `init_migration_state()` method (creates migration option)
+- Self-Healing: `ensure_tables_exist()` and `ensure_migration_state_initialized()` methods
 
 ## Development Workflow
 

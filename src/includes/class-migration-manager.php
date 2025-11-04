@@ -80,36 +80,53 @@ class SUPER_Migration_Manager {
     public static function process_batch($batch_size = null) {
         global $wpdb;
 
+        error_log('[SF Migration Debug] SUPER_Migration_Manager::process_batch() ENTERED');
+        error_log('[SF Migration Debug] $batch_size param: ' . var_export($batch_size, true));
+
         if ($batch_size === null) {
             $batch_size = self::BATCH_SIZE;
         }
 
+        error_log('[SF Migration Debug] $batch_size after null check: ' . $batch_size);
+
         // Get current migration state
         $migration = get_option('superforms_eav_migration');
+        error_log('[SF Migration Debug] Migration state retrieved');
+        error_log('[SF Migration Debug] Migration status: ' . (isset($migration['status']) ? $migration['status'] : 'UNKNOWN'));
 
         if (empty($migration) || $migration['status'] !== 'in_progress') {
+            error_log('[SF Migration Debug] Migration status check FAILED - returning WP_Error');
             return new WP_Error(
                 'migration_not_in_progress',
                 __('Migration is not in progress', 'super-forms')
             );
         }
 
+        error_log('[SF Migration Debug] Migration status check PASSED');
+        error_log('[SF Migration Debug] last_processed_id: ' . $migration['last_processed_id']);
+        error_log('[SF Migration Debug] About to fetch next batch of entries');
+
         // Get next batch of entries
         $entries = $wpdb->get_results($wpdb->prepare("
             SELECT ID
             FROM {$wpdb->posts}
             WHERE post_type = 'super_contact_entry'
-            AND post_status IN ('publish', 'super_unread', 'super_read')
             AND ID > %d
             ORDER BY ID ASC
             LIMIT %d
         ", $migration['last_processed_id'], $batch_size), ARRAY_A);
 
+        error_log('[SF Migration Debug] Query executed');
+        error_log('[SF Migration Debug] Entries found: ' . count($entries));
+        error_log('[SF Migration Debug] Entries: ' . print_r($entries, true));
+
         if (empty($entries)) {
+            error_log('[SF Migration Debug] No entries found - completing migration');
             // No more entries to process, complete migration
             return self::complete_migration();
         }
 
+        error_log('[SF Migration Debug] Starting to process ' . count($entries) . ' entries');
         $processed = 0;
         $failed = 0;
         $last_id = $migration['last_processed_id'];
@@ -118,8 +135,12 @@ class SUPER_Migration_Manager {
             $entry_id = $entry['ID'];
             $last_id = $entry_id;
 
+            error_log('[SF Migration Debug] Processing entry ID: ' . $entry_id);
+
             // Migrate this entry
             $result = self::migrate_entry($entry_id);
+
+            error_log('[SF Migration Debug] migrate_entry() returned for ID: ' . $entry_id);
 
             if (is_wp_error($result)) {
                 $migration['failed_entries'][$entry_id] = $result->get_error_message();
@@ -158,55 +179,92 @@ class SUPER_Migration_Manager {
      * @return bool|WP_Error True on success, WP_Error on failure
      */
     private static function migrate_entry($entry_id) {
+        error_log('[SF Migration Debug] migrate_entry() ENTERED for ID: ' . $entry_id);
+
         // Read from serialized storage
         $data = get_post_meta($entry_id, '_super_contact_entry_data', true);
 
+        error_log('[SF Migration Debug] get_post_meta returned, type: ' . gettype($data));
+        error_log('[SF Migration Debug] Data empty check: ' . (empty($data) ? 'TRUE' : 'FALSE'));
+
         if (empty($data)) {
+            error_log('[SF Migration Debug] Entry ' . $entry_id . ' has no data, skipping');
             // Entry has no data, skip
             return true;
         }
 
+        error_log('[SF Migration Debug] Data is string: ' . (is_string($data) ? 'TRUE' : 'FALSE'));
+
         // Handle serialized data
         if (is_string($data)) {
+            error_log('[SF Migration Debug] About to unserialize data for entry: ' . $entry_id);
+            error_log('[SF Migration Debug] Data length: ' . strlen($data));
+            error_log('[SF Migration Debug] First 100 chars: ' . substr($data, 0, 100));
+
             $data = @unserialize($data);
+
+            error_log('[SF Migration Debug] Unserialize completed');
+
             if ($data === false) {
+                error_log('[SF Migration Debug] Unserialize returned FALSE');
                 return new WP_Error(
                     'corrupt_data',
                     'Failed to unserialize entry data'
                 );
             }
+        } else {
+            error_log('[SF Migration Debug] Data is already unserialized (type: ' . gettype($data) . ')');
         }
 
+        error_log('[SF Migration Debug] About to check if data is array');
+
         if (!is_array($data)) {
+            error_log('[SF Migration Debug] Data is NOT array - returning error');
             return new WP_Error(
                 'invalid_data',
                 'Entry data is not an array'
             );
         }
 
+        error_log('[SF Migration Debug] Data IS array - passed check');
+        error_log('[SF Migration Debug] About to get global $wpdb');
+
         // Write to EAV tables using Data Access Layer's private method
         // We'll directly insert into EAV table here
         global $wpdb;
+
+        error_log('[SF Migration Debug] Got $wpdb, setting table name');
         $table = $wpdb->prefix . 'superforms_entry_data';
+        error_log('[SF Migration Debug] Table name: ' . $table);
 
         // Delete any existing EAV data for this entry
+        error_log('[SF Migration Debug] About to delete existing EAV data for entry: ' . $entry_id);
         $wpdb->delete($table, array('entry_id' => $entry_id), array('%d'));
+        error_log('[SF Migration Debug] Deleted existing EAV data, starting field loop');
 
         // Insert each field into EAV table
         foreach ($data as $field_name => $field_data) {
+            error_log('[SF Migration Debug] Processing field: ' . $field_name);
+
             if (!is_array($field_data)) {
+                error_log('[SF Migration Debug] Field ' . $field_name . ' is not array, skipping');
                 continue; // Skip non-array entries
             }
 
+            error_log('[SF Migration Debug] Extracting field data for: ' . $field_name);
             $field_value = isset($field_data['value']) ? $field_data['value'] : '';
             $field_type = isset($field_data['type']) ? $field_data['type'] : '';
             $field_label = isset($field_data['label']) ? $field_data['label'] : '';
 
+            error_log('[SF Migration Debug] Field value type: ' . gettype($field_value));
+
             // Handle repeater fields (store as JSON)
             if (is_array($field_value)) {
+                error_log('[SF Migration Debug] Field value is array, encoding to JSON');
                 $field_value = wp_json_encode($field_value);
             }
 
+            error_log('[SF Migration Debug] About to insert field ' . $field_name . ' into database');
             $result = $wpdb->insert(
                 $table,
                 array(
@@ -220,17 +278,27 @@ class SUPER_Migration_Manager {
                 array('%d', '%s', '%s', '%s', '%s', '%s')
             );
 
+            error_log('[SF Migration Debug] Insert result: ' . var_export($result, true));
+
             if ($result === false) {
+                error_log('[SF Migration Debug] Insert FAILED for field: ' . $field_name . ', Error: ' . $wpdb->last_error);
                 return new WP_Error(
                     'db_insert_failed',
                     'Failed to insert field into EAV table: ' . $wpdb->last_error
                 );
             }
+
+            error_log('[SF Migration Debug] Successfully inserted field: ' . $field_name);
         }
+
+        error_log('[SF Migration Debug] Finished field loop, all fields inserted');
+        error_log('[SF Migration Debug] Checking if SUPER_Data_Access class exists');
 
         // Verify migration was successful (compare EAV data with serialized data)
         if (class_exists('SUPER_Data_Access')) {
+            error_log('[SF Migration Debug] SUPER_Data_Access exists, about to call validate_entry_integrity');
             $validation = SUPER_Data_Access::validate_entry_integrity($entry_id);
+            error_log('[SF Migration Debug] validate_entry_integrity returned');
 
             if ($validation && isset($validation['valid']) && $validation['valid'] === true) {
                 // Verification passed - serialized data can be deleted in future

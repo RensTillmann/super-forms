@@ -185,13 +185,9 @@ class SUPER_Data_Access {
             return array();
         }
 
-        $data = @unserialize($serialized);
-
-        // Handle corrupt serialized data
-        if ($data === false && $serialized !== 'b:0;') {
-            error_log('[Super Forms] Corrupt serialized data for entry ' . $entry_id);
-            return array();
-        }
+        // Use WordPress's maybe_unserialize() which safely handles both serialized strings
+        // and already-unserialized data (WordPress auto-unserializes meta values)
+        $data = maybe_unserialize($serialized);
 
         return is_array($data) ? $data : array();
     }

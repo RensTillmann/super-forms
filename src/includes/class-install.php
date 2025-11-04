@@ -20,45 +20,61 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 	 */
 	class SUPER_Install {
 
+	/**
+	 * Plugin activation handler
+	 *
+	 * Installs Super Forms for the current site.
+	 * On multisite networks, must be activated per-site.
+	 *
+	 * @since 1.0.0
+	 */
+	public static function install() {
+		// error_log('SUPER_Install::install()');
+
+		// Flush rewrite rules if custom hook not registered
+		if ( ! has_action( 'super_forms_flush_rewrite_rules' ) ) {
+			flush_rewrite_rules();
+		}
+
 		/**
-		 *  Activation
+		 * Flush rewrite rules after plugin activation
 		 *
-		 *  Upon plugin activation save the default settings
-		 *
-		 *  @since      1.0.0
+		 * @since 6.4.111
 		 */
-		public static function install() {
-			// error_log('SUPER_Install::install()');
-			flush_rewrite_rules( true ); // required for add_rewrite_rule() to be affected after updating the plugin or installing it for the first time
-			global $wpdb;
-			if ( ! defined( 'SUPER_INSTALLING' ) ) {
-				define( 'SUPER_INSTALLING', true );
-			}
-			// Only save settings on first time
-			// In case Super Forms is updated or replaced by a newer version
-			// do not override to the default settings
-			// The following checks if super_settings doesn't exist
-			// If it doesn't we can save the default settings (for the first time)
-			if ( ! get_option( 'super_settings' ) ) {
-				$default_settings = SUPER_Settings::get_defaults();
-				// Now save the settings to the database
-				update_option( 'super_settings', $default_settings );
-			}
+		do_action( 'super_forms_flush_rewrite_rules' );
 
-			// Create database tables
-			self::create_tables();
+		global $wpdb;
+		if ( ! defined( 'SUPER_INSTALLING' ) ) {
+			define( 'SUPER_INSTALLING', true );
+		}
+		// Only save settings on first time
+		// In case Super Forms is updated or replaced by a newer version
+		// do not override to the default settings
+		// The following checks if super_settings doesn't exist
+		// If it doesn't we can save the default settings (for the first time)
+		if ( ! get_option( 'super_settings' ) ) {
+			$default_settings = SUPER_Settings::get_defaults();
+			// Now save the settings to the database
+			update_option( 'super_settings', $default_settings );
+		}
 
-			// Initialize migration state tracking
-			self::init_migration_state();
+		// Create database tables
+		self::create_tables();
+
+		// Initialize migration state tracking
+		self::init_migration_state();
 
 		// Schedule background migration if needed (automatic detection)
 		if ( class_exists( 'SUPER_Background_Migration' ) ) {
 			SUPER_Background_Migration::schedule_if_needed( 'activation' );
 		}
 
-			// Update database version
-			self::update_db_version();
-		}
+		// Update database version
+		self::update_db_version();
+
+		// Store plugin version for version-based migration detection
+		update_option( 'super_plugin_version', defined( 'SUPER_VERSION' ) ? SUPER_VERSION : '0.0.0' );
+	}
 
 		/**
 		 * Create database tables
@@ -137,6 +153,63 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 			update_option( 'superforms_db_version', '1.0.0' );
 		}
 
+	/**
+	 * Ensure EAV database tables exist (auto-create if missing)
+	 *
+	 * Public helper for self-healing setup - can be called from version detection,
+	 * FTP uploads, git pulls, or any scenario where tables might not exist yet.
+	 *
+	 * @return bool True if tables were created, false if already existed
+	 * @since 6.0.0
+	 */
+	public static function ensure_tables_exist() {
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'superforms_entry_data';
+
+		// Check if table exists
+		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) );
+
+		if ( $table_exists !== $table_name ) {
+			// Table missing - create it
+			self::create_tables();
+
+			// Log for debugging
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
+				error_log( '[Super Forms Migration] EAV database tables created automatically' );
+			}
+
+			return true; // Tables were created
+		}
+
+		return false; // Tables already existed
+	}
+
+	/**
+	 * Ensure migration state is initialized (auto-initialize if missing)
+	 *
+	 * Public helper for self-healing setup - can be called from version detection,
+	 * FTP uploads, git pulls, or any scenario where state might not exist yet.
+	 *
+	 * @return bool True if state was initialized, false if already existed
+	 * @since 6.0.0
+	 */
+	public static function ensure_migration_state_initialized() {
+		$state = get_option( 'superforms_eav_migration' );
+
+		if ( false === $state ) {
+			// State missing - initialize it
+			self::init_migration_state();
+
+			// Log for debugging
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
+				error_log( '[Super Forms Migration] Migration state initialized automatically' );
+			}
+
+			return true; // State was initialized
+		}
+
+		return false; // State already existed
+	}
 
 		/**
 		 *  Deactivate
@@ -147,7 +220,19 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 		 */
 		public static function deactivate() {
 			// error_log('SUPER_Install::deactivate()');
-			flush_rewrite_rules( true ); // required for add_rewrite_rule() to be affected after updating the plugin or installing it for the first time
+
+			// Flush rewrite rules if custom hook not registered
+			if ( ! has_action( 'super_forms_flush_rewrite_rules' ) ) {
+				flush_rewrite_rules();
+			}
+
+			/**
+			 * Flush rewrite rules after plugin deactivation
+			 *
+			 * @since 6.4.111
+			 */
+			do_action( 'super_forms_flush_rewrite_rules' );
+
 			delete_option( '_sf_permalinks_flushed' );
 			wp_clear_scheduled_hook( 'super_client_data_garbage_collection' );
 			wp_clear_scheduled_hook( 'super_cron_reminders' );

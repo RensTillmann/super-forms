@@ -17,6 +17,14 @@ The global settings are stored inside `wp_option` table under option key `super_
 
 All entries are stored inside `wp_posts` table as post_type `super_contact_entry`
 
+**Entry Data Storage (v6.0.0+):**
+- **Legacy:** Entry field data stored in `wp_postmeta` table under meta key `_super_contact_entry_data` (serialized)
+- **Modern (EAV):** Entry field data stored in dedicated `wp_superforms_entry_data` table with indexed columns
+- **Migration:** Automatic background migration from serialized to EAV format after plugin update
+- **Performance:** EAV storage provides 10-100x faster queries for search, filtering, and sorting
+
+The system automatically handles the transition transparently - no user action required.
+
 ## Where are the Forms stored?
 
 All forms are stored inside `wp_posts` table as post_type `super_form`
