@@ -117,6 +117,8 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			'migration_reset'               => false, // @since 6.0.0 - Reset migration to not_started
 			'migration_force_complete'      => false, // @since 6.0.0 - Force complete without migrating
 			'migration_force_eav'           => false, // @since 6.0.0 - Force switch to EAV
+			'retry_failed_entry'            => false, // @since 6.0.0 - Retry failed entry migration
+			'get_entry_diff'                => false, // @since 6.0.0 - Get entry data diff
 
 			// Data Validation handlers
 			'get_entry_ids'                 => false, // @since 6.0.0 - Get all entry IDs for validation
@@ -6447,6 +6449,116 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 	}
 
 	/**
+	 * Retry failed entry migration
+	 *
+	 * @since 6.0.0
+	 */
+	public static function retry_failed_entry() {
+		// Check permissions
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'You do not have permission to retry migrations', 'super-forms' ) ) );
+		}
+
+		// Get entry ID
+		$entry_id = isset( $_POST['entry_id'] ) ? intval( $_POST['entry_id'] ) : 0;
+
+		if ( empty( $entry_id ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Invalid entry ID', 'super-forms' ) ) );
+		}
+
+		// Re-attempt migration
+		$result = SUPER_Migration_Manager::migrate_entry( $entry_id );
+
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+		}
+
+		// Remove from failed list if successful
+		$migration = get_option( 'superforms_eav_migration', array() );
+		if ( isset( $migration['failed_entries'][ $entry_id ] ) ) {
+			unset( $migration['failed_entries'][ $entry_id ] );
+			update_option( 'superforms_eav_migration', $migration );
+		}
+
+		wp_send_json_success( array(
+			'message' => sprintf( esc_html__( 'Entry #%d migrated successfully', 'super-forms' ), $entry_id )
+		) );
+	}
+
+	/**
+	 * Get entry data diff for failed entries
+	 *
+	 * @since 6.0.0
+	 */
+	public static function get_entry_diff() {
+		// Check permissions
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'You do not have permission to view entry diffs', 'super-forms' ) ) );
+		}
+
+		// Get entry ID
+		$entry_id = isset( $_POST['entry_id'] ) ? intval( $_POST['entry_id'] ) : 0;
+
+		if ( empty( $entry_id ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Invalid entry ID', 'super-forms' ) ) );
+		}
+
+		// Get validation result
+		$validation = SUPER_Data_Access::validate_entry_integrity( $entry_id );
+
+		if ( is_wp_error( $validation ) ) {
+			wp_send_json_error( array( 'message' => $validation->get_error_message() ) );
+		}
+
+		// Get entry data from both sources
+		$serialized_data = get_post_meta( $entry_id, '_super_contact_entry_data', true );
+		if ( ! empty( $serialized_data ) ) {
+			$serialized_data = maybe_unserialize( $serialized_data );
+		}
+
+		$eav_data = SUPER_Data_Access::get_entry_data( $entry_id );
+		if ( is_wp_error( $eav_data ) ) {
+			$eav_data = array();
+		}
+
+		// Build diff array
+		$diff_rows = array();
+		$all_fields = array_unique( array_merge(
+			is_array( $serialized_data ) ? array_keys( $serialized_data ) : array(),
+			is_array( $eav_data ) ? array_keys( $eav_data ) : array()
+		) );
+
+		foreach ( $all_fields as $field_name ) {
+			$serialized_value = isset( $serialized_data[ $field_name ] ) ? $serialized_data[ $field_name ] : null;
+			$eav_value = isset( $eav_data[ $field_name ] ) ? $eav_data[ $field_name ] : null;
+
+			// Determine status
+			$status = 'match';
+			if ( $serialized_value === null && $eav_value !== null ) {
+				$status = 'extra'; // In EAV but not in serialized
+			} elseif ( $serialized_value !== null && $eav_value === null ) {
+				$status = 'missing'; // In serialized but not in EAV
+			} elseif ( $serialized_value !== $eav_value ) {
+				$status = 'mismatch';
+			}
+
+			$diff_rows[] = array(
+				'field_name'       => $field_name,
+				'serialized_value' => $serialized_value,
+				'eav_value'        => $eav_value,
+				'status'           => $status,
+			);
+		}
+
+		wp_send_json_success( array(
+			'entry_id'  => $entry_id,
+			'diff_rows' => $diff_rows,
+			'valid'     => $validation['valid'],
+			'error'     => isset( $validation['error'] ) ? $validation['error'] : '',
+		) );
+	}
+
+	/**
 	 * Get all entry IDs for validation
 	 *
 	 * @since 6.0.0
@@ -6514,6 +6626,9 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			wp_send_json_error( array( 'message' => esc_html__( 'Unauthorized', 'super-forms' ) ) );
 		}
 
+		// Verify nonce
+		check_ajax_referer( 'super-form-builder', 'security' );
+
 		// Sanitize inputs
 		$count = isset( $_POST['count'] ) ? absint( $_POST['count'] ) : 10;
 		$form_id = isset( $_POST['form_id'] ) ? absint( $_POST['form_id'] ) : 0;
@@ -6564,6 +6679,9 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			wp_send_json_error( array( 'message' => esc_html__( 'Unauthorized', 'super-forms' ) ) );
 		}
 
+		// Verify nonce
+		check_ajax_referer( 'super-form-builder', 'security' );
+
 		// Delete test entries
 		$result = SUPER_Developer_Tools::delete_test_entries();
 
@@ -6582,6 +6700,9 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			wp_send_json_error( array( 'message' => esc_html__( 'Unauthorized', 'super-forms' ) ) );
 		}
 
+		// Verify nonce
+		check_ajax_referer( 'super-form-builder', 'security' );
+
 		// Get count
 		$count = SUPER_Developer_Tools::get_test_entry_count();
 
@@ -6599,6 +6720,9 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( array( 'message' => esc_html__( 'Unauthorized', 'super-forms' ) ) );
 		}
+
+		// Verify nonce
+		check_ajax_referer( 'super-form-builder', 'security' );
 
 		// Get test selection
 		$tests = isset( $_POST['tests'] ) ? (array) $_POST['tests'] : array();
@@ -6649,6 +6773,9 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			wp_send_json_error( array( 'message' => esc_html__( 'Unauthorized', 'super-forms' ) ) );
 		}
 
+		// Verify nonce
+		check_ajax_referer( 'super-form-builder', 'security' );
+
 		// Get benchmark selection and entry count
 		$benchmarks = isset( $_POST['benchmarks'] ) ? (array) $_POST['benchmarks'] : array();
 		$entry_count = isset( $_POST['entry_count'] ) ? absint( $_POST['entry_count'] ) : 100;
@@ -6696,6 +6823,9 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			wp_send_json_error( array( 'message' => esc_html__( 'Unauthorized', 'super-forms' ) ) );
 		}
 
+		// Verify nonce
+		check_ajax_referer( 'super-form-builder', 'security' );
+
 		// Retrieve stored benchmark results
 		$previous_results = get_option( 'superforms_last_benchmark_results', null );
 
@@ -6723,6 +6853,9 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			wp_send_json_error( array( 'message' => esc_html__( 'Unauthorized', 'super-forms' ) ) );
 		}
 
+		// Verify nonce
+		check_ajax_referer( 'super-form-builder', 'security' );
+
 		$stats = array(
 			'serialized_count' => SUPER_Developer_Tools::get_serialized_count(),
 			'eav_stats' => SUPER_Developer_Tools::get_eav_stats(),
@@ -6742,6 +6875,9 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( array( 'message' => esc_html__( 'Unauthorized', 'super-forms' ) ) );
 		}
+
+		// Verify nonce
+		check_ajax_referer( 'super-form-builder', 'security' );
 
 		global $wpdb;
 
@@ -6778,6 +6914,9 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( array( 'message' => esc_html__( 'Unauthorized', 'super-forms' ) ) );
 		}
+
+		// Verify nonce
+		check_ajax_referer( 'super-form-builder', 'security' );
 
 		global $wpdb;
 
@@ -6821,6 +6960,9 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			wp_send_json_error( array( 'message' => esc_html__( 'Unauthorized', 'super-forms' ) ) );
 		}
 
+		// Verify nonce
+		check_ajax_referer( 'super-form-builder', 'security' );
+
 		$query_key = isset( $_POST['query_key'] ) ? sanitize_text_field( $_POST['query_key'] ) : '';
 		$result = SUPER_Developer_Tools::execute_whitelisted_sql( $query_key );
 
@@ -6841,6 +6983,9 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( array( 'message' => esc_html__( 'Unauthorized', 'super-forms' ) ) );
 		}
+
+		// Verify nonce
+		check_ajax_referer( 'super-form-builder', 'security' );
 
 		$action = isset( $_POST['cleanup_action'] ) ? sanitize_text_field( $_POST['cleanup_action'] ) : '';
 
@@ -6883,6 +7028,9 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			wp_send_json_error( array( 'message' => esc_html__( 'Unauthorized', 'super-forms' ) ) );
 		}
 
+		// Verify nonce
+		check_ajax_referer( 'super-form-builder', 'security' );
+
 		$action = isset( $_POST['optimize_action'] ) ? sanitize_text_field( $_POST['optimize_action'] ) : '';
 
 		$result = null;
@@ -6914,6 +7062,9 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( array( 'message' => esc_html__( 'Unauthorized', 'super-forms' ) ) );
 		}
+
+		// Verify nonce
+		check_ajax_referer( 'super-form-builder', 'security' );
 
 		$log_type = isset( $_POST['log_type'] ) ? sanitize_text_field( $_POST['log_type'] ) : 'migration';
 
@@ -6981,6 +7132,9 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			wp_send_json_error( array( 'message' => esc_html__( 'Unauthorized', 'super-forms' ) ) );
 		}
 
+		// Verify nonce
+		check_ajax_referer( 'super-form-builder', 'security' );
+
 		$enabled = isset( $_POST['enabled'] ) && $_POST['enabled'] === 'true';
 
 		if ( $enabled ) {
@@ -7008,6 +7162,9 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 		if ( ! current_user_can( 'manage_options' ) ) {
 			wp_send_json_error( array( 'message' => esc_html__( 'Unauthorized', 'super-forms' ) ) );
 		}
+
+		// Verify nonce
+		check_ajax_referer( 'super-form-builder', 'security' );
 
 		global $wpdb;
 

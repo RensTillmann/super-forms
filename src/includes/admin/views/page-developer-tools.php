@@ -326,16 +326,16 @@ $nonce = wp_create_nonce('super-form-builder');
                 <tr>
                     <th><?php echo esc_html__('Using Storage:', 'super-forms'); ?></th>
                     <td class="migration-using-storage">
-                        <?php echo $using_storage === 'eav' ? 'EAV Tables' : 'Serialized'; ?>
+                        <?php echo esc_html($using_storage === 'eav' ? 'EAV Tables' : 'Serialized'); ?>
                     </td>
                 </tr>
                 <tr>
                     <th><?php echo esc_html__('Progress:', 'super-forms'); ?></th>
                     <td>
                         <div class="super-migration-progress-bar">
-                            <div class="super-migration-progress-fill migration-progress-fill" style="width: <?php echo $progress; ?>%;"></div>
+                            <div class="super-migration-progress-fill migration-progress-fill" style="width: <?php echo esc_attr($progress); ?>%;"></div>
                         </div>
-                        <span class="migration-progress-text"><?php echo number_format($migrated); ?> / <?php echo number_format($total); ?> (<?php echo $progress; ?>%)</span>
+                        <span class="migration-progress-text"><?php echo esc_html(number_format($migrated)); ?> / <?php echo esc_html(number_format($total)); ?> (<?php echo esc_html($progress); ?>%)</span>
                     </td>
                 </tr>
             </tbody>
@@ -400,6 +400,63 @@ $nonce = wp_create_nonce('super-form-builder');
                 <?php echo esc_html__('Open Migration Admin Page →', 'super-forms'); ?>
             </a>
         </p>
+
+        <!-- Failed Entries Section -->
+        <?php
+        $failed_entries = !empty($migration_status['failed_entries']) ? $migration_status['failed_entries'] : array();
+        if (!empty($failed_entries)) :
+        ?>
+        <div class="failed-entries-section" style="margin-top: 30px;">
+            <h3 style="color: #d32f2f;"><?php echo esc_html__('Failed Entries', 'super-forms'); ?> (<?php echo count($failed_entries); ?> entries)</h3>
+            <p><?php echo esc_html__('The following entries failed to migrate. You can view the diff to see what went wrong and retry individual entries.', 'super-forms'); ?></p>
+
+            <table class="wp-list-table widefat fixed striped">
+                <thead>
+                    <tr>
+                        <th style="width: 100px;"><?php echo esc_html__('Entry ID', 'super-forms'); ?></th>
+                        <th style="width: 200px;"><?php echo esc_html__('Failed At', 'super-forms'); ?></th>
+                        <th><?php echo esc_html__('Reason', 'super-forms'); ?></th>
+                        <th style="width: 300px;"><?php echo esc_html__('Actions', 'super-forms'); ?></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($failed_entries as $entry_id => $error_message) :
+                        $entry = get_post($entry_id);
+                        $failed_at = !empty($entry) ? get_the_modified_time('Y-m-d H:i:s', $entry) : 'Unknown';
+                    ?>
+                    <tr data-entry-id="<?php echo esc_attr($entry_id); ?>">
+                        <td><strong>#<?php echo esc_html($entry_id); ?></strong></td>
+                        <td><?php echo esc_html($failed_at); ?></td>
+                        <td><?php echo esc_html($error_message); ?></td>
+                        <td>
+                            <button class="button button-small view-diff-btn" data-entry-id="<?php echo esc_attr($entry_id); ?>">
+                                <span class="dashicons dashicons-visibility"></span>
+                                <?php echo esc_html__('View Diff', 'super-forms'); ?>
+                            </button>
+                            <button class="button button-small retry-entry-btn" data-entry-id="<?php echo esc_attr($entry_id); ?>">
+                                <span class="dashicons dashicons-update"></span>
+                                <?php echo esc_html__('Retry', 'super-forms'); ?>
+                            </button>
+                            <?php if (!empty($entry)) : ?>
+                            <a href="<?php echo esc_url(admin_url('post.php?post=' . $entry_id . '&action=edit')); ?>" class="button button-small" target="_blank">
+                                <span class="dashicons dashicons-edit"></span>
+                                <?php echo esc_html__('Edit Entry', 'super-forms'); ?>
+                            </a>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+
+            <p style="margin-top: 15px;">
+                <button id="retry-all-failed-btn" class="button button-primary">
+                    <span class="dashicons dashicons-update"></span>
+                    <?php echo esc_html__('Retry All Failed Entries', 'super-forms'); ?>
+                </button>
+            </p>
+        </div>
+        <?php endif; ?>
 
         <!-- Log Area -->
         <div class="migration-log"></div>
@@ -1377,7 +1434,398 @@ $nonce = wp_create_nonce('super-form-builder');
     color: #0073aa;
 }
 
+/* Diff Viewer Modal Styles */
+.diff-viewer-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 100000;
+    overflow-y: auto;
+}
+
+.diff-viewer-modal {
+    background: #fff;
+    max-width: 900px;
+    margin: 50px auto;
+    padding: 30px;
+    border-radius: 4px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.3);
+    position: relative;
+}
+
+.diff-viewer-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+    color: #999;
+    background: none;
+    border: none;
+    padding: 5px 10px;
+}
+
+.diff-viewer-modal-close:hover {
+    color: #333;
+}
+
+.diff-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.diff-table thead th {
+    background: #f5f5f5;
+    padding: 10px;
+    text-align: left;
+    border-bottom: 2px solid #ddd;
+    font-weight: 600;
+}
+
+.diff-table tbody td {
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    vertical-align: top;
+}
+
+.diff-table tr.match td {
+    background: #f0f9ff;
+}
+
+.diff-table tr.mismatch td {
+    background: #fff3cd;
+}
+
+.diff-table tr.missing td {
+    background: #f8d7da;
+}
+
+.diff-table .status-icon {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+}
+
+.diff-table .dashicons {
+    font-size: 20px;
+    line-height: 1;
+}
+
+.diff-table .dashicons-yes-alt {
+    color: #46b450;
+}
+
+.diff-table .dashicons-warning {
+    color: #f0b849;
+}
+
+.diff-table .dashicons-dismiss {
+    color: #dc3232;
+}
+
+/* Responsive Design - WordPress Admin Breakpoints */
+
+/* Tablet and below (782px is WordPress admin mobile breakpoint) */
+@media screen and (max-width: 782px) {
+    .super-developer-tools {
+        margin: 10px 10px 10px 0;
+    }
+
+    .super-devtools-section {
+        padding: 15px;
+        margin: 15px 0;
+    }
+
+    .quick-actions-bar {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .quick-actions-bar .button {
+        width: 100%;
+        margin: 0 !important;
+    }
+
+    .super-devtools-section h2,
+    .super-devtools-section h3 {
+        font-size: 16px;
+    }
+
+    /* Stack buttons vertically */
+    .super-devtools-section p .button {
+        display: block;
+        width: 100%;
+        margin: 5px 0 !important;
+        text-align: center;
+    }
+
+    /* Make tables scrollable */
+    .widefat {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    /* Form controls full width */
+    .super-devtools-section select,
+    .super-devtools-section input[type="text"],
+    .super-devtools-section input[type="number"] {
+        width: 100%;
+        max-width: none;
+    }
+
+    /* Tabs */
+    .super-devtools-tabs {
+        display: flex;
+        flex-wrap: wrap;
+    }
+
+    .super-devtools-tab {
+        flex: 1;
+        min-width: 120px;
+    }
+
+    /* Progress steps */
+    .progress-steps {
+        flex-direction: column;
+    }
+
+    .progress-step {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #ddd;
+        padding: 10px;
+    }
+
+    .progress-step:last-child {
+        border-bottom: none;
+    }
+
+    /* Benchmark result bars */
+    .benchmark-result {
+        padding: 10px;
+    }
+
+    .benchmark-bars {
+        flex-direction: column;
+    }
+
+    .benchmark-bar {
+        margin: 5px 0;
+    }
+
+    /* Modal */
+    .diff-viewer-modal {
+        width: 95%;
+        max-width: none;
+        margin: 20px auto;
+        max-height: 90vh;
+    }
+
+    .diff-table {
+        font-size: 12px;
+    }
+
+    .diff-table th,
+    .diff-table td {
+        padding: 8px 4px;
+    }
+}
+
+/* Mobile phones (600px and below) */
+@media screen and (max-width: 600px) {
+    .super-developer-tools {
+        margin: 5px;
+    }
+
+    .super-devtools-section {
+        padding: 10px;
+        margin: 10px 0;
+    }
+
+    .super-devtools-section h2 {
+        font-size: 14px;
+        padding-bottom: 8px;
+    }
+
+    .super-devtools-section h3 {
+        font-size: 13px;
+    }
+
+    .super-devtools-section p {
+        font-size: 13px;
+    }
+
+    /* Checkboxes and radios with labels */
+    .super-devtools-section label {
+        display: block;
+        margin: 8px 0;
+        font-size: 13px;
+    }
+
+    /* Buttons smaller on mobile */
+    .button,
+    .button-primary,
+    .button-secondary {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    .button-hero {
+        padding: 10px 14px;
+        font-size: 14px;
+    }
+
+    /* Notices */
+    .sfui-notice {
+        padding: 10px;
+        margin: 10px 0;
+    }
+
+    .sfui-notice h3 {
+        font-size: 13px;
+    }
+
+    .sfui-notice p {
+        font-size: 12px;
+    }
+
+    /* Log areas */
+    .super-devtools-log,
+    .super-devtools-import-log {
+        max-height: 200px;
+        font-size: 11px;
+        padding: 8px;
+    }
+
+    /* Statistics tables */
+    .widefat th,
+    .widefat td {
+        padding: 6px 4px;
+        font-size: 12px;
+    }
+
+    /* Upload dropzone */
+    .super-devtools-upload-dropzone {
+        padding: 20px 10px;
+    }
+
+    .upload-instructions {
+        font-size: 13px;
+    }
+
+    .upload-hint {
+        font-size: 11px;
+    }
+
+    /* Modal full screen on mobile */
+    .diff-viewer-modal {
+        width: 100%;
+        height: 100%;
+        max-height: 100vh;
+        margin: 0;
+        border-radius: 0;
+    }
+
+    .diff-viewer-modal-close {
+        font-size: 24px;
+        top: 5px;
+        right: 5px;
+    }
+
+    .diff-table {
+        font-size: 11px;
+    }
+
+    .diff-table th,
+    .diff-table td {
+        padding: 6px 2px;
+        word-break: break-word;
+    }
+
+    /* Hide certain columns on very small screens */
+    .diff-table th:nth-child(2),
+    .diff-table td:nth-child(2) {
+        display: none;
+    }
+}
+
+/* Very small screens (480px and below) */
+@media screen and (max-width: 480px) {
+    .super-devtools-section h2 {
+        font-size: 13px;
+    }
+
+    .button,
+    .button-primary,
+    .button-secondary {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    .button-hero {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+
+    /* Hide dashicons on very small screens to save space */
+    .button .dashicons {
+        display: none;
+    }
+
+    /* Stack everything */
+    .progress-step .step-icon {
+        font-size: 16px;
+    }
+
+    .progress-step .step-label {
+        font-size: 12px;
+    }
+
+    /* Compact forms */
+    .super-devtools-section input[type="radio"],
+    .super-devtools-section input[type="checkbox"] {
+        margin-right: 5px;
+    }
+}
+
 </style>
+
+<!-- Diff Viewer Modal -->
+<div id="diff-viewer-modal-overlay" class="diff-viewer-modal-overlay">
+    <div class="diff-viewer-modal">
+        <button class="diff-viewer-modal-close" onclick="jQuery('#diff-viewer-modal-overlay').hide();">&times;</button>
+        <h2><?php echo esc_html__('Entry Data Comparison', 'super-forms'); ?></h2>
+        <p id="diff-viewer-entry-info"><?php echo esc_html__('Loading...', 'super-forms'); ?></p>
+
+        <div id="diff-viewer-content">
+            <table class="diff-table">
+                <thead>
+                    <tr>
+                        <th style="width: 200px;"><?php echo esc_html__('Field Name', 'super-forms'); ?></th>
+                        <th><?php echo esc_html__('Serialized (Expected)', 'super-forms'); ?></th>
+                        <th><?php echo esc_html__('EAV (Actual)', 'super-forms'); ?></th>
+                        <th style="width: 100px;"><?php echo esc_html__('Status', 'super-forms'); ?></th>
+                    </tr>
+                </thead>
+                <tbody id="diff-viewer-tbody">
+                    <tr>
+                        <td colspan="4" style="text-align: center; padding: 40px;">
+                            <span class="dashicons dashicons-update-alt" style="font-size: 40px; animation: spin 1s linear infinite;"></span>
+                            <p><?php echo esc_html__('Loading diff data...', 'super-forms'); ?></p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
 
 <script type="text/javascript">
 jQuery(document).ready(function($) {
@@ -2331,6 +2779,198 @@ jQuery(document).ready(function($) {
             });
         }
     });
+
+    // Failed Entries - View Diff button
+    $(document).on('click', '.view-diff-btn', function() {
+        var entryId = $(this).data('entry-id');
+
+        // Show modal with loading state
+        $('#diff-viewer-modal-overlay').show();
+        $('#diff-viewer-entry-info').text('Entry #' + entryId);
+        $('#diff-viewer-tbody').html('<tr><td colspan="4" style="text-align: center; padding: 40px;"><span class="dashicons dashicons-update-alt" style="font-size: 40px; animation: spin 1s linear infinite;"></span><p>Loading diff data...</p></td></tr>');
+
+        // Fetch diff data
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'super_get_entry_diff',
+                security: devtoolsNonce,
+                entry_id: entryId
+            },
+            success: function(response) {
+                if (response.success) {
+                    var diffRows = response.data.diff_rows;
+                    var html = '';
+
+                    if (diffRows.length === 0) {
+                        html = '<tr><td colspan="4" style="text-align: center; padding: 40px;">No data found for this entry.</td></tr>';
+                    } else {
+                        diffRows.forEach(function(row) {
+                            var statusClass = row.status;
+                            var statusIcon = '';
+                            var statusText = '';
+
+                            if (row.status === 'match') {
+                                statusIcon = '<span class="dashicons dashicons-yes-alt"></span>';
+                                statusText = 'Match';
+                            } else if (row.status === 'mismatch') {
+                                statusIcon = '<span class="dashicons dashicons-warning"></span>';
+                                statusText = 'Mismatch';
+                            } else if (row.status === 'missing') {
+                                statusIcon = '<span class="dashicons dashicons-dismiss"></span>';
+                                statusText = 'Missing';
+                            } else if (row.status === 'extra') {
+                                statusIcon = '<span class="dashicons dashicons-info"></span>';
+                                statusText = 'Extra';
+                            }
+
+                            var serializedValue = row.serialized_value !== null ? escapeHtml(String(row.serialized_value)) : '<em>null</em>';
+                            var eavValue = row.eav_value !== null ? escapeHtml(String(row.eav_value)) : '<em>null</em>';
+
+                            html += '<tr class="' + statusClass + '">';
+                            html += '<td><strong>' + escapeHtml(row.field_name) + '</strong></td>';
+                            html += '<td>' + serializedValue + '</td>';
+                            html += '<td>' + eavValue + '</td>';
+                            html += '<td>' + statusIcon + ' ' + statusText + '</td>';
+                            html += '</tr>';
+                        });
+                    }
+
+                    $('#diff-viewer-tbody').html(html);
+                } else {
+                    $('#diff-viewer-tbody').html('<tr><td colspan="4" style="text-align: center; padding: 40px; color: #d32f2f;">Error: ' + response.data.message + '</td></tr>');
+                }
+            },
+            error: function() {
+                $('#diff-viewer-tbody').html('<tr><td colspan="4" style="text-align: center; padding: 40px; color: #d32f2f;">AJAX request failed</td></tr>');
+            }
+        });
+    });
+
+    // Failed Entries - Retry single entry button
+    $(document).on('click', '.retry-entry-btn', function() {
+        var $btn = $(this);
+        var entryId = $btn.data('entry-id');
+        var $row = $btn.closest('tr');
+
+        if (!confirm('Retry migration for Entry #' + entryId + '?')) {
+            return;
+        }
+
+        $btn.prop('disabled', true).text('Retrying...');
+
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'super_retry_failed_entry',
+                security: devtoolsNonce,
+                entry_id: entryId
+            },
+            success: function(response) {
+                if (response.success) {
+                    $row.fadeOut(400, function() {
+                        $(this).remove();
+
+                        // Update failed count
+                        var remainingCount = $('.failed-entries-section tbody tr').length;
+                        if (remainingCount === 0) {
+                            $('.failed-entries-section').fadeOut();
+                        } else {
+                            $('.failed-entries-section h3').text('Failed Entries (' + remainingCount + ' entries)');
+                        }
+                    });
+                    appendMigrationLog('✓ ' + response.data.message);
+                    updateMigrationStatus();
+                } else {
+                    alert('Error: ' + response.data.message);
+                    $btn.prop('disabled', false).html('<span class="dashicons dashicons-update"></span> Retry');
+                }
+            },
+            error: function() {
+                alert('AJAX request failed');
+                $btn.prop('disabled', false).html('<span class="dashicons dashicons-update"></span> Retry');
+            }
+        });
+    });
+
+    // Failed Entries - Retry all button
+    $('#retry-all-failed-btn').on('click', function() {
+        var $failedRows = $('.failed-entries-section tbody tr');
+        var totalFailed = $failedRows.length;
+
+        if (!confirm('Retry migration for all ' + totalFailed + ' failed entries?')) {
+            return;
+        }
+
+        var $btn = $(this);
+        $btn.prop('disabled', true).text('Retrying all...');
+
+        var entryIds = [];
+        $failedRows.each(function() {
+            entryIds.push($(this).data('entry-id'));
+        });
+
+        var successCount = 0;
+        var failCount = 0;
+
+        function retryNext(index) {
+            if (index >= entryIds.length) {
+                // All done
+                appendMigrationLog('✓ Retry all completed: ' + successCount + ' succeeded, ' + failCount + ' failed');
+                updateMigrationStatus();
+                $btn.prop('disabled', false).html('<span class="dashicons dashicons-update"></span> Retry All Failed Entries');
+
+                if (successCount > 0) {
+                    location.reload(); // Reload to update failed entries list
+                }
+                return;
+            }
+
+            var entryId = entryIds[index];
+            appendMigrationLog('Retrying entry #' + entryId + '...');
+
+            $.ajax({
+                url: ajaxurl,
+                type: 'POST',
+                data: {
+                    action: 'super_retry_failed_entry',
+                    security: devtoolsNonce,
+                    entry_id: entryId
+                },
+                success: function(response) {
+                    if (response.success) {
+                        successCount++;
+                        appendMigrationLog('  ✓ Entry #' + entryId + ' succeeded');
+                    } else {
+                        failCount++;
+                        appendMigrationLog('  ✗ Entry #' + entryId + ' failed: ' + response.data.message);
+                    }
+                    retryNext(index + 1);
+                },
+                error: function() {
+                    failCount++;
+                    appendMigrationLog('  ✗ Entry #' + entryId + ' failed: AJAX error');
+                    retryNext(index + 1);
+                }
+            });
+        }
+
+        retryNext(0);
+    });
+
+    // Helper function to escape HTML
+    function escapeHtml(text) {
+        var map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+    }
 
     // Start migration process
     function startMigration() {
