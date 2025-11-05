@@ -43,6 +43,178 @@ Super Forms is a WordPress drag & drop form builder plugin with various add-ons 
 - `npm run delswaps` - Remove swap files and sass cache
 - `npm run rmrf` - Clean dist folder and docs
 
+## Server Access & Development Testing
+
+### SSH into Development Server
+
+**Connection Details** (SiteGround):
+```bash
+# SSH into dev server
+ssh -p 18765 -i ~/.ssh/id_sftp u2669-dvgugyayggy5@gnldm1014.siteground.biz
+
+# Server details:
+# Host: gnldm1014.siteground.biz
+# Port: 18765
+# User: u2669-dvgugyayggy5
+# Key:  ~/.ssh/id_sftp
+# WordPress Path: /home/u2669-dvgugyayggy5/www/f4d.nl/public_html/dev/
+```
+
+**Sync Local Changes to Server**:
+```bash
+# Run the sync script from project root
+./sync-to-webserver.sh
+
+# This syncs /src/ to remote server using rsync
+# Excludes: .git, node_modules, .vscode, *.log
+# Uses --delete (removes remote files not in local)
+```
+
+### Database Access on Server
+
+**Via SSH + MySQL**:
+```bash
+# SSH into server first
+ssh -p 18765 -i ~/.ssh/id_sftp u2669-dvgugyayggy5@gnldm1014.siteground.biz
+
+# Access MySQL (SiteGround typically auto-configures)
+cd www/f4d.nl/public_html/dev/
+wp db query "SHOW TABLES LIKE '%superforms%';"
+```
+
+**Via WP-CLI** (recommended):
+```bash
+# List all Super Forms tables
+wp db query "SHOW TABLES LIKE '%superforms%';"
+
+# Check migration status
+wp option get superforms_eav_migration --format=json
+
+# Check Action Scheduler queue
+wp action-scheduler list --hook=superforms_migrate_batch
+```
+
+### Running Migration with Clean Table
+
+To test migration from scratch (clears all migrated data and resets state):
+
+**1. Truncate EAV Table**:
+```bash
+# Via WP-CLI (safest)
+wp db query "TRUNCATE TABLE wp_superforms_entry_data;"
+
+# Verify table is empty
+wp db query "SELECT COUNT(*) FROM wp_superforms_entry_data;"
+```
+
+**2. Reset Migration State**:
+```bash
+# Delete migration state option
+wp option delete superforms_eav_migration
+
+# Optional: Reset plugin version to trigger version-based detection
+wp option delete super_plugin_version
+
+# Optional: Clear Action Scheduler queue
+wp action-scheduler clean --hooks=superforms_migrate_batch,superforms_migration_health_check
+```
+
+**3. Trigger Migration**:
+```bash
+# Method 1: Version detection (recommended)
+# Just visit WordPress admin - version detection runs on 'init' hook
+# Navigate to: https://f4d.nl/dev/wp-admin/
+
+# Method 2: Manually schedule first batch
+wp eval 'SUPER_Background_Migration::schedule_if_needed("manual");'
+
+# Method 3: Run WP-Cron immediately (if cron disabled)
+wp cron event run --due-now
+```
+
+**4. Monitor Migration Progress**:
+```bash
+# Watch debug log in real-time (requires WP_DEBUG=true)
+tail -f wp-content/debug.log | grep "Super Forms Migration"
+
+# Check migration status
+wp option get superforms_eav_migration --format=json
+
+# Check Action Scheduler queue
+wp action-scheduler list --hook=superforms_migrate_batch --status=pending
+
+# Check completed actions
+wp action-scheduler list --hook=superforms_migrate_batch --status=complete --limit=10
+```
+
+**5. Verify Migration Results**:
+```bash
+# Count migrated entries in EAV table
+wp db query "SELECT COUNT(DISTINCT entry_id) as migrated_entries FROM wp_superforms_entry_data;"
+
+# Count total contact entries
+wp db query "SELECT COUNT(*) as total_entries FROM wp_posts WHERE post_type='super_contact_entry';"
+
+# Compare counts (should match if migration complete)
+wp db query "
+  SELECT
+    (SELECT COUNT(*) FROM wp_posts WHERE post_type='super_contact_entry') as total_entries,
+    (SELECT COUNT(DISTINCT entry_id) FROM wp_superforms_entry_data) as migrated_entries;
+"
+```
+
+### Developer Tools Page Access
+
+**Enable Developer Tools**:
+```bash
+# SSH into server and edit wp-config.php
+ssh -p 18765 -i ~/.ssh/id_sftp u2669-dvgugyayggy5@gnldm1014.siteground.biz
+cd www/f4d.nl/public_html/dev/
+nano wp-config.php
+
+# Add this line before "That's all, stop editing!"
+define('DEBUG_SF', true);
+```
+
+**Access Developer Tools**:
+- URL: `https://f4d.nl/dev/wp-admin/admin.php?page=super_developer_tools`
+- Features:
+  - Test data generator
+  - Migration controls (start/reset/monitor)
+  - Automated verification
+  - Performance benchmarks
+  - Database inspector
+
+### Common Migration Debugging Commands
+
+```bash
+# Check if migration is stuck
+wp option get superforms_eav_migration --format=json | grep -E '(status|last_batch_processed_at)'
+
+# Force release migration lock (if stuck)
+wp transient delete super_migration_lock
+
+# Check for failed entries
+wp option get superforms_eav_migration --format=json | grep -A 10 'failed_entries'
+
+# Manually run single batch (for testing)
+wp eval 'SUPER_Background_Migration::process_batch_action(10);'
+
+# Check server resource limits
+wp eval 'echo "Memory: " . ini_get("memory_limit") . "\nTime: " . ini_get("max_execution_time") . "s\n";'
+```
+
+### Quick Reset for Testing
+
+One-liner to completely reset migration for fresh test:
+```bash
+wp db query "TRUNCATE TABLE wp_superforms_entry_data;" && \
+wp option delete superforms_eav_migration && \
+wp option delete super_plugin_version && \
+wp action-scheduler clean --hooks=superforms_migrate_batch,superforms_migration_health_check && \
+echo "Migration reset complete. Visit admin to trigger."
+```
+
 ## Project Structure
 - `/src/` - Source files
   - `/add-ons/` - Plugin add-ons (calculator, csv, email reminders, etc.)
