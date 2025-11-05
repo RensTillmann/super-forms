@@ -527,10 +527,17 @@ $nonce = wp_create_nonce('super-form-builder');
             </table>
 
             <p style="margin-top: 15px;">
-                <button id="retry-all-failed-btn" class="button button-primary">
+                <button id="reverify-failed-btn" class="button button-primary" style="margin-right: 10px;">
+                    <span class="dashicons dashicons-yes-alt"></span>
+                    <?php echo esc_html__('Re-verify Failed Entries', 'super-forms'); ?>
+                </button>
+                <button id="retry-all-failed-btn" class="button button-secondary">
                     <span class="dashicons dashicons-update"></span>
                     <?php echo esc_html__('Retry All Failed Entries', 'super-forms'); ?>
                 </button>
+                <p class="description" style="margin-top: 10px;">
+                    <?php echo esc_html__('Re-verify: Check if entries now pass verification without re-migrating (faster). Retry: Re-run full migration process.', 'super-forms'); ?>
+                </p>
             </p>
         </div>
         <?php endif; ?>
@@ -2968,6 +2975,53 @@ jQuery(document).ready(function($) {
             error: function() {
                 alert('AJAX request failed');
                 $btn.prop('disabled', false).html('<span class="dashicons dashicons-update"></span> Retry');
+            }
+        });
+    });
+
+    // Failed Entries - Re-verify button (without re-migration)
+    $('#reverify-failed-btn').on('click', function() {
+        var $failedRows = $('.failed-entries-section tbody tr');
+        var totalFailed = $failedRows.length;
+
+        if (!confirm('Re-verify all ' + totalFailed + ' failed entries?\n\nThis will check if they now pass verification without re-migrating the data.')) {
+            return;
+        }
+
+        var $btn = $(this);
+        $btn.prop('disabled', true).text('Re-verifying...');
+
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'super_reverify_failed_entries',
+                security: devtoolsNonce
+            },
+            success: function(response) {
+                if (response.success) {
+                    var passed = response.data.passed;
+                    var stillFailed = response.data.still_failed;
+
+                    appendMigrationLog('✓ Re-verification complete: ' + passed + ' passed, ' + stillFailed + ' still failing');
+
+                    if (passed > 0) {
+                        appendMigrationLog('  ✓ ' + passed + ' entries removed from failed list');
+                        // Reload to update the UI
+                        setTimeout(function() {
+                            location.reload();
+                        }, 1500);
+                    } else {
+                        $btn.prop('disabled', false).html('<span class="dashicons dashicons-yes-alt"></span> Re-verify Failed Entries');
+                    }
+                } else {
+                    appendMigrationLog('✗ Re-verification failed: ' + response.data.message);
+                    $btn.prop('disabled', false).html('<span class="dashicons dashicons-yes-alt"></span> Re-verify Failed Entries');
+                }
+            },
+            error: function() {
+                appendMigrationLog('✗ AJAX request failed');
+                $btn.prop('disabled', false).html('<span class="dashicons dashicons-yes-alt"></span> Re-verify Failed Entries');
             }
         });
     });

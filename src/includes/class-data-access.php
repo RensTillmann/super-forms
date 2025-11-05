@@ -239,9 +239,16 @@ class SUPER_Data_Access {
             $field_name = $row['field_name'];
             $field_value = $row['field_value'];
 
-            // Handle repeater fields (stored as JSON)
-            if (self::is_repeater_field($field_name)) {
-                $field_value = json_decode($field_value, true);
+            // Handle JSON-encoded fields (decode any valid JSON array)
+            // This matches the write logic in save_to_eav_tables() which JSON encodes
+            // complex arrays regardless of field name. We only decode arrays to avoid
+            // converting simple JSON values like "123" or "true" to integers/booleans.
+            if (is_string($field_value)) {
+                // Try to decode if it looks like JSON
+                $decoded = json_decode($field_value, true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                    $field_value = $decoded;
+                }
             }
 
             $data[$field_name] = array(
