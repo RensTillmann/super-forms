@@ -1,14 +1,15 @@
 ---
 name: 24-subtask
-status: pending
+status: scratched
 created: 2025-10-31
+scratched: 2025-11-05
 ---
 
 # Conditional Logic Refactor
 
 ## Problem/Goal
 
-Implementation of subtask 24 from EAV migration plan.
+**SCRATCHED:** Conditional logic already uses Data Access Layer through existing code paths. No additional refactoring needed.
 
 ## Success Criteria
 

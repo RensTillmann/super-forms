@@ -2,20 +2,26 @@
 name: h-test-eav-migration-real-data
 branch: feature/test-eav-migration-real-data
 status: pending
+priority: high
 created: 2025-11-02
+updated: 2025-11-05
 ---
 
 # Test EAV Migration with Real Production Data
 
 ## Problem/Goal
 
-The new EAV (Entity-Attribute-Value) migration system has been built and tested with synthetic data, but needs validation with real production data before deployment. We need to:
+**REFOCUSED (2025-11-05):** With automatic background migration implemented, testing focus shifts from manual CSV import to validating automatic detection and large-scale performance.
 
-1. **Enable real data testing** - Add import functionality to Developer Tools page so we can test with actual contact entries from production sites
-2. **Support multiple formats** - Handle both WordPress XML exports and Super Forms CSV exports
-3. **Validate the entire system** - Prove that migration, verification, and performance improvements work with real-world data patterns
-4. **Discover edge cases** - Find and document any issues that synthetic data didn't reveal
-5. **Build confidence** - Demonstrate the system is ready for production migration
+**Updated Goals:**
+
+1. **Validate automatic detection** - Confirm automatic migration triggers correctly on plugin activation/update
+2. **Test large-scale datasets** - Test with 10K, 50K, 100K+ real production entries
+3. **Validate shared hosting** - Test on SiteGround (120s timeout), WP Engine (60s timeout)
+4. **Monitor background processing** - Verify Action Scheduler processes batches correctly without browser
+5. **Validate performance claims** - Measure real-world 30-60x improvements with production data
+6. **Test edge cases** - Find issues with real data patterns (special characters, large fields, corrupted entries)
+7. **CSV import for testing** - Keep CSV import functionality for rapid test data loading (lower priority)
 
 This task enhances the Developer Tools page (Section 1: Test Data Generator) with import capabilities, creating a complete testing workflow: Import/Generate → Migrate → Verify → Benchmark → Cleanup.
 

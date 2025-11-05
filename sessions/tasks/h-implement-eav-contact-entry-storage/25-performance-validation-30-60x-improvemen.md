@@ -1,14 +1,15 @@
 ---
 name: 25-subtask
-status: pending
+status: scratched
 created: 2025-10-31
+scratched: 2025-11-05
 ---
 
 # Performance Validation (30-60x Improvement)
 
 ## Problem/Goal
 
-Implementation of subtask 25 from EAV migration plan.
+**SCRATCHED:** Scientific performance benchmarking not needed. Real-world testing with production data is sufficient validation.
 
 ## Success Criteria
 

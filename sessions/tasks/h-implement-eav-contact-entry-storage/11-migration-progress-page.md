@@ -1,31 +1,168 @@
 ---
 name: 11-migration-progress-page
-status: completed
+status: pending
+priority: medium
 created: 2025-10-31
 completed: 2025-11-01
+reopened: 2025-11-05
 ---
 
-# Migration Progress Page
+# Migration Progress Page - Merge into Developer Tools
 
 ## Problem/Goal
 
-Implementation of subtask 11 from EAV migration plan.
+**REOPENED 2025-11-05:** Standalone Migration page exists but needs merging into Developer Tools. With automatic background migration, separate menu item is unnecessary.
+
+**Work Required:**
+1. Move migration monitoring section from `/src/includes/admin/views/page-migration.php` into Developer Tools page
+2. Remove standalone "Migration" menu item from `class-menu.php`
+3. Keep monitoring UI (status, progress bar, entry counts)
+4. Allow manual trigger for testing/debugging
+5. **NEW:** Add failed entries section with:
+   - List of failed entry IDs
+   - Validation failure reasons
+   - Diff viewer showing serialized vs EAV data mismatches
+   - Link to view/edit affected entry
+   - Retry button for individual failed entries
 
 ## Success Criteria
 
-- [x] Implementation complete
-- [x] Migration admin page created
-- [x] Real-time progress bar with AJAX updates
-- [x] Start/Resume Migration button
-- [x] Rollback button with confirmation
-- [x] Migration status display
-- [x] Error reporting and activity log
-- [x] Integration with Migration Manager verified
+### Migration Monitoring (Merge into Developer Tools)
+- [ ] Migration section moved from standalone page into Developer Tools
+- [ ] Standalone "Migration" menu item removed
+- [ ] Real-time progress bar with AJAX updates
+- [ ] Migration status display (status badge, storage mode, entry counts)
+- [ ] Manual trigger button for testing/debugging (Developer Tools only)
+- [ ] Activity log with timestamps
+
+### Failed Entries Section (NEW)
+- [ ] Failed entries table showing entry IDs and failure counts
+- [ ] Validation failure reasons displayed for each entry
+- [ ] Diff viewer showing field-by-field comparison:
+  - Serialized data (expected)
+  - EAV data (actual)
+  - Highlighted mismatches
+- [ ] Link to view/edit affected entry in WordPress admin
+- [ ] "Retry Migration" button for individual failed entries
+- [ ] "Retry All Failed" bulk action button
+
+### Technical Implementation
+- [ ] Uses `failed_entries` array from migration state option
+- [ ] Calls `SUPER_Data_Access::validate_entry_integrity($entry_id)` for diff data
+- [ ] Retry triggers `SUPER_Migration_Manager::migrate_entry($entry_id)` directly
+- [ ] Integration with Migration Manager verified
 - [ ] Tests pass - **NOTE: Requires Subtask 01 (Test Suite Foundation)**
+
+## Implementation Details
+
+### Failed Entries UI Mockup
+
+```html
+<!-- Failed Entries Section -->
+<div class="failed-entries-section">
+  <h3>Failed Entries (5 entries failed validation)</h3>
+
+  <table class="wp-list-table widefat">
+    <thead>
+      <tr>
+        <th>Entry ID</th>
+        <th>Failed At</th>
+        <th>Reason</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>#12345</td>
+        <td>2025-11-05 10:23:15</td>
+        <td>Field count mismatch: 15 serialized vs 14 EAV</td>
+        <td>
+          <button class="button view-diff" data-entry-id="12345">View Diff</button>
+          <button class="button retry-entry" data-entry-id="12345">Retry</button>
+          <a href="post.php?post=12345&action=edit" class="button">Edit Entry</a>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <button class="button button-primary retry-all-failed">Retry All Failed Entries</button>
+</div>
+
+<!-- Diff Viewer Modal (shown when "View Diff" clicked) -->
+<div class="diff-viewer-modal">
+  <h3>Entry #12345 - Data Comparison</h3>
+
+  <table class="diff-table">
+    <thead>
+      <tr>
+        <th>Field Name</th>
+        <th>Serialized (Expected)</th>
+        <th>EAV (Actual)</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="match">
+        <td>email</td>
+        <td>john@example.com</td>
+        <td>john@example.com</td>
+        <td><span class="dashicons dashicons-yes-alt"></span> Match</td>
+      </tr>
+      <tr class="mismatch">
+        <td>phone</td>
+        <td>+1-555-1234</td>
+        <td>+15551234</td>
+        <td><span class="dashicons dashicons-warning"></span> Mismatch</td>
+      </tr>
+      <tr class="missing">
+        <td>address</td>
+        <td>123 Main St</td>
+        <td><em>Missing in EAV</em></td>
+        <td><span class="dashicons dashicons-dismiss"></span> Missing</td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+```
+
+### Data Source
+
+Failed entries tracked in migration state:
+```php
+$migration = get_option('superforms_eav_migration');
+$failed_entries = $migration['failed_entries']; // array(entry_id => error_message)
+
+// Get detailed diff for specific entry
+$validation = SUPER_Data_Access::validate_entry_integrity($entry_id);
+// Returns: {valid: bool, error: string, mismatches: array}
+```
+
+### Retry Implementation
+
+```php
+// AJAX handler for retry
+public static function retry_failed_entry() {
+    $entry_id = intval($_POST['entry_id']);
+
+    // Re-attempt migration
+    $result = SUPER_Migration_Manager::migrate_entry($entry_id);
+
+    if (!is_wp_error($result)) {
+        // Remove from failed list
+        $migration = get_option('superforms_eav_migration');
+        unset($migration['failed_entries'][$entry_id]);
+        update_option('superforms_eav_migration', $migration);
+
+        wp_send_json_success(['message' => 'Entry migrated successfully']);
+    } else {
+        wp_send_json_error(['message' => $result->get_error_message()]);
+    }
+}
+```
 
 ## Estimated Effort
 
-**4-5 days**
+**5-6 days** (updated from 4-5 days to include failed entries UI)
 
 ## Dependencies
 

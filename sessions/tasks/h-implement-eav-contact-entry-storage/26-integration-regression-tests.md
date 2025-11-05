@@ -1,14 +1,15 @@
 ---
 name: 26-subtask
-status: pending
+status: scratched
 created: 2025-10-31
+scratched: 2025-11-05
 ---
 
 # Integration Regression Tests
 
 ## Problem/Goal
 
-Implementation of subtask 26 from EAV migration plan.
+**SCRATCHED:** Automated regression tests deferred. Manual testing with real data is sufficient for initial release.
 
 ## Success Criteria
 

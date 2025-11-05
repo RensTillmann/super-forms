@@ -1,14 +1,15 @@
 ---
 name: 13-subtask
-status: pending
+status: scratched
 created: 2025-10-31
+scratched: 2025-11-05
 ---
 
 # Email Notifications
 
 ## Problem/Goal
 
-Implementation of subtask 13 from EAV migration plan.
+**SCRATCHED:** Email notifications not needed for automatic background migration - users don't need notification for silent maintenance process.
 
 ## Success Criteria
 

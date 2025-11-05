@@ -1,14 +1,15 @@
 ---
 name: 20-subtask
-status: pending
+status: scratched
 created: 2025-10-31
+scratched: 2025-11-05
 ---
 
 # Multi-Site Support
 
 ## Problem/Goal
 
-Implementation of subtask 20 from EAV migration plan.
+**SCRATCHED:** Migration is per-site only. Multisite networks migrate each site independently using existing per-site infrastructure.
 
 ## Success Criteria
 

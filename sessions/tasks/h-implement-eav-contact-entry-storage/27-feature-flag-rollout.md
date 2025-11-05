@@ -1,14 +1,15 @@
 ---
 name: 27-subtask
-status: pending
+status: scratched
 created: 2025-10-31
+scratched: 2025-11-05
 ---
 
 # Feature Flag Rollout
 
 ## Problem/Goal
 
-Implementation of subtask 27 from EAV migration plan.
+**SCRATCHED:** Feature flag/kill switch not needed. Rollback functionality already exists via migration manager's rollback_migration() method.
 
 ## Success Criteria
 
