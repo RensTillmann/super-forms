@@ -13,9 +13,22 @@
 
 - Duplicate form store local/global Triggers
 - Test the PayPal trigger events/actions
-- Update keys for new PayPal settings stored under Triggers and test the PayPal payment features 
+- Update keys for new PayPal settings stored under Triggers and test the PayPal payment features
 - Issue with populating existing signature from first person, when using a form that requires two persons to sign the document.
 - Issue with Listings settings not merged correctly from latest version to Beta version
+
+## Nov 06, 2025 - Version 6.4.126
+
+- **Security:** Fixed SQL injection vulnerability in Action Scheduler cleanup queries (now using `$wpdb->prepare()` with proper placeholders)
+- **Security:** Fixed SQL injection vulnerability in TRUNCATE TABLE operations (added table existence validation and `esc_sql()` sanitization)
+- **Security:** Fixed race condition in lock acquisition logic (explicit `!== false` comparison, lock acquired before checking migration needs)
+- **Performance:** Added 5-minute transient cache for expensive orphaned metadata queries to prevent performance impact from frequent status polling
+- **Added:** Production debug filter `super_forms_migration_debug` for safe troubleshooting without code changes
+- **Added:** Enhanced resource metrics tracking: `avg_memory_per_entry_kb` and `avg_time_per_entry_ms` for batch optimization
+- **Improved:** Resource monitoring documentation with guaranteed non-zero return values
+- **Improved:** Cleanup marker logic documentation for migration system
+- **Added:** `UNKNOWN_FORM_ID` constant (-1) to identify entries with unknown/missing form association
+- **Added:** `DEFAULT_MEMORY_LIMIT_MB` constant (256) as fallback when memory limit parsing fails
 
 ## May 16, 2025 - Version 6.4.102-beta
 

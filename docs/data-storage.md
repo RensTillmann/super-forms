@@ -21,7 +21,10 @@ All entries are stored inside `wp_posts` table as post_type `super_contact_entry
 - **Legacy:** Entry field data stored in `wp_postmeta` table under meta key `_super_contact_entry_data` (serialized)
 - **Modern (EAV):** Entry field data stored in dedicated `wp_superforms_entry_data` table with indexed columns
 - **Migration:** Automatic background migration from serialized to EAV format after plugin update
+  - **v6.4.126:** Security hardening with SQL injection fixes and query caching optimization
+  - **v6.4.111-6.4.125:** Automatic background migration implementation using Action Scheduler
 - **Performance:** EAV storage provides 10-100x faster queries for search, filtering, and sorting
+- **Security:** All migration queries use prepared statements and proper sanitization (v6.4.126+)
 
 The system automatically handles the transition transparently - no user action required.
 

@@ -97,6 +97,7 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 			$sql = "CREATE TABLE $table_name (
 				id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
 				entry_id BIGINT(20) UNSIGNED NOT NULL,
+				form_id BIGINT(20) UNSIGNED NOT NULL,
 				field_name VARCHAR(255) NOT NULL,
 				field_value LONGTEXT,
 				field_type VARCHAR(50),
@@ -104,12 +105,91 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 				created_at DATETIME NOT NULL,
 				PRIMARY KEY (id),
 				KEY entry_id (entry_id),
+				KEY form_id (form_id),
 				KEY field_name (field_name),
 				KEY entry_field (entry_id, field_name),
-				KEY field_value (field_value(191))
+				KEY field_value (field_value(191)),
+				KEY form_field_filter (form_id, field_name, field_value(191)),
+				KEY form_entry_field (form_id, entry_id, field_name)
 			) ENGINE=InnoDB $charset_collate;";
 
 			dbDelta( $sql );
+
+			// Run schema upgrades for existing installations
+			self::upgrade_database_schema();
+		}
+
+		/**
+		 * Upgrade database schema for existing installations
+		 *
+		 * Adds form_id column and composite indexes if they don't exist.
+		 * Safe to run multiple times - checks before altering.
+		 *
+		 * @since 6.0.0
+		 */
+		private static function upgrade_database_schema() {
+			global $wpdb;
+			$table_name = $wpdb->prefix . 'superforms_entry_data';
+
+			// Check if table exists first
+			$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) );
+			if ( $table_exists !== $table_name ) {
+				return; // Table doesn't exist yet, create_tables() will handle it
+			}
+
+			// Check if form_id column exists
+			$column_exists = $wpdb->get_var( $wpdb->prepare(
+				"SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS
+				WHERE TABLE_SCHEMA = %s
+				AND TABLE_NAME = %s
+				AND COLUMN_NAME = 'form_id'",
+				DB_NAME,
+				$table_name
+			) );
+
+			if ( ! $column_exists ) {
+				// Add form_id column
+				$wpdb->query( "ALTER TABLE {$table_name} ADD COLUMN form_id BIGINT(20) UNSIGNED NOT NULL AFTER entry_id" );
+
+				// Add form_id index
+				$wpdb->query( "ALTER TABLE {$table_name} ADD KEY form_id (form_id)" );
+
+				// Add composite indexes
+				$wpdb->query( "ALTER TABLE {$table_name} ADD KEY form_field_filter (form_id, field_name, field_value(191))" );
+				$wpdb->query( "ALTER TABLE {$table_name} ADD KEY form_entry_field (form_id, entry_id, field_name)" );
+
+				// Populate form_id from existing entries
+				self::populate_form_id_column();
+
+				// Log the upgrade
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
+					error_log( '[Super Forms] Database schema upgraded: Added form_id column and composite indexes' );
+				}
+			}
+		}
+
+		/**
+		 * Populate form_id column for existing entry_data records
+		 *
+		 * @since 6.0.0
+		 */
+		private static function populate_form_id_column() {
+			global $wpdb;
+
+			// Populate form_id by joining with entries table
+			$wpdb->query( "
+				UPDATE {$wpdb->prefix}superforms_entry_data ed
+				INNER JOIN {$wpdb->posts} p ON p.ID = ed.entry_id
+				INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID AND pm.meta_key = '_super_form_id'
+				SET ed.form_id = pm.meta_value
+				WHERE ed.form_id = 0
+			" );
+
+			// Log completion
+			$updated_count = $wpdb->rows_affected;
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
+				error_log( "[Super Forms] Populated form_id for {$updated_count} entry_data records" );
+			}
 		}
 
 		/**
@@ -127,6 +207,10 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 					'total_entries'              => 0,
 					'migrated_entries'           => 0,
 					'failed_entries'             => array(),
+					'cleanup_queue'              => array(
+						'empty_posts'            => 0,  // Posts with no form data
+						'orphaned_meta'          => 0,  // Metadata without corresponding posts
+					),
 					'started_at'                 => '',
 					'completed_at'               => '',
 					'last_processed_id'          => 0,

@@ -118,6 +118,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			'migration_force_complete'      => false, // @since 6.0.0 - Force complete without migrating
 			'migration_force_eav'           => false, // @since 6.0.0 - Force switch to EAV
 			'retry_failed_entry'            => false, // @since 6.0.0 - Retry failed entry migration
+			'reverify_failed_entries'       => false, // @since 6.0.0 - Re-verify failed entries without re-migration
 			'get_entry_diff'                => false, // @since 6.0.0 - Get entry data diff
 
 			// Data Validation handlers
@@ -6482,6 +6483,89 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 
 		wp_send_json_success( array(
 			'message' => sprintf( esc_html__( 'Entry #%d migrated successfully', 'super-forms' ), $entry_id )
+		) );
+	}
+
+	/**
+	 * Re-verify failed entries without re-migration
+	 *
+	 * This is more efficient than retry_failed_entry when the EAV data is already
+	 * correct and just the verification logic needs to be re-run (e.g., after fixing
+	 * JSON encoding/decoding bugs).
+	 *
+	 * @since 6.0.0
+	 */
+	public static function reverify_failed_entries() {
+		// Check permissions
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'You do not have permission to run verification', 'super-forms' ) ) );
+		}
+
+		// Verify nonce
+		check_ajax_referer( 'super-form-builder', 'security' );
+
+		// Get migration state
+		$migration = get_option( 'superforms_eav_migration', array() );
+
+		if ( empty( $migration['failed_entries'] ) ) {
+			wp_send_json_success( array(
+				'message' => esc_html__( 'No failed entries to re-verify', 'super-forms' ),
+				'passed' => 0,
+				'still_failed' => 0,
+			) );
+		}
+
+		$failed_entry_ids = array_keys( $migration['failed_entries'] );
+		$passed_count = 0;
+		$still_failed_count = 0;
+		$passed_entries = array();
+
+		// Re-run verification on each failed entry
+		foreach ( $failed_entry_ids as $entry_id ) {
+			// Just run verification, don't re-migrate
+			if ( class_exists( 'SUPER_Data_Access' ) ) {
+				$validation = SUPER_Data_Access::validate_entry_integrity( $entry_id );
+
+				if ( $validation && isset( $validation['valid'] ) && $validation['valid'] === true ) {
+					// Verification now passes - remove from failed list
+					unset( $migration['failed_entries'][ $entry_id ] );
+					$passed_count++;
+					$passed_entries[] = $entry_id;
+				} else {
+					// Still failing
+					$still_failed_count++;
+					// Update error message in case it changed
+					$error_msg = isset( $validation['error'] ) ? $validation['error'] : 'Unknown validation error';
+					$migration['failed_entries'][ $entry_id ] = 'Verification failed: ' . $error_msg;
+				}
+			}
+		}
+
+		// Update migration state
+		update_option( 'superforms_eav_migration', $migration );
+
+		// Prepare response message
+		$message_parts = array();
+		if ( $passed_count > 0 ) {
+			$message_parts[] = sprintf(
+				_n( '%d entry now passes verification', '%d entries now pass verification', $passed_count, 'super-forms' ),
+				$passed_count
+			);
+		}
+		if ( $still_failed_count > 0 ) {
+			$message_parts[] = sprintf(
+				_n( '%d entry still failing', '%d entries still failing', $still_failed_count, 'super-forms' ),
+				$still_failed_count
+			);
+		}
+
+		$message = implode( ', ', $message_parts );
+
+		wp_send_json_success( array(
+			'message' => $message,
+			'passed' => $passed_count,
+			'still_failed' => $still_failed_count,
+			'passed_entries' => $passed_entries,
 		) );
 	}
 

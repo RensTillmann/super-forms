@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.4.114
+ * Version:           6.4.125
  * Plugin URI:        http://super-forms.com
  * Author URI:        http://super-forms.com
  * Author:            WebRehab
@@ -51,7 +51,7 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 		 *
 		 *  @since      1.0.0
 		 */
-		public $version    = '6.4.114';
+		public $version    = '6.4.125';
 		public $slug       = 'super-forms';
 		public $apiUrl     = 'https://api.dev.super-forms.com/';
 		public $apiVersion = 'v1';
@@ -243,6 +243,7 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 		include_once 'includes/class-data-access.php';
 	include_once 'includes/class-migration-manager.php';
 	include_once 'includes/class-background-migration.php';
+include_once 'includes/class-developer-tools.php';
 
 			if ( $this->is_request( 'admin' ) ) {
 				include_once 'includes/class-install.php';
@@ -1547,10 +1548,10 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 					$entry_count
 				);
 				echo '</p><p>';
-				echo '<a href="' . esc_url( admin_url( 'admin.php?page=super_migration' ) ) . '" class="button button-primary">';
+				echo '<a href="' . esc_url( admin_url( 'admin.php?page=super_developer_tools' ) ) . '" class="button button-primary">';
 				echo esc_html__( 'Start Database Update', 'super-forms' );
 				echo '</a> ';
-				echo '<a href="' . esc_url( admin_url( 'admin.php?page=super_migration' ) ) . '" class="button button-secondary">';
+				echo '<a href="' . esc_url( admin_url( 'admin.php?page=super_developer_tools' ) ) . '" class="button button-secondary">';
 				echo esc_html__( 'Learn More', 'super-forms' );
 				echo '</a>';
 				echo '</p></div>';
@@ -1569,7 +1570,7 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 				$migration_status['migrated_entries'],
 				$migration_status['total_entries'],
 				$progress,
-				'<a href="' . esc_url( admin_url( 'admin.php?page=super_migration' ) ) . '">',
+				'<a href="' . esc_url( admin_url( 'admin.php?page=super_developer_tools' ) ) . '">',
 				'</a>'
 			);
 			echo '</p></div>';
@@ -1583,7 +1584,7 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 					esc_html__( '%1$sEAV Migration Complete!%2$s Your contact entries are now using optimized storage. %3$sView Migration Page%4$s', 'super-forms' ),
 					'<strong>',
 					'</strong>',
-					'<a href="' . esc_url( admin_url( 'admin.php?page=super_migration' ) ) . '">',
+					'<a href="' . esc_url( admin_url( 'admin.php?page=super_developer_tools' ) ) . '">',
 					'</a>'
 				);
 				echo '</p></div>';
@@ -1630,7 +1631,7 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 					);
 				}
 				echo '</p><p>';
-				echo '<a href="' . esc_url( admin_url( 'admin.php?page=super_migration' ) ) . '" class="button button-primary">';
+				echo '<a href="' . esc_url( admin_url( 'admin.php?page=super_developer_tools' ) ) . '" class="button button-primary">';
 				echo esc_html__( 'View Migration Status', 'super-forms' );
 				echo '</a>';
 				echo '</p></div>';

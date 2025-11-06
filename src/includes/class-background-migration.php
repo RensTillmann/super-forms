@@ -106,6 +106,9 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 				self::log( "Plugin upgraded: {$stored_version} → {$current_version}" );
 				update_option( 'super_plugin_version', $current_version );
 
+				// FRESH START: Clean slate for testing migration on each version bump
+				self::reset_for_fresh_migration();
+
 				// SELF-HEALING: Auto-create infrastructure if missing
 				if ( class_exists( 'SUPER_Install' ) ) {
 					// Ensure EAV tables exist (creates if needed)
@@ -126,6 +129,86 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 				delete_transient( self::SETUP_LOCK_KEY );
 			}
 		}
+	}
+
+	/**
+	 * Reset migration for fresh start on version bump
+	 *
+	 * Provides clean slate for testing migration system by:
+	 * - Truncating EAV table (removes old migrated data)
+	 * - Deleting migration state (will be reinitialized fresh)
+	 * - Clearing Action Scheduler jobs and logs
+	 * - Removing migration locks
+	 * - Clearing dismissed notice flags
+	 *
+	 * This ensures each version bump gets a clean test environment.
+	 * Source serialized data remains untouched.
+	 *
+	 * @since 6.4.124
+	 */
+	private static function reset_for_fresh_migration() {
+		global $wpdb;
+
+		self::log( 'Resetting for fresh migration start...' );
+
+		// 1. Truncate EAV table (clean slate)
+		$table_name = $wpdb->prefix . 'superforms_entry_data';
+
+		// Verify table exists before truncating (additional safety)
+		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) );
+
+		if ( $table_exists === $table_name ) {
+			// Use esc_sql for table names (prepare() doesn't support table names)
+			$safe_table = esc_sql( $table_name );
+			$wpdb->query( "TRUNCATE TABLE `{$safe_table}`" );
+			self::log( 'EAV table truncated' );
+		} else {
+			self::log( 'EAV table does not exist, skipping truncate', 'warning' );
+		}
+
+		// 2. Delete migration state option (will be reinitialized fresh)
+		delete_option( 'superforms_eav_migration' );
+		self::log( 'Migration state deleted' );
+
+		// 3. Clear Action Scheduler: Cancel pending migration actions
+		if ( class_exists( 'ActionScheduler_Store' ) ) {
+			$store = ActionScheduler_Store::instance();
+
+			// Cancel all pending migration batch actions
+			$pending_actions = as_get_scheduled_actions(
+				array(
+					'hook' => 'super_forms_migration_batch',
+					'status' => ActionScheduler_Store::STATUS_PENDING,
+					'per_page' => -1,
+				),
+				'ids'
+			);
+
+			foreach ( $pending_actions as $action_id ) {
+				as_unschedule_action( 'super_forms_migration_batch', array(), 'super-forms-migration' );
+			}
+
+			if ( ! empty( $pending_actions ) ) {
+				self::log( 'Cancelled ' . count( $pending_actions ) . ' pending Action Scheduler jobs' );
+			}
+		}
+
+		// 4. Delete migration lock transients
+		delete_transient( 'superforms_migration_lock' );
+		delete_transient( self::SETUP_LOCK_KEY );
+		self::log( 'Migration locks cleared' );
+
+		// 5. Clear dismissed notice flags for all users
+		$wpdb->query(
+			"DELETE FROM {$wpdb->usermeta}
+			WHERE meta_key IN (
+				'super_migration_completed_dismissed',
+				'super_migration_rollback_dismissed'
+			)"
+		);
+		self::log( 'Dismissed notice flags cleared' );
+
+		self::log( 'Fresh migration reset complete - ready for clean test' );
 	}
 
 	/**
@@ -256,6 +339,10 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 
 		// ALWAYS check for actual unmigrated entries
 		// Don't trust stored state - CSV imports might add serialized data after completion
+		//
+		// NOTE: This query implicitly excludes entries with only _cleanup_empty markers
+		// because those entries have at least one row in EAV table (e.entry_id IS NOT NULL).
+		// Only entries with NO EAV data at all (e.entry_id IS NULL) are counted as unmigrated.
 		$unmigrated = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(DISTINCT p.ID)
@@ -296,15 +383,53 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 				$status = array();
 			}
 
+			// ANOMALY DETECTION: Check for counter overflow and auto-correct
+			// This catches race conditions where duplicate batches inflated the counter
+			if ( isset( $status['migrated_entries'] ) && isset( $status['total_entries'] ) ) {
+				$migrated = (int) $status['migrated_entries'];
+				$total = (int) $status['total_entries'];
+
+				// If migrated > total, we have counter overflow from race conditions
+				if ( $migrated > $total ) {
+					self::log(
+						"⚠ Counter overflow detected ({$migrated} > {$total}), recalculating from database",
+						'warning'
+					);
+					$actual_migrated = self::recalculate_migration_counter();
+					$status['migrated_entries'] = $actual_migrated;
+
+					// Also check if overflow was caused by duplicate action scheduling
+					if ( function_exists( 'as_get_scheduled_actions' ) ) {
+						$pending_count = count( as_get_scheduled_actions( array(
+							'hook' => self::AS_BATCH_HOOK,
+							'group' => 'superforms-migration',
+							'status' => 'pending',
+							'per_page' => 100,
+						) ) );
+
+						if ( $pending_count > 1 ) {
+							self::log(
+								"⚠ Found {$pending_count} duplicate pending batch actions - race condition confirmed",
+								'warning'
+							);
+						}
+					}
+				}
+			}
+
 			// Count total entries if not already counted
+			// Count ONLY valid entries (posts that exist AND have data)
 			if ( ! isset( $status['total_entries'] ) || $status['total_entries'] === 0 ) {
 				global $wpdb;
 				$status['total_entries'] = $wpdb->get_var(
-					"SELECT COUNT(*)
-					FROM {$wpdb->posts}
-					WHERE post_type = 'super_contact_entry'"
+					"SELECT COUNT(DISTINCT p.ID)
+					FROM {$wpdb->posts} p
+					INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID
+					WHERE p.post_type = 'super_contact_entry'
+					AND pm.meta_key = '_super_contact_entry_data'
+					AND pm.meta_value != ''"
 				);
-				self::log( "Counted {$status['total_entries']} total entries to migrate" );
+				self::log( "Counted {$status['total_entries']} valid entries to migrate (excludes empty/orphaned)" );
 			}
 
 			// Set status to in_progress before scheduling batches
@@ -334,6 +459,32 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 		 * @since 6.0.0
 		 */
 		public static function schedule_batch() {
+			// DUPLICATE CHECK: Prevent scheduling if batch already queued
+			// This fixes race condition causing counter overflow from duplicate actions
+			if ( function_exists( 'as_next_scheduled_action' ) ) {
+				$next_scheduled = as_next_scheduled_action( self::AS_BATCH_HOOK, array(), 'superforms-migration' );
+
+				if ( $next_scheduled ) {
+					$next_run = date( 'Y-m-d H:i:s', $next_scheduled );
+					self::log( "Batch already scheduled (next run: {$next_run}), preventing duplicate" );
+
+					// Debug: Log queue depth to detect race conditions
+					if ( function_exists( 'as_get_scheduled_actions' ) ) {
+						$pending_count = count( as_get_scheduled_actions( array(
+							'hook' => self::AS_BATCH_HOOK,
+							'group' => 'superforms-migration',
+							'status' => 'pending',
+							'per_page' => 100,
+						) ) );
+						self::log( "Action Scheduler queue status: {$pending_count} pending batch actions" );
+					}
+
+					return false; // Don't schedule duplicate
+				} else {
+					self::log( 'No pending batch actions found, proceeding with scheduling' );
+				}
+			}
+
 			// Calculate optimal batch size dynamically
 			$batch_size = self::calculate_batch_size();
 
@@ -345,7 +496,7 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 						array( $batch_size ),
 						'superforms-migration'
 					);
-					self::log( "Scheduled batch via Action Scheduler (async, size: {$batch_size})" );
+					self::log( "✓ Scheduled batch via Action Scheduler (async, size: {$batch_size})" );
 					return true;
 				} catch ( Exception $e ) {
 					self::log( 'Action Scheduler scheduling failed: ' . $e->getMessage(), 'error' );
@@ -354,13 +505,57 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 			}
 
 			// Fallback to WP-Cron (immediate execution via async)
-			if ( ! wp_next_scheduled( 'super_migration_cron_batch' ) ) {
+			$cron_scheduled = wp_next_scheduled( 'super_migration_cron_batch' );
+			if ( ! $cron_scheduled ) {
 				wp_schedule_single_event( time(), 'super_migration_cron_batch', array( $batch_size ) );
-				self::log( "Scheduled batch via WP-Cron (fallback, size: {$batch_size})" );
+				self::log( "✓ Scheduled batch via WP-Cron (fallback, size: {$batch_size})" );
 				return true;
+			} else {
+				$next_run = date( 'Y-m-d H:i:s', $cron_scheduled );
+				self::log( "Batch already scheduled in WP-Cron (next run: {$next_run}), preventing duplicate" );
+				return false;
+			}
+		}
+
+		/**
+		 * Recalculate migrated_entries counter from actual database
+		 *
+		 * Fixes counter overflow caused by race conditions where multiple batches
+		 * processed the same entries and each incremented the counter.
+		 *
+		 * @return int Actual count of migrated entries
+		 * @since 6.4.118
+		 */
+		public static function recalculate_migration_counter() {
+			global $wpdb;
+			$table_name = $wpdb->prefix . 'superforms_entry_data';
+
+			// Count unique entries in EAV table (source of truth)
+			$actual_migrated = (int) $wpdb->get_var(
+				"SELECT COUNT(DISTINCT entry_id) FROM {$table_name}"
+			);
+
+			// Get current migration state
+			$migration = get_option( 'superforms_eav_migration', array() );
+			$old_count = isset( $migration['migrated_entries'] ) ? (int) $migration['migrated_entries'] : 0;
+
+			// Only update if different (prevents unnecessary writes)
+			if ( $old_count !== $actual_migrated ) {
+				$migration['migrated_entries'] = $actual_migrated;
+				update_option( 'superforms_eav_migration', $migration );
+
+				$difference = $old_count - $actual_migrated;
+				$overflow_pct = $old_count > 0 ? round( ( $difference / $old_count ) * 100, 1 ) : 0;
+
+				self::log(
+					"Counter recalculated: {$old_count} → {$actual_migrated} (corrected -{$difference} overflow, {$overflow_pct}%)",
+					'warning'
+				);
+			} else {
+				self::log( "Counter verified: {$actual_migrated} entries migrated (no correction needed)" );
 			}
 
-			return false;
+			return $actual_migrated;
 		}
 
 		/**
@@ -435,9 +630,13 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 				return new WP_Error( 'locked', 'Migration is locked by another process' );
 			}
 
+
 			try {
+
 				// Check if migration still needed (after acquiring lock)
-				if ( ! self::needs_migration() ) {
+				$needs_migration = self::needs_migration();
+
+				if ( ! $needs_migration ) {
 					self::log( 'No migration needed, releasing lock' );
 					self::release_lock();
 					return array(
@@ -450,13 +649,22 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 					);
 				}
 
+
 				$migration = get_option( 'superforms_eav_migration', array() );
 				$last_id = isset( $migration['last_processed_id'] ) ? (int) $migration['last_processed_id'] : 0;
+
+				// AUTO-CORRECT COUNTER: Recalculate from database on every batch
+				// This fixes counter overflow from race conditions or 'skipped' entries counted as success
+				self::recalculate_migration_counter();
+
+				// Reload migration state after recalculation
+				$migration = get_option( 'superforms_eav_migration', array() );
 
 				// Get server limits for real-time monitoring
 				$memory_limit = wp_convert_hr_to_bytes( ini_get( 'memory_limit' ) );
 				$max_execution = (int) ini_get( 'max_execution_time' );
 				$time_start = microtime( true );
+
 
 				// Process entries with real-time monitoring
 				$processed = 0;
@@ -466,6 +674,7 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 
 				global $wpdb;
 				$table_name = $wpdb->prefix . 'superforms_entry_data';
+
 
 				while ( $processed < $batch_size ) {
 					// REAL-TIME MEMORY CHECK (before each entry)
@@ -516,6 +725,39 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 						$last_id
 					) );
 
+
+					// CLEANUP MODE: If no entry found with ID filter, check if unmigrated entries exist elsewhere
+					if ( ! $entry_id ) {
+						// Check if any unmigrated entries exist (without ID filter)
+						$total_unmigrated = $wpdb->get_var( $wpdb->prepare(
+							"SELECT COUNT(DISTINCT p.ID)
+							FROM {$wpdb->posts} p
+							LEFT JOIN {$table_name} e ON e.entry_id = p.ID
+							WHERE p.post_type = %s
+							AND e.entry_id IS NULL",
+							'super_contact_entry'
+						) );
+
+						if ( $total_unmigrated > 0 ) {
+							// Cleanup mode: unmigrated entries exist but can't be found with ID > filter
+							// This happens when entries have IDs lower than last_processed_id
+							self::log( "Cleanup mode activated: {$total_unmigrated} unmigrated entries found with IDs < {$last_id}" );
+
+							// Query without ID filter to find the entry
+							$entry_id = $wpdb->get_var( $wpdb->prepare(
+								"SELECT p.ID
+								FROM {$wpdb->posts} p
+								LEFT JOIN {$table_name} e ON e.entry_id = p.ID
+								WHERE p.post_type = %s
+								AND e.entry_id IS NULL
+								ORDER BY p.ID ASC
+								LIMIT 1",
+								'super_contact_entry'
+							) );
+
+						}
+					}
+
 					// No more entries to migrate
 					if ( ! $entry_id ) {
 						self::log( 'No more entries to migrate' );
@@ -523,9 +765,12 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 					}
 
 					// Process single entry
-					$entry_result = SUPER_Migration_Manager::migrate_single_entry( $entry_id );
+					$entry_result = SUPER_Migration_Manager::migrate_entry( $entry_id );
 
-					if ( $entry_result && ! is_wp_error( $entry_result ) ) {
+					// CRITICAL FIX: Use strict comparison to avoid counting 'skipped' as success
+					// migrate_entry() returns: true (success), 'skipped' (empty entry), WP_Error (failure)
+					if ( $entry_result === true ) {
+						// SUCCESS: Entry migrated, increment counter
 						$processed++;
 						$last_id = $entry_id;
 
@@ -534,7 +779,20 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 							$migration['migrated_entries'] = 0;
 						}
 						$migration['migrated_entries']++;
+					} elseif ( $entry_result === 'skipped' ) {
+						// SKIPPED: Entry has no data, don't count as migrated or failed
+						$processed++;
+						$last_id = $entry_id;
+
+						// Track skipped entries separately
+						if ( ! isset( $migration['skipped_entries'] ) ) {
+							$migration['skipped_entries'] = 0;
+						}
+						$migration['skipped_entries']++;
+
+						self::log( "Entry {$entry_id} skipped (no data)" );
 					} else {
+						// FAILED: Migration error
 						$failed++;
 						$last_id = $entry_id; // Still increment to avoid infinite loop
 
@@ -581,6 +839,7 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 				} else {
 					self::log( 'Migration completed successfully!' );
 					$migration['status'] = 'completed';
+					$migration['using_storage'] = 'eav';
 					$migration['completed_at'] = current_time( 'mysql' );
 					update_option( 'superforms_eav_migration', $migration );
 					self::cleanup_on_completion();
@@ -669,13 +928,21 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 
 		/**
 		 * Debug Action Scheduler execution
-		 * Logs action data before Action Scheduler tries to execute it
+		 * Hook for debugging Action Scheduler execution
+		 *
+		 * Can be enabled in production via filter:
+		 * add_filter('super_forms_migration_debug', '__return_true');
 		 *
 		 * @param int $action_id The action ID
 		 * @param string $context Execution context
 		 * @since 6.0.0
 		 */
 		public static function debug_action_scheduler( $action_id, $context = '' ) {
+			// Allow debugging via filter for production troubleshooting
+			if ( ! apply_filters( 'super_forms_migration_debug', false ) ) {
+				return;
+			}
+
 			// Only log for our migration actions
 			if ( function_exists( 'ActionScheduler' ) ) {
 				try {
@@ -687,8 +954,7 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 						error_log( '[SF Migration Debug]   Action ID: ' . $action_id );
 						error_log( '[SF Migration Debug]   Hook: ' . $hook );
 						error_log( '[SF Migration Debug]   Context: ' . $context );
-						error_log( '[SF Migration Debug]   Args type: ' . gettype( $action->get_args() ) );
-						error_log( '[SF Migration Debug]   Args value: ' . print_r( $action->get_args(), true ) );
+						error_log( '[SF Migration Debug]   Args: ' . print_r( $action->get_args(), true ) );
 					}
 				} catch ( Exception $e ) {
 					error_log( '[SF Migration Debug] Failed to fetch action: ' . $e->getMessage() );
@@ -705,22 +971,13 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 		public static function acquire_lock() {
 			$locked = get_transient( self::LOCK_KEY );
 
-			// Debug logging
-			error_log( '[SF Migration Debug] acquire_lock() called' );
-			error_log( '[SF Migration Debug] LOCK_KEY: ' . self::LOCK_KEY );
-			error_log( '[SF Migration Debug] $locked type: ' . gettype( $locked ) );
-			error_log( '[SF Migration Debug] $locked value: ' . var_export( $locked, true ) );
-			error_log( '[SF Migration Debug] $locked truthy check: ' . ( $locked ? 'TRUE' : 'FALSE' ) );
-
-			if ( $locked ) {
-				error_log( '[SF Migration Debug] Lock already held, returning false' );
+			// Explicit check: transient exists and is not false
+			if ( $locked !== false ) {
 				return false; // Already locked
 			}
 
-			// Set lock with expiration
-			$result = set_transient( self::LOCK_KEY, time(), self::LOCK_DURATION );
-			error_log( '[SF Migration Debug] set_transient() result: ' . var_export( $result, true ) );
-			error_log( '[SF Migration Debug] Lock acquired, returning true' );
+			// Set lock with expiration (use string 'locked' for clarity)
+			set_transient( self::LOCK_KEY, 'locked', self::LOCK_DURATION );
 			return true;
 		}
 
@@ -774,6 +1031,56 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 
 			// Release lock
 			self::release_lock();
+
+			// Cleanup Action Scheduler: Delete completed/failed migration actions
+			if ( class_exists( 'ActionScheduler_Store' ) && class_exists( 'ActionScheduler_DBStore' ) ) {
+				global $wpdb;
+
+				// Get completed and failed action IDs for migration hooks
+				$completed_actions = as_get_scheduled_actions(
+					array(
+						'hook'     => self::AS_BATCH_HOOK,
+						'status'   => ActionScheduler_Store::STATUS_COMPLETE,
+						'per_page' => -1,
+					),
+					'ids'
+				);
+
+				$failed_actions = as_get_scheduled_actions(
+					array(
+						'hook'     => self::AS_BATCH_HOOK,
+						'status'   => ActionScheduler_Store::STATUS_FAILED,
+						'per_page' => -1,
+					),
+					'ids'
+				);
+
+				$action_ids = array_merge( $completed_actions, $failed_actions );
+
+				if ( ! empty( $action_ids ) ) {
+					// Sanitize IDs to ensure they're all positive integers
+					$action_ids = array_map( 'absint', $action_ids );
+
+					// Create placeholders for prepare() - one %d for each ID
+					$placeholders = implode( ',', array_fill( 0, count( $action_ids ), '%d' ) );
+
+					// Delete from actionscheduler_actions table
+					$wpdb->query( $wpdb->prepare(
+						"DELETE FROM {$wpdb->prefix}actionscheduler_actions
+						WHERE action_id IN ({$placeholders})",
+						...$action_ids
+					) );
+
+					// Delete from actionscheduler_logs table
+					$wpdb->query( $wpdb->prepare(
+						"DELETE FROM {$wpdb->prefix}actionscheduler_logs
+						WHERE action_id IN ({$placeholders})",
+						...$action_ids
+					) );
+
+					self::log( sprintf( 'Deleted %d completed/failed Action Scheduler actions and logs', count( $action_ids ) ) );
+				}
+			}
 
 			self::log( 'Cleanup completed, health checks unscheduled' );
 		}

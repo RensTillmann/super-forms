@@ -9,6 +9,9 @@
   "scripts": {
     "delswaps": "find . -type f \\( -name \".*.swp\" -o -name \".*.swo\" \\) -exec rm -f {} + && find . -type d -name \".sass-cache\" -exec rm -rf {} +",
     "jshint": "jshint src/",
+    "lint": "eslint src/assets/js/**/*.js --max-warnings=0",
+    "lint:fix": "eslint src/assets/js/**/*.js --fix",
+    "lint:staged": "lint-staged",
     "rmuploads": "bash build.sh",
     "rmrf": "rm -rf dist/* && rm -rf docs && npm run rmuploads",
     "sass": "sass src/assets/css/frontend/elements.sass src/assets/css/frontend/elements.css",
@@ -44,7 +47,17 @@
     "old-dev": "npm run delswaps && npm run rmrf && npm run sass && npm run copyfiles && npm run copybundle && npm run deladdons && npm run copyaddons && npm run renamelines",
     "old-minify": "npm run delswaps && npm run rmrf && npm run sass && npm run copyfiles && npm run delsass && npm run minifyjs && npm run minifycss && npm run copybundle && npm run deladdons && npm run copyaddons && npm run renamelines && npm run zip",
     "old-prod-old": "npm run delswaps && npm run rmrf && npm run sass && npm run copyfiles && npm run delsass && npm run copybundle && npm run deladdons && npm run copyaddons && npm run renamelines && npm run zip && rm -rf gitzip* && npm run deldevaddons",
-    "old-prod": "npm run delswaps && npm run rmrf && npm run sass && npm run copyfiles && npm run delsass && npm run copybundle && npm run copyaddons && npm run renamelines && npm run zip && rm -rf gitzip* && npm run deldevaddons"
+    "old-prod": "npm run delswaps && npm run rmrf && npm run sass && npm run copyfiles && npm run delsass && npm run copybundle && npm run copyaddons && npm run renamelines && npm run zip && rm -rf gitzip* && npm run deldevaddons",
+    "env:start": "wp-env start",
+    "env:stop": "wp-env stop",
+    "env:restart": "wp-env destroy && wp-env start",
+    "env:logs": "wp-env logs",
+    "env:clean": "wp-env clean all"
+  },
+  "lint-staged": {
+    "src/assets/js/**/*.js": [
+      "eslint --fix"
+    ]
   },
   "repository": {
     "type": "git",
@@ -57,9 +70,12 @@
   },
   "homepage": "https://github.com/RensTillmann/super-forms#readme",
   "devDependencies": {
+    "@wordpress/env": "^10.34.0",
     "clean-css": "^4.2.1",
     "eslint": "^5.16.0",
+    "husky": "^9.1.7",
     "jshint": "^2.13.6",
+    "lint-staged": "^15.5.2",
     "uglify-js": "^3.6.0"
   },
   "dependencies": {

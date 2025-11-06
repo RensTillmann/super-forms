@@ -239,9 +239,16 @@ class SUPER_Data_Access {
             $field_name = $row['field_name'];
             $field_value = $row['field_value'];
 
-            // Handle repeater fields (stored as JSON)
-            if (self::is_repeater_field($field_name)) {
-                $field_value = json_decode($field_value, true);
+            // Handle JSON-encoded fields (decode any valid JSON array)
+            // This matches the write logic in save_to_eav_tables() which JSON encodes
+            // complex arrays regardless of field name. We only decode arrays to avoid
+            // converting simple JSON values like "123" or "true" to integers/booleans.
+            if (is_string($field_value)) {
+                // Try to decode if it looks like JSON
+                $decoded = json_decode($field_value, true);
+                if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                    $field_value = $decoded;
+                }
             }
 
             $data[$field_name] = array(
@@ -271,6 +278,12 @@ class SUPER_Data_Access {
 
         $table = $wpdb->prefix . 'superforms_entry_data';
 
+        // Get form_id for this entry
+        $form_id = get_post_meta($entry_id, '_super_form_id', true);
+        if (empty($form_id)) {
+            $form_id = 0; // Default to 0 if not found
+        }
+
         // Delete existing data for this entry
         $wpdb->delete($table, array('entry_id' => $entry_id), array('%d'));
 
@@ -287,13 +300,14 @@ class SUPER_Data_Access {
                 $table,
                 array(
                     'entry_id' => $entry_id,
+                    'form_id' => $form_id,
                     'field_name' => $field_name,
                     'field_value' => $field_value,
                     'field_type' => isset($field_data['type']) ? $field_data['type'] : '',
                     'field_label' => isset($field_data['label']) ? $field_data['label'] : '',
                     'created_at' => current_time('mysql'),
                 ),
-                array('%d', '%s', '%s', '%s', '%s', '%s')
+                array('%d', '%d', '%s', '%s', '%s', '%s', '%s')
             );
         }
 
