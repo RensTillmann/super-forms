@@ -24,6 +24,21 @@ class SUPER_Migration_Manager {
     const BATCH_SIZE = 10;
 
     /**
+     * Form ID constant for entries with unknown/missing form association
+     * Using -1 instead of 0 to distinguish from valid form IDs
+     * @var int
+     * @since 6.4.126
+     */
+    const UNKNOWN_FORM_ID = -1;
+
+    /**
+     * Default memory limit in MB for fallback when parsing fails
+     * @var int
+     * @since 6.4.126
+     */
+    const DEFAULT_MEMORY_LIMIT_MB = 256;
+
+    /**
      * Initialize migration (called once when user starts migration)
      *
      * @since 6.0.0
@@ -43,12 +58,15 @@ class SUPER_Migration_Manager {
             );
         }
 
-        // Count total entries
+        // Count ONLY valid entries (posts that exist AND have data)
+        // This excludes empty posts and orphaned metadata from the count
         $total_entries = $wpdb->get_var("
-            SELECT COUNT(*)
-            FROM {$wpdb->posts}
-            WHERE post_type = 'super_contact_entry'
-            AND post_status IN ('publish', 'super_unread', 'super_read')
+            SELECT COUNT(DISTINCT p.ID)
+            FROM {$wpdb->posts} p
+            INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID
+            WHERE p.post_type = 'super_contact_entry'
+            AND pm.meta_key = '_super_contact_entry_data'
+            AND pm.meta_value != ''
         ");
 
         // Initialize migration state
@@ -58,6 +76,10 @@ class SUPER_Migration_Manager {
             'total_entries'        => intval($total_entries),
             'migrated_entries'     => 0,
             'failed_entries'       => array(),
+            'cleanup_queue'        => array(
+                'empty_posts'      => 0,  // Posts with no form data
+                'orphaned_meta'    => 0,  // Metadata without corresponding posts
+            ),
             'started_at'           => current_time('mysql'),
             'completed_at'         => '',
             'last_processed_id'    => 0,
@@ -80,31 +102,25 @@ class SUPER_Migration_Manager {
     public static function process_batch($batch_size = null) {
         global $wpdb;
 
-        error_log('[SF Migration Debug] SUPER_Migration_Manager::process_batch() ENTERED');
-        error_log('[SF Migration Debug] $batch_size param: ' . var_export($batch_size, true));
+        // Resource monitoring - Start tracking
+        $start_time = microtime(true);
+        $start_memory = memory_get_usage();
+        $start_queries = $wpdb->num_queries;
+        $peak_memory = $start_memory;
 
         if ($batch_size === null) {
             $batch_size = self::BATCH_SIZE;
         }
 
-        error_log('[SF Migration Debug] $batch_size after null check: ' . $batch_size);
-
         // Get current migration state
         $migration = get_option('superforms_eav_migration');
-        error_log('[SF Migration Debug] Migration state retrieved');
-        error_log('[SF Migration Debug] Migration status: ' . (isset($migration['status']) ? $migration['status'] : 'UNKNOWN'));
 
         if (empty($migration) || $migration['status'] !== 'in_progress') {
-            error_log('[SF Migration Debug] Migration status check FAILED - returning WP_Error');
             return new WP_Error(
                 'migration_not_in_progress',
                 __('Migration is not in progress', 'super-forms')
             );
         }
-
-        error_log('[SF Migration Debug] Migration status check PASSED');
-        error_log('[SF Migration Debug] last_processed_id: ' . $migration['last_processed_id']);
-        error_log('[SF Migration Debug] About to fetch next batch of entries');
 
         // Get next batch of entries
         $entries = $wpdb->get_results($wpdb->prepare("
@@ -116,18 +132,13 @@ class SUPER_Migration_Manager {
             LIMIT %d
         ", $migration['last_processed_id'], $batch_size), ARRAY_A);
 
-        error_log('[SF Migration Debug] Query executed');
-        error_log('[SF Migration Debug] Entries found: ' . count($entries));
-        error_log('[SF Migration Debug] Entries: ' . print_r($entries, true));
-
         if (empty($entries)) {
-            error_log('[SF Migration Debug] No entries found - completing migration');
             // No more entries to process, complete migration
             return self::complete_migration();
         }
 
-        error_log('[SF Migration Debug] Starting to process ' . count($entries) . ' entries');
         $processed = 0;
+        $skipped = 0;
         $failed = 0;
         $last_id = $migration['last_processed_id'];
 
@@ -135,24 +146,81 @@ class SUPER_Migration_Manager {
             $entry_id = $entry['ID'];
             $last_id = $entry_id;
 
-            error_log('[SF Migration Debug] Processing entry ID: ' . $entry_id);
-
             // Migrate this entry
             $result = self::migrate_entry($entry_id);
 
-            error_log('[SF Migration Debug] migrate_entry() returned for ID: ' . $entry_id);
+            // Track peak memory during batch
+            $current_memory = memory_get_usage();
+            if ($current_memory > $peak_memory) {
+                $peak_memory = $current_memory;
+            }
 
             if (is_wp_error($result)) {
                 $migration['failed_entries'][$entry_id] = $result->get_error_message();
                 $failed++;
-                error_log('[Super Forms Migration] Failed to migrate entry ' . $entry_id . ': ' . $result->get_error_message());
+                error_log('[Super Forms Migration] [ERROR] Failed to migrate entry ' . $entry_id . ': ' . $result->get_error_message());
+            } elseif ($result === 'skipped') {
+                $skipped++;
             } else {
                 $processed++;
             }
         }
 
+        // Resource monitoring - Calculate final stats
+        $end_time = microtime(true);
+        $end_queries = $wpdb->num_queries;
+        $elapsed_time_ms = round(($end_time - $start_time) * 1000, 2);
+        $queries_used = $end_queries - $start_queries;
+        $memory_limit = ini_get('memory_limit');
+        $memory_limit_bytes = self::parse_memory_limit($memory_limit);
+        $memory_used_mb = round($peak_memory / 1024 / 1024, 2);
+        $memory_limit_mb = round($memory_limit_bytes / 1024 / 1024, 2);
+        $memory_percent = $memory_limit_bytes > 0 ? round(($peak_memory / $memory_limit_bytes) * 100, 2) : 0;
+
+        // Calculate per-entry metrics (only if entries were processed)
+        $entries_count = $processed + $skipped;
+        $avg_memory_per_entry_kb = $entries_count > 0 ? round(($memory_used_mb * 1024) / $entries_count, 2) : 0;
+        $avg_time_per_entry_ms = $entries_count > 0 ? round($elapsed_time_ms / $entries_count, 2) : 0;
+
+        // Initialize resource_stats if not exists
+        if (!isset($migration['resource_stats'])) {
+            $migration['resource_stats'] = array(
+                'peak_memory_mb' => 0,
+                'memory_limit_mb' => $memory_limit_mb,
+                'peak_memory_percent' => 0,
+                'total_queries' => 0,
+                'avg_queries_per_batch' => 0,
+                'batch_count' => 0,
+                'avg_memory_per_entry_kb' => 0,
+                'avg_time_per_entry_ms' => 0,
+            );
+        }
+
+        // Update peak memory if this batch used more
+        if ($memory_used_mb > $migration['resource_stats']['peak_memory_mb']) {
+            $migration['resource_stats']['peak_memory_mb'] = $memory_used_mb;
+            $migration['resource_stats']['peak_memory_percent'] = $memory_percent;
+        }
+
+        // Update query stats
+        $migration['resource_stats']['total_queries'] += $queries_used;
+        $migration['resource_stats']['batch_count']++;
+        $migration['resource_stats']['avg_queries_per_batch'] = round(
+            $migration['resource_stats']['total_queries'] / $migration['resource_stats']['batch_count'],
+            2
+        );
+
+        // Update per-entry metrics (running average)
+        if ($entries_count > 0) {
+            // Update average memory per entry (weighted average across all batches)
+            $total_entries_so_far = $migration['migrated_entries'] ?? 0;
+            $migration['resource_stats']['avg_memory_per_entry_kb'] = $avg_memory_per_entry_kb;
+            $migration['resource_stats']['avg_time_per_entry_ms'] = $avg_time_per_entry_ms;
+        }
+
         // Update migration progress
         $migration['migrated_entries'] += $processed;
+        $migration['skipped_entries'] += $skipped;
         $migration['last_processed_id'] = $last_id;
         update_option('superforms_eav_migration', $migration);
 
@@ -178,93 +246,85 @@ class SUPER_Migration_Manager {
      * @param int $entry_id Entry ID
      * @return bool|WP_Error True on success, WP_Error on failure
      */
-    private static function migrate_entry($entry_id) {
-        error_log('[SF Migration Debug] migrate_entry() ENTERED for ID: ' . $entry_id);
-
+    public static function migrate_entry($entry_id) {
         // Read from serialized storage
         $data = get_post_meta($entry_id, '_super_contact_entry_data', true);
 
-        error_log('[SF Migration Debug] get_post_meta returned, type: ' . gettype($data));
-        error_log('[SF Migration Debug] Data empty check: ' . (empty($data) ? 'TRUE' : 'FALSE'));
-
         if (empty($data)) {
-            error_log('[SF Migration Debug] Entry ' . $entry_id . ' has no data, skipping');
-            // Entry has no data, skip
-            return true;
-        }
+            // Entry has no data (empty post), insert marker to prevent reprocessing
+            global $wpdb;
+            $table = $wpdb->prefix . 'superforms_entry_data';
 
-        error_log('[SF Migration Debug] Data is string: ' . (is_string($data) ? 'TRUE' : 'FALSE'));
+            // Get form_id if it exists
+            $form_id = get_post_meta($entry_id, '_super_form_id', true);
+            if (empty($form_id)) {
+                $form_id = self::UNKNOWN_FORM_ID; // Use constant for unknown form
+            }
+
+            // Insert _cleanup_empty marker so entry appears "migrated"
+            $wpdb->insert(
+                $table,
+                array(
+                    'entry_id' => $entry_id,
+                    'form_id' => $form_id,
+                    'field_name' => '_cleanup_empty',
+                    'field_value' => '1',
+                    'field_type' => 'hidden',
+                    'field_label' => 'Empty Entry',
+                    'created_at' => current_time('mysql'),
+                ),
+                array('%d', '%d', '%s', '%s', '%s', '%s', '%s')
+            );
+
+            // Return 'skipped' to track separately in cleanup_queue.empty_posts counter
+            return 'skipped';
+        }
 
         // Handle serialized data
         if (is_string($data)) {
-            error_log('[SF Migration Debug] About to unserialize data for entry: ' . $entry_id);
-            error_log('[SF Migration Debug] Data length: ' . strlen($data));
-            error_log('[SF Migration Debug] First 100 chars: ' . substr($data, 0, 100));
-
             $data = @unserialize($data);
 
-            error_log('[SF Migration Debug] Unserialize completed');
-
             if ($data === false) {
-                error_log('[SF Migration Debug] Unserialize returned FALSE');
+                error_log('[Super Forms Migration] [ERROR] Failed to unserialize entry ' . $entry_id);
                 return new WP_Error(
                     'corrupt_data',
                     'Failed to unserialize entry data'
                 );
             }
-        } else {
-            error_log('[SF Migration Debug] Data is already unserialized (type: ' . gettype($data) . ')');
         }
 
-        error_log('[SF Migration Debug] About to check if data is array');
-
         if (!is_array($data)) {
-            error_log('[SF Migration Debug] Data is NOT array - returning error');
+            error_log('[Super Forms Migration] [ERROR] Entry ' . $entry_id . ' data is not an array');
             return new WP_Error(
                 'invalid_data',
                 'Entry data is not an array'
             );
         }
 
-        error_log('[SF Migration Debug] Data IS array - passed check');
-        error_log('[SF Migration Debug] About to get global $wpdb');
-
         // Write to EAV tables using Data Access Layer's private method
         // We'll directly insert into EAV table here
         global $wpdb;
 
-        error_log('[SF Migration Debug] Got $wpdb, setting table name');
         $table = $wpdb->prefix . 'superforms_entry_data';
-        error_log('[SF Migration Debug] Table name: ' . $table);
 
         // Delete any existing EAV data for this entry
-        error_log('[SF Migration Debug] About to delete existing EAV data for entry: ' . $entry_id);
         $wpdb->delete($table, array('entry_id' => $entry_id), array('%d'));
-        error_log('[SF Migration Debug] Deleted existing EAV data, starting field loop');
 
         // Insert each field into EAV table
         foreach ($data as $field_name => $field_data) {
-            error_log('[SF Migration Debug] Processing field: ' . $field_name);
-
             if (!is_array($field_data)) {
-                error_log('[SF Migration Debug] Field ' . $field_name . ' is not array, skipping');
                 continue; // Skip non-array entries
             }
 
-            error_log('[SF Migration Debug] Extracting field data for: ' . $field_name);
             $field_value = isset($field_data['value']) ? $field_data['value'] : '';
             $field_type = isset($field_data['type']) ? $field_data['type'] : '';
             $field_label = isset($field_data['label']) ? $field_data['label'] : '';
 
-            error_log('[SF Migration Debug] Field value type: ' . gettype($field_value));
-
             // Handle repeater fields (store as JSON)
             if (is_array($field_value)) {
-                error_log('[SF Migration Debug] Field value is array, encoding to JSON');
                 $field_value = wp_json_encode($field_value);
             }
 
-            error_log('[SF Migration Debug] About to insert field ' . $field_name . ' into database');
             $result = $wpdb->insert(
                 $table,
                 array(
@@ -278,27 +338,18 @@ class SUPER_Migration_Manager {
                 array('%d', '%s', '%s', '%s', '%s', '%s')
             );
 
-            error_log('[SF Migration Debug] Insert result: ' . var_export($result, true));
-
             if ($result === false) {
-                error_log('[SF Migration Debug] Insert FAILED for field: ' . $field_name . ', Error: ' . $wpdb->last_error);
+                error_log('[Super Forms Migration] [ERROR] Insert FAILED for field: ' . $field_name . ' in entry ' . $entry_id . ', Error: ' . $wpdb->last_error);
                 return new WP_Error(
                     'db_insert_failed',
                     'Failed to insert field into EAV table: ' . $wpdb->last_error
                 );
             }
-
-            error_log('[SF Migration Debug] Successfully inserted field: ' . $field_name);
         }
-
-        error_log('[SF Migration Debug] Finished field loop, all fields inserted');
-        error_log('[SF Migration Debug] Checking if SUPER_Data_Access class exists');
 
         // Verify migration was successful (compare EAV data with serialized data)
         if (class_exists('SUPER_Data_Access')) {
-            error_log('[SF Migration Debug] SUPER_Data_Access exists, about to call validate_entry_integrity');
             $validation = SUPER_Data_Access::validate_entry_integrity($entry_id);
-            error_log('[SF Migration Debug] validate_entry_integrity returned');
 
             if ($validation && isset($validation['valid']) && $validation['valid'] === true) {
                 // Verification passed - serialized data can be deleted in future
@@ -416,7 +467,65 @@ class SUPER_Migration_Manager {
      * @return array|false Migration status or false if no migration
      */
     public static function get_migration_status() {
-        return get_option('superforms_eav_migration');
+        global $wpdb;
+
+        // Get base state from stored option (status, timestamps, metadata)
+        $state = get_option('superforms_eav_migration');
+
+        if (empty($state)) {
+            return $state; // Not initialized yet
+        }
+
+        // LIVE DATABASE QUERIES - Always get current counts, never use stored counters
+
+        // 1. Total valid entries (posts that exist AND have data)
+        $state['total_entries'] = (int) $wpdb->get_var(
+            "SELECT COUNT(DISTINCT p.ID)
+            FROM {$wpdb->posts} p
+            INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID
+            WHERE p.post_type = 'super_contact_entry'
+            AND pm.meta_key = '_super_contact_entry_data'
+            AND pm.meta_value != ''"
+        );
+
+        // 2. Migrated entries (actual EAV data, excluding cleanup markers)
+        $eav_table = $wpdb->prefix . 'superforms_entry_data';
+        $state['migrated_entries'] = (int) $wpdb->get_var(
+            "SELECT COUNT(DISTINCT entry_id)
+            FROM {$eav_table}
+            WHERE field_name != '_cleanup_empty'"
+        );
+
+        // 3. Empty posts count (entries with _cleanup_empty marker)
+        $empty_posts = (int) $wpdb->get_var(
+            "SELECT COUNT(DISTINCT entry_id)
+            FROM {$eav_table}
+            WHERE field_name = '_cleanup_empty'"
+        );
+
+        // 4. Orphaned metadata count (metadata without corresponding posts)
+        // Cache this expensive query for 5 minutes to improve performance
+        $orphaned_meta = get_transient('superforms_orphaned_meta_count');
+        if ($orphaned_meta === false) {
+            $orphaned_meta = (int) $wpdb->get_var(
+                "SELECT COUNT(DISTINCT pm.post_id)
+                FROM {$wpdb->postmeta} pm
+                LEFT JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+                WHERE pm.meta_key = '_super_contact_entry_data'
+                AND p.ID IS NULL"
+            );
+            // Cache for 5 minutes (300 seconds)
+            set_transient('superforms_orphaned_meta_count', $orphaned_meta, 300);
+        }
+
+        // Update cleanup_queue with live counts
+        if (!isset($state['cleanup_queue'])) {
+            $state['cleanup_queue'] = array();
+        }
+        $state['cleanup_queue']['empty_posts'] = $empty_posts;
+        $state['cleanup_queue']['orphaned_meta'] = $orphaned_meta;
+
+        return $state;
     }
 
     /**
@@ -431,6 +540,7 @@ class SUPER_Migration_Manager {
             'using_storage'        => 'serialized',
             'total_entries'        => 0,
             'migrated_entries'     => 0,
+            'skipped_entries'      => 0,
             'failed_entries'       => array(),
             'started_at'           => '',
             'completed_at'         => '',
@@ -498,6 +608,49 @@ class SUPER_Migration_Manager {
         error_log('[Super Forms Developer Tools] Force switched to EAV storage - FOR TESTING ONLY');
 
         return $migration;
+    }
+
+    /**
+     * Parse PHP memory limit string to bytes
+     *
+     * Converts memory limit values like "768M", "1G", "512000" to bytes
+     *
+     * IMPORTANT: This function guarantees a non-zero return value (minimum 256MB)
+     * to prevent division by zero in resource monitoring calculations.
+     *
+     * @since 6.4.125
+     * @param string $limit Memory limit string from ini_get('memory_limit')
+     * @return int Memory limit in bytes (always > 0)
+     */
+    private static function parse_memory_limit($limit) {
+        // Handle numeric-only values (already in bytes)
+        if (is_numeric($limit)) {
+            return (int) $limit;
+        }
+
+        // Handle values with units (e.g., "768M", "1G", "512K")
+        if (preg_match('/^(\d+)([KMG])$/i', trim($limit), $matches)) {
+            $value = (int) $matches[1];
+            $unit = strtoupper($matches[2]);
+
+            switch ($unit) {
+                case 'G':
+                    return $value * 1024 * 1024 * 1024;
+                case 'M':
+                    return $value * 1024 * 1024;
+                case 'K':
+                    return $value * 1024;
+            }
+        }
+
+        // Handle unlimited (-1)
+        if ($limit === '-1') {
+            // Return a large value (1TB) for unlimited
+            return 1024 * 1024 * 1024 * 1024;
+        }
+
+        // Fallback: return safe default from constant
+        return self::DEFAULT_MEMORY_LIMIT_MB * 1024 * 1024;
     }
 }
 

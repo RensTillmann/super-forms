@@ -1,6 +1,6 @@
 ---
 name: h-implement-developer-tools-page
-branch: feature/developer-tools-page
+branch: fix/eav-json-encoding-bug
 status: in-progress
 created: 2025-11-01
 ---

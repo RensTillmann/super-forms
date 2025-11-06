@@ -1054,6 +1054,9 @@ if (!class_exists('SUPER_Developer_Tools')) :
 
 		// Calculate improvement
 		$improvement = $time_serialized > 0 ? round($time_serialized / $time_eav, 1) : 0;
+		$faster_text = $improvement >= 1
+			? $improvement . 'x faster'
+			: round(1 / $improvement, 1) . 'x slower';
 
 		return array(
 			'benchmark' => 'csv_export',
@@ -1061,12 +1064,12 @@ if (!class_exists('SUPER_Developer_Tools')) :
 			'time_serialized' => $time_serialized,
 			'time_eav' => $time_eav,
 			'improvement' => $improvement,
-			'faster' => $improvement . 'x faster',
+			'faster' => $faster_text,
 			'message' => sprintf(
-				'CSV export: %dms (serialized) vs %dms (EAV) - %sx improvement',
+				'CSV export: %dms (serialized) vs %dms (EAV) - %s',
 				$time_serialized,
 				$time_eav,
-				$improvement
+				$faster_text
 			)
 		);
 	}
@@ -1134,6 +1137,9 @@ if (!class_exists('SUPER_Developer_Tools')) :
 
 		// Calculate improvement
 		$improvement = $time_serialized > 0 ? round($time_serialized / $time_eav, 1) : 0;
+		$faster_text = $improvement >= 1
+			? $improvement . 'x faster'
+			: round(1 / $improvement, 1) . 'x slower';
 
 		return array(
 			'benchmark' => 'listings_filter',
@@ -1141,12 +1147,12 @@ if (!class_exists('SUPER_Developer_Tools')) :
 			'time_serialized' => $time_serialized,
 			'time_eav' => $time_eav,
 			'improvement' => $improvement,
-			'faster' => $improvement . 'x faster',
+			'faster' => $faster_text,
 			'message' => sprintf(
-				'Listings filter: %dms (serialized) vs %dms (EAV) - %sx improvement',
+				'Listings filter: %dms (serialized) vs %dms (EAV) - %s',
 				$time_serialized,
 				$time_eav,
-				$improvement
+				$faster_text
 			)
 		);
 	}
@@ -1190,6 +1196,9 @@ if (!class_exists('SUPER_Developer_Tools')) :
 
 		// Calculate improvement
 		$improvement = $time_serialized > 0 ? round($time_serialized / $time_eav, 1) : 0;
+		$faster_text = $improvement >= 1
+			? $improvement . 'x faster'
+			: round(1 / $improvement, 1) . 'x slower';
 
 		return array(
 			'benchmark' => 'admin_search',
@@ -1198,12 +1207,12 @@ if (!class_exists('SUPER_Developer_Tools')) :
 			'time_serialized' => $time_serialized,
 			'time_eav' => $time_eav,
 			'improvement' => $improvement,
-			'faster' => $improvement . 'x faster',
+			'faster' => $faster_text,
 			'message' => sprintf(
-				'Admin search: %dms (serialized) vs %dms (EAV) - %sx improvement',
+				'Admin search: %dms (serialized) vs %dms (EAV) - %s',
 				$time_serialized,
 				$time_eav,
-				$improvement
+				$faster_text
 			)
 		);
 	}
@@ -1468,6 +1477,126 @@ if (!class_exists('SUPER_Developer_Tools')) :
 		}
 
 		return $results;
+	}
+
+	/**
+	 * Cleanup skipped entries (orphaned entries with no data)
+	 *
+	 * Deletes entries marked with _skipped field in EAV table.
+	 * These are entries that had no form data during migration.
+	 *
+	 * @return array Results with deleted count
+	 * @since 6.4.121
+	 */
+	public static function cleanup_skipped_entries() {
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'superforms_entry_data';
+
+		// Find all entry_ids with _cleanup_empty marker (formerly _skipped)
+		$empty_entry_ids = $wpdb->get_col(
+			"SELECT DISTINCT entry_id
+			FROM {$table_name}
+			WHERE field_name = '_cleanup_empty'"
+		);
+
+		if (empty($empty_entry_ids)) {
+			return array(
+				'deleted' => 0,
+				'message' => 'No empty entries found'
+			);
+		}
+
+		$deleted_count = 0;
+
+		// Delete each entry (post and all metadata)
+		foreach ($empty_entry_ids as $entry_id) {
+			// Force delete (bypass trash)
+			$result = wp_delete_post($entry_id, true);
+
+			if ($result !== false) {
+				// Also delete from EAV table
+				$wpdb->delete(
+					$table_name,
+					array('entry_id' => $entry_id),
+					array('%d')
+				);
+
+				$deleted_count++;
+			}
+		}
+
+		// Update migration state to reflect cleanup
+		$migration = get_option('superforms_eav_migration', array());
+		if (isset($migration['cleanup_queue']['empty_posts'])) {
+			$migration['cleanup_queue']['empty_posts'] = max(0, $migration['cleanup_queue']['empty_posts'] - $deleted_count);
+			update_option('superforms_eav_migration', $migration);
+		}
+
+		error_log('[Super Forms Developer Tools] Cleaned up ' . $deleted_count . ' empty entries');
+
+		return array(
+			'deleted' => $deleted_count,
+			'message' => sprintf('Deleted %d empty entries', $deleted_count)
+		);
+	}
+
+	/**
+	 * Cleanup orphaned metadata
+	 *
+	 * Finds and deletes metadata entries (_super_contact_entry_data) that don't have
+	 * corresponding posts. This can happen when posts are deleted but metadata remains.
+	 *
+	 * @since 6.4.122
+	 * @return array Result with count and message
+	 */
+	public static function cleanup_orphaned_metadata() {
+		global $wpdb;
+
+		// Find metadata entries without corresponding posts
+		$orphaned_post_ids = $wpdb->get_col(
+			"SELECT DISTINCT pm.post_id
+			FROM {$wpdb->postmeta} pm
+			LEFT JOIN {$wpdb->posts} p ON p.ID = pm.post_id
+			WHERE pm.meta_key = '_super_contact_entry_data'
+			AND p.ID IS NULL"
+		);
+
+		if (empty($orphaned_post_ids)) {
+			return array(
+				'deleted' => 0,
+				'message' => 'No orphaned metadata found'
+			);
+		}
+
+		$deleted_count = 0;
+
+		// Delete orphaned metadata for each post_id
+		foreach ($orphaned_post_ids as $post_id) {
+			// Delete all metadata for this orphaned post
+			$result = $wpdb->delete(
+				$wpdb->postmeta,
+				array('post_id' => $post_id),
+				array('%d')
+			);
+
+			if ($result !== false) {
+				$deleted_count++;
+			}
+		}
+
+		// Update migration state to reflect cleanup
+		$migration = get_option('superforms_eav_migration', array());
+		if (isset($migration['cleanup_queue']['orphaned_meta'])) {
+			$migration['cleanup_queue']['orphaned_meta'] = max(0, $migration['cleanup_queue']['orphaned_meta'] - $deleted_count);
+			update_option('superforms_eav_migration', $migration);
+		}
+
+		error_log('[Super Forms Developer Tools] Cleaned up ' . $deleted_count . ' orphaned metadata entries');
+
+		return array(
+			'deleted' => $deleted_count,
+			'message' => sprintf('Deleted metadata for %d orphaned posts', $deleted_count)
+		);
 	}
 	}
 

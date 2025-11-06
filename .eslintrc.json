@@ -1,0 +1,62 @@
+{
+  "env": {
+    "browser": true,
+    "es6": true,
+    "jquery": true,
+    "node": true
+  },
+  "extends": ["eslint:recommended"],
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "sourceType": "module"
+  },
+  "rules": {
+    "no-console": "off",
+    "no-unused-vars": ["warn", {
+      "vars": "all",
+      "args": "after-used",
+      "ignoreRestSiblings": true
+    }],
+    "no-undef": "error",
+    "semi": ["error", "always"],
+    "quotes": ["warn", "single", {
+      "avoidEscape": true,
+      "allowTemplateLiterals": true
+    }],
+    "indent": ["warn", 4, {
+      "SwitchCase": 1
+    }],
+    "brace-style": ["warn", "1tbs", {
+      "allowSingleLine": true
+    }],
+    "comma-dangle": ["warn", "never"],
+    "no-trailing-spaces": "warn",
+    "no-multiple-empty-lines": ["warn", {
+      "max": 2,
+      "maxEOF": 1
+    }],
+    "eol-last": ["warn", "always"],
+    "space-before-blocks": "warn",
+    "keyword-spacing": "warn",
+    "space-infix-ops": "warn",
+    "comma-spacing": ["warn", {
+      "before": false,
+      "after": true
+    }],
+    "no-duplicate-case": "error",
+    "no-unreachable": "error",
+    "no-cond-assign": "error",
+    "no-constant-condition": "warn",
+    "no-empty": "warn"
+  },
+  "globals": {
+    "wp": "readonly",
+    "jQuery": "readonly",
+    "$": "readonly",
+    "ajaxurl": "readonly",
+    "SUPER": "readonly",
+    "super_common_i18n": "readonly",
+    "super_elements_i18n": "readonly",
+    "sfui": "readonly"
+  }
+}

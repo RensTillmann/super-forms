@@ -278,6 +278,12 @@ class SUPER_Data_Access {
 
         $table = $wpdb->prefix . 'superforms_entry_data';
 
+        // Get form_id for this entry
+        $form_id = get_post_meta($entry_id, '_super_form_id', true);
+        if (empty($form_id)) {
+            $form_id = 0; // Default to 0 if not found
+        }
+
         // Delete existing data for this entry
         $wpdb->delete($table, array('entry_id' => $entry_id), array('%d'));
 
@@ -294,13 +300,14 @@ class SUPER_Data_Access {
                 $table,
                 array(
                     'entry_id' => $entry_id,
+                    'form_id' => $form_id,
                     'field_name' => $field_name,
                     'field_value' => $field_value,
                     'field_type' => isset($field_data['type']) ? $field_data['type'] : '',
                     'field_label' => isset($field_data['label']) ? $field_data['label'] : '',
                     'created_at' => current_time('mysql'),
                 ),
-                array('%d', '%s', '%s', '%s', '%s', '%s')
+                array('%d', '%d', '%s', '%s', '%s', '%s', '%s')
             );
         }
 
