@@ -241,6 +241,10 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 
 		// Get server limits
 		$memory_limit = wp_convert_hr_to_bytes( ini_get( 'memory_limit' ) );
+		if ( $memory_limit === false || $memory_limit <= 0 ) {
+			// Fallback to safe default if wp_convert_hr_to_bytes() fails
+			$memory_limit = SUPER_Migration_Manager::DEFAULT_MEMORY_LIMIT_MB * 1024 * 1024; // 256MB
+		}
 		$max_exec = (int) ini_get( 'max_execution_time' );
 
 		// Estimate per-entry resource usage (conservative)
@@ -662,6 +666,10 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 
 				// Get server limits for real-time monitoring
 				$memory_limit = wp_convert_hr_to_bytes( ini_get( 'memory_limit' ) );
+				if ( $memory_limit === false || $memory_limit <= 0 ) {
+					// Fallback to safe default if wp_convert_hr_to_bytes() fails
+					$memory_limit = SUPER_Migration_Manager::DEFAULT_MEMORY_LIMIT_MB * 1024 * 1024; // 256MB
+				}
 				$max_execution = (int) ini_get( 'max_execution_time' );
 				$time_start = microtime( true );
 
@@ -675,8 +683,13 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 				global $wpdb;
 				$table_name = $wpdb->prefix . 'superforms_entry_data';
 
+				// Infinite loop protection: Safety limit for iterations
+				$max_iterations = $batch_size * 2; // Allow 2x batch size for safety
+				$iteration = 0;
 
-				while ( $processed < $batch_size ) {
+				while ( $processed < $batch_size && $iteration < $max_iterations ) {
+					$iteration++;
+
 					// REAL-TIME MEMORY CHECK (before each entry)
 					$current_memory = memory_get_usage( true );
 					$memory_percent = $current_memory / $memory_limit;
@@ -807,6 +820,18 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 					}
 				}
 
+				// Check if we hit max iterations limit (possible infinite loop)
+				if ( $iteration >= $max_iterations ) {
+					self::log( sprintf(
+						'WARNING: Hit max iteration limit (%d) - possible infinite loop. Processed: %d, Failed: %d',
+						$max_iterations,
+						$processed,
+						$failed
+					), 'warning' );
+					$stopped_early = true;
+					$stop_reason = 'max_iterations';
+				}
+
 				// Update migration state with ACTUAL processed count
 				$migration['last_processed_id'] = $last_id;
 				$migration['last_batch_processed_at'] = current_time( 'mysql' );
@@ -832,6 +857,9 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 					$stopped_early ? " (stopped early: {$stop_reason})" : ''
 				) );
 
+				// Release lock BEFORE scheduling next batch to prevent race conditions
+				self::release_lock();
+
 				// Schedule next batch if needed
 				if ( ! $is_complete && $total_remaining > 0 ) {
 					self::schedule_batch();
@@ -844,9 +872,6 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 					update_option( 'superforms_eav_migration', $migration );
 					self::cleanup_on_completion();
 				}
-
-				// Release lock
-				self::release_lock();
 
 				return array(
 					'processed' => $processed,
