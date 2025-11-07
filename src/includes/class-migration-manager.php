@@ -282,7 +282,7 @@ class SUPER_Migration_Manager {
 
         // Handle serialized data
         if (is_string($data)) {
-            $data = @unserialize($data);
+            $data = maybe_unserialize($data);
 
             if ($data === false) {
                 error_log('[Super Forms Migration] [ERROR] Failed to unserialize entry ' . $entry_id);
