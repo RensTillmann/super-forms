@@ -46,6 +46,15 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 		const AS_HEALTH_CHECK_HOOK = 'superforms_migration_health_check';
 
 		/**
+		 * Version when EAV migration was introduced
+		 * Migration only runs when upgrading FROM version < this TO version >= this
+		 * This prevents migration from running on every version bump in production
+		 *
+		 * @since 6.4.126
+		 */
+		const MIGRATION_INTRODUCED_VERSION = '6.4.100';
+
+		/**
 		 * Initialize hooks
 		 *
 		 * @since 6.0.0
@@ -106,24 +115,49 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 				self::log( "Plugin upgraded: {$stored_version} → {$current_version}" );
 				update_option( 'super_plugin_version', $current_version );
 
-				// FRESH START: Clean slate for testing migration on each version bump
-				self::reset_for_fresh_migration();
+				// Check if this upgrade crosses the migration threshold
+				// Only migrate when upgrading FROM pre-EAV TO post-EAV version
+				$crosses_threshold = version_compare( $stored_version, self::MIGRATION_INTRODUCED_VERSION, '<' )
+				                  && version_compare( $current_version, self::MIGRATION_INTRODUCED_VERSION, '>=' );
 
-				// SELF-HEALING: Auto-create infrastructure if missing
-				if ( class_exists( 'SUPER_Install' ) ) {
-					// Ensure EAV tables exist (creates if needed)
-					if ( SUPER_Install::ensure_tables_exist() ) {
-						self::log( "EAV database tables created automatically" );
+				// Check if migration was ever completed
+				$migration_state = get_option( 'superforms_eav_migration', array() );
+				$migration_completed = isset( $migration_state['status'] ) && $migration_state['status'] === 'completed';
+
+				if ( $crosses_threshold && ! $migration_completed ) {
+					// FIRST-TIME MIGRATION: User upgrading from pre-EAV to post-EAV version
+					self::log( 'Crossing migration threshold - setting up EAV infrastructure' );
+
+					// SELF-HEALING: Auto-create infrastructure
+					if ( class_exists( 'SUPER_Install' ) ) {
+						// Ensure EAV tables exist (creates if needed)
+						if ( SUPER_Install::ensure_tables_exist() ) {
+							self::log( "EAV database tables created automatically" );
+						}
+
+						// Ensure migration state initialized
+						if ( SUPER_Install::ensure_migration_state_initialized() ) {
+							self::log( "Migration state initialized automatically" );
+						}
 					}
 
-					// Ensure migration state initialized
-					if ( SUPER_Install::ensure_migration_state_initialized() ) {
-						self::log( "Migration state initialized automatically" );
+					// Schedule migration if serialized data exists
+					self::schedule_if_needed( 'version_upgrade' );
+				} else {
+					// REGULAR UPDATE: Just ensure infrastructure exists (self-healing)
+					// No migration needed - either already completed or not crossing threshold
+					if ( ! $crosses_threshold ) {
+						self::log( 'Regular update (not crossing migration threshold)' );
+					}
+					if ( $migration_completed ) {
+						self::log( 'Migration already completed previously' );
+					}
+
+					// Still ensure tables exist (self-healing for edge cases)
+					if ( class_exists( 'SUPER_Install' ) ) {
+						SUPER_Install::ensure_tables_exist();
 					}
 				}
-
-				// Schedule migration if needed (will work now because tables exist)
-				self::schedule_if_needed( 'version_upgrade' );
 			} finally {
 				// RELEASE SETUP LOCK - guaranteed cleanup even on fatal errors
 				delete_transient( self::SETUP_LOCK_KEY );
@@ -132,7 +166,7 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 	}
 
 	/**
-	 * Reset migration for fresh start on version bump
+	 * Reset migration for fresh start (TESTING ONLY)
 	 *
 	 * Provides clean slate for testing migration system by:
 	 * - Truncating EAV table (removes old migrated data)
@@ -141,12 +175,15 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 	 * - Removing migration locks
 	 * - Clearing dismissed notice flags
 	 *
-	 * This ensures each version bump gets a clean test environment.
-	 * Source serialized data remains untouched.
+	 * WARNING: This is for testing/development only. Should only be called:
+	 * 1. From Developer Tools page (when DEBUG_SF is enabled)
+	 * 2. Never automatically on production version upgrades
+	 *
+	 * Source serialized data remains untouched, so migration can re-run.
 	 *
 	 * @since 6.4.124
 	 */
-	private static function reset_for_fresh_migration() {
+	public static function reset_for_fresh_migration() {
 		global $wpdb;
 
 		self::log( 'Resetting for fresh migration start...' );

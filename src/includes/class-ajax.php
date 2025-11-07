@@ -6388,6 +6388,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 
 	/**
 	 * Reset migration to not_started (Developer Tools)
+	 * Full reset with TRUNCATE for testing/development
 	 *
 	 * @since 6.0.0
 	 */
@@ -6397,14 +6398,18 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			wp_send_json_error( array( 'message' => esc_html__( 'You do not have permission to reset migration', 'super-forms' ) ) );
 		}
 
-		// Reset migration
-		$result = SUPER_Migration_Manager::reset_migration();
+		// Full reset for testing (truncates EAV table, clears Action Scheduler, resets state)
+		if ( class_exists( 'SUPER_Background_Migration' ) ) {
+			SUPER_Background_Migration::reset_for_fresh_migration();
 
-		if ( is_wp_error( $result ) ) {
-			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+			// Re-initialize infrastructure after reset
+			if ( class_exists( 'SUPER_Install' ) ) {
+				SUPER_Install::ensure_tables_exist();
+				SUPER_Install::ensure_migration_state_initialized();
+			}
 		}
 
-		wp_send_json_success( array( 'message' => esc_html__( 'Migration reset successfully', 'super-forms' ) ) );
+		wp_send_json_success( array( 'message' => esc_html__( 'Migration reset successfully (EAV table truncated, ready for fresh migration)', 'super-forms' ) ) );
 	}
 
 	/**

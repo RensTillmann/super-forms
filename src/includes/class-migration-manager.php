@@ -352,14 +352,13 @@ class SUPER_Migration_Manager {
             $validation = SUPER_Data_Access::validate_entry_integrity($entry_id);
 
             if ($validation && isset($validation['valid']) && $validation['valid'] === true) {
-                // Verification passed - serialized data can be deleted in future
-                // NOTE: Keeping serialized data for now as additional safety measure
-                // Uncomment when ready to enable automatic cleanup:
-                // delete_post_meta($entry_id, '_super_contact_entry_data');
+                // Verification passed - delete serialized data to keep database clean
+                // EAV table is now the single source of truth
+                delete_post_meta($entry_id, '_super_contact_entry_data');
 
-                // Log successful verification
+                // Log successful verification and cleanup
                 if (class_exists('SUPER_Background_Migration')) {
-                    SUPER_Background_Migration::log("Entry {$entry_id} migrated and verified successfully (serialized data kept)");
+                    SUPER_Background_Migration::log("Entry {$entry_id} migrated, verified, and serialized data deleted");
                 }
             } else {
                 // Verification failed - keep both copies for manual review
