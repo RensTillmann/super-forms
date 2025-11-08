@@ -59,17 +59,6 @@ if ( ! class_exists( 'SUPER_Menu' ) ) :
 				'super_settings',
 				'SUPER_Pages::settings'
 			);
-			// Developer Tools (DEBUG mode only)
-			if ( defined( 'DEBUG_SF' ) && DEBUG_SF === true ) {
-				add_submenu_page(
-					'super_forms',
-					esc_html__( 'Developer Tools', 'super-forms' ),
-					esc_html__( 'Developer Tools', 'super-forms' ),
-					'manage_options',
-					'super_developer_tools',
-					'SUPER_Pages::developer_tools'
-				);
-			}
 			add_submenu_page(
 				'super_forms',
 				esc_html__( 'Contact Entries', 'super-forms' ),
@@ -108,6 +97,17 @@ if ( ! class_exists( 'SUPER_Menu' ) ) :
 				'super_demos',
 				'SUPER_Pages::demos'
 			);
+			// Developer Tools (DEBUG mode only) - placed at end to avoid shifting menu indices
+			if ( defined( 'DEBUG_SF' ) && DEBUG_SF === true ) {
+				add_submenu_page(
+					'super_forms',
+					esc_html__( 'Developer Tools', 'super-forms' ),
+					esc_html__( 'Developer Tools', 'super-forms' ),
+					'manage_options',
+					'super_developer_tools',
+					'SUPER_Pages::developer_tools'
+				);
+			}
 			add_submenu_page(
 				'null_super_forms', // in later versions of PHP/WordPress you can't set this to `null`
 				esc_html__( 'View contact entry', 'super-forms' ),
