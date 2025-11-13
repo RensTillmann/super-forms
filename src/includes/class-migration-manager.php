@@ -39,6 +39,99 @@ class SUPER_Migration_Manager {
     const DEFAULT_MEMORY_LIMIT_MB = 256;
 
     /**
+     * Register AJAX handlers for migration management
+     * Called on plugin init to ensure handlers are always available
+     * @since 6.4.127
+     */
+    public static function register_ajax_handlers() {
+        // Cleanup empty posts
+        if (!has_action('wp_ajax_super_migration_cleanup_empty')) {
+            add_action('wp_ajax_super_migration_cleanup_empty', array(__CLASS__, 'ajax_cleanup_empty'));
+        }
+
+        // Cleanup orphaned metadata
+        if (!has_action('wp_ajax_super_migration_cleanup_orphaned')) {
+            add_action('wp_ajax_super_migration_cleanup_orphaned', array(__CLASS__, 'ajax_cleanup_orphaned'));
+        }
+
+        // Refresh cleanup stats
+        if (!has_action('wp_ajax_super_refresh_cleanup_stats')) {
+            add_action('wp_ajax_super_refresh_cleanup_stats', array(__CLASS__, 'ajax_refresh_cleanup_stats'));
+        }
+    }
+
+    /**
+     * AJAX handler: Cleanup empty posts
+     * @since 6.4.127
+     */
+    public static function ajax_cleanup_empty() {
+        check_ajax_referer('super-form-builder', 'security');
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => 'Permission denied'));
+        }
+        $result = SUPER_Developer_Tools::cleanup_skipped_entries();
+        if (is_wp_error($result)) {
+            wp_send_json_error(array('message' => $result->get_error_message()));
+        }
+        wp_send_json_success($result);
+    }
+
+    /**
+     * AJAX handler: Cleanup orphaned metadata
+     * @since 6.4.127
+     */
+    public static function ajax_cleanup_orphaned() {
+        check_ajax_referer('super-form-builder', 'security');
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => 'Permission denied'));
+        }
+        $result = SUPER_Developer_Tools::cleanup_orphaned_metadata();
+        if (is_wp_error($result)) {
+            wp_send_json_error(array('message' => $result->get_error_message()));
+        }
+        wp_send_json_success($result);
+    }
+
+    /**
+     * AJAX handler: Refresh cleanup stats
+     * @since 6.4.127
+     */
+    public static function ajax_refresh_cleanup_stats() {
+        check_ajax_referer('super-form-builder', 'security');
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => 'Permission denied'));
+        }
+
+        // Clear transients to force fresh calculation
+        delete_transient('superforms_orphaned_meta_count');
+        delete_transient('superforms_last_cleanup_check');
+
+        // Get fresh migration status (will recalculate)
+        $migration_status = self::get_migration_status();
+
+        if (empty($migration_status)) {
+            wp_send_json_error(array('message' => 'Migration not initialized'));
+        }
+
+        $cleanup_queue = !empty($migration_status['cleanup_queue']) ? $migration_status['cleanup_queue'] : array();
+        $empty_posts = !empty($cleanup_queue['empty_posts']) ? $cleanup_queue['empty_posts'] : 0;
+        $posts_without_data = !empty($cleanup_queue['posts_without_data']) ? $cleanup_queue['posts_without_data'] : 0;
+        $orphaned_meta = !empty($cleanup_queue['orphaned_meta']) ? $cleanup_queue['orphaned_meta'] : 0;
+        $last_checked = !empty($cleanup_queue['last_checked']) ? $cleanup_queue['last_checked'] : 0;
+        $total_cleanup = $empty_posts + $posts_without_data + $orphaned_meta;
+
+        wp_send_json_success(array(
+            'total_cleanup' => $total_cleanup,
+            'empty_posts' => $empty_posts,
+            'posts_without_data' => $posts_without_data,
+            'orphaned_meta' => $orphaned_meta,
+            'last_checked' => $last_checked,
+            'time_since_check' => 'just now',
+            'message' => sprintf('Cleanup stats refreshed: %d items found', $total_cleanup)
+        ));
+    }
+
+    /**
      * Initialize migration (called once when user starts migration)
      *
      * @since 6.0.0
@@ -58,15 +151,12 @@ class SUPER_Migration_Manager {
             );
         }
 
-        // Count ONLY valid entries (posts that exist AND have data)
-        // This excludes empty posts and orphaned metadata from the count
+        // Count ALL posts (snapshot at migration start - stays constant during migration)
+        // This prevents the total from fluctuating as serialized data gets deleted
         $total_entries = $wpdb->get_var("
-            SELECT COUNT(DISTINCT p.ID)
-            FROM {$wpdb->posts} p
-            INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID
-            WHERE p.post_type = 'super_contact_entry'
-            AND pm.meta_key = '_super_contact_entry_data'
-            AND pm.meta_value != ''
+            SELECT COUNT(*)
+            FROM {$wpdb->posts}
+            WHERE post_type = 'super_contact_entry'
         ");
 
         // Initialize migration state
@@ -74,6 +164,7 @@ class SUPER_Migration_Manager {
             'status'               => 'in_progress',
             'using_storage'        => 'serialized', // Still reading from serialized during migration
             'total_entries'        => intval($total_entries),
+            'initial_total_entries' => intval($total_entries), // Snapshot - won't change during migration
             'migrated_entries'     => 0,
             'failed_entries'       => array(),
             'cleanup_queue'        => array(
@@ -352,13 +443,14 @@ class SUPER_Migration_Manager {
             $validation = SUPER_Data_Access::validate_entry_integrity($entry_id);
 
             if ($validation && isset($validation['valid']) && $validation['valid'] === true) {
-                // Verification passed - delete serialized data to keep database clean
-                // EAV table is now the single source of truth
-                delete_post_meta($entry_id, '_super_contact_entry_data');
+                // Verification passed - keeping serialized data as safety backup
+                // EAV table is now the primary source of truth, but serialized data retained
+                // SAFETY: Serialized data deletion disabled - keeping both copies
+                // delete_post_meta($entry_id, '_super_contact_entry_data');
 
-                // Log successful verification and cleanup
+                // Log successful verification (keeping both copies for safety)
                 if (class_exists('SUPER_Background_Migration')) {
-                    SUPER_Background_Migration::log("Entry {$entry_id} migrated, verified, and serialized data deleted");
+                    SUPER_Background_Migration::log("Entry {$entry_id} migrated and verified successfully. Keeping both EAV and serialized copies for safety.");
                 }
             } else {
                 // Verification failed - keep both copies for manual review
@@ -477,15 +569,19 @@ class SUPER_Migration_Manager {
 
         // LIVE DATABASE QUERIES - Always get current counts, never use stored counters
 
-        // 1. Total valid entries (posts that exist AND have data)
-        $state['total_entries'] = (int) $wpdb->get_var(
-            "SELECT COUNT(DISTINCT p.ID)
-            FROM {$wpdb->posts} p
-            INNER JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID
-            WHERE p.post_type = 'super_contact_entry'
-            AND pm.meta_key = '_super_contact_entry_data'
-            AND pm.meta_value != ''"
-        );
+        // 1. Total entries - use snapshot during migration, recalculate otherwise
+        // During migration, the total should stay constant (even as serialized data gets deleted)
+        if ($state['status'] === 'in_progress' && !empty($state['initial_total_entries'])) {
+            // Use the snapshotted total to prevent fluctuation during migration
+            $state['total_entries'] = (int) $state['initial_total_entries'];
+        } else {
+            // Recalculate if not in progress or snapshot doesn't exist
+            $state['total_entries'] = (int) $wpdb->get_var(
+                "SELECT COUNT(*)
+                FROM {$wpdb->posts}
+                WHERE post_type = 'super_contact_entry'"
+            );
+        }
 
         // 2. Migrated entries (actual EAV data, excluding cleanup markers)
         $eav_table = $wpdb->prefix . 'superforms_entry_data';
@@ -502,9 +598,23 @@ class SUPER_Migration_Manager {
             WHERE field_name = '_cleanup_empty'"
         );
 
-        // 4. Orphaned metadata count (metadata without corresponding posts)
-        // Cache this expensive query for 5 minutes to improve performance
+        // 4. Posts without data (posts with NEITHER serialized NOR EAV data)
+        // Excludes posts that have been migrated to EAV (they're not "without data")
+        $posts_without_data = (int) $wpdb->get_var(
+            "SELECT COUNT(DISTINCT p.ID)
+            FROM {$wpdb->posts} p
+            LEFT JOIN {$wpdb->postmeta} pm ON pm.post_id = p.ID AND pm.meta_key = '_super_contact_entry_data'
+            LEFT JOIN {$eav_table} ed ON ed.entry_id = p.ID
+            WHERE p.post_type = 'super_contact_entry'
+            AND pm.meta_id IS NULL
+            AND ed.entry_id IS NULL"
+        );
+
+        // 5. Orphaned metadata count (metadata without corresponding posts)
+        // Cache this expensive query for 1 hour to improve performance
         $orphaned_meta = get_transient('superforms_orphaned_meta_count');
+        $last_cleanup_check = get_transient('superforms_last_cleanup_check');
+
         if ($orphaned_meta === false) {
             $orphaned_meta = (int) $wpdb->get_var(
                 "SELECT COUNT(DISTINCT pm.post_id)
@@ -513,16 +623,22 @@ class SUPER_Migration_Manager {
                 WHERE pm.meta_key = '_super_contact_entry_data'
                 AND p.ID IS NULL"
             );
-            // Cache for 5 minutes (300 seconds)
-            set_transient('superforms_orphaned_meta_count', $orphaned_meta, 300);
+            // Cache for 1 hour (3600 seconds)
+            set_transient('superforms_orphaned_meta_count', $orphaned_meta, 3600);
+            // Store timestamp of when this check was performed
+            $last_cleanup_check = current_time('timestamp');
+            set_transient('superforms_last_cleanup_check', $last_cleanup_check, 3600);
         }
 
         // Update cleanup_queue with live counts
+        // Ensure all values are integers (transients can return strings)
         if (!isset($state['cleanup_queue'])) {
             $state['cleanup_queue'] = array();
         }
-        $state['cleanup_queue']['empty_posts'] = $empty_posts;
-        $state['cleanup_queue']['orphaned_meta'] = $orphaned_meta;
+        $state['cleanup_queue']['empty_posts'] = (int) $empty_posts;
+        $state['cleanup_queue']['posts_without_data'] = (int) $posts_without_data;
+        $state['cleanup_queue']['orphaned_meta'] = (int) $orphaned_meta;
+        $state['cleanup_queue']['last_checked'] = (int) ($last_cleanup_check ? $last_cleanup_check : current_time('timestamp'));
 
         return $state;
     }
@@ -652,5 +768,8 @@ class SUPER_Migration_Manager {
         return self::DEFAULT_MEMORY_LIMIT_MB * 1024 * 1024;
     }
 }
+
+// Register AJAX handlers on init
+SUPER_Migration_Manager::register_ajax_handlers();
 
 endif;
