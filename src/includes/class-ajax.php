@@ -6313,14 +6313,35 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			wp_send_json_error( array( 'message' => esc_html__( 'You do not have permission to start migration', 'super-forms' ) ) );
 		}
 
-		// Start the migration
+		// Initialize migration state first
 		$result = SUPER_Migration_Manager::start_migration();
 
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
 		}
 
-		wp_send_json_success( $result );
+		// Schedule migration via Action Scheduler (background processing)
+		// This allows browser to close while migration continues in background
+		$scheduled = SUPER_Background_Migration::schedule_if_needed( 'manual' );
+
+		if ( $scheduled === false ) {
+			// Check if already running
+			if ( SUPER_Background_Migration::is_locked() ) {
+				wp_send_json_success( array(
+					'message' => esc_html__( 'Migration already running in background', 'super-forms' ),
+					'background_mode' => true,
+					'status' => $result
+				) );
+			} else {
+				wp_send_json_error( array( 'message' => esc_html__( 'Migration scheduling failed - no entries need migration', 'super-forms' ) ) );
+			}
+		} else {
+			wp_send_json_success( array(
+				'message' => esc_html__( 'Migration scheduled in background - you can close this page', 'super-forms' ),
+				'background_mode' => true,
+				'status' => $result
+			) );
+		}
 	}
 
 	/**

@@ -2147,6 +2147,15 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 		private static function get_translated_settings( $list, $form_id, $i18n ) {
 			$settings = SUPER_Common::get_form_settings( $form_id );
 			// error_log(json_encode($settings));
+
+			// Add defensive checks to prevent TypeError when _listings is not an array
+			if ( !isset($settings['_listings']) || !is_array($settings['_listings']) ) {
+				$settings['_listings'] = array('lists' => array());
+			}
+			if ( !isset($settings['_listings']['lists']) || !is_array($settings['_listings']['lists']) ) {
+				$settings['_listings']['lists'] = array();
+			}
+
 			// First get the index of the current list based on the ID (code)
 			$index = -1;
 			foreach ( $settings['_listings']['lists'] as $k => $v ) {

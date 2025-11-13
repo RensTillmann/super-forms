@@ -855,7 +855,6 @@ jQuery(document).ready(function($) {
     // Migration Controls (Phase 3)
     // ======================================
     var migrationActive = false;
-    var migrationPaused = false;
 
     // Start migration
     $('#migration-start-btn').on('click', function() {
@@ -866,7 +865,6 @@ jQuery(document).ready(function($) {
 
     // Pause migration
     $('#migration-pause-btn').on('click', function() {
-        migrationPaused = true;
         $('#migration-pause-btn').hide();
         $('#migration-start-btn').text('▶️ Resume Migration').show();
         appendMigrationLog('Migration paused by user');
@@ -1296,12 +1294,9 @@ jQuery(document).ready(function($) {
         return text.replace(/[&<>"']/g, function(m) { return map[m]; });
     }
 
-    // Start migration process
+    // Start migration process (background mode via Action Scheduler)
     function startMigration() {
-        migrationActive = true;
-        migrationPaused = false;
-        $('#migration-start-btn').hide();
-        $('#migration-pause-btn').show();
+        $('#migration-start-btn').prop('disabled', true).text('Scheduling...');
         $('.migration-log').show();
 
         $.ajax({
@@ -1313,82 +1308,136 @@ jQuery(document).ready(function($) {
             },
             success: function(response) {
                 if (response.success) {
-                    appendMigrationLog('✓ Migration started: ' + response.data.total_entries + ' entries to migrate');
-                    processMigrationBatch();
+                    var status = response.data.status || response.data;
+                    var totalEntries = status.total_entries || 0;
+
+                    // Show background mode message
+                    appendMigrationLog('✓ Migration scheduled in background: ' + totalEntries + ' entries to migrate');
+                    appendMigrationLog('ℹ Migration runs in background - you can close this page');
+
+                    // Hide start button, show status
+                    $('#migration-start-btn').hide();
+                    $('#migration-pause-btn').hide(); // No pause in background mode
+
+                    // Start polling for status updates (read-only)
+                    migrationActive = true;
+                    pollMigrationStatus();
                 } else {
                     alert('Error: ' + response.data.message);
-                    migrationActive = false;
-                    $('#migration-start-btn').show();
-                    $('#migration-pause-btn').hide();
+                    $('#migration-start-btn').prop('disabled', false).text('▶️ Start Migration');
                 }
+            },
+            error: function() {
+                alert('AJAX error occurred while starting migration');
+                $('#migration-start-btn').prop('disabled', false).text('▶️ Start Migration');
             }
         });
     }
 
-    // Process migration batch
-    function processMigrationBatch() {
-        if (!migrationActive || migrationPaused) {
+    // Poll migration status (read-only updates)
+    function pollMigrationStatus() {
+        if (!migrationActive) {
             return;
         }
 
-        var batchSize = parseInt($('#migration-batch-size').val());
-        var delay = parseInt($('#migration-delay').val());
+        updateMigrationStatus();
 
+        // Check if complete
         $.ajax({
             url: ajaxurl,
             type: 'POST',
             data: {
-                action: 'super_migration_process_batch',
-                security: devtoolsNonce,
-                batch_size: batchSize
+                action: 'super_migration_get_status',
+                security: devtoolsNonce
             },
             success: function(response) {
-                if (response.success) {
-                    var data = response.data;
+                if (response.success && response.data) {
+                    var status = response.data.status;
 
-                    // Update progress
-                    if (data.total_entries && data.total_entries > 0) {
-                        updateMigrationProgress(data.migrated_entries || data.total_processed, data.total_entries);
-                    }
-
-                    // Log batch result
-                    var processed = data.processed || data.batch_processed || 0;
-                    var migrated = data.migrated_entries || data.total_processed || 0;
-                    var total = data.total_entries || 0;
-                    appendMigrationLog('Processed batch: ' + processed + ' entries (' + migrated + ' / ' + total + ')');
-
-                    // Check if complete
-                    if (data.status === 'completed' || data.is_complete) {
+                    if (status === 'completed') {
                         appendMigrationLog('✓ Migration complete!');
                         migrationActive = false;
-                        $('#migration-start-btn').text('▶️ Start Migration').show();
-                        $('#migration-pause-btn').hide();
-                        updateMigrationStatus();
-                    } else {
-                        // Continue with next batch
-                        setTimeout(processMigrationBatch, delay);
+                        $('#migration-start-btn').text('▶️ Start Migration').show().prop('disabled', false);
+                    } else if (status === 'in_progress') {
+                        // Continue polling every 3 seconds
+                        setTimeout(pollMigrationStatus, 3000);
                     }
-                } else {
-                    appendMigrationLog('✗ Error: ' + response.data.message);
-                    migrationActive = false;
-                    $('#migration-start-btn').show();
-                    $('#migration-pause-btn').hide();
                 }
-            },
-            error: function() {
-                appendMigrationLog('✗ AJAX error occurred');
-                migrationActive = false;
-                $('#migration-start-btn').show();
-                $('#migration-pause-btn').hide();
             }
         });
     }
 
     // Update migration progress UI
-    function updateMigrationProgress(current, total) {
+    function updateMigrationProgress(current, total, cleanupQueue) {
         var percent = (current / total) * 100;
         $('.migration-progress-fill').css('width', percent + '%');
-        $('.migration-progress-text').text(current.toLocaleString() + ' / ' + total.toLocaleString() + ' (' + Math.round(percent) + '%)');
+
+        // Build progress text with cleanup queue if provided
+        var progressText = current.toLocaleString() + ' / ' + total.toLocaleString() + ' (' + Math.round(percent) + '%)';
+
+        if (cleanupQueue && (cleanupQueue.empty_posts > 0 || cleanupQueue.posts_without_data > 0 || cleanupQueue.orphaned_meta > 0)) {
+            // Parse as integers to prevent string concatenation (WordPress transients can return strings)
+            var emptyPosts = parseInt(cleanupQueue.empty_posts || 0, 10);
+            var postsWithoutData = parseInt(cleanupQueue.posts_without_data || 0, 10);
+            var orphanedMeta = parseInt(cleanupQueue.orphaned_meta || 0, 10);
+            var totalCleanup = emptyPosts + postsWithoutData + orphanedMeta;
+
+            // Build cleanup queue HTML
+            var cleanupHtml = ' <span class="cleanup-queue-display" style="color: #f57c00; margin-left: 10px;">';
+            cleanupHtml += '• <span class="cleanup-queue-count">' + totalCleanup.toLocaleString() + '</span> cleanup queue (';
+
+            // Show breakdown
+            var parts = [];
+            if (emptyPosts > 0) {
+                parts.push('<span class="cleanup-empty-count">' + emptyPosts.toLocaleString() + '</span> empty');
+            }
+            if (postsWithoutData > 0) {
+                parts.push('<span class="cleanup-no-data-count">' + postsWithoutData.toLocaleString() + '</span> no data');
+            }
+            if (orphanedMeta > 0) {
+                parts.push('<span class="cleanup-orphaned-count">' + orphanedMeta.toLocaleString() + '</span> orphaned');
+            }
+            cleanupHtml += parts.join(', ') + ')';
+
+            // Add timestamp if available
+            if (cleanupQueue.last_checked) {
+                var timeSinceCheck = calculateTimeSince(cleanupQueue.last_checked);
+                cleanupHtml += ' <span class="cleanup-last-checked" style="font-size: 11px; color: #999; font-style: italic;">';
+                cleanupHtml += '— checked ' + timeSinceCheck + '</span>';
+            }
+
+            // Add refresh button
+            cleanupHtml += ' <button id="refresh-cleanup-stats-btn" class="button button-small" style="margin-left: 8px; padding: 0 8px; height: 22px; line-height: 22px; font-size: 11px;">';
+            cleanupHtml += '<span class="dashicons dashicons-update" style="font-size: 13px; width: 13px; height: 13px; margin-top: 4px;"></span>';
+            cleanupHtml += '</button>';
+
+            // Add loading spinner
+            cleanupHtml += ' <span class="cleanup-stats-loading" style="display: none; margin-left: 5px; font-size: 11px;">';
+            cleanupHtml += '<span class="dashicons dashicons-update-alt" style="font-size: 13px; width: 13px; height: 13px; animation: rotation 1s infinite linear;"></span>';
+            cleanupHtml += ' Calculating...</span>';
+
+            cleanupHtml += '</span>';
+
+            progressText += cleanupHtml;
+        }
+
+        $('.migration-progress-text').html(progressText);
+    }
+
+    // Helper function to calculate time since timestamp
+    function calculateTimeSince(timestamp) {
+        var now = Math.floor(Date.now() / 1000); // Current time in seconds
+        var diff = now - timestamp;
+
+        if (diff < 60) {
+            return 'just now';
+        } else if (diff < 3600) {
+            var minutes = Math.floor(diff / 60);
+            return minutes + ' minute' + (minutes > 1 ? 's' : '') + ' ago';
+        } else {
+            var hours = Math.floor(diff / 3600);
+            return hours + ' hour' + (hours > 1 ? 's' : '') + ' ago';
+        }
     }
 
     // Update migration status display
@@ -1414,9 +1463,9 @@ jQuery(document).ready(function($) {
                     // Update storage
                     $('.migration-using-storage').text(status.using_storage === 'eav' ? 'EAV Tables' : 'Serialized');
 
-                    // Update progress
+                    // Update progress (with cleanup queue data)
                     if (status.total_entries > 0) {
-                        updateMigrationProgress(status.migrated_entries, status.total_entries);
+                        updateMigrationProgress(status.migrated_entries, status.total_entries, status.cleanup_queue);
                     }
                 }
             }
@@ -2158,6 +2207,47 @@ jQuery(document).ready(function($) {
 
     // Load stats on page load
     $('#refresh-db-stats-btn').click();
+
+    // ========================================
+    // CLEANUP STATS REFRESH
+    // ========================================
+
+    // Refresh cleanup stats button (use event delegation since button is dynamically created)
+    $(document).on('click', '#refresh-cleanup-stats-btn', function() {
+        var $btn = $(this);
+        var $loading = $('.cleanup-stats-loading');
+
+        // Show loading, hide button
+        $btn.prop('disabled', true);
+        $loading.show();
+
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'super_refresh_cleanup_stats',
+                security: devtoolsNonce
+            },
+            success: function(response) {
+                if (response.success) {
+                    // Show brief success feedback
+                    appendMigrationLog('✓ ' + response.data.message);
+
+                    // Trigger full status update to rebuild entire progress display
+                    updateMigrationStatus();
+                } else {
+                    alert('Error: ' + (response.data ? response.data.message : 'Unknown error'));
+                    $loading.hide();
+                    $btn.prop('disabled', false);
+                }
+            },
+            error: function() {
+                alert('AJAX error occurred while refreshing cleanup stats');
+                $loading.hide();
+                $btn.prop('disabled', false);
+            }
+        });
+    });
 
     // Helper functions for CSV import (defined at top level)
     function updateImportProgress(percent, text) {

@@ -46,6 +46,9 @@ test/scripts/superforms-export.xml
 test/exports/
 test/SENSITIVE_DATA_FINDINGS.md
 
+# Local development and testing files
+/local/
+
 # Files that might contain API keys or credentials
 **/config.local.php
 **/credentials.json

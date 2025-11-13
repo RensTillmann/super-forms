@@ -1938,7 +1938,7 @@ include_once 'includes/class-developer-tools.php';
 					}
 					$url .= 'key=' . $settings['form_google_places_api'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init';
 					wp_enqueue_script( 'google-maps-api', $url, array( 'super-common' ), SUPER_VERSION, false );
-					$this->googleMapsApiEnqueued = true;
+					SUPER_Forms()->googleMapsApiEnqueued = true;
 				}
 
 				$dir = SUPER_PLUGIN_FILE . 'assets/js/frontend/jquery-file-upload/';

@@ -18,49 +18,8 @@ if (!current_user_can('manage_options')) {
 // Create nonce for AJAX requests
 $nonce = wp_create_nonce('super-form-builder');
 
-// Register AJAX handler for cleanup empty posts (formerly skipped entries)
-if (!has_action('wp_ajax_super_migration_cleanup_empty')) {
-    add_action('wp_ajax_super_migration_cleanup_empty', function() {
-        // Security check
-        check_ajax_referer('super-form-builder', 'security');
-
-        // Capability check
-        if (!current_user_can('manage_options')) {
-            wp_send_json_error(array('message' => 'Permission denied'));
-        }
-
-        // Call cleanup method (still uses cleanup_skipped_entries for now, will update field_name check)
-        $result = SUPER_Developer_Tools::cleanup_skipped_entries();
-
-        if (is_wp_error($result)) {
-            wp_send_json_error(array('message' => $result->get_error_message()));
-        }
-
-        wp_send_json_success($result);
-    });
-}
-
-// Register AJAX handler for cleanup orphaned metadata
-if (!has_action('wp_ajax_super_migration_cleanup_orphaned')) {
-    add_action('wp_ajax_super_migration_cleanup_orphaned', function() {
-        // Security check
-        check_ajax_referer('super-form-builder', 'security');
-
-        // Capability check
-        if (!current_user_can('manage_options')) {
-            wp_send_json_error(array('message' => 'Permission denied'));
-        }
-
-        // Call cleanup method
-        $result = SUPER_Developer_Tools::cleanup_orphaned_metadata();
-
-        if (is_wp_error($result)) {
-            wp_send_json_error(array('message' => $result->get_error_message()));
-        }
-
-        wp_send_json_success($result);
-    });
-}
+// AJAX handlers are now registered in SUPER_Migration_Manager::register_ajax_handlers()
+// This ensures they're available on all admin requests, including AJAX
 
 // Enqueue Developer Tools JavaScript
 wp_enqueue_script(
@@ -360,10 +319,27 @@ wp_localize_script('super-forms-developer-tools', 'devtoolsData', array(
         $using_storage = !empty($migration_status) ? $migration_status['using_storage'] : 'serialized';
         $total = !empty($migration_status) ? $migration_status['total_entries'] : 0;
         $migrated = !empty($migration_status) ? $migration_status['migrated_entries'] : 0;
-        $cleanup_queue = !empty($migration_status['cleanup_queue']) ? $migration_status['cleanup_queue'] : array('empty_posts' => 0, 'orphaned_meta' => 0);
+        $cleanup_queue = !empty($migration_status['cleanup_queue']) ? $migration_status['cleanup_queue'] : array('empty_posts' => 0, 'posts_without_data' => 0, 'orphaned_meta' => 0, 'last_checked' => 0);
         $empty_posts = !empty($cleanup_queue['empty_posts']) ? $cleanup_queue['empty_posts'] : 0;
+        $posts_without_data = !empty($cleanup_queue['posts_without_data']) ? $cleanup_queue['posts_without_data'] : 0;
         $orphaned_meta = !empty($cleanup_queue['orphaned_meta']) ? $cleanup_queue['orphaned_meta'] : 0;
-        $total_cleanup = $empty_posts + $orphaned_meta;
+        $last_checked = !empty($cleanup_queue['last_checked']) ? $cleanup_queue['last_checked'] : 0;
+        $total_cleanup = $empty_posts + $posts_without_data + $orphaned_meta;
+
+        // Calculate time since last check
+        $time_since_check = '';
+        if ($last_checked > 0) {
+            $time_diff = current_time('timestamp') - $last_checked;
+            if ($time_diff < 60) {
+                $time_since_check = 'just now';
+            } elseif ($time_diff < 3600) {
+                $minutes = floor($time_diff / 60);
+                $time_since_check = $minutes . ' minute' . ($minutes > 1 ? 's' : '') . ' ago';
+            } else {
+                $hours = floor($time_diff / 3600);
+                $time_since_check = $hours . ' hour' . ($hours > 1 ? 's' : '') . ' ago';
+            }
+        }
         $progress = $total > 0 ? round(($migrated / $total) * 100, 2) : 0;
         ?>
 
@@ -401,13 +377,33 @@ wp_localize_script('super-forms-developer-tools', 'devtoolsData', array(
                         <span class="migration-progress-text">
                             <?php echo esc_html(number_format($migrated)); ?> / <?php echo esc_html(number_format($total)); ?> (<?php echo esc_html($progress); ?>%)
                             <?php if ($total_cleanup > 0) : ?>
-                                <span style="color: #f57c00; margin-left: 10px;" title="<?php echo esc_attr__('Empty posts and orphaned metadata to be cleaned up', 'super-forms'); ?>">
-                                    • <?php echo esc_html(number_format($total_cleanup)); ?> cleanup queue
-                                    <?php if ($empty_posts > 0) : ?>
-                                        (<?php echo esc_html(number_format($empty_posts)); ?> empty<?php if ($orphaned_meta > 0) : ?>, <?php echo esc_html(number_format($orphaned_meta)); ?> orphaned<?php endif; ?>)
-                                    <?php elseif ($orphaned_meta > 0) : ?>
-                                        (<?php echo esc_html(number_format($orphaned_meta)); ?> orphaned)
+                                <span class="cleanup-queue-display" style="color: #f57c00; margin-left: 10px;" title="<?php echo esc_attr__('Empty posts, posts without data, and orphaned metadata to be cleaned up', 'super-forms'); ?>">
+                                    • <span class="cleanup-queue-count"><?php echo esc_html(number_format($total_cleanup)); ?></span> cleanup queue
+                                    (<?php
+                                    $parts = array();
+                                    if ($empty_posts > 0) {
+                                        $parts[] = '<span class="cleanup-empty-count">' . esc_html(number_format($empty_posts)) . '</span> empty';
+                                    }
+                                    if ($posts_without_data > 0) {
+                                        $parts[] = '<span class="cleanup-no-data-count">' . esc_html(number_format($posts_without_data)) . '</span> no data';
+                                    }
+                                    if ($orphaned_meta > 0) {
+                                        $parts[] = '<span class="cleanup-orphaned-count">' . esc_html(number_format($orphaned_meta)) . '</span> orphaned';
+                                    }
+                                    echo implode(', ', $parts);
+                                    ?>)
+                                    <?php if ($time_since_check) : ?>
+                                        <span class="cleanup-last-checked" style="font-size: 11px; color: #999; font-style: italic;">
+                                            — checked <?php echo esc_html($time_since_check); ?>
+                                        </span>
                                     <?php endif; ?>
+                                    <button id="refresh-cleanup-stats-btn" class="button button-small" style="margin-left: 8px; padding: 0 8px; height: 22px; line-height: 22px; font-size: 11px;" title="<?php echo esc_attr__('Recalculate cleanup queue (may take a moment)', 'super-forms'); ?>">
+                                        <span class="dashicons dashicons-update" style="font-size: 13px; width: 13px; height: 13px; margin-top: 4px;"></span>
+                                    </button>
+                                    <span class="cleanup-stats-loading" style="display: none; margin-left: 5px; font-size: 11px;">
+                                        <span class="dashicons dashicons-update-alt" style="font-size: 13px; width: 13px; height: 13px; animation: rotation 1s infinite linear;"></span>
+                                        Calculating...
+                                    </span>
                                 </span>
                             <?php endif; ?>
                         </span>
@@ -1950,6 +1946,16 @@ wp_localize_script('super-forms-developer-tools', 'devtoolsData', array(
     .super-devtools-section input[type="radio"],
     .super-devtools-section input[type="checkbox"] {
         margin-right: 5px;
+    }
+}
+
+/* Rotation animation for loading spinners */
+@keyframes rotation {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(359deg);
     }
 }
 
