@@ -493,6 +493,73 @@ wp_localize_script('super-forms-developer-tools', 'devtoolsData', array(
             When enabled, migration runs completely in the background. You can safely close your browser—the migration will continue on the server. Daily health checks ensure completion even if interrupted. Entries are verified after migration and serialized data is preserved as backup.
         </p>
 
+        <!-- Migration Integration Tests -->
+        <h3 style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #ddd;">
+            <?php echo esc_html__('🧪 Integration Tests', 'super-forms'); ?>
+        </h3>
+
+        <p><?php echo esc_html__('Test the migration system with independent test suites. Each test creates temporary data, runs tests, and cleans up automatically.', 'super-forms'); ?></p>
+
+        <!-- Test Data Source Selection -->
+        <h4><?php echo esc_html__('Test Data Source:', 'super-forms'); ?></h4>
+        <div style="margin: 15px 0;">
+            <label style="margin-right: 20px;">
+                <input type="radio" name="test-data-source" value="programmatic" checked>
+                <?php echo esc_html__('Programmatic (Generated)', 'super-forms'); ?>
+            </label>
+            <label style="margin-right: 20px;">
+                <input type="radio" name="test-data-source" value="csv">
+                <?php echo esc_html__('CSV Import', 'super-forms'); ?>
+            </label>
+            <label>
+                <input type="radio" name="test-data-source" value="xml">
+                <?php echo esc_html__('XML Import', 'super-forms'); ?>
+            </label>
+        </div>
+
+        <!-- Import File Selection (shown when CSV/XML selected) -->
+        <div id="import-file-selection" style="display: none; margin: 15px 0 15px 30px;">
+            <label><?php echo esc_html__('Select Import File:', 'super-forms'); ?></label><br>
+            <select id="import-file-selector" class="regular-text" style="width: 500px; margin-top: 5px;">
+                <option value="superforms-test-data-3943-entries.csv"><?php echo esc_html__('CSV: 3,943 entries (3.4 MB)', 'super-forms'); ?></option>
+                <option value="superforms-test-data-3596-entries.csv"><?php echo esc_html__('CSV: 3,596 entries (2.8 MB)', 'super-forms'); ?></option>
+                <option value="superforms-test-data-26581-entries.csv"><?php echo esc_html__('CSV: 26,581 entries (18 MB)', 'super-forms'); ?></option>
+                <option value="superforms-import.xml"><?php echo esc_html__('XML: WordPress Export (484 MB)', 'super-forms'); ?></option>
+            </select>
+        </div>
+
+        <!-- Test Selection -->
+        <h4 style="margin-top: 20px;"><?php echo esc_html__('Test to Run:', 'super-forms'); ?></h4>
+        <div style="margin: 15px 0;">
+            <select id="migration-test-selector" class="regular-text" style="width: 300px;">
+                <option value="all"><?php echo esc_html__('All Tests (Sequential)', 'super-forms'); ?></option>
+                <option value="full_flow"><?php echo esc_html__('Full Migration Flow', 'super-forms'); ?></option>
+                <option value="counter_accuracy"><?php echo esc_html__('Counter Accuracy', 'super-forms'); ?></option>
+                <option value="data_preservation"><?php echo esc_html__('Data Preservation', 'super-forms'); ?></option>
+                <option value="empty_entries"><?php echo esc_html__('Empty Entry Handling', 'super-forms'); ?></option>
+                <option value="lock_mechanism"><?php echo esc_html__('Lock Mechanism', 'super-forms'); ?></option>
+                <option value="resume_failure"><?php echo esc_html__('Resume from Failure', 'super-forms'); ?></option>
+            </select>
+            <button id="run-migration-test-btn" class="button button-primary">
+                <?php echo esc_html__('▶️ Run Selected Test', 'super-forms'); ?>
+            </button>
+        </div>
+
+        <div id="migration-test-results" style="display: none; margin-top: 20px;">
+            <h4><?php echo esc_html__('Test Results:', 'super-forms'); ?></h4>
+            <div id="migration-test-status" style="padding: 10px; margin-bottom: 10px; border-radius: 4px;">
+                <!-- Status will be inserted here -->
+            </div>
+            <div style="background: #f5f5f5; padding: 15px; border-radius: 4px; max-height: 400px; overflow-y: auto; font-family: monospace; font-size: 12px; white-space: pre-wrap;">
+                <div id="migration-test-output"></div>
+            </div>
+        </div>
+
+        <p style="background: #fff9e6; padding: 12px; border-left: 4px solid #f0ad4e; margin-top: 15px;">
+            <strong>⚠️ Test Safety:</strong><br>
+            Tests only run when DEBUG_SF is enabled and on dev/localhost environments. All test data is prefixed with __TEST_ and automatically cleaned up after each test. Tests use temporary data and do not affect your production entries.
+        </p>
+
         <!-- Actions -->
         <h3 style="margin-top: 20px;"><?php echo esc_html__('Actions:', 'super-forms'); ?></h3>
         <p>

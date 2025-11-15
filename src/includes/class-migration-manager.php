@@ -58,6 +58,11 @@ class SUPER_Migration_Manager {
         if (!has_action('wp_ajax_super_refresh_cleanup_stats')) {
             add_action('wp_ajax_super_refresh_cleanup_stats', array(__CLASS__, 'ajax_refresh_cleanup_stats'));
         }
+
+        // Run integration tests
+        if (!has_action('wp_ajax_super_run_migration_tests')) {
+            add_action('wp_ajax_super_run_migration_tests', array(__CLASS__, 'ajax_run_migration_tests'));
+        }
     }
 
     /**
@@ -129,6 +134,44 @@ class SUPER_Migration_Manager {
             'time_since_check' => 'just now',
             'message' => sprintf('Cleanup stats refreshed: %d items found', $total_cleanup)
         ));
+    }
+
+    /**
+     * AJAX handler: Run migration integration tests
+     * @since 6.4.127
+     */
+    public static function ajax_run_migration_tests() {
+        check_ajax_referer('super-form-builder', 'security');
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => 'Permission denied'));
+        }
+
+        // Get parameters from request
+        $test_name = isset($_POST['test_name']) ? sanitize_text_field($_POST['test_name']) : 'all';
+        $data_source = isset($_POST['data_source']) ? sanitize_text_field($_POST['data_source']) : 'programmatic';
+        $import_file = isset($_POST['import_file']) ? sanitize_file_name($_POST['import_file']) : '';
+
+        // Load test class
+        $test_file = SUPER_PLUGIN_DIR . '/test/scripts/test-migration-integration.php';
+        if (!file_exists($test_file)) {
+            wp_send_json_error(array('message' => 'Test file not found'));
+        }
+
+        require_once $test_file;
+
+        if (!class_exists('SUPER_Migration_Integration_Test')) {
+            wp_send_json_error(array('message' => 'Test class not found'));
+        }
+
+        // Run test with data source and import file
+        $test = new SUPER_Migration_Integration_Test();
+        $results = $test->run($test_name, $data_source, $import_file);
+
+        if ($results['success']) {
+            wp_send_json_success($results);
+        } else {
+            wp_send_json_error($results);
+        }
     }
 
     /**

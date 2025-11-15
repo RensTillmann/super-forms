@@ -166,11 +166,63 @@ define('DEBUG_SF', true);
 **Access Developer Tools**:
 - URL: `https://f4d.nl/dev/wp-admin/admin.php?page=super_developer_tools`
 - Features:
-  - Test data generator
+  - Test data generator (programmatic and CSV/XML import)
   - Migration controls (start/reset/monitor)
+  - Migration integration tests
   - Automated verification
   - Performance benchmarks
   - Database inspector
+
+**CSV/XML Import for Testing**:
+The Developer Tools page now supports importing real production data from CSV or WordPress XML export files for testing migration with realistic data patterns.
+
+**Data Sources:**
+1. **Programmatic (Generated)** - Creates synthetic test data in code (default)
+2. **CSV Import** - Imports real contact entries from CSV files
+3. **XML Import** - Future support for WordPress XML exports (placeholder)
+
+**Preloaded Test Files** (on f4d.nl/dev server):
+- Located in: `wp-content/uploads/`
+- `superforms-test-data-3943-entries.csv` (3.4 MB, 3,943 entries)
+- `superforms-test-data-3596-entries.csv` (2.8 MB, 3,596 entries)
+- `superforms-test-data-26581-entries.csv` (18 MB, 26,581 entries)
+- `superforms-import.xml` (484 MB, placeholder for future XML support)
+
+**CSV Import Features:**
+- Automatic field mapping from CSV headers
+- Tag imported entries with `_super_test_entry` meta for cleanup
+- Support for large files (up to 18 MB tested)
+- Progress logging during import
+- Auto-migration option after import
+- Automatic cleanup after test completion
+
+**Usage:**
+1. Navigate to Developer Tools > Test Data Generator > Import tab
+2. Select data source: Programmatic, CSV, or XML
+3. Choose a preloaded file or upload your own CSV
+4. Enable "Tag as test entries" for automatic cleanup
+5. Enable "Auto-migrate after import" to test migration immediately
+6. Click "Import CSV" to begin
+7. Import statistics display after completion
+
+**Integration Tests with CSV/XML:**
+The migration integration tests can now use imported data instead of programmatic generation:
+
+1. Navigate to Migration Controls > Integration Tests
+2. Select test data source:
+   - **Programmatic** - Generate test data in code (default)
+   - **CSV Import** - Use real production data from CSV file
+   - **XML Import** - Use WordPress export data (future)
+3. If CSV/XML selected, choose import file from dropdown
+4. Select test to run (Full Flow, Counter Accuracy, etc.)
+5. Click "Run Selected Test"
+6. Test imports data, runs tests, and cleans up automatically
+
+**Test Data Cleanup:**
+- All imported entries are tagged with `_super_test_entry` meta
+- Tests automatically delete test entries after completion
+- Cleanup includes both post entries and EAV table data
+- No manual cleanup required
 
 ### Common Migration Debugging Commands
 
@@ -399,21 +451,32 @@ The automatic background migration system transforms contact entry data from ser
 
 **Option Key:** `superforms_eav_migration`
 
-**Structure:**
+**Stored Structure:**
 ```php
 array(
-    'status'               => 'not_started|in_progress|completed',
-    'using_storage'        => 'serialized|eav',  // Controls which storage to read from
-    'total_entries'        => 1000,
-    'migrated_entries'     => 450,
-    'failed_entries'       => array(123 => 'error message'),
-    'started_at'           => '2025-01-15 10:30:00',
-    'completed_at'         => '',
-    'last_processed_id'    => 4567,  // Resume point for interrupted migrations
-    'verification_passed'  => false,
-    'rollback_available'   => true
+    'status'                => 'not_started|in_progress|completed',
+    'using_storage'         => 'serialized|eav',  // Controls which storage to read from
+    'initial_total_entries' => 1000,              // Snapshot at migration start (constant)
+    'failed_entries'        => array(123 => 'error message'),
+    'verification_failed'   => array(456 => 'verification error'),
+    'started_at'            => '2025-01-15 10:30:00',
+    'completed_at'          => '',
+    'last_processed_id'     => 4567,              // Resume point for interrupted migrations
+    'verification_passed'   => false,
+    'rollback_available'    => true
 )
 ```
+
+**Live-Calculated Fields (via `get_migration_status()`):**
+- `total_entries` - Current total count from database (uses snapshot during migration)
+- `migrated_entries` - Live count from EAV table (excludes cleanup markers)
+- `cleanup_queue` - Live counts for empty posts, posts without data, orphaned metadata
+
+**Why Live Calculation?**
+- Database is single source of truth (no counter drift)
+- Race conditions cannot inflate non-existent stored values
+- Always accurate without recalculation overhead
+- Simpler, more reliable architecture
 
 **Phase-Based Storage Routing:**
 - Phase 1 (not_started): Write serialized only
@@ -611,7 +674,14 @@ The migration system exposes several public methods for external access (e.g., A
 - `health_check_action()` - Hourly health check (detects stuck migrations)
 - `needs_migration()` - Check if unmigrated entries exist
 
+**Note:** The `recalculate_migration_counter()` method was removed in v6.4.127. Migration counts are now calculated live from the database via `SUPER_Migration_Manager::get_migration_status()`, eliminating the need for counter recalculation.
+
 **SUPER_Migration_Manager (Public Methods):**
+- `get_migration_status()` - **RECOMMENDED** Get current migration status with live counts
+  - **Returns:** Array with live-calculated `total_entries`, `migrated_entries`, `cleanup_queue`
+  - **Since:** 6.0.0 (enhanced in 6.4.127 with live calculation)
+  - **Usage:** Always use this method instead of reading option directly
+  - **Example:** `$status = SUPER_Migration_Manager::get_migration_status();`
 - `migrate_entry($entry_id)` - **PUBLIC** Migrate single entry from serialized to EAV
   - **Visibility changed:** Originally private, now public for Action Scheduler access
   - **Since:** 6.4.117

@@ -150,6 +150,32 @@ The user isn't paying you to write code. They're paying you to solve problems. U
 
 Tab settings are sometimes grouped with attributes `data-g` or `data-r` for repeater elements
 
+## Developer Tools: CSV/XML Import Testing
+
+The Developer Tools page supports importing real production data for migration testing:
+
+**Key Features:**
+- Import contact entries from CSV or WordPress XML exports
+- Test migration with realistic data patterns (3K-26K+ entries)
+- Automatic cleanup after tests complete
+- Integration tests can use imported data instead of programmatic generation
+
+**Quick Access:**
+- Enable: Add `define('DEBUG_SF', true);` to wp-config.php
+- URL: `https://f4d.nl/dev/wp-admin/admin.php?page=super_developer_tools`
+- Documentation: See [Developer Tools Page Access](docs/CLAUDE.development.md#developer-tools-page-access)
+
+**Preloaded Test Files** (f4d.nl/dev server):
+- `superforms-test-data-3943-entries.csv` (3.4 MB)
+- `superforms-test-data-3596-entries.csv` (2.8 MB)
+- `superforms-test-data-26581-entries.csv` (18 MB)
+
+**Usage Notes:**
+- Imported entries tagged with `_super_test_entry` meta for cleanup
+- Tests automatically delete imported data after completion
+- CSV files should be in Super Forms export format
+- XML import support is planned (placeholder in UI)
+
 ## Domain-Specific Documentation
 
 For detailed information on specific development domains:

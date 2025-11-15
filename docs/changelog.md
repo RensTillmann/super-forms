@@ -17,6 +17,14 @@
 - Issue with populating existing signature from first person, when using a form that requires two persons to sign the document.
 - Issue with Listings settings not merged correctly from latest version to Beta version
 
+## Nov 15, 2025 - Version 6.4.127
+
+- **Improved:** Simplified migration counter tracking - database is now single source of truth for all migration counts
+- **Removed:** `SUPER_Background_Migration::recalculate_migration_counter()` method (obsolete with live calculation)
+- **Removed:** Migration counter anomaly detection code (no longer needed)
+- **Improved:** `SUPER_Migration_Manager::get_migration_status()` now calculates all counters live from database
+- **Benefits:** Eliminated counter drift issues, race conditions can no longer inflate stored values, simpler and more reliable architecture
+
 ## Nov 06, 2025 - Version 6.4.126
 
 - **Security:** Fixed SQL injection vulnerability in Action Scheduler cleanup queries (now using `$wpdb->prepare()` with proper placeholders)
