@@ -77,11 +77,12 @@ class SUPER_Data_Access {
      * - Rolled back: Serialized only
      *
      * @since 6.0.0
-     * @param int   $entry_id Entry ID
-     * @param array $data     Entry data array
+     * @param int    $entry_id     Entry ID
+     * @param array  $data         Entry data array
+     * @param string $force_format Storage format: 'eav' (default), 'serialized', or null for legacy auto-detect
      * @return bool|WP_Error True on success, WP_Error on failure
      */
-    public static function save_entry_data($entry_id, $data) {
+    public static function save_entry_data($entry_id, $data, $force_format = 'eav') {
         if (empty($entry_id) || !is_numeric($entry_id)) {
             return new WP_Error('invalid_entry_id', __('Invalid entry ID', 'super-forms'));
         }
@@ -90,6 +91,15 @@ class SUPER_Data_Access {
             return new WP_Error('invalid_data', __('Entry data must be an array', 'super-forms'));
         }
 
+        // OVERRIDE: Force specific format (used for test entry generation)
+        if ($force_format === 'serialized') {
+            return self::save_to_serialized($entry_id, $data);
+        }
+        if ($force_format === 'eav') {
+            return self::save_to_eav_tables($entry_id, $data);
+        }
+
+        // AUTO-DETECT: Based on migration status
         $migration = get_option('superforms_eav_migration');
 
         // PHASE 1: Before migration starts

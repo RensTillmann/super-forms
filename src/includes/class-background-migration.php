@@ -73,6 +73,8 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 
 			// Version-based detection: Check on init if version changed
 			add_action( 'init', array( __CLASS__, 'check_version_and_schedule' ), 5 );
+		// Hourly check for unmigrated entries (catches imported data)
+		add_action( 'init', array( __CLASS__, 'hourly_unmigrated_check' ), 10 );
 		}
 
 	/**
@@ -139,6 +141,13 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 
 					// Schedule migration if serialized data exists
 					self::schedule_if_needed( 'version_upgrade' );
+
+					// Immediately process first batch to close activation gap
+					// Uses dynamic batch sizing (10-100 entries based on dataset size and server capacity)
+					if ( self::needs_migration() ) {
+						$batch_size = self::calculate_batch_size();
+						self::process_immediate_batch( $batch_size );
+					}
 				} else {
 					// REGULAR UPDATE: Just ensure infrastructure exists (self-healing)
 					// No migration needed - either already completed or not crossing threshold
@@ -535,11 +544,103 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 				self::log( "Batch already scheduled in WP-Cron (next run: {$next_run}), preventing duplicate" );
 				return false;
 			}
-			} finally {
-				// GUARANTEED CLEANUP: Always release lock, even on exceptions
-				delete_transient( 'super_migration_schedule_lock' );
-			}
+		} finally {
+			// GUARANTEED CLEANUP: Always release lock, even on exceptions
+			delete_transient( 'super_migration_schedule_lock' );
 		}
+	}
+
+
+	/**
+	 * Process immediate batch on plugin activation/update
+	 *
+	 * Closes the gap between plugin activation and Action Scheduler queue processing
+	 * by processing first batch synchronously during the init action.
+	 *
+	 * Uses same dynamic batch sizing as regular migration batches for consistency.
+	 * Safe for activation because batch size is calculated based on server capacity.
+	 *
+	 * @param int $batch_size Batch size (calculated dynamically by calculate_batch_size())
+	 * @return array Result with migrated/failed counts
+	 * @since 6.4.127
+	 */
+	private static function process_immediate_batch( $batch_size ) {
+		// Safety: Only run during early init (before wp_loaded)
+		// Prevents running on regular page loads
+		if ( did_action( 'wp_loaded' ) ) {
+			self::log( 'Too late in request cycle for immediate batch, skipping' );
+			return array( 'migrated' => 0, 'failed' => 0 );
+		}
+
+		self::log( "Processing immediate activation batch (size: {$batch_size})" );
+
+		// Acquire lock (prevents duplicate processing)
+		if ( ! self::acquire_lock() ) {
+			self::log( 'Migration already locked, skipping immediate batch' );
+			return array( 'migrated' => 0, 'failed' => 0 );
+		}
+
+		try {
+			// Use existing process_batch() method
+			$result = self::process_batch( $batch_size );
+
+			self::log( sprintf(
+				"Immediate batch complete: %d migrated, %d failed (%.2fs)",
+				$result['migrated'],
+				$result['failed'],
+				$result['duration']
+			) );
+
+			return $result;
+
+		} catch ( Exception $e ) {
+			self::log( 'Immediate batch failed: ' . $e->getMessage(), 'error' );
+			return array( 'migrated' => 0, 'failed' => 1 );
+
+		} finally {
+			// Always release lock
+			self::release_lock();
+		}
+	}
+
+	/**
+	 * Recalculate migrated_entries counter from actual database
+	 *
+	 * Fixes counter overflow caused by race conditions where multiple batches
+	 * processed the same entries and each incremented the counter.
+	 *
+	 * @return int Actual count of migrated entries
+	 * @since 6.4.118
+	 */
+	public static function recalculate_migration_counter() {
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'superforms_entry_data';
+
+		// Count unique entries in EAV table (source of truth)
+		$actual_migrated = (int) $wpdb->get_var(
+			"SELECT COUNT(DISTINCT entry_id) FROM {$table_name}"
+		);
+
+		// Get current migration state
+		$migration = get_option( 'superforms_eav_migration', array() );
+		$old_count = isset( $migration['migrated_entries'] ) ? (int) $migration['migrated_entries'] : 0;
+
+		// Only update if different (prevents unnecessary writes)
+		if ( $old_count !== $actual_migrated ) {
+			$migration['migrated_entries'] = $actual_migrated;
+			update_option( 'superforms_eav_migration', $migration );
+
+			$difference = $old_count - $actual_migrated;
+			$overflow_pct = $old_count > 0 ? round( ( $difference / $old_count ) * 100, 1 ) : 0;
+
+			self::log(
+				"Counter recalculated: {$old_count} → {$actual_migrated} (corrected -{$difference} overflow, {$overflow_pct}%)",
+				'warning'
+			);
+		} else {
+			self::log( "Counter verified: {$actual_migrated} entries migrated (no correction needed)" );
+		}
+	}
 
 		/**
 		 * Schedule recurring health check
@@ -928,6 +1029,36 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 			$status['last_health_check'] = current_time( 'mysql' );
 			update_option( 'superforms_eav_migration', $status );
 		}
+
+	/**
+	 * Hourly check for unmigrated entries
+	 *
+	 * Runs once per hour to detect entries that were imported via MySQL dump or CSV.
+	 * Uses transient cache to prevent checking on every page load.
+	 *
+	 * @since 6.4.127
+	 */
+	public static function hourly_unmigrated_check() {
+		// Only run in admin to avoid frontend overhead
+		if ( ! is_admin() ) {
+			return;
+		}
+
+		// Run once per hour max (transient-based throttling)
+		$last_check = get_transient( 'superforms_hourly_unmigrated_check' );
+		if ( $last_check ) {
+			return; // Already checked this hour
+		}
+
+		// Quick check: Any unmigrated entries?
+		if ( self::needs_migration() ) {
+			self::log( 'Hourly check: Found unmigrated entries, scheduling migration' );
+			self::schedule_if_needed( 'hourly_check' );
+		}
+
+		// Don't check again for 1 hour
+		set_transient( 'superforms_hourly_unmigrated_check', time(), HOUR_IN_SECONDS );
+	}
 
 		/**
 		 * Debug Action Scheduler execution

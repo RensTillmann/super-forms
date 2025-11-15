@@ -74,11 +74,35 @@ wp_mail($to, $subject, $message);
 // ❌ BAD - Native PHP when WordPress alternative exists
 $url = $_SERVER['HTTP_HOST'] . '/page/';
 $path = $_SERVER['DOCUMENT_ROOT'] . '/uploads/';
-$data = unserialize(get_option('my_option'));
+$data = unserialize(get_option('my_option')); // Security risk - PHP object injection!
 mail($to, $subject, $message);
 ```
 
 ## Security Best Practices
+
+### Deserialization Security
+
+**NEVER use raw `unserialize()`** - always use `maybe_unserialize()`:
+
+```php
+// ❌ BAD - PHP object injection vulnerability (POP chain attack vector)
+$data = @unserialize($postmeta_value);
+$data = unserialize($option_value);
+
+// ✅ GOOD - WordPress best practice (safe deserialization)
+$data = maybe_unserialize($postmeta_value);
+$data = maybe_unserialize($option_value);
+
+// maybe_unserialize() benefits:
+// - Safely handles already-unserialized data (won't double-unserialize)
+// - Doesn't execute object constructors on untrusted data
+// - WordPress standard for postmeta/options deserialization
+// - Eliminates need for @ error suppression operator
+```
+
+**Why this matters:** WordPress postmeta and options often contain user-controlled data. Using raw `unserialize()` allows attackers to inject malicious serialized objects that execute code during unserialization. WordPress core and plugin review team specifically check for this pattern.
+
+**Reference:** Security fix implemented in v6.4.126 for EAV migration system.
 
 ### Input Sanitization
 
@@ -360,6 +384,365 @@ spl_autoload_register(function($class) {
 });
 ```
 
+## Database Migration Patterns
+
+### Data Structure Migration on Load
+
+When plugin features evolve their data structures, migration logic should run automatically on data load rather than in separate migration routines. This ensures seamless backward compatibility without requiring manual intervention or one-time migration tasks.
+
+**Example: Listings Extension Data Structure Migration**
+
+The Listings extension underwent a data structure change in v6.4.x to support translation features. The migration runs automatically in `get_form_listings_settings()` whenever old format data is detected.
+
+**Implementation Pattern:**
+
+```php
+public static function get_form_listings_settings($form_id) {
+    // Load settings from meta key
+    $s = maybe_unserialize(get_post_meta($form_id, '_listings', true));
+
+    // Detect if migration is needed
+    if (isset($s['lists']) && is_array($s['lists']) && !empty($s['lists'])) {
+        $needs_migration = false;
+
+        // Check 1: Old format used object with numeric keys
+        $first_key = array_key_first($s['lists']);
+        if (is_int($first_key) || (is_string($first_key) && ctype_digit($first_key))) {
+            $needs_migration = true;
+        }
+
+        // Check 2: Old format had fields at wrong level (not grouped)
+        if (!$needs_migration) {
+            foreach ($s['lists'] as $list) {
+                if (isset($list['retrieve']) || isset($list['form_ids'])) {
+                    $needs_migration = true;
+                    break;
+                }
+            }
+        }
+
+        if ($needs_migration) {
+            $migrated_lists = array();
+
+            foreach ($s['lists'] as $index => $list) {
+                // 1. Generate unique IDs for lists that don't have them
+                if (!isset($list['id']) || empty($list['id'])) {
+                    $list['id'] = self::generate_random_code(array(
+                        'len' => 5, 'char' => '4', 'upper' => 'true', 'lower' => 'true'
+                    ), false);
+                }
+
+                // 2. Move fields from top level to proper groups
+                if (!isset($list['display'])) {
+                    $list['display'] = array();
+                }
+                if (isset($list['retrieve'])) {
+                    $list['display']['retrieve'] = $list['retrieve'];
+                    unset($list['retrieve']);
+                }
+
+                // 3. Convert nested objects to arrays
+                if (isset($list['custom_columns']['columns'])) {
+                    $first_col_key = array_key_first($list['custom_columns']['columns']);
+                    if (is_string($first_col_key) && ctype_digit($first_col_key)) {
+                        $list['custom_columns']['columns'] = array_values($list['custom_columns']['columns']);
+                    }
+                }
+
+                $migrated_lists[] = $list;
+            }
+
+            $s['lists'] = $migrated_lists;
+
+            // Save migrated data back to database
+            update_post_meta($form_id, '_listings', $s);
+        }
+    }
+
+    return $s;
+}
+```
+
+**Key Principles:**
+
+1. **Detection, not assumption** - Check multiple signals to determine if migration is needed
+2. **Preserve user data** - Never delete or overwrite without verification
+3. **Idempotent** - Running migration multiple times produces same result
+4. **Logged for debugging** - Use `DEBUG_SF` constant for detailed migration logs
+5. **Save immediately** - Persist migrated data so migration doesn't repeat on every load
+
+**Migration Statistics Tracking:**
+
+```php
+$migration_stats = array(
+    'ids_generated' => 0,
+    'fields_relocated' => 0,
+    'arrays_converted' => 0,
+);
+
+// Track what was changed
+if (!isset($list['id'])) {
+    $migration_stats['ids_generated']++;
+}
+
+// Log statistics
+if (defined('DEBUG_SF') && DEBUG_SF) {
+    error_log(sprintf(
+        '[SF Listings Migration] Form %d: Migrated %d listings (IDs generated: %d, fields relocated: %d, arrays converted: %d)',
+        $form_id,
+        count($migrated_lists),
+        $migration_stats['ids_generated'],
+        $migration_stats['fields_relocated'],
+        $migration_stats['arrays_converted']
+    ));
+}
+```
+
+**Backward Compatibility Helper Functions:**
+
+When data structure changes, provide helper functions to resolve both old and new identifiers:
+
+```php
+/**
+ * Resolve list_id parameter to array index
+ * Handles backward compatibility between numeric indices (old) and ID strings (new)
+ *
+ * @param string|int $list_id_param The list_id from shortcode or POST data
+ * @param array      $lists         The lists array from form settings
+ * @return int                       Array index, or -1 if not found
+ */
+public static function resolve_list_id($list_id_param, $lists) {
+    if (!is_array($lists) || empty($lists)) {
+        return -1;
+    }
+
+    // Backward compatibility: numeric index (old format)
+    if (is_numeric($list_id_param)) {
+        $index = absint($list_id_param);
+        return isset($lists[$index]) ? $index : -1;
+    }
+
+    // New format: find by ID string
+    $list_id_param = sanitize_text_field($list_id_param);
+    foreach ($lists as $k => $v) {
+        if (isset($v['id']) && $v['id'] === $list_id_param) {
+            return $k;
+        }
+    }
+
+    return -1; // Not found
+}
+```
+
+**When to Use This Pattern:**
+
+- Data structure changes for existing features
+- Field grouping changes in admin UI
+- Identifier changes (numeric index to unique ID)
+- Object-to-array conversions
+
+**When NOT to Use This Pattern:**
+
+- Database schema changes (use Action Scheduler background migration)
+- Large-scale data transformations (>1000 records)
+- One-time cleanup operations
+
+**Reference:** Implemented in v6.4.127 for Listings extension backward compatibility (see `/home/rens/super-forms/sessions/tasks/h-fix-listings-backward-compatibility.md`).
+
+**EAV Storage Compatibility:**
+
+When implementing features that query entry data, ensure compatibility with both serialized (legacy) and EAV (new) storage formats:
+
+```php
+// ❌ BAD - INNER JOIN excludes EAV entries (no _super_contact_entry_data meta)
+$query = "SELECT post.*
+          FROM {$wpdb->posts} AS post
+          INNER JOIN {$wpdb->postmeta} AS meta
+              ON meta.post_id = post.ID
+              AND meta.meta_key = '_super_contact_entry_data'
+          WHERE post.post_type = 'super_contact_entry'";
+
+// ✅ GOOD - LEFT JOIN includes both serialized and EAV entries
+$query = "SELECT post.*
+          FROM {$wpdb->posts} AS post
+          LEFT JOIN {$wpdb->postmeta} AS meta
+              ON meta.post_id = post.ID
+              AND meta.meta_key = '_super_contact_entry_data'
+          WHERE post.post_type = 'super_contact_entry'";
+```
+
+**Key Principle:** Use LEFT JOIN for entry queries to include entries that have been migrated to EAV storage. INNER JOIN will exclude entries that no longer have `_super_contact_entry_data` postmeta.
+
+**Data Access Layer Pattern:**
+
+When building features that export or process entry data, use the Data Access layer instead of direct postmeta queries:
+
+```php
+// ❌ BAD - Direct postmeta query doesn't support EAV
+$results = $wpdb->get_results($wpdb->prepare(
+    "SELECT pm.meta_value
+     FROM {$wpdb->postmeta} pm
+     WHERE pm.post_id IN (%s)
+     AND pm.meta_key = '_super_contact_entry_data'",
+    implode(',', $entry_ids)
+));
+foreach ($results as $row) {
+    $data = maybe_unserialize($row->meta_value);
+    // Process data...
+}
+
+// ✅ GOOD - Data Access layer handles both formats
+$bulk_data = SUPER_Data_Access::get_bulk_entry_data($entry_ids);
+foreach ($bulk_data as $entry_id => $data) {
+    // Data is already unserialized and normalized
+    // Works with both serialized and EAV storage
+}
+```
+
+**Benefits of Data Access Layer:**
+- Automatic format detection (serialized vs EAV)
+- Consistent data structure regardless of storage method
+- Single point of maintenance for storage changes
+- Performance optimizations (bulk queries, caching)
+
+**Reference:** Implemented in v6.4.127 for Listings extension CSV export compatibility.
+
+### Version Threshold Protection
+
+**CRITICAL:** Any migration that uses `TRUNCATE TABLE` or other destructive operations MUST implement version threshold protection to prevent data loss during normal plugin updates.
+
+**The Problem:**
+Without version thresholds, migrations run on EVERY plugin version update. If a migration uses `TRUNCATE TABLE` to reset state before migrating data, users who already completed the migration will lose all their data on the next plugin update.
+
+**The Solution - Version Threshold Pattern:**
+
+```php
+class SUPER_Background_Migration {
+    /**
+     * Version when migration was introduced
+     * Migration only runs when upgrading FROM < this version TO >= this version
+     *
+     * @since 6.4.126
+     */
+    const MIGRATION_INTRODUCED_VERSION = '6.4.100';
+
+    public static function check_version_and_schedule() {
+        // Get version BEFORE this update
+        $plugin_version_before_update = get_option('super_forms_version', '0.0.0');
+        $current_version = SUPER_VERSION;
+
+        // Only run migration if crossing the threshold
+        if (version_compare($plugin_version_before_update, self::MIGRATION_INTRODUCED_VERSION, '>=')) {
+            // User already migrated or installed after migration was introduced
+            return; // Don't run migration
+        }
+
+        // User is upgrading from pre-migration version
+        // Safe to run migration
+        $this->setup_and_start_migration();
+    }
+}
+
+// IMPORTANT: Update stored version on every plugin load
+add_action('plugins_loaded', function() {
+    $current_version = SUPER_VERSION;
+    $stored_version = get_option('super_forms_version', '0.0.0');
+
+    if (version_compare($current_version, $stored_version, '>')) {
+        update_option('super_forms_version', $current_version);
+    }
+});
+```
+
+**Key Rules:**
+1. The threshold version MUST be the FIRST version that includes the migration code
+2. Store plugin version in options table on EVERY plugin load (before version check runs)
+3. Compare STORED version (before update) against CURRENT version (after update)
+4. Only trigger migration when crossing the threshold (upgrading from < threshold to >= threshold)
+
+**Example Scenarios:**
+
+```php
+// Scenario 1: Fresh install at v6.4.110
+// - stored_version: '0.0.0' (first install)
+// - current_version: '6.4.110'
+// - Migration: SKIP (already has EAV tables from install, no old data)
+
+// Scenario 2: Upgrade from v6.3.0 to v6.4.110
+// - stored_version: '6.3.0' (before update)
+// - current_version: '6.4.110' (after update)
+// - Crosses threshold (6.3.0 < 6.4.100 < 6.4.110)
+// - Migration: RUN (needs to migrate from serialized to EAV)
+
+// Scenario 3: Upgrade from v6.4.110 to v6.4.120
+// - stored_version: '6.4.110' (before update)
+// - current_version: '6.4.120' (after update)
+// - Already past threshold (6.4.110 >= 6.4.100)
+// - Migration: SKIP (already migrated, don't TRUNCATE!)
+```
+
+**Without This Pattern:**
+- v6.4.110: User migrates 10,000 entries to EAV storage
+- v6.4.120: Plugin updates, migration runs AGAIN
+- TRUNCATE TABLE wipes all 10,000 migrated entries
+- User loses all contact entry data with no recovery path
+
+**Alternative Approaches Considered:**
+- Option flag (`migration_completed`): Can get corrupted, not version-aware
+- Migration state table: Adds complexity, can be manually reset
+- Manual trigger only: Requires user action, poor UX
+
+**Why Version Threshold is Best:**
+- Deterministic (based on version numbers, not state)
+- Self-documenting (version constant shows when migration was added)
+- Works even if migration state gets corrupted
+- Survives database resets and fresh installs
+
+**Reference:** Implemented in v6.4.126 after discovering production data loss risk.
+
+### Migration Cleanup After Completion
+
+After successful migration, clean up old data to reduce database bloat:
+
+```php
+// In migration completion handler
+public static function complete_migration() {
+    global $wpdb;
+
+    // Mark migration as complete
+    self::update_state(array('status' => 'completed'));
+
+    // Clean up old serialized postmeta (after migration confirmed successful)
+    $deleted = $wpdb->query($wpdb->prepare(
+        "DELETE FROM {$wpdb->postmeta}
+         WHERE meta_key = %s
+         AND post_id IN (
+             SELECT ID FROM {$wpdb->posts}
+             WHERE post_type = %s
+         )",
+        '_super_contact_entry_data',
+        'super_contact_entry'
+    ));
+
+    if (defined('DEBUG_SF') && DEBUG_SF) {
+        error_log('[SF Migration] Cleaned up ' . $deleted . ' serialized postmeta rows');
+    }
+}
+```
+
+**Cleanup Rules:**
+1. Only delete after migration status is `completed`
+2. Use prepared statements for DELETE queries
+3. Verify record is truly migrated before deleting old data
+4. Log cleanup operations for debugging
+
+**Why Clean Up Matters:**
+- 10,000 entries with serialized data: ~15MB postmeta
+- Same data in EAV format: ~8MB
+- Cleanup saves ~7MB + reduces query overhead
+
+**Reference:** Implemented in v6.4.126 as part of migration completion flow.
+
 ## WordPress Development Stack Requirements
 
 ### PHPCS (PHP CodeSniffer)
@@ -477,6 +860,82 @@ if (is_wp_error($result)) {
     return false;
 }
 ```
+
+## WordPress Admin Menu Registration
+
+### Menu Index Position Guidelines
+
+WordPress reserves menu indexes for different purposes. Using the wrong index can cause conflicts with core menus or other plugins.
+
+**Index Ranges:**
+- **1-25**: Reserved for WordPress core (Dashboard, Posts, Media, Pages, Comments, etc.)
+- **50-80**: Plugin feature menus
+- **81-95**: Admin/settings menus
+- **96-99**: Developer/debug menus (conditionally shown)
+
+**Example:**
+```php
+// ❌ BAD - Conflicts with WordPress core menus
+add_submenu_page(
+    'super_forms',
+    'Developer Tools',
+    'Developer Tools',
+    'manage_options',
+    'super_developer_tools',
+    'callback',
+    5  // TOO LOW - conflicts with core
+);
+
+// ✅ GOOD - Safe high index for developer tools
+add_submenu_page(
+    'super_forms',
+    'Developer Tools',
+    'Developer Tools',
+    'manage_options',
+    'super_developer_tools',
+    'callback',
+    99  // Safe for debug/dev menus
+);
+
+// ✅ GOOD - No index parameter (WordPress auto-positions)
+add_submenu_page(
+    'super_forms',
+    'Settings',
+    'Settings',
+    'manage_options',
+    'super_settings',
+    'callback'
+    // No index - WordPress handles positioning
+);
+```
+
+**Conditional Menu Items:**
+```php
+// Developer Tools - only show when DEBUG mode enabled
+if (defined('DEBUG_SF') && DEBUG_SF === true) {
+    add_submenu_page(
+        'super_forms',
+        esc_html__('Developer Tools', 'super-forms'),
+        esc_html__('Developer Tools', 'super-forms'),
+        'manage_options',
+        'super_developer_tools',
+        'SUPER_Pages::developer_tools'
+        // No index - placed after other menu items
+    );
+}
+```
+
+**Why This Matters:**
+- Low indexes (< 50) conflict with WordPress core menu items
+- Conditional menus can disappear if index conflicts with always-present menu
+- Debug/developer menus should use high indexes (96-99) to avoid shifting other menus
+
+**Best Practice:**
+- Omit index parameter unless you need specific positioning
+- Use 96-99 for debug/developer tools
+- Never use indexes < 50
+
+**Reference:** Fixed in v6.4.126 - moved Developer Tools menu from index 5 to 99.
 
 ## WordPress Hooks & Filters System
 

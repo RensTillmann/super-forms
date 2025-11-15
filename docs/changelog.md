@@ -15,7 +15,17 @@
 - Test the PayPal trigger events/actions
 - Update keys for new PayPal settings stored under Triggers and test the PayPal payment features
 - Issue with populating existing signature from first person, when using a form that requires two persons to sign the document.
-- Issue with Listings settings not merged correctly from latest version to Beta version
+
+## Nov 14, 2025 - Version 6.4.127
+
+- **Fixed:** Listings extension backward compatibility with v6.3.x data structure (automatic migration from object to array format)
+- **Fixed:** Listings shortcode compatibility with numeric list IDs from v6.3.x (`[super_listings list="0"]` now works alongside new ID format)
+- **Fixed:** Listings field grouping - migrate `retrieve`, `form_ids` to `display` group; message fields to `date_range` group
+- **Fixed:** Listings custom columns object-to-array conversion for proper iteration in PHP
+- **Fixed:** Listings EAV storage compatibility - changed INNER JOIN to LEFT JOIN to include entries in EAV format
+- **Fixed:** CSV export column selector for entries stored in EAV format
+- **Improved:** Added `SUPER_Listings::resolve_list_id()` helper for backward compatibility with both numeric and ID-based list identifiers
+- **Improved:** Added migration statistics logging in DEBUG_SF mode for troubleshooting
 
 ## Nov 15, 2025 - Version 6.4.127
 

@@ -62,8 +62,8 @@ if (!class_exists('SUPER_Developer_Tools')) :
 						throw new Exception($entry_id->get_error_message());
 					}
 
-					// 4. Save data via Data Access Layer (migration-aware!)
-					$result = SUPER_Data_Access::save_entry_data($entry_id, $entry_data);
+					// 4. Save data via Data Access Layer (force serialized format for testing migration)
+					$result = SUPER_Data_Access::save_entry_data($entry_id, $entry_data, 'serialized');
 
 					if (is_wp_error($result)) {
 						throw new Exception($result->get_error_message());
@@ -115,7 +115,7 @@ if (!class_exists('SUPER_Developer_Tools')) :
 				$data['email'] = array(
 					'name' => 'email',
 					'value' => 'test' . $index . '@test.com',
-					'type' => 'email',
+					'type' => 'field',
 					'label' => 'Email'
 				);
 				$data['phone'] = array(
@@ -141,7 +141,7 @@ if (!class_exists('SUPER_Developer_Tools')) :
 				$data['description'] = array(
 					'name' => 'description',
 					'value' => str_repeat('Lorem ipsum dolor sit amet, consectetur adipiscing elit. ', 200),
-					'type' => 'textarea',
+					'type' => 'text',
 					'label' => 'Description'
 				);
 			}
@@ -151,19 +151,19 @@ if (!class_exists('SUPER_Developer_Tools')) :
 				$data['age'] = array(
 					'name' => 'age',
 					'value' => strval(20 + ($index % 50)),
-					'type' => 'number',
+					'type' => 'field',
 					'label' => 'Age'
 				);
 				$data['price'] = array(
 					'name' => 'price',
 					'value' => number_format(99.99 + ($index % 100), 2, '.', ''),
-					'type' => 'currency',
+					'type' => 'field',
 					'label' => 'Price'
 				);
 				$data['temperature'] = array(
 					'name' => 'temperature',
 					'value' => strval(-50 + ($index % 100)),
-					'type' => 'number',
+					'type' => 'field',
 					'label' => 'Temperature'
 				);
 			}
@@ -179,7 +179,7 @@ if (!class_exists('SUPER_Developer_Tools')) :
 				$data['zero_value'] = array(
 					'name' => 'zero_value',
 					'value' => '0',
-					'type' => 'number',
+					'type' => 'field',
 					'label' => 'Zero Value'
 				);
 			}
@@ -193,8 +193,8 @@ if (!class_exists('SUPER_Developer_Tools')) :
 				}
 				$data['interests'] = array(
 					'name' => 'interests',
-					'value' => $selected,
-					'type' => 'checkbox',
+					'value' => implode(', ', $selected),
+					'type' => 'field',
 					'label' => 'Interests'
 				);
 			}
@@ -203,12 +203,12 @@ if (!class_exists('SUPER_Developer_Tools')) :
 			if (in_array('files', $complexity)) {
 				$data['resume'] = array(
 					'name' => 'resume',
-					'value' => array(array(
+					'files' => array(array(
 						'value' => 'resume' . $index . '.pdf',
 						'url' => 'https://example.com/uploads/resume' . $index . '.pdf',
 						'attachment' => 100 + $index
 					)),
-					'type' => 'file',
+					'type' => 'files',
 					'label' => 'Resume'
 				);
 			}

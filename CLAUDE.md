@@ -176,6 +176,47 @@ The Developer Tools page supports importing real production data for migration t
 - CSV files should be in Super Forms export format
 - XML import support is planned (placeholder in UI)
 
+## Extensions: Listings Data Structure
+
+**Storage Location:** Listings settings are stored in a SEPARATE meta key `_listings` (NOT in `_super_form_settings`)
+
+**Data Structure Evolution:**
+- **v6.3.x and earlier:** Lists stored as object with numeric keys `{"0": {...}, "1": {...}}`
+- **v6.4.x and later:** Lists stored as array with unique IDs `[{"id": "NMMkW", ...}, {"id": "XyZ12", ...}]`
+
+**Why the Change Was Required:**
+- **Translation Support:** The old numeric-key format made it impossible to reliably reference listings across translations
+- **Unstable References:** Numeric keys (0, 1, 2...) change when listings are reordered or deleted, breaking translation mappings
+- **Unique ID Solution:** Each listing now has a permanent 5-character ID (e.g., "NMMkW") that remains constant regardless of position
+- **Translation Mapping:** The i18n system can now reliably map `lists[id="NMMkW"]` to its translated version in other languages
+- **Shortcode Stability:** Shortcodes using unique IDs `[super_listings list="NMMkW"]` continue working even if listing order changes
+- **Field Grouping for i18n:** Moving fields into groups (display, date_range) allows the translation system to merge translated settings correctly
+
+**Backward Compatibility (v6.4.127+):**
+- **Automatic Migration:** Runs in `SUPER_Common::get_form_listings_settings()` on form load when old format detected
+- **Shortcode Compatibility:** Old shortcodes with numeric IDs work: `[super_listings list="0" id="72141"]`
+- **ID-based Shortcodes:** New shortcodes with unique IDs work: `[super_listings list="NMMkW" id="61768"]`
+- **Field Relocation:** Migration moves 5 fields from top-level to proper groups automatically
+- **Array Conversion:** Converts `custom_columns.columns` from object to array format
+- **EAV Storage:** LEFT JOIN support ensures entries in EAV format are included in listings
+- **CSV Export:** Uses Data Access layer to support both serialized and EAV entry formats
+
+**Field Grouping Structure:**
+- `retrieve` and `form_ids` → `display` group (not top-level)
+- `noResultsFilterMessage`, `noResultsMessage`, `onlyDisplayMessage` → `date_range` group
+- `custom_columns.columns` → array format (not object with numeric keys)
+
+**Migration Details:**
+- Detection: Checks for numeric keys or misplaced fields
+- ID Generation: Creates unique 5-character IDs for lists missing them
+- Statistics Logging: Tracks IDs generated, fields relocated, arrays converted (DEBUG_SF mode)
+- Persistence: Saves migrated data immediately to prevent repeated migration
+
+**Reference:**
+- Migration implementation: `/home/rens/super-forms/src/includes/class-common.php` lines 427-548
+- PHP migration pattern: `/home/rens/super-forms/docs/CLAUDE.php.md` section "Database Migration Patterns"
+- JavaScript structure requirements: `/home/rens/super-forms/docs/CLAUDE.javascript.md` section "Extension JavaScript Patterns"
+
 ## Domain-Specific Documentation
 
 For detailed information on specific development domains:

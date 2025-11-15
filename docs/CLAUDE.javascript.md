@@ -458,3 +458,103 @@ if (!validateEmail(userEmail)) {
     return false;
 }
 ```
+
+## Extension JavaScript Patterns
+
+### Backend Settings Management
+
+When saving extension settings in WordPress admin, ensure JavaScript output matches PHP expectations.
+
+**Critical Rules:**
+1. **Respect field grouping** - If PHP defines `group_name`, save in that group
+2. **Use arrays not objects** - For repeatable items, use `[]` not `{}`
+3. **Match PHP structure** - JavaScript output must match what PHP expects to read
+
+**Example: Listings Extension Backend Script**
+
+```javascript
+// ✅ GOOD - Save in groups matching PHP definition
+data.formSettings._listings = {lists: []};
+
+for (var key = 0; key < list.length; key++) {
+    var listItem = {};
+
+    // Generate/preserve unique ID
+    var idInput = list[key].querySelector('input[name="id"]');
+    listItem.id = idInput ? idInput.value : '';
+
+    // Group fields as defined in PHP
+    listItem.display = {
+        retrieve: list[key].querySelector('[data-name="retrieve"]').querySelector('.super-active').dataset.value,
+        form_ids: list[key].querySelector('input[name="form_ids"]').value
+    };
+
+    // Save repeatable items as arrays
+    listItem.custom_columns = {
+        columns: []  // Array, not object
+    };
+
+    var columns = list[key].querySelectorAll('.super-listings-list div[data-name="custom_columns"] li');
+    for (var ckey = 0; ckey < columns.length; ckey++) {
+        listItem.custom_columns.columns.push({
+            name: columns[ckey].querySelector('input[name="name"]').value,
+            field_name: columns[ckey].querySelector('input[name="field_name"]').value
+        });
+    }
+
+    data.formSettings._listings.lists.push(listItem);
+}
+```
+
+**❌ BAD - Common Mistakes:**
+
+```javascript
+// WRONG: Using object with numeric keys instead of array
+data.formSettings._listings = {};
+for (var key = 0; key < list.length; key++) {
+    data.formSettings._listings[key] = {};  // Creates {"0": {}, "1": {}}
+}
+
+// WRONG: Saving at top level when PHP expects grouped
+listItem.retrieve = value;  // Should be listItem.display.retrieve
+
+// WRONG: Object for repeatable items
+listItem.custom_columns = {
+    columns: {}  // Should be []
+};
+for (var i = 0; i < items.length; i++) {
+    listItem.custom_columns.columns[i] = item;  // Creates {"0": {}, "1": {}}
+}
+```
+
+**Why This Matters:**
+
+If JavaScript saves in different structure than PHP expects:
+- Migration required for backward compatibility
+- Fields appear empty in admin UI after save
+- Frontend fails to read settings correctly
+- Data loss when users re-save settings
+
+**Reference:** Listings extension (v6.4.127) - see `/home/rens/super-forms/src/includes/extensions/listings/assets/js/backend/script.js` lines 95-172
+
+### Data Structure Consistency Checklist
+
+Before implementing extension settings JavaScript:
+
+- [ ] Review PHP field definitions for `group_name` attributes
+- [ ] Check if fields are in groups (look for `group_name` in PHP)
+- [ ] Verify repeatable items use arrays `[]` not objects `{}`
+- [ ] Test that saved data matches PHP structure exactly
+- [ ] Add inline comments explaining backward compatibility context
+- [ ] Verify admin UI loads saved settings correctly
+
+**Testing Pattern:**
+
+```javascript
+// 1. Save settings in admin
+console.log('Saving:', JSON.stringify(data.formSettings._listings, null, 2));
+
+// 2. Reload page and check browser console
+// 3. Verify structure matches what JavaScript saved
+// 4. Check no fields appear empty that should have values
+```
