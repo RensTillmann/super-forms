@@ -398,11 +398,21 @@ class SUPER_Migration_Manager {
 
         $table = $wpdb->prefix . 'superforms_entry_data';
 
-        // Delete any existing EAV data for this entry
-        $wpdb->delete($table, array('entry_id' => $entry_id), array('%d'));
+        // Get form_id for this entry (needed for Listings filtering)
+        $form_id = get_post_meta($entry_id, '_super_form_id', true);
+        if (empty($form_id)) {
+            $form_id = 0; // Default to 0 if not found
+        }
 
-        // Insert each field into EAV table
-        foreach ($data as $field_name => $field_data) {
+        // Start transaction for atomic EAV operations
+        $wpdb->query('START TRANSACTION');
+
+        try {
+            // Delete any existing EAV data for this entry
+            $wpdb->delete($table, array('entry_id' => $entry_id), array('%d'));
+
+            // Insert each field into EAV table
+            foreach ($data as $field_name => $field_data) {
             if (!is_array($field_data)) {
                 continue; // Skip non-array entries
             }
@@ -420,22 +430,33 @@ class SUPER_Migration_Manager {
                 $table,
                 array(
                     'entry_id' => $entry_id,
+                    'form_id' => $form_id,
                     'field_name' => $field_name,
                     'field_value' => $field_value,
                     'field_type' => $field_type,
                     'field_label' => $field_label,
                     'created_at' => current_time('mysql'),
                 ),
-                array('%d', '%s', '%s', '%s', '%s', '%s')
+                array('%d', '%d', '%s', '%s', '%s', '%s', '%s')
             );
 
             if ($result === false) {
                 error_log('[Super Forms Migration] [ERROR] Insert FAILED for field: ' . $field_name . ' in entry ' . $entry_id . ', Error: ' . $wpdb->last_error);
-                return new WP_Error(
-                    'db_insert_failed',
-                    'Failed to insert field into EAV table: ' . $wpdb->last_error
-                );
+                throw new Exception('Failed to insert field into EAV table: ' . $wpdb->last_error);
             }
+        }
+
+            // Commit transaction if all inserts succeeded
+            $wpdb->query('COMMIT');
+
+        } catch (Exception $e) {
+            // Rollback transaction on any error
+            $wpdb->query('ROLLBACK');
+            error_log('[Super Forms Migration] [ERROR] Transaction rolled back for entry ' . $entry_id . ': ' . $e->getMessage());
+            return new WP_Error(
+                'db_transaction_failed',
+                $e->getMessage()
+            );
         }
 
         // Verify migration was successful (compare EAV data with serialized data)

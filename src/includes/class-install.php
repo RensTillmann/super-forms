@@ -207,6 +207,7 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 					'total_entries'              => 0,
 					'migrated_entries'           => 0,
 					'failed_entries'             => array(),
+					'verification_failed'        => array(),  // NEW: Separate tracking for verification issues
 					'cleanup_queue'              => array(
 						'empty_posts'            => 0,  // Posts with no form data
 						'orphaned_meta'          => 0,  // Metadata without corresponding posts
@@ -223,6 +224,7 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 					'auto_triggered_by'          => '',
 					'health_check_count'         => 0,
 					'last_health_check'          => '',
+					'batch_count'                => 0,  // NEW: Track batch iterations for optimized recalculation
 				);
 				update_option( 'superforms_eav_migration', $migration_state );
 			}
