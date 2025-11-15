@@ -163,14 +163,10 @@ class SUPER_Migration_Manager {
         $migration_state = array(
             'status'               => 'in_progress',
             'using_storage'        => 'serialized', // Still reading from serialized during migration
-            'total_entries'        => intval($total_entries),
-            'initial_total_entries' => intval($total_entries), // Snapshot - won't change during migration
-            'migrated_entries'     => 0,
+            'initial_total_entries' => intval($total_entries), // Snapshot for progress calculation
+            // Note: migrated_entries, cleanup_queue calculated live in get_migration_status()
             'failed_entries'       => array(),
-            'cleanup_queue'        => array(
-                'empty_posts'      => 0,  // Posts with no form data
-                'orphaned_meta'    => 0,  // Metadata without corresponding posts
-            ),
+            'verification_failed'  => array(),
             'started_at'           => current_time('mysql'),
             'completed_at'         => '',
             'last_processed_id'    => 0,
@@ -303,27 +299,26 @@ class SUPER_Migration_Manager {
 
         // Update per-entry metrics (running average)
         if ($entries_count > 0) {
-            // Update average memory per entry (weighted average across all batches)
-            $total_entries_so_far = $migration['migrated_entries'] ?? 0;
             $migration['resource_stats']['avg_memory_per_entry_kb'] = $avg_memory_per_entry_kb;
             $migration['resource_stats']['avg_time_per_entry_ms'] = $avg_time_per_entry_ms;
         }
 
-        // Update migration progress
-        $migration['migrated_entries'] += $processed;
-        $migration['skipped_entries'] += $skipped;
+        // Update progress marker (counters calculated live via get_migration_status())
         $migration['last_processed_id'] = $last_id;
         update_option('superforms_eav_migration', $migration);
 
-        $remaining = $migration['total_entries'] - $migration['migrated_entries'];
-        $progress = ($migration['migrated_entries'] / $migration['total_entries']) * 100;
+        // Calculate progress from live database counts
+        $status = self::get_migration_status();
+        $remaining = max(0, ($status['initial_total_entries'] ?? 0) - ($status['migrated_entries'] ?? 0));
+        $total = $status['initial_total_entries'] ?? 1; // Avoid division by zero
+        $progress = $total > 0 ? (($status['migrated_entries'] ?? 0) / $total) * 100 : 0;
 
         return array(
             'success'          => true,
             'processed'        => $processed,
             'failed'           => $failed,
-            'total_processed'  => $migration['migrated_entries'],
-            'total_entries'    => $migration['total_entries'],
+            'total_processed'  => $status['migrated_entries'] ?? 0,
+            'total_entries'    => $status['total_entries'] ?? 0,
             'remaining'        => $remaining,
             'progress'         => round($progress, 2),
             'is_complete'      => false,
@@ -523,12 +518,15 @@ class SUPER_Migration_Manager {
 
         update_option('superforms_eav_migration', $migration);
 
+        // Get live counts for return value
+        $status = self::get_migration_status();
+
         return array(
             'success'          => true,
-            'processed'        => $migration['migrated_entries'],
-            'failed'           => count($migration['failed_entries']),
-            'total_processed'  => $migration['migrated_entries'],
-            'total_entries'    => $migration['total_entries'],
+            'processed'        => $status['migrated_entries'] ?? 0,
+            'failed'           => count($migration['failed_entries'] ?? array()),
+            'total_processed'  => $status['migrated_entries'] ?? 0,
+            'total_entries'    => $status['total_entries'] ?? 0,
             'remaining'        => 0,
             'progress'         => 100,
             'is_complete'      => true,
@@ -674,10 +672,9 @@ class SUPER_Migration_Manager {
         $migration_state = array(
             'status'               => 'not_started',
             'using_storage'        => 'serialized',
-            'total_entries'        => 0,
-            'migrated_entries'     => 0,
-            'skipped_entries'      => 0,
+            // Note: Counters calculated live in get_migration_status()
             'failed_entries'       => array(),
+            'verification_failed'  => array(),
             'started_at'           => '',
             'completed_at'         => '',
             'last_processed_id'    => 0,
@@ -708,19 +705,9 @@ class SUPER_Migration_Manager {
             return new WP_Error('not_started', __('Migration not started', 'super-forms'));
         }
 
-        // Count total entries
-        global $wpdb;
-        $total = $wpdb->get_var("
-            SELECT COUNT(*)
-            FROM {$wpdb->posts}
-            WHERE post_type = 'super_contact_entry'
-            AND post_status IN ('publish', 'super_read', 'super_unread')
-        ");
-
+        // Note: Counters are calculated live in get_migration_status(), not stored
         $migration['status'] = 'completed';
         $migration['using_storage'] = 'eav';
-        $migration['total_entries'] = $total;
-        $migration['migrated_entries'] = $total;  // Pretend all migrated
         $migration['completed_at'] = current_time('mysql');
 
         update_option('superforms_eav_migration', $migration);
