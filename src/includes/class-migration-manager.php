@@ -165,9 +165,8 @@ class SUPER_Migration_Manager {
             'using_storage'        => 'serialized', // Still reading from serialized during migration
             'total_entries'        => intval($total_entries),
             'initial_total_entries' => intval($total_entries), // Snapshot - won't change during migration
-            // Note: migrated_entries calculated live in get_migration_status()
+            'migrated_entries'     => 0,
             'failed_entries'       => array(),
-            'verification_failed'  => array(),
             'cleanup_queue'        => array(
                 'empty_posts'      => 0,  // Posts with no form data
                 'orphaned_meta'    => 0,  // Metadata without corresponding posts
@@ -675,15 +674,15 @@ class SUPER_Migration_Manager {
         $migration_state = array(
             'status'               => 'not_started',
             'using_storage'        => 'serialized',
-            // Note: migrated_entries calculated live in get_migration_status()
+            'total_entries'        => 0,
+            'migrated_entries'     => 0,
+            'skipped_entries'      => 0,
             'failed_entries'       => array(),
-            'verification_failed'  => array(),
             'started_at'           => '',
             'completed_at'         => '',
             'last_processed_id'    => 0,
             'verification_passed'  => false,
             'rollback_available'   => false,
-            'batch_count'          => 0,
         );
 
         return update_option('superforms_eav_migration', $migration_state);

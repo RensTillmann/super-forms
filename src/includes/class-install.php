@@ -204,7 +204,8 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 				$migration_state = array(
 					'status'                     => 'not_started',
 					'using_storage'              => 'serialized',
-					// Note: migrated_entries calculated live in get_migration_status()
+					'total_entries'              => 0,
+					'migrated_entries'           => 0,
 					'failed_entries'             => array(),
 					'verification_failed'        => array(),  // NEW: Separate tracking for verification issues
 					'cleanup_queue'              => array(
