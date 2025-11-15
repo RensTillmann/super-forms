@@ -15,6 +15,7 @@ description: Tasks related to database structure, data storage, performance opti
 - `h-test-migration-and-devtools-page.md` - Collaborative testing and validation of migration system and Developer Tools page functionality, data integrity, and performance
 - `h-test-eav-migration-real-data.md` - Test EAV migration with real production data using CSV/XML imports via Developer Tools page
 - `h-implement-automatic-background-migration/` - Automatic frictionless background migration using Action Scheduler with per-entry verification, self-healing, and zero user intervention
+- `h-fix-eav-migration-bugs-and-simplify.md` - Fix 2 critical bugs (missing form_id, default parameter bypass), add race condition protection, transaction support, and simplify architecture
 
 ### Medium Priority
 - `m-refactor-eav-migration-status-cache.md` - Cache EAV migration status to eliminate redundant get_option() calls across multiple methods

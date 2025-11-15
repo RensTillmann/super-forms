@@ -386,6 +386,227 @@ spl_autoload_register(function($class) {
 
 ## Database Migration Patterns
 
+### Data Structure Migration on Load
+
+When plugin features evolve their data structures, migration logic should run automatically on data load rather than in separate migration routines. This ensures seamless backward compatibility without requiring manual intervention or one-time migration tasks.
+
+**Example: Listings Extension Data Structure Migration**
+
+The Listings extension underwent a data structure change in v6.4.x to support translation features. The migration runs automatically in `get_form_listings_settings()` whenever old format data is detected.
+
+**Implementation Pattern:**
+
+```php
+public static function get_form_listings_settings($form_id) {
+    // Load settings from meta key
+    $s = maybe_unserialize(get_post_meta($form_id, '_listings', true));
+
+    // Detect if migration is needed
+    if (isset($s['lists']) && is_array($s['lists']) && !empty($s['lists'])) {
+        $needs_migration = false;
+
+        // Check 1: Old format used object with numeric keys
+        $first_key = array_key_first($s['lists']);
+        if (is_int($first_key) || (is_string($first_key) && ctype_digit($first_key))) {
+            $needs_migration = true;
+        }
+
+        // Check 2: Old format had fields at wrong level (not grouped)
+        if (!$needs_migration) {
+            foreach ($s['lists'] as $list) {
+                if (isset($list['retrieve']) || isset($list['form_ids'])) {
+                    $needs_migration = true;
+                    break;
+                }
+            }
+        }
+
+        if ($needs_migration) {
+            $migrated_lists = array();
+
+            foreach ($s['lists'] as $index => $list) {
+                // 1. Generate unique IDs for lists that don't have them
+                if (!isset($list['id']) || empty($list['id'])) {
+                    $list['id'] = self::generate_random_code(array(
+                        'len' => 5, 'char' => '4', 'upper' => 'true', 'lower' => 'true'
+                    ), false);
+                }
+
+                // 2. Move fields from top level to proper groups
+                if (!isset($list['display'])) {
+                    $list['display'] = array();
+                }
+                if (isset($list['retrieve'])) {
+                    $list['display']['retrieve'] = $list['retrieve'];
+                    unset($list['retrieve']);
+                }
+
+                // 3. Convert nested objects to arrays
+                if (isset($list['custom_columns']['columns'])) {
+                    $first_col_key = array_key_first($list['custom_columns']['columns']);
+                    if (is_string($first_col_key) && ctype_digit($first_col_key)) {
+                        $list['custom_columns']['columns'] = array_values($list['custom_columns']['columns']);
+                    }
+                }
+
+                $migrated_lists[] = $list;
+            }
+
+            $s['lists'] = $migrated_lists;
+
+            // Save migrated data back to database
+            update_post_meta($form_id, '_listings', $s);
+        }
+    }
+
+    return $s;
+}
+```
+
+**Key Principles:**
+
+1. **Detection, not assumption** - Check multiple signals to determine if migration is needed
+2. **Preserve user data** - Never delete or overwrite without verification
+3. **Idempotent** - Running migration multiple times produces same result
+4. **Logged for debugging** - Use `DEBUG_SF` constant for detailed migration logs
+5. **Save immediately** - Persist migrated data so migration doesn't repeat on every load
+
+**Migration Statistics Tracking:**
+
+```php
+$migration_stats = array(
+    'ids_generated' => 0,
+    'fields_relocated' => 0,
+    'arrays_converted' => 0,
+);
+
+// Track what was changed
+if (!isset($list['id'])) {
+    $migration_stats['ids_generated']++;
+}
+
+// Log statistics
+if (defined('DEBUG_SF') && DEBUG_SF) {
+    error_log(sprintf(
+        '[SF Listings Migration] Form %d: Migrated %d listings (IDs generated: %d, fields relocated: %d, arrays converted: %d)',
+        $form_id,
+        count($migrated_lists),
+        $migration_stats['ids_generated'],
+        $migration_stats['fields_relocated'],
+        $migration_stats['arrays_converted']
+    ));
+}
+```
+
+**Backward Compatibility Helper Functions:**
+
+When data structure changes, provide helper functions to resolve both old and new identifiers:
+
+```php
+/**
+ * Resolve list_id parameter to array index
+ * Handles backward compatibility between numeric indices (old) and ID strings (new)
+ *
+ * @param string|int $list_id_param The list_id from shortcode or POST data
+ * @param array      $lists         The lists array from form settings
+ * @return int                       Array index, or -1 if not found
+ */
+public static function resolve_list_id($list_id_param, $lists) {
+    if (!is_array($lists) || empty($lists)) {
+        return -1;
+    }
+
+    // Backward compatibility: numeric index (old format)
+    if (is_numeric($list_id_param)) {
+        $index = absint($list_id_param);
+        return isset($lists[$index]) ? $index : -1;
+    }
+
+    // New format: find by ID string
+    $list_id_param = sanitize_text_field($list_id_param);
+    foreach ($lists as $k => $v) {
+        if (isset($v['id']) && $v['id'] === $list_id_param) {
+            return $k;
+        }
+    }
+
+    return -1; // Not found
+}
+```
+
+**When to Use This Pattern:**
+
+- Data structure changes for existing features
+- Field grouping changes in admin UI
+- Identifier changes (numeric index to unique ID)
+- Object-to-array conversions
+
+**When NOT to Use This Pattern:**
+
+- Database schema changes (use Action Scheduler background migration)
+- Large-scale data transformations (>1000 records)
+- One-time cleanup operations
+
+**Reference:** Implemented in v6.4.127 for Listings extension backward compatibility (see `/home/rens/super-forms/sessions/tasks/h-fix-listings-backward-compatibility.md`).
+
+**EAV Storage Compatibility:**
+
+When implementing features that query entry data, ensure compatibility with both serialized (legacy) and EAV (new) storage formats:
+
+```php
+// ❌ BAD - INNER JOIN excludes EAV entries (no _super_contact_entry_data meta)
+$query = "SELECT post.*
+          FROM {$wpdb->posts} AS post
+          INNER JOIN {$wpdb->postmeta} AS meta
+              ON meta.post_id = post.ID
+              AND meta.meta_key = '_super_contact_entry_data'
+          WHERE post.post_type = 'super_contact_entry'";
+
+// ✅ GOOD - LEFT JOIN includes both serialized and EAV entries
+$query = "SELECT post.*
+          FROM {$wpdb->posts} AS post
+          LEFT JOIN {$wpdb->postmeta} AS meta
+              ON meta.post_id = post.ID
+              AND meta.meta_key = '_super_contact_entry_data'
+          WHERE post.post_type = 'super_contact_entry'";
+```
+
+**Key Principle:** Use LEFT JOIN for entry queries to include entries that have been migrated to EAV storage. INNER JOIN will exclude entries that no longer have `_super_contact_entry_data` postmeta.
+
+**Data Access Layer Pattern:**
+
+When building features that export or process entry data, use the Data Access layer instead of direct postmeta queries:
+
+```php
+// ❌ BAD - Direct postmeta query doesn't support EAV
+$results = $wpdb->get_results($wpdb->prepare(
+    "SELECT pm.meta_value
+     FROM {$wpdb->postmeta} pm
+     WHERE pm.post_id IN (%s)
+     AND pm.meta_key = '_super_contact_entry_data'",
+    implode(',', $entry_ids)
+));
+foreach ($results as $row) {
+    $data = maybe_unserialize($row->meta_value);
+    // Process data...
+}
+
+// ✅ GOOD - Data Access layer handles both formats
+$bulk_data = SUPER_Data_Access::get_bulk_entry_data($entry_ids);
+foreach ($bulk_data as $entry_id => $data) {
+    // Data is already unserialized and normalized
+    // Works with both serialized and EAV storage
+}
+```
+
+**Benefits of Data Access Layer:**
+- Automatic format detection (serialized vs EAV)
+- Consistent data structure regardless of storage method
+- Single point of maintenance for storage changes
+- Performance optimizations (bulk queries, caching)
+
+**Reference:** Implemented in v6.4.127 for Listings extension CSV export compatibility.
+
 ### Version Threshold Protection
 
 **CRITICAL:** Any migration that uses `TRUNCATE TABLE` or other destructive operations MUST implement version threshold protection to prevent data loss during normal plugin updates.

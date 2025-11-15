@@ -1493,35 +1493,30 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				$column_settings[ $field[0] ] = $field[1];
 			}
 
-			$entries = $_POST['entries'];
-			$query   = '';
-			foreach ( $entries as $k => $v ) {
-				if ( $k == 0 ) {
-					$query .= $v;
-				} else {
-					$query .= ',' . $v;
-				}
-			}
-			$table      = $wpdb->prefix . 'posts';
-			$table_meta = $wpdb->prefix . 'postmeta';
-			$results    = $wpdb->get_results(
-				"
-        SELECT meta.meta_value AS data
-        FROM $table AS entry
-        INNER JOIN $table_meta AS meta ON meta.post_id = entry.ID  AND meta.meta_key = '_super_contact_entry_data'
-        WHERE entry.post_status IN ('publish','super_unread','super_read') AND entry.post_type = 'super_contact_entry' AND entry.ID IN ($query)"
-			);
+			// Sanitize entry IDs
+			$entry_ids = array_map( 'absint', $_POST['entries'] );
+			$entry_ids = array_filter( $entry_ids );
+
+			// Build query string for hidden field (backward compatibility)
+			$query = implode( ',', $entry_ids );
+
+			// Use Data Access layer to fetch entry data (supports both EAV and serialized storage)
+			$bulk_data = SUPER_Data_Access::get_bulk_entry_data( $entry_ids );
+
+			// Build column list from all entries
 			$columns    = array();
 			$columns[]  = 'entry_id';
 			$columns[]  = 'entry_title';
 			$columns[]  = 'entry_date';
 			$columns[]  = 'entry_author';
 			$columns[]  = 'entry_status';
-			foreach ( $results as $k => $v ) {
-				$data = unserialize( $v->data );
-				foreach ( $data as $dk => $dv ) {
-					if ( ! in_array( $dk, $columns ) ) {
-						$columns[] = $dk;
+
+			foreach ( $bulk_data as $entry_id => $data ) {
+				if ( is_array( $data ) ) {
+					foreach ( $data as $field_name => $field_value ) {
+						if ( ! in_array( $field_name, $columns ) ) {
+							$columns[] = $field_name;
+						}
 					}
 				}
 			}

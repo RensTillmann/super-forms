@@ -2,12 +2,14 @@
 ob_start();
 // View entry
 if ( isset( $_POST['action'] ) && isset( $_POST['entry_id'] ) && isset( $_POST['form_id'] ) && isset( $_POST['list_id'] ) ) {
-	$entry_id = absint( $_POST['entry_id'] );
-	$form_id  = absint( $_POST['form_id'] );
-	$list_id  = absint( $_POST['list_id'] );
-	$settings = SUPER_Common::get_form_settings( $form_id );
-	$lists    = $settings['_listings']['lists'];
-	if ( ! isset( $lists[ $list_id ] ) ) {
+	$entry_id       = absint( $_POST['entry_id'] );
+	$form_id        = absint( $_POST['form_id'] );
+	$list_id_param  = isset( $_POST['list_id'] ) ? wp_unslash( $_POST['list_id'] ) : '';
+	$settings       = SUPER_Common::get_form_settings( $form_id );
+	$lists          = $settings['_listings']['lists'];
+	$list_id        = SUPER_Listings::resolve_list_id( $list_id_param, $lists );
+
+	if ( $list_id === -1 ) {
 		$html      = '<div class="super-msg super-error">';
 			$html .= esc_html__( 'Incorrect list ID, or list no longer exists:', 'super-forms' );
 		$html     .= '</div>';
@@ -40,10 +42,10 @@ if ( isset( $_POST['action'] ) && isset( $_POST['entry_id'] ) && isset( $_POST['
 					$_GET['contact_entry_id'] = $entry_id;
 					// Check if the form ID equals the post_parent, if not something isn't right and we will not allow the user to edit this entry for savety reasons
 					$error = false;
-					if ( $list['retrieve'] === 'this_form' && $entry->post_parent !== $form_id ) {
+					if ( $list['display']['retrieve'] === 'this_form' && $entry->post_parent !== $form_id ) {
 						$error = true;
 					}
-					if ( $list['retrieve'] === 'specific_forms' && strpos( $list['form_ids'], strval( $form_id ) ) === false ) {
+					if ( $list['display']['retrieve'] === 'specific_forms' && strpos( $list['display']['form_ids'], strval( $form_id ) ) === false ) {
 						$error = true;
 					}
 					if ( $error ) {

@@ -423,6 +423,129 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 			} else {
 				$s = maybe_unserialize( $s );
 			}
+
+		// Migrate old listings format to new format
+		// This ensures backward compatibility with forms saved before translation support was added
+		if ( isset( $s['lists'] ) && is_array( $s['lists'] ) && ! empty( $s['lists'] ) ) {
+			$needs_migration = false;
+
+			// Check if lists is object with numeric keys (old format)
+			$first_key = array_key_first( $s['lists'] );
+			if ( is_int( $first_key ) || ( is_string( $first_key ) && ctype_digit( $first_key ) ) ) {
+				$needs_migration = true;
+			}
+
+			// Also check if any list has fields at top level that should be grouped
+			if ( ! $needs_migration ) {
+				foreach ( $s['lists'] as $list ) {
+					if ( isset( $list['retrieve'] ) || isset( $list['form_ids'] ) ||
+						isset( $list['noResultsFilterMessage'] ) || isset( $list['noResultsMessage'] ) ||
+						isset( $list['onlyDisplayMessage'] ) ) {
+						$needs_migration = true;
+						break;
+					}
+					// Check if custom_columns.columns is object format
+					if ( isset( $list['custom_columns']['columns'] ) && is_array( $list['custom_columns']['columns'] ) ) {
+						$first_col_key = array_key_first( $list['custom_columns']['columns'] );
+						if ( is_string( $first_col_key ) && ctype_digit( $first_col_key ) ) {
+							$needs_migration = true;
+							break;
+						}
+					}
+				}
+			}
+
+			if ( $needs_migration ) {
+				$migrated_lists = array();
+				$migration_stats = array(
+					'ids_generated' => 0,
+					'fields_relocated' => 0,
+					'arrays_converted' => 0,
+				);
+
+				foreach ( $s['lists'] as $index => $list ) {
+					// 1. Ensure each list has a unique ID
+					if ( ! isset( $list['id'] ) || empty( $list['id'] ) ) {
+						$list['id'] = self::generate_random_code(
+							array(
+								'len'   => 5,
+								'char'  => '4',
+								'upper' => 'true',
+								'lower' => 'true',
+							),
+							false
+						);
+						$migration_stats['ids_generated']++;
+					}
+
+					// 2. Move top-level fields to display group
+					if ( ! isset( $list['display'] ) ) {
+						$list['display'] = array();
+					}
+					if ( isset( $list['retrieve'] ) ) {
+						$list['display']['retrieve'] = $list['retrieve'];
+						unset( $list['retrieve'] );
+						$migration_stats['fields_relocated']++;
+					} elseif ( ! isset( $list['display']['retrieve'] ) || empty( $list['display']['retrieve'] ) ) {
+						$list['display']['retrieve'] = 'this_form';
+					}
+					if ( isset( $list['form_ids'] ) ) {
+						$list['display']['form_ids'] = $list['form_ids'];
+						unset( $list['form_ids'] );
+						$migration_stats['fields_relocated']++;
+					} elseif ( ! isset( $list['display']['form_ids'] ) ) {
+						$list['display']['form_ids'] = '';
+					}
+
+					// 3. Move top-level fields to date_range group
+					if ( ! isset( $list['date_range'] ) ) {
+						$list['date_range'] = array();
+					}
+					if ( isset( $list['noResultsFilterMessage'] ) ) {
+						$list['date_range']['noResultsFilterMessage'] = $list['noResultsFilterMessage'];
+						unset( $list['noResultsFilterMessage'] );
+						$migration_stats['fields_relocated']++;
+					}
+					if ( isset( $list['noResultsMessage'] ) ) {
+						$list['date_range']['noResultsMessage'] = $list['noResultsMessage'];
+						unset( $list['noResultsMessage'] );
+						$migration_stats['fields_relocated']++;
+					}
+					if ( isset( $list['onlyDisplayMessage'] ) ) {
+						$list['date_range']['onlyDisplayMessage'] = $list['onlyDisplayMessage'];
+						unset( $list['onlyDisplayMessage'] );
+						$migration_stats['fields_relocated']++;
+					}
+
+					// 4. Convert custom_columns.columns from object to array
+					if ( isset( $list['custom_columns']['columns'] ) && is_array( $list['custom_columns']['columns'] ) ) {
+						$first_col_key = array_key_first( $list['custom_columns']['columns'] );
+						if ( is_string( $first_col_key ) && ctype_digit( $first_col_key ) ) {
+							$list['custom_columns']['columns'] = array_values( $list['custom_columns']['columns'] );
+							$migration_stats['arrays_converted']++;
+						}
+					}
+
+					$migrated_lists[] = $list;  // Add to indexed array
+				}
+
+				$s['lists'] = $migrated_lists;
+
+				// Save migrated format back to database (_listings meta key)
+				update_post_meta( $form_id, '_listings', $s );
+
+				if ( defined( 'DEBUG_SF' ) && DEBUG_SF ) {
+					error_log( sprintf(
+						'[SF Listings Migration] Form %d: Migrated %d listings (IDs generated: %d, fields relocated: %d, arrays converted: %d)',
+						$form_id,
+						count( $migrated_lists ),
+						$migration_stats['ids_generated'],
+						$migration_stats['fields_relocated'],
+						$migration_stats['arrays_converted']
+					) );
+				}
+			}
+		}
 			// Merge translated settings
 			// error_log('merge translated settings for LISTINGS');
 			if ( ! empty( $s['i18n'] ) && ! empty( $s['i18n'][ SUPER_Forms()->i18n ] ) ) {
@@ -4971,6 +5094,7 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 					self::save_form_stripe_settings( $s['_stripe'], $form_id );
 				}
 			}
+
 
 			$s['_woocommerce'] = self::get_form_woocommerce_settings( $form_id );
 			$s['_listings']    = self::get_form_listings_settings( $form_id );

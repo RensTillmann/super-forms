@@ -92,44 +92,55 @@
 
 	SUPER.add_listing = function (data) {
 		data.formSettings           = JSON.parse( data.formSettings );
-		data.formSettings._listings = {};
+		data.formSettings._listings = {lists: []};
 		// Loop through all the listings
 		var list = document.querySelectorAll( '.super-listings-list > li' );
 		for (var key = 0; key < list.length; key++) {
-			data.formSettings._listings[key]          = {};
-			data.formSettings._listings[key].name     = list[key].querySelector( 'input[name="name"]' ).value;
-			data.formSettings._listings[key].retrieve = list[key].querySelector( '[data-name="retrieve"]' ).querySelector( '.super-active' ).dataset.value;
-			if (data.formSettings._listings[key].retrieve == 'specific_forms') {
-				data.formSettings._listings[key].form_ids = list[key].querySelector( 'input[name="form_ids"]' ).value;
+			var listItem          = {};
+			// Read the unique ID (hidden field added for translation support)
+			var idInput = list[key].querySelector( 'input[name="id"]' );
+			listItem.id = idInput ? idInput.value : '';
+			listItem.name     = list[key].querySelector( 'input[name="name"]' ).value;
+			// BACKWARD COMPATIBILITY: Save retrieve and form_ids in display group to match PHP expectations.
+			// Prior to v6.4.x, these fields were saved at the top level of each list object.
+			// The migration in class-common.php:get_form_listings_settings() automatically moves old
+			// top-level fields to the display group on form load. Saving in the display group here
+			// ensures new/edited listings are consistent with the migrated format.
+			listItem.display = {
+				retrieve: list[key].querySelector( '[data-name="retrieve"]' ).querySelector( '.super-active' ).dataset.value,
+				form_ids: ''
+			};
+			if (listItem.display.retrieve == 'specific_forms') {
+				listItem.display.form_ids = list[key].querySelector( 'input[name="form_ids"]' ).value;
 			}
-			data.formSettings._listings[key].date_range = false;
+			listItem.date_range = false;
 			if (list[key].querySelector( '[data-name="date_range"]' ).classList.contains( 'super-active' )) {
-				data.formSettings._listings[key].date_range = {
+				listItem.date_range = {
 					from: list[key].querySelector( '[data-name="date_range"] input[name="from"]' ).value,
 					until: list[key].querySelector( '[data-name="date_range"] input[name="until"]' ).value
 				};
 			}
-			data.formSettings._listings[key].show_title = false;
+			listItem.show_title = false;
 			if (list[key].querySelector( '[data-name="show_title"]' ).classList.contains( 'super-active' )) {
-				data.formSettings._listings[key].show_title = {
+				listItem.show_title = {
 					name: list[key].querySelector( '[data-name="show_title"] input[name="name"]' ).value,
 					placeholder: list[key].querySelector( '[data-name="show_title"] input[name="placeholder"]' ).value,
 					position: list[key].querySelector( '[data-name="show_title"] input[name="position"]' ).value,
 					width: list[key].querySelector( '[data-name="show_title"] input[name="width"]' ).value
 				};
 			}
-			data.formSettings._listings[key].show_status = false;
+			listItem.show_status = false;
 			if (list[key].querySelector( '[data-name="show_status"]' ).classList.contains( 'super-active' )) {
-				data.formSettings._listings[key].show_status = {
+				listItem.show_status = {
 					name: list[key].querySelector( '[data-name="show_status"] input[name="name"]' ).value,
 					placeholder: list[key].querySelector( '[data-name="show_status"] input[name="placeholder"]' ).value,
 					position: list[key].querySelector( '[data-name="show_status"] input[name="position"]' ).value,
 					width: list[key].querySelector( '[data-name="show_status"] input[name="width"]' ).value
 				};
 			}
-			data.formSettings._listings[key].show_date = false;
+			listItem.show_date = false;
 			if (list[key].querySelector( '[data-name="show_date"]' ).classList.contains( 'super-active' )) {
-				data.formSettings._listings[key].show_date = {
+				listItem.show_date = {
 					name: list[key].querySelector( '[data-name="show_date"] input[name="name"]' ).value,
 					placeholder: list[key].querySelector( '[data-name="show_date"] input[name="placeholder"]' ).value,
 					position: list[key].querySelector( '[data-name="show_date"] input[name="position"]' ).value,
@@ -137,30 +148,40 @@
 				};
 			}
 			// Add custom columns
-			data.formSettings._listings[key].custom_columns = false;
+			listItem.custom_columns = false;
 			if (list[key].querySelector( '[data-name="custom_columns"]' ).classList.contains( 'super-active' )) {
-				data.formSettings._listings[key].custom_columns = true;
-				data.formSettings._listings[key].columns        = {};
-				var columns                                     = document.querySelectorAll( '.super-listings-list div[data-name="custom_columns"] li' );
+				// BACKWARD COMPATIBILITY: Save custom_columns.columns as array to match PHP expectations.
+				// Prior to v6.4.x, columns were stored as an object with numeric string keys (e.g., {"0": {...}, "1": {...}}).
+				// The migration in class-common.php:get_form_listings_settings() automatically converts old object format
+				// to array format using array_values() on form load. Saving as an array here ensures new/edited columns
+				// are consistent with the migrated format and prevents PHP warnings when iterating columns.
+				listItem.custom_columns = {
+					columns: []
+				};
+				var columns = document.querySelectorAll( '.super-listings-list div[data-name="custom_columns"] li' );
 				for (var ckey = 0; ckey < columns.length; ckey++) {
-					data.formSettings._listings[key].columns[ckey]              = {};
-					data.formSettings._listings[key].columns[ckey].name         = columns[ckey].querySelector( 'input[name="name"]' ).value;
-					data.formSettings._listings[key].columns[ckey].field_name   = columns[ckey].querySelector( 'input[name="field_name"]' ).value;
-					data.formSettings._listings[key].columns[ckey].width        = columns[ckey].querySelector( 'input[name="width"]' ).value;
-					data.formSettings._listings[key].columns[ckey].filter       = columns[ckey].querySelector( 'select[name="filter"]' ).value;
-					data.formSettings._listings[key].columns[ckey].filter_items = columns[ckey].querySelector( 'textarea[name="filter_items"]' ).value;
+					var columnItem = {
+						name: columns[ckey].querySelector( 'input[name="name"]' ).value,
+						field_name: columns[ckey].querySelector( 'input[name="field_name"]' ).value,
+						width: columns[ckey].querySelector( 'input[name="width"]' ).value,
+						filter: columns[ckey].querySelector( 'select[name="filter"]' ).value,
+						filter_items: columns[ckey].querySelector( 'textarea[name="filter_items"]' ).value
+					};
+					listItem.custom_columns.columns.push(columnItem);
 				}
 			}
-			data.formSettings._listings[key].edit_any = false;
+			listItem.edit_any = false;
 			if (list[key].querySelector( '[data-name="edit_any"]' ).classList.contains( 'super-active' )) {
-				data.formSettings._listings[key].edit_any = {
+				listItem.edit_any = {
 					user_roles: list[key].querySelector( 'input[name="user_roles"]' ).value,
 					user_ids: list[key].querySelector( 'input[name="user_ids"]' ).value,
 					method: (list[key].querySelector( '[data-name="method"]' ).querySelector( '.super-active' ) ? list[key].querySelector( '[data-name="method"]' ).querySelector( '.super-active' ).dataset.value : '')
 				};
 			}
-			data.formSettings._listings[key].pagination = list[key].querySelector( '[data-name="pagination"]' ).querySelector( '.super-active' ).dataset.value;
-			data.formSettings._listings[key].limit      = list[key].querySelector( 'select[name="limit"]' ).value;
+			listItem.pagination = list[key].querySelector( '[data-name="pagination"]' ).querySelector( '.super-active' ).dataset.value;
+			listItem.limit      = list[key].querySelector( 'select[name="limit"]' ).value;
+			// Push to lists array (new format for translation support)
+			data.formSettings._listings.lists.push(listItem);
 		}
 		data.formSettings = JSON.stringify( data.formSettings );
 		return data;

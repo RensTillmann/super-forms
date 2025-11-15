@@ -2395,7 +2395,26 @@ include_once 'includes/class-developer-tools.php';
 		$columns['entry_status']      = 'entry_status';
 		$columns['hidden_form_id']    = 'hidden_form_id';
 		$columns['contact_entry_ip']  = 'contact_entry_ip';
-		// Custom fields are automatically sortable by their column key
+
+		// Register custom fields from backend_contact_entry_list_fields as sortable
+		$global_settings = SUPER_Common::get_global_settings();
+		if ( ! empty( $global_settings['backend_contact_entry_list_fields'] ) ) {
+			$fields = explode( "\n", $global_settings['backend_contact_entry_list_fields'] );
+			foreach ( $fields as $field_line ) {
+				if ( empty( trim( $field_line ) ) ) {
+					continue;
+				}
+				$field_parts = explode( '|', $field_line );
+				if ( ! empty( $field_parts[0] ) ) {
+					// Skip built-in columns already registered above
+					if ( in_array( $field_parts[0], array( 'entry_status', 'hidden_form_id', 'contact_entry_ip' ) ) ) {
+						continue;
+					}
+					$columns[ $field_parts[0] ] = $field_parts[0];
+				}
+			}
+		}
+
 		return $columns;
 	}
 
