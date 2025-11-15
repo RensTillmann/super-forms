@@ -2183,5 +2183,140 @@ jQuery(document).ready(function($) {
         html += '</ul>';
         $('#import-statistics').html(html).show();
     }
+
+    // ========================================
+    // Migration Integration Tests
+    // ========================================
+    var testInProgress = false;
+
+    // Show/hide import file selector based on data source selection
+    $('input[name="test-data-source"]').on('change', function() {
+        var dataSource = $(this).val();
+        if (dataSource === 'programmatic') {
+            $('#import-file-selection').hide();
+        } else {
+            $('#import-file-selection').show();
+        }
+    });
+
+    $('#run-migration-test-btn').on('click', function() {
+        if (testInProgress) {
+            alert('A test is already running. Please wait for it to complete.');
+            return;
+        }
+
+        var testName = $('#migration-test-selector').val();
+        var testLabel = $('#migration-test-selector option:selected').text();
+        var dataSource = $('input[name="test-data-source"]:checked').val();
+        var importFile = $('#import-file-selector').val();
+
+        // Build confirmation message
+        var confirmMessage = 'Run test: ' + testLabel + '?\n\n';
+        if (dataSource === 'programmatic') {
+            confirmMessage += 'Data Source: Programmatic (Generated)\n';
+            confirmMessage += 'This will create temporary test data and clean up automatically.\n\n';
+        } else {
+            var fileLabel = $('#import-file-selector option:selected').text();
+            confirmMessage += 'Data Source: ' + dataSource.toUpperCase() + ' Import\n';
+            confirmMessage += 'File: ' + fileLabel + '\n';
+            confirmMessage += 'Imported entries will be tagged and cleaned up automatically.\n\n';
+        }
+        confirmMessage += 'Tests only run on dev/localhost with DEBUG_SF enabled.';
+
+        if (confirm(confirmMessage)) {
+            runMigrationTest(testName, testLabel, dataSource, importFile);
+        }
+    });
+
+    function runMigrationTest(testName, testLabel, dataSource, importFile) {
+        testInProgress = true;
+        var $btn = $('#run-migration-test-btn');
+        var $results = $('#migration-test-results');
+        var $status = $('#migration-test-status');
+        var $output = $('#migration-test-output');
+
+        // Update button state
+        $btn.prop('disabled', true).text('⏳ Running Test...');
+
+        // Show results container
+        $results.show();
+
+        // Update status to running
+        var statusLabel = testLabel;
+        if (dataSource !== 'programmatic') {
+            statusLabel += ' (' + dataSource.toUpperCase() + ' Import)';
+        }
+        $status.css({
+            'background': '#fff8dc',
+            'border': '1px solid #f0ad4e'
+        }).html('<strong>⏳ Running:</strong> ' + statusLabel);
+
+        // Clear previous output
+        $output.text('Starting test...\n');
+
+        var startTime = Date.now();
+
+        // Make AJAX request
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'super_run_migration_tests',
+                security: devtoolsNonce,
+                test_name: testName,
+                data_source: dataSource,
+                import_file: importFile
+            },
+            success: function(response) {
+                var duration = ((Date.now() - startTime) / 1000).toFixed(2);
+
+                if (response.success) {
+                    // Test passed
+                    $status.css({
+                        'background': '#d4edda',
+                        'border': '1px solid #28a745'
+                    }).html('<strong>✅ PASSED</strong> in ' + duration + 's');
+
+                    // Display test log
+                    if (response.data.log && response.data.log.length > 0) {
+                        $output.text(response.data.log.join('\n'));
+                    } else {
+                        $output.text('Test completed successfully (no detailed log)');
+                    }
+                } else {
+                    // Test failed
+                    $status.css({
+                        'background': '#f8d7da',
+                        'border': '1px solid #dc3545'
+                    }).html('<strong>❌ FAILED</strong> after ' + duration + 's');
+
+                    // Display error and log
+                    var errorText = 'Error: ' + (response.data.error || response.data.message || 'Unknown error') + '\n\n';
+                    if (response.data.log && response.data.log.length > 0) {
+                        errorText += response.data.log.join('\n');
+                    }
+                    $output.text(errorText);
+                }
+            },
+            error: function(xhr, status, error) {
+                var duration = ((Date.now() - startTime) / 1000).toFixed(2);
+
+                $status.css({
+                    'background': '#f8d7da',
+                    'border': '1px solid #dc3545'
+                }).html('<strong>❌ ERROR</strong> after ' + duration + 's');
+
+                $output.text('AJAX Error: ' + error + '\n\nStatus: ' + status + '\n\nResponse: ' + xhr.responseText);
+            },
+            complete: function() {
+                // Reset button state
+                $btn.prop('disabled', false).text('▶️ Run Selected Test');
+                testInProgress = false;
+
+                // Scroll to results
+                $results[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        });
+    }
 });
 

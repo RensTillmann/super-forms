@@ -58,6 +58,11 @@ class SUPER_Migration_Manager {
         if (!has_action('wp_ajax_super_refresh_cleanup_stats')) {
             add_action('wp_ajax_super_refresh_cleanup_stats', array(__CLASS__, 'ajax_refresh_cleanup_stats'));
         }
+
+        // Run integration tests
+        if (!has_action('wp_ajax_super_run_migration_tests')) {
+            add_action('wp_ajax_super_run_migration_tests', array(__CLASS__, 'ajax_run_migration_tests'));
+        }
     }
 
     /**
@@ -132,6 +137,44 @@ class SUPER_Migration_Manager {
     }
 
     /**
+     * AJAX handler: Run migration integration tests
+     * @since 6.4.127
+     */
+    public static function ajax_run_migration_tests() {
+        check_ajax_referer('super-form-builder', 'security');
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => 'Permission denied'));
+        }
+
+        // Get parameters from request
+        $test_name = isset($_POST['test_name']) ? sanitize_text_field($_POST['test_name']) : 'all';
+        $data_source = isset($_POST['data_source']) ? sanitize_text_field($_POST['data_source']) : 'programmatic';
+        $import_file = isset($_POST['import_file']) ? sanitize_file_name($_POST['import_file']) : '';
+
+        // Load test class
+        $test_file = SUPER_PLUGIN_DIR . '/test/scripts/test-migration-integration.php';
+        if (!file_exists($test_file)) {
+            wp_send_json_error(array('message' => 'Test file not found'));
+        }
+
+        require_once $test_file;
+
+        if (!class_exists('SUPER_Migration_Integration_Test')) {
+            wp_send_json_error(array('message' => 'Test class not found'));
+        }
+
+        // Run test with data source and import file
+        $test = new SUPER_Migration_Integration_Test();
+        $results = $test->run($test_name, $data_source, $import_file);
+
+        if ($results['success']) {
+            wp_send_json_success($results);
+        } else {
+            wp_send_json_error($results);
+        }
+    }
+
+    /**
      * Initialize migration (called once when user starts migration)
      *
      * @since 6.0.0
@@ -163,14 +206,10 @@ class SUPER_Migration_Manager {
         $migration_state = array(
             'status'               => 'in_progress',
             'using_storage'        => 'serialized', // Still reading from serialized during migration
-            'total_entries'        => intval($total_entries),
-            'initial_total_entries' => intval($total_entries), // Snapshot - won't change during migration
-            'migrated_entries'     => 0,
+            'initial_total_entries' => intval($total_entries), // Snapshot for progress calculation
+            // Note: migrated_entries, cleanup_queue calculated live in get_migration_status()
             'failed_entries'       => array(),
-            'cleanup_queue'        => array(
-                'empty_posts'      => 0,  // Posts with no form data
-                'orphaned_meta'    => 0,  // Metadata without corresponding posts
-            ),
+            'verification_failed'  => array(),
             'started_at'           => current_time('mysql'),
             'completed_at'         => '',
             'last_processed_id'    => 0,
@@ -303,27 +342,26 @@ class SUPER_Migration_Manager {
 
         // Update per-entry metrics (running average)
         if ($entries_count > 0) {
-            // Update average memory per entry (weighted average across all batches)
-            $total_entries_so_far = $migration['migrated_entries'] ?? 0;
             $migration['resource_stats']['avg_memory_per_entry_kb'] = $avg_memory_per_entry_kb;
             $migration['resource_stats']['avg_time_per_entry_ms'] = $avg_time_per_entry_ms;
         }
 
-        // Update migration progress
-        $migration['migrated_entries'] += $processed;
-        $migration['skipped_entries'] += $skipped;
+        // Update progress marker (counters calculated live via get_migration_status())
         $migration['last_processed_id'] = $last_id;
         update_option('superforms_eav_migration', $migration);
 
-        $remaining = $migration['total_entries'] - $migration['migrated_entries'];
-        $progress = ($migration['migrated_entries'] / $migration['total_entries']) * 100;
+        // Calculate progress from live database counts
+        $status = self::get_migration_status();
+        $remaining = max(0, ($status['initial_total_entries'] ?? 0) - ($status['migrated_entries'] ?? 0));
+        $total = $status['initial_total_entries'] ?? 1; // Avoid division by zero
+        $progress = $total > 0 ? (($status['migrated_entries'] ?? 0) / $total) * 100 : 0;
 
         return array(
             'success'          => true,
             'processed'        => $processed,
             'failed'           => $failed,
-            'total_processed'  => $migration['migrated_entries'],
-            'total_entries'    => $migration['total_entries'],
+            'total_processed'  => $status['migrated_entries'] ?? 0,
+            'total_entries'    => $status['total_entries'] ?? 0,
             'remaining'        => $remaining,
             'progress'         => round($progress, 2),
             'is_complete'      => false,
@@ -398,11 +436,21 @@ class SUPER_Migration_Manager {
 
         $table = $wpdb->prefix . 'superforms_entry_data';
 
-        // Delete any existing EAV data for this entry
-        $wpdb->delete($table, array('entry_id' => $entry_id), array('%d'));
+        // Get form_id for this entry (needed for Listings filtering)
+        $form_id = get_post_meta($entry_id, '_super_form_id', true);
+        if (empty($form_id)) {
+            $form_id = 0; // Default to 0 if not found
+        }
 
-        // Insert each field into EAV table
-        foreach ($data as $field_name => $field_data) {
+        // Start transaction for atomic EAV operations
+        $wpdb->query('START TRANSACTION');
+
+        try {
+            // Delete any existing EAV data for this entry
+            $wpdb->delete($table, array('entry_id' => $entry_id), array('%d'));
+
+            // Insert each field into EAV table
+            foreach ($data as $field_name => $field_data) {
             if (!is_array($field_data)) {
                 continue; // Skip non-array entries
             }
@@ -420,22 +468,33 @@ class SUPER_Migration_Manager {
                 $table,
                 array(
                     'entry_id' => $entry_id,
+                    'form_id' => $form_id,
                     'field_name' => $field_name,
                     'field_value' => $field_value,
                     'field_type' => $field_type,
                     'field_label' => $field_label,
                     'created_at' => current_time('mysql'),
                 ),
-                array('%d', '%s', '%s', '%s', '%s', '%s')
+                array('%d', '%d', '%s', '%s', '%s', '%s', '%s')
             );
 
             if ($result === false) {
                 error_log('[Super Forms Migration] [ERROR] Insert FAILED for field: ' . $field_name . ' in entry ' . $entry_id . ', Error: ' . $wpdb->last_error);
-                return new WP_Error(
-                    'db_insert_failed',
-                    'Failed to insert field into EAV table: ' . $wpdb->last_error
-                );
+                throw new Exception('Failed to insert field into EAV table: ' . $wpdb->last_error);
             }
+        }
+
+            // Commit transaction if all inserts succeeded
+            $wpdb->query('COMMIT');
+
+        } catch (Exception $e) {
+            // Rollback transaction on any error
+            $wpdb->query('ROLLBACK');
+            error_log('[Super Forms Migration] [ERROR] Transaction rolled back for entry ' . $entry_id . ': ' . $e->getMessage());
+            return new WP_Error(
+                'db_transaction_failed',
+                $e->getMessage()
+            );
         }
 
         // Verify migration was successful (compare EAV data with serialized data)
@@ -502,12 +561,15 @@ class SUPER_Migration_Manager {
 
         update_option('superforms_eav_migration', $migration);
 
+        // Get live counts for return value
+        $status = self::get_migration_status();
+
         return array(
             'success'          => true,
-            'processed'        => $migration['migrated_entries'],
-            'failed'           => count($migration['failed_entries']),
-            'total_processed'  => $migration['migrated_entries'],
-            'total_entries'    => $migration['total_entries'],
+            'processed'        => $status['migrated_entries'] ?? 0,
+            'failed'           => count($migration['failed_entries'] ?? array()),
+            'total_processed'  => $status['migrated_entries'] ?? 0,
+            'total_entries'    => $status['total_entries'] ?? 0,
             'remaining'        => 0,
             'progress'         => 100,
             'is_complete'      => true,
@@ -653,10 +715,9 @@ class SUPER_Migration_Manager {
         $migration_state = array(
             'status'               => 'not_started',
             'using_storage'        => 'serialized',
-            'total_entries'        => 0,
-            'migrated_entries'     => 0,
-            'skipped_entries'      => 0,
+            // Note: Counters calculated live in get_migration_status()
             'failed_entries'       => array(),
+            'verification_failed'  => array(),
             'started_at'           => '',
             'completed_at'         => '',
             'last_processed_id'    => 0,
@@ -670,29 +731,26 @@ class SUPER_Migration_Manager {
     /**
      * Force complete migration without actually migrating data (for testing only)
      *
+     * SECURITY: Only works when DEBUG_SF constant is enabled
+     *
      * @since 6.0.0
      * @return array|WP_Error Migration state or error
      */
     public static function force_complete() {
+        // SECURITY: Prevent usage in production
+        if (!defined('DEBUG_SF') || !DEBUG_SF) {
+            return new WP_Error('not_allowed', __('This method only works when DEBUG_SF is enabled', 'super-forms'));
+        }
+
         $migration = get_option('superforms_eav_migration', array());
 
         if (empty($migration)) {
             return new WP_Error('not_started', __('Migration not started', 'super-forms'));
         }
 
-        // Count total entries
-        global $wpdb;
-        $total = $wpdb->get_var("
-            SELECT COUNT(*)
-            FROM {$wpdb->posts}
-            WHERE post_type = 'super_contact_entry'
-            AND post_status IN ('publish', 'super_read', 'super_unread')
-        ");
-
+        // Note: Counters are calculated live in get_migration_status(), not stored
         $migration['status'] = 'completed';
         $migration['using_storage'] = 'eav';
-        $migration['total_entries'] = $total;
-        $migration['migrated_entries'] = $total;  // Pretend all migrated
         $migration['completed_at'] = current_time('mysql');
 
         update_option('superforms_eav_migration', $migration);
@@ -706,10 +764,17 @@ class SUPER_Migration_Manager {
     /**
      * Force switch to EAV storage without migrating (for testing only)
      *
+     * SECURITY: Only works when DEBUG_SF constant is enabled
+     *
      * @since 6.0.0
      * @return array|WP_Error Migration state or error
      */
     public static function force_switch_eav() {
+        // SECURITY: Prevent usage in production
+        if (!defined('DEBUG_SF') || !DEBUG_SF) {
+            return new WP_Error('not_allowed', __('This method only works when DEBUG_SF is enabled', 'super-forms'));
+        }
+
         $migration = get_option('superforms_eav_migration', array());
 
         if (empty($migration)) {

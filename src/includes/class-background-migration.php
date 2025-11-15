@@ -25,9 +25,9 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 		const LOCK_KEY = 'super_migration_lock';
 
 		/**
-		 * Lock duration in seconds (30 minutes)
+		 * Lock duration in seconds (5 minutes)
 		 */
-		const LOCK_DURATION = 1800;
+		const LOCK_DURATION = 300;
 
 	/**
 	 * Setup lock key (WordPress transient) - prevents race conditions during table creation
@@ -103,12 +103,8 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 		$is_upgrade = version_compare( $stored_version, $current_version, '<' );
 
 		if ( $is_upgrade ) {
-			// Check if setup is already running
-			if ( self::is_setup_running() ) {
-				return;
-			}
-
 			// ACQUIRE SETUP LOCK - prevents race conditions during table creation
+			// Lock handles duplicate prevention atomically, no need for pre-check
 			set_transient( self::SETUP_LOCK_KEY, 'yes', self::SETUP_LOCK_DURATION );
 
 			try {
@@ -249,16 +245,6 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 	}
 
 	/**
-	 * Check if setup routine is currently running
-	 *
-	 * @return bool
-	 * @since 6.4.111
-	 */
-	private static function is_setup_running() {
-		return 'yes' === get_transient( self::SETUP_LOCK_KEY );
-	}
-
-	/**
 	 * Calculate optimal batch size based on server resources and dataset size
 	 *
 	 * Uses resource-based calculation considering:
@@ -273,8 +259,9 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 	 * @since 6.4.114
 	 */
 	private static function calculate_batch_size() {
-		$migration = get_option( 'superforms_eav_migration', array() );
-		$total = isset( $migration['total_entries'] ) ? (int) $migration['total_entries'] : 0;
+		// Get total from live database query
+		$status = SUPER_Migration_Manager::get_migration_status();
+		$total = isset( $status['total_entries'] ) ? (int) $status['total_entries'] : 0;
 
 		// Get server limits
 		$memory_limit = wp_convert_hr_to_bytes( ini_get( 'memory_limit' ) );
@@ -366,6 +353,15 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 	 * @since 6.0.0
 	 */
 	public static function needs_migration() {
+		// CACHE: Check transient cache first (60-second TTL)
+		// This reduces overhead from multiple calls per page load
+		$cache_key = 'superforms_needs_migration';
+		$cached = get_transient( $cache_key );
+
+		if ( $cached !== false ) {
+			return $cached === 'yes';
+		}
+
 		global $wpdb;
 
 		// Verify EAV table exists before attempting migration
@@ -375,6 +371,7 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 		if ( $table_exists !== $table_name ) {
 			// Table doesn't exist - can't migrate
 			// This will be auto-created by version detection if needed
+			set_transient( $cache_key, 'no', 60 ); // Cache for 60 seconds
 			return false;
 		}
 
@@ -395,7 +392,11 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 			)
 		);
 
-		return $unmigrated > 0;
+		// Cache result for 60 seconds
+		$needs_migration = $unmigrated > 0;
+		set_transient( $cache_key, $needs_migration ? 'yes' : 'no', 60 );
+
+		return $needs_migration;
 	}
 
 		/**
@@ -424,39 +425,8 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 				$status = array();
 			}
 
-			// ANOMALY DETECTION: Check for counter overflow and auto-correct
-			// This catches race conditions where duplicate batches inflated the counter
-			if ( isset( $status['migrated_entries'] ) && isset( $status['total_entries'] ) ) {
-				$migrated = (int) $status['migrated_entries'];
-				$total = (int) $status['total_entries'];
-
-				// If migrated > total, we have counter overflow from race conditions
-				if ( $migrated > $total ) {
-					self::log(
-						"⚠ Counter overflow detected ({$migrated} > {$total}), recalculating from database",
-						'warning'
-					);
-					$actual_migrated = self::recalculate_migration_counter();
-					$status['migrated_entries'] = $actual_migrated;
-
-					// Also check if overflow was caused by duplicate action scheduling
-					if ( function_exists( 'as_get_scheduled_actions' ) ) {
-						$pending_count = count( as_get_scheduled_actions( array(
-							'hook' => self::AS_BATCH_HOOK,
-							'group' => 'superforms-migration',
-							'status' => 'pending',
-							'per_page' => 100,
-						) ) );
-
-						if ( $pending_count > 1 ) {
-							self::log(
-								"⚠ Found {$pending_count} duplicate pending batch actions - race condition confirmed",
-								'warning'
-							);
-						}
-					}
-				}
-			}
+			// Note: Counters are calculated live from database in get_migration_status()
+			// No anomaly detection needed - database is always the source of truth
 
 			// Count total entries if not already counted
 			// Count ONLY valid entries (posts that exist AND have data)
@@ -500,7 +470,16 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 		 * @since 6.0.0
 		 */
 		public static function schedule_batch() {
-			// DUPLICATE CHECK: Prevent scheduling if batch already queued
+			// ACQUIRE SCHEDULING LOCK: Prevents race condition where multiple processes
+			// schedule duplicate batches between check and create operations
+			if ( get_transient( 'super_migration_schedule_lock' ) ) {
+				self::log( 'Schedule lock held by another process, skipping' );
+				return false;
+			}
+			set_transient( 'super_migration_schedule_lock', 'locked', 60 ); // 1-minute lock
+
+			try {
+				// DUPLICATE CHECK: Prevent scheduling if batch already queued
 			// This fixes race condition causing counter overflow from duplicate actions
 			if ( function_exists( 'as_next_scheduled_action' ) ) {
 				$next_scheduled = as_next_scheduled_action( self::AS_BATCH_HOOK, array(), 'superforms-migration' );
@@ -556,47 +535,10 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 				self::log( "Batch already scheduled in WP-Cron (next run: {$next_run}), preventing duplicate" );
 				return false;
 			}
-		}
-
-		/**
-		 * Recalculate migrated_entries counter from actual database
-		 *
-		 * Fixes counter overflow caused by race conditions where multiple batches
-		 * processed the same entries and each incremented the counter.
-		 *
-		 * @return int Actual count of migrated entries
-		 * @since 6.4.118
-		 */
-		public static function recalculate_migration_counter() {
-			global $wpdb;
-			$table_name = $wpdb->prefix . 'superforms_entry_data';
-
-			// Count unique entries in EAV table (source of truth)
-			$actual_migrated = (int) $wpdb->get_var(
-				"SELECT COUNT(DISTINCT entry_id) FROM {$table_name}"
-			);
-
-			// Get current migration state
-			$migration = get_option( 'superforms_eav_migration', array() );
-			$old_count = isset( $migration['migrated_entries'] ) ? (int) $migration['migrated_entries'] : 0;
-
-			// Only update if different (prevents unnecessary writes)
-			if ( $old_count !== $actual_migrated ) {
-				$migration['migrated_entries'] = $actual_migrated;
-				update_option( 'superforms_eav_migration', $migration );
-
-				$difference = $old_count - $actual_migrated;
-				$overflow_pct = $old_count > 0 ? round( ( $difference / $old_count ) * 100, 1 ) : 0;
-
-				self::log(
-					"Counter recalculated: {$old_count} → {$actual_migrated} (corrected -{$difference} overflow, {$overflow_pct}%)",
-					'warning'
-				);
-			} else {
-				self::log( "Counter verified: {$actual_migrated} entries migrated (no correction needed)" );
+			} finally {
+				// GUARANTEED CLEANUP: Always release lock, even on exceptions
+				delete_transient( 'super_migration_schedule_lock' );
 			}
-
-			return $actual_migrated;
 		}
 
 		/**
@@ -694,12 +636,8 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 				$migration = get_option( 'superforms_eav_migration', array() );
 				$last_id = isset( $migration['last_processed_id'] ) ? (int) $migration['last_processed_id'] : 0;
 
-				// AUTO-CORRECT COUNTER: Recalculate from database on every batch
-				// This fixes counter overflow from race conditions or 'skipped' entries counted as success
-				self::recalculate_migration_counter();
-
-				// Reload migration state after recalculation
-				$migration = get_option( 'superforms_eav_migration', array() );
+				// Note: Counters are calculated live from database in get_migration_status()
+				// No need to store or recalculate them here
 
 				// Get server limits for real-time monitoring
 				$memory_limit = wp_convert_hr_to_bytes( ini_get( 'memory_limit' ) );
@@ -820,40 +758,39 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 					// CRITICAL FIX: Use strict comparison to avoid counting 'skipped' as success
 					// migrate_entry() returns: true (success), 'skipped' (empty entry), WP_Error (failure)
 					if ( $entry_result === true ) {
-						// SUCCESS: Entry migrated, increment counter
+						// SUCCESS: Entry migrated
 						$processed++;
 						$last_id = $entry_id;
-
-						// Update progress in state
-						if ( ! isset( $migration['migrated_entries'] ) ) {
-							$migration['migrated_entries'] = 0;
-						}
-						$migration['migrated_entries']++;
+						// Note: Counters calculated live from database, not stored
 					} elseif ( $entry_result === 'skipped' ) {
-						// SKIPPED: Entry has no data, don't count as migrated or failed
+						// SKIPPED: Entry has no data
 						$processed++;
 						$last_id = $entry_id;
-
-						// Track skipped entries separately
-						if ( ! isset( $migration['skipped_entries'] ) ) {
-							$migration['skipped_entries'] = 0;
-						}
-						$migration['skipped_entries']++;
-
+						// Note: Counters calculated live from database, not stored
 						self::log( "Entry {$entry_id} skipped (no data)" );
 					} else {
 						// FAILED: Migration error
 						$failed++;
 						$last_id = $entry_id; // Still increment to avoid infinite loop
 
-						// Add to failed entries list
-						if ( ! isset( $migration['failed_entries'] ) ) {
-							$migration['failed_entries'] = array();
-						}
-						$migration['failed_entries'][] = $entry_id;
-
 						$error_msg = is_wp_error( $entry_result ) ? $entry_result->get_error_message() : 'Unknown error';
-						self::log( "Entry {$entry_id} failed: {$error_msg}", 'warning' );
+
+						// Distinguish verification failures from actual migration failures
+						if ( is_wp_error( $entry_result ) && $entry_result->get_error_code() === 'verification_failed' ) {
+							// VERIFICATION FAILED: Entry migrated but data mismatch detected
+							if ( ! isset( $migration['verification_failed'] ) ) {
+								$migration['verification_failed'] = array();
+							}
+							$migration['verification_failed'][ $entry_id ] = $error_msg;
+							self::log( "Entry {$entry_id} verification failed: {$error_msg}", 'warning' );
+						} else {
+							// MIGRATION FAILED: Entry not migrated successfully
+							if ( ! isset( $migration['failed_entries'] ) ) {
+								$migration['failed_entries'] = array();
+							}
+							$migration['failed_entries'][ $entry_id ] = $error_msg;
+							self::log( "Entry {$entry_id} migration failed: {$error_msg}", 'warning' );
+						}
 					}
 				}
 
@@ -874,11 +811,15 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 				$migration['last_batch_processed_at'] = current_time( 'mysql' );
 				update_option( 'superforms_eav_migration', $migration );
 
-				// Calculate remaining entries
+				// Calculate remaining entries (excludes entries with only _cleanup_empty marker)
 				$total_remaining = $wpdb->get_var( $wpdb->prepare(
 					"SELECT COUNT(DISTINCT p.ID)
 					FROM {$wpdb->posts} p
-					LEFT JOIN {$table_name} e ON e.entry_id = p.ID
+					LEFT JOIN (
+					    SELECT DISTINCT entry_id
+					    FROM {$table_name}
+					    WHERE field_name != '_cleanup_empty'
+					) e ON e.entry_id = p.ID
 					WHERE p.post_type = %s
 					AND e.entry_id IS NULL",
 					'super_contact_entry'

@@ -204,13 +204,9 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 				$migration_state = array(
 					'status'                     => 'not_started',
 					'using_storage'              => 'serialized',
-					'total_entries'              => 0,
-					'migrated_entries'           => 0,
+					// Note: Counters calculated live in get_migration_status(), not stored
 					'failed_entries'             => array(),
-					'cleanup_queue'              => array(
-						'empty_posts'            => 0,  // Posts with no form data
-						'orphaned_meta'          => 0,  // Metadata without corresponding posts
-					),
+					'verification_failed'        => array(),
 					'started_at'                 => '',
 					'completed_at'               => '',
 					'last_processed_id'          => 0,

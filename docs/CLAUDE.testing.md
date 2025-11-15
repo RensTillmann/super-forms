@@ -299,9 +299,69 @@ When fixing bugs, test related functionality:
 ### Current Status
 
 - ✅ JSHint for JavaScript linting (`npm run jshint`)
+- ✅ Migration integration tests (Developer Tools)
 - ❌ No unit tests configured
-- ❌ No integration tests configured
 - ❌ No E2E tests configured
+
+### Migration Integration Tests
+
+**Location:** Developer Tools > Migration Controls > Integration Tests
+**File:** `/test/scripts/test-migration-integration.php`
+**Class:** `SUPER_Migration_Integration_Test`
+
+**Available Tests:**
+1. **Full Migration Flow** - Creates entries, migrates, verifies completion
+2. **Counter Accuracy** - Verifies live counter calculation matches database
+3. **Data Preservation** - Validates complex data preserved during migration
+4. **Empty Entry Handling** - Verifies empty entries marked for cleanup
+5. **Lock Mechanism** - Tests migration lock prevents concurrent processing
+6. **Resume from Failure** - Validates resumption from last_processed_id
+
+**Test Data Sources:**
+- **Programmatic (Generated)** - Creates synthetic test data in code
+- **CSV Import** - Uses real production data from CSV files
+- **XML Import** - Future support for WordPress XML exports (placeholder)
+
+**Running Tests:**
+
+Via Developer Tools UI:
+1. Navigate to Super Forms > Developer Tools
+2. Scroll to "Migration Controls > Integration Tests"
+3. Select test data source (Programmatic/CSV/XML)
+4. If CSV/XML, choose import file from dropdown
+5. Select test to run from dropdown
+6. Click "Run Selected Test"
+7. View results in test output panel
+
+Via WP-CLI:
+```bash
+# Run all tests with programmatic data
+wp eval-file test/scripts/test-migration-integration.php
+
+# Run specific test with CSV import
+# (requires implementing CLI argument passing)
+```
+
+**CSV Test Data:**
+Preloaded test files are available on the development server:
+- `superforms-test-data-3943-entries.csv` (3.4 MB, 3,943 entries)
+- `superforms-test-data-3596-entries.csv` (2.8 MB, 3,596 entries)
+- `superforms-test-data-26581-entries.csv` (18 MB, 26,581 entries)
+
+**Test Safety:**
+- Only runs when `DEBUG_SF` is true
+- Only runs on dev/localhost environments (hostname whitelist)
+- All test data tagged with `_super_test_entry` meta
+- Automatic cleanup after each test
+- Independent test suites with isolated data
+- Tests use temporary data, don't affect production entries
+
+**Test Output:**
+- Real-time progress logging
+- Pass/fail status for each test
+- Detailed error messages on failure
+- Execution time tracking
+- Test cleanup confirmation
 
 ### Planned Testing Stack
 
