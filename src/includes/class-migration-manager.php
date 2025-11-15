@@ -165,8 +165,9 @@ class SUPER_Migration_Manager {
             'using_storage'        => 'serialized', // Still reading from serialized during migration
             'total_entries'        => intval($total_entries),
             'initial_total_entries' => intval($total_entries), // Snapshot - won't change during migration
-            'migrated_entries'     => 0,
+            // Note: migrated_entries calculated live in get_migration_status()
             'failed_entries'       => array(),
+            'verification_failed'  => array(),
             'cleanup_queue'        => array(
                 'empty_posts'      => 0,  // Posts with no form data
                 'orphaned_meta'    => 0,  // Metadata without corresponding posts
@@ -674,15 +675,15 @@ class SUPER_Migration_Manager {
         $migration_state = array(
             'status'               => 'not_started',
             'using_storage'        => 'serialized',
-            'total_entries'        => 0,
-            'migrated_entries'     => 0,
-            'skipped_entries'      => 0,
+            // Note: migrated_entries calculated live in get_migration_status()
             'failed_entries'       => array(),
+            'verification_failed'  => array(),
             'started_at'           => '',
             'completed_at'         => '',
             'last_processed_id'    => 0,
             'verification_passed'  => false,
             'rollback_available'   => false,
+            'batch_count'          => 0,
         );
 
         return update_option('superforms_eav_migration', $migration_state);
@@ -691,10 +692,17 @@ class SUPER_Migration_Manager {
     /**
      * Force complete migration without actually migrating data (for testing only)
      *
+     * SECURITY: Only works when DEBUG_SF constant is enabled
+     *
      * @since 6.0.0
      * @return array|WP_Error Migration state or error
      */
     public static function force_complete() {
+        // SECURITY: Prevent usage in production
+        if (!defined('DEBUG_SF') || !DEBUG_SF) {
+            return new WP_Error('not_allowed', __('This method only works when DEBUG_SF is enabled', 'super-forms'));
+        }
+
         $migration = get_option('superforms_eav_migration', array());
 
         if (empty($migration)) {
@@ -727,10 +735,17 @@ class SUPER_Migration_Manager {
     /**
      * Force switch to EAV storage without migrating (for testing only)
      *
+     * SECURITY: Only works when DEBUG_SF constant is enabled
+     *
      * @since 6.0.0
      * @return array|WP_Error Migration state or error
      */
     public static function force_switch_eav() {
+        // SECURITY: Prevent usage in production
+        if (!defined('DEBUG_SF') || !DEBUG_SF) {
+            return new WP_Error('not_allowed', __('This method only works when DEBUG_SF is enabled', 'super-forms'));
+        }
+
         $migration = get_option('superforms_eav_migration', array());
 
         if (empty($migration)) {

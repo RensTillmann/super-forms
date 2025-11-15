@@ -103,12 +103,8 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 		$is_upgrade = version_compare( $stored_version, $current_version, '<' );
 
 		if ( $is_upgrade ) {
-			// Check if setup is already running
-			if ( self::is_setup_running() ) {
-				return;
-			}
-
 			// ACQUIRE SETUP LOCK - prevents race conditions during table creation
+			// Lock handles duplicate prevention atomically, no need for pre-check
 			set_transient( self::SETUP_LOCK_KEY, 'yes', self::SETUP_LOCK_DURATION );
 
 			try {
@@ -249,16 +245,6 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 	}
 
 	/**
-	 * Check if setup routine is currently running
-	 *
-	 * @return bool
-	 * @since 6.4.111
-	 */
-	private static function is_setup_running() {
-		return 'yes' === get_transient( self::SETUP_LOCK_KEY );
-	}
-
-	/**
 	 * Calculate optimal batch size based on server resources and dataset size
 	 *
 	 * Uses resource-based calculation considering:
@@ -366,6 +352,15 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 	 * @since 6.0.0
 	 */
 	public static function needs_migration() {
+		// CACHE: Check transient cache first (60-second TTL)
+		// This reduces overhead from multiple calls per page load
+		$cache_key = 'superforms_needs_migration';
+		$cached = get_transient( $cache_key );
+
+		if ( $cached !== false ) {
+			return $cached === 'yes';
+		}
+
 		global $wpdb;
 
 		// Verify EAV table exists before attempting migration
@@ -375,6 +370,7 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 		if ( $table_exists !== $table_name ) {
 			// Table doesn't exist - can't migrate
 			// This will be auto-created by version detection if needed
+			set_transient( $cache_key, 'no', 60 ); // Cache for 60 seconds
 			return false;
 		}
 
@@ -395,7 +391,11 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 			)
 		);
 
-		return $unmigrated > 0;
+		// Cache result for 60 seconds
+		$needs_migration = $unmigrated > 0;
+		set_transient( $cache_key, $needs_migration ? 'yes' : 'no', 60 );
+
+		return $needs_migration;
 	}
 
 		/**
@@ -713,23 +713,8 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 				}
 				$migration['batch_count']++;
 
-				// OPTIMIZED COUNTER RECALCULATION: Only every 10 batches OR on anomaly detection
-				// This reduces overhead from ~100ms per batch to ~10ms average
-				$should_recalc = ( $migration['batch_count'] % 10 === 0 );
-				$has_anomaly = isset( $migration['migrated_entries'], $migration['total_entries'] )
-				            && ( $migration['migrated_entries'] > $migration['total_entries'] );
-
-				if ( $should_recalc || $has_anomaly ) {
-					self::recalculate_migration_counter();
-					if ( $has_anomaly ) {
-						self::log( '⚠ Anomaly detected, forced counter recalculation', 'warning' );
-					} else {
-						self::log( "Counter recalculated on batch #{$migration['batch_count']}" );
-					}
-				}
-
-				// Reload migration state after possible recalculation
-				$migration = get_option( 'superforms_eav_migration', array() );
+				// Note: Counter tracking simplified - no recalculation needed
+				// get_migration_status() always calculates live counts from database
 
 				// Get server limits for real-time monitoring
 				$memory_limit = wp_convert_hr_to_bytes( ini_get( 'memory_limit' ) );
@@ -850,25 +835,15 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 					// CRITICAL FIX: Use strict comparison to avoid counting 'skipped' as success
 					// migrate_entry() returns: true (success), 'skipped' (empty entry), WP_Error (failure)
 					if ( $entry_result === true ) {
-						// SUCCESS: Entry migrated, increment counter
+						// SUCCESS: Entry migrated
+						// Note: Counter tracking simplified - get_migration_status() calculates live from database
 						$processed++;
 						$last_id = $entry_id;
-
-						// Update progress in state
-						if ( ! isset( $migration['migrated_entries'] ) ) {
-							$migration['migrated_entries'] = 0;
-						}
-						$migration['migrated_entries']++;
 					} elseif ( $entry_result === 'skipped' ) {
-						// SKIPPED: Entry has no data, don't count as migrated or failed
+						// SKIPPED: Entry has no data
+						// Note: Skipped count calculated live in get_migration_status()
 						$processed++;
 						$last_id = $entry_id;
-
-						// Track skipped entries separately
-						if ( ! isset( $migration['skipped_entries'] ) ) {
-							$migration['skipped_entries'] = 0;
-						}
-						$migration['skipped_entries']++;
 
 						self::log( "Entry {$entry_id} skipped (no data)" );
 					} else {
