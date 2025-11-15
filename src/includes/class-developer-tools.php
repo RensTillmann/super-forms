@@ -62,8 +62,8 @@ if (!class_exists('SUPER_Developer_Tools')) :
 						throw new Exception($entry_id->get_error_message());
 					}
 
-					// 4. Save data via Data Access Layer (migration-aware!)
-					$result = SUPER_Data_Access::save_entry_data($entry_id, $entry_data);
+					// 4. Save data via Data Access Layer (force serialized format for testing migration)
+					$result = SUPER_Data_Access::save_entry_data($entry_id, $entry_data, 'serialized');
 
 					if (is_wp_error($result)) {
 						throw new Exception($result->get_error_message());

@@ -1506,156 +1506,139 @@ include_once 'includes/class-developer-tools.php';
 				}
 			}
 
-			// Check for unmigrated entries (imported data detection)
-			if ( current_user_can( 'manage_options' ) && class_exists( 'SUPER_Background_Migration' ) ) {
-				if ( SUPER_Background_Migration::needs_migration() ) {
-					$migration_status = SUPER_Migration_Manager::get_migration_status();
-					$total = !empty( $migration_status ) ? $migration_status['total_entries'] : 0;
-					$migrated = !empty( $migration_status ) ? $migration_status['migrated_entries'] : 0;
-					$is_running = !empty( $migration_status ) && $migration_status['status'] === 'in_progress';
+			// Show EAV migration notices
+			$this->show_migration_notices();
+		}
 
-					echo '<div class="notice notice-info super-migration-notice" id="super-migration-notice">';
-					echo '<style>
-						.super-migration-notice { position: relative; }
-						.super-migration-notice p { margin: 0.5em 0; }
-						.super-migration-notice .migration-progress { margin-top: 10px; display: none; }
-						.super-migration-notice .migration-progress.active { display: block; }
-						.super-migration-notice .progress-bar {
-							background: #f0f0f0;
-							height: 20px;
-							border-radius: 3px;
-							overflow: hidden;
-							margin: 8px 0;
-						}
-						.super-migration-notice .progress-fill {
-							background: #4EB1B6;
-							height: 100%;
-							transition: width 0.3s ease;
-							display: flex;
-							align-items: center;
-							justify-content: center;
-							color: white;
-							font-size: 11px;
-							font-weight: bold;
-						}
-					</style>';
-					echo '<p>';
-					echo '<strong>' . esc_html__( 'Super Forms Database Update Available', 'super-forms' ) . '</strong><br>';
-					echo esc_html__( 'Database optimization required for improved performance.', 'super-forms' );
-					echo '</p>';
 
-					echo '<p>';
-					if ( $is_running ) {
-						echo '<button type="button" class="button button-secondary" disabled>';
-						echo esc_html__( 'Migration Running...', 'super-forms' );
-						echo '</button>';
-					} else {
-						echo '<button type="button" class="button button-primary" id="super-start-migration-btn">';
-						echo esc_html__( 'Upgrade Database in Background', 'super-forms' );
-						echo '</button>';
-					}
-					echo ' <a href="' . esc_url( admin_url( 'admin.php?page=super_developer_tools' ) ) . '" class="button button-secondary">';
-					echo esc_html__( 'Learn More', 'super-forms' );
-					echo '</a>';
-					echo '</p>';
+	/**
+	 * Show EAV migration admin notices
+	 *
+	 * @since 6.0.0
+	 */
+	public function show_migration_notices() {
+		$migration_status = SUPER_Migration_Manager::get_migration_status();
 
-					echo '<div class="migration-progress' . ( $is_running ? ' active' : '' ) . '">';
-					echo '<div class="progress-bar">';
-					$percent = $total > 0 ? round( ( $migrated / $total ) * 100 ) : 0;
-					echo '<div class="progress-fill" style="width: ' . $percent . '%"><span class="progress-text">' . $percent . '%</span></div>';
-					echo '</div>';
-					echo '<p class="migration-status-text">';
-					echo esc_html__( 'Upgrading database... You can navigate away or close this tab.', 'super-forms' );
-					echo '</p>';
-					echo '</div>';
+		$screen = get_current_screen();
+		// Only show on Super Forms admin pages
+		if ( ! $screen || strpos( $screen->id, 'super' ) === false ) {
+			return;
+		}
 
-					// JavaScript for button and progress polling
-					echo '<script>
-					jQuery(document).ready(function($) {
-						var pollInterval = null;
+		// Phase 1: Pre-migration warning (not started)
+		if ( empty( $migration_status ) || $migration_status['status'] === 'not_started' ) {
+			// Count entries to show in notice
+			global $wpdb;
+			$entry_count = $wpdb->get_var(
+				"SELECT COUNT(*) FROM {$wpdb->posts}
+				WHERE post_type = 'super_contact_entry'
+				AND post_status IN ('publish', 'super_read', 'super_unread')"
+			);
 
-						// Start migration button click
-						$("#super-start-migration-btn").on("click", function() {
-							var btn = $(this);
-							btn.prop("disabled", true).text("' . esc_js( __( 'Starting...', 'super-forms' ) ) . '");
+			if ( $entry_count > 0 ) {
+				echo '<div class="notice notice-warning" style="border-left-color: #f0b429;"><p>';
+				printf(
+					esc_html__( '%1$sSuper Forms Database Update Required%2$s', 'super-forms' ),
+					'<strong>',
+					'</strong>'
+				);
+				echo '<br>';
+				printf(
+					esc_html__( 'A new version of Super Forms requires a database update to improve performance. %1$d contact entries need to be migrated.', 'super-forms' ),
+					$entry_count
+				);
+				echo '</p><p>';
+				echo '<a href="' . esc_url( admin_url( 'admin.php?page=super_developer_tools' ) ) . '" class="button button-primary">';
+				echo esc_html__( 'Start Database Update', 'super-forms' );
+				echo '</a> ';
+				echo '<a href="' . esc_url( admin_url( 'admin.php?page=super_developer_tools' ) ) . '" class="button button-secondary">';
+				echo esc_html__( 'Learn More', 'super-forms' );
+				echo '</a>';
+				echo '</p></div>';
+			}
+			return;
+		}
 
-							// Trigger migration via AJAX
-							$.ajax({
-								url: ajaxurl,
-								type: "POST",
-								data: {
-									action: "super_start_migration",
-									nonce: "' . wp_create_nonce( 'super-form-builder' ) . '"
-								},
-								success: function(response) {
-									if (response.success) {
-										btn.text("' . esc_js( __( 'Migration Running...', 'super-forms' ) ) . '");
-										$(".migration-progress").addClass("active");
-										startPolling();
-									} else {
-										btn.prop("disabled", false).text("' . esc_js( __( 'Upgrade Database in Background', 'super-forms' ) ) . '");
-										alert(response.data.message || "' . esc_js( __( 'Failed to start migration', 'super-forms' ) ) . '");
-									}
-								},
-								error: function() {
-									btn.prop("disabled", false).text("' . esc_js( __( 'Upgrade Database in Background', 'super-forms' ) ) . '");
-									alert("' . esc_js( __( 'Error starting migration', 'super-forms' ) ) . '");
-								}
-							});
-						});
+		// Phase 2: Migration in progress
+		if ( $migration_status['status'] === 'in_progress' ) {
+			$progress = $migration_status['total_entries'] > 0 ? round( ( $migration_status['migrated_entries'] / $migration_status['total_entries'] ) * 100, 2 ) : 0;
+			echo '<div class="notice notice-info"><p>';
+			printf(
+				esc_html__( '%1$sEAV Migration in Progress:%2$s %3$d of %4$d entries migrated (%5$s%%). %6$sView Migration Page%7$s', 'super-forms' ),
+				'<strong>',
+				'</strong>',
+				$migration_status['migrated_entries'],
+				$migration_status['total_entries'],
+				$progress,
+				'<a href="' . esc_url( admin_url( 'admin.php?page=super_developer_tools' ) ) . '">',
+				'</a>'
+			);
+			echo '</p></div>';
+		}
 
-						// Progress polling
-						function startPolling() {
-							if (pollInterval) clearInterval(pollInterval);
-
-							pollInterval = setInterval(function() {
-								$.ajax({
-									url: ajaxurl,
-									type: "POST",
-									data: {
-										action: "super_get_migration_status",
-										nonce: "' . wp_create_nonce( 'super-form-builder' ) . '"
-									},
-									success: function(response) {
-										if (response.success && response.data) {
-											var data = response.data;
-											var percent = data.total_entries > 0 ? Math.round((data.migrated_entries / data.total_entries) * 100) : 0;
-
-											$(".progress-fill").css("width", percent + "%");
-											$(".progress-text").text(percent + "%");
-
-											// Check if complete
-											if (data.status === "completed") {
-												clearInterval(pollInterval);
-
-												// Show completion message
-												$("#super-migration-notice").removeClass("notice-info").addClass("notice-success");
-												$("#super-migration-notice p:first").html("<strong>' . esc_js( __( 'Database Upgrade Complete!', 'super-forms' ) ) . '</strong><br>' . esc_js( __( 'Your database has been successfully optimized.', 'super-forms' ) ) . '");
-												$("#super-start-migration-btn").parent().html("<button type=\"button\" class=\"button button-primary\" id=\"super-dismiss-migration\">' . esc_js( __( 'Dismiss', 'super-forms' ) ) . '</button>");
-												$(".migration-progress").hide();
-
-												// Dismiss button handler
-												$("#super-dismiss-migration").on("click", function() {
-													$("#super-migration-notice").fadeOut(function() {
-														$(this).remove();
-													});
-												});
-											}
-										}
-									}
-								});
-							}, 2000); // Poll every 2 seconds
-						}
-
-						// Auto-start polling if migration already running
-						' . ( $is_running ? 'startPolling();' : '' ) . '
-					});
-					</script>';
-
-					echo '</div>';
-				}
+		// Phase 3: Migration completed - show success notice once
+		if ( $migration_status['status'] === 'completed' && $migration_status['using_storage'] === 'eav' ) {
+			if ( ! get_user_meta( get_current_user_id(), 'super_migration_completed_dismissed', true ) ) {
+				echo '<div class="notice notice-success is-dismissible" data-dismissible="super_migration_completed"><p>';
+				printf(
+					esc_html__( '%1$sEAV Migration Complete!%2$s Your contact entries are now using optimized storage. %3$sView Migration Page%4$s', 'super-forms' ),
+					'<strong>',
+					'</strong>',
+					'<a href="' . esc_url( admin_url( 'admin.php?page=super_developer_tools' ) ) . '">',
+					'</a>'
+				);
+				echo '</p></div>';
 			}
 		}
+
+		// Phase 4: Rollback warning - show impact of rolling back
+		if ( $migration_status['status'] === 'completed' && $migration_status['using_storage'] === 'serialized' ) {
+			// This means we rolled back after migration
+			if ( ! get_user_meta( get_current_user_id(), 'super_migration_rollback_dismissed', true ) ) {
+				global $wpdb;
+
+				// Count entries edited/created after migration
+				$migration_completed_date = isset( $migration_status['completed_at'] ) ? $migration_status['completed_at'] : '';
+				$affected_count           = 0;
+
+				if ( ! empty( $migration_completed_date ) ) {
+					$affected_count = $wpdb->get_var(
+						$wpdb->prepare(
+							"SELECT COUNT(*) FROM {$wpdb->posts}
+							WHERE post_type = 'super_contact_entry'
+							AND post_modified > %s
+							AND post_status IN ('publish', 'super_read', 'super_unread')",
+							$migration_completed_date
+						)
+					);
+				}
+
+				echo '<div class="notice notice-error is-dismissible" data-dismissible="super_migration_rollback"><p>';
+				printf(
+					esc_html__( '%1$sStorage Rolled Back to Serialized%2$s', 'super-forms' ),
+					'<strong>',
+					'</strong>'
+				);
+				echo '<br>';
+				echo esc_html__( 'Contact entries are currently using the old serialized storage method.', 'super-forms' );
+				if ( $affected_count > 0 ) {
+					echo '<br>';
+					printf(
+						esc_html__( '%1$sWarning:%2$s %3$d entries were modified after migration. These changes may be lost if you re-migrate.', 'super-forms' ),
+						'<strong>',
+						'</strong>',
+						$affected_count
+					);
+				}
+				echo '</p><p>';
+				echo '<a href="' . esc_url( admin_url( 'admin.php?page=super_developer_tools' ) ) . '" class="button button-primary">';
+				echo esc_html__( 'View Migration Status', 'super-forms' );
+				echo '</a>';
+				echo '</p></div>';
+			}
+		}
+	}
+
 
 		/**
 		 * Show what's new message
@@ -1708,12 +1691,12 @@ include_once 'includes/class-developer-tools.php';
 				SUPER_Install::install();
 			}
 
-			// Initialize custom update checker (checks f4d.nl for new versions)
-			require_once 'includes/class-update-checker.php';
-			new SUPER_Update_Checker(
-				__FILE__,
-				'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=' . $this->slug,
-				SUPER_VERSION
+			$slug = $this->slug;
+			require_once 'includes/admin/plugin-update-checker/plugin-update-checker.php';
+			$MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
+				'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=' . $slug,  // Metadata URL
+				__FILE__, // Full path to the main plugin file.
+				$slug // Plugin slug. Usually it's the same as the name of the directory.
 			);
 		}
 
@@ -1807,12 +1790,10 @@ include_once 'includes/class-developer-tools.php';
 				if ( $use_eav ) {
 					// Join EAV table (indexed field_value - much faster)
 					$table_eav = $wpdb->prefix . 'superforms_entry_data';
-					$join     .= " INNER JOIN $table_eav ON $table_eav.entry_id = $table_posts.ID";
-					// Also need postmeta for IP and status fields referenced in WHERE clause
-					$join     .= " LEFT JOIN $table_meta ON $table_meta.post_id = $table_posts.ID";
+					$join      = "INNER JOIN $table_eav ON $table_eav.entry_id = $table_posts.ID";
 				} else {
 					// Fallback to postmeta join (pre-migration)
-					$join     .= " INNER JOIN $table_meta ON $table_meta.post_id = $table_posts.ID";
+					$join      = "INNER JOIN $table_meta ON $table_meta.post_id = $table_posts.ID";
 				}
 			}
 			return $join;
@@ -2338,8 +2319,7 @@ include_once 'includes/class-developer-tools.php';
 				} elseif ( $field[0] == 'entry_status' ) {
 					$columns['entry_status'] = $field[1];
 				} else {
-				// Register with sf_ prefix to avoid collision with WordPress built-in columns (title, date, etc.)
-				$columns = array_merge( $columns, array( 'sf_' . $field[0] => $field[1] ) );
+					$columns = array_merge( $columns, array( $field[0] => $field[1] ) );
 				}
 			}
 
@@ -2430,8 +2410,7 @@ include_once 'includes/class-developer-tools.php';
 					if ( in_array( $field_parts[0], array( 'entry_status', 'hidden_form_id', 'contact_entry_ip' ) ) ) {
 						continue;
 					}
-				// Register with sf_ prefix to avoid collision with WordPress built-in columns (title, date, etc.)
-				$columns[ 'sf_' . $field_parts[0] ] = 'sf_' . $field_parts[0];
+					$columns[ $field_parts[0] ] = $field_parts[0];
 				}
 			}
 		}
@@ -2488,12 +2467,7 @@ include_once 'includes/class-developer-tools.php';
 			return "(SELECT meta_value FROM $table_meta WHERE post_id = $table.ID AND meta_key = '_super_contact_entry_ip' LIMIT 1) $order";
 		}
 
-	// Handle custom field sorting (prefixed with sf_)
-	if ( strpos( $orderby_param, 'sf_' ) === 0 ) {
-		// Extract field name by removing sf_ prefix
-		$field_name = substr( $orderby_param, 3 );
-		
-		// Check if using EAV storage
+		// Handle custom field sorting
 		$migration = get_option( 'superforms_eav_migration' );
 		$use_eav   = false;
 		if ( ! empty( $migration ) && $migration['status'] === 'completed' ) {
@@ -2501,19 +2475,16 @@ include_once 'includes/class-developer-tools.php';
 		}
 
 		if ( $use_eav ) {
-			// Use EAV table for custom field sorting (much faster, indexed)
-			$table_eav  = $wpdb->prefix . 'superforms_entry_data';
-			$field_name = esc_sql( $field_name );
+			// Use EAV table for custom field sorting (much faster)
+			$table_eav = $wpdb->prefix . 'superforms_entry_data';
+			$field_name = esc_sql( $orderby_param );
 			return "(SELECT field_value FROM $table_eav WHERE entry_id = $table.ID AND field_name = '$field_name' LIMIT 1) $order";
 		} else {
-			// Fallback to default WordPress sorting (pre-migration)
-			// Custom fields can't be sorted from serialized data
-			return $orderby;
+			// Fallback to serialized sorting (slower, but works pre-migration)
+			// Note: This requires the data to be unserialized, which is slow
+			// Users should complete migration for optimal sorting performance
+			return $orderby; // Use default WordPress sorting
 		}
-	}
-
-	// For all other columns (title, date, etc.), use default WordPress sorting
-	return $orderby;
 	}
 
 	public function super_custom_columns( $column, $post_id ) {
@@ -2559,13 +2530,9 @@ include_once 'includes/class-developer-tools.php';
 			} elseif ( $column == 'contact_entry_ip' ) {
 				$entry_ip = get_post_meta( $post_id, '_super_contact_entry_ip', true );
 				echo $entry_ip . ' [<a href="' . esc_url( 'http://whois.domaintools.com/' . $entry_ip ) . '" target="_blank">Whois</a>]';
-	} elseif ( strpos( $column, 'sf_' ) === 0 ) {
-			// Custom field column (strip sf_ prefix to get actual field name)
-			$field_name = substr( $column, 3 );
-			if ( isset( $contact_entry_data[0][ $field_name ] ) ) {
-				echo esc_html( $contact_entry_data[0][ $field_name ]['value'] );
+			} elseif ( isset( $contact_entry_data[0][ $column ] ) ) {
+					echo esc_html( $contact_entry_data[0][ $column ]['value'] );
 			}
-		}
 		}
 		public function super_remove_row_actions( $actions ) {
 			if ( get_post_type() === 'super_form' ) {

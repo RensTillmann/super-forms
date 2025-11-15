@@ -140,22 +140,27 @@ jQuery(document).ready(function($) {
 
     // Import CSV button
     $('#import-csv-btn').on('click', function() {
-        if (!csvFile) {
+        if (!csvFile && !preloadedFile) {
             alert('Please select a CSV file first.');
             return;
         }
-        
+
         if (importInProgress) {
             alert('An import is already in progress.');
             return;
         }
-        
+
         // Get options
         var tagAsTest = $('#tag-as-test').is(':checked');
         var autoMigrate = $('#auto-migrate').is(':checked');
-        
+
         // Confirm import
-        var message = 'Import ' + csvFile.name + ' (' + formatBytes(csvFile.size) + ')?\n\n';
+        var message = '';
+        if (preloadedFile) {
+            message = 'Import ' + preloadedFile + ' (Pre-uploaded on server)?\n\n';
+        } else {
+            message = 'Import ' + csvFile.name + ' (' + formatBytes(csvFile.size) + ')?\n\n';
+        }
         message += 'Options:\n';
         message += '- Tag as test entries: ' + (tagAsTest ? 'Yes' : 'No') + '\n';
         message += '- Auto-migrate after import: ' + (autoMigrate ? 'Yes' : 'No');

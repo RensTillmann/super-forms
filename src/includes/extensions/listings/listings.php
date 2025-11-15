@@ -2938,6 +2938,7 @@ END AS paypalSubscriptionId
             LEFT JOIN $wpdb->usermeta AS author_firstname ON author_firstname.user_id = post.post_author AND author_firstname.meta_key = 'first_name'
             LEFT JOIN $wpdb->usermeta AS author_lastname ON author_lastname.user_id = post.post_author AND author_lastname.meta_key = 'last_name'
             LEFT JOIN $wpdb->usermeta AS author_nickname ON author_nickname.user_id = post.post_author AND author_nickname.meta_key = 'nickname'
+            $eav_joins
             WHERE post.post_type = 'super_contact_entry' AND post.post_status != 'trash'
             $where
             $having
