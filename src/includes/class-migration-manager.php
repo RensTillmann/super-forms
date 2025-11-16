@@ -39,7 +39,7 @@ class SUPER_Migration_Manager {
     const DEFAULT_MEMORY_LIMIT_MB = 256;
 
     /**
-     * Register AJAX handlers for migration management
+     * Register AJAX handlers and backwards compatibility hooks
      * Called on plugin init to ensure handlers are always available
      * @since 6.4.127
      */
@@ -63,6 +63,89 @@ class SUPER_Migration_Manager {
         if (!has_action('wp_ajax_super_run_migration_tests')) {
             add_action('wp_ajax_super_run_migration_tests', array(__CLASS__, 'ajax_run_migration_tests'));
         }
+
+        // Register backwards compatibility hooks for third-party code
+        self::register_backwards_compat_hooks();
+    }
+
+    /**
+     * Register WordPress meta hooks for backwards compatibility
+     *
+     * Intercepts get_post_meta() and update_post_meta() calls for _super_contact_entry_data
+     * and routes them to EAV storage after migration completes. This ensures third-party
+     * code using direct meta access continues working indefinitely.
+     *
+     * @since 6.4.128
+     */
+    private static function register_backwards_compat_hooks() {
+        // Intercept reads of serialized data - route to EAV
+        add_filter('get_post_metadata', array(__CLASS__, 'intercept_get_entry_data'), 10, 4);
+
+        // Intercept writes to serialized data - route to EAV
+        add_filter('update_post_metadata', array(__CLASS__, 'intercept_update_entry_data'), 10, 5);
+    }
+
+    /**
+     * Intercept get_post_meta() for _super_contact_entry_data
+     * Routes third-party code to EAV storage after migration completes
+     *
+     * @since 6.4.128
+     * @param mixed $value The value to return (null = use WordPress default)
+     * @param int $object_id Post ID
+     * @param string $meta_key Meta key being retrieved
+     * @param bool $single Whether to return single value
+     * @return mixed Entry data from EAV or null to continue normal WordPress behavior
+     */
+    public static function intercept_get_entry_data($value, $object_id, $meta_key, $single) {
+        // Fast bailout for non-entry metadata
+        if ($meta_key !== '_super_contact_entry_data') {
+            return $value;
+        }
+
+        $migration = get_option('superforms_eav_migration', array());
+
+        // Only intercept if migration completed
+        if (empty($migration) || !isset($migration['status']) || $migration['status'] !== 'completed') {
+            return $value; // Let WordPress handle it normally
+        }
+
+        // Get data from EAV tables
+        $data = SUPER_Data_Access::get_entry_data($object_id);
+
+        // Return in format WordPress expects
+        return $single ? $data : array($data);
+    }
+
+    /**
+     * Intercept update_post_meta() for _super_contact_entry_data
+     * Routes third-party code to EAV storage after migration completes
+     *
+     * @since 6.4.128
+     * @param null|bool $check Whether to short-circuit (true = skip WordPress save)
+     * @param int $object_id Post ID
+     * @param string $meta_key Meta key being updated
+     * @param mixed $meta_value New value
+     * @param mixed $prev_value Previous value
+     * @return null|bool Null to continue WordPress behavior, true to skip it
+     */
+    public static function intercept_update_entry_data($check, $object_id, $meta_key, $meta_value, $prev_value) {
+        // Fast bailout for non-entry metadata
+        if ($meta_key !== '_super_contact_entry_data') {
+            return $check;
+        }
+
+        $migration = get_option('superforms_eav_migration', array());
+
+        // Only intercept if migration completed
+        if (empty($migration) || !isset($migration['status']) || $migration['status'] !== 'completed') {
+            return $check; // Let WordPress handle it normally
+        }
+
+        // Save to EAV tables
+        SUPER_Data_Access::save_entry_data($object_id, $meta_value);
+
+        // Return true to skip WordPress's normal metadata save
+        return true;
     }
 
     /**

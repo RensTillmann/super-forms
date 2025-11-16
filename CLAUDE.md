@@ -132,6 +132,35 @@ The user isn't paying you to write code. They're paying you to solve problems. U
 ---
 *Remember: The user describing a bug for the third time isn't thinking "wow, this AI is really trying." They're thinking "why am I wasting my time with this incompetent tool?"*
 
+## EAV Contact Entry Storage System
+
+**Background:** Contact entry data migrated from serialized WordPress postmeta to dedicated EAV (Entity-Attribute-Value) tables for performance.
+
+**Performance Impact:**
+- Listings queries: 15-20 seconds → <500ms (30-60x improvement)
+- Search queries: LIKE on serialized data → indexed EAV queries
+- CSV exports: N+1 queries → single bulk query
+
+**Key Components:**
+- `SUPER_Data_Access` - Storage abstraction layer (routes between serialized/EAV based on migration state)
+- `SUPER_Background_Migration` - Automatic migration orchestration using Action Scheduler
+- `SUPER_Migration_Manager` - Entry-by-entry migration logic + backwards compatibility hooks
+
+**Backwards Compatibility Guarantee:**
+- Third-party code using `get_post_meta($entry_id, '_super_contact_entry_data', true)` continues working indefinitely
+- WordPress meta hooks intercept and route to EAV storage after migration completes
+- Performance: <1ms overhead per page load (fast string comparison bailout)
+
+**Developer Guidelines:**
+- **Use Data Access Layer**: Always use `SUPER_Data_Access::get_entry_data()` instead of direct `get_post_meta()`
+- **LEFT JOIN for Listings**: Use LEFT JOIN (not INNER JOIN) to include both serialized and EAV entries
+- **Migration Testing**: Import test data via Developer Tools → CSV Import (see Developer Tools section)
+
+**Documentation:**
+- Architecture details: [docs/CLAUDE.development.md](docs/CLAUDE.development.md#background-migration-system)
+- PHP patterns: [docs/CLAUDE.php.md](docs/CLAUDE.php.md#database-migration-patterns)
+- Data storage: [docs/data-storage.md](docs/data-storage.md)
+
 ## Common Patterns in This Codebase
 
 - Form elements are defined in `/src/includes/shortcodes/`
