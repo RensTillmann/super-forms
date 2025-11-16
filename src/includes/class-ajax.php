@@ -1297,8 +1297,20 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			$id       = absint( $_POST['id'] );
 			$new_data = $_POST['data'];
 
+			// Check if migration is in progress
+			$migration = get_option( 'superforms_eav_migration', array() );
+			if ( ! empty( $migration ) && isset( $migration['status'] ) && is_string( $migration['status'] ) && $migration['status'] === 'in_progress' ) {
+				SUPER_Common::output_message(
+					array(
+						'error' => true,
+						'msg'   => esc_html__( 'Entry editing is temporarily disabled while database migration is in progress. Please wait for migration to complete.', 'super-forms' ),
+					)
+				);
+				die();
+			}
+
 			// @since 3.3.0 - update Contact Entry title
-			$entry_title = $new_data['super_contact_entry_post_title'];
+			$entry_title = sanitize_text_field( $new_data['super_contact_entry_post_title'] );
 			unset( $new_data['super_contact_entry_post_title'] );
 			$entry = array(
 				'ID'         => $id,
@@ -1307,7 +1319,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			wp_update_post( $entry );
 
 			// @since 3.4.0 - update contact entry status
-			$entry_status = $_POST['entry_status'];
+			$entry_status = sanitize_text_field( $_POST['entry_status'] );
 			update_post_meta( $id, '_super_contact_entry_status', $entry_status );
 
 			$data = SUPER_Data_Access::get_entry_data( $id );
@@ -5012,6 +5024,17 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 
 			// @since 2.2.0 - update contact entry data by ID
 			if ( $entry_id != 0 ) {
+				// Check if migration is in progress
+				$migration = get_option( 'superforms_eav_migration', array() );
+				if ( ! empty( $migration ) && isset( $migration['status'] ) && is_string( $migration['status'] ) && $migration['status'] === 'in_progress' ) {
+					SUPER_Common::output_message(
+						array(
+							'error' => true,
+							'msg'   => esc_html__( 'Entry editing is temporarily disabled while database migration is in progress. Please try again in a few moments.', 'super-forms' ),
+						)
+					);
+					die();
+				}
 				$update_entry_status = false;
 				if ( isset( $final_entry_data['update_entry_status'] ) ) {
 					$update_entry_status = $final_entry_data['update_entry_status']['value'];
