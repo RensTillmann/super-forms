@@ -14,7 +14,7 @@
 Super Forms is a WordPress drag & drop form builder plugin with various add-ons and extensions.
 
 **Tech Stack:**
-- WordPress plugin (PHP 7.4+, WordPress 5.8+)
+- WordPress plugin (PHP 7.4+, WordPress 6.4+)
 - React for Email Builder v2
 - jQuery for form builder and frontend
 - SASS for styling
@@ -25,6 +25,39 @@ Super Forms is a WordPress drag & drop form builder plugin with various add-ons 
 - `/dist/` - Production build output
 - `/docs/` - Documentation
 - `/sessions/` - Task management and session state
+
+## Action Scheduler: Bundled Library Architecture
+
+**Critical Understanding:** Action Scheduler is NOT part of WordPress core - it's a third-party library bundled within Super Forms.
+
+**Current Bundled Version:** 3.9.3
+- Location: `/src/includes/lib/action-scheduler/`
+- Requirements: PHP 7.2+, WordPress 6.5+
+- Loaded early: Before `plugins_loaded` hook in `super-forms.php` line 168
+
+**Version Conflict Resolution:**
+WordPress uses automatic version resolution when multiple plugins bundle Action Scheduler:
+1. Each plugin registers its bundled version via `ActionScheduler_Versions::register()`
+2. WordPress loads the HIGHEST version number across all plugins
+3. That single version handles background tasks for ALL plugins using Action Scheduler
+
+**Why Plugin Requirements Must Align:**
+
+The plugin's minimum requirements (PHP 7.4+, WordPress 6.4+) must be AT LEAST as strict as the bundled Action Scheduler's requirements. Here's why:
+
+- Action Scheduler v3.9.3 requires PHP 7.2+ minimum (uses nullable type syntax)
+- If Super Forms advertised PHP 5.4+ compatibility, users would encounter fatal errors
+- The plugin cannot function without Action Scheduler (used for migration, cleanup, background processing)
+
+**Version Update Protocol:**
+
+When updating the bundled Action Scheduler library:
+1. Check Action Scheduler's PHP/WordPress requirements in `action-scheduler.php` header
+2. Update Super Forms plugin requirements if Action Scheduler's are stricter
+3. Test version resolution behavior if other plugins bundle different versions
+4. Document version change in changelog
+
+**Reference:** Plugin requirements updated from WP 4.9/PHP 5.4 to WP 6.4/PHP 7.4 to align with Action Scheduler v3.9.3 requirements.
 
 ## Task Management Guidelines
 

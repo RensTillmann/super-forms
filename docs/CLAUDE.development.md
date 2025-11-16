@@ -364,8 +364,11 @@ The automatic background migration system transforms contact entry data from ser
 - `SUPER_Install` - Database setup with self-healing capabilities
 
 **Infrastructure:**
-- Uses Action Scheduler library (v3.9.3) bundled at `src/includes/lib/action-scheduler/`
-- Falls back to WP-Cron if Action Scheduler unavailable
+- Uses Action Scheduler library v3.9.3 (bundled, NOT WordPress core)
+- Loaded early in `super-forms.php` (before `plugins_loaded` hook)
+- Version resolution: WordPress loads highest version if multiple plugins bundle it
+- Requires PHP 7.2+ minimum (Action Scheduler v3.9.3 requirement)
+- Falls back to WP-Cron if Action Scheduler unavailable (theoretical - always loaded in Super Forms)
 - Self-scheduling pattern: each batch schedules the next batch
 - Survives browser closings, server restarts, and PHP timeouts
 

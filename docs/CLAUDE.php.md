@@ -4,10 +4,27 @@
 
 ### Environment
 
-- WordPress plugin requiring PHP 7.4+ and WordPress 5.8+
+- WordPress plugin requiring PHP 7.4+ and WordPress 6.4+
 - Uses jQuery (but prefers vanilla JavaScript for frontend interactions and WordPress REST API)
 - Includes various third-party integrations (PayPal, Mailchimp, WooCommerce, etc.)
 - Action Scheduler library (v3.9.3) for background processing
+
+### Bundled Libraries
+
+**Action Scheduler v3.9.3:**
+- Third-party library bundled within Super Forms (NOT WordPress core)
+- Location: `/src/includes/lib/action-scheduler/`
+- Loaded: Early in plugin bootstrap (before `plugins_loaded` hook)
+- Requirements: PHP 7.2+, WordPress 6.5+
+- Version Conflict Resolution: WordPress automatically loads highest version when multiple plugins bundle it
+- Developer: Automattic (WooCommerce team)
+- License: GPLv3
+
+**Impact on Plugin Requirements:**
+Super Forms' minimum PHP/WordPress requirements must be at least as strict as any bundled library's requirements. Action Scheduler v3.9.3 requires PHP 7.2+, which influenced the decision to set Super Forms' minimum to PHP 7.4+.
+
+**Common Misconception:**
+Action Scheduler is often assumed to be part of WordPress core because it's widely used (WooCommerce, Subscriptions, etc.). It's actually a standalone library that plugins bundle and WordPress resolves at runtime.
 
 ### Core WordPress Development Principles
 
