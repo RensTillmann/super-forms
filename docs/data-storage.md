@@ -25,8 +25,15 @@ All entries are stored inside `wp_posts` table as post_type `super_contact_entry
   - **v6.4.111-6.4.125:** Automatic background migration implementation using Action Scheduler
 - **Performance:** EAV storage provides 10-100x faster queries for search, filtering, and sorting
 - **Security:** All migration queries use prepared statements and proper sanitization (v6.4.126+)
+- **Entry Editing Lock:** Entry editing (both admin and front-end) is temporarily disabled while migration is in progress to prevent data integrity issues
 
 The system automatically handles the transition transparently - no user action required.
+
+**During Migration (status = 'in_progress'):**
+- Entry viewing: Allowed (read-only operations are safe)
+- Entry creation: Allowed (new entries use dual-write to both storage formats)
+- Entry editing: **Blocked** (prevents race conditions and data inconsistencies)
+- Entry deletion: Allowed (deletes from both storage formats)
 
 ## Where are the Forms stored?
 

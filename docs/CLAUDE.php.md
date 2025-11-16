@@ -700,6 +700,59 @@ add_action('plugins_loaded', function() {
 
 **Reference:** Implemented in v6.4.126 after discovering production data loss risk.
 
+### Entry Editing Lock During Migration
+
+**CRITICAL:** Entry editing must be blocked during migration to prevent data integrity issues and race conditions.
+
+**The Problem:**
+During migration (status = 'in_progress'), the system uses dual-write to maintain both serialized and EAV storage formats. If an admin edits an entry while migration is processing it, race conditions can occur:
+- Admin loads entry #500 (reads from serialized storage)
+- Migration processes entry #500 (writes to EAV storage)
+- Admin saves changes (writes to both storages, potentially overwriting migration data)
+
+**The Solution - AJAX Handler Protection:**
+
+```php
+public static function update_contact_entry() {
+    $id = absint($_POST['id']);
+    $new_data = $_POST['data'];
+
+    // Check if migration is in progress
+    $migration = get_option('superforms_eav_migration', array());
+    if (!empty($migration) && isset($migration['status']) && is_string($migration['status']) && $migration['status'] === 'in_progress') {
+        SUPER_Common::output_message(array(
+            'error' => true,
+            'msg' => esc_html__('Entry editing is temporarily disabled while database migration is in progress. Please wait for migration to complete.', 'super-forms')
+        ));
+        die();
+    }
+
+    // ... rest of entry update logic
+}
+```
+
+**Key Implementation Details:**
+1. **Check migration STATUS, not lock state** - Migration status persists for entire duration (hours), while lock is only held during batch processing (seconds)
+2. **Type validation** - Use `is_string($migration['status'])` to prevent type coercion edge cases
+3. **Input sanitization** - All user input must be sanitized with `sanitize_text_field()` for security
+4. **Server-side blocking** - AJAX-level checks provide better UX than UI-level blocking (migration might complete while admin is editing)
+
+**Protected AJAX Handlers:**
+- `update_contact_entry()` - Admin back-end entry editing (class-ajax.php line 1296)
+- `submit_form()` - Front-end entry editing when entry_id parameter present (class-ajax.php line 5027)
+
+**Not Protected (Intentionally Safe):**
+- New entry creation - Uses dual-write during migration, safe to create new entries
+- Entry deletion - Deletes from both storage formats
+- Entry viewing - Read-only operations don't modify data
+
+**Security Improvements (v6.4.126):**
+- Added `sanitize_text_field()` to entry title input
+- Added `sanitize_text_field()` to entry status input
+- Added `is_string()` type validation to migration status checks
+
+**Reference:** Implemented in subtask 14 of EAV migration plan.
+
 ### Migration Cleanup After Completion
 
 After successful migration, clean up old data to reduce database bloat:
