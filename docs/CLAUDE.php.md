@@ -753,6 +753,127 @@ public static function update_contact_entry() {
 
 **Reference:** Implemented in subtask 14 of EAV migration plan.
 
+### Backwards Compatibility Meta Hooks
+
+**CRITICAL:** When migrating from one data storage format to another, third-party code and integrations may continue using direct WordPress meta access. Use WordPress meta hooks to intercept and route these calls transparently.
+
+**The Problem:**
+After EAV migration, contact entry data lives in `wp_superforms_entry_data` table, not `wp_postmeta`. Third-party code using `get_post_meta($entry_id, '_super_contact_entry_data', true)` would receive empty results, breaking integrations.
+
+**The Solution - WordPress Meta Hook Interception:**
+
+```php
+/**
+ * Register WordPress meta hooks for backwards compatibility
+ * Intercepts get_post_meta() and update_post_meta() calls
+ *
+ * @since 6.4.128
+ */
+private static function register_backwards_compat_hooks() {
+    // Intercept reads of serialized data - route to EAV
+    add_filter('get_post_metadata', array(__CLASS__, 'intercept_get_entry_data'), 10, 4);
+
+    // Intercept writes to serialized data - route to EAV
+    add_filter('update_post_metadata', array(__CLASS__, 'intercept_update_entry_data'), 10, 5);
+}
+
+/**
+ * Intercept get_post_meta() for _super_contact_entry_data
+ * Routes third-party code to EAV storage after migration completes
+ *
+ * @param mixed $value The value to return (null = use WordPress default)
+ * @param int $object_id Post ID
+ * @param string $meta_key Meta key being retrieved
+ * @param bool $single Whether to return single value
+ * @return mixed Entry data from EAV or null to continue normal behavior
+ */
+public static function intercept_get_entry_data($value, $object_id, $meta_key, $single) {
+    // Fast bailout for non-entry metadata (performance critical)
+    if ($meta_key !== '_super_contact_entry_data') {
+        return $value;
+    }
+
+    $migration = get_option('superforms_eav_migration', array());
+
+    // Only intercept if migration completed
+    if (empty($migration) || !isset($migration['status']) || $migration['status'] !== 'completed') {
+        return $value; // Let WordPress handle it normally
+    }
+
+    // Get data from EAV tables
+    $data = SUPER_Data_Access::get_entry_data($object_id);
+
+    // Return in format WordPress expects
+    return $single ? $data : array($data);
+}
+
+/**
+ * Intercept update_post_meta() for _super_contact_entry_data
+ * Routes third-party code to EAV storage after migration completes
+ *
+ * @param null|bool $check Whether to short-circuit (true = skip WordPress save)
+ * @param int $object_id Post ID
+ * @param string $meta_key Meta key being updated
+ * @param mixed $meta_value New value
+ * @param mixed $prev_value Previous value (unused in this implementation)
+ * @return null|bool Null to continue WordPress behavior, true to skip it
+ */
+public static function intercept_update_entry_data($check, $object_id, $meta_key, $meta_value, $prev_value) {
+    // Fast bailout for non-entry metadata
+    if ($meta_key !== '_super_contact_entry_data') {
+        return $check;
+    }
+
+    $migration = get_option('superforms_eav_migration', array());
+
+    // Only intercept if migration completed
+    if (empty($migration) || !isset($migration['status']) || $migration['status'] !== 'completed') {
+        return $check; // Let WordPress handle it normally
+    }
+
+    // Save to EAV tables
+    SUPER_Data_Access::save_entry_data($object_id, $meta_value);
+
+    // Return true to skip WordPress's normal metadata save
+    return true;
+}
+```
+
+**Key Implementation Details:**
+
+1. **Fast Bailout Pattern** - Check meta key FIRST with strict comparison (`!==`) before any other operations
+   - Performance: <1ms overhead per page load (string comparison bailout)
+   - Hooks fire for ALL metadata operations sitewide, so performance is critical
+
+2. **Migration State Check** - Only intercept after migration completes
+   - During migration: WordPress handles metadata normally (dual-write occurs in Data Access Layer)
+   - After migration: Hooks transparently route to EAV storage
+
+3. **Return Value Format** - Match WordPress's expected format
+   - `get_post_metadata`: Return `$single ? $data : array($data)` to match `get_post_meta()` behavior
+   - `update_post_metadata`: Return `true` to short-circuit WordPress's normal save operation
+
+4. **Hook Priority** - Use default priority (10) to run before other plugins
+
+**When to Use This Pattern:**
+- Data storage format changes (serialized → EAV, postmeta → custom table)
+- Must maintain backwards compatibility with third-party code
+- Cannot modify all external integrations (Zapier, Mailchimp, custom plugins)
+
+**Benefits:**
+- Third-party code continues working indefinitely without modifications
+- Transparent routing (external code unaware of storage change)
+- Zero breaking changes for users with custom integrations
+- Performance negligible (<1ms per page load due to fast bailout)
+
+**Important Notes:**
+- Hook fires for EVERY metadata operation sitewide (performance critical)
+- Always fast bailout with strict meta key comparison first
+- Only intercept when migration completed (don't interfere during migration)
+- Test with external integrations to verify backwards compatibility
+
+**Reference:** Implemented in v6.4.128 for EAV migration infinite backwards compatibility. Location: `src/includes/class-migration-manager.php` lines 71-149.
+
 ### Migration Cleanup After Completion
 
 After successful migration, clean up old data to reduce database bloat:
