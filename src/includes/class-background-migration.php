@@ -69,8 +69,6 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 			add_action( 'super_migration_cron_health', array( __CLASS__, 'health_check_action' ) );
 
 			// Debug: Hook into Action Scheduler to log action data before execution
-			// 30-day retention cleanup hook
-		add_action( 'superforms_cleanup_serialized_data', array( 'SUPER_Migration_Manager', 'cleanup_expired_serialized_data' ) );
 
 		add_action( 'action_scheduler_before_execute', array( __CLASS__, 'debug_action_scheduler' ), 10, 2 );
 
@@ -1168,11 +1166,6 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 			// Release lock
 			self::release_lock();
 
-			// Schedule daily cleanup for 30-day retention
-		if ( ! wp_next_scheduled( 'superforms_cleanup_serialized_data' ) ) {
-			wp_schedule_event( time() + DAY_IN_SECONDS, 'daily', 'superforms_cleanup_serialized_data' );
-			self::log( 'Scheduled daily cleanup for 30-day serialized data retention' );
-		}
 
 		// Cleanup Action Scheduler: Delete completed/failed migration actions
 			if ( class_exists( 'ActionScheduler_Store' ) && class_exists( 'ActionScheduler_DBStore' ) ) {

@@ -460,7 +460,7 @@ array(
     'failed_entries'        => array(123 => 'error message'),
     'verification_failed'   => array(456 => 'verification error'),
     'started_at'            => '2025-01-15 10:30:00',
-    'completed_at'          => '',
+    'completed_at'          => 1736951234,        // Unix timestamp (changed in v6.4.127)
     'last_processed_id'     => 4567,              // Resume point for interrupted migrations
     'verification_passed'   => false,
     'rollback_available'    => true
@@ -470,7 +470,7 @@ array(
 **Live-Calculated Fields (via `get_migration_status()`):**
 - `total_entries` - Current total count from database (uses snapshot during migration)
 - `migrated_entries` - Live count from EAV table (excludes cleanup markers)
-- `cleanup_queue` - Live counts for empty posts, posts without data, orphaned metadata
+- `cleanup_queue` - Live counts for empty posts, posts without data, orphaned metadata, **old_serialized_data** (added in v6.4.127)
 
 **Why Live Calculation?**
 - Database is single source of truth (no counter drift)
@@ -560,10 +560,17 @@ After FTP upload, many visitors hit site simultaneously. Each runs `check_versio
 **Action Scheduler Hooks:**
 - `superforms_migrate_batch` - Processes one batch of entries
 - `superforms_migration_health_check` - Hourly health check for stuck migrations
+- `super_cleanup_expired_sessions` - Cleans expired session data (every 5 minutes)
+- `super_cleanup_expired_uploads` - Cleans expired upload directories (every 5 minutes)
+- `super_cleanup_old_serialized_data` - Cleans serialized entry data after 30-day retention (every 5 minutes)
 
 **WP-Cron Fallback Hooks:**
 - `super_migration_cron_batch` - Processes batch if Action Scheduler unavailable
 - `super_migration_cron_health` - Health check via WP-Cron
+
+**Legacy Hooks (Deprecated):**
+- `super_client_data_garbage_collection` - Old WP-Cron cleanup (replaced by Action Scheduler hooks)
+- `super_client_data_cleanup` - Compatibility hook (fires Action Scheduler tasks)
 
 ### Monitoring & Troubleshooting
 
@@ -725,9 +732,134 @@ The migration system exposes several public methods for external access (e.g., A
 - State Init: `init_migration_state()` method (creates migration option)
 - Self-Healing: `ensure_tables_exist()` and `ensure_migration_state_initialized()` methods
 
+## Garbage Collection & Cleanup System
+
+### Overview
+The plugin uses Action Scheduler for reliable automatic cleanup of expired data (sessions, uploads, serialized entry data). This replaced the legacy WP-Cron system in v6.4.127 for better reliability and maintainability.
+
+### Cleanup Architecture
+
+**Three Focused Cleanup Tasks:**
+1. **Session Cleanup** (`super_cleanup_expired_sessions`) - Removes expired session data from wp_options
+2. **Upload Cleanup** (`super_cleanup_expired_uploads`) - Deletes expired temporary upload directories
+3. **Serialized Data Cleanup** (`super_cleanup_old_serialized_data`) - Removes old contact entry serialized data after 30-day retention
+
+**Scheduling:**
+- All tasks run every 5 minutes via Action Scheduler
+- Configurable batch limiting for each task (default: 10 items/run)
+- Guaranteed execution even on low-traffic sites
+
+### Public API Methods
+
+**`SUPER_Common::cleanup_expired_sessions($limit = 10)`**
+- Cleans expired session data from wp_options table
+- Returns: `array` with cleanup statistics (`super_session`, `sfs`, `sfsdata`, `sfsi` counts)
+- Filter: `super_cleanup_sessions_limit` - Adjust batch size
+- Location: `src/includes/class-common.php` line 1138
+
+**`SUPER_Common::cleanup_expired_uploads($limit = 10)`**
+- Deletes expired temporary upload directories from `wp-content/uploads/tmp/sf/`
+- Returns: `array` with cleanup statistics (`uploads_deleted` count)
+- Filter: `super_cleanup_uploads_limit` - Adjust batch size
+- Location: `src/includes/class-common.php` line 1216
+
+**`SUPER_Common::cleanup_old_serialized_data($limit = 10)`**
+- Removes serialized entry data 30 days after EAV migration completes
+- Returns: `array` with cleanup statistics (`serialized_deleted`, `days_remaining`, `reason`)
+- Filter: `super_cleanup_serialized_limit` - Adjust batch size
+- Location: `src/includes/class-common.php` line 1262
+- **30-Day Retention:** Only runs if migration completed and 30 days have passed
+
+**`SUPER_Common::deleteOldClientData($limit = 0)`** (Deprecated)
+- Legacy wrapper for backward compatibility
+- Calls the three new cleanup methods
+- Location: `src/includes/class-common.php`
+
+### 30-Day Retention Policy
+
+After EAV migration completes:
+1. `completed_at` timestamp recorded as Unix timestamp (changed from MySQL datetime in v6.4.127)
+2. Serialized data retained for 30 days (safety buffer for issue detection)
+3. After 30 days, `cleanup_old_serialized_data()` automatically removes `_super_contact_entry_data` postmeta
+4. Batch limiting prevents database lock contention (10 entries per 5-minute run)
+
+**Retention Calculation:**
+```php
+$days_since = (time() - $migration_state['completed_at']) / DAY_IN_SECONDS;
+if ($days_since < 30) {
+    // Wait - return days_remaining
+}
+// 30+ days - proceed with cleanup
+```
+
+### Migration from WP-Cron to Action Scheduler
+
+**Changes in v6.4.127:**
+- Removed: `super_client_data_garbage_collection` (WP-Cron hook, 1-minute interval)
+- Added: Three separate Action Scheduler hooks (5-minute intervals)
+- Improved: Error handling with try-catch blocks and error logging
+- Enhanced: Return arrays with cleanup statistics for monitoring
+
+**Benefits:**
+- Reliable execution on low-traffic sites (WP-Cron requires visitors)
+- Better logging and monitoring through Action Scheduler UI
+- Granular control over each cleanup task
+- Batch limiting prevents resource exhaustion
+- Separate error handling per task type
+
+### Customization Filters
+
+```php
+// Adjust session cleanup batch size
+add_filter('super_cleanup_sessions_limit', function($limit) {
+    return 25; // Clean 25 sessions per run instead of 10
+});
+
+// Adjust upload cleanup batch size
+add_filter('super_cleanup_uploads_limit', function($limit) {
+    return 5; // Clean 5 upload directories per run (slower servers)
+});
+
+// Adjust serialized data cleanup batch size
+add_filter('super_cleanup_serialized_limit', function($limit) {
+    return 50; // Clean 50 entries per run (faster cleanup after 30 days)
+});
+```
+
+### Monitoring Cleanup Activity
+
+**Debug Logging:**
+```php
+// Enable DEBUG_SF constant in wp-config.php
+define('DEBUG_SF', true);
+
+// Cleanup activity logged to debug.log:
+// - "Super Forms: Cleaned sessions - {"super_session":123,"sfs":45,...}"
+// - "Super Forms: Cleaned 10 expired upload directories"
+// - "Super Forms: Cleaned 10 old serialized entry data records"
+```
+
+**Action Scheduler UI:**
+- Navigate to: Tools > Action Scheduler
+- Filter by: `super_cleanup_` prefix
+- View: Execution history, failures, timing
+
+**Manual Execution (Testing):**
+```bash
+# SSH into server
+wp eval 'SUPER_Common::cleanup_expired_sessions();'
+wp eval 'SUPER_Common::cleanup_expired_uploads();'
+wp eval 'SUPER_Common::cleanup_old_serialized_data();'
+```
+
 ## Current Development Focus
 
 Based on recent commits:
+- **v6.4.127** - Garbage collector refactoring and 30-day retention
+  - Replaced monolithic WP-Cron cleanup with three focused Action Scheduler tasks
+  - Implemented 30-day retention for serialized data after EAV migration
+  - Changed `completed_at` from MySQL datetime to Unix timestamp
+  - Added batch limiting and error handling to all cleanup methods
 - **v6.4.126** - Security hardening and production optimization
   - Fixed SQL injection vulnerabilities in migration cleanup queries
   - Fixed race condition in lock acquisition logic

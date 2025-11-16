@@ -1129,6 +1129,196 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 			}
 		}
 
+	/**
+	 * Cleanup expired session data from wp_options table
+	 *
+	 * @param int $limit Maximum number of items to delete per run (default: 10)
+	 * @return array Results showing what was cleaned
+	 */
+	public static function cleanup_expired_sessions( $limit = 10 ) {
+		global $wpdb;
+
+		try {
+			$limit = apply_filters( 'super_cleanup_sessions_limit', absint( $limit ) );
+			$now = time();
+			$deleted = array();
+
+			// Delete old deprecated sessions from previous Super Forms versions
+			// These can be batched larger since they're old/deprecated
+			$result = $wpdb->query( $wpdb->prepare(
+				"DELETE FROM {$wpdb->options}
+				WHERE option_name LIKE %s
+				LIMIT %d",
+				$wpdb->esc_like('_super_session_') . '%',
+				$limit * 50
+			) );
+			if ( $result ) {
+				$deleted['super_session'] = $result;
+			}
+
+			$result = $wpdb->query( $wpdb->prepare(
+				"DELETE FROM {$wpdb->options}
+				WHERE option_name LIKE %s
+				LIMIT %d",
+				$wpdb->esc_like('_sfs_') . '%',
+				$limit * 50
+			) );
+			if ( $result ) {
+				$deleted['sfs'] = $result;
+			}
+
+			// Cleanup expired session data (has expiry in value)
+			$result = $wpdb->query( $wpdb->prepare(
+				"DELETE FROM {$wpdb->options}
+				WHERE option_name LIKE %s
+				AND SUBSTRING_INDEX(SUBSTRING_INDEX(option_value, ';', 2), ':', -1) < %d
+				LIMIT %d",
+				$wpdb->esc_like('_sfsdata_') . '%',
+				$now,
+				$limit
+			) );
+			if ( $result ) {
+				$deleted['sfsdata'] = $result;
+			}
+
+			// Cleanup expired submission info (has expiry in option_name)
+			$result = $wpdb->query( $wpdb->prepare(
+				"DELETE FROM {$wpdb->options}
+				WHERE option_name LIKE %s
+				AND SUBSTRING_INDEX(option_name, '.', -1) < %d
+				LIMIT %d",
+				$wpdb->esc_like('_sfsi_') . '%',
+				$now,
+				$limit
+			) );
+			if ( $result ) {
+				$deleted['sfsi'] = $result;
+			}
+
+			if ( defined( 'DEBUG_SF' ) && DEBUG_SF && ! empty( $deleted ) ) {
+				error_log( 'Super Forms: Cleaned sessions - ' . json_encode( $deleted ) );
+			}
+
+			return $deleted;
+
+		} catch ( Exception $e ) {
+			error_log( 'Super Forms cleanup_expired_sessions error: ' . $e->getMessage() );
+			return false;
+		}
+	}
+
+	/**
+	 * Cleanup expired temporary upload directories
+	 *
+	 * @param int $limit Maximum number of directories to delete per run (default: 10)
+	 * @return array Results showing what was cleaned
+	 */
+	public static function cleanup_expired_uploads( $limit = 10 ) {
+		try {
+			$limit = apply_filters( 'super_cleanup_uploads_limit', absint( $limit ) );
+			$tmp_dir = wp_upload_dir()['basedir'] . '/tmp/sf/';
+			$now = time();
+			$deleted = 0;
+
+			if ( ! is_dir( $tmp_dir ) ) {
+				return array( 'uploads_deleted' => 0 );
+			}
+
+			$handle = opendir( $tmp_dir );
+			if ( ! $handle ) {
+				return array( 'uploads_deleted' => 0, 'error' => 'Could not open directory' );
+			}
+
+			while ( false !== ( $entry = readdir( $handle ) ) && $deleted < $limit ) {
+				if ( $entry != '.' && $entry != '..' ) {
+					$dir_path = $tmp_dir . $entry;
+					if ( is_dir( $dir_path ) && is_numeric( $entry ) && intval( $entry ) < $now ) {
+						if ( self::delete_dir( $dir_path ) ) {
+							$deleted++;
+						}
+					}
+				}
+			}
+			closedir( $handle );
+
+			if ( defined( 'DEBUG_SF' ) && DEBUG_SF && $deleted > 0 ) {
+				error_log( "Super Forms: Cleaned $deleted expired upload directories" );
+			}
+
+			return array( 'uploads_deleted' => $deleted );
+
+		} catch ( Exception $e ) {
+			error_log( 'Super Forms cleanup_expired_uploads error: ' . $e->getMessage() );
+			return false;
+		}
+	}
+
+	/**
+	 * Cleanup old serialized entry data after EAV migration completes (30 day retention)
+	 *
+	 * @param int $limit Maximum number of entries to clean per run (default: 10)
+	 * @return array Results showing what was cleaned
+	 */
+	public static function cleanup_old_serialized_data( $limit = 10 ) {
+		global $wpdb;
+
+		try {
+			$limit = apply_filters( 'super_cleanup_serialized_limit', absint( $limit ) );
+
+			// Check if migration is complete and 30 days have passed
+			$migration_state = get_option( 'superforms_eav_migration', array() );
+			if ( ! isset( $migration_state['status'] ) ||
+			     $migration_state['status'] !== 'completed' ||
+			     ! isset( $migration_state['completed_at'] ) ) {
+				return array( 'serialized_deleted' => 0, 'reason' => 'migration_not_complete' );
+			}
+
+			$days_since = ( time() - $migration_state['completed_at'] ) / DAY_IN_SECONDS;
+			if ( $days_since < 30 ) {
+				return array(
+					'serialized_deleted' => 0,
+					'reason' => 'waiting_30_days',
+					'days_remaining' => ceil( 30 - $days_since )
+				);
+			}
+
+			// Find entries that still have serialized data
+			$entries = $wpdb->get_col( $wpdb->prepare(
+				"SELECT DISTINCT pm.post_id
+				FROM {$wpdb->postmeta} pm
+				INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID
+				WHERE p.post_type = %s
+				AND pm.meta_key = '_super_contact_entry_data'
+				LIMIT %d",
+				'super_contact_entry',
+				$limit
+			) );
+
+			if ( empty( $entries ) ) {
+				return array( 'serialized_deleted' => 0, 'reason' => 'none_remaining' );
+			}
+
+			// Delete the serialized metadata
+			$placeholders = implode( ',', array_fill( 0, count( $entries ), '%d' ) );
+			$deleted = $wpdb->query( $wpdb->prepare(
+				"DELETE FROM {$wpdb->postmeta}
+				WHERE post_id IN ($placeholders)
+				AND meta_key = '_super_contact_entry_data'",
+				...$entries
+			) );
+
+			if ( defined( 'DEBUG_SF' ) && DEBUG_SF && $deleted > 0 ) {
+				error_log( "Super Forms: Cleaned $deleted old serialized entry data records" );
+			}
+
+			return array( 'serialized_deleted' => $deleted );
+
+		} catch ( Exception $e ) {
+			error_log( 'Super Forms cleanup_old_serialized_data error: ' . $e->getMessage() );
+			return false;
+		}
+	}
+
 		public static function generate_nonce() {
 			// Destroy old nonce, and generate new one
 			self::setClientData(

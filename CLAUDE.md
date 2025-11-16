@@ -151,6 +151,12 @@ The user isn't paying you to write code. They're paying you to solve problems. U
 - WordPress meta hooks intercept and route to EAV storage after migration completes
 - Performance: <1ms overhead per page load (fast string comparison bailout)
 
+**30-Day Retention Policy:**
+- After migration completes, serialized data is retained for 30 days
+- Automatic cleanup via Action Scheduler (`super_cleanup_old_serialized_data` hook)
+- Provides safety buffer for issue detection while preventing storage bloat
+- Cleanup runs every 5 minutes with configurable batch limiting
+
 **Developer Guidelines:**
 - **Use Data Access Layer**: Always use `SUPER_Data_Access::get_entry_data()` instead of direct `get_post_meta()`
 - **LEFT JOIN for Listings**: Use LEFT JOIN (not INNER JOIN) to include both serialized and EAV entries

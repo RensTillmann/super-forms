@@ -308,8 +308,10 @@ include_once 'includes/class-developer-tools.php';
 
 			add_filter( 'super_form_js_filter', array( $this, 'inject_entry_data' ), 10, 2 );
 
-			add_action( 'wp', array( $this, 'super_client_data_register_garbage_collection' ) );
-			add_action( 'super_client_data_garbage_collection', array( $this, 'super_client_data_cleanup' ) );
+			add_action( 'init', array( $this, 'super_client_data_register_garbage_collection' ) );
+			add_action( 'super_cleanup_expired_sessions', array( $this, 'super_cleanup_sessions_action' ) );
+			add_action( 'super_cleanup_expired_uploads', array( $this, 'super_cleanup_uploads_action' ) );
+			add_action( 'super_cleanup_old_serialized_data', array( $this, 'super_cleanup_serialized_action' ) );
 			add_action( 'super_scheduled_trigger_actions', array( $this, 'super_scheduled_trigger_actions' ) );
 
 			add_action( 'plugins_loaded', array( $this, 'include_add_ons' ), 0 );
@@ -520,29 +522,74 @@ include_once 'includes/class-developer-tools.php';
 			return $schedules;
 		}
 
-		public static function super_client_data_cleanup() {
-			if ( defined( 'WP_SETUP_CONFIG' ) ) {
-				return;
-			}
-			if ( ! defined( 'WP_INSTALLING' ) ) {
-				SUPER_Common::deleteOldClientData();
-			}
-			do_action( 'super_client_data_cleanup' );
+	/**
+	 * Legacy cleanup function - kept for backward compatibility
+	 * @deprecated Use separate cleanup methods instead
+	 */
+	public static function super_client_data_cleanup() {
+		if ( defined( 'WP_SETUP_CONFIG' ) || defined( 'WP_INSTALLING' ) ) {
+			return;
 		}
+		SUPER_Common::cleanup_expired_sessions();
+		SUPER_Common::cleanup_expired_uploads();
+		SUPER_Common::cleanup_old_serialized_data();
+		do_action( 'super_client_data_cleanup' );
+	}
 		public static function super_scheduled_trigger_actions() {
 			require_once SUPER_PLUGIN_DIR . '/includes/class-triggers.php';
 			SUPER_Triggers::execute_scheduled_trigger_actions();
 		}
-		public static function super_client_data_register_garbage_collection() {
-			if ( ! wp_next_scheduled( 'super_client_data_garbage_collection' ) ) {
-				wp_schedule_event( time(), 'every_minute', 'super_client_data_garbage_collection' );
-			}
-			if ( ! wp_next_scheduled( 'super_scheduled_trigger_actions' ) ) {
-				wp_schedule_event( time(), 'every_minute', 'super_scheduled_trigger_actions' );
-			}
+	public static function super_client_data_register_garbage_collection() {
+		// Skip if Action Scheduler not available
+		if ( ! function_exists( 'as_has_scheduled_action' ) || ! function_exists( 'as_schedule_recurring_action' ) ) {
+			return;
 		}
 
-		public static function allow_txt_mime_type( $mimes, $user ) {
+		// Cancel old WP-Cron events if they exist
+		wp_clear_scheduled_hook( 'super_client_data_garbage_collection' );
+
+		// Schedule Action Scheduler tasks (every 5 minutes)
+		if ( ! as_has_scheduled_action( 'super_cleanup_expired_sessions' ) ) {
+			as_schedule_recurring_action( time(), 5 * MINUTE_IN_SECONDS, 'super_cleanup_expired_sessions', array(), 'super-forms-cleanup' );
+		}
+		if ( ! as_has_scheduled_action( 'super_cleanup_expired_uploads' ) ) {
+			as_schedule_recurring_action( time(), 5 * MINUTE_IN_SECONDS, 'super_cleanup_expired_uploads', array(), 'super-forms-cleanup' );
+		}
+		if ( ! as_has_scheduled_action( 'super_cleanup_old_serialized_data' ) ) {
+			as_schedule_recurring_action( time(), 5 * MINUTE_IN_SECONDS, 'super_cleanup_old_serialized_data', array(), 'super-forms-cleanup' );
+		}
+
+		// Keep super_scheduled_trigger_actions on WP-Cron for now
+		if ( ! wp_next_scheduled( 'super_scheduled_trigger_actions' ) ) {
+			wp_schedule_event( time(), 'every_minute', 'super_scheduled_trigger_actions' );
+		}
+	}
+
+	// Action handler for expired sessions cleanup
+	public static function super_cleanup_sessions_action() {
+		if ( defined( 'WP_SETUP_CONFIG' ) || defined( 'WP_INSTALLING' ) ) {
+			return;
+		}
+		SUPER_Common::cleanup_expired_sessions();
+	}
+
+	// Action handler for expired uploads cleanup
+	public static function super_cleanup_uploads_action() {
+		if ( defined( 'WP_SETUP_CONFIG' ) || defined( 'WP_INSTALLING' ) ) {
+			return;
+		}
+		SUPER_Common::cleanup_expired_uploads();
+	}
+
+	// Action handler for old serialized data cleanup
+	public static function super_cleanup_serialized_action() {
+		if ( defined( 'WP_SETUP_CONFIG' ) || defined( 'WP_INSTALLING' ) ) {
+			return;
+		}
+		SUPER_Common::cleanup_old_serialized_data();
+	}
+
+	public static function allow_txt_mime_type( $mimes, $user ) {
 			$mimes['txt'] = 'text/plain';
 			return $mimes;
 		}

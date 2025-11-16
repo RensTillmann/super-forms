@@ -595,10 +595,8 @@ class SUPER_Migration_Manager {
                     SUPER_Background_Migration::log("Entry {$entry_id} migrated and verified successfully. Keeping both EAV and serialized copies for safety.");
                 }
 
-                // 30-DAY RETENTION: Mark serialized data for deletion after 30 days
-                // This provides a safety window for debugging while automatically cleaning up storage
-                $delete_after = current_time('timestamp') + (30 * DAY_IN_SECONDS);
-                update_post_meta($entry_id, '_serialized_delete_after', $delete_after);
+                // 30-DAY RETENTION: Serialized data will be automatically cleaned up
+                // 30 days after migration completes via Action Scheduler cleanup task
             } else {
                 // Verification failed - keep both copies for manual review
                 $error_msg = isset($validation['error']) ? $validation['error'] : 'Unknown validation error';
@@ -643,7 +641,7 @@ class SUPER_Migration_Manager {
         // Update migration state to completed
         $migration['status'] = 'completed';
         $migration['using_storage'] = 'eav'; // Switch to EAV storage
-        $migration['completed_at'] = current_time('mysql');
+        $migration['completed_at'] = time(); // Unix timestamp for cleanup calculations
         $migration['verification_passed'] = true;
         $migration['rollback_available'] = true;
 
@@ -667,88 +665,6 @@ class SUPER_Migration_Manager {
 
     /**
      * Cleanup expired serialized data (30-day retention)
-     *
-     * Deletes serialized entry data that has exceeded the 30-day retention period
-     * after successful migration. Only deletes if EAV copy verified to exist.
-     *
-     * Processes in batches of 100 entries per run to avoid timeouts.
-     * Runs daily via WP-Cron hook 'superforms_cleanup_serialized_data'.
-     *
-     * @since 6.4.128
-     * @return array Cleanup statistics
-     */
-    public static function cleanup_expired_serialized_data() {
-        global $wpdb;
-
-        $current_time = current_time('timestamp');
-        $batch_size = 100;
-
-        // Find entries marked for deletion that have expired
-        $expired_entries = $wpdb->get_results($wpdb->prepare(
-            "SELECT post_id, meta_value as delete_after
-            FROM {$wpdb->postmeta}
-            WHERE meta_key = '_serialized_delete_after'
-            AND meta_value < %d
-            LIMIT %d",
-            $current_time,
-            $batch_size
-        ));
-
-        $deleted_count = 0;
-        $skipped_count = 0;
-        $error_count = 0;
-
-        foreach ($expired_entries as $entry) {
-            $entry_id = $entry->post_id;
-
-            // SAFETY: Verify EAV copy exists before deleting serialized data
-            $eav_table = $wpdb->prefix . 'superforms_entry_data';
-            $eav_exists = $wpdb->get_var($wpdb->prepare(
-                "SELECT COUNT(*) FROM {$eav_table}
-                WHERE entry_id = %d
-                AND field_name != '_cleanup_empty'",
-                $entry_id
-            ));
-
-            if ($eav_exists > 0) {
-                // EAV copy verified - safe to delete serialized data
-                $deleted = delete_post_meta($entry_id, '_super_contact_entry_data');
-                delete_post_meta($entry_id, '_serialized_delete_after');
-
-                if ($deleted) {
-                    $deleted_count++;
-                    error_log("[Super Forms Cleanup] Deleted serialized data for entry {$entry_id} (EAV verified, {$eav_exists} fields)");
-                } else {
-                    $error_count++;
-                    error_log("[Super Forms Cleanup] ERROR: Failed to delete serialized data for entry {$entry_id}");
-                }
-            } else {
-                // NO EAV copy found - DO NOT delete serialized data
-                $skipped_count++;
-                error_log("[Super Forms Cleanup] SKIPPED entry {$entry_id} - No EAV data found, keeping serialized backup");
-
-                // Remove deletion marker to prevent retrying
-                delete_post_meta($entry_id, '_serialized_delete_after');
-            }
-        }
-
-        // Log summary
-        if ($deleted_count > 0 || $skipped_count > 0) {
-            error_log(sprintf(
-                '[Super Forms Cleanup] Batch complete: %d deleted, %d skipped (no EAV), %d errors',
-                $deleted_count,
-                $skipped_count,
-                $error_count
-            ));
-        }
-
-        return array(
-            'deleted'  => $deleted_count,
-            'skipped'  => $skipped_count,
-            'errors'   => $error_count,
-            'total'    => count($expired_entries),
-        );
-    }
 
     /**
      * Rollback migration to serialized storage
@@ -873,6 +789,26 @@ class SUPER_Migration_Manager {
         $state['cleanup_queue']['empty_posts'] = (int) $empty_posts;
         $state['cleanup_queue']['posts_without_data'] = (int) $posts_without_data;
         $state['cleanup_queue']['orphaned_meta'] = (int) $orphaned_meta;
+
+        // 6. Old serialized data (entries still having serialized meta after 30 days post-migration)
+        if ( $state['status'] === 'completed' && isset( $state['completed_at'] ) ) {
+            $days_since = ( time() - $state['completed_at'] ) / DAY_IN_SECONDS;
+            if ( $days_since >= 30 ) {
+                $old_serialized = $wpdb->get_var(
+                    "SELECT COUNT(DISTINCT pm.post_id)
+                    FROM {$wpdb->postmeta} pm
+                    INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID
+                    WHERE p.post_type = 'super_contact_entry'
+                    AND pm.meta_key = '_super_contact_entry_data'"
+                );
+                $state['cleanup_queue']['old_serialized_data'] = (int) $old_serialized;
+            } else {
+                $state['cleanup_queue']['old_serialized_data'] = 0; // Still in 30-day retention window
+            }
+        } else {
+            $state['cleanup_queue']['old_serialized_data'] = 0; // Migration not completed
+        }
+
         $state['cleanup_queue']['last_checked'] = (int) ($last_cleanup_check ? $last_cleanup_check : current_time('timestamp'));
 
         return $state;
@@ -924,7 +860,7 @@ class SUPER_Migration_Manager {
         // Note: Counters are calculated live in get_migration_status(), not stored
         $migration['status'] = 'completed';
         $migration['using_storage'] = 'eav';
-        $migration['completed_at'] = current_time('mysql');
+        $migration['completed_at'] = time(); // Unix timestamp for cleanup calculations
 
         update_option('superforms_eav_migration', $migration);
 
