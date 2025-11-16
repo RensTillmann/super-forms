@@ -1111,6 +1111,109 @@ if (defined('DEBUG_SF') && DEBUG_SF === true) {
 
 **Reference:** Fixed in v6.4.126 - moved Developer Tools menu from index 5 to 99.
 
+## Garbage Collection & Cleanup API
+
+### Public Cleanup Methods (v6.4.127)
+
+**Session Cleanup:**
+```php
+// Clean expired session data from wp_options table
+$result = SUPER_Common::cleanup_expired_sessions($limit = 10);
+// Returns: array(
+//     'super_session' => 123,  // Deprecated sessions deleted
+//     'sfs' => 45,             // Old SFS sessions deleted
+//     'sfsdata' => 12,         // Expired session data deleted
+//     'sfsi' => 8              // Expired submission info deleted
+// )
+```
+
+**Upload Cleanup:**
+```php
+// Delete expired temporary upload directories
+$result = SUPER_Common::cleanup_expired_uploads($limit = 10);
+// Returns: array(
+//     'uploads_deleted' => 5   // Number of directories removed
+// )
+```
+
+**Serialized Data Cleanup (30-day retention):**
+```php
+// Remove old serialized entry data after EAV migration
+$result = SUPER_Common::cleanup_old_serialized_data($limit = 10);
+// Returns: array(
+//     'serialized_deleted' => 10,      // Records deleted
+//     'reason' => 'migration_not_complete|waiting_30_days|none_remaining',
+//     'days_remaining' => 15           // Only present if waiting
+// )
+```
+
+**Legacy Wrapper (Deprecated):**
+```php
+// Backward compatibility wrapper - calls all three cleanup methods
+SUPER_Common::deleteOldClientData($limit = 0);
+```
+
+### Cleanup Filters
+
+**Batch Size Customization:**
+```php
+// Adjust session cleanup batch size (default: 10)
+add_filter('super_cleanup_sessions_limit', function($limit) {
+    return 25; // Process more sessions per run
+});
+
+// Adjust upload cleanup batch size (default: 10)
+add_filter('super_cleanup_uploads_limit', function($limit) {
+    return 5; // Process fewer directories per run (slow server)
+});
+
+// Adjust serialized data cleanup batch size (default: 10)
+add_filter('super_cleanup_serialized_limit', function($limit) {
+    return 50; // Faster cleanup after 30-day retention period
+});
+```
+
+### Action Scheduler Hooks
+
+**Automatic Cleanup (Every 5 minutes):**
+```php
+// Session cleanup hook
+add_action('super_cleanup_expired_sessions', 'my_custom_session_handler');
+
+// Upload cleanup hook
+add_action('super_cleanup_expired_uploads', 'my_custom_upload_handler');
+
+// Serialized data cleanup hook
+add_action('super_cleanup_old_serialized_data', 'my_custom_serialized_handler');
+```
+
+**Legacy Compatibility Hook:**
+```php
+// Still works - triggers Action Scheduler cleanup tasks
+add_action('super_client_data_cleanup', 'my_custom_cleanup');
+```
+
+### 30-Day Retention Pattern
+
+```php
+// Example: Check if cleanup is eligible
+$migration = get_option('superforms_eav_migration', array());
+
+if (isset($migration['status']) && $migration['status'] === 'completed') {
+    if (isset($migration['completed_at'])) {
+        $days_since = (time() - $migration['completed_at']) / DAY_IN_SECONDS;
+
+        if ($days_since >= 30) {
+            // Safe to clean up serialized data
+            SUPER_Common::cleanup_old_serialized_data();
+        } else {
+            $days_remaining = ceil(30 - $days_since);
+            error_log("Waiting $days_remaining more days before cleanup");
+        }
+    }
+}
+```
+
 ## WordPress Hooks & Filters System
 
 ### Action Hooks
@@ -1148,6 +1251,9 @@ function my_custom_batch_size($batch_size) {
   - `super_forms_after_delete_entry`
   - `super_forms_entry_data`
   - `super_forms_validation_rules`
+  - `super_cleanup_sessions_limit` (v6.4.127)
+  - `super_cleanup_uploads_limit` (v6.4.127)
+  - `super_cleanup_serialized_limit` (v6.4.127)
 
 ## Translation & Internationalization
 

@@ -594,6 +594,9 @@ class SUPER_Migration_Manager {
                 if (class_exists('SUPER_Background_Migration')) {
                     SUPER_Background_Migration::log("Entry {$entry_id} migrated and verified successfully. Keeping both EAV and serialized copies for safety.");
                 }
+
+                // 30-DAY RETENTION: Serialized data will be automatically cleaned up
+                // 30 days after migration completes via Action Scheduler cleanup task
             } else {
                 // Verification failed - keep both copies for manual review
                 $error_msg = isset($validation['error']) ? $validation['error'] : 'Unknown validation error';
@@ -638,7 +641,7 @@ class SUPER_Migration_Manager {
         // Update migration state to completed
         $migration['status'] = 'completed';
         $migration['using_storage'] = 'eav'; // Switch to EAV storage
-        $migration['completed_at'] = current_time('mysql');
+        $migration['completed_at'] = time(); // Unix timestamp for cleanup calculations
         $migration['verification_passed'] = true;
         $migration['rollback_available'] = true;
 
@@ -659,6 +662,9 @@ class SUPER_Migration_Manager {
             'completed_at'     => $migration['completed_at'],
         );
     }
+
+    /**
+     * Cleanup expired serialized data (30-day retention)
 
     /**
      * Rollback migration to serialized storage
@@ -783,6 +789,26 @@ class SUPER_Migration_Manager {
         $state['cleanup_queue']['empty_posts'] = (int) $empty_posts;
         $state['cleanup_queue']['posts_without_data'] = (int) $posts_without_data;
         $state['cleanup_queue']['orphaned_meta'] = (int) $orphaned_meta;
+
+        // 6. Old serialized data (entries still having serialized meta after 30 days post-migration)
+        if ( $state['status'] === 'completed' && isset( $state['completed_at'] ) ) {
+            $days_since = ( time() - $state['completed_at'] ) / DAY_IN_SECONDS;
+            if ( $days_since >= 30 ) {
+                $old_serialized = $wpdb->get_var(
+                    "SELECT COUNT(DISTINCT pm.post_id)
+                    FROM {$wpdb->postmeta} pm
+                    INNER JOIN {$wpdb->posts} p ON pm.post_id = p.ID
+                    WHERE p.post_type = 'super_contact_entry'
+                    AND pm.meta_key = '_super_contact_entry_data'"
+                );
+                $state['cleanup_queue']['old_serialized_data'] = (int) $old_serialized;
+            } else {
+                $state['cleanup_queue']['old_serialized_data'] = 0; // Still in 30-day retention window
+            }
+        } else {
+            $state['cleanup_queue']['old_serialized_data'] = 0; // Migration not completed
+        }
+
         $state['cleanup_queue']['last_checked'] = (int) ($last_cleanup_check ? $last_cleanup_check : current_time('timestamp'));
 
         return $state;
@@ -834,7 +860,7 @@ class SUPER_Migration_Manager {
         // Note: Counters are calculated live in get_migration_status(), not stored
         $migration['status'] = 'completed';
         $migration['using_storage'] = 'eav';
-        $migration['completed_at'] = current_time('mysql');
+        $migration['completed_at'] = time(); // Unix timestamp for cleanup calculations
 
         update_option('superforms_eav_migration', $migration);
 
