@@ -82,7 +82,7 @@ class SUPER_Data_Access {
      * @param string $force_format Storage format: 'eav' (default), 'serialized', or null for legacy auto-detect
      * @return bool|WP_Error True on success, WP_Error on failure
      */
-    public static function save_entry_data($entry_id, $data, $force_format = 'eav') {
+    public static function save_entry_data($entry_id, $data, $force_format = null) {
         if (empty($entry_id) || !is_numeric($entry_id)) {
             return new WP_Error('invalid_entry_id', __('Invalid entry ID', 'super-forms'));
         }

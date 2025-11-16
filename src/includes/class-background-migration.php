@@ -69,7 +69,10 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 			add_action( 'super_migration_cron_health', array( __CLASS__, 'health_check_action' ) );
 
 			// Debug: Hook into Action Scheduler to log action data before execution
-			add_action( 'action_scheduler_before_execute', array( __CLASS__, 'debug_action_scheduler' ), 10, 2 );
+			// 30-day retention cleanup hook
+		add_action( 'superforms_cleanup_serialized_data', array( 'SUPER_Migration_Manager', 'cleanup_expired_serialized_data' ) );
+
+		add_action( 'action_scheduler_before_execute', array( __CLASS__, 'debug_action_scheduler' ), 10, 2 );
 
 			// Version-based detection: Check on init if version changed
 			add_action( 'init', array( __CLASS__, 'check_version_and_schedule' ), 5 );
@@ -912,14 +915,13 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 				$migration['last_batch_processed_at'] = current_time( 'mysql' );
 				update_option( 'superforms_eav_migration', $migration );
 
-				// Calculate remaining entries (excludes entries with only _cleanup_empty marker)
+				// Calculate remaining entries (entries with ANY EAV data are not remaining)
 				$total_remaining = $wpdb->get_var( $wpdb->prepare(
 					"SELECT COUNT(DISTINCT p.ID)
 					FROM {$wpdb->posts} p
 					LEFT JOIN (
 					    SELECT DISTINCT entry_id
 					    FROM {$table_name}
-					    WHERE field_name != '_cleanup_empty'
 					) e ON e.entry_id = p.ID
 					WHERE p.post_type = %s
 					AND e.entry_id IS NULL",
@@ -1166,7 +1168,13 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 			// Release lock
 			self::release_lock();
 
-			// Cleanup Action Scheduler: Delete completed/failed migration actions
+			// Schedule daily cleanup for 30-day retention
+		if ( ! wp_next_scheduled( 'superforms_cleanup_serialized_data' ) ) {
+			wp_schedule_event( time() + DAY_IN_SECONDS, 'daily', 'superforms_cleanup_serialized_data' );
+			self::log( 'Scheduled daily cleanup for 30-day serialized data retention' );
+		}
+
+		// Cleanup Action Scheduler: Delete completed/failed migration actions
 			if ( class_exists( 'ActionScheduler_Store' ) && class_exists( 'ActionScheduler_DBStore' ) ) {
 				global $wpdb;
 

@@ -594,6 +594,11 @@ class SUPER_Migration_Manager {
                 if (class_exists('SUPER_Background_Migration')) {
                     SUPER_Background_Migration::log("Entry {$entry_id} migrated and verified successfully. Keeping both EAV and serialized copies for safety.");
                 }
+
+                // 30-DAY RETENTION: Mark serialized data for deletion after 30 days
+                // This provides a safety window for debugging while automatically cleaning up storage
+                $delete_after = current_time('timestamp') + (30 * DAY_IN_SECONDS);
+                update_post_meta($entry_id, '_serialized_delete_after', $delete_after);
             } else {
                 // Verification failed - keep both copies for manual review
                 $error_msg = isset($validation['error']) ? $validation['error'] : 'Unknown validation error';
@@ -657,6 +662,91 @@ class SUPER_Migration_Manager {
             'progress'         => 100,
             'is_complete'      => true,
             'completed_at'     => $migration['completed_at'],
+        );
+    }
+
+    /**
+     * Cleanup expired serialized data (30-day retention)
+     *
+     * Deletes serialized entry data that has exceeded the 30-day retention period
+     * after successful migration. Only deletes if EAV copy verified to exist.
+     *
+     * Processes in batches of 100 entries per run to avoid timeouts.
+     * Runs daily via WP-Cron hook 'superforms_cleanup_serialized_data'.
+     *
+     * @since 6.4.128
+     * @return array Cleanup statistics
+     */
+    public static function cleanup_expired_serialized_data() {
+        global $wpdb;
+
+        $current_time = current_time('timestamp');
+        $batch_size = 100;
+
+        // Find entries marked for deletion that have expired
+        $expired_entries = $wpdb->get_results($wpdb->prepare(
+            "SELECT post_id, meta_value as delete_after
+            FROM {$wpdb->postmeta}
+            WHERE meta_key = '_serialized_delete_after'
+            AND meta_value < %d
+            LIMIT %d",
+            $current_time,
+            $batch_size
+        ));
+
+        $deleted_count = 0;
+        $skipped_count = 0;
+        $error_count = 0;
+
+        foreach ($expired_entries as $entry) {
+            $entry_id = $entry->post_id;
+
+            // SAFETY: Verify EAV copy exists before deleting serialized data
+            $eav_table = $wpdb->prefix . 'superforms_entry_data';
+            $eav_exists = $wpdb->get_var($wpdb->prepare(
+                "SELECT COUNT(*) FROM {$eav_table}
+                WHERE entry_id = %d
+                AND field_name != '_cleanup_empty'",
+                $entry_id
+            ));
+
+            if ($eav_exists > 0) {
+                // EAV copy verified - safe to delete serialized data
+                $deleted = delete_post_meta($entry_id, '_super_contact_entry_data');
+                delete_post_meta($entry_id, '_serialized_delete_after');
+
+                if ($deleted) {
+                    $deleted_count++;
+                    error_log("[Super Forms Cleanup] Deleted serialized data for entry {$entry_id} (EAV verified, {$eav_exists} fields)");
+                } else {
+                    $error_count++;
+                    error_log("[Super Forms Cleanup] ERROR: Failed to delete serialized data for entry {$entry_id}");
+                }
+            } else {
+                // NO EAV copy found - DO NOT delete serialized data
+                $skipped_count++;
+                error_log("[Super Forms Cleanup] SKIPPED entry {$entry_id} - No EAV data found, keeping serialized backup");
+
+                // Remove deletion marker to prevent retrying
+                delete_post_meta($entry_id, '_serialized_delete_after');
+            }
+        }
+
+        // Log summary
+        if ($deleted_count > 0 || $skipped_count > 0) {
+            error_log(sprintf(
+                '[Super Forms Cleanup] Batch complete: %d deleted, %d skipped (no EAV), %d errors',
+                $deleted_count,
+                $skipped_count,
+                $error_count
+            ));
+        }
+
+        return array(
+            'deleted'  => $deleted_count,
+            'skipped'  => $skipped_count,
+            'errors'   => $error_count,
+            'total'    => count($expired_entries),
         );
     }
 
