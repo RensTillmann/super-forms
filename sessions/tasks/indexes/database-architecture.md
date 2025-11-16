@@ -15,6 +15,7 @@ description: Tasks related to database structure, data storage, performance opti
 - `h-test-migration-and-devtools-page.md` - Collaborative testing and validation of migration system and Developer Tools page functionality, data integrity, and performance
 - `h-test-eav-migration-real-data.md` - Test EAV migration with real production data using CSV/XML imports via Developer Tools page
 - `h-implement-automatic-background-migration/` - Automatic frictionless background migration using Action Scheduler with per-entry verification, self-healing, and zero user intervention
+- `h-implement-cron-fallback-system.md` - WP-Cron fallback system to ensure background jobs process even when WP-Cron fails (disabled, low-traffic, server issues), with auto-detection, async processing, and simple admin UI
 
 ### Medium Priority
 - `m-refactor-eav-migration-status-cache.md` - Cache EAV migration status to eliminate redundant get_option() calls across multiple methods
