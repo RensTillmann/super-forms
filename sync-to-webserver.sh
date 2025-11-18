@@ -2,6 +2,10 @@
 
 # Super Forms Sync Script
 # Syncs the local project to the remote webserver
+#
+# Usage:
+#   ./sync-to-webserver.sh          # Safe sync (no deletions)
+#   ./sync-to-webserver.sh --delete # Sync with deletions (requires confirmation)
 
 # Configuration
 REMOTE_HOST="gnldm1014.siteground.biz"
@@ -18,13 +22,25 @@ LOCAL_PATH="$SCRIPT_DIR/src/"
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
 NC='\033[0m' # No Color
+
+# Parse command-line arguments
+USE_DELETE=false
+if [[ "$1" == "--delete" ]]; then
+    USE_DELETE=true
+fi
 
 echo -e "${GREEN}🚀 Super Forms Sync Script${NC}"
 echo "==============================="
 echo "Local Path:  $LOCAL_PATH"
 echo "Remote Host: $REMOTE_HOST:$REMOTE_PORT"
 echo "Remote Path: $REMOTE_PATH"
+if [ "$USE_DELETE" = true ]; then
+    echo -e "Mode:        ${RED}DELETE MODE (removes remote files not in local)${NC}"
+else
+    echo -e "Mode:        ${GREEN}SAFE MODE (no deletions)${NC}"
+fi
 echo "==============================="
 
 # Check if private key exists
@@ -40,24 +56,67 @@ if ! command -v rsync &> /dev/null; then
     exit 1
 fi
 
-# Confirm before sync
-#echo -e "${YELLOW}⚠️  This will sync all files to the remote server.${NC}"
-#read -p "Do you want to continue? (y/N): " -n 1 -r
-#echo
-#if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-#    echo "Sync cancelled."
-#    exit 0
-#fi
+# If --delete flag is used, show preview and require confirmation
+if [ "$USE_DELETE" = true ]; then
+    echo ""
+    echo -e "${YELLOW}⚠️  WARNING: --delete flag will remove remote files not found locally!${NC}"
+    echo ""
+    echo -e "${BLUE}Running dry-run to preview what would be deleted...${NC}"
+    echo ""
+
+    # Preview deletions for /src
+    echo "=== /src folder deletions ==="
+    DELETIONS_SRC=$(rsync -avzn --delete --itemize-changes \
+        --exclude='.vscode/' \
+        --exclude='.git/' \
+        --exclude='.DS_Store' \
+        --exclude='node_modules/' \
+        --exclude='*.log' \
+        -e "ssh -p $REMOTE_PORT -i $PRIVATE_KEY -o StrictHostKeyChecking=no" \
+        "$LOCAL_PATH" \
+        "$REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH" 2>&1 | grep "^deleting" || echo "(no files)")
+    echo "$DELETIONS_SRC"
+
+    echo ""
+    echo "=== /test folder deletions ==="
+    TEST_PATH="$SCRIPT_DIR/test/"
+    DELETIONS_TEST=$(rsync -avzn --delete --itemize-changes \
+        --exclude='.vscode/' \
+        --exclude='.git/' \
+        --exclude='.DS_Store' \
+        --exclude='node_modules/' \
+        --exclude='*.log' \
+        -e "ssh -p $REMOTE_PORT -i $PRIVATE_KEY -o StrictHostKeyChecking=no" \
+        "$TEST_PATH" \
+        "$REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH/test/" 2>&1 | grep "^deleting" || echo "(no files)")
+    echo "$DELETIONS_TEST"
+
+    echo ""
+    echo -e "${YELLOW}Do you want to proceed with these deletions?${NC}"
+    echo -e "${RED}Type 'yes' to confirm (anything else cancels):${NC}"
+    read -r CONFIRM
+    if [[ ! "$CONFIRM" == "yes" ]]; then
+        echo ""
+        echo -e "${YELLOW}Sync cancelled.${NC}"
+        exit 0
+    fi
+    echo ""
+fi
 
 echo -e "${GREEN}📡 Starting sync of /src folder...${NC}"
 
 # Rsync command with SFTP over SSH
-# --delete removes files on remote that don't exist locally
+# --delete removes files on remote that don't exist locally (only if --delete flag used)
 # --exclude excludes specified patterns
 # -avz: archive mode, verbose, compress
 # -e specifies SSH with custom port and key
 # Note: LOCAL_PATH ends with / to sync contents of src/ into the remote directory
-rsync -avz --delete \
+DELETE_FLAG=""
+if [ "$USE_DELETE" = true ]; then
+    DELETE_FLAG="--delete"
+fi
+
+rsync -avz $DELETE_FLAG \
     --exclude='.vscode/' \
     --exclude='.git/' \
     --exclude='.DS_Store' \
@@ -79,7 +138,7 @@ echo -e "${GREEN}📡 Starting sync of /test folder...${NC}"
 
 # Sync test directory
 TEST_PATH="$SCRIPT_DIR/test/"
-rsync -avz --delete \
+rsync -avz $DELETE_FLAG \
     --exclude='.vscode/' \
     --exclude='.git/' \
     --exclude='.DS_Store' \
