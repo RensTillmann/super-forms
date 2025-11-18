@@ -12,8 +12,11 @@ ini_set('display_startup_errors', 1);
 echo "=== Form Builder Page Test ===\n";
 echo "Testing what happens when loading Super Forms builder page...\n\n";
 
-// Simulate being logged in as admin
-chdir('/var/www/html');
+// Bootstrap WordPress if not already loaded
+// Uses secure bootstrap.php that searches upward for wp-load.php
+if (!defined('ABSPATH')) {
+    require_once(dirname(__DIR__) . '/bootstrap.php');
+}
 
 // Set up environment to match browser request
 $_SERVER['REQUEST_URI'] = '/wp-admin/admin.php?page=super_create_form&id=5';
@@ -28,9 +31,6 @@ define('WP_ADMIN', true);
 echo "1. Loading WordPress and simulating admin user...\n";
 
 try {
-    // Load WordPress
-    require_once('/var/www/html/wp-load.php');
-    
     // Simulate logged in admin user
     wp_set_current_user(1); // Admin user ID is usually 1
     

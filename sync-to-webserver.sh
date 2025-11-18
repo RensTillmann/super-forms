@@ -69,9 +69,31 @@ rsync -avz --delete \
 
 # Check if sync was successful
 if [ $? -eq 0 ]; then
-    echo -e "${GREEN}✅ Sync completed successfully!${NC}"
+    echo -e "${GREEN}✅ /src sync completed successfully!${NC}"
 else
-    echo -e "${RED}❌ Sync failed!${NC}"
+    echo -e "${RED}❌ /src sync failed!${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}📡 Starting sync of /test folder...${NC}"
+
+# Sync test directory
+TEST_PATH="$SCRIPT_DIR/test/"
+rsync -avz --delete \
+    --exclude='.vscode/' \
+    --exclude='.git/' \
+    --exclude='.DS_Store' \
+    --exclude='node_modules/' \
+    --exclude='*.log' \
+    -e "ssh -p $REMOTE_PORT -i $PRIVATE_KEY -o StrictHostKeyChecking=no" \
+    "$TEST_PATH" \
+    "$REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH/test/"
+
+# Check if sync was successful
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}✅ /test sync completed successfully!${NC}"
+else
+    echo -e "${RED}❌ /test sync failed!${NC}"
     exit 1
 fi
 

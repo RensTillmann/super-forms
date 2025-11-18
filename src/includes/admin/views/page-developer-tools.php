@@ -686,6 +686,135 @@ wp_localize_script('super-forms-developer-tools', 'devtoolsData', array(
         <div class="migration-log"></div>
     </div>
 
+    <!-- WP-Cron Fallback System Tests Section -->
+    <div class="super-devtools-section">
+        <h2><?php echo esc_html__('2.5. WP-Cron Fallback System Tests', 'super-forms'); ?></h2>
+        <p><?php echo esc_html__('Test the WP-Cron fallback detection and remediation system. These tests verify queue staleness detection, admin notices, AJAX endpoints, and end-to-end fallback flows.', 'super-forms'); ?></p>
+
+        <!-- Test Selection -->
+        <h3><?php echo esc_html__('Test to Run:', 'super-forms'); ?></h3>
+        <div style="margin: 15px 0;">
+            <select id="cron-fallback-test-selector" class="regular-text" style="width: 400px;">
+                <option value="all"><?php echo esc_html__('All Tests (Sequential)', 'super-forms'); ?></option>
+                <optgroup label="Priority 1: Critical Path Tests (14 tests)">
+                    <option value="queue_stale_no_history_work_pending"><?php echo esc_html__('Queue Stale: No History + Work Pending', 'super-forms'); ?></option>
+                    <option value="queue_fresh_no_history_no_work"><?php echo esc_html__('Queue Fresh: No History + No Work', 'super-forms'); ?></option>
+                    <option value="queue_stale_old_run"><?php echo esc_html__('Queue Stale: Last Run >15min', 'super-forms'); ?></option>
+                    <option value="queue_fresh_recent_run"><?php echo esc_html__('Queue Fresh: Recent Run', 'super-forms'); ?></option>
+                    <option value="detects_disabled_cron"><?php echo esc_html__('Detects DISABLE_WP_CRON', 'super-forms'); ?></option>
+                    <option value="no_trigger_cron_enabled"><?php echo esc_html__('No Trigger When Cron Enabled', 'super-forms'); ?></option>
+                    <option value="pending_work_migration"><?php echo esc_html__('Pending Work: Migration', 'super-forms'); ?></option>
+                    <option value="pending_work_cleanup"><?php echo esc_html__('Pending Work: Cleanup', 'super-forms'); ?></option>
+                    <option value="no_pending_work_complete"><?php echo esc_html__('No Pending Work: Complete', 'super-forms'); ?></option>
+                    <option value="notice_shows_stale_work"><?php echo esc_html__('Notice Shows: Stale + Work', 'super-forms'); ?></option>
+                    <option value="notice_hides_no_work"><?php echo esc_html__('Notice Hides: No Work', 'super-forms'); ?></option>
+                    <option value="notice_hides_dismissed"><?php echo esc_html__('Notice Hides: Dismissed', 'super-forms'); ?></option>
+                    <option value="notice_reappears_stalled"><?php echo esc_html__('Notice Reappears: Still Stalled', 'super-forms'); ?></option>
+                    <option value="notice_admin_only"><?php echo esc_html__('Notice: Admin Only', 'super-forms'); ?></option>
+                </optgroup>
+                <optgroup label="Priority 2: AJAX Endpoint Tests (9 tests)">
+                    <option value="ajax_trigger_requires_nonce"><?php echo esc_html__('AJAX Trigger: Requires Nonce', 'super-forms'); ?></option>
+                    <option value="ajax_trigger_requires_permission"><?php echo esc_html__('AJAX Trigger: Requires Permission', 'super-forms'); ?></option>
+                    <option value="ajax_dismiss_requires_auth"><?php echo esc_html__('AJAX Dismiss: Requires Auth', 'super-forms'); ?></option>
+                    <option value="ajax_trigger_attempts_async"><?php echo esc_html__('AJAX Trigger: Async Attempt', 'super-forms'); ?></option>
+                    <option value="ajax_process_sync_works"><?php echo esc_html__('AJAX Process: Sync Works', 'super-forms'); ?></option>
+                    <option value="ajax_process_returns_progress"><?php echo esc_html__('AJAX Process: Returns Progress', 'super-forms'); ?></option>
+                    <option value="ajax_dismiss_saves_meta"><?php echo esc_html__('AJAX Dismiss: Saves Meta', 'super-forms'); ?></option>
+                    <option value="ajax_error_no_scheduler"><?php echo esc_html__('AJAX Error: No Scheduler', 'super-forms'); ?></option>
+                    <option value="ajax_error_batch_fails"><?php echo esc_html__('AJAX Error: Batch Fails', 'super-forms'); ?></option>
+                </optgroup>
+                <optgroup label="Priority 3: Integration Tests (3 tests)">
+                    <option value="integration_disabled_cron_flow"><?php echo esc_html__('Integration: Disabled Cron Flow', 'super-forms'); ?></option>
+                    <option value="integration_async_mode"><?php echo esc_html__('Integration: Async Mode', 'super-forms'); ?></option>
+                    <option value="integration_notice_lifecycle"><?php echo esc_html__('Integration: Notice Lifecycle', 'super-forms'); ?></option>
+                </optgroup>
+            </select>
+            <button id="run-cron-fallback-test-btn" class="button button-primary">
+                <?php echo esc_html__('▶️ Run Selected Test', 'super-forms'); ?>
+            </button>
+        </div>
+
+        <!-- Test Results -->
+        <div id="cron-fallback-test-results" style="display: none; margin-top: 20px;">
+            <h4><?php echo esc_html__('Test Results:', 'super-forms'); ?></h4>
+            <div id="cron-fallback-test-status" style="padding: 10px; margin-bottom: 10px; border-radius: 4px;">
+                <!-- Status will be inserted here -->
+            </div>
+            <div style="background: #f5f5f5; padding: 15px; border-radius: 4px; max-height: 500px; overflow-y: auto; font-family: monospace; font-size: 12px; white-space: pre-wrap;">
+                <div id="cron-fallback-test-output"></div>
+            </div>
+        </div>
+
+        <!-- Manual Testing Instructions -->
+        <div style="background: #fff9e6; padding: 15px; border-left: 4px solid #f0ad4e; margin-top: 20px;">
+            <h4 style="margin-top: 0;">📋 <?php echo esc_html__('Manual Testing Required for Some Tests', 'super-forms'); ?></h4>
+            <p><?php echo esc_html__('Some tests require manual verification in the browser. When you run these tests, detailed instructions will appear in the test output.', 'super-forms'); ?></p>
+
+            <details style="margin-top: 15px;">
+                <summary style="cursor: pointer; font-weight: 600; padding: 5px 0;">
+                    <?php echo esc_html__('Click to view manual testing scenarios', 'super-forms'); ?>
+                </summary>
+                <div style="margin-top: 10px; padding-left: 20px;">
+                    <h5><?php echo esc_html__('Test: AJAX Trigger Attempts Async', 'super-forms'); ?></h5>
+                    <ol style="margin-left: 20px; font-size: 13px;">
+                        <li><?php echo esc_html__('Create pending migration work (generate test entries)', 'super-forms'); ?></li>
+                        <li><?php echo esc_html__('Simulate stale queue (wait or manipulate last_queue_run option)', 'super-forms'); ?></li>
+                        <li><?php echo esc_html__('Admin notice should appear', 'super-forms'); ?></li>
+                        <li><?php echo esc_html__('Open browser DevTools → Network tab', 'super-forms'); ?></li>
+                        <li><?php echo esc_html__('Click "Trigger Background Processing" button in notice', 'super-forms'); ?></li>
+                        <li><?php echo esc_html__('Verify AJAX request with response containing "attempting_async"', 'super-forms'); ?></li>
+                    </ol>
+
+                    <h5><?php echo esc_html__('Test: AJAX Process Sync Works', 'super-forms'); ?></h5>
+                    <ol style="margin-left: 20px; font-size: 13px;">
+                        <li><?php echo esc_html__('Generate 50 test entries (unmigrated)', 'super-forms'); ?></li>
+                        <li><?php echo esc_html__('Trigger fallback notice', 'super-forms'); ?></li>
+                        <li><?php echo esc_html__('Click "Process Batch (Sync)" button', 'super-forms'); ?></li>
+                        <li><?php echo esc_html__('Verify progress bar updates', 'super-forms'); ?></li>
+                        <li><?php echo esc_html__('Check database to confirm entries migrated to EAV', 'super-forms'); ?></li>
+                    </ol>
+
+                    <h5><?php echo esc_html__('Test: Integration Disabled Cron Flow', 'super-forms'); ?></h5>
+                    <ol style="margin-left: 20px; font-size: 13px;">
+                        <li><?php echo esc_html__('Add define(\'DISABLE_WP_CRON\', true); to wp-config.php', 'super-forms'); ?></li>
+                        <li><?php echo esc_html__('Generate test entries', 'super-forms'); ?></li>
+                        <li><?php echo esc_html__('Wait 15 minutes (or manipulate last_queue_run)', 'super-forms'); ?></li>
+                        <li><?php echo esc_html__('Refresh admin page - notice should appear', 'super-forms'); ?></li>
+                        <li><?php echo esc_html__('Click button to trigger processing', 'super-forms'); ?></li>
+                        <li><?php echo esc_html__('Verify entries migrate successfully', 'super-forms'); ?></li>
+                        <li><?php echo esc_html__('Remove DISABLE_WP_CRON when done', 'super-forms'); ?></li>
+                    </ol>
+
+                    <h5><?php echo esc_html__('Test: Notice Dismissal & Persistence', 'super-forms'); ?></h5>
+                    <ol style="margin-left: 20px; font-size: 13px;">
+                        <li><?php echo esc_html__('Trigger fallback notice', 'super-forms'); ?></li>
+                        <li><?php echo esc_html__('Click "Dismiss" button', 'super-forms'); ?></li>
+                        <li><?php echo esc_html__('Refresh page - notice should NOT reappear', 'super-forms'); ?></li>
+                        <li><?php echo esc_html__('Check user meta table for "super_cron_fallback_dismissed"', 'super-forms'); ?></li>
+                        <li><?php echo esc_html__('Manually set dismissed timestamp to 25 hours ago', 'super-forms'); ?></li>
+                        <li><?php echo esc_html__('If work still pending, notice should reappear', 'super-forms'); ?></li>
+                    </ol>
+
+                    <h5><?php echo esc_html__('Test: Permission Checks', 'super-forms'); ?></h5>
+                    <ol style="margin-left: 20px; font-size: 13px;">
+                        <li><?php echo esc_html__('Create a new user with "Editor" role', 'super-forms'); ?></li>
+                        <li><?php echo esc_html__('Login as Editor', 'super-forms'); ?></li>
+                        <li><?php echo esc_html__('Navigate to admin area', 'super-forms'); ?></li>
+                        <li><?php echo esc_html__('Notice should NOT appear (admin-only)', 'super-forms'); ?></li>
+                        <li><?php echo esc_html__('Try accessing AJAX endpoints via browser console', 'super-forms'); ?></li>
+                        <li><?php echo esc_html__('Should receive permission error', 'super-forms'); ?></li>
+                    </ol>
+                </div>
+            </details>
+        </div>
+
+        <!-- Safety Notice -->
+        <p style="background: #fff9e6; padding: 12px; border-left: 4px solid #f0ad4e; margin-top: 15px;">
+            <strong>⚠️ Test Safety:</strong><br>
+            Tests only run when DEBUG_SF is enabled and on dev/localhost environments. All test data is automatically cleaned up after each test. Tests use temporary migration states and user accounts that are deleted on completion.
+        </p>
+    </div>
+
     <!-- Automated Verification Section -->
     <div class="super-devtools-section">
         <h2><?php echo esc_html__('3. Automated Verification', 'super-forms'); ?></h2>

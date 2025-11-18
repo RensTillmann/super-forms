@@ -64,6 +64,11 @@ class SUPER_Migration_Manager {
             add_action('wp_ajax_super_run_migration_tests', array(__CLASS__, 'ajax_run_migration_tests'));
         }
 
+        // Run cron fallback tests
+        if (!has_action('wp_ajax_super_run_cron_fallback_tests')) {
+            add_action('wp_ajax_super_run_cron_fallback_tests', array(__CLASS__, 'ajax_run_cron_fallback_tests'));
+        }
+
         // Register backwards compatibility hooks for third-party code
         self::register_backwards_compat_hooks();
     }
@@ -249,6 +254,42 @@ class SUPER_Migration_Manager {
         // Run test with data source and import file
         $test = new SUPER_Migration_Integration_Test();
         $results = $test->run($test_name, $data_source, $import_file);
+
+        if ($results['success']) {
+            wp_send_json_success($results);
+        } else {
+            wp_send_json_error($results);
+        }
+    }
+
+    /**
+     * AJAX handler: Run WP-Cron fallback system tests
+     * @since 6.4.127
+     */
+    public static function ajax_run_cron_fallback_tests() {
+        check_ajax_referer('super-form-builder', 'security');
+        if (!current_user_can('manage_options')) {
+            wp_send_json_error(array('message' => 'Permission denied'));
+        }
+
+        // Get test name from request
+        $test_name = isset($_POST['test_name']) ? sanitize_text_field($_POST['test_name']) : 'all';
+
+        // Load test class
+        $test_file = SUPER_PLUGIN_DIR . '/test/scripts/test-cron-fallback.php';
+        if (!file_exists($test_file)) {
+            wp_send_json_error(array('message' => 'Test file not found: ' . $test_file));
+        }
+
+        require_once $test_file;
+
+        if (!class_exists('SUPER_Cron_Fallback_Test')) {
+            wp_send_json_error(array('message' => 'Test class SUPER_Cron_Fallback_Test not found'));
+        }
+
+        // Run test
+        $test = new SUPER_Cron_Fallback_Test();
+        $results = $test->run($test_name);
 
         if ($results['success']) {
             wp_send_json_success($results);
@@ -647,6 +688,18 @@ class SUPER_Migration_Manager {
 
         update_option('superforms_eav_migration', $migration);
 
+        // Cancel any remaining scheduled migration jobs
+        // This ensures has_pending_work() returns false immediately after completion
+        // Prevents notice reappearing if page reloads before JS dismissal
+        if ( function_exists( 'as_unschedule_all_actions' ) ) {
+            as_unschedule_all_actions( 'superforms_migrate_batch', array(), 'superforms-migration' );
+            as_unschedule_all_actions( 'superforms_migration_health_check', array(), 'superforms-migration' );
+        }
+
+        // Clear needs_migration() cache to reflect completion immediately
+        // Without this, the 60-second transient cache causes has_pending_work() to return true
+        delete_transient( 'superforms_needs_migration' );
+
         // Get live counts for return value
         $status = self::get_migration_status();
 
@@ -791,8 +844,8 @@ class SUPER_Migration_Manager {
         $state['cleanup_queue']['orphaned_meta'] = (int) $orphaned_meta;
 
         // 6. Old serialized data (entries still having serialized meta after 30 days post-migration)
-        if ( $state['status'] === 'completed' && isset( $state['completed_at'] ) ) {
-            $days_since = ( time() - $state['completed_at'] ) / DAY_IN_SECONDS;
+        if ( $state['status'] === 'completed' && isset( $state['completed_at'] ) && is_numeric( $state['completed_at'] ) ) {
+            $days_since = ( time() - (int) $state['completed_at'] ) / DAY_IN_SECONDS;
             if ( $days_since >= 30 ) {
                 $old_serialized = $wpdb->get_var(
                     "SELECT COUNT(DISTINCT pm.post_id)

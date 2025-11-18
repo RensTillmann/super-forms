@@ -11,9 +11,9 @@
  */
 
 // Bootstrap WordPress if running via CLI
+// Uses secure bootstrap.php that searches upward for wp-load.php
 if (!defined('ABSPATH')) {
-    require_once('/var/www/html/wp-config.php');
-    require_once('/var/www/html/wp-load.php');
+    require_once(dirname(__DIR__) . '/bootstrap.php');
 }
 
 if (!class_exists('SUPER_Migration_Integration_Test')) :

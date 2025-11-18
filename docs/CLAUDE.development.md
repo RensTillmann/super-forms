@@ -475,6 +475,14 @@ array(
 - `migrated_entries` - Live count from EAV table (excludes cleanup markers)
 - `cleanup_queue` - Live counts for empty posts, posts without data, orphaned metadata, **old_serialized_data** (added in v6.4.127)
 
+**Migration Completion Actions (v6.4.127):**
+When `complete_migration()` is called, the system:
+1. Updates migration state to `status: 'completed'` and `using_storage: 'eav'`
+2. Records `completed_at` timestamp (Unix timestamp for 30-day retention calculations)
+3. Cancels all scheduled Action Scheduler jobs (`superforms_migrate_batch`, `superforms_migration_health_check`)
+4. Deletes `superforms_needs_migration` transient cache to ensure immediate status updates
+5. Prevents notice reappearing if page reloads before JavaScript dismissal completes
+
 **Why Live Calculation?**
 - Database is single source of truth (no counter drift)
 - Race conditions cannot inflate non-existent stored values
@@ -855,10 +863,477 @@ wp eval 'SUPER_Common::cleanup_expired_uploads();'
 wp eval 'SUPER_Common::cleanup_old_serialized_data();'
 ```
 
+## WP-Cron Fallback System
+
+### Overview
+The WP-Cron Fallback System ensures background jobs process reliably even when WordPress's WP-Cron system fails. Implemented in v6.4.127, it provides automatic detection and remediation of cron failures through a user-friendly admin interface.
+
+### Problem Statement
+
+Background job processing (EAV migration, cleanup tasks, email reminders) depends on WP-Cron, which can fail in several scenarios:
+
+1. **Disabled WP-Cron** - Users set `DISABLE_WP_CRON = true` without configuring system cron
+2. **Low-Traffic Sites** - WP-Cron only triggers on page loads; few visitors = delayed/missed jobs
+3. **Server Issues** - Plugin conflicts, security restrictions, or server configuration problems
+
+When WP-Cron fails, critical background jobs stall indefinitely, potentially affecting thousands of database entries.
+
+### Architecture
+
+**Core Component:**
+- `SUPER_Cron_Fallback` - Detection, remediation, and admin notice logic
+- File: `/src/includes/class-cron-fallback.php` (244 lines)
+- Initialization: Auto-executes `SUPER_Cron_Fallback::init()` at bottom of file
+
+**Integration Points:**
+- Hook: `admin_init` (priority 20) - Health check runs on every admin page load via `check_cron_health()`
+- Hook: `init` (priority 5) - Auto-enables async mode when `DISABLE_WP_CRON` detected via `maybe_enable_async_mode()`
+- Hook: `action_scheduler_after_process_queue` - Tracks successful queue runs via `track_queue_run()` for staleness detection
+
+**AJAX Endpoints (class-ajax.php lines 81-84, handlers 7527-7745):**
+- `super_trigger_cron_fallback` - Intelligent mode detection with automatic fallback chain
+  - Security: `check_ajax_referer()` and `manage_options` capability check
+  - Returns 4 modes:
+    - `async_monitor` - Async processing triggered, show progress bar with monitoring
+    - `monitor` - Background migration already running (locked), monitor existing progress
+    - `sync` - Async failed, fall back to sequential batch processing
+    - `async` (legacy) - Backwards compatibility for instant dismissal
+  - Lock detection: Checks `SUPER_Background_Migration::is_locked()` to prevent duplicate processing
+  - Error handling: Try-catch with user-friendly error messages
+- `super_get_migration_progress` - Get current migration progress for polling (NEW in 6.4.127)
+  - Security: `manage_options` capability check (no nonce - read-only endpoint)
+  - Returns: `percentage`, `processed`, `total`, `remaining`, `is_complete`
+  - Used by: Progress bar JavaScript for real-time updates in async_monitor and monitor modes
+  - Polling interval: Every 2 seconds during active migration
+- `super_process_batch_sync` - Process single batch synchronously with progress data
+  - Batch size: 10 entries per request (small for responsiveness)
+  - Returns: Migration progress (`processed`, `remaining`, `is_complete`, `percentage`)
+  - Used by: Progress bar JavaScript for sync mode sequential processing
+- `super_dismiss_cron_notice` - Record dismissal timestamp in user meta
+  - User meta key: `super_cron_notice_dismissed`
+  - Prevents reappearance for 1 hour (3600 seconds)
+
+### Staleness Detection
+
+**Threshold:** 15 minutes (900 seconds)
+- Constant: `SUPER_Cron_Fallback::STALENESS_THRESHOLD`
+- Tracked via option: `superforms_last_queue_run` (MySQL datetime)
+- Updated after each Action Scheduler queue run
+
+**Detection Logic:**
+```php
+// Queue considered stale if:
+$last_run = get_option('superforms_last_queue_run');
+
+// Edge case: No run recorded yet (fresh install with broken cron)
+if (!$last_run) {
+    return self::has_pending_work(); // Stale if work pending but never ran
+}
+
+// Normal case: Check time since last run
+$time_since_last = time() - strtotime($last_run);
+return $time_since_last > 900; // 15 minutes
+```
+
+**Fresh Installation Detection:**
+- If no queue run history exists AND pending work exists, queue is considered stale
+- Catches broken WP-Cron on fresh installations (work scheduled but never processes)
+- Prevents false negatives where absence of history is mistaken for healthy state
+
+**Why 15 Minutes?**
+- Balance between responsiveness and false positives
+- Action Scheduler processes queues frequently in async mode
+- Long enough to avoid triggering during normal batch delays
+- Short enough to catch genuine cron failures quickly
+
+### Auto-Detection Flow
+
+**On Every Admin Page Load:**
+1. `SUPER_Cron_Fallback::check_cron_health()` runs on `admin_init` hook
+2. Checks if pending work exists (`needs_migration()`, pending Action Scheduler jobs)
+3. Checks if queue is stale (>15 minutes since last run)
+4. If both true, notice conditions are met (notice shown via `show_cron_fallback_notice()`)
+
+**On Plugin Init:**
+1. `SUPER_Cron_Fallback::maybe_enable_async_mode()` runs on `init` hook (priority 5)
+2. Checks if `DISABLE_WP_CRON` constant is defined and true
+3. If true, automatically enables Action Scheduler async processing mode
+4. Sets option: `superforms_async_processing_enabled = true`
+
+### Admin Notice System
+
+**Notice Appearance Conditions:**
+- User has `manage_options` capability (administrators only)
+- Pending background work exists (migration, cleanup, or email reminders)
+- Queue is stale (>15 minutes without processing)
+- Not dismissed recently (last 1 hour)
+- Migration not currently locked (actively running)
+
+**Notice Content:**
+- Title: "Database Upgrade Required" (non-technical, non-scary)
+- Buttons: "Upgrade Now" (primary), "Dismiss" (secondary)
+- Progress bar: Hidden initially, shown if sync fallback needed
+- Location: Appears on ALL admin pages (high visibility)
+
+**Design Philosophy:**
+- No technical details (no mention of WP-Cron, Action Scheduler, or server issues)
+- Simple call-to-action (one-click solution)
+- Minimal user intervention required
+- Auto-dismisses on success
+
+### Smart Button Behavior
+
+**When "Upgrade Now" Clicked:**
+
+The system uses an intelligent 4-mode fallback chain:
+
+1. **Monitor Mode** (migration already running):
+   - Detects if `SUPER_Background_Migration::is_locked()` returns true
+   - Shows progress bar monitoring existing background migration
+   - Polls `super_get_migration_progress` every 2 seconds for updates
+   - User can navigate away - migration continues in background
+   - May start at 85%+ if migration was already in progress
+
+2. **Async Monitor Mode** (preferred):
+   - AJAX call to `super_trigger_cron_fallback` endpoint
+   - Triggers `ActionScheduler_QueueRunner::instance()->async_request->maybe_dispatch()`
+   - Returns `{mode: 'async_monitor'}` response
+   - Shows progress bar with "Processing in background - safe to continue working" message
+   - Polls `super_get_migration_progress` every 2 seconds for updates
+   - User can navigate away - migration continues asynchronously
+   - No blocking or sleep() calls (better UX)
+
+3. **Sync Processing Fallback** (if async fails):
+   - JavaScript receives `{mode: 'sync'}` response from AJAX endpoint
+   - Shows inline progress bar with percentage display
+   - Processes batches via AJAX (`super_process_batch_sync`) in loop
+   - Each request processes 10 entries, returns updated progress
+   - Updates progress bar with percentage after each batch
+   - Continues until `is_complete: true` received
+   - Auto-dismisses notice after 1-second delay
+
+4. **Legacy Async Mode** (backwards compatibility):
+   - Returns `{mode: 'async'}` for instant dismissal
+   - Maintained for compatibility with older implementations
+
+**Why This Four-Mode Approach?**
+- **Monitor mode** prevents duplicate processing (Scenario 3 fix)
+- **Async monitor** provides best UX with real-time progress feedback
+- **Sync fallback** ensures completion even when async blocked by server config
+- **Progress polling** gives consistent UX across async_monitor and monitor modes
+- User always sees progress and completion confirmation
+- No manual intervention required beyond initial button click
+
+### Dismissal Handling
+
+**User Dismissal:**
+- Records timestamp in user meta: `super_cron_notice_dismissed`
+- Notice won't reappear for 1 hour
+- If jobs still stalled after 1 hour, notice reappears (persistent until resolved)
+
+**Automatic Dismissal:**
+- Async success: Notice fades out immediately
+- Sync completion: Notice fades out after 1-second delay
+- Migration completion: Notice won't appear again (no pending work)
+
+**Dismissal Logic:**
+```php
+// Check if dismissed recently
+$dismissed = get_user_meta(get_current_user_id(), 'super_cron_notice_dismissed', true);
+if ($dismissed && (time() - $dismissed) < 3600) {
+    return false; // Don't show notice
+}
+```
+
+### Action Scheduler Async Mode
+
+**Automatic Enablement:**
+When `DISABLE_WP_CRON` is detected, the fallback system automatically enables Action Scheduler's async processing mode:
+
+```php
+// Triggered on 'init' hook (priority 5) via maybe_enable_async_mode()
+if (defined('DISABLE_WP_CRON') && DISABLE_WP_CRON === true) {
+    update_option('superforms_async_processing_enabled', true);
+    // Set batch size for better performance (25 entries per async request)
+    add_filter('action_scheduler_queue_runner_batch_size', array(__CLASS__, 'async_batch_size'));
+}
+```
+
+**Important Note on Async Mode:**
+- Action Scheduler's async mode is **already active by default** on admin pages
+- The async request is dispatched automatically on `shutdown` hook when `is_admin()` returns true
+- NO filter configuration needed to "enable" async mode - it's built into Action Scheduler
+- The `action_scheduler_queue_runner_batch_size` filter only adjusts performance tuning (batch size)
+- Previous implementation incorrectly used `action_scheduler_queue_runner_concurrent_batches` filter
+
+**Async Mode Behavior:**
+- Processes queue via admin-ajax.php after admin page loads (`shutdown` hook)
+- Bypasses WP-Cron entirely (doesn't depend on page visitor triggers)
+- Uses 60-second lock (`ActionScheduler_OptionLock`) to prevent duplicate simultaneous runs
+- Batch size: 25 items per async request (vs dynamic sizing for WP-Cron mode)
+- Dispatcher: `ActionScheduler_AsyncRequest_QueueRunner->maybe_dispatch()`
+
+### Public API Methods
+
+**SUPER_Cron_Fallback (Static Methods):**
+- `init()` - Register hooks and initialize fallback system
+  - Called automatically at bottom of class-cron-fallback.php
+  - Registers: `admin_init`, `init`, and `action_scheduler_after_process_queue` hooks
+- `track_queue_run()` - Record successful queue run timestamp
+  - Hooked to: `action_scheduler_after_process_queue`
+  - Updates option: `superforms_last_queue_run` (MySQL datetime format)
+- `is_cron_disabled()` - Check if `DISABLE_WP_CRON` constant is true
+  - Returns: Boolean
+  - Usage: Determines if async mode should auto-enable
+- `is_queue_stale()` - Check if >15 minutes since last queue run OR no history with pending work
+  - Returns: Boolean
+  - Edge case: Returns true if no history exists AND pending work exists (catches broken fresh installs)
+- `has_pending_work()` - Check if migration or Action Scheduler jobs pending
+  - Checks: `SUPER_Background_Migration::needs_migration()` and Action Scheduler pending actions
+  - Group: `superforms-migration`
+  - Returns: Boolean
+- `should_show_notice()` - Determine if admin notice should display
+  - Checks: Pending work, queue staleness, dismissal timestamp, migration lock status
+  - Returns: Boolean (used by `show_cron_fallback_notice()` in super-forms.php)
+- `try_async_processing()` - Attempt async dispatch, return true if successful
+  - Non-blocking: Returns immediately without verification
+  - Called by: `SUPER_Ajax::trigger_cron_fallback()` AJAX handler
+  - Returns: Boolean (true if dispatch triggered, false if Action Scheduler unavailable)
+- `maybe_enable_async_mode()` - Auto-enable async mode when WP-Cron disabled
+  - Hooked to: `init` (priority 5)
+  - Sets: `superforms_async_processing_enabled` option
+  - Adds filter: `action_scheduler_queue_runner_batch_size` for performance tuning
+- `async_batch_size()` - Return batch size for async processing
+  - Returns: 25 (entries per async request)
+  - Filter callback for: `action_scheduler_queue_runner_batch_size`
+- `check_cron_health()` - Health check for stalled background jobs
+  - Hooked to: `admin_init` (priority 20)
+  - Runs on: Every admin page load
+  - Action: Sets notice display conditions (actual notice rendered in super-forms.php)
+
+**Constants:**
+- `SUPER_Cron_Fallback::LAST_RUN_OPTION = 'superforms_last_queue_run'`
+- `SUPER_Cron_Fallback::ASYNC_ENABLED_OPTION = 'superforms_async_processing_enabled'`
+- `SUPER_Cron_Fallback::STALENESS_THRESHOLD = 900` (15 minutes in seconds)
+
+### Integration with Background Migration
+
+**How They Work Together:**
+
+1. **Background Migration** schedules batches via Action Scheduler
+2. **Action Scheduler** attempts to process queue (via WP-Cron or async)
+3. **Cron Fallback** detects if queue stalls for >15 minutes
+4. **Admin Notice** appears, prompting user intervention
+5. **User clicks button** → Async attempt → Sync fallback if needed
+6. **Migration completes** → Notice disappears automatically
+
+**Coverage Beyond Migration:**
+The fallback system works for ALL background jobs using Action Scheduler:
+- EAV database migration (`superforms_migrate_batch`)
+- 30-day serialized data cleanup (`super_cleanup_old_serialized_data`)
+- Session cleanup (`super_cleanup_expired_sessions`)
+- Upload cleanup (`super_cleanup_expired_uploads`)
+- Email reminders from add-on (uses Action Scheduler hooks)
+
+### Code Entry Points
+
+**Class Files:**
+- **Cron Fallback Class**: `/src/includes/class-cron-fallback.php` (244 lines)
+  - Auto-initialization: `SUPER_Cron_Fallback::init()` called at bottom of file (line 249)
+  - Hook registration: Lines 47-57 (`init()` method)
+  - Detection logic: Lines 72-127 (`is_cron_disabled()`, `is_queue_stale()`, `has_pending_work()`)
+  - Async processing: Lines 135-162 (`maybe_enable_async_mode()`, `async_batch_size()`)
+  - Health check: Lines 166-185 (`check_cron_health()`)
+  - Notice display check: Lines 189-218 (`should_show_notice()`)
+  - Async trigger: Lines 220-242 (`try_async_processing()`)
+
+**Admin Notice Display:**
+- **File**: `/src/super-forms.php`
+- **Method**: `show_cron_fallback_notice()` (lines 1717-1870, approximately 153 lines)
+- **Called from**: `show_admin_notices()` method (line 1558)
+- **JavaScript**: Inline JavaScript for button handlers and progress bar (embedded in notice HTML)
+- **Notice structure**: WordPress standard `<div class="notice notice-warning">` with buttons and progress bar
+- **AJAX calls**: Uses `wp.ajax.post()` for async/sync processing and dismissal
+
+**AJAX Handlers:**
+- **File**: `/src/includes/class-ajax.php`
+- **Registration**: Lines 81-84 (`$ajax_events` array in `__construct()`)
+  ```php
+  'trigger_cron_fallback'  => false, // Admin-only
+  'get_migration_progress' => false, // Admin-only (NEW in 6.4.127)
+  'process_batch_sync'     => false, // Admin-only
+  'dismiss_cron_notice'    => false, // Admin-only
+  ```
+- **Handlers**: Lines 7527-7745 (four methods)
+  - `trigger_cron_fallback_logic()` - Lines 7529-7556 (28 lines) - Business logic
+  - `trigger_cron_fallback()` - Lines 7565-7579 (15 lines) - AJAX wrapper
+  - `process_batch_logic()` - Lines 7590-7617 (28 lines) - Business logic
+  - `process_batch_sync()` - Lines 7626-7640 (15 lines) - AJAX wrapper
+  - `get_migration_progress_logic()` - Lines 7702-7727 (26 lines) - Business logic
+  - `get_migration_progress()` - Lines 7737-7745 (9 lines) - AJAX wrapper
+  - `dismiss_cron_notice()` - Lines 7664-7676 (13 lines) - AJAX wrapper
+
+**Hook Registration (via SUPER_Cron_Fallback::init()):**
+- `action_scheduler_after_process_queue` → `track_queue_run()` (line 50)
+- `admin_init` (priority 20) → `check_cron_health()` (line 54)
+- `init` (priority 5) → `maybe_enable_async_mode()` (line 57)
+
+**Plugin Loading:**
+- **File**: `/src/super-forms.php`
+- **Class inclusion**: Line 135 (in `includes()` method)
+  ```php
+  require_once( SUPER_PLUGIN_DIR . '/includes/class-cron-fallback.php' );
+  ```
+
+### Monitoring & Troubleshooting
+
+**Check Queue Status:**
+```bash
+# SSH into server
+wp option get superforms_last_queue_run
+
+# Check if queue is stale (manual calculation)
+# If timestamp is >15 minutes old, queue is stale
+```
+
+**Check Async Mode Status:**
+```bash
+wp option get superforms_async_processing_enabled
+# Returns: true (enabled) or false/empty (disabled)
+```
+
+**Check Notice Dismissal:**
+```bash
+# For specific user (replace USER_ID)
+wp user meta get USER_ID super_cron_notice_dismissed
+# Returns: Unix timestamp of last dismissal
+```
+
+**Force Async Processing:**
+```bash
+# Manually trigger async dispatch
+wp eval 'ActionScheduler_QueueRunner::instance()->async_request->maybe_dispatch();'
+```
+
+**Common Issues:**
+
+1. **Notice Appears Repeatedly:**
+   - Queue genuinely stalled (check Action Scheduler UI for failed actions)
+   - Server blocking async requests (check server logs for admin-ajax.php errors)
+   - Database connection issues preventing queue updates
+
+2. **Async Processing Fails:**
+   - Security plugins blocking admin-ajax.php requests
+   - Server firewall blocking loopback requests
+   - PHP memory/timeout limits too low for async processing
+
+3. **Notice Doesn't Appear:**
+   - Queue running normally (check `superforms_last_queue_run` timestamp)
+   - User dismissed within last hour (check user meta)
+   - No pending work exists (migration already complete)
+
+### Design Decisions & Rationale
+
+**Why 15-Minute Threshold?**
+- Action Scheduler queues typically process every 1-5 minutes
+- 15 minutes provides buffer for server load variations
+- Short enough to catch failures before user frustration
+- Long enough to avoid false positives during batch delays
+
+**Why Two-Tier Fallback (Async → Sync)?**
+- Async is preferred: Faster, doesn't block admin interface, better UX
+- Sync ensures reliability: Works even when server blocks async requests
+- User always gets resolution: Either silent background or visible progress
+
+**Why Simple Admin Notice?**
+- Non-technical users don't understand WP-Cron, Action Scheduler, or server issues
+- "Database Upgrade Required" conveys urgency without confusion
+- Single-click solution reduces support burden
+- Auto-dismissal prevents notice fatigue
+
+**Why Appear on All Admin Pages?**
+- Stalled migration affects all forms functionality
+- High visibility ensures admins notice and act quickly
+- Prevents "out of sight, out of mind" problem
+
+### Implementation Technical Details
+
+**Queue Run Tracking:**
+- Option key: `superforms_last_queue_run`
+- Format: MySQL datetime (e.g., '2025-11-17 14:30:45')
+- Updated by: `SUPER_Cron_Fallback::track_queue_run()` hooked to `action_scheduler_after_process_queue`
+- Staleness calculation: `time() - strtotime($last_run) > 900` (15 minutes)
+- Used for: Detecting when background job processing has stalled
+
+**Async Mode Enablement:**
+- Option key: `superforms_async_processing_enabled`
+- Value: Boolean (true when auto-enabled)
+- Trigger: `DISABLE_WP_CRON` constant detection on `init` hook
+- Effect: Sets batch size filter for Action Scheduler (25 entries per async request)
+- Note: Action Scheduler async mode is already active by default; this just optimizes batch size
+
+**Notice Dismissal:**
+- User meta key: `super_cron_notice_dismissed`
+- Value: Unix timestamp of dismissal
+- Duration: Notice won't reappear for 1 hour (3600 seconds)
+- Persistent: If jobs still stalled after 1 hour, notice reappears
+- Per-user: Each admin user can dismiss independently
+
+**Admin Notice JavaScript:**
+- Embedded inline in notice HTML (not separate file)
+- Uses: `wp.ajax.post()` for AJAX calls (WordPress core abstraction)
+- Nonce: `_wpnonce` field (WordPress standard)
+- Progress bar: Updates via `is_complete` flag from AJAX responses
+- Auto-dismiss: Fades out on completion with 1-second delay
+
+**Error Handling:**
+- AJAX endpoints use try-catch blocks for all processing
+- Action Scheduler unavailable: Returns false from `try_async_processing()`
+- Migration class missing: Returns error message to JavaScript
+- WP_Error objects: Converted to JSON error responses
+- JavaScript displays error messages in notice area
+
+**Non-Blocking Async Test:**
+- Original implementation: Used `sleep(2)` to wait for verification (blocked admin page)
+- Current implementation: Returns immediately, assumes async will work
+- Rationale: Better UX (no freeze), sync fallback handles failures gracefully
+- Trade-off: Possible false positives where async fails but returns success
+
+### Testing & Validation
+
+**Test Scenario 1: DISABLE_WP_CRON = true**
+1. Add `define('DISABLE_WP_CRON', true);` to wp-config.php
+2. Start migration (import test data via Developer Tools)
+3. Verify async mode auto-enabled: `wp option get superforms_async_processing_enabled`
+4. Verify migration processes without manual intervention
+
+**Test Scenario 2: Simulated Cron Failure**
+1. Stop updating queue timestamp: Comment out `track_queue_run()` hook
+2. Wait 16 minutes
+3. Verify notice appears on admin dashboard
+4. Click "Upgrade Now"
+5. Verify async attempt → sync fallback → completion
+
+**Test Scenario 3: Low-Traffic Site**
+1. No visitors for extended period (>15 minutes)
+2. Background jobs stall (WP-Cron never triggers)
+3. Admin logs in, sees notice
+4. Clicks button, migration completes
+
+**Test Scenario 4: Fresh Installation with Broken Cron**
+1. Fresh WordPress installation with `DISABLE_WP_CRON = true`
+2. Import test data via Developer Tools
+3. Migration schedules but never runs (no queue run history)
+4. Admin loads any admin page
+5. Verify notice appears immediately (edge case detection works)
+
 ## Current Development Focus
 
 Based on recent commits:
-- **v6.4.127** - Garbage collector refactoring and 30-day retention
+- **v6.4.127** - WP-Cron fallback system and garbage collector refactoring
+  - Implemented automatic WP-Cron failure detection and remediation
+  - Added user-friendly admin notice with async/sync fallback processing
+  - Auto-enables Action Scheduler async mode when DISABLE_WP_CRON detected
   - Replaced monolithic WP-Cron cleanup with three focused Action Scheduler tasks
   - Implemented 30-day retention for serialized data after EAV migration
   - Changed `completed_at` from MySQL datetime to Unix timestamp

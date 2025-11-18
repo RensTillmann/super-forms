@@ -5,9 +5,11 @@
  * Tests all improvements with production forms from XML export
  */
 
-// Bootstrap WordPress
-require_once('/var/www/html/wp-config.php');
-require_once('/var/www/html/wp-load.php');
+// Bootstrap WordPress if running via CLI
+// Uses secure bootstrap.php that searches upward for wp-load.php
+if (!defined('ABSPATH')) {
+    require_once(dirname(__DIR__) . '/bootstrap.php');
+}
 
 class MigrationCompatibilityTest {
     private $results = [];

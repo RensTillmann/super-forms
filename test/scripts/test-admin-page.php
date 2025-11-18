@@ -11,8 +11,11 @@ ini_set('display_startup_errors', 1);
 
 echo "=== WordPress Admin Page Test ===\n";
 
-// Change to WordPress directory and load WordPress
-chdir('/var/www/html');
+// Bootstrap WordPress if not already loaded
+// Uses secure bootstrap.php that searches upward for wp-load.php
+if (!defined('ABSPATH')) {
+    require_once(dirname(__DIR__) . '/bootstrap.php');
+}
 
 // Simulate admin page request
 $_SERVER['REQUEST_URI'] = '/wp-admin/admin.php?page=super_create_form&id=5';
@@ -28,9 +31,6 @@ define('DOING_AJAX', false);
 echo "1. Loading WordPress with admin context...\n";
 
 try {
-    // Load WordPress
-    require_once('/var/www/html/wp-load.php');
-    
     echo "✅ WordPress loaded successfully\n";
     
     // Check if we're in admin

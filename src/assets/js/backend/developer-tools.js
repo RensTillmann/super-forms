@@ -2413,5 +2413,116 @@ jQuery(document).ready(function($) {
             }
         });
     }
+
+    // ========================================
+    // WP-Cron Fallback System Tests
+    // ========================================
+    var cronFallbackTestInProgress = false;
+
+    $('#run-cron-fallback-test-btn').on('click', function() {
+        if (cronFallbackTestInProgress) {
+            alert('A test is already running. Please wait for it to complete.');
+            return;
+        }
+
+        var testName = $('#cron-fallback-test-selector').val();
+        var testLabel = $('#cron-fallback-test-selector option:selected').text();
+
+        // Build confirmation message
+        var confirmMessage = 'Run cron fallback test: ' + testLabel + '?\n\n';
+        confirmMessage += 'This will test the WP-Cron fallback detection and remediation system.\n';
+        confirmMessage += 'Tests only run on dev/localhost with DEBUG_SF enabled.\n';
+        confirmMessage += 'Test data is automatically cleaned up.\n\n';
+        confirmMessage += 'Some tests may require manual verification - instructions will appear in the output.';
+
+        if (confirm(confirmMessage)) {
+            runCronFallbackTest(testName, testLabel);
+        }
+    });
+
+    function runCronFallbackTest(testName, testLabel) {
+        cronFallbackTestInProgress = true;
+        var $btn = $('#run-cron-fallback-test-btn');
+        var $results = $('#cron-fallback-test-results');
+        var $status = $('#cron-fallback-test-status');
+        var $output = $('#cron-fallback-test-output');
+
+        // Update button state
+        $btn.prop('disabled', true).text('⏳ Running Test...');
+
+        // Show results container
+        $results.show();
+
+        // Update status to running
+        $status.css({
+            'background': '#fff8dc',
+            'border': '1px solid #f0ad4e'
+        }).html('<strong>⏳ Running:</strong> ' + testLabel);
+
+        // Clear previous output
+        $output.text('Starting test...\n');
+
+        var startTime = Date.now();
+
+        // Make AJAX request
+        $.ajax({
+            url: ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'super_run_cron_fallback_tests',
+                security: devtoolsNonce,
+                test_name: testName
+            },
+            success: function(response) {
+                var duration = ((Date.now() - startTime) / 1000).toFixed(2);
+
+                if (response.success) {
+                    // Test passed
+                    $status.css({
+                        'background': '#d4edda',
+                        'border': '1px solid #28a745'
+                    }).html('<strong>✅ PASSED</strong> in ' + duration + 's');
+
+                    // Display test log
+                    if (response.data.log && response.data.log.length > 0) {
+                        $output.text(response.data.log.join('\n'));
+                    } else {
+                        $output.text('Test completed successfully (no detailed log)');
+                    }
+                } else {
+                    // Test failed
+                    $status.css({
+                        'background': '#f8d7da',
+                        'border': '1px solid #dc3545'
+                    }).html('<strong>❌ FAILED</strong> after ' + duration + 's');
+
+                    // Display error and log
+                    var errorText = 'Error: ' + (response.data.error || response.data.message || 'Unknown error') + '\n\n';
+                    if (response.data.log && response.data.log.length > 0) {
+                        errorText += response.data.log.join('\n');
+                    }
+                    $output.text(errorText);
+                }
+            },
+            error: function(xhr, status, error) {
+                var duration = ((Date.now() - startTime) / 1000).toFixed(2);
+
+                $status.css({
+                    'background': '#f8d7da',
+                    'border': '1px solid #dc3545'
+                }).html('<strong>❌ ERROR</strong> after ' + duration + 's');
+
+                $output.text('AJAX Error: ' + error + '\n\nStatus: ' + status + '\n\nResponse: ' + xhr.responseText);
+            },
+            complete: function() {
+                // Reset button state
+                $btn.prop('disabled', false).text('▶️ Run Selected Test');
+                cronFallbackTestInProgress = false;
+
+                // Scroll to results
+                $results[0].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        });
+    }
 });
 

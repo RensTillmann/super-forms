@@ -178,6 +178,7 @@ The user isn't paying you to write code. They're paying you to solve problems. U
 - `SUPER_Data_Access` - Storage abstraction layer (routes between serialized/EAV based on migration state)
 - `SUPER_Background_Migration` - Automatic migration orchestration using Action Scheduler
 - `SUPER_Migration_Manager` - Entry-by-entry migration logic + backwards compatibility hooks
+- `SUPER_Cron_Fallback` - WP-Cron failure detection and automatic remediation (since 6.4.127)
 
 **Backwards Compatibility Guarantee:**
 - Third-party code using `get_post_meta($entry_id, '_super_contact_entry_data', true)` continues working indefinitely
@@ -190,6 +191,17 @@ The user isn't paying you to write code. They're paying you to solve problems. U
 - Provides safety buffer for issue detection while preventing storage bloat
 - Cleanup runs every 5 minutes with configurable batch limiting
 
+**WP-Cron Fallback System (since 6.4.127):**
+- **Auto-Detection**: Detects when WP-Cron fails (disabled, low traffic, server issues)
+- **Staleness Threshold**: 15 minutes without background job processing triggers intervention
+- **Smart Remediation**: Four processing modes with automatic fallback chain
+- **User-Friendly Notice**: Simple "Database Upgrade Required" message (no technical details)
+- **Automatic Async Mode**: Enables Action Scheduler async processing when `DISABLE_WP_CRON` detected
+- **Coverage**: Works for all background jobs (migration, cleanup, email reminders)
+- **AJAX Endpoints**: Three endpoints - trigger (4 modes), progress polling, and dismissal
+- **Queue Tracking**: Monitors successful Action Scheduler runs via `action_scheduler_after_process_queue` hook
+- **Progress Monitoring**: Real-time progress bar updates via polling for async and monitor modes
+
 **Developer Guidelines:**
 - **Use Data Access Layer**: Always use `SUPER_Data_Access::get_entry_data()` instead of direct `get_post_meta()`
 - **LEFT JOIN for Listings**: Use LEFT JOIN (not INNER JOIN) to include both serialized and EAV entries
@@ -197,6 +209,7 @@ The user isn't paying you to write code. They're paying you to solve problems. U
 
 **Documentation:**
 - Architecture details: [docs/CLAUDE.development.md](docs/CLAUDE.development.md#background-migration-system)
+- WP-Cron fallback: [docs/CLAUDE.development.md](docs/CLAUDE.development.md#wp-cron-fallback-system)
 - PHP patterns: [docs/CLAUDE.php.md](docs/CLAUDE.php.md#database-migration-patterns)
 - Data storage: [docs/data-storage.md](docs/data-storage.md)
 

@@ -49,7 +49,7 @@ class SUPER_Data_Access {
         // Determine storage method
         $use_eav = false;
         if (!empty($migration) && $migration['status'] === 'completed') {
-            $use_eav = ($migration['using_storage'] === 'eav');
+            $use_eav = (isset($migration['using_storage']) && $migration['using_storage'] === 'eav');
         }
 
         // Read from appropriate storage
@@ -384,7 +384,7 @@ class SUPER_Data_Access {
         // Determine storage method
         $use_eav = false;
         if (!empty($migration) && $migration['status'] === 'completed') {
-            $use_eav = ($migration['using_storage'] === 'eav');
+            $use_eav = (isset($migration['using_storage']) && $migration['using_storage'] === 'eav');
         }
 
         $results = array();

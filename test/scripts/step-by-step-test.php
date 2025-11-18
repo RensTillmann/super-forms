@@ -13,8 +13,11 @@ ini_set('display_startup_errors', 1);
 echo "=== Step-by-Step Super Forms Debug ===\n";
 echo "Isolating the exact location of the fatal error...\n\n";
 
-// Change to WordPress directory
-chdir('/var/www/html');
+// Bootstrap WordPress if not already loaded
+// Uses secure bootstrap.php that searches upward for wp-load.php
+if (!defined('ABSPATH')) {
+    require_once(dirname(__DIR__) . '/bootstrap.php');
+}
 
 // Simulate admin page request
 $_SERVER['REQUEST_URI'] = '/wp-admin/admin.php?page=super_create_form&id=5';
@@ -30,8 +33,6 @@ define('WP_ADMIN', true);
 echo "1. Loading WordPress with admin context...\n";
 
 try {
-    // Load WordPress
-    require_once('/var/www/html/wp-load.php');
     echo "✅ WordPress loaded successfully\n";
 
     // Set current user to admin

@@ -27,8 +27,19 @@ echo "<h1>Browser Simulation Test</h1>";
 echo "<p>Testing form builder page in simulated browser context...</p>";
 
 try {
-    // Load WordPress
-    require_once("/var/www/html/wp-load.php");
+    // Load WordPress - search upward for wp-load.php
+    $wp_root = __DIR__;
+    $max_depth = 10;
+    for ($i = 0; $i < $max_depth; $i++) {
+        if (file_exists($wp_root . \"/wp-load.php\")) {
+            require_once($wp_root . \"/wp-load.php\");
+            break;
+        }
+        $wp_root = dirname($wp_root);
+    }
+    if (!defined(\"ABSPATH\")) {
+        die(\"<p>❌ WordPress installation not found</p>\");
+    }
     
     echo "<h2>1. WordPress Environment</h2>";
     echo "<p>✅ WordPress loaded successfully</p>";
@@ -131,8 +142,9 @@ echo "<hr>";
 echo "<p><strong>Test completed at:</strong> " . date("Y-m-d H:i:s") . "</p>";
 ?>';
 
-// Write the test file to the WordPress directory
-file_put_contents('/projects/super-forms/test/browser-test.php', $test_content);
+// Write the test file to the test directory
+$test_file_path = dirname(__DIR__) . '/browser-test.php';
+file_put_contents($test_file_path, $test_content);
 
 echo "Created browser simulation test file: test/browser-test.php\n";
 echo "You can now access it via: http://localhost:8080/browser-test.php\n";

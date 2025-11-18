@@ -9,9 +9,11 @@
  * - Form 71952: Complex settings (tests conditional logic)
  */
 
-// Bootstrap WordPress
-require_once('/var/www/html/wp-config.php');
-require_once('/var/www/html/wp-load.php');
+// Bootstrap WordPress if running via CLI
+// Uses secure bootstrap.php that searches upward for wp-load.php
+if (!defined('ABSPATH')) {
+    require_once(dirname(__DIR__) . '/bootstrap.php');
+}
 
 // Include the import function
 require_once('/scripts/import-single-form.php');

@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.4.126
+ * Version:           6.4.200
  * Plugin URI:        http://super-forms.com
  * Author URI:        http://super-forms.com
  * Author:            WebRehab
@@ -34,6 +34,9 @@ if ( ! class_exists( 'SUPER_Settings' ) ) {
 if ( ! class_exists( 'SUPER_Install' ) ) {
 	require_once dirname( __FILE__ ) . '/includes/class-install.php';
 }
+if ( ! class_exists( 'SUPER_Cron_Fallback' ) ) {
+	require_once dirname( __FILE__ ) . '/includes/class-cron-fallback.php';
+}
 
 if ( ! class_exists( 'SUPER_Forms' ) ) :
 
@@ -51,7 +54,7 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 		 *
 		 *  @since      1.0.0
 		 */
-		public $version    = '6.4.126';
+		public $version    = '6.4.200';
 		public $slug       = 'super-forms';
 		public $apiUrl     = 'https://api.dev.super-forms.com/';
 		public $apiVersion = 'v1';
@@ -243,6 +246,7 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 		include_once 'includes/class-data-access.php';
 	include_once 'includes/class-migration-manager.php';
 	include_once 'includes/class-background-migration.php';
+	include_once 'includes/class-cron-fallback.php';
 include_once 'includes/class-developer-tools.php';
 
 			if ( $this->is_request( 'admin' ) ) {
@@ -1553,6 +1557,9 @@ include_once 'includes/class-developer-tools.php';
 				}
 			}
 
+		// Check for WP-Cron failure and show fallback notice
+		$this->show_cron_fallback_notice();
+
 			// Check for unmigrated entries (imported data detection)
 			if ( current_user_can( 'manage_options' ) && class_exists( 'SUPER_Background_Migration' ) ) {
 				if ( SUPER_Background_Migration::needs_migration() ) {
@@ -1702,7 +1709,235 @@ include_once 'includes/class-developer-tools.php';
 					echo '</div>';
 				}
 			}
+
 		}
+	/**
+	 * Show WP-Cron fallback notice
+	 *
+	 * Displays admin notice when background jobs are stalled
+	 *
+	 * @since 6.4.127
+	 */
+	public function show_cron_fallback_notice() {
+		if ( ! current_user_can( 'manage_options' ) || ! class_exists( 'SUPER_Cron_Fallback' ) ) {
+			return;
+		}
+
+		if ( ! SUPER_Cron_Fallback::should_show_notice() ) {
+			return;
+		}
+
+		echo '<div class="notice notice-warning super-cron-fallback-notice" id="super-cron-fallback-notice">';
+		echo '<style>
+			.super-cron-fallback-notice { position: relative; }
+			.super-cron-fallback-notice p { margin: 0.5em 0; }
+			.super-cron-fallback-notice .progress-bar {
+				background: #f0f0f0;
+				height: 20px;
+				border-radius: 3px;
+				overflow: hidden;
+				margin: 8px 0;
+				display: none;
+			}
+			.super-cron-fallback-notice .progress-bar.active {
+				display: block;
+			}
+			.super-cron-fallback-notice .progress-fill {
+				background: #4EB1B6;
+				height: 100%;
+				transition: width 0.3s ease;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+				color: white;
+				font-size: 11px;
+				font-weight: bold;
+			}
+		</style>';
+		echo '<p>';
+		echo '<strong>' . esc_html__( 'Database Upgrade Required', 'super-forms' ) . '</strong>';
+		echo '</p>';
+
+		echo '<p>';
+		echo '<button type="button" class="button button-primary" id="super-cron-upgrade-btn">';
+		echo esc_html__( 'Upgrade Now', 'super-forms' );
+		echo '</button>';
+		echo ' <button type="button" class="button button-link" id="super-cron-dismiss-btn">';
+		echo esc_html__( 'Dismiss', 'super-forms' );
+		echo '</button>';
+		echo '</p>';
+
+		echo '<div class="progress-bar">';
+		echo '<div class="progress-fill" style="width: 0%"><span class="progress-text">0%</span></div>';
+		echo '</div>';
+
+		// JavaScript for button interaction
+		echo '<script>
+		jQuery(document).ready(function($) {
+			var syncInterval = null;
+			var pollInterval = null;
+
+			// Upgrade button click
+			$("#super-cron-upgrade-btn").on("click", function() {
+				var btn = $(this);
+				btn.prop("disabled", true).text("' . esc_js( __( 'Processing...', 'super-forms' ) ) . '");
+
+				// Try triggering async processing first
+				$.ajax({
+					url: ajaxurl,
+					type: "POST",
+					data: {
+						action: "super_trigger_cron_fallback",
+						nonce: "' . wp_create_nonce( 'super-form-builder' ) . '"
+					},
+					success: function(response) {
+						if (response.success) {
+							if (response.data.mode === "async_monitor") {
+								// Async processing - show progress bar and poll
+								showProgressBar(response.data.message || "' . esc_js( __( 'Processing in background - safe to continue working', 'super-forms' ) ) . '");
+								pollMigrationProgress();
+							} else if (response.data.mode === "monitor") {
+								// Background migration already running - just monitor it
+								showProgressBar(response.data.message || "' . esc_js( __( 'Migration already in progress...', 'super-forms' ) ) . '");
+								pollMigrationProgress();
+							} else if (response.data.mode === "sync") {
+								// Sync processing - show progress bar and process batches
+								showProgressBar("' . esc_js( __( 'Please wait - processing...', 'super-forms' ) ) . '");
+								processSyncBatches();
+							} else if (response.data.mode === "async") {
+								// Legacy async mode - instant dismiss (backwards compat)
+								$("#super-cron-fallback-notice").fadeOut(function() {
+									$(this).remove();
+								});
+							}
+						} else {
+							btn.prop("disabled", false).text("' . esc_js( __( 'Upgrade Now', 'super-forms' ) ) . '");
+							alert(response.data.message || "' . esc_js( __( 'Failed to start processing', 'super-forms' ) ) . '");
+						}
+					},
+					error: function() {
+						btn.prop("disabled", false).text("' . esc_js( __( 'Upgrade Now', 'super-forms' ) ) . '");
+						alert("' . esc_js( __( 'Error starting processing', 'super-forms' ) ) . '");
+					}
+				});
+			});
+
+			// Show progress bar with message
+			function showProgressBar(message) {
+				$("#super-cron-upgrade-btn").hide();
+				$("#super-cron-dismiss-btn").hide();
+				$(".progress-bar").addClass("active");
+
+				// Add status message if it doesn\'t exist
+				if ($(".progress-status-message").length === 0) {
+					$("<p class=\"progress-status-message\"></p>")
+						.css("font-size", "12px")
+						.css("color", "#666")
+						.css("margin", "0.5em 0")
+						.insertBefore(".progress-bar");
+				}
+				$(".progress-status-message").text(message);
+			}
+
+			// Poll migration progress (for async_monitor and monitor modes)
+			function pollMigrationProgress() {
+				$.ajax({
+					url: ajaxurl,
+					type: "POST",
+					data: {
+						action: "super_get_migration_progress",
+						nonce: "' . wp_create_nonce( 'super-form-builder' ) . '"
+					},
+					success: function(response) {
+						if (response.success && response.data) {
+							var percent = response.data.percentage || 0;
+							$(".progress-fill").css("width", percent + "%");
+							$(".progress-text").text(percent + "%");
+
+							if (!response.data.is_complete) {
+								// Continue polling every 2 seconds
+								pollInterval = setTimeout(pollMigrationProgress, 2000);
+							} else {
+								// Complete!
+								$(".progress-status-message").text("' . esc_js( __( '✓ Complete!', 'super-forms' ) ) . '").css("color", "#46b450");
+								setTimeout(function() {
+									$("#super-cron-fallback-notice").fadeOut(function() {
+										$(this).remove();
+									});
+								}, 1500);
+							}
+						} else {
+							// Poll again even on error (network hiccup)
+							pollInterval = setTimeout(pollMigrationProgress, 3000);
+						}
+					},
+					error: function() {
+						// Poll again even on error (network hiccup)
+						pollInterval = setTimeout(pollMigrationProgress, 3000);
+					}
+				});
+			}
+
+			// Process batches synchronously with progress
+			function processSyncBatches() {
+				$.ajax({
+					url: ajaxurl,
+					type: "POST",
+					data: {
+						action: "super_process_batch_sync",
+						nonce: "' . wp_create_nonce( 'super-form-builder' ) . '"
+					},
+					success: function(response) {
+						if (response.success && response.data) {
+							var percent = response.data.percentage || 0;
+							$(".progress-fill").css("width", percent + "%");
+							$(".progress-text").text(percent + "%");
+
+							if (!response.data.is_complete) {
+								// Continue processing
+								processSyncBatches();
+							} else {
+								// Complete - dismiss notice
+								$(".progress-status-message").text("' . esc_js( __( '✓ Complete!', 'super-forms' ) ) . '").css("color", "#46b450");
+								setTimeout(function() {
+									$("#super-cron-fallback-notice").fadeOut(function() {
+										$(this).remove();
+									});
+								}, 1000);
+							}
+						} else {
+							alert(response.data.message || "' . esc_js( __( 'Error processing batch', 'super-forms' ) ) . '");
+							location.reload();
+						}
+					},
+					error: function() {
+						alert("' . esc_js( __( 'Error processing batch', 'super-forms' ) ) . '");
+						location.reload();
+					}
+				});
+			}
+
+			// Dismiss button click
+			$("#super-cron-dismiss-btn").on("click", function() {
+				$.ajax({
+					url: ajaxurl,
+					type: "POST",
+					data: {
+						action: "super_dismiss_cron_notice",
+						nonce: "' . wp_create_nonce( 'super-form-builder' ) . '"
+					},
+					success: function() {
+						$("#super-cron-fallback-notice").fadeOut(function() {
+							$(this).remove();
+						});
+					}
+				});
+			});
+		});
+		</script>';
+
+		echo '</div>';
+	}
 
 		/**
 		 * Show what's new message

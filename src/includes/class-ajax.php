@@ -78,6 +78,11 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 
 				'reset_user_submission_counter' => false, // @since 3.8.0
 
+			'trigger_cron_fallback'         => false, // @since 6.4.127 - WP-Cron fallback
+			'process_batch_sync'            => false, // @since 6.4.127 - Sync batch processing
+			'dismiss_cron_notice'           => false, // @since 6.4.127 - Dismiss cron notice
+			'get_migration_progress'        => false, // @since 6.4.127 - Get migration progress for polling
+
 				'print_custom_html'             => true, // @since 3.9.0
 
 				'export_single_form'            => false, // @since 4.0.0
@@ -7512,6 +7517,233 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			'tagged_as_test' => $tag_as_test,
 		) );
 	}
+
+	/**
+	 * Trigger cron fallback processing (business logic)
+	 *
+	 * Testable method that attempts async processing without AJAX layer
+	 *
+	 * @since 6.4.127
+	 * @return array Result with 'mode' key ('async' or 'sync')
+	 */
+	public static function trigger_cron_fallback_logic() {
+		try {
+			// Check if background migration is already running (Scenario 3)
+			if ( class_exists( 'SUPER_Background_Migration' ) && SUPER_Background_Migration::is_locked() ) {
+				return array(
+					'mode' => 'monitor',
+					'message' => __( 'Migration already in progress...', 'super-forms' ),
+				);
+			}
+
+			// Try async processing
+			if ( class_exists( 'SUPER_Cron_Fallback' ) ) {
+				$async_worked = SUPER_Cron_Fallback::try_async_processing();
+
+				if ( $async_worked ) {
+					return array(
+						'mode' => 'async_monitor',
+						'message' => __( 'Processing in background - safe to continue working', 'super-forms' ),
+					);
+				}
+			}
+
+			// Async didn't work - return sync mode
+			return array( 'mode' => 'sync' );
+		} catch ( Exception $e ) {
+			return new WP_Error( 'cron_fallback_error', $e->getMessage() );
+		}
 	}
+
+	/**
+	 * Trigger cron fallback processing (AJAX wrapper)
+	 *
+	 * Attempts async processing first, falls back to sync if needed
+	 *
+	 * @since 6.4.127
+	 */
+	public static function trigger_cron_fallback() {
+		check_ajax_referer( 'super-form-builder', 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Permission denied', 'super-forms' ) ) );
+		}
+
+		$result = self::trigger_cron_fallback_logic();
+
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+		}
+
+		wp_send_json_success( $result );
+	}
+
+	/**
+	 * Process migration batch (business logic)
+	 *
+	 * Testable method that processes a batch without AJAX layer
+	 *
+	 * @since 6.4.127
+	 * @param int $batch_size Number of entries to process
+	 * @return array|WP_Error Result with progress data or error
+	 */
+	public static function process_batch_logic( $batch_size = 10 ) {
+		if ( ! class_exists( 'SUPER_Background_Migration' ) ) {
+			return new WP_Error( 'missing_class', 'Migration class not found' );
+		}
+
+		try {
+			// Process batch
+			$result = SUPER_Background_Migration::process_batch_action( $batch_size );
+
+			if ( is_wp_error( $result ) ) {
+				return $result;
+			}
+
+			// Get updated status for progress
+			$status = SUPER_Migration_Manager::get_migration_status();
+			$total = ! empty( $status ) ? $status['total_entries'] : 0;
+			$migrated = ! empty( $status ) ? $status['migrated_entries'] : 0;
+			$percentage = $total > 0 ? round( ( $migrated / $total ) * 100 ) : 100;
+			$is_complete = ! empty( $status ) && $status['status'] === 'completed';
+
+			return array(
+				'processed'    => $migrated,
+				'remaining'    => $total - $migrated,
+				'is_complete'  => $is_complete,
+				'percentage'   => $percentage,
+			);
+		} catch ( Exception $e ) {
+			return new WP_Error( 'batch_error', $e->getMessage() );
+		}
+	}
+
+	/**
+	 * Process migration batch synchronously (AJAX wrapper)
+	 *
+	 * Used for progress bar fallback when async fails
+	 *
+	 * @since 6.4.127
+	 */
+	public static function process_batch_sync() {
+		check_ajax_referer( 'super-form-builder', 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Permission denied', 'super-forms' ) ) );
+		}
+
+		$result = self::process_batch_logic( 10 );
+
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+		}
+
+		wp_send_json_success( $result );
+	}
+
+	/**
+	 * Dismiss cron fallback notice (business logic)
+	 *
+	 * Testable method that records dismissal timestamp
+	 *
+	 * @since 6.4.127
+	 * @param int $user_id User ID to save dismissal for
+	 * @return bool|WP_Error True on success, WP_Error on failure
+	 */
+	public static function dismiss_cron_notice_logic( $user_id = 0 ) {
+		if ( $user_id === 0 ) {
+			$user_id = get_current_user_id();
+		}
+
+		if ( $user_id === 0 ) {
+			return new WP_Error( 'invalid_user', 'No user ID provided' );
+		}
+
+		$result = update_user_meta( $user_id, 'super_cron_notice_dismissed', time() );
+
+		if ( $result === false ) {
+			return new WP_Error( 'meta_update_failed', 'Failed to update user meta' );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Dismiss cron fallback notice (AJAX wrapper)
+	 *
+	 * Records dismissal timestamp in user meta
+	 *
+	 * @since 6.4.127
+	 */
+	public static function dismiss_cron_notice() {
+		check_ajax_referer( 'super-form-builder', 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Permission denied', 'super-forms' ) ) );
+		}
+
+		$result = self::dismiss_cron_notice_logic();
+
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+		}
+
+		wp_send_json_success();
+	}
+
+	/**
+	 * Get migration progress (business logic)
+	 *
+	 * Returns current migration status for progress polling
+	 *
+	 * @since 6.4.127
+	 * @return array Progress data with percentage, counts, and completion status
+	 */
+	public static function get_migration_progress_logic() {
+		if ( ! class_exists( 'SUPER_Migration_Manager' ) ) {
+			return array(
+				'percentage' => 0,
+				'processed' => 0,
+				'total' => 0,
+				'remaining' => 0,
+				'is_complete' => true,
+			);
+		}
+
+		$status = SUPER_Migration_Manager::get_migration_status();
+
+		$total = isset( $status['total_entries'] ) ? $status['total_entries'] : 0;
+		$migrated = isset( $status['migrated_entries'] ) ? $status['migrated_entries'] : 0;
+		$percentage = $total > 0 ? round( ( $migrated / $total ) * 100 ) : 100;
+		$is_complete = isset( $status['status'] ) && $status['status'] === 'completed';
+
+		return array(
+			'percentage' => $percentage,
+			'processed' => $migrated,
+			'total' => $total,
+			'remaining' => $total - $migrated,
+			'is_complete' => $is_complete,
+		);
+	}
+
+	/**
+	 * Get migration progress (AJAX wrapper)
+	 *
+	 * Returns current migration status for progress bar polling
+	 *
+	 * @since 6.4.127
+	 */
+	public static function get_migration_progress() {
+		check_ajax_referer( 'super-form-builder', 'nonce' );
+
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => esc_html__( 'Permission denied', 'super-forms' ) ) );
+		}
+
+		$result = self::get_migration_progress_logic();
+		wp_send_json_success( $result );
+	}
+
+}
 endif;
 SUPER_Ajax::init();
