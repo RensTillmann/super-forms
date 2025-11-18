@@ -857,7 +857,7 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 												),
 												array(
 													'name' => 'user_roles',
-													'title' => 'User roles: ',
+													'title' => esc_html__( 'User roles: ', 'super-forms' ),
 													'subline' => esc_html__( 'Seperated by comma e.g: administrator,editor, or leave blank to allow all roles', 'super-forms' ),
 													'type' => 'text',
 													'default' => 'administrator',
@@ -865,7 +865,7 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 												),
 												array(
 													'name' => 'user_ids',
-													'title' => 'User ID\'s: ',
+													'title' => esc_html__( "User ID's: ", 'super-forms' ),
 													'subline' => esc_html__( 'Seperated by comma e.g: 32,2467,1870, or leave blank to only filter by the roles defined above', 'super-forms' ),
 													'type' => 'text',
 													'default' => '',
@@ -873,7 +873,7 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 												),
 												array(
 													'name' => 'html_template',
-													'title' => esc_html( 'View template HTML', 'super-forms' ),
+													'title' => esc_html__( 'View template HTML', 'super-forms' ),
 													'subline' => esc_html__( 'When viewing an entry, you can create your own HTML view (leave blank to use the default template)', 'super-forms' ),
 													'type' => 'textarea',
 													'default' => $html_template,
@@ -882,7 +882,7 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 												),
 												array(
 													'name' => 'loop_html',
-													'title' => esc_html( 'Loop fields HTML', 'super-forms' ),
+													'title' => esc_html__( 'Loop fields HTML', 'super-forms' ),
 													'subline' => esc_html__( 'If you use {loop_fields} inside your custom template, you can define the "row" here and retrieve the field values with {loop_label} and {loop_value} tags, leave blank to use the default loop HTML', 'super-forms' ),
 													'type' => 'textarea',
 													'default' => $loop_html,
@@ -904,7 +904,7 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 												),
 												array(
 													'name' => 'user_roles',
-													'title' => 'User roles: ',
+													'title' => esc_html__( 'User roles: ', 'super-forms' ),
 													'subline' => esc_html__( 'Seperated by comma e.g: administrator,editor, or leave blank to allow all roles', 'super-forms' ),
 													'type' => 'text',
 													'default' => 'administrator',
@@ -912,7 +912,7 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 												),
 												array(
 													'name' => 'user_ids',
-													'title' => 'User ID\'s: ',
+													'title' => esc_html__( "User ID's: ", 'super-forms' ),
 													'subline' => esc_html__( 'Seperated by comma e.g: 32,2467,1870, or leave blank to only filter by the roles defined above', 'super-forms' ),
 													'type' => 'text',
 													'default' => '',
@@ -920,7 +920,7 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 												),
 												array(
 													'name' => 'html_template',
-													'title' => esc_html( 'View template HTML', 'super-forms' ),
+													'title' => esc_html__( 'View template HTML', 'super-forms' ),
 													'subline' => esc_html__( 'When viewing an entry, you can create your own HTML view (leave blank to use the default template)', 'super-forms' ),
 													'type' => 'textarea',
 													'default' => $html_template,
@@ -929,7 +929,7 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 												),
 												array(
 													'name' => 'loop_html',
-													'title' => esc_html( 'Loop fields HTML', 'super-forms' ),
+													'title' => esc_html__( 'Loop fields HTML', 'super-forms' ),
 													'subline' => esc_html__( 'If you use {loop_fields} inside your custom template, you can define the "row" here and retrieve the field values with {loop_label} and {loop_value} tags, leave blank to use the default loop HTML', 'super-forms' ),
 													'type' => 'textarea',
 													'default' => $loop_html,
@@ -957,7 +957,7 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 												),
 												array(
 													'name' => 'user_roles',
-													'title' => 'User roles: ',
+													'title' => esc_html__( 'User roles: ', 'super-forms' ),
 													'subline' => esc_html__( 'Seperated by comma e.g: administrator,editor, or leave blank to allow all roles', 'super-forms' ),
 													'type' => 'text',
 													'default' => 'administrator',
@@ -965,7 +965,7 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 												),
 												array(
 													'name' => 'user_ids',
-													'title' => 'User ID\'s: ',
+													'title' => esc_html__( "User ID's: ", 'super-forms' ),
 													'subline' => esc_html__( 'Seperated by comma e.g: 32,2467,1870, or leave blank to only filter by the roles defined above', 'super-forms' ),
 													'type' => 'text',
 													'default' => '',
@@ -1206,7 +1206,7 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 									'nodes'      => array(
 										array(
 											'name'    => 'type',
-											'subline' => esc_html( 'Link', 'super-forms' ),
+											'subline' => esc_html__( 'Link', 'super-forms' ),
 											'type'    => 'select',
 											'options' => array(
 												'none'   => esc_html__( 'None', 'super-forms' ),
@@ -1228,7 +1228,7 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 										),
 										array(
 											'name'    => 'url',
-											'subline' => esc_html( 'Enter custom URL (use {tags} if needed):', 'super-forms' ),
+											'subline' => esc_html__( 'Enter custom URL (use {tags} if needed):', 'super-forms' ),
 											'type'    => 'text',
 											'default' => '',
 											'filter'  => $sk . '_column.link.type;custom',
@@ -1239,14 +1239,14 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 								array(
 									'width_auto' => true,
 									'name'       => 'width',
-									'subline'    => esc_html( 'Width (px)', 'super-forms' ),
+									'subline'    => esc_html__( 'Width (px)', 'super-forms' ),
 									'type'       => 'number',
 									'default'    => '150',
 								),
 								array(
 									'width_auto' => true,
 									'name'       => 'order',
-									'subline'    => esc_html( 'Order', 'super-forms' ),
+									'subline'    => esc_html__( 'Order', 'super-forms' ),
 									'type'       => 'number',
 									'default'    => '10',
 								),
@@ -1259,7 +1259,7 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 										array(
 											'width_auto' => true,
 											'name'       => 'enabled',
-											'title'      => esc_html( 'Allow filter', 'super-forms' ),
+											'title'      => esc_html__( 'Allow filter', 'super-forms' ),
 											'type'       => 'checkbox',
 											'default'    => 'true',
 										),
@@ -1271,7 +1271,7 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 											'nodes'   => array(
 												array(
 													'name' => 'placeholder',
-													'title' => esc_html( 'Filter placeholder', 'super-forms' ),
+													'title' => esc_html__( 'Filter placeholder', 'super-forms' ),
 													'type' => 'text',
 													'default' => 'search...',
 													'i18n' => true,
@@ -1283,7 +1283,7 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 								array(
 									'width_auto' => true,
 									'name'       => 'sort',
-									'title'      => esc_html( 'Allow sorting', 'super-forms' ),
+									'title'      => esc_html__( 'Allow sorting', 'super-forms' ),
 									'type'       => 'checkbox',
 									'default'    => ( ! empty( $sv['default'] ) ? $sv['default'] : '' ),
 								),
@@ -1343,7 +1343,7 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 													array(
 														'width_auto' => true,
 														'name' => 'type',
-														'subline' => esc_html( 'Link', 'super-forms' ),
+														'subline' => esc_html__( 'Link', 'super-forms' ),
 														'type' => 'select',
 														'options' => array(
 															'none' => esc_html__( 'None', 'super-forms' ),
@@ -1365,7 +1365,7 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 													),
 													array(
 														'name' => 'url',
-														'title' => esc_html( 'Enter custom URL (use {tags} if needed):', 'super-forms' ),
+														'title' => esc_html__( 'Enter custom URL (use {tags} if needed):', 'super-forms' ),
 														'type' => 'text',
 														'default' => '',
 														'filter' => 'link.type;custom',
@@ -1376,14 +1376,14 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 											array(
 												'width_auto' => true,
 												'name'    => 'width',
-												'subline' => esc_html( 'Width (px)', 'super-forms' ),
+												'subline' => esc_html__( 'Width (px)', 'super-forms' ),
 												'type'    => 'number',
 												'default' => '150',
 											),
 											array(
 												'width_auto' => true,
 												'name'    => 'order',
-												'subline' => esc_html( 'Order', 'super-forms' ),
+												'subline' => esc_html__( 'Order', 'super-forms' ),
 												'type'    => 'number',
 												'default' => '10',
 											),
@@ -1396,7 +1396,7 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 													array(
 														'width_auto' => true,
 														'name' => 'enabled',
-														'title' => esc_html( 'Allow filter', 'super-forms' ),
+														'title' => esc_html__( 'Allow filter', 'super-forms' ),
 														'type' => 'checkbox',
 														'default' => 'true',
 													),
@@ -1408,7 +1408,7 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 														'nodes' => array(
 															array(
 																'name' => 'placeholder',
-																'title' => esc_html( 'Filter placeholder', 'super-forms' ),
+																'title' => esc_html__( 'Filter placeholder', 'super-forms' ),
 																'type' => 'text',
 																'default' => 'search...',
 																'i18n' => true,
@@ -1416,7 +1416,7 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 															array(
 																'width_auto' => true,
 																'name' => 'type',
-																'subline' => esc_html( 'Filter method', 'super-forms' ),
+																'subline' => esc_html__( 'Filter method', 'super-forms' ),
 																'type' => 'select',
 																'options' => array(
 																	'text' => esc_html__( 'Text field (default)', 'super-forms' ),
@@ -1426,7 +1426,7 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 															),
 															array(
 																'name' => 'items',
-																'title' => esc_html( 'Filter options', 'super-forms' ),
+																'title' => esc_html__( 'Filter options', 'super-forms' ),
 																'subline' => esc_html__( 'put each on a new line', 'super-forms' ),
 																'type' => 'textarea',
 																'placeholder' => "red|Red\ngreen|Green\nblue|Blue",
@@ -1441,7 +1441,7 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 											array(
 												'width_auto' => true,
 												'name'    => 'sort',
-												'title'   => esc_html( 'Allow sorting', 'super-forms' ),
+												'title'   => esc_html__( 'Allow sorting', 'super-forms' ),
 												'type'    => 'checkbox',
 												'default' => 'true',
 											),
