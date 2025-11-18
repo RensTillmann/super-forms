@@ -78,7 +78,8 @@
                         nodes[i].parentNode.classList.remove('super-search-found');
                         nodes[i].parentNode.classList.remove('super-search-found-main');
                     }
-                    var dependencies = [], found = false, i, nodes = document.querySelectorAll(':scope .super-wrapper > .super-fields > .super-field');
+                    var dependencies = [], found = false;
+                    nodes = document.querySelectorAll(':scope .super-wrapper > .super-fields > .super-field');
                     for(i=0; i<nodes.length; i++){
                         // Skip this if it has style.display=='none';
                         if(nodes[i].style.display==='none') continue;

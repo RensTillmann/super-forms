@@ -533,7 +533,7 @@
                 localization = el.dataset.localization,
                 widget,connectedMinDays,minDate,connectedMaxDays,maxDate,
                 parse,firstDate,$date,days,found,date,fullDate,dateFrom,
-                dateTo,d1,d2,from,to,check,day,exclDays,exclDaysOverride,exclDaysOverrideReplaced,exclDates,exclDatesReplaced,
+                dateTo,d1,d2,from,to,check,exclDays,exclDaysOverride,exclDaysOverrideReplaced,exclDates,exclDatesReplaced,
                 changeMonth =(el.dataset.changeMonth==='true' ? true : false),
                 changeYear =(el.dataset.changeYear==='true' ? true : false),
                 showMonthAfterYear = (el.dataset.showMonthAfterYear==='true' ? true : false),
@@ -837,7 +837,7 @@
                             // Every other day
                             // Every other week
                             if(exclDatesReplaced[y][1]==='@'){
-                                var week = dt.getWeek();
+                                week = dt.getWeek();
                                 if(exclDatesReplaced[y][0]==='w'){
                                     // w@even (every other week @ even)
                                     if(exclDatesReplaced[y][2]==='e' && (week % 2 !== 0)){
@@ -1758,7 +1758,7 @@
 
                     // Autosuggest
                     if(field.classList.contains('super-auto-suggest')){
-
+                        // Auto-suggest fields are handled separately
                     }
                     // Dropdown
                     if(field.classList.contains('super-dropdown') || field.classList.contains('super-auto-suggest')){
@@ -2281,7 +2281,7 @@
                 var fieldType = SUPER.get_field_type(form, fieldName);
                 if(fieldType.type==='file'){
                     var w = nodes[i].closest('.super-field-wrapper');
-                    var x, d = w.querySelectorAll('.super-fileupload-delete');
+                    var d = w.querySelectorAll('.super-fileupload-delete');
                     for(x=0; x<d.length; x++){
                         d[x].click();
                     }
@@ -2937,10 +2937,10 @@
                 }, 1000, el);
                 return;
             }
-            var keyCode = e.keyCode || e.which; 
+            var keyCode = e.keyCode || e.which;
             if (keyCode != 9) { // If not pressed TAB
-                var form = SUPER.get_frontend_or_backend_form({el: this}),
-                    validation = this.dataset.validation,
+                form = SUPER.get_frontend_or_backend_form({el: this});
+                var validation = this.dataset.validation,
                     conditionalValidation = this.dataset.conditionalValidation;
                 if(validation==='restrict_to_items') return;
                 SUPER.handle_validations({event: e, el: this, form: form, validation: validation, conditionalValidation: conditionalValidation});

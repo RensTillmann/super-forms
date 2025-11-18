@@ -1349,7 +1349,7 @@
                 var tabSlug = tab.className.replace('super-tab-content super-tab-', '');
                 tabSlug = tabSlug.replace('super-active', '').trim();
                 if(tabSlug==='triggers' || tabSlug==='woocommerce' || tabSlug==='pdf' || tabSlug==='listings' || tabSlug==='stripe'){
-                    var specificTab = true;
+                    specificTab = true;
                 }
             }
         }
@@ -1363,7 +1363,7 @@
             $settings = SUPER.get_tab_settings($settings, tabSlug);
         }else{
             // Grab all settings anew
-            var $settings = {};
+            $settings = {};
             var includeGlobalValues = false;
             if(string===false){
                 includeGlobalValues = document.querySelector('input[name="retain_underlying_global_values"]').checked;
@@ -1506,9 +1506,9 @@
                     if (node.querySelector('.flag')) node.querySelector('.flag').remove();
                     node.appendChild(cloneFlag);
                 }else{
-                    var node = nodes[i].closest('label').querySelector('.sfui-subline');
+                    node = nodes[i].closest('label').querySelector('.sfui-subline');
                     if(node){
-                        var cloneFlag = flag.cloneNode();
+                        cloneFlag = flag.cloneNode();
                         cloneFlag.title = 'Translation for ' + (i18n ? i18n : 'main language');
                         if (node.querySelector('.flag')) node.querySelector('.flag').remove();
                         node.appendChild(cloneFlag);
@@ -1519,7 +1519,7 @@
     };
     SUPER.get_tab_settings = function(settings, slug, tab, data, returnData){
         if(typeof returnData === 'undefined') returnData = false;
-        var nodes, i, i18n_data = null, field, fieldName, newField, mainLanguageValue,
+        var nodes, i, i18n_data = null, field, fieldName, newField, mainLanguageValue, value, translatedValue, p, i18n_input_field, i18n_value, repeaters,
         i18n = document.querySelector('.super-create-form').dataset.i18n;
         if(SUPER.ui.settings['_'+slug]){
             // Get the current country flag
@@ -1582,7 +1582,7 @@
                                             current = current[parseInt(key)];
                                         } else if (typeof key === 'string') {
                                             // Handle object property (remove [] suffix if present)
-                                            var cleanKey = key.replace(/\[\]$/, '');
+                                            cleanKey = key.replace(/\[\]$/, '');
                                             current = current[cleanKey];
                                         }
                                     } else {
@@ -1596,7 +1596,7 @@
                             }
                             // Now look for the fieldName in the current object
                             if (current && typeof current === 'object' && current[fieldName]) {
-                                var translatedValue = current[fieldName];
+                                translatedValue = current[fieldName];
                                 // If translatedValue is an object (like {"am": "New question1nl"}),
                                 // get the value for the current language code
                                 if(typeof translatedValue === 'object' && translatedValue[i18n]){
@@ -1660,11 +1660,11 @@
 
                 // Populate fields with i18n data
                 if(SUPER.ui.settings['_'+slug].i18n){
-                    var i18n_data = JSON.parse(JSON.stringify(SUPER.ui.settings['_'+slug].i18n));
+                    i18n_data = JSON.parse(JSON.stringify(SUPER.ui.settings['_'+slug].i18n));
                     if(i18n_data[i18n]){
                         for(i = 0; i < nodes.length; i++){
-                            var value = nodes[i].value;
-                            var translatedValue = SUPER.ui.i18n.getTranslatedValue(nodes[i], i18n_data, i18n, tab);
+                            value = nodes[i].value;
+                            translatedValue = SUPER.ui.i18n.getTranslatedValue(nodes[i], i18n_data, i18n, tab);
                             if(translatedValue!==null){
                                 k = nodes[i].name.split('.').pop();
                                 if(!i18n_data[k]){
@@ -1727,7 +1727,7 @@
             return settings;
         }
         // Get the current country flag
-        var flag = document.querySelector(':scope .super-tabs > .super-tab-builder > .flag');
+        flag = document.querySelector(':scope .super-tabs > .super-tab-builder > .flag');
         // Remember the original value for translatable settings
         nodes = tab.querySelectorAll('.sfui-i18n [name]');
         SUPER.add_country_flags(i18n, flag, nodes);
@@ -1739,17 +1739,17 @@
                 }
                 if (nodes[i].type === 'textarea') {
                     if (tinymce.get(nodes[i].id)) {
-                        var value = tinymce.get(nodes[i].id).getContent();
+                        value = tinymce.get(nodes[i].id).getContent();
                     } else {
-                        var value = nodes[i].value;
+                        value = nodes[i].value;
                     }
-                    var field = document.createElement('textarea');
+                    field = document.createElement('textarea');
                 } else {
-                    var value = nodes[i].value;
+                    value = nodes[i].value;
                     if (nodes[i].type === 'checkbox') {
                         value = nodes[i].checked ? 'true' : 'false';
                     }
-                    var field = document.createElement('input');
+                    field = document.createElement('input');
                     field.type = 'hidden';
                 }
                 field.value = value;
@@ -1767,7 +1767,7 @@
     
         // Adjust the number of repeater items based on i18n_data
         if (SUPER.ui.i18n.translating && (slug==='triggers' || slug==='stripe') && tab.classList.contains('super-tab-content')){
-            var p = tab;
+            p = tab;
             // Initialize i18n_data if not already done
             // tmp if (i18n_data === null) {
             // tmp     var i18n_input_field = p.querySelector('[name="i18n"]');
@@ -1803,7 +1803,7 @@
             }
             i18n_data = SUPER.ui.settings['_'+slug].i18n;
             // Adjust repeater items based on i18n_data
-            var repeaters = tab.querySelectorAll('[data-r]');
+            repeaters = tab.querySelectorAll('[data-r]');
             repeaters.forEach(function(repeater) {
                 var key = repeater.getAttribute('data-r');
                 if (i18n_data[i18n] && i18n_data[i18n][key]) {
@@ -1825,7 +1825,8 @@
             });
         }
         // First grab all settings that are not inside a repeater element
-        var i, k, nodes = tab.querySelectorAll('[data-g], [data-r], [name]');
+        var k;
+        nodes = tab.querySelectorAll('[data-g], [data-r], [name]');
         for (i = 0; i < nodes.length; i++) {
             if (nodes[i].classList.contains('sf-processed')) {
                 continue;
@@ -1855,21 +1856,21 @@
                 if (SUPER.ui.i18n.translating && nodes[i].closest('.sfui-setting').classList.contains('sfui-i18n')) {
                     // Try to grab existing translated string
                     if (i18n_data === null) {
-                        var p = (nodes[i].closest('[data-g="data"]') ? nodes[i].closest('[data-g="data"]') : nodes[i].closest('.super-tab-content'));
+                        p = (nodes[i].closest('[data-g="data"]') ? nodes[i].closest('[data-g="data"]') : nodes[i].closest('.super-tab-content'));
                         if (p.classList.contains('super-tab-content')) {
-                            var i18n_input_field = p.querySelector('[name="i18n"]');
+                            i18n_input_field = p.querySelector('[name="i18n"]');
                         } else {
-                            var i18n_input_field = p.nextElementSibling.querySelector('[name="i18n"]');
+                            i18n_input_field = p.nextElementSibling.querySelector('[name="i18n"]');
                         }
                         if(i18n_input_field){
-                            var i18n_value = i18n_input_field.value.trim();
+                            i18n_value = i18n_input_field.value.trim();
                             i18n_input_field.classList.remove('sfui-red');
                             if (i18n_value === '') {
-                                var i18n_data = {};
+                                i18n_data = {};
                                 i18n_data[i18n] = {};
                             } else {
                                 try {
-                                    var i18n_data = JSON.parse(i18n_value);
+                                    i18n_data = JSON.parse(i18n_value);
                                     var changed = false;
                                     Object.keys(i18n_data).forEach(function(key) {
                                         if (Array.isArray(i18n_data[key])) {
@@ -1883,7 +1884,7 @@
                                 }
                                 catch (e) {
                                     console.error(e);
-                                    var i18n_data = {};
+                                    i18n_data = {};
                                     i18n_data[i18n] = {};
                                     i18n_input_field.classList.add('sfui-red');
                                 }
@@ -1929,7 +1930,7 @@
                     // tmp     }
                     // tmp }
                 } else {
-                    var value = nodes[i].value;
+                    value = nodes[i].value;
                     var type = nodes[i].type;
                     k = nodes[i].name.split('.').pop();
                     if (type === 'checkbox') value = nodes[i].checked;
@@ -1974,7 +1975,7 @@
                 SUPER.ui.settings['_'+slug].i18n[SUPER.ui.i18n.lastLanguage] = data.i18n[SUPER.ui.i18n.lastLanguage];
                 data = SUPER.ui.settings['_'+slug];
                 // Adjust repeater items based on i18n_data
-                var repeaters = tab.querySelectorAll('[data-r]');
+                repeaters = tab.querySelectorAll('[data-r]');
                 repeaters.forEach(function(repeater) {
                     var key = repeater.getAttribute('data-r');
                     if (data[key]) {
@@ -4154,12 +4155,12 @@
                                         }
                                     });
                                 }
-                                var slug = 'triggers';
-                                var tab = document.querySelector('.super-tab-'+slug);
+                                slug = 'triggers';
+                                tab = document.querySelector('.super-tab-'+slug);
                                 if(typeof SUPER.ui.settings['_' + slug]!=='undefined' && slug==='triggers'){
-                                    var x = SUPER.ui.settings['_'+slug];
+                                    x = SUPER.ui.settings['_'+slug];
                                     // Adjust repeater items based on i18n_data
-                                    var repeaters = tab.querySelectorAll('[data-r]');
+                                    repeaters = tab.querySelectorAll('[data-r]');
                                     repeaters.forEach(function(repeater) {
                                         var key = repeater.getAttribute('data-r');
                                         if (x[key]) {
@@ -7031,10 +7032,9 @@
                 });
             }
         }
-        
-        // Handle mouse enter/leave for pausing updates
-        var pausedPreviews = new Set();
-        
+
+        // Handle mouse enter/leave for pausing updates (pausedPreviews already declared above)
+
         $doc.on('mouseenter', '.super-email-preview', function() {
             pausedPreviews.add(this);
             console.log('Paused updates for email preview (mouse enter)');
@@ -7341,9 +7341,9 @@
                         // Not enough space, revert to normal positioning
                         return;
                     }
-                    
+
                     // Set min-height on parent toggle to prevent scrollbar issues
-                    var parentToggle = emailPreview.closest('.sfui-toggle');
+                    parentToggle = emailPreview.closest('.sfui-toggle');
                     if (parentToggle) {
                         var currentHeight = parentToggle.offsetHeight;
                         parentToggle.style.minHeight = Math.max(400, currentHeight) + 'px';
