@@ -4,7 +4,7 @@
     // Switch between multiparts (prev/next or clicking on step)
     SUPER.switchMultipart = function(e, target, dir){
         // First get active part
-        var i, index, validate, result, skip, progress, multipart,
+        var i, index, validate, _result, skip, progress, multipart,
             form = target.closest('.super-form'),
             stepParams = (form.dataset.stepParams ? form.dataset.stepParams : ''), // default
             nodes = form.querySelectorAll('.super-multipart'),
@@ -659,8 +659,7 @@
             var multiDatesClassName = 'super-datepicker-multidates',
                 singleDatesClassName = 'super-datepicker-singledates';
             var options = {
-                onSelect: function( selectedDate ) {
-                    debugger;
+                onSelect: function( _selectedDate ) {
                     var el = this;
                     if(el.value!==''){
                         parse = Date.parseExact(el.value, parseFormat);
@@ -970,7 +969,7 @@
                     }
                 }
             } catch (error) {
-                // eslint-disable-next-line no-console
+                 
                 console.log(error);
                 alert(error);
             }
@@ -1383,7 +1382,7 @@
         if(typeof cloneIndex === 'undefined') cloneIndex = 0;
         var allParents = $(field).parents('.super-duplicate-column-fields');
         var suffix = [];
-        $(allParents).each(function(key){
+        $(allParents).each(function(_key){
             var currentParentIndex = SUPER.index(this, 'super-duplicate-column-fields');
             suffix.push('['+currentParentIndex+']');
         });
@@ -1467,7 +1466,7 @@
                 }
                 var $o = (m[0] ? m[0] : ''); // original tag
                 var $n = (m[1] ? m[1] : ''); // name
-                var $d = (m[2] ? m[2] : ''); // depth
+                var _$d = (m[2] ? m[2] : ''); // depth
                 //var $dr = $d.replace(/[0-9]/g, "0") // depth reset to 0
                 var $c = (m[3] ? m[3] : ''); // counter e.g: _2 or _3 etc.
                 var $s = (m[4] ? m[4] : ''); // suffix
@@ -2211,7 +2210,7 @@
         });
         
         $doc.on('click', '.super-form .super-duplicate-column-fields .super-add-duplicate', function(){
-            var i, x, nodes, el, parent, column, form, firstColumn, lastColumn,
+            var i, _x, nodes, el, parent, column, form, firstColumn, lastColumn,
                 found, limit, unique_field_names = {}, field_names = {}, field_labels = {}, counter = 0,
                 field, clone, name;
 
@@ -2269,12 +2268,12 @@
 
         // Delete dynamic column
         $doc.on('click', '.super-duplicate-column-fields .super-delete-duplicate', function(){
-            var i, x, nodes, found,
+            var i, x, nodes, _found,
                 form = this.closest('.super-form'),
                 formId = form.querySelector('input[name="hidden_form_id"]').value,
                 removedFields = {},
                 parent = this.closest('.super-duplicate-column-fields'),
-                foundElements = [];
+                _foundElements = [];
             nodes = parent.querySelectorAll('.super-shortcode-field');
             for (i = 0; i < nodes.length; ++i) {
                 // Check if this is a file upload element, if so make sure we delete all files from the files object
@@ -2824,14 +2823,12 @@
                                     }
                                     $form.find('form').html(data.html);
                                     $form.data('i18n', $i18n);
-                                    debugger;
                                     $form[0].dataset.i18n = $i18n;
                                     // Store the translation language code in sessionStorage
                                     sessionStorage.setItem('sf_'+$form_id+'_i18n', $i18n);
                                 }
                             },
                             complete: function(){
-                                debugger;
                                 //super-form super-form-73949 super-default-squared super-field-size-medium 
                                 //super-adaptive notranslate 
                                 //super-rendered 
@@ -2868,14 +2865,14 @@
                                 }
                             },
                             error: function (xhr, ajaxOptions, thrownError) {
-                                // eslint-disable-next-line no-console
+                                 
                                 console.log(xhr, ajaxOptions, thrownError);
                                 alert(super_elements_i18n.failed_to_process_data);
                             }
                         });
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
-                        // eslint-disable-next-line no-console
+                         
                         console.log(xhr, ajaxOptions, thrownError);
                         alert('Failed to generate nonce!');
                     }
@@ -3121,7 +3118,7 @@
                 index = clickedChildren.indexOf(el),
                 total = form.querySelectorAll('.super-multipart').length,
                 validate,
-                result,
+                _result,
                 progress,
                 multipart,
                 skip,
@@ -3311,7 +3308,7 @@
             },
             add: function(e, target){
                 var i,
-                    html = '',
+                    _html = '',
                     field = target.closest('.super-field'),
                     value = target.dataset.value, // first_choice
                     searchValue = target.dataset.searchValue, // First choice
@@ -3371,7 +3368,7 @@
                 var i,
                     parent = target.closest('.super-field'),
                     counter = 0,
-                    html = '',
+                    _html = '',
                     tag, tags,
                     duplicates = {},
                     method = target.dataset.method,
@@ -3380,7 +3377,7 @@
                     itemsToHide = [],
                     value,
                     text = '',
-                    searchValue,
+                    _searchValue,
                     regex,
                     stringBold,
                     wrapper = target.closest('.super-field-wrapper'),
@@ -3478,7 +3475,7 @@
             try {
                 sfevents = JSON.parse(target.attributes.sfevents.value);
             } catch (error) {
-                // eslint-disable-next-line no-console
+                 
                 console.log(error);
                 alert(error);
             }
@@ -3505,7 +3502,7 @@
                             if (_currentFunc[_function[i]]) {
                                 _currentFunc = _currentFunc[_function[i]];
                             } else {
-                                // eslint-disable-next-line no-console
+                                 
                                 console.log('Function ' + actions + '() is undefined!');
                                 break;
                             }
@@ -3516,7 +3513,7 @@
                             _currentFunc = _currentFunc[actions];
                             _currentFunc(e, target, eventType, actions);
                         } else {
-                            // eslint-disable-next-line no-console
+                             
                             console.log('Function ' + actions + '() is undefined!');
                         }
                     }
@@ -3530,7 +3527,7 @@
                             if (_currentFunc[_function[i]]) {
                                 _currentFunc = _currentFunc[_function[i]];
                             } else {
-                                // eslint-disable-next-line no-console
+                                 
                                 console.log('Function ' + key + '() is undefined!');
                                 break;
                             }

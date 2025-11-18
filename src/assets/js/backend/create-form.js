@@ -48,7 +48,7 @@
 
     function isEmpty(obj) {
         for (var prop in obj) {
-            if (obj.hasOwnProperty(prop)) {
+            if (Object.prototype.hasOwnProperty.call(obj, prop)) {
                 return false;
             }
         }
@@ -174,7 +174,7 @@
                 }
             }
         },
-        getTabFieldValue: function(el,tab){
+        getTabFieldValue: function(el,_tab){
             var value = el.value;
             if(!el.type) alert('not a field, might want to fix/check the create-form.js code...');
             if(value === true) return 'true';
@@ -191,7 +191,7 @@
         },
         setRepeaterFieldValues: function(element, values){
             for (var fieldName in values) {
-                if (values.hasOwnProperty(fieldName)) {
+                if (Object.prototype.hasOwnProperty.call(values, fieldName)) {
                     var fieldValue = values[fieldName];
                     if (typeof fieldValue === 'object' && fieldValue !== null) {
                         // Handle nested objects
@@ -285,33 +285,33 @@
                     if (repeater.closest('.super-tab-content') && document.querySelector('.super-create-form').dataset.i18n) {
                         // In translation mode
                         var i18n = document.querySelector('.super-create-form').dataset.i18n;
-                        var p = repeater.closest('[data-g="data"]') ? repeater.closest('[data-g="data"]') : repeater.closest('.super-tab-content');
-                        var i18n_input_field = p.querySelector('[name="i18n"]');
-                        var i18n_value = i18n_input_field.value.trim();
-                        var i18n_data = i18n_value ? JSON.parse(i18n_value) : {};
-        
-                        var key = repeater.getAttribute('data-r');
-                        var index = Array.prototype.indexOf.call(repeaterItems, itemToDelete);
-        
-                        if (i18n_data[i18n] && i18n_data[i18n][key]) {
-                            i18n_data[i18n][key].splice(index, 1); // Remove the corresponding i18n data
-                            if (i18n_data[i18n][key].length === 0) {
-                                delete i18n_data[i18n][key]; // Remove the key if the array is empty
+                        var tabParent = repeater.closest('[data-g="data"]') ? repeater.closest('[data-g="data"]') : repeater.closest('.super-tab-content');
+                        var i18nInputField = tabParent.querySelector('[name="i18n"]');
+                        var i18nValue = i18nInputField.value.trim();
+                        var i18nData = i18nValue ? JSON.parse(i18nValue) : {};
+
+                        var repeaterKey = repeater.getAttribute('data-r');
+                        var deleteIndex = Array.prototype.indexOf.call(repeaterItems, itemToDelete);
+
+                        if (i18nData[i18n] && i18nData[i18n][repeaterKey]) {
+                            i18nData[i18n][repeaterKey].splice(deleteIndex, 1); // Remove the corresponding i18n data
+                            if (i18nData[i18n][repeaterKey].length === 0) {
+                                delete i18nData[i18n][repeaterKey]; // Remove the key if the array is empty
                             }
-                            i18n_input_field.value = JSON.stringify(i18n_data, undefined, 4);
+                            i18nInputField.value = JSON.stringify(i18nData, undefined, 4);
                         }
                     }else{
                         // Not in translation mode, make sure to delete the corresponding index from the translated version for this repeater
                         var tab = itemToDelete.closest('.super-tab-content');
-                        var slug = tab.className.replace('super-active', '').replace('super-tab-content', '').replace('super-tab-', '').split(' ').join('');
+                        var _slug = tab.className.replace('super-active', '').replace('super-tab-content', '').replace('super-tab-', '').split(' ').join('');
                         var keyPath = [];
                         var parent = itemToDelete;
                         // Traverse up to build the key path
                         while (parent && parent !== tab) {
                             if(parent.classList.contains('sfui-repeater-item')){
-                                var repeater = parent.parentElement;
-                                var index = Array.from(repeater.children).indexOf(parent);
-                                keyPath.unshift(index);
+                                var parentRepeater = parent.parentElement;
+                                var itemIndex = Array.from(parentRepeater.children).indexOf(parent);
+                                keyPath.unshift(itemIndex);
                             } else if (parent.hasAttribute('data-g')) {
                                 keyPath.unshift(parent.getAttribute('data-g'));
                             } else if (parent.hasAttribute('data-r')) {
@@ -321,22 +321,22 @@
                             parent = parent.parentElement;
                         }
                         console.log(keyPath);
-                        var p = repeater.closest('[data-g="data"]') ? repeater.closest('[data-g="data"]') : repeater.closest('.super-tab-content');
-                        var i18n_input_field = p.querySelector('[name="i18n"]');
-                        var i18n_value = i18n_input_field.value.trim();
-                        var i18n_data = i18n_value ? JSON.parse(i18n_value) : {};
-        
-                        var key = repeater.getAttribute('data-r');
-                        var index = Array.prototype.indexOf.call(repeaterItems, itemToDelete);
-        
-                        Object.keys(i18n_data).forEach(function(key){
-                            if(i18n_data[key]){
-                                //if (i18n_data[i18n] && i18n_data[i18n][key]) {
-                                //    i18n_data[i18n][key].splice(index, 1); // Remove the corresponding i18n data
-                                //    if (i18n_data[i18n][key].length === 0) {
-                                //        delete i18n_data[i18n][key]; // Remove the key if the array is empty
+                        var _elseTabParent = repeater.closest('[data-g="data"]') ? repeater.closest('[data-g="data"]') : repeater.closest('.super-tab-content');
+                        var _elseI18nInputField = _elseTabParent.querySelector('[name="i18n"]');
+                        var _elseI18nValue = _elseI18nInputField.value.trim();
+                        var _elseI18nData = _elseI18nValue ? JSON.parse(_elseI18nValue) : {};
+
+                        var _elseRepeaterKey = repeater.getAttribute('data-r');
+                        var _elseDeleteIndex = Array.prototype.indexOf.call(repeaterItems, itemToDelete);
+
+                        Object.keys(_elseI18nData).forEach(function(langKey){
+                            if(_elseI18nData[langKey]){
+                                //if (_elseI18nData[langKey] && _elseI18nData[langKey][_elseRepeaterKey]) {
+                                //    _elseI18nData[langKey][_elseRepeaterKey].splice(_elseDeleteIndex, 1); // Remove the corresponding i18n data
+                                //    if (_elseI18nData[langKey][_elseRepeaterKey].length === 0) {
+                                //        delete _elseI18nData[langKey][_elseRepeaterKey]; // Remove the key if the array is empty
                                 //    }
-                                //    i18n_input_field.value = JSON.stringify(i18n_data, undefined, 4);
+                                //    _elseI18nInputField.value = JSON.stringify(_elseI18nData, undefined, 4);
                                 //}
                             }
 
@@ -432,7 +432,7 @@
                 let translationData = {};
                 try {
                     translationData = i18nField.value ? JSON.parse(i18nField.value) : {};
-                } catch (e) {
+                } catch (_e) {
                     console.warn('⚠ Invalid JSON in i18n field. Starting fresh.');
                 }
 
@@ -540,7 +540,7 @@
                 try {
                     current['i18n'] = JSON.parse(i18nField.value);
                     console.log('✅ Assigned i18n into SUPER.ui.settings:', current['i18n']);
-                } catch (e) {
+                } catch (_e) {
                     console.warn('⚠ Failed to parse i18nField.value:', i18nField.value);
                 }
 
@@ -963,8 +963,8 @@
             collectDataFromParents: function(data, el, value, slug, tab){
                 var mainLanguageObject = data;
                 var field = el;
-                var value = SUPER.ui.getTabFieldValue(field,tab);
-                var { keyPath, i18nField } = SUPER.ui.getKeyPath(field, tab);
+                value = SUPER.ui.getTabFieldValue(field,tab);
+                var { keyPath, i18nField: _i18nField } = SUPER.ui.getKeyPath(field, tab);
                 console.log('>>> keyPath:', keyPath);
                 //var keyPath = [];
                 //var parent = field.parentElement;
@@ -1124,7 +1124,7 @@
                                 return undefined;
                             }
                         })
-                        .filter((item, index) => {
+                        .filter((item, _index) => {
                             const keepItem = item !== undefined && 
                                 ((Array.isArray(item) && item.length > 0) || 
                                  (hasNamedProperties(item)) || 
@@ -1140,7 +1140,7 @@
                         // console.log(`Processing object key "${key}":`, obj[key], "Type:", typeof obj[key]);
             
                         try {
-                            const beforeRemoveEmpty = JSON.parse(JSON.stringify(obj[key]));
+                            const _beforeRemoveEmpty = JSON.parse(JSON.stringify(obj[key]));
                             const value = SUPER.ui.i18n.removeEmpty(obj[key]);
                             if(value===undefined && obj[key] !== undefined){
                                 delete obj[key]; 
@@ -1234,47 +1234,6 @@
                     return obj[field.name];
                 }
                 return field.value;
-
-                // tmp let currentParent = el.parentElement;
-                // tmp let keyPath = [];
-                // tmp // Traverse up the DOM to build the keyPath
-                // tmp while (currentParent) {
-                // tmp   if (currentParent.hasAttribute('data-r')) {
-                // tmp     const key = currentParent.getAttribute('data-r');
-                // tmp     const repeaterItems = Array.from(currentParent.children).filter(child => child.classList.contains('sfui-repeater-item'));
-                // tmp     const index = repeaterItems.indexOf(el.closest('.sfui-repeater-item'));
-                // tmp     keyPath.unshift(`${key}[${index}]`);
-                // tmp   } else if (currentParent.hasAttribute('data-g')) {
-                // tmp     const key = currentParent.getAttribute('data-g');
-                // tmp     keyPath.unshift(key);
-                // tmp   }
-                // tmp   currentParent = currentParent.parentElement;
-                // tmp }
-                keyPath.push(el.name); // Add the field name to the keyPath
-                // Construct the keyPath in the i18n_data object
-                let translatedValue = i18n_data[i18n];
-                for (const key of keyPath) {
-                  // Check if key is an array access string like 'line_items[1]'
-                  const arrayMatch = key.match(/^([a-zA-Z0-9_]+)\[([0-9]+)\]$/);
-                  if (arrayMatch) {
-                    const arrayKey = arrayMatch[1];
-                    const index = parseInt(arrayMatch[2], 10);
-                    if (translatedValue && Array.isArray(translatedValue[arrayKey])) {
-                      translatedValue = translatedValue[arrayKey][index];
-                    } else {
-                      translatedValue = null;
-                      break;
-                    }
-                  } else {
-                    if (translatedValue && key in translatedValue) {
-                      translatedValue = translatedValue[key];
-                    } else {
-                      translatedValue = null;
-                      break;
-                    }
-                  }
-                }
-                return translatedValue;
             },
             findParentsWithAttributes: function(el, attrs){
                 var parents = [];
@@ -1608,7 +1567,7 @@
                             for (var startIdx = 0; startIdx < keyPath.length; startIdx++) {
                                 var testKey = keyPath[startIdx];
                                 var cleanKey = typeof testKey === 'string' ? testKey.replace(/\[\]$/, '') : testKey;
-                                if (current && typeof current === 'object' && current.hasOwnProperty(cleanKey)) {
+                                if (current && typeof current === 'object' && Object.prototype.hasOwnProperty.call(current, cleanKey)) {
                                     pathStartIndex = startIdx;
                                     break;
                                 }
@@ -3520,7 +3479,7 @@
                     e.content = e.content.replace(/%7B(.+?)%7D/g, '{$1}');
                     console.log('BeforeSetContent - Modified content:', e.content);
                 });
-                editor.on('Change', function(e) {
+                editor.on('Change', function(_e) {
                     console.log('TinyMCE content changed');
                     // Required to store trigger translations properly
                     var input = editor.getElement();
@@ -3607,7 +3566,7 @@
             btn.style.display = '';
         });
         // Mouse enters any child of the colorpicker wrap, show the button
-        $(document).on('mouseenter', '.sfui-colorpicker-wrap, .sfui-colorpicker-wrap *', function(e){
+        $(document).on('mouseenter', '.sfui-colorpicker-wrap, .sfui-colorpicker-wrap *', function(_e){
             var wrap = $(this).closest('.sfui-colorpicker-wrap')[0];
             var btn = wrap.querySelector('.super-reset-settings-buttons');
             if (btn) {
@@ -3616,7 +3575,7 @@
             }
         });
         // Hide when the mouse leaves the whole colorpicker wrap area
-        $(document).on('mouseleave', '.sfui-colorpicker-wrap', function(e){
+        $(document).on('mouseleave', '.sfui-colorpicker-wrap', function(_e){
             var wrap = this;
             var btn = wrap.querySelector('.super-reset-settings-buttons');
             if (btn) btn.style.display = '';
@@ -4271,7 +4230,7 @@
                                 }
                                 nodes[i].value = JSON.stringify(json, undefined, 4);
                             }
-                        } catch (e) {
+                        } catch (_e) {
                             // Failed to parse json
                             nodes[i].value = '';
                         }
@@ -4991,7 +4950,7 @@
                                     });
                                 }
                             }
-                        } catch (e) {
+                        } catch (_e) {
                             if (!$element.children('.super-element-inner').hasClass('super-dropable')) {
                                 // When no inner elements, just update the element itself
                                 $element.children('.super-element-inner').html(response);
@@ -7246,7 +7205,7 @@
                         $status.fadeOut();
                     }, 5000);
                 },
-                error: function(xhr, status, error) {
+                error: function(_xhr, _status, _error) {
                     $button.prop('disabled', false);
                     $status.removeClass('loading success').addClass('error').html('<span class="dashicons dashicons-no"></span> ' + super_common_i18n.errors.failed).show();
                 }
@@ -7344,13 +7303,13 @@
                     var emailBody = emailPreview.querySelector('.super-email-body');
                     
                     // Sticky positioning logic
-                    var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                    var _scrollTop = window.pageYOffset || document.documentElement.scrollTop;
                     var toggleRect = toggle.getBoundingClientRect();
                     var shouldStick = toggleRect.top <= 50;
-                    
+
                     // Get toggle width for proper constraints
                     var toggleWidth = toggleRect.width;
-                    var currentPreviewHeight = previewRect.height;
+                    var _currentPreviewHeight = previewRect.height;
                     
                     // Reset all positioning first
                     emailPreview.classList.remove('sticky', 'sticky-bottom');
@@ -7501,7 +7460,7 @@
         var button = $(this);
         var picker = button.closest('.super-social-icon-picker');
         var hiddenInput = picker.find('input[type="hidden"]');
-        var display = picker.find('.super-social-icon-display');
+        var _display = picker.find('.super-social-icon-display');
         
         // Create modal if it doesn't exist
         if (!$('#super-social-icon-modal').length) {

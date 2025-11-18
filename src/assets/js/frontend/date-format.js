@@ -1,4 +1,4 @@
-/* eslint-disable no-mixed-spaces-and-tabs */
+ 
 /* eslint-disable no-useless-escape */
 // jshint ignore: start
 /**

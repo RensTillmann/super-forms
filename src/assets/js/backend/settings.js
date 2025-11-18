@@ -43,7 +43,7 @@
                         return true;
                     }
                 }
-            } catch(e) {
+            } catch(_e) {
                 // Legacy string format: "field;value"
                 var parts = filterAttr.split(';');
                 return parts[0] === fieldName;
@@ -181,7 +181,7 @@
             var date;
             try {
                 date = $.datepicker.parseDate( dateFormat, element.value );
-            } catch( error ) {
+            } catch( _error ) {
                 date = null;
             }
             return date;
