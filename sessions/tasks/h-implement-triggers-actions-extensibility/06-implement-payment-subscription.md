@@ -450,6 +450,8 @@ class SUPER_WooCommerce_Triggers {
         }
 
         // Check if this order was created from a Super Form
+        // Note: These are stored on the WooCommerce order, not the Super Forms entry
+        // So we use WooCommerce meta, not SUPER_Data_Access
         $form_id = $order->get_meta('_super_form_id');
         $entry_id = $order->get_meta('_super_entry_id');
 
@@ -484,6 +486,19 @@ class SUPER_WooCommerce_Triggers {
         foreach ($triggers as $trigger) {
             $executor = new SUPER_Trigger_Executor();
             $executor->execute_trigger($trigger['id'], $event_data);
+        }
+
+        // Store payment metadata on the Super Forms entry using Data Access Layer
+        if ($entry_id) {
+            SUPER_Data_Access::update_entry_data($entry_id, array(
+                '_payment_status' => $to_status,
+                '_payment_amount' => $order->get_total(),
+                '_payment_currency' => $order->get_currency(),
+                '_payment_method' => $order->get_payment_method(),
+                '_woo_order_id' => $order_id,
+                '_last_payment_event' => $event,
+                '_last_payment_date' => current_time('mysql')
+            ));
         }
 
         // Log the event
@@ -913,6 +928,160 @@ $vip_customer_workflow = array(
         )
     )
 );
+```
+
+## Data Access Layer Usage for Payment Data
+
+### Critical: Always Use SUPER_Data_Access for Entry Payment Data
+
+When storing payment-related data on Super Forms entries, always use the Data Access Layer:
+
+```php
+// ✅ CORRECT - Store payment data on Super Forms entry
+SUPER_Data_Access::update_entry_data($entry_id, array(
+    '_payment_status' => 'completed',
+    '_payment_amount' => $amount,
+    '_payment_currency' => $currency,
+    '_payment_gateway' => 'stripe',
+    '_transaction_id' => $transaction_id,
+    '_payment_date' => current_time('mysql'),
+    '_payment_metadata' => json_encode($metadata)
+));
+
+// ✅ CORRECT - Retrieve payment data from entry
+$entry_data = SUPER_Data_Access::get_entry_data($entry_id);
+$payment_status = $entry_data['_payment_status'] ?? null;
+$transaction_id = $entry_data['_transaction_id'] ?? null;
+
+// ✅ CORRECT - Find entries by payment status
+$paid_entries = SUPER_Data_Access::find_entries_by_field(
+    $form_id,
+    '_payment_status',
+    'completed'
+);
+
+// ❌ WRONG - Never use direct postmeta for entry payment data
+update_post_meta($entry_id, '_payment_status', 'completed');
+$status = get_post_meta($entry_id, '_payment_status', true);
+```
+
+### Gateway-Specific Meta vs Entry Meta
+
+Understand the difference between gateway-specific metadata and entry metadata:
+
+```php
+// WooCommerce Order Meta (stored on WC order, not SF entry)
+$order->update_meta_data('_super_form_id', $form_id);
+$order->update_meta_data('_super_entry_id', $entry_id);
+$order->save();
+
+// Super Forms Entry Meta (stored via Data Access Layer)
+SUPER_Data_Access::update_entry_data($entry_id, array(
+    '_woo_order_id' => $order->get_id(),
+    '_payment_status' => $order->get_status()
+));
+
+// Stripe Metadata (stored at Stripe, referenced in entry)
+$stripe_metadata = array(
+    'form_id' => $form_id,
+    'entry_id' => $entry_id
+);
+
+// Store Stripe reference in entry
+SUPER_Data_Access::update_entry_data($entry_id, array(
+    '_stripe_payment_intent' => $payment_intent_id,
+    '_stripe_customer_id' => $customer_id
+));
+```
+
+### Payment Event Logging
+
+Log payment events properly using both dedicated tables and Data Access Layer:
+
+```php
+class SUPER_Payment_Logger {
+
+    public static function log_payment_event($entry_id, $event, $data) {
+        global $wpdb;
+
+        // Log to dedicated payment events table for querying
+        $wpdb->insert(
+            $wpdb->prefix . 'super_payment_events',
+            array(
+                'entry_id' => $entry_id,
+                'event_type' => $event,
+                'gateway' => $data['gateway'] ?? '',
+                'amount' => $data['amount'] ?? 0,
+                'currency' => $data['currency'] ?? '',
+                'status' => $data['status'] ?? '',
+                'metadata' => json_encode($data),
+                'created_at' => current_time('mysql')
+            )
+        );
+
+        // Also store latest event on entry for quick access
+        SUPER_Data_Access::update_entry_data($entry_id, array(
+            '_last_payment_event' => array(
+                'event' => $event,
+                'timestamp' => current_time('mysql'),
+                'data' => $data
+            )
+        ));
+    }
+
+    public static function get_payment_history($entry_id) {
+        global $wpdb;
+
+        // Get from dedicated table
+        $events = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}super_payment_events
+             WHERE entry_id = %d
+             ORDER BY created_at DESC",
+            $entry_id
+        ), ARRAY_A);
+
+        // Also get summary from entry
+        $entry_data = SUPER_Data_Access::get_entry_data($entry_id);
+        $summary = array(
+            'total_paid' => $entry_data['_total_paid'] ?? 0,
+            'payment_status' => $entry_data['_payment_status'] ?? 'pending',
+            'last_event' => $entry_data['_last_payment_event'] ?? null
+        );
+
+        return array(
+            'summary' => $summary,
+            'events' => $events
+        );
+    }
+}
+```
+
+### Subscription Data Management
+
+Handle subscription data with proper storage patterns:
+
+```php
+// Store subscription details on entry
+SUPER_Data_Access::update_entry_data($entry_id, array(
+    '_subscription_id' => $subscription_id,
+    '_subscription_status' => 'active',
+    '_subscription_start' => current_time('mysql'),
+    '_subscription_next_payment' => date('Y-m-d H:i:s', strtotime('+1 month')),
+    '_subscription_plan' => $plan_id,
+    '_subscription_amount' => $amount,
+    '_subscription_interval' => 'monthly'
+));
+
+// Track subscription lifecycle events
+SUPER_Data_Access::update_entry_data($entry_id, array(
+    '_subscription_events' => array(
+        array(
+            'event' => 'subscription.created',
+            'timestamp' => current_time('mysql'),
+            'data' => $subscription_data
+        )
+    )
+));
 ```
 
 ## Context Manifest

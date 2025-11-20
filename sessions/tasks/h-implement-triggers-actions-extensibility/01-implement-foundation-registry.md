@@ -158,9 +158,626 @@ Register built-in events in registry:
 ## Context Manifest
 <!-- To be added by context-gathering agent -->
 
+## Data Access Layer Integration
+
+### Critical: Always Use SUPER_Data_Access for Entry Data
+
+All contact entry data operations MUST go through the Data Access Layer to ensure compatibility with the EAV migration system:
+
+```php
+// ✅ CORRECT - Use Data Access Layer for all entry data
+SUPER_Data_Access::update_entry_data($entry_id, array(
+    '_trigger_execution_id' => $execution_id,
+    '_last_action_status' => 'completed',
+    '_action_timestamp' => current_time('mysql'),
+    '_action_metadata' => json_encode($metadata)
+));
+
+// ✅ CORRECT - Read entry data through Data Access Layer
+$entry_data = SUPER_Data_Access::get_entry_data($entry_id);
+$trigger_id = $entry_data['_trigger_execution_id'] ?? null;
+
+// ✅ CORRECT - Delete specific entry data fields
+SUPER_Data_Access::delete_entry_data($entry_id, array(
+    '_trigger_execution_id',
+    '_last_action_status'
+));
+
+// ❌ WRONG - Never use direct postmeta for entry data
+update_post_meta($entry_id, '_trigger_execution_id', $execution_id);
+$data = get_post_meta($entry_id, '_super_contact_entry_data', true);
+delete_post_meta($entry_id, '_trigger_execution_id');
+```
+
+### Why This Matters
+
+1. **EAV Migration Compatibility**: The Data Access Layer automatically routes to the correct storage (serialized postmeta or EAV tables) based on migration state
+2. **Performance**: After migration, direct database queries are 30-60x faster than serialized data queries
+3. **Future-Proofing**: The storage backend can change without breaking your code
+4. **Consistency**: All entry data goes through the same validation and sanitization
+
+### Data Access Layer Methods
+
+```php
+// Get all entry data
+$data = SUPER_Data_Access::get_entry_data($entry_id);
+
+// Update specific fields (merges with existing data)
+SUPER_Data_Access::update_entry_data($entry_id, array(
+    'field_name' => 'value',
+    'another_field' => 'another_value'
+));
+
+// Find entries by field value (uses optimized queries)
+$entries = SUPER_Data_Access::find_entries_by_field(
+    $form_id,
+    'email',
+    'user@example.com'
+);
+
+// Check if entry exists
+$exists = SUPER_Data_Access::entry_exists($entry_id);
+
+// Delete specific fields
+SUPER_Data_Access::delete_entry_data($entry_id, array('field1', 'field2'));
+```
+
+### Integration with Triggers System
+
+When storing trigger/action execution data:
+
+```php
+class SUPER_Trigger_Execution {
+
+    public function log_execution($entry_id, $trigger_id, $result) {
+        // Store execution data using Data Access Layer
+        SUPER_Data_Access::update_entry_data($entry_id, array(
+            '_last_trigger_execution' => array(
+                'trigger_id' => $trigger_id,
+                'timestamp' => current_time('mysql'),
+                'result' => $result,
+                'status' => $result['success'] ? 'success' : 'failed'
+            )
+        ));
+
+        // Also log to dedicated trigger logs table for querying
+        global $wpdb;
+        $wpdb->insert(
+            $wpdb->prefix . 'super_trigger_logs',
+            array(
+                'entry_id' => $entry_id,
+                'trigger_id' => $trigger_id,
+                'status' => $result['success'] ? 'success' : 'failed',
+                'details' => json_encode($result),
+                'executed_at' => current_time('mysql')
+            )
+        );
+    }
+
+    public function get_execution_history($entry_id) {
+        // Get from Data Access Layer
+        $entry_data = SUPER_Data_Access::get_entry_data($entry_id);
+        return $entry_data['_trigger_execution_history'] ?? array();
+    }
+}
+```
+
+## Advanced Conditional Logic Engine (Epic 2)
+
+### Complex Condition Support
+
+The triggers system must support sophisticated conditional logic beyond simple field comparisons:
+
+```php
+class SUPER_Condition_Evaluator {
+
+    /**
+     * Evaluate complex condition groups with AND/OR/NOT logic
+     */
+    public function evaluate($conditions, $context) {
+        if (empty($conditions)) {
+            return true;
+        }
+
+        // Handle different condition structures
+        if (isset($conditions['operator'])) {
+            return $this->evaluate_group($conditions, $context);
+        }
+
+        // Legacy single condition support
+        return $this->evaluate_single($conditions, $context);
+    }
+
+    /**
+     * Evaluate a group of conditions with logical operators
+     */
+    private function evaluate_group($group, $context) {
+        $operator = strtoupper($group['operator'] ?? 'AND');
+        $results = array();
+
+        // Process sub-groups
+        if (!empty($group['groups'])) {
+            foreach ($group['groups'] as $subgroup) {
+                $results[] = $this->evaluate_group($subgroup, $context);
+            }
+        }
+
+        // Process individual conditions
+        if (!empty($group['conditions'])) {
+            foreach ($group['conditions'] as $condition) {
+                $results[] = $this->evaluate_single($condition, $context);
+            }
+        }
+
+        // Apply operator
+        switch ($operator) {
+            case 'AND':
+                return !in_array(false, $results, true);
+
+            case 'OR':
+                return in_array(true, $results, true);
+
+            case 'NOT':
+                // NOT inverts the result of AND operation on children
+                return !(!in_array(false, $results, true));
+
+            case 'XOR':
+                // Exactly one condition must be true
+                $true_count = array_count_values($results)[true] ?? 0;
+                return $true_count === 1;
+
+            case 'NAND':
+                // NOT AND - at least one must be false
+                return in_array(false, $results, true);
+
+            case 'NOR':
+                // NOT OR - all must be false
+                return !in_array(true, $results, true);
+
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Evaluate a single condition
+     */
+    private function evaluate_single($condition, $context) {
+        $field = $condition['field'] ?? '';
+        $operator = $condition['operator'] ?? '=';
+        $value = $condition['value'] ?? '';
+        $type = $condition['type'] ?? 'string';
+
+        // Get actual field value from context
+        $field_value = $this->get_field_value($field, $context);
+
+        // Type casting
+        $field_value = $this->cast_value($field_value, $type);
+        $value = $this->cast_value($value, $type);
+
+        // Evaluate based on operator
+        switch ($operator) {
+            case '=':
+            case '==':
+                return $field_value == $value;
+
+            case '!=':
+            case '<>':
+                return $field_value != $value;
+
+            case '>':
+                return $field_value > $value;
+
+            case '>=':
+                return $field_value >= $value;
+
+            case '<':
+                return $field_value < $value;
+
+            case '<=':
+                return $field_value <= $value;
+
+            case 'contains':
+                return stripos($field_value, $value) !== false;
+
+            case 'not_contains':
+                return stripos($field_value, $value) === false;
+
+            case 'starts_with':
+                return strpos($field_value, $value) === 0;
+
+            case 'ends_with':
+                return substr($field_value, -strlen($value)) === $value;
+
+            case 'regex':
+                return preg_match($value, $field_value) === 1;
+
+            case 'in':
+                $values = is_array($value) ? $value : explode(',', $value);
+                return in_array($field_value, $values);
+
+            case 'not_in':
+                $values = is_array($value) ? $value : explode(',', $value);
+                return !in_array($field_value, $values);
+
+            case 'between':
+                list($min, $max) = is_array($value) ? $value : explode(',', $value);
+                return $field_value >= $min && $field_value <= $max;
+
+            case 'empty':
+                return empty($field_value);
+
+            case 'not_empty':
+                return !empty($field_value);
+
+            case 'changed':
+                // Check if value changed from previous
+                $previous = $context['previous_values'][$field] ?? null;
+                return $field_value !== $previous;
+
+            case 'custom':
+                // Allow custom PHP evaluation (admin only)
+                if (current_user_can('manage_options')) {
+                    return $this->evaluate_custom($condition, $context);
+                }
+                return false;
+
+            default:
+                // Allow extensions to add operators
+                return apply_filters(
+                    'super_evaluate_condition_operator',
+                    false,
+                    $operator,
+                    $field_value,
+                    $value,
+                    $context
+                );
+        }
+    }
+
+    /**
+     * Custom PHP condition evaluation
+     */
+    private function evaluate_custom($condition, $context) {
+        $code = $condition['custom_code'] ?? '';
+
+        if (empty($code)) {
+            return false;
+        }
+
+        // Create safe evaluation context
+        $eval_context = array(
+            'value' => $this->get_field_value($condition['field'], $context),
+            'form_data' => $context['form_data'] ?? array(),
+            'user' => wp_get_current_user(),
+            'post' => get_post(),
+        );
+
+        // Sandbox the evaluation
+        try {
+            $result = eval('return (' . $code . ');');
+            return (bool) $result;
+        } catch (Exception $e) {
+            error_log('Custom condition error: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Get field value from context
+     */
+    private function get_field_value($field, $context) {
+        // Handle special fields
+        if (strpos($field, 'user.') === 0) {
+            $user_field = substr($field, 5);
+            $user = wp_get_current_user();
+            return $user->$user_field ?? '';
+        }
+
+        if (strpos($field, 'post.') === 0) {
+            $post_field = substr($field, 5);
+            $post = get_post();
+            return $post->$post_field ?? '';
+        }
+
+        if (strpos($field, 'meta.') === 0) {
+            $meta_key = substr($field, 5);
+            return get_post_meta(get_the_ID(), $meta_key, true);
+        }
+
+        // Calculate dynamic values
+        if (strpos($field, 'calc.') === 0) {
+            return $this->calculate_value(substr($field, 5), $context);
+        }
+
+        // Regular form field
+        return $context['form_data'][$field] ?? '';
+    }
+
+    /**
+     * Type casting for proper comparison
+     */
+    private function cast_value($value, $type) {
+        switch ($type) {
+            case 'int':
+            case 'integer':
+                return intval($value);
+
+            case 'float':
+            case 'decimal':
+                return floatval($value);
+
+            case 'bool':
+            case 'boolean':
+                return filter_var($value, FILTER_VALIDATE_BOOLEAN);
+
+            case 'date':
+                return strtotime($value);
+
+            case 'json':
+                return json_decode($value, true);
+
+            case 'array':
+                return is_array($value) ? $value : explode(',', $value);
+
+            default:
+                return strval($value);
+        }
+    }
+}
+```
+
+### Condition Builder UI
+
+Enhanced JavaScript for building complex conditions in the form builder:
+
+```javascript
+class ConditionBuilder {
+
+    constructor(container) {
+        this.container = container;
+        this.conditions = {
+            operator: 'AND',
+            groups: [],
+            conditions: []
+        };
+        this.init();
+    }
+
+    init() {
+        this.render();
+        this.bindEvents();
+    }
+
+    render() {
+        const html = this.renderGroup(this.conditions);
+        this.container.html(html);
+    }
+
+    renderGroup(group, level = 0) {
+        return `
+            <div class="condition-group" data-level="${level}">
+                <div class="group-header">
+                    <select class="group-operator">
+                        <option value="AND">AND</option>
+                        <option value="OR">OR</option>
+                        <option value="NOT">NOT</option>
+                        <option value="XOR">XOR</option>
+                    </select>
+                    <button class="add-condition">Add Condition</button>
+                    <button class="add-group">Add Group</button>
+                    ${level > 0 ? '<button class="remove-group">Remove Group</button>' : ''}
+                </div>
+                <div class="group-conditions">
+                    ${group.conditions.map(c => this.renderCondition(c)).join('')}
+                </div>
+                <div class="group-subgroups">
+                    ${group.groups.map(g => this.renderGroup(g, level + 1)).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    renderCondition(condition) {
+        return `
+            <div class="condition-item">
+                <select class="condition-field">
+                    <option value="">Select Field</option>
+                    ${this.getFieldOptions()}
+                </select>
+                <select class="condition-operator">
+                    <option value="=">=</option>
+                    <option value="!=">≠</option>
+                    <option value=">">></option>
+                    <option value="<"><</option>
+                    <option value="contains">contains</option>
+                    <option value="starts_with">starts with</option>
+                    <option value="ends_with">ends with</option>
+                    <option value="regex">matches regex</option>
+                    <option value="in">in list</option>
+                    <option value="between">between</option>
+                    <option value="empty">is empty</option>
+                    <option value="changed">has changed</option>
+                </select>
+                <input type="text" class="condition-value" placeholder="Value">
+                <select class="condition-type">
+                    <option value="string">String</option>
+                    <option value="int">Number</option>
+                    <option value="float">Decimal</option>
+                    <option value="bool">Boolean</option>
+                    <option value="date">Date</option>
+                </select>
+                <button class="remove-condition">×</button>
+            </div>
+        `;
+    }
+}
+```
+
+### Performance Optimization
+
+For forms with many conditions, optimize evaluation:
+
+```php
+class SUPER_Condition_Cache {
+
+    private $cache = array();
+    private $hit_count = 0;
+    private $miss_count = 0;
+
+    /**
+     * Cache condition results for performance
+     */
+    public function evaluate_with_cache($conditions, $context) {
+        $cache_key = $this->generate_cache_key($conditions, $context);
+
+        if (isset($this->cache[$cache_key])) {
+            $this->hit_count++;
+            return $this->cache[$cache_key];
+        }
+
+        $this->miss_count++;
+        $evaluator = new SUPER_Condition_Evaluator();
+        $result = $evaluator->evaluate($conditions, $context);
+
+        // Only cache if conditions are deterministic
+        if (!$this->has_dynamic_conditions($conditions)) {
+            $this->cache[$cache_key] = $result;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Check if conditions contain dynamic elements
+     */
+    private function has_dynamic_conditions($conditions) {
+        $dynamic_operators = array('changed', 'custom');
+
+        if (isset($conditions['operator'])) {
+            // Check groups recursively
+            if (!empty($conditions['groups'])) {
+                foreach ($conditions['groups'] as $group) {
+                    if ($this->has_dynamic_conditions($group)) {
+                        return true;
+                    }
+                }
+            }
+            // Check conditions
+            if (!empty($conditions['conditions'])) {
+                foreach ($conditions['conditions'] as $condition) {
+                    if (in_array($condition['operator'] ?? '', $dynamic_operators)) {
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Generate cache key for conditions
+     */
+    private function generate_cache_key($conditions, $context) {
+        // Only include relevant context data in key
+        $key_data = array(
+            'conditions' => $conditions,
+            'form_data' => $context['form_data'] ?? array(),
+            'user_id' => get_current_user_id()
+        );
+
+        return md5(serialize($key_data));
+    }
+
+    /**
+     * Get cache statistics
+     */
+    public function get_stats() {
+        return array(
+            'hits' => $this->hit_count,
+            'misses' => $this->miss_count,
+            'hit_rate' => $this->hit_count / max(1, $this->hit_count + $this->miss_count)
+        );
+    }
+}
+```
+
+### Edge Cases and Validation
+
+Handle circular dependencies and invalid conditions:
+
+```php
+class SUPER_Condition_Validator {
+
+    /**
+     * Validate conditions for circular dependencies
+     */
+    public function validate_conditions($conditions, $all_triggers = array()) {
+        $errors = array();
+
+        // Check for circular dependencies
+        $dependency_graph = $this->build_dependency_graph($conditions, $all_triggers);
+        if ($this->has_circular_dependency($dependency_graph)) {
+            $errors[] = 'Circular dependency detected in conditions';
+        }
+
+        // Check for invalid field references
+        $invalid_fields = $this->find_invalid_fields($conditions);
+        if (!empty($invalid_fields)) {
+            $errors[] = 'Invalid field references: ' . implode(', ', $invalid_fields);
+        }
+
+        // Check for excessive complexity
+        $complexity = $this->calculate_complexity($conditions);
+        if ($complexity > 100) {
+            $errors[] = sprintf('Condition complexity too high: %d (max: 100)', $complexity);
+        }
+
+        return $errors;
+    }
+
+    /**
+     * Calculate condition complexity score
+     */
+    private function calculate_complexity($conditions, $depth = 0) {
+        $score = 0;
+
+        if (isset($conditions['operator'])) {
+            $score += 1; // Base score for group
+
+            // Add depth penalty
+            $score += $depth * 2;
+
+            // Process subgroups
+            if (!empty($conditions['groups'])) {
+                foreach ($conditions['groups'] as $group) {
+                    $score += $this->calculate_complexity($group, $depth + 1);
+                }
+            }
+
+            // Process conditions
+            if (!empty($conditions['conditions'])) {
+                $score += count($conditions['conditions']);
+
+                // Add complexity for special operators
+                foreach ($conditions['conditions'] as $condition) {
+                    if (in_array($condition['operator'] ?? '', array('regex', 'custom'))) {
+                        $score += 5;
+                    }
+                }
+            }
+        }
+
+        return $score;
+    }
+}
+```
+
 ## User Notes
 - This is the foundation phase - must be rock solid before other phases
 - All database operations should use WordPress $wpdb for compatibility
+- **CRITICAL**: All entry data operations MUST use SUPER_Data_Access methods
 - Follow WordPress coding standards throughout
 - Ensure Action Scheduler v3.9.3 compatibility
 - Consider multisite compatibility from the start

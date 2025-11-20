@@ -103,8 +103,14 @@ public function migrate_scheduled_actions() {
             'super_forms_triggers'
         );
 
-        // Mark old entry as migrated
-        update_post_meta($action->post_id, '_migrated_to_action_scheduler', true);
+        // Mark old entry as migrated using Data Access Layer
+        // Note: For contact entry data, always use SUPER_Data_Access
+        // This example assumes the action has an associated entry_id
+        if ($action->entry_id) {
+            SUPER_Data_Access::update_entry_data($action->entry_id, array(
+                '_migrated_to_action_scheduler' => true
+            ));
+        }
     }
 
     // Remove old WP-Cron hook

@@ -537,16 +537,31 @@ class SUPER_Trigger_Performance {
 
 ### Step 6: Log Retention & Cleanup
 
-Schedule automatic cleanup:
+Schedule automatic cleanup using Action Scheduler:
 
 ```php
-// In main plugin file
+// In main plugin file - Use Action Scheduler for all background tasks
 add_action('init', function() {
-    if (!wp_next_scheduled('super_triggers_cleanup_logs')) {
-        wp_schedule_event(time(), 'daily', 'super_triggers_cleanup_logs');
+    // Check if recurring action is already scheduled
+    $next_scheduled = as_next_scheduled_action(
+        'super_triggers_cleanup_logs',
+        array(),
+        SUPER_Trigger_Scheduler::GROUP
+    );
+
+    if (!$next_scheduled) {
+        // Schedule daily cleanup using Action Scheduler
+        as_schedule_recurring_action(
+            time() + DAY_IN_SECONDS,
+            DAY_IN_SECONDS,
+            'super_triggers_cleanup_logs',
+            array(),
+            SUPER_Trigger_Scheduler::GROUP
+        );
     }
 });
 
+// Handle the cleanup action
 add_action('super_triggers_cleanup_logs', function() {
     $logger = SUPER_Trigger_Logger::instance();
 
@@ -564,6 +579,429 @@ add_action('super_triggers_cleanup_logs', function() {
             sprintf('Deleted %d old log entries', $deleted)
         );
     }
+});
+```
+
+### Step 7: Compliance & Audit Features
+
+Implement comprehensive audit and compliance capabilities:
+
+```php
+class SUPER_Trigger_Compliance {
+    private static $instance = null;
+
+    public static function instance() {
+        if (is_null(self::$instance)) {
+            self::$instance = new self();
+        }
+        return self::$instance;
+    }
+
+    /**
+     * GDPR Compliance - Right to Deletion
+     * Delete all execution logs for a specific entry or user
+     */
+    public function delete_entry_logs($entry_id) {
+        global $wpdb;
+        $table = $wpdb->prefix . 'super_trigger_logs';
+
+        // Delete execution logs
+        $deleted = $wpdb->delete(
+            $table,
+            array('entry_id' => $entry_id),
+            array('%d')
+        );
+
+        // Delete from Data Access Layer
+        SUPER_Data_Access::delete_entry_data($entry_id, array(
+            '_trigger_execution_history',
+            '_last_trigger_execution'
+        ));
+
+        // Log the deletion for audit trail
+        $this->log_compliance_action(
+            'gdpr_deletion',
+            array(
+                'entry_id' => $entry_id,
+                'logs_deleted' => $deleted,
+                'requested_by' => get_current_user_id(),
+                'ip_address' => $_SERVER['REMOTE_ADDR'] ?? ''
+            )
+        );
+
+        return $deleted;
+    }
+
+    /**
+     * GDPR Compliance - Data Export
+     * Export all trigger/action data for a specific entry
+     */
+    public function export_entry_logs($entry_id, $format = 'json') {
+        global $wpdb;
+        $table = $wpdb->prefix . 'super_trigger_logs';
+
+        // Get all logs for entry
+        $logs = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM $table WHERE entry_id = %d ORDER BY executed_at DESC",
+            $entry_id
+        ), ARRAY_A);
+
+        // Scrub sensitive data if configured
+        if (get_option('super_triggers_scrub_pii', false)) {
+            $logs = $this->scrub_pii_from_logs($logs);
+        }
+
+        if ($format === 'csv') {
+            return $this->format_as_csv($logs);
+        }
+
+        return json_encode($logs, JSON_PRETTY_PRINT);
+    }
+
+    /**
+     * Data Minimization - Remove PII from logs
+     */
+    private function scrub_pii_from_logs($logs) {
+        $pii_fields = get_option('super_triggers_pii_fields', array(
+            'email', 'phone', 'ssn', 'credit_card', 'password'
+        ));
+
+        foreach ($logs as &$log) {
+            if (!empty($log['request_data'])) {
+                $data = json_decode($log['request_data'], true);
+                if ($data) {
+                    $data = $this->recursively_scrub_pii($data, $pii_fields);
+                    $log['request_data'] = json_encode($data);
+                }
+            }
+            if (!empty($log['response_data'])) {
+                $data = json_decode($log['response_data'], true);
+                if ($data) {
+                    $data = $this->recursively_scrub_pii($data, $pii_fields);
+                    $log['response_data'] = json_encode($data);
+                }
+            }
+        }
+
+        return $logs;
+    }
+
+    private function recursively_scrub_pii(&$data, $pii_fields) {
+        foreach ($data as $key => &$value) {
+            // Check if key contains PII field name
+            foreach ($pii_fields as $field) {
+                if (stripos($key, $field) !== false) {
+                    $value = '[REDACTED]';
+                    break;
+                }
+            }
+            // Recurse for nested data
+            if (is_array($value)) {
+                $value = $this->recursively_scrub_pii($value, $pii_fields);
+            }
+        }
+        return $data;
+    }
+
+    /**
+     * Audit Trail - Track who accessed what and when
+     */
+    public function log_compliance_action($action_type, $details = array()) {
+        global $wpdb;
+        $table = $wpdb->prefix . 'super_compliance_audit';
+
+        // Create audit table if not exists
+        $this->create_audit_table();
+
+        $wpdb->insert(
+            $table,
+            array(
+                'action_type' => $action_type,
+                'user_id' => get_current_user_id(),
+                'details' => json_encode($details),
+                'ip_address' => $_SERVER['REMOTE_ADDR'] ?? '',
+                'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? '',
+                'performed_at' => current_time('mysql')
+            ),
+            array('%s', '%d', '%s', '%s', '%s', '%s')
+        );
+    }
+
+    /**
+     * Create compliance audit table
+     */
+    private function create_audit_table() {
+        global $wpdb;
+        $table = $wpdb->prefix . 'super_compliance_audit';
+        $charset_collate = $wpdb->get_charset_collate();
+
+        $sql = "CREATE TABLE IF NOT EXISTS $table (
+            id bigint(20) NOT NULL AUTO_INCREMENT,
+            action_type varchar(50) NOT NULL,
+            user_id bigint(20),
+            details longtext,
+            ip_address varchar(45),
+            user_agent text,
+            performed_at datetime DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (id),
+            KEY idx_user_id (user_id),
+            KEY idx_action_type (action_type),
+            KEY idx_performed_at (performed_at)
+        ) $charset_collate";
+
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+        dbDelta($sql);
+    }
+
+    /**
+     * Credential Access Tracking
+     * Log whenever API credentials are accessed
+     */
+    public function log_credential_access($action_id, $credential_type) {
+        $this->log_compliance_action(
+            'credential_access',
+            array(
+                'action_id' => $action_id,
+                'credential_type' => $credential_type,
+                'accessed_for' => 'action_execution'
+            )
+        );
+    }
+
+    /**
+     * Configuration Change Tracking
+     * Log changes to trigger/action configurations
+     */
+    public function log_configuration_change($trigger_id, $changes) {
+        $this->log_compliance_action(
+            'configuration_change',
+            array(
+                'trigger_id' => $trigger_id,
+                'changes' => $changes,
+                'previous_values' => $this->get_previous_config($trigger_id)
+            )
+        );
+    }
+
+    /**
+     * Log Retention Policy
+     * Automatically delete logs older than retention period
+     */
+    public function enforce_retention_policy() {
+        global $wpdb;
+
+        // Get retention settings
+        $log_retention_days = get_option('super_triggers_log_retention', 30);
+        $audit_retention_days = get_option('super_triggers_audit_retention', 90);
+
+        // Delete old execution logs
+        $logs_table = $wpdb->prefix . 'super_trigger_logs';
+        $wpdb->query($wpdb->prepare(
+            "DELETE FROM $logs_table WHERE executed_at < DATE_SUB(NOW(), INTERVAL %d DAY)",
+            $log_retention_days
+        ));
+
+        // Delete old audit logs
+        $audit_table = $wpdb->prefix . 'super_compliance_audit';
+        $wpdb->query($wpdb->prepare(
+            "DELETE FROM $audit_table WHERE performed_at < DATE_SUB(NOW(), INTERVAL %d DAY)",
+            $audit_retention_days
+        ));
+    }
+
+    /**
+     * Encrypted Storage for Sensitive Logs
+     */
+    public function encrypt_sensitive_data($data, $entry_id) {
+        // Use WordPress salts for encryption
+        $key = wp_salt('auth') . $entry_id;
+        $cipher = 'AES-256-CBC';
+        $iv = openssl_random_pseudo_bytes(16);
+
+        $encrypted = openssl_encrypt(
+            json_encode($data),
+            $cipher,
+            $key,
+            0,
+            $iv
+        );
+
+        return base64_encode($encrypted . '::' . $iv);
+    }
+
+    public function decrypt_sensitive_data($encrypted_data, $entry_id) {
+        $key = wp_salt('auth') . $entry_id;
+        $cipher = 'AES-256-CBC';
+
+        list($encrypted, $iv) = explode('::', base64_decode($encrypted_data), 2);
+
+        $decrypted = openssl_decrypt(
+            $encrypted,
+            $cipher,
+            $key,
+            0,
+            $iv
+        );
+
+        return json_decode($decrypted, true);
+    }
+
+    /**
+     * Export Audit Logs for External Analysis
+     */
+    public function export_audit_logs($start_date, $end_date, $format = 'json') {
+        global $wpdb;
+        $table = $wpdb->prefix . 'super_compliance_audit';
+
+        $logs = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM $table
+             WHERE performed_at BETWEEN %s AND %s
+             ORDER BY performed_at DESC",
+            $start_date,
+            $end_date
+        ), ARRAY_A);
+
+        if ($format === 'csv') {
+            return $this->format_as_csv($logs);
+        } elseif ($format === 'syslog') {
+            return $this->format_as_syslog($logs);
+        }
+
+        return json_encode($logs, JSON_PRETTY_PRINT);
+    }
+
+    /**
+     * Performance Monitoring for Large Log Tables
+     */
+    public function optimize_log_tables() {
+        global $wpdb;
+
+        // Add indexes if not exist
+        $wpdb->query("ALTER TABLE {$wpdb->prefix}super_trigger_logs
+                      ADD INDEX IF NOT EXISTS idx_entry_date (entry_id, executed_at)");
+
+        // Analyze tables for query optimization
+        $wpdb->query("ANALYZE TABLE {$wpdb->prefix}super_trigger_logs");
+        $wpdb->query("ANALYZE TABLE {$wpdb->prefix}super_compliance_audit");
+
+        // Get table sizes
+        $sizes = $wpdb->get_results("
+            SELECT
+                TABLE_NAME as table_name,
+                ROUND(((DATA_LENGTH + INDEX_LENGTH) / 1024 / 1024), 2) AS size_mb
+            FROM information_schema.TABLES
+            WHERE TABLE_SCHEMA = DATABASE()
+            AND TABLE_NAME IN (
+                '{$wpdb->prefix}super_trigger_logs',
+                '{$wpdb->prefix}super_compliance_audit'
+            )
+        ", ARRAY_A);
+
+        // Alert if tables are too large
+        foreach ($sizes as $table) {
+            if ($table['size_mb'] > 100) { // Alert if over 100MB
+                $this->send_admin_alert(
+                    'Large Log Table Warning',
+                    sprintf('Table %s has grown to %s MB', $table['table_name'], $table['size_mb'])
+                );
+            }
+        }
+
+        return $sizes;
+    }
+}
+
+// Initialize compliance features
+add_action('init', array(SUPER_Trigger_Compliance::instance(), 'enforce_retention_policy'));
+
+// Hook into GDPR data export
+add_filter('wp_privacy_personal_data_exporters', function($exporters) {
+    $exporters['super-forms-triggers'] = array(
+        'exporter_friendly_name' => __('Super Forms Trigger Logs'),
+        'callback' => array(SUPER_Trigger_Compliance::instance(), 'export_entry_logs'),
+    );
+    return $exporters;
+});
+
+// Hook into GDPR data erasure
+add_filter('wp_privacy_personal_data_erasers', function($erasers) {
+    $erasers['super-forms-triggers'] = array(
+        'eraser_friendly_name' => __('Super Forms Trigger Logs'),
+        'callback' => array(SUPER_Trigger_Compliance::instance(), 'delete_entry_logs'),
+    );
+    return $erasers;
+});
+```
+
+### Compliance Settings UI
+
+Add compliance settings to the admin interface:
+
+```php
+// Add compliance settings tab
+add_filter('super_triggers_settings_tabs', function($tabs) {
+    $tabs['compliance'] = __('Compliance & Privacy');
+    return $tabs;
+});
+
+// Render compliance settings
+add_action('super_triggers_settings_compliance', function() {
+    $pii_fields = get_option('super_triggers_pii_fields', array());
+    $scrub_pii = get_option('super_triggers_scrub_pii', false);
+    $log_retention = get_option('super_triggers_log_retention', 30);
+    $audit_retention = get_option('super_triggers_audit_retention', 90);
+    ?>
+    <h2><?php _e('Compliance & Privacy Settings', 'super-forms'); ?></h2>
+
+    <table class="form-table">
+        <tr>
+            <th scope="row"><?php _e('Log Retention (days)', 'super-forms'); ?></th>
+            <td>
+                <input type="number" name="super_triggers_log_retention"
+                       value="<?php echo esc_attr($log_retention); ?>" min="1" max="365" />
+                <p class="description"><?php _e('Execution logs older than this will be automatically deleted.', 'super-forms'); ?></p>
+            </td>
+        </tr>
+
+        <tr>
+            <th scope="row"><?php _e('Audit Log Retention (days)', 'super-forms'); ?></th>
+            <td>
+                <input type="number" name="super_triggers_audit_retention"
+                       value="<?php echo esc_attr($audit_retention); ?>" min="30" max="730" />
+                <p class="description"><?php _e('Compliance audit logs older than this will be automatically deleted.', 'super-forms'); ?></p>
+            </td>
+        </tr>
+
+        <tr>
+            <th scope="row"><?php _e('Scrub PII from Logs', 'super-forms'); ?></th>
+            <td>
+                <label>
+                    <input type="checkbox" name="super_triggers_scrub_pii" value="1"
+                           <?php checked($scrub_pii, true); ?> />
+                    <?php _e('Automatically redact personally identifiable information from logs', 'super-forms'); ?>
+                </label>
+            </td>
+        </tr>
+
+        <tr>
+            <th scope="row"><?php _e('PII Field Names', 'super-forms'); ?></th>
+            <td>
+                <textarea name="super_triggers_pii_fields" rows="5" cols="50"><?php
+                    echo esc_textarea(implode("\n", $pii_fields));
+                ?></textarea>
+                <p class="description"><?php _e('Field names to redact (one per line). Fields containing these strings will be masked.', 'super-forms'); ?></p>
+            </td>
+        </tr>
+    </table>
+
+    <h3><?php _e('Export Options', 'super-forms'); ?></h3>
+    <p>
+        <a href="<?php echo admin_url('admin-ajax.php?action=super_export_trigger_logs'); ?>"
+           class="button"><?php _e('Export Execution Logs (Last 30 Days)', 'super-forms'); ?></a>
+        <a href="<?php echo admin_url('admin-ajax.php?action=super_export_audit_logs'); ?>"
+           class="button"><?php _e('Export Audit Logs (Last 90 Days)', 'super-forms'); ?></a>
+    </p>
+    <?php
 });
 ```
 

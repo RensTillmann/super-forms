@@ -32,15 +32,16 @@ Build a modular add-on ecosystem where external plugins can easily extend Super 
 
 ## Subtasks
 
-This task is divided into 7 implementation phases, each documented as a separate subtask:
+This task is divided into 8 implementation phases, each documented as a separate subtask:
 
 1. **[Foundation and Registry System](01-implement-foundation-registry.md)** - Database schema, DAL, base classes, registry pattern
 2. **[Action Scheduler Integration](02-implement-action-scheduler.md)** - Replace WP-Cron with Action Scheduler
-3. **[Execution and Logging](03-implement-execution-logging.md)** - Execution engine, logging, debugging
+3. **[Execution and Logging](03-implement-execution-logging.md)** - Execution engine, logging, debugging, compliance
 4. **[API and Security](04-implement-api-security.md)** - REST API, OAuth, credentials, security
 5. **[HTTP Request Action](05-implement-http-request.md)** - Postman-like HTTP request builder
 6. **[Payment and Subscription Events](06-implement-payment-subscription.md)** - Payment gateway integrations
 7. **[Example Add-ons](07-implement-example-addons.md)** - Three complete example add-ons
+8. **[Real-time Interactions](08-implement-realtime-interactions.md)** - Client-side triggers, validation, duplicate detection
 
 ## Success Criteria
 
@@ -93,6 +94,14 @@ This task is divided into 7 implementation phases, each documented as a separate
 - [ ] Developer documentation
 - [ ] See [Phase 7 subtask](07-implement-example-addons.md) for details
 
+### Phase 8: Real-time Interactions
+- [ ] Client-side event system (keyup, change, blur, focus)
+- [ ] Debouncing and caching mechanisms
+- [ ] Email validation and duplicate detection
+- [ ] Dynamic field population from APIs
+- [ ] Network failure handling and retry logic
+- [ ] See [Phase 8 subtask](08-implement-realtime-interactions.md) for details
+
 ## Implementation Order
 
 The phases should be implemented sequentially:
@@ -103,6 +112,7 @@ The phases should be implemented sequentially:
 5. Phase 5 (HTTP Request) - the most versatile action
 6. Phase 6 (Payment Events) - integration with existing add-ons
 7. Phase 7 (Examples) - demonstrate the system to developers
+8. Phase 8 (Real-time) - advanced client-side interactions
 
 ## Context Manifest
 <!-- Added by context-gathering agent -->
