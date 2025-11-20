@@ -804,19 +804,372 @@ When users update the plugin, WordPress runs the activation hook which calls `SU
 - [ ] Update evaluation logic to handle AND/OR chains
 - [ ] Maintain backward compatibility with old format
 
-### **Phase 6: Payment Flow & Subscription Management Integration**
+### **Phase 6: Professional Submission & Session Architecture**
 
-**Form Submission Sessions (sfsi) Integration:**
+**Current Problems with `_sfsi_` in wp_options:**
+- wp_options loads on EVERY page (memory bloat)
+- No automatic cleanup (orphaned sessions)
+- No indexing (can't query efficiently)
+- Not scalable for high-traffic sites
 
-The current system stores form data in `wp_options` as `_sfsi_{id}` during payment flows. This must integrate with triggers/actions for payment status handling.
+**Clear Conceptual Separation:**
 
-**Payment Flow Architecture:**
+| Type | Purpose | Lifecycle | Use Cases |
+|------|---------|-----------|-----------|
+| **Form Submission** | Immutable audit record | Created once, never modified | Legal compliance, debugging, replay failed processes |
+| **Form Session** | Temporary process state | Created → Updated → Expires | Multi-step forms, payment flows, file staging |
+| **Contact Entry** | Business entity (CRM) | Created → Updated → Archived | Lead management, listings, exports |
+
+**Database Schema (Add to Phase 1 - class-install.php):**
+
+- [ ] Add submission and session tables to `create_tables()`:
+  ```sql
+  -- Form Submissions (Immutable Audit Log)
+  $table_name = $wpdb->prefix . 'super_form_submissions';
+  $sql = "CREATE TABLE $table_name (
+      id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+      uuid VARCHAR(36) NOT NULL,
+      form_id BIGINT(20) UNSIGNED NOT NULL,
+      form_data LONGTEXT NOT NULL,          -- JSON of submitted values
+      form_snapshot LONGTEXT,                -- JSON of form structure at submission time
+      user_id BIGINT(20) UNSIGNED DEFAULT NULL,
+      ip_address VARCHAR(45),
+      user_agent TEXT,
+      referer_url TEXT,
+      status ENUM('received', 'processing', 'completed', 'failed') DEFAULT 'received',
+      error_message TEXT DEFAULT NULL,
+      entry_id BIGINT(20) UNSIGNED DEFAULT NULL,  -- Link to contact entry if created
+      session_id VARCHAR(64) DEFAULT NULL,         -- Link to session if multi-step
+      submitted_at DATETIME NOT NULL,
+      processed_at DATETIME DEFAULT NULL,
+      PRIMARY KEY (id),
+      UNIQUE KEY uuid (uuid),
+      KEY idx_form_id (form_id),
+      KEY idx_user_id (user_id),
+      KEY idx_status (status),
+      KEY idx_submitted_at (submitted_at),
+      KEY idx_session_id (session_id)
+  ) ENGINE=InnoDB $charset_collate;";
+  dbDelta($sql);
+
+  -- Form Sessions (Temporary State)
+  $table_name = $wpdb->prefix . 'super_form_sessions';
+  $sql = "CREATE TABLE $table_name (
+      id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+      session_id VARCHAR(64) NOT NULL,
+      form_id BIGINT(20) UNSIGNED NOT NULL,
+      current_step INT DEFAULT 1,
+      total_steps INT DEFAULT 1,
+      session_data LONGTEXT,                 -- JSON current state
+      payment_provider VARCHAR(50),
+      payment_session_id VARCHAR(255),
+      payment_status VARCHAR(50),
+      temp_files LONGTEXT,                   -- JSON temp file info
+      created_at DATETIME NOT NULL,
+      updated_at DATETIME NOT NULL,
+      expires_at DATETIME NOT NULL,
+      completed_at DATETIME DEFAULT NULL,
+      status ENUM('active', 'completed', 'abandoned', 'expired') DEFAULT 'active',
+      PRIMARY KEY (id),
+      UNIQUE KEY session_id (session_id),
+      KEY idx_expires_at (expires_at),
+      KEY idx_status (status),
+      KEY idx_payment_session (payment_session_id)
+  ) ENGINE=InnoDB $charset_collate;";
+  dbDelta($sql);
+  ```
+
+**Data Flow Architecture:**
 
 ```
-Form Submit → sfsi created → Redirect to Payment → Webhook received → Trigger payment event → Update sfsi → Clean up
+User Submits Form
+    ↓
+Create SUBMISSION (immutable audit record)
+    ↓
+Trigger 'sf.submission.received' event
+    ↓
+If multi-step/payment needed:
+    → Create/Update SESSION
+    → Store session_id in cookie
+    → Redirect to payment/next step
+    ↓
+If contact entries enabled:
+    → Create ENTRY via SUPER_Data_Access (EAV storage)
+    → Link submission to entry_id
+    ↓
+Trigger 'sf.after.submission' event
+    ↓
+Mark submission 'completed'
+    ↓
+Schedule session cleanup via Action Scheduler
 ```
 
-**Implementation:**
+**Session Manager Implementation:**
+
+- [ ] Create `/src/includes/class-submission-manager.php`:
+  ```php
+  class SUPER_Submission_Manager {
+      /**
+       * Create immutable submission record
+       */
+      public static function create_submission($form_id, $data, $session_id = null) {
+          global $wpdb;
+
+          $uuid = wp_generate_uuid4();
+          $form_data = json_encode($data);
+
+          // Get form structure snapshot for audit
+          $form = get_post($form_id);
+          $form_snapshot = json_encode(array(
+              'version' => get_post_meta($form_id, '_super_form_version', true),
+              'elements' => get_post_meta($form_id, '_super_elements', true),
+              'settings' => SUPER_Common::get_form_settings($form_id)
+          ));
+
+          $wpdb->insert(
+              $wpdb->prefix . 'super_form_submissions',
+              array(
+                  'uuid' => $uuid,
+                  'form_id' => $form_id,
+                  'form_data' => $form_data,
+                  'form_snapshot' => $form_snapshot,
+                  'user_id' => get_current_user_id() ?: null,
+                  'ip_address' => SUPER_Common::real_ip(),
+                  'user_agent' => $_SERVER['HTTP_USER_AGENT'],
+                  'referer_url' => wp_get_referer(),
+                  'session_id' => $session_id,
+                  'submitted_at' => current_time('mysql'),
+                  'status' => 'received'
+              )
+          );
+
+          return array(
+              'submission_id' => $wpdb->insert_id,
+              'uuid' => $uuid
+          );
+      }
+
+      /**
+       * Link submission to contact entry after creation
+       */
+      public static function link_to_entry($submission_id, $entry_id) {
+          global $wpdb;
+
+          $wpdb->update(
+              $wpdb->prefix . 'super_form_submissions',
+              array('entry_id' => $entry_id),
+              array('id' => $submission_id)
+          );
+      }
+
+      /**
+       * Get original submission (for audit/comparison)
+       */
+      public static function get_submission($submission_id) {
+          global $wpdb;
+
+          return $wpdb->get_row($wpdb->prepare(
+              "SELECT * FROM {$wpdb->prefix}super_form_submissions WHERE id = %d",
+              $submission_id
+          ));
+      }
+  }
+  ```
+
+- [ ] Create `/src/includes/class-session-manager.php`:
+  ```php
+  class SUPER_Session_Manager {
+      /**
+       * Create or update session for multi-step/payment flows
+       */
+      public static function create_session($form_id, $data, $total_steps = 1) {
+          global $wpdb;
+
+          $session_id = wp_generate_password(32, false);
+
+          $wpdb->insert(
+              $wpdb->prefix . 'super_form_sessions',
+              array(
+                  'session_id' => $session_id,
+                  'form_id' => $form_id,
+                  'session_data' => json_encode($data),
+                  'total_steps' => $total_steps,
+                  'created_at' => current_time('mysql'),
+                  'updated_at' => current_time('mysql'),
+                  'expires_at' => date('Y-m-d H:i:s', strtotime('+24 hours')),
+                  'status' => 'active'
+              )
+          );
+
+          // Set secure cookie
+          setcookie(
+              'super_session_' . $form_id,
+              $session_id,
+              time() + DAY_IN_SECONDS,
+              COOKIEPATH,
+              COOKIE_DOMAIN,
+              is_ssl(),
+              true  // httponly
+          );
+
+          // Schedule cleanup via Action Scheduler
+          as_schedule_single_action(
+              strtotime('+25 hours'),
+              'super_cleanup_session',
+              array('session_id' => $session_id),
+              'super-forms-sessions'
+          );
+
+          return $session_id;
+      }
+
+      /**
+       * Store payment provider info in session
+       */
+      public static function update_payment_info($session_id, $provider, $payment_session_id) {
+          global $wpdb;
+
+          $wpdb->update(
+              $wpdb->prefix . 'super_form_sessions',
+              array(
+                  'payment_provider' => $provider,
+                  'payment_session_id' => $payment_session_id,
+                  'updated_at' => current_time('mysql')
+              ),
+              array('session_id' => $session_id)
+          );
+      }
+  }
+  ```
+
+**Action Scheduler Cleanup (NOT WP-Cron):**
+
+- [ ] Register cleanup actions in `/src/super-forms.php`:
+  ```php
+  // Session cleanup
+  add_action('super_cleanup_session', array('SUPER_Session_Manager', 'cleanup_session'));
+
+  // Daily maintenance
+  add_action('init', function() {
+      if (!as_next_scheduled_action('super_daily_maintenance')) {
+          as_schedule_recurring_action(
+              strtotime('tomorrow 3am'),
+              DAY_IN_SECONDS,
+              'super_daily_maintenance',
+              array(),
+              'super-forms-maintenance'
+          );
+      }
+  });
+
+  add_action('super_daily_maintenance', function() {
+      global $wpdb;
+
+      // Archive old submissions (>90 days)
+      $wpdb->query("
+          INSERT INTO {$wpdb->prefix}super_form_submissions_archive
+          SELECT * FROM {$wpdb->prefix}super_form_submissions
+          WHERE submitted_at < DATE_SUB(NOW(), INTERVAL 90 DAY)
+      ");
+
+      // Clean expired sessions
+      $wpdb->query("
+          UPDATE {$wpdb->prefix}super_form_sessions
+          SET status = 'expired'
+          WHERE expires_at < NOW() AND status = 'active'
+      ");
+  });
+  ```
+
+**Integration with Existing Systems:**
+
+- [ ] Update form submission flow in `/src/includes/class-ajax.php`:
+  ```php
+  // In submit_form() method:
+
+  // 1. Create submission record (immutable)
+  $submission = SUPER_Submission_Manager::create_submission(
+      $form_id,
+      $data,
+      $_COOKIE['super_session_' . $form_id] ?? null
+  );
+
+  // 2. Trigger received event (new)
+  SUPER_Common::triggerEvent('sf.submission.received', array(
+      'submission_id' => $submission['submission_id'],
+      'uuid' => $submission['uuid'],
+      'form_id' => $form_id,
+      'data' => $data
+  ));
+
+  // 3. If payment needed, create/update session
+  if ($needs_payment) {
+      $session_id = SUPER_Session_Manager::create_session($form_id, $data);
+      // Redirect to payment...
+  }
+
+  // 4. If contact entries enabled, create via EAV
+  if ($settings['save_contact_entry'] === 'yes') {
+      $entry_id = SUPER_Contact_Entry::save($data);
+
+      // Link submission to entry
+      SUPER_Submission_Manager::link_to_entry(
+          $submission['submission_id'],
+          $entry_id
+      );
+
+      // Entry data stored via SUPER_Data_Access (EAV)
+      // NOT update_post_meta - using the data layer!
+      $entry_data = SUPER_Data_Access::get_entry_data($entry_id);
+  }
+
+  // 5. Mark submission completed
+  $wpdb->update(
+      $wpdb->prefix . 'super_form_submissions',
+      array(
+          'status' => 'completed',
+          'processed_at' => current_time('mysql')
+      ),
+      array('id' => $submission['submission_id'])
+  );
+
+  // 6. Clean up session if exists
+  if ($session_id) {
+      SUPER_Session_Manager::complete_session($session_id);
+  }
+  ```
+
+**Payment Webhook Integration:**
+
+- [ ] Update Stripe webhook handler:
+  ```php
+  // Get session by payment ID (NOT _sfsi_)
+  $session = $wpdb->get_row($wpdb->prepare("
+      SELECT * FROM {$wpdb->prefix}super_form_sessions
+      WHERE payment_session_id = %s
+  ", $event->data->object->id));
+
+  if ($session) {
+      $session_data = json_decode($session->session_data, true);
+
+      // Update session status
+      SUPER_Session_Manager::update_payment_status(
+          $session->session_id,
+          $event->type === 'checkout.session.completed' ? 'completed' : 'failed'
+      );
+
+      // Trigger appropriate event
+      SUPER_Common::triggerEvent(
+          $event->type === 'checkout.session.completed' ? 'payment.success' : 'payment.failed',
+          array_merge($session_data, array(
+              'session_id' => $session->session_id,
+              'payment_intent' => $event->data->object->payment_intent
+          ))
+      );
+  }
+  ```
+
+### **Phase 7: Payment & Subscription Events**
 
 - [ ] Add payment-specific events to registry:
   ```php
@@ -1202,5 +1555,170 @@ Each example MUST include:
 - Simplifies logging
 - Clear success/failure state
 
+## Testing Epics & Use Cases
+
+### **Epic 1: Basic Form Submission**
+**Scenario:** User fills form, no payment, contact entry enabled
+
+**Test Cases:**
+- [ ] Form submit creates immutable submission record
+- [ ] Contact entry created via SUPER_Data_Access (EAV)
+- [ ] Submission linked to entry_id
+- [ ] No session created (single-step form)
+- [ ] Triggers fire in correct order: `sf.submission.received` → `sf.after.submission`
+- [ ] Email actions execute successfully
+- [ ] Submission marked 'completed'
+
+### **Epic 2: Payment Flow (Stripe)**
+**Scenario:** Form with Stripe payment, contact entry conditional on payment
+
+**Test Cases:**
+- [ ] Form submit creates submission with status 'received'
+- [ ] Session created with 24hr expiry
+- [ ] Session cookie set securely
+- [ ] Redirect to Stripe checkout preserves session_id
+- [ ] Webhook finds session by payment_session_id
+- [ ] Payment success → triggers `payment.success` event
+- [ ] Contact entry ONLY created if payment succeeds
+- [ ] Uploaded files retained on success, deleted on failure
+- [ ] Session marked 'completed' and cleanup scheduled
+- [ ] Old `_sfsi_` system no longer used
+
+### **Epic 3: Subscription Management**
+**Scenario:** User purchases subscription, upgrades, then cancels
+
+**Test Cases:**
+- [ ] Initial subscription → triggers `subscription.created`
+- [ ] User role updated based on plan mapping
+- [ ] User meta set for subscription access
+- [ ] Upgrade → triggers `subscription.updated` with old/new plan data
+- [ ] Role changes to higher tier
+- [ ] Downgrade → role reverts appropriately
+- [ ] Cancellation → triggers `subscription.cancelled`
+- [ ] Access retained until period ends (if configured)
+- [ ] Recurring payment failure → triggers `subscription.payment.failed`
+- [ ] Admin can see subscription status in user profile
+
+### **Epic 4: Multi-Step Forms**
+**Scenario:** 3-step form with file uploads on step 2
+
+**Test Cases:**
+- [ ] Session created on step 1 submit
+- [ ] Session data persists across steps
+- [ ] Files uploaded to temp location on step 2
+- [ ] Temp files tracked in session
+- [ ] Browser refresh doesn't lose progress
+- [ ] Session expires after 24hrs
+- [ ] Final submit creates submission with complete data
+- [ ] Files moved from temp to permanent on completion
+- [ ] Session cleaned up after completion
+
+### **Epic 5: Failed Payment Recovery**
+**Scenario:** Payment fails, user retries later
+
+**Test Cases:**
+- [ ] Failed payment → submission status 'failed'
+- [ ] Session remains active for retry
+- [ ] Retry URL works within 24hrs
+- [ ] Original submission data preserved
+- [ ] New payment attempt updates existing session
+- [ ] Success on retry → original submission updated to 'completed'
+- [ ] Contact entry created with original timestamp
+- [ ] Expired session → user must resubmit
+
+### **Epic 6: Audit & Compliance (GDPR)**
+**Scenario:** User requests data, then deletion
+
+**Test Cases:**
+- [ ] Find all submissions by email via JSON query
+- [ ] Original submission data unchanged after entry edits
+- [ ] Export includes submission history
+- [ ] Deletion removes: entry (EAV), submission, session
+- [ ] Archived submissions (>90 days) queryable
+- [ ] Form snapshot shows exact form version at submission time
+- [ ] IP and user agent properly recorded
+
+### **Epic 7: High-Traffic Performance**
+**Scenario:** 1000 concurrent form submissions
+
+**Test Cases:**
+- [ ] No wp_options bloat (sessions in custom table)
+- [ ] Submissions table properly indexed
+- [ ] UUID generation doesn't collide
+- [ ] Action Scheduler handles trigger queue
+- [ ] Session cleanup runs without blocking
+- [ ] Database doesn't lock on inserts
+- [ ] Proper connection pooling
+
+### **Epic 8: Admin Operations**
+**Scenario:** Admin reviews submissions, replays failed ones
+
+**Test Cases:**
+- [ ] Admin UI shows submission status summary
+- [ ] Can view original submission data (immutable)
+- [ ] Can compare submission vs current entry
+- [ ] Replay failed submission with original data
+- [ ] Bulk operations (export, delete old submissions)
+- [ ] Filter by date, form, status, user
+- [ ] Performance metrics (conversion rates)
+
+### **Epic 9: Developer Integration**
+**Scenario:** Third-party plugin needs submission data
+
+**Test Cases:**
+- [ ] Hook into `sf.submission.received` gets all data
+- [ ] Can query submissions by custom criteria
+- [ ] REST API endpoint for submissions (if enabled)
+- [ ] Backward compatibility with old hooks
+- [ ] No breaking changes to existing add-ons
+- [ ] Clear deprecation notices for `_sfsi_` usage
+
+### **Epic 10: Edge Cases & Error Handling**
+
+**Test Cases:**
+- [ ] Database connection lost during submission → graceful error
+- [ ] Session expired mid-payment → appropriate user message
+- [ ] Duplicate submission detection (same UUID)
+- [ ] Malformed JSON in session_data → logged, not fatal
+- [ ] Action Scheduler down → fallback to immediate execution
+- [ ] Cookie disabled → session via URL parameter
+- [ ] Timezone changes → timestamps remain consistent
+- [ ] Form deleted after submission → snapshot preserves structure
+- [ ] User logged out during multi-step → session continues
+- [ ] Payment webhook arrives before redirect → handled correctly
+
+## Migration Strategy from `_sfsi_`
+
+### **Phase 1: Dual Write (2 weeks)**
+- Keep writing to `_sfsi_` for backward compatibility
+- Also write to new submissions/sessions tables
+- Monitor for issues
+
+### **Phase 2: Read Migration (1 week)**
+- Switch reads to new tables
+- Keep `_sfsi_` writes as backup
+- Add deprecation notices
+
+### **Phase 3: Write Migration (1 week)**
+- Stop writing to `_sfsi_`
+- Migrate existing `_sfsi_` data to new tables
+- Clean up old `_sfsi_` entries
+
+### **Phase 4: Cleanup (ongoing)**
+- Remove `_sfsi_` code paths
+- Update documentation
+- Monitor performance improvements
+
+## Performance Benchmarks
+
+**Target Metrics:**
+- Form submission: < 500ms (excluding payment redirects)
+- Session retrieval: < 50ms
+- Submission query by email: < 100ms
+- Daily cleanup job: < 60 seconds for 100k records
+- Memory usage: < 128MB peak
+- Database storage: ~1KB per submission
+
 ## Work Log
 - [2025-11-20] Task created based on comprehensive triggers/actions system analysis
+- [2025-11-20] Added professional submission/session architecture replacing `_sfsi_`
