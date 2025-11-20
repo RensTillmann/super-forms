@@ -36,9 +36,86 @@ Build a modular add-on ecosystem where external plugins can easily extend Super 
 
 **Implementation Order:** Follow these steps sequentially (each builds on previous):
 
-**Step 1 - Database Schema:**
+**Step 1 - Database Schema & Automatic Table Creation:**
+
+**CRITICAL: Table Creation on Plugin Update/Install**
+When users update the plugin, WordPress runs the activation hook which calls `SUPER_Install::install()`. This must create missing tables automatically.
+
+- [ ] Update `/src/includes/class-install.php` method `create_tables()` (line ~84) to add trigger tables:
+  ```php
+  // After existing EAV table creation (line ~116), add:
+
+  // Triggers table
+  $table_name = $wpdb->prefix . 'super_triggers';
+  $sql = "CREATE TABLE $table_name (
+      id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+      name VARCHAR(255) NOT NULL,
+      event VARCHAR(100) NOT NULL,
+      scope ENUM('form', 'global', 'specific') NOT NULL DEFAULT 'form',
+      form_id BIGINT(20) UNSIGNED DEFAULT NULL,
+      form_ids TEXT DEFAULT NULL,
+      enabled TINYINT(1) NOT NULL DEFAULT 1,
+      execution_order INT NOT NULL DEFAULT 0,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      PRIMARY KEY (id),
+      KEY idx_event (event),
+      KEY idx_form_id (form_id),
+      KEY idx_enabled_event (enabled, event),
+      KEY idx_scope_form (scope, form_id)
+  ) ENGINE=InnoDB $charset_collate;";
+  dbDelta($sql);
+
+  // Trigger actions table
+  $table_name = $wpdb->prefix . 'super_trigger_actions';
+  $sql = "CREATE TABLE $table_name (
+      id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+      trigger_id BIGINT(20) UNSIGNED NOT NULL,
+      action_type VARCHAR(100) NOT NULL,
+      execution_order INT NOT NULL DEFAULT 0,
+      enabled TINYINT(1) NOT NULL DEFAULT 1,
+      conditions_data TEXT DEFAULT NULL,
+      settings_data TEXT NOT NULL,
+      i18n_data TEXT DEFAULT NULL,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      PRIMARY KEY (id),
+      FOREIGN KEY (trigger_id) REFERENCES {$wpdb->prefix}super_triggers(id) ON DELETE CASCADE,
+      KEY idx_trigger_id (trigger_id),
+      KEY idx_action_type (action_type)
+  ) ENGINE=InnoDB $charset_collate;";
+  dbDelta($sql);
+
+  // Execution log table (Phase 3, but create now for simplicity)
+  $table_name = $wpdb->prefix . 'super_trigger_execution_log';
+  $sql = "CREATE TABLE $table_name (
+      id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+      trigger_name VARCHAR(255) NOT NULL,
+      action_name VARCHAR(100) NOT NULL,
+      form_id BIGINT(20) UNSIGNED DEFAULT NULL,
+      entry_id BIGINT(20) UNSIGNED DEFAULT NULL,
+      event VARCHAR(100) NOT NULL,
+      executed_at DATETIME NOT NULL,
+      execution_time_ms INT DEFAULT NULL,
+      status ENUM('success', 'failed', 'skipped') NOT NULL,
+      result_data TEXT DEFAULT NULL,
+      error_message TEXT DEFAULT NULL,
+      PRIMARY KEY (id),
+      KEY idx_form_event (form_id, event),
+      KEY idx_status_date (status, executed_at),
+      KEY idx_trigger_name (trigger_name),
+      KEY idx_entry_id (entry_id)
+  ) ENGINE=InnoDB $charset_collate;";
+  dbDelta($sql);
+  ```
+
+- [ ] Test table creation:
+  1. Deactivate plugin
+  2. Drop tables manually: `DROP TABLE wp_super_triggers, wp_super_trigger_actions, wp_super_trigger_execution_log;`
+  3. Reactivate plugin
+  4. Verify tables exist with correct structure
+
 - [ ] Create file: `/src/includes/class-trigger-data-access.php`
-- [ ] Design custom tables (NO migration needed - system not released):
   ```sql
   wp_super_triggers:
     id BIGINT AUTO_INCREMENT PRIMARY KEY
@@ -415,7 +492,235 @@ Build a modular add-on ecosystem where external plugins can easily extend Super 
                 WHERE executed_at < DATE_SUB(NOW(), INTERVAL 30 DAY)");
   ```
 
-### **Phase 4: HTTP Request Action (Enables 80% of Integrations)**
+### **Phase 4: Secure API Key Storage & OAuth Implementation**
+
+**WordPress Best Practices for API Keys:**
+
+**Industry Standard Requirements:**
+- NEVER store API keys in plain text
+- Use WordPress salts for encryption
+- Store in wp_options table (not in form/trigger settings)
+- Provide password-type input fields in UI
+- Never log or expose keys in debug output
+
+**Implementation:**
+
+- [ ] Create `/src/includes/class-api-credentials.php`:
+  ```php
+  class SUPER_API_Credentials {
+      private static $encryption_key;
+
+      private static function get_encryption_key() {
+          if (!self::$encryption_key) {
+              // Use WordPress salts for encryption
+              self::$encryption_key = substr(hash('sha256', AUTH_KEY . AUTH_SALT), 0, 32);
+          }
+          return self::$encryption_key;
+      }
+
+      public static function encrypt($plaintext) {
+          $method = 'AES-256-CBC';
+          $key = self::get_encryption_key();
+          $iv = openssl_random_pseudo_bytes(16);
+          $encrypted = openssl_encrypt($plaintext, $method, $key, 0, $iv);
+          return base64_encode($iv . $encrypted);
+      }
+
+      public static function decrypt($encrypted) {
+          $method = 'AES-256-CBC';
+          $key = self::get_encryption_key();
+          $data = base64_decode($encrypted);
+          $iv = substr($data, 0, 16);
+          $encrypted = substr($data, 16);
+          return openssl_decrypt($encrypted, $method, $key, 0, $iv);
+      }
+
+      public static function save_credential($service, $key, $value) {
+          // Store encrypted in options table
+          $encrypted = self::encrypt($value);
+          $credentials = get_option('super_api_credentials', array());
+          $credentials[$service][$key] = $encrypted;
+          update_option('super_api_credentials', $credentials);
+      }
+
+      public static function get_credential($service, $key) {
+          $credentials = get_option('super_api_credentials', array());
+          if (isset($credentials[$service][$key])) {
+              return self::decrypt($credentials[$service][$key]);
+          }
+          return null;
+      }
+
+      public static function delete_credential($service, $key = null) {
+          $credentials = get_option('super_api_credentials', array());
+          if ($key === null) {
+              unset($credentials[$service]);
+          } else {
+              unset($credentials[$service][$key]);
+          }
+          update_option('super_api_credentials', $credentials);
+      }
+  }
+  ```
+
+- [ ] Update action settings UI for secure credential input:
+  ```php
+  // In action's get_settings_schema():
+  'api_key' => array(
+      'type' => 'password',  // Shows as password field
+      'label' => 'API Key',
+      'description' => 'Stored encrypted. Never visible after save.',
+      'encrypted' => true,    // Flag for UI to handle specially
+  )
+  ```
+
+- [ ] Modify settings save handler to detect and encrypt credentials:
+  ```php
+  // When saving action settings:
+  foreach ($settings as $key => $value) {
+      if ($schema[$key]['encrypted'] === true && !empty($value)) {
+          // Don't save in trigger settings
+          unset($settings[$key]);
+          // Save encrypted separately
+          SUPER_API_Credentials::save_credential(
+              $action_type,
+              $trigger_id . '_' . $key,
+              $value
+          );
+      }
+  }
+  ```
+
+**OAuth 2.0 Flow Implementation:**
+
+- [ ] Create `/src/includes/class-oauth-manager.php`:
+  ```php
+  class SUPER_OAuth_Manager {
+      // OAuth configuration per service
+      private static $oauth_configs = array(
+          'google' => array(
+              'auth_url' => 'https://accounts.google.com/o/oauth2/v2/auth',
+              'token_url' => 'https://oauth2.googleapis.com/token',
+              'scopes' => array(
+                  'sheets' => 'https://www.googleapis.com/auth/spreadsheets',
+                  'drive' => 'https://www.googleapis.com/auth/drive',
+              ),
+          ),
+          'microsoft' => array(
+              'auth_url' => 'https://login.microsoftonline.com/common/oauth2/v2.0/authorize',
+              'token_url' => 'https://login.microsoftonline.com/common/oauth2/v2.0/token',
+          ),
+      );
+
+      public static function get_authorization_url($service, $scopes, $trigger_id) {
+          $config = self::$oauth_configs[$service];
+          $state = wp_create_nonce('super_oauth_' . $trigger_id);
+
+          $params = array(
+              'client_id' => SUPER_API_Credentials::get_credential($service, 'client_id'),
+              'redirect_uri' => admin_url('admin-ajax.php?action=super_oauth_callback'),
+              'response_type' => 'code',
+              'scope' => implode(' ', $scopes),
+              'state' => $state,
+              'access_type' => 'offline',  // For refresh tokens
+              'prompt' => 'consent',       // Force consent to get refresh token
+          );
+
+          return $config['auth_url'] . '?' . http_build_query($params);
+      }
+
+      public static function handle_callback() {
+          // Verify state (nonce)
+          if (!wp_verify_nonce($_GET['state'], 'super_oauth_' . $_GET['trigger_id'])) {
+              wp_die('Invalid state');
+          }
+
+          // Exchange code for tokens
+          $code = sanitize_text_field($_GET['code']);
+          $service = sanitize_text_field($_GET['service']);
+
+          $response = wp_remote_post(self::$oauth_configs[$service]['token_url'], array(
+              'body' => array(
+                  'code' => $code,
+                  'client_id' => SUPER_API_Credentials::get_credential($service, 'client_id'),
+                  'client_secret' => SUPER_API_Credentials::get_credential($service, 'client_secret'),
+                  'redirect_uri' => admin_url('admin-ajax.php?action=super_oauth_callback'),
+                  'grant_type' => 'authorization_code',
+              ),
+          ));
+
+          $tokens = json_decode(wp_remote_retrieve_body($response), true);
+
+          // Store encrypted tokens
+          SUPER_API_Credentials::save_credential($service, 'access_token', $tokens['access_token']);
+          SUPER_API_Credentials::save_credential($service, 'refresh_token', $tokens['refresh_token']);
+          SUPER_API_Credentials::save_credential($service, 'expires_at', time() + $tokens['expires_in']);
+
+          // Close popup and refresh parent
+          echo '<script>
+              window.opener.postMessage({
+                  type: "oauth_success",
+                  service: "' . esc_js($service) . '"
+              }, "*");
+              window.close();
+          </script>';
+          die();
+      }
+
+      public static function get_valid_token($service) {
+          $expires_at = SUPER_API_Credentials::get_credential($service, 'expires_at');
+
+          // Check if token expired
+          if ($expires_at && $expires_at < time()) {
+              // Refresh token
+              $refresh_token = SUPER_API_Credentials::get_credential($service, 'refresh_token');
+              if ($refresh_token) {
+                  self::refresh_token($service, $refresh_token);
+              }
+          }
+
+          return SUPER_API_Credentials::get_credential($service, 'access_token');
+      }
+  }
+  ```
+
+- [ ] Create OAuth connection UI in action settings:
+  ```javascript
+  // In backend JavaScript for action settings:
+  jQuery(document).on('click', '.super-oauth-connect', function() {
+      var service = jQuery(this).data('service');
+      var trigger_id = jQuery(this).data('trigger-id');
+      var url = ajaxurl + '?action=super_oauth_start&service=' + service + '&trigger_id=' + trigger_id;
+
+      // Open popup
+      var popup = window.open(url, 'oauth_popup', 'width=600,height=600');
+
+      // Listen for success message
+      window.addEventListener('message', function(e) {
+          if (e.data.type === 'oauth_success') {
+              // Update UI to show connected status
+              jQuery('.oauth-status-' + e.data.service)
+                  .removeClass('disconnected')
+                  .addClass('connected')
+                  .text('Connected ✓');
+          }
+      });
+  });
+  ```
+
+- [ ] OAuth UI in action settings schema:
+  ```php
+  'oauth_connection' => array(
+      'type' => 'custom',
+      'label' => 'Google Account',
+      'html' => '<button class="super-oauth-connect" data-service="google">
+                     Connect Google Account
+                 </button>
+                 <span class="oauth-status-google disconnected">Not connected</span>',
+  )
+  ```
+
+### **Phase 5: HTTP Request Action (Enables 80% of Integrations)**
 
 **This single action enables:** CRM sync, AI services, webhooks, API calls, etc.
 
@@ -499,7 +804,266 @@ Build a modular add-on ecosystem where external plugins can easily extend Super 
 - [ ] Update evaluation logic to handle AND/OR chains
 - [ ] Maintain backward compatibility with old format
 
-### **Phase 6: Example Add-ons (Critical for Adoption)**
+### **Phase 6: Payment Flow & Subscription Management Integration**
+
+**Form Submission Sessions (sfsi) Integration:**
+
+The current system stores form data in `wp_options` as `_sfsi_{id}` during payment flows. This must integrate with triggers/actions for payment status handling.
+
+**Payment Flow Architecture:**
+
+```
+Form Submit → sfsi created → Redirect to Payment → Webhook received → Trigger payment event → Update sfsi → Clean up
+```
+
+**Implementation:**
+
+- [ ] Add payment-specific events to registry:
+  ```php
+  // In super-forms.php initialization:
+  $registry->register_event('payment.pending', 'Payment Pending', 'Payments');
+  $registry->register_event('payment.success', 'Payment Successful', 'Payments');
+  $registry->register_event('payment.failed', 'Payment Failed', 'Payments');
+  $registry->register_event('payment.refunded', 'Payment Refunded', 'Payments');
+
+  // Subscription events
+  $registry->register_event('subscription.created', 'Subscription Created', 'Subscriptions');
+  $registry->register_event('subscription.updated', 'Subscription Updated', 'Subscriptions');
+  $registry->register_event('subscription.cancelled', 'Subscription Cancelled', 'Subscriptions');
+  $registry->register_event('subscription.payment.success', 'Subscription Payment Success', 'Subscriptions');
+  $registry->register_event('subscription.payment.failed', 'Subscription Payment Failed', 'Subscriptions');
+  ```
+
+- [ ] Update Stripe/PayPal webhook handlers to trigger events:
+  ```php
+  // In Stripe webhook handler:
+  switch ($event->type) {
+      case 'checkout.session.completed':
+          $sfsi = get_option('_sfsi_' . $event->data->object->metadata->sfsi_id);
+          $sfsi['payment_status'] = 'completed';
+          $sfsi['payment_intent'] = $event->data->object->payment_intent;
+          update_option('_sfsi_' . $sfsi['sfsi_id'], $sfsi);
+
+          // Trigger payment success event
+          SUPER_Common::triggerEvent('payment.success', $sfsi);
+          break;
+
+      case 'checkout.session.async_payment_failed':
+          $sfsi = get_option('_sfsi_' . $event->data->object->metadata->sfsi_id);
+          $sfsi['payment_status'] = 'failed';
+          update_option('_sfsi_' . $sfsi['sfsi_id'], $sfsi);
+
+          // Trigger payment failed event
+          SUPER_Common::triggerEvent('payment.failed', $sfsi);
+          break;
+
+      case 'customer.subscription.created':
+          $sfsi = get_option('_sfsi_' . $event->data->object->metadata->sfsi_id);
+          $sfsi['subscription_id'] = $event->data->object->id;
+          $sfsi['subscription_status'] = $event->data->object->status;
+          update_option('_sfsi_' . $sfsi['sfsi_id'], $sfsi);
+
+          // Trigger subscription created event
+          SUPER_Common::triggerEvent('subscription.created', $sfsi);
+          break;
+
+      case 'customer.subscription.updated':
+          // Handle plan changes (upgrade/downgrade)
+          $old_plan = $event->data->previous_attributes->items->data[0]->price->id;
+          $new_plan = $event->data->object->items->data[0]->price->id;
+
+          $sfsi = array(
+              'subscription_id' => $event->data->object->id,
+              'old_plan' => $old_plan,
+              'new_plan' => $new_plan,
+              'user_id' => get_user_by('email', $event->data->object->customer_email)->ID,
+          );
+
+          SUPER_Common::triggerEvent('subscription.updated', $sfsi);
+          break;
+  }
+  ```
+
+- [ ] Create subscription management actions:
+  ```php
+  class SUPER_Action_Update_User_Subscription extends SUPER_Trigger_Action_Base {
+      public function get_id() { return 'update_user_subscription'; }
+      public function get_label() { return 'Update User Subscription'; }
+      public function get_group() { return 'Subscriptions'; }
+
+      public function get_settings_schema() {
+          return array(
+              'plan_mapping' => array(
+                  'type' => 'repeater',
+                  'label' => 'Plan to Role Mapping',
+                  'fields' => array(
+                      'plan_id' => array('type' => 'text', 'label' => 'Stripe/PayPal Plan ID'),
+                      'user_role' => array('type' => 'select', 'label' => 'WordPress Role',
+                          'options' => wp_roles()->get_names()),
+                      'user_meta' => array('type' => 'repeater', 'label' => 'User Meta to Set',
+                          'fields' => array(
+                              'key' => array('type' => 'text'),
+                              'value' => array('type' => 'text'),
+                          )
+                      ),
+                  )
+              ),
+              'on_cancel' => array(
+                  'type' => 'select',
+                  'label' => 'On Cancellation',
+                  'options' => array(
+                      'remove_role' => 'Remove subscription role',
+                      'downgrade_role' => 'Downgrade to subscriber',
+                      'keep_until_expiry' => 'Keep access until period ends',
+                  )
+              ),
+          );
+      }
+
+      public function execute($data, $config, $context) {
+          $user_id = $data['user_id'] ?? get_current_user_id();
+          $plan_id = $data['new_plan'] ?? $data['plan_id'];
+
+          // Find matching plan configuration
+          foreach ($config['plan_mapping'] as $plan) {
+              if ($plan['plan_id'] === $plan_id) {
+                  // Update user role
+                  $user = get_user_by('id', $user_id);
+                  $user->set_role($plan['user_role']);
+
+                  // Update user meta
+                  foreach ($plan['user_meta'] as $meta) {
+                      update_user_meta($user_id, $meta['key'], $meta['value']);
+                  }
+
+                  // Store subscription info
+                  update_user_meta($user_id, 'super_subscription_plan', $plan_id);
+                  update_user_meta($user_id, 'super_subscription_status', $data['subscription_status']);
+
+                  return array(
+                      'success' => true,
+                      'message' => 'User subscription updated',
+                      'data' => array('user_id' => $user_id, 'plan' => $plan_id)
+                  );
+              }
+          }
+
+          return array('success' => false, 'error' => 'Plan not configured');
+      }
+  }
+  ```
+
+- [ ] Handle subscription lifecycle with triggers:
+  ```php
+  // Example trigger configuration for subscription management:
+  {
+      "name": "Handle Subscription Upgrade",
+      "event": "subscription.updated",
+      "actions": [
+          {
+              "action": "update_user_subscription",
+              "conditions": {
+                  "enabled": true,
+                  "f1": "{new_plan}",
+                  "logic": "!=",
+                  "f2": "{old_plan}"
+              }
+          },
+          {
+              "action": "send_email",
+              "data": {
+                  "subject": "Your subscription has been updated",
+                  "template": "subscription_change"
+              }
+          }
+      ]
+  }
+  ```
+
+**Payment Status Conditional Actions:**
+
+- [ ] Add payment status to available conditions:
+  ```php
+  // In triggerEvent() execution:
+  if ($sfsi['payment_status']) {
+      // Make payment status available for conditions
+      $context['payment_status'] = $sfsi['payment_status'];
+      $context['subscription_status'] = $sfsi['subscription_status'];
+  }
+  ```
+
+- [ ] Example configurations for payment flows:
+  ```php
+  // Only save contact entry if payment successful
+  {
+      "name": "Save Entry After Payment",
+      "event": "payment.success",
+      "actions": [
+          {
+              "action": "save_contact_entry",
+              "conditions": {
+                  "enabled": true,
+                  "f1": "{payment_status}",
+                  "logic": "==",
+                  "f2": "completed"
+              }
+          }
+      ]
+  }
+
+  // Delete entry if payment fails
+  {
+      "name": "Clean Failed Payments",
+      "event": "payment.failed",
+      "actions": [
+          {
+              "action": "delete_contact_entry",
+              "data": {
+                  "entry_id": "{entry_id}"
+              }
+          },
+          {
+              "action": "send_email",
+              "data": {
+                  "template": "payment_failed",
+                  "to": "{email}"
+              }
+          }
+      ]
+  }
+  ```
+
+**File Upload Handling with Payment Status:**
+
+- [ ] Conditional file retention based on payment:
+  ```php
+  class SUPER_Action_Manage_Files extends SUPER_Trigger_Action_Base {
+      public function execute($data, $config, $context) {
+          if ($context['payment_status'] === 'failed') {
+              // Delete uploaded files
+              foreach ($data['files'] as $file) {
+                  wp_delete_attachment($file['attachment_id'], true);
+              }
+          } else {
+              // Move files to permanent location
+              foreach ($data['files'] as $file) {
+                  // Move from temp to permanent storage
+              }
+          }
+      }
+  }
+  ```
+
+### **Phase 7: Enhanced Conditional Logic (Optional - Can Defer)**
+
+**Note:** Current single condition may be sufficient for v1. Consider deferring to v2.
+
+- [ ] Extend conditions_data JSON structure to support groups
+- [ ] Update UI with nested repeaters
+- [ ] Update evaluation logic to handle AND/OR chains
+- [ ] Maintain backward compatibility with old format
+
+### **Phase 8: Example Add-ons (Critical for Adoption)**
 
 Create 3 fully-functional example add-ons in `/examples/`:
 
