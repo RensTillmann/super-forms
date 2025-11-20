@@ -9,6 +9,7 @@ description: Tasks related to plugin extensions, feature enhancements, and funct
 ## Active Tasks
 
 ### High Priority
+- `h-implement-triggers-actions-extensibility/` - Complete refactor of triggers/actions system with custom tables, registry pattern, and full extensibility for add-ons (CRM, AI, webhooks)
 
 ### Medium Priority
 
