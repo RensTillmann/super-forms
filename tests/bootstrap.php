@@ -24,3 +24,13 @@ tests_add_filter( 'muplugins_loaded', '_manually_load_plugin' );
 
 // Start up the WP testing environment.
 require getenv( 'WP_PHPUNIT__DIR' ) . '/includes/bootstrap.php';
+
+// Load test helpers
+require_once dirname( __FILE__ ) . '/class-test-helpers.php';
+require_once dirname( __FILE__ ) . '/class-test-db-logger.php';
+
+// Initialize test database logger
+SUPER_Test_DB_Logger::init();
+
+// Register shutdown function to print summary
+register_shutdown_function( array( 'SUPER_Test_DB_Logger', 'print_summary' ) );

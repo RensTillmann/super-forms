@@ -3185,6 +3185,18 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				if ( ! empty( $global_settings['csrf_check'] ) && $global_settings['csrf_check'] === 'false' ) {
 					// Check was disabled by the user, skip it
 				} else {
+					// Fire form.validation_failed event (new trigger system)
+					if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
+						SUPER_Trigger_Executor::fire_event( 'form.validation_failed', array(
+							'form_id' => absint( $_POST['form_id'] ),
+							'error_type' => 'csrf_expired',
+							'error_message' => esc_html__( 'Unable to submit form, session expired!', 'super-forms' ),
+							'timestamp' => current_time( 'mysql' ),
+							'user_id' => get_current_user_id(),
+							'user_ip' => SUPER_Common::real_ip()
+						) );
+					}
+
 					// Return error
 					SUPER_Common::output_message(
 						array(
@@ -3229,6 +3241,17 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			// - If honeypot captcha field is not empty just cancel the request completely
 			// - Also make sure to unset the field for saving, because we do not need this field to be saved
 			if ( ! empty( $data['super_hp'] ) ) {
+				// Fire form.spam_detected event (new trigger system)
+				if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
+					SUPER_Trigger_Executor::fire_event( 'form.spam_detected', array(
+						'form_id' => absint( $_POST['form_id'] ),
+						'detection_method' => 'honeypot',
+						'honeypot_value' => $data['super_hp'],
+						'timestamp' => current_time( 'mysql' ),
+						'user_id' => get_current_user_id(),
+						'user_ip' => SUPER_Common::real_ip()
+					) );
+				}
 				exit;
 			}
 			unset( $data['super_hp'] );
@@ -4553,6 +4576,21 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 							wp_update_attachment_metadata( $attachment_id, $attach_data );
 							$data[ $fieldName ]['files'][ $k ]['url']        = wp_get_attachment_url( $attachment_id );
 							$data[ $fieldName ]['files'][ $k ]['attachment'] = $attachment_id;
+
+							// Fire file.uploaded event (new trigger system)
+							if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
+								SUPER_Trigger_Executor::fire_event( 'file.uploaded', array(
+									'attachment_id' => $attachment_id,
+									'form_id' => $form_id,
+									'field_name' => $fieldName,
+									'file_name' => basename( $filename ),
+									'file_type' => $uploaded_file['type'],
+									'file_size' => filesize( $filename ),
+									'file_url' => wp_get_attachment_url( $attachment_id ),
+									'timestamp' => current_time( 'mysql' ),
+									'user_id' => get_current_user_id()
+								) );
+							}
 						}
 						$data[ $fieldName ]['files'][ $k ]['value'] = basename( $filename );
 					}
@@ -4675,7 +4713,33 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			// error_log('submit_form(1)::$settings');
 			// error_log(json_encode($settings));
 			$response_data = $sfsi['response_data'];
+
+			// Fire form.before_submit event (new trigger system)
+			if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
+				SUPER_Trigger_Executor::fire_event( 'form.before_submit', array(
+					'form_id' => $form_id,
+					'raw_data' => $_POST,
+					'timestamp' => current_time( 'mysql' ),
+					'user_id' => get_current_user_id(),
+					'user_ip' => SUPER_Common::real_ip()
+				) );
+			}
+
 			do_action( 'super_before_processing_data', array( 'atts' => $sfsi ) );
+
+			// Fire form.submitted event (new trigger system)
+			if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
+				SUPER_Trigger_Executor::fire_event( 'form.submitted', array(
+					'form_id' => $form_id,
+					'entry_id' => $entry_id,
+					'sfsi_id' => $sfsi_id,
+					'data' => $data,
+					'settings' => $settings,
+					'timestamp' => current_time( 'mysql' ),
+					'user_id' => get_current_user_id(),
+					'user_ip' => SUPER_Common::real_ip()
+				) );
+			}
 			if ( ( isset( $data ) ) && ( count( $data ) > 0 ) ) {
 				foreach ( $data as $k => $v ) {
 					if ( ! isset( $v['type'] ) ) {
@@ -4869,6 +4933,18 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				// error_log('@@@@@@@@UPDATE _sfsi_.'.$sfsi_id.': '.json_encode($sfsi));
 				update_option( '_sfsi_' . $sfsi_id, $sfsi );
 
+				// Fire entry.created event (new trigger system)
+				if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
+					SUPER_Trigger_Executor::fire_event( 'entry.created', array(
+						'entry_id' => $contact_entry_id,
+						'form_id' => $form_id,
+						'entry_status' => 'super_unread',
+						'timestamp' => current_time( 'mysql' ),
+						'user_id' => get_current_user_id(),
+						'user_ip' => SUPER_Common::real_ip()
+					) );
+				}
+
 				// Store entry ID for later use
 				set_transient( 'super_form_authenticated_entry_id_' . $contact_entry_id, $contact_entry_id, 30 ); // Expires in 30 seconds
 
@@ -4947,6 +5023,20 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 						$total                = $wpdb->get_var( $query );
 					}
 					if ( $total > 1 ) { // If 2 entries found, it means the current created entry has the same title as an already existing entry
+						// Fire form.duplicate_detected event (new trigger system)
+						if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
+							SUPER_Trigger_Executor::fire_event( 'form.duplicate_detected', array(
+								'form_id' => $form_id,
+								'entry_id' => $contact_entry_id,
+								'duplicate_field' => 'entry_title',
+								'duplicate_value' => $contact_entry_title,
+								'comparison_scope' => $settings['contact_entry_unique_title_compare'],
+								'data' => $data,
+								'timestamp' => current_time( 'mysql' ),
+								'user_id' => get_current_user_id()
+							) );
+						}
+
 						wp_delete_post( $contact_entry_id, true );
 						SUPER_Common::output_message(
 							array(
@@ -5047,6 +5137,28 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				}
 				$result = SUPER_Data_Access::save_entry_data( $entry_id, $final_entry_data );
 
+				// Fire entry.updated and entry.saved events (new trigger system)
+				if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
+					// entry.updated - specific to entry updates
+					SUPER_Trigger_Executor::fire_event( 'entry.updated', array(
+						'entry_id' => $entry_id,
+						'form_id' => $form_id,
+						'entry_data' => $final_entry_data,
+						'timestamp' => current_time( 'mysql' ),
+						'user_id' => get_current_user_id()
+					) );
+
+					// entry.saved - fires for both new and updated entries
+					SUPER_Trigger_Executor::fire_event( 'entry.saved', array(
+						'entry_id' => $entry_id,
+						'form_id' => $form_id,
+						'entry_data' => $final_entry_data,
+						'is_update' => true,
+						'timestamp' => current_time( 'mysql' ),
+						'user_id' => get_current_user_id()
+					) );
+				}
+
 				// Check if we prevent saving duplicate entry titles
 				// Return error message to user
 				$contact_entry_title = esc_html__( 'Contact entry', 'super-forms' );
@@ -5078,7 +5190,23 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				);
 				wp_update_post( $post );
 				if ( $update_entry_status !== false ) {
+					// Get previous status before updating
+					$previous_status = get_post_meta( $entry_id, '_super_contact_entry_status', true );
+
 					update_post_meta( $entry_id, '_super_contact_entry_status', $update_entry_status );
+
+					// Fire entry.status_changed event (new trigger system)
+					if ( class_exists( 'SUPER_Trigger_Executor' ) && $previous_status !== $update_entry_status ) {
+						SUPER_Trigger_Executor::fire_event( 'entry.status_changed', array(
+							'entry_id' => $entry_id,
+							'form_id' => $form_id,
+							'previous_status' => $previous_status,
+							'new_status' => $update_entry_status,
+							'timestamp' => current_time( 'mysql' ),
+							'user_id' => get_current_user_id()
+						) );
+					}
+
 					$global_settings               = SUPER_Common::get_global_settings();
 					$entry_statuses                = SUPER_Settings::get_entry_statuses( $global_settings );
 					$_entry_status                 = ( isset( $entry_statuses[ $update_entry_status ] ) ? $entry_statuses[ $update_entry_status ] : $entry_statuses[''] );
@@ -5105,6 +5233,19 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			$global_settings = SUPER_Common::get_global_settings();
 			if ( $settings['save_contact_entry'] == 'yes' ) {
 				SUPER_Data_Access::save_entry_data( $contact_entry_id, $final_entry_data );
+
+				// Fire entry.saved event for new entries (new trigger system)
+				if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
+					SUPER_Trigger_Executor::fire_event( 'entry.saved', array(
+						'entry_id' => $contact_entry_id,
+						'form_id' => $form_id,
+						'entry_data' => $final_entry_data,
+						'is_update' => false,
+						'timestamp' => current_time( 'mysql' ),
+						'user_id' => get_current_user_id()
+					) );
+				}
+
 				if ( ( isset( $global_settings['backend_contact_entry_list_ip'] ) ) && ( $global_settings['backend_contact_entry_list_ip'] == 'true' ) ) {
 					add_post_meta( $contact_entry_id, '_super_contact_entry_ip', SUPER_Common::real_ip() );
 				}

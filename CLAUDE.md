@@ -306,3 +306,4 @@ For detailed information on specific development domains:
 - **JavaScript & React** → [docs/CLAUDE.javascript.md](docs/CLAUDE.javascript.md)
 - **PHP & WordPress** → [docs/CLAUDE.php.md](docs/CLAUDE.php.md)
 - **Testing & Quality** → [docs/CLAUDE.testing.md](docs/CLAUDE.testing.md)
+- use ssh if needed to login to dev server (see details from file @sync-to-webserver.sh and of course sync to site and check debug log if needed)

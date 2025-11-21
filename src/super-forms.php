@@ -249,6 +249,15 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 	include_once 'includes/class-cron-fallback.php';
 include_once 'includes/class-developer-tools.php';
 
+		// Triggers/Actions System (Phase 1)
+		include_once 'includes/class-trigger-dal.php';
+		include_once 'includes/triggers/class-trigger-action-base.php';
+		include_once 'includes/triggers/class-trigger-registry.php';
+		include_once 'includes/class-trigger-conditions.php';
+		include_once 'includes/class-trigger-manager.php';
+		include_once 'includes/class-trigger-executor.php';
+		include_once 'includes/class-trigger-rest-controller.php';
+
 			if ( $this->is_request( 'admin' ) ) {
 				include_once 'includes/class-install.php';
 				include_once 'includes/class-menu.php';
@@ -337,6 +346,10 @@ include_once 'includes/class-developer-tools.php';
 			add_action( 'init', array( $this, 'init' ), 0 );
 			add_action( 'init', array( $this, 'register_shortcodes' ) );
 			add_action( 'parse_request', array( $this, 'sfapi' ) );
+
+			// Triggers/Actions System initialization
+			add_action( 'init', array( $this, 'init_triggers_system' ), 5 );
+			add_action( 'rest_api_init', array( $this, 'register_triggers_rest_routes' ) );
 
 			// Set unique submission ID to expire after 15 days due to possible delayed payment methods used by Stripe
 			// SEPA Direct Debit is a reusable, delayed notification payment method. This means that it can take up to 14 business days to receive notification on the success or failure of a payment after you initiate a debit from the customer’s account, though the average is five business days.
@@ -4094,6 +4107,34 @@ include_once 'includes/class-developer-tools.php';
 		 */
 		public function ajax_url() {
 			return admin_url( 'admin-ajax.php', 'relative' );
+		}
+
+		/**
+		 * Initialize triggers/actions system
+		 *
+		 * @since 6.5.0
+		 */
+		public function init_triggers_system() {
+			// Initialize the registry singleton
+			$registry = SUPER_Trigger_Registry::get_instance();
+
+			/**
+			 * Allow add-ons to register their events and actions
+			 *
+			 * @param SUPER_Trigger_Registry $registry Registry instance
+			 * @since 6.5.0
+			 */
+			do_action( 'super_register_triggers', $registry );
+		}
+
+		/**
+		 * Register REST API routes for triggers system
+		 *
+		 * @since 6.5.0
+		 */
+		public function register_triggers_rest_routes() {
+			$controller = new SUPER_Trigger_REST_Controller();
+			$controller->register_routes();
 		}
 	}
 endif;

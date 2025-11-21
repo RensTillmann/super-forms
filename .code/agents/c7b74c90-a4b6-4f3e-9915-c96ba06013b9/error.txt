@@ -1,0 +1,37 @@
+Failed to setup worktree: Failed to create worktree: Updating files:   8% (235/2668)Updating files:   9% (241/2668)Updating files:  10% (267/2668)Updating files:  11% (294/2668)Updating files:  12% (321/2668)Updating files:  13% (347/2668)Updating files:  14% (374/2668)Updating files:  15% (401/2668)Updating files:  16% (427/2668)Updating files:  17% (454/2668)Updating files:  17% (476/2668)Updating files:  18% (481/2668)Updating files:  19% (507/2668)Updating files:  20% (534/2668)Updating files:  21% (561/2668)Updating files:  22% (587/2668)Updating files:  23% (614/2668)Updating files:  24% (641/2668)Updating files:  25% (667/2668)Updating files:  25% (693/2668)Updating files:  26% (694/2668)Updating files:  27% (721/2668)Updating files:  28% (748/2668)Updating files:  28% (752/2668)Updating files:  29% (774/2668)Updating files:  29% (789/2668)Updating files:  29% (793/2668)Updating files:  30% (801/2668)Updating files:  30% (802/2668)Updating files:  30% (807/2668)Updating files:  31% (828/2668)error: unable to write file src/includes/extensions/pdf-generator/fonts/japanese.json
+Updating files:  31% (837/2668)error: unable to write file src/includes/extensions/pdf-generator/fonts/japanese.ttf
+Updating files:  31% (838/2668)error: unable to write file src/includes/extensions/pdf-generator/fonts/japanese.woff
+Updating files:  31% (839/2668)error: unable to write file src/includes/extensions/pdf-generator/fonts/japanese.woff2
+error: unable to write file src/includes/extensions/pdf-generator/fonts/kannada.json
+error: unable to write file src/includes/extensions/pdf-generator/fonts/kannada.ttf
+error: unable to write file src/includes/extensions/pdf-generator/fonts/kannada.woff
+error: unable to write file src/includes/extensions/pdf-generator/fonts/kannada.woff2
+error: unable to write file src/includes/extensions/pdf-generator/fonts/khmer.json
+error: unable to write file src/includes/extensions/pdf-generator/fonts/khmer.ttf
+error: unable to write file src/includes/extensions/pdf-generator/fonts/khmer.woff
+error: unable to write file src/includes/extensions/pdf-generator/fonts/khmer.woff2
+error: unable to write file src/includes/extensions/pdf-generator/fonts/lao.json
+error: unable to write file src/includes/extensions/pdf-generator/fonts/lao.ttf
+error: unable to write file src/includes/extensions/pdf-generator/fonts/lao.woff
+error: unable to write file src/includes/extensions/pdf-generator/fonts/lao.woff2
+error: unable to write file src/includes/extensions/pdf-generator/fonts/malayalam.json
+error: unable to write file src/includes/extensions/pdf-generator/fonts/malayalam.ttf
+Updating files:  32% (854/2668)error: unable to write file src/includes/extensions/pdf-generator/fonts/malayalam.woff
+error: unable to write file src/includes/extensions/pdf-generator/fonts/malayalam.woff2
+error: unable to write file src/includes/extensions/pdf-generator/fonts/myanmar.json
+error: unable to write file src/includes/extensions/pdf-generator/fonts/myanmar.ttf
+error: unable to write file src/includes/extensions/pdf-generator/fonts/myanmar.woff
+error: unable to write file src/includes/extensions/pdf-generator/fonts/myanmar.woff2
+error: unable to write file src/includes/extensions/pdf-generator/fonts/oriya.json
+error: unable to write file src/includes/extensions/pdf-generator/fonts/oriya.ttf
+error: unable to write file src/includes/extensions/pdf-generator/fonts/oriya.woff
+error: unable to write file src/includes/extensions/pdf-generator/fonts/oriya.woff2
+error: unable to write file src/includes/extensions/pdf-generator/fonts/simsun.ttc
+Updating files:  32% (865/2668)error: unable to write file src/includes/extensions/pdf-generator/fonts/sinhala.json
+error: unable to write file src/includes/extensions/pdf-generator/fonts/sinhala.ttf
+error: unable to write file src/includes/extensions/pdf-generator/fonts/sinhala.woff
+error: unable to write file src/includes/extensions/pdf-generator/fonts/sinhala.woff2
+error: unable to write file src/includes/extensions/pdf-generator/fonts/tamil.json
+error: unable to write file src/includes/extensions/pdf-generator/fonts/tamil.ttf
+Updating files:  33% (881/2668)Updating files:  33% (886/2668)Updating files:  33% (887/2668)Updating files:  34% (908/2668)Updating files:  35% (934/2668)Updating files:  36% (961/2668)Updating files:  37% (988/2668)Updating files:  38% (1014/2668)Updating files:  39% (1041/2668)Updating files:  40% (1068/2668)Updating files:  40% (1072/2668)Updating files:  41% (1094/2668)Updating files:  42% (1121/2668)Updating files:  43% (1148/2668)Updating files:  44% (1174/2668)Updating files:  45% (1201/2668)Updating files:  46% (1228/2668)Updating files:  47% (1254/2668)Updating files:  48% (1281/2668)Updating files:  49% (1308/2668)Updating files:  50% (1334/2668)Updating files:  51% (1361/2668)Updating files:  52% (1388/2668)Updating files:  53% (1415/2668)Updating files:  54% (1441/2668)Updating files:  55% (1468/2668)Updating files:  56% (1495/2668)Updating files:  57% (1521/2668)Updating files:  58% (1548/2668)Updating files:  59% (1575/2668)Updating files:  60% (1601/2668)Updating files:  61% (1628/2668)Updating files:  62% (1655/2668)Updating files:  63% (1681/2668)Updating files:  64% (1708/2668)Updating files:  65% (1735/2668)Updating files:  66% (1761/2668)Updating files:  67% (1788/2668)Updating files:  68% (1815/2668)Updating files:  69% (1841/2668)Updating files:  70% (1868/2668)Updating files:  71% (1895/2668)Updating files:  72% (1921/2668)Updating files:  73% (1948/2668)Updating files:  74% (1975/2668)Updating files:  75% (2001/2668)Updating files:  76% (2028/2668)Updating files:  77% (2055/2668)Updating files:  78% (2082/2668)Updating files:  79% (2108/2668)Updating files:  80% (2135/2668)Updating files:  81% (2162/2668)Updating files:  82% (2188/2668)Updating files:  83% (2215/2668)Updating files:  84% (2242/2668)Updating files:  85% (2268/2668)Updating files:  86% (2295/2668)Updating files:  87% (2322/2668)Updating files:  88% (2348/2668)Updating files:  89% (2375/2668)Updating files:  90% (2402/2668)Updating files:  91% (2428/2668)Updating files:  91% (2447/2668)Updating files:  92% (2455/2668)Updating files:  93% (2482/2668)Updating files:  94% (2508/2668)Updating files:  95% (2535/2668)Updating files:  96% (2562/2668)Updating files:  97% (2588/2668)Updating files:  98% (2615/2668)Updating files:  99% (2642/2668)Updating files: 100% (2668/2668)Updating files: 100% (2668/2668), done.
+fatal: Could not reset index file to revision 'HEAD'.

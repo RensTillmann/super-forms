@@ -1,0 +1,1 @@
+Command failed: Please set an Auth method in your /home/rens/.gemini/settings.json OR specify GEMINI_API_KEY env variable file before running

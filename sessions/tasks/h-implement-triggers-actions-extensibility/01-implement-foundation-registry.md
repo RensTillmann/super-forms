@@ -6,18 +6,23 @@ created: 2025-11-20
 parent: h-implement-triggers-actions-extensibility
 ---
 
-# Implement Foundation and Registry System
+# Implement Foundation and Registry System (Backend Only)
 
 ## Problem/Goal
-Establish the core foundation for the extensible triggers/actions system, including database tables, data access layer, base classes, and the registry pattern for add-on extensibility.
+Establish the complete backend foundation for the extensible triggers/actions system. This phase builds all backend infrastructure WITHOUT any admin UI. The UI will be implemented in Phase 1.5 using the REST API built in this phase.
 
 ## Success Criteria
-- [ ] Database tables created automatically on plugin update/install
-- [ ] Data Access Layer (DAL) class implemented for CRUD operations
-- [ ] Base action class with common functionality
+- [ ] Database tables created with scope support (form/global/user/role)
+- [ ] Data Access Layer (DAL) with scope-aware queries
+- [ ] Manager class with business logic, validation, permissions
 - [ ] Registry system for events and actions registration
-- [ ] Backward compatibility maintained with existing trigger data
-- [ ] Unit tests for all new classes
+- [ ] Complex condition engine (AND/OR/NOT grouping, {tag} replacement)
+- [ ] Base action class with common functionality
+- [ ] Executor class (synchronous execution, Phase 2 adds async)
+- [ ] REST API v1 endpoints (full CRUD for triggers/actions)
+- [ ] Unit tests (80%+ coverage for critical paths)
+- [ ] NO backward compatibility (unreleased feature)
+- [ ] NO admin UI (deferred to Phase 1.5)
 - [ ] PHP 7.4+ compatibility maintained
 
 ## Implementation Steps
@@ -29,44 +34,134 @@ Establish the core foundation for the extensible triggers/actions system, includ
 
 Add three new tables after existing EAV table creation (line ~116):
 
-1. **super_triggers** - Stores trigger configurations
-   - Fields: id, name, event, scope, form_id, form_ids, enabled, execution_order, timestamps
-   - Indexes: event, form_id, enabled_event, scope_form
+**1. wp_superforms_triggers** - Main triggers table with scope support
 
-2. **super_trigger_actions** - Stores actions for each trigger
-   - Fields: id, trigger_id, action_type, execution_order, enabled, conditions_data, settings_data, i18n_data, timestamps
-   - Foreign key: trigger_id references super_triggers(id)
-   - Indexes: trigger_id, action_type
+```sql
+CREATE TABLE {$wpdb->prefix}superforms_triggers (
+  id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+  trigger_name VARCHAR(255) NOT NULL,
+  scope VARCHAR(50) NOT NULL DEFAULT 'form',  -- 'form', 'global', 'user', 'role', 'site', 'network'
+  scope_id BIGINT(20),                        -- form_id, user_id, blog_id, etc. (NULL for global/role/network)
+  event_id VARCHAR(100) NOT NULL,             -- 'form.submitted', 'payment.completed', etc.
+  conditions TEXT,                            -- JSON: complex condition structure with AND/OR/NOT
+  enabled TINYINT(1) DEFAULT 1,
+  execution_order INT DEFAULT 10,
+  created_at DATETIME NOT NULL,
+  updated_at DATETIME NOT NULL,
+  PRIMARY KEY (id),
+  KEY scope_lookup (scope, scope_id, enabled),
+  KEY event_lookup (event_id, enabled),
+  KEY form_triggers (scope, scope_id) USING BTREE
+) ENGINE=InnoDB $charset_collate;
+```
 
-3. **super_trigger_execution_log** - Stores execution history
-   - Fields: id, trigger_name, action_name, form_id, entry_id, event, executed_at, execution_time_ms, status, error_message, result_data, user_id, scheduled_action_id
-   - Indexes: entry_id, form_id, event, status, user_id, executed_at, scheduled_action_id
+**2. wp_superforms_trigger_actions** - Actions table (normalized)
 
-**Important:** Also update `check_version()` method to trigger table creation on plugin update.
+```sql
+CREATE TABLE {$wpdb->prefix}superforms_trigger_actions (
+  id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+  trigger_id BIGINT(20) UNSIGNED NOT NULL,
+  action_type VARCHAR(100) NOT NULL,          -- 'http.request', 'email.send', 'webhook.call', etc.
+  action_config TEXT,                         -- JSON: action-specific configuration
+  execution_order INT DEFAULT 10,
+  enabled TINYINT(1) DEFAULT 1,
+  created_at DATETIME NOT NULL,
+  updated_at DATETIME NOT NULL,
+  PRIMARY KEY (id),
+  KEY trigger_id (trigger_id),
+  KEY action_type (action_type),
+  KEY trigger_order (trigger_id, execution_order),
+  FOREIGN KEY (trigger_id) REFERENCES {$wpdb->prefix}superforms_triggers(id) ON DELETE CASCADE
+) ENGINE=InnoDB $charset_collate;
+```
+
+**3. wp_superforms_trigger_logs** - Execution history
+
+```sql
+CREATE TABLE {$wpdb->prefix}superforms_trigger_logs (
+  id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+  trigger_id BIGINT(20) UNSIGNED NOT NULL,
+  action_id BIGINT(20) UNSIGNED,
+  entry_id BIGINT(20) UNSIGNED,
+  form_id BIGINT(20) UNSIGNED,
+  event_id VARCHAR(100) NOT NULL,
+  status VARCHAR(20) NOT NULL,                -- 'success', 'failed', 'pending'
+  error_message TEXT,
+  execution_time_ms INT,
+  context_data LONGTEXT,                      -- JSON: event context
+  result_data LONGTEXT,                       -- JSON: action result
+  user_id BIGINT(20) UNSIGNED,
+  scheduled_action_id BIGINT(20) UNSIGNED,    -- Action Scheduler ID (Phase 2)
+  executed_at DATETIME NOT NULL,
+  PRIMARY KEY (id),
+  KEY trigger_id (trigger_id),
+  KEY entry_id (entry_id),
+  KEY form_id (form_id),
+  KEY status (status),
+  KEY executed_at (executed_at),
+  KEY form_status (form_id, status)
+) ENGINE=InnoDB $charset_collate;
+```
+
+**Implementation Notes:**
+- Use `dbDelta()` for safe schema upgrades
+- Add version check in `check_version()` to run on plugin update
+- Follow existing EAV table creation pattern in `class-install.php`
 
 ### Step 2: Data Access Layer (DAL) Implementation
 
 **File:** `/src/includes/class-trigger-dal.php` (new file)
 
-Create `SUPER_Trigger_DAL` class with methods:
+Create `SUPER_Trigger_DAL` class with scope-aware methods. Returns `WP_Error` on failure, data on success.
 
-**Core CRUD Methods:**
-- `create_trigger($data)` - Insert new trigger
-- `get_trigger($id)` - Retrieve single trigger
-- `update_trigger($id, $data)` - Update trigger
-- `delete_trigger($id)` - Delete trigger and cascade actions
-- `get_triggers_by_event($event, $form_id = null)` - Get active triggers for event
+**Core Trigger CRUD:**
+```php
+- create_trigger($data)              // Insert: validates scope, returns trigger_id or WP_Error
+- get_trigger($id)                   // Select: returns trigger array or WP_Error
+- update_trigger($id, $data)         // Update: returns bool or WP_Error
+- delete_trigger($id)                // Delete: cascades to actions, returns bool or WP_Error
+```
+
+**Scope-Aware Queries:**
+```php
+- get_triggers_by_scope($scope, $scope_id = null)
+  // Examples:
+  //   get_triggers_by_scope('form', 123)   → triggers for form #123
+  //   get_triggers_by_scope('global')      → all global triggers
+  //   get_triggers_by_scope('user', 5)     → triggers for user #5
+
+- get_triggers_by_event($event_id, $scope = null, $scope_id = null)
+  // Examples:
+  //   get_triggers_by_event('form.submitted')           → all triggers for this event
+  //   get_triggers_by_event('form.submitted', 'form', 123) → form-specific triggers
+  //   get_triggers_by_event('payment.completed', 'global') → global payment triggers
+
+- get_active_triggers_for_context($event_id, $context)
+  // Smart lookup: checks form scope, global scope, user scope in priority order
+  // Returns merged array of all applicable triggers
+```
 
 **Action Management:**
-- `create_action($trigger_id, $data)` - Add action to trigger
-- `update_action($action_id, $data)` - Update action
-- `delete_action($action_id)` - Remove action
-- `reorder_actions($trigger_id, $order_array)` - Update execution order
+```php
+- create_action($trigger_id, $data)  // Returns action_id or WP_Error
+- get_actions($trigger_id)           // Returns array of actions (ordered)
+- update_action($action_id, $data)   // Returns bool or WP_Error
+- delete_action($action_id)          // Returns bool or WP_Error
+- reorder_actions($trigger_id, $order_array)  // Update execution_order
+```
 
-**Query Methods:**
-- `get_form_triggers($form_id)` - All triggers for a form
-- `get_global_triggers()` - All global triggers
-- `search_triggers($args)` - Advanced search with pagination
+**Advanced Queries:**
+```php
+- search_triggers($args)             // Pagination, filters (scope, event, status)
+- count_triggers($filters)           // Count with optional filters
+```
+
+**Logging Methods:**
+```php
+- log_execution($trigger_id, $action_id, $entry_id, $status, $data)
+- get_execution_logs($filters, $limit, $offset)
+- get_trigger_stats($trigger_id)     // Success/failure counts, avg execution time
+```
 
 ### Step 3: Base Action Class
 
@@ -124,36 +219,318 @@ add_action('init', function() {
 });
 ```
 
-### Step 5: Backward Compatibility
+### Step 5: Manager Class (Business Logic Layer)
 
-**File:** `/src/includes/class-trigger-migration.php` (new file)
+**File:** `/src/includes/class-trigger-manager.php` (new file)
 
-Create migration class to handle existing trigger data:
+Create `SUPER_Trigger_Manager` class - sits between REST API and DAL, handles business logic:
 
-1. Read existing triggers from form settings
-2. Convert to new database structure
-3. Maintain compatibility with existing action hooks
-4. Provide fallback for old trigger format
+**Responsibilities:**
+- Validation: Ensure scope/scope_id combinations are valid
+- Permissions: Check `manage_options` capability (simple for Phase 1)
+- Sanitization: Clean user input before passing to DAL
+- Scope Resolution: Determine which triggers apply to given context
 
-### Step 6: Core Events Registration
+**Key Methods:**
+```php
+- create_trigger_with_actions($trigger_data, $actions_data)  // Atomic operation
+- validate_trigger_data($data)                               // Returns true or WP_Error
+- can_user_manage_trigger($trigger_id, $user_id)            // Permission check
+- resolve_triggers_for_event($event_id, $context)           // Returns applicable triggers
+```
 
-Register built-in events in registry:
+### Step 6: Conditions Engine (Complex Logic Evaluation)
 
-**Form Events:**
-- submission.created
-- submission.validated
-- submission.saved
-- submission.failed
+**File:** `/src/includes/class-trigger-conditions.php` (new file)
+
+Create `SUPER_Trigger_Conditions` class for recursive condition evaluation:
+
+**Features:**
+- AND/OR/NOT grouping with unlimited nesting
+- {tag} replacement: `{field_name}`, `{entry_id}`, `{user_email}`, etc.
+- Operators: `=`, `!=`, `>`, `<`, `contains`, `starts_with`, `regex`, `in`, `empty`, etc.
+- Type casting: string, int, float, bool, date, array
+
+**Structure:**
+```php
+$conditions = [
+  'operator' => 'AND',
+  'rules' => [
+    ['type' => 'condition', 'field' => '{email}', 'operator' => 'contains', 'value' => '@gmail.com'],
+    ['type' => 'group', 'operator' => 'OR', 'rules' => [
+      ['type' => 'condition', 'field' => '{country}', 'operator' => '=', 'value' => 'US'],
+      ['type' => 'condition', 'field' => '{country}', 'operator' => '=', 'value' => 'CA']
+    ]]
+  ]
+];
+```
+
+**Key Methods:**
+```php
+- evaluate($conditions, $context)           // Returns bool
+- replace_tags($string, $context)           // '{email}' → 'user@example.com'
+- validate_condition_structure($conditions) // Check for circular dependencies, complexity
+```
+
+**Note:** See "Advanced Conditional Logic Engine" section below for full implementation details.
+
+### Step 7: Executor Class (Synchronous Action Execution)
+
+**File:** `/src/includes/class-trigger-executor.php` (new file)
+
+Create `SUPER_Trigger_Executor` class for running actions. Phase 1 = sync only, Phase 2 adds async via Action Scheduler.
+
+**Key Methods:**
+```php
+- execute_trigger($trigger_id, $context)     // Run all actions for trigger
+- execute_action($action_id, $context)       // Run single action
+- fire_event($event_id, $context)            // Find and execute all matching triggers
+```
+
+**Flow:**
+1. Get triggers for event + context (via Manager)
+2. Evaluate conditions (via Conditions Engine)
+3. If conditions pass, execute actions in order
+4. Log results (via DAL)
+5. Return success/failure
+
+### Step 8: REST API v1 Endpoints
+
+**File:** `/src/includes/class-trigger-rest-controller.php` (new file)
+
+Create `SUPER_Trigger_REST_Controller` extending `WP_REST_Controller`:
+
+**Endpoints:**
+```php
+// Triggers CRUD
+GET    /wp-json/super-forms/v1/triggers
+POST   /wp-json/super-forms/v1/triggers
+GET    /wp-json/super-forms/v1/triggers/{id}
+PUT    /wp-json/super-forms/v1/triggers/{id}
+DELETE /wp-json/super-forms/v1/triggers/{id}
+
+// Actions CRUD (nested)
+GET    /wp-json/super-forms/v1/triggers/{trigger_id}/actions
+POST   /wp-json/super-forms/v1/triggers/{trigger_id}/actions
+PUT    /wp-json/super-forms/v1/triggers/{trigger_id}/actions/{id}
+DELETE /wp-json/super-forms/v1/triggers/{trigger_id}/actions/{id}
+
+// Registry introspection
+GET    /wp-json/super-forms/v1/events          // List registered events
+GET    /wp-json/super-forms/v1/action-types    // List registered action types
+
+// Execution logs
+GET    /wp-json/super-forms/v1/trigger-logs    // Query logs with filters
+
+// Testing (dev only)
+POST   /wp-json/super-forms/v1/triggers/{id}/test  // Fire with mock data
+```
+
+**Permissions:**
+- All endpoints require `manage_options` for Phase 1
+- Phase 1.5 will add granular scope-based permissions
+
+### Step 9: Unit Testing Structure
+
+**Directory:** `/test/`
+
+Create comprehensive unit tests for all classes (80%+ coverage target):
+
+**Test Files:**
+```
+test-trigger-dal.php          - Database CRUD, scope queries, error handling
+test-trigger-manager.php      - Business logic, validation, permissions
+test-trigger-registry.php     - Event/action registration, retrieval
+test-trigger-conditions.php   - Condition evaluation, tag replacement, nesting
+test-trigger-executor.php     - Action execution, logging, error handling
+test-trigger-action-base.php  - Abstract class methods
+test-trigger-rest-api.php     - REST endpoints, auth, validation
+```
+
+**Testing Approach:**
+- Use WordPress testing framework (PHPUnit)
+- Mock WordPress functions where needed
+- Test both success and failure paths
+- Test WP_Error returns
+- Test scope isolation
+- Test tag replacement edge cases
+- Performance tests for complex conditions
+
+**Core Events Registration** (in Step 4 Registry implementation):
+
+Register these built-in events when plugin loads. Events organized by implementation phase:
+
+### Phase 1 Events (Foundation - Implement Now)
+
+**Form Lifecycle Events:**
+- `form.before_submit` - Before any processing starts (allows pre-validation actions)
+- `form.validation_failed` - Validation errors detected
+- `form.submitted` - After validation passes, before save
+- `form.spam_detected` - Spam detection triggered (Akismet, honeypot, etc.)
+- `form.duplicate_detected` - Duplicate submission detected
 
 **Entry Events:**
-- entry.status_changed
-- entry.deleted
-- entry.exported
+- `entry.created` - Right after entry post created in database
+- `entry.saved` - After all entry data saved (includes custom fields)
+- `entry.updated` - Existing entry edited
+- `entry.status_changed` - Entry status modified (e.g., pending → approved)
+- `entry.deleted` - Entry permanently deleted
+
+**File Upload Events:**
+- `file.uploaded` - File upload completed successfully
+- `file.upload_failed` - File upload error
+- `file.deleted` - Uploaded file removed
+
+### Phase 6 Events (Payment Integration - Implement with Payment Phase)
+
+**Generic Payment Events** (gateway-agnostic):
+- `payment.initiated` - Payment process started
+- `payment.completed` - Payment successful
+- `payment.failed` - Payment error
+- `payment.refunded` - Full or partial refund issued
+- `payment.disputed` - Chargeback or dispute opened
+
+**Subscription Events** (generic):
+- `subscription.created` - New subscription started
+- `subscription.updated` - Subscription modified (plan change, amount change)
+- `subscription.renewed` - Recurring payment succeeded
+- `subscription.payment_failed` - Recurring payment failed
+- `subscription.canceled` - Subscription cancelled by user or admin
+- `subscription.expired` - Subscription ended (reached end date)
+- `subscription.trial_started` - Trial period began
+- `subscription.trial_ending` - Trial ending soon (3 days before)
+- `subscription.trial_ended` - Trial completed
+
+**Gateway-Specific Events** (for advanced use cases):
+- `payment.stripe.checkout_completed` - Stripe checkout session completed
+- `payment.stripe.payment_intent_succeeded` - Stripe payment intent succeeded
+- `payment.stripe.invoice_paid` - Stripe invoice paid
+- `payment.paypal.payment_completed` - PayPal payment completed
+- `payment.paypal.subscription_created` - PayPal subscription created
+
+**WooCommerce Events** (Super Forms WooCommerce add-on integration):
+- `woocommerce.order_created` - Order created from form submission
+- `woocommerce.order_completed` - Order status changed to completed
+- `woocommerce.order_failed` - Order failed
+- `woocommerce.order_refunded` - Order refunded
+- `woocommerce.product_created` - Product created via Front-End Posting
+
+### Phase 8 Events (Real-time Interactions - Client-Side)
+
+**Field Interaction Events** (JavaScript-triggered):
+- `field.changed` - Field value changed
+- `field.focused` - Field received focus
+- `field.blurred` - Field lost focus
+- `field.keypress` - Key pressed in field (debounced)
+- `calculation.updated` - Calculated field value recalculated
+- `form.abandoned` - User started form but left without submitting
+
+### Future Phase Events (Deferred)
 
 **User Events:**
-- user.registered
-- user.logged_in
-- user.profile_updated
+- `user.registered` - New user account created via form
+- `user.logged_in` - User logged in
+- `user.logged_out` - User logged out
+- `user.login_failed` - Failed login attempt
+- `user.password_reset` - Password reset requested
+- `user.password_changed` - Password successfully changed
+- `user.role_changed` - User role modified
+- `user.profile_updated` - User meta/profile updated
+- `user.deleted` - User account deleted
+
+**Post/CPT Events** (Front-End Posting add-on):
+- `post.created` - Post created from form submission
+- `post.updated` - Post updated via form
+- `post.published` - Post status changed to published
+- `post.status_changed` - Post status modified
+- `post.deleted` - Post deleted
+
+**Email Events** (with tracking):
+- `email.sent` - Email successfully sent
+- `email.failed` - Email sending failed
+- `email.bounced` - Email bounced (requires tracking integration)
+- `email.opened` - Email opened (requires tracking pixel)
+- `email.link_clicked` - Email link clicked (requires tracking)
+
+**Schedule/Time Events:**
+- `schedule.daily` - Once per day trigger (e.g., 00:00 UTC)
+- `schedule.weekly` - Once per week (e.g., Monday 00:00)
+- `schedule.monthly` - Once per month (e.g., 1st of month)
+- `entry.anniversary` - X days/weeks/months after entry created
+- `reminder.due` - Scheduled reminder time reached
+
+**Admin Events:**
+- `form.created` - New form created
+- `form.updated` - Form settings modified
+- `form.deleted` - Form deleted
+- `form.duplicated` - Form cloned
+- `trigger.created` - New trigger added (meta-event)
+- `trigger.updated` - Trigger configuration changed (meta-event)
+- `trigger.deleted` - Trigger removed (meta-event)
+
+**Integration Events:**
+- `webhook.received` - Incoming webhook received
+- `api.request_sent` - External API request made
+- `api.response_received` - External API response received
+- `action.completed` - Specific action finished successfully (meta-event)
+- `action.failed` - Specific action failed (meta-event)
+
+### Event Naming Convention
+
+All events follow `category.action` pattern:
+- **Category**: form, entry, payment, subscription, user, post, email, file, etc.
+- **Action**: created, updated, deleted, completed, failed, etc.
+- **Gateway-specific**: `payment.{gateway}.{action}` for provider-specific events
+
+### Context Data Standards
+
+Each event provides standardized context data:
+
+```php
+$context = [
+  'event_id' => 'form.submitted',
+  'timestamp' => current_time('mysql'),
+  'entry_id' => 123,
+  'form_id' => 456,
+  'user_id' => get_current_user_id(),
+  'user_ip' => $_SERVER['REMOTE_ADDR'],
+  'form_data' => [], // All submitted field values
+  'entry_data' => [], // Processed/sanitized entry data
+  // Event-specific fields:
+  'payment_id' => 789,        // For payment events
+  'amount' => 99.99,          // For payment events
+  'currency' => 'USD',        // For payment events
+  'gateway' => 'stripe',      // For payment events
+  'subscription_id' => 321,   // For subscription events
+  'file_url' => 'https://...',  // For file events
+  'post_id' => 654,           // For post events
+];
+```
+
+### Implementation Priority
+
+**Phase 1 (Now):** 18 events
+- All form lifecycle events (5)
+- All entry events (5)
+- All file events (3)
+- Basic payment events (5) - stubs for Phase 6
+
+**Phase 6 (Payment):** 20+ events
+- Complete payment/subscription events
+- Gateway-specific events
+- WooCommerce events
+
+**Phase 8 (Real-time):** 6 events
+- All field interaction events
+- Form abandonment tracking
+
+**Future:** 30+ events
+- User lifecycle events
+- Post/CPT events
+- Email tracking events
+- Schedule events
+- Admin events
+- Integration meta-events
 
 ## Context Manifest
 <!-- To be added by context-gathering agent -->
@@ -785,3 +1162,9 @@ class SUPER_Condition_Validator {
 ## Work Log
 <!-- Updated as work progresses -->
 - [2025-11-20] Subtask created with detailed implementation steps
+- [2025-11-20] Architecture refined: Backend-only approach, scope system, REST API first
+- [2025-11-20] Database schema updated with scope fields (form/global/user/role/site/network)
+- [2025-11-20] Added Manager, Conditions Engine, Executor, REST API steps
+- [2025-11-20] Removed backward compatibility requirement (unreleased feature)
+- [2025-11-20] Added comprehensive unit testing structure (80%+ coverage target)
+- [2025-11-20] Expanded event taxonomy: 70+ events across all phases with naming conventions and context standards

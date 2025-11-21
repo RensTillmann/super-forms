@@ -115,6 +115,82 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 
 			dbDelta( $sql );
 
+			// ─────────────────────────────────────────────────────────
+			// Triggers/Actions System Tables
+			// @since 6.5.0
+			// ─────────────────────────────────────────────────────────
+
+			// Main triggers table
+			$table_name = $wpdb->prefix . 'superforms_triggers';
+
+			$sql = "CREATE TABLE $table_name (
+				id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+				trigger_name VARCHAR(255) NOT NULL,
+				scope VARCHAR(50) NOT NULL DEFAULT 'form',
+				scope_id BIGINT(20),
+				event_id VARCHAR(100) NOT NULL,
+				conditions TEXT,
+				enabled TINYINT(1) DEFAULT 1,
+				execution_order INT DEFAULT 10,
+				created_at DATETIME NOT NULL,
+				updated_at DATETIME NOT NULL,
+				PRIMARY KEY (id),
+				KEY scope_lookup (scope, scope_id, enabled),
+				KEY event_lookup (event_id, enabled),
+				KEY form_triggers (scope, scope_id) USING BTREE
+			) ENGINE=InnoDB $charset_collate;";
+
+			dbDelta( $sql );
+
+			// Trigger actions table (normalized - 1:N relationship)
+			$table_name = $wpdb->prefix . 'superforms_trigger_actions';
+
+			$sql = "CREATE TABLE $table_name (
+				id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+				trigger_id BIGINT(20) UNSIGNED NOT NULL,
+				action_type VARCHAR(100) NOT NULL,
+				action_config TEXT,
+				execution_order INT DEFAULT 10,
+				enabled TINYINT(1) DEFAULT 1,
+				created_at DATETIME NOT NULL,
+				updated_at DATETIME NOT NULL,
+				PRIMARY KEY (id),
+				KEY trigger_id (trigger_id),
+				KEY action_type (action_type),
+				KEY trigger_order (trigger_id, execution_order)
+			) ENGINE=InnoDB $charset_collate;";
+
+			dbDelta( $sql );
+
+			// Trigger execution logs table
+			$table_name = $wpdb->prefix . 'superforms_trigger_logs';
+
+			$sql = "CREATE TABLE $table_name (
+				id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+				trigger_id BIGINT(20) UNSIGNED NOT NULL,
+				action_id BIGINT(20) UNSIGNED,
+				entry_id BIGINT(20) UNSIGNED,
+				form_id BIGINT(20) UNSIGNED,
+				event_id VARCHAR(100) NOT NULL,
+				status VARCHAR(20) NOT NULL,
+				error_message TEXT,
+				execution_time_ms INT,
+				context_data LONGTEXT,
+				result_data LONGTEXT,
+				user_id BIGINT(20) UNSIGNED,
+				scheduled_action_id BIGINT(20) UNSIGNED,
+				executed_at DATETIME NOT NULL,
+				PRIMARY KEY (id),
+				KEY trigger_id (trigger_id),
+				KEY entry_id (entry_id),
+				KEY form_id (form_id),
+				KEY status (status),
+				KEY executed_at (executed_at),
+				KEY form_status (form_id, status)
+			) ENGINE=InnoDB $charset_collate;";
+
+			dbDelta( $sql );
+
 			// Run schema upgrades for existing installations
 			self::upgrade_database_schema();
 		}
@@ -230,7 +306,7 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 		 * @since 6.0.0
 		 */
 		private static function update_db_version() {
-			update_option( 'superforms_db_version', '1.0.0' );
+			update_option( 'superforms_db_version', '1.1.0' ); // Incremented for triggers/actions system tables
 		}
 
 	/**
