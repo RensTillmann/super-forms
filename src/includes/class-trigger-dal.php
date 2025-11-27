@@ -92,21 +92,29 @@ if ( ! class_exists( 'SUPER_Trigger_DAL' ) ) :
 				);
 			}
 
-			// Insert trigger
+			// Insert trigger - handle NULL scope_id properly
+			$insert_data = array(
+				'trigger_name'    => sanitize_text_field( $data['trigger_name'] ),
+				'event_id'        => sanitize_text_field( $data['event_id'] ),
+				'scope'           => sanitize_text_field( $data['scope'] ),
+				'conditions'      => is_array( $data['conditions'] ) ? wp_json_encode( $data['conditions'] ) : $data['conditions'],
+				'enabled'         => absint( $data['enabled'] ),
+				'execution_order' => absint( $data['execution_order'] ),
+				'created_at'      => current_time( 'mysql' ),
+				'updated_at'      => current_time( 'mysql' ),
+			);
+			$format = array( '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%s' );
+
+			// Only add scope_id if it has a value (avoid storing 0 for NULL)
+			if ( ! empty( $data['scope_id'] ) ) {
+				$insert_data['scope_id'] = absint( $data['scope_id'] );
+				$format = array( '%s', '%s', '%s', '%s', '%d', '%d', '%s', '%s', '%d' );
+			}
+
 			$result = $wpdb->insert(
 				$wpdb->prefix . 'superforms_triggers',
-				array(
-					'trigger_name'    => sanitize_text_field( $data['trigger_name'] ),
-					'event_id'        => sanitize_text_field( $data['event_id'] ),
-					'scope'           => sanitize_text_field( $data['scope'] ),
-					'scope_id'        => ! empty( $data['scope_id'] ) ? absint( $data['scope_id'] ) : null,
-					'conditions'      => is_array( $data['conditions'] ) ? wp_json_encode( $data['conditions'] ) : $data['conditions'],
-					'enabled'         => absint( $data['enabled'] ),
-					'execution_order' => absint( $data['execution_order'] ),
-					'created_at'      => current_time( 'mysql' ),
-					'updated_at'      => current_time( 'mysql' ),
-				),
-				array( '%s', '%s', '%s', '%d', '%s', '%d', '%d', '%s', '%s' )
+				$insert_data,
+				$format
 			);
 
 			if ( false === $result ) {

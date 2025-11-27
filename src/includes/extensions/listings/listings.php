@@ -520,8 +520,9 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 				);
 				die();
 			}
-			// Check if this entry does not have the correct post type, if not then the entry doesn't exist
-			if ( get_post_type( $entry_id ) != 'super_contact_entry' ) {
+			// Check if this entry exists (supports both post type and custom table storage)
+			$entry = class_exists( 'SUPER_Entry_DAL' ) ? SUPER_Entry_DAL::get( $entry_id ) : get_post( $entry_id );
+			if ( is_wp_error( $entry ) || ! $entry ) {
 				SUPER_Common::output_message(
 					array(
 						'msg' => esc_html__( 'No entry found with ID:', 'super-forms' ) . ' ' . $entry_id,
@@ -530,8 +531,8 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 				die();
 			}
 			// Seems that everything is OK, continue and load the form
-			$entry   = get_post( $entry_id );
-			$form_id = $entry->post_parent; // This will hold the form ID
+			// Note: Entry DAL returns form_id property, BC layer returns post_parent
+			$form_id = isset( $entry->form_id ) ? $entry->form_id : $entry->post_parent;
 			// Now print out the form by executing the shortcode function
 			echo SUPER_Shortcodes::super_form_func( array( 'id' => $form_id ) );
 			die();
@@ -2467,6 +2468,44 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 				$filterColumns[ sanitize_text_field( substr( $gk, 3, strlen( $gk ) ) ) ] = sanitize_text_field( $gv );
 			}
 
+			// @since 6.5.0 - Storage mode aware column mappings for migration support
+			$entry_table       = $wpdb->posts;
+			$col_id            = 'ID';
+			$col_form_id       = 'post_parent';
+			$col_user_id       = 'post_author';
+			$col_date          = 'post_date';
+			$col_modified      = 'post_modified';
+			$col_status        = 'post_status';
+			$col_title         = 'post_title';
+			$where_entry_type  = "entry.post_type = 'super_contact_entry' AND ";
+			$status_meta_join  = "LEFT JOIN {$wpdb->postmeta} AS entry_status ON entry_status.post_id = entry.{$col_id} AND entry_status.meta_key = '_super_contact_entry_status'";
+			$status_select     = 'entry_status.meta_value AS status';
+			$meta_table        = $wpdb->postmeta;
+			$meta_id_col       = 'post_id';
+			$meta_key_prefix   = '_super_contact_entry_';
+			$is_custom_table   = false;
+
+			if ( class_exists( 'SUPER_Entry_DAL' ) ) {
+				$dal_components = SUPER_Entry_DAL::get_query_components();
+				if ( $dal_components['storage_mode'] !== 'post_type' ) {
+					$is_custom_table   = true;
+					$entry_table       = $dal_components['entries_table'];
+					$col_id            = 'id';
+					$col_form_id       = 'form_id';
+					$col_user_id       = 'user_id';
+					$col_date          = 'created_at';
+					$col_modified      = 'updated_at';
+					$col_status        = 'wp_status';
+					$col_title         = 'title';
+					$where_entry_type  = ''; // No post_type filter needed for custom table
+					$status_meta_join  = ''; // Entry status is a column, not meta
+					$status_select     = 'entry.entry_status AS status';
+					$meta_table        = $dal_components['entry_meta_table'];
+					$meta_id_col       = 'entry_id';
+					$meta_key_prefix   = '_'; // Shorter prefix in entry_meta table
+				}
+			}
+
 			// Filter by entry data
 			$having               = '';
 			$filter_by_entry_data = '';
@@ -2488,7 +2527,7 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 								if ( $use_eav ) {
 									// EAV query - use indexed JOIN instead of SUBSTRING_INDEX
 									$eav_alias  = 'eav_filter_' . $eav_join_counter;
-									$eav_joins .= " LEFT JOIN {$wpdb->prefix}superforms_entry_data AS {$eav_alias} ON {$eav_alias}.entry_id = post.ID AND {$eav_alias}.field_name = '" . esc_sql( $fck ) . "'";
+									$eav_joins .= " LEFT JOIN {$wpdb->prefix}superforms_entry_data AS {$eav_alias} ON {$eav_alias}.entry_id = entry.{$col_id} AND {$eav_alias}.field_name = '" . esc_sql( $fck ) . "'";
 									if ( ! empty( $filters ) ) {
 										$filters .= ' AND';
 									}
@@ -2515,16 +2554,16 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 						if ( ! empty( $dateFilter[1] ) ) {
 							$from     = $dateFilter[0];
 							$until    = $dateFilter[1];
-							$filters .= " post.post_date BETWEEN CAST('$from' AS DATE) AND CAST('$until' AS DATE)";
+							$filters .= " entry.{$col_date} BETWEEN CAST('$from' AS DATE) AND CAST('$until' AS DATE)";
 						} else {
 							$from     = $dateFilter[0];
-							$filters .= " post.post_date LIKE '$from%'"; // Only filter starting with
+							$filters .= " entry.{$col_date} LIKE '$from%'"; // Only filter starting with
 						}
 					} elseif ( $fck == 'post_title' ) {
 						if ( ! empty( $filters ) ) {
 							$filters .= ' AND';
 						}
-						$filters .= ' post.post_title LIKE "%' . $fcv . '%"';
+						$filters .= " entry.{$col_title} LIKE '%" . $fcv . "%'";
 					} elseif ( $fck == 'wp_post_title' ) {
 						if ( ! empty( $filters ) ) {
 							$filters .= ' AND';
@@ -2539,7 +2578,11 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 						if ( ! empty( $filters ) ) {
 							$filters .= ' AND';
 						}
-						$filters .= ' entry_status.meta_value = "' . $fcv . '"';
+						if ( $is_custom_table ) {
+							$filters .= ' entry.entry_status = "' . $fcv . '"';
+						} else {
+							$filters .= ' entry_status.meta_value = "' . $fcv . '"';
+						}
 					} elseif ( $fck == 'wc_order' ) {
 						if ( ! empty( $filters ) ) {
 							$filters .= ' AND';
@@ -2621,7 +2664,7 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 						if ( ! empty( $filters ) ) {
 							$filters .= ' AND';
 						}
-						$filters .= ' post.post_author = "' . $fcv . '"';
+						$filters .= ' entry.' . $col_user_id . ' = "' . $fcv . '"';
 					} else {
 					}
 				}
@@ -2632,7 +2675,7 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 			if ( $use_eav ) {
 				// After migration: Get PDF from EAV table (indexed, fast)
 				$eav_alias = 'eav_pdf';
-				$eav_joins .= " LEFT JOIN {$wpdb->prefix}superforms_entry_data AS {$eav_alias} ON {$eav_alias}.entry_id = post.ID AND {$eav_alias}.field_name = '_generated_pdf_file'";
+				$eav_joins .= " LEFT JOIN {$wpdb->prefix}superforms_entry_data AS {$eav_alias} ON {$eav_alias}.entry_id = entry.{$col_id} AND {$eav_alias}.field_name = '_generated_pdf_file'";
 				$pdf_selector = "{$eav_alias}.field_value AS pdfFileName";
 			} else {
 				// Before migration: Extract PDF from serialized data
@@ -2671,14 +2714,14 @@ END AS paypalSubscriptionId
 
 			// Check if custom sort was choosen by the user
 			$order_by_entry_data = '';
-			$sc                  = 'post_date'; // sort column (defaults to 'date')
+			$sc                  = $col_date; // sort column (defaults to 'date')
 			$originalSc          = $sc;
 			if ( ! empty( $_GET['sc'] ) ) {
 				$sc         = sanitize_text_field( $_GET['sc'] );
 				$originalSc = $sc;
 				// Entry date
 				if ( $sc === 'entry_date' ) {
-					$sc = 'post_date';
+					$sc = $col_date;
 				}
 				// Paypal transactions
 				if ( $sc === 'paypal_order' ) {
@@ -2718,7 +2761,7 @@ END AS paypalSubscriptionId
 							if ( $use_eav ) {
 								// EAV query - use indexed JOIN for sorting
 								$eav_alias  = 'eav_sort_' . $eav_join_counter;
-								$eav_joins .= " LEFT JOIN {$wpdb->prefix}superforms_entry_data AS {$eav_alias} ON {$eav_alias}.entry_id = post.ID AND {$eav_alias}.field_name = '" . esc_sql( $sc ) . "'";
+								$eav_joins .= " LEFT JOIN {$wpdb->prefix}superforms_entry_data AS {$eav_alias} ON {$eav_alias}.entry_id = entry.{$col_id} AND {$eav_alias}.field_name = '" . esc_sql( $sc ) . "'";
 								$order_by_entry_data = ", {$eav_alias}.field_value AS orderValue";
 								$eav_join_counter++;
 							} else {
@@ -2752,8 +2795,8 @@ END AS paypalSubscriptionId
 			$where               = '';
 			$whereWithoutFilters = '';
 			if ( $list['display']['retrieve'] == 'this_form' ) {
-				$where               .= " AND post.post_parent != 0 AND post.post_parent = '" . absint( $form_id ) . "'";
-				$whereWithoutFilters .= " AND post.post_parent != 0 AND post.post_parent = '" . absint( $form_id ) . "'";
+				$where               .= " AND entry.{$col_form_id} != 0 AND entry.{$col_form_id} = '" . absint( $form_id ) . "'";
+				$whereWithoutFilters .= " AND entry.{$col_form_id} != 0 AND entry.{$col_form_id} = '" . absint( $form_id ) . "'";
 			}
 			if ( $list['display']['retrieve'] == 'specific_forms' ) {
 				$form_ids = preg_replace( '/\s+/', '', $list['display']['form_ids'] );
@@ -2770,8 +2813,8 @@ END AS paypalSubscriptionId
 					}
 					$q .= ',' . $id;
 				}
-				$where               .= " AND post.post_parent IN($q)";
-				$whereWithoutFilters .= " AND post.post_parent IN($q)";
+				$where               .= " AND entry.{$col_form_id} IN($q)";
+				$whereWithoutFilters .= " AND entry.{$col_form_id} IN($q)";
 			}
 
 			if ( $list['date_range']['enabled'] === 'true' ) {
@@ -2779,13 +2822,13 @@ END AS paypalSubscriptionId
 				$until = $list['date_range']['until'];
 				if ( ! empty( $from ) || ! empty( $until ) ) {
 					if ( ! empty( $from ) && empty( $until ) ) {
-						$where .= " AND DATE(post.post_date) >= CAST('$from' AS DATE)";
+						$where .= " AND DATE(entry.{$col_date}) >= CAST('$from' AS DATE)";
 					}
 					if ( empty( $from ) && ! empty( $until ) ) {
-						$where .= " AND DATE(post.post_date) <= CAST('$until' AS DATE)";
+						$where .= " AND DATE(entry.{$col_date}) <= CAST('$until' AS DATE)";
 					}
 					if ( ! empty( $from ) && ! empty( $until ) ) {
-						$where .= " AND post.post_date BETWEEN CAST('$from' AS DATE) AND CAST('$until' AS DATE)";
+						$where .= " AND entry.{$col_date} BETWEEN CAST('$from' AS DATE) AND CAST('$until' AS DATE)";
 					}
 				}
 			}
@@ -2794,8 +2837,8 @@ END AS paypalSubscriptionId
 				// Allow user to see any entries in the list
 			} else {
 				// Only allow to see entries that belong to the currently logged in user
-				$where               .= ' AND post.post_author != 0 AND post.post_author = "' . absint( $current_user->ID ) . '"';
-				$whereWithoutFilters .= ' AND post.post_author != 0 AND post.post_author = "' . absint( $current_user->ID ) . '"';
+				$where               .= " AND entry.{$col_user_id} != 0 AND entry.{$col_user_id} = '" . absint( $current_user->ID ) . "'";
+				$whereWithoutFilters .= " AND entry.{$col_user_id} != 0 AND entry.{$col_user_id} = '" . absint( $current_user->ID ) . "'";
 			}
 
 			if ( ! empty( $filters ) ) {
@@ -2809,44 +2852,44 @@ END AS paypalSubscriptionId
 			$count_query                 = "SELECT COUNT(entry_id) AS total
             FROM (
                 SELECT
-                post.ID AS entry_id,
-                post.post_title AS post_title,
-                post.post_date AS post_date,
-                entry_status.meta_value AS status,
-                created_post.ID AS created_post_id, 
+                entry.{$col_id} AS entry_id,
+                entry.{$col_title} AS title,
+                entry.{$col_date} AS date,
+                {$status_select},
+                created_post.ID AS created_post_id,
                 created_post.post_status AS created_post_status,
-                created_post.post_title AS created_post_title, 
-                wc_order.post_status AS wc_order_status, 
+                created_post.post_title AS created_post_title,
+                wc_order.post_status AS wc_order_status,
                 wc_order.ID AS wc_order_number,
-                paypal_order.post_status AS paypal_order_status, 
+                paypal_order.post_status AS paypal_order_status,
                 paypal_order.post_title AS paypal_order_number,
                 paypal_order.ID AS paypal_order_id,
-                post.post_author AS author_id, 
+                entry.{$col_user_id} AS author_id,
                 author_firstname.meta_value AS author_firstname,
                 author_lastname.meta_value AS author_lastname,
                 author_nickname.meta_value AS nickname,
                 author.user_login AS author_username,
-                author.user_email AS author_email, 
+                author.user_email AS author_email,
                 author.display_name AS author_display_name,
                 $other_selectors
                 $order_by_entry_data
-                $filter_by_entry_data 
-                FROM $wpdb->posts AS post 
-                LEFT JOIN $wpdb->postmeta AS meta ON meta.post_id = post.ID AND meta.meta_key = '_super_contact_entry_data'
-                LEFT JOIN $wpdb->postmeta AS entry_status ON entry_status.post_id = post.ID AND entry_status.meta_key = '_super_contact_entry_status'
-                LEFT JOIN $wpdb->postmeta AS created_post_connection ON created_post_connection.post_id = post.ID AND created_post_connection.meta_key = '_super_created_post'
-                LEFT JOIN $wpdb->posts AS created_post ON created_post.ID = created_post_connection.meta_value
-                LEFT JOIN $wpdb->postmeta AS wc_order_connection ON wc_order_connection.post_id = post.ID AND wc_order_connection.meta_key = '_super_contact_entry_wc_order_id' 
-                LEFT JOIN $wpdb->posts AS wc_order ON wc_order.ID = wc_order_connection.meta_value 
-                LEFT JOIN $wpdb->postmeta AS paypal_order_connection ON paypal_order_connection.post_id = post.ID AND paypal_order_connection.meta_key = '_super_contact_entry_paypal_order_id' 
-                LEFT JOIN $wpdb->posts AS paypal_order ON paypal_order.ID = paypal_order_connection.meta_value 
-                LEFT JOIN $wpdb->postmeta AS paypal_txn_data ON paypal_txn_data.post_id = paypal_order_connection.meta_value AND paypal_txn_data.meta_key = '_super_txn_data' 
-                LEFT JOIN $wpdb->users AS author ON author.ID = post.post_author
-                LEFT JOIN $wpdb->usermeta AS author_firstname ON author_firstname.user_id = post.post_author AND author_firstname.meta_key = 'first_name'
-                LEFT JOIN $wpdb->usermeta AS author_lastname ON author_lastname.user_id = post.post_author AND author_lastname.meta_key = 'last_name'
-                LEFT JOIN $wpdb->usermeta AS author_nickname ON author_nickname.user_id = post.post_author AND author_nickname.meta_key = 'nickname'
+                $filter_by_entry_data
+                FROM {$entry_table} AS entry
+                LEFT JOIN {$meta_table} AS meta ON meta.{$meta_id_col} = entry.{$col_id} AND meta.meta_key = '{$meta_key_prefix}data'
+                {$status_meta_join}
+                LEFT JOIN {$meta_table} AS created_post_connection ON created_post_connection.{$meta_id_col} = entry.{$col_id} AND created_post_connection.meta_key = '{$meta_key_prefix}created_post'
+                LEFT JOIN {$wpdb->posts} AS created_post ON created_post.ID = created_post_connection.meta_value
+                LEFT JOIN {$meta_table} AS wc_order_connection ON wc_order_connection.{$meta_id_col} = entry.{$col_id} AND wc_order_connection.meta_key = '{$meta_key_prefix}wc_order_id'
+                LEFT JOIN {$wpdb->posts} AS wc_order ON wc_order.ID = wc_order_connection.meta_value
+                LEFT JOIN {$meta_table} AS paypal_order_connection ON paypal_order_connection.{$meta_id_col} = entry.{$col_id} AND paypal_order_connection.meta_key = '{$meta_key_prefix}paypal_order_id'
+                LEFT JOIN {$wpdb->posts} AS paypal_order ON paypal_order.ID = paypal_order_connection.meta_value
+                LEFT JOIN {$wpdb->postmeta} AS paypal_txn_data ON paypal_txn_data.post_id = paypal_order_connection.meta_value AND paypal_txn_data.meta_key = '_super_txn_data'
+                LEFT JOIN {$wpdb->users} AS author ON author.ID = entry.{$col_user_id}
+                LEFT JOIN {$wpdb->usermeta} AS author_firstname ON author_firstname.user_id = entry.{$col_user_id} AND author_firstname.meta_key = 'first_name'
+                LEFT JOIN {$wpdb->usermeta} AS author_lastname ON author_lastname.user_id = entry.{$col_user_id} AND author_lastname.meta_key = 'last_name'
+                LEFT JOIN {$wpdb->usermeta} AS author_nickname ON author_nickname.user_id = entry.{$col_user_id} AND author_nickname.meta_key = 'nickname'
                 $eav_joins
-                WHERE post.post_type = 'super_contact_entry' AND post.post_status != 'trash'
+                WHERE {$where_entry_type}entry.{$col_status} != 'trash'
                 $where
                 $having
             ) a";
@@ -2854,41 +2897,41 @@ END AS paypalSubscriptionId
 			$count_without_filters_query = "SELECT COUNT(entry_id) AS total
             FROM (
                 SELECT
-                post.ID AS entry_id,
-                post.post_title AS post_title,
-                post.post_date AS post_date,
-                entry_status.meta_value AS status,
-                created_post.ID AS created_post_id, 
+                entry.{$col_id} AS entry_id,
+                entry.{$col_title} AS title,
+                entry.{$col_date} AS date,
+                {$status_select},
+                created_post.ID AS created_post_id,
                 created_post.post_status AS created_post_status,
-                created_post.post_title AS created_post_title, 
-                wc_order.post_status AS wc_order_status, 
+                created_post.post_title AS created_post_title,
+                wc_order.post_status AS wc_order_status,
                 wc_order.ID AS wc_order_number,
-                paypal_order.post_status AS paypal_order_status, 
+                paypal_order.post_status AS paypal_order_status,
                 paypal_order.post_title AS paypal_order_number,
                 paypal_order.ID AS paypal_order_id,
-                post.post_author AS author_id,
+                entry.{$col_user_id} AS author_id,
                 author_firstname.meta_value AS author_firstname,
                 author_lastname.meta_value AS author_lastname,
-                author_nickname.meta_value AS author_nickname, 
+                author_nickname.meta_value AS author_nickname,
                 author.user_login AS author_username,
                 author.user_email AS author_email,
                 author.display_name AS author_display_name
-                FROM $wpdb->posts AS post 
-                LEFT JOIN $wpdb->postmeta AS meta ON meta.post_id = post.ID AND meta.meta_key = '_super_contact_entry_data'
-                LEFT JOIN $wpdb->postmeta AS entry_status ON entry_status.post_id = post.ID AND entry_status.meta_key = '_super_contact_entry_status'
-                LEFT JOIN $wpdb->postmeta AS created_post_connection ON created_post_connection.post_id = post.ID AND created_post_connection.meta_key = '_super_created_post'
-                LEFT JOIN $wpdb->posts AS created_post ON created_post.ID = created_post_connection.meta_value
-                LEFT JOIN $wpdb->postmeta AS wc_order_connection ON wc_order_connection.post_id = post.ID AND wc_order_connection.meta_key = '_super_contact_entry_wc_order_id' 
-                LEFT JOIN $wpdb->posts AS wc_order ON wc_order.ID = wc_order_connection.meta_value 
-                LEFT JOIN $wpdb->postmeta AS paypal_order_connection ON paypal_order_connection.post_id = post.ID AND paypal_order_connection.meta_key = '_super_contact_entry_paypal_order_id' 
-                LEFT JOIN $wpdb->posts AS paypal_order ON paypal_order.ID = paypal_order_connection.meta_value 
-                LEFT JOIN $wpdb->postmeta AS paypal_txn_data ON paypal_txn_data.post_id = paypal_order_connection.meta_value AND paypal_txn_data.meta_key = '_super_txn_data' 
-                LEFT JOIN $wpdb->users AS author ON author.ID = post.post_author
-                LEFT JOIN $wpdb->usermeta AS author_firstname ON author_firstname.user_id = post.post_author AND author_firstname.meta_key = 'first_name'
-                LEFT JOIN $wpdb->usermeta AS author_lastname ON author_lastname.user_id = post.post_author AND author_lastname.meta_key = 'last_name'
-                LEFT JOIN $wpdb->usermeta AS author_nickname ON author_nickname.user_id = post.post_author AND author_nickname.meta_key = 'nickname'
+                FROM {$entry_table} AS entry
+                LEFT JOIN {$meta_table} AS meta ON meta.{$meta_id_col} = entry.{$col_id} AND meta.meta_key = '{$meta_key_prefix}data'
+                {$status_meta_join}
+                LEFT JOIN {$meta_table} AS created_post_connection ON created_post_connection.{$meta_id_col} = entry.{$col_id} AND created_post_connection.meta_key = '{$meta_key_prefix}created_post'
+                LEFT JOIN {$wpdb->posts} AS created_post ON created_post.ID = created_post_connection.meta_value
+                LEFT JOIN {$meta_table} AS wc_order_connection ON wc_order_connection.{$meta_id_col} = entry.{$col_id} AND wc_order_connection.meta_key = '{$meta_key_prefix}wc_order_id'
+                LEFT JOIN {$wpdb->posts} AS wc_order ON wc_order.ID = wc_order_connection.meta_value
+                LEFT JOIN {$meta_table} AS paypal_order_connection ON paypal_order_connection.{$meta_id_col} = entry.{$col_id} AND paypal_order_connection.meta_key = '{$meta_key_prefix}paypal_order_id'
+                LEFT JOIN {$wpdb->posts} AS paypal_order ON paypal_order.ID = paypal_order_connection.meta_value
+                LEFT JOIN {$wpdb->postmeta} AS paypal_txn_data ON paypal_txn_data.post_id = paypal_order_connection.meta_value AND paypal_txn_data.meta_key = '_super_txn_data'
+                LEFT JOIN {$wpdb->users} AS author ON author.ID = entry.{$col_user_id}
+                LEFT JOIN {$wpdb->usermeta} AS author_firstname ON author_firstname.user_id = entry.{$col_user_id} AND author_firstname.meta_key = 'first_name'
+                LEFT JOIN {$wpdb->usermeta} AS author_lastname ON author_lastname.user_id = entry.{$col_user_id} AND author_lastname.meta_key = 'last_name'
+                LEFT JOIN {$wpdb->usermeta} AS author_nickname ON author_nickname.user_id = entry.{$col_user_id} AND author_nickname.meta_key = 'nickname'
                 $eav_joins
-                WHERE post.post_type = 'super_contact_entry' AND post.post_status != 'trash'
+                WHERE {$where_entry_type}entry.{$col_status} != 'trash'
                 $whereWithoutFilters
             ) a";
 			$absoluteZeroResults         = $wpdb->get_var( $count_without_filters_query );
@@ -2898,48 +2941,51 @@ END AS paypalSubscriptionId
 				$absoluteZeroResults = false;
 			}
 
+			// @since 6.5.0 - post_type column only exists in wp_posts, use static value for custom table
+			$entry_type_select = $is_custom_table ? "'super_contact_entry' AS entry_type" : "entry.post_type AS entry_type";
+
 			$query        = "
             SELECT
-            post.ID AS entry_id,
-            post.post_type AS post_type,
-            post.post_title AS post_title,
-            post.post_date AS post_date,
-            post.post_parent AS post_parent,
-            entry_status.meta_value AS status,
-            created_post.ID AS created_post_id, 
+            entry.{$col_id} AS entry_id,
+            {$entry_type_select},
+            entry.{$col_title} AS title,
+            entry.{$col_date} AS date,
+            entry.{$col_form_id} AS form_id,
+            {$status_select},
+            created_post.ID AS created_post_id,
             created_post.post_status AS created_post_status,
-            created_post.post_title AS created_post_title, 
-            wc_order.post_status AS wc_order_status, 
+            created_post.post_title AS created_post_title,
+            wc_order.post_status AS wc_order_status,
             wc_order.ID AS wc_order_number,
-            paypal_order.post_status AS paypal_order_status, 
+            paypal_order.post_status AS paypal_order_status,
             paypal_order.post_title AS paypal_order_number,
             paypal_order.ID AS paypal_order_id,
-            post.post_author AS author_id,
+            entry.{$col_user_id} AS author_id,
             author_firstname.meta_value AS author_firstname,
             author_lastname.meta_value AS author_lastname,
             author_nickname.meta_value AS author_nickname,
-            author.user_login AS author_username, 
-            author.user_email AS author_email, 
+            author.user_login AS author_username,
+            author.user_email AS author_email,
             author.display_name AS author_display_name,
             $other_selectors
             $order_by_entry_data
             $filter_by_entry_data
-            FROM $wpdb->posts AS post
-            LEFT JOIN $wpdb->postmeta AS meta ON meta.post_id = post.ID AND meta.meta_key = '_super_contact_entry_data'
-            LEFT JOIN $wpdb->postmeta AS entry_status ON entry_status.post_id = post.ID AND entry_status.meta_key = '_super_contact_entry_status'
-            LEFT JOIN $wpdb->postmeta AS created_post_connection ON created_post_connection.post_id = post.ID AND created_post_connection.meta_key = '_super_created_post'
-            LEFT JOIN $wpdb->posts AS created_post ON created_post.ID = created_post_connection.meta_value
-            LEFT JOIN $wpdb->postmeta AS wc_order_connection ON wc_order_connection.post_id = post.ID AND wc_order_connection.meta_key = '_super_contact_entry_wc_order_id' 
-            LEFT JOIN $wpdb->posts AS wc_order ON wc_order.ID = wc_order_connection.meta_value 
-            LEFT JOIN $wpdb->postmeta AS paypal_order_connection ON paypal_order_connection.post_id = post.ID AND paypal_order_connection.meta_key = '_super_contact_entry_paypal_order_id' 
-            LEFT JOIN $wpdb->posts AS paypal_order ON paypal_order.ID = paypal_order_connection.meta_value 
-            LEFT JOIN $wpdb->postmeta AS paypal_txn_data ON paypal_txn_data.post_id = paypal_order_connection.meta_value AND paypal_txn_data.meta_key = '_super_txn_data' 
-            LEFT JOIN $wpdb->users AS author ON author.ID = post.post_author
-            LEFT JOIN $wpdb->usermeta AS author_firstname ON author_firstname.user_id = post.post_author AND author_firstname.meta_key = 'first_name'
-            LEFT JOIN $wpdb->usermeta AS author_lastname ON author_lastname.user_id = post.post_author AND author_lastname.meta_key = 'last_name'
-            LEFT JOIN $wpdb->usermeta AS author_nickname ON author_nickname.user_id = post.post_author AND author_nickname.meta_key = 'nickname'
+            FROM {$entry_table} AS entry
+            LEFT JOIN {$meta_table} AS meta ON meta.{$meta_id_col} = entry.{$col_id} AND meta.meta_key = '{$meta_key_prefix}data'
+            {$status_meta_join}
+            LEFT JOIN {$meta_table} AS created_post_connection ON created_post_connection.{$meta_id_col} = entry.{$col_id} AND created_post_connection.meta_key = '{$meta_key_prefix}created_post'
+            LEFT JOIN {$wpdb->posts} AS created_post ON created_post.ID = created_post_connection.meta_value
+            LEFT JOIN {$meta_table} AS wc_order_connection ON wc_order_connection.{$meta_id_col} = entry.{$col_id} AND wc_order_connection.meta_key = '{$meta_key_prefix}wc_order_id'
+            LEFT JOIN {$wpdb->posts} AS wc_order ON wc_order.ID = wc_order_connection.meta_value
+            LEFT JOIN {$meta_table} AS paypal_order_connection ON paypal_order_connection.{$meta_id_col} = entry.{$col_id} AND paypal_order_connection.meta_key = '{$meta_key_prefix}paypal_order_id'
+            LEFT JOIN {$wpdb->posts} AS paypal_order ON paypal_order.ID = paypal_order_connection.meta_value
+            LEFT JOIN {$wpdb->postmeta} AS paypal_txn_data ON paypal_txn_data.post_id = paypal_order_connection.meta_value AND paypal_txn_data.meta_key = '_super_txn_data'
+            LEFT JOIN {$wpdb->users} AS author ON author.ID = entry.{$col_user_id}
+            LEFT JOIN {$wpdb->usermeta} AS author_firstname ON author_firstname.user_id = entry.{$col_user_id} AND author_firstname.meta_key = 'first_name'
+            LEFT JOIN {$wpdb->usermeta} AS author_lastname ON author_lastname.user_id = entry.{$col_user_id} AND author_lastname.meta_key = 'last_name'
+            LEFT JOIN {$wpdb->usermeta} AS author_nickname ON author_nickname.user_id = entry.{$col_user_id} AND author_nickname.meta_key = 'nickname'
             $eav_joins
-            WHERE post.post_type = 'super_contact_entry' AND post.post_status != 'trash'
+            WHERE {$where_entry_type}entry.{$col_status} != 'trash'
             $where
             $having
             ORDER BY $order_by
@@ -3078,7 +3124,7 @@ END AS paypalSubscriptionId
 					$paypal_payment_statuses = SUPER_PayPal::$paypal_payment_statuses;
 				}
 				foreach ( $entries as $entry ) {
-					$foundFormIds[ $entry->post_parent ] = $entry->post_parent;
+					$foundFormIds[ $entry->form_id ] = $entry->form_id;
 					// Get entry data from Data Access Layer (supports both EAV and serialized storage)
 					$data                                = isset( $bulk_entry_data[ $entry->entry_id ] ) ? $bulk_entry_data[ $entry->entry_id ] : array();
 					$result                             .= '<div class="super-entry" data-id="' . $entry->entry_id . '">';
@@ -3217,7 +3263,7 @@ END AS paypalSubscriptionId
 							}
 						}
 						if ( $column_key == 'post_title' ) {
-							$cellValue = esc_html( $entry->post_title );
+							$cellValue = esc_html( $entry->title );
 						} elseif ( $entry->author_id && $column_key == 'author_username' ) {
 							$cellValue = esc_html( $entry->author_username );
 						} elseif ( $entry->author_id && $column_key == 'author_firstname' ) {
@@ -3316,8 +3362,8 @@ END AS paypalSubscriptionId
 								}
 							}
 						} elseif ( $column_key == 'entry_date' ) {
-							$date      = date_i18n( get_option( 'date_format' ), strtotime( $entry->post_date ) );
-							$time      = ' @ ' . date_i18n( get_option( 'time_format' ), strtotime( $entry->post_date ) );
+							$date      = date_i18n( get_option( 'date_format' ), strtotime( $entry->date ) );
+							$time      = ' @ ' . date_i18n( get_option( 'time_format' ), strtotime( $entry->date ) );
 							$cellValue = apply_filters( 'super_listings_date_filter', $date . $time, $entry );
 						} else {
 							// Check if this data key exists

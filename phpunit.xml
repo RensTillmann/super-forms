@@ -9,14 +9,26 @@
 	>
 	<testsuites>
 		<testsuite name="Super Forms Test Suite">
-			<directory>./tests</directory>
+			<directory suffix=".php">./tests</directory>
+			<exclude>./tests/triggers</exclude>
+			<exclude>./tests/integration</exclude>
+			<exclude>./tests/fixtures</exclude>
+		</testsuite>
+		<testsuite name="triggers">
+			<directory suffix=".php">./tests/triggers</directory>
+			<exclude>./tests/triggers/class-action-test-case.php</exclude>
+		</testsuite>
+		<testsuite name="integration">
+			<directory suffix=".php">./tests/integration</directory>
 		</testsuite>
 	</testsuites>
 	<filter>
 		<whitelist processUncoveredFilesFromWhitelist="true">
 			<directory suffix=".php">./src</directory>
+			<directory suffix=".php">./includes</directory>
 			<exclude>
 				<directory suffix=".php">./src/vendor</directory>
+				<directory suffix=".php">./vendor</directory>
 			</exclude>
 		</whitelist>
 	</filter>

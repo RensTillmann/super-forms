@@ -1208,6 +1208,216 @@ wp_localize_script('super-forms-developer-tools', 'devtoolsData', array(
             <pre class="sql-results-content"></pre>
         </div>
     </div>
+
+    <!-- Trigger System Testing Section -->
+    <div class="super-devtools-section">
+        <h2><?php echo esc_html__('8. Trigger System Testing', 'super-forms'); ?></h2>
+        <p><?php echo esc_html__('Test the trigger/action system by firing events manually and inspecting execution logs.', 'super-forms'); ?></p>
+
+        <!-- Event Firing Test Panel -->
+        <h3><?php echo esc_html__('Fire Test Event', 'super-forms'); ?></h3>
+        <div class="event-test-controls" style="margin-bottom: 20px;">
+            <table class="form-table">
+                <tr>
+                    <th scope="row">
+                        <label for="test-event-id"><?php echo esc_html__('Event:', 'super-forms'); ?></label>
+                    </th>
+                    <td>
+                        <select id="test-event-id" style="width: 300px;">
+                            <optgroup label="Form Events">
+                                <option value="form.before_submit">form.before_submit</option>
+                                <option value="form.submitted" selected>form.submitted</option>
+                                <option value="form.spam_detected">form.spam_detected</option>
+                                <option value="form.validation_failed">form.validation_failed</option>
+                                <option value="form.duplicate_detected">form.duplicate_detected</option>
+                            </optgroup>
+                            <optgroup label="Entry Events">
+                                <option value="entry.created">entry.created</option>
+                                <option value="entry.saved">entry.saved</option>
+                                <option value="entry.updated">entry.updated</option>
+                                <option value="entry.status_changed">entry.status_changed</option>
+                            </optgroup>
+                            <optgroup label="File Events">
+                                <option value="file.uploaded">file.uploaded</option>
+                            </optgroup>
+                        </select>
+                        <p class="description"><?php echo esc_html__('Select which event to fire', 'super-forms'); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <label for="test-form-id-trigger"><?php echo esc_html__('Form ID:', 'super-forms'); ?></label>
+                    </th>
+                    <td>
+                        <input type="number" id="test-form-id-trigger" value="1" min="1" style="width: 100px;">
+                        <p class="description"><?php echo esc_html__('Form ID for event context', 'super-forms'); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <label for="test-entry-id-trigger"><?php echo esc_html__('Entry ID:', 'super-forms'); ?></label>
+                    </th>
+                    <td>
+                        <input type="number" id="test-entry-id-trigger" value="999" min="1" style="width: 100px;">
+                        <p class="description"><?php echo esc_html__('Entry ID for event context (use 999 for mock)', 'super-forms'); ?></p>
+                    </td>
+                </tr>
+            </table>
+
+            <p>
+                <button id="fire-test-event-btn" class="button button-primary">
+                    <span class="dashicons dashicons-media-code"></span>
+                    <?php echo esc_html__('Fire Test Event', 'super-forms'); ?>
+                </button>
+            </p>
+        </div>
+
+        <div id="event-test-results" style="display: none; margin-bottom: 30px;">
+            <h4><?php echo esc_html__('Event Results:', 'super-forms'); ?></h4>
+            <div class="event-test-results-content"></div>
+        </div>
+
+        <!-- Event Log Viewer -->
+        <h3><?php echo esc_html__('Execution Logs', 'super-forms'); ?></h3>
+        <p>
+            <button id="refresh-event-log-btn" class="button button-secondary">
+                <span class="dashicons dashicons-update"></span>
+                <?php echo esc_html__('Refresh Logs', 'super-forms'); ?>
+            </button>
+            <button id="clear-event-log-btn" class="button button-secondary">
+                <span class="dashicons dashicons-trash"></span>
+                <?php echo esc_html__('Clear All Logs', 'super-forms'); ?>
+            </button>
+        </p>
+
+        <div id="event-log-container" style="margin-top: 20px;">
+            <div class="event-log-loading" style="display: none; text-align: center; padding: 20px;">
+                <span class="spinner is-active" style="float: none;"></span>
+                <p><?php echo esc_html__('Loading logs...', 'super-forms'); ?></p>
+            </div>
+            <div id="event-log-table-wrapper"></div>
+        </div>
+
+        <!-- Trigger Testing Tool -->
+        <h3 style="margin-top: 40px;"><?php echo esc_html__('Test Specific Trigger', 'super-forms'); ?></h3>
+        <div class="trigger-test-controls">
+            <table class="form-table">
+                <tr>
+                    <th scope="row">
+                        <label for="test-trigger-id"><?php echo esc_html__('Trigger ID:', 'super-forms'); ?></label>
+                    </th>
+                    <td>
+                        <input type="number" id="test-trigger-id" min="1" placeholder="e.g., 5" style="width: 100px;">
+                        <p class="description"><?php echo esc_html__('Enter the ID of a trigger to test', 'super-forms'); ?></p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">
+                        <label for="test-entry-data"><?php echo esc_html__('Mock Entry Data (JSON):', 'super-forms'); ?></label>
+                    </th>
+                    <td>
+                        <textarea id="test-entry-data" rows="10" style="width: 100%; font-family: monospace; font-size: 12px;">
+{
+    "email": {"value": "test@example.com", "label": "Email"},
+    "name": {"value": "John Doe", "label": "Name"},
+    "country": {"value": "US", "label": "Country"},
+    "total": {"value": "150", "label": "Total Amount"}
+}</textarea>
+                        <p class="description"><?php echo esc_html__('Provide mock form data for condition evaluation and action execution', 'super-forms'); ?></p>
+                    </td>
+                </tr>
+            </table>
+
+            <p>
+                <button id="test-trigger-execution-btn" class="button button-primary">
+                    <span class="dashicons dashicons-controls-play"></span>
+                    <?php echo esc_html__('Test Trigger', 'super-forms'); ?>
+                </button>
+            </p>
+        </div>
+
+        <div id="trigger-test-results" style="display: none;">
+            <h4><?php echo esc_html__('Trigger Test Results:', 'super-forms'); ?></h4>
+            <div class="trigger-test-results-content"></div>
+        </div>
+    </div>
+
+    <!-- Sandbox Testing Section -->
+    <div class="super-devtools-section sandbox-testing-section">
+        <h2><?php echo esc_html__('9. Sandbox Testing (Visual Validation)', 'super-forms'); ?></h2>
+        <p><?php echo esc_html__('Create inspectable test forms, triggers, and entries in your live database for visual validation. All sandbox data is tagged for easy cleanup.', 'super-forms'); ?></p>
+
+        <!-- Sandbox Status -->
+        <div id="sandbox-status-panel" class="sandbox-panel">
+            <h3><?php echo esc_html__('Sandbox Status', 'super-forms'); ?></h3>
+            <div id="sandbox-status-content">
+                <p><em><?php echo esc_html__('Loading sandbox status...', 'super-forms'); ?></em></p>
+            </div>
+        </div>
+
+        <!-- Sandbox Actions -->
+        <div class="sandbox-actions" style="margin: 20px 0;">
+            <h3><?php echo esc_html__('Actions', 'super-forms'); ?></h3>
+            <p>
+                <button id="sandbox-create-btn" class="button button-primary">
+                    <span class="dashicons dashicons-plus-alt"></span>
+                    <?php echo esc_html__('Create Sandbox', 'super-forms'); ?>
+                </button>
+                <button id="sandbox-submit-btn" class="button button-secondary" disabled>
+                    <span class="dashicons dashicons-upload"></span>
+                    <?php echo esc_html__('Submit Test Entry', 'super-forms'); ?>
+                </button>
+                <button id="sandbox-view-logs-btn" class="button button-secondary" disabled>
+                    <span class="dashicons dashicons-list-view"></span>
+                    <?php echo esc_html__('View Trigger Logs', 'super-forms'); ?>
+                </button>
+                <button id="sandbox-cleanup-btn" class="button button-link-delete" disabled>
+                    <span class="dashicons dashicons-trash"></span>
+                    <?php echo esc_html__('Cleanup Sandbox', 'super-forms'); ?>
+                </button>
+            </p>
+        </div>
+
+        <!-- Test Entry Form (collapsible) -->
+        <div id="sandbox-entry-form" style="display: none; margin: 20px 0; padding: 15px; background: #f9f9f9; border: 1px solid #ddd;">
+            <h4><?php echo esc_html__('Submit Custom Test Entry', 'super-forms'); ?></h4>
+            <table class="form-table" style="margin: 0;">
+                <tr>
+                    <th scope="row"><label for="sandbox-name"><?php echo esc_html__('Name:', 'super-forms'); ?></label></th>
+                    <td><input type="text" id="sandbox-name" value="Sandbox Test User" style="width: 300px;"></td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="sandbox-email"><?php echo esc_html__('Email:', 'super-forms'); ?></label></th>
+                    <td><input type="email" id="sandbox-email" value="sandbox@example.com" style="width: 300px;"></td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="sandbox-message"><?php echo esc_html__('Message:', 'super-forms'); ?></label></th>
+                    <td><textarea id="sandbox-message" rows="3" style="width: 300px;">This is a sandbox test submission.</textarea></td>
+                </tr>
+            </table>
+            <p style="margin-top: 15px;">
+                <button id="sandbox-submit-custom-btn" class="button button-primary">
+                    <?php echo esc_html__('Submit Entry & Fire Triggers', 'super-forms'); ?>
+                </button>
+                <button id="sandbox-cancel-entry-btn" class="button">
+                    <?php echo esc_html__('Cancel', 'super-forms'); ?>
+                </button>
+            </p>
+        </div>
+
+        <!-- Sandbox Logs Panel -->
+        <div id="sandbox-logs-panel" style="display: none; margin: 20px 0;">
+            <h3><?php echo esc_html__('Trigger Execution Logs', 'super-forms'); ?></h3>
+            <div id="sandbox-logs-content" style="max-height: 400px; overflow-y: auto; background: #f9f9f9; padding: 10px; border: 1px solid #ddd;">
+                <p><em><?php echo esc_html__('No logs yet. Submit a test entry to see trigger execution logs.', 'super-forms'); ?></em></p>
+            </div>
+        </div>
+
+        <!-- Result Messages -->
+        <div id="sandbox-results" style="display: none; margin: 20px 0;">
+            <div class="sandbox-result-content"></div>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -2153,6 +2363,48 @@ wp_localize_script('super-forms-developer-tools', 'devtoolsData', array(
     to {
         transform: rotate(359deg);
     }
+}
+
+/* Trigger System Testing Styles */
+.super-devtools-success {
+    padding: 15px;
+    background: #e7f5e7;
+    border-left: 4px solid #46b450;
+    margin: 15px 0;
+}
+
+.super-devtools-success pre {
+    background: #fff;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 3px;
+    overflow-x: auto;
+    font-size: 12px;
+    line-height: 1.4;
+}
+
+.super-devtools-error {
+    padding: 15px;
+    background: #fef0f0;
+    border-left: 4px solid #dc3232;
+    margin: 15px 0;
+    color: #dc3232;
+}
+
+.event-log-loading {
+    text-align: center;
+    padding: 20px;
+}
+
+#event-log-table-wrapper table {
+    margin-top: 15px;
+}
+
+#event-log-table-wrapper code {
+    background: #f5f5f5;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 11px;
 }
 
 </style>

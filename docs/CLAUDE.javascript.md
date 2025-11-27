@@ -54,6 +54,80 @@ React component changes compile to:
 
 **⚠️ Important**: Always use `npm run watch` (development mode) when debugging React components. Production builds remove all debugging capabilities.
 
+### 6. Email v2 ↔ Triggers Backend Integration
+
+**Data Flow (since 6.5.0):**
+The Email v2 React app stores email data in `_emails` postmeta, which automatically syncs to the triggers system via `SUPER_Email_Trigger_Migration`:
+
+- **Save**: React app saves to `_emails` → `save_form_emails_settings()` → `sync_emails_to_triggers()` → triggers table
+- **Load**: React app loads from `_emails` ← `get_form_emails_settings()` ← `get_emails_for_ui()` ← triggers table (if `_emails` empty)
+
+**Key Points:**
+- Email v2 UI is unaware of triggers system (facade pattern)
+- Each email becomes a `send_email` action on `form.submitted` event
+- Sync maintains `_super_email_triggers` postmeta mapping (email_id → trigger_id)
+- Changes in Email v2 UI automatically update trigger configurations
+- Migrated legacy emails appear in Email v2 tab via reverse sync
+
+**Implementation Files:**
+- Backend sync: `/src/includes/class-email-trigger-migration.php`
+- Integration hooks: `/src/includes/class-common.php` lines 121-156
+- React app storage: Stores in `_emails` postmeta (sync transparent to React code)
+
+## Vanilla JavaScript Components (Frontend)
+
+### Session Manager (Progressive Form Saving)
+
+**Location:** `/src/assets/js/frontend/session-manager.js`
+
+**Architecture:**
+- **Zero Dependencies**: Pure vanilla JavaScript (no jQuery, no libraries)
+- **Modern APIs**: Uses `fetch()`, `AbortController`, `crypto.randomUUID()`, localStorage
+- **Diff-Tracking**: Sends only changed fields to server (bandwidth efficient)
+- **Event-Driven**: Custom events for integration (`super:session:restored`, `super:form:submitted`)
+
+**Key Features:**
+1. **Automatic Session Creation**: First field focus triggers session creation
+2. **Debounced Auto-Save**: 500ms debounce on blur/change events
+3. **Request Cancellation**: AbortController cancels in-flight requests when user types fast
+4. **Session Recovery**: Shows recovery banner on form load if unsaved data exists
+5. **Client Token**: UUID v4 stored in localStorage for anonymous session identification
+
+**Performance Patterns:**
+```javascript
+// Diff-only updates (bandwidth efficient)
+var changes = {};
+for (key in currentData) {
+    if (state.lastSavedData[key] !== currentData[key]) {
+        changes[key] = currentData[key];
+    }
+}
+
+// AbortController pattern (prevent race conditions)
+if (state.abortController) {
+    state.abortController.abort(); // Cancel previous
+}
+state.abortController = new AbortController();
+fetch(url, { signal: state.abortController.signal });
+```
+
+**Integration Points:**
+- Enqueued in: `/src/super-forms.php` (lines 2266-2276)
+- AJAX handlers: `/src/includes/class-ajax.php` (lines 8176-8475)
+- Dependencies: None (runs standalone)
+- Global object: `window.SUPER_SessionManager`
+
+**Browser Compatibility:**
+- Modern browsers: Uses `crypto.randomUUID()`
+- Legacy fallback: Custom UUID generator for older browsers
+- IE11: Not supported (uses `fetch`, `AbortController`, arrow functions)
+
+**Development Notes:**
+- No build process required (direct source file)
+- Browser console shows debug logs: `[Super Forms] Session save failed:`
+- Custom events fire for lifecycle hooks
+- Graceful degradation if AJAX fails (form still works)
+
 ## UI Component Guidelines
 
 ### Icons - CRITICAL RULES

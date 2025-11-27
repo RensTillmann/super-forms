@@ -42,7 +42,7 @@ abstract class SUPER_Action_Test_Case extends WP_UnitTestCase {
 	/**
 	 * Setup before each test
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		// Create test form
@@ -91,7 +91,7 @@ abstract class SUPER_Action_Test_Case extends WP_UnitTestCase {
 	/**
 	 * Teardown after each test
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		// Clean up test data
 		wp_delete_post($this->form_id, true);
 		wp_delete_post($this->entry_id, true);
@@ -112,7 +112,7 @@ abstract class SUPER_Action_Test_Case extends WP_UnitTestCase {
 			'user_id' => $this->user_id,
 			'form_data' => [
 				'name' => 'Test User',
-				'email' => 'test@example.com',
+				'email' => 'feeling4design@gmail.com',
 				'message' => 'This is a test message',
 				'phone' => '1234567890',
 				'company' => 'Test Company'
@@ -142,9 +142,9 @@ abstract class SUPER_Action_Test_Case extends WP_UnitTestCase {
 		$this->assertNotEmpty($this->action->get_label(), 'Action label must not be empty');
 		$this->assertNotEmpty($this->action->get_category(), 'Action category must not be empty');
 
-		$this->assertInternalType('string', $this->action->get_id());
-		$this->assertInternalType('string', $this->action->get_label());
-		$this->assertInternalType('string', $this->action->get_category());
+		$this->assertIsString($this->action->get_id());
+		$this->assertIsString($this->action->get_label());
+		$this->assertIsString($this->action->get_category());
 	}
 
 	/**
@@ -153,7 +153,7 @@ abstract class SUPER_Action_Test_Case extends WP_UnitTestCase {
 	public function test_settings_schema() {
 		$schema = $this->action->get_settings_schema();
 
-		$this->assertInternalType('array', $schema, 'Settings schema must be an array');
+		$this->assertIsArray($schema, 'Settings schema must be an array');
 
 		// Validate each field in schema
 		foreach ($schema as $field) {
@@ -177,9 +177,9 @@ abstract class SUPER_Action_Test_Case extends WP_UnitTestCase {
 
 		$result = $this->action->execute($context, $config);
 
-		$this->assertInternalType('array', $result, 'Execute must return an array');
+		$this->assertIsArray($result, 'Execute must return an array');
 		$this->assertArrayHasKey('success', $result, 'Result must have success key');
-		$this->assertInternalType('bool', $result['success'], 'Success must be boolean');
+		$this->assertIsBool($result['success'], 'Success must be boolean');
 	}
 
 	/**

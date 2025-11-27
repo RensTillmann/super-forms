@@ -21,7 +21,7 @@ class Test_Event_Firing extends WP_UnitTestCase {
 	/**
 	 * Setup before each test
 	 */
-	public function setUp() {
+	public function setUp(): void {
 		parent::setUp();
 
 		// Reset captured events
@@ -39,7 +39,7 @@ class Test_Event_Firing extends WP_UnitTestCase {
 	/**
 	 * Teardown after each test
 	 */
-	public function tearDown() {
+	public function tearDown(): void {
 		parent::tearDown();
 
 		// Remove event capture hook

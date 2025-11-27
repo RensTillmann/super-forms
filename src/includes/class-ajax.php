@@ -147,6 +147,13 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			'dev_execute_sql'               => false, // @since 6.0.0 - Execute whitelisted SQL
 			'dev_cleanup_data'              => false, // @since 6.0.0 - Cleanup data operations
 			'dev_optimize_tables'           => false, // @since 6.0.0 - Database maintenance
+
+			// Session management (Progressive Save) @since 6.5.0
+			'create_session'                => true,  // Create new form session
+			'auto_save_session'             => true,  // Auto-save form data
+			'check_session_recovery'        => true,  // Check for recoverable session
+			'resume_session'                => true,  // Resume saved session
+			'dismiss_session'               => true,  // Dismiss/delete session
 			);
 			foreach ( $ajax_events as $ajax_event => $nopriv ) {
 				add_action( 'wp_ajax_super_' . $ajax_event, array( __CLASS__, $ajax_event ) );
@@ -457,23 +464,35 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			}
 			if ( $allowDeleteAny ) {
 				// Allowed to delete any entry
-				if ( $list['delete_any']['permanent'] === 'true' ) {
-					wp_delete_post( $entry_id, true );
-					echo '1';
-					die();
+				// Fire entry.deleted event before deletion (new trigger system)
+				if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
+					SUPER_Trigger_Executor::fire_event( 'entry.deleted', array(
+						'entry_id'   => $entry_id,
+						'form_id'    => $form_id,
+						'deleted_by' => $current_user_id,
+						'method'     => ( $list['delete_any']['permanent'] === 'true' ) ? 'permanent' : 'trash',
+					) );
 				}
-				wp_trash_post( $entry_id );
+				// @since 6.5.0 - Use Entry DAL for dual storage mode support
+				$force_delete = ( $list['delete_any']['permanent'] === 'true' );
+				SUPER_Entry_DAL::delete( $entry_id, $force_delete );
 				echo '1'; // return 1 if successfully deleted entry
 				die();
 			}
 			if ( $allowDeleteOwn === true && absint( $entry->post_author ) === $current_user_id ) {
 				// Allowed to delete his own entry
-				if ( $list['delete_own']['permanent'] === 'true' ) {
-					wp_delete_post( $entry_id, true );
-					echo '1';
-					die();
+				// Fire entry.deleted event before deletion (new trigger system)
+				if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
+					SUPER_Trigger_Executor::fire_event( 'entry.deleted', array(
+						'entry_id'   => $entry_id,
+						'form_id'    => $form_id,
+						'deleted_by' => $current_user_id,
+						'method'     => ( $list['delete_own']['permanent'] === 'true' ) ? 'permanent' : 'trash',
+					) );
 				}
-				wp_trash_post( $entry_id );
+				// @since 6.5.0 - Use Entry DAL for dual storage mode support
+				$force_delete = ( $list['delete_own']['permanent'] === 'true' );
+				SUPER_Entry_DAL::delete( $entry_id, $force_delete );
 				echo '1'; // return 1 if successfully deleted entry
 				die();
 			}
@@ -1612,7 +1631,22 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			die();
 		}
 		public static function delete_contact_entry() {
-			wp_trash_post( $_POST['contact_entry'] );
+			$entry_id = absint( $_POST['contact_entry'] );
+			$entry    = get_post( $entry_id );
+			$form_id  = $entry ? absint( $entry->post_parent ) : 0;
+
+			// Fire entry.deleted event before deletion (new trigger system)
+			if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
+				SUPER_Trigger_Executor::fire_event( 'entry.deleted', array(
+					'entry_id'   => $entry_id,
+					'form_id'    => $form_id,
+					'deleted_by' => get_current_user_id(),
+					'method'     => 'trash',
+				) );
+			}
+
+			// @since 6.5.0 - Use Entry DAL for dual storage mode support
+			SUPER_Entry_DAL::delete( $entry_id, false );
 			die();
 		}
 
@@ -3237,24 +3271,175 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				$data = wp_slash( $data );
 				unset( $_POST['data'] );
 			}
-			// @since 3.2.0
-			// - If honeypot captcha field is not empty just cancel the request completely
-			// - Also make sure to unset the field for saving, because we do not need this field to be saved
-			if ( ! empty( $data['super_hp'] ) ) {
-				// Fire form.spam_detected event (new trigger system)
-				if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
-					SUPER_Trigger_Executor::fire_event( 'form.spam_detected', array(
-						'form_id' => absint( $_POST['form_id'] ),
-						'detection_method' => 'honeypot',
-						'honeypot_value' => $data['super_hp'],
-						'timestamp' => current_time( 'mysql' ),
-						'user_id' => get_current_user_id(),
-						'user_ip' => SUPER_Common::real_ip()
-					) );
-				}
-				exit;
+
+			// ══════════════════════════════════════════════════════════
+			// PHASE 1: PRE-SUBMISSION FIREWALL
+			// @since 6.5.0 - Spam/duplicate detection runs BEFORE entry creation
+			// Events: form.before_submit, form.spam_detected, form.duplicate_detected
+			// Abort checkpoint at end stops entry creation if action fires abort
+			// ══════════════════════════════════════════════════════════
+
+			// ──────────────────────────────────────────────────────────────
+			// SPAM DETECTION (Pre-submission firewall)
+			// @since 6.5.0 - Multi-method spam detection
+			// ──────────────────────────────────────────────────────────────
+
+			// Build spam detection context
+			$spam_context = array(
+				'user_ip'   => SUPER_Common::real_ip(),
+				'page_url'  => isset( $_POST['page_url'] ) ? esc_url_raw( $_POST['page_url'] ) : '',
+				'form_data' => $data,
+				'session'   => null,
+			);
+
+			// Get session data for time-based detection
+			$session_key = isset( $_POST['super_session_key'] ) ? sanitize_text_field( $_POST['super_session_key'] ) : '';
+			if ( $session_key && class_exists( 'SUPER_Session_DAL' ) ) {
+				$spam_context['session'] = SUPER_Session_DAL::get_by_key( $session_key );
 			}
+
+			// Get form_id for spam detection
+			$form_id_for_spam = absint( $_POST['form_id'] );
+
+			// Run spam detection
+			if ( class_exists( 'SUPER_Spam_Detector' ) ) {
+				$spam_result = SUPER_Spam_Detector::check( $form_id_for_spam, $data, $spam_context );
+
+				if ( $spam_result['spam'] ) {
+					// Log the detection
+					SUPER_Spam_Detector::log_detection( $form_id_for_spam, $spam_result, $spam_context );
+
+					// Fire form.spam_detected event
+					if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
+						$event_result = SUPER_Trigger_Executor::fire_event(
+							'form.spam_detected',
+							array(
+								'form_id'          => $form_id_for_spam,
+								'detection_method' => $spam_result['method'],
+								'spam_score'       => $spam_result['score'],
+								'spam_details'     => $spam_result['details'],
+								'form_data'        => $data,
+								'session_key'      => $session_key,
+								'user_ip'          => $spam_context['user_ip'],
+								'timestamp'        => current_time( 'mysql' ),
+							)
+						);
+
+						// Check if any action aborted the submission
+						if ( is_wp_error( $event_result ) && $event_result->get_error_code() === 'submission_aborted' ) {
+							// Mark session as aborted
+							if ( $session_key && class_exists( 'SUPER_Session_DAL' ) ) {
+								SUPER_Session_DAL::mark_aborted( $session_key, 'spam_detected:' . $spam_result['method'] );
+							}
+
+							// Return abort message
+							$error_data = $event_result->get_error_data();
+							$message    = isset( $error_data['show_message'] ) && $error_data['show_message']
+								? $event_result->get_error_message()
+								: __( 'Your submission could not be processed.', 'super-forms' );
+
+							SUPER_Common::output_message(
+								$error = true,
+								$message
+							);
+							die();
+						}
+					}
+
+					// If no abort action configured, silently reject (default behavior)
+					// This prevents entry creation without alerting the spammer
+					exit;
+				}
+			}
+
+			// Remove honeypot field from data (don't save it)
 			unset( $data['super_hp'] );
+			unset( $data['website_url_hp'] );
+			unset( $data['fax_number_hp'] );
+
+			// ──────────────────────────────────────────────────────────────
+			// DUPLICATE DETECTION (Pre-submission firewall)
+			// @since 6.5.0 - Multi-method duplicate detection
+			// ──────────────────────────────────────────────────────────────
+			$form_id_for_dup = absint( $_POST['form_id'] );
+
+			if ( class_exists( 'SUPER_Duplicate_Detector' ) ) {
+				$dup_context = array(
+					'user_ip' => SUPER_Common::real_ip(),
+					'user_id' => get_current_user_id(),
+					'session_key' => $session_key,
+				);
+
+				$dup_result = SUPER_Duplicate_Detector::check( $form_id_for_dup, $data, $dup_context );
+
+				if ( $dup_result['duplicate'] ) {
+					// Log the detection
+					SUPER_Duplicate_Detector::log_detection( $form_id_for_dup, $dup_result, $dup_context );
+
+					// Fire form.duplicate_detected event
+					if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
+						$event_result = SUPER_Trigger_Executor::fire_event(
+							'form.duplicate_detected',
+							array(
+								'form_id'           => $form_id_for_dup,
+								'detection_method'  => $dup_result['method'],
+								'original_entry_id' => $dup_result['original_entry_id'],
+								'duplicate_details' => $dup_result['details'],
+								'form_data'         => $data,
+								'session_key'       => $session_key,
+								'user_ip'           => $dup_context['user_ip'],
+								'timestamp'         => current_time( 'mysql' ),
+							)
+						);
+
+						// Check if any action aborted the submission
+						if ( is_wp_error( $event_result ) && $event_result->get_error_code() === 'submission_aborted' ) {
+							// Mark session as aborted
+							if ( $session_key && class_exists( 'SUPER_Session_DAL' ) ) {
+								SUPER_Session_DAL::mark_aborted( $session_key, 'duplicate_detected:' . $dup_result['method'] );
+							}
+
+							// Return abort message
+							$error_data = $event_result->get_error_data();
+							$message    = isset( $error_data['show_message'] ) && $error_data['show_message']
+								? $event_result->get_error_message()
+								: __( 'Your submission could not be processed.', 'super-forms' );
+
+							SUPER_Common::output_message(
+								$error = true,
+								$message
+							);
+							die();
+						}
+					}
+
+					// Handle based on configured action
+					$dup_action = SUPER_Duplicate_Detector::get_action( $form_id_for_dup );
+
+					if ( $dup_action === 'block' ) {
+						// Mark session as aborted
+						if ( $session_key && class_exists( 'SUPER_Session_DAL' ) ) {
+							SUPER_Session_DAL::mark_aborted( $session_key, 'duplicate_blocked' );
+						}
+
+						// Silent rejection (don't reveal duplicate detection)
+						SUPER_Common::output_message(
+							$error = true,
+							__( 'Your submission could not be processed at this time.', 'super-forms' )
+						);
+						die();
+					}
+
+					if ( $dup_action === 'update' ) {
+						// Update existing entry instead of creating new
+						$_POST['entry_id'] = $dup_result['original_entry_id'];
+						$GLOBALS['super_update_existing_entry'] = $dup_result['original_entry_id'];
+					}
+
+					// If action is 'allow', continue normally
+				}
+			}
+
 			// Return extra data via ajax response
 			$response_data = array();
 			// Get form settings
@@ -4478,6 +4663,15 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 						);
 						// Check file size
 						if ( $file['size'] > $maxFileSize ) {
+							// Fire file.upload_failed event (new trigger system)
+							if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
+								SUPER_Trigger_Executor::fire_event( 'file.upload_failed', array(
+									'form_id'       => $form_id,
+									'file_name'     => $file['name'],
+									'error_message' => sprintf( esc_html__( 'The file size exceeded the filesize limitation of %s MB.', 'super-forms' ), $fileSize ),
+									'error_code'    => 'size_exceeded',
+								) );
+							}
 							SUPER_Common::output_message(
 								array(
 									'msg' => esc_html__( 'The file size exceeded the filesize limitation of ' . $fileSize . ' MB.', 'super-forms' ),
@@ -4538,6 +4732,15 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 						$uploaded_file = wp_handle_upload( $file, array( 'test_form' => false ) );
 						$filename      = $uploaded_file['file'];
 						if ( isset( $uploaded_file['error'] ) ) {
+							// Fire file.upload_failed event (new trigger system)
+							if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
+								SUPER_Trigger_Executor::fire_event( 'file.upload_failed', array(
+									'form_id'       => $form_id,
+									'file_name'     => $file['name'],
+									'error_message' => $uploaded_file['error'],
+									'error_code'    => 'wp_upload_error',
+								) );
+							}
 							SUPER_Common::output_message(
 								array(
 									'msg' => $uploaded_file['error'],
@@ -4727,19 +4930,9 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 
 			do_action( 'super_before_processing_data', array( 'atts' => $sfsi ) );
 
-			// Fire form.submitted event (new trigger system)
-			if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
-				SUPER_Trigger_Executor::fire_event( 'form.submitted', array(
-					'form_id' => $form_id,
-					'entry_id' => $entry_id,
-					'sfsi_id' => $sfsi_id,
-					'data' => $data,
-					'settings' => $settings,
-					'timestamp' => current_time( 'mysql' ),
-					'user_id' => get_current_user_id(),
-					'user_ip' => SUPER_Common::real_ip()
-				) );
-			}
+			// Note: form.submitted event fires AFTER entry creation and all processing
+			// at the end of submit_form() - see Phase 3 of submission flow
+
 			if ( ( isset( $data ) ) && ( count( $data ) > 0 ) ) {
 				foreach ( $data as $k => $v ) {
 					if ( ! isset( $v['type'] ) ) {
@@ -4914,20 +5107,36 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				$settings['save_contact_entry'] = 'no';
 			}
 
+			// ══════════════════════════════════════════════════════════
+			// PHASE 2: DATABASE WRITES
+			// @since 6.5.0 - Entry creation, file storage, data persistence
+			// Events: session.completed, entry.created, entry.saved, entry.status_changed
+			// ══════════════════════════════════════════════════════════
+
 			$contact_entry_id = null;
 			if ( $settings['save_contact_entry'] == 'yes' ) {
-				// First save the entry simply because we need the ID
-				$post = array(
-					'post_status' => 'super_unread',
-					'post_type'   => 'super_contact_entry',
-					'post_parent' => $form_id, // @since 1.7 - save the form ID as the parent
+				// Create entry via Entry DAL (supports both post_type and custom table modes)
+				// @since 6.5.0 - Use Entry DAL for dual storage mode support
+				$entry_data = array(
+					'form_id'   => $form_id,
+					'wp_status' => 'super_unread',
+					'ip_address' => SUPER_Common::real_ip(),
+					'user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( $_SERVER['HTTP_USER_AGENT'] ) : '',
 				);
+
 				// @since 3.8.0 - save the post author based on session if set (currently used by Register & Login)
 				$post_author = SUPER_Common::getClientData( 'super_forms_registered_user_id' );
 				if ( $post_author != false ) {
-					$post['post_author'] = absint( $post_author );
+					$entry_data['user_id'] = absint( $post_author );
 				}
-				$contact_entry_id         = wp_insert_post( $post );
+
+				$contact_entry_id = SUPER_Entry_DAL::create( $entry_data );
+				if ( is_wp_error( $contact_entry_id ) ) {
+					// Fallback error handling - log and return error
+					error_log( '[Super Forms] Entry creation failed: ' . $contact_entry_id->get_error_message() );
+					return $contact_entry_id;
+				}
+
 				$sfsi['contact_entry_id'] = $contact_entry_id;
 				$sfsi['entry_id']         = $contact_entry_id;
 				// error_log('@@@@@@@@UPDATE _sfsi_.'.$sfsi_id.': '.json_encode($sfsi));
@@ -4972,35 +5181,37 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				} else {
 					$contact_entry_title = $contact_entry_title . ' ' . $contact_entry_id;
 				}
-				// Update title
-				$post = array(
-					'ID'         => $contact_entry_id,
-					'post_title' => $contact_entry_title,
-				);
-				wp_update_post( $post );
+				// Update title via Entry DAL
+				// @since 6.5.0 - Use Entry DAL for dual storage mode support
+				SUPER_Entry_DAL::update( $contact_entry_id, array( 'title' => $contact_entry_title ) );
 
 				// @since 4.9.600 - check if entry title already exists
+				// @since 6.5.0 - Use Entry DAL for dual storage mode support
 				if ( ! empty( $settings['contact_entry_unique_title'] ) && $settings['contact_entry_unique_title'] === 'true' ) {
 					if ( empty( $settings['contact_entry_unique_title_compare'] ) ) {
 						$settings['contact_entry_unique_title_compare'] = 'form';
 					}
-					global $wpdb;
 					$total = 0;
 					if ( empty( $settings['contact_entry_unique_title_trashed'] ) ) {
 						$settings['contact_entry_unique_title_trashed'] = '';
 					}
 					// By default we do not compare against trashed entries
-					$trash_compare = "post_status != 'trash' AND ";
-					if ( $settings['contact_entry_unique_title_trashed'] === 'true' ) {
-						// If user also wishes to compare against trashed entries
-						$trash_compare = '';
+					$exclude_trash = ( $settings['contact_entry_unique_title_trashed'] !== 'true' );
+
+					// Build count args based on comparison scope
+					$count_args = array(
+						'title' => $contact_entry_title,
+					);
+					if ( $exclude_trash ) {
+						$count_args['exclude_trash'] = true;
 					}
+
 					if ( $settings['contact_entry_unique_title_compare'] === 'form' ) {
-						$query = $wpdb->prepare( "SELECT COUNT(ID) FROM $wpdb->posts WHERE $trash_compare post_type = 'super_contact_entry' AND post_parent = '%d' AND post_title = '%s'", $form_id, $contact_entry_title );
-						$total = $wpdb->get_var( $query );
+						$count_args['form_id'] = $form_id;
+						$total = SUPER_Entry_DAL::count( $count_args );
 					} elseif ( $settings['contact_entry_unique_title_compare'] === 'global' ) {
-						$query = $wpdb->prepare( "SELECT COUNT(ID) FROM $wpdb->posts WHERE $trash_compare post_type = 'super_contact_entry' AND post_title = '%s'", $contact_entry_title );
-						$total = $wpdb->get_var( $query );
+						// No form_id filter for global comparison
+						$total = SUPER_Entry_DAL::count( $count_args );
 					} elseif ( $settings['contact_entry_unique_title_compare'] === 'ids' ) {
 						if ( empty( $settings['contact_entry_unique_title_form_ids'] ) ) {
 							$settings['contact_entry_unique_title_form_ids'] = '';
@@ -5009,18 +5220,15 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 						$ids      = sanitize_text_field( $ids );
 						$ids      = explode( ',', $ids );
 						$form_ids = array();
-						foreach ( $ids as $k => $v ) {
+						foreach ( $ids as $v ) {
 							$v = trim( $v );
 							if ( empty( $v ) ) {
 								continue;
 							}
-							$form_ids[ $k ] = absint( $v );
+							$form_ids[] = absint( $v );
 						}
-						unset( $ids );
-						$form_ids_placeholder = implode( ', ', array_fill( 0, count( $form_ids ), '%d' ) );
-						$prepare_values       = array_merge( $form_ids, array( $contact_entry_title ) );
-						$query                = $wpdb->prepare( "SELECT COUNT(ID) FROM $wpdb->posts WHERE $trash_compare post_type = 'super_contact_entry' AND post_parent IN ($form_ids_placeholder) AND post_title = '%s'", $prepare_values );
-						$total                = $wpdb->get_var( $query );
+						$count_args['form_ids'] = $form_ids;
+						$total = SUPER_Entry_DAL::count( $count_args );
 					}
 					if ( $total > 1 ) { // If 2 entries found, it means the current created entry has the same title as an already existing entry
 						// Fire form.duplicate_detected event (new trigger system)
@@ -5037,7 +5245,8 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 							) );
 						}
 
-						wp_delete_post( $contact_entry_id, true );
+						// Delete via Entry DAL
+						SUPER_Entry_DAL::delete( $contact_entry_id, true );
 						SUPER_Common::output_message(
 							array(
 								'msg'     => esc_html( SUPER_Common::email_tags( $settings['contact_entry_unique_title_msg'], $data, $settings ) ),
@@ -5248,6 +5457,12 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 
 				if ( ( isset( $global_settings['backend_contact_entry_list_ip'] ) ) && ( $global_settings['backend_contact_entry_list_ip'] == 'true' ) ) {
 					add_post_meta( $contact_entry_id, '_super_contact_entry_ip', SUPER_Common::real_ip() );
+				}
+
+				// Store submission hash for duplicate detection
+				// @since 6.5.0
+				if ( class_exists( 'SUPER_Duplicate_Detector' ) ) {
+					SUPER_Duplicate_Detector::store_submission_hash( $contact_entry_id );
 				}
 
 				/**
@@ -5827,6 +6042,28 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 						'form_id'     => $form_id,
 					)
 				);
+
+				// @since 6.5.0 - Mark session as completed on successful submission
+				if ( ! empty( $_POST['super_session_key'] ) && class_exists( 'SUPER_Session_DAL' ) ) {
+					$session_key = sanitize_text_field( wp_unslash( $_POST['super_session_key'] ) );
+					$session = SUPER_Session_DAL::get_by_key( $session_key );
+					if ( $session ) {
+						SUPER_Session_DAL::mark_completed( $session['id'], $contact_entry_id );
+						// Fire session.completed event
+						if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
+							SUPER_Trigger_Executor::fire_event( 'session.completed', array(
+								'session_id'  => $session['id'],
+								'session_key' => $session_key,
+								'form_id'     => $form_id,
+								'entry_id'    => $contact_entry_id,
+								'timestamp'   => current_time( 'mysql' ),
+								'user_id'     => get_current_user_id(),
+								'user_ip'     => SUPER_Common::real_ip(),
+							) );
+						}
+					}
+				}
+
 				// If the option to delete files after form submission is enabled remove all uploaded files from the server
 				if ( ! empty( $settings['file_upload_submission_delete'] ) ) {
 					// Loop through all data with field typ 'files' and look for any uploaded attachments
@@ -5834,6 +6071,16 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 						if ( $v['type'] == 'files' ) {
 							if ( ( isset( $v['files'] ) ) && ( count( $v['files'] ) != 0 ) ) {
 								foreach ( $v['files'] as $file ) {
+									// Fire file.deleted event before deletion (new trigger system)
+									if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
+										SUPER_Trigger_Executor::fire_event( 'file.deleted', array(
+											'attachment_id' => ! empty( $file['attachment'] ) ? absint( $file['attachment'] ) : null,
+											'form_id'       => $form_id,
+											'file_url'      => ! empty( $file['url'] ) ? $file['url'] : '',
+											'deleted_by'    => get_current_user_id(),
+											'reason'        => 'submission_delete_option',
+										) );
+									}
 									if ( ! empty( $file['attachment'] ) ) {
 										wp_delete_attachment( absint( $file['attachment'] ), true );
 									} else {
@@ -5858,6 +6105,16 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 					( isset( $data['_vcard']['files'] ) ) &&
 					( count( $data['_vcard']['files'] ) != 0 ) ) {
 						foreach ( $data['_vcard']['files'] as $file ) {
+							// Fire file.deleted event before deletion (new trigger system)
+							if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
+								SUPER_Trigger_Executor::fire_event( 'file.deleted', array(
+									'attachment_id' => ! empty( $file['attachment'] ) ? absint( $file['attachment'] ) : null,
+									'form_id'       => $form_id,
+									'file_url'      => ! empty( $file['url'] ) ? $file['url'] : '',
+									'deleted_by'    => get_current_user_id(),
+									'reason'        => 'vcard_delete_option',
+								) );
+							}
 							if ( ! empty( $file['attachment'] ) ) {
 								wp_delete_attachment( absint( $file['attachment'] ), true );
 							} else {
@@ -5979,6 +6236,25 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				if ( $redirect !== '' && $redirect !== false ) {
 					// tmp $sfsi['redirectedTo'] = $redirect;
 					// tmp update_option('_sfsi_' . $sfsi_id, $sfsi );
+				}
+
+				// ══════════════════════════════════════════════════════════
+				// PHASE 3: POST-SUBMISSION RESPONSE
+				// @since 6.5.0 - Fire form.submitted AFTER all processing
+				// ══════════════════════════════════════════════════════════
+
+				// Fire form.submitted event (final event in submission flow)
+				if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
+					SUPER_Trigger_Executor::fire_event( 'form.submitted', array(
+						'form_id'   => $form_id,
+						'entry_id'  => isset( $contact_entry_id ) ? $contact_entry_id : null,
+						'sfsi_id'   => $sfsi_id,
+						'data'      => $data,
+						'settings'  => $settings,
+						'timestamp' => current_time( 'mysql' ),
+						'user_id'   => get_current_user_id(),
+						'user_ip'   => SUPER_Common::real_ip(),
+					) );
 				}
 
 				SUPER_Common::triggerEvent( 'sf.submission.finalized', $sfsi );
@@ -6467,7 +6743,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 		}
 
 	/**
-	 * Start EAV migration
+	 * Start EAV migration (entries + emails)
 	 *
 	 * @since 6.0.0
 	 */
@@ -6477,16 +6753,21 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			wp_send_json_error( array( 'message' => esc_html__( 'You do not have permission to start migration', 'super-forms' ) ) );
 		}
 
-		// Initialize migration state first
+		// Initialize entries migration state first
 		$result = SUPER_Migration_Manager::start_migration();
 
 		if ( is_wp_error( $result ) ) {
 			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
 		}
 
-		// Schedule migration via Action Scheduler (background processing)
+		// Schedule entries migration via Action Scheduler (background processing)
 		// This allows browser to close while migration continues in background
 		$scheduled = SUPER_Background_Migration::schedule_if_needed( 'manual' );
+
+		// Also start email migration if available
+		if ( class_exists( 'SUPER_Email_Trigger_Migration' ) ) {
+			SUPER_Email_Trigger_Migration::maybe_schedule_migration();
+		}
 
 		if ( $scheduled === false ) {
 			// Check if already running
@@ -6497,7 +6778,17 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 					'status' => $result
 				) );
 			} else {
-				wp_send_json_error( array( 'message' => esc_html__( 'Migration scheduling failed - no entries need migration', 'super-forms' ) ) );
+				// Even if no entries migration needed, email migration might be running
+				$email_state = class_exists( 'SUPER_Email_Trigger_Migration' ) ? SUPER_Email_Trigger_Migration::get_state() : null;
+				if ( $email_state && $email_state['status'] === 'in_progress' ) {
+					wp_send_json_success( array(
+						'message' => esc_html__( 'Email migration running in background', 'super-forms' ),
+						'background_mode' => true,
+						'status' => $result
+					) );
+				} else {
+					wp_send_json_error( array( 'message' => esc_html__( 'Migration scheduling failed - no entries or emails need migration', 'super-forms' ) ) );
+				}
 			}
 		} else {
 			wp_send_json_success( array(
@@ -7851,19 +8142,22 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			);
 		}
 
-		$status = SUPER_Migration_Manager::get_migration_status();
-
-		$total = isset( $status['total_entries'] ) ? $status['total_entries'] : 0;
-		$migrated = isset( $status['migrated_entries'] ) ? $status['migrated_entries'] : 0;
-		$percentage = $total > 0 ? round( ( $migrated / $total ) * 100 ) : 100;
-		$is_complete = isset( $status['status'] ) && $status['status'] === 'completed';
+		// Use combined status for unified progress (entries + emails)
+		$combined = SUPER_Migration_Manager::get_combined_migration_status();
 
 		return array(
-			'percentage' => $percentage,
-			'processed' => $migrated,
-			'total' => $total,
-			'remaining' => $total - $migrated,
-			'is_complete' => $is_complete,
+			'percentage'   => $combined['percent'],
+			'processed'    => $combined['migrated'],
+			'total'        => $combined['total'],
+			'remaining'    => $combined['total'] - $combined['migrated'],
+			'is_complete'  => $combined['status'] === 'completed',
+			// Include breakdown for debugging/detailed display
+			'entries'      => $combined['entries'],
+			'emails'       => $combined['emails'],
+			// Legacy fields for backwards compatibility
+			'total_entries'    => $combined['entries']['total'],
+			'migrated_entries' => $combined['entries']['migrated'],
+			'status'           => $combined['status'],
 		);
 	}
 
@@ -7883,6 +8177,314 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 
 		$result = self::get_migration_progress_logic();
 		wp_send_json_success( $result );
+	}
+
+	// =========================================================================
+	// SESSION MANAGEMENT (Progressive Save) @since 6.5.0
+	// =========================================================================
+
+	/**
+	 * Create a new form session
+	 *
+	 * Called on first field interaction (focus event).
+	 * Creates a session to track form filling and enable auto-save recovery.
+	 *
+	 * @since 6.5.0
+	 */
+	public static function create_session() {
+		$form_id = isset( $_POST['form_id'] ) ? absint( $_POST['form_id'] ) : 0;
+
+		if ( ! $form_id ) {
+			wp_send_json_error( array( 'message' => __( 'Missing form_id', 'super-forms' ) ) );
+		}
+
+		// Check if session already exists (prevent duplicates)
+		$existing_key = isset( $_POST['existing_session'] ) ? sanitize_text_field( wp_unslash( $_POST['existing_session'] ) ) : '';
+		if ( $existing_key && class_exists( 'SUPER_Session_DAL' ) ) {
+			$existing = SUPER_Session_DAL::get_by_key( $existing_key );
+			if ( $existing && $existing['status'] === 'draft' ) {
+				wp_send_json_success( array(
+					'session_key' => $existing_key,
+					'resumed'     => true,
+				) );
+			}
+		}
+
+		// Ensure Session DAL is available
+		if ( ! class_exists( 'SUPER_Session_DAL' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Session system not available', 'super-forms' ) ) );
+		}
+
+		// Get client_token (localStorage UUID) and fingerprint (browser characteristics)
+		$client_token = isset( $_POST['client_token'] ) ? sanitize_text_field( wp_unslash( $_POST['client_token'] ) ) : '';
+		$fingerprint  = isset( $_POST['fingerprint'] ) ? sanitize_text_field( wp_unslash( $_POST['fingerprint'] ) ) : '';
+
+		// Create new session
+		$session_id = SUPER_Session_DAL::create( array(
+			'form_id'      => $form_id,
+			'user_id'      => get_current_user_id() ?: null,
+			'client_token' => $client_token ?: null,
+			'user_ip'      => SUPER_Common::real_ip(),
+			'metadata'     => array(
+				'first_field'     => isset( $_POST['field_name'] ) ? sanitize_text_field( wp_unslash( $_POST['field_name'] ) ) : '',
+				'page_url'        => isset( $_POST['page_url'] ) ? esc_url_raw( wp_unslash( $_POST['page_url'] ) ) : '',
+				'user_agent'      => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) : '',
+				'fingerprint'     => $fingerprint, // For spam detection heuristics, not session identification
+				'start_timestamp' => time(),
+			),
+		) );
+
+		if ( is_wp_error( $session_id ) ) {
+			wp_send_json_error( array( 'message' => $session_id->get_error_message() ) );
+		}
+
+		$session = SUPER_Session_DAL::get( $session_id );
+
+		// Fire session.started event
+		if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
+			SUPER_Trigger_Executor::fire_event( 'session.started', array(
+				'form_id'     => $form_id,
+				'session_id'  => $session_id,
+				'session_key' => $session['session_key'],
+				'user_id'     => get_current_user_id(),
+				'user_ip'     => SUPER_Common::real_ip(),
+			) );
+		}
+
+		wp_send_json_success( array(
+			'session_key' => $session['session_key'],
+			'session_id'  => $session_id,
+		) );
+	}
+
+	/**
+	 * Auto-save form session
+	 *
+	 * Called on field blur/change (debounced).
+	 * Saves current form data to enable recovery if user navigates away.
+	 *
+	 * @since 6.5.0
+	 */
+	public static function auto_save_session() {
+		$session_key = isset( $_POST['session_key'] ) ? sanitize_text_field( wp_unslash( $_POST['session_key'] ) ) : '';
+		$form_id     = isset( $_POST['form_id'] ) ? absint( $_POST['form_id'] ) : 0;
+
+		if ( ! $session_key || ! $form_id ) {
+			wp_send_json_error( array( 'message' => __( 'Missing session_key or form_id', 'super-forms' ) ) );
+		}
+
+		if ( ! class_exists( 'SUPER_Session_DAL' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Session system not available', 'super-forms' ) ) );
+		}
+
+		// Get existing session
+		$session = SUPER_Session_DAL::get_by_key( $session_key );
+		if ( ! $session ) {
+			wp_send_json_error( array( 'message' => __( 'Session not found', 'super-forms' ) ) );
+		}
+
+		// Start with existing form data
+		$form_data = is_array( $session['form_data'] ) ? $session['form_data'] : array();
+
+		// Support both 'changes' (diff-only) and 'form_data' (full replace)
+		// The vanilla JS session manager sends 'changes' with only modified fields
+		if ( ! empty( $_POST['changes'] ) ) {
+			// Diff-based update: merge changes into existing data
+			$raw_changes = wp_unslash( $_POST['changes'] );
+			if ( is_string( $raw_changes ) ) {
+				$changes = json_decode( $raw_changes, true ) ?: array();
+			} else {
+				$changes = is_array( $raw_changes ) ? $raw_changes : array();
+			}
+
+			// Merge changes - empty string means field was cleared
+			foreach ( $changes as $key => $value ) {
+				if ( '' === $value ) {
+					unset( $form_data[ $key ] );
+				} else {
+					$form_data[ $key ] = $value;
+				}
+			}
+		} elseif ( ! empty( $_POST['form_data'] ) ) {
+			// Full replace (backwards compatibility)
+			$raw_data = wp_unslash( $_POST['form_data'] );
+			if ( is_string( $raw_data ) ) {
+				$form_data = json_decode( $raw_data, true ) ?: array();
+			} elseif ( is_array( $raw_data ) ) {
+				$form_data = $raw_data;
+			}
+		}
+
+		// Update metadata with progress info
+		$metadata                        = is_array( $session['metadata'] ) ? $session['metadata'] : array();
+		$metadata['last_field']          = isset( $_POST['field_name'] ) ? sanitize_text_field( wp_unslash( $_POST['field_name'] ) ) : '';
+		$metadata['fields_count']        = count( array_filter( $form_data, function( $v ) {
+			return ! empty( $v );
+		} ) );
+		$metadata['last_save_timestamp'] = time();
+
+		// Calculate time spent
+		if ( isset( $metadata['start_timestamp'] ) ) {
+			$metadata['time_spent_seconds'] = time() - $metadata['start_timestamp'];
+		}
+
+		// Update session
+		$result = SUPER_Session_DAL::update_by_key( $session_key, array(
+			'form_data' => $form_data,
+			'metadata'  => $metadata,
+		) );
+
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+		}
+
+		// Fire session.auto_saved event
+		if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
+			SUPER_Trigger_Executor::fire_event( 'session.auto_saved', array(
+				'form_id'      => $form_id,
+				'session_id'   => $session['id'],
+				'session_key'  => $session_key,
+				'fields_count' => $metadata['fields_count'],
+				'time_spent'   => $metadata['time_spent_seconds'] ?? 0,
+			) );
+		}
+
+		wp_send_json_success( array( 'saved' => true ) );
+	}
+
+	/**
+	 * Check for recoverable session
+	 *
+	 * Called on form load to offer session recovery.
+	 * Checks both localStorage key and user/IP matching.
+	 *
+	 * @since 6.5.0
+	 */
+	public static function check_session_recovery() {
+		$form_id = isset( $_POST['form_id'] ) ? absint( $_POST['form_id'] ) : 0;
+
+		if ( ! $form_id ) {
+			wp_send_json_error( array( 'message' => __( 'Missing form_id', 'super-forms' ) ) );
+		}
+
+		if ( ! class_exists( 'SUPER_Session_DAL' ) ) {
+			wp_send_json_success( array( 'has_session' => false ) );
+		}
+
+		$user_id      = get_current_user_id() ?: null;
+		$client_token = isset( $_POST['client_token'] ) ? sanitize_text_field( wp_unslash( $_POST['client_token'] ) ) : '';
+
+		// Check localStorage session key first (most reliable)
+		$stored_key = isset( $_POST['stored_session'] ) ? sanitize_text_field( wp_unslash( $_POST['stored_session'] ) ) : '';
+
+		if ( $stored_key ) {
+			$session = SUPER_Session_DAL::get_by_key( $stored_key );
+			if ( $session && (int) $session['form_id'] === $form_id && in_array( $session['status'], array( 'draft', 'abandoned' ), true ) ) {
+				wp_send_json_success( array(
+					'has_session'   => true,
+					'session_key'   => $stored_key,
+					'form_data'     => $session['form_data'],
+					'last_saved'    => $session['last_saved_at'],
+					'fields_count'  => $session['metadata']['fields_count'] ?? 0,
+				) );
+			}
+		}
+
+		// Try to find by user_id (logged-in) or client_token (anonymous)
+		// client_token is a UUID stored in localStorage - unique per browser profile
+		// This ensures we don't recover someone else's data on shared computers
+		$session = SUPER_Session_DAL::find_recoverable( $form_id, $user_id, $client_token );
+
+		if ( $session ) {
+			wp_send_json_success( array(
+				'has_session'   => true,
+				'session_key'   => $session['session_key'],
+				'form_data'     => $session['form_data'],
+				'last_saved'    => $session['last_saved_at'],
+				'fields_count'  => $session['metadata']['fields_count'] ?? 0,
+			) );
+		}
+
+		wp_send_json_success( array( 'has_session' => false ) );
+	}
+
+	/**
+	 * Resume a session
+	 *
+	 * Called when user chooses to restore saved data.
+	 * Updates session status and fires session.resumed event.
+	 *
+	 * @since 6.5.0
+	 */
+	public static function resume_session() {
+		$session_key = isset( $_POST['session_key'] ) ? sanitize_text_field( wp_unslash( $_POST['session_key'] ) ) : '';
+
+		if ( ! $session_key ) {
+			wp_send_json_error( array( 'message' => __( 'Missing session_key', 'super-forms' ) ) );
+		}
+
+		if ( ! class_exists( 'SUPER_Session_DAL' ) ) {
+			wp_send_json_error( array( 'message' => __( 'Session system not available', 'super-forms' ) ) );
+		}
+
+		$session = SUPER_Session_DAL::get_by_key( $session_key );
+
+		if ( ! $session ) {
+			wp_send_json_error( array( 'message' => __( 'Session not found', 'super-forms' ) ) );
+		}
+
+		// Update status to resumed and reset expiry
+		$metadata                 = is_array( $session['metadata'] ) ? $session['metadata'] : array();
+		$metadata['resumed_at']   = current_time( 'mysql' );
+		$metadata['resume_count'] = ( $metadata['resume_count'] ?? 0 ) + 1;
+
+		SUPER_Session_DAL::update_by_key( $session_key, array(
+			'status'   => 'draft',
+			'metadata' => $metadata,
+		) );
+
+		// Fire session.resumed event
+		if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
+			SUPER_Trigger_Executor::fire_event( 'session.resumed', array(
+				'form_id'     => $session['form_id'],
+				'session_id'  => $session['id'],
+				'session_key' => $session_key,
+				'user_id'     => get_current_user_id(),
+			) );
+		}
+
+		wp_send_json_success( array(
+			'form_data'   => $session['form_data'],
+			'session_key' => $session_key,
+		) );
+	}
+
+	/**
+	 * Dismiss/delete a recoverable session
+	 *
+	 * Called when user chooses "Start Fresh".
+	 * Deletes the session so user can start with empty form.
+	 *
+	 * @since 6.5.0
+	 */
+	public static function dismiss_session() {
+		$session_key = isset( $_POST['session_key'] ) ? sanitize_text_field( wp_unslash( $_POST['session_key'] ) ) : '';
+
+		if ( ! $session_key ) {
+			wp_send_json_error( array( 'message' => __( 'Missing session_key', 'super-forms' ) ) );
+		}
+
+		if ( ! class_exists( 'SUPER_Session_DAL' ) ) {
+			wp_send_json_success( array( 'deleted' => true ) );
+		}
+
+		$session = SUPER_Session_DAL::get_by_key( $session_key );
+
+		if ( $session ) {
+			SUPER_Session_DAL::delete( $session['id'] );
+		}
+
+		wp_send_json_success( array( 'deleted' => true ) );
 	}
 
 }

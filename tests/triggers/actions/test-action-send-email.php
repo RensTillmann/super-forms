@@ -26,7 +26,7 @@ class Test_Action_Send_Email extends SUPER_Action_Test_Case {
 	public function test_action_properties() {
 		$this->assertEquals('send_email', $this->action->get_id());
 		$this->assertEquals('Send Email', $this->action->get_label());
-		$this->assertEquals('communication', $this->action->get_category());
+		$this->assertEquals('notification', $this->action->get_category());
 		$this->assertNotEmpty($this->action->get_description());
 	}
 
@@ -40,7 +40,7 @@ class Test_Action_Send_Email extends SUPER_Action_Test_Case {
 
 		$this->assertContains('to', $field_names, 'Schema should have "to" field');
 		$this->assertContains('subject', $field_names, 'Schema should have "subject" field');
-		$this->assertContains('message', $field_names, 'Schema should have "message" field');
+		$this->assertContains('body', $field_names, 'Schema should have "body" field');
 	}
 
 	/**
@@ -51,10 +51,10 @@ class Test_Action_Send_Email extends SUPER_Action_Test_Case {
 		reset_phpmailer_instance();
 
 		$config = [
-			'to' => 'test@example.com',
+			'to' => 'feeling4design@gmail.com',
 			'subject' => 'Test Subject',
-			'message' => 'Test email body',
-			'from_email' => 'sender@example.com',
+			'body' => 'Test email body',
+			'from' => 'sender@example.com',
 			'from_name' => 'Test Sender'
 		];
 
@@ -62,7 +62,7 @@ class Test_Action_Send_Email extends SUPER_Action_Test_Case {
 
 		$this->assertTrue($result['success'], 'Email send should succeed');
 		$this->assertArrayHasKey('to', $result);
-		$this->assertEquals('test@example.com', $result['to']);
+		$this->assertEquals('feeling4design@gmail.com', $result['to']);
 	}
 
 	/**
@@ -74,8 +74,8 @@ class Test_Action_Send_Email extends SUPER_Action_Test_Case {
 		$config = [
 			'to' => '{form_data.email}',
 			'subject' => 'Hello {form_data.name}',
-			'message' => 'Form #{form_id} submitted',
-			'from_email' => 'noreply@example.com'
+			'body' => 'Form #{form_id} submitted',
+			'from' => 'noreply@example.com'
 		];
 
 		$context = $this->get_test_context();
@@ -83,8 +83,8 @@ class Test_Action_Send_Email extends SUPER_Action_Test_Case {
 		$result = $this->action->execute($context, $config);
 
 		$this->assertTrue($result['success']);
-		$this->assertEquals('test@example.com', $result['to'], 'Should replace {form_data.email}');
-		$this->assertContains('Hello Test User', $result['subject'], 'Should replace {form_data.name}');
+		$this->assertEquals('feeling4design@gmail.com', $result['to'], 'Should replace {form_data.email}');
+		$this->assertStringContainsString('Hello Test User', $result['subject'], 'Should replace {form_data.name}');
 	}
 
 	/**
@@ -94,13 +94,14 @@ class Test_Action_Send_Email extends SUPER_Action_Test_Case {
 		$config = [
 			'to' => 'invalid-email',
 			'subject' => 'Test',
-			'message' => 'Test'
+			'body' => 'Test'
 		];
 
 		$result = $this->action->execute($this->get_test_context(), $config);
 
-		$this->assertFalse($result['success'], 'Should fail with invalid email');
-		$this->assertArrayHasKey('error', $result);
+		// Action returns WP_Error for invalid email
+		$this->assertTrue(is_wp_error($result), 'Should return WP_Error with invalid email');
+		$this->assertEquals('invalid_email', $result->get_error_code());
 	}
 
 	/**
@@ -112,7 +113,7 @@ class Test_Action_Send_Email extends SUPER_Action_Test_Case {
 		$config = [
 			'to' => 'user1@example.com, user2@example.com',
 			'subject' => 'Test Multiple',
-			'message' => 'Test message'
+			'body' => 'Test message'
 		];
 
 		$result = $this->action->execute($this->get_test_context(), $config);
@@ -134,15 +135,15 @@ class Test_Action_Send_Email extends SUPER_Action_Test_Case {
 		}
 
 		$config = [
-			'to' => 'test@example.com',
+			'to' => 'feeling4design@gmail.com',
 			'subject' => 'Test with Attachment',
-			'message' => 'See attachment',
+			'body' => 'See attachment',
 			'attachments' => ['/tmp/test.txt']
 		];
 
 		$result = $this->action->execute($this->get_test_context(), $config);
 
-		$this->assertInternalType('array', $result);
+		$this->assertIsArray($result);
 	}
 
 	/**
@@ -159,9 +160,9 @@ class Test_Action_Send_Email extends SUPER_Action_Test_Case {
 		}
 
 		$config = [
-			'to' => 'test@example.com',
+			'to' => 'feeling4design@gmail.com',
 			'subject' => 'HTML Email',
-			'message' => '<h1>Hello</h1><p>This is HTML</p>',
+			'body' => '<h1>Hello</h1><p>This is HTML</p>',
 			'html' => true
 		];
 
@@ -176,7 +177,7 @@ class Test_Action_Send_Email extends SUPER_Action_Test_Case {
 	public function test_required_capabilities() {
 		$caps = $this->action->get_required_capabilities();
 
-		$this->assertInternalType('array', $caps);
+		$this->assertIsArray($caps);
 		$this->assertNotEmpty($caps, 'Send email should require capabilities');
 	}
 

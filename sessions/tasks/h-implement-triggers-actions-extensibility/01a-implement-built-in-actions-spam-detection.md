@@ -1,16 +1,32 @@
 ---
 name: 01a-implement-built-in-actions-spam-detection
 branch: feature/h-implement-triggers-actions-extensibility
-status: pending
+status: completed
 created: 2025-11-20
+completed: 2025-11-27
 parent: h-implement-triggers-actions-extensibility
 ---
 
 # Implement Built-in Actions & Spam/Duplicate Detection with Abort Flow
 
+## Implementation Steps
+
+This subtask has been broken down into 6 smaller implementation steps:
+
+| Step | File | Description | Status |
+|------|------|-------------|--------|
+| 1 | [01a-step1-sessions-table.md](01a-step1-sessions-table.md) | Sessions database table and DAL | **Complete** |
+| 2 | [01a-step2-client-side-sessions.md](01a-step2-client-side-sessions.md) | Client-side session management and auto-save | **Complete** |
+| 3 | [01a-step3-spam-detector.md](01a-step3-spam-detector.md) | Multi-method spam detection system | **Complete** |
+| 4 | [01a-step4-duplicate-detector.md](01a-step4-duplicate-detector.md) | Duplicate submission detection | **Complete** |
+| 5 | [01a-step5-submission-flow-refactor.md](01a-step5-submission-flow-refactor.md) | Pre-submission firewall integration | **Complete** |
+| 6 | [01a-step6-cleanup-scheduled-jobs.md](01a-step6-cleanup-scheduled-jobs.md) | Session cleanup background jobs | **Complete** |
+
+**Note:** Core actions (20) are already implemented in Phase 1. This subtask focuses on sessions, spam/duplicate detection, and the abort flow.
+
 ## Problem/Goal
 
-Define and implement the 20 foundational actions users can configure when triggers fire. Implement spam/duplicate detection with a **pre-submission firewall** that can ABORT submissions. Implement progressive session management for auto-save and form recovery.
+Implement spam/duplicate detection with a **pre-submission firewall** that can ABORT submissions. Implement progressive session management for auto-save and form recovery.
 
 **Critical Architectural Decisions:**
 - Progressive sessions created on first field interaction (not submission)
@@ -20,14 +36,14 @@ Define and implement the 20 foundational actions users can configure when trigge
 
 ## Success Criteria
 
-**Core Actions (8):**
-- [ ] Send Email action with {tag} support
-- [ ] Update Entry Status action
-- [ ] Update Entry Field action
-- [ ] Delete Entry action (immediate or scheduled)
-- [ ] Send Webhook action (POST/GET/PUT)
-- [ ] Create WordPress Post action
-- [ ] Log Message action
+**Core Actions (8):** ✅ ALREADY IMPLEMENTED (Phase 1)
+- [x] Send Email action with {tag} support
+- [x] Update Entry Status action
+- [x] Update Entry Field action
+- [x] Delete Entry action (immediate or scheduled)
+- [x] Send Webhook action (POST/GET/PUT)
+- [x] Create WordPress Post action
+- [x] Log Message action
 - [ ] **Abort Submission action** (prevents entry creation, keeps session)
 
 **Flexibility Actions (12):**
@@ -1303,9 +1319,35 @@ private static function move_files_to_permanent($files, $entry_id) {
 - Duplicate detection uses indexed queries (fast even with 100K entries)
 
 ## Work Log
-- [2025-11-20] Subtask created with abort flow architecture
-- [2025-11-20] Defined 3-phase submission flow (firewall → writes → response)
-- [2025-11-20] Implemented Abort Submission action with cleanup
-- [2025-11-20] Implemented 5 spam detection methods from scratch
-- [2025-11-20] Added client-side time tracking and honeypot
-- [2025-11-20] Documented event classification (pre-submit vs post-submit)
+
+### [2025-11-27]
+
+#### Completed
+- **Step 4: Duplicate Detector** - Created `/src/includes/class-duplicate-detector.php` with 4 detection methods (email+time, IP+time, hash matching, custom field combinations)
+- **Step 5: Submission Flow Refactor** - Refactored `/src/includes/class-ajax.php` with 3-phase architecture (Phase 1: pre-submission firewall, Phase 2: database writes, Phase 3: response)
+- **Step 6: Session Cleanup Jobs** - Created `/src/includes/class-session-cleanup.php` with Action Scheduler integration (hourly cleanup + 5-min abandoned session checks)
+- Fixed `form.submitted` event to fire AFTER entry creation (bug: was firing before)
+- Integrated duplicate detection into submission flow with event firing
+- Added hash storage after entry creation for duplicate tracking
+- Created 25 unit tests across both components (17 for duplicate detector, 8 for session cleanup)
+- All 431 tests passing
+
+#### Decisions
+- Duplicate detection uses global variable pattern (`$GLOBALS['super_pending_submission_hash']`) to pass hash from detection phase to storage phase
+- Session cleanup uses Action Scheduler for background processing (hourly for expired, 5-min for abandoned)
+- Registered new events: `session.abandoned`, `session.expired`, `form.duplicate_detected`
+
+#### Next Steps
+- Implement Step 2: Client-side session management and auto-save
+- Implement Step 3: Multi-method spam detection system (honeypot, time-based, IP, keywords, Akismet)
+- Consider UI for configuring duplicate detection per-form settings
+
+### [2025-11-20]
+
+#### Completed
+- Subtask created with abort flow architecture
+- Defined 3-phase submission flow (firewall → writes → response)
+- Documented Abort Submission action with cleanup logic
+- Designed 5 spam detection methods
+- Planned client-side time tracking and honeypot
+- Documented event classification (pre-submit vs post-submit)

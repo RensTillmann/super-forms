@@ -17,16 +17,12 @@ class Test_Trigger_Registry extends WP_UnitTestCase {
     /**
      * Setup before each test
      */
-    public function setUp() {
+    public function setUp(): void {
         parent::setUp();
 
-        // Reset registry singleton for clean tests
-        $reflection = new ReflectionClass('SUPER_Trigger_Registry');
-        $instance = $reflection->getProperty('instance');
-        $instance->setAccessible(true);
-        $instance->setValue(null, null);
-
+        // Get registry instance and reset it (clears events/actions/initialized flag)
         $this->registry = SUPER_Trigger_Registry::get_instance();
+        $this->registry->reset( false ); // Don't load builtins - tests will do that as needed
     }
 
     /**

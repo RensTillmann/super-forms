@@ -101,29 +101,35 @@ class SUPER_Test_Helpers extends TestCase {
 	 */
 	protected function create_complex_test_data() {
 		return array(
-			'text_field'     => array(
-				'name'  => 'text_field',
-				'value' => 'Sample text value',
-				'label' => 'Text Field',
+			'name'           => array(
+				'name'  => 'name',
+				'value' => 'Test User',
+				'label' => 'Name',
 				'type'  => 'text',
 			),
-			'email_field'    => array(
-				'name'  => 'email_field',
+			'email'          => array(
+				'name'  => 'email',
 				'value' => 'complex@example.com',
-				'label' => 'Email Field',
+				'label' => 'Email',
 				'type'  => 'email',
+			),
+			'phone'          => array(
+				'name'  => 'phone',
+				'value' => '+1-555-123-4567',
+				'label' => 'Phone',
+				'type'  => 'text',
+			),
+			'message'        => array(
+				'name'  => 'message',
+				'value' => "Multi-line\ntext\nvalue",
+				'label' => 'Message',
+				'type'  => 'textarea',
 			),
 			'number_field'   => array(
 				'name'  => 'number_field',
 				'value' => '42',
 				'label' => 'Number Field',
 				'type'  => 'number',
-			),
-			'textarea_field' => array(
-				'name'  => 'textarea_field',
-				'value' => "Multi-line\ntext\nvalue",
-				'label' => 'Textarea Field',
-				'type'  => 'textarea',
 			),
 			'checkbox'       => array(
 				'name'  => 'checkbox',
@@ -206,6 +212,12 @@ class SUPER_Test_Helpers extends TestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
+
+		// Reset migration state to prevent backwards compat hooks from interfering
+		// Migration status can persist between test runs in wptests_options,
+		// causing the intercept_get_entry_data filter to activate unexpectedly
+		delete_option( 'superforms_eav_migration' );
+
 		$this->cleanup_test_entries();
 	}
 
@@ -213,6 +225,10 @@ class SUPER_Test_Helpers extends TestCase {
 	 * Tear down after each test
 	 */
 	public function tear_down() {
+		// Reset migration state even if test errored before its own cleanup
+		// This prevents backwards compat hooks from interfering with subsequent tests
+		delete_option( 'superforms_eav_migration' );
+
 		$this->cleanup_test_entries();
 		parent::tear_down();
 	}

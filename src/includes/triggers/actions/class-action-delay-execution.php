@@ -74,68 +74,77 @@ class SUPER_Action_Delay_Execution extends SUPER_Trigger_Action_Base {
 	}
 
 	public function execute($context, $config) {
-		// Check if Action Scheduler is available
-		if (!function_exists('as_schedule_single_action')) {
+		// Check if Action Scheduler is available via Scheduler class
+		if ( ! SUPER_Trigger_Scheduler::is_available() ) {
 			return [
 				'success' => false,
-				'error' => 'Action Scheduler is required for delayed execution'
+				'error'   => __( 'Action Scheduler is required for delayed execution', 'super-forms' ),
 			];
 		}
 
-		$delay_amount = absint($config['delay_amount'] ?? 1);
-		$delay_unit = $config['delay_unit'] ?? 'minutes';
+		$delay_amount     = absint( $config['delay_amount'] ?? 1 );
+		$delay_unit       = $config['delay_unit'] ?? 'minutes';
 		$actions_to_delay = $config['actions_to_delay'] ?? [];
-		$unique = !empty($config['unique_execution']);
+		$unique           = ! empty( $config['unique_execution'] );
 
-		if (empty($actions_to_delay)) {
+		if ( empty( $actions_to_delay ) ) {
 			return [
 				'success' => false,
-				'error' => 'No actions specified to delay'
+				'error'   => __( 'No actions specified to delay', 'super-forms' ),
 			];
 		}
 
-		// Calculate timestamp
-		$delay_seconds = $this->convert_to_seconds($delay_amount, $delay_unit);
+		// Calculate delay in seconds
+		$delay_seconds  = $this->convert_to_seconds( $delay_amount, $delay_unit );
 		$scheduled_time = time() + $delay_seconds;
 
-		// Prepare hook arguments
+		// Prepare hook arguments - this will be passed as a single argument to the handler
 		$hook_args = [
 			'trigger_id' => $context['trigger_id'] ?? 0,
-			'context' => $context,
-			'actions' => $actions_to_delay
+			'context'    => $context,
+			'actions'    => $actions_to_delay,
 		];
 
-		// Schedule the action
-		$hook = 'super_execute_delayed_trigger_actions';
+		// Use the Scheduler's hook constant for consistency
+		$hook = SUPER_Trigger_Scheduler::HOOK_EXECUTE_DELAYED;
 
-		if ($unique) {
-			// Check if already scheduled
-			$existing = as_get_scheduled_actions([
-				'hook' => $hook,
-				'args' => $hook_args,
-				'status' => 'pending'
-			], 'ids');
+		if ( $unique ) {
+			// Check if already scheduled with same arguments
+			$existing = as_get_scheduled_actions(
+				[
+					'hook'   => $hook,
+					'args'   => array( $hook_args ), // Wrapped for proper comparison
+					'status' => 'pending',
+					'group'  => SUPER_Trigger_Scheduler::GROUP,
+				],
+				'ids'
+			);
 
-			if (!empty($existing)) {
+			if ( ! empty( $existing ) ) {
 				return [
-					'success' => false,
-					'error' => 'Identical delayed action already scheduled',
-					'existing_action_id' => $existing[0]
+					'success'            => false,
+					'error'              => __( 'Identical delayed action already scheduled', 'super-forms' ),
+					'existing_action_id' => $existing[0],
 				];
 			}
 		}
 
-		// Schedule the action
-		$action_id = as_schedule_single_action($scheduled_time, $hook, $hook_args, 'super-forms-triggers');
+		// Schedule the action - wrap $hook_args in array so it's passed as single argument
+		$action_id = as_schedule_single_action(
+			$scheduled_time,
+			$hook,
+			array( $hook_args ), // Important: wrap in array for proper arg passing
+			SUPER_Trigger_Scheduler::GROUP
+		);
 
 		return [
-			'success' => true,
-			'action_id' => $action_id,
-			'scheduled_time' => date('Y-m-d H:i:s', $scheduled_time),
-			'delay_amount' => $delay_amount,
-			'delay_unit' => $delay_unit,
-			'actions_count' => count($actions_to_delay),
-			'unique' => $unique
+			'success'        => true,
+			'action_id'      => $action_id,
+			'scheduled_time' => gmdate( 'Y-m-d H:i:s', $scheduled_time ),
+			'delay_amount'   => $delay_amount,
+			'delay_unit'     => $delay_unit,
+			'actions_count'  => count( $actions_to_delay ),
+			'unique'         => $unique,
 		];
 	}
 
@@ -158,7 +167,26 @@ class SUPER_Action_Delay_Execution extends SUPER_Trigger_Action_Base {
 	}
 
 	public function can_run($context) {
-		return function_exists('as_schedule_single_action');
+		return SUPER_Trigger_Scheduler::is_available();
+	}
+
+	/**
+	 * This action must run synchronously because it schedules other actions.
+	 * The scheduled actions themselves run asynchronously.
+	 *
+	 * @return bool
+	 */
+	public function supports_async() {
+		return false;
+	}
+
+	/**
+	 * Get the preferred execution mode for this action.
+	 *
+	 * @return string
+	 */
+	public function get_execution_mode() {
+		return 'sync'; // Must run sync to schedule the delayed actions
 	}
 
 	public function get_required_capabilities() {

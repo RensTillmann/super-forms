@@ -5,7 +5,7 @@
  * @since 6.4.115
  */
 
-/* global jQuery, ajaxurl, devtoolsData */
+/* global jQuery, ajaxurl, devtoolsData, super_create_form */
 
 jQuery(document).ready(function($) {
     'use strict';
@@ -2524,5 +2524,480 @@ jQuery(document).ready(function($) {
             }
         });
     }
+
+    // ========================================
+    // Trigger System Testing
+    // ========================================
+
+    // Fire Test Event
+    $('#fire-test-event-btn').on('click', function() {
+        var $btn = $(this);
+        var $results = $('#event-test-results');
+        var $resultsContent = $('.event-test-results-content');
+
+        var eventId = $('#test-event-id').val();
+        var formId = parseInt($('#test-form-id-trigger').val());
+        var entryId = parseInt($('#test-entry-id-trigger').val());
+
+        // Disable button
+        $btn.prop('disabled', true).text('Firing event...');
+        $results.hide();
+
+        $.ajax({
+            url: ajaxurl,
+            method: 'POST',
+            data: {
+                action: 'super_dev_fire_test_event',
+                nonce: devtoolsNonce,
+                event_id: eventId,
+                form_id: formId,
+                entry_id: entryId
+            },
+            success: function(response) {
+                if (response.success) {
+                    var data = response.data;
+                    var html = '<div class="super-devtools-success">';
+                    html += '<p><strong>✓ Event fired successfully!</strong></p>';
+                    html += '<p><strong>Event:</strong> ' + data.event_id + '</p>';
+                    html += '<p><strong>Triggers executed:</strong> ' + data.triggers_executed + '</p>';
+                    html += '<p><strong>Execution time:</strong> ' + data.execution_time_ms + ' ms</p>';
+
+                    if (data.triggers_executed > 0) {
+                        html += '<h4>Trigger Results:</h4>';
+                        html += '<pre>' + JSON.stringify(data.results, null, 2) + '</pre>';
+                    } else {
+                        html += '<p><em>No triggers matched this event.</em></p>';
+                    }
+
+                    html += '</div>';
+
+                    $resultsContent.html(html);
+                    $results.fadeIn();
+
+                    // Auto-refresh logs
+                    $('#refresh-event-log-btn').click();
+                } else {
+                    $resultsContent.html('<div class="super-devtools-error"><p>Error: ' + (response.data.message || 'Unknown error') + '</p></div>');
+                    $results.fadeIn();
+                }
+            },
+            error: function(xhr) {
+                $resultsContent.html('<div class="super-devtools-error"><p>AJAX Error: ' + xhr.statusText + '</p></div>');
+                $results.fadeIn();
+            },
+            complete: function() {
+                $btn.prop('disabled', false).html('<span class="dashicons dashicons-media-code"></span> Fire Test Event');
+            }
+        });
+    });
+
+    // Refresh Event Logs
+    var refreshEventLogs = function() {
+        var $container = $('#event-log-table-wrapper');
+        var $loading = $('.event-log-loading');
+
+        $loading.show();
+        $container.html('');
+
+        $.ajax({
+            url: ajaxurl,
+            method: 'POST',
+            data: {
+                action: 'super_dev_get_trigger_logs',
+                nonce: devtoolsNonce,
+                limit: 50
+            },
+            success: function(response) {
+                if (response.success) {
+                    var data = response.data;
+
+                    if (data.count === 0) {
+                        $container.html('<p><em>No execution logs found. Fire a test event to see logs appear here.</em></p>');
+                    } else {
+                        var html = '<table class="wp-list-table widefat fixed striped">';
+                        html += '<thead><tr>';
+                        html += '<th>Time</th><th>Event</th><th>Form</th><th>Entry</th>';
+                        html += '<th>Trigger</th><th>Action</th><th>Status</th><th>Duration</th>';
+                        html += '</tr></thead><tbody>';
+
+                        data.logs.forEach(function(log) {
+                            var statusIcon = log.status === 'success'
+                                ? '<span class="dashicons dashicons-yes-alt" style="color: green;"></span>'
+                                : '<span class="dashicons dashicons-dismiss" style="color: red;"></span>';
+
+                            html += '<tr>';
+                            html += '<td>' + log.executed_at + '</td>';
+                            html += '<td><code>' + log.event_id + '</code></td>';
+                            html += '<td>' + (log.form_id || '-') + '</td>';
+                            html += '<td>' + (log.entry_id || '-') + '</td>';
+                            html += '<td>#' + log.trigger_id + '</td>';
+                            html += '<td>#' + (log.action_id || '-') + '</td>';
+                            html += '<td>' + statusIcon + ' ' + log.status + '</td>';
+                            html += '<td>' + (log.execution_time_ms ? parseFloat(log.execution_time_ms).toFixed(2) + ' ms' : '-') + '</td>';
+                            html += '</tr>';
+                        });
+
+                        html += '</tbody></table>';
+                        html += '<p style="margin-top: 10px;"><em>Showing latest ' + data.count + ' logs</em></p>';
+
+                        $container.html(html);
+                    }
+                }
+            },
+            error: function() {
+                $container.html('<div class="super-devtools-error"><p>Failed to load logs</p></div>');
+            },
+            complete: function() {
+                $loading.hide();
+            }
+        });
+    };
+
+    $('#refresh-event-log-btn').on('click', refreshEventLogs);
+
+    // Auto-load logs on page load
+    if ($('#event-log-container').length) {
+        refreshEventLogs();
+    }
+
+    // Clear Event Logs
+    $('#clear-event-log-btn').on('click', function() {
+        if (!confirm('Are you sure you want to clear all trigger execution logs? This cannot be undone.')) {
+            return;
+        }
+
+        var $btn = $(this);
+        $btn.prop('disabled', true).text('Clearing...');
+
+        $.ajax({
+            url: ajaxurl,
+            method: 'POST',
+            data: {
+                action: 'super_dev_clear_trigger_logs',
+                nonce: devtoolsNonce
+            },
+            success: function(response) {
+                if (response.success) {
+                    alert('All trigger logs cleared successfully!');
+                    refreshEventLogs();
+                } else {
+                    alert('Error: ' + (response.data.message || 'Failed to clear logs'));
+                }
+            },
+            error: function() {
+                alert('AJAX error occurred');
+            },
+            complete: function() {
+                $btn.prop('disabled', false).html('<span class="dashicons dashicons-trash"></span> Clear All Logs');
+            }
+        });
+    });
+
+    // Test Specific Trigger
+    $('#test-trigger-execution-btn').on('click', function() {
+        var $btn = $(this);
+        var $results = $('#trigger-test-results');
+        var $resultsContent = $('.trigger-test-results-content');
+
+        var triggerId = parseInt($('#test-trigger-id').val());
+        var entryDataJson = $('#test-entry-data').val();
+
+        if (!triggerId) {
+            alert('Please enter a trigger ID');
+            return;
+        }
+
+        // Validate JSON
+        try {
+            JSON.parse(entryDataJson);
+        } catch (e) {
+            alert('Invalid JSON in entry data: ' + e.message);
+            return;
+        }
+
+        $btn.prop('disabled', true).text('Testing trigger...');
+        $results.hide();
+
+        $.ajax({
+            url: ajaxurl,
+            method: 'POST',
+            data: {
+                action: 'super_dev_test_trigger',
+                nonce: devtoolsNonce,
+                trigger_id: triggerId,
+                entry_data: entryDataJson
+            },
+            success: function(response) {
+                if (response.success) {
+                    var data = response.data;
+                    var html = '<div class="super-devtools-success">';
+                    html += '<h4>Trigger #' + triggerId + ' Test Results:</h4>';
+                    html += '<p><strong>Trigger Name:</strong> ' + data.trigger.trigger_name + '</p>';
+                    html += '<p><strong>Event:</strong> ' + data.trigger.event_id + '</p>';
+                    html += '<p><strong>Conditions Met:</strong> ' + (data.conditions_met ? '✓ Yes' : '✗ No') + '</p>';
+                    html += '<p><strong>Actions Executed:</strong> ' + data.actions_executed + ' / ' + data.actions.length + '</p>';
+
+                    if (data.execution_results.length > 0) {
+                        html += '<h4>Execution Results:</h4>';
+                        data.execution_results.forEach(function(result) {
+                            var status = result.success ? '✓' : '✗';
+                            html += '<div style="margin-bottom: 10px; padding: 10px; background: #f5f5f5; border-left: 3px solid ' + (result.success ? 'green' : 'red') + ';">';
+                            html += '<strong>' + status + ' Action #' + result.action_id + ' (' + result.action_type + ')</strong>';
+                            html += '<br>Execution time: ' + result.execution_time_ms + ' ms';
+                            html += '<pre style="margin-top: 5px;">' + JSON.stringify(result.result, null, 2) + '</pre>';
+                            html += '</div>';
+                        });
+                    }
+
+                    html += '</div>';
+                    $resultsContent.html(html);
+                    $results.fadeIn();
+                } else {
+                    $resultsContent.html('<div class="super-devtools-error"><p>Error: ' + (response.data.message || 'Unknown error') + '</p></div>');
+                    $results.fadeIn();
+                }
+            },
+            error: function(xhr) {
+                $resultsContent.html('<div class="super-devtools-error"><p>AJAX Error: ' + xhr.statusText + '</p></div>');
+                $results.fadeIn();
+            },
+            complete: function() {
+                $btn.prop('disabled', false).html('<span class="dashicons dashicons-controls-play"></span> Test Trigger');
+            }
+        });
+    });
+
+    // ==========================================================
+    // SECTION 9: Sandbox Testing (Visual Validation)
+    // ==========================================================
+
+    var sandboxState = { // eslint-disable-line no-unused-vars
+        exists: false,
+        form_id: 0
+    };
+
+    // Update sandbox status display
+    function updateSandboxStatus(status) {
+        sandboxState = status;
+        var $content = $('#sandbox-status-content');
+        var html = '';
+
+        if (status.exists) {
+            html = '<div class="sandbox-status-active" style="background: #e7f3e7; padding: 15px; border-left: 4px solid #46b450;">';
+            html += '<p><strong>Sandbox Active</strong></p>';
+            html += '<ul style="margin: 10px 0 10px 20px;">';
+            html += '<li><strong>Form:</strong> ' + status.form_title + ' (ID: ' + status.form_id + ')</li>';
+            html += '<li><strong>Triggers:</strong> ' + status.trigger_count + ' active</li>';
+            html += '<li><strong>Entries:</strong> ' + status.entry_count + ' submitted</li>';
+            html += '<li><strong>Logs:</strong> ' + status.log_count + ' execution logs</li>';
+            html += '</ul>';
+            html += '<p style="margin-top: 10px;">';
+            html += '<a href="' + status.edit_url + '" target="_blank" class="button button-small">Edit Form</a> ';
+            html += '<a href="' + status.entries_url + '" target="_blank" class="button button-small">View Entries</a>';
+            html += '</p>';
+            html += '</div>';
+
+            // Enable action buttons
+            $('#sandbox-create-btn').prop('disabled', true).text('Sandbox Active');
+            $('#sandbox-submit-btn, #sandbox-view-logs-btn, #sandbox-cleanup-btn').prop('disabled', false);
+        } else {
+            html = '<div class="sandbox-status-inactive" style="background: #f9f9f9; padding: 15px; border-left: 4px solid #999;">';
+            html += '<p>No sandbox exists. Click "Create Sandbox" to get started.</p>';
+            html += '<p style="color: #666; font-size: 12px;">This will create a test form with triggers in your live database for visual validation.</p>';
+            html += '</div>';
+
+            // Reset action buttons
+            $('#sandbox-create-btn').prop('disabled', false).html('<span class="dashicons dashicons-plus-alt"></span> Create Sandbox');
+            $('#sandbox-submit-btn, #sandbox-view-logs-btn, #sandbox-cleanup-btn').prop('disabled', true);
+        }
+
+        $content.html(html);
+    }
+
+    // Show result message
+    function showSandboxResult(message, type) {
+        var $results = $('#sandbox-results');
+        var colorClass = type === 'success' ? 'style="background: #e7f3e7; border-left: 4px solid #46b450;"' : 'style="background: #fbeaea; border-left: 4px solid #dc3232;"';
+        $results.find('.sandbox-result-content').html('<div ' + colorClass + ' padding: 10px;">' + message + '</div>');
+        $results.fadeIn();
+        setTimeout(function() { $results.fadeOut(); }, 5000);
+    }
+
+    // Load initial sandbox status
+    function loadSandboxStatus() {
+        $.ajax({
+            url: super_create_form.ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'super_sandbox_status',
+                security: super_create_form.super_ajax_nonce
+            },
+            success: function(response) {
+                if (response.success) {
+                    updateSandboxStatus(response.data);
+                }
+            }
+        });
+    }
+
+    // Create sandbox
+    $('#sandbox-create-btn').on('click', function() {
+        var $btn = $(this);
+        $btn.prop('disabled', true).html('<span class="dashicons dashicons-update spin"></span> Creating...');
+
+        $.ajax({
+            url: super_create_form.ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'super_sandbox_create',
+                security: super_create_form.super_ajax_nonce
+            },
+            success: function(response) {
+                if (response.success) {
+                    updateSandboxStatus(response.data);
+                    showSandboxResult('Sandbox created! Form ID: ' + response.data.form_id + ', Triggers: ' + response.data.trigger_count, 'success');
+                } else {
+                    showSandboxResult('Error: ' + (response.data.message || 'Unknown error'), 'error');
+                    $btn.prop('disabled', false).html('<span class="dashicons dashicons-plus-alt"></span> Create Sandbox');
+                }
+            },
+            error: function(xhr) {
+                showSandboxResult('AJAX Error: ' + xhr.statusText, 'error');
+                $btn.prop('disabled', false).html('<span class="dashicons dashicons-plus-alt"></span> Create Sandbox');
+            }
+        });
+    });
+
+    // Show entry form
+    $('#sandbox-submit-btn').on('click', function() {
+        $('#sandbox-entry-form').slideDown();
+    });
+
+    // Cancel entry form
+    $('#sandbox-cancel-entry-btn').on('click', function() {
+        $('#sandbox-entry-form').slideUp();
+    });
+
+    // Submit test entry
+    $('#sandbox-submit-custom-btn').on('click', function() {
+        var $btn = $(this);
+        $btn.prop('disabled', true).text('Submitting...');
+
+        $.ajax({
+            url: super_create_form.ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'super_sandbox_submit',
+                security: super_create_form.super_ajax_nonce,
+                name: $('#sandbox-name').val(),
+                email: $('#sandbox-email').val(),
+                message: $('#sandbox-message').val()
+            },
+            success: function(response) {
+                if (response.success) {
+                    updateSandboxStatus(response.data.status);
+                    showSandboxResult('Entry submitted! Entry ID: ' + response.data.entry_id + '. <a href="' + response.data.entry_url + '" target="_blank">View Entry</a>', 'success');
+                    $('#sandbox-entry-form').slideUp();
+                    // Auto-refresh logs
+                    loadSandboxLogs();
+                    $('#sandbox-logs-panel').slideDown();
+                } else {
+                    showSandboxResult('Error: ' + (response.data.message || 'Unknown error'), 'error');
+                }
+            },
+            error: function(xhr) {
+                showSandboxResult('AJAX Error: ' + xhr.statusText, 'error');
+            },
+            complete: function() {
+                $btn.prop('disabled', false).text('Submit Entry & Fire Triggers');
+            }
+        });
+    });
+
+    // View logs
+    $('#sandbox-view-logs-btn').on('click', function() {
+        loadSandboxLogs();
+        $('#sandbox-logs-panel').slideToggle();
+    });
+
+    // Load sandbox logs
+    function loadSandboxLogs() {
+        var $content = $('#sandbox-logs-content');
+        $content.html('<p><em>Loading logs...</em></p>');
+
+        $.ajax({
+            url: super_create_form.ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'super_sandbox_logs',
+                security: super_create_form.super_ajax_nonce,
+                limit: 50
+            },
+            success: function(response) {
+                if (response.success && response.data.logs && response.data.logs.length > 0) {
+                    var html = '<table class="wp-list-table widefat fixed striped" style="font-size: 12px;">';
+                    html += '<thead><tr><th>Time</th><th>Trigger</th><th>Event</th><th>Status</th><th>Message</th></tr></thead><tbody>';
+
+                    response.data.logs.forEach(function(log) {
+                        var statusColor = log.status === 'success' ? '#46b450' : (log.status === 'error' ? '#dc3232' : '#999');
+                        html += '<tr>';
+                        html += '<td style="white-space: nowrap;">' + log.created_at + '</td>';
+                        html += '<td>' + log.trigger_id + '</td>';
+                        html += '<td>' + (log.event_type || '-') + '</td>';
+                        html += '<td style="color: ' + statusColor + ';">' + log.status + '</td>';
+                        html += '<td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis;">' + (log.message || '-') + '</td>';
+                        html += '</tr>';
+                    });
+
+                    html += '</tbody></table>';
+                    $content.html(html);
+                } else {
+                    $content.html('<p><em>No logs yet. Submit a test entry to see trigger execution logs.</em></p>');
+                }
+            },
+            error: function() {
+                $content.html('<p style="color: #dc3232;">Error loading logs.</p>');
+            }
+        });
+    }
+
+    // Cleanup sandbox
+    $('#sandbox-cleanup-btn').on('click', function() {
+        if (!confirm('Are you sure you want to delete all sandbox data? This will remove the test form, triggers, entries, and logs.')) {
+            return;
+        }
+
+        var $btn = $(this);
+        $btn.prop('disabled', true).html('<span class="dashicons dashicons-update spin"></span> Cleaning up...');
+
+        $.ajax({
+            url: super_create_form.ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'super_sandbox_cleanup',
+                security: super_create_form.super_ajax_nonce
+            },
+            success: function(response) {
+                if (response.success) {
+                    showSandboxResult(response.data.message, 'success');
+                    // Reset status
+                    updateSandboxStatus({ exists: false });
+                    $('#sandbox-logs-panel').slideUp();
+                    $('#sandbox-logs-content').html('<p><em>No logs yet. Submit a test entry to see trigger execution logs.</em></p>');
+                } else {
+                    showSandboxResult('Error: ' + (response.data.message || 'Unknown error'), 'error');
+                }
+            },
+            error: function(xhr) {
+                showSandboxResult('AJAX Error: ' + xhr.statusText, 'error');
+            },
+            complete: function() {
+                $btn.prop('disabled', false).html('<span class="dashicons dashicons-trash"></span> Cleanup Sandbox');
+            }
+        });
+    });
+
+    // Load initial status on page load
+    loadSandboxStatus();
 });
 

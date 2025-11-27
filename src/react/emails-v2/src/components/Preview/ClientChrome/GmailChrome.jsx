@@ -3,9 +3,10 @@ import EmailContent from '../EmailContent';
 import InlineEditableField from '../../shared/InlineEditableField';
 import ScheduledIndicator from '../../shared/ScheduledIndicator';
 import AttachmentManager from '../AttachmentManager';
-import { User } from 'lucide-react';
+import { User, Palette, Code } from 'lucide-react';
+import clsx from 'clsx';
 
-function GmailChrome({ email, isMobile, isBuilder, renderBody, updateEmailField, activeEmailId }) {
+function GmailChrome({ email, isMobile, isBuilder, renderBody, updateEmailField, activeEmailId, isHtmlMode, onModeChange }) {
   const fromName = email.from_name || 'Sender Name';
   const fromEmail = email.from_email || 'sender@example.com';
   const subject = email.subject || 'Email Subject';
@@ -134,13 +135,45 @@ function GmailChrome({ email, isMobile, isBuilder, renderBody, updateEmailField,
               </div>
             </div>
             
-            {/* Attachments Section */}
-            <AttachmentManager
-              attachments={email.attachments || []}
-              onChange={(attachments) => handleFieldUpdate('attachments', attachments)}
-              isBuilder={isBuilder}
-            />
-            
+            {/* Attachments and Mode Toggle Row */}
+            <div className="ev2-flex ev2-items-center ev2-justify-between ev2-gap-2 ev2-px-2">
+              <AttachmentManager
+                attachments={email.attachments || []}
+                onChange={(attachments) => handleFieldUpdate('attachments', attachments)}
+                isBuilder={isBuilder}
+              />
+
+              {/* Mode Toggle - Visual/HTML (Mobile) */}
+              {isBuilder && onModeChange && (
+                <div className="ev2-flex ev2-items-center ev2-gap-0.5 ev2-bg-gray-100 ev2-rounded-md ev2-p-0.5">
+                  <button
+                    onClick={() => !isHtmlMode || onModeChange('visual')}
+                    className={clsx(
+                      'ev2-flex ev2-items-center ev2-gap-1 ev2-px-2 ev2-py-1 ev2-rounded ev2-text-xs ev2-font-medium ev2-transition-all',
+                      !isHtmlMode
+                        ? 'ev2-bg-white ev2-text-gray-900 ev2-shadow-sm'
+                        : 'ev2-text-gray-500'
+                    )}
+                    title="Visual Builder"
+                  >
+                    <Palette className="ev2-w-3 ev2-h-3" />
+                  </button>
+                  <button
+                    onClick={() => isHtmlMode || onModeChange('html')}
+                    className={clsx(
+                      'ev2-flex ev2-items-center ev2-gap-1 ev2-px-2 ev2-py-1 ev2-rounded ev2-text-xs ev2-font-medium ev2-transition-all',
+                      isHtmlMode
+                        ? 'ev2-bg-white ev2-text-gray-900 ev2-shadow-sm'
+                        : 'ev2-text-gray-500'
+                    )}
+                    title="HTML Editor"
+                  >
+                    <Code className="ev2-w-3 ev2-h-3" />
+                  </button>
+                </div>
+              )}
+            </div>
+
             {/* Mobile Email Container */}
             <div className="ev2-bg-white ev2-p-2">
               <div className="ev2-bg-white ev2-min-h-[200px] ev2-p-0">
@@ -294,12 +327,46 @@ function GmailChrome({ email, isMobile, isBuilder, renderBody, updateEmailField,
                 </div>
               </div>
               
-              {/* Attachments Section */}
-              <AttachmentManager
-                attachments={email.attachments || []}
-                onChange={(attachments) => handleFieldUpdate('attachments', attachments)}
-                isBuilder={isBuilder}
-              />
+              {/* Attachments and Mode Toggle Row */}
+              <div className="ev2-flex ev2-items-center ev2-justify-between ev2-gap-4">
+                <AttachmentManager
+                  attachments={email.attachments || []}
+                  onChange={(attachments) => handleFieldUpdate('attachments', attachments)}
+                  isBuilder={isBuilder}
+                />
+
+                {/* Mode Toggle - Visual/HTML */}
+                {isBuilder && onModeChange && (
+                  <div className="ev2-flex ev2-items-center ev2-gap-1 ev2-bg-gray-100 ev2-rounded-lg ev2-p-0.5">
+                    <button
+                      onClick={() => !isHtmlMode || onModeChange('visual')}
+                      className={clsx(
+                        'ev2-flex ev2-items-center ev2-gap-1.5 ev2-px-3 ev2-py-1.5 ev2-rounded-md ev2-text-sm ev2-font-medium ev2-transition-all',
+                        !isHtmlMode
+                          ? 'ev2-bg-white ev2-text-gray-900 ev2-shadow-sm'
+                          : 'ev2-text-gray-500 hover:ev2-text-gray-700'
+                      )}
+                      title="Visual Builder"
+                    >
+                      <Palette className="ev2-w-4 ev2-h-4" />
+                      <span>Visual</span>
+                    </button>
+                    <button
+                      onClick={() => isHtmlMode || onModeChange('html')}
+                      className={clsx(
+                        'ev2-flex ev2-items-center ev2-gap-1.5 ev2-px-3 ev2-py-1.5 ev2-rounded-md ev2-text-sm ev2-font-medium ev2-transition-all',
+                        isHtmlMode
+                          ? 'ev2-bg-white ev2-text-gray-900 ev2-shadow-sm'
+                          : 'ev2-text-gray-500 hover:ev2-text-gray-700'
+                      )}
+                      title="HTML Editor"
+                    >
+                      <Code className="ev2-w-4 ev2-h-4" />
+                      <span>HTML</span>
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

@@ -132,4 +132,26 @@ class SUPER_Action_Stop_Execution extends SUPER_Trigger_Action_Base {
 		// Any user with form access can use stop execution
 		return ['edit_posts'];
 	}
+
+	/**
+	 * This action cannot run asynchronously
+	 *
+	 * It must execute synchronously to control the flow of subsequent actions.
+	 *
+	 * @return bool
+	 * @since 6.5.0
+	 */
+	public function supports_async() {
+		return false;
+	}
+
+	/**
+	 * Get execution mode
+	 *
+	 * @return string
+	 * @since 6.5.0
+	 */
+	public function get_execution_mode() {
+		return 'sync';
+	}
 }

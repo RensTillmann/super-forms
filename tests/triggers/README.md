@@ -4,10 +4,21 @@ This directory contains PHPUnit tests for the Super Forms trigger/action system.
 
 ## Test Files
 
-- **test-event-firing.php** - Tests that all 10 events fire correctly
+- **test-event-firing.php** - Tests that all 34 events fire correctly (form, entry, file, payment)
 - **test-trigger-registry.php** - Tests event/action registration
 - **test-trigger-executor.php** - Tests trigger execution flow
+- **test-trigger-scheduler.php** - Tests Action Scheduler integration (Phase 2)
+- **test-logging-system.php** - Tests Logger, Debugger, Performance, Compliance classes (Phase 3)
+- **test-api-security.php** - Tests Credentials, OAuth, Security, Permissions, API Keys classes (Phase 4)
 - **test-spam-detector.php** - Tests spam detection integration
+- **test-performance.php** - Performance benchmarks for trigger lookup and execution
+- **test-http-request-templates.php** - Tests HTTP request template registration (Phase 5)
+- **test-entry-dal.php** - Tests Entry DAL CRUD, meta methods, backwards compat (Phase 17, 45 tests)
+- **test-session-dal.php** - Tests Session DAL operations (client token recovery, anonymous session matching)
+- **class-action-test-case.php** - Base test class with common utilities
+- **actions/test-action-log-message.php** - Log message action tests
+- **actions/test-action-send-email.php** - Send email action tests
+- **actions/test-action-http-request.php** - HTTP request action tests (wildcards, modifiers) (Phase 5)
 
 ## Running Tests
 
@@ -76,7 +87,7 @@ Tests that events fire correctly during form submission:
 - ✅ Event context includes all required fields
 - ✅ WordPress action hooks fire alongside trigger events
 
-**Total: 14 test methods**
+**Total: 23 test methods**
 
 ### test-trigger-registry.php
 
@@ -98,13 +109,63 @@ Tests trigger execution flow:
 - Action execution
 - Execution logging
 
+### test-trigger-scheduler.php
+
+Tests Action Scheduler integration (Phase 2):
+
+- Async action scheduling
+- Delayed execution
+- Retry mechanism with exponential backoff
+- Queue management
+- Failed action handling
+
+### test-logging-system.php
+
+Tests logging infrastructure (Phase 3):
+
+- `SUPER_Trigger_Logger` - Log levels, database storage, console buffer
+- `SUPER_Trigger_Debugger` - Debug data collection, event/trigger/action logging
+- `SUPER_Trigger_Performance` - Timer start/end, memory tracking, slow execution detection
+- `SUPER_Trigger_Compliance` - GDPR export/delete, PII scrubbing, audit trails
+
+### test-api-security.php
+
+Tests API security infrastructure (Phase 4):
+
+- `SUPER_Trigger_Credentials` - AES-256-CBC encrypted credential storage and retrieval
+- `SUPER_Trigger_OAuth` - OAuth 2.0 flows, PKCE support, token refresh, provider registration
+- `SUPER_Trigger_Security` - Rate limiting, suspicious pattern detection, security event logging
+- `SUPER_Trigger_Permissions` - WordPress capabilities, trigger ownership, scope-based access
+- `SUPER_Trigger_API_Keys` - API key generation, validation, permission management, usage tracking
+
+### test-session-dal.php
+
+Tests Session DAL operations for progressive forms (Phase 1a Step 2):
+
+- Session creation with `client_token` parameter
+- Anonymous session recovery via `find_by_client_token()`
+- `find_recoverable()` matching logic:
+  - Logged-in users: Matches by `user_id`
+  - Anonymous users: Matches by `client_token` (not IP)
+- Session status transitions (draft → completed, draft → aborted)
+- Session expiry and cleanup
+- AJAX handler integration for session operations
+
 ### test-spam-detector.php
 
-Tests spam detection integration:
+Tests multi-method spam detection system (Phase 1a Step 3):
 
-- Honeypot detection
-- Spam event firing
-- Integration with form submission flow
+- **Honeypot detection** - Tests 3 field variants (super_hp, website_url_hp, fax_number_hp)
+- **Time-based detection** - Tests fast submissions (1s, 2s) and slow passes (5s, 10s)
+- **IP blacklist** - Tests exact match, CIDR ranges (192.168.1.0/24), wildcards (192.168.1.*)
+- **Keyword filtering** - Tests dual threshold logic (3+ matches OR 2+ unique keywords)
+- **Akismet integration** - Mock tests (requires Akismet plugin in production)
+- **Clean submissions** - Tests that legitimate submissions pass all checks
+- **Form settings** - Tests per-form configuration and default settings
+- **Event firing** - Tests `form.spam_detected` event with complete detection metadata
+- **Session integration** - Tests time-based detection using session start timestamps
+
+**Total: 25 test methods**
 
 ## Test Output Example
 
@@ -119,11 +180,11 @@ PHPUnit 9.5.28 by Sebastian Bergmann and contributors.
 Runtime:       PHP 7.4.33
 Configuration: /path/to/phpunit.xml
 
-..............                                                    14 / 14 (100%)
+............................                                     102 / 102 (100%)
 
-Time: 00:00.234, Memory: 12.00 MB
+Time: 00:01.500, Memory: 24.00 MB
 
-OK (14 tests, 42 assertions)
+OK (102 tests, 370 assertions)
 
 ✅ All tests passed!
 ```
@@ -284,8 +345,7 @@ When adding new trigger functionality:
 ## Related Documentation
 
 - [Event Flow Documentation](../../sessions/tasks/h-implement-triggers-actions-extensibility/EVENT_FLOW_DOCUMENTATION.md)
-- [Next Steps](../../sessions/tasks/h-implement-triggers-actions-extensibility/NEXT_STEPS.md)
-- [Architecture Blueprint](../../sessions/tasks/h-implement-triggers-actions-extensibility/ARCHITECTURE_BLUEPRINT.md)
+- [Task Documentation](../../sessions/tasks/h-implement-triggers-actions-extensibility/README.md)
 
 ## Questions?
 

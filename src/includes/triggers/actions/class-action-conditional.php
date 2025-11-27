@@ -167,4 +167,26 @@ class SUPER_Action_Conditional extends SUPER_Trigger_Action_Base {
 	public function get_required_capabilities() {
 		return ['edit_posts'];
 	}
+
+	/**
+	 * This action cannot run asynchronously
+	 *
+	 * Conditional logic must execute synchronously to control child action flow.
+	 *
+	 * @return bool
+	 * @since 6.5.0
+	 */
+	public function supports_async() {
+		return false;
+	}
+
+	/**
+	 * Get execution mode
+	 *
+	 * @return string
+	 * @since 6.5.0
+	 */
+	public function get_execution_mode() {
+		return 'sync';
+	}
 }

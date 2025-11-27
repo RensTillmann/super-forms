@@ -1,0 +1,150 @@
+/**
+ * Super Forms Session Recovery Styles
+ *
+ * Styles for the session recovery banner shown when users have
+ * unsaved form data from a previous session.
+ *
+ * @package Super_Forms
+ * @since 6.5.0
+ */
+
+.super-session-recovery {
+	background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
+	border: 1px solid #3498db;
+	border-left: 4px solid #3498db;
+	border-radius: 4px;
+	padding: 12px 16px;
+	margin-bottom: 20px;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	box-shadow: 0 2px 4px rgba(52, 152, 219, 0.1);
+}
+
+.super-session-recovery-content {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 12px;
+}
+
+.super-session-recovery-icon {
+	font-size: 20px;
+	line-height: 1;
+	flex-shrink: 0;
+}
+
+.super-session-recovery-text {
+	flex: 1;
+	min-width: 200px;
+	font-size: 14px;
+	line-height: 1.4;
+	color: #2c3e50;
+}
+
+.super-session-recovery-restore,
+.super-session-recovery-dismiss {
+	padding: 8px 16px;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 13px;
+	font-weight: 500;
+	border: none;
+	transition: all 0.2s ease;
+	line-height: 1;
+	white-space: nowrap;
+}
+
+.super-session-recovery-restore {
+	background: #3498db;
+	color: #fff;
+}
+
+.super-session-recovery-restore:hover {
+	background: #2980b9;
+	box-shadow: 0 2px 4px rgba(41, 128, 185, 0.3);
+}
+
+.super-session-recovery-restore:focus {
+	outline: 2px solid #2980b9;
+	outline-offset: 2px;
+}
+
+.super-session-recovery-dismiss {
+	background: #ecf0f1;
+	color: #34495e;
+}
+
+.super-session-recovery-dismiss:hover {
+	background: #d5dbdb;
+}
+
+.super-session-recovery-dismiss:focus {
+	outline: 2px solid #95a5a6;
+	outline-offset: 2px;
+}
+
+/* Responsive: stack on small screens */
+@media (max-width: 480px) {
+	.super-session-recovery {
+		padding: 14px 12px;
+	}
+
+	.super-session-recovery-content {
+		flex-direction: column;
+		align-items: stretch;
+		gap: 10px;
+	}
+
+	.super-session-recovery-icon {
+		display: none;
+	}
+
+	.super-session-recovery-text {
+		text-align: center;
+	}
+
+	.super-session-recovery-restore,
+	.super-session-recovery-dismiss {
+		width: 100%;
+		text-align: center;
+		padding: 10px 16px;
+	}
+}
+
+/* Dark mode support */
+.dark-mode .super-session-recovery,
+[data-theme="dark"] .super-session-recovery {
+	background: linear-gradient(135deg, #1a2634 0%, #243447 100%);
+	border-color: #2980b9;
+}
+
+.dark-mode .super-session-recovery-text,
+[data-theme="dark"] .super-session-recovery-text {
+	color: #ecf0f1;
+}
+
+.dark-mode .super-session-recovery-dismiss,
+[data-theme="dark"] .super-session-recovery-dismiss {
+	background: #34495e;
+	color: #ecf0f1;
+}
+
+.dark-mode .super-session-recovery-dismiss:hover,
+[data-theme="dark"] .super-session-recovery-dismiss:hover {
+	background: #2c3e50;
+}
+
+/* Animation for smooth appearance */
+.super-session-recovery {
+	animation: superSessionFadeIn 0.3s ease-out;
+}
+
+@keyframes superSessionFadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(-10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}

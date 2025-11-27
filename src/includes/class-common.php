@@ -123,12 +123,20 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 				// error_log('return existing woocommerce settings...');
 				return SUPER_Forms()->emails_settings;
 			}
-			$s = get_post_meta( $form_id, '_emails', true );
-			if ( $s === false ) {
-				$s = array();
+
+			// @since 6.5.0 - Try to get emails from triggers if _emails is empty
+			// This enables Email v2 UI to display migrated legacy emails
+			if ( class_exists( 'SUPER_Email_Trigger_Migration' ) ) {
+				$s = SUPER_Email_Trigger_Migration::get_emails_for_ui( $form_id );
 			} else {
-				$s = maybe_unserialize( $s );
+				$s = get_post_meta( $form_id, '_emails', true );
+				if ( $s === false ) {
+					$s = array();
+				} else {
+					$s = maybe_unserialize( $s );
+				}
 			}
+
 			// Merge translated settings
 			if ( ! empty( $s['i18n'] ) && ! empty( $s['i18n'][ SUPER_Forms()->i18n ] ) ) {
 				$translatedSettings = $s['i18n'][ SUPER_Forms()->i18n ];
@@ -140,6 +148,11 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 		}
 		public static function save_form_emails_settings( $s, $form_id ) {
 			update_post_meta( $form_id, '_emails', $s );
+
+			// @since 6.5.0 - Sync emails to trigger system
+			if ( class_exists( 'SUPER_Email_Trigger_Migration' ) ) {
+				SUPER_Email_Trigger_Migration::sync_emails_to_triggers( $form_id, $s );
+			}
 		}
 
 		/**
@@ -257,8 +270,20 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 
 		/**
 		 * Convert Email tab settings to trigger format
+		 *
+		 * @deprecated 6.5.0 Use SUPER_Email_Trigger_Migration for persistent triggers
 		 */
-		public static function add_emails_as_trigger( $triggers, $emails ) {
+		public static function add_emails_as_trigger( $triggers, $emails, $form_id = 0 ) {
+			// Lazy migration for edge cases (imports, restores, duplicates)
+			// Background migration via Action Scheduler is still the primary path
+			if ( $form_id && class_exists( 'SUPER_Email_Trigger_Migration' ) ) {
+				SUPER_Email_Trigger_Migration::ensure_form_migrated( $form_id );
+				// After migration, triggers are in DB - skip runtime conversion
+				if ( SUPER_Email_Trigger_Migration::is_form_migrated( $form_id ) ) {
+					return $triggers;
+				}
+			}
+
 			$email_triggers = array();
 
 			if ( empty( $emails ) || ! is_array( $emails ) ) {
@@ -650,7 +675,7 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 			$triggers = self::get_form_triggers( $form_id );
 			// Add fixed Emails (if any) as a trigger for event sf.after.submission with action send_email
 			$emails   = self::get_form_emails_settings( $form_id );
-			$triggers = self::add_emails_as_trigger( $triggers, $emails );
+			$triggers = self::add_emails_as_trigger( $triggers, $emails, $form_id );
 			$triggers = apply_filters( 'super_triggers_filter', $triggers, array( 'sfsi' => $sfsi ) );
 			usort(
 				$triggers,
@@ -4081,7 +4106,11 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 			
 			// error_log( "MIGRATION DEBUG: form_id=$form_id, version=$current_form_version, existing_emails=" . json_encode($existing_emails) . ", has_reminder_settings=" . ($has_reminder_settings ? 'true' : 'false') . ", migration_completed=" . ($migration_completed ? 'true' : 'false') );
 			
-			if ( ! $migration_completed && ( version_compare( $current_form_version, '6.4', '<' ) || $needs_email_migration || ( empty( $existing_emails ) && $has_reminder_settings ) ) ) { 
+			// Skip on-demand _emails migration if this form has been migrated to persistent triggers
+		// (lazy migration in add_emails_as_trigger handles imports/restores/edge cases)
+		$form_migrated_to_triggers = class_exists( 'SUPER_Email_Trigger_Migration' ) && SUPER_Email_Trigger_Migration::is_form_migrated( $form_id );
+
+		if ( ! $form_migrated_to_triggers && ! $migration_completed && ( version_compare( $current_form_version, '6.4', '<' ) || $needs_email_migration || ( empty( $existing_emails ) && $has_reminder_settings ) ) ) {
 				// error_log( 'Define Triggers for this Form if not already, for instance, copy over E-mail settings and define Admin and Confirmation E-mails as triggers' );
 				// Set recursion guard
 				$migration_in_progress[$form_id] = true;
@@ -6095,18 +6124,43 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 					$form_id = $settings['id'];
 				}
 				if ( $form_id != 0 ) {
+					// @since 6.5.0 - Use Entry DAL for migration-aware query
 					global $wpdb;
-					$table = $wpdb->prefix . 'posts';
-					$entry = $wpdb->get_results(
-						"
-                SELECT  ID 
-                FROM    $table 
-                WHERE   post_parent = $form_id AND
-                        post_status IN ('publish','super_unread','super_read') AND 
-                        post_type = 'super_contact_entry'
-                ORDER BY ID DESC
-                LIMIT 1"
-					);
+					if ( class_exists( 'SUPER_Entry_DAL' ) ) {
+						$components = SUPER_Entry_DAL::get_query_components();
+						$table      = $components['entries_table'];
+						$id_col     = $components['id_column'];
+						$form_col   = $components['form_id_column'];
+						$status_col = $components['status_column'];
+
+						if ( $components['storage_mode'] === 'post_type' ) {
+							$entry = $wpdb->get_results( $wpdb->prepare(
+								"SELECT {$id_col} as ID FROM {$table}
+								WHERE {$form_col} = %d
+								AND {$status_col} IN ('publish','super_unread','super_read')
+								AND post_type = 'super_contact_entry'
+								ORDER BY {$id_col} DESC LIMIT 1",
+								$form_id
+							) );
+						} else {
+							$entry = $wpdb->get_results( $wpdb->prepare(
+								"SELECT {$id_col} as ID FROM {$table}
+								WHERE {$form_col} = %d
+								AND {$status_col} IN ('publish','super_unread','super_read')
+								ORDER BY {$id_col} DESC LIMIT 1",
+								$form_id
+							) );
+						}
+					} else {
+						$table = $wpdb->prefix . 'posts';
+						$entry = $wpdb->get_results(
+							"SELECT ID FROM $table
+							WHERE post_parent = $form_id
+							AND post_status IN ('publish','super_unread','super_read')
+							AND post_type = 'super_contact_entry'
+							ORDER BY ID DESC LIMIT 1"
+						);
+					}
 					if ( isset( $entry[0] ) ) {
 						$last_entry_id     = absint( $entry[0]->ID );
 						$last_entry_status = get_post_meta( $entry[0]->ID, '_super_contact_entry_status', true );
@@ -6115,48 +6169,94 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 				}
 
 				// @since 4.7.7     - Get last entry status bas on currently logged in user
+				// @since 6.5.0     - Use Entry DAL for migration-aware query
 				$user_last_entry_id     = 0;
 				$user_last_entry_status = '';
 				if ( ( isset( $current_user ) ) && ( $current_user->ID > 0 ) ) {
 					global $wpdb;
-					$entry = $wpdb->get_results(
-						$wpdb->prepare(
-							"
-                        SELECT  ID
-                        FROM    $wpdb->posts
-                        WHERE   post_parent = %d AND 
-                                post_author = %d AND
-                                post_status IN ('publish','super_unread','super_read') AND 
-                                post_type = 'super_contact_entry'
-                        ORDER BY ID DESC
-                        LIMIT 1",
-							array( $form_id, $current_user->ID )
-						)
-					);
+					if ( class_exists( 'SUPER_Entry_DAL' ) ) {
+						$components = SUPER_Entry_DAL::get_query_components();
+						$table      = $components['entries_table'];
+						$id_col     = $components['id_column'];
+						$form_col   = $components['form_id_column'];
+						$user_col   = $components['user_id_column'];
+						$status_col = $components['status_column'];
+
+						if ( $components['storage_mode'] === 'post_type' ) {
+							$entry = $wpdb->get_results( $wpdb->prepare(
+								"SELECT {$id_col} as ID FROM {$table}
+								WHERE {$form_col} = %d AND {$user_col} = %d
+								AND {$status_col} IN ('publish','super_unread','super_read')
+								AND post_type = 'super_contact_entry'
+								ORDER BY {$id_col} DESC LIMIT 1",
+								$form_id, $current_user->ID
+							) );
+						} else {
+							$entry = $wpdb->get_results( $wpdb->prepare(
+								"SELECT {$id_col} as ID FROM {$table}
+								WHERE {$form_col} = %d AND {$user_col} = %d
+								AND {$status_col} IN ('publish','super_unread','super_read')
+								ORDER BY {$id_col} DESC LIMIT 1",
+								$form_id, $current_user->ID
+							) );
+						}
+					} else {
+						$entry = $wpdb->get_results( $wpdb->prepare(
+							"SELECT ID FROM $wpdb->posts
+							WHERE post_parent = %d AND post_author = %d
+							AND post_status IN ('publish','super_unread','super_read')
+							AND post_type = 'super_contact_entry'
+							ORDER BY ID DESC LIMIT 1",
+							$form_id, $current_user->ID
+						) );
+					}
 					if ( isset( $entry[0] ) ) {
 						$user_last_entry_id     = absint( $entry[0]->ID );
 						$user_last_entry_status = get_post_meta( $entry[0]->ID, '_super_contact_entry_status', true );
 					}
 				}
 
-				// @since 4.7.7     - Get last entry status bas on currently logged in user
+				// @since 4.7.7     - Get last entry status bas on currently logged in user (any form)
+				// @since 6.5.0     - Use Entry DAL for migration-aware query
 				$user_last_entry_id_any_form     = 0;
 				$user_last_entry_status_any_form = '';
 				if ( ( isset( $current_user ) ) && ( $current_user->ID > 0 ) ) {
 					global $wpdb;
-					$entry = $wpdb->get_results(
-						$wpdb->prepare(
-							"
-                        SELECT  ID
-                        FROM    $wpdb->posts
-                        WHERE   post_author = %d AND
-                                post_status IN ('publish','super_unread','super_read') AND 
-                                post_type = 'super_contact_entry'
-                        ORDER BY ID DESC
-                        LIMIT 1",
-							array( $current_user->ID )
-						)
-					);
+					if ( class_exists( 'SUPER_Entry_DAL' ) ) {
+						$components = SUPER_Entry_DAL::get_query_components();
+						$table      = $components['entries_table'];
+						$id_col     = $components['id_column'];
+						$user_col   = $components['user_id_column'];
+						$status_col = $components['status_column'];
+
+						if ( $components['storage_mode'] === 'post_type' ) {
+							$entry = $wpdb->get_results( $wpdb->prepare(
+								"SELECT {$id_col} as ID FROM {$table}
+								WHERE {$user_col} = %d
+								AND {$status_col} IN ('publish','super_unread','super_read')
+								AND post_type = 'super_contact_entry'
+								ORDER BY {$id_col} DESC LIMIT 1",
+								$current_user->ID
+							) );
+						} else {
+							$entry = $wpdb->get_results( $wpdb->prepare(
+								"SELECT {$id_col} as ID FROM {$table}
+								WHERE {$user_col} = %d
+								AND {$status_col} IN ('publish','super_unread','super_read')
+								ORDER BY {$id_col} DESC LIMIT 1",
+								$current_user->ID
+							) );
+						}
+					} else {
+						$entry = $wpdb->get_results( $wpdb->prepare(
+							"SELECT ID FROM $wpdb->posts
+							WHERE post_author = %d
+							AND post_status IN ('publish','super_unread','super_read')
+							AND post_type = 'super_contact_entry'
+							ORDER BY ID DESC LIMIT 1",
+							$current_user->ID
+						) );
+					}
 					if ( isset( $entry[0] ) ) {
 						$user_last_entry_id_any_form     = absint( $entry[0]->ID );
 						$user_last_entry_status_any_form = get_post_meta( $entry[0]->ID, '_super_contact_entry_status', true );

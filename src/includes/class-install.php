@@ -191,6 +191,168 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 
 			dbDelta( $sql );
 
+			// Compliance audit table for GDPR and security tracking
+			// @since 6.5.0
+			$table_name = $wpdb->prefix . 'superforms_compliance_audit';
+
+			$sql = "CREATE TABLE $table_name (
+				id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+				action_type VARCHAR(50) NOT NULL,
+				user_id BIGINT(20) UNSIGNED,
+				object_type VARCHAR(50),
+				object_id BIGINT(20) UNSIGNED,
+				details LONGTEXT,
+				ip_address VARCHAR(45),
+				user_agent TEXT,
+				performed_at DATETIME NOT NULL,
+				PRIMARY KEY (id),
+				KEY idx_user_id (user_id),
+				KEY idx_action_type (action_type),
+				KEY idx_object (object_type, object_id),
+				KEY idx_performed_at (performed_at)
+			) ENGINE=InnoDB $charset_collate;";
+
+			dbDelta( $sql );
+
+			// ─────────────────────────────────────────────────────────
+			// API Security Tables (Phase 4)
+			// @since 6.5.0
+			// ─────────────────────────────────────────────────────────
+
+			// API credentials table - encrypted storage for OAuth tokens, API keys, etc.
+			$table_name = $wpdb->prefix . 'superforms_api_credentials';
+
+			$sql = "CREATE TABLE $table_name (
+				id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+				service VARCHAR(100) NOT NULL,
+				credential_key VARCHAR(100) NOT NULL,
+				credential_value LONGTEXT NOT NULL,
+				user_id BIGINT(20) UNSIGNED,
+				form_id BIGINT(20) UNSIGNED,
+				expires_at DATETIME,
+				created_at DATETIME NOT NULL,
+				updated_at DATETIME NOT NULL,
+				PRIMARY KEY (id),
+				UNIQUE KEY service_key_user (service, credential_key, user_id),
+				KEY service (service),
+				KEY user_id (user_id),
+				KEY form_id (form_id),
+				KEY expires_at (expires_at)
+			) ENGINE=InnoDB $charset_collate;";
+
+			dbDelta( $sql );
+
+			// API keys table - for external API access to Super Forms
+			$table_name = $wpdb->prefix . 'superforms_api_keys';
+
+			$sql = "CREATE TABLE $table_name (
+				id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+				key_name VARCHAR(255) NOT NULL,
+				api_key_hash VARCHAR(64) NOT NULL,
+				api_key_prefix VARCHAR(12) NOT NULL,
+				permissions TEXT NOT NULL,
+				user_id BIGINT(20) UNSIGNED NOT NULL,
+				status VARCHAR(20) NOT NULL DEFAULT 'active',
+				last_used_at DATETIME,
+				last_used_ip VARCHAR(45),
+				usage_count BIGINT(20) UNSIGNED DEFAULT 0,
+				rate_limit INT UNSIGNED DEFAULT 60,
+				expires_at DATETIME,
+				created_at DATETIME NOT NULL,
+				PRIMARY KEY (id),
+				UNIQUE KEY api_key_hash (api_key_hash),
+				KEY user_id (user_id),
+				KEY status (status),
+				KEY api_key_prefix (api_key_prefix)
+			) ENGINE=InnoDB $charset_collate;";
+
+			dbDelta( $sql );
+
+			// ─────────────────────────────────────────────────────────
+			// Progressive Sessions Table (Phase 1a)
+			// @since 6.5.0
+			// ─────────────────────────────────────────────────────────
+
+			// Sessions table for form auto-save and pre-submission firewall
+			$table_name = $wpdb->prefix . 'superforms_sessions';
+
+			$sql = "CREATE TABLE $table_name (
+				id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+				session_key VARCHAR(32) NOT NULL,
+				form_id BIGINT(20) UNSIGNED NOT NULL,
+				user_id BIGINT(20) UNSIGNED,
+				client_token VARCHAR(36),
+				user_ip VARCHAR(45),
+				status VARCHAR(20) DEFAULT 'draft',
+				form_data LONGTEXT,
+				metadata LONGTEXT,
+				started_at DATETIME NOT NULL,
+				last_saved_at DATETIME,
+				completed_at DATETIME,
+				expires_at DATETIME,
+				PRIMARY KEY (id),
+				UNIQUE KEY session_key (session_key),
+				KEY form_id_status (form_id, status),
+				KEY expires_at (expires_at),
+				KEY user_lookup (user_id, form_id, status),
+				KEY client_token_lookup (client_token, form_id, status)
+			) ENGINE=InnoDB $charset_collate;";
+
+			dbDelta( $sql );
+
+			// ─────────────────────────────────────────────────────────
+			// Contact Entries Tables (Phase 17)
+			// Replaces super_contact_entry post type
+			// @since 6.5.0
+			// ─────────────────────────────────────────────────────────
+
+			// Main entries table - core entry data
+			$table_name = $wpdb->prefix . 'superforms_entries';
+
+			$sql = "CREATE TABLE $table_name (
+				id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+				form_id BIGINT(20) UNSIGNED NOT NULL,
+				user_id BIGINT(20) UNSIGNED DEFAULT 0,
+				title VARCHAR(255) NOT NULL DEFAULT '',
+				wp_status VARCHAR(20) NOT NULL DEFAULT 'publish',
+				entry_status VARCHAR(50) DEFAULT NULL,
+				created_at DATETIME NOT NULL,
+				created_at_gmt DATETIME NOT NULL,
+				updated_at DATETIME NOT NULL,
+				updated_at_gmt DATETIME NOT NULL,
+				ip_address VARCHAR(45) DEFAULT NULL,
+				user_agent VARCHAR(500) DEFAULT NULL,
+				session_id BIGINT(20) UNSIGNED DEFAULT NULL,
+				PRIMARY KEY (id),
+				KEY form_id (form_id),
+				KEY user_id (user_id),
+				KEY wp_status (wp_status),
+				KEY entry_status (entry_status),
+				KEY created_at (created_at),
+				KEY form_status (form_id, wp_status),
+				KEY form_date (form_id, created_at),
+				KEY session_id (session_id)
+			) ENGINE=InnoDB $charset_collate;";
+
+			dbDelta( $sql );
+
+			// Entry meta table - extensible metadata storage
+			// Stores: payment IDs, integration links, custom flags
+			$table_name = $wpdb->prefix . 'superforms_entry_meta';
+
+			$sql = "CREATE TABLE $table_name (
+				id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+				entry_id BIGINT(20) UNSIGNED NOT NULL,
+				meta_key VARCHAR(255) NOT NULL,
+				meta_value LONGTEXT,
+				PRIMARY KEY (id),
+				KEY entry_id (entry_id),
+				KEY meta_key (meta_key(191)),
+				KEY entry_meta (entry_id, meta_key(191))
+			) ENGINE=InnoDB $charset_collate;";
+
+			dbDelta( $sql );
+
 			// Run schema upgrades for existing installations
 			self::upgrade_database_schema();
 		}

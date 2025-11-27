@@ -106,8 +106,8 @@ class Test_Action_Log_Message extends SUPER_Action_Test_Case {
 		$result = $this->action->execute($context, $config);
 
 		$this->assertTrue($result['success']);
-		$this->assertContains((string)$this->form_id, $result['message'], 'Should replace {form_id}');
-		$this->assertContains('Test User', $result['message'], 'Should replace {form_data.name}');
+		$this->assertStringContainsString((string)$this->form_id, $result['message'], 'Should replace {form_id}');
+		$this->assertStringContainsString('Test User', $result['message'], 'Should replace {form_data.name}');
 	}
 
 	/**
@@ -204,7 +204,7 @@ class Test_Action_Log_Message extends SUPER_Action_Test_Case {
 	public function test_required_capabilities() {
 		$caps = $this->action->get_required_capabilities();
 
-		$this->assertInternalType('array', $caps);
+		$this->assertIsArray($caps);
 		$this->assertContains('edit_posts', $caps);
 	}
 

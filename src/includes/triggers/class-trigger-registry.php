@@ -35,11 +35,22 @@ class SUPER_Trigger_Registry {
     private $actions = [];
 
     /**
+     * Whether initialize() has been called
+     *
+     * @var bool
+     */
+    private $initialized = false;
+
+    /**
      * Private constructor for singleton
      */
     private function __construct() {
-        // Initialize on instantiation
-        add_action('init', [$this, 'initialize'], 5);
+        // Initialize on instantiation or immediately if init already fired
+        if ( did_action( 'init' ) ) {
+            $this->initialize();
+        } else {
+            add_action( 'init', [ $this, 'initialize' ], 5 );
+        }
     }
 
     /**
@@ -58,6 +69,12 @@ class SUPER_Trigger_Registry {
      * Initialize the registry
      */
     public function initialize() {
+        // Prevent double initialization
+        if ( $this->initialized ) {
+            return;
+        }
+        $this->initialized = true;
+
         // Load built-in events and actions
         $this->load_builtin_events();
         $this->load_builtin_actions();
@@ -233,6 +250,21 @@ class SUPER_Trigger_Registry {
     }
 
     /**
+     * Reset the registry for testing purposes
+     *
+     * @param bool $load_builtins Whether to load built-in events/actions after reset
+     */
+    public function reset( $load_builtins = false ) {
+        $this->events = [];
+        $this->actions = [];
+        $this->initialized = false;
+
+        if ( $load_builtins ) {
+            $this->initialize();
+        }
+    }
+
+    /**
      * Load built-in events
      */
     public function load_builtin_events() {
@@ -271,6 +303,24 @@ class SUPER_Trigger_Registry {
             'description' => __('Form submission successful, session marked complete', 'super-forms'),
             'category' => 'session_lifecycle',
             'available_context' => ['session_key', 'form_id', 'entry_id'],
+            'compatible_actions' => ['log_message', 'webhook'],
+            'phase' => 1
+        ]);
+
+        $this->register_event('session.abandoned', [
+            'label' => __('Session Abandoned', 'super-forms'),
+            'description' => __('Session marked abandoned after 30 minutes of inactivity', 'super-forms'),
+            'category' => 'session_lifecycle',
+            'available_context' => ['session_key', 'form_id', 'user_id', 'form_data', 'abandoned_after_minutes'],
+            'compatible_actions' => ['log_message', 'send_email', 'webhook'],
+            'phase' => 1
+        ]);
+
+        $this->register_event('session.expired', [
+            'label' => __('Session Expired', 'super-forms'),
+            'description' => __('Session deleted after expiration (24+ hours)', 'super-forms'),
+            'category' => 'session_lifecycle',
+            'available_context' => ['session_key', 'form_id', 'user_id', 'form_data', 'previous_status'],
             'compatible_actions' => ['log_message', 'webhook'],
             'phase' => 1
         ]);
@@ -351,7 +401,241 @@ class SUPER_Trigger_Registry {
             'phase' => 1
         ]);
 
-        // Additional events will be added in later phases...
+        $this->register_event('entry.updated', [
+            'label' => __('Entry Updated', 'super-forms'),
+            'description' => __('Existing entry data modified', 'super-forms'),
+            'category' => 'entry_management',
+            'available_context' => ['entry_id', 'form_id', 'form_data', 'previous_data'],
+            'required_context' => ['entry_id'],
+            'compatible_actions' => ['send_email', 'webhook', 'log_message', 'update_entry_status'],
+            'phase' => 1
+        ]);
+
+        $this->register_event('entry.status_changed', [
+            'label' => __('Entry Status Changed', 'super-forms'),
+            'description' => __('Entry status was modified (e.g., pending to approved)', 'super-forms'),
+            'category' => 'entry_management',
+            'available_context' => ['entry_id', 'form_id', 'previous_status', 'new_status'],
+            'required_context' => ['entry_id'],
+            'compatible_actions' => ['send_email', 'webhook', 'log_message'],
+            'phase' => 1
+        ]);
+
+        $this->register_event('entry.deleted', [
+            'label' => __('Entry Deleted', 'super-forms'),
+            'description' => __('Contact entry permanently deleted', 'super-forms'),
+            'category' => 'entry_management',
+            'available_context' => ['entry_id', 'form_id', 'deleted_by'],
+            'required_context' => ['entry_id'],
+            'compatible_actions' => ['webhook', 'log_message', 'send_email'],
+            'phase' => 1
+        ]);
+
+        // File Events
+        $this->register_event('file.uploaded', [
+            'label' => __('File Uploaded', 'super-forms'),
+            'description' => __('File upload completed successfully', 'super-forms'),
+            'category' => 'file_management',
+            'available_context' => ['attachment_id', 'form_id', 'file_url', 'file_name', 'file_type', 'file_size'],
+            'compatible_actions' => ['webhook', 'log_message', 'send_email'],
+            'phase' => 1
+        ]);
+
+        $this->register_event('file.upload_failed', [
+            'label' => __('File Upload Failed', 'super-forms'),
+            'description' => __('File upload encountered an error', 'super-forms'),
+            'category' => 'file_management',
+            'available_context' => ['form_id', 'file_name', 'error_message', 'error_code'],
+            'compatible_actions' => ['log_message', 'send_email', 'webhook'],
+            'phase' => 1
+        ]);
+
+        $this->register_event('file.deleted', [
+            'label' => __('File Deleted', 'super-forms'),
+            'description' => __('Uploaded file was removed', 'super-forms'),
+            'category' => 'file_management',
+            'available_context' => ['attachment_id', 'form_id', 'file_url', 'deleted_by'],
+            'compatible_actions' => ['webhook', 'log_message'],
+            'phase' => 1
+        ]);
+
+        // Phase 6: Payment Events (Stripe)
+        $this->register_event('payment.stripe.checkout_completed', [
+            'label' => __('Stripe Checkout Completed', 'super-forms'),
+            'description' => __('Stripe Checkout session completed successfully', 'super-forms'),
+            'category' => 'payment',
+            'available_context' => ['session_id', 'payment_intent', 'amount', 'currency', 'customer_id', 'customer_email', 'entry_id', 'form_id', 'metadata'],
+            'required_context' => ['session_id'],
+            'compatible_actions' => ['send_email', 'webhook', 'update_entry_status', 'log_message', 'http_request'],
+            'addon' => 'stripe',
+            'phase' => 6
+        ]);
+
+        $this->register_event('payment.stripe.payment_succeeded', [
+            'label' => __('Stripe Payment Succeeded', 'super-forms'),
+            'description' => __('Payment intent succeeded', 'super-forms'),
+            'category' => 'payment',
+            'available_context' => ['payment_intent_id', 'amount', 'currency', 'customer_id', 'entry_id', 'form_id', 'metadata'],
+            'required_context' => ['payment_intent_id'],
+            'compatible_actions' => ['send_email', 'webhook', 'update_entry_status', 'log_message', 'http_request'],
+            'addon' => 'stripe',
+            'phase' => 6
+        ]);
+
+        $this->register_event('payment.stripe.payment_failed', [
+            'label' => __('Stripe Payment Failed', 'super-forms'),
+            'description' => __('Payment intent failed', 'super-forms'),
+            'category' => 'payment',
+            'available_context' => ['payment_intent_id', 'error_code', 'error_message', 'amount', 'entry_id', 'form_id'],
+            'required_context' => ['payment_intent_id'],
+            'compatible_actions' => ['send_email', 'webhook', 'update_entry_status', 'log_message'],
+            'addon' => 'stripe',
+            'phase' => 6
+        ]);
+
+        $this->register_event('subscription.stripe.created', [
+            'label' => __('Stripe Subscription Created', 'super-forms'),
+            'description' => __('New subscription created', 'super-forms'),
+            'category' => 'subscription',
+            'available_context' => ['subscription_id', 'customer_id', 'plan_id', 'status', 'current_period_start', 'current_period_end', 'entry_id', 'form_id'],
+            'required_context' => ['subscription_id'],
+            'compatible_actions' => ['send_email', 'webhook', 'update_entry_status', 'log_message', 'http_request'],
+            'addon' => 'stripe',
+            'phase' => 6
+        ]);
+
+        $this->register_event('subscription.stripe.updated', [
+            'label' => __('Stripe Subscription Updated', 'super-forms'),
+            'description' => __('Subscription plan or status changed', 'super-forms'),
+            'category' => 'subscription',
+            'available_context' => ['subscription_id', 'customer_id', 'previous_plan', 'new_plan', 'status', 'entry_id', 'form_id'],
+            'required_context' => ['subscription_id'],
+            'compatible_actions' => ['send_email', 'webhook', 'update_entry_status', 'log_message'],
+            'addon' => 'stripe',
+            'phase' => 6
+        ]);
+
+        $this->register_event('subscription.stripe.cancelled', [
+            'label' => __('Stripe Subscription Cancelled', 'super-forms'),
+            'description' => __('Subscription was cancelled', 'super-forms'),
+            'category' => 'subscription',
+            'available_context' => ['subscription_id', 'customer_id', 'cancel_reason', 'cancelled_at', 'entry_id', 'form_id'],
+            'required_context' => ['subscription_id'],
+            'compatible_actions' => ['send_email', 'webhook', 'update_entry_status', 'log_message'],
+            'addon' => 'stripe',
+            'phase' => 6
+        ]);
+
+        $this->register_event('subscription.stripe.invoice_paid', [
+            'label' => __('Stripe Invoice Paid', 'super-forms'),
+            'description' => __('Subscription invoice payment succeeded', 'super-forms'),
+            'category' => 'subscription',
+            'available_context' => ['invoice_id', 'subscription_id', 'amount', 'currency', 'period_start', 'period_end', 'entry_id', 'form_id'],
+            'required_context' => ['invoice_id'],
+            'compatible_actions' => ['send_email', 'webhook', 'log_message', 'http_request'],
+            'addon' => 'stripe',
+            'phase' => 6
+        ]);
+
+        $this->register_event('subscription.stripe.invoice_failed', [
+            'label' => __('Stripe Invoice Payment Failed', 'super-forms'),
+            'description' => __('Subscription invoice payment failed', 'super-forms'),
+            'category' => 'subscription',
+            'available_context' => ['invoice_id', 'subscription_id', 'amount', 'attempt_count', 'next_retry', 'entry_id', 'form_id'],
+            'required_context' => ['invoice_id'],
+            'compatible_actions' => ['send_email', 'webhook', 'update_entry_status', 'log_message'],
+            'addon' => 'stripe',
+            'phase' => 6
+        ]);
+
+        // Phase 6: Payment Events (PayPal)
+        $this->register_event('payment.paypal.capture_completed', [
+            'label' => __('PayPal Payment Captured', 'super-forms'),
+            'description' => __('PayPal payment capture completed', 'super-forms'),
+            'category' => 'payment',
+            'available_context' => ['capture_id', 'amount', 'currency', 'payer_email', 'entry_id', 'form_id', 'custom_id'],
+            'required_context' => ['capture_id'],
+            'compatible_actions' => ['send_email', 'webhook', 'update_entry_status', 'log_message', 'http_request'],
+            'addon' => 'paypal',
+            'phase' => 6
+        ]);
+
+        $this->register_event('payment.paypal.capture_denied', [
+            'label' => __('PayPal Payment Denied', 'super-forms'),
+            'description' => __('PayPal payment capture was denied', 'super-forms'),
+            'category' => 'payment',
+            'available_context' => ['capture_id', 'reason', 'amount', 'entry_id', 'form_id'],
+            'required_context' => ['capture_id'],
+            'compatible_actions' => ['send_email', 'webhook', 'update_entry_status', 'log_message'],
+            'addon' => 'paypal',
+            'phase' => 6
+        ]);
+
+        $this->register_event('payment.paypal.capture_refunded', [
+            'label' => __('PayPal Payment Refunded', 'super-forms'),
+            'description' => __('PayPal payment was refunded', 'super-forms'),
+            'category' => 'payment',
+            'available_context' => ['capture_id', 'refund_id', 'amount', 'currency', 'entry_id', 'form_id'],
+            'required_context' => ['capture_id'],
+            'compatible_actions' => ['send_email', 'webhook', 'update_entry_status', 'log_message'],
+            'addon' => 'paypal',
+            'phase' => 6
+        ]);
+
+        $this->register_event('subscription.paypal.created', [
+            'label' => __('PayPal Subscription Created', 'super-forms'),
+            'description' => __('PayPal billing subscription created', 'super-forms'),
+            'category' => 'subscription',
+            'available_context' => ['subscription_id', 'plan_id', 'status', 'subscriber_email', 'entry_id', 'form_id'],
+            'required_context' => ['subscription_id'],
+            'compatible_actions' => ['send_email', 'webhook', 'update_entry_status', 'log_message', 'http_request'],
+            'addon' => 'paypal',
+            'phase' => 6
+        ]);
+
+        $this->register_event('subscription.paypal.activated', [
+            'label' => __('PayPal Subscription Activated', 'super-forms'),
+            'description' => __('PayPal subscription became active', 'super-forms'),
+            'category' => 'subscription',
+            'available_context' => ['subscription_id', 'plan_id', 'billing_start', 'entry_id', 'form_id'],
+            'required_context' => ['subscription_id'],
+            'compatible_actions' => ['send_email', 'webhook', 'update_entry_status', 'log_message'],
+            'addon' => 'paypal',
+            'phase' => 6
+        ]);
+
+        $this->register_event('subscription.paypal.cancelled', [
+            'label' => __('PayPal Subscription Cancelled', 'super-forms'),
+            'description' => __('PayPal subscription was cancelled', 'super-forms'),
+            'category' => 'subscription',
+            'available_context' => ['subscription_id', 'reason', 'cancelled_at', 'entry_id', 'form_id'],
+            'required_context' => ['subscription_id'],
+            'compatible_actions' => ['send_email', 'webhook', 'update_entry_status', 'log_message'],
+            'addon' => 'paypal',
+            'phase' => 6
+        ]);
+
+        $this->register_event('subscription.paypal.suspended', [
+            'label' => __('PayPal Subscription Suspended', 'super-forms'),
+            'description' => __('PayPal subscription was suspended', 'super-forms'),
+            'category' => 'subscription',
+            'available_context' => ['subscription_id', 'reason', 'entry_id', 'form_id'],
+            'required_context' => ['subscription_id'],
+            'compatible_actions' => ['send_email', 'webhook', 'update_entry_status', 'log_message'],
+            'addon' => 'paypal',
+            'phase' => 6
+        ]);
+
+        $this->register_event('subscription.paypal.payment_failed', [
+            'label' => __('PayPal Subscription Payment Failed', 'super-forms'),
+            'description' => __('PayPal subscription payment failed', 'super-forms'),
+            'category' => 'subscription',
+            'available_context' => ['subscription_id', 'retry_date', 'failed_payments_count', 'entry_id', 'form_id'],
+            'required_context' => ['subscription_id'],
+            'compatible_actions' => ['send_email', 'webhook', 'update_entry_status', 'log_message'],
+            'addon' => 'paypal',
+            'phase' => 6
+        ]);
     }
 
     /**
@@ -380,6 +664,9 @@ class SUPER_Trigger_Registry {
         $this->register_action('conditional_action', 'SUPER_Action_Conditional');
         $this->register_action('stop_execution', 'SUPER_Action_Stop_Execution');
         $this->register_action('delay_execution', 'SUPER_Action_Delay_Execution');
+
+        // Phase 5: Advanced Integration Actions
+        $this->register_action('http_request', 'SUPER_Action_HTTP_Request');
         // Note: execute_php deferred for security review
     }
 

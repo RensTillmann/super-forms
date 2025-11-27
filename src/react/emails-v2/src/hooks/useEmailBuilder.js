@@ -176,6 +176,14 @@ const useEmailBuilderStore = create((set, get) => ({
         format: 'text',
       }
     },
+    html: {
+      id: 'html',
+      name: 'HTML',
+      icon: '</>',
+      defaultProps: {
+        content: '<p>Your HTML content here...</p>',
+      }
+    },
   },
   
   // Actions
@@ -810,8 +818,12 @@ function generateEmailHtml(elements) {
           </a>
         </div>`;
         
+      case 'html':
+        // Raw HTML element - output content directly
+        return element.props.content || '';
+
       // Add more element types...
-      
+
       default:
         return '';
     }

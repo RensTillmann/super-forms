@@ -141,9 +141,10 @@ class SUPER_Action_Update_Entry_Field extends SUPER_Trigger_Action_Base {
             );
         }
 
-        // Verify entry exists
-        $entry = get_post($entry_id);
-        if (!$entry || $entry->post_type !== 'super_contact_entry') {
+        // Verify entry exists via Entry DAL
+        // @since 6.5.0 - Use Entry DAL for dual storage mode support
+        $entry = SUPER_Entry_DAL::get($entry_id);
+        if (is_wp_error($entry)) {
             return new WP_Error(
                 'invalid_entry',
                 sprintf(__('Entry #%d not found or is not a contact entry', 'super-forms'), $entry_id)

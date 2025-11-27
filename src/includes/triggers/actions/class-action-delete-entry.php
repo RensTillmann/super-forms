@@ -137,9 +137,10 @@ class SUPER_Action_Delete_Entry extends SUPER_Trigger_Action_Base {
             );
         }
 
-        // Verify entry exists
-        $entry = get_post($entry_id);
-        if (!$entry || $entry->post_type !== 'super_contact_entry') {
+        // Verify entry exists via Entry DAL
+        // @since 6.5.0 - Use Entry DAL for dual storage mode support
+        $entry = SUPER_Entry_DAL::get($entry_id);
+        if (is_wp_error($entry)) {
             return new WP_Error(
                 'invalid_entry',
                 sprintf(__('Entry #%d not found or is not a contact entry', 'super-forms'), $entry_id)
@@ -147,7 +148,7 @@ class SUPER_Action_Delete_Entry extends SUPER_Trigger_Action_Base {
         }
 
         // Get entry title for logging
-        $entry_title = $entry->post_title;
+        $entry_title = $entry->title;
         $delete_type = $config['delete_type'] ?? 'trash';
 
         // Delete attachments if requested
@@ -160,14 +161,12 @@ class SUPER_Action_Delete_Entry extends SUPER_Trigger_Action_Base {
             SUPER_Data_Access::delete_entry_data($entry_id);
         }
 
-        // Delete or trash the entry post
-        if ($delete_type === 'permanent') {
-            $result = wp_delete_post($entry_id, true);
-        } else {
-            $result = wp_trash_post($entry_id);
-        }
+        // Delete or trash the entry via Entry DAL
+        // @since 6.5.0 - Use Entry DAL for dual storage mode support
+        $force_delete = ($delete_type === 'permanent');
+        $result = SUPER_Entry_DAL::delete($entry_id, $force_delete);
 
-        if (!$result) {
+        if (is_wp_error($result)) {
             return new WP_Error(
                 'delete_failed',
                 sprintf(__('Failed to delete entry #%d', 'super-forms'), $entry_id)

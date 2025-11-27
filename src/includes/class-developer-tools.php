@@ -1598,6 +1598,605 @@ if (!class_exists('SUPER_Developer_Tools')) :
 			'message' => sprintf('Deleted metadata for %d orphaned posts', $deleted_count)
 		);
 	}
+
+	/**
+	 * AJAX handler: Fire test event
+	 */
+	public static function ajax_fire_test_event() {
+		check_ajax_referer('super-form-builder', 'nonce');
+
+		if (!current_user_can('manage_options')) {
+			wp_send_json_error(array('message' => 'Unauthorized'));
+		}
+
+		$event_id = isset($_POST['event_id']) ? sanitize_text_field($_POST['event_id']) : '';
+		$form_id = isset($_POST['form_id']) ? absint($_POST['form_id']) : 1;
+		$entry_id = isset($_POST['entry_id']) ? absint($_POST['entry_id']) : 999;
+
+		$result = self::fire_test_event($event_id, $form_id, $entry_id);
+
+		if (is_wp_error($result)) {
+			wp_send_json_error(array('message' => $result->get_error_message()));
+		}
+
+		wp_send_json_success($result);
+	}
+
+	/**
+	 * AJAX handler: Get trigger logs
+	 */
+	public static function ajax_get_trigger_logs() {
+		check_ajax_referer('super-form-builder', 'nonce');
+
+		if (!current_user_can('manage_options')) {
+			wp_send_json_error(array('message' => 'Unauthorized'));
+		}
+
+		$limit = isset($_POST['limit']) ? absint($_POST['limit']) : 50;
+
+		$result = self::get_trigger_logs($limit);
+		wp_send_json_success($result);
+	}
+
+	/**
+	 * AJAX handler: Clear trigger logs
+	 */
+	public static function ajax_clear_trigger_logs() {
+		check_ajax_referer('super-form-builder', 'nonce');
+
+		if (!current_user_can('manage_options')) {
+			wp_send_json_error(array('message' => 'Unauthorized'));
+		}
+
+		$result = self::clear_trigger_logs();
+
+		if (isset($result['success']) && !$result['success']) {
+			wp_send_json_error($result);
+		}
+
+		wp_send_json_success($result);
+	}
+
+	/**
+	 * AJAX handler: Test trigger
+	 */
+	public static function ajax_test_trigger() {
+		check_ajax_referer('super-form-builder', 'nonce');
+
+		if (!current_user_can('manage_options')) {
+			wp_send_json_error(array('message' => 'Unauthorized'));
+		}
+
+		$trigger_id = isset($_POST['trigger_id']) ? absint($_POST['trigger_id']) : 0;
+		$entry_data_json = isset($_POST['entry_data']) ? wp_unslash($_POST['entry_data']) : '{}';
+		$entry_data = json_decode($entry_data_json, true);
+
+		if (json_last_error() !== JSON_ERROR_NONE) {
+			wp_send_json_error(array('message' => 'Invalid JSON in entry data'));
+		}
+
+		$result = self::test_trigger($trigger_id, $entry_data);
+
+		if (is_wp_error($result)) {
+			wp_send_json_error(array('message' => $result->get_error_message()));
+		}
+
+		wp_send_json_success($result);
+	}
+
+	/**
+	 * Fire test event for trigger testing
+	 *
+	 * @param string $event_id Event identifier
+	 * @param int $form_id Form ID
+	 * @param int $entry_id Entry ID
+	 * @return array Event firing results
+	 */
+	public static function fire_test_event($event_id, $form_id, $entry_id) {
+		if (!class_exists('SUPER_Trigger_Executor')) {
+			return new WP_Error('executor_not_loaded', 'Trigger Executor class not loaded');
+		}
+
+		// Build mock context data
+		$context = array(
+			'form_id' => absint($form_id),
+			'entry_id' => absint($entry_id),
+			'timestamp' => current_time('mysql'),
+			'user_id' => get_current_user_id(),
+			'user_ip' => isset($_SERVER['REMOTE_ADDR']) ? sanitize_text_field($_SERVER['REMOTE_ADDR']) : '127.0.0.1',
+			'data' => array(
+				'test_field' => array(
+					'value' => 'Test value from Developer Tools',
+					'label' => 'Test Field'
+				)
+			)
+		);
+
+		// Add event-specific context
+		switch ($event_id) {
+			case 'entry.status_changed':
+				$context['previous_status'] = 'super_unread';
+				$context['new_status'] = 'approved';
+				break;
+
+			case 'form.spam_detected':
+				$context['detection_method'] = 'honeypot';
+				$context['honeypot_value'] = 'spam content';
+				break;
+
+			case 'form.validation_failed':
+				$context['error_type'] = 'test_error';
+				$context['error_message'] = 'Test validation failure';
+				break;
+
+			case 'form.duplicate_detected':
+				$context['duplicate_field'] = 'entry_title';
+				$context['duplicate_value'] = 'Test Duplicate';
+				$context['comparison_scope'] = 'form';
+				break;
+
+			case 'file.uploaded':
+				$context['attachment_id'] = 999;
+				$context['field_name'] = 'test_upload';
+				$context['file_name'] = 'test-file.pdf';
+				$context['file_type'] = 'application/pdf';
+				$context['file_size'] = 1024000;
+				break;
+		}
+
+		// Fire the event
+		$start_time = microtime(true);
+		$results = SUPER_Trigger_Executor::fire_event($event_id, $context);
+		$execution_time = (microtime(true) - $start_time) * 1000; // Convert to ms
+
+		return array(
+			'success' => true,
+			'event_id' => $event_id,
+			'context' => $context,
+			'triggers_executed' => count($results),
+			'execution_time_ms' => round($execution_time, 3),
+			'results' => $results
+		);
+	}
+
+	/**
+	 * Get trigger execution logs
+	 *
+	 * @param int $limit Number of logs to retrieve
+	 * @return array Log entries
+	 */
+	public static function get_trigger_logs($limit = 50) {
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'superforms_trigger_logs';
+
+		// Check if table exists
+		$table_exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table_name));
+		if ($table_exists !== $table_name) {
+			return array(
+				'logs' => array(),
+				'message' => 'Trigger logs table does not exist yet'
+			);
+		}
+
+		$logs = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT * FROM {$table_name}
+				ORDER BY executed_at DESC
+				LIMIT %d",
+				absint($limit)
+			)
+		);
+
+		return array(
+			'logs' => $logs,
+			'count' => count($logs)
+		);
+	}
+
+	/**
+	 * Clear all trigger logs
+	 *
+	 * @return array Deletion results
+	 */
+	public static function clear_trigger_logs() {
+		global $wpdb;
+		$table_name = $wpdb->prefix . 'superforms_trigger_logs';
+
+		// Check if table exists
+		$table_exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table_name));
+		if ($table_exists !== $table_name) {
+			return array(
+				'success' => false,
+				'message' => 'Trigger logs table does not exist'
+			);
+		}
+
+		$deleted = $wpdb->query("TRUNCATE TABLE {$table_name}");
+
+		return array(
+			'success' => $deleted !== false,
+			'message' => 'All trigger logs cleared'
+		);
+	}
+
+	/**
+	 * Test specific trigger with mock data
+	 *
+	 * @param int $trigger_id Trigger ID to test
+	 * @param array $entry_data Mock entry data
+	 * @return array Test results
+	 */
+	public static function test_trigger($trigger_id, $entry_data) {
+		if (!class_exists('SUPER_Trigger_Manager')) {
+			return new WP_Error('manager_not_loaded', 'Trigger Manager class not loaded');
+		}
+
+		if (!class_exists('SUPER_Trigger_DAL')) {
+			return new WP_Error('dal_not_loaded', 'Trigger DAL class not loaded');
+		}
+
+		// Get trigger details
+		$trigger = SUPER_Trigger_DAL::get_trigger($trigger_id);
+		if (is_wp_error($trigger)) {
+			return $trigger;
+		}
+
+		if (!$trigger) {
+			return new WP_Error('trigger_not_found', sprintf('Trigger #%d not found', $trigger_id));
+		}
+
+		// Get trigger actions
+		$actions = SUPER_Trigger_DAL::get_trigger_actions($trigger_id);
+
+		// Build test context
+		$context = array(
+			'form_id' => absint($trigger['scope_id']),
+			'entry_id' => 999,
+			'timestamp' => current_time('mysql'),
+			'user_id' => get_current_user_id(),
+			'data' => $entry_data,
+			'is_test' => true
+		);
+
+		// Evaluate conditions
+		$conditions_met = true;
+		if (!empty($trigger['conditions'])) {
+			$conditions = json_decode($trigger['conditions'], true);
+			if (class_exists('SUPER_Trigger_Conditions')) {
+				$conditions_met = SUPER_Trigger_Conditions::evaluate($conditions, $context);
+			}
+		}
+
+		$results = array(
+			'trigger' => $trigger,
+			'actions' => $actions,
+			'conditions_met' => $conditions_met,
+			'actions_executed' => 0,
+			'execution_results' => array()
+		);
+
+		// If conditions met, execute actions
+		if ($conditions_met && class_exists('SUPER_Trigger_Executor')) {
+			foreach ($actions as $action) {
+				if (!$action['enabled']) {
+					continue;
+				}
+
+				$action_config = json_decode($action['action_config'], true);
+				$start_time = microtime(true);
+
+				$action_result = SUPER_Trigger_Executor::execute_single_action(
+					$action['action_type'],
+					$action_config,
+					$context
+				);
+
+				$execution_time = (microtime(true) - $start_time) * 1000;
+
+				$results['execution_results'][] = array(
+					'action_id' => $action['id'],
+					'action_type' => $action['action_type'],
+					'execution_time_ms' => round($execution_time, 3),
+					'result' => $action_result,
+					'success' => !is_wp_error($action_result)
+				);
+
+				$results['actions_executed']++;
+			}
+		}
+
+		return $results;
+	}
+
+	/**
+	 * AJAX handler: Test HTTP request
+	 */
+	public static function ajax_test_http_request() {
+		check_ajax_referer('super-form-builder', 'nonce');
+
+		if (!current_user_can('manage_options')) {
+			wp_send_json_error(array('message' => 'Unauthorized'));
+		}
+
+		$config_json = isset($_POST['config']) ? wp_unslash($_POST['config']) : '{}';
+		$config = json_decode($config_json, true);
+
+		if (json_last_error() !== JSON_ERROR_NONE) {
+			wp_send_json_error(array('message' => 'Invalid JSON in config'));
+		}
+
+		// Mock context for tag replacement
+		$context_json = isset($_POST['context']) ? wp_unslash($_POST['context']) : '{}';
+		$context = json_decode($context_json, true);
+		if (empty($context)) {
+			$context = array(
+				'form_id' => 1,
+				'entry_id' => 999,
+				'user_id' => get_current_user_id(),
+				'data' => array()
+			);
+		}
+
+		$result = self::test_http_request($config, $context);
+
+		if (is_wp_error($result)) {
+			wp_send_json_error(array(
+				'message' => $result->get_error_message(),
+				'data' => $result->get_error_data()
+			));
+		}
+
+		wp_send_json_success($result);
+	}
+
+	/**
+	 * Test HTTP request configuration
+	 *
+	 * @param array $config HTTP request configuration
+	 * @param array $context Context for tag replacement
+	 * @return array|WP_Error Test results
+	 */
+	public static function test_http_request($config, $context = array()) {
+		if (!class_exists('SUPER_Action_HTTP_Request')) {
+			// Try to load the class
+			$file = SUPER_PLUGIN_DIR . '/includes/triggers/actions/class-action-http-request.php';
+			if (file_exists($file)) {
+				require_once $file;
+			} else {
+				return new WP_Error('class_not_found', 'HTTP Request action class not found');
+			}
+		}
+
+		$action = new SUPER_Action_HTTP_Request();
+
+		// Validate configuration
+		$validation = $action->validate_config($config);
+		if (is_wp_error($validation)) {
+			return $validation;
+		}
+
+		// Execute the request
+		$start_time = microtime(true);
+		$result = $action->execute($context, $config);
+		$execution_time = (microtime(true) - $start_time) * 1000;
+
+		if (is_wp_error($result)) {
+			return new WP_Error(
+				$result->get_error_code(),
+				$result->get_error_message(),
+				array(
+					'execution_time_ms' => round($execution_time, 3),
+					'error_data' => $result->get_error_data()
+				)
+			);
+		}
+
+		return array_merge($result, array(
+			'execution_time_ms' => round($execution_time, 3)
+		));
+	}
+
+	/**
+	 * AJAX handler: Get HTTP request templates
+	 */
+	public static function ajax_get_http_templates() {
+		check_ajax_referer('super-form-builder', 'nonce');
+
+		if (!current_user_can('manage_options')) {
+			wp_send_json_error(array('message' => 'Unauthorized'));
+		}
+
+		if (!class_exists('SUPER_HTTP_Request_Templates')) {
+			$file = SUPER_PLUGIN_DIR . '/includes/triggers/class-http-request-templates.php';
+			if (file_exists($file)) {
+				require_once $file;
+			} else {
+				wp_send_json_error(array('message' => 'Templates class not found'));
+			}
+		}
+
+		$templates = SUPER_HTTP_Request_Templates::instance();
+
+		wp_send_json_success(array(
+			'templates' => $templates->get_all(),
+			'categories' => $templates->get_categories(),
+			'grouped' => $templates->get_for_dropdown()
+		));
+	}
+
+	/**
+	 * AJAX handler: Get HTTP request template config
+	 */
+	public static function ajax_get_http_template_config() {
+		check_ajax_referer('super-form-builder', 'nonce');
+
+		if (!current_user_can('manage_options')) {
+			wp_send_json_error(array('message' => 'Unauthorized'));
+		}
+
+		$template_id = isset($_POST['template_id']) ? sanitize_text_field($_POST['template_id']) : '';
+
+		if (empty($template_id)) {
+			wp_send_json_error(array('message' => 'Template ID required'));
+		}
+
+		if (!class_exists('SUPER_HTTP_Request_Templates')) {
+			$file = SUPER_PLUGIN_DIR . '/includes/triggers/class-http-request-templates.php';
+			if (file_exists($file)) {
+				require_once $file;
+			} else {
+				wp_send_json_error(array('message' => 'Templates class not found'));
+			}
+		}
+
+		$templates = SUPER_HTTP_Request_Templates::instance();
+		$template = $templates->get($template_id);
+
+		if (!$template) {
+			wp_send_json_error(array('message' => 'Template not found'));
+		}
+
+		wp_send_json_success($template);
+	}
+
+	/**
+	 * AJAX: Create sandbox environment
+	 * @since 6.5.0
+	 */
+	public static function ajax_sandbox_create() {
+		check_ajax_referer('super-form-builder', 'security');
+		if (!current_user_can('manage_options')) {
+			wp_send_json_error(array('message' => 'Permission denied'));
+		}
+
+		if (!class_exists('SUPER_Sandbox_Manager')) {
+			require_once SUPER_PLUGIN_DIR . '/includes/class-sandbox-manager.php';
+		}
+
+		$result = SUPER_Sandbox_Manager::create_sandbox();
+		if (is_wp_error($result)) {
+			wp_send_json_error(array('message' => $result->get_error_message()));
+		}
+
+		// Get full status after creation
+		$status = SUPER_Sandbox_Manager::get_sandbox_status();
+		wp_send_json_success($status);
+	}
+
+	/**
+	 * AJAX: Get sandbox status
+	 * @since 6.5.0
+	 */
+	public static function ajax_sandbox_status() {
+		check_ajax_referer('super-form-builder', 'security');
+		if (!current_user_can('manage_options')) {
+			wp_send_json_error(array('message' => 'Permission denied'));
+		}
+
+		if (!class_exists('SUPER_Sandbox_Manager')) {
+			require_once SUPER_PLUGIN_DIR . '/includes/class-sandbox-manager.php';
+		}
+
+		$status = SUPER_Sandbox_Manager::get_sandbox_status();
+		wp_send_json_success($status);
+	}
+
+	/**
+	 * AJAX: Submit test entry to sandbox
+	 * @since 6.5.0
+	 */
+	public static function ajax_sandbox_submit() {
+		check_ajax_referer('super-form-builder', 'security');
+		if (!current_user_can('manage_options')) {
+			wp_send_json_error(array('message' => 'Permission denied'));
+		}
+
+		if (!class_exists('SUPER_Sandbox_Manager')) {
+			require_once SUPER_PLUGIN_DIR . '/includes/class-sandbox-manager.php';
+		}
+
+		// Optional custom data from request
+		$custom_data = array();
+		if (!empty($_POST['name'])) {
+			$custom_data['name'] = array(
+				'name' => 'name',
+				'value' => sanitize_text_field($_POST['name']),
+				'label' => 'Name',
+				'type' => 'text',
+			);
+		}
+		if (!empty($_POST['email'])) {
+			$custom_data['email'] = array(
+				'name' => 'email',
+				'value' => sanitize_email($_POST['email']),
+				'label' => 'Email',
+				'type' => 'email',
+			);
+		}
+		if (!empty($_POST['message'])) {
+			$custom_data['message'] = array(
+				'name' => 'message',
+				'value' => sanitize_textarea_field($_POST['message']),
+				'label' => 'Message',
+				'type' => 'textarea',
+			);
+		}
+
+		$result = SUPER_Sandbox_Manager::submit_test_entry($custom_data);
+		if (is_wp_error($result)) {
+			wp_send_json_error(array('message' => $result->get_error_message()));
+		}
+
+		// Include updated status
+		$result['status'] = SUPER_Sandbox_Manager::get_sandbox_status();
+		wp_send_json_success($result);
+	}
+
+	/**
+	 * AJAX: Cleanup sandbox
+	 * @since 6.5.0
+	 */
+	public static function ajax_sandbox_cleanup() {
+		check_ajax_referer('super-form-builder', 'security');
+		if (!current_user_can('manage_options')) {
+			wp_send_json_error(array('message' => 'Permission denied'));
+		}
+
+		if (!class_exists('SUPER_Sandbox_Manager')) {
+			require_once SUPER_PLUGIN_DIR . '/includes/class-sandbox-manager.php';
+		}
+
+		$stats = SUPER_Sandbox_Manager::cleanup_sandbox();
+		wp_send_json_success(array(
+			'stats' => $stats,
+			'message' => sprintf(
+				'Cleaned up: %d form, %d triggers, %d entries, %d logs',
+				$stats['forms_deleted'],
+				$stats['triggers_deleted'],
+				$stats['entries_deleted'],
+				$stats['logs_deleted']
+			),
+		));
+	}
+
+	/**
+	 * AJAX: Get sandbox trigger logs
+	 * @since 6.5.0
+	 */
+	public static function ajax_sandbox_logs() {
+		check_ajax_referer('super-form-builder', 'security');
+		if (!current_user_can('manage_options')) {
+			wp_send_json_error(array('message' => 'Permission denied'));
+		}
+
+		if (!class_exists('SUPER_Sandbox_Manager')) {
+			require_once SUPER_PLUGIN_DIR . '/includes/class-sandbox-manager.php';
+		}
+
+		$limit = !empty($_POST['limit']) ? absint($_POST['limit']) : 50;
+		$logs = SUPER_Sandbox_Manager::get_sandbox_logs($limit);
+		wp_send_json_success(array('logs' => $logs));
+	}
 	}
 
 endif;

@@ -2,16 +2,17 @@ import React from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import useEmailBuilder from '../../hooks/useEmailBuilder';
 import clsx from 'clsx';
-import { 
-  Type, 
-  Image, 
-  Square, 
-  Minus, 
-  MoveVertical, 
-  Share2, 
+import {
+  Type,
+  Image,
+  Square,
+  Minus,
+  MoveVertical,
+  Share2,
   Database,
   Columns,
-  Box
+  Box,
+  Code
 } from 'lucide-react';
 
 // Map element types to Lucide icons
@@ -25,6 +26,7 @@ const ELEMENT_ICONS = {
   spacer: MoveVertical,
   social: Share2,
   formData: Database,
+  html: Code,
 };
 
 function DraggableElement({ element }) {
@@ -68,7 +70,7 @@ function ElementPaletteHorizontal() {
     },
     {
       name: 'Content',
-      elements: ['text', 'image', 'button', 'divider'],
+      elements: ['text', 'image', 'button', 'divider', 'html'],
     },
     {
       name: 'Dynamic',

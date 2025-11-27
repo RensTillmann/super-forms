@@ -11,6 +11,7 @@ import DividerElement from './DividerElement';
 import ColumnsElement from './ColumnsElement';
 import SocialElement from './SocialElement';
 import FormDataElement from './FormDataElement';
+import HtmlElement from './HtmlElement';
 
 const elementComponents = {
   emailWrapper: EmailWrapperElement,
@@ -24,6 +25,7 @@ const elementComponents = {
   columns: ColumnsElement,
   social: SocialElement,
   formData: FormDataElement,
+  html: HtmlElement,
 };
 
 function ElementRenderer({ 

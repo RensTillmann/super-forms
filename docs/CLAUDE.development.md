@@ -329,6 +329,299 @@ echo "Migration reset complete. Visit admin to trigger."
 - `src/assets/css/frontend/*.css` - CSS styles related to front-end UI
 - `src/assets/css/frontend/elements.sass` - Main frontend styles (compiled to CSS)
 
+### Trigger System Files (since 6.5.0)
+
+**Core Classes (Phase 1):**
+- `src/includes/class-trigger-dal.php` - Database abstraction layer with scope-aware queries
+- `src/includes/class-trigger-manager.php` - Business logic, validation, permissions
+- `src/includes/class-trigger-executor.php` - Event firing and action execution
+- `src/includes/class-trigger-conditions.php` - Complex condition evaluation (AND/OR/NOT)
+- `src/includes/class-trigger-rest-controller.php` - REST API endpoints (`/wp-json/super-forms/v1/`)
+- `src/includes/triggers/class-trigger-registry.php` - Central event/action registration (singleton)
+- `src/includes/triggers/class-trigger-action-base.php` - Abstract base class for custom actions
+
+**Scheduler (Phase 2):**
+- `src/includes/class-trigger-scheduler.php` - Action Scheduler integration for async execution
+
+**Logging Infrastructure (Phase 3):**
+- `src/includes/class-trigger-logger.php` - Centralized logging with levels (ERROR/WARNING/INFO/DEBUG)
+- `src/includes/class-trigger-debugger.php` - Real-time debug data collection, visual debug panel
+- `src/includes/class-trigger-performance.php` - Timing, memory tracking, slow execution detection
+- `src/includes/class-trigger-compliance.php` - GDPR (export/delete), PII scrubbing, audit trails
+- `src/includes/admin/class-trigger-logs-page.php` - Admin log viewer with filtering and CSV export
+
+**Built-in Actions** (`src/includes/triggers/actions/`):
+- `class-action-log-message.php` - Debug logging action
+- `class-action-send-email.php` - Send email notifications
+- `class-action-webhook.php` - HTTP webhook calls
+- `class-action-create-post.php` - Create WordPress posts/pages
+- `class-action-update-entry-status.php` - Modify entry status
+- `class-action-update-entry-field.php` - Update entry field values
+- `class-action-delete-entry.php` - Delete contact entries
+- `class-action-abort-submission.php` - Stop form submission (flow control)
+- `class-action-update-post-meta.php` - Update WordPress post meta
+- `class-action-update-user-meta.php` - Update WordPress user meta
+- `class-action-run-hook.php` - Execute WordPress action hooks
+- `class-action-redirect-user.php` - Client/server redirects
+- `class-action-modify-user.php` - Update user data (email, role, etc.)
+- `class-action-increment-counter.php` - Numeric counter tracking
+- `class-action-set-variable.php` - State management (4 storage scopes)
+- `class-action-clear-cache.php` - Clear WordPress/plugin caches
+- `class-action-conditional.php` - Nested conditional logic
+- `class-action-stop-execution.php` - Halt subsequent actions
+- `class-action-delay-execution.php` - Schedule delayed actions via Action Scheduler
+- `class-action-http-request.php` - Postman-like HTTP client (wildcards, pipe modifiers, repeater serialization)
+
+**HTTP Request Templates** (`src/includes/triggers/`):
+- `class-http-request-templates.php` - Pre-built configurations for 15 integrations (Slack, Discord, Teams, Zapier, Make, etc.)
+
+**Payment Integration (Phase 9):**
+- `src/includes/class-payment-oauth.php` - Stripe Connect and PayPal OAuth flows, manual API key fallback, encrypted credential storage
+
+**Entry Migration (Phase 17):**
+- `src/includes/class-entry-dal.php` - Entry DAL (always writes to custom table, reads check migration state for backwards compat)
+- `src/includes/class-entry-backwards-compat.php` - WordPress hooks interception for backwards compatibility
+- `src/includes/class-session-dal.php` - Session storage for progressive forms (client token recovery for anonymous users)
+- `src/includes/admin/class-entries-list-table.php` - Custom admin list table (replacing WP post type screen)
+- `src/includes/class-entry-rest-controller.php` - REST API endpoints for entries
+
+**Email Migration (Phase 11):**
+- `src/includes/class-email-trigger-migration.php` - Bidirectional Email v2 ↔ Triggers sync, legacy email migration
+  - `sync_emails_to_triggers($form_id, $emails)` - Automatic sync on Email v2 save
+  - `get_emails_for_ui($form_id)` - Automatic sync on Email v2 load
+  - `convert_triggers_to_emails_format($form_id)` - Reverse conversion for UI display
+  - Integration with `SUPER_Common::get_form_emails_settings()` and `save_form_emails_settings()`
+
+**Test Files** (`tests/triggers/`):
+- `test-performance.php` - Performance benchmarks for trigger lookup and execution
+- `test-event-firing.php` - Event integration tests (23 test methods)
+- `test-trigger-registry.php` - Registry unit tests
+- `test-trigger-executor.php` - Executor unit tests
+- `test-trigger-scheduler.php` - Action Scheduler integration tests (Phase 2)
+- `test-logging-system.php` - Logger, Debugger, Performance, Compliance tests (Phase 3)
+- `test-spam-detector.php` - Spam detection action tests
+- `test-entry-dal.php` - Entry DAL CRUD, meta methods, backwards compat tests (Phase 17, 45 tests)
+- `test-session-dal.php` - Session DAL tests
+- `test-email-migration.php` - Email v2 ↔ Triggers sync tests (Phase 11)
+- `class-action-test-case.php` - Base test class for action tests
+- `actions/test-action-log-message.php` - Log message action tests
+- `actions/test-action-send-email.php` - Send email action tests
+- `actions/test-action-http-request.php` - HTTP request action tests (wildcards, modifiers)
+- `test-http-request-templates.php` - HTTP request template tests
+
+### Session DAL (Progressive Forms)
+
+**Overview:**
+The Session DAL (`SUPER_Session_DAL`) provides database operations for progressive form sessions, enabling auto-save, session recovery, and pre-submission spam detection.
+
+**Database Table:** `wp_superforms_sessions`
+- `client_token` - UUID v4 stored in localStorage for anonymous session identification (VARCHAR 36)
+- `user_id` - WordPress user ID for logged-in users (nullable)
+- `session_key` - Unique session identifier (VARCHAR 32)
+- Key indexes: `client_token_lookup (client_token, form_id, status)`, `user_lookup (user_id, form_id, status)`
+
+**Session Identification Strategy:**
+| User Type | Primary Identifier | Lookup Method |
+|-----------|-------------------|---------------|
+| Logged-in | `user_id` | `find_recoverable($form_id, $user_id, null)` |
+| Anonymous | `client_token` | `find_recoverable($form_id, null, $client_token)` or `find_by_client_token($token, $form_id)` |
+
+**Why Client Token (Not IP):**
+Using localStorage UUID instead of IP address prevents users on shared computers (libraries, offices) from accidentally recovering each other's form data. Each browser profile gets a unique permanent token.
+
+**Public API Methods:**
+
+**`SUPER_Session_DAL::create($data)`**
+- Creates new session with optional `client_token` parameter
+- Required: `form_id`
+- Optional: `user_id`, `client_token`, `user_ip`, `form_data`, `metadata`
+- Returns: Session ID (int) or WP_Error
+
+**`SUPER_Session_DAL::find_recoverable($form_id, $user_id, $client_token)`**
+- Finds most recent draft/abandoned session for recovery
+- For logged-in users: Matches by `user_id` (ignore `client_token`)
+- For anonymous users: Matches by `client_token` (requires token, no fallback to IP)
+- Returns: Session array or null
+
+**`SUPER_Session_DAL::find_by_client_token($client_token, $form_id)`**
+- Direct lookup by client token and form (anonymous session recovery)
+- Returns: Session array or null
+
+**`SUPER_Session_DAL::get_by_key($session_key)`**
+- Get session by unique session key
+- Returns: Session array or null
+
+**`SUPER_Session_DAL::mark_completed($session_key, $entry_id)`**
+- Mark session as completed after successful submission
+- Links session to created entry via metadata
+- Returns: bool
+
+**`SUPER_Session_DAL::mark_aborted($session_key, $reason)`**
+- Mark session as aborted (spam/duplicate detected)
+- Records abort reason in metadata
+- Returns: bool
+
+**Client-Side Token Generation (JavaScript):**
+```javascript
+// In session-manager.js - generates once per browser profile
+getClientToken: function() {
+    var token = localStorage.getItem('super_client_token');
+    if (!token) {
+        token = crypto.randomUUID(); // Fallback for older browsers included
+        localStorage.setItem('super_client_token', token);
+    }
+    return token;
+}
+```
+
+**AJAX Endpoints (Session Management):**
+
+The session manager interacts with WordPress AJAX endpoints for progressive form saving:
+
+1. **`super_create_session`** - Create new session on first field interaction
+   - Parameters: `form_id`, `field_name`, `page_url`, `client_token`, `fingerprint`
+   - Returns: `session_key`, `session_id`
+
+2. **`super_auto_save_session`** - Auto-save form data on field blur/change
+   - Parameters: `session_key`, `form_id`, `client_token`
+   - Data Parameters (choose one):
+     - `changes` (JSON string) - **Recommended**: Diff-only updates (bandwidth efficient, since v6.5.0)
+     - `form_data` (JSON string) - Legacy: Full form data replacement (backwards compatible)
+   - Behavior: If `changes` provided, merges into existing data; if `form_data` provided, replaces all data
+   - Returns: `saved: true`
+
+3. **`super_check_session_recovery`** - Check for recoverable session on form load
+   - Parameters: `form_id`, `client_token`, `stored_session`
+   - Returns: `has_session`, `session_key`, `form_data`, `last_saved`, `fields_count`
+
+4. **`super_resume_session`** - Resume saved session (user clicked "Restore")
+   - Parameters: `session_key`, `client_token`
+   - Returns: `form_data`, `session_key`
+
+5. **`super_dismiss_session`** - Dismiss/delete session (user clicked "Start Fresh")
+   - Parameters: `session_key`, `client_token`
+   - Returns: `deleted: true`
+
+**Diff-Tracking Implementation (v6.5.0+):**
+
+The vanilla JS session manager tracks field changes and sends only modified data:
+
+```javascript
+// Diff tracking: only send changed fields
+var changes = {};
+for (key in currentData) {
+    if (state.lastSavedData[key] !== currentData[key]) {
+        changes[key] = currentData[key];
+    }
+}
+// Empty string indicates field was cleared
+if (Object.keys(changes).length > 0) {
+    fetch(ajaxUrl, {
+        body: { changes: JSON.stringify(changes) }
+    });
+}
+```
+
+**Server-Side Merge Logic:**
+```php
+// In auto_save_session handler (class-ajax.php line 8273-8289)
+if (!empty($_POST['changes'])) {
+    // Diff-based update: merge changes into existing data
+    foreach ($changes as $key => $value) {
+        if ('' === $value) {
+            unset($form_data[$key]); // Empty = cleared
+        } else {
+            $form_data[$key] = $value; // Update/add
+        }
+    }
+}
+```
+
+**Performance Benefits:**
+- 10-field form: 50 bytes per auto-save (diff) vs 5KB (full data)
+- AbortController cancels in-flight requests when user types fast
+- Zero jQuery dependency (faster load, more reliable)
+
+### Session Cleanup System
+
+**Overview:**
+The Session Cleanup system (`SUPER_Session_Cleanup`) provides automatic background cleanup of expired and abandoned sessions using Action Scheduler for reliable execution.
+
+**Scheduled Jobs:**
+- `super_session_cleanup` - Runs hourly to delete expired sessions (24+ hours old)
+- `super_session_check_abandoned` - Runs every 5 minutes to detect abandoned sessions (30+ minutes inactive)
+
+**Session Lifecycle Events:**
+- `session.abandoned` - Fires when session marked abandoned (30+ minutes without activity)
+- `session.expired` - Fires before session deletion (past expires_at timestamp)
+
+**Public API Methods:**
+
+**`SUPER_Session_Cleanup::get_stats()`**
+- Returns session statistics array with counts for each status
+- Returns: Array with `total`, `active`, `abandoned`, `completed`, `aborted`, `expired` counts
+- Usage: Monitor session health and cleanup needs
+- Example:
+  ```php
+  $stats = SUPER_Session_Cleanup::get_stats();
+  // Returns: ['total' => 150, 'active' => 45, 'abandoned' => 12, ...]
+  ```
+
+**`SUPER_Session_Cleanup::manual_cleanup()`**
+- Manually triggers both cleanup and abandoned check
+- Returns: Session statistics after cleanup
+- Usage: Admin-initiated cleanup via Developer Tools or custom scripts
+- Example:
+  ```php
+  $stats = SUPER_Session_Cleanup::manual_cleanup();
+  // Runs abandoned check + expired cleanup, returns updated stats
+  ```
+
+**Cleanup Behavior:**
+- **Batch Processing**: Processes 100 sessions per run to prevent timeout
+- **Status Filter**: Only deletes `draft` and `abandoned` sessions (completed/aborted retained indefinitely)
+- **Event Firing**: Fires events BEFORE deletion for analytics and logging
+- **Scheduled Chain**: If batch limit hit, schedules another run immediately
+
+**Abandoned Session Detection:**
+- **Threshold**: 30 minutes of inactivity (no updates to `last_saved_at`)
+- **Status Change**: Updates from `draft` to `abandoned`
+- **Event Context**: Includes form_data, metadata, and abandoned duration
+
+**Expired Session Cleanup:**
+- **Threshold**: Sessions past `expires_at` timestamp
+- **Event Context**: Includes previous status, form_data, and metadata
+- **Cleanup**: Physical deletion from database after event fires
+
+**Job Scheduling:**
+- **Auto-Scheduled**: Jobs scheduled on plugin activation via `super_activated` hook
+- **Self-Healing**: Checks hourly if jobs missing and reschedules automatically
+- **Action Scheduler**: Uses `super-forms` group for easy monitoring
+
+**Integration Points:**
+- Location: `/src/includes/class-session-cleanup.php`
+- Included: Auto-loaded in `super-forms.php`
+- Initialization: `SUPER_Session_Cleanup::init()` called at bottom of class file
+- Developer Tools: Session statistics displayed in Developer Tools page (when DEBUG_SF enabled)
+
+**Monitoring:**
+```php
+// Check job schedules via WP-CLI
+wp eval "echo as_next_scheduled_action('super_session_cleanup');"
+wp eval "echo as_next_scheduled_action('super_session_check_abandoned');"
+
+// View session statistics
+wp eval "print_r(SUPER_Session_Cleanup::get_stats());"
+
+// Manual cleanup trigger
+wp eval "SUPER_Session_Cleanup::manual_cleanup();"
+```
+
+**Testing:**
+- Test File: `/tests/triggers/test-session-cleanup.php`
+- Coverage: Expiration cleanup, abandoned detection, batch processing, event firing
+- Integration: Works with trigger system for automated responses to abandoned/expired sessions
+
 ## Common Tasks Reference
 
 ### Adding a new form element:

@@ -257,6 +257,159 @@ The Developer Tools page supports importing real production data for migration t
 - CSV files should be in Super Forms export format
 - XML import support is planned (placeholder in UI)
 
+## Trigger/Action Extensibility System (since 6.5.0)
+
+**Overview:** Event-driven automation system enabling custom responses to form lifecycle events. Supports complex conditions, multiple action types, and scope-aware triggering.
+
+**Architecture:**
+- **Event-driven**: Triggers fire on form events (submission, validation, spam detection, etc.)
+- **Scope-aware**: Triggers can apply to specific forms, global, user-specific, or role-based
+- **Condition engine**: AND/OR/NOT grouping with tag replacement (`{field_name}`)
+- **Extensible actions**: 20 built-in actions with base class for custom implementations
+
+**Core Classes** (7 foundation + 1 scheduler + 3 DALs + 1 spam + 1 session cleanup + 1 email migration + 5 logging + 5 API security):
+- `SUPER_Trigger_Registry` - Central event/action registration (singleton) - `/src/includes/triggers/class-trigger-registry.php`
+- `SUPER_Trigger_DAL` - Database abstraction with scope-aware queries - `/src/includes/class-trigger-dal.php`
+- `SUPER_Trigger_Manager` - Business logic, validation, permissions - `/src/includes/class-trigger-manager.php`
+- `SUPER_Trigger_Executor` - Event firing and action execution - `/src/includes/class-trigger-executor.php`
+- `SUPER_Trigger_Conditions` - Complex condition evaluation - `/src/includes/class-trigger-conditions.php`
+- `SUPER_Trigger_Action_Base` - Abstract base for action implementations - `/src/includes/triggers/class-trigger-action-base.php`
+- `SUPER_Trigger_REST_Controller` - REST API endpoints - `/src/includes/class-trigger-rest-controller.php`
+- `SUPER_Trigger_Scheduler` - Action Scheduler integration for async execution - `/src/includes/class-trigger-scheduler.php`
+- `SUPER_Session_DAL` - Session storage for progressive forms (auto-save, recovery via client token, pre-submission firewall) - `/src/includes/class-session-dal.php`
+- `SUPER_Session_Cleanup` - Background session cleanup via Action Scheduler (abandoned detection, expiration, event firing) - `/src/includes/class-session-cleanup.php`
+- **Client-Side**: Session manager (vanilla JS, diff-tracking, AbortController) - `/src/assets/js/frontend/session-manager.js`
+- `SUPER_Entry_DAL` - Entry CRUD (always writes to custom table, reads check migration state for backwards compat) - `/src/includes/class-entry-dal.php`
+- `SUPER_Spam_Detector` - Multi-method spam detection (honeypot, time-based, IP, keywords, Akismet) - `/src/includes/class-spam-detector.php`
+- `SUPER_Email_Trigger_Migration` - Bidirectional Email v2 ↔ Triggers sync, legacy email migration - `/src/includes/class-email-trigger-migration.php`
+
+**Logging Infrastructure** (5 classes):
+- `SUPER_Trigger_Logger` - Centralized logging with levels (ERROR/WARNING/INFO/DEBUG), database storage - `/src/includes/class-trigger-logger.php`
+- `SUPER_Trigger_Debugger` - Real-time debug data collection, visual debug panel in admin footer - `/src/includes/class-trigger-debugger.php`
+- `SUPER_Trigger_Performance` - Timing, memory tracking, slow execution detection (1s/5s thresholds) - `/src/includes/class-trigger-performance.php`
+- `SUPER_Trigger_Compliance` - GDPR (export/delete), PII scrubbing, audit trails, retention policies - `/src/includes/class-trigger-compliance.php`
+- `SUPER_Trigger_Logs_Page` - Admin log viewer with filtering and CSV export - `/src/includes/admin/class-trigger-logs-page.php`
+
+**API Security Infrastructure** (5 classes):
+- `SUPER_Trigger_Credentials` - AES-256-CBC encrypted credential storage using WordPress salts - `/src/includes/class-trigger-credentials.php`
+- `SUPER_Trigger_OAuth` - OAuth 2.0 flows with PKCE support, provider registration, token refresh - `/src/includes/class-trigger-oauth.php`
+- `SUPER_Trigger_Security` - Rate limiting, suspicious pattern detection, security event logging - `/src/includes/class-trigger-security.php`
+- `SUPER_Trigger_Permissions` - WordPress capabilities (super_manage_triggers, super_execute_triggers, etc.) - `/src/includes/class-trigger-permissions.php`
+- `SUPER_Trigger_API_Keys` - API key generation, validation, permission management, usage tracking - `/src/includes/class-trigger-api-keys.php`
+
+**Payment Integration** (1 class):
+- `SUPER_Payment_OAuth` - Stripe Connect and PayPal OAuth flows, manual API key fallback, encrypted credential storage - `/src/includes/class-payment-oauth.php`
+
+**Spam Detection** (`SUPER_Spam_Detector` in `/src/includes/class-spam-detector.php`):
+Multi-method spam detection system running BEFORE entry creation. Fires `form.spam_detected` event with detection details.
+
+**Detection Methods** (5 methods, ordered by speed):
+1. **Honeypot** - Hidden fields that bots fill automatically (super_hp, website_url_hp, fax_number_hp)
+2. **Time-based** - Submissions faster than minimum time threshold (default: 3 seconds, requires session data)
+3. **IP Blacklist** - Exact match, CIDR ranges (192.168.1.0/24), wildcards (192.168.1.*) - disabled by default
+4. **Keyword Filter** - Dual threshold logic: 3+ matches OR 2+ unique spam keywords - disabled by default
+5. **Akismet** - Third-party API integration (requires Akismet plugin with valid key)
+
+**Configuration**: Per-form spam settings stored in `_super_form_settings['spam_detection']` array. Default settings favor low false-positive detection methods (honeypot + time-based enabled, others disabled).
+
+**Integration Point**: `/src/includes/class-ajax.php` in `submit_form()` method, immediately after validation passes but BEFORE entry creation. Spam detection uses session data for time-based checks and can abort submission via trigger actions.
+
+**Logging**: Uses `SUPER_Trigger_Logger` for detection events and WP debug log if `WP_DEBUG` enabled.
+
+**Email v2 ↔ Triggers Bidirectional Sync** (`SUPER_Email_Trigger_Migration` in `/src/includes/class-email-trigger-migration.php`):
+Integration layer enabling Email v2 React builder to use the triggers system for execution while maintaining familiar UI.
+
+**Architecture Pattern: Facade**
+- Email v2 tab provides visual interface for creating/editing emails
+- Backend automatically syncs to `wp_superforms_triggers` table via `send_email` actions
+- Users unaware they're creating triggers (simplified UX)
+- Power users can access triggers directly for advanced features
+
+**Sync Flow:**
+```
+Email v2 UI saves → _emails postmeta → sync_emails_to_triggers() → triggers table
+Email v2 UI loads ← _emails postmeta ← get_emails_for_ui() ← convert_triggers_to_emails_format()
+```
+
+**Public Methods:**
+- `sync_emails_to_triggers($form_id, $emails)` - Save sync (Email v2 → Triggers)
+  - Called automatically by `SUPER_Common::save_form_emails_settings()`
+  - Creates/updates/deletes triggers based on email changes
+  - Maintains email_id → trigger_id mapping in `_super_email_triggers` postmeta
+  - Updates trigger name, enabled status, and `send_email` action config
+- `convert_triggers_to_emails_format($form_id)` - Load sync (Triggers → Email v2)
+  - Reads triggers table via EMAIL_TRIGGER_MAP
+  - Converts `send_email` action config back to Email v2 format
+  - Preserves all fields: to, from, subject, body, attachments, reply_to, cc, bcc, template, conditions, schedule
+- `get_emails_for_ui($form_id)` - Main UI entry point
+  - Called automatically by `SUPER_Common::get_form_emails_settings()`
+  - First checks `_emails` postmeta
+  - If empty, populates from triggers via `convert_triggers_to_emails_format()`
+  - Saves populated data back to `_emails` for future loads
+  - Enables Email v2 tab to display migrated legacy emails
+
+**Migration Support:**
+- `migrate_form($form_id)` - Converts legacy Admin/Confirmation email settings to triggers
+- Background migration via Action Scheduler for all forms on plugin update
+- 30-day backwards compatibility during migration window
+- Trigger execution replaces legacy email sending after migration
+
+**Integration Points:**
+- `/src/includes/class-common.php` lines 121-156 - Automatic sync on save/load
+- `/src/super-forms.php` line 4092 - Form builder save endpoint calls `save_form_emails_settings()`
+- Email v2 React app stores data in `_emails` postmeta (sync happens transparently)
+
+**Built-in Actions** (20 actions in `/src/includes/triggers/actions/`):
+- **Communication**: `send_email`, `webhook`
+- **Integration**: `http_request` (Postman-like HTTP client with auth, body formats, response mapping)
+- **Data Management**: `update_entry_status`, `update_entry_field`, `delete_entry`, `increment_counter`, `set_variable`
+- **WordPress Integration**: `create_post`, `update_post_meta`, `update_user_meta`, `modify_user`
+- **Flow Control**: `abort_submission`, `redirect_user`, `stop_execution`, `conditional_action`, `delay_execution`
+- **Utility**: `log_message`, `run_hook`, `clear_cache`
+
+**HTTP Request Templates** (`SUPER_HTTP_Request_Templates` in `/src/includes/triggers/class-http-request-templates.php`):
+Pre-built configurations for common integrations - Slack, Discord, Teams, Zapier, Make, n8n, Mailchimp, SendGrid, HubSpot, Salesforce, Airtable, Notion, Google Sheets, Telegram. Extensible via `super_http_request_register_templates` hook.
+
+**Database Tables** (9 tables in `class-install.php`):
+- `wp_superforms_triggers` - Trigger definitions with scope support
+- `wp_superforms_trigger_actions` - Normalized actions (1:N with triggers)
+- `wp_superforms_trigger_logs` - Execution history and debugging
+- `wp_superforms_compliance_audit` - GDPR audit trail and compliance logging
+- `wp_superforms_api_credentials` - Encrypted OAuth tokens and API credentials
+- `wp_superforms_api_keys` - API key management for external REST access
+- `wp_superforms_sessions` - Progressive form sessions for auto-save, client token recovery, and pre-submission firewall
+- `wp_superforms_entries` - Entry records (Phase 17 migration from `super_contact_entry` post type)
+- `wp_superforms_entry_meta` - Entry system metadata (payment IDs, integration links, flags)
+
+**Registered Events** (36 events in `class-trigger-registry.php`):
+- **Session**: `session.started`, `session.auto_saved`, `session.resumed`, `session.completed`, `session.abandoned`, `session.expired`
+- **Form**: `form.loaded`, `form.before_submit`, `form.submitted`, `form.spam_detected`, `form.validation_failed`, `form.duplicate_detected`
+- **Entry**: `entry.created`, `entry.saved`, `entry.updated`, `entry.status_changed`, `entry.deleted`
+- **File**: `file.uploaded`, `file.upload_failed`, `file.deleted`
+- **Payment (Stripe)**: `payment.stripe.checkout_completed`, `payment.stripe.payment_succeeded`, `payment.stripe.payment_failed`
+- **Subscription (Stripe)**: `subscription.stripe.created`, `subscription.stripe.updated`, `subscription.stripe.cancelled`, `subscription.stripe.invoice_paid`, `subscription.stripe.invoice_failed`
+- **Payment (PayPal)**: `payment.paypal.capture_completed`, `payment.paypal.capture_denied`, `payment.paypal.capture_refunded`
+- **Subscription (PayPal)**: `subscription.paypal.created`, `subscription.paypal.activated`, `subscription.paypal.cancelled`, `subscription.paypal.suspended`, `subscription.paypal.payment_failed`
+
+**Developer Tools Integration:**
+- Section 8: "Trigger System Testing" in Developer Tools page
+- Fire test events manually with custom context data
+- View execution logs and debug trigger resolution
+- AJAX endpoints: `super_dev_test_trigger`, `super_dev_get_trigger_logs`, `super_dev_clear_trigger_logs`
+
+**REST API** (`/wp-json/super-forms/v1/`):
+- `GET/POST /triggers` - List/create triggers
+- `GET/PUT/DELETE /triggers/{id}` - Single trigger operations
+- `POST /triggers/{id}/test` - Test trigger with mock data
+- `GET /events` - List registered events
+- `GET /action-types` - List registered action types
+- `POST /webhooks/stripe` - Stripe webhook handler (signature verified, no auth)
+- `POST /webhooks/paypal` - PayPal webhook handler (signature verified, no auth)
+
+**Documentation:**
+- Task documentation: [sessions/tasks/h-implement-triggers-actions-extensibility/README.md](sessions/tasks/h-implement-triggers-actions-extensibility/README.md)
+- Event flow mapping: [sessions/tasks/h-implement-triggers-actions-extensibility/EVENT_FLOW_DOCUMENTATION.md](sessions/tasks/h-implement-triggers-actions-extensibility/EVENT_FLOW_DOCUMENTATION.md)
+
 ## Extensions: Listings Data Structure
 
 **Storage Location:** Listings settings are stored in a SEPARATE meta key `_listings` (NOT in `_super_form_settings`)

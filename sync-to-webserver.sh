@@ -4,8 +4,15 @@
 # Syncs the local project to the remote webserver
 #
 # Usage:
-#   ./sync-to-webserver.sh          # Safe sync (no deletions)
-#   ./sync-to-webserver.sh --delete # Sync with deletions (requires confirmation)
+#   ./sync-to-webserver.sh                    # Safe sync (no deletions)
+#   ./sync-to-webserver.sh --delete           # Sync with deletions (requires confirmation)
+#   ./sync-to-webserver.sh --test             # Sync + run all PHPUnit tests
+#   ./sync-to-webserver.sh --test triggers    # Sync + run specific testsuite
+#   ./sync-to-webserver.sh --sandbox          # Sync + run sandbox integration tests
+#   ./sync-to-webserver.sh --sandbox=cleanup  # Sync + sandbox tests + cleanup
+#   ./sync-to-webserver.sh --sandbox=reset    # Sync + reset sandbox + run tests
+#   ./sync-to-webserver.sh --test --sandbox   # Sync + PHPUnit + sandbox tests
+#   ./sync-to-webserver.sh --delete --test    # Combine flags
 
 # Configuration
 REMOTE_HOST="gnldm1014.siteground.biz"
@@ -27,9 +34,41 @@ NC='\033[0m' # No Color
 
 # Parse command-line arguments
 USE_DELETE=false
-if [[ "$1" == "--delete" ]]; then
-    USE_DELETE=true
-fi
+RUN_TESTS=false
+RUN_SANDBOX=false
+SANDBOX_MODE="keep"  # keep, cleanup, reset
+TEST_SUITE=""
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        --delete)
+            USE_DELETE=true
+            shift
+            ;;
+        --test)
+            RUN_TESTS=true
+            shift
+            # Check if next argument is a testsuite name (not another flag)
+            if [[ $# -gt 0 && ! "$1" =~ ^-- ]]; then
+                TEST_SUITE="$1"
+                shift
+            fi
+            ;;
+        --sandbox)
+            RUN_SANDBOX=true
+            shift
+            ;;
+        --sandbox=*)
+            RUN_SANDBOX=true
+            SANDBOX_MODE="${1#*=}"
+            shift
+            ;;
+        *)
+            echo -e "${RED}Unknown option: $1${NC}"
+            exit 1
+            ;;
+    esac
+done
 
 echo -e "${GREEN}🚀 Super Forms Sync Script${NC}"
 echo "==============================="
@@ -40,6 +79,16 @@ if [ "$USE_DELETE" = true ]; then
     echo -e "Mode:        ${RED}DELETE MODE (removes remote files not in local)${NC}"
 else
     echo -e "Mode:        ${GREEN}SAFE MODE (no deletions)${NC}"
+fi
+if [ "$RUN_TESTS" = true ]; then
+    if [ -n "$TEST_SUITE" ]; then
+        echo -e "Tests:       ${BLUE}Will run testsuite: $TEST_SUITE${NC}"
+    else
+        echo -e "Tests:       ${BLUE}Will run all tests${NC}"
+    fi
+fi
+if [ "$RUN_SANDBOX" = true ]; then
+    echo -e "Sandbox:     ${BLUE}Will run sandbox tests (mode: $SANDBOX_MODE)${NC}"
 fi
 echo "==============================="
 
@@ -90,6 +139,19 @@ if [ "$USE_DELETE" = true ]; then
         "$TEST_PATH" \
         "$REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH/test/" 2>&1 | grep "^deleting" || echo "(no files)")
     echo "$DELETIONS_TEST"
+
+    echo ""
+    echo "=== /tests folder deletions (PHPUnit tests) ==="
+    TESTS_PATH="$SCRIPT_DIR/tests/"
+    DELETIONS_TESTS=$(rsync -avzn --delete --itemize-changes \
+        --exclude='.vscode/' \
+        --exclude='.git/' \
+        --exclude='.DS_Store' \
+        --exclude='*.log' \
+        -e "ssh -p $REMOTE_PORT -i $PRIVATE_KEY -o StrictHostKeyChecking=no" \
+        "$TESTS_PATH" \
+        "$REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH/tests/" 2>&1 | grep "^deleting" || echo "(no files)")
+    echo "$DELETIONS_TESTS"
 
     echo ""
     echo -e "${YELLOW}Do you want to proceed with these deletions?${NC}"
@@ -156,5 +218,157 @@ else
     exit 1
 fi
 
+echo -e "${GREEN}📡 Starting sync of /tests folder (PHPUnit tests)...${NC}"
+
+# Sync tests directory (PHPUnit automated tests)
+TESTS_PATH="$SCRIPT_DIR/tests/"
+rsync -avz $DELETE_FLAG \
+    --exclude='.vscode/' \
+    --exclude='.git/' \
+    --exclude='.DS_Store' \
+    --exclude='*.log' \
+    -e "ssh -p $REMOTE_PORT -i $PRIVATE_KEY -o StrictHostKeyChecking=no" \
+    "$TESTS_PATH" \
+    "$REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH/tests/"
+
+# Check if sync was successful
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}✅ /tests sync completed successfully!${NC}"
+else
+    echo -e "${RED}❌ /tests sync failed!${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}📡 Syncing phpunit.xml...${NC}"
+
+# Sync phpunit.xml separately (it's in root, not in synced folders)
+rsync -avz \
+    -e "ssh -p $REMOTE_PORT -i $PRIVATE_KEY -o StrictHostKeyChecking=no" \
+    "$SCRIPT_DIR/phpunit.xml" \
+    "$REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH/phpunit.xml"
+
+if [ $? -eq 0 ]; then
+    echo -e "${GREEN}✅ phpunit.xml sync completed!${NC}"
+else
+    echo -e "${YELLOW}⚠️ phpunit.xml sync failed (non-critical)${NC}"
+fi
+
 echo "==============================="
+echo -e "${GREEN}🎉 Sync complete!${NC}"
+
+# Run tests if --test flag was provided
+if [ "$RUN_TESTS" = true ]; then
+    echo ""
+    echo -e "${BLUE}🧪 Running PHPUnit tests on remote server...${NC}"
+    echo "==============================="
+
+    # If a specific testsuite was provided, run just that one
+    if [ -n "$TEST_SUITE" ]; then
+        PHPUNIT_CMD="cd $REMOTE_PATH && php vendor/bin/phpunit --testsuite \"$TEST_SUITE\""
+        ssh -p $REMOTE_PORT -i $PRIVATE_KEY -o StrictHostKeyChecking=no \
+            "$REMOTE_USER@$REMOTE_HOST" "$PHPUNIT_CMD"
+        TEST_EXIT_CODE=$?
+    else
+        # Run testsuites sequentially to avoid memory exhaustion
+        # Each testsuite runs in its own PHP process with fresh memory
+        # Note: "Super Forms Test Suite" excluded - runs EAV migration tests which
+        # can exhaust memory on databases with many entries. Run separately with
+        # --test "Super Forms Test Suite" if needed.
+        TEST_EXIT_CODE=0
+        TESTSUITES=("triggers" "integration")
+        PASSED_SUITES=()
+        FAILED_SUITES=()
+
+        for SUITE in "${TESTSUITES[@]}"; do
+            echo ""
+            echo -e "${BLUE}Running testsuite: $SUITE${NC}"
+            echo "-------------------------------"
+
+            PHPUNIT_CMD="cd $REMOTE_PATH && php vendor/bin/phpunit --testsuite \"$SUITE\""
+            ssh -p $REMOTE_PORT -i $PRIVATE_KEY -o StrictHostKeyChecking=no \
+                "$REMOTE_USER@$REMOTE_HOST" "$PHPUNIT_CMD"
+            SUITE_EXIT_CODE=$?
+
+            if [ $SUITE_EXIT_CODE -eq 0 ]; then
+                PASSED_SUITES+=("$SUITE")
+                echo -e "${GREEN}✓ $SUITE passed${NC}"
+            else
+                FAILED_SUITES+=("$SUITE")
+                echo -e "${RED}✗ $SUITE failed${NC}"
+                TEST_EXIT_CODE=$SUITE_EXIT_CODE
+            fi
+        done
+
+        # Print summary
+        echo ""
+        echo "==============================="
+        echo -e "${BLUE}Test Summary:${NC}"
+        if [ ${#PASSED_SUITES[@]} -gt 0 ]; then
+            echo -e "${GREEN}Passed: ${PASSED_SUITES[*]}${NC}"
+        fi
+        if [ ${#FAILED_SUITES[@]} -gt 0 ]; then
+            echo -e "${RED}Failed: ${FAILED_SUITES[*]}${NC}"
+        fi
+    fi
+
+    echo "==============================="
+    if [ $TEST_EXIT_CODE -eq 0 ]; then
+        echo -e "${GREEN}✅ All tests passed!${NC}"
+    else
+        echo -e "${RED}❌ Some tests failed (exit code: $TEST_EXIT_CODE)${NC}"
+    fi
+
+    # If sandbox tests not requested, exit with test result
+    if [ "$RUN_SANDBOX" != true ]; then
+        exit $TEST_EXIT_CODE
+    fi
+fi
+
+# Run sandbox tests if --sandbox flag was provided
+if [ "$RUN_SANDBOX" = true ]; then
+    echo ""
+    echo -e "${BLUE}🧪 Running Sandbox Integration Tests...${NC}"
+    echo "==============================="
+
+    # Build sandbox runner command based on mode
+    SANDBOX_FLAGS="--verbose"
+    case $SANDBOX_MODE in
+        cleanup)
+            SANDBOX_FLAGS="$SANDBOX_FLAGS --cleanup"
+            ;;
+        reset)
+            SANDBOX_FLAGS="$SANDBOX_FLAGS --reset"
+            ;;
+        keep)
+            SANDBOX_FLAGS="$SANDBOX_FLAGS --keep"
+            ;;
+    esac
+
+    # Run sandbox runner via PHP CLI
+    SANDBOX_CMD="cd $REMOTE_PATH && php tests/sandbox-runner.php $SANDBOX_FLAGS"
+    echo -e "${BLUE}Executing: php tests/sandbox-runner.php $SANDBOX_FLAGS${NC}"
+    echo ""
+
+    ssh -p $REMOTE_PORT -i $PRIVATE_KEY -o StrictHostKeyChecking=no \
+        "$REMOTE_USER@$REMOTE_HOST" "$SANDBOX_CMD"
+    SANDBOX_EXIT_CODE=$?
+
+    echo ""
+    echo "==============================="
+    if [ $SANDBOX_EXIT_CODE -eq 0 ]; then
+        echo -e "${GREEN}✅ Sandbox tests passed!${NC}"
+    else
+        echo -e "${RED}❌ Sandbox tests failed (exit code: $SANDBOX_EXIT_CODE)${NC}"
+    fi
+
+    # Combine exit codes (fail if either failed)
+    if [ "$RUN_TESTS" = true ]; then
+        if [ $TEST_EXIT_CODE -ne 0 ] || [ $SANDBOX_EXIT_CODE -ne 0 ]; then
+            exit 1
+        fi
+    else
+        exit $SANDBOX_EXIT_CODE
+    fi
+fi
+
 echo -e "${GREEN}🎉 Done!${NC}"

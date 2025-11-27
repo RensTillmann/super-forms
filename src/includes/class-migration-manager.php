@@ -69,6 +69,48 @@ class SUPER_Migration_Manager {
             add_action('wp_ajax_super_run_cron_fallback_tests', array(__CLASS__, 'ajax_run_cron_fallback_tests'));
         }
 
+        // Trigger System Testing (Developer Tools)
+        if (!has_action('wp_ajax_super_dev_fire_test_event')) {
+            add_action('wp_ajax_super_dev_fire_test_event', array('SUPER_Developer_Tools', 'ajax_fire_test_event'));
+        }
+        if (!has_action('wp_ajax_super_dev_get_trigger_logs')) {
+            add_action('wp_ajax_super_dev_get_trigger_logs', array('SUPER_Developer_Tools', 'ajax_get_trigger_logs'));
+        }
+        if (!has_action('wp_ajax_super_dev_clear_trigger_logs')) {
+            add_action('wp_ajax_super_dev_clear_trigger_logs', array('SUPER_Developer_Tools', 'ajax_clear_trigger_logs'));
+        }
+        if (!has_action('wp_ajax_super_dev_test_trigger')) {
+            add_action('wp_ajax_super_dev_test_trigger', array('SUPER_Developer_Tools', 'ajax_test_trigger'));
+        }
+
+        // HTTP Request Testing (Developer Tools)
+        if (!has_action('wp_ajax_super_dev_test_http_request')) {
+            add_action('wp_ajax_super_dev_test_http_request', array('SUPER_Developer_Tools', 'ajax_test_http_request'));
+        }
+        if (!has_action('wp_ajax_super_dev_get_http_templates')) {
+            add_action('wp_ajax_super_dev_get_http_templates', array('SUPER_Developer_Tools', 'ajax_get_http_templates'));
+        }
+        if (!has_action('wp_ajax_super_dev_get_http_template_config')) {
+            add_action('wp_ajax_super_dev_get_http_template_config', array('SUPER_Developer_Tools', 'ajax_get_http_template_config'));
+        }
+
+        // Sandbox Testing (Developer Tools)
+        if (!has_action('wp_ajax_super_sandbox_create')) {
+            add_action('wp_ajax_super_sandbox_create', array('SUPER_Developer_Tools', 'ajax_sandbox_create'));
+        }
+        if (!has_action('wp_ajax_super_sandbox_status')) {
+            add_action('wp_ajax_super_sandbox_status', array('SUPER_Developer_Tools', 'ajax_sandbox_status'));
+        }
+        if (!has_action('wp_ajax_super_sandbox_submit')) {
+            add_action('wp_ajax_super_sandbox_submit', array('SUPER_Developer_Tools', 'ajax_sandbox_submit'));
+        }
+        if (!has_action('wp_ajax_super_sandbox_cleanup')) {
+            add_action('wp_ajax_super_sandbox_cleanup', array('SUPER_Developer_Tools', 'ajax_sandbox_cleanup'));
+        }
+        if (!has_action('wp_ajax_super_sandbox_logs')) {
+            add_action('wp_ajax_super_sandbox_logs', array('SUPER_Developer_Tools', 'ajax_sandbox_logs'));
+        }
+
         // Register backwards compatibility hooks for third-party code
         self::register_backwards_compat_hooks();
     }
@@ -91,6 +133,12 @@ class SUPER_Migration_Manager {
     }
 
     /**
+     * Recursion guard to prevent infinite loops in intercept_get_entry_data
+     * @var bool
+     */
+    private static $intercepting_entry_data = false;
+
+    /**
      * Intercept get_post_meta() for _super_contact_entry_data
      * Routes third-party code to EAV storage after migration completes
      *
@@ -107,6 +155,12 @@ class SUPER_Migration_Manager {
             return $value;
         }
 
+        // Prevent infinite recursion: SUPER_Data_Access::get_entry_data() calls get_post_meta()
+        // which would trigger this filter again, causing infinite recursion and memory exhaustion
+        if (self::$intercepting_entry_data) {
+            return $value;
+        }
+
         $migration = get_option('superforms_eav_migration', array());
 
         // Only intercept if migration completed
@@ -114,11 +168,19 @@ class SUPER_Migration_Manager {
             return $value; // Let WordPress handle it normally
         }
 
+        // Set recursion guard before calling get_entry_data()
+        self::$intercepting_entry_data = true;
+
         // Get data from EAV tables
         $data = SUPER_Data_Access::get_entry_data($object_id);
 
-        // Return in format WordPress expects
-        return $single ? $data : array($data);
+        // Reset recursion guard
+        self::$intercepting_entry_data = false;
+
+        // Return in format WordPress expects for get_post_metadata filter:
+        // WordPress's get_metadata() wraps the return value in array() and returns [0] when $single=true
+        // So we must always return array($data) - WordPress handles extracting [0] itself
+        return array($data);
     }
 
     /**
@@ -865,6 +927,81 @@ class SUPER_Migration_Manager {
         $state['cleanup_queue']['last_checked'] = (int) ($last_cleanup_check ? $last_cleanup_check : current_time('timestamp'));
 
         return $state;
+    }
+
+    /**
+     * Get combined migration status for all migration types (entries + emails)
+     *
+     * Returns unified progress for the admin notice progress bar.
+     *
+     * @since 6.5.0
+     * @return array Combined migration status
+     */
+    public static function get_combined_migration_status() {
+        // Get entries migration status
+        $entries_status = self::get_migration_status();
+        $entries_total = 0;
+        $entries_migrated = 0;
+        $entries_state = 'not_started';
+
+        if ( $entries_status ) {
+            $entries_total = isset( $entries_status['total_entries'] ) ? (int) $entries_status['total_entries'] : 0;
+            $entries_migrated = isset( $entries_status['migrated_entries'] ) ? (int) $entries_status['migrated_entries'] : 0;
+            $entries_state = isset( $entries_status['status'] ) ? $entries_status['status'] : 'not_started';
+        }
+
+        // Get email migration status
+        $emails_total = 0;
+        $emails_migrated = 0;
+        $emails_state = 'not_started';
+
+        if ( class_exists( 'SUPER_Email_Trigger_Migration' ) ) {
+            $email_status = SUPER_Email_Trigger_Migration::get_state();
+            $emails_state = isset( $email_status['status'] ) ? $email_status['status'] : 'not_started';
+            $emails_migrated = isset( $email_status['forms_migrated'] ) ? (int) $email_status['forms_migrated'] : 0;
+
+            // Get total forms needing migration
+            $emails_total = SUPER_Email_Trigger_Migration::count_forms_needing_migration() + $emails_migrated;
+        }
+
+        // Calculate combined progress
+        $total = $entries_total + $emails_total;
+        $migrated = $entries_migrated + $emails_migrated;
+        $percent = $total > 0 ? round( ( $migrated / $total ) * 100 ) : 0;
+
+        // Determine combined status
+        $status = 'not_started';
+        if ( $entries_state === 'completed' && $emails_state === 'completed' ) {
+            $status = 'completed';
+        } elseif ( $entries_state === 'in_progress' || $emails_state === 'in_progress' ) {
+            $status = 'in_progress';
+        } elseif ( $entries_state === 'completed' || $emails_state === 'completed' ) {
+            // One complete, one not started = still in progress overall
+            $status = 'in_progress';
+        }
+
+        // Check if any migration is needed
+        $needs_migration = ( $entries_total > $entries_migrated ) || ( $emails_total > $emails_migrated );
+
+        return array(
+            'status'            => $status,
+            'needs_migration'   => $needs_migration,
+            'total'             => $total,
+            'migrated'          => $migrated,
+            'percent'           => $percent,
+            'entries'           => array(
+                'status'   => $entries_state,
+                'total'    => $entries_total,
+                'migrated' => $entries_migrated,
+            ),
+            'emails'            => array(
+                'status'   => $emails_state,
+                'total'    => $emails_total,
+                'migrated' => $emails_migrated,
+            ),
+            // Include full entries status for backwards compatibility
+            'entries_status'    => $entries_status,
+        );
     }
 
     /**

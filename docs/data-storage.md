@@ -15,9 +15,15 @@ The global settings are stored inside `wp_option` table under option key `super_
 
 ## Where are the Contact Entries stored?
 
-All entries are stored inside `wp_posts` table as post_type `super_contact_entry`
+**Current (v6.5.0+):** Entries stored in `wp_posts` table as post_type `super_contact_entry` with migration path to custom tables.
 
-**Entry Data Storage (v6.0.0+):**
+**Entry Records (Phase 17 - In Progress):**
+- **Legacy:** Entry records stored in `wp_posts` table as `super_contact_entry` post type
+- **Modern:** Entry records migrating to dedicated `wp_superforms_entries` table
+- **System metadata:** Payment IDs, integration links stored in `wp_superforms_entry_meta` table
+- **Access Layer:** `SUPER_Entry_DAL` class (always writes to custom table, reads check migration state for backwards compat)
+
+**Entry Field Data (EAV - v6.0.0+):**
 - **Legacy:** Entry field data stored in `wp_postmeta` table under meta key `_super_contact_entry_data` (serialized)
 - **Modern (EAV):** Entry field data stored in dedicated `wp_superforms_entry_data` table with indexed columns
 - **Migration:** Automatic background migration from serialized to EAV format after plugin update
@@ -31,7 +37,7 @@ The system automatically handles the transition transparently - no user action r
 
 **During Migration (status = 'in_progress'):**
 - Entry viewing: Allowed (read-only operations are safe)
-- Entry creation: Allowed (new entries use dual-write to both storage formats)
+- Entry creation: Allowed (new entries always written to custom table)
 - Entry editing: **Blocked** (prevents race conditions and data inconsistencies)
 - Entry deletion: Allowed (deletes from both storage formats)
 
@@ -49,7 +55,30 @@ Individual form Elements are stored inside `wp_postmeta` table under the meta ke
 
 ## Where are the form triggers stored?
 
+**Legacy Triggers (v6.4 and earlier):**
 Individual form Triggers are stored inside `wp_postmeta` table under the meta key `_super_triggers`
+
+**New Trigger System (v6.5.0+):**
+The extensible trigger/action system uses dedicated database tables:
+- `wp_superforms_triggers` - Trigger definitions with scope support (form/global/user/role)
+- `wp_superforms_trigger_actions` - Action configurations (1:N relationship with triggers)
+- `wp_superforms_trigger_logs` - Execution history and debugging logs
+- `wp_superforms_compliance_audit` - GDPR audit trail and compliance logging
+- `wp_superforms_api_credentials` - Encrypted OAuth tokens and API credentials (AES-256-CBC)
+- `wp_superforms_api_keys` - API key management for external REST access
+- `wp_superforms_sessions` - Progressive form sessions (auto-save, client token recovery, pre-submission firewall)
+- `wp_superforms_entries` - Entry records (Phase 17, migrating from `super_contact_entry` post type)
+- `wp_superforms_entry_meta` - Entry system metadata (payment IDs, integration links, flags)
+
+**Key differences from legacy triggers:**
+- Scope-aware: Triggers can be form-specific, global, user-specific, or role-based
+- Complex conditions: AND/OR/NOT grouping with tag replacement
+- 20 built-in actions: email, webhook, HTTP request, post creation, redirects, and more
+- 34 registered events: form lifecycle, entry events, file events, payment events (Stripe/PayPal)
+- REST API: Full CRUD via `/wp-json/super-forms/v1/triggers`
+- Payment webhooks: `/wp-json/super-forms/v1/webhooks/stripe` and `/webhooks/paypal`
+- Performance: Indexed queries optimized for high-volume execution
+- Security: Encrypted credential storage, OAuth 2.0 support, rate limiting
 
 ## Where are the form translations stored?
 

@@ -210,13 +210,37 @@ if ( ! class_exists( 'SUPER_Triggers' ) ) :
 
 					if ( strpos( $v['date'], ';timestamp' ) !== false ) {
 						error_log( 'Using timestamp date format' );
-						$base_date      = SUPER_Common::email_tags( $v['date'], $data, $settings );
-						$base_date      = $base_date / 1000;
+						$base_date = SUPER_Common::email_tags( $v['date'], $data, $settings );
+
+						// Check if tag replacement returned a valid numeric timestamp
+						if ( empty( $base_date ) || ! is_numeric( $base_date ) ) {
+							// Tag was empty (excluded field) or invalid - skip this schedule
+							error_log( 'Warning: timestamp tag replacement returned empty or non-numeric value: "' . $base_date . '" - skipping schedule #' . ( $k + 1 ) );
+							continue; // Skip to next schedule
+						}
+
+						// Convert milliseconds to seconds (ensure type safety for PHP 8+)
+						$base_date      = (int) floor( (float) $base_date / 1000 );
 						$scheduled_date = date( 'Y-m-d', $base_date + $days_offset );
 					} else {
 						error_log( 'Using standard date format' );
-						$base_date      = SUPER_Common::email_tags( $v['date'], $data, $settings );
-						$scheduled_date = date( 'Y-m-d', strtotime( $base_date ) + $days_offset );
+						$base_date = SUPER_Common::email_tags( $v['date'], $data, $settings );
+
+						// Check if tag replacement returned a valid date
+						if ( empty( $base_date ) ) {
+							// Tag was empty (excluded field) - skip this schedule
+							error_log( 'Warning: date tag replacement returned empty value - skipping schedule #' . ( $k + 1 ) );
+							continue; // Skip to next schedule
+						}
+
+						$parsed_timestamp = strtotime( $base_date );
+						if ( $parsed_timestamp === false ) {
+							// Invalid date format - skip this schedule
+							error_log( 'Warning: date tag replacement returned invalid date format: "' . $base_date . '" - skipping schedule #' . ( $k + 1 ) );
+							continue; // Skip to next schedule
+						}
+
+						$scheduled_date = date( 'Y-m-d', $parsed_timestamp + $days_offset );
 					}
 					error_log( 'Calculated scheduled_date: ' . $scheduled_date );
 

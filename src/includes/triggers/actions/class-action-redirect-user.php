@@ -233,4 +233,26 @@ class SUPER_Action_Redirect_User extends SUPER_Trigger_Action_Base {
 	public function get_required_capabilities() {
 		return ['edit_posts'];
 	}
+
+	/**
+	 * This action cannot run asynchronously
+	 *
+	 * Redirect must happen during the form submission response.
+	 *
+	 * @return bool
+	 * @since 6.5.0
+	 */
+	public function supports_async() {
+		return false;
+	}
+
+	/**
+	 * Get execution mode
+	 *
+	 * @return string
+	 * @since 6.5.0
+	 */
+	public function get_execution_mode() {
+		return 'sync';
+	}
 }

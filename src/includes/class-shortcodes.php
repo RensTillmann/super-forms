@@ -4281,15 +4281,45 @@ if ( ! class_exists( 'SUPER_Shortcodes' ) ) :
 					global $wpdb;
 					$value      = sanitize_text_field( $atts['value'] );
 					$method     = sanitize_text_field( $atts['search_method'] );
-					$table      = $wpdb->prefix . 'posts';
-					$table_meta = $wpdb->prefix . 'postmeta';
-					if ( $method == 'equals' ) {
-						$query = "post_title = BINARY '$value'";
+					$entry      = null;
+
+					// @since 6.5.0 - Use Entry DAL for migration-aware query
+					if ( class_exists( 'SUPER_Entry_DAL' ) ) {
+						$components = SUPER_Entry_DAL::get_query_components();
+						$table      = $components['entries_table'];
+						$title_col  = $components['title_column'];
+						$status_col = $components['status_column'];
+						$id_col     = $components['id_column'];
+
+						if ( $method == 'equals' ) {
+							$query = "{$title_col} = BINARY %s";
+						} else {
+							$query = "{$title_col} LIKE BINARY %s";
+							$value = '%' . $wpdb->esc_like( $value ) . '%';
+						}
+
+						// Build WHERE clause based on storage mode
+						if ( $components['storage_mode'] === 'post_type' ) {
+							$where = "{$status_col} IN ('publish','super_unread','super_read') AND post_type = 'super_contact_entry'";
+						} else {
+							$where = "{$status_col} IN ('publish','super_unread','super_read')";
+						}
+
+						$entry = $wpdb->get_row( $wpdb->prepare(
+							"SELECT {$id_col} as ID FROM {$table} WHERE {$query} AND {$where}",
+							$value
+						) );
+					} else {
+						// Fallback for backwards compatibility
+						$table      = $wpdb->prefix . 'posts';
+						if ( $method == 'equals' ) {
+							$query = "post_title = BINARY '$value'";
+						} else {
+							$query = "post_title LIKE BINARY '%$value%'";
+						}
+						$entry = $wpdb->get_row( "SELECT ID FROM $table WHERE $query AND post_status IN ('publish','super_unread','super_read') AND post_type = 'super_contact_entry'" );
 					}
-					if ( $method == 'contains' ) {
-						$query = "post_title LIKE BINARY '%$value%'";
-					}
-					$entry = $wpdb->get_row( "SELECT ID FROM $table WHERE $query AND post_status IN ('publish','super_unread','super_read') AND post_type = 'super_contact_entry'" );
+
 					if ( $entry ) {
 						$data = SUPER_Data_Access::get_entry_data( $entry->ID );
 					if ( is_wp_error( $data ) ) {
@@ -7638,13 +7668,20 @@ if ( ! class_exists( 'SUPER_Shortcodes' ) ) :
 			$contact_entry_id = 0;
 			if ( $editingContactEntry === true ) {
 				// Check if invalid Entry ID
-				if ( ( $entry_id == 0 ) || ( get_post_type( $entry_id ) != 'super_contact_entry' ) ) {
+				// @since 6.5.0 - Use Entry DAL for migration-aware entry validation
+				$entry_check = class_exists( 'SUPER_Entry_DAL' ) ? SUPER_Entry_DAL::get( $entry_id ) : get_post( $entry_id );
+				$is_valid_entry = false;
+				if ( ! is_wp_error( $entry_check ) && $entry_check ) {
+					// Entry DAL returns object with form_id, BC returns WP_Post with post_parent
+					$is_valid_entry = true;
+				}
+				if ( ( $entry_id == 0 ) || ! $is_valid_entry ) {
 					$result = '<strong>' . esc_html__( 'Error', 'super-forms' ) . ':</strong> ' . esc_html__( 'No entry found with ID:', 'super-forms' ) . ' ' . $entry_id;
 					return $result;
 				} else {
 					$lists = $settings['_listings']['lists'];
 					$list  = SUPER_Listings::get_default_listings_settings( array( 'list' => $lists[ $list_id ] ) );
-					$entry = get_post( $entry_id );
+					$entry = $entry_check; // Use the entry we already fetched
 					$allow = SUPER_Listings::get_action_permissions(
 						array(
 							'list'  => $list,
@@ -7819,22 +7856,50 @@ if ( ! class_exists( 'SUPER_Shortcodes' ) ) :
 								if ( ( isset( $settings['retrieve_last_entry_form'] ) ) && ( $settings['retrieve_last_entry_form'] != '' ) ) {
 									$form_ids = explode( ',', $settings['retrieve_last_entry_form'] );
 								}
-								$form_ids = implode( "','", $form_ids );
 								// Lookup contact entries based on this user ID and form ID(s)
+								// @since 6.5.0 - Use Entry DAL for migration-aware query
 								global $wpdb;
-								$table      = $wpdb->prefix . 'posts';
-								$table_meta = $wpdb->prefix . 'postmeta';
-								$entry      = $wpdb->get_results(
-									"
-                            SELECT  ID 
-                            FROM    $table 
-                            WHERE   post_author = $current_user_id AND
-                                    post_parent IN ('$form_ids') AND
-                                    post_status IN ('publish','super_unread','super_read') AND 
-                                    post_type = 'super_contact_entry'
-                            ORDER BY ID DESC
-                            LIMIT 1"
-								);
+								if ( class_exists( 'SUPER_Entry_DAL' ) ) {
+									$components = SUPER_Entry_DAL::get_query_components();
+									$table      = $components['entries_table'];
+									$id_col     = $components['id_column'];
+									$user_col   = $components['user_id_column'];
+									$form_col   = $components['form_id_column'];
+									$status_col = $components['status_column'];
+									$form_ids_str = implode( "','", array_map( 'intval', $form_ids ) );
+
+									if ( $components['storage_mode'] === 'post_type' ) {
+										$entry = $wpdb->get_results( $wpdb->prepare(
+											"SELECT {$id_col} as ID FROM {$table}
+											WHERE {$user_col} = %d
+											AND {$form_col} IN ('{$form_ids_str}')
+											AND {$status_col} IN ('publish','super_unread','super_read')
+											AND post_type = 'super_contact_entry'
+											ORDER BY {$id_col} DESC LIMIT 1",
+											$current_user_id
+										) );
+									} else {
+										$entry = $wpdb->get_results( $wpdb->prepare(
+											"SELECT {$id_col} as ID FROM {$table}
+											WHERE {$user_col} = %d
+											AND {$form_col} IN ('{$form_ids_str}')
+											AND {$status_col} IN ('publish','super_unread','super_read')
+											ORDER BY {$id_col} DESC LIMIT 1",
+											$current_user_id
+										) );
+									}
+								} else {
+									$form_ids_str = implode( "','", $form_ids );
+									$table = $wpdb->prefix . 'posts';
+									$entry = $wpdb->get_results(
+										"SELECT ID FROM $table
+										WHERE post_author = $current_user_id
+										AND post_parent IN ('$form_ids_str')
+										AND post_status IN ('publish','super_unread','super_read')
+										AND post_type = 'super_contact_entry'
+										ORDER BY ID DESC LIMIT 1"
+									);
+								}
 								if ( isset( $entry[0] ) ) {
 									$entry_data = SUPER_Data_Access::get_entry_data( $entry[0]->ID );
 									if ( is_wp_error( $entry_data ) ) {
@@ -7857,23 +7922,51 @@ if ( ! class_exists( 'SUPER_Shortcodes' ) ) :
 							if ( ( isset( $settings['retrieve_last_entry_form'] ) ) && ( $settings['retrieve_last_entry_form'] != '' ) ) {
 								$form_ids = explode( ',', $settings['retrieve_last_entry_form'] );
 							}
-							$form_ids = implode( "','", $form_ids );
 
 							// First check if we can find contact entries based on user ID and Form ID
+							// @since 6.5.0 - Use Entry DAL for migration-aware query
 							global $wpdb;
-							$table      = $wpdb->prefix . 'posts';
-							$table_meta = $wpdb->prefix . 'postmeta';
-							$entry      = $wpdb->get_results(
-								"
-                        SELECT  ID 
-                        FROM    $table 
-                        WHERE   post_author = $current_user_id AND
-                                post_parent IN ('$form_ids') AND
-                                post_status IN ('publish','super_unread','super_read') AND 
-                                post_type = 'super_contact_entry'
-                        ORDER BY ID DESC
-                        LIMIT 1"
-							);
+							if ( class_exists( 'SUPER_Entry_DAL' ) ) {
+								$components = SUPER_Entry_DAL::get_query_components();
+								$table      = $components['entries_table'];
+								$id_col     = $components['id_column'];
+								$user_col   = $components['user_id_column'];
+								$form_col   = $components['form_id_column'];
+								$status_col = $components['status_column'];
+								$form_ids_str = implode( "','", array_map( 'intval', $form_ids ) );
+
+								if ( $components['storage_mode'] === 'post_type' ) {
+									$entry = $wpdb->get_results( $wpdb->prepare(
+										"SELECT {$id_col} as ID FROM {$table}
+										WHERE {$user_col} = %d
+										AND {$form_col} IN ('{$form_ids_str}')
+										AND {$status_col} IN ('publish','super_unread','super_read')
+										AND post_type = 'super_contact_entry'
+										ORDER BY {$id_col} DESC LIMIT 1",
+										$current_user_id
+									) );
+								} else {
+									$entry = $wpdb->get_results( $wpdb->prepare(
+										"SELECT {$id_col} as ID FROM {$table}
+										WHERE {$user_col} = %d
+										AND {$form_col} IN ('{$form_ids_str}')
+										AND {$status_col} IN ('publish','super_unread','super_read')
+										ORDER BY {$id_col} DESC LIMIT 1",
+										$current_user_id
+									) );
+								}
+							} else {
+								$form_ids_str = implode( "','", $form_ids );
+								$table = $wpdb->prefix . 'posts';
+								$entry = $wpdb->get_results(
+									"SELECT ID FROM $table
+									WHERE post_author = $current_user_id
+									AND post_parent IN ('$form_ids_str')
+									AND post_status IN ('publish','super_unread','super_read')
+									AND post_type = 'super_contact_entry'
+									ORDER BY ID DESC LIMIT 1"
+								);
+							}
 							if ( isset( $entry[0] ) ) {
 								// If entry exists, set the ID so we can actually update it based on the ID later
 								if ( ! empty( $settings['update_contact_entry'] ) ) {

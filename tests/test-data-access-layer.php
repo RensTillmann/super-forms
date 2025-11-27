@@ -65,12 +65,12 @@ class Test_Data_Access_Layer extends SUPER_Test_Helpers {
 
 	public function test_invalid_entry_id_returns_error() {
 		$result = SUPER_Data_Access::get_entry_data('invalid');
-		$this->assertWPError($result);
+		$this->assertInstanceOf( 'WP_Error', $result, 'Invalid entry ID should return WP_Error' );
 	}
 
 	public function test_nonexistent_entry_returns_error() {
 		$result = SUPER_Data_Access::get_entry_data(999999);
-		$this->assertWPError($result);
+		$this->assertInstanceOf( 'WP_Error', $result, 'Nonexistent entry should return WP_Error' );
 	}
 
 	public function test_save_with_invalid_data_returns_error() {
@@ -80,7 +80,7 @@ class Test_Data_Access_Layer extends SUPER_Test_Helpers {
 		));
 
 		$result = SUPER_Data_Access::save_entry_data($entry_id, 'not_an_array');
-		$this->assertWPError($result);
+		$this->assertInstanceOf( 'WP_Error', $result, 'Invalid data should return WP_Error' );
 
 		$this->cleanup_test_entries();
 	}

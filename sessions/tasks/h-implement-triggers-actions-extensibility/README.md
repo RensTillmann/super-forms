@@ -97,69 +97,125 @@ Additional filtering done via **conditions** (e.g., "payment gateway is Stripe",
 
 ## Subtasks
 
-This task is divided into 8 implementation phases, each documented as a separate subtask:
+This task is divided into implementation phases, each documented as a separate subtask:
 
-1. **[Foundation and Registry System](01-implement-foundation-registry.md)** - Backend foundation: Database schema, DAL, Manager, Registry, Conditions Engine, REST API (NO UI)
+**Backend Infrastructure (Complete):**
+1. **[Foundation and Registry System](01-implement-foundation-registry.md)** - Database schema, DAL, Manager, Registry, Conditions Engine, REST API (NO UI)
 2. **[Action Scheduler Integration](02-implement-action-scheduler.md)** - Async execution via Action Scheduler
 3. **[Execution and Logging](03-implement-execution-logging.md)** - Advanced logging, debugging, compliance
 4. **[API and Security](04-implement-api-security.md)** - OAuth, encrypted credentials, rate limiting
 5. **[HTTP Request Action](05-implement-http-request.md)** - Postman-like HTTP request builder
 6. **[Payment and Subscription Events](06-implement-payment-subscription.md)** - Payment gateway integrations
-7. **[Example Add-ons](07-implement-example-addons.md)** - Three complete example add-ons
-8. **[Real-time Interactions](08-implement-realtime-interactions.md)** - Client-side triggers, validation, duplicate detection
 
-**Note:** Admin UI implementation deferred to separate phase after Phase 1. UI will consume REST API built in Phase 1.
+**Testing Infrastructure (Complete):**
+9. **[Test Fixtures and Payment OAuth](09-implement-test-fixtures-oauth.md)** - Comprehensive test forms, payment OAuth integration
+10. **[Payment Webhook Tests](10-implement-payment-webhook-tests.md)** - Unit tests for payment OAuth and webhook handlers
+
+**Sessions/Spam/Abort Architecture (Pending - Prerequisite for Migrations):**
+1a. **[Sessions & Spam Detection](01a-implement-built-in-actions-spam-detection.md)** - Progressive sessions, spam/duplicate detection, abort flow
+   - Broken down into 6 implementation steps:
+     - [Step 1: Sessions Table & DAL](01a-step1-sessions-table.md)
+     - [Step 2: Client-Side Sessions](01a-step2-client-side-sessions.md)
+     - [Step 3: Spam Detector](01a-step3-spam-detector.md)
+     - [Step 4: Duplicate Detector](01a-step4-duplicate-detector.md)
+     - [Step 5: Submission Flow Refactor](01a-step5-submission-flow-refactor.md)
+     - [Step 6: Cleanup Scheduled Jobs](01a-step6-cleanup-scheduled-jobs.md)
+
+**Feature Migration (Pending - Requires 1a):**
+11. **[Email System Migration](11-implement-email-migration.md)** - Migrate Admin/Confirm emails to triggers, integrate Email v2 builder
+12. **[WooCommerce Trigger Migration](12-implement-woocommerce-migration.md)** - Convert WooCommerce checkout to use triggers system
+13. **[FluentCRM Integration](13-implement-fluentcrm.md)** - New WordPress-native CRM integration add-on
+
+**Database Architecture (Priority - Performance):**
+17. **[Contact Entries to Custom Table](17-migrate-entries-to-custom-table.md)** - Migrate `super_contact_entry` post type to dedicated `wp_superforms_entries` table
+   - Custom table schema with optimized indexes
+   - Entry Data Access Layer (SUPER_Entry_DAL)
+   - Backwards compatibility hooks (get_post, get_post_meta, WP_Query)
+   - Background migration via Action Scheduler
+   - 30-day retention before cleanup
+   - Custom admin list table replacement
+   - REST API endpoints for entries
+
+18. **[Payment Architecture & License/SaaS API](18-implement-payment-architecture.md)** - Comprehensive payment storage and license system
+   - Subtasks:
+     - [18a: Payment Tables & DAL](18a-payment-tables-dal.md) - Core payment/subscription tables
+     - [18b: Payment Dashboard](18b-payment-dashboard.md) - Admin UI for payment management
+     - [18c: License System & SaaS API](18c-license-saas-api.md) - License keys, validation API, activation management
+     - [18d: Invoice Generation](18d-invoice-generation.md) - PDF invoices, email delivery
+   - Epics & User Flows: [18-payment-epics.md](18-payment-epics.md)
+   - Features:
+     - Dedicated `wp_superforms_payments` table (not entry_meta)
+     - Subscription lifecycle management with events audit trail
+     - Polymorphic resource linking (entries, bookings, tickets, licenses)
+     - Admin dashboard: view payments, process refunds, cancel subscriptions
+     - License API for plugin/theme developers selling via Super Forms
+     - Invoice generation and download
+
+**Future Phases (Pending):**
+7. **[Example Add-ons](07-implement-example-addons.md)** - Additional example add-ons (Slack, Google Sheets, HubSpot)
+8. **[Real-time Interactions](08-implement-realtime-interactions.md)** - Client-side triggers, validation, duplicate detection
+14. **[Analytics Dashboard](14-implement-analytics-dashboard.md)** - Form analytics, live sessions, abandonment tracking, field-level insights
+
+**Note:** Admin UI implementation deferred to separate phase. UI will consume REST API built in Phase 1.
 
 ## Success Criteria
 
-### Phase 1: Foundation and Registry System (Backend Only)
-- [ ] Database tables created with scope support
-- [ ] Data Access Layer (DAL) with scope queries
-- [ ] Manager class with business logic and validation
-- [ ] Registry system for events and actions
-- [ ] Complex condition engine (AND/OR/NOT grouping, {tag} replacement)
-- [ ] Base action class with common functionality
-- [ ] Executor class (synchronous execution)
-- [ ] REST API v1 endpoints (full CRUD)
-- [ ] Unit tests (80%+ coverage for critical paths)
-- [ ] NO backward compatibility needed (unreleased feature)
+### Phase 1: Foundation and Registry System (Backend Only) - COMPLETE
+- [x] Database tables created with scope support
+- [x] Data Access Layer (DAL) with scope queries
+- [x] Manager class with business logic and validation
+- [x] Registry system for events and actions
+- [x] Complex condition engine (AND/OR/NOT grouping, {tag} replacement)
+- [x] Base action class with common functionality
+- [x] Executor class (synchronous execution)
+- [x] REST API v1 endpoints (full CRUD)
+- [x] Unit tests (102 tests, 370 assertions, 0 failures)
+- [x] NO backward compatibility needed (unreleased feature)
 - [ ] NO admin UI (deferred to separate phase)
-- [ ] See [Phase 1 subtask](01-implement-foundation-registry.md) for details
+- [x] See [Phase 1 subtask](01-implement-foundation-registry.md) for details
 
-### Phase 2: Action Scheduler Integration (Async Execution)
-- [ ] Executor enhanced with async execution via Action Scheduler
-- [ ] Scheduled/delayed action support
-- [ ] Queue management integration
-- [ ] Failed action retry mechanism
-- [ ] Note: Phase 1 builds synchronous executor, Phase 2 adds async layer
-- [ ] See [Phase 2 subtask](02-implement-action-scheduler.md) for details
+### Phase 2: Action Scheduler Integration (Async Execution) ✅ COMPLETE
+- [x] Executor enhanced with async execution via Action Scheduler
+- [x] Scheduled/delayed action support
+- [x] Queue management integration
+- [x] Failed action retry mechanism
+- [x] Note: Phase 1 builds synchronous executor, Phase 2 adds async layer
+- [x] See [Phase 2 subtask](02-implement-action-scheduler.md) for details
 
-### Phase 3: Execution and Logging
-- [ ] Robust execution engine with error handling
-- [ ] Comprehensive logging system
-- [ ] Debug mode for development
-- [ ] Performance metrics tracking
-- [ ] See [Phase 3 subtask](03-implement-execution-logging.md) for details
+### Phase 3: Execution and Logging - COMPLETE
+- [x] Robust execution engine with error handling
+- [x] Comprehensive logging system
+- [x] Debug mode for development
+- [x] Performance metrics tracking
+- [x] GDPR compliance and audit trails
+- [x] Admin log viewer with filtering/export
+- [x] See [Phase 3 subtask](03-implement-execution-logging.md) for details
 
-### Phase 4: API and Security
-- [ ] Secure API credentials storage
-- [ ] REST API endpoints
-- [ ] OAuth 2.0 support
-- [ ] Rate limiting implemented
-- [ ] See [Phase 4 subtask](04-implement-api-security.md) for details
+### Phase 4: API and Security - COMPLETE
+- [x] Secure API credentials storage (AES-256-CBC encryption)
+- [x] REST API endpoints (existing from Phase 1)
+- [x] OAuth 2.0 support (PKCE, token refresh, provider registration)
+- [x] Rate limiting implemented (pattern detection, security logging)
+- [x] WordPress capabilities system (4 custom capabilities)
+- [x] API key management (generation, validation, usage tracking)
+- [x] See [Phase 4 subtask](04-implement-api-security.md) for details
 
-### Phase 5: HTTP Request Action
-- [ ] Support all HTTP methods
-- [ ] Multiple authentication methods
-- [ ] Flexible body formats
-- [ ] Response parsing and mapping
-- [ ] See [Phase 5 subtask](05-implement-http-request.md) for details
+### Phase 5: HTTP Request Action - COMPLETE
+- [x] Support all HTTP methods (GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS)
+- [x] Multiple authentication methods (None, Basic, Bearer, API Key, OAuth 2.0, Custom Header)
+- [x] Flexible body formats (None, JSON, Form Data, XML, Raw, GraphQL, Auto)
+- [x] Response parsing and mapping (JSON/XML path extraction, tag replacement)
+- [x] Template system with 15 pre-built integrations
+- [x] Debug mode and retry mechanism
+- [x] See [Phase 5 subtask](05-implement-http-request.md) for details
 
-### Phase 6: Payment Events
-- [ ] Payment gateway events integrated
-- [ ] Subscription lifecycle tracked
-- [ ] Refund handling implemented
-- [ ] See [Phase 6 subtask](06-implement-payment-subscription.md) for details
+### Phase 6: Payment Events - COMPLETE
+- [x] Payment gateway events integrated (16 events: 8 Stripe, 8 PayPal)
+- [x] Subscription lifecycle tracked (created, updated, cancelled, suspended, invoice_paid, invoice_failed)
+- [x] Refund handling implemented (payment.paypal.capture_refunded event)
+- [x] Webhook endpoints: `POST /webhooks/stripe`, `POST /webhooks/paypal`
+- [x] Signature verification for both Stripe (HMAC-SHA256) and PayPal (API verification)
+- [x] See [Phase 6 subtask](06-implement-payment-subscription.md) for details
 
 ### Phase 7: Example Add-ons
 - [ ] Slack integration example
@@ -176,20 +232,181 @@ This task is divided into 8 implementation phases, each documented as a separate
 - [ ] Network failure handling and retry logic
 - [ ] See [Phase 8 subtask](08-implement-realtime-interactions.md) for details
 
+### Phase 9: Test Fixtures and Payment OAuth - COMPLETE
+#### Part A: Test Fixtures (COMPLETE)
+- [x] Form Factory creates comprehensive test forms (multi-step, repeater, signature, PDF)
+- [x] Trigger Factory attaches triggers with all action types
+- [x] Webhook Simulator generates valid Stripe/PayPal webhook payloads
+- [x] Integration tests cover full submission → trigger → action flow
+#### Part B: Payment OAuth (COMPLETE)
+- [x] `SUPER_Payment_OAuth` class - Stripe Connect and PayPal OAuth flows
+- [x] Stripe Quick Connect OAuth flow (platform credentials via super-forms.com)
+- [x] PayPal Quick Connect OAuth flow (platform credentials)
+- [x] Manual API key fallback for enterprise users (`save_manual_keys()`)
+- [x] Token exchange and encrypted credential storage via `SUPER_Trigger_Credentials`
+#### Part C: Payment Events (COMPLETE - overlaps with Phase 6)
+- [x] All payment events registered in Registry (Stripe: 8, PayPal: 8)
+- [x] Webhook signature verification (Stripe HMAC-SHA256, PayPal API verification)
+- [ ] Form builder shows gateway connection status (UI deferred)
+- [x] See [Phase 9 subtask](09-implement-test-fixtures-oauth.md) for details
+
+### Phase 10: Payment Webhook Tests - COMPLETE
+- [x] Payment event registration tests (16 events verified)
+- [x] Stripe signature verification tests (security-critical)
+- [x] Event mapping tests (gateway -> Super Forms events)
+- [x] Context building tests (Stripe payload parsing)
+- [x] Context building tests (PayPal payload parsing)
+- [x] Edge cases: missing fields, malformed data, boundary conditions
+- [x] See [Phase 10 subtask](10-implement-payment-webhook-tests.md) for details
+
+### Phase 11: Email System Migration - PENDING
+- [ ] Email v2 tab saves trigger configuration (facade pattern)
+- [ ] Migration script converts legacy email settings to triggers
+- [ ] Admin emails sent via `send_email` action
+- [ ] Confirmation emails sent via `send_email` action
+- [ ] Email v2 templates work with triggers
+- [ ] Backward compatible: old settings still work during transition
+- [ ] Logging shows email delivery status
+- [ ] See [Phase 11 subtask](11-implement-email-migration.md) for details
+
+### Phase 12: WooCommerce Trigger Migration - PENDING
+- [ ] WooCommerce actions registered (add_to_cart, create_order, etc.)
+- [ ] WooCommerce events registered (order status changes)
+- [ ] Migration script converts existing WooCommerce settings
+- [ ] Product field mapping preserved
+- [ ] Entry status updates via triggers on order status change
+- [ ] Order creation logged in trigger logs
+- [ ] See [Phase 12 subtask](12-implement-woocommerce-migration.md) for details
+
+### Phase 13: FluentCRM Integration - PENDING
+- [ ] `fluentcrm.create_contact` action creates/updates contacts
+- [ ] `fluentcrm.add_to_lists` assigns contacts to lists
+- [ ] `fluentcrm.apply_tags` applies tags to contacts
+- [ ] `fluentcrm.remove_tags` removes tags
+- [ ] `fluentcrm.start_automation` triggers automation funnels
+- [ ] Error handling when FluentCRM not active
+- [ ] See [Phase 13 subtask](13-implement-fluentcrm.md) for details
+
+### Phase 14: Analytics Dashboard - PENDING
+- [ ] Dedicated "Super Forms > Analytics" admin page
+- [ ] Overview cards (submissions today/week/month/all-time)
+- [ ] Submissions chart with selectable date range
+- [ ] Top forms by submissions table
+- [ ] Live sessions monitor (forms being filled NOW)
+- [ ] Per-form analytics (conversion rate, abandonment, avg time)
+- [ ] Field-level analytics (funnel, drop-off, corrections)
+- [ ] Abandonment tracking with "last field before abandon" insight
+- [ ] Custom tracking configuration per form
+- [ ] Privacy-focused (all data local, configurable retention)
+- [ ] Requires Phase 1a (sessions table) for live monitoring
+- [ ] See [Phase 14 subtask](14-implement-analytics-dashboard.md) for details
+
+### Phase 17: Contact Entries to Custom Table - PENDING (Priority)
+- [ ] `wp_superforms_entries` table created with optimized schema (core entry data)
+- [ ] `wp_superforms_entry_meta` table created (extensible metadata storage)
+- [ ] `SUPER_Entry_DAL` class with CRUD operations, meta methods, and flexible queries
+- [ ] Backwards compatibility hooks intercept `get_post()`, `get_post_meta()`, `WP_Query`
+- [ ] Migration system moves entries from `wp_posts` to custom table (preserves IDs)
+- [ ] Migration system moves postmeta to entry_meta table (payment IDs, integration data)
+- [ ] Dual-read mode during migration (check both tables)
+- [ ] 30-day retention period before post type cleanup
+- [ ] Custom `SUPER_Entries_List_Table` replaces WordPress list table
+- [ ] REST API endpoints for entries (`/super-forms/v1/entries`)
+- [ ] All 32+ files referencing `super_contact_entry` updated to use DAL
+- [ ] Extensions updated: Listings, Stripe, PayPal, WooCommerce (use entry_meta for IDs)
+- [ ] Trigger actions updated: update_entry_status, update_entry_field, delete_entry
+- [ ] Performance: 10x+ improvement on entry list queries (10K+ entries)
+- [ ] Zero data loss: All entries migrated with fields and metadata preserved
+- [ ] See [Phase 17 subtask](17-migrate-entries-to-custom-table.md) for details
+
+### Phase 18: Payment Architecture - PENDING
+- [ ] 6 payment-specific database tables (products, prices, coupons, payments, subscriptions, refunds)
+- [ ] `SUPER_Payment_Product_DAL` - Product/price management with Stripe/PayPal sync
+- [ ] `SUPER_Payment_Coupon_DAL` - Coupon management with validation and usage tracking
+- [ ] `SUPER_Payment_DAL` - Payment processing with gateway abstraction
+- [ ] `SUPER_Payment_Subscription_DAL` - Subscription lifecycle management
+- [ ] Polymorphic payment linking (form, booking, product resources)
+- [ ] Unified payment status machine (pending → processing → succeeded/failed → refunded)
+- [ ] Stripe Connect and PayPal OAuth flows via `SUPER_Payment_OAuth`
+- [ ] 13 payment/subscription events integrated with triggers system
+- [ ] Webhook handlers with signature verification
+- [ ] See [Phase 18 subtask](18-implement-payment-architecture.md) for details
+
+### Phase 19: Appointments/Booking System - PENDING
+- [ ] 15 booking-specific database tables (services, staff, schedules, bookings, customers, etc.)
+- [ ] `SUPER_Booking_Service_DAL` - Service management with extras and pricing tiers
+- [ ] `SUPER_Booking_Staff_DAL` - Staff management with schedules and breaks
+- [ ] `SUPER_Booking_DAL` - Booking CRUD with status management (confirm, cancel, reschedule)
+- [ ] `SUPER_Booking_Availability_Engine` - Slot calculation with buffer times and resource constraints
+- [ ] `SUPER_Booking_Reminder_DAL` - Reminder scheduling via Action Scheduler
+- [ ] `SUPER_Booking_Notification_Manager` - Email/SMS notifications via templates
+- [ ] `SUPER_Booking_Calendar_Sync` - Two-way sync with Google Calendar and Outlook
+- [ ] Form builder "Booking Calendar" field element with React frontend
+- [ ] Recurring appointments with multiple frequencies
+- [ ] Group bookings with capacity limits
+- [ ] Waitlist management with auto-notification
+- [ ] Resource management (rooms, equipment)
+- [ ] Multi-location support with timezone handling
+- [ ] 17 booking events and 10 booking actions for triggers
+- [ ] Integration with Phase 18 payment tables
+- [ ] See [Phase 19 subtask](19-implement-appointments-booking.md) for details
+
 ## Implementation Order
 
 The phases should be implemented sequentially:
-1. **Phase 1 (Foundation)** - Backend infrastructure (database, DAL, manager, registry, conditions, executor, REST API) - NO UI
-2. **Phase 1.5 (Admin UI)** - Dedicated "Triggers" admin page - DEFERRED until after Phase 1
-3. **Phase 2 (Action Scheduler)** - Async execution layer
-4. **Phase 3 (Execution/Logging)** - Advanced logging and debugging
-5. **Phase 4 (API/Security)** - OAuth and encrypted credentials
-6. **Phase 5 (HTTP Request)** - Most versatile action type
-7. **Phase 6 (Payment Events)** - Integration with payment add-ons
-8. **Phase 7 (Examples)** - Demonstrate the system to add-on developers
-9. **Phase 8 (Real-time)** - Client-side interactions
+
+**Completed:**
+1. ✅ **Phase 1 (Foundation)** - Backend infrastructure (database, DAL, manager, registry, conditions, executor, REST API)
+2. ✅ **Phase 2 (Action Scheduler)** - Async execution layer
+3. ✅ **Phase 3 (Execution/Logging)** - Advanced logging and debugging
+4. ✅ **Phase 4 (API/Security)** - OAuth and encrypted credentials
+5. ✅ **Phase 5 (HTTP Request)** - Most versatile action type
+6. ✅ **Phase 6 (Payment Events)** - Integration with payment add-ons
+9. ✅ **Phase 9 (Test Fixtures/OAuth)** - Comprehensive test forms, Stripe/PayPal OAuth
+10. ✅ **Phase 10 (Payment Webhook Tests)** - Unit tests for payment OAuth/webhook security
+
+**NEXT - Prerequisite for Migrations:**
+1a. **Phase 1a (Sessions/Spam/Abort)** - CRITICAL: Must be implemented BEFORE feature migrations
+   - Step 1: Sessions Table & DAL
+   - Step 2: Client-Side Sessions (auto-save, client token recovery)
+   - Step 3: Spam Detector (honeypot, time, IP, keywords, Akismet)
+   - Step 4: Duplicate Detector (email+time, IP+time, hash, custom fields)
+   - Step 5: Submission Flow Refactor (pre-submission firewall)
+   - Step 6: Cleanup Scheduled Jobs
+
+**After 1a - Feature Migration:**
+11. **Phase 11 (Email Migration)** - Migrate Admin/Confirm emails to triggers, integrate Email v2
+12. **Phase 12 (WooCommerce Migration)** - Convert WooCommerce checkout to triggers
+13. **Phase 13 (FluentCRM)** - New WordPress-native CRM integration
+
+**Database Architecture (Can Start Now - Independent):**
+17. **Phase 17 (Entries Custom Table)** - PRIORITY: Migrate `super_contact_entry` to custom table
+   - Can be implemented independently of other phases
+   - Provides significant performance improvement
+   - Aligns architecture with industry standards
+   - Required before major UI overhaul
+
+**Future:**
+7. **Phase 7 (Additional Add-ons)** - Slack, Google Sheets, HubSpot integrations
+8. **Phase 8 (Real-time)** - Client-side triggers, field validation, duplicate detection
+14. **Phase 14 (Analytics Dashboard)** - Form analytics, live sessions, field-level insights
+1.5. **Admin UI** - Dedicated "Triggers" admin page (deferred)
 
 **Note:** Phase 1 builds complete backend without UI. UI can be implemented as separate phase using REST API.
+
+**Why Phase 17 is Priority:**
+- 10x+ query performance improvement for sites with 10K+ entries
+- Removes entries from bloated `wp_posts` table
+- Enables custom indexes for form-specific queries
+- Aligns with Gravity Forms, WPForms, Formidable architecture
+- Simplifies codebase (single source of truth vs post+meta+EAV)
+- Required foundation for advanced entry management features
+
+**Why Phase 1a is Critical:**
+- Sessions table enables time-based spam detection (tracks form start time)
+- Pre-submission firewall ensures spam/duplicates blocked BEFORE entry creation
+- Abort flow allows triggers to stop submission (not possible with current architecture)
+- Email/WooCommerce migrations need session context for proper event ordering
 
 ## Context Manifest
 
@@ -1296,6 +1513,440 @@ $pending = as_get_scheduled_actions(array(
 ));
 ```
 
+## Data Architecture
+
+### Core Concepts: Sessions, Submissions, and Entries
+
+Super Forms uses a **three-concept architecture** that differs from most WordPress form plugins. This design enables cleaner data, better spam blocking, and flexible analytics.
+
+| Concept | Purpose | Storage | Lifecycle |
+|---------|---------|---------|-----------|
+| **Sessions** | Temporary form-filling state | `wp_superforms_sessions` table | Created on first field focus → auto-saved on blur → recovered via client token → completed/abandoned/expired |
+| **Submissions** | The act of submitting (immutable audit trail) | Implicit in flow, tracked via `wp_superforms_trigger_logs` | Single event during form submission |
+| **Entries** | CRM data (the saved form data) | `super_contact_entry` post type + EAV tables | Created ONLY after spam/duplicate checks pass |
+
+### Why This Architecture?
+
+**Industry Standard Approach (Gravity Forms, WPForms, Formidable):**
+```
+User starts form → Draft Entry created → User submits → Entry status = "Completed"
+                                                      → Spam detected? Entry status = "Spam"
+```
+- Draft IS an entry, just with different status
+- Spam entries exist in your CRM data (even if filtered)
+- No separation between form interaction and business data
+
+**Super Forms Approach:**
+```
+User focuses field → Session created (temporary)
+User fills form → Session auto-saved (recoverable)
+User submits → Pre-submission firewall runs
+            → Spam detected? Session marked "aborted", NO Entry created
+            → Checks pass? Entry created (clean CRM data)
+```
+
+### Advantages of This Design
+
+1. **Cleaner CRM Data:** Entries = legitimate submissions only (no spam polluting your data)
+2. **Better Spam Blocking:** Can abort BEFORE any permanent record exists
+3. **Flexible Sessions:** Sessions can expire/cleanup without affecting entry counts
+4. **Analytics Separation:** Sessions track form interaction, entries track business data
+5. **Storage Efficiency:** Spam sessions can be purged without entry cleanup
+6. **Pre-submission Firewall:** Triggers can abort submission BEFORE entry creation
+
+### Data Flow Diagram
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ FORM INTERACTION (Sessions)                                      │
+├─────────────────────────────────────────────────────────────────┤
+│ 1. User loads form                                               │
+│ 2. User focuses first field → SESSION CREATED (draft)           │
+│ 3. User fills fields → SESSION AUTO-SAVED (on blur)             │
+│    └─ Recoverable if browser crashes                            │
+│ 4. User clicks Submit                                            │
+└─────────────────────────────────────────────────────────────────┘
+                               ↓
+┌─────────────────────────────────────────────────────────────────┐
+│ PRE-SUBMISSION FIREWALL                                          │
+├─────────────────────────────────────────────────────────────────┤
+│ 5. Spam detection (honeypot, time, IP, keywords, Akismet)       │
+│ 6. Duplicate detection (email+time, IP+time, hash)              │
+│ 7. Triggers can fire ABORT action                                │
+│                                                                   │
+│ [ABORT CHECKPOINT]                                               │
+│ If spam/duplicate → Session marked "aborted", files cleaned      │
+│                   → NO ENTRY CREATED, return message to user     │
+└─────────────────────────────────────────────────────────────────┘
+                               ↓ (only if checks pass)
+┌─────────────────────────────────────────────────────────────────┐
+│ ENTRY CREATION (CRM Data)                                        │
+├─────────────────────────────────────────────────────────────────┤
+│ 8. Session marked "completed"                                    │
+│ 9. Entry created (super_contact_entry post type)                │
+│ 10. Data saved via SUPER_Data_Access (EAV tables)               │
+│ 11. Files moved to permanent storage                             │
+│ 12. Post-submission triggers fire (emails, webhooks, etc.)      │
+└─────────────────────────────────────────────────────────────────┘
+                               ↓
+┌─────────────────────────────────────────────────────────────────┐
+│ AUDIT TRAIL (Trigger Logs)                                       │
+├─────────────────────────────────────────────────────────────────┤
+│ All events logged in wp_superforms_trigger_logs:                │
+│ - session.started, session.auto_saved, session.completed        │
+│ - form.spam_detected, form.duplicate_detected                   │
+│ - entry.created, entry.saved                                    │
+│ - form.submitted (final immutable audit point)                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Session Status Values
+
+| Status | Description | Can Recover? |
+|--------|-------------|--------------|
+| `draft` | User actively filling form | Yes |
+| `submitting` | Submit in progress | No |
+| `completed` | Successfully submitted, entry created | No |
+| `aborted` | Blocked by spam/duplicate detection | No |
+| `abandoned` | No activity for 30+ minutes | Yes |
+| `expired` | Session exceeded 24-hour lifetime | No |
+
+## Terminology Decisions
+
+### UI Terminology vs Code Terminology
+
+| Concept | UI/User-Facing | Code/Database |
+|---------|----------------|---------------|
+| Incomplete form progress | "Draft" or "Saved Progress" | Session |
+| Saved form data | "Entry" | Entry / Contact Entry |
+| Recovery prompt | "Resume your form?" | Session recovery |
+| Admin data view | "Entries" (menu label) | super_contact_entry |
+
+**Rationale:**
+- Users familiar with Gravity Forms, WPForms, Formidable expect "Entries"
+- "Draft" is universally understood for incomplete work
+- "Session" is implementation detail users don't need to know
+- Recovery UX: "You have unsaved progress. Resume?" (not "Resume session")
+
+### Naming Conventions
+
+**Current:** `super_contact_entry` post type, "Contact Entries" menu
+**Recommendation:** Simplify to "Entries" in UI
+
+| Location | Current | Recommended |
+|----------|---------|-------------|
+| Admin menu | "Contact Entries" | "Entries" |
+| Post type slug | `super_contact_entry` | Keep (BC) |
+| User-facing | "Your submission" | "Your entry" or "Your submission" |
+| Recovery prompt | N/A | "Resume your draft?" |
+
+### Future Consideration: Entry Notes
+
+Like Gravity Forms' `wp_gf_entry_notes` table, consider adding admin notes capability:
+
+```sql
+CREATE TABLE wp_superforms_entry_notes (
+  id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+  entry_id BIGINT(20) UNSIGNED NOT NULL,
+  user_id BIGINT(20) UNSIGNED NOT NULL,
+  note_type VARCHAR(50) DEFAULT 'user', -- user, system, notification
+  note TEXT NOT NULL,
+  created_at DATETIME NOT NULL,
+  PRIMARY KEY (id),
+  KEY entry_id (entry_id)
+) ENGINE=InnoDB;
+```
+
+Use cases:
+- Admin adds follow-up note: "Called customer, resolved issue"
+- System note: "Email bounced - invalid address"
+- Notification tracking: "Reminder sent on 2025-01-15"
+
+## Use Cases and Examples
+
+### Use Case 1: Contact Form with Spam Protection
+
+**Scenario:** Simple contact form, high spam volume
+
+**Configuration:**
+- Honeypot field (always enabled)
+- Time-based detection: minimum 3 seconds
+- Keyword filter: common spam words
+- On spam detected: Abort submission
+
+**Flow:**
+```
+Bot submits in 0.5 seconds with honeypot filled
+→ Session exists (created on field focus by bot script)
+→ Spam detected: time < 3s AND honeypot filled
+→ form.spam_detected event fires
+→ Abort Submission action executes
+→ Session marked "aborted"
+→ NO entry created
+→ Generic message shown (don't reveal detection)
+```
+
+### Use Case 2: Multi-Step Application with Save Progress
+
+**Scenario:** Job application, 5 steps, users need to save and continue later
+
+**Configuration:**
+- Auto-save enabled (every field blur)
+- Session recovery enabled
+- 7-day session expiry (custom)
+
+**Flow:**
+```
+Day 1: User fills steps 1-3, closes browser
+→ Session created on first focus
+→ Data auto-saved after each field
+→ Session status: "draft"
+
+Day 3: User returns to form
+→ Check for recoverable session (by user ID or IP)
+→ "Resume your draft?" prompt shown
+→ User clicks "Resume"
+→ Form populated with saved data
+→ Session.resumed event fires
+
+Day 3: User completes form
+→ Pre-submission checks pass
+→ Entry created
+→ Session marked "completed"
+```
+
+### Use Case 3: Payment Form with Duplicate Prevention
+
+**Scenario:** Registration form with payment, prevent double charges
+
+**Configuration:**
+- Duplicate detection: email + 10 minute window
+- On duplicate: Abort with custom message
+
+**Flow:**
+```
+User submits registration with payment
+→ Entry created, payment processed
+→ User clicks back button and submits again
+→ Duplicate detected (same email within 10 min)
+→ form.duplicate_detected event fires
+→ Abort Submission action executes
+→ "You've already registered. Check your email for confirmation."
+→ NO second entry, NO double charge
+```
+
+### Use Case 4: Lead Form with CRM Integration
+
+**Scenario:** Lead capture form syncs to HubSpot CRM
+
+**Configuration:**
+- Trigger on: form.submitted
+- Action: HTTP Request to HubSpot API
+- Retry: 3 attempts on failure
+
+**Flow:**
+```
+User submits lead form
+→ Pre-submission checks pass
+→ Entry created in Super Forms
+→ form.submitted event fires
+→ HTTP Request action queued (async)
+→ Action Scheduler executes request
+→ Success: Lead created in HubSpot
+→ Failure: Retry with exponential backoff
+→ All attempts logged in trigger_logs
+```
+
+### Use Case 5: Conditional Email Based on Form Data
+
+**Scenario:** Send different emails based on selected department
+
+**Configuration:**
+- Trigger 1: form.submitted WHERE department = "Sales"
+  - Action: Send email to sales@company.com
+- Trigger 2: form.submitted WHERE department = "Support"
+  - Action: Send email to support@company.com
+
+**Flow:**
+```
+User selects "Support" department
+→ Entry created
+→ form.submitted fires
+→ Trigger 1 conditions: department = "Sales" → FALSE, skip
+→ Trigger 2 conditions: department = "Support" → TRUE
+→ Send email action executes → support@company.com receives
+```
+
+## Future Ideas
+
+The following are conceptual ideas for future development, documented here for planning purposes.
+
+### Future Phase 15: Ticket System Add-on
+
+**Concept:** Transform form submissions into support tickets, managed via triggers.
+
+**Architecture:**
+- Separate from Entries (tickets have different lifecycle: open → in progress → resolved → closed)
+- Custom post type: `super_ticket` or custom table
+- Ticket-specific fields: priority, assignee, status, due date, SLA
+- Thread/conversation support (multiple replies per ticket)
+
+**Trigger Integration:**
+```
+Event: form.submitted (support form)
+Conditions: form_id = 123 (support request form)
+Actions:
+  1. Create Ticket (new action type)
+     - Title: {subject}
+     - Description: {message}
+     - Priority: {priority_field}
+     - Assignee: Auto (round-robin or by department)
+  2. Send Email to customer (ticket created confirmation)
+  3. Send Email to assignee (new ticket notification)
+```
+
+**Ticket Events (for further automation):**
+- `ticket.created`
+- `ticket.assigned`
+- `ticket.status_changed`
+- `ticket.replied` (customer or agent)
+- `ticket.resolved`
+- `ticket.reopened`
+- `ticket.escalated` (SLA breach)
+
+**UI Considerations:**
+- Dedicated "Tickets" admin page
+- Kanban view (by status)
+- List view with filters
+- Individual ticket view with conversation thread
+- Customer portal (view own tickets, add replies)
+
+### Future Phase 16: Booking System Add-on
+
+**Concept:** Enable appointment/booking forms with calendar integration.
+
+**Architecture:**
+- Bookings table with time slots
+- Integration with Google Calendar, Outlook
+- Availability rules (business hours, blocked dates)
+- Resource management (rooms, staff, equipment)
+
+**Trigger Integration:**
+```
+Event: booking.created
+Actions:
+  1. Send Email confirmation to customer
+  2. Send Email notification to provider
+  3. HTTP Request → Create Google Calendar event
+  4. HTTP Request → Send SMS reminder (via Twilio)
+
+Event: booking.reminder (scheduled 24h before)
+Actions:
+  1. Send Email reminder to customer
+  2. Send SMS reminder to customer
+
+Event: booking.cancelled
+Actions:
+  1. Send Email to customer (cancellation confirmed)
+  2. HTTP Request → Delete Google Calendar event
+  3. Update availability (free up slot)
+```
+
+**Booking Events:**
+- `booking.created`
+- `booking.confirmed` (if approval required)
+- `booking.reminder` (scheduled)
+- `booking.started` (appointment time reached)
+- `booking.completed`
+- `booking.cancelled`
+- `booking.rescheduled`
+- `booking.no_show`
+
+**UI Considerations:**
+- Calendar view for availability
+- Form field: Date/time picker with live availability
+- Admin calendar view (all bookings)
+- Provider dashboard (my bookings)
+- Customer portal (my appointments)
+
+### Future Phase 17: Entries to Custom Tables Migration
+
+**Concept:** Migrate from `super_contact_entry` post type to dedicated custom tables for better performance.
+
+**Current Architecture:**
+```
+wp_posts (post_type = 'super_contact_entry')
+  └── wp_superforms_entry_data (EAV table via SUPER_Data_Access)
+```
+
+**Proposed Architecture:**
+```
+wp_superforms_entries (dedicated table)
+  ├── id, form_id, user_id, status, ip, created_at, updated_at
+  └── wp_superforms_entry_data (unchanged EAV)
+```
+
+**Benefits:**
+- Faster queries (no post type filtering)
+- Custom indexes for form-specific queries
+- Reduced wp_posts table bloat
+- Align with Gravity Forms, WPForms architecture
+
+**Migration Considerations:**
+- Similar to EAV migration pattern already implemented
+- Backwards compatibility layer for existing integrations
+- Gradual migration with dual-read support
+
+### Future Phase 18: Entry Notes and Activity Log
+
+**Concept:** Add admin notes and activity tracking to entries.
+
+**Features:**
+- Manual admin notes (like Gravity Forms)
+- Automatic activity log (who viewed, edited, exported)
+- Email delivery tracking (opened, bounced)
+- Integration history (CRM sync status)
+
+**Database:**
+```sql
+CREATE TABLE wp_superforms_entry_notes (
+  id BIGINT(20) UNSIGNED AUTO_INCREMENT,
+  entry_id BIGINT(20) UNSIGNED NOT NULL,
+  user_id BIGINT(20) UNSIGNED,
+  note_type ENUM('note', 'system', 'email', 'integration'),
+  content TEXT NOT NULL,
+  metadata JSON,  -- For structured data (email status, API response)
+  created_at DATETIME NOT NULL,
+  PRIMARY KEY (id),
+  KEY entry_id (entry_id),
+  KEY note_type (note_type)
+);
+```
+
+### Future Phase 19: Advanced Entry Management
+
+**Concept:** Enhanced entry list view and bulk operations.
+
+**Features:**
+- Customizable columns per form
+- Saved filters/views
+- Bulk actions via triggers
+- Entry comparison (diff view)
+- Entry versioning (track changes)
+- Export templates (custom field selection)
+
+### Future Phase 20: Form Analytics v2
+
+**Concept:** Advanced analytics beyond Phase 14 dashboard.
+
+**Features:**
+- A/B testing support
+- Conversion funnel visualization
+- Field-level drop-off analysis
+- Heatmaps (time spent per field)
+- Predictive abandonment (ML-based)
+- Integration with Google Analytics 4
+
 ## User Notes
 
 ### Architecture Considerations
@@ -1462,12 +2113,856 @@ The new triggers/actions system will affect several existing features:
 - **Error Handling**: WP_Error returned consistently, no PHP fatal errors
 
 ## Work Log
-<!-- Updated as work progresses -->
-- [2025-11-20] Task created and broken into 8 subtasks
-- [2025-11-20] All subtask files created with detailed implementation plans
-- [2025-11-20] Architecture refined: Scope system, dedicated admin page, backend-first approach
-- [2025-11-20] README updated with scope architecture, no backward compatibility, REST API focus
-- [2025-11-21] **Phase 1 COMPLETE**: All 7 foundation classes + 19 actions implemented (~5,788 lines)
-- [2025-11-21] End-to-end tests passing on dev server, test infrastructure ready
-- [2025-11-21] **Status Review**: Backend production-ready, next priority = Testing + Admin UI
-- [2025-11-21] **Event Tests Enhanced**: Added 8 comprehensive tests - 23 total covering performance (<2ms), edge cases, validation
+
+### 2025-11-20
+- Task created with 8 implementation phases
+- Architecture decisions: Scope system, dedicated admin page, REST API-first approach
+
+### 2025-11-21
+
+#### Completed
+- **Phase 1 Foundation COMMITTED**: 66 files, 32,285 insertions
+  - 7 core classes: DAL, Manager, Registry, Conditions, Executor, REST Controller, Base Action
+  - 19 built-in actions implemented
+- **Test Infrastructure**: 23 event firing tests in test-event-firing.php
+- **Developer Tools Enhancement**: Added "Trigger System Testing" UI section
+  - PHP backend: fire_test_event(), get_trigger_logs(), clear_trigger_logs(), test_trigger()
+  - AJAX handlers in class-migration-manager.php
+  - JavaScript handlers (~240 lines in developer-tools.js)
+  - CSS styling for success/error messages
+- **Performance Benchmarks**: Created test-performance.php with 5 test methods
+  - Trigger lookup (<20ms for 100 triggers)
+  - Condition evaluation (<10ms for nested groups)
+  - Tag replacement (<5ms per operation)
+  - Full execution cycle (<100ms)
+  - Memory usage (<10MB for 100 events)
+- Code synced to dev server and verified functional
+
+#### Status
+- Phase 1: COMPLETE (committed)
+- Event Firing Tests: COMPLETE
+- Developer Tools: COMPLETE
+- Performance Benchmarks: COMPLETE
+
+#### Test Results (End-to-End)
+- ✓ All 3 database tables created and verified
+- ✓ All 7 foundation classes loaded successfully
+- ✓ Log Message action registered and instantiated
+- ✓ Trigger created programmatically
+- ✓ Action attached to trigger
+- ✓ Event fired and executed successfully
+- ✓ Database logs created and verified
+- ✓ File logs written to debug.log
+
+#### Performance Metrics (Measured)
+- Trigger execution: 0.67-2.07ms
+- Action execution: 0.06-0.16ms
+- Total overhead: <3ms for complete flow
+- Tag replacement: Working perfectly (`{form_id}` → `999`)
+
+#### Files Created (Phase 1)
+**Foundation Classes (7):**
+- `class-trigger-registry.php` (416 lines)
+- `class-trigger-dal.php` (860 lines)
+- `class-trigger-manager.php` (539 lines)
+- `class-trigger-executor.php` (454 lines)
+- `class-trigger-conditions.php` (602 lines)
+- `class-trigger-action-base.php` (323 lines)
+- `class-trigger-rest-controller.php`
+
+**Action Classes (19):**
+- class-action-send-email.php, class-action-update-entry-status.php
+- class-action-update-entry-field.php, class-action-delete-entry.php
+- class-action-webhook.php, class-action-create-post.php
+- class-action-abort-submission.php, class-action-log-message.php
+- class-action-stop-execution.php, class-action-set-variable.php
+- class-action-redirect-user.php, class-action-update-post-meta.php
+- class-action-update-user-meta.php, class-action-run-hook.php
+- class-action-modify-user.php, class-action-increment-counter.php
+- class-action-clear-cache.php, class-action-conditional.php
+- class-action-delay-execution.php
+
+**Test Infrastructure:**
+- class-test-db-logger.php (348 lines)
+- test-event-firing.php (408 lines)
+- class-action-test-case.php (268 lines)
+- test-action-log-message.php (230 lines)
+- test-action-send-email.php (155 lines)
+
+### 2025-11-22
+
+#### Completed
+- **Missing Event Registrations**: Added 6 events that were being fired but not registered
+  - `entry.updated`, `entry.status_changed`, `entry.deleted`
+  - `file.uploaded`, `file.upload_failed`, `file.deleted`
+- **Event Firing Integration**: Added firing code to class-ajax.php for:
+  - `entry.deleted` (admin delete + listings delete)
+  - `file.upload_failed` (file size exceeded + wp_handle_upload error)
+  - `file.deleted` (submission delete option + vcard delete)
+- **Documentation Consolidation**: Merged IMPLEMENTATION_STATUS.md into README.md
+  - Verified 18 events registered, 19 actions implemented
+  - Removed redundant documentation files
+
+#### Current Implementation Summary
+- **Events Registered**: 18 (session: 4, form: 6, entry: 5, file: 3)
+- **Actions Implemented**: 19/19 (100%)
+- **Foundation Classes**: 7/7 (100%)
+- **Database Tables**: 3 (triggers, trigger_actions, trigger_logs)
+
+#### Next Steps
+- Update CLAUDE.md with accurate event counts
+- Begin Admin UI (Phase 1.5) when user provides style guidelines
+
+#### Phase 2 Implementation (Action Scheduler)
+- **SUPER_Trigger_Scheduler class** created (`/src/includes/class-trigger-scheduler.php`, ~500 lines)
+  - Singleton wrapper for Action Scheduler
+  - Methods: `schedule_action()`, `schedule_trigger_action()`, `schedule_recurring()`, `cancel_action()`
+  - Retry mechanism with exponential backoff (2/4/8 min delays)
+  - Rate limiting utility for API-heavy actions
+  - Queue stats and monitoring methods
+  - Hooks: `super_trigger_execute_scheduled_action`, `super_execute_delayed_trigger_actions`, `super_trigger_retry_failed_action`, `super_trigger_execute_recurring`
+
+- **SUPER_Trigger_Executor enhanced** with async support:
+  - Execution mode constants: `MODE_SYNC`, `MODE_ASYNC`, `MODE_AUTO`
+  - `queue_action()` method for async scheduling
+  - `get_action_execution_mode()` for smart sync/async decisions
+  - `execute_trigger_sync()` and `execute_trigger_async()` convenience methods
+  - Tracks `actions_queued` vs `actions_sync` in results
+
+- **SUPER_Trigger_Action_Base enhanced** with async support:
+  - `supports_async()` - whether action can run in background
+  - `get_execution_mode()` - preferred mode (sync/async/auto)
+  - `get_retry_config()` - retry settings (max retries, delays)
+  - `should_retry()` - custom retry logic per action
+  - `get_rate_limit_config()` - for API rate limiting
+  - `get_metadata()` - all action info in one call
+
+- **delay_execution action fixed**:
+  - Fixed argument passing to Action Scheduler (wrap in array)
+  - Now uses Scheduler constants for hook names and group
+
+- **Sync-only actions** (must run during request):
+  - `abort_submission`, `stop_execution`, `redirect_user`, `set_variable`, `conditional_action`
+  - All override `supports_async() → false`
+
+- **Async-preferred actions** (run in background):
+  - `webhook` → `get_execution_mode() → 'async'`, custom retry (5 attempts, 1hr max)
+  - `send_email` → `get_execution_mode() → 'async'`, custom retry (5min initial)
+
+- **super-forms.php updated**:
+  - Added `include_once 'class-trigger-scheduler.php'`
+  - `init_triggers_system()` initializes Scheduler singleton
+
+#### Status
+- Phase 1: COMPLETE (committed)
+- Phase 2: COMPLETE (Action Scheduler integration)
+- Phase 3: COMPLETE (Execution and Logging)
+- Phase 4: COMPLETE (API and Security)
+- Event Firing Tests: COMPLETE
+- Developer Tools: COMPLETE
+- Performance Benchmarks: COMPLETE
+- PHPUnit Tests: PASSING (102 tests, 370 assertions, 0 failures)
+
+#### PHPUnit Test Fixes Session
+**Test Results**: 29 errors + 4 failures → 102 tests, 370 assertions, 0 failures, 14 skipped (expected)
+
+**Registry (`class-trigger-registry.php`)**:
+- Added `reset()` method for test isolation
+- Added `$initialized` flag to prevent double-initialization
+- Fixed timing when `init` hook already fired
+
+**Conditions (`class-trigger-conditions.php`)**:
+- Fixed `replace_tags()` to check `data` and `form_data` arrays with `['value']` structure
+- Fixed `evaluate_single()` to handle `{tag}` fields correctly
+- Fixed `get_field_value()` to check `data` array
+- Fixed nested group detection (check for `operator` + `rules` keys)
+
+**DAL (`class-trigger-dal.php`)**:
+- Fixed NULL `scope_id` handling - was storing 0 instead of NULL
+
+**Executor (`class-trigger-executor.php`)**:
+- Fixed WP_Error handling in `log_trigger_execution()`
+- Added `super_trigger_event` and `super_trigger_action_executed` hooks
+
+**Email Action (`class-action-send-email.php`)**:
+- Added `success` and `to` keys to return value
+- Fixed `process_attachments()` to handle both array and string input
+
+**Scheduler (`class-trigger-scheduler.php`)**:
+- Fixed `should_retry()` to return false for successful results
+- Fixed `get_pending_count()` to handle array return from Action Scheduler
+
+**Test Files**:
+- Updated `test-trigger-registry.php` to use `reset()` method
+- Added `class_exists` skip for `SUPER_Spam_Detector` tests
+- Fixed assertions in `test-action-send-email.php`
+- Fixed DB logger to handle array values
+
+### Discovered During Implementation
+[Date: 2025-11-22 / PHPUnit Testing Session]
+
+#### PHPUnit Email Testing Limitation
+
+During testing of the `send_email` action, we discovered that PHPUnit uses a mock mailer (`reset_phpmailer_instance()`) that captures emails instead of sending them. This means:
+
+- Unit tests verify email construction and wp_mail() calls correctly
+- Unit tests CANNOT verify actual email delivery
+- Real email testing requires firing events in a live WordPress environment (e.g., via Developer Tools)
+- The `tests_retrieve_phpmailer_instance()` function returns captured emails for assertion
+
+**Impact**: Test `send_email` integration by using Developer Tools to fire test events manually, not PHPUnit.
+
+#### Condition Engine: Nested Group Detection
+
+The condition evaluation engine recognizes nested groups by TWO methods:
+1. Explicit: `['type' => 'group', 'operator' => 'AND', 'rules' => [...]]`
+2. Implicit: `['operator' => 'AND', 'rules' => [...]]` (any rule with `operator` + `rules` keys)
+
+This was discovered when tests using the implicit format were failing. The `evaluate_single()` method now checks for both patterns before evaluating as a single rule.
+
+**Impact**: When writing conditions programmatically, either format works. The implicit format is cleaner for nested structures.
+
+#### Tag Replacement: Multi-Location Context Lookup
+
+The `replace_tags()` and `get_field_value()` methods search for field values in multiple locations within the context:
+
+1. Direct: `$context['field_name']`
+2. Data array: `$context['data']['field_name']` or `$context['data']['field_name']['value']`
+3. Form data: `$context['form_data']['field_name']` or `$context['form_data']['field_name']['value']`
+4. Entry data: `$context['entry_data']['field_name']` or `$context['entry_data']['field_name']['value']`
+
+This was discovered when tags like `{email}` were not being replaced because the value was nested in `$context['data']['email']['value']` rather than directly in `$context['email']`.
+
+**Impact**: When firing events, you can pass data in any of these structures. The `['value']` sub-key format matches Super Forms' standard field data structure from `SUPER_Data_Access`.
+
+#### Registry Initialization Timing
+
+The `SUPER_Trigger_Registry` constructor checks `did_action('init')` to determine initialization timing:
+
+- If `init` has NOT fired: Hooks `initialize()` to the `init` action
+- If `init` has ALREADY fired (common in PHPUnit tests): Initializes immediately in constructor
+
+This was causing double-initialization in tests. Solution: Added `$initialized` flag and `reset()` method for test isolation.
+
+**Impact**: In PHPUnit tests, always call `SUPER_Trigger_Registry::get_instance()->reset()` in `setUp()` or use the `class-action-test-case.php` base class which handles this.
+
+#### wpdb NULL Value Handling
+
+WordPress `$wpdb->prepare()` with `%d` format converts PHP `NULL` to integer `0`. This was causing `scope_id = NULL` to be stored as `scope_id = 0` in the triggers table, breaking global scope queries.
+
+**Solution**: Conditionally include `scope_id` in INSERT statements:
+```php
+// Wrong - stores 0 instead of NULL
+$wpdb->prepare("INSERT INTO ... (scope_id) VALUES (%d)", $scope_id);
+
+// Correct - stores actual NULL
+$fields = ['scope' => $data['scope']];
+if ($data['scope_id'] !== null) {
+    $fields['scope_id'] = $data['scope_id'];
+}
+$wpdb->insert($table, $fields);
+```
+
+**Impact**: Any new database operations with nullable foreign keys must use conditional field inclusion, not `%d` format placeholders.
+
+### Discovered During Implementation
+[Date: 2025-11-23 / Phase 4 API Security Session]
+
+#### Action Scheduler Test Initialization Timing
+
+Action Scheduler has specific initialization timing that must be respected in PHPUnit tests:
+
+- Action Scheduler registers at `plugins_loaded` priority 0
+- Action Scheduler initializes at `plugins_loaded` priority 1
+- Tests requiring Action Scheduler must hook at priority 2 or later
+
+This was discovered when scheduler tests failed because Action Scheduler wasn't fully initialized. The fix was added to `tests/bootstrap.php`:
+
+```php
+// Ensure Action Scheduler is fully initialized before tests run
+add_action('plugins_loaded', function() {
+    // Action Scheduler is now ready
+}, 2);
+```
+
+**Impact**: Any new test files that interact with `SUPER_Trigger_Scheduler` or Action Scheduler functions must ensure AS is initialized first. Use the existing bootstrap.php setup or add explicit priority 2+ hooks.
+
+#### API Key validate_key() Return Structure
+
+The `SUPER_Trigger_API_Keys::validate_key()` method returns an object with specific field names:
+
+```php
+// Returns object with:
+// - id (int)
+// - user_id (int)
+// - permissions (array) - decoded from JSON
+// - rate_limit (int)
+// - key_name (string) - NOT 'name'
+```
+
+**Impact**: When consuming API key validation results, use `key_name` not `name` for the human-readable identifier.
+
+#### Credentials Storage: User-Scoped Only
+
+The `SUPER_Trigger_Credentials` class stores `form_id` in the database but the `get()` method does NOT filter by it - credentials are user-scoped only:
+
+```php
+// store() accepts form_id parameter
+$credentials->store('service', 'key', 'value', $user_id, $form_id);
+
+// get() only filters by user_id, ignoring form_id
+$value = $credentials->get('service', 'key', $user_id);
+```
+
+This is intentional - credentials are owned by users, not forms. The `form_id` is stored for audit/compliance purposes only.
+
+**Impact**: Don't expect per-form credential isolation. All credentials for a service/key combo are shared across the user's forms.
+
+#### Phase 4 Class Initialization Order
+
+Phase 4 classes have different initialization patterns:
+
+1. **Singletons in `init_triggers_system()`** (called from `super-forms.php`):
+   - `SUPER_Trigger_Security::instance()` - Rate limiting, pattern detection
+   - `SUPER_Trigger_OAuth::instance()` - OAuth provider registration
+   - `SUPER_Trigger_API_Keys::instance()` - API key management
+
+2. **Self-initializing via WordPress hooks**:
+   - `SUPER_Trigger_Permissions` - Hooks to `init` via `add_action('init', ...)` in class definition
+
+3. **On-demand (no early initialization)**:
+   - `SUPER_Trigger_Credentials` - Instantiated when needed, no singleton pattern
+
+**Impact**: When extending or debugging, understand that Security/OAuth/API Keys are always active after `init_triggers_system()`, Permissions capabilities are added during `admin_init`, and Credentials are created fresh each use.
+
+### Discovered During Implementation
+[Date: 2025-11-23 / Phase 5 HTTP Request Action Session]
+
+#### Action Class Autoloader Naming Convention
+
+The `SUPER_Trigger_Registry::get_action_instance()` method (lines 485-508 in `class-trigger-registry.php`) implements lazy loading for action classes with a specific naming convention:
+
+```php
+// Class name to file path conversion:
+// 1. SUPER_Action_HTTP_Request -> super-action-http-request (underscores to hyphens, lowercase)
+// 2. super-action-http-request -> http-request (remove 'super-action-' prefix)
+// 3. Final path: /includes/triggers/actions/class-action-http-request.php
+```
+
+**Impact**: When creating custom action classes:
+- Class name must follow pattern: `SUPER_Action_{CamelCaseActionName}`
+- File must be: `class-action-{hyphenated-lowercase-name}.php`
+- Location: `/src/includes/triggers/actions/`
+- Example: `SUPER_Action_My_Custom_Action` -> `class-action-my-custom-action.php`
+
+#### HTTP Request Response Mapping Syntax
+
+The HTTP Request action's `response_mapping` setting uses a specific line-based syntax for extracting values from API responses:
+
+```
+variable_name=json.path.to.value
+user_id=data.user.id
+items_count=response.items[0].count
+```
+
+- One mapping per line
+- Format: `variable_name=path`
+- Variables are stored in `$context['mapped_data']` for subsequent actions
+- Hook `super_http_request_response_mapped` fires after mapping completes
+
+**Impact**: When configuring HTTP Request actions, ensure response mapping follows this exact format. The extracted variables can be referenced in subsequent actions via `{mapped_data.variable_name}` or directly via the context array.
+
+#### JSON Path Extraction Limitation (No Wildcards)
+
+The `get_value_by_path()` method in `SUPER_Action_HTTP_Request` (lines 917-940) supports:
+
+- Dot notation: `data.user.name`
+- Numeric array indices: `items[0].id`, `data.results[2].value`
+
+It does NOT support:
+- Wildcard indices: `items[*].id` (would need to return array of all IDs)
+- Negative indices: `items[-1]` (last item)
+- Slice notation: `items[0:5]`
+- Filter expressions: `items[?(@.active==true)]`
+
+```php
+// Works:
+$this->get_value_by_path($data, 'users[0].email');  // First user's email
+
+// Does NOT work:
+$this->get_value_by_path($data, 'users[*].email');  // All users' emails
+```
+
+**Impact**: When mapping responses from APIs that return arrays, you can only extract values at specific indices. For bulk data extraction (e.g., all items from an array), use wildcard syntax `items[*].id` or custom post-processing via the `super_http_request_response_mapped` hook.
+
+### Discovered During Implementation
+[Date: 2025-11-23 / Phase 5 Dynamic Data Enhancements Session]
+
+#### Wildcard Path Extraction Supports Nested Wildcards
+
+The `get_values_by_wildcard_path()` method supports multiple wildcards in a single path for complex nested structures:
+
+```php
+// Single wildcard - extract all item IDs
+$this->get_values_by_wildcard_path($data, 'items[*].id');
+// Returns: [1, 2, 3, ...]
+
+// Nested wildcards - extract SKUs from nested items
+$this->get_values_by_wildcard_path($data, 'orders[*].items[*].sku');
+// Returns: ['SKU-A', 'SKU-B', 'SKU-C', ...]
+```
+
+**Impact**: When mapping API responses with nested arrays, wildcard paths flatten results into a single array.
+
+#### Pipe Modifiers Execute Left-to-Right
+
+Response mapping pipe modifiers chain left-to-right:
+
+```
+items[*].price|sort|unique|join:,
+```
+
+1. Extract all prices via wildcard
+2. Sort the array
+3. Remove duplicates
+4. Join with commas
+
+**Impact**: Order matters. `|sort|unique` differs from `|unique|sort` when values have duplicates.
+
+#### Repeater-to-Array Conversion Depth Limit
+
+The `convert_repeater_to_array()` method has a maximum recursion depth of 5 levels to prevent infinite loops:
+
+```php
+private function convert_repeater_to_array($repeater_data, $field_filter = null, $depth = 0) {
+    if ($depth > 5) return $rows; // Prevent infinite recursion
+    // ...
+}
+```
+
+**Impact**: Extremely deep nested repeaters (6+ levels) will have inner levels truncated. This is an intentional safety limit.
+
+#### File/Attachment Modifiers Require URL Fields
+
+The `|file_base64`, `|attachment_base64`, and related modifiers expect the field value to be a URL:
+
+```php
+// Works - value is a URL
+$context['data']['profile_image'] = ['value' => 'https://example.com/image.jpg'];
+
+// Does NOT work - value is base64 already
+$context['data']['profile_image'] = ['value' => 'data:image/png;base64,...'];
+```
+
+**Impact**: These modifiers are designed for file upload fields that store URLs to uploaded files, not for fields that already contain encoded data.
+
+### 2025-11-23
+
+#### Completed
+- **Phase 5: HTTP Request Action** - Full implementation complete
+  - `SUPER_Action_HTTP_Request` class (~900 lines) - `/src/includes/triggers/actions/class-action-http-request.php`
+    - All HTTP methods: GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS
+    - Authentication: None, Basic, Bearer, API Key, OAuth 2.0, Custom Header
+    - Body types: None, JSON, Form Data, XML, Raw, GraphQL, Auto (smart detection)
+    - Response parsing with JSON/XML path mapping to context variables
+    - Tag replacement in URL, headers, body, and auth parameters
+    - Retry mechanism with configurable attempts and delays
+    - Debug mode for development/troubleshooting
+  - `SUPER_HTTP_Request_Templates` class (~600 lines) - `/src/includes/triggers/class-http-request-templates.php`
+    - 15 pre-built templates: Slack, Discord, Microsoft Teams, Zapier, Make (Integromat), n8n, Mailchimp, SendGrid, HubSpot, Salesforce, Airtable, Notion, Google Sheets, Telegram, Generic REST API
+    - Template registration API for add-ons via `super_http_templates` filter
+    - Import/Export JSON support for custom templates
+    - Category organization (chat, automation, email, crm, database, other)
+  - 3 AJAX endpoints added to Developer Tools for HTTP request testing
+  - Action registered in trigger registry (now 20 actions total)
+  - Unit tests: `test-action-http-request.php`, `test-http-request-templates.php`
+
+#### Test Results
+- **PHPUnit**: 251 tests, 870 assertions, 0 failures (updated after dynamic data enhancements)
+
+#### Files Created
+- `/src/includes/triggers/actions/class-action-http-request.php` (~900 lines)
+- `/src/includes/triggers/class-http-request-templates.php` (~600 lines)
+- `/tests/triggers/actions/test-action-http-request.php`
+- `/tests/triggers/test-http-request-templates.php`
+
+#### Files Modified
+- `/src/includes/triggers/class-trigger-registry.php` - Added `http_request` action registration
+- `/src/includes/class-developer-tools.php` - Added 3 AJAX handlers for HTTP testing
+- `/src/includes/class-migration-manager.php` - Registered AJAX action hooks
+
+#### Status
+- Phase 1: COMPLETE
+- Phase 2: COMPLETE (Action Scheduler integration)
+- Phase 3: COMPLETE (Execution and Logging)
+- Phase 4: COMPLETE (API and Security)
+- Phase 5: COMPLETE (HTTP Request Action)
+- Phase 6: COMPLETE (Payment Events - 16 events registered, webhook endpoints)
+- Phase 7: NOT STARTED (Example Add-ons)
+- Phase 8: NOT STARTED (Real-time Interactions)
+- Phase 9 Part A: COMPLETE (Test Fixtures - verified)
+- Phase 9 Part B: COMPLETE (Payment OAuth - SUPER_Payment_OAuth class)
+- Phase 9 Part C: COMPLETE (Payment Events registration)
+
+#### Phase 5 Dynamic Data Enhancements (Continued Session)
+- **Wildcard Array Extraction `[*]`** - Response path wildcards for extracting arrays
+  - `get_values_by_wildcard_path()` for paths like `items[*].id`
+  - `parse_path_segments()` for path parsing
+  - `extract_wildcard_values()` for recursive extraction
+  - Supports nested wildcards: `orders[*].items[*].sku`
+
+- **Pipe Modifiers for Response Mapping** (12 modifiers)
+  - Basic: `|json`, `|first`, `|last`, `|count`, `|keys`, `|values`
+  - Array: `|join`, `|flatten`, `|unique`, `|sort`, `|reverse`, `|slice`
+  - File: `|files`, `|file_base64`, `|file_meta`
+  - Signature: `|base64_data`, `|base64_mime`, `|base64_ext`
+  - Attachment: `|attachment_url`, `|attachment_base64`, `|attachment_meta`
+
+- **Nested Repeater Support**
+  - Recursive conversion in `convert_repeater_to_array()` (max depth 5)
+  - Auto-detection via `is_nested_repeater()` helper
+  - Handles Orders -> Items -> Variants patterns (3+ levels)
+
+- **Repeater-to-API Body Serialization**
+  - `{repeater:field_name}` syntax for outgoing requests
+  - `{repeater:field_name|fields:a,b}` for field filtering
+  - `process_repeater_tags()` converts SF format to standard JSON arrays
+  - `convert_repeater_to_array()` handles recursive conversion
+
+- **Helper Methods Added**
+  - `url_to_base64()` - Fetch URL and encode (5MB limit, HEAD check first)
+  - `extract_file_meta()` - Parse URL for filename/extension/basename
+  - `mime_to_extension()` - Map 30+ MIME types to file extensions
+
+- **Test Coverage**: 251 tests, 870 assertions, all passing (~50 new tests)
+
+#### Files Modified This Session
+- `/src/includes/triggers/actions/class-action-http-request.php` (~400 lines added)
+- `/tests/triggers/actions/test-action-http-request.php` (~450 lines added)
+
+#### Sandbox Testing Infrastructure Implementation (Continued)
+
+- **SUPER_Sandbox_Manager Rewrite** (`/src/includes/class-sandbox-manager.php`, ~830 lines)
+  - Rewrote to support multiple form types: simple, comprehensive, repeater
+  - Uses test fixtures from `SUPER_Test_Form_Factory` when available
+  - Fixed context building to include `data` key for tag replacement
+  - Added `run_test_suite()` for automated validation
+  - Added `build_context()` helper for proper trigger execution context
+  - Added `get_logs_for_entry()` and `get_test_data_for_type()` methods
+  - Debug logging when WP_DEBUG enabled
+
+- **Sandbox Test Runner Created** (`/tests/sandbox-runner.php`, ~300 lines)
+  - CLI script for automated sandbox testing
+  - Flags: `--status`, `--reset`, `--cleanup`, `--keep`, `--verbose`, `--json`, `--help`
+  - Exit codes: 0=pass, 1=fail, 2=setup error
+  - Creates sandbox if not exists
+  - Tests all form types and reports results
+
+- **Sync Script Enhanced** (`/sync-to-webserver.sh`)
+  - Added `--sandbox` flag with modes: `keep` (default), `cleanup`, `reset`
+  - Usage: `./sync-to-webserver.sh --sandbox=reset`
+  - Can combine with `--test` for PHPUnit + sandbox tests
+  - Proper exit code handling for CI integration
+
+#### Discovery: Tag Replacement Context Structure
+
+The original sandbox manager was passing `entry_data` but tag replacement needs `data` key with `['value']` structure. Fixed by adding `build_context()` method that properly formats context for trigger execution:
+
+```php
+// Wrong: Tags not replaced
+$context = ['entry_data' => ['email' => 'test@example.com']];
+
+// Correct: Tags replaced properly
+$context = ['data' => ['email' => ['value' => 'test@example.com']]];
+```
+
+**Impact**: Any code firing trigger events must use the `['value']` sub-key structure in the `data` array for tag replacement to work correctly.
+
+#### Sandbox Testing Debugged and Fixed (Session 2)
+
+- **Sandbox Runner Class Loading Fix** (`/tests/sandbox-runner.php`)
+  - Added explicit loading of `SUPER_Sandbox_Manager` class
+  - The class is only loaded on-demand by Developer Tools, not during WordPress bootstrap
+  - Required `require_once SUPER_PLUGIN_DIR . '/includes/class-sandbox-manager.php';`
+
+- **Database Column Name Fix** (`/src/includes/class-sandbox-manager.php`)
+  - Fixed `created_at` to `executed_at` in `get_logs_for_entry()` and `get_sandbox_logs()` queries
+  - The `wp_superforms_trigger_logs` table schema uses `executed_at` column, not `created_at`
+
+- **Test Data Budget Value Fix** (`/tests/fixtures/class-form-factory.php`)
+  - Changed test budget from `25000` to `50000` in `get_test_submission_data()`
+  - Required for conditional trigger (`budget > 25000`) to fire
+
+- **Condition Operator Fix** (`/tests/fixtures/class-trigger-factory.php`)
+  - Fixed `greater_than` to `>` in `create_conditional_trigger()`
+  - The condition evaluator uses symbolic operators (`>`, `<`, `>=`, etc.) not word operators
+
+- **Sandbox Test Results After Fixes**
+  - simple: 2 triggers found, 2 executed, 4 logs (PASS)
+  - comprehensive: 3 triggers found (including conditional), 3 executed, 6 logs (PASS)
+  - repeater: 2 triggers found, 2 executed, 4 logs (PASS)
+  - All 3 sandbox tests passing
+
+### Discovered During Implementation
+[Date: 2025-11-23 / Sandbox Testing Debugging Session]
+
+#### SUPER_Sandbox_Manager On-Demand Loading
+
+The `SUPER_Sandbox_Manager` class is NOT auto-loaded during WordPress bootstrap. It is only loaded when Developer Tools page is accessed. Any script that uses this class outside of the Developer Tools context must explicitly load it:
+
+```php
+require_once SUPER_PLUGIN_DIR . '/includes/class-sandbox-manager.php';
+```
+
+**Impact**: The sandbox-runner.php CLI script and any integration tests that use `SUPER_Sandbox_Manager` must include this explicit require statement.
+
+#### Trigger Logs Table Column: executed_at (NOT created_at)
+
+The `wp_superforms_trigger_logs` table uses `executed_at` for the timestamp column, not `created_at`. This is defined in `class-install.php`:
+
+```sql
+CREATE TABLE wp_superforms_trigger_logs (
+  ...
+  executed_at DATETIME NOT NULL,  -- NOT 'created_at'
+  ...
+)
+```
+
+**Impact**: Any queries against the trigger_logs table must use `executed_at`. The column name reflects that this is when the action was executed, which may differ from when the trigger was created.
+
+#### Condition Operators Are Symbolic
+
+The condition evaluator in `SUPER_Trigger_Conditions` uses symbolic operators, not word operators:
+
+```php
+// Correct - These work:
+'operator' => '>'
+'operator' => '<'
+'operator' => '>='
+'operator' => '<='
+'operator' => '=='
+'operator' => '!='
+'operator' => 'contains'
+'operator' => 'not_contains'
+
+// Wrong - These do NOT work:
+'operator' => 'greater_than'
+'operator' => 'less_than'
+```
+
+**Impact**: When creating triggers programmatically or via fixtures, always use symbolic operators for numeric comparisons.
+
+#### Phase 9 Part A Verification (Context Compaction Session)
+
+- **Discovery**: Phase 9 Part A (Test Fixtures) was already fully implemented
+  - `SUPER_Test_Form_Factory` - `/tests/fixtures/class-form-factory.php` (~844 lines)
+  - `SUPER_Test_Trigger_Factory` - `/tests/fixtures/class-trigger-factory.php` (~539 lines)
+  - `SUPER_Webhook_Simulator` - `/tests/fixtures/class-webhook-simulator.php` (~586 lines)
+  - Integration tests - `/tests/integration/test-full-submission-flow.php` (~612 lines)
+  - Sandbox runner - `/tests/sandbox-runner.php` (~364 lines)
+
+- **Verification Testing**: All tests passing
+  - PHPUnit integration tests: 17 tests, 100 assertions, 0 failures
+  - Sandbox integration tests: 3/3 forms passed
+
+- **Sandbox Test Results**:
+  - simple form: 2 triggers found, 2 executed, 4 logs - PASS
+  - comprehensive form: 3 triggers found (including conditional budget > 25000), 3 executed, 6 logs - PASS
+  - repeater form: 2 triggers found, 2 executed, 4 logs - PASS
+
+- **Status Update**:
+  - Phase 9 Part A: COMPLETE (verified working)
+  - Phase 9 Part B: COMPLETE (Payment OAuth and webhook endpoints)
+  - Phase 9 Part C: COMPLETE (Payment Events registered)
+
+#### Phase 10: Payment Webhook Tests - COMPLETE
+- **Created `tests/triggers/test-payment-events.php`** (~750 lines, 28 test methods)
+
+  **Payment Event Registration Tests (6 tests)**:
+  - `test_stripe_payment_events_registered`
+  - `test_stripe_subscription_events_registered`
+  - `test_paypal_payment_events_registered`
+  - `test_paypal_subscription_events_registered`
+  - `test_payment_events_have_context_fields`
+  - `test_payment_events_have_phase_6`
+
+  **Stripe Signature Verification Tests (5 tests - SECURITY CRITICAL)**:
+  - `test_valid_stripe_signature_passes` - HMAC-SHA256 verification
+  - `test_invalid_stripe_signature_rejected` - WP_Error returned
+  - `test_expired_timestamp_rejected` - Replay attack prevention (5min tolerance)
+  - `test_malformed_signature_header_rejected` - Missing t=/v1= components
+  - `test_boundary_timestamp_tolerance` - 299s passes, 301s fails
+
+  **Event Mapping Tests (6 tests)**:
+  - `test_stripe_checkout_completed_maps_correctly`
+  - `test_stripe_payment_intent_events_map_correctly`
+  - `test_stripe_subscription_events_map_correctly`
+  - `test_paypal_capture_events_map_correctly`
+  - `test_paypal_subscription_events_map_correctly`
+  - `test_unknown_event_type_not_mapped`
+
+  **Context Building Tests (10 tests)**:
+  - `test_stripe_checkout_session_context_extraction`
+  - `test_stripe_metadata_form_id_extraction`
+  - `test_stripe_amount_conversion_cents_to_display`
+  - `test_stripe_payment_intent_context_extraction`
+  - `test_stripe_subscription_context_extraction`
+  - `test_paypal_capture_context_extraction`
+  - `test_paypal_custom_id_json_parsing`
+  - `test_paypal_subscription_context_extraction`
+  - `test_paypal_amount_display_formatting`
+  - `test_stripe_payment_error_context`
+
+  **Edge Case Tests**:
+  - `test_missing_metadata_uses_zero_ids`
+  - `test_malformed_paypal_custom_id`
+  - `test_zero_amount_handled_correctly`
+  - `test_large_amount_handled_correctly`
+
+- **Test Results**: 282 tests, 1095 assertions, 0 failures, 14 skipped
+- **Implementation Details**:
+  - Used PHP Reflection to test private methods (`verify_stripe_signature`, `build_stripe_context`, etc.)
+  - Helper method `generate_stripe_signature()` creates valid HMAC-SHA256 signatures
+  - `ensure_builtins_loaded()` helper loads registry events for registration tests
+  - Sample webhook payloads match actual Stripe/PayPal formats
+
+#### Status Summary
+- Phase 1: COMPLETE
+- Phase 2: COMPLETE (Action Scheduler integration)
+- Phase 3: COMPLETE (Execution and Logging)
+- Phase 4: COMPLETE (API and Security)
+- Phase 5: COMPLETE (HTTP Request Action)
+- Phase 6: COMPLETE (Payment Events)
+- Phase 7: NOT STARTED (Example Add-ons)
+- Phase 8: NOT STARTED (Real-time Interactions)
+- Phase 9: COMPLETE (Test Fixtures and Payment OAuth)
+- Phase 10: COMPLETE (Payment Webhook Tests)
+
+### Discovered During Implementation
+[Date: 2025-11-23 / Phase 9 Part B Payment OAuth Session]
+
+#### Payment Webhook Endpoints Use Public Access with Signature Verification
+
+The payment webhook REST endpoints (`/wp-json/super-forms/v1/webhooks/stripe` and `/wp-json/super-forms/v1/webhooks/paypal`) are registered with `permission_callback: __return_true` because:
+
+1. External payment processors (Stripe, PayPal) cannot authenticate with WordPress nonces/cookies
+2. Security is instead enforced via cryptographic signature verification
+3. Stripe uses HMAC-SHA256 with timestamp tolerance
+4. PayPal requires an API call to verify webhook signatures
+
+```php
+// Webhook endpoint registration pattern:
+register_rest_route( $namespace, '/webhooks/stripe', array(
+    'methods'             => 'POST',
+    'callback'            => array( $this, 'handle_stripe_webhook' ),
+    'permission_callback' => '__return_true', // Public - verified by signature
+) );
+```
+
+**Impact**: When adding new webhook endpoints for external services, use signature verification instead of WordPress authentication. Never rely on `permission_callback` alone for webhook security.
+
+#### Stripe Signature Verification Components
+
+Stripe webhook signatures consist of two parts parsed from the `Stripe-Signature` header:
+
+```
+Stripe-Signature: t=1732380000,v1=abc123hash...
+```
+
+- `t` = Unix timestamp when Stripe signed the payload
+- `v1` = HMAC-SHA256 signature of `{timestamp}.{payload}` with webhook secret
+
+Verification includes:
+1. Parse header to extract `t` (timestamp) and `v1` (signature)
+2. Check timestamp is within 5 minutes of current time (prevents replay attacks)
+3. Compute expected signature: `hash_hmac('sha256', $timestamp . '.' . $payload, $webhook_secret)`
+4. Use `hash_equals()` for timing-safe comparison
+
+**Impact**: When testing Stripe webhooks locally, use Stripe CLI (`stripe listen --forward-to`) which handles signature generation, or disable verification in development.
+
+#### PayPal Webhook Verification Requires API Call
+
+Unlike Stripe's HMAC approach, PayPal verification requires an API call to `/v1/notifications/verify-webhook-signature`:
+
+1. First obtain an access token via client credentials flow (`/v1/oauth2/token`)
+2. Send verification request with all PayPal headers plus the webhook payload
+3. Check `verification_status === 'SUCCESS'` in response
+
+This adds latency (~200-500ms) but is required by PayPal's security model.
+
+**Impact**: PayPal webhook handlers need configured `client_id` and `client_secret` for production verification. The implementation allows processing without verification in development (logged as warning).
+
+#### Payment Event Context Must Extract form_id/entry_id from Metadata
+
+Payment processors don't natively know about Super Forms. The `form_id` and `entry_id` must be:
+
+1. **Sent during checkout** - Stored in Stripe `metadata` or PayPal `custom_id`
+2. **Extracted during webhook** - Retrieved from event payload to enable trigger execution
+
+```php
+// Stripe: metadata stored in checkout session
+$context['form_id'] = $event['data']['object']['metadata']['form_id'] ?? 0;
+$context['entry_id'] = $event['data']['object']['metadata']['entry_id'] ?? 0;
+
+// PayPal: custom_id may be JSON with form/entry IDs
+$custom_id = $event['resource']['custom_id'] ?? '';
+```
+
+**Impact**: Payment form implementations must pass `form_id` and `entry_id` when creating Stripe Checkout sessions or PayPal orders. Without this, payment triggers cannot fire with form context.
+
+#### Graceful Degradation When Credentials Not Configured
+
+Both webhook handlers allow processing without signature verification when credentials are not configured:
+
+```php
+if ( empty( $webhook_secret ) ) {
+    SUPER_Trigger_Logger::warning( 'Stripe webhook secret not configured - signature verification skipped' );
+    // Continue processing instead of rejecting
+}
+```
+
+This design choice enables:
+- Development/testing without configuring real credentials
+- Gradual rollout where not all users have credentials configured yet
+
+**Impact**: In production, always configure webhook secrets. The warning log helps identify missing configuration without breaking functionality during development.
+
+#### Architecture Alignment and Documentation Session (Continued)
+
+- **3-Concept Architecture Review**: Analyzed all task files to verify alignment with Sessions/Submissions/Entries architecture
+  - Sessions: Temporary form-filling state (`wp_superforms_sessions`)
+  - Submissions: Immutable audit trail (via `wp_superforms_trigger_logs`)
+  - Entries: Permanent CRM data (`super_contact_entry` post type + EAV)
+
+- **Industry Research**: Comprehensive comparison with other form plugins
+  - Gravity Forms: Entries + `wp_gf_draft_submissions` table (status-based drafts)
+  - WPForms: Entries with Partial/Completed status field
+  - Formidable Forms: Entries with Draft/In Progress/Abandoned/Submitted status
+  - Fluent Forms: Entries + separate draft table
+  - Ninja Forms: "Submissions" terminology
+  - Typeform: "Responses" with Partial/Completed status
+  - JotForm: "Submissions" with browser-based autofill
+
+- **Key Finding**: Super Forms architecture is MORE sophisticated than industry standard
+  - Most plugins create draft entries immediately (spam pollutes CRM data)
+  - Super Forms separates Sessions (temporary) from Entries (permanent)
+  - Pre-submission firewall can abort BEFORE any entry exists
+  - Cleaner data model with storage efficiency
+
+- **Documentation Added to README.md** (~450 lines):
+  - **Data Architecture section**: Core concepts table, flow diagram, session statuses
+  - **Terminology Decisions section**: UI ("Draft") vs code ("Session"), naming conventions
+  - **Use Cases and Examples section**: 5 real-world scenarios with configuration/flow
+  - **Future Ideas section**: 6 future phases documented (15-20)
+    - Phase 15: Ticket System Add-on
+    - Phase 16: Booking System Add-on
+    - Phase 17: Entries to Custom Tables Migration
+    - Phase 18: Entry Notes and Activity Log
+    - Phase 19: Advanced Entry Management
+    - Phase 20: Form Analytics v2
+
+- **Terminology Decisions Documented**:
+  - Use "Draft" in UI, "Session" in code/database
+  - Rename "Contact Entries" to "Entries" in admin menu
+  - Keep `super_contact_entry` post type slug for backwards compatibility
+  - Entry Notes table schema defined for future implementation

@@ -123,10 +123,11 @@ class SUPER_Action_Update_Entry_Status extends SUPER_Trigger_Action_Base {
             );
         }
 
-        // Verify entry exists and is correct post type
-        $entry = get_post($entry_id);
+        // Verify entry exists via Entry DAL
+        // @since 6.5.0 - Use Entry DAL for dual storage mode support
+        $entry = SUPER_Entry_DAL::get($entry_id);
 
-        if (!$entry || $entry->post_type !== 'super_contact_entry') {
+        if (is_wp_error($entry)) {
             return new WP_Error(
                 'invalid_entry',
                 sprintf(__('Entry #%d not found or is not a contact entry', 'super-forms'), $entry_id)
@@ -135,21 +136,11 @@ class SUPER_Action_Update_Entry_Status extends SUPER_Trigger_Action_Base {
 
         // Get new status
         $new_status = $config['new_status'];
-        $old_status = $entry->post_status;
+        $old_status = $entry->wp_status;
 
-        // Update entry status
-        $update_data = [
-            'ID' => $entry_id,
-            'post_status' => $new_status
-        ];
-
-        // Optionally update modified date
-        if (empty($config['update_modified_date'])) {
-            $update_data['post_modified'] = $entry->post_modified;
-            $update_data['post_modified_gmt'] = $entry->post_modified_gmt;
-        }
-
-        $result = wp_update_post($update_data, true);
+        // Update entry status via Entry DAL
+        // @since 6.5.0 - Use Entry DAL for dual storage mode support
+        $result = SUPER_Entry_DAL::update($entry_id, array('wp_status' => $new_status));
 
         if (is_wp_error($result)) {
             return $result;

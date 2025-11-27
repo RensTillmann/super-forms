@@ -49,10 +49,11 @@ class Test_Backwards_Compatibility extends SUPER_Test_Helpers {
 		update_option(
 			'superforms_eav_migration',
 			array(
-				'status'          => 'in_progress',
-				'using_storage'   => 'serialized',
-				'total_entries'   => 1,
-				'migrated_entries' => 0,
+				'status'            => 'in_progress',
+				'using_storage'     => 'serialized',
+				'total_entries'     => 1,
+				'migrated_entries'  => 0,
+				'last_processed_id' => 0,
 			)
 		);
 

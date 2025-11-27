@@ -64,6 +64,9 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 			add_action( self::AS_BATCH_HOOK, array( __CLASS__, 'process_batch_action' ) );
 			add_action( self::AS_HEALTH_CHECK_HOOK, array( __CLASS__, 'health_check_action' ) );
 
+			// Register entries migration hook (Phase 17)
+			self::init_entries_migration();
+
 			// WP-Cron fallback hooks (if Action Scheduler not available)
 			add_action( 'super_migration_cron_batch', array( __CLASS__, 'process_batch_action' ) );
 			add_action( 'super_migration_cron_health', array( __CLASS__, 'health_check_action' ) );
@@ -162,6 +165,12 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 					// Still ensure tables exist (self-healing for edge cases)
 					if ( class_exists( 'SUPER_Install' ) ) {
 						SUPER_Install::ensure_tables_exist();
+					}
+
+					// Phase 17: Schedule entries migration if needed (post-EAV migration)
+					if ( self::needs_entries_migration() ) {
+						self::log( 'Version upgrade: Found entries needing migration to custom table' );
+						self::schedule_entries_migration( 'version_upgrade' );
 					}
 				}
 			} finally {
@@ -985,7 +994,7 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 				return;
 			}
 
-			// Check if migration needs to run
+			// Check if entries migration needs to run
 			if ( self::needs_migration() ) {
 				// Check if migration is stuck (in_progress but no activity in 1 hour)
 				$last_processed = isset( $status['last_batch_processed_at'] ) ? $status['last_batch_processed_at'] : '';
@@ -995,7 +1004,7 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 
 					// If no activity in 1 hour, migration might be stuck
 					if ( $time_since_last > 3600 ) {
-						self::log( "Health check: Migration appears stuck (last activity: {$time_since_last}s ago), attempting resume" );
+						self::log( "Health check: Entries migration appears stuck (last activity: {$time_since_last}s ago), attempting resume" );
 
 						// Release any stale locks
 						self::release_lock();
@@ -1003,11 +1012,11 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 						// Resume migration
 						self::schedule_if_needed( 'health_check' );
 					} else {
-						self::log( "Health check: Migration in progress, last activity {$time_since_last}s ago" );
+						self::log( "Health check: Entries migration in progress, last activity {$time_since_last}s ago" );
 					}
 				} else {
 					// Migration needed but never started
-					self::log( 'Health check: Migration needed but not started, scheduling' );
+					self::log( 'Health check: Entries migration needed but not started, scheduling' );
 					self::schedule_if_needed( 'health_check' );
 				}
 			} else {
@@ -1015,9 +1024,44 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 
 				// If status shows in_progress but no unmigrated entries, mark as complete
 				if ( $status['status'] === 'in_progress' ) {
-					self::log( 'Health check: Forcing completion (status was in_progress but no entries remaining)' );
+					self::log( 'Health check: Forcing entries migration completion (status was in_progress but no entries remaining)' );
 					SUPER_Migration_Manager::complete_migration();
 					self::cleanup_on_completion();
+				}
+			}
+
+			// Check if email migration needs to run
+			if ( class_exists( 'SUPER_Email_Trigger_Migration' ) ) {
+				$email_state = SUPER_Email_Trigger_Migration::get_state();
+
+				if ( $email_state['status'] === 'in_progress' ) {
+					// Check if email migration is stuck (no activity in 1 hour)
+					$started_at = ! empty( $email_state['started_at'] ) ? strtotime( $email_state['started_at'] ) : 0;
+					$time_since_start = time() - $started_at;
+
+					// If in_progress for more than 1 hour without completion, might be stuck
+					if ( $time_since_start > 3600 ) {
+						self::log( "Health check: Email migration appears stuck (started {$time_since_start}s ago), rescheduling" );
+
+						// Reschedule email migration batch from current offset
+						$offset = ! empty( $email_state['current_offset'] ) ? $email_state['current_offset'] : 0;
+						if ( function_exists( 'as_enqueue_async_action' ) ) {
+							as_enqueue_async_action(
+								'super_migrate_emails_batch',
+								array( 'offset' => $offset ),
+								'super-forms-email-migration'
+							);
+						}
+					} else {
+						self::log( "Health check: Email migration in progress (started {$time_since_start}s ago)" );
+					}
+				} elseif ( $email_state['status'] === 'not_started' ) {
+					// Check if there are forms to migrate
+					$forms_count = SUPER_Email_Trigger_Migration::count_forms_needing_migration();
+					if ( $forms_count > 0 ) {
+						self::log( "Health check: Email migration needed ({$forms_count} forms), scheduling" );
+						SUPER_Email_Trigger_Migration::maybe_schedule_migration();
+					}
 				}
 			}
 
@@ -1050,10 +1094,16 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 			return; // Already checked this hour
 		}
 
-		// Quick check: Any unmigrated entries?
+		// Quick check: Any unmigrated EAV entries?
 		if ( self::needs_migration() ) {
-			self::log( 'Hourly check: Found unmigrated entries, scheduling migration' );
+			self::log( 'Hourly check: Found unmigrated EAV entries, scheduling migration' );
 			self::schedule_if_needed( 'hourly_check' );
+		}
+
+		// Phase 17: Check for entries needing migration to custom table
+		if ( self::needs_entries_migration() ) {
+			self::log( 'Hourly check: Found entries needing migration to custom table' );
+			self::schedule_entries_migration( 'hourly_check' );
 		}
 
 		// Don't check again for 1 hour
@@ -1287,6 +1337,325 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 				$formatted_message = sprintf( '%s [%s] %s', $prefix, strtoupper( $level ), $message );
 				error_log( $formatted_message );
 			}
+		}
+
+		// =====================================================================
+		// PHASE 17: ENTRIES MIGRATION (Post Type → Custom Table)
+		// =====================================================================
+
+		/**
+		 * Action Scheduler hook for entries migration
+		 */
+		const AS_ENTRIES_BATCH_HOOK = 'superforms_migrate_entries_batch';
+
+		/**
+		 * Entries migration lock key
+		 */
+		const ENTRIES_LOCK_KEY = 'super_entries_migration_lock';
+
+		/**
+		 * Initialize entries migration hooks
+		 *
+		 * @since 6.5.0
+		 */
+		public static function init_entries_migration() {
+			add_action( self::AS_ENTRIES_BATCH_HOOK, array( __CLASS__, 'process_entries_batch_action' ) );
+		}
+
+		/**
+		 * Check if entries migration is needed
+		 *
+		 * @return bool
+		 * @since 6.5.0
+		 */
+		public static function needs_entries_migration() {
+			global $wpdb;
+
+			$entries_table = $wpdb->prefix . 'superforms_entries';
+
+			// Check if entries table exists
+			$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $entries_table ) );
+			if ( ! $table_exists ) {
+				return false; // Table doesn't exist yet
+			}
+
+			// Count entries in post type not yet in custom table
+			$unmigrated = $wpdb->get_var( $wpdb->prepare(
+				"SELECT COUNT(*)
+				FROM {$wpdb->posts} p
+				LEFT JOIN {$entries_table} e ON p.ID = e.id
+				WHERE p.post_type = %s
+				AND e.id IS NULL",
+				'super_contact_entry'
+			) );
+
+			return $unmigrated > 0;
+		}
+
+		/**
+		 * Schedule entries migration if needed
+		 *
+		 * @param string $trigger_source What triggered the scheduling
+		 * @since 6.5.0
+		 */
+		public static function schedule_entries_migration( $trigger_source = 'manual' ) {
+			if ( ! self::needs_entries_migration() ) {
+				self::log( 'Entries migration not needed' );
+				return;
+			}
+
+			// Get current state
+			$state = get_option( 'superforms_entries_migration', array() );
+			if ( ! isset( $state['state'] ) ) {
+				$state = array(
+					'state'            => 'not_started',
+					'started_at'       => null,
+					'completed_at'     => null,
+					'cleaned_at'       => null,
+					'total_entries'    => 0,
+					'migrated_entries' => 0,
+					'last_batch_at'    => null,
+					'errors'           => array(),
+				);
+			}
+
+			// Update state to in_progress
+			if ( 'not_started' === $state['state'] ) {
+				global $wpdb;
+				$total = $wpdb->get_var( $wpdb->prepare(
+					"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s",
+					'super_contact_entry'
+				) );
+
+				$state['state']         = 'in_progress';
+				$state['started_at']    = time();
+				$state['total_entries'] = (int) $total;
+				$state['triggered_by']  = $trigger_source;
+				update_option( 'superforms_entries_migration', $state );
+			}
+
+			// Schedule batch processing
+			if ( function_exists( 'as_enqueue_async_action' ) ) {
+				// Check if already scheduled
+				if ( ! as_next_scheduled_action( self::AS_ENTRIES_BATCH_HOOK, array(), 'superforms-entries-migration' ) ) {
+					as_enqueue_async_action( self::AS_ENTRIES_BATCH_HOOK, array( 'batch_size' => 50 ), 'superforms-entries-migration' );
+					self::log( "Entries migration scheduled via Action Scheduler (trigger: {$trigger_source})" );
+				}
+			} else {
+				// Fall back to processing immediately
+				self::process_entries_batch_action( 50 );
+			}
+
+			// Clear DAL cache
+			if ( class_exists( 'SUPER_Entry_DAL' ) ) {
+				SUPER_Entry_DAL::clear_cache();
+			}
+		}
+
+		/**
+		 * Process a batch of entries migration
+		 *
+		 * @param int $batch_size Number of entries to migrate
+		 * @return array Processing results
+		 * @since 6.5.0
+		 */
+		public static function process_entries_batch_action( $batch_size = 50 ) {
+			global $wpdb;
+
+			$batch_size = absint( $batch_size );
+			if ( $batch_size <= 0 ) {
+				$batch_size = 50;
+			}
+
+			self::log( "Starting entries migration batch (size: {$batch_size})" );
+
+			// Acquire lock
+			if ( get_transient( self::ENTRIES_LOCK_KEY ) ) {
+				self::log( 'Entries migration locked by another process', 'warning' );
+				return array( 'error' => 'locked' );
+			}
+			set_transient( self::ENTRIES_LOCK_KEY, time(), 300 ); // 5 minute lock
+
+			$processed = 0;
+			$failed    = 0;
+			$errors    = array();
+
+			try {
+				$entries_table = $wpdb->prefix . 'superforms_entries';
+
+				// Get unmigrated entries
+				$posts = $wpdb->get_results( $wpdb->prepare(
+					"SELECT p.ID
+					FROM {$wpdb->posts} p
+					LEFT JOIN {$entries_table} e ON p.ID = e.id
+					WHERE p.post_type = %s
+					AND e.id IS NULL
+					ORDER BY p.ID ASC
+					LIMIT %d",
+					'super_contact_entry',
+					$batch_size
+				) );
+
+				foreach ( $posts as $post ) {
+					$result = SUPER_Entry_DAL::migrate_entry( $post->ID );
+					if ( is_wp_error( $result ) ) {
+						++$failed;
+						$errors[] = array(
+							'entry_id' => $post->ID,
+							'error'    => $result->get_error_message(),
+						);
+					} else {
+						++$processed;
+					}
+				}
+
+				// Update state
+				$state = get_option( 'superforms_entries_migration', array() );
+				$state['migrated_entries'] = isset( $state['migrated_entries'] ) ? $state['migrated_entries'] + $processed : $processed;
+				$state['last_batch_at']    = time();
+
+				if ( ! empty( $errors ) ) {
+					$state['errors'] = array_merge(
+						isset( $state['errors'] ) ? $state['errors'] : array(),
+						$errors
+					);
+				}
+
+				// Check if migration complete
+				$remaining = self::needs_entries_migration();
+				if ( ! $remaining ) {
+					$state['state']        = 'completed';
+					$state['completed_at'] = time();
+					self::log( 'Entries migration completed!' );
+				}
+
+				update_option( 'superforms_entries_migration', $state );
+
+				// Schedule next batch if needed
+				if ( $remaining && function_exists( 'as_enqueue_async_action' ) ) {
+					as_enqueue_async_action(
+						self::AS_ENTRIES_BATCH_HOOK,
+						array( 'batch_size' => $batch_size ),
+						'superforms-entries-migration'
+					);
+				}
+
+			} finally {
+				delete_transient( self::ENTRIES_LOCK_KEY );
+			}
+
+			self::log( "Entries batch complete: {$processed} migrated, {$failed} failed" );
+
+			return array(
+				'processed' => $processed,
+				'failed'    => $failed,
+				'errors'    => $errors,
+				'remaining' => self::needs_entries_migration(),
+			);
+		}
+
+		/**
+		 * Get entries migration status
+		 *
+		 * @return array Status information
+		 * @since 6.5.0
+		 */
+		public static function get_entries_migration_status() {
+			global $wpdb;
+
+			$state = get_option( 'superforms_entries_migration', array(
+				'state'            => 'not_started',
+				'started_at'       => null,
+				'completed_at'     => null,
+				'total_entries'    => 0,
+				'migrated_entries' => 0,
+			) );
+
+			// Get live counts
+			$entries_table = $wpdb->prefix . 'superforms_entries';
+			$table_exists  = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $entries_table ) );
+
+			if ( $table_exists ) {
+				$migrated = $wpdb->get_var( "SELECT COUNT(*) FROM {$entries_table}" );
+				$total    = $wpdb->get_var( $wpdb->prepare(
+					"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s",
+					'super_contact_entry'
+				) );
+				$state['migrated_entries'] = (int) $migrated;
+				$state['total_entries']    = (int) $total;
+				$state['remaining']        = max( 0, $total - $migrated );
+			}
+
+			return $state;
+		}
+
+		/**
+		 * Cleanup post type entries after migration retention period
+		 *
+		 * @param int $batch_size Number of entries to cleanup
+		 * @return int Number of entries cleaned up
+		 * @since 6.5.0
+		 */
+		public static function cleanup_migrated_entries( $batch_size = 100 ) {
+			global $wpdb;
+
+			$state = get_option( 'superforms_entries_migration', array() );
+
+			// Only cleanup if migration completed > 30 days ago
+			if ( ! isset( $state['completed_at'] ) || empty( $state['completed_at'] ) ) {
+				return 0;
+			}
+
+			$retention_days = apply_filters( 'super_entries_migration_retention_days', 30 );
+			if ( time() - $state['completed_at'] < $retention_days * DAY_IN_SECONDS ) {
+				return 0;
+			}
+
+			$entries_table = $wpdb->prefix . 'superforms_entries';
+
+			// Find entries that exist in BOTH post type AND custom table
+			$duplicates = $wpdb->get_col( $wpdb->prepare(
+				"SELECT p.ID
+				FROM {$wpdb->posts} p
+				INNER JOIN {$entries_table} e ON p.ID = e.id
+				WHERE p.post_type = %s
+				LIMIT %d",
+				'super_contact_entry',
+				$batch_size
+			) );
+
+			$cleaned = 0;
+			foreach ( $duplicates as $entry_id ) {
+				// Delete from posts table (entry is safely in custom table)
+				wp_delete_post( $entry_id, true );
+
+				// Delete orphaned postmeta
+				$wpdb->delete( $wpdb->postmeta, array( 'post_id' => $entry_id ) );
+
+				++$cleaned;
+			}
+
+			if ( $cleaned > 0 ) {
+				self::log( "Cleaned up {$cleaned} migrated entries from post type" );
+
+				// Check if all cleaned
+				$remaining = $wpdb->get_var( $wpdb->prepare(
+					"SELECT COUNT(*)
+					FROM {$wpdb->posts} p
+					INNER JOIN {$entries_table} e ON p.ID = e.id
+					WHERE p.post_type = %s",
+					'super_contact_entry'
+				) );
+
+				if ( 0 === (int) $remaining ) {
+					$state['state']      = 'cleaned';
+					$state['cleaned_at'] = time();
+					update_option( 'superforms_entries_migration', $state );
+					self::log( 'Entries cleanup completed - post type data removed' );
+				}
+			}
+
+			return $cleaned;
 		}
 	}
 

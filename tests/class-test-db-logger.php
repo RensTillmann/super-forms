@@ -244,17 +244,26 @@ class SUPER_Test_DB_Logger {
 	/**
 	 * Log performance metric
 	 *
-	 * @param string $metric_name  Metric name
-	 * @param float  $value        Metric value
-	 * @param string $unit         Unit (ms, bytes, etc.)
+	 * @param string       $metric_name  Metric name
+	 * @param float|array  $value        Metric value or array of metrics
+	 * @param string       $unit         Unit (ms, bytes, etc.)
 	 */
 	public static function log_performance( $metric_name, $value, $unit = 'ms' ) {
+		// Handle array of metrics
+		if ( is_array( $value ) ) {
+			$actual_value = wp_json_encode( $value );
+			$execution_time = isset( $value['avg_time_ms'] ) ? $value['avg_time_ms'] : ( isset( $value['time_ms'] ) ? $value['time_ms'] : 0 );
+		} else {
+			$actual_value = $value . ' ' . $unit;
+			$execution_time = $value;
+		}
+
 		self::log(
 			array(
 				'log_type'          => 'performance',
 				'assertion_type'    => $metric_name,
-				'actual_value'      => $value . ' ' . $unit,
-				'execution_time_ms' => $value,
+				'actual_value'      => $actual_value,
+				'execution_time_ms' => $execution_time,
 			)
 		);
 	}

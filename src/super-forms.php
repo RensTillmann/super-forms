@@ -37,6 +37,12 @@ if ( ! class_exists( 'SUPER_Install' ) ) {
 if ( ! class_exists( 'SUPER_Cron_Fallback' ) ) {
 	require_once dirname( __FILE__ ) . '/includes/class-cron-fallback.php';
 }
+if ( ! class_exists( 'SUPER_Spam_Detector' ) ) {
+	require_once dirname( __FILE__ ) . '/includes/class-spam-detector.php';
+}
+if ( ! class_exists( 'SUPER_Duplicate_Detector' ) ) {
+	require_once dirname( __FILE__ ) . '/includes/class-duplicate-detector.php';
+}
 
 if ( ! class_exists( 'SUPER_Forms' ) ) :
 
@@ -244,19 +250,41 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 
 			include_once 'includes/class-common.php';
 		include_once 'includes/class-data-access.php';
+		include_once 'includes/class-session-dal.php'; // Phase 1a: Progressive sessions
+		include_once 'includes/class-session-cleanup.php'; // Phase 1a: Session cleanup jobs
+		include_once 'includes/class-entry-dal.php'; // Phase 17: Entry Data Access Layer
+		include_once 'includes/class-entry-backwards-compat.php'; // Phase 17: BC hooks
+		include_once 'includes/class-entry-rest-controller.php'; // Phase 17: Entry REST API
 	include_once 'includes/class-migration-manager.php';
 	include_once 'includes/class-background-migration.php';
 	include_once 'includes/class-cron-fallback.php';
 include_once 'includes/class-developer-tools.php';
 
-		// Triggers/Actions System (Phase 1)
+		// Triggers/Actions System (Phase 1 + Phase 2)
 		include_once 'includes/class-trigger-dal.php';
 		include_once 'includes/triggers/class-trigger-action-base.php';
 		include_once 'includes/triggers/class-trigger-registry.php';
 		include_once 'includes/class-trigger-conditions.php';
 		include_once 'includes/class-trigger-manager.php';
+		include_once 'includes/class-trigger-scheduler.php'; // Phase 2: Action Scheduler integration
 		include_once 'includes/class-trigger-executor.php';
 		include_once 'includes/class-trigger-rest-controller.php';
+
+		// Triggers/Actions System - Phase 3: Execution & Logging
+		include_once 'includes/class-trigger-logger.php';
+		include_once 'includes/class-trigger-debugger.php';
+		include_once 'includes/class-trigger-performance.php';
+		include_once 'includes/class-trigger-compliance.php';
+
+		// Triggers/Actions System - Phase 4: API Security & Credentials
+		include_once 'includes/class-trigger-credentials.php';
+		include_once 'includes/class-trigger-oauth.php';
+		include_once 'includes/class-trigger-security.php';
+		include_once 'includes/class-trigger-permissions.php';
+		include_once 'includes/class-trigger-api-keys.php';
+
+		// Email System - Phase 11: Email to Triggers Migration
+		include_once 'includes/class-email-trigger-migration.php';
 
 			if ( $this->is_request( 'admin' ) ) {
 				include_once 'includes/class-install.php';
@@ -265,6 +293,8 @@ include_once 'includes/class-developer-tools.php';
 				include_once 'includes/class-settings.php';
 				include_once 'includes/class-shortcodes.php';
 				include_once 'includes/class-field-types.php';
+				include_once 'includes/admin/class-trigger-logs-page.php'; // Phase 3: Log viewer
+				include_once 'includes/admin/class-entries-list-table.php'; // Phase 17: Custom entries list
 			}
 
 			if ( $this->is_request( 'ajax' ) ) {
@@ -326,6 +356,7 @@ include_once 'includes/class-developer-tools.php';
 			add_action( 'super_cleanup_expired_uploads', array( $this, 'super_cleanup_uploads_action' ) );
 			add_action( 'super_cleanup_old_serialized_data', array( $this, 'super_cleanup_serialized_action' ) );
 			add_action( 'super_scheduled_trigger_actions', array( $this, 'super_scheduled_trigger_actions' ) );
+			add_action( 'super_triggers_cleanup_logs', array( $this, 'super_triggers_cleanup_logs_action' ) );
 
 			add_action( 'plugins_loaded', array( $this, 'include_add_ons' ), 0 );
 
@@ -409,6 +440,9 @@ include_once 'includes/class-developer-tools.php';
 				add_action( 'admin_action_duplicate_super_contact_entry', array( $this, 'duplicate_contact_entry_action' ) );
 				add_action( 'init', array( $this, 'custom_contact_entry_status' ) );
 				add_action( 'admin_footer-post.php', array( $this, 'append_contact_entry_status_list' ) );
+
+				// Redirect default post editor to custom builder pages
+				add_action( 'load-post.php', array( $this, 'redirect_to_custom_editor' ) );
 
 				// Actions since 1.2.6
 				add_action( 'init', array( $this, 'update_plugin' ) );
@@ -604,6 +638,21 @@ include_once 'includes/class-developer-tools.php';
 			return;
 		}
 		SUPER_Common::cleanup_old_serialized_data();
+	}
+
+	// Action handler for trigger logs cleanup (Phase 3)
+	public static function super_triggers_cleanup_logs_action() {
+		if ( defined( 'WP_SETUP_CONFIG' ) || defined( 'WP_INSTALLING' ) ) {
+			return;
+		}
+		// Use Logger's built-in cleanup which respects retention settings
+		if ( class_exists( 'SUPER_Trigger_Logger' ) ) {
+			SUPER_Trigger_Logger::instance()->cleanup_old_logs();
+		}
+		// Also cleanup compliance audit logs via Compliance class
+		if ( class_exists( 'SUPER_Trigger_Compliance' ) ) {
+			SUPER_Trigger_Compliance::enforce_retention_policy();
+		}
 	}
 
 	public static function allow_txt_mime_type( $mimes, $user ) {
@@ -1573,13 +1622,13 @@ include_once 'includes/class-developer-tools.php';
 		// Check for WP-Cron failure and show fallback notice
 		$this->show_cron_fallback_notice();
 
-			// Check for unmigrated entries (imported data detection)
-			if ( current_user_can( 'manage_options' ) && class_exists( 'SUPER_Background_Migration' ) ) {
-				if ( SUPER_Background_Migration::needs_migration() ) {
-					$migration_status = SUPER_Migration_Manager::get_migration_status();
-					$total = !empty( $migration_status ) ? $migration_status['total_entries'] : 0;
-					$migrated = !empty( $migration_status ) ? $migration_status['migrated_entries'] : 0;
-					$is_running = !empty( $migration_status ) && $migration_status['status'] === 'in_progress';
+			// Check for unmigrated data (entries + emails)
+			if ( current_user_can( 'manage_options' ) && class_exists( 'SUPER_Migration_Manager' ) ) {
+				$combined_status = SUPER_Migration_Manager::get_combined_migration_status();
+				if ( $combined_status['needs_migration'] ) {
+					$total = $combined_status['total'];
+					$migrated = $combined_status['migrated'];
+					$is_running = $combined_status['status'] === 'in_progress';
 
 					echo '<div class="notice notice-info super-migration-notice" id="super-migration-notice">';
 					echo '<style>
@@ -1686,13 +1735,13 @@ include_once 'includes/class-developer-tools.php';
 									success: function(response) {
 										if (response.success && response.data) {
 											var data = response.data;
-											var percent = data.total_entries > 0 ? Math.round((data.migrated_entries / data.total_entries) * 100) : 0;
+											var percent = data.percentage || 0;
 
 											$(".progress-fill").css("width", percent + "%");
 											$(".progress-text").text(percent + "%");
 
 											// Check if complete
-											if (data.status === "completed") {
+											if (data.is_complete) {
 												clearInterval(pollInterval);
 
 												// Show completion message
@@ -2218,6 +2267,20 @@ include_once 'includes/class-developer-tools.php';
 			);
 			wp_enqueue_script( $handle );
 
+			// @since 6.5.0 - Session management for progressive form saving (vanilla JS, no jQuery)
+			wp_enqueue_style( 'super-session-recovery', SUPER_PLUGIN_FILE . 'assets/css/frontend/session-recovery.css', array(), SUPER_VERSION );
+			wp_enqueue_script( 'super-session-manager', SUPER_PLUGIN_FILE . 'assets/js/frontend/session-manager.js', array(), SUPER_VERSION, true );
+			wp_localize_script(
+				'super-session-manager',
+				'super_session_i18n',
+				array(
+					'ajaxurl'          => admin_url( 'admin-ajax.php' ),
+					'recovery_message' => __( 'You have unsaved form data from {time}.', 'super-forms' ),
+					'restore_button'   => __( 'Restore', 'super-forms' ),
+					'dismiss_button'   => __( 'Start Fresh', 'super-forms' ),
+				)
+			);
+
 			// Add JS files that are needed in case when theme makes an Ajax call to load content dynamically
 			// This is also used on the Elementor editor pages
 			if ( $ajax == true ) {
@@ -2430,6 +2493,11 @@ include_once 'includes/class-developer-tools.php';
 							),
 						),
 					),
+					// @since 6.5.0 - Session recovery i18n strings
+					'session_recovery_title' => esc_html__( 'Continue where you left off?', 'super-forms' ),
+					'session_recovery_text'  => esc_html__( 'You have unsaved form data from {time}.', 'super-forms' ),
+					'session_restore'        => esc_html__( 'Restore', 'super-forms' ),
+					'session_start_fresh'    => esc_html__( 'Start Fresh', 'super-forms' ),
 					'monthNames'          => array(
 						esc_html__( 'January', 'super-forms' ),
 						esc_html__( 'February', 'super-forms' ),
@@ -2897,14 +2965,45 @@ include_once 'includes/class-developer-tools.php';
 			return $actions;
 		}
 		public function edit_post_link( $link, $post_id, $context ) {
-			if ( get_post_type() === 'super_form' ) {
-				return 'admin.php?page=super_create_form&id=' . get_the_ID();
+			$post_type = get_post_type( $post_id );
+			if ( $post_type === 'super_form' ) {
+				return admin_url( 'admin.php?page=super_create_form&id=' . $post_id );
 			}
-			if ( get_post_type() === 'super_contact_entry' ) {
-				return 'admin.php?page=super_contact_entry&id=' . get_the_ID();
+			if ( $post_type === 'super_contact_entry' ) {
+				return admin_url( 'admin.php?page=super_contact_entry&id=' . $post_id );
 			}
 			return $link;
 		}
+
+		/**
+		 * Redirect default post editor to custom builder pages
+		 *
+		 * Prevents access to post.php?post=X&action=edit for super_form and super_contact_entry
+		 * post types, redirecting users to the appropriate custom admin pages instead.
+		 *
+		 * @since 6.4.201
+		 */
+		public function redirect_to_custom_editor() {
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only redirect check
+			if ( empty( $_GET['post'] ) || empty( $_GET['action'] ) || $_GET['action'] !== 'edit' ) {
+				return;
+			}
+
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only redirect check
+			$post_id   = absint( $_GET['post'] );
+			$post_type = get_post_type( $post_id );
+
+			if ( $post_type === 'super_form' ) {
+				wp_safe_redirect( admin_url( 'admin.php?page=super_create_form&id=' . $post_id ) );
+				exit;
+			}
+
+			if ( $post_type === 'super_contact_entry' ) {
+				wp_safe_redirect( admin_url( 'admin.php?page=super_contact_entry&id=' . $post_id ) );
+				exit;
+			}
+		}
+
 		// @since 3.4.0 - add bulk edit option to change entry status
 		public function display_custom_quickedit_super_contact_entry( $column_name, $post_type ) {
 			if ( ( $post_type == 'super_contact_entry' ) && ( $column_name == 'entry_status' ) ) {
@@ -4118,6 +4217,36 @@ include_once 'includes/class-developer-tools.php';
 			// Initialize the registry singleton
 			$registry = SUPER_Trigger_Registry::get_instance();
 
+			// Initialize the scheduler singleton (registers Action Scheduler hooks)
+			// This must be done after Action Scheduler is loaded
+			if ( SUPER_Trigger_Scheduler::is_available() ) {
+				SUPER_Trigger_Scheduler::get_instance();
+
+				// Schedule log retention cleanup (daily)
+				$this->schedule_log_retention_cleanup();
+			}
+
+			// Initialize compliance system (creates audit table if needed)
+			if ( class_exists( 'SUPER_Trigger_Compliance' ) ) {
+				SUPER_Trigger_Compliance::init();
+			}
+
+			// Phase 4: Initialize API Security singletons
+			// Security system - rate limiting and suspicious pattern detection
+			if ( class_exists( 'SUPER_Trigger_Security' ) ) {
+				SUPER_Trigger_Security::instance();
+			}
+
+			// OAuth system - handles OAuth callbacks
+			if ( class_exists( 'SUPER_Trigger_OAuth' ) ) {
+				SUPER_Trigger_OAuth::instance();
+			}
+
+			// API Keys system - AJAX handlers for key management
+			if ( class_exists( 'SUPER_Trigger_API_Keys' ) ) {
+				SUPER_Trigger_API_Keys::instance();
+			}
+
 			/**
 			 * Allow add-ons to register their events and actions
 			 *
@@ -4125,6 +4254,33 @@ include_once 'includes/class-developer-tools.php';
 			 * @since 6.5.0
 			 */
 			do_action( 'super_register_triggers', $registry );
+		}
+
+		/**
+		 * Schedule log retention cleanup via Action Scheduler
+		 *
+		 * Runs daily to enforce log retention policies
+		 *
+		 * @since 6.5.0
+		 */
+		private function schedule_log_retention_cleanup() {
+			$hook = 'super_triggers_cleanup_logs';
+			$group = SUPER_Trigger_Scheduler::GROUP;
+
+			// Check if already scheduled
+			$next_scheduled = as_next_scheduled_action( $hook, array(), $group );
+
+			if ( ! $next_scheduled ) {
+				// Schedule daily cleanup starting tomorrow at 3 AM
+				$start_time = strtotime( 'tomorrow 3:00 AM' );
+				as_schedule_recurring_action(
+					$start_time,
+					DAY_IN_SECONDS,
+					$hook,
+					array(),
+					$group
+				);
+			}
 		}
 
 		/**

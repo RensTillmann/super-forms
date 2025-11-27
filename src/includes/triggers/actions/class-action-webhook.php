@@ -305,4 +305,43 @@ class SUPER_Action_Webhook extends SUPER_Trigger_Action_Base {
     public function can_run($context) {
         return true;
     }
+
+    /**
+     * Webhooks support and prefer asynchronous execution
+     *
+     * External HTTP requests can be slow and shouldn't block form submission.
+     *
+     * @return bool
+     * @since 6.5.0
+     */
+    public function supports_async() {
+        return true;
+    }
+
+    /**
+     * Get execution mode
+     *
+     * @return string
+     * @since 6.5.0
+     */
+    public function get_execution_mode() {
+        return 'async'; // Prefer async to not block form submission
+    }
+
+    /**
+     * Get retry configuration for webhooks
+     *
+     * External services may be temporarily unavailable.
+     *
+     * @return array
+     * @since 6.5.0
+     */
+    public function get_retry_config() {
+        return [
+            'max_retries'   => 5,      // More retries for external services
+            'initial_delay' => 60,     // 1 minute
+            'exponential'   => true,
+            'max_delay'     => 3600,   // 1 hour max
+        ];
+    }
 }

@@ -100,7 +100,11 @@ if ( ! class_exists( 'SUPER_Trigger_Conditions' ) ) :
 			// Process rules (alternative to conditions/groups)
 			if ( ! empty( $group['rules'] ) && is_array( $group['rules'] ) ) {
 				foreach ( $group['rules'] as $rule ) {
-					if ( isset( $rule['type'] ) && 'group' === $rule['type'] ) {
+					// Check if this is a nested group (has operator + rules, or type=group)
+					$is_group = ( isset( $rule['type'] ) && 'group' === $rule['type'] )
+						|| ( isset( $rule['operator'] ) && isset( $rule['rules'] ) );
+
+					if ( $is_group ) {
 						$results[] = self::evaluate_group( $rule, $context, $depth + 1 );
 					} else {
 						$results[] = self::evaluate_single( $rule, $context );
@@ -169,12 +173,22 @@ if ( ! class_exists( 'SUPER_Trigger_Conditions' ) ) :
 			$value    = $condition['value'] ?? '';
 			$type     = $condition['type'] ?? 'string';
 
-			// Replace tags in field and value
-			$field = self::replace_tags( $field, $context );
-			$value = self::replace_tags( $value, $context );
+			// Determine field value - handle {tag} vs plain field name
+			$original_field = $field;
+			if ( preg_match( '/^\{([a-zA-Z0-9_.]+)\}$/', $field, $matches ) ) {
+				// Field is a {tag} - replace_tags gives us the value directly
+				$field_value = self::replace_tags( $field, $context );
+				// If tag wasn't replaced (still has braces), try as field name
+				if ( $field_value === $field ) {
+					$field_value = self::get_field_value( $matches[1], $context );
+				}
+			} else {
+				// Plain field name - use get_field_value
+				$field_value = self::get_field_value( $field, $context );
+			}
 
-			// Get actual field value from context
-			$field_value = self::get_field_value( $field, $context );
+			// Replace tags in value
+			$value = self::replace_tags( $value, $context );
 
 			// Type casting for proper comparison
 			$field_value = self::cast_value( $field_value, $type );
@@ -360,9 +374,22 @@ if ( ! class_exists( 'SUPER_Trigger_Conditions' ) ) :
 				return $context[ $field ];
 			}
 
+			// Check in 'data' array (common structure for test contexts)
+			if ( isset( $context['data'][ $field ] ) ) {
+				$data = $context['data'][ $field ];
+				if ( is_array( $data ) && isset( $data['value'] ) ) {
+					return $data['value'];
+				}
+				return $data;
+			}
+
 			// Check in form_data
 			if ( isset( $context['form_data'][ $field ] ) ) {
-				return $context['form_data'][ $field ];
+				$data = $context['form_data'][ $field ];
+				if ( is_array( $data ) && isset( $data['value'] ) ) {
+					return $data['value'];
+				}
+				return $data;
 			}
 
 			// Check in entry_data (if available)
@@ -428,7 +455,33 @@ if ( ! class_exists( 'SUPER_Trigger_Conditions' ) ) :
 				'/\{([a-zA-Z0-9_]+)\}/',
 				function ( $matches ) use ( $context ) {
 					$key = $matches[1];
-					return isset( $context[ $key ] ) ? $context[ $key ] : $matches[0];
+
+					// Direct context value
+					if ( isset( $context[ $key ] ) ) {
+						return is_array( $context[ $key ] ) ? '' : $context[ $key ];
+					}
+
+					// Check in 'data' array (common structure for form field data)
+					if ( isset( $context['data'][ $key ] ) ) {
+						$data = $context['data'][ $key ];
+						// Handle array with 'value' key
+						if ( is_array( $data ) && isset( $data['value'] ) ) {
+							return $data['value'];
+						}
+						return is_array( $data ) ? '' : $data;
+					}
+
+					// Check in 'form_data' array
+					if ( isset( $context['form_data'][ $key ] ) ) {
+						$data = $context['form_data'][ $key ];
+						if ( is_array( $data ) && isset( $data['value'] ) ) {
+							return $data['value'];
+						}
+						return is_array( $data ) ? '' : $data;
+					}
+
+					// Not found - return original tag
+					return $matches[0];
 				},
 				$string
 			);

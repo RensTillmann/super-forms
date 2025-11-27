@@ -308,4 +308,27 @@ class SUPER_Action_Abort_Submission extends SUPER_Trigger_Action_Base {
         // If entry_id exists, submission is already saved
         return empty($context['entry_id']);
     }
+
+    /**
+     * This action cannot run asynchronously
+     *
+     * It must execute during the form submission request to prevent
+     * entry creation.
+     *
+     * @return bool
+     * @since 6.5.0
+     */
+    public function supports_async() {
+        return false;
+    }
+
+    /**
+     * Get execution mode
+     *
+     * @return string
+     * @since 6.5.0
+     */
+    public function get_execution_mode() {
+        return 'sync';
+    }
 }

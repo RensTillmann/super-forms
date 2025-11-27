@@ -320,4 +320,166 @@ abstract class SUPER_Trigger_Action_Base {
 
         return array_merge(['success' => true], $result);
     }
+
+    // -------------------------------------------------------------------------
+    // Phase 2: Async Execution Support
+    // -------------------------------------------------------------------------
+
+    /**
+     * Check if this action supports asynchronous execution
+     *
+     * Actions that affect the form submission flow (like abort_submission,
+     * redirect_user) should return false. Actions that make external requests
+     * or perform slow operations should return true.
+     *
+     * @return bool
+     * @since 6.5.0
+     */
+    public function supports_async() {
+        return true; // Default: most actions can run async
+    }
+
+    /**
+     * Get the preferred execution mode for this action
+     *
+     * Values:
+     * - 'sync': Execute immediately (blocking)
+     * - 'async': Queue for background execution
+     * - 'auto': Let the executor decide based on context
+     *
+     * @return string
+     * @since 6.5.0
+     */
+    public function get_execution_mode() {
+        return 'auto'; // Let the executor decide by default
+    }
+
+    /**
+     * Get retry configuration for failed executions
+     *
+     * @return array {
+     *     @type int  $max_retries     Maximum retry attempts (default: 3)
+     *     @type int  $initial_delay   Initial delay in seconds before first retry (default: 120)
+     *     @type bool $exponential     Use exponential backoff (default: true)
+     *     @type int  $max_delay       Maximum delay in seconds (default: 1800)
+     * }
+     * @since 6.5.0
+     */
+    public function get_retry_config() {
+        return [
+            'max_retries'   => 3,
+            'initial_delay' => 120,    // 2 minutes
+            'exponential'   => true,   // Exponential backoff
+            'max_delay'     => 1800,   // 30 minutes max
+        ];
+    }
+
+    /**
+     * Check if this action should be retried on failure
+     *
+     * Override in child classes to disable retry for specific actions
+     * or implement custom retry logic.
+     *
+     * @param array|WP_Error $result The failed result
+     * @param int            $attempt Current attempt number
+     * @return bool
+     * @since 6.5.0
+     */
+    public function should_retry( $result, $attempt ) {
+        // Don't retry if action doesn't support async
+        if ( ! $this->supports_async() ) {
+            return false;
+        }
+
+        // Get max retries from config
+        $config = $this->get_retry_config();
+        if ( $attempt >= $config['max_retries'] ) {
+            return false;
+        }
+
+        // Don't retry certain error types
+        if ( is_wp_error( $result ) ) {
+            $no_retry_codes = [
+                'permission_denied',
+                'invalid_config',
+                'missing_required_field',
+                'action_disabled',
+            ];
+
+            if ( in_array( $result->get_error_code(), $no_retry_codes, true ) ) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if action is rate limited
+     *
+     * Override for actions that call external APIs with rate limits.
+     *
+     * @return bool|int False if not rate limited, or seconds until next allowed execution
+     * @since 6.5.0
+     */
+    public function is_rate_limited() {
+        return false; // No rate limiting by default
+    }
+
+    /**
+     * Get rate limit configuration
+     *
+     * Override for actions that need rate limiting.
+     *
+     * @return array {
+     *     @type int $limit  Maximum executions allowed in the window
+     *     @type int $window Time window in seconds
+     * }
+     * @since 6.5.0
+     */
+    public function get_rate_limit_config() {
+        return [
+            'limit'  => 0,  // 0 = no rate limiting
+            'window' => 60, // 1 minute window
+        ];
+    }
+
+    /**
+     * Called before action is queued for async execution
+     *
+     * Use this to prepare any data that needs to be serialized
+     * or to perform validation before queuing.
+     *
+     * @param array $context Event context
+     * @param array $config  Action configuration
+     * @return array|WP_Error Modified context or error to prevent queuing
+     * @since 6.5.0
+     */
+    public function prepare_for_queue( $context, $config ) {
+        return $context; // Return context unchanged by default
+    }
+
+    /**
+     * Get action metadata for registration
+     *
+     * Returns all metadata about this action in a single call.
+     * Used by the registry for action registration.
+     *
+     * @return array
+     * @since 6.5.0
+     */
+    public function get_metadata() {
+        return [
+            'id'                => $this->get_id(),
+            'label'             => $this->get_label(),
+            'description'       => $this->get_description(),
+            'category'          => $this->get_category(),
+            'settings_schema'   => $this->get_settings_schema(),
+            'supports_async'    => $this->supports_async(),
+            'execution_mode'    => $this->get_execution_mode(),
+            'retry_config'      => $this->get_retry_config(),
+            'rate_limit_config' => $this->get_rate_limit_config(),
+            'capabilities'      => $this->get_required_capabilities(),
+        ];
+    }
 }

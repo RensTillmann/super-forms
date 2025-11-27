@@ -18,9 +18,32 @@ This document maps the exact order of event firing for all form submission scena
 - `entry.saved` - Entry data persisted (fires for new AND updated entries)
 - `entry.updated` - Existing entry edited (only for updates)
 - `entry.status_changed` - Entry status modified
+- `entry.deleted` - Entry permanently deleted (admin or listings)
 
-### File Upload Events
+### File Events
 - `file.uploaded` - File successfully attached to media library
+- `file.upload_failed` - File upload error (size exceeded, wp_handle_upload error)
+- `file.deleted` - File removed (submission delete option, vcard cleanup)
+
+### Payment Events (Stripe)
+- `payment.stripe.checkout_completed` - Stripe checkout session completed
+- `payment.stripe.payment_succeeded` - Payment intent succeeded
+- `payment.stripe.payment_failed` - Payment intent failed
+- `subscription.stripe.created` - Subscription created
+- `subscription.stripe.updated` - Subscription updated
+- `subscription.stripe.cancelled` - Subscription cancelled
+- `subscription.stripe.invoice_paid` - Invoice payment succeeded
+- `subscription.stripe.invoice_failed` - Invoice payment failed
+
+### Payment Events (PayPal)
+- `payment.paypal.capture_completed` - Payment capture completed
+- `payment.paypal.capture_denied` - Payment capture denied
+- `payment.paypal.capture_refunded` - Payment refunded
+- `subscription.paypal.created` - Subscription created
+- `subscription.paypal.activated` - Subscription activated
+- `subscription.paypal.cancelled` - Subscription cancelled
+- `subscription.paypal.suspended` - Subscription suspended
+- `subscription.paypal.payment_failed` - Subscription payment failed
 
 ---
 
@@ -96,29 +119,40 @@ This document maps the exact order of event firing for all form submission scena
 
 ---
 
-## Scenario 3: Spam Detection (Honeypot Triggered)
+## Scenario 3: Spam Detection (Multi-Method)
 
-**Flow:** User submits form → honeypot field filled → REJECTED immediately
+**Flow:** User submits form → spam detection runs → REJECTED (silent or with message)
 
 ```
-         ⚠️  HONEYPOT CHECK HAPPENS FIRST
+         ⚠️  SPAM DETECTION AFTER VALIDATION
                           ↓
 ┌─────────────────────────────────────────────────────────────┐
 │ 1. form.spam_detected                                       │
-│    Location: class-ajax.php:3233                            │
-│    Context: { form_id, detection_method='honeypot',        │
-│              honeypot_value, user_id, user_ip }             │
+│    Location: class-ajax.php:3307                            │
+│    Context: { form_id, detection_method, spam_score,       │
+│              spam_details, form_data, session_key,          │
+│              user_ip, timestamp }                           │
 └─────────────────────────────────────────────────────────────┘
                           ↓
-                    ❌ EXIT (silent)
+      Trigger Actions Can Execute (e.g., Abort Submission)
+                          ↓
+                    ❌ EXIT (default: silent)
 
-⚠️  NO OTHER EVENTS FIRE
+⚠️  NO ENTRY CREATED
     - form.before_submit does NOT fire
-    - No entry created
-    - Submission stops immediately
+    - Spam detection runs BEFORE entry creation
+    - Default behavior: silent rejection (exit without message)
+    - Optional: Abort action can show custom message
 ```
 
-**Note:** Honeypot check occurs in `submit_form_checks()` at line 3231, BEFORE the main `submit_form()` method is called. This is intentional for security - spam submissions exit as early as possible.
+**Detection Methods** (checked in order):
+1. Honeypot (super_hp, website_url_hp, fax_number_hp)
+2. Time-based (session start timestamp vs minimum seconds)
+3. IP Blacklist (exact, CIDR, wildcards)
+4. Keyword Filter (dual threshold)
+5. Akismet (optional API call)
+
+**Note:** Spam detection runs in `submit_form()` at line 3298, immediately AFTER validation passes but BEFORE entry creation. Uses `SUPER_Spam_Detector::check()` with session data for time-based detection.
 
 ---
 
@@ -341,11 +375,13 @@ array(
 ```php
 array(
     'form_id' => int,
-    'detection_method' => string,  // 'honeypot'
-    'honeypot_value' => string,    // What was filled
-    'timestamp' => string,
-    'user_id' => int,
-    'user_ip' => string
+    'detection_method' => string,  // 'honeypot', 'time', 'ip_blacklist', 'keywords', 'akismet'
+    'spam_score' => float,         // 0.0 to 1.0 confidence score
+    'spam_details' => string,      // Human-readable detection reason
+    'form_data' => array,          // Complete submitted form data
+    'session_key' => string,       // Session identifier (if session exists)
+    'user_ip' => string,
+    'timestamp' => string          // MySQL datetime
 )
 ```
 
@@ -424,6 +460,18 @@ array(
 )
 ```
 
+**entry.deleted**
+```php
+array(
+    'entry_id' => int,
+    'form_id' => int,
+    'deleted_by' => int,      // User ID who deleted
+    'method' => string,       // 'trash', 'permanent', 'listings'
+    'timestamp' => string,
+    'user_id' => int
+)
+```
+
 ### File Events Context
 
 **file.uploaded**
@@ -436,6 +484,31 @@ array(
     'file_type' => string,    // MIME type
     'file_size' => int,       // bytes
     'file_url' => string,
+    'timestamp' => string,
+    'user_id' => int
+)
+```
+
+**file.upload_failed**
+```php
+array(
+    'form_id' => int,
+    'file_name' => string,
+    'error_message' => string,
+    'error_code' => string,   // 'size_exceeded', 'wp_upload_error'
+    'timestamp' => string,
+    'user_id' => int
+)
+```
+
+**file.deleted**
+```php
+array(
+    'attachment_id' => int,   // May be null
+    'form_id' => int,
+    'file_url' => string,
+    'deleted_by' => int,
+    'reason' => string,       // 'submission_delete_option', 'vcard_delete_option'
     'timestamp' => string,
     'user_id' => int
 )
@@ -548,33 +621,43 @@ Each event firing involves:
 
 ---
 
-## Next Steps for Implementation
+## Implementation Status
 
-### Phase 1.5: Admin UI
+### Completed Phases
+
+**Phase 1 - Foundation (Complete):**
+- 7 core classes implemented (Registry, DAL, Manager, Executor, Conditions, Action Base, REST Controller)
+- 19 built-in actions implemented
+- REST API endpoints functional
+
+**Phase 2 - Action Scheduler (Complete):**
+- `SUPER_Trigger_Scheduler` class for async execution
+- Retry mechanism with exponential backoff
+- Queue management integration
+
+**Phase 3 - Logging Infrastructure (Complete):**
+- `SUPER_Trigger_Logger` - Centralized logging with levels
+- `SUPER_Trigger_Debugger` - Real-time debug data collection
+- `SUPER_Trigger_Performance` - Timing and memory tracking
+- `SUPER_Trigger_Compliance` - GDPR and audit trails
+- `SUPER_Trigger_Logs_Page` - Admin log viewer with filtering/export
+
+### Remaining Phases
+
+**Phase 1.5 - Admin UI (Pending):**
 - Build dedicated "Triggers" admin page
 - Trigger creation/editing interface
 - Action configuration UI
-- Execution logs viewer
 
-### Phase 2: Built-in Actions
-Implement action classes:
-- `send_email` - Email notifications
-- `webhook` - HTTP POST to external URL
-- `update_entry_status` - Change entry status
-- `update_entry_field` - Modify entry data
-- `log_message` - Debug logging
-
-### Phase 3: Testing Infrastructure
-- Unit tests for event firing
-- Integration tests for trigger execution
-- Developer tools page enhancements
+**Phase 4+ - Advanced Features (Pending):**
+- See task README for full phase list
 
 ---
 
 ## File Locations Reference
 
 **Event Firing Locations** (all in `/src/includes/class-ajax.php`):
-- Line 3233: `form.spam_detected`
+- Line 3307: `form.spam_detected` (uses SUPER_Spam_Detector::check() at line 3298)
 - Line 3189: `form.validation_failed`
 - Line 4680: `form.before_submit`
 - Line 4693: `form.submitted`
@@ -589,15 +672,88 @@ Implement action classes:
 **Trigger System Classes**:
 - `/src/includes/triggers/class-trigger-registry.php` - Event/action registration
 - `/src/includes/class-trigger-executor.php` - Event firing and execution
+- `/src/includes/class-spam-detector.php` - Multi-method spam detection (5 methods)
 - `/src/includes/class-trigger-manager.php` - Business logic
 - `/src/includes/class-trigger-dal.php` - Database access
 - `/src/includes/class-trigger-conditions.php` - Condition evaluation
+- `/src/includes/class-trigger-scheduler.php` - Action Scheduler integration (Phase 2)
+- `/src/includes/class-trigger-logger.php` - Centralized logging (Phase 3)
+- `/src/includes/class-trigger-debugger.php` - Debug data collection (Phase 3)
+- `/src/includes/class-trigger-performance.php` - Performance tracking (Phase 3)
+- `/src/includes/class-trigger-compliance.php` - GDPR/audit trails (Phase 3)
+
+---
+
+## Payment Events (Phase 6)
+
+Payment events are fired from webhook endpoints when payment processors send notifications. These events enable triggers to respond to payment lifecycle changes.
+
+### Stripe Payment Events
+
+**Webhook Endpoint:** `POST /wp-json/super-forms/v1/webhooks/stripe`
+**Signature Verification:** HMAC-SHA256 with webhook secret
+
+| Event | Stripe Webhook | Description |
+|-------|----------------|-------------|
+| `payment.stripe.checkout_completed` | `checkout.session.completed` | Checkout session completed successfully |
+| `payment.stripe.payment_succeeded` | `payment_intent.succeeded` | Payment intent succeeded |
+| `payment.stripe.payment_failed` | `payment_intent.payment_failed` | Payment intent failed |
+| `subscription.stripe.created` | `customer.subscription.created` | New subscription created |
+| `subscription.stripe.updated` | `customer.subscription.updated` | Subscription plan or status changed |
+| `subscription.stripe.cancelled` | `customer.subscription.deleted` | Subscription was cancelled |
+| `subscription.stripe.invoice_paid` | `invoice.paid` | Subscription invoice payment succeeded |
+| `subscription.stripe.invoice_failed` | `invoice.payment_failed` | Subscription invoice payment failed |
+
+### PayPal Payment Events
+
+**Webhook Endpoint:** `POST /wp-json/super-forms/v1/webhooks/paypal`
+**Signature Verification:** PayPal API verification call
+
+| Event | PayPal Webhook | Description |
+|-------|----------------|-------------|
+| `payment.paypal.capture_completed` | `PAYMENT.CAPTURE.COMPLETED` | PayPal payment capture completed |
+| `payment.paypal.capture_denied` | `PAYMENT.CAPTURE.DENIED` | PayPal payment capture was denied |
+| `payment.paypal.capture_refunded` | `PAYMENT.CAPTURE.REFUNDED` | PayPal payment was refunded |
+| `subscription.paypal.created` | `BILLING.SUBSCRIPTION.CREATED` | PayPal billing subscription created |
+| `subscription.paypal.activated` | `BILLING.SUBSCRIPTION.ACTIVATED` | PayPal subscription became active |
+| `subscription.paypal.cancelled` | `BILLING.SUBSCRIPTION.CANCELLED` | PayPal subscription was cancelled |
+| `subscription.paypal.suspended` | `BILLING.SUBSCRIPTION.SUSPENDED` | PayPal subscription was suspended |
+| `subscription.paypal.payment_failed` | `BILLING.SUBSCRIPTION.PAYMENT.FAILED` | PayPal subscription payment failed |
+
+### Payment Event Context
+
+All payment events include the following context data (when available):
+
+```php
+array(
+    'form_id' => int,        // Extracted from metadata/custom_id
+    'entry_id' => int,       // Extracted from metadata/custom_id
+    'event_type' => string,  // Original webhook event type
+    'event_id' => string,    // Unique event identifier
+    'mode' => string,        // 'test' or 'live'
+    'timestamp' => string,   // MySQL datetime
+)
+```
+
+**Note:** `form_id` and `entry_id` must be passed during checkout creation (in Stripe metadata or PayPal custom_id) for triggers to fire with form context.
 
 ---
 
 ## Version History
 
-- **v1.0.0** (2025-01-21) - Initial event firing implementation
+- **v1.2.0** (2025-11-23) - Payment events integration
+  - 34 events total (added 16 payment events: 8 Stripe, 8 PayPal)
+  - Webhook endpoints for Stripe and PayPal
+  - Signature verification for both payment processors
+  - `SUPER_Payment_OAuth` class for OAuth flows
+
+- **v1.1.0** (2025-11-22) - Complete event coverage
+  - 18 events implemented (session: 4, form: 6, entry: 5, file: 3)
+  - Added: entry.deleted, file.upload_failed, file.deleted
+  - Event context standardization
+  - WordPress action hook integration
+
+- **v1.0.0** (2025-11-21) - Initial event firing implementation
   - 10 events implemented across form submission flow
   - Event context standardization
   - WordPress action hook integration

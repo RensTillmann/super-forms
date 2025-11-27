@@ -111,12 +111,19 @@ class Test_Migration_Phases extends SUPER_Test_Helpers {
 		$result = SUPER_Data_Access::save_entry_data( $entry_id, $test_data );
 		$this->assertTrue( $result, 'Save should succeed in phase 3' );
 
+		global $wpdb;
+
 		// Verify serialized does NOT exist (optimization - single write)
-		$serialized = get_post_meta( $entry_id, '_super_contact_entry_data', true );
-		$this->assertEmpty( $serialized, 'Serialized data should NOT exist in phase 3 (EAV only)' );
+		// Note: We query $wpdb directly because get_post_meta() is intercepted by backwards compat filter
+		// which transparently returns EAV data. We need to check the raw postmeta to verify no double-write.
+		$serialized = $wpdb->get_var( $wpdb->prepare(
+			"SELECT meta_value FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s",
+			$entry_id,
+			'_super_contact_entry_data'
+		) );
+		$this->assertNull( $serialized, 'Serialized postmeta should NOT exist in phase 3 (EAV only)' );
 
 		// Verify EAV table has data
-		global $wpdb;
 		$table = $wpdb->prefix . 'superforms_entry_data';
 		$count = $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM $table WHERE entry_id = %d", $entry_id ) );
 		$this->assertGreaterThan( 0, $count, 'EAV table should have data in phase 3' );

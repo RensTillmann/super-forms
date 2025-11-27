@@ -4,6 +4,69 @@
 
 **The Golden Rule:** Every change must be tested in the actual environment before claiming it's fixed.
 
+## PHPUnit Test Suites
+
+Super Forms uses PHPUnit for automated testing with three main test suites:
+
+### Triggers and Actions Test Suite
+
+Location: `/tests/triggers/`
+
+**Purpose:** Tests the trigger/action extensibility system including event firing, action execution, spam detection, and integration features.
+
+**Key Test Files:**
+- `test-event-firing.php` - Tests all 36 events fire correctly (form, entry, file, payment, session)
+- `test-spam-detector.php` - Tests 5 spam detection methods (honeypot, time, IP, keywords, Akismet)
+- `test-trigger-executor.php` - Tests trigger execution flow and condition evaluation
+- `test-trigger-scheduler.php` - Tests Action Scheduler integration for async execution
+- `test-logging-system.php` - Tests Logger, Debugger, Performance, Compliance classes
+- `test-api-security.php` - Tests Credentials, OAuth, Security, Permissions, API Keys
+- `test-session-dal.php` - Tests session storage for progressive forms
+- `test-session-cleanup.php` - Tests automated session cleanup (abandoned detection, expiration, event firing)
+- `test-entry-dal.php` - Tests entry CRUD and backwards compatibility
+
+**Run Tests:**
+```bash
+# Via sync script (syncs code to dev server and runs tests)
+./sync-to-webserver.sh --test triggers
+
+# Or run all trigger tests
+./sync-to-webserver.sh --test
+
+# Via SSH on dev server
+ssh -p 18765 -i ~/.ssh/id_sftp u2669-dvgugyayggy5@gnldm1014.siteground.biz
+cd /home/u2669-dvgugyayggy5/www/f4d.nl/public_html/dev/wp-content/plugins/super-forms
+php vendor/bin/phpunit --testsuite "triggers"
+```
+
+**Documentation:** See `/tests/triggers/README.md` for detailed test coverage information.
+
+### Integration Test Suite
+
+Location: `/tests/integration/`
+
+**Purpose:** End-to-end integration tests for complex workflows (payment processing, multi-step forms, third-party integrations).
+
+**Run Tests:**
+```bash
+./sync-to-webserver.sh --test integration
+```
+
+### Super Forms Test Suite
+
+Location: `/tests/`
+
+**Purpose:** Legacy tests for EAV migration, data access layer, and core functionality.
+
+**Note:** This suite can exhaust memory on databases with many entries. Run separately if needed:
+```bash
+./sync-to-webserver.sh --test "Super Forms Test Suite"
+```
+
+## Testing Philosophy
+
+**The Golden Rule:** Every change must be tested in the actual environment before claiming it's fixed.
+
 - Untested code is not a solution—it's a guess
 - "Looks correct" ≠ "Works correctly"
 - If you can't test it, don't ship it
@@ -300,7 +363,8 @@ When fixing bugs, test related functionality:
 
 - ✅ JSHint for JavaScript linting (`npm run jshint`)
 - ✅ Migration integration tests (Developer Tools)
-- ❌ No unit tests configured
+- ✅ Trigger system unit tests (`tests/triggers/`)
+- ✅ Trigger system performance tests
 - ❌ No E2E tests configured
 
 ### Migration Integration Tests
@@ -362,6 +426,79 @@ Preloaded test files are available on the development server:
 - Detailed error messages on failure
 - Execution time tracking
 - Test cleanup confirmation
+
+### Trigger System Tests (since 6.5.0)
+
+**Location:** `tests/triggers/`
+**Framework:** PHPUnit 9.5 with WordPress test suite
+
+**Test Files:**
+- `test-performance.php` - Performance benchmarks for trigger lookup and execution
+- `test-event-firing.php` - Event integration tests (23 test methods)
+- `test-trigger-registry.php` - Registry registration and retrieval tests
+- `test-trigger-executor.php` - Executor logic and error handling
+- `test-trigger-scheduler.php` - Action Scheduler integration tests (Phase 2)
+- `test-logging-system.php` - Logger, Debugger, Performance, Compliance tests (Phase 3)
+- `test-spam-detector.php` - Spam detection action tests
+- `test-entry-dal.php` - Entry DAL CRUD, meta methods, backwards compat tests (45 test methods)
+- `test-session-dal.php` - Session DAL tests (client token recovery, anonymous session matching)
+- `test-session-cleanup.php` - Session cleanup tests (abandoned detection, expiration cleanup, event firing, batch processing)
+- `class-action-test-case.php` - Base test class with common utilities
+- `actions/test-action-log-message.php` - Log message action tests (12 test methods)
+- `actions/test-action-send-email.php` - Send email action tests (10 test methods)
+- `actions/test-action-http-request.php` - HTTP request action tests (~50 test methods, wildcards, modifiers)
+- `test-http-request-templates.php` - HTTP request template tests
+
+**PHPUnit Testsuites** (defined in `phpunit.xml`):
+- `triggers` - All trigger/action system unit tests in `tests/triggers/`
+- `integration` - Integration tests in `tests/integration/`
+- `Super Forms Test Suite` - EAV migration tests (excludes triggers/integration folders)
+
+**Important:** Use `--testsuite` flag rather than running test files directly with hyphenated names (PHPUnit class naming quirk).
+
+**Running Trigger Tests:**
+
+Via shell script:
+```bash
+# From project root
+./run-trigger-tests.sh
+```
+
+Via PHPUnit directly:
+```bash
+# Run all trigger tests (recommended)
+./vendor/bin/phpunit --testsuite triggers
+
+# Run specific test file
+./vendor/bin/phpunit tests/triggers/test-performance.php
+
+# Run specific test method
+./vendor/bin/phpunit --filter test_trigger_lookup_performance tests/triggers/test-performance.php
+```
+
+**Performance Benchmarks:**
+- Trigger lookup: <50ms for 100+ triggers
+- Condition evaluation: <10ms for nested groups
+- Action execution: Varies by action type (log: <1ms, email: ~50ms, webhook: varies)
+- Event firing overhead: <100ms total
+
+**Test Database Logging:**
+The trigger tests use `SUPER_Test_DB_Logger` for persistent test result logging:
+- Results stored in `wp_superforms_test_log` table
+- Inspect results with: `./inspect-test-db.sh`
+- See `tests/TEST_DATABASE.md` for documentation
+
+**Developer Tools Integration:**
+Section 8 "Trigger System Testing" in Developer Tools provides manual testing:
+- Fire test events with custom context data
+- View execution logs
+- Clear trigger logs
+- Test specific triggers by ID
+
+**AJAX Endpoints for Testing:**
+- `super_dev_test_trigger` - Fire a specific trigger with test data
+- `super_dev_get_trigger_logs` - Retrieve execution logs
+- `super_dev_clear_trigger_logs` - Clear all trigger logs
 
 ### Planned Testing Stack
 
