@@ -1349,6 +1349,11 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 		const AS_ENTRIES_BATCH_HOOK = 'superforms_migrate_entries_batch';
 
 		/**
+		 * Action Scheduler hook for entries cleanup (30 days after migration)
+		 */
+		const AS_ENTRIES_CLEANUP_HOOK = 'superforms_cleanup_entries_batch';
+
+		/**
 		 * Entries migration lock key
 		 */
 		const ENTRIES_LOCK_KEY = 'super_entries_migration_lock';
@@ -1360,6 +1365,7 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 		 */
 		public static function init_entries_migration() {
 			add_action( self::AS_ENTRIES_BATCH_HOOK, array( __CLASS__, 'process_entries_batch_action' ) );
+			add_action( self::AS_ENTRIES_CLEANUP_HOOK, array( __CLASS__, 'process_entries_cleanup_action' ) );
 		}
 
 		/**
@@ -1527,6 +1533,9 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 					$state['state']        = 'completed';
 					$state['completed_at'] = time();
 					self::log( 'Entries migration completed!' );
+
+					// Schedule cleanup to run 30 days from now
+					self::schedule_entries_cleanup();
 				}
 
 				update_option( 'superforms_entries_migration', $state );
@@ -1656,6 +1665,83 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 			}
 
 			return $cleaned;
+		}
+
+		/**
+		 * Schedule entries cleanup to run after retention period
+		 *
+		 * Called when migration completes. Schedules daily cleanup job
+		 * starting 30 days after migration completion.
+		 *
+		 * @since 6.5.0
+		 */
+		public static function schedule_entries_cleanup() {
+			if ( ! function_exists( 'as_schedule_recurring_action' ) ) {
+				self::log( 'Action Scheduler not available for cleanup scheduling', 'warning' );
+				return;
+			}
+
+			// Check if already scheduled
+			if ( as_next_scheduled_action( self::AS_ENTRIES_CLEANUP_HOOK, array(), 'superforms-entries-cleanup' ) ) {
+				self::log( 'Entries cleanup already scheduled' );
+				return;
+			}
+
+			// Schedule to run daily, starting 30 days from now
+			$retention_days = apply_filters( 'super_entries_migration_retention_days', 30 );
+			$start_time = time() + ( $retention_days * DAY_IN_SECONDS );
+
+			as_schedule_recurring_action(
+				$start_time,
+				DAY_IN_SECONDS,
+				self::AS_ENTRIES_CLEANUP_HOOK,
+				array(),
+				'superforms-entries-cleanup'
+			);
+
+			self::log( "Entries cleanup scheduled to start in {$retention_days} days" );
+		}
+
+		/**
+		 * Process entries cleanup batch (Action Scheduler callback)
+		 *
+		 * Runs daily after retention period to remove post type entries
+		 * that have been migrated to custom table.
+		 *
+		 * @since 6.5.0
+		 */
+		public static function process_entries_cleanup_action() {
+			$state = get_option( 'superforms_entries_migration', array() );
+
+			// Only cleanup if migration is completed
+			if ( ! isset( $state['state'] ) || $state['state'] !== 'completed' ) {
+				self::log( 'Entries cleanup skipped - migration not completed' );
+				return;
+			}
+
+			// Check retention period
+			$retention_days = apply_filters( 'super_entries_migration_retention_days', 30 );
+			$completed_at = isset( $state['completed_at'] ) ? $state['completed_at'] : 0;
+
+			if ( time() - $completed_at < $retention_days * DAY_IN_SECONDS ) {
+				self::log( 'Entries cleanup skipped - still within retention period' );
+				return;
+			}
+
+			// Process cleanup batch
+			$cleaned = self::cleanup_migrated_entries( 100 );
+
+			if ( $cleaned > 0 ) {
+				self::log( "Cleaned up {$cleaned} entries from post type" );
+			}
+
+			// Check if cleanup is complete
+			$state = get_option( 'superforms_entries_migration', array() );
+			if ( isset( $state['state'] ) && $state['state'] === 'cleaned' ) {
+				// Unschedule recurring cleanup
+				as_unschedule_all_actions( self::AS_ENTRIES_CLEANUP_HOOK, array(), 'superforms-entries-cleanup' );
+				self::log( 'Entries cleanup complete - recurring job unscheduled' );
+			}
 		}
 	}
 

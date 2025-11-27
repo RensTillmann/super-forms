@@ -6,55 +6,60 @@ Migrate the existing email notification system (Admin emails, Confirmation email
 
 ## Work Log
 
-### 2025-11-27
+### 2025-11-27 (Session 1)
 
 #### Completed
 - Created Triggers v2 UI epic file (`20-implement-triggers-v2-ui.md`)
-  - Comprehensive 10-phase implementation plan (~26 days estimated)
-  - Full architecture with component structure
-  - All 36 events and 20 actions documented
-  - Email v2 component extraction plan for embedding in Triggers tab
 - Implemented bidirectional Email v2 ↔ Triggers sync system
-  - Added `sync_emails_to_triggers()` in `class-email-trigger-migration.php` (lines 838-938)
-  - Added `email_to_action_config()` private helper (lines 947-982)
-  - Added `convert_triggers_to_emails_format()` (lines 995-1075)
-  - Added `get_emails_for_ui()` main entry point (lines 1087-1108)
-  - Updated `get_form_emails_settings()` in `class-common.php` (lines 121-148)
+  - `sync_emails_to_triggers()` - Email v2 UI → triggers table
+  - `convert_triggers_to_emails_format()` - Triggers → Email v2 format
+  - `get_emails_for_ui()` - Main entry point for UI data loading
+  - Fixed empty Email v2 tab for migrated forms
+
+### 2025-11-27 (Session 2)
+
+#### Completed - Email v2 Visual/HTML Mode Toggle
+- Implemented mode toggle infrastructure in `EmailClientBuilder.jsx`
+  - Added `mode` state (visual/html) with local storage persistence
+  - Confirmation dialogs when switching modes (data loss warnings)
+  - Visual→HTML conversion uses `generateHtml()` from builder
+  - HTML→Visual wraps content in editable HTML element
+- Added HTML element type to Email v2 builder
+  - Created `HtmlElement.jsx` component with TinyMCE integration
+  - Added to `ElementPaletteHorizontal.jsx` (Dynamic category)
+  - Registered in `useEmailBuilder.js` element types
+  - Added HTML case to `generateHtml()` renderer
+  - Updated `ElementRenderer.jsx` to handle html type
+- UI enhancements in `GmailChrome.jsx`
+  - Toggle buttons next to "Attach files" button
+  - Visual mode: Shows drag-drop builder
+  - HTML mode: Shows TinyMCE editor with full HTML content
+- Code quality improvements
+  - Fixed ESLint errors in `developer-tools.js` (ternary operators)
+  - Fixed ESLint errors in `session-manager.js` (AbortController)
+  - Excluded `common.js` from commit (pre-existing polyfill issues)
 
 #### Technical Implementation
-**Data Flow Architecture:**
-```
-Email v2 UI saves → _emails postmeta → sync_emails_to_triggers() → triggers table
-Email v2 UI loads ← _emails postmeta ← get_emails_for_ui() ← convert_triggers_to_emails_format()
-```
+**Mode Toggle System:**
+- State stored in localStorage as `emailBuilderMode_{emailId}`
+- Prevents accidental data loss with confirmation dialogs
+- Maintains builder state during mode switches
+- HTML element allows raw HTML editing within visual builder
 
-**Key Methods:**
-- `sync_emails_to_triggers($form_id, $emails)` - Called when Email v2 saves
-  - Creates/updates/deletes triggers based on email changes
-  - Maintains email_id → trigger_id mapping in `_super_email_triggers` postmeta
-  - Skips legacy keys (admin, confirmation, reminder_1-3)
-  - Updates trigger name, enabled status, and send_email action config
-- `convert_triggers_to_emails_format($form_id)` - Reverse sync for UI display
-  - Reads triggers table via EMAIL_TRIGGER_MAP
-  - Converts send_email action config back to Email v2 format
-  - Preserves all fields: to, from_email, from_name, subject, body, attachments, reply_to, cc, bcc, template, conditions, schedule
-- `get_emails_for_ui($form_id)` - Main UI entry point
-  - First checks `_emails` postmeta
-  - If empty, populates from triggers via `convert_triggers_to_emails_format()`
-  - Saves populated data back to `_emails` for future loads
-  - Enables Email v2 tab to display migrated legacy emails
+**Files Modified:**
+- `src/react/emails-v2/src/components/Preview/EmailClientBuilder.jsx` (major rewrite)
+- `src/react/emails-v2/src/components/Preview/ClientChrome/GmailChrome.jsx` (toggle UI)
+- `src/react/emails-v2/src/components/Builder/Elements/HtmlElement.jsx` (new)
+- `src/react/emails-v2/src/components/Builder/ElementPaletteHorizontal.jsx` (added html)
+- `src/react/emails-v2/src/components/Builder/Elements/ElementRenderer.jsx` (html support)
+- `src/react/emails-v2/src/hooks/useEmailBuilder.js` (html element type + renderer)
+- `src/assets/js/backend/developer-tools.js` (ESLint fixes)
+- `src/assets/js/frontend/session-manager.js` (ESLint fixes)
 
-#### Problem Solved
-- Fixed issue where Email v2 tab was empty for migrated forms (e.g., form 38036)
-- Migrated legacy emails now appear in Email v2 UI
-- Changes in Email v2 UI sync to triggers table for execution
-- Bidirectional sync maintains consistency between `_emails` and triggers
-
-#### Next Steps
-- Sync to dev server and test with form 38036
-- Verify Email v2 UI displays migrated emails correctly
-- Test email save → trigger creation flow
-- Validate trigger execution uses updated configs
+#### Commit
+- Hash: `9fe81b7e`
+- Message: "Add Email v2 Visual/HTML mode toggle and Phase 2 infrastructure"
+- Status: Pushed to remote
 
 ## Current State Analysis
 
@@ -183,26 +188,24 @@ if ($settings['confirm_email_enabled'] === 'yes') {
 ### Core Functionality
 - [x] Email v2 tab saves to triggers table (bidirectional sync implemented)
 - [x] Migration script converts legacy email settings to triggers (via `migrate_form()`)
-- [ ] Admin emails sent via `send_email` action (trigger execution needs testing)
-- [ ] Confirmation emails sent via `send_email` action (trigger execution needs testing)
-- [ ] Email v2 templates render correctly through trigger system
+- [x] Visual/HTML mode toggle implemented
+- [ ] Admin emails sent via `send_email` action (needs testing)
+- [ ] Confirmation emails sent via `send_email` action (needs testing)
+- [ ] Email v2 templates render correctly through trigger system (needs testing)
 
 ### Migration
 - [x] Full migration on plugin update (background migration via Action Scheduler)
-- [x] Progress tracking during migration (status, forms_migrated, failed_forms)
-- [x] Failed forms tracked for manual review (stored in migration state)
-- [x] Backwards compatible during migration window (dual-read system, trigger map tracking)
+- [x] Progress tracking during migration
+- [x] Failed forms tracked for manual review
+- [x] Backwards compatible during migration window
 
-### Logging & Debugging
-- [x] Email delivery logged in trigger_logs table (Phase 3 complete)
-- [x] Success/failure status recorded (trigger logging system)
-- [x] Debug mode shows email content before send (Phase 3 debugger)
-
-### Email v2 Integration
-- [x] Email v2 React app creates triggers (via `sync_emails_to_triggers()`)
-- [x] Existing Email v2 templates migrate to triggers (via `convert_triggers_to_emails_format()`)
-- [ ] Preview functionality still works (needs testing)
-- [ ] Scheduling modal creates delayed trigger execution (needs implementation)
+### Email v2 Builder Enhancements
+- [x] Visual mode with drag-drop builder
+- [x] HTML mode with TinyMCE editor
+- [x] Mode switching with data loss prevention
+- [x] HTML element type for raw HTML blocks
+- [ ] Preview functionality testing
+- [ ] Scheduling modal integration (deferred)
 
 ## Technical Implementation
 
@@ -260,23 +263,33 @@ No new tables required - uses existing `wp_superforms_triggers` and `wp_superfor
 
 ## Testing Requirements
 
-### Unit Tests
+### Manual Testing (Next Session)
+- [ ] Test Visual/HTML mode toggle at https://f4d.nl/dev/wp-admin/admin.php?page=super_create_form&id=38036
+  - [ ] Switch from Visual to HTML mode
+  - [ ] Verify HTML content generated correctly
+  - [ ] Switch from HTML to Visual mode
+  - [ ] Verify HTML element created and editable
+  - [ ] Test data loss prevention dialogs
+- [ ] Test Email v2 builder workflow
+  - [ ] Create new email in Visual mode
+  - [ ] Verify trigger created in database
+  - [ ] Edit email and verify trigger updated
+  - [ ] Delete email and verify trigger removed
+- [ ] Test migrated email display
+  - [ ] Load form 38036 Email v2 tab
+  - [ ] Verify migrated emails appear correctly
+  - [ ] Test editing migrated email
+- [ ] Test email delivery
+  - [ ] Submit form with admin email configured
+  - [ ] Verify email sent via trigger system
+  - [ ] Check trigger logs for delivery record
+
+### Integration Tests (Future)
 - [ ] Legacy settings conversion produces correct trigger config
 - [ ] Email v2 JSON renders to valid HTML
 - [ ] Tag replacement works in all email fields
 - [ ] Attachments processed correctly
-
-### Integration Tests
 - [ ] Full migration runs on test database
-- [ ] Emails sent via triggers match legacy output
-- [ ] Email v2 builder saves create triggers
-- [ ] Scheduled emails use Action Scheduler
-
-### Manual Testing
-- [ ] Create email in Email v2 builder → verify trigger created
-- [ ] Submit form → verify email sent and logged
-- [ ] Check trigger logs page shows email delivery
-- [ ] Test migration on form with legacy settings
 
 ## Rollback Plan
 

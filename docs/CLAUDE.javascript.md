@@ -54,7 +54,63 @@ React component changes compile to:
 
 **⚠️ Important**: Always use `npm run watch` (development mode) when debugging React components. Production builds remove all debugging capabilities.
 
-### 6. Email v2 ↔ Triggers Backend Integration
+### 6. Email v2 Builder: Visual/HTML Mode Toggle
+
+**Mode System (since 6.5.0):**
+The Email v2 builder supports two editing modes for maximum flexibility:
+
+**Visual Mode** (`body_type: 'visual'`):
+- Drag-drop email builder with reusable elements (Text, Button, Image, Divider, etc.)
+- Live preview in Gmail/Outlook/Apple Mail chrome
+- Element-based composition system
+- Template stored as JSON with elements array
+- Default mode for new emails
+
+**HTML Mode** (`body_type: 'html'`):
+- Raw HTML code editor with syntax highlighting
+- Full control over email markup
+- Live preview panel (optional toggle)
+- Direct HTML editing without element abstraction
+- Useful for importing existing HTML templates or advanced customization
+
+**Mode Switching:**
+```javascript
+// Visual → HTML conversion
+const html = generateHtml(); // Converts elements to HTML
+updateEmailField(emailId, 'body', html);
+updateEmailField(emailId, 'body_type', 'html');
+
+// HTML → Visual conversion
+const htmlElement = {
+  id: uuidv4(),
+  type: 'html',
+  props: { content: currentBody },
+  children: []
+};
+setElements([htmlElement]); // Wraps HTML in HtmlElement component
+updateEmailField(emailId, 'body_type', 'visual');
+```
+
+**Mode Persistence:**
+- Mode preference stored in localStorage: `emailBuilderMode_{emailId}`
+- Prevents accidental data loss via confirmation dialogs
+- Visual elements preserved when switching to HTML mode
+- HTML content wrapped in editable HtmlElement when switching to Visual
+
+**UI Components:**
+- `EmailClientBuilder.jsx` - Main orchestrator, manages mode state and conversions
+- `GmailChrome.jsx` - Chrome preview with Visual/HTML toggle buttons (Palette/Code icons)
+- `HtmlElement.jsx` - Custom element type for raw HTML blocks within visual builder
+- `InlineHtmlEditor` - Textarea-based HTML editor (embedded in GmailChrome body area)
+
+**Component File Locations:**
+- Main builder: `/src/react/emails-v2/src/components/Preview/EmailClientBuilder.jsx`
+- Chrome UI: `/src/react/emails-v2/src/components/Preview/ClientChrome/GmailChrome.jsx`
+- HTML element: `/src/react/emails-v2/src/components/Builder/Elements/HtmlElement.jsx`
+- Element renderer: `/src/react/emails-v2/src/components/Builder/Elements/ElementRenderer.jsx`
+- Element palette: `/src/react/emails-v2/src/components/Builder/ElementPaletteHorizontal.jsx`
+
+### 7. Email v2 ↔ Triggers Backend Integration
 
 **Data Flow (since 6.5.0):**
 The Email v2 React app stores email data in `_emails` postmeta, which automatically syncs to the triggers system via `SUPER_Email_Trigger_Migration`:
@@ -62,17 +118,25 @@ The Email v2 React app stores email data in `_emails` postmeta, which automatica
 - **Save**: React app saves to `_emails` → `save_form_emails_settings()` → `sync_emails_to_triggers()` → triggers table
 - **Load**: React app loads from `_emails` ← `get_form_emails_settings()` ← `get_emails_for_ui()` ← triggers table (if `_emails` empty)
 
+**Email Body Types Synced:**
+- `visual` - Visual builder JSON (elements array + generated HTML)
+- `html` - Raw HTML content from HTML mode editor
+- `email_v2` - Legacy identifier (treated same as `visual`)
+- `legacy_html` - Migrated from old Admin/Confirmation email settings
+
 **Key Points:**
 - Email v2 UI is unaware of triggers system (facade pattern)
 - Each email becomes a `send_email` action on `form.submitted` event
 - Sync maintains `_super_email_triggers` postmeta mapping (email_id → trigger_id)
 - Changes in Email v2 UI automatically update trigger configurations
 - Migrated legacy emails appear in Email v2 tab via reverse sync
+- `body_type` field determines rendering method in `send_email` action
 
 **Implementation Files:**
 - Backend sync: `/src/includes/class-email-trigger-migration.php`
 - Integration hooks: `/src/includes/class-common.php` lines 121-156
 - React app storage: Stores in `_emails` postmeta (sync transparent to React code)
+- Action renderer: `/src/includes/triggers/actions/class-action-send-email.php` (handles all body types)
 
 ## Vanilla JavaScript Components (Frontend)
 

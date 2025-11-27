@@ -325,6 +325,20 @@ Integration layer enabling Email v2 React builder to use the triggers system for
 - Users unaware they're creating triggers (simplified UX)
 - Power users can access triggers directly for advanced features
 
+**Email Builder Modes:**
+- **Visual Mode** (`body_type: 'visual'`) - Drag-drop email builder with reusable elements
+- **HTML Mode** (`body_type: 'html'`) - Raw HTML editor with live preview
+- Mode toggle UI in GmailChrome component (desktop/mobile layouts)
+- Confirmation dialogs prevent accidental data loss when switching modes
+- Visual→HTML: Converts elements to HTML via `generateHtml()` function
+- HTML→Visual: Wraps content in HtmlElement component for editing
+
+**Email Body Types** (handled by `send_email` action):
+- `visual` - Email v2 builder JSON format (default for new emails)
+- `html` - Raw HTML content (editable in HTML mode)
+- `email_v2` - Legacy identifier for visual builder format
+- `legacy_html` - Migrated legacy Admin/Confirmation email format
+
 **Sync Flow:**
 ```
 Email v2 UI saves → _emails postmeta → sync_emails_to_triggers() → triggers table
@@ -336,11 +350,11 @@ Email v2 UI loads ← _emails postmeta ← get_emails_for_ui() ← convert_trigg
   - Called automatically by `SUPER_Common::save_form_emails_settings()`
   - Creates/updates/deletes triggers based on email changes
   - Maintains email_id → trigger_id mapping in `_super_email_triggers` postmeta
-  - Updates trigger name, enabled status, and `send_email` action config
+  - Updates trigger name, enabled status, and `send_email` action config (including `body_type`)
 - `convert_triggers_to_emails_format($form_id)` - Load sync (Triggers → Email v2)
   - Reads triggers table via EMAIL_TRIGGER_MAP
   - Converts `send_email` action config back to Email v2 format
-  - Preserves all fields: to, from, subject, body, attachments, reply_to, cc, bcc, template, conditions, schedule
+  - Preserves all fields: to, from, subject, body, body_type, attachments, reply_to, cc, bcc, template, conditions, schedule
 - `get_emails_for_ui($form_id)` - Main UI entry point
   - Called automatically by `SUPER_Common::get_form_emails_settings()`
   - First checks `_emails` postmeta
@@ -358,6 +372,13 @@ Email v2 UI loads ← _emails postmeta ← get_emails_for_ui() ← convert_trigg
 - `/src/includes/class-common.php` lines 121-156 - Automatic sync on save/load
 - `/src/super-forms.php` line 4092 - Form builder save endpoint calls `save_form_emails_settings()`
 - Email v2 React app stores data in `_emails` postmeta (sync happens transparently)
+
+**React Components** (Email v2 builder at `/src/react/emails-v2/src/`):
+- `EmailClientBuilder.jsx` - Main builder with mode toggle system, localStorage persistence
+- `GmailChrome.jsx` - Gmail-style preview chrome with Visual/HTML toggle buttons
+- `HtmlElement.jsx` - Custom HTML block component with code editor and live preview
+- `ElementPaletteHorizontal.jsx` - Element palette (includes HtmlElement in Dynamic category)
+- `useEmailBuilder.js` - Builder state management, element rendering, HTML generation
 
 **Built-in Actions** (20 actions in `/src/includes/triggers/actions/`):
 - **Communication**: `send_email`, `webhook`

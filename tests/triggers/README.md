@@ -15,9 +15,10 @@ This directory contains PHPUnit tests for the Super Forms trigger/action system.
 - **test-http-request-templates.php** - Tests HTTP request template registration (Phase 5)
 - **test-entry-dal.php** - Tests Entry DAL CRUD, meta methods, backwards compat (Phase 17, 45 tests)
 - **test-session-dal.php** - Tests Session DAL operations (client token recovery, anonymous session matching)
+- **test-email-migration.php** - Tests Email v2 ↔ Triggers bidirectional sync and legacy email migration (Phase 11)
 - **class-action-test-case.php** - Base test class with common utilities
 - **actions/test-action-log-message.php** - Log message action tests
-- **actions/test-action-send-email.php** - Send email action tests
+- **actions/test-action-send-email.php** - Send email action tests (supports body_type: visual, html, email_v2, legacy_html)
 - **actions/test-action-http-request.php** - HTTP request action tests (wildcards, modifiers) (Phase 5)
 
 ## Running Tests
@@ -166,6 +167,30 @@ Tests multi-method spam detection system (Phase 1a Step 3):
 - **Session integration** - Tests time-based detection using session start timestamps
 
 **Total: 25 test methods**
+
+### test-email-migration.php
+
+Tests Email v2 ↔ Triggers bidirectional sync and legacy email migration (Phase 11):
+
+- **Migration state management** - Tests state initialization, updates, completion tracking
+- **Legacy email migration** - Tests conversion of Admin and Confirmation email settings to triggers
+- **Email-to-trigger sync** - Tests `sync_emails_to_triggers()` creates/updates/deletes triggers
+- **Trigger-to-email conversion** - Tests `convert_triggers_to_emails_format()` reverse sync
+- **Email ID mapping** - Tests `_super_email_triggers` postmeta maintains email_id → trigger_id mapping
+- **Body type handling** - Tests all body types: `visual`, `html`, `email_v2`, `legacy_html`
+- **Condition preservation** - Tests trigger conditions survive round-trip sync
+- **Schedule preservation** - Tests scheduled send settings preserved during sync
+- **Empty state handling** - Tests `get_emails_for_ui()` populates from triggers when `_emails` empty
+- **Backward compatibility** - Tests migrated legacy emails appear correctly in Email v2 tab
+
+**Key Scenarios Tested:**
+- Creating new email in Email v2 UI → trigger created automatically
+- Editing email in Email v2 UI → trigger updated with new settings
+- Deleting email in Email v2 UI → associated trigger deleted
+- Legacy Admin email → `send_email` action with `body_type: 'legacy_html'`
+- Legacy Confirmation email → separate trigger with user-facing settings
+- Visual mode email → `body_type: 'visual'` with JSON template
+- HTML mode email → `body_type: 'html'` with raw HTML content
 
 ## Test Output Example
 
