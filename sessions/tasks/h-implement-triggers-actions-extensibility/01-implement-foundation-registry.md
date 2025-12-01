@@ -8,6 +8,17 @@ parent: h-implement-triggers-actions-extensibility
 
 # Implement Foundation and Registry System (Backend Only)
 
+⚠️ **ARCHITECTURE UPDATED (2025-11-30):**
+This document reflects the **ORIGINAL** database schema with trigger-level scope columns (`scope`, `scope_id`, `event_id`).
+The architecture has been **UPDATED** to use **node-level scope** configuration instead.
+See [README.md § Scope System Architecture](./README.md#scope-system-architecture) for the current architecture.
+
+**Key Changes:**
+- Triggers table NO LONGER has `scope`, `scope_id`, `event_id`, `form_id`, or `conditions` columns
+- New schema: `id`, `trigger_name`, `workflow_type`, `workflow_graph`, `enabled`, timestamps
+- Scope is now configured at the EVENT NODE level within `workflow_graph` JSON
+- Visual workflows store nodes/connections; code workflows store actions array
+
 ## Problem/Goal
 Establish the complete backend foundation for the extensible triggers/actions system. This phase builds all backend infrastructure WITHOUT any admin UI. The UI will be implemented in Phase 1.5 using the REST API built in this phase.
 
@@ -302,28 +313,28 @@ Create `SUPER_Trigger_REST_Controller` extending `WP_REST_Controller`:
 
 **Endpoints:**
 ```php
-// Triggers CRUD
-GET    /wp-json/super-forms/v1/triggers
-POST   /wp-json/super-forms/v1/triggers
-GET    /wp-json/super-forms/v1/triggers/{id}
-PUT    /wp-json/super-forms/v1/triggers/{id}
-DELETE /wp-json/super-forms/v1/triggers/{id}
+// Automations CRUD (renamed from triggers)
+GET    /wp-json/super-forms/v1/automations
+POST   /wp-json/super-forms/v1/automations
+GET    /wp-json/super-forms/v1/automations/{id}
+PUT    /wp-json/super-forms/v1/automations/{id}
+DELETE /wp-json/super-forms/v1/automations/{id}
 
-// Actions CRUD (nested)
-GET    /wp-json/super-forms/v1/triggers/{trigger_id}/actions
-POST   /wp-json/super-forms/v1/triggers/{trigger_id}/actions
-PUT    /wp-json/super-forms/v1/triggers/{trigger_id}/actions/{id}
-DELETE /wp-json/super-forms/v1/triggers/{trigger_id}/actions/{id}
+// Actions CRUD (nested) - for code-based automations
+GET    /wp-json/super-forms/v1/automations/{automation_id}/actions
+POST   /wp-json/super-forms/v1/automations/{automation_id}/actions
+PUT    /wp-json/super-forms/v1/automations/{automation_id}/actions/{id}
+DELETE /wp-json/super-forms/v1/automations/{automation_id}/actions/{id}
 
 // Registry introspection
 GET    /wp-json/super-forms/v1/events          // List registered events
 GET    /wp-json/super-forms/v1/action-types    // List registered action types
 
 // Execution logs
-GET    /wp-json/super-forms/v1/trigger-logs    // Query logs with filters
+GET    /wp-json/super-forms/v1/automation-logs    // Query logs with filters (renamed from trigger-logs)
 
 // Testing (dev only)
-POST   /wp-json/super-forms/v1/triggers/{id}/test  // Fire with mock data
+POST   /wp-json/super-forms/v1/automations/{id}/test  // Fire with mock data
 ```
 
 **Permissions:**

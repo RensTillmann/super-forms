@@ -1693,7 +1693,7 @@ if (!class_exists('SUPER_Developer_Tools')) :
 	 * @return array Event firing results
 	 */
 	public static function fire_test_event($event_id, $form_id, $entry_id) {
-		if (!class_exists('SUPER_Trigger_Executor')) {
+		if (!class_exists('SUPER_Automation_Executor')) {
 			return new WP_Error('executor_not_loaded', 'Trigger Executor class not loaded');
 		}
 
@@ -1746,7 +1746,7 @@ if (!class_exists('SUPER_Developer_Tools')) :
 
 		// Fire the event
 		$start_time = microtime(true);
-		$results = SUPER_Trigger_Executor::fire_event($event_id, $context);
+		$results = SUPER_Automation_Executor::fire_event($event_id, $context);
 		$execution_time = (microtime(true) - $start_time) * 1000; // Convert to ms
 
 		return array(
@@ -1767,7 +1767,7 @@ if (!class_exists('SUPER_Developer_Tools')) :
 	 */
 	public static function get_trigger_logs($limit = 50) {
 		global $wpdb;
-		$table_name = $wpdb->prefix . 'superforms_trigger_logs';
+		$table_name = $wpdb->prefix . 'superforms_automation_logs';
 
 		// Check if table exists
 		$table_exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table_name));
@@ -1800,7 +1800,7 @@ if (!class_exists('SUPER_Developer_Tools')) :
 	 */
 	public static function clear_trigger_logs() {
 		global $wpdb;
-		$table_name = $wpdb->prefix . 'superforms_trigger_logs';
+		$table_name = $wpdb->prefix . 'superforms_automation_logs';
 
 		// Check if table exists
 		$table_exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table_name));
@@ -1827,16 +1827,16 @@ if (!class_exists('SUPER_Developer_Tools')) :
 	 * @return array Test results
 	 */
 	public static function test_trigger($trigger_id, $entry_data) {
-		if (!class_exists('SUPER_Trigger_Manager')) {
+		if (!class_exists('SUPER_Automation_Manager')) {
 			return new WP_Error('manager_not_loaded', 'Trigger Manager class not loaded');
 		}
 
-		if (!class_exists('SUPER_Trigger_DAL')) {
+		if (!class_exists('SUPER_Automation_DAL')) {
 			return new WP_Error('dal_not_loaded', 'Trigger DAL class not loaded');
 		}
 
 		// Get trigger details
-		$trigger = SUPER_Trigger_DAL::get_trigger($trigger_id);
+		$trigger = SUPER_Automation_DAL::get_trigger($trigger_id);
 		if (is_wp_error($trigger)) {
 			return $trigger;
 		}
@@ -1846,7 +1846,7 @@ if (!class_exists('SUPER_Developer_Tools')) :
 		}
 
 		// Get trigger actions
-		$actions = SUPER_Trigger_DAL::get_trigger_actions($trigger_id);
+		$actions = SUPER_Automation_DAL::get_trigger_actions($trigger_id);
 
 		// Build test context
 		$context = array(
@@ -1862,8 +1862,8 @@ if (!class_exists('SUPER_Developer_Tools')) :
 		$conditions_met = true;
 		if (!empty($trigger['conditions'])) {
 			$conditions = json_decode($trigger['conditions'], true);
-			if (class_exists('SUPER_Trigger_Conditions')) {
-				$conditions_met = SUPER_Trigger_Conditions::evaluate($conditions, $context);
+			if (class_exists('SUPER_Automation_Conditions')) {
+				$conditions_met = SUPER_Automation_Conditions::evaluate($conditions, $context);
 			}
 		}
 
@@ -1876,7 +1876,7 @@ if (!class_exists('SUPER_Developer_Tools')) :
 		);
 
 		// If conditions met, execute actions
-		if ($conditions_met && class_exists('SUPER_Trigger_Executor')) {
+		if ($conditions_met && class_exists('SUPER_Automation_Executor')) {
 			foreach ($actions as $action) {
 				if (!$action['enabled']) {
 					continue;
@@ -1885,7 +1885,7 @@ if (!class_exists('SUPER_Developer_Tools')) :
 				$action_config = json_decode($action['action_config'], true);
 				$start_time = microtime(true);
 
-				$action_result = SUPER_Trigger_Executor::execute_single_action(
+				$action_result = SUPER_Automation_Executor::execute_single_action(
 					$action['action_type'],
 					$action_config,
 					$context
@@ -1959,7 +1959,7 @@ if (!class_exists('SUPER_Developer_Tools')) :
 	public static function test_http_request($config, $context = array()) {
 		if (!class_exists('SUPER_Action_HTTP_Request')) {
 			// Try to load the class
-			$file = SUPER_PLUGIN_DIR . '/includes/triggers/actions/class-action-http-request.php';
+			$file = SUPER_PLUGIN_DIR . '/includes/automations/actions/class-action-http-request.php';
 			if (file_exists($file)) {
 				require_once $file;
 			} else {
@@ -2007,7 +2007,7 @@ if (!class_exists('SUPER_Developer_Tools')) :
 		}
 
 		if (!class_exists('SUPER_HTTP_Request_Templates')) {
-			$file = SUPER_PLUGIN_DIR . '/includes/triggers/class-http-request-templates.php';
+			$file = SUPER_PLUGIN_DIR . '/includes/automations/class-http-request-templates.php';
 			if (file_exists($file)) {
 				require_once $file;
 			} else {
@@ -2041,7 +2041,7 @@ if (!class_exists('SUPER_Developer_Tools')) :
 		}
 
 		if (!class_exists('SUPER_HTTP_Request_Templates')) {
-			$file = SUPER_PLUGIN_DIR . '/includes/triggers/class-http-request-templates.php';
+			$file = SUPER_PLUGIN_DIR . '/includes/automations/class-http-request-templates.php';
 			if (file_exists($file)) {
 				require_once $file;
 			} else {

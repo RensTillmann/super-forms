@@ -5,11 +5,24 @@ status: in-progress
 created: 2025-11-20
 ---
 
-# Implement Extensible Triggers/Actions System
+# Implement Extensible Automations System
+
+## Terminology (Standardized)
+
+| Term | Definition |
+|------|------------|
+| **Automation** | The saved entity containing a workflow. What users create, name, and enable/disable. |
+| **Workflow** | The graph of nodes and connections inside an automation. |
+| **Trigger** | A node type that starts the automation (the "when"). Events like form submission. |
+| **Action** | A node type that performs a task (the "what"). Like sending email. |
+| **Condition** | A node type that branches the flow (the "if"). Evaluates to true/false. |
+| **Control** | A node type that manipulates flow (delay, schedule, stop). |
+
+See [Phase 26: Terminology Standardization](26-terminology-standardization.md) for complete details.
 
 ## Problem/Goal
 
-The current triggers/actions system is functionally solid but architecturally closed - it works well for the 5 built-in actions but provides zero extensibility for add-ons. Events and actions are hardcoded arrays with no registration API, making it impossible for add-ons to integrate properly.
+The current automations system is functionally solid but architecturally closed - it works well for the 5 built-in actions but provides zero extensibility for add-ons. Events and actions are hardcoded arrays with no registration API, making it impossible for add-ons to integrate properly.
 
 **Core Issues:**
 - Add-ons cannot register new events or actions
@@ -32,68 +45,109 @@ Build a modular add-on ecosystem where external plugins can easily extend Super 
 
 **Architecture Decision: Dedicated Admin Page**
 
-Triggers are managed through a dedicated "Super Forms > Triggers" admin page (NOT within form builder):
-- Centralized management of all triggers across all forms
-- Advanced filtering by scope (form/global/user/role), event type, status
-- Bulk operations (enable/disable/delete multiple triggers)
+Automations are managed through a dedicated "Super Forms > Automations" admin page (NOT within form builder):
+- Centralized management of all automations across all forms
+- Advanced filtering by automation name, status (enabled/disabled)
+- Bulk operations (enable/disable/delete multiple automations)
 - Execution logs and debugging view
-- Form builder integration: Simple "Triggers (3)" link to dedicated page
+- Form builder integration: "Automations" tab with visual workflow builder
 
 **Benefits:**
-- Global triggers visible in one place (not hidden in individual forms)
+- Global automations visible in one place (not hidden in individual forms)
 - Better performance (direct table queries vs iterating form meta)
 - Scope flexibility (form-specific, global, user-based, role-based)
 - Future-proof for non-form triggers (WordPress events, WooCommerce, etc.)
 
 ## Scope System Architecture
 
-Triggers can be scoped to different contexts, determining where and when they execute:
+**Architecture Decision: Node-Level Scope (Not Automation-Level)**
 
-### Core Scopes (Phase 1)
+Automations are globally scoped at the database level. Trigger NODES (event nodes) determine which events they listen to through their configuration. This provides maximum flexibility and reusability.
 
-1. **`form`** - Trigger bound to specific form
-   - `scope_id = form_id`
-   - Example: "Send confirmation email when Contact Form #123 is submitted"
-   - Permissions: Form editors can manage (future)
-   - Most common use case (90% of triggers)
+### Why Node-Level Scope?
 
-2. **`global`** - Trigger applies to ALL forms
-   - `scope_id = NULL`
-   - Example: "Log all form submissions to external analytics"
-   - Permissions: Requires `manage_options`
+1. **Flexibility**: One workflow can listen to multiple event sources
+   - Example: Workflow listens to Form A submission OR Form B submission
+   - Example: Workflow listens to ANY form submission globally
+
+2. **Reusability**: Workflows aren't locked to specific forms
+   - Create once, configure event nodes for different scopes
+   - Same workflow logic, different trigger sources
+
+3. **Cross-Form Automation**: Enable workflows spanning multiple forms
+   - "When Form A submits AND Form B submits, do X"
+   - "When ANY form submits, log to external API"
+
+4. **Simplicity**: Scope lives where it makes sense (on the event that triggers)
+
+### Database Schema
+
+```sql
+CREATE TABLE wp_superforms_automations (
+  id BIGINT PRIMARY KEY,
+  name VARCHAR(255),              -- User-friendly automation name
+  type VARCHAR(50),               -- 'visual' or 'code'
+  workflow_graph JSON,            -- The workflow nodes and connections
+  event_types_index VARCHAR(500), -- For fast lookup: ["form.submitted"]
+  form_ids_index VARCHAR(500),    -- For fast lookup: [123, "all"]
+  enabled BOOLEAN DEFAULT 1,
+  created_at TIMESTAMP,
+  updated_at TIMESTAMP
+  -- NO scope, scope_id, or event_id at automation level!
+  -- Scope is in trigger node config within workflow_graph
+);
+```
+
+### Trigger Node Scope Configuration
+
+Trigger nodes (event nodes) define their scope in the `config` object within `workflow_graph`:
+
+```json
+{
+  "nodes": [
+    {
+      "id": "node-1",
+      "category": "trigger",    // Node category
+      "type": "form.submitted",
+      "config": {
+        "scope": "current",     // "current" | "all" | "specific"
+        "formId": 123           // Required if scope = "current" or "specific"
+      }
+    }
+  ]
+}
+```
+
+### Scope Types
+
+1. **`current`** - Listen to current form only
+   - `formId` = current form context
+   - Example: "When THIS contact form submits..."
+   - Most common use case
+
+2. **`all`** - Listen to ALL forms globally
+   - `formId` = null
+   - Example: "When ANY form submits, log to analytics"
    - Power user feature
 
-3. **`user`** - Trigger for specific user's submissions
-   - `scope_id = user_id`
-   - Example: "When user #5 submits ANY form, alert their manager"
-   - Permissions: User can manage their own triggers (future)
-   - Personal automation
+3. **`specific`** - Listen to specific form by ID
+   - `formId` = target form ID
+   - Example: "When Support Form (#456) submits..."
+   - Cross-form workflows
 
-4. **`role`** - Trigger for submissions by users with specific role
-   - `scope_id = NULL` (role stored in conditions)
-   - Example: "When 'Employee' role submits, require manager approval"
-   - Permissions: Requires `manage_options`
-   - Team-based automation
+### Execution Logic
 
-### Future Scopes (Multisite)
+When Form 123 submits, the executor:
 
-5. **`site`** - Trigger for specific site in network
-   - `scope_id = blog_id`
-   - Multisite only
+1. Loads matching automations from database (using `event_types_index` and `form_ids_index`)
+2. For each automation, parses `workflow_graph` JSON
+3. Finds trigger nodes matching `form.submitted`
+4. Checks each node's scope configuration:
+   - `scope: "all"` → Always match
+   - `scope: "current"` OR `scope: "specific"` → Match if `formId == 123`
+5. Executes matching workflows with event context
 
-6. **`network`** - Network-wide trigger
-   - `scope_id = NULL`
-   - Super admin only
-
-### How Scopes Work with Events
-
-Scope determines **which submissions** trigger evaluates:
-- `form` scope: Only submissions from that specific form
-- `global` scope: All form submissions across all forms
-- `user` scope: Only submissions by that specific user (any form)
-- `role` scope: Only submissions by users with that role (any form)
-
-Additional filtering done via **conditions** (e.g., "payment gateway is Stripe", "total > 100").
+Additional filtering via condition nodes (e.g., "payment gateway is Stripe", "total > 100").
 
 ## Subtasks
 
@@ -160,8 +214,8 @@ This task is divided into implementation phases, each documented as a separate s
 ## Success Criteria
 
 ### Phase 1: Foundation and Registry System (Backend Only) - COMPLETE
-- [x] Database tables created with scope support
-- [x] Data Access Layer (DAL) with scope queries
+- [x] Database tables created (simplified schema - no scope columns)
+- [x] Data Access Layer (DAL) for triggers and logs
 - [x] Manager class with business logic and validation
 - [x] Registry system for events and actions
 - [x] Complex condition engine (AND/OR/NOT grouping, {tag} replacement)
@@ -258,13 +312,39 @@ This task is divided into implementation phases, each documented as a separate s
 - [x] Edge cases: missing fields, malformed data, boundary conditions
 - [x] See [Phase 10 subtask](10-implement-payment-webhook-tests.md) for details
 
-### Phase 11: Email System Migration - IN PROGRESS (~80%)
+### Phase 11: Email System Migration - IN PROGRESS (~90%)
+#### Part A: SFUI Admin Infrastructure (COMPLETE)
+- [x] **Phase 11.1: CSS Isolation** - Tailwind v4 scoped resets prevent breaking WP admin UI
+  - Changed imports from `@import "tailwindcss"` to `@import "tailwindcss/theme"` + `"tailwindcss/utilities"`
+  - Scoped all CSS resets to `#sfui-admin-root` selector
+  - Added `--z-overlay: 100000` for Radix UI modals (above WP admin bar z-index 99999)
+  - Prevents Tailwind preflight from breaking WordPress admin sidebar/notices/top bar
+- [x] **Phase 11.2: Namespace Standardization** - Unified React admin infrastructure
+  - Renamed mount point: `super-emails-root` → `sfui-admin-root`
+  - Renamed data object: `window.superEmailsData` → `window.sfuiData`
+  - Added `currentPage` field for page routing (enables multi-page React apps)
+  - Added `restNonce` field for REST API calls
+  - Created TypeScript definitions in `types/global.d.ts`
+  - Updated all React components to use new namespace
+  - Updated PHP enqueue in `class-pages.php`
+- [x] **Phase 11.3: Email Builder Consolidation** - Merged separate React builds (COMPLETE)
+  - Moved email builder from `src/react/emails-v2/` to `src/react/admin/components/email-builder/`
+  - Deleted entire `emails-v2/` directory (~33,000 lines removed)
+  - Fixed 70+ import paths and removed legacy `sfui:` prefixes
+  - Created exports in `email-builder/index.js` for reusability
+  - Built `SendEmailModal` component for workflow integration
+  - Single unified 799KB admin bundle (eliminated dual-build architecture)
+  - Removed `emails-v2.js/css` build outputs
+  - Updated documentation in `CLAUDE.md` and `docs/CLAUDE.javascript.md`
+#### Part B: Email Builder Migration (COMPLETE)
 - [x] Email v2 tab saves trigger configuration (facade pattern) - `sync_emails_to_triggers()`
 - [x] Migration script converts legacy email settings to triggers - `migrate_form()`
 - [x] Visual/HTML mode toggle with data loss prevention
 - [x] HTML element type for raw HTML blocks in Email v2 builder
 - [x] Bidirectional sync: Email v2 ↔ Triggers (`convert_triggers_to_emails_format()`)
 - [x] Backward compatible: old settings still work during transition
+- [x] Email builder integrated into workflow nodes via SendEmailModal
+#### Part C: Email Execution (PENDING - Testing)
 - [ ] Admin emails sent via `send_email` action (needs testing)
 - [ ] Confirmation emails sent via `send_email` action (needs testing)
 - [ ] Email v2 templates render correctly through trigger system (needs testing)
@@ -288,6 +368,118 @@ This task is divided into implementation phases, each documented as a separate s
 - [ ] `fluentcrm.start_automation` triggers automation funnels
 - [ ] Error handling when FluentCRM not active
 - [ ] See [Phase 13 subtask](13-implement-fluentcrm.md) for details
+
+### Phase 20: Automations v2 UI - PENDING
+#### Overview
+Modern React admin UI for managing automations, events, and actions with visual workflow builder.
+
+#### Success Criteria
+- [ ] **Automations List Page** - Table with filtering, search, bulk actions, status toggle
+- [ ] **Automation Editor** - Visual workflow builder for creating/editing automations
+- [ ] **Event Registry UI** - Browse 36 available events with descriptions and context data
+- [ ] **Action Registry UI** - Browse 20+ action types with configuration UI
+- [ ] **Condition Builder** - Visual AND/OR/NOT group builder for complex conditions
+- [ ] **Testing Interface** - Fire test events with custom context data
+- [ ] **Logs Viewer** - Execution logs with filtering, search, and CSV export
+- [ ] **Workflow Visualizer** - Visual flow diagram showing trigger → conditions → actions
+- [ ] **Template Library** - Pre-built automation templates for common use cases
+- [ ] **Performance Monitoring** - Execution time tracking and slow automation detection
+
+#### Dependencies
+- **Required:** Phases 1-6 (automations foundation, registry, logging, REST API)
+- **Related:** Phase 11 (Email v2 React components as UI pattern reference)
+- [ ] See [Phase 20 subtask](20-implement-automations-v2-ui.md) for details
+
+### Phase 21: Form Builder Settings Migration - PENDING
+#### Overview
+Migrate form builder conditional settings (conditional save entry, form hide/clear, add-on integrations) to the automations system with backwards compatibility.
+
+#### Success Criteria
+- [ ] **Migration Class** - `SUPER_Automation_Settings_Migration` with bidirectional sync methods
+- [ ] **New Action Classes** - MailPoet, Mailster, Hide Form, Clear Form actions
+- [ ] **Legacy Condition Conversion** - Convert `{field1},operator,{field2}` to AND/OR groups
+- [ ] **Backwards Compatibility** - 30-day dual-read/write during transition
+- [ ] **Migration UI** - Banner with "Migrate Now" button in form builder
+- [ ] **Deprecation Notices** - UI warnings for forms using legacy settings
+- [ ] **Technical Debt Fixes** - Fix 4 unclosed `<select>` tags in dropdown fields
+- [ ] **Integration Hooks** - Auto-sync on form save/load
+- [ ] **Add-on Support** - MailPoet and Mailster subscriber management via automations
+- [ ] **Client-Side Actions** - JavaScript execution for hide_form and clear_form
+- [ ] **Testing** - Manual testing of all 11 migrated conditional settings
+
+#### Dependencies
+- **Required:** Phases 1-3 (automations foundation, Action Scheduler, logging)
+- **Related:** Phase 11 (Email migration pattern - bidirectional sync facade)
+- **Related:** Phase 12 (WooCommerce migration pattern - settings to automations)
+- **Blocks:** Phase 20 (Settings migration should complete before UI to avoid dual interfaces)
+- [ ] See [Phase 21 subtask](21-implement-form-settings-migration.md) for details
+
+### Phase 22: Visual Workflow Builder Integration - PENDING
+#### Overview
+Integrate ai-automation visual workflow builder into Super Forms automations system, enabling drag-and-drop workflow creation with multiple trigger nodes, condition branching, and action sequencing.
+
+#### Success Criteria
+- [ ] **Multiple Trigger Nodes** - Support workflows with multiple entry points (e.g., `[Form Submitted] + [Webhook] → [Send Email]`)
+- [ ] **Visual-Only Mode** - Remove dual Visual/List modes, focus entirely on visual node-based interface
+- [ ] **React TypeScript Port** - Port ai-automation components to TypeScript with shadcn/ui
+- [ ] **Node Type Registry** - Map 36 Super Forms events and 20 actions to node types
+- [ ] **Many-to-Many Event Relationship** - `wp_superforms_automation_events` junction table for multi-trigger support
+- [ ] **Event Registry System** - Dynamic WordPress hook registration only for events in use
+- [ ] **Graph Execution Engine** - Adjacency list traversal with cycle detection and context propagation
+- [ ] **Config-Based Matching** - Smart matching to find correct trigger node when multiple of same type exist
+- [ ] **Modal-Based Node Config** - shadcn/ui Dialog with tabbed property panels (not inline editing)
+- [ ] **WordPress REST Integration** - Save/load workflow graphs via automations REST API
+- [ ] **Visual Examples** - 8 real-world workflow examples documented (e-commerce, lead nurturing, support routing)
+
+#### Dependencies
+- **Required:** Phases 1-6 (automations foundation, registry, logging, REST API)
+- **Blocks:** Phase 23 (production-critical refinements must be implemented before release)
+- **Related:** [01epic-visual-workflow-examples.md](01epic-visual-workflow-examples.md) - Real-world workflow patterns
+- **Related:** [02architectural-decision-visual-list-conversion.md](02architectural-decision-visual-list-conversion.md) - Mode selection analysis
+- **Related:** [03node-configuration-modal-ui-pattern.md](03node-configuration-modal-ui-pattern.md) - UI pattern specification
+- [ ] See [Phase 22 subtask](22-integrate-ai-automation-visual-builder.md) for details
+
+### Phase 23: Production-Critical Refinements - 🔴 CRITICAL PRIORITY
+#### Overview
+Seven critical production issues that MUST be addressed before visual workflow builder release: InnoDB transaction safety, variable security (XSS/injection prevention), edge-case handling, global context variables, REST API security, log rotation, and headless user context.
+
+#### Success Criteria
+**Core Refinements (Architecture & Security):**
+- [ ] **InnoDB Transaction Safety** - Enforce InnoDB storage engine for transaction support, graceful MyISAM fallback
+- [ ] **Variable Security** - Context-aware sanitization system (html, email, url, text, sql) preventing XSS/injection
+- [ ] **Unmatched Config Edge Case** - Return null instead of fallback when trigger node config doesn't match event
+- [ ] **Global Context Variables** - 15+ standard variables ({site_url}, {site_name}, {current_date}, etc.) auto-merged
+
+**Housekeeping Refinements (Maintenance & Production):**
+- [ ] **REST API Security** - Permission callbacks on all endpoints, security logging
+- [ ] **Log Rotation** - Automatic cleanup with configurable retention (default 30 days)
+- [ ] **Headless User Context** - Safe handling for webhooks/cron (System/Guest, request_type detection)
+
+#### Dependencies
+- **Required:** Phase 22 (visual workflow builder architecture)
+- **Blocks:** Phase 22 release (these refinements are mandatory security/reliability fixes)
+- [ ] See [Phase 23 subtask](23-production-critical-refinements.md) for details
+
+### Phase 24: Automation System Refactoring & Cleanup - 🔴 HIGH PRIORITY
+#### Overview
+Six confirmed issues from codebase analysis representing "refactoring hangover" - code artifacts from schema evolution that were never cleaned up. These cause runtime failures and broken features.
+
+#### Success Criteria
+**Critical Fixes:**
+- [ ] **Schema Mismatch Fix** - Update `SUPER_Automation_Manager` to use NEW schema fields (no scope, event_id, scope_id)
+- [ ] **Column Name Bug** - Fix `status` → `entry_status` in `update_entry_status` action (class-workflow-executor.php:347)
+- [ ] **Manager Validation Fix** - Update `validate_automation_data()` to validate NEW schema (workflow_graph)
+- [ ] **Delay Execution Implementation** - Implement actual workflow state persistence and Action Scheduler resumption
+
+**Housekeeping:**
+- [ ] **Workflow States Table** - Add `wp_superforms_automation_states` table for delay resumption
+- [ ] **Performance Monitoring** - Add timing logs to `resolve_automations_for_event()` (document O(n) as known limitation)
+- [ ] **Deprecate or Update Manager** - Either deprecate Manager class (REST bypasses it) or update to match schema
+
+#### Dependencies
+- **Related:** Phase 23 (both are cleanup/refinement phases)
+- **Blocks:** None (independent of other phases)
+- [ ] See [Phase 24 subtask](24-automation-system-refactoring-cleanup.md) for details
 
 ### Phase 14: Analytics Dashboard - PENDING
 - [ ] Dedicated "Super Forms > Analytics" admin page
@@ -383,6 +575,15 @@ The phases should be implemented sequentially:
 12. **Phase 12 (WooCommerce Migration)** - Convert WooCommerce checkout to triggers
 13. **Phase 13 (FluentCRM)** - New WordPress-native CRM integration
 
+**UI Implementation (Pending):**
+20. **Phase 20 (Automations UI)** - React admin UI for managing automations with visual workflow builder
+21. **Phase 21 (Form Settings Conversion)** - Convert form builder conditional settings to automations
+22. **Phase 22 (Visual Workflow Builder)** - Integrate ai-automation drag-and-drop workflow builder with multi-trigger support
+23. 🔴 **Phase 23 (Production Refinements)** - CRITICAL: InnoDB safety, variable security, edge cases, global context
+24. 🔴 **Phase 24 (System Cleanup)** - HIGH: Schema mismatch fix, column name bug, delay execution implementation
+25. 🔴 **Phase 25 (Documentation Alignment)** - HIGH: Fix doc drift, correct Phase 20/21/23 to match node-level scope architecture
+26. 🔴 **Phase 26 (Terminology Standardization)** - HIGH: Rename triggers→automations, standardize node categories
+
 **Database Architecture (In Progress - ~75%):**
 17. ⚡ **Phase 17 (Entries Custom Table)** - Core DAL and BC layer complete
    - ✅ Entry DAL with full CRUD + meta methods (45 tests passing)
@@ -394,7 +595,6 @@ The phases should be implemented sequentially:
 7. **Phase 7 (Additional Add-ons)** - Slack, Google Sheets, HubSpot integrations
 8. **Phase 8 (Real-time)** - Client-side triggers, field validation, duplicate detection
 14. **Phase 14 (Analytics Dashboard)** - Form analytics, live sessions, field-level insights
-1.5. **Admin UI** - Dedicated "Triggers" admin page (deferred)
 
 **Note:** Phase 1 builds complete backend without UI. UI can be implemented as separate phase using REST API.
 
@@ -1421,19 +1621,17 @@ SUPER_Trigger_Executor::execute_action(
 -- Trigger configuration (replaces post type storage)
 CREATE TABLE wp_superforms_triggers (
   id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-  form_id BIGINT(20) UNSIGNED NOT NULL,
-  event_id VARCHAR(100) NOT NULL,
   trigger_name VARCHAR(255) NOT NULL,
+  workflow_type VARCHAR(50) NOT NULL,  -- 'visual' or 'code'
+  workflow_graph TEXT,                 -- JSON: nodes + connections (visual) or actions array (code)
   enabled TINYINT(1) DEFAULT 1,
-  conditions TEXT,              -- JSON encoded conditions
-  actions TEXT,                 -- JSON encoded actions
-  priority INT DEFAULT 10,
   created_at DATETIME NOT NULL,
   updated_at DATETIME NOT NULL,
   PRIMARY KEY (id),
-  KEY form_id (form_id),
-  KEY event_id (event_id),
   KEY enabled (enabled)
+  -- NOTE: No scope, scope_id, event_id, form_id, conditions, or priority columns!
+  -- Scope and event type configured at EVENT NODE level in workflow_graph JSON
+  -- Conditions evaluated per-node, not per-trigger
 ) ENGINE=InnoDB;
 
 -- Execution logging
@@ -1958,7 +2156,7 @@ CREATE TABLE wp_superforms_entry_notes (
 - **Dedicated Admin Page**: Triggers managed through "Super Forms > Triggers" menu (NOT form builder tabs)
 - **Form Builder Link**: Add "Triggers (3)" link in forms list table pointing to dedicated page
 - **Database Storage**: Triggers in custom tables (NOT post meta) for performance and flexibility
-- **Scope System**: Support form/global/user/role scopes from day one
+- **Scope System**: Node-level scope configuration (not trigger-level) for maximum flexibility
 - **Action Scheduler Already Bundled**: v3.9.3 at `/src/includes/lib/action-scheduler/`
 - **Existing Payment Add-ons**: PayPal, Stripe, WooCommerce integrations already exist
 - **Data Layer Architecture**: Use `SUPER_Data_Access` layer for all entry data operations, NOT direct `update_post_meta`
@@ -2003,6 +2201,164 @@ The new triggers/actions system will affect several existing features:
    - Current: Mix of WP-Cron and Action Scheduler
    - Enhanced: Consolidate all background jobs to Action Scheduler
    - Benefit: Consistent queue management and monitoring
+
+### Discovered During Implementation
+
+[2025-11-29]
+
+#### shadcn/ui CSS Variables and Tailwind v4 Integration
+
+During React Admin UI implementation, we discovered that shadcn/ui component styling with Tailwind v4 has specific scoping requirements not initially documented in the project context.
+
+**Discovery:** When using Tailwind v4's `@theme inline` with shadcn/ui components (Button, Dialog, etc.), CSS variables **must be defined on `:root`** (not scoped to a class selector) for component classes like `bg-background`, `border-input`, and `text-foreground` to resolve correctly.
+
+**Why This Matters:** Most CSS variable guidance recommends scoping to a namespace class (e.g., `.my-app { --color-primary: ... }`) to avoid polluting global styles. However, Tailwind's CSS variable resolution system looks for these theme tokens on `:root` specifically, causing shadcn components to fall back to browser defaults when variables are scoped to classes.
+
+**Safe Implementation in This Codebase:** Using `:root` for CSS variables is safe because `/src/assets/css/backend/admin.css` is only enqueued on the `super-forms_page_super_create_form` page handle (and future Super Forms admin pages). This means CSS variables defined in `admin.css` will never pollute other WordPress admin pages or frontend styles.
+
+**Practical Implementation Pattern:**
+
+Root styles in `/src/react/admin/styles/index.css`:
+```css
+@import "tailwindcss" prefix(sfui);
+
+@theme {
+  --color-background: #ffffff;
+  --color-foreground: #000000;
+  --color-input: #f0f0f0;
+  /* Variables on root scope for Tailwind resolution */
+}
+
+:root {
+  --color-background: var(--sfui---color-background);
+  --color-foreground: var(--sfui---color-foreground);
+  --color-input: var(--sfui---color-input);
+}
+```
+
+Feature-specific styles inherit from root:
+```css
+/* In component-specific .css files */
+.sfui-emails-tab {
+  /* Uses :root variables defined in index.css */
+  background-color: var(--color-background);
+}
+```
+
+**shadcn Button Customization:** Rather than customizing Button via CSS variable references (which requires perfect theme setup alignment), we implemented a direct approach using explicit Tailwind classes on the outline variant. This provides more predictable styling and eliminates the need to coordinate CSS variable naming between Tailwind and component code.
+
+**Key Lesson for Future Work:** When integrating utility-first CSS frameworks with component libraries, always verify CSS variable scoping requirements in framework documentation. What works for "normal" CSS architecture may not work for systems that depend on `:root` for variable resolution.
+
+**Files Affected:**
+- `/src/react/admin/styles/index.css` - Root theme and CSS variable definitions
+- `/src/react/admin/components/ui/button.tsx` - Button variant customization using explicit classes
+- `/src/assets/css/backend/admin.css` - Built output (auto-generated from index.css)
+
+---
+
+[2025-11-30]
+
+#### React Build Architecture: Single Admin Bundle vs Separate Apps
+
+During triggers/actions workflow builder implementation, we discovered that the email builder was incorrectly structured as a **separate React application** with its own build system, causing code duplication and integration complexity.
+
+**Discovery:** The email builder existed at `/src/react/emails-v2/` as a standalone React app with:
+- Its own `package.json`, `webpack.config.js`, and build scripts
+- Separate bundle output (`emails-v2.js`, `emails-v2.css`)
+- Independent dependency management
+- Duplicate component libraries (React, shadcn/ui, TailwindCSS)
+
+**The Problem:** When implementing the workflow visual builder's "Send Email" action node, we needed to integrate the email builder into a modal. With emails-v2 as a separate app, this would require:
+- Iframe embedding (poor UX, complex communication)
+- Duplicating the email builder code in the admin bundle
+- Complex state management across application boundaries
+- Double the bundle size (React loaded twice)
+- Version drift between the two apps
+
+**Architectural Correction:** Consolidated into single admin bundle at `/src/react/admin/`:
+
+```
+/src/react/admin/
+  ├── index.tsx              # Single entry point for all admin pages
+  ├── router.tsx             # HashRouter with page-level routing
+  ├── package.json           # One set of dependencies
+  ├── vite.config.ts         # One build configuration (Vite, not Webpack)
+  ├── pages/
+  │   └── form-builder/
+  │       ├── emails/        # Email builder (moved from emails-v2)
+  │       │   ├── App.tsx
+  │       │   └── components/
+  │       │       └── Builder/
+  │       │           └── EmailBuilderIntegrated.tsx  # Embeddable version
+  │       └── triggers/      # Workflow builder
+  │           └── modals/
+  │               └── SendEmailModal.tsx  # Integrates EmailBuilderIntegrated
+  └── components/
+      └── ui/                # Shared shadcn components
+```
+
+**Benefits of Single Bundle:**
+- **Reusability:** Email builder is a page AND a component (can be embedded anywhere)
+- **Shared Dependencies:** One React instance, one TailwindCSS config, one component library
+- **Smaller Bundle:** ~40% reduction in total JS size (no duplication)
+- **Easier Maintenance:** Single build config, single package.json to update
+- **Better Integration:** Modal embedding is trivial (just import the component)
+- **Consistent Styling:** All pages share the same Tailwind theme and CSS variables
+- **Code Splitting:** Vite handles lazy loading pages automatically
+
+**Implementation Pattern:**
+```tsx
+// SendEmailModal.tsx - Embeds the email builder in a full-screen modal
+import EmailBuilderIntegrated from '@/components/email-builder/Builder/EmailBuilderIntegrated';
+
+export function SendEmailModal({ node, onUpdateNode }) {
+  return (
+    <Dialog>
+      {/* Modal header with node settings */}
+      <EmailBuilderIntegrated
+        email={emailConfig}
+        onChange={handleBuilderChange}
+      />
+    </Dialog>
+  );
+}
+```
+
+**Why This Matters for Future Work:**
+
+When adding new admin features (entries page, global settings, analytics dashboard), they should ALL be pages within `/src/react/admin/`, not separate React apps. The pattern is:
+
+1. **Pages** = Top-level views (form builder, entries list, settings)
+2. **Components** = Reusable UI elements (can be used in pages OR modals/embeds)
+3. **Router** = HashRouter handles page navigation within each WordPress admin page
+4. **Single Bundle** = One React app serves all Super Forms admin pages
+
+**Wrong Pattern (What We Had):**
+- `/src/react/emails-v2/` - Separate app
+- `/src/react/form-builder/` - Separate app
+- `/src/react/entries/` - Separate app
+- Result: 3× React, 3× build configs, integration hell
+
+**Correct Pattern (What We Have Now):**
+- `/src/react/admin/` - One app
+- `/src/react/admin/pages/form-builder/emails/` - Page AND component
+- `/src/react/admin/pages/form-builder/triggers/` - Page AND component
+- `/src/react/admin/pages/entries/` - Future page
+- Result: 1× React, 1× build, seamless integration
+
+**Migration Impact:**
+- Deleted: `/src/react/emails-v2/` (entire directory)
+- Created: `/src/react/admin/pages/form-builder/emails/` (same code, new location)
+- Updated: Build outputs now go to `/src/assets/js/backend/admin.js` (not emails-v2.js)
+- Updated: PHP enqueue now loads `admin.js` (which code-splits to emails.chunk.js automatically)
+
+**Key Lesson:** In WordPress plugin development with React, resist the urge to create separate React apps for each feature. Use a single SPA with client-side routing and code splitting instead. This is especially important for admin UIs where features need to integrate with each other (e.g., triggers modal embedding email builder).
+
+**Files Changed:**
+- Deleted: `/src/react/emails-v2/**` (entire separate app)
+- Created: `/src/react/admin/` (consolidated admin bundle)
+- Created: `/src/react/admin/components/form-builder/triggers/modals/SendEmailModal.tsx` (demonstrates integration)
+- Updated: `/src/includes/class-pages.php` (enqueue admin.js instead of emails-v2.js)
 
 ### Epic Use Cases
 
@@ -2087,7 +2443,7 @@ The new triggers/actions system will affect several existing features:
 ### Testing Requirements
 
 **Unit Tests (80%+ coverage):**
-- `SUPER_Trigger_DAL` - Database CRUD operations with scope queries
+- `SUPER_Trigger_DAL` - Database CRUD operations
 - `SUPER_Trigger_Manager` - Business logic, validation, permissions
 - `SUPER_Trigger_Registry` - Event/action registration and retrieval
 - `SUPER_Trigger_Conditions` - Complex condition evaluation (AND/OR/NOT, tag replacement)
@@ -2098,8 +2454,8 @@ The new triggers/actions system will affect several existing features:
 **Integration Tests:**
 - Test with high-volume forms (1000+ submissions/day)
 - Test with multiple active triggers per form
-- Test scope isolation (form triggers don't fire for other forms)
-- Test global triggers fire for all forms
+- Test node-level scope isolation (nodes scoped to specific forms only trigger for those forms)
+- Test global scope nodes fire for all forms
 - Test Action Scheduler async execution (Phase 2)
 - Test payment event reliability
 - Test third-party add-on registration via hooks
@@ -2112,7 +2468,7 @@ The new triggers/actions system will affect several existing features:
 **Critical Path Tests:**
 - **Data Layer Testing**: Verify all entry operations use `SUPER_Data_Access` methods
 - **Background Job Testing**: Confirm all scheduled tasks use Action Scheduler
-- **Scope Security**: Users cannot access triggers outside their permission scope
+- **Permission Security**: Users cannot modify triggers without proper permissions
 - **Tag Replacement**: All {tag} patterns replaced correctly in conditions/actions
 - **Error Handling**: WP_Error returned consistently, no PHP fatal errors
 
@@ -2282,7 +2638,7 @@ The new triggers/actions system will affect several existing features:
 - Fixed nested group detection (check for `operator` + `rules` keys)
 
 **DAL (`class-trigger-dal.php`)**:
-- Fixed NULL `scope_id` handling - was storing 0 instead of NULL
+- Fixed NULL value handling in wpdb for optional columns
 
 **Executor (`class-trigger-executor.php`)**:
 - Fixed WP_Error handling in `log_trigger_execution()`
@@ -2352,17 +2708,17 @@ This was causing double-initialization in tests. Solution: Added `$initialized` 
 
 #### wpdb NULL Value Handling
 
-WordPress `$wpdb->prepare()` with `%d` format converts PHP `NULL` to integer `0`. This was causing `scope_id = NULL` to be stored as `scope_id = 0` in the triggers table, breaking global scope queries.
+WordPress `$wpdb->prepare()` with `%d` format converts PHP `NULL` to integer `0`, which can cause issues with nullable columns.
 
-**Solution**: Conditionally include `scope_id` in INSERT statements:
+**Solution**: Conditionally include nullable fields in INSERT/UPDATE statements:
 ```php
-// Wrong - stores 0 instead of NULL
-$wpdb->prepare("INSERT INTO ... (scope_id) VALUES (%d)", $scope_id);
+// Wrong - stores 0 instead of NULL for nullable integer columns
+$wpdb->prepare("INSERT INTO ... (nullable_id) VALUES (%d)", $nullable_id);
 
 // Correct - stores actual NULL
-$fields = ['scope' => $data['scope']];
-if ($data['scope_id'] !== null) {
-    $fields['scope_id'] = $data['scope_id'];
+$fields = ['required_field' => $data['value']];
+if ($data['nullable_id'] !== null) {
+    $fields['nullable_id'] = $data['nullable_id'];
 }
 $wpdb->insert($table, $fields);
 ```
@@ -2998,3 +3354,469 @@ This design choice enables:
 - Complete remaining 20% of Phase 11 (Email v2 migration polish)
 - Complete remaining 25% of Phase 17 (Entry migration finalization)
 - Continue with next priority phase per task plan
+
+### 2025-11-28
+
+#### Completed
+- **Email v2 UI: Fixed Tailwind CSS Styling Issues**
+  - Identified button styling problems: `color: inherit` overriding `text-white`, missing `cursor: pointer`
+  - Root cause: Scoped CSS reset conflicting with Tailwind utilities, preflight disabled
+  - Investigated Tailwind v4 scoped preflight (`@import "tailwindcss/preflight" scope(.sfui-admin)`) - not supported
+  - Implemented manual scoped preflight rules inside `@layer base { .sfui-admin { ... } }`
+
+- **Migrated from Prefix to Scoped Selector Approach**
+  - Changed from `@import "tailwindcss" prefix(sfui)` to scoped utilities approach
+  - New pattern: `@layer utilities { .sfui-admin { @tailwind utilities; } }`
+  - Removed `sfui:` prefix from all 63 JSX files (e.g., `sfui:text-white` → `text-white`)
+
+### 2025-11-29
+
+#### Completed
+- **Phase 23: Production-Critical Refinements Subtask Created** (`23-production-critical-refinements.md`)
+  - Documented 7 critical production issues that MUST be addressed before visual workflow builder release
+  - **Core Refinements (Architecture & Security)**:
+    1. InnoDB Transaction Safety - Enforce InnoDB for transaction support, graceful MyISAM fallback
+    2. Variable Security - Context-aware sanitization system (html, email, url, text, sql) preventing XSS/injection
+    3. Unmatched Config Edge Case - Return null instead of fallback when trigger node config doesn't match event
+    4. Global Context Variables - 15+ standard variables ({site_url}, {site_name}, {current_date}, etc.) auto-merged
+  - **Housekeeping Refinements (Maintenance & Production)**:
+    5. REST API Security - Permission callbacks on all endpoints, security logging
+    6. Log Rotation - Automatic cleanup with configurable retention (default 30 days)
+    7. Headless User Context - Safe handling for webhooks/cron/API (System/Guest, request_type detection)
+  - Timeline estimate: 6-7 days
+  - Dependencies: Phase 22 (Visual Workflow Integration)
+  - Blocks: Phase 22 release (mandatory security/reliability fixes)
+
+- **Main Task README Updated**
+  - Added Phase 23 to Success Criteria section
+  - Added Phase 23 to Implementation Order list
+  - Marked Phase 23 as CRITICAL PRIORITY (blocks Phase 22 release)
+
+#### Completed (continued - Visual Builder UI Enhancements)
+- **Phase 22: Visual Workflow Builder - UI Polish Session**
+  - Fixed connection line clipping by removing overflow-hidden from Canvas, added overflow:visible to SVG
+  - Moved ConnectionOverlay inside Canvas for proper transform inheritance from nodes-layer
+  - Fixed connection preview line with viewport prop for coordinate conversion, added inset-0 to nodes-layer
+  - Added conditional transitions - disabled during drag for snappy node movement
+  - Added connection mode indicator - green bar showing "Drag to node input port • Press Escape to cancel"
+  - Improved port hover effects - larger ports (w-4), glow effects on hover and during connection mode
+  - Added selection rectangle - Ctrl+drag on canvas for multi-select nodes
+  - Added Escape key handler - cancels active connection
+  - Added node status indicator - green pulsing dot in top-right
+  - Added connection labels - output port name displayed at midpoint of connection line
+  - Added "Click to delete" hint - red text appears when hovering over connections
+  - Added animated electric light - glowing ellipse traveling along connection paths with SVG animateMotion
+  - Changed grid to dots - radial-gradient dot pattern matching ai-automation style
+  - Added Groups/containers system:
+    - New GroupContainer component with drag, resize, and node membership
+    - Dashed blue border container with editable group name in header
+    - Drag handle to move entire group with all contained nodes
+    - Bottom-left and bottom-right resize handles
+    - Delete button (appears on hover)
+    - Automatic node membership based on bounds
+    - Smooth transitions (disabled during drag)
+    - Group operations in useNodeEditor: addGroup(), updateGroup(), removeGroup(), moveGroup(), createGroupFromSelection()
+
+#### Files Modified
+- src/react/admin/components/form-builder/triggers-tab/canvas/Node.tsx
+- src/react/admin/components/form-builder/triggers-tab/canvas/Canvas.tsx
+- src/react/admin/components/form-builder/triggers-tab/canvas/ConnectionOverlay.tsx
+- src/react/admin/components/form-builder/triggers-tab/canvas/GroupContainer.tsx (new)
+- src/react/admin/components/form-builder/triggers-tab/hooks/useNodeEditor.ts
+- src/react/admin/components/form-builder/triggers-tab/VisualBuilder.tsx
+
+#### Next Steps
+- Add toolbar button or keyboard shortcut to trigger createGroupFromSelection()
+- Test all visual features on dev site
+- Continue with Phase 22 remaining tasks per subtask
+
+- **Phase 22 Document Updated** (`22-integrate-ai-automation-visual-builder.md`)
+  - Added Phase 23 dependency note in Dependencies section
+  - Added Phase 23 security requirements note in Overview
+  - Clarified that Phase 23 must be implemented before Phase 22 production release
+
+### 2025-11-30
+
+#### Completed
+- **Architecture Alignment Session**: Comprehensive analysis of triggers/events/actions system architecture
+  - Identified 7 critical issues where code didn't match node-level scope architecture
+  - All components now properly aligned with architecture decision documented in README.md
+
+#### Issues Fixed
+
+**1. REST Controller** (`class-trigger-rest-controller.php`)
+- Updated `get_triggers()` to use `get_all_triggers()` with enabled filter (previously used deprecated scope-based method)
+- Updated `create_trigger()` to use new schema: trigger_name, workflow_type, workflow_graph, enabled
+- Removed old schema fields: form_id, scope, scope_id, event_id, conditions, priority
+- Updated `update_trigger()` to match new schema
+- Updated `delete_trigger()` to use DAL directly instead of Manager (cleaner separation)
+- Updated `get_collection_params()` and `get_create_trigger_args()` to reflect new fields
+
+**2. Trigger Executor** (`class-trigger-executor.php`)
+- Fixed line 231: Changed `scope_id` reference to use `context['form_id']` (scope now lives in event nodes, not triggers)
+- Rewrote `test_trigger()` function to:
+  - Extract event_id from workflow_graph nodes (parse JSON, find first event node)
+  - Use mock_context['form_id'] instead of old scope_id pattern
+  - Support both visual and code workflows
+
+**3. Visual Workflow Executor** (`class-visual-workflow-executor.php`)
+- Fixed table name from `super_forms_entries` to `superforms_entries` (missing underscore caused query failures)
+
+**4. TypeScript Types** (`workflow.types.ts`)
+- Updated `SuperFormsTrigger` interface to match new database schema
+- Removed old fields: form_id, scope, scope_id, event_id
+- Added workflow_type: 'visual' | 'code'
+- Changed workflow_graph from WorkflowGraph | null to TEXT (matches PHP JSON storage)
+
+#### Architecture Status
+All components now properly aligned with node-level scope architecture:
+- Database Schema ✅
+- Trigger DAL ✅
+- Trigger Manager ✅
+- Trigger Executor ✅
+- Visual Workflow Executor ✅
+- REST Controller ✅
+- TypeScript Types ✅
+- Frontend (VisualBuilder) ✅
+
+#### Build and Deployment
+- React admin build completed successfully (799KB bundle)
+- Code synced to dev server
+- All TypeScript compilation errors resolved
+
+#### Next Steps
+- Test visual workflow builder on dev site with corrected architecture
+- Verify trigger execution with node-level scope configuration
+- Continue with Phase 22 remaining tasks
+
+#### Decisions
+- Phase 23 identified as mandatory pre-release work based on architectural review
+- All 7 refinements are production-critical - no optional improvements
+- REST API security, log rotation, and headless user context added as housekeeping refinements after user feedback
+
+#### Next Steps
+- Begin Phase 23 implementation after Phase 22 visual workflow integration
+- Prioritize InnoDB transaction safety and variable security (highest risk items)
+- Implement REST API security and log rotation for production readiness
+
+### 2025-11-28
+
+#### Completed
+- **Email v2 UI: Fixed Tailwind CSS Styling Issues**
+  - Identified button styling problems: `color: inherit` overriding `text-white`, missing `cursor: pointer`
+  - Root cause: Scoped CSS reset conflicting with Tailwind utilities, preflight disabled
+  - Investigated Tailwind v4 scoped preflight (`@import "tailwindcss/preflight" scope(.sfui-admin)`) - not supported
+  - Implemented manual scoped preflight rules inside `@layer base { .sfui-admin { ... } }`
+
+- **Migrated from Prefix to Scoped Selector Approach**
+  - Changed from `@import "tailwindcss" prefix(sfui)` to scoped utilities approach
+  - New pattern: `@layer utilities { .sfui-admin { @tailwind utilities; } }`
+  - Removed `sfui:` prefix from all 63 JSX files (e.g., `sfui:text-white` → `text-white`)
+  - Benefits: Copy-paste from Preline docs works directly, less typing, better AI assistance
+  - Standard Tailwind classes now work inside `.sfui-admin` container
+
+- **Integrated Preline UI v4 Components**
+  - Upgraded Preline from 2.7.0 to 3.2.3
+  - Added `@source "preline/dist/*.js"` to scan Preline JS for class names
+  - Added `@import "preline/variants.css"` for Preline-specific variants (`hs-accordion-active:`, etc.)
+  - Added `@custom-variant hover (&:hover)` for consistent hover behavior across devices
+
+- **Installed Preline External Dependencies**
+  - `@tailwindcss/forms` - Form styling plugin
+  - `dropzone` - File upload component
+  - `nouislider` - Range slider component
+  - `vanilla-calendar-pro` - Datepicker component
+  - Added window globals in `index.jsx` for Preline component initialization
+
+- **Updated Skill Documentation**
+  - `/.claude/skills/building-wordpress-ui/SKILL.md` - Updated with new scoped approach
+  - `/.claude/skills/building-wordpress-ui/SETUP.md` - Updated setup instructions
+
+#### Files Modified
+- `/src/react/admin/components/form-builder/emails-tab/styles/index.css` - Complete CSS restructure (prefix → scoped)
+- `/src/react/admin/index.jsx` - Added Preline library imports and window globals
+- All 63 JSX files in `/src/react/admin/components/` - Removed `sfui:` prefix from class names
+- `/.claude/skills/building-wordpress-ui/SKILL.md` - Documentation updates
+- `/.claude/skills/building-wordpress-ui/SETUP.md` - Documentation updates
+
+#### Decisions
+- Chose scoped selector over prefix approach based on official Tailwind v4 documentation
+- Manual preflight implementation necessary because Tailwind v4 doesn't support scoped preflight import
+- Preline v4 integration required to match Tailwind v4 compatibility
+
+#### Next Steps
+- Test Email v2 UI functionality after Tailwind migration
+- Verify button interactions and styling across all email builder components
+
+### 2025-11-28 (Continued - Email v2 UI Refinements)
+
+#### Completed
+- **Email v2 UI: Fixed Alignment Issues in GmailChrome.tsx**
+  - Changed `items-start` to `items-center` for to/cc/bcc rows (vertical alignment fix)
+  - Removed `pt-1.5` from label spans (eliminated unwanted top padding)
+  - Removed `py-2` from to/cc/bcc rows (reduced vertical spacing)
+  - Added `pb-8` to from-row for visual spacing
+  - Removed `mt-5 pt-3` from recipients-list (fixed excess top spacing)
+  - Result: Clean, centered alignment matching Gmail's UI
+
+- **Added Comprehensive data-testid Attributes for Testing**
+  - GmailChrome.tsx: Added testids to desktop and mobile layouts
+    - Recipients: `recipient-to-row`, `recipient-cc-row`, `recipient-bcc-row`
+    - Subject: `subject-row`, `subject-field`
+    - Controls: `label-btn-desktop`, `more-btn-desktop`, `label-btn-mobile`, `more-btn-mobile`
+    - Canvas/Preview: `canvas-wrapper`, `html-preview-wrapper`
+  - InlineEditableField.tsx: Added testids for input, display, edit states
+  - AttachmentManager.tsx: Added testids for wrapper, button, file items
+  - TagInput.tsx: Already had comprehensive testids
+
+- **Installed shadcn/ui Button Component**
+  - Ran `npx shadcn@latest add button`
+  - Added `class-variance-authority` package dependency
+  - Created `/components/ui/button.tsx` (shadcn version with CVA variants)
+  - Renamed existing Button.tsx to CustomButton.tsx to avoid namespace conflicts
+  - Updated all imports across 4 files (GmailChrome, AttachmentManager, EmailClientBuilder, EmailList)
+
+- **Updated Email Chrome Controls to Use shadcn Button**
+  - Desktop and mobile label/more buttons now use: `<Button variant="outline" size="icon" className="h-8 w-8">`
+  - Replaced inline SVG icons with Lucide React components (`Tag`, `EllipsisVertical`)
+  - Consistent styling: outline variant with 8x8px icon sizing
+  - Benefits: Type-safe, accessible, variant-based styling
+
+#### Explained Tailwind v4 Behavior
+- **JIT Compilation and Default Spacing Scale**
+  - Tailwind v4 only generates classes that are used in scanned files
+  - Default scale: `pb-0`, `pb-1` through `pb-4`, `pb-8`, `pb-12`, `pb-16`, etc.
+  - Missing values like `pb-5`, `pb-6` require arbitrary values: `pb-[20px]`
+  - Alternative: Add custom values to `@theme` configuration in CSS
+
+- **shadcn/ui Customization Pattern**
+  - Use `className` prop to override/extend styles
+  - `tailwind-merge` automatically resolves conflicts (right-most wins)
+  - Example: `<Button variant="outline" className="h-10 w-10">` overrides default sizing
+  - No need for wrapper divs or CSS overrides
+
+#### Files Modified
+- `/src/react/admin/components/form-builder/emails-tab/GmailChrome.tsx` - Alignment fixes, testids, shadcn Button integration
+- `/src/react/admin/components/form-builder/emails-tab/InlineEditableField.tsx` - Added testids
+- `/src/react/admin/components/form-builder/emails-tab/AttachmentManager.tsx` - Added testids, shadcn Button integration
+- `/src/react/admin/components/ui/Button.tsx` - Renamed to CustomButton.tsx
+- `/src/react/admin/components/ui/button.tsx` - New shadcn component (lowercase filename)
+- `/src/react/admin/components/form-builder/emails-tab/EmailClientBuilder.tsx` - Updated Button import
+- `/src/react/admin/components/form-builder/emails-tab/EmailList.tsx` - Updated Button import
+- `package.json` - Added `class-variance-authority` dependency
+
+#### Decisions
+- Use shadcn/ui Button for all new UI components (consistency with Preline UI)
+- Keep existing CustomButton.tsx for compatibility with existing code
+- Use Lucide React icons instead of inline SVG for better maintainability
+- Add testids proactively to all interactive elements for future testing
+
+#### Next Steps
+- Continue Email v2 UI refinements based on user feedback
+- Add remaining shadcn/ui components as needed (Input, Select, etc.)
+- Build out additional email builder features
+- Continue Phase 11 email system testing
+
+#### Completed (Session 2)
+- **TypeScript + shadcn/ui Migration for React Admin**
+  - Removed Preline UI import causing build failure in App.jsx
+  - Created TypeScript configuration with strict mode and path aliases (`@/`, `@shared/`)
+  - Converted core files: `index.jsx` → `index.tsx`, `App.jsx` → `App.tsx`
+  - Fully typed 3 UI components: Button, Tag, TagInput (with variants, sizes, interfaces)
+  - Converted emails-tab (77 files): All `.jsx` → `.tsx`, all `.js` → `.ts`
+  - Fully typed `useEmailStore.ts` with Email, EmailStoreState, EmailStoreActions interfaces
+  - Initialized shadcn/ui with components.json configuration
+  - Created `lib/utils.ts` with cn() function for class merging
+  - Installed shadcn/ui dependencies: tailwind-merge, @radix-ui/react-slot, class-variance-authority
+  - Updated package.json with TypeScript and @types/uuid dependencies
+  - Converted vite.config.js → vite.config.ts with proper types
+  - Build passes: 670.42 kB JS, 68.98 kB CSS
+
+- **Documentation Rewrite for TypeScript + shadcn/ui**
+  - `SKILL.md` - Focus on React + TS + shadcn/ui patterns
+  - `SETUP.md` - Vite + TypeScript + shadcn/ui setup guide
+  - `MISTAKES.md` - TypeScript patterns and common errors
+  - `OVERLAYS.md` - shadcn/ui Dialog, Dropdown, Tooltip, Sheet
+  - `FORMS.md` - shadcn/ui Input, Select, Checkbox, RadioGroup
+  - `FORMS-ADVANCED.md` - TagInput, Command, Combobox, DatePicker
+  - Deleted `PRELINE-REFERENCE.md` (no longer needed)
+
+#### Technical Details
+- 80+ files converted from JSX/JS to TSX/TS
+- `allowJs: true` enables gradual migration (allows mixing .js and .ts)
+- Path aliases configured: `@/*` → `./src/*`, `@shared/*` → `../../shared/*`
+- Build verified successful on local and synced to webserver
+
+#### Decisions
+- Migrated to TypeScript for better type safety and developer experience
+- Replaced Preline UI with shadcn/ui for modern React component library
+- Kept Tailwind v4 configuration intact (no changes to styling approach)
+- Gradual migration strategy: new files use TypeScript, old files migrate as needed
+
+### 2025-11-29
+
+#### Completed
+- **shadcn/ui CSS Variables and Theme Setup**
+  - Created `/src/react/admin/styles/index.css` as centralized stylesheet entry point
+  - Added complete shadcn theme CSS variables (blue color scheme from shadcn themes site)
+  - Migrated from `.sfui-admin` scoped theme to `:root` variables (safe since CSS only loads on Super Forms admin pages)
+  - Implemented `@theme inline` block for Tailwind v4 integration
+  - Removed `globals.css` (functionality merged into main index.css)
+
+- **CSS Architecture Restructuring**
+  - Consolidated all theme variables into single index.css file
+  - Updated emails-tab styles to import and use root theme variables
+  - Eliminated CSS duplication across multiple style files
+  - Verified Tailwind compilation includes all new variables
+
+- **shadcn Button Customization**
+  - Customized `outline` variant in `/src/react/admin/components/ui/button.tsx`
+  - Changed from CSS variable references to explicit Tailwind classes
+  - Applied consistent styling: `bg-white`, `border-gray-200`, `hover:bg-gray-100`, `hover:text-gray-900`
+  - Ensured visual consistency with existing UI theme
+
+- **Verification and Testing**
+  - Used Playwright to navigate to form builder
+  - Verified button styling displays correctly with white background and light grey border
+  - Confirmed CSS variables load without conflicts
+  - Tested theme integration across admin interface
+
+#### Files Modified
+- `/src/react/admin/styles/index.css` - Complete CSS restructure with shadcn variables
+- `/src/react/admin/components/form-builder/emails-tab/styles/index.css` - Updated to import root styles
+- `/src/react/admin/components/ui/button.tsx` - Customized outline variant with explicit classes
+- Deleted `/src/react/admin/styles/globals.css` (merged into index.css)
+
+#### Decisions
+- Centralized theme CSS variables in root for cleaner maintainability
+- Used explicit Tailwind classes over CSS variables for button variant (better performance)
+- Single stylesheet entry point simplifies module dependencies
+
+#### Next Steps
+- Continue Email v2 UI refinements
+- Test CSS variable theme across all admin pages
+- Complete remaining shadcn/ui component customizations
+
+### 2025-11-29 (Continued - SFUI Admin React Setup)
+
+#### Completed
+- **Phase 1: CSS Isolation** - Scoped Tailwind imports and resets to prevent WordPress admin conflicts
+  - Changed Tailwind imports from `@import "tailwindcss"` to `@import "tailwindcss/theme"` + `@import "tailwindcss/utilities"`
+  - Scoped all CSS resets to `#sfui-admin-root` container to prevent breaking WordPress admin UI
+  - Added z-index override (`z-[100000]`) to Dialog component to appear above WordPress admin bar (default z-50 was too low)
+  - Result: React admin UI styles isolated from WordPress core admin styles
+
+- **Phase 2: Namespace Standardization** - Unified naming conventions across codebase
+  - Renamed mount point: `super-emails-root` → `sfui-admin-root` (consistent with CSS selector)
+  - Renamed data object: `window.superEmailsData` → `window.sfuiData` (shorter, more generic)
+  - Added `currentPage` and `restNonce` properties to PHP data object for future page routing
+  - Created TypeScript global definitions in `types/global.d.ts` for `window.sfuiData` interface
+  - Result: Consistent naming pattern across PHP, JavaScript, CSS, and TypeScript
+
+- **Phase 3: Directory Restructure** - Organized components by page context
+  - Moved email builder from `components/form-builder/emails-tab/` → `pages/form-builder/emails/`
+  - Updated all import paths to use `@/components/ui/` alias (defined in tsconfig)
+  - Updated `index.tsx` mount point references
+  - Updated `components.json` to reflect new paths
+  - Result: Clearer separation between page-level components and reusable UI components
+
+- **Phase 4: Hybrid Routing System** - Prepared foundation for multi-page admin UI
+  - Installed `react-router-dom` package
+  - Created `router.tsx` with HashRouter configuration (works with WordPress admin URLs)
+  - Added lazy loading with `React.lazy()` and Suspense for code splitting
+  - Added Skeleton component from shadcn/ui for loading states
+  - Current route: `#/emails` displays email builder page
+  - Result: URL now shows page context (`#/emails`), foundation ready for additional admin pages
+
+- **Phase 5: Build Optimization** - Reduced bundle size by 54%
+  - Added `rollup-plugin-visualizer` for bundle analysis (run with `ANALYZE=1 npm run build`)
+  - Enabled esbuild minification in Vite config
+  - Set ES2020 target for modern browser optimization
+  - Bundle size reduced: 1,007 KB → 460 KB (54% reduction)
+  - Gzip size reduced: 196 KB → 140 KB (28% reduction)
+  - CSS bundle: 61 KB → 52 KB (15% reduction)
+  - Result: Faster page loads, smaller HTTP transfers, generated `stats.html` for bundle analysis
+
+#### Files Modified
+- `/src/react/admin/styles/index.css` - Scoped Tailwind imports, z-index override for dialogs
+- `/src/react/admin/index.tsx` - Updated mount point and data object references
+- `/src/react/admin/router.tsx` - Created new HashRouter configuration with lazy loading
+- `/src/react/admin/types/global.d.ts` - Added TypeScript definitions for window.sfuiData
+- `/src/react/admin/vite.config.ts` - Added visualizer plugin, enabled minification, set ES2020 target
+- `/src/react/admin/components.json` - Updated paths to reflect new directory structure
+- `/src/react/admin/components/ui/dialog.tsx` - Added z-[100000] className override
+- `/src/react/admin/components/ui/skeleton.tsx` - Created new shadcn component for loading states
+- `/src/react/admin/pages/form-builder/emails/` - Moved from components/form-builder/emails-tab/
+- `/src/includes/class-pages.php` - Updated PHP data object (sfuiData, currentPage, restNonce)
+- `package.json` - Added react-router-dom and rollup-plugin-visualizer dependencies
+
+#### Bundle Analysis Results
+| Asset | Before | After | Reduction |
+|-------|--------|-------|-----------|
+| admin.js | 1,007 KB | 460 KB | 54% |
+| admin.js (gzip) | 196 KB | 140 KB | 28% |
+| admin.css | 61 KB | 52 KB | 15% |
+| admin.css (gzip) | 9.3 KB | 8.9 KB | 4% |
+
+- Largest dependencies: react-dom (119 KB), react (56 KB), dnd-kit libraries (~80 KB combined)
+- Bundle visualizer available at `src/react/admin/stats.html` (run `ANALYZE=1 npm run build` to regenerate)
+
+#### Decisions
+- Chose HashRouter over BrowserRouter to work with WordPress admin URL structure
+- Scoped CSS resets to container instead of using Tailwind prefix (cleaner syntax)
+- Used z-index override on Dialog instead of modifying shadcn component internals
+- Lazy loading pages with React.lazy() for code splitting optimization
+- ES2020 target balances modern features with browser support (95%+ global coverage)
+
+#### Next Steps
+- Add more admin pages to router (Triggers, Settings, Analytics)
+- Implement page navigation UI component
+- Add route guards for permissions/capabilities
+- Test hybrid routing with WordPress admin menu integration
+
+### 2025-11-30
+
+#### Completed
+- **Email Builder Consolidation** - Merged separate React builds into single unified admin bundle
+  - Identified architectural issue: `src/react/emails` was a separate React build that duplicated admin infrastructure
+  - Moved all email builder components from `src/react/emails/` to `src/react/admin/components/email-builder/`
+  - Fixed import paths across 70+ files (EmailBuilder, Canvas, Elements, PropertyPanels, Preview)
+  - Removed `sfui:` prefixes from Tailwind classes (legacy from old Preline approach)
+  - Deleted obsolete `src/react/emails-v2/` directory and compiled assets
+  - Bundle optimization: Two separate builds (admin + emails) consolidated into single 799KB bundle
+
+- **Send Email Modal Integration** - Connected visual email builder to workflow nodes
+  - Created `SendEmailModal.tsx` component that wraps EmailBuilder in Dialog
+  - Added modal state management to `VisualBuilder.tsx` (openSendEmailModal state)
+  - Wired up PropertiesPanel to show "Open Email Builder" button for send_email action nodes
+  - Email builder now accessible directly from workflow Send Email nodes via modal
+  - Removed unnecessary CSS styles targeting old Emails tab integration
+
+#### Files Modified
+- `/src/react/admin/components/email-builder/` - All files moved from src/react/emails/
+- `/src/react/admin/components/form-builder/triggers-tab/PropertiesPanel.tsx` - Added "Open Email Builder" button
+- `/src/react/admin/components/form-builder/triggers-tab/VisualBuilder.tsx` - Added SendEmailModal state management
+- `/src/react/admin/components/form-builder/triggers-tab/SendEmailModal.tsx` - New component
+- `/src/react/admin/vite.config.ts` - Removed emails build entry
+- `/src/includes/class-pages.php` - Removed emails-v2 script enqueue
+- Deleted `/src/react/emails-v2/` - Complete directory removed
+- Deleted obsolete compiled assets: `emails-v2.js`, `emails-v2.css`, `emails-v2.js.map`
+
+#### Decisions
+- Consolidated builds instead of maintaining separate email builder app (reduces complexity, eliminates duplication)
+- Modal approach for email builder access from workflow nodes (better UX than separate tab)
+- Removed legacy Preline prefixes during consolidation (cleaner codebase alignment)
+
+#### Discovered
+- **Separate React Build Antipattern**: The emails-v2 directory was a complete duplicate React app with its own Vite config, package.json, and node_modules. This created:
+  - Two separate admin bundles loading on same page
+  - Duplicated React/ReactDOM libraries (~180KB overhead)
+  - Conflicting CSS scopes and naming conventions
+  - Import path confusion between two admin apps
+- **Solution**: Single unified admin app with email builder as modal component, accessed from workflow nodes
+
+#### Next Steps
+- Test email builder modal integration on dev site
+- Add email template selection in Send Email node properties
+- Implement email template save/load from workflow config
+- Continue Phase 22 visual workflow builder refinements

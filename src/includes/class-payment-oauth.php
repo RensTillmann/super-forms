@@ -335,8 +335,8 @@ if ( ! class_exists( 'SUPER_Payment_OAuth' ) ) :
 			$mode = $state['mode'];
 
 			// Store tokens using credentials system
-			if ( class_exists( 'SUPER_Trigger_Credentials' ) ) {
-				$credentials = SUPER_Trigger_Credentials::instance();
+			if ( class_exists( 'SUPER_Automation_Credentials' ) ) {
+				$credentials = SUPER_Automation_Credentials::instance();
 
 				if ( $gateway === 'stripe' ) {
 					// Store Stripe credentials
@@ -372,8 +372,8 @@ if ( ! class_exists( 'SUPER_Payment_OAuth' ) ) :
 			}
 
 			// Log successful connection
-			if ( class_exists( 'SUPER_Trigger_Logger' ) ) {
-				SUPER_Trigger_Logger::info( 'Payment gateway connected via OAuth', array(
+			if ( class_exists( 'SUPER_Automation_Logger' ) ) {
+				SUPER_Automation_Logger::info( 'Payment gateway connected via OAuth', array(
 					'gateway' => $gateway,
 					'mode'    => $mode,
 					'user_id' => $user_id,
@@ -401,8 +401,8 @@ if ( ! class_exists( 'SUPER_Payment_OAuth' ) ) :
 
 			$user_id = get_current_user_id();
 
-			if ( class_exists( 'SUPER_Trigger_Credentials' ) ) {
-				$credentials = SUPER_Trigger_Credentials::instance();
+			if ( class_exists( 'SUPER_Automation_Credentials' ) ) {
+				$credentials = SUPER_Automation_Credentials::instance();
 
 				if ( $gateway === 'stripe' ) {
 					// Validate Stripe keys format
@@ -444,8 +444,8 @@ if ( ! class_exists( 'SUPER_Payment_OAuth' ) ) :
 			}
 
 			// Log manual connection
-			if ( class_exists( 'SUPER_Trigger_Logger' ) ) {
-				SUPER_Trigger_Logger::info( 'Payment gateway configured manually', array(
+			if ( class_exists( 'SUPER_Automation_Logger' ) ) {
+				SUPER_Automation_Logger::info( 'Payment gateway configured manually', array(
 					'gateway' => $gateway,
 					'mode'    => $mode,
 					'user_id' => $user_id,
@@ -471,8 +471,8 @@ if ( ! class_exists( 'SUPER_Payment_OAuth' ) ) :
 
 			$user_id = get_current_user_id();
 
-			if ( class_exists( 'SUPER_Trigger_Credentials' ) ) {
-				$credentials = SUPER_Trigger_Credentials::instance();
+			if ( class_exists( 'SUPER_Automation_Credentials' ) ) {
+				$credentials = SUPER_Automation_Credentials::instance();
 
 				// Delete all credentials for this gateway/mode
 				$keys_to_delete = array(
@@ -496,8 +496,8 @@ if ( ! class_exists( 'SUPER_Payment_OAuth' ) ) :
 			}
 
 			// Log disconnection
-			if ( class_exists( 'SUPER_Trigger_Logger' ) ) {
-				SUPER_Trigger_Logger::info( 'Payment gateway disconnected', array(
+			if ( class_exists( 'SUPER_Automation_Logger' ) ) {
+				SUPER_Automation_Logger::info( 'Payment gateway disconnected', array(
 					'gateway' => $gateway,
 					'mode'    => $mode,
 					'user_id' => $user_id,
@@ -519,11 +519,11 @@ if ( ! class_exists( 'SUPER_Payment_OAuth' ) ) :
 		public function is_connected( $gateway, $mode = 'live' ) {
 			$user_id = get_current_user_id();
 
-			if ( ! class_exists( 'SUPER_Trigger_Credentials' ) ) {
+			if ( ! class_exists( 'SUPER_Automation_Credentials' ) ) {
 				return false;
 			}
 
-			$credentials = SUPER_Trigger_Credentials::instance();
+			$credentials = SUPER_Automation_Credentials::instance();
 
 			// Check for OAuth connection
 			if ( $credentials->has( $gateway, $mode . '_access_token', $user_id ) ) {
@@ -564,8 +564,8 @@ if ( ! class_exists( 'SUPER_Payment_OAuth' ) ) :
 
 			$status['connected'] = true;
 
-			if ( class_exists( 'SUPER_Trigger_Credentials' ) ) {
-				$credentials = SUPER_Trigger_Credentials::instance();
+			if ( class_exists( 'SUPER_Automation_Credentials' ) ) {
+				$credentials = SUPER_Automation_Credentials::instance();
 
 				$status['connection_type'] = $credentials->get( $gateway, $mode . '_connection_type', $user_id );
 				$status['connected_at'] = $credentials->get( $gateway, $mode . '_connected_at', $user_id );
@@ -590,11 +590,11 @@ if ( ! class_exists( 'SUPER_Payment_OAuth' ) ) :
 		public function get_api_credentials( $gateway, $mode = 'live' ) {
 			$user_id = get_current_user_id();
 
-			if ( ! class_exists( 'SUPER_Trigger_Credentials' ) ) {
+			if ( ! class_exists( 'SUPER_Automation_Credentials' ) ) {
 				return null;
 			}
 
-			$credentials = SUPER_Trigger_Credentials::instance();
+			$credentials = SUPER_Automation_Credentials::instance();
 
 			if ( $gateway === 'stripe' ) {
 				// Try OAuth token first

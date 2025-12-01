@@ -155,8 +155,8 @@ class SUPER_Session_Cleanup {
 
 		foreach ( $expired as $session ) {
 			// Fire session.expired event before deletion
-			if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
-				SUPER_Trigger_Executor::fire_event(
+			if ( class_exists( 'SUPER_Automation_Executor' ) ) {
+				SUPER_Automation_Executor::fire_event(
 					'session.expired',
 					array(
 						'form_id'         => absint( $session['form_id'] ),
@@ -232,8 +232,8 @@ class SUPER_Session_Cleanup {
 			);
 
 			// Fire session.abandoned event
-			if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
-				SUPER_Trigger_Executor::fire_event(
+			if ( class_exists( 'SUPER_Automation_Executor' ) ) {
+				SUPER_Automation_Executor::fire_event(
 					'session.abandoned',
 					array(
 						'form_id'                => absint( $session['form_id'] ),

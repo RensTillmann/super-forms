@@ -1,60 +1,524 @@
 # JavaScript & React Development Guide
 
-## React Components (Email Builder v2)
+## React Admin UI (`/src/react/admin/`)
 
-When developing React components in `/src/react/emails-v2/`:
+The React-based admin UI is built with TypeScript, Vite, Tailwind v4, and shadcn/ui.
 
-### 1. Development Mode (REQUIRED for all development work)
+### Directory Structure
+
+```
+/src/react/admin/
+├── index.tsx                          # Main entry point (TypeScript, page routing)
+├── package.json                       # super-forms-admin
+├── tsconfig.json                      # TypeScript configuration
+├── vite.config.ts                     # Build config (outputs admin.js/admin.css)
+├── components.json                    # shadcn/ui configuration
+├── types/
+│   └── global.d.ts                    # TypeScript globals (window.sfuiData)
+├── lib/
+│   └── utils.ts                       # shadcn/ui utilities (cn helper)
+├── styles/
+│   └── index.css                      # Global styles (scoped to #sfui-admin-root)
+└── components/
+    ├── ui/                            # shadcn/ui components (when installed)
+    ├── shared/                        # Shared components (future)
+    └── form-builder/
+        └── emails-tab/                # Email builder tab
+            ├── App.tsx
+            ├── hooks/                 # TypeScript hooks (.ts)
+            ├── components/            # TypeScript components (.tsx)
+            ├── capabilities/          # TypeScript modules (.ts)
+            └── styles/
+                └── index.css          # Feature-specific styles
+```
+
+### SFUI Admin Infrastructure (Phase 1 & 2)
+
+**Mount Point and Namespace** (since Phase 2):
+
+All React admin apps mount to a single DOM element and share a global data object:
+
+**PHP Side** (`/src/includes/class-pages.php`):
+```php
+// Mount point: #sfui-admin-root (Phase 2 rename from #super-emails-root)
+echo '<div id="sfui-admin-root"></div>';
+
+// Data object: window.sfuiData (Phase 2 rename from window.superEmailsData)
+<script>
+  window.sfuiData = {
+    currentPage: 'super_create_form',  // WP admin page identifier (Phase 2)
+    formId: <?php echo $form_id; ?>,
+    emails: <?php echo $emails_json; ?>,
+    ajaxUrl: '<?php echo admin_url('admin-ajax.php'); ?>',
+    nonce: '<?php echo wp_create_nonce('super_save_form_emails'); ?>',
+    restNonce: '<?php echo wp_create_nonce('wp_rest'); ?>',  // Phase 2
+    currentUserEmail: '<?php echo wp_get_current_user()->user_email; ?>',
+    i18n: { /* translations */ }
+  };
+</script>
+```
+
+**React Side** (`/src/react/admin/index.tsx`):
+```tsx
+// TypeScript definitions in types/global.d.ts
+interface Window {
+  sfuiData: SFUIData;
+}
+
+function initAdmin(): void {
+  const rootElement = document.getElementById('sfui-admin-root');
+  if (!rootElement || !window.sfuiData) return;
+
+  // Page routing based on currentPage (Phase 2)
+  switch (window.sfuiData.currentPage) {
+    case 'super_create_form':
+      initFormBuilderPage(rootElement);
+      break;
+    // Future pages: super_settings, super_entries, etc.
+  }
+}
+```
+
+**Why This Architecture:**
+- Single mount point prevents multiple React roots competing for DOM
+- Centralized data object follows WordPress patterns (like `wp.i18n`, `wp.ajax`)
+- Page routing enables multiple admin pages using same bundle
+- TypeScript definitions provide type safety for data object
+- `restNonce` field enables REST API calls without additional nonce generation
+
+### CSS Architecture
+
+**Critical CSS Isolation Strategy** (since Phase 1):
+
+The React admin CSS uses scoped resets to prevent Tailwind's preflight from breaking WordPress admin UI:
+
+1. **Root mount point**: `#sfui-admin-root` - All React apps render here
+2. **Scoped resets**: All CSS resets scoped to `#sfui-admin-root` selector
+3. **No global preflight**: Import `tailwindcss/theme` and `tailwindcss/utilities` only (NOT `tailwindcss`)
+4. **Z-index override**: Radix UI modals use `z-[100000]` to appear above WP admin bar (z-index 99999)
+
+**CSS Structure** (`/src/react/admin/styles/index.css`):
+```css
+/* Tailwind v4 - theme and utilities only (no global preflight reset) */
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
+
+/* shadcn/ui theme variables on :root (safe - CSS only loaded on SF admin pages) */
+:root {
+  --z-overlay: 100000;  /* Above WP admin bar */
+  --background: hsl(210 40% 98%);
+  /* ... */
+}
+
+/* All resets scoped to #sfui-admin-root */
+#sfui-admin-root {
+  font-family: var(--font-sans);
+
+  *, *::before, *::after {
+    box-sizing: border-box;
+    border-width: 0;
+    /* ... */
+  }
+
+  /* Form element reset, button reset, etc. */
+}
+```
+
+**Why This Matters:**
+- WordPress admin uses its own styles for sidebar, top bar, notices
+- Tailwind's default preflight (`@import "tailwindcss"`) resets ALL elements globally
+- Scoping prevents breaking WP admin UI while allowing full Tailwind power inside React apps
+- Z-index coordination ensures modals appear above WP admin bar
+
+**Standard Tailwind Classes** (no prefix needed):
+```tsx
+<div className="h-full flex gap-4">
+  <Button className="px-4 py-2">Click Me</Button>
+</div>
+```
+
+### Element Identification with `data-testid` (AI/Testing)
+
+**Convention**: Use `data-testid` attributes on key structural elements for:
+- AI screenshot analysis (Playwright)
+- E2E testing
+- Visual debugging during development
+
+**Key Rules**:
+1. Write standard `data-testid="element-name"` in source code
+2. Vite plugin automatically strips them in production builds
+3. Debug overlay shows labels on hover (development only)
+
+**Naming Convention**: Use kebab-case, be descriptive
+- `data-testid="emails-tab"` - Main container
+- `data-testid="email-list-sidebar"` - Left sidebar
+- `data-testid="email-builder-main"` - Main content area
+- `data-testid="add-email-btn"` - Interactive elements
+
+**Example**:
+```tsx
+<div data-testid="email-builder-header" className="bg-white border-b">
+  <button data-testid="add-email-btn" className="px-4 py-2">
+    Add Email
+  </button>
+</div>
+```
+
+**Debug Overlay (Development)**:
+- Hover any `[data-testid]` element to see a pink label with its name
+- Dashed pink outline highlights the element boundaries
+- Automatically hidden in production (no `data-testid` in build output)
+
+**Vite Config** (`vite.config.ts`):
+```typescript
+import { defineConfig, Plugin } from 'vite';
+
+// Custom plugin strips data-testid in production
+function removeTestIdPlugin(): Plugin {
+  return {
+    name: 'remove-data-testid',
+    enforce: 'pre',
+    transform(code: string, id: string) {
+      if (!id.match(/\.[jt]sx$/)) return null;
+      const transformed = code
+        .replace(/\s+data-testid=["'][^"']*["']/g, '')
+        .replace(/\s+data-testid=\{[^}]*\}/g, '');
+      if (transformed !== code) {
+        return { code: transformed, map: null };
+      }
+      return null;
+    },
+  };
+}
+
+export default defineConfig(({ mode }) => ({
+  plugins: [
+    tailwindcss(),
+    react(),
+    mode === 'production' && process.env.STRIP_TESTID === '1' && removeTestIdPlugin(),
+    moveCssPlugin(),
+  ].filter(Boolean),
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, '.'),
+      '@shared': resolve(__dirname, 'components/shared'),
+    },
+  },
+  build: {
+    rollupOptions: {
+      input: resolve(__dirname, 'index.tsx'),
+      output: {
+        format: 'iife',
+        name: 'SuperFormsAdmin',
+        entryFileNames: 'admin.js',
+      },
+    },
+  },
+  // ...
+}));
+```
+
+### Build Commands
 
 ```bash
-cd /projects/super-forms/src/react/emails-v2
+cd /home/rens/super-forms/src/react/admin
+
+# Development (with watch mode)
 npm run watch
+
+# Production build (strips data-testid)
+npm run build
+
+# Type checking (no build)
+npm run typecheck
+
+# Preview production build
+npm run preview
 ```
 
-This runs webpack in development mode with:
-- **Unminified code** for debugging
-- **React DevTools support** (Components & Profiler tabs)
-- **Source maps** for easier debugging
-- **Automatic recompilation** when files change
+**Build Output**:
+- `/src/assets/js/backend/admin.js` (IIFE bundle)
+- `/src/assets/css/backend/admin.css` (Tailwind CSS)
 
-**⚠️ ALWAYS use `npm run watch` during development - NEVER use `npm run build`**
+### TypeScript Configuration
 
-### 2. Production Mode (ONLY for final releases)
+**Tech Stack:**
+- TypeScript 5.3+ for type safety
+- Strict mode enabled (`strict: true`)
+- Path aliases: `@/*` for project root, `@shared/*` for shared components
+- Supports both `.ts`/`.tsx` and `.js`/`.jsx` files
+- **Imports**: Always use ES6 `import` at top of file, never `require()` (browser bundles don't support CommonJS)
+
+**tsconfig.json highlights:**
+```json
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "jsx": "react-jsx",
+    "strict": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"],
+      "@shared/*": ["./components/shared/*"]
+    },
+    "allowJs": true  // Allows gradual migration from JS to TS
+  }
+}
+```
+
+**File Extensions:**
+- `.tsx` - TypeScript React components
+- `.ts` - TypeScript modules (hooks, utilities, types)
+- `.jsx`/`.js` - Legacy JavaScript files (supported during migration)
+
+**Type Checking:**
+```bash
+# Check types without building
+npm run typecheck
+
+# Watch mode for types
+npm run typecheck -- --watch
+```
+
+### UI Stack: Tailwind v4 + shadcn/ui + Lucide Icons
+
+The React Admin UI uses a consistent component stack:
+
+**Tailwind CSS v4** (utility-first styling):
+```css
+/* Configuration in styles/index.css */
+@import "tailwindcss" prefix(sfui);
+
+@theme {
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  /* Custom theme tokens */
+}
+```
+
+**shadcn/ui** (Composable component library):
+- Radix UI primitives with Tailwind styling
+- Copy-paste component architecture (not NPM package)
+- Full customization control
+- Accessible by default
+- Configured via `components.json`
+
+**shadcn/ui Configuration** (`components.json`):
+```json
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  "style": "default",
+  "tsx": true,
+  "tailwind": {
+    "css": "components/form-builder/emails-tab/styles/index.css",
+    "baseColor": "slate",
+    "cssVariables": true
+  },
+  "aliases": {
+    "@/components": "@/components",
+    "@/utils": "@/lib/utils"
+  }
+}
+```
+
+**Important: CSS Variable Scoping for shadcn/ui Components**
+
+When using Tailwind v4's `@theme` with shadcn/ui, CSS variables must be defined on `:root` (not scoped to a class) for component classes like `bg-background`, `border-input` to resolve correctly. This is safe in this codebase because `admin.css` is only enqueued on Super Forms admin pages.
+
+Pattern:
+```css
+/* Root styles - in styles/index.css */
+:root {
+  --color-background: #ffffff;
+  --color-foreground: #000000;
+  --color-input: #f0f0f0;
+}
+
+/* Component styles can reference these variables */
+.sfui-card {
+  background-color: var(--color-background);
+}
+```
+
+**Button Customization:** For shadcn Button variants, prefer explicit Tailwind class references over complex CSS variable coordination. This provides more predictable styling across components.
+
+**Installing shadcn/ui Components:**
+```bash
+cd /home/rens/super-forms/src/react/admin
+
+# Install individual components (copies code to project)
+npx shadcn@latest add button
+npx shadcn@latest add dialog
+npx shadcn@latest add dropdown-menu
+
+# Components installed to: ./components/ui/
+```
+
+**Utility Helper** (`lib/utils.ts`):
+```typescript
+import { clsx, type ClassValue } from "clsx"
+import { twMerge } from "tailwind-merge"
+
+// Combines clsx + tailwind-merge for className merging
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
+}
+```
+
+**Lucide React** (icon library):
+- Consistent icon set across all UI
+- Tree-shakeable imports
+- Standard sizing: `sfui:w-4 sfui:h-4` (small), `sfui:w-5 sfui:h-5` (medium)
+
+```tsx
+import { Mail, Settings, ChevronDown } from 'lucide-react';
+
+<Mail className="sfui:w-4 sfui:h-4 sfui:text-gray-500" />
+```
+
+**Component Patterns**:
+
+```tsx
+// Using shadcn/ui Button component
+import { Button } from "@/components/ui/button"
+
+<Button variant="default" size="sm">
+  <Mail className="sfui:w-4 sfui:h-4 sfui:mr-2" />
+  Send Email
+</Button>
+
+// Card container (Tailwind)
+<div className="sfui:bg-white sfui:rounded-lg sfui:border sfui:border-gray-200 sfui:shadow-sm sfui:p-4">
+  {/* Card content */}
+</div>
+
+// Using cn() utility for conditional classes
+import { cn } from "@/lib/utils"
+
+<button
+  className={cn(
+    "sfui:py-2 sfui:px-4 sfui:rounded-md",
+    enabled ? "sfui:bg-blue-600" : "sfui:bg-gray-300"
+  )}
+>
+  Toggle
+</button>
+```
+
+**Dependencies** (package.json):
+```json
+{
+  "dependencies": {
+    "@radix-ui/react-slot": "^1.2.4",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.0",
+    "lucide-react": "^0.525.0",
+    "tailwind-merge": "^3.4.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.0.0",
+    "@types/react": "^18.2.46",
+    "@types/react-dom": "^18.2.18",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.3.3"
+  }
+}
+```
+
+**Why shadcn/ui vs Preline:**
+- TypeScript-first (better type safety)
+- Component composition pattern (more flexible)
+- No runtime JS initialization required
+- Full source code ownership (copy-paste, not dependency)
+- Active community and frequent updates
+
+---
+
+## Email Builder Components
+
+### Location & Architecture (Since Phase 11.3)
+
+The email builder is now integrated into the admin bundle as reusable components:
+
+**Location:** `/src/react/admin/components/email-builder/`
+
+**Exports** (`email-builder/index.js`):
+- `EmailBuilderIntegrated` - Full email builder with Gmail-style chrome
+- `EmailClientBuilder` - Email client preview with mode toggle
+- `useEmailBuilder` - Zustand store for email builder state
+- `useEmailStore` - Store for email list management
+- `generateHtmlFromElements` - Template generation utility
+- Additional components: Canvas, ElementPalette, PropertyPanels, etc.
+
+**Integration Pattern:**
+```tsx
+// Import from email-builder (within admin bundle)
+import { EmailBuilderIntegrated } from '@/components/email-builder';
+import { SendEmailModal } from '@/components/form-builder/automations/modals/SendEmailModal';
+
+// Use in workflow/trigger modals
+<SendEmailModal
+  node={node}
+  onUpdateNode={handleUpdate}
+/>
+```
+
+**Build Output:**
+- Single unified bundle: `/src/assets/js/backend/admin.js` (799KB)
+- Includes email builder + form builder components
+- Replaced dual-build architecture (emails-v2 + admin)
+
+### Legacy Email Builder v2 [DEPRECATED]
+
+> **DEPRECATED AS OF v6.5.0**: The standalone `/src/react/emails-v2/` directory has been deleted.
+> All email builder components moved to `/src/react/admin/components/email-builder/`.
+> Build outputs `emails-v2.js/css` no longer exist.
+> PHP enqueues changed from `super-emails-v2` to `super-admin`.
+> The documentation below is for historical reference only.
+
+**Old Structure** (removed in Phase 11.3):
+```
+/src/react/emails-v2/  (DELETED)
+├── package.json       (separate webpack build)
+├── src/
+│   ├── components/    (~70 React components)
+│   ├── hooks/         (useEmailBuilder, useEmailStore)
+│   └── styles/
+```
+
+**Migration Notes:**
+- 70+ components moved to `/src/react/admin/components/email-builder/`
+- Import paths changed: removed `sfui:` prefix, updated to use `@/` alias
+- Webpack replaced with Vite build system
+- Separate npm install no longer needed
+
+**Current Development Workflow:**
 
 ```bash
-cd /projects/super-forms/src/react/emails-v2
+# Navigate to admin bundle
+cd /home/rens/super-forms/src/react/admin
+
+# Development mode with watch (recommended)
+npm run watch
+
+# Production build (for releases only)
 npm run build
+
+# Type checking
+npm run typecheck
 ```
 
-**⚠️ WARNING**: Use ONLY for final production releases.
-- No debugging capabilities
-- Minified code makes troubleshooting impossible
-- Component names are obfuscated
-- Should NEVER be used during development or testing
+**Build outputs:**
+- `/src/assets/js/backend/admin.js` - Unified admin bundle
+- `/src/assets/css/backend/admin.css` - Tailwind CSS
 
-### 3. Development Debugging Setup
+**Development Tools:**
+- React DevTools (Components & Profiler tabs)
+- TypeScript type checking (`npm run typecheck`)
+- Source maps enabled in development mode
+- Hot reload on file changes
 
-- **Install React DevTools** browser extension
-- **Open DevTools** (F12) → look for **Components** and **Profiler** tabs
-- **Development build required** - component names only visible in dev mode
-- **Hard refresh** after switching modes: Ctrl+F5 (Windows/Linux) or Cmd+Shift+R (Mac)
-
-### 4. React Component Debugging
-
-- **Components tab**: View component tree, props, and state in real-time
-- **Console logs**: Added throughout components for debugging
-- **State changes**: Watch state updates live in React DevTools
-- **Event handlers**: Debug onClick, onChange events through Components tab
-
-### 5. Compiled Output
-
-React component changes compile to:
-- `/src/assets/js/backend/emails-v2.js` (5.7MB dev vs 424KB prod)
-- `/src/assets/css/backend/emails-v2.css`
-
-**⚠️ Important**: Always use `npm run watch` (development mode) when debugging React components. Production builds remove all debugging capabilities.
-
-### 6. Email v2 Builder: Visual/HTML Mode Toggle
+### Visual/HTML Mode Toggle
 
 **Mode System (since 6.5.0):**
 The Email v2 builder supports two editing modes for maximum flexibility:
@@ -103,20 +567,55 @@ updateEmailField(emailId, 'body_type', 'visual');
 - `HtmlElement.jsx` - Custom element type for raw HTML blocks within visual builder
 - `InlineHtmlEditor` - Textarea-based HTML editor (embedded in GmailChrome body area)
 
-**Component File Locations:**
-- Main builder: `/src/react/emails-v2/src/components/Preview/EmailClientBuilder.jsx`
-- Chrome UI: `/src/react/emails-v2/src/components/Preview/ClientChrome/GmailChrome.jsx`
-- HTML element: `/src/react/emails-v2/src/components/Builder/Elements/HtmlElement.jsx`
-- Element renderer: `/src/react/emails-v2/src/components/Builder/Elements/ElementRenderer.jsx`
-- Element palette: `/src/react/emails-v2/src/components/Builder/ElementPaletteHorizontal.jsx`
+**Component File Locations (Current as of Phase 11.3):**
+- Main builder: `/src/react/admin/components/email-builder/Preview/EmailClientBuilder.jsx`
+- Chrome UI: `/src/react/admin/components/email-builder/Preview/ClientChrome/GmailChrome.jsx`
+- HTML element: `/src/react/admin/components/email-builder/Builder/Elements/HtmlElement.jsx`
+- Element renderer: `/src/react/admin/components/email-builder/Builder/Elements/ElementRenderer.jsx`
+- Element palette: `/src/react/admin/components/email-builder/Builder/ElementPaletteHorizontal.jsx`
 
-### 7. Email v2 ↔ Triggers Backend Integration
+### Email Builder Integration Patterns
+
+**Standalone Usage (Email v2 Tab):**
+```tsx
+import { EmailList } from '@/components/email-builder';
+
+// Full email management UI
+<EmailList formId={formId} />
+```
+
+**Workflow Integration (Send Email Action):**
+```tsx
+import { SendEmailModal } from '@/components/form-builder/automations/modals/SendEmailModal';
+
+// Modal with embedded email builder
+<SendEmailModal
+  isOpen={isOpen}
+  onClose={handleClose}
+  node={workflowNode}
+  onUpdateNode={handleNodeUpdate}
+/>
+```
+
+**Custom Integration:**
+```tsx
+import {
+  EmailBuilderIntegrated,
+  useEmailBuilder,
+  generateHtmlFromElements
+} from '@/components/email-builder';
+
+// Direct builder access for custom UIs
+const { elements, updateElement } = useEmailBuilder();
+```
+
+### Email v2 ↔ Automations Backend Integration
 
 **Data Flow (since 6.5.0):**
-The Email v2 React app stores email data in `_emails` postmeta, which automatically syncs to the triggers system via `SUPER_Email_Trigger_Migration`:
+The Email v2 React app stores email data in `_emails` postmeta, which automatically syncs to the automations system via `SUPER_Email_Automation_Migration`:
 
-- **Save**: React app saves to `_emails` → `save_form_emails_settings()` → `sync_emails_to_triggers()` → triggers table
-- **Load**: React app loads from `_emails` ← `get_form_emails_settings()` ← `get_emails_for_ui()` ← triggers table (if `_emails` empty)
+- **Save**: React app saves to `_emails` → `save_form_emails_settings()` → `sync_emails_to_automations()` → automations table
+- **Load**: React app loads from `_emails` ← `get_form_emails_settings()` ← `get_emails_for_ui()` ← automations table (if `_emails` empty)
 
 **Email Body Types Synced:**
 - `visual` - Visual builder JSON (elements array + generated HTML)
@@ -125,18 +624,18 @@ The Email v2 React app stores email data in `_emails` postmeta, which automatica
 - `legacy_html` - Migrated from old Admin/Confirmation email settings
 
 **Key Points:**
-- Email v2 UI is unaware of triggers system (facade pattern)
+- Email v2 UI is unaware of automations system (facade pattern)
 - Each email becomes a `send_email` action on `form.submitted` event
-- Sync maintains `_super_email_triggers` postmeta mapping (email_id → trigger_id)
-- Changes in Email v2 UI automatically update trigger configurations
+- Sync maintains `_super_email_automations` postmeta mapping (email_id → automation_id)
+- Changes in Email v2 UI automatically update automation configurations
 - Migrated legacy emails appear in Email v2 tab via reverse sync
 - `body_type` field determines rendering method in `send_email` action
 
 **Implementation Files:**
-- Backend sync: `/src/includes/class-email-trigger-migration.php`
+- Backend sync: `/src/includes/class-email-automation-migration.php`
 - Integration hooks: `/src/includes/class-common.php` lines 121-156
 - React app storage: Stores in `_emails` postmeta (sync transparent to React code)
-- Action renderer: `/src/includes/triggers/actions/class-action-send-email.php` (handles all body types)
+- Action renderer: `/src/includes/automations/actions/class-action-send-email.php` (handles all body types)
 
 ## Vanilla JavaScript Components (Frontend)
 
@@ -192,6 +691,369 @@ fetch(url, { signal: state.abortController.signal });
 - Custom events fire for lifecycle hooks
 - Graceful degradation if AJAX fails (form still works)
 
+## Visual Workflow Builder (Automations Tab)
+
+The automations tab features a custom-built visual workflow editor for creating node-based automation flows. Built with TypeScript + React, based on ai-automation architecture.
+
+**Location:** `/src/react/admin/components/form-builder/automations/`
+
+### Core Architecture
+
+**State Management:** Custom `useNodeEditor` hook with pure React state (no Redux/Zustand)
+- TypeScript-first with full type definitions in `types/workflow.types.ts`
+- useState + useCallback pattern for performance
+- useRef for counters and drag state to prevent feedback loops
+
+**File Structure:**
+```
+automations/
+├── canvas/
+│   ├── Canvas.tsx                    # Main canvas with pan/zoom/drag
+│   ├── Node.tsx                      # Individual node rendering
+│   ├── ConnectionOverlay.tsx         # SVG connection rendering
+│   └── GroupContainer.tsx            # Visual group containers
+├── hooks/
+│   └── useNodeEditor.ts              # Core state management (700+ lines)
+├── types/
+│   └── workflow.types.ts             # TypeScript definitions
+└── data/
+    └── superFormsNodeTypes.ts        # Node type registry
+```
+
+### GroupContainer Component
+
+Visual container for organizing related nodes into logical groups.
+
+**File:** `/src/react/admin/components/form-builder/automations/canvas/GroupContainer.tsx` (393 lines)
+
+**Features:**
+- **Drag to Move**: Drag header (⋮⋮ icon) to move group + all contained nodes simultaneously
+- **Resize Handles**: Bottom-left and bottom-right corner handles for resizing bounds
+- **Auto-Membership**: Resizing group automatically updates `nodeIds` array based on nodes within bounds
+- **Editable Name**: Click name to edit inline, press Enter or blur to save
+- **Delete Button**: × button removes group (preserves nodes on canvas)
+- **Visual Feedback**: Dashed border (2px), background tint (rgba blue 5% opacity), hover effects
+- **Z-Index Management**: Groups render at z-index -1 (behind nodes and connections)
+
+**Props Interface:**
+```typescript
+interface GroupContainerProps {
+  group: WorkflowGroup;              // { id, name, nodeIds, bounds, color, zIndex }
+  viewport: Viewport;                // { x, y, zoom } for coordinate transforms
+  nodes: WorkflowNode[];             // All nodes (for membership detection)
+  isAnyNodeDragging?: boolean;       // Disables transitions during drag
+  onUpdateGroup: (groupId: string, updates: Partial<WorkflowGroup>) => void;
+  onRemoveGroup: (groupId: string) => void;
+  onMoveGroup: (groupId: string, deltaX: number, deltaY: number, phase: 'start' | 'move' | 'end') => void;
+}
+```
+
+**Key Implementation Details:**
+- **Offset-Based Dragging**: Visual offset applied during drag, committed on mouseup (prevents state feedback loops)
+- **Grid Snapping**: All movements snap to 20px grid
+- **Resize Logic**: Handles both bottom-left (width + x change) and bottom-right (width + height) resize
+- **Hover State**: Header controls (drag handle, name input, delete button) appear on hover
+- **Event Propagation**: stopPropagation() on header elements to prevent canvas pan during interaction
+
+### ConnectionOverlay Component
+
+SVG overlay for rendering connections with electric animations and interactive features.
+
+**File:** `/src/react/admin/components/form-builder/automations/canvas/ConnectionOverlay.tsx` (446 lines)
+
+**Visual Enhancements:**
+
+1. **Electric Light Animations**
+   - Animated light source traveling along connection path (2s loop)
+   - Radial gradient: white center → light blue → blue → transparent
+   - Triple-layer glow filter (3px, 6px, 12px Gaussian blur)
+   - Inner bright core (5px × 1.5px) + outer glow (10px × 3px)
+   - Pulsing opacity animation (0.6-1.0, 0.4s duration)
+
+2. **Connection Labels**
+   - Output port name displayed at connection midpoint
+   - Gray (#9ca3af) default, red (#ef4444) on hover
+   - 10px font, centered above path
+
+3. **Delete Hints**
+   - "Click to delete" message appears below connection on hover
+   - Red text, 9px font, 500 weight
+   - Positioned 12px below connection midpoint
+
+**Hover Interaction:**
+- Invisible 20px stroke-width path for easy clicking
+- Visual path changes to red with enhanced glow filter
+- Arrow marker changes to red variant (url(#arrowhead-hovered))
+- Label and delete hint become visible
+
+**Connection Preview (during drag):**
+- Dashed green line (#10b981) follows mouse cursor
+- Snaps to nearby input ports within 30px radius
+- Green arrow marker variant
+- Pulse animation for visual feedback
+
+**SVG Filters:**
+```xml
+<filter id="electric-glow">
+  <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+  <feGaussianBlur stdDeviation="6" result="outerGlow"/>
+  <feGaussianBlur stdDeviation="12" result="farGlow"/>
+  <feMerge>
+    <feMergeNode in="farGlow"/>
+    <feMergeNode in="outerGlow"/>
+    <feMergeNode in="coloredBlur"/>
+    <feMergeNode in="SourceGraphic"/>
+  </feMerge>
+</filter>
+```
+
+**Performance:**
+- `useMemo` for connection path calculations
+- Memoized port position calculations
+- Only re-renders when connections/nodes/viewport change
+
+### Canvas Component
+
+Main canvas area with viewport controls, rendering layers, and interaction handling.
+
+**File:** `/src/react/admin/components/form-builder/automations/canvas/Canvas.tsx` (480 lines)
+
+**Rendering Layers (z-order bottom to top):**
+1. **Canvas Background** - Dot grid pattern (20px, scales with zoom)
+2. **Nodes Layer** (transformed) - Contains groups, connections, nodes
+   - Groups (z-index: -1) - Dashed containers behind everything
+   - ConnectionOverlay (z-index: -1) - Paths above groups, below nodes
+   - Nodes (z-index: 1+) - Individual workflow nodes on top
+3. **UI Overlays** - Selection rectangle, connection mode indicator, zoom controls
+
+**Dot Grid Background:**
+```css
+background-image: radial-gradient(
+  circle at 1px 1px,
+  rgba(156, 163, 175, 0.4) 1px,
+  transparent 0
+);
+background-size: calc(20px * zoom) calc(20px * zoom);
+background-position: calc(viewport.x) calc(viewport.y);
+```
+
+**Drag States:**
+- `node`: Dragging one or more selected nodes
+- `viewport`: Panning canvas (no modifier keys)
+- `selection`: Ctrl+drag selection rectangle
+
+**Coordinate Systems:**
+- **Screen Coordinates**: Mouse position in browser viewport
+- **Canvas Coordinates**: Position in workflow coordinate space
+- **Conversion**: `(screenX - viewport.x) / viewport.zoom = canvasX`
+
+**Pure Math Approach (prevents feedback loops):**
+- Store initial state in refs at drag start (`dragStartRef`)
+- Calculate total delta from initial position (not incremental)
+- Apply absolute positions to avoid accumulating errors
+
+**Zoom Behavior:**
+- Mouse wheel: +/- zoom factor (0.95 / 1.05)
+- Zoom towards mouse position (updates viewport.x/y to keep point under cursor)
+- Clamp zoom: 0.1 - 3.0 range
+- Zoom controls: +/− buttons and % display in bottom-right corner
+
+**Group Integration:**
+```typescript
+{groups.map(group => (
+  <GroupContainer
+    key={group.id}
+    group={group}
+    viewport={viewport}
+    nodes={nodes}
+    isAnyNodeDragging={dragState?.type === 'node'}
+    onUpdateGroup={onUpdateGroup || (() => {})}
+    onRemoveGroup={onRemoveGroup || (() => {})}
+    onMoveGroup={onMoveGroup || (() => {})}
+  />
+))}
+```
+
+### Node Component
+
+Individual workflow node rendering with ports, status, and configuration preview.
+
+**File:** `/src/react/admin/components/form-builder/automations/canvas/Node.tsx` (189 lines)
+
+**Visual Improvements:**
+
+1. **Conditional Transitions**
+   ```typescript
+   const transitionStyle = isDragging ? '' : 'transition-all duration-200';
+   ```
+   - Disabled during drag for immediate feedback (no lag)
+   - Enabled otherwise for smooth hover/selection animations
+   - Prevents jittery movement from transition conflicts
+
+2. **Enhanced Port Visibility**
+   - **Input Ports**: Scale 1.3x + blue glow when connection is being created
+   - **Output Ports**: Hover animation (1.0 → 1.3) + colored shadow
+   - **Invisible Hit Areas**: 6×6px transparent zones for easier clicking
+
+3. **Status Indicator**
+   - Green pulsing dot (2px) in top-right corner
+   - Indicates node is active/ready
+   - Uses CSS animate-pulse utility
+
+**Node Structure:**
+```tsx
+<div data-node-id={node.id} className="...">
+  {/* Header: Icon + Name */}
+  <div className="flex items-center gap-2 p-3 border-b">
+    <Icon className="w-5 h-5" style={{ color: nodeType.color }} />
+    <span className="font-medium text-sm">{nodeType.name}</span>
+  </div>
+
+  {/* Body: Config Preview (first 2 properties) */}
+  <div className="p-3 text-xs text-gray-600">
+    {Object.entries(node.config).slice(0, 2).map(...)}
+  </div>
+
+  {/* Input Ports (left side) */}
+  {/* Output Ports (right side) */}
+  {/* Category Badge (top-right) */}
+  {/* Status Indicator (top-right) */}
+</div>
+```
+
+**Port Positioning:**
+- Left edge: Input ports at `translate(-50%, -50%)`
+- Right edge: Output ports at `translate(50%, -50%)`
+- Vertical spacing: 20px per port (supports multiple ports)
+- Z-index: 100 (above node body)
+
+### useNodeEditor Hook
+
+Core state management hook with group operations.
+
+**File:** `/src/react/admin/components/form-builder/automations/hooks/useNodeEditor.ts` (700+ lines)
+
+**Group Management Functions:**
+
+```typescript
+// Add new group
+const addGroup = useCallback((
+  name: string,
+  bounds: { x: number; y: number; width: number; height: number },
+  nodeIds: string[] = []
+) => {
+  const newGroup: WorkflowGroup = {
+    id: `group-${groupCounter.current++}`,
+    name,
+    nodeIds,
+    bounds,
+    color: 'rgba(59, 130, 246, 0.3)',
+    zIndex: -1
+  };
+  saveHistory();
+  setGroups(prev => [...prev, newGroup]);
+  return newGroup.id;
+}, [saveHistory]);
+
+// Update group properties
+const updateGroup = useCallback((groupId: string, updates: Partial<WorkflowGroup>) => {
+  saveHistory();
+  setGroups(prev =>
+    prev.map(g => g.id === groupId ? { ...g, ...updates } : g)
+  );
+}, [saveHistory]);
+
+// Delete group (preserves nodes)
+const removeGroup = useCallback((groupId: string) => {
+  saveHistory();
+  setGroups(prev => prev.filter(g => g.id !== groupId));
+}, [saveHistory]);
+
+// Move group and all contained nodes
+const moveGroup = useCallback((
+  groupId: string,
+  deltaX: number,
+  deltaY: number,
+  phase: 'start' | 'move' | 'end'
+) => {
+  const group = groups.find(g => g.id === groupId);
+  if (!group) return;
+
+  if (phase === 'start') {
+    // Mark nodes as being group-dragged
+    setNodes(prev => prev.map(node =>
+      group.nodeIds.includes(node.id)
+        ? { ...node, isGroupDragging: true }
+        : node
+    ));
+  } else if (phase === 'move') {
+    // Move nodes during drag (visual feedback)
+    setNodes(prev => prev.map(node =>
+      group.nodeIds.includes(node.id)
+        ? { ...node, position: { x: node.position.x + deltaX, y: node.position.y + deltaY } }
+        : node
+    ));
+  } else if (phase === 'end') {
+    // Commit final positions
+    saveHistory();
+    setNodes(prev => prev.map(node =>
+      group.nodeIds.includes(node.id)
+        ? { ...node, isGroupDragging: false }
+        : node
+    ));
+  }
+}, [groups, saveHistory]);
+
+// Create group from selected nodes
+const createGroupFromSelection = useCallback(() => {
+  if (selectedNodes.length === 0) return null;
+
+  // Calculate bounding box for selected nodes
+  const selectedNodeObjects = nodes.filter(n => selectedNodes.includes(n.id));
+  const xs = selectedNodeObjects.map(n => n.position.x);
+  const ys = selectedNodeObjects.map(n => n.position.y);
+
+  const bounds = {
+    x: Math.min(...xs) - 20,
+    y: Math.min(...ys) - 40,
+    width: Math.max(...xs) - Math.min(...xs) + 240,
+    height: Math.max(...ys) - Math.min(...ys) + 140
+  };
+
+  return addGroup(`Group ${groupCounter.current}`, bounds, selectedNodes);
+}, [selectedNodes, nodes, addGroup]);
+```
+
+**State Structure:**
+```typescript
+interface WorkflowGroup {
+  id: string;
+  name: string;
+  nodeIds: string[];        // Nodes contained in this group
+  bounds: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
+  color?: string;           // Optional custom border/background color
+  zIndex: number;           // Render order (typically -1 for behind nodes)
+}
+```
+
+**Exported API:**
+```typescript
+return {
+  // ... existing node/connection operations
+  groups,
+  addGroup,
+  updateGroup,
+  removeGroup,
+  moveGroup,
+  createGroupFromSelection,
+};
+```
+
 ## UI Component Guidelines
 
 ### Icons - CRITICAL RULES
@@ -221,6 +1083,10 @@ After ANY change to React/JavaScript files (`.js`, `.jsx`, `.ts`, `.tsx`):
 #### HOOK 1: Build Validation (MANDATORY)
 
 ```bash
+# React Admin UI (current)
+cd /home/rens/super-forms/src/react/admin && npm run build
+
+# Legacy emails-v2 (deprecated)
 cd /projects/super-forms/src/react/emails-v2 && npm run build
 ```
 - **FAIL** → Fix syntax errors immediately, re-run until pass
@@ -229,6 +1095,10 @@ cd /projects/super-forms/src/react/emails-v2 && npm run build
 #### HOOK 2: Development Mode Validation (MANDATORY)
 
 ```bash
+# React Admin UI (current)
+cd /home/rens/super-forms/src/react/admin && npm run watch &
+
+# Legacy emails-v2 (deprecated)
 cd /projects/super-forms/src/react/emails-v2 && npm run watch &
 ```
 - Always run in development mode for debugging
@@ -239,6 +1109,13 @@ cd /projects/super-forms/src/react/emails-v2 && npm run watch &
 
 Before making complex changes, run:
 ```bash
+# React Admin UI (current) - TypeScript type checking
+cd /home/rens/super-forms/src/react/admin && npm run typecheck
+
+# React Admin UI (current) - ESLint (if configured)
+cd /home/rens/super-forms/src/react/admin && npx eslint . --ext .js,.jsx,.ts,.tsx
+
+# Legacy emails-v2 (deprecated)
 cd /projects/super-forms/src/react/emails-v2 && npx eslint src/ --ext .js,.jsx
 ```
 

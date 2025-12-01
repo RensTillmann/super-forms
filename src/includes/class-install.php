@@ -72,6 +72,9 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 		// Update database version
 		self::update_db_version();
 
+		// Schedule log cleanup
+		self::schedule_automation_log_cleanup();
+
 		// Store plugin version for version-based migration detection
 		update_option( 'super_plugin_version', defined( 'SUPER_VERSION' ) ? SUPER_VERSION : '0.0.0' );
 	}
@@ -116,38 +119,38 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 			dbDelta( $sql );
 
 			// ─────────────────────────────────────────────────────────
-			// Triggers/Actions System Tables
+			// Automations System Tables
 			// @since 6.5.0
 			// ─────────────────────────────────────────────────────────
 
-			// Main triggers table
-			$table_name = $wpdb->prefix . 'superforms_triggers';
+			// Determine storage engine (InnoDB preferred)
+			$engine = self::get_storage_engine();
+
+			// Main automations table - Node-level scope architecture
+			// Scope is configured in trigger nodes within workflow_graph JSON
+			$table_name = $wpdb->prefix . 'superforms_automations';
 
 			$sql = "CREATE TABLE $table_name (
 				id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-				trigger_name VARCHAR(255) NOT NULL,
-				scope VARCHAR(50) NOT NULL DEFAULT 'form',
-				scope_id BIGINT(20),
-				event_id VARCHAR(100) NOT NULL,
-				conditions TEXT,
+				name VARCHAR(255) NOT NULL,
+				type VARCHAR(50) NOT NULL DEFAULT 'visual',
+				workflow_graph LONGTEXT,
 				enabled TINYINT(1) DEFAULT 1,
-				execution_order INT DEFAULT 10,
 				created_at DATETIME NOT NULL,
 				updated_at DATETIME NOT NULL,
 				PRIMARY KEY (id),
-				KEY scope_lookup (scope, scope_id, enabled),
-				KEY event_lookup (event_id, enabled),
-				KEY form_triggers (scope, scope_id) USING BTREE
-			) ENGINE=InnoDB $charset_collate;";
+				KEY enabled (enabled),
+				KEY type (type)
+			) ENGINE={$engine} $charset_collate;";
 
 			dbDelta( $sql );
 
-			// Trigger actions table (normalized - 1:N relationship)
-			$table_name = $wpdb->prefix . 'superforms_trigger_actions';
+			// Automation actions table (normalized - 1:N relationship)
+			$table_name = $wpdb->prefix . 'superforms_automation_actions';
 
 			$sql = "CREATE TABLE $table_name (
 				id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-				trigger_id BIGINT(20) UNSIGNED NOT NULL,
+				automation_id BIGINT(20) UNSIGNED NOT NULL,
 				action_type VARCHAR(100) NOT NULL,
 				action_config TEXT,
 				execution_order INT DEFAULT 10,
@@ -155,19 +158,19 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 				created_at DATETIME NOT NULL,
 				updated_at DATETIME NOT NULL,
 				PRIMARY KEY (id),
-				KEY trigger_id (trigger_id),
+				KEY automation_id (automation_id),
 				KEY action_type (action_type),
-				KEY trigger_order (trigger_id, execution_order)
-			) ENGINE=InnoDB $charset_collate;";
+				KEY automation_order (automation_id, execution_order)
+			) ENGINE={$engine} $charset_collate;";
 
 			dbDelta( $sql );
 
-			// Trigger execution logs table
-			$table_name = $wpdb->prefix . 'superforms_trigger_logs';
+			// Automation execution logs table
+			$table_name = $wpdb->prefix . 'superforms_automation_logs';
 
 			$sql = "CREATE TABLE $table_name (
 				id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-				trigger_id BIGINT(20) UNSIGNED NOT NULL,
+				automation_id BIGINT(20) UNSIGNED NOT NULL,
 				action_id BIGINT(20) UNSIGNED,
 				entry_id BIGINT(20) UNSIGNED,
 				form_id BIGINT(20) UNSIGNED,
@@ -181,13 +184,13 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 				scheduled_action_id BIGINT(20) UNSIGNED,
 				executed_at DATETIME NOT NULL,
 				PRIMARY KEY (id),
-				KEY trigger_id (trigger_id),
+				KEY automation_id (automation_id),
 				KEY entry_id (entry_id),
 				KEY form_id (form_id),
 				KEY status (status),
 				KEY executed_at (executed_at),
 				KEY form_status (form_id, status)
-			) ENGINE=InnoDB $charset_collate;";
+			) ENGINE={$engine} $charset_collate;";
 
 			dbDelta( $sql );
 
@@ -210,7 +213,7 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 				KEY idx_action_type (action_type),
 				KEY idx_object (object_type, object_id),
 				KEY idx_performed_at (performed_at)
-			) ENGINE=InnoDB $charset_collate;";
+			) ENGINE={$engine} $charset_collate;";
 
 			dbDelta( $sql );
 
@@ -355,6 +358,9 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 
 			// Run schema upgrades for existing installations
 			self::upgrade_database_schema();
+
+			// Migrate from old 'triggers' naming to 'automations' naming
+			self::migrate_triggers_to_automations_naming();
 		}
 
 		/**
@@ -429,6 +435,58 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 				error_log( "[Super Forms] Populated form_id for {$updated_count} entry_data records" );
 			}
 		}
+
+		/**
+		 * Migrate from old 'triggers' table naming to 'automations' naming
+		 *
+		 * This handles the terminology standardization from Phase 26.
+		 * Safe to run multiple times - checks before altering.
+		 *
+		 * @since 6.5.0
+		 */
+		private static function migrate_triggers_to_automations_naming() {
+			global $wpdb;
+
+			// Check if old tables exist (need migration)
+			$old_table = $wpdb->prefix . 'superforms_triggers';
+			$new_table = $wpdb->prefix . 'superforms_automations';
+
+			$old_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $old_table ) ) === $old_table;
+			$new_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $new_table ) ) === $new_table;
+
+			// If old table exists and new table doesn't, rename tables
+			if ( $old_exists && ! $new_exists ) {
+				// Rename main triggers table
+				$wpdb->query( "RENAME TABLE `{$wpdb->prefix}superforms_triggers` TO `{$wpdb->prefix}superforms_automations`" );
+
+				// Rename columns in automations table
+				$wpdb->query( "ALTER TABLE `{$wpdb->prefix}superforms_automations` CHANGE `trigger_name` `name` VARCHAR(255) NOT NULL" );
+				$wpdb->query( "ALTER TABLE `{$wpdb->prefix}superforms_automations` CHANGE `workflow_type` `type` VARCHAR(50) NOT NULL DEFAULT 'visual'" );
+
+				// Rename trigger_actions table
+				$old_actions = $wpdb->prefix . 'superforms_trigger_actions';
+				if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $old_actions ) ) === $old_actions ) {
+					$wpdb->query( "RENAME TABLE `{$wpdb->prefix}superforms_trigger_actions` TO `{$wpdb->prefix}superforms_automation_actions`" );
+					$wpdb->query( "ALTER TABLE `{$wpdb->prefix}superforms_automation_actions` CHANGE `trigger_id` `automation_id` BIGINT(20) UNSIGNED NOT NULL" );
+				}
+
+				// Rename trigger_logs table
+				$old_logs = $wpdb->prefix . 'superforms_trigger_logs';
+				if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $old_logs ) ) === $old_logs ) {
+					$wpdb->query( "RENAME TABLE `{$wpdb->prefix}superforms_trigger_logs` TO `{$wpdb->prefix}superforms_automation_logs`" );
+					$wpdb->query( "ALTER TABLE `{$wpdb->prefix}superforms_automation_logs` CHANGE `trigger_id` `automation_id` BIGINT(20) UNSIGNED NOT NULL" );
+				}
+
+				// Log the migration
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
+					error_log( '[Super Forms] Database tables migrated from triggers to automations naming' );
+				}
+			}
+		}
+
+		// Verify storage engine and schedule cleanup after table creation
+		self::verify_table_engine();
+		self::schedule_automation_log_cleanup();
 
 		/**
 		 * Initialize migration state tracking
@@ -530,6 +588,96 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 	}
 
 		/**
+		 * Get storage engine for table creation (InnoDB preferred)
+		 *
+		 * @since 6.5.0
+		 */
+		public static function get_storage_engine() {
+			global $wpdb;
+
+			// Check if InnoDB is available
+			$engines = $wpdb->get_results("SHOW ENGINES", ARRAY_A);
+
+			$innodb_available = false;
+			foreach ($engines as $engine) {
+				if (strtolower($engine['Engine']) === 'innodb' &&
+					in_array(strtolower($engine['Support']), ['yes', 'default'])) {
+					$innodb_available = true;
+					break;
+				}
+			}
+
+			if ($innodb_available) {
+				return 'InnoDB';
+			}
+
+			// Fallback to MyISAM with critical warning
+			error_log('[Super Forms] WARNING: InnoDB storage engine not available. Falling back to MyISAM. TRANSACTIONS WILL NOT WORK. Please enable InnoDB in MySQL configuration.');
+
+			// Store warning for admin notice
+			add_option('super_innodb_warning', true);
+
+			return 'MyISAM';
+		}
+
+		/**
+		 * Verify tables are using InnoDB
+		 *
+		 * @since 6.5.0
+		 */
+		public static function verify_table_engine() {
+			global $wpdb;
+
+			$tables = [
+				$wpdb->prefix . 'superforms_automations',
+				$wpdb->prefix . 'superforms_automation_actions',
+				$wpdb->prefix . 'superforms_automation_logs',
+				$wpdb->prefix . 'superforms_automation_states'
+			];
+
+			$issues_found = false;
+
+			foreach ($tables as $table) {
+				$exists = $wpdb->get_var($wpdb->prepare("SHOW TABLES LIKE %s", $table));
+				if ($exists !== $table) {
+					continue; // Skip tables that don't exist
+				}
+
+				$engine = $wpdb->get_var("
+					SELECT ENGINE
+					FROM information_schema.TABLES
+					WHERE TABLE_SCHEMA = DATABASE()
+						AND TABLE_NAME = '{$table}'
+				");
+
+				if (strtolower($engine) !== 'innodb') {
+					error_log("[Super Forms] WARNING: Table {$table} is using {$engine} instead of InnoDB. Transactions will not work properly.");
+					add_option('super_innodb_warning', true);
+					$issues_found = true;
+				}
+			}
+
+			return !$issues_found;
+		}
+
+		/**
+		 * Schedule daily log cleanup for automation system
+		 *
+		 * @since 6.5.0
+		 */
+		public static function schedule_automation_log_cleanup() {
+			// Only schedule if not already scheduled
+			if (!wp_next_scheduled('super_automation_log_cleanup')) {
+				// Run daily at 3 AM server time (low traffic period)
+				wp_schedule_event(
+					strtotime('tomorrow 03:00:00'),
+					'daily',
+					'super_automation_log_cleanup'
+				);
+			}
+		}
+
+		/**
 		 *  Deactivate
 		 *
 		 *  Upon plugin deactivation delete activation
@@ -554,7 +702,8 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 			delete_option( '_sf_permalinks_flushed' );
 			wp_clear_scheduled_hook( 'super_client_data_garbage_collection' );
 			wp_clear_scheduled_hook( 'super_cron_reminders' );
-			wp_clear_scheduled_hook( 'super_scheduled_trigger_actions' );
+			wp_clear_scheduled_hook( 'super_scheduled_automation_execution' );
+			wp_clear_scheduled_hook( 'super_automation_log_cleanup' );
 			do_action( 'after_super_forms_deactivated' );
 		}
 	}

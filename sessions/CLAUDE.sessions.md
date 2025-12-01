@@ -27,7 +27,7 @@ This file provides guidance for working in a repository with cc-sessions install
 - Just calling a function is cleaner than complex inheritance scenarios
 
 ### Readability > Cleverness
-- Code should be obvious and easy to follow
+- Code should be clean/lean/refactored easily readable and not over engineered and easy to follow
 - Same structure in every file reduces cognitive load
 
 ## Using Context-Gathering Agent

@@ -1,24 +1,33 @@
-# Phase 11: Email System Migration to Triggers
+# Phase 11: Email System Migration to Automations
+
+## Terminology Reference
+
+See [Phase 26: Terminology Standardization](26-terminology-standardization.md) for the definitive naming convention:
+- **Automation** = The saved entity (container)
+- **Trigger** = Event node that starts execution
+- **Action** = Task node that does something
+- **Condition** = Logic node for branching
+- **Control** = Flow node (delay, schedule, stop)
 
 ## Overview
 
-Migrate the existing email notification system (Admin emails, Confirmation emails) to use the triggers/actions infrastructure. This includes integrating the Email v2 React builder as the visual interface while the backend uses `send_email` trigger actions.
+Migrate the existing email notification system (Admin emails, Confirmation emails) to use the automations/actions infrastructure. This includes integrating the Email v2 React builder as the visual interface while the backend uses `send_email` action nodes.
 
 ## Work Log
 
 ### 2025-11-27 (Session 1)
 
 #### Completed
-- Created Triggers v2 UI epic file (`20-implement-triggers-v2-ui.md`)
-- Implemented bidirectional Email v2 ↔ Triggers sync system
-  - `sync_emails_to_triggers()` - Email v2 UI → triggers table
-  - `convert_triggers_to_emails_format()` - Triggers → Email v2 format
+- Created Automations UI epic file (`20-implement-triggers-v2-ui.md`)
+- Implemented bidirectional Email v2 ↔ Automations sync system
+  - `sync_emails_to_automations()` - Email v2 UI → automations table
+  - `convert_automations_to_emails_format()` - Automations → Email v2 format
   - `get_emails_for_ui()` - Main entry point for UI data loading
   - Fixed empty Email v2 tab for migrated forms
 
-### 2025-11-27 (Session 2)
+### 2025-11-27 (Session 2) - Visual/HTML Mode Toggle
 
-#### Completed - Email v2 Visual/HTML Mode Toggle
+#### Completed
 - Implemented mode toggle infrastructure in `EmailClientBuilder.jsx`
   - Added `mode` state (visual/html) with local storage persistence
   - Confirmation dialogs when switching modes (data loss warnings)
@@ -61,16 +70,64 @@ Migrate the existing email notification system (Admin emails, Confirmation email
 - Message: "Add Email v2 Visual/HTML mode toggle and Phase 2 infrastructure"
 - Status: Pushed to remote
 
+### 2025-11-30 (Session 3) - Email Builder Consolidation (Phase 11.3)
+
+#### Completed
+- Consolidated email builder into admin bundle
+  - Moved `/src/react/emails-v2/` → `/src/react/admin/components/email-builder/`
+  - Deleted entire emails-v2 directory (~33,000 lines removed)
+  - Fixed 70+ import paths (removed `sfui:` prefix, updated to `@/` alias)
+  - Created centralized exports in `email-builder/index.js`
+- Built `SendEmailModal` component for workflow integration
+  - Full-screen modal with embedded email builder
+  - Integrates with visual workflow system
+  - Node configuration UI pattern
+- Updated build architecture
+  - Single unified admin bundle (799KB)
+  - Eliminated dual-build duplication (emails-v2.js + admin.js)
+  - Removed separate webpack config and package.json
+  - Deleted build outputs: `emails-v2.js/css` files
+- Documentation updates
+  - Updated `CLAUDE.md` with email builder location and exports
+  - Updated `docs/CLAUDE.javascript.md` with new architecture
+  - Added integration patterns and examples
+  - Marked legacy paths as deprecated
+
+#### Technical Implementation
+**Email Builder as Reusable Library:**
+- Exported 48 components/hooks from `email-builder/index.js`
+- Main exports: `EmailBuilderIntegrated`, `EmailClientBuilder`, `useEmailBuilder`, `generateHtmlFromElements`
+- Supports multiple integration patterns: standalone, workflow modal, custom
+
+**SendEmailModal Integration:**
+- Location: `/src/react/admin/components/form-builder/triggers/modals/SendEmailModal.tsx`
+- Features: Full email builder UI, node settings header, enable/disable toggle
+- Props: `node`, `onUpdateNode`, `isOpen`, `onClose`
+
+**Files Modified:**
+- Deleted: `/src/react/emails-v2/` (entire directory, ~108 files)
+- Created: `/src/react/admin/components/email-builder/` (moved components)
+- Created: `/src/react/admin/components/email-builder/index.js` (exports)
+- Created: `/src/react/admin/components/form-builder/triggers/modals/SendEmailModal.tsx`
+- Updated: `CLAUDE.md`, `docs/CLAUDE.javascript.md`
+- Updated: Task README with Phase 11.3 completion
+
+#### Commit
+- Hash: TBD
+- Message: "Phase 11.3: Consolidate email builder into admin bundle"
+- Status: Ready for commit
+
 ## Current State Analysis
 
 ### Email Storage
 - **Legacy**: Admin/Confirmation email settings stored in `_super_form_settings` post meta
 - **Email v2**: Modern emails stored in `_emails` post meta (separate key)
-- **React App**: Full drag-drop email builder at `/src/react/emails-v2/`
-  - ~70+ React components
-  - Uses zustand store (`useEmailStore`)
+- **React Components**: Email builder integrated into admin bundle at `/src/react/admin/components/email-builder/`
+  - 70+ React components exported as reusable library
+  - Uses zustand store (`useEmailBuilder`, `useEmailStore`)
   - Auto-save functionality
   - Client preview (Gmail, Apple Mail, Outlook chrome)
+  - Single unified build (admin.js)
 
 ### Existing Comments in Code
 ```php
@@ -91,22 +148,23 @@ This indicates migration work has been partially started.
 │  Visual drag-drop email builder (React)                 │
 │  User designs template, sets recipients, conditions     │
 │                                                         │
-│  [Save] → Creates/updates trigger in database           │
+│  [Save] → Creates/updates automation in database        │
 └─────────────────────────────────────────────────────────┘
                            │
                            ▼
 ┌─────────────────────────────────────────────────────────┐
-│  wp_superforms_triggers table                           │
+│  wp_superforms_automations table                        │
 │  ────────────────────────────────────────────────       │
-│  event_id: form.submitted                               │
-│  scope: form                                            │
-│  scope_id: {form_id}                                    │
-│  conditions: JSON (optional)                            │
+│  name: "Admin Email - Form Name"                        │
+│  type: "code"                                           │
+│  workflow_graph: { nodes: [...], connections: [...] }   │
+│  enabled: true                                          │
+│  NOTE: Scope configured in trigger node config!         │
 └─────────────────────────────────────────────────────────┘
                            │
                            ▼
 ┌─────────────────────────────────────────────────────────┐
-│  wp_superforms_trigger_actions table                    │
+│  wp_superforms_automation_actions table                 │
 │  ────────────────────────────────────────────────       │
 │  action_type: send_email                                │
 │  action_config: {                                       │
@@ -121,9 +179,9 @@ This indicates migration work has been partially started.
 ```
 
 ### Facade Pattern
-The Email v2 tab acts as a "facade" - users interact with the visual builder, but it generates trigger configurations under the hood. Benefits:
-- Users don't need to learn triggers for basic email setup
-- Power users can access/modify triggers directly
+The Email v2 tab acts as a "facade" - users interact with the visual builder, but it generates automation configurations under the hood. Benefits:
+- Users don't need to learn automations for basic email setup
+- Power users can access/modify automations directly
 - Same logging, retry, async execution for all emails
 
 ## Migration Strategy
@@ -153,19 +211,31 @@ $migration = get_option('superforms_email_trigger_migration', [
 // For each form with legacy email settings:
 // 1. Check if admin_email_enabled = 'yes'
 if ($settings['admin_email_enabled'] === 'yes') {
-    // Create trigger for admin email
-    $trigger_id = SUPER_Trigger_DAL::create([
-        'trigger_name' => 'Admin Email - ' . $form_title,
-        'scope' => 'form',
-        'scope_id' => $form_id,
-        'event_id' => 'form.submitted',
-        'conditions' => null,  // No conditions by default
+    // Create automation for admin email with node-level scope
+    $workflow_graph = [
+        'nodes' => [
+            [
+                'category' => 'trigger',
+                'type' => 'form.submitted',
+                'config' => [
+                    'scope' => 'current',  // Node-level scope!
+                    'formId' => $form_id,
+                ],
+            ],
+            // ... email action node config
+        ],
+    ];
+
+    $automation_id = SUPER_Automation_DAL::create([
+        'name' => 'Admin Email - ' . $form_title,
+        'type' => 'code',
+        'workflow_graph' => json_encode($workflow_graph),
         'enabled' => true,
     ]);
 
     // Create action
-    SUPER_Trigger_DAL::create_action([
-        'trigger_id' => $trigger_id,
+    SUPER_Automation_DAL::create_action([
+        'automation_id' => $automation_id,
         'action_type' => 'send_email',
         'action_config' => [
             'to' => $settings['admin_email_recipient'],
@@ -179,19 +249,19 @@ if ($settings['admin_email_enabled'] === 'yes') {
 
 // 2. Check if confirm_email_enabled = 'yes'
 if ($settings['confirm_email_enabled'] === 'yes') {
-    // Similar trigger creation for confirmation email
+    // Similar automation creation for confirmation email
 }
 ```
 
 ## Success Criteria
 
 ### Core Functionality
-- [x] Email v2 tab saves to triggers table (bidirectional sync implemented)
-- [x] Migration script converts legacy email settings to triggers (via `migrate_form()`)
+- [x] Email v2 tab saves to automations table (bidirectional sync implemented)
+- [x] Migration script converts legacy email settings to automations (via `migrate_form()`)
 - [x] Visual/HTML mode toggle implemented
 - [ ] Admin emails sent via `send_email` action (needs testing)
 - [ ] Confirmation emails sent via `send_email` action (needs testing)
-- [ ] Email v2 templates render correctly through trigger system (needs testing)
+- [ ] Email v2 templates render correctly through automation system (needs testing)
 
 ### Migration
 - [x] Full migration on plugin update (background migration via Action Scheduler)
@@ -211,30 +281,30 @@ if ($settings['confirm_email_enabled'] === 'yes') {
 
 ### Files to Modify
 
-1. **`/src/includes/class-email-trigger-migration.php`** (NEW)
+1. **`/src/includes/class-email-automation-migration.php`** (NEW)
    - Migration orchestration
-   - Legacy settings to trigger conversion
+   - Legacy settings to automation conversion
    - Progress tracking
 
-2. **`/src/includes/triggers/actions/class-action-send-email.php`**
+2. **`/src/includes/automations/actions/class-action-send-email.php`**
    - Add `body_type: email_v2` support
    - Render Email v2 JSON templates to HTML
    - Handle legacy HTML body type
 
-3. **`/src/react/emails-v2/src/hooks/useEmailStore.js`**
-   - Modify save function to create/update triggers
-   - Add trigger metadata to email state
+3. **`/src/react/admin/components/email-builder/hooks/useEmailStore.js`** (moved from emails-v2)
+   - Modify save function to create/update automations
+   - Add automation metadata to email state
 
 4. **`/src/includes/class-pages.php`**
-   - Modify `emails_v2_tab()` to pass trigger data
-   - Add trigger ID to React app props
+   - Modify `emails_v2_tab()` to pass automation data
+   - Add automation ID to React app props
 
 5. **`/src/includes/class-install.php`**
    - Add email migration initialization
    - Track migration state
 
 ### Database Changes
-No new tables required - uses existing `wp_superforms_triggers` and `wp_superforms_trigger_actions` tables.
+No new tables required - uses existing `wp_superforms_automations` and `wp_superforms_automation_actions` tables.
 
 ### Action Config Schema for `send_email`
 ```json
@@ -272,20 +342,20 @@ No new tables required - uses existing `wp_superforms_triggers` and `wp_superfor
   - [ ] Test data loss prevention dialogs
 - [ ] Test Email v2 builder workflow
   - [ ] Create new email in Visual mode
-  - [ ] Verify trigger created in database
-  - [ ] Edit email and verify trigger updated
-  - [ ] Delete email and verify trigger removed
+  - [ ] Verify automation created in database
+  - [ ] Edit email and verify automation updated
+  - [ ] Delete email and verify automation removed
 - [ ] Test migrated email display
   - [ ] Load form 38036 Email v2 tab
   - [ ] Verify migrated emails appear correctly
   - [ ] Test editing migrated email
 - [ ] Test email delivery
   - [ ] Submit form with admin email configured
-  - [ ] Verify email sent via trigger system
-  - [ ] Check trigger logs for delivery record
+  - [ ] Verify email sent via automation system
+  - [ ] Check automation logs for delivery record
 
 ### Integration Tests (Future)
-- [ ] Legacy settings conversion produces correct trigger config
+- [ ] Legacy settings conversion produces correct automation config
 - [ ] Email v2 JSON renders to valid HTML
 - [ ] Tag replacement works in all email fields
 - [ ] Attachments processed correctly
@@ -296,12 +366,12 @@ No new tables required - uses existing `wp_superforms_triggers` and `wp_superfor
 If issues discovered post-migration:
 1. Migration state allows rollback to legacy system
 2. Legacy settings preserved (not deleted) during migration
-3. Feature flag can disable trigger-based emails
+3. Feature flag can disable automation-based emails
 4. Admin notice if migration fails
 
 ## Dependencies
 
-- Phase 1: Foundation (triggers tables, DAL, executor) - COMPLETE
+- Phase 1: Foundation (automations tables, DAL, executor) - COMPLETE
 - Phase 2: Action Scheduler (async execution) - COMPLETE
 - Phase 3: Logging system - COMPLETE
 - Existing `send_email` action - COMPLETE
@@ -311,4 +381,4 @@ If issues discovered post-migration:
 - Email v2 builder is WIP but functional
 - This phase completes the Email v2 integration
 - Consider email reminders add-on compatibility
-- SMTP settings remain global (not per-trigger)
+- SMTP settings remain global (not per-automation)

@@ -465,8 +465,9 @@ if ( ! class_exists( 'SUPER_Pages' ) ) :
 		</div>
 			<?php
 		}
-		public static function emails_tab( $atts ) {
-			error_log( 'emails_tab()' );
+		public static function emails_tab_legacy( $atts ) {
+			// NOTE: This legacy implementation is replaced by the React-based emails_tab() method
+			error_log( 'emails_tab_legacy()' );
 			error_log( json_encode( $atts ) );
 			$form_id  = $atts['form_id'];
 			$version  = $atts['version'];
@@ -1449,6 +1450,17 @@ if ( ! class_exists( 'SUPER_Pages' ) ) :
 			$version  = $atts['version'];
 			$settings = $atts['settings'];
 			$s        = $atts['settings'];
+
+			// Visual workflow builder is now integrated into the main React admin app
+			// The triggers tab content is rendered by the TriggersTab React component
+			// which is mounted in the #sfui-admin-root element via React Router (hash route: #/triggers)
+
+			// No additional PHP output needed - React handles everything
+			return;
+
+			// ======================================
+			// Legacy triggers UI (kept for reference)
+			// ======================================
 
 			// Get trigger settings
 			$triggers = SUPER_Common::get_form_triggers( $form_id );
@@ -2771,56 +2783,10 @@ if ( ! class_exists( 'SUPER_Pages' ) ) :
 		/**
 		 * Handle TAB outputs for emails v2 tab (React-based email settings)
 		 */
-		public static function emails_v2_tab( $atts ) {
-			$form_id = $atts['form_id'];
-			$settings = $atts['settings'];
-			$translations = $atts['translations'];
-			
-			// Get existing email settings
-			$emails = SUPER_Common::get_form_emails_settings( $form_id );
-			
-			// Convert PHP arrays to JSON for React
-			$emails_json = wp_json_encode( $emails );
-			$translations_json = wp_json_encode( $translations );
-			$settings_json = wp_json_encode( $settings );
-			
-			?>
-			<div id="super-emails-v2-root" class="super-emails-v2-container">
-				<!-- React app will mount here -->
-				<div class="super-emails-v2-loading">
-					<p><?php echo esc_html__( 'Loading Email Settings...', 'super-forms' ); ?></p>
-				</div>
-			</div>
-			
-			<script>
-				// Pass data to React app
-				window.superEmailsV2Data = {
-					formId: <?php echo absint( $form_id ); ?>,
-					emails: <?php echo $emails_json; ?>,
-					translations: <?php echo $translations_json; ?>,
-					settings: <?php echo $settings_json; ?>,
-					ajaxUrl: '<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>',
-					nonce: '<?php echo wp_create_nonce( 'super_save_form_emails' ); ?>',
-					i18n: {
-						addEmail: '<?php echo esc_js( __( 'Add Email', 'super-forms' ) ); ?>',
-						deleteEmail: '<?php echo esc_js( __( 'Delete Email', 'super-forms' ) ); ?>',
-						emailSettings: '<?php echo esc_js( __( 'Email Settings', 'super-forms' ) ); ?>',
-						basicSettings: '<?php echo esc_js( __( 'Basic Settings', 'super-forms' ) ); ?>',
-						emailHeaders: '<?php echo esc_js( __( 'Email Headers', 'super-forms' ) ); ?>',
-						emailContent: '<?php echo esc_js( __( 'Email Content', 'super-forms' ) ); ?>',
-						attachments: '<?php echo esc_js( __( 'Attachments', 'super-forms' ) ); ?>',
-						advancedOptions: '<?php echo esc_js( __( 'Advanced Options', 'super-forms' ) ); ?>',
-						conditionalLogic: '<?php echo esc_js( __( 'Conditional Logic', 'super-forms' ) ); ?>',
-						scheduleSettings: '<?php echo esc_js( __( 'Schedule Settings', 'super-forms' ) ); ?>',
-						preview: '<?php echo esc_js( __( 'Preview', 'super-forms' ) ); ?>',
-						sendTestEmail: '<?php echo esc_js( __( 'Send Test Email', 'super-forms' ) ); ?>',
-						saving: '<?php echo esc_js( __( 'Saving...', 'super-forms' ) ); ?>',
-						saved: '<?php echo esc_js( __( 'Saved!', 'super-forms' ) ); ?>',
-						error: '<?php echo esc_js( __( 'Error saving settings', 'super-forms' ) ); ?>'
-					}
-				};
-			</script>
-			<?php
-		}
+	public static function emails_tab( $atts ) {
+		// Emails tab content is now handled by React app mounted at #sfui-admin-root
+		// The React router will show/hide the EmailsPage based on the active tab
+		// No PHP output needed here - window.sfuiData is initialized at page level
+	}
 	}
 endif;

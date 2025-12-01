@@ -453,8 +453,8 @@ class SUPER_Spam_Detector {
      */
     public static function log_detection($form_id, $result, $context = []) {
         // Use trigger logger if available
-        if (class_exists('SUPER_Trigger_Logger')) {
-            $logger = SUPER_Trigger_Logger::instance();
+        if (class_exists('SUPER_Automation_Logger')) {
+            $logger = SUPER_Automation_Logger::instance();
             $logger->warning(
                 sprintf('Spam detected: %s', $result['method']),
                 [

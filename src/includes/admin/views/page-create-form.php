@@ -1,5 +1,47 @@
 <div class="super-create-form">
 
+	<!-- SFUI Admin React Mount Point -->
+	<div id="sfui-admin-root" class="sfui-admin-container" data-testid="sfui-admin-root"></div>
+
+	<?php
+	// Initialize SFUI Data for React apps
+	$emails = SUPER_Common::get_form_emails_settings( $form_id );
+	?>
+	<script>
+		// Pass data to React app
+		window.sfuiData = {
+			currentPage: '<?php echo esc_js( sanitize_text_field( $_GET['page'] ?? '' ) ); ?>',
+			formId: <?php echo absint( $form_id ); ?>,
+			forms: <?php echo wp_json_encode( array_map( function( $form ) { return array( 'id' => $form->ID, 'title' => $form->post_title ); }, $forms ) ); ?>,
+			emails: <?php echo wp_json_encode( $emails ); ?>,
+			translations: <?php echo wp_json_encode( $translations ); ?>,
+			settings: <?php echo wp_json_encode( $settings ); ?>,
+			ajaxUrl: '<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>',
+			nonce: '<?php echo wp_create_nonce( 'super_save_form_emails' ); ?>',
+			restNonce: '<?php echo wp_create_nonce( 'wp_rest' ); ?>',
+			restUrl: '<?php echo esc_url( rest_url( 'super-forms/v1' ) ); ?>',
+			currentUserEmail: '<?php echo esc_js( wp_get_current_user()->user_email ); ?>',
+			i18n: {
+				addEmail: '<?php echo esc_js( __( 'Add Email', 'super-forms' ) ); ?>',
+				deleteEmail: '<?php echo esc_js( __( 'Delete Email', 'super-forms' ) ); ?>',
+				selectEmail: '<?php echo esc_js( __( 'Select an email to edit', 'super-forms' ) ); ?>',
+				emailSettings: '<?php echo esc_js( __( 'Email Settings', 'super-forms' ) ); ?>',
+				basicSettings: '<?php echo esc_js( __( 'Basic Settings', 'super-forms' ) ); ?>',
+				emailHeaders: '<?php echo esc_js( __( 'Email Headers', 'super-forms' ) ); ?>',
+				emailContent: '<?php echo esc_js( __( 'Email Content', 'super-forms' ) ); ?>',
+				attachments: '<?php echo esc_js( __( 'Attachments', 'super-forms' ) ); ?>',
+				advancedOptions: '<?php echo esc_js( __( 'Advanced Options', 'super-forms' ) ); ?>',
+				conditionalLogic: '<?php echo esc_js( __( 'Conditional Logic', 'super-forms' ) ); ?>',
+				scheduleSettings: '<?php echo esc_js( __( 'Schedule Settings', 'super-forms' ) ); ?>',
+				preview: '<?php echo esc_js( __( 'Preview', 'super-forms' ) ); ?>',
+				sendTestEmail: '<?php echo esc_js( __( 'Send Test Email', 'super-forms' ) ); ?>',
+				saving: '<?php echo esc_js( __( 'Saving...', 'super-forms' ) ); ?>',
+				saved: '<?php echo esc_js( __( 'Saved!', 'super-forms' ) ); ?>',
+				error: '<?php echo esc_js( __( 'Error saving settings', 'super-forms' ) ); ?>'
+			}
+		};
+	</script>
+
 	<?php
 	echo '<input type="hidden" name="super_skip_tutorial" value="' . get_option( 'super_skip_tutorial', false ) . '" />';
 
@@ -118,7 +160,6 @@
 				$tabs         = array(
 					'builder'      => esc_html__( 'Builder', 'super-forms' ),
 					'emails'       => esc_html__( 'Emails', 'super-forms' ),
-					'emails_v2'    => esc_html__( 'Emails v2', 'super-forms' ),
 					'settings'     => esc_html__( 'Settings', 'super-forms' ),
 					'theme'        => esc_html__( 'Theme', 'super-forms' ),
 					'translations' => esc_html__( 'Translations', 'super-forms' ),

@@ -274,7 +274,7 @@ class SUPER_Sandbox_Manager {
 
         // Trigger 1: Log on form submission
         $wpdb->insert(
-            $wpdb->prefix . 'superforms_triggers',
+            $wpdb->prefix . 'superforms_automations',
             array(
                 'trigger_name'    => 'Sandbox: Log Submission (' . $form_type . ')',
                 'event_id'        => 'form.submitted',
@@ -292,7 +292,7 @@ class SUPER_Sandbox_Manager {
         if ($trigger1_id) {
             $trigger_ids[] = $trigger1_id;
             $wpdb->insert(
-                $wpdb->prefix . 'superforms_trigger_actions',
+                $wpdb->prefix . 'superforms_automation_actions',
                 array(
                     'trigger_id'   => $trigger1_id,
                     'action_type'  => 'log_message',
@@ -309,7 +309,7 @@ class SUPER_Sandbox_Manager {
 
         // Trigger 2: Log entry creation
         $wpdb->insert(
-            $wpdb->prefix . 'superforms_triggers',
+            $wpdb->prefix . 'superforms_automations',
             array(
                 'trigger_name'    => 'Sandbox: Track Entry (' . $form_type . ')',
                 'event_id'        => 'entry.created',
@@ -327,7 +327,7 @@ class SUPER_Sandbox_Manager {
         if ($trigger2_id) {
             $trigger_ids[] = $trigger2_id;
             $wpdb->insert(
-                $wpdb->prefix . 'superforms_trigger_actions',
+                $wpdb->prefix . 'superforms_automation_actions',
                 array(
                     'trigger_id'   => $trigger2_id,
                     'action_type'  => 'log_message',
@@ -378,7 +378,7 @@ class SUPER_Sandbox_Manager {
         if (!empty($trigger_ids)) {
             $placeholders = implode(',', array_fill(0, count($trigger_ids), '%d'));
             $log_count = $wpdb->get_var($wpdb->prepare(
-                "SELECT COUNT(*) FROM {$wpdb->prefix}superforms_trigger_logs WHERE trigger_id IN ($placeholders)",
+                "SELECT COUNT(*) FROM {$wpdb->prefix}superforms_automation_logs WHERE trigger_id IN ($placeholders)",
                 ...$trigger_ids
             ));
         }
@@ -463,15 +463,15 @@ class SUPER_Sandbox_Manager {
 
         // Fire events and capture results
         $execution_results = array();
-        if (class_exists('SUPER_Trigger_Executor')) {
+        if (class_exists('SUPER_Automation_Executor')) {
             // Enable debug logging
             if (defined('WP_DEBUG') && WP_DEBUG) {
                 error_log("Sandbox: Firing form.submitted for form_id={$form_id}, entry_id={$entry_id}");
                 error_log("Sandbox: Context keys: " . implode(', ', array_keys($context)));
             }
 
-            $execution_results['form.submitted'] = SUPER_Trigger_Executor::fire_event('form.submitted', $context);
-            $execution_results['entry.created'] = SUPER_Trigger_Executor::fire_event('entry.created', $context);
+            $execution_results['form.submitted'] = SUPER_Automation_Executor::fire_event('form.submitted', $context);
+            $execution_results['entry.created'] = SUPER_Automation_Executor::fire_event('entry.created', $context);
 
             if (defined('WP_DEBUG') && WP_DEBUG) {
                 error_log("Sandbox: form.submitted result: " . print_r($execution_results['form.submitted'], true));
@@ -701,7 +701,7 @@ class SUPER_Sandbox_Manager {
     public static function get_logs_for_entry($entry_id) {
         global $wpdb;
         return $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM {$wpdb->prefix}superforms_trigger_logs WHERE entry_id = %d ORDER BY executed_at DESC",
+            "SELECT * FROM {$wpdb->prefix}superforms_automation_logs WHERE entry_id = %d ORDER BY executed_at DESC",
             $entry_id
         ), ARRAY_A);
     }
@@ -723,7 +723,7 @@ class SUPER_Sandbox_Manager {
         $placeholders = implode(',', array_fill(0, count($trigger_ids), '%d'));
 
         $logs = $wpdb->get_results($wpdb->prepare(
-            "SELECT * FROM {$wpdb->prefix}superforms_trigger_logs
+            "SELECT * FROM {$wpdb->prefix}superforms_automation_logs
              WHERE trigger_id IN ($placeholders)
              ORDER BY executed_at DESC
              LIMIT %d",
@@ -760,7 +760,7 @@ class SUPER_Sandbox_Manager {
         if (!empty($trigger_ids)) {
             $placeholders = implode(',', array_fill(0, count($trigger_ids), '%d'));
             $stats['logs_deleted'] = $wpdb->query($wpdb->prepare(
-                "DELETE FROM {$wpdb->prefix}superforms_trigger_logs WHERE trigger_id IN ($placeholders)",
+                "DELETE FROM {$wpdb->prefix}superforms_automation_logs WHERE trigger_id IN ($placeholders)",
                 ...$trigger_ids
             ));
         }
@@ -768,12 +768,12 @@ class SUPER_Sandbox_Manager {
         // Delete triggers
         foreach ($trigger_ids as $trigger_id) {
             $wpdb->delete(
-                $wpdb->prefix . 'superforms_trigger_actions',
+                $wpdb->prefix . 'superforms_automation_actions',
                 array('trigger_id' => $trigger_id),
                 array('%d')
             );
             $deleted = $wpdb->delete(
-                $wpdb->prefix . 'superforms_triggers',
+                $wpdb->prefix . 'superforms_automations',
                 array('id' => $trigger_id),
                 array('%d')
             );

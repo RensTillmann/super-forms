@@ -8,38 +8,39 @@
 
 Super Forms uses PHPUnit for automated testing with three main test suites:
 
-### Triggers and Actions Test Suite
+### Automation System Test Suite
 
-Location: `/tests/triggers/`
+Location: `/tests/automations/` (renamed from `/tests/triggers/`)
 
-**Purpose:** Tests the trigger/action extensibility system including event firing, action execution, spam detection, and integration features.
+**Purpose:** Tests automation system including event firing, action execution, spam detection, and integration features. Tests both legacy "trigger" terminology and new "automation" terminology.
 
 **Key Test Files:**
 - `test-event-firing.php` - Tests all 36 events fire correctly (form, entry, file, payment, session)
 - `test-spam-detector.php` - Tests 5 spam detection methods (honeypot, time, IP, keywords, Akismet)
-- `test-trigger-executor.php` - Tests trigger execution flow and condition evaluation
-- `test-trigger-scheduler.php` - Tests Action Scheduler integration for async execution
+- `test-automation-executor.php` - Tests automation execution flow and condition evaluation (renamed from `test-trigger-executor.php`)
+- `test-automation-scheduler.php` - Tests Action Scheduler integration for async execution (renamed from `test-trigger-scheduler.php`)
 - `test-logging-system.php` - Tests Logger, Debugger, Performance, Compliance classes
 - `test-api-security.php` - Tests Credentials, OAuth, Security, Permissions, API Keys
 - `test-session-dal.php` - Tests session storage for progressive forms
 - `test-session-cleanup.php` - Tests automated session cleanup (abandoned detection, expiration, event firing)
 - `test-entry-dal.php` - Tests entry CRUD and backwards compatibility
+- `test-terminology-migration.php` - Tests database migration from triggers to automations terminology
 
 **Run Tests:**
 ```bash
 # Via sync script (syncs code to dev server and runs tests)
-./sync-to-webserver.sh --test triggers
+./sync-to-webserver.sh --test automations
 
-# Or run all trigger tests
+# Or run all automation tests
 ./sync-to-webserver.sh --test
 
 # Via SSH on dev server
 ssh -p 18765 -i ~/.ssh/id_sftp u2669-dvgugyayggy5@gnldm1014.siteground.biz
 cd /home/u2669-dvgugyayggy5/www/f4d.nl/public_html/dev/wp-content/plugins/super-forms
-php vendor/bin/phpunit --testsuite "triggers"
+php vendor/bin/phpunit --testsuite "automations"
 ```
 
-**Documentation:** See `/tests/triggers/README.md` for detailed test coverage information.
+**Documentation:** See `/tests/automations/README.md` for detailed test coverage information.
 
 ### Integration Test Suite
 

@@ -465,8 +465,8 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			if ( $allowDeleteAny ) {
 				// Allowed to delete any entry
 				// Fire entry.deleted event before deletion (new trigger system)
-				if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
-					SUPER_Trigger_Executor::fire_event( 'entry.deleted', array(
+				if ( class_exists( 'SUPER_Automation_Executor' ) ) {
+					SUPER_Automation_Executor::fire_event( 'entry.deleted', array(
 						'entry_id'   => $entry_id,
 						'form_id'    => $form_id,
 						'deleted_by' => $current_user_id,
@@ -482,8 +482,8 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			if ( $allowDeleteOwn === true && absint( $entry->post_author ) === $current_user_id ) {
 				// Allowed to delete his own entry
 				// Fire entry.deleted event before deletion (new trigger system)
-				if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
-					SUPER_Trigger_Executor::fire_event( 'entry.deleted', array(
+				if ( class_exists( 'SUPER_Automation_Executor' ) ) {
+					SUPER_Automation_Executor::fire_event( 'entry.deleted', array(
 						'entry_id'   => $entry_id,
 						'form_id'    => $form_id,
 						'deleted_by' => $current_user_id,
@@ -1636,8 +1636,8 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			$form_id  = $entry ? absint( $entry->post_parent ) : 0;
 
 			// Fire entry.deleted event before deletion (new trigger system)
-			if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
-				SUPER_Trigger_Executor::fire_event( 'entry.deleted', array(
+			if ( class_exists( 'SUPER_Automation_Executor' ) ) {
+				SUPER_Automation_Executor::fire_event( 'entry.deleted', array(
 					'entry_id'   => $entry_id,
 					'form_id'    => $form_id,
 					'deleted_by' => get_current_user_id(),
@@ -3220,8 +3220,8 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 					// Check was disabled by the user, skip it
 				} else {
 					// Fire form.validation_failed event (new trigger system)
-					if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
-						SUPER_Trigger_Executor::fire_event( 'form.validation_failed', array(
+					if ( class_exists( 'SUPER_Automation_Executor' ) ) {
+						SUPER_Automation_Executor::fire_event( 'form.validation_failed', array(
 							'form_id' => absint( $_POST['form_id'] ),
 							'error_type' => 'csrf_expired',
 							'error_message' => esc_html__( 'Unable to submit form, session expired!', 'super-forms' ),
@@ -3310,8 +3310,8 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 					SUPER_Spam_Detector::log_detection( $form_id_for_spam, $spam_result, $spam_context );
 
 					// Fire form.spam_detected event
-					if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
-						$event_result = SUPER_Trigger_Executor::fire_event(
+					if ( class_exists( 'SUPER_Automation_Executor' ) ) {
+						$event_result = SUPER_Automation_Executor::fire_event(
 							'form.spam_detected',
 							array(
 								'form_id'          => $form_id_for_spam,
@@ -3377,8 +3377,8 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 					SUPER_Duplicate_Detector::log_detection( $form_id_for_dup, $dup_result, $dup_context );
 
 					// Fire form.duplicate_detected event
-					if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
-						$event_result = SUPER_Trigger_Executor::fire_event(
+					if ( class_exists( 'SUPER_Automation_Executor' ) ) {
+						$event_result = SUPER_Automation_Executor::fire_event(
 							'form.duplicate_detected',
 							array(
 								'form_id'           => $form_id_for_dup,
@@ -4664,8 +4664,8 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 						// Check file size
 						if ( $file['size'] > $maxFileSize ) {
 							// Fire file.upload_failed event (new trigger system)
-							if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
-								SUPER_Trigger_Executor::fire_event( 'file.upload_failed', array(
+							if ( class_exists( 'SUPER_Automation_Executor' ) ) {
+								SUPER_Automation_Executor::fire_event( 'file.upload_failed', array(
 									'form_id'       => $form_id,
 									'file_name'     => $file['name'],
 									'error_message' => sprintf( esc_html__( 'The file size exceeded the filesize limitation of %s MB.', 'super-forms' ), $fileSize ),
@@ -4733,8 +4733,8 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 						$filename      = $uploaded_file['file'];
 						if ( isset( $uploaded_file['error'] ) ) {
 							// Fire file.upload_failed event (new trigger system)
-							if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
-								SUPER_Trigger_Executor::fire_event( 'file.upload_failed', array(
+							if ( class_exists( 'SUPER_Automation_Executor' ) ) {
+								SUPER_Automation_Executor::fire_event( 'file.upload_failed', array(
 									'form_id'       => $form_id,
 									'file_name'     => $file['name'],
 									'error_message' => $uploaded_file['error'],
@@ -4781,8 +4781,8 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 							$data[ $fieldName ]['files'][ $k ]['attachment'] = $attachment_id;
 
 							// Fire file.uploaded event (new trigger system)
-							if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
-								SUPER_Trigger_Executor::fire_event( 'file.uploaded', array(
+							if ( class_exists( 'SUPER_Automation_Executor' ) ) {
+								SUPER_Automation_Executor::fire_event( 'file.uploaded', array(
 									'attachment_id' => $attachment_id,
 									'form_id' => $form_id,
 									'field_name' => $fieldName,
@@ -4918,8 +4918,8 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			$response_data = $sfsi['response_data'];
 
 			// Fire form.before_submit event (new trigger system)
-			if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
-				SUPER_Trigger_Executor::fire_event( 'form.before_submit', array(
+			if ( class_exists( 'SUPER_Automation_Executor' ) ) {
+				SUPER_Automation_Executor::fire_event( 'form.before_submit', array(
 					'form_id' => $form_id,
 					'raw_data' => $_POST,
 					'timestamp' => current_time( 'mysql' ),
@@ -5143,8 +5143,8 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				update_option( '_sfsi_' . $sfsi_id, $sfsi );
 
 				// Fire entry.created event (new trigger system)
-				if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
-					SUPER_Trigger_Executor::fire_event( 'entry.created', array(
+				if ( class_exists( 'SUPER_Automation_Executor' ) ) {
+					SUPER_Automation_Executor::fire_event( 'entry.created', array(
 						'entry_id' => $contact_entry_id,
 						'form_id' => $form_id,
 						'entry_status' => 'super_unread',
@@ -5232,8 +5232,8 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 					}
 					if ( $total > 1 ) { // If 2 entries found, it means the current created entry has the same title as an already existing entry
 						// Fire form.duplicate_detected event (new trigger system)
-						if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
-							SUPER_Trigger_Executor::fire_event( 'form.duplicate_detected', array(
+						if ( class_exists( 'SUPER_Automation_Executor' ) ) {
+							SUPER_Automation_Executor::fire_event( 'form.duplicate_detected', array(
 								'form_id' => $form_id,
 								'entry_id' => $contact_entry_id,
 								'duplicate_field' => 'entry_title',
@@ -5347,9 +5347,9 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				$result = SUPER_Data_Access::save_entry_data( $entry_id, $final_entry_data );
 
 				// Fire entry.updated and entry.saved events (new trigger system)
-				if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
+				if ( class_exists( 'SUPER_Automation_Executor' ) ) {
 					// entry.updated - specific to entry updates
-					SUPER_Trigger_Executor::fire_event( 'entry.updated', array(
+					SUPER_Automation_Executor::fire_event( 'entry.updated', array(
 						'entry_id' => $entry_id,
 						'form_id' => $form_id,
 						'entry_data' => $final_entry_data,
@@ -5358,7 +5358,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 					) );
 
 					// entry.saved - fires for both new and updated entries
-					SUPER_Trigger_Executor::fire_event( 'entry.saved', array(
+					SUPER_Automation_Executor::fire_event( 'entry.saved', array(
 						'entry_id' => $entry_id,
 						'form_id' => $form_id,
 						'entry_data' => $final_entry_data,
@@ -5405,8 +5405,8 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 					update_post_meta( $entry_id, '_super_contact_entry_status', $update_entry_status );
 
 					// Fire entry.status_changed event (new trigger system)
-					if ( class_exists( 'SUPER_Trigger_Executor' ) && $previous_status !== $update_entry_status ) {
-						SUPER_Trigger_Executor::fire_event( 'entry.status_changed', array(
+					if ( class_exists( 'SUPER_Automation_Executor' ) && $previous_status !== $update_entry_status ) {
+						SUPER_Automation_Executor::fire_event( 'entry.status_changed', array(
 							'entry_id' => $entry_id,
 							'form_id' => $form_id,
 							'previous_status' => $previous_status,
@@ -5444,8 +5444,8 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				SUPER_Data_Access::save_entry_data( $contact_entry_id, $final_entry_data );
 
 				// Fire entry.saved event for new entries (new trigger system)
-				if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
-					SUPER_Trigger_Executor::fire_event( 'entry.saved', array(
+				if ( class_exists( 'SUPER_Automation_Executor' ) ) {
+					SUPER_Automation_Executor::fire_event( 'entry.saved', array(
 						'entry_id' => $contact_entry_id,
 						'form_id' => $form_id,
 						'entry_data' => $final_entry_data,
@@ -6050,8 +6050,8 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 					if ( $session ) {
 						SUPER_Session_DAL::mark_completed( $session['id'], $contact_entry_id );
 						// Fire session.completed event
-						if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
-							SUPER_Trigger_Executor::fire_event( 'session.completed', array(
+						if ( class_exists( 'SUPER_Automation_Executor' ) ) {
+							SUPER_Automation_Executor::fire_event( 'session.completed', array(
 								'session_id'  => $session['id'],
 								'session_key' => $session_key,
 								'form_id'     => $form_id,
@@ -6072,8 +6072,8 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 							if ( ( isset( $v['files'] ) ) && ( count( $v['files'] ) != 0 ) ) {
 								foreach ( $v['files'] as $file ) {
 									// Fire file.deleted event before deletion (new trigger system)
-									if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
-										SUPER_Trigger_Executor::fire_event( 'file.deleted', array(
+									if ( class_exists( 'SUPER_Automation_Executor' ) ) {
+										SUPER_Automation_Executor::fire_event( 'file.deleted', array(
 											'attachment_id' => ! empty( $file['attachment'] ) ? absint( $file['attachment'] ) : null,
 											'form_id'       => $form_id,
 											'file_url'      => ! empty( $file['url'] ) ? $file['url'] : '',
@@ -6106,8 +6106,8 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 					( count( $data['_vcard']['files'] ) != 0 ) ) {
 						foreach ( $data['_vcard']['files'] as $file ) {
 							// Fire file.deleted event before deletion (new trigger system)
-							if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
-								SUPER_Trigger_Executor::fire_event( 'file.deleted', array(
+							if ( class_exists( 'SUPER_Automation_Executor' ) ) {
+								SUPER_Automation_Executor::fire_event( 'file.deleted', array(
 									'attachment_id' => ! empty( $file['attachment'] ) ? absint( $file['attachment'] ) : null,
 									'form_id'       => $form_id,
 									'file_url'      => ! empty( $file['url'] ) ? $file['url'] : '',
@@ -6244,8 +6244,8 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				// ══════════════════════════════════════════════════════════
 
 				// Fire form.submitted event (final event in submission flow)
-				if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
-					SUPER_Trigger_Executor::fire_event( 'form.submitted', array(
+				if ( class_exists( 'SUPER_Automation_Executor' ) ) {
+					SUPER_Automation_Executor::fire_event( 'form.submitted', array(
 						'form_id'   => $form_id,
 						'entry_id'  => isset( $contact_entry_id ) ? $contact_entry_id : null,
 						'sfsi_id'   => $sfsi_id,
@@ -8241,8 +8241,8 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 		$session = SUPER_Session_DAL::get( $session_id );
 
 		// Fire session.started event
-		if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
-			SUPER_Trigger_Executor::fire_event( 'session.started', array(
+		if ( class_exists( 'SUPER_Automation_Executor' ) ) {
+			SUPER_Automation_Executor::fire_event( 'session.started', array(
 				'form_id'     => $form_id,
 				'session_id'  => $session_id,
 				'session_key' => $session['session_key'],
@@ -8339,8 +8339,8 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 		}
 
 		// Fire session.auto_saved event
-		if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
-			SUPER_Trigger_Executor::fire_event( 'session.auto_saved', array(
+		if ( class_exists( 'SUPER_Automation_Executor' ) ) {
+			SUPER_Automation_Executor::fire_event( 'session.auto_saved', array(
 				'form_id'      => $form_id,
 				'session_id'   => $session['id'],
 				'session_key'  => $session_key,
@@ -8444,8 +8444,8 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 		) );
 
 		// Fire session.resumed event
-		if ( class_exists( 'SUPER_Trigger_Executor' ) ) {
-			SUPER_Trigger_Executor::fire_event( 'session.resumed', array(
+		if ( class_exists( 'SUPER_Automation_Executor' ) ) {
+			SUPER_Automation_Executor::fire_event( 'session.resumed', array(
 				'form_id'     => $session['form_id'],
 				'session_id'  => $session['id'],
 				'session_key' => $session_key,

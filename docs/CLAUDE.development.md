@@ -329,16 +329,16 @@ echo "Migration reset complete. Visit admin to trigger."
 - `src/assets/css/frontend/*.css` - CSS styles related to front-end UI
 - `src/assets/css/frontend/elements.sass` - Main frontend styles (compiled to CSS)
 
-### Trigger System Files (since 6.5.0)
+### Automation System Files (since 6.5.0)
 
 **Core Classes (Phase 1):**
-- `src/includes/class-trigger-dal.php` - Database abstraction layer with scope-aware queries
-- `src/includes/class-trigger-manager.php` - Business logic, validation, permissions
-- `src/includes/class-trigger-executor.php` - Event firing and action execution
-- `src/includes/class-trigger-conditions.php` - Complex condition evaluation (AND/OR/NOT)
-- `src/includes/class-trigger-rest-controller.php` - REST API endpoints (`/wp-json/super-forms/v1/`)
-- `src/includes/triggers/class-trigger-registry.php` - Central event/action registration (singleton)
-- `src/includes/triggers/class-trigger-action-base.php` - Abstract base class for custom actions
+- `src/includes/class-automation-dal.php` - Database abstraction layer with scope-aware queries (renamed from `class-trigger-dal.php`)
+- `src/includes/class-automation-manager.php` - Business logic, validation, permissions (renamed from `class-trigger-manager.php`)
+- `src/includes/class-automation-executor.php` - Event firing and action execution (renamed from `class-trigger-executor.php`)
+- `src/includes/class-automation-conditions.php` - Complex condition evaluation (AND/OR/NOT) (renamed from `class-trigger-conditions.php`)
+- `src/includes/class-automation-rest-controller.php` - REST API endpoints (`/wp-json/super-forms/v1/automations`) (renamed from `class-trigger-rest-controller.php`)
+- `src/includes/automations/class-automation-registry.php` - Central event/action registration (singleton) (renamed and moved)
+- `src/includes/automations/class-action-base.php` - Abstract base class for custom actions (renamed and moved)
 
 **Scheduler (Phase 2):**
 - `src/includes/class-trigger-scheduler.php` - Action Scheduler integration for async execution

@@ -426,8 +426,8 @@ class SUPER_Duplicate_Detector {
 	 */
 	public static function log_detection( $form_id, $result, $context = array() ) {
 		// Use trigger logger if available (singleton pattern)
-		if ( class_exists( 'SUPER_Trigger_Logger' ) ) {
-			$logger = SUPER_Trigger_Logger::instance();
+		if ( class_exists( 'SUPER_Automation_Logger' ) ) {
+			$logger = SUPER_Automation_Logger::instance();
 			$logger->info(
 				sprintf( 'Duplicate detected: %s', $result['method'] ),
 				array(

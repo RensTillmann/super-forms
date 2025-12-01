@@ -261,27 +261,27 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 include_once 'includes/class-developer-tools.php';
 
 		// Triggers/Actions System (Phase 1 + Phase 2)
-		include_once 'includes/class-trigger-dal.php';
-		include_once 'includes/triggers/class-trigger-action-base.php';
-		include_once 'includes/triggers/class-trigger-registry.php';
-		include_once 'includes/class-trigger-conditions.php';
-		include_once 'includes/class-trigger-manager.php';
-		include_once 'includes/class-trigger-scheduler.php'; // Phase 2: Action Scheduler integration
-		include_once 'includes/class-trigger-executor.php';
-		include_once 'includes/class-trigger-rest-controller.php';
+		include_once 'includes/class-automation-dal.php';
+		include_once 'includes/automations/class-action-base.php';
+		include_once 'includes/automations/class-automation-registry.php';
+		include_once 'includes/class-automation-conditions.php';
+		include_once 'includes/class-automation-manager.php';
+		include_once 'includes/class-automation-scheduler.php'; // Phase 2: Action Scheduler integration
+		include_once 'includes/class-automation-executor.php';
+		include_once 'includes/class-automation-rest-controller.php';
 
 		// Triggers/Actions System - Phase 3: Execution & Logging
-		include_once 'includes/class-trigger-logger.php';
-		include_once 'includes/class-trigger-debugger.php';
-		include_once 'includes/class-trigger-performance.php';
-		include_once 'includes/class-trigger-compliance.php';
+		include_once 'includes/class-automation-logger.php';
+		include_once 'includes/class-automation-debugger.php';
+		include_once 'includes/class-automation-performance.php';
+		include_once 'includes/class-automation-compliance.php';
 
 		// Triggers/Actions System - Phase 4: API Security & Credentials
-		include_once 'includes/class-trigger-credentials.php';
-		include_once 'includes/class-trigger-oauth.php';
-		include_once 'includes/class-trigger-security.php';
-		include_once 'includes/class-trigger-permissions.php';
-		include_once 'includes/class-trigger-api-keys.php';
+		include_once 'includes/class-automation-credentials.php';
+		include_once 'includes/class-automation-oauth.php';
+		include_once 'includes/class-automation-security.php';
+		include_once 'includes/class-automation-permissions.php';
+		include_once 'includes/class-automation-api-keys.php';
 
 		// Email System - Phase 11: Email to Triggers Migration
 		include_once 'includes/class-email-trigger-migration.php';
@@ -293,7 +293,7 @@ include_once 'includes/class-developer-tools.php';
 				include_once 'includes/class-settings.php';
 				include_once 'includes/class-shortcodes.php';
 				include_once 'includes/class-field-types.php';
-				include_once 'includes/admin/class-trigger-logs-page.php'; // Phase 3: Log viewer
+				include_once 'includes/admin/class-automation-logs-page.php'; // Phase 3: Log viewer
 				include_once 'includes/admin/class-entries-list-table.php'; // Phase 17: Custom entries list
 			}
 
@@ -355,7 +355,7 @@ include_once 'includes/class-developer-tools.php';
 			add_action( 'super_cleanup_expired_sessions', array( $this, 'super_cleanup_sessions_action' ) );
 			add_action( 'super_cleanup_expired_uploads', array( $this, 'super_cleanup_uploads_action' ) );
 			add_action( 'super_cleanup_old_serialized_data', array( $this, 'super_cleanup_serialized_action' ) );
-			add_action( 'super_scheduled_trigger_actions', array( $this, 'super_scheduled_trigger_actions' ) );
+			add_action( 'super_scheduled_automation_execution', array( 'SUPER_Automations', 'execute_scheduled_automation_actions' ) );
 			add_action( 'super_triggers_cleanup_logs', array( $this, 'super_triggers_cleanup_logs_action' ) );
 
 			add_action( 'plugins_loaded', array( $this, 'include_add_ons' ), 0 );
@@ -586,10 +586,6 @@ include_once 'includes/class-developer-tools.php';
 		SUPER_Common::cleanup_old_serialized_data();
 		do_action( 'super_client_data_cleanup' );
 	}
-		public static function super_scheduled_trigger_actions() {
-			require_once SUPER_PLUGIN_DIR . '/includes/class-triggers.php';
-			SUPER_Triggers::execute_scheduled_trigger_actions();
-		}
 	public static function super_client_data_register_garbage_collection() {
 		// Skip if Action Scheduler not available
 		if ( ! function_exists( 'as_has_scheduled_action' ) || ! function_exists( 'as_schedule_recurring_action' ) ) {
@@ -610,10 +606,7 @@ include_once 'includes/class-developer-tools.php';
 			as_schedule_recurring_action( time(), 5 * MINUTE_IN_SECONDS, 'super_cleanup_old_serialized_data', array(), 'super-forms-cleanup' );
 		}
 
-		// Keep super_scheduled_trigger_actions on WP-Cron for now
-		if ( ! wp_next_scheduled( 'super_scheduled_trigger_actions' ) ) {
-			wp_schedule_event( time(), 'every_minute', 'super_scheduled_trigger_actions' );
-		}
+		// Note: Automation execution is now handled purely by Action Scheduler
 	}
 
 	// Action handler for expired sessions cleanup
@@ -641,17 +634,17 @@ include_once 'includes/class-developer-tools.php';
 	}
 
 	// Action handler for trigger logs cleanup (Phase 3)
-	public static function super_triggers_cleanup_logs_action() {
+		public static function super_triggers_cleanup_logs_action() {
 		if ( defined( 'WP_SETUP_CONFIG' ) || defined( 'WP_INSTALLING' ) ) {
 			return;
 		}
 		// Use Logger's built-in cleanup which respects retention settings
-		if ( class_exists( 'SUPER_Trigger_Logger' ) ) {
-			SUPER_Trigger_Logger::instance()->cleanup_old_logs();
+		if ( class_exists( 'SUPER_Automation_Logger' ) ) {
+			SUPER_Automation_Logger::instance()->cleanup_old_logs();
 		}
 		// Also cleanup compliance audit logs via Compliance class
-		if ( class_exists( 'SUPER_Trigger_Compliance' ) ) {
-			SUPER_Trigger_Compliance::enforce_retention_policy();
+		if ( class_exists( 'SUPER_Automation_Compliance' ) ) {
+			SUPER_Automation_Compliance::enforce_retention_policy();
 		}
 	}
 
@@ -1849,7 +1842,7 @@ include_once 'includes/class-developer-tools.php';
 					url: ajaxurl,
 					type: "POST",
 					data: {
-						action: "super_trigger_cron_fallback",
+						action: "super_automation_cron_fallback",
 						nonce: "' . wp_create_nonce( 'super-form-builder' ) . '"
 					},
 					success: function(response) {
@@ -2618,7 +2611,6 @@ include_once 'includes/class-developer-tools.php';
 			if ( $current_screen->id === 'super-forms_page_super_create_form' ) {
 				add_action( 'super_create_form_builder_tab', array( 'SUPER_Pages', 'builder_tab' ), 10, 1 );
 				add_action( 'super_create_form_emails_tab', array( 'SUPER_Pages', 'emails_tab' ), 10, 1 );
-				add_action( 'super_create_form_emails_v2_tab', array( 'SUPER_Pages', 'emails_v2_tab' ), 10, 1 );
 				// add_action( 'super_create_form_settings_tab', array( 'SUPER_Pages', 'settings_tab' ), 10, 1 );
 				// add_action( 'super_create_form_theme_tab', array( 'SUPER_Pages', 'theme_tab' ), 10, 1 );
 				add_action( 'super_create_form_code_tab', array( 'SUPER_Pages', 'code_tab' ), 10, 1 );
@@ -3204,14 +3196,18 @@ include_once 'includes/class-developer-tools.php';
 						'screen'  => array( 'super-forms_page_super_create_form' ),
 						'method'  => 'enqueue',
 					),
-					// @since v7.0.0 - Emails v2 React app
-					'super-emails-v2'              => array(
-						'src'     => $backend_path . 'emails-v2.css',
+					// @since v7.0.0 - Admin React app (Emails tab, future: other tabs/pages)
+					'super-admin'              => array(
+						'src'     => $backend_path . 'admin.css',
 						'deps'    => '',
-						'version' => SUPER_VERSION,
+						// Use file modification time for cache busting in dev mode
+						'version' => ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ? filemtime( SUPER_PLUGIN_DIR . '/assets/css/backend/admin.css' ) : SUPER_VERSION,
 						'media'   => 'all',
 						'screen'  => array(
 							'super-forms_page_super_create_form',
+							// Future: add more screens as we expand admin React UI
+							// 'super-forms_page_super_settings',
+							// 'toplevel_page_super_forms',
 						),
 						'method'  => 'enqueue',
 					),
@@ -3537,13 +3533,19 @@ include_once 'includes/class-developer-tools.php';
 						'screen'  => array( 'super-forms_page_super_create_form' ),
 						'method'  => 'enqueue',
 					),
-					// @since v7.0.0 - Emails v2 React app
-					'super-emails-v2'            => array(
-						'src'     => $backend_path . 'emails-v2.js',
-						'deps'    => array( 'jquery' ),
-						'version' => SUPER_VERSION,
+					// @since v7.0.0 - Admin React app (Emails tab, future: other tabs/pages)
+					'super-admin'            => array(
+						'src'     => $backend_path . 'admin.js',
+						'deps'    => array(), // React bundled - no wp-element dependency needed
+						// Use file modification time for cache busting in dev mode
+						'version' => ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ? filemtime( SUPER_PLUGIN_DIR . '/assets/js/backend/admin.js' ) : SUPER_VERSION,
 						'footer'  => true,
-						'screen'  => array( 'super-forms_page_super_create_form' ),
+						'screen'  => array(
+							'super-forms_page_super_create_form',
+							// Future: add more screens as we expand admin React UI
+							// 'super-forms_page_super_settings',
+							// 'toplevel_page_super_forms',
+						),
 						'method'  => 'enqueue',
 					),
 					'super-settings'             => array(
@@ -4215,42 +4217,42 @@ include_once 'includes/class-developer-tools.php';
 		 */
 		public function init_triggers_system() {
 			// Initialize the registry singleton
-			$registry = SUPER_Trigger_Registry::get_instance();
+			$registry = SUPER_Automation_Registry::get_instance();
 
 			// Initialize the scheduler singleton (registers Action Scheduler hooks)
 			// This must be done after Action Scheduler is loaded
-			if ( SUPER_Trigger_Scheduler::is_available() ) {
-				SUPER_Trigger_Scheduler::get_instance();
+			if ( SUPER_Automation_Scheduler::is_available() ) {
+				SUPER_Automation_Scheduler::get_instance();
 
 				// Schedule log retention cleanup (daily)
 				$this->schedule_log_retention_cleanup();
 			}
 
 			// Initialize compliance system (creates audit table if needed)
-			if ( class_exists( 'SUPER_Trigger_Compliance' ) ) {
-				SUPER_Trigger_Compliance::init();
+			if ( class_exists( 'SUPER_Automation_Compliance' ) ) {
+				SUPER_Automation_Compliance::init();
 			}
 
 			// Phase 4: Initialize API Security singletons
 			// Security system - rate limiting and suspicious pattern detection
-			if ( class_exists( 'SUPER_Trigger_Security' ) ) {
-				SUPER_Trigger_Security::instance();
+			if ( class_exists( 'SUPER_Automation_Security' ) ) {
+				SUPER_Automation_Security::instance();
 			}
 
 			// OAuth system - handles OAuth callbacks
-			if ( class_exists( 'SUPER_Trigger_OAuth' ) ) {
-				SUPER_Trigger_OAuth::instance();
+			if ( class_exists( 'SUPER_Automation_OAuth' ) ) {
+				SUPER_Automation_OAuth::instance();
 			}
 
 			// API Keys system - AJAX handlers for key management
-			if ( class_exists( 'SUPER_Trigger_API_Keys' ) ) {
-				SUPER_Trigger_API_Keys::instance();
+			if ( class_exists( 'SUPER_Automation_API_Keys' ) ) {
+				SUPER_Automation_API_Keys::instance();
 			}
 
 			/**
 			 * Allow add-ons to register their events and actions
 			 *
-			 * @param SUPER_Trigger_Registry $registry Registry instance
+			 * @param SUPER_Automation_Registry $registry Registry instance
 			 * @since 6.5.0
 			 */
 			do_action( 'super_register_triggers', $registry );
@@ -4265,7 +4267,7 @@ include_once 'includes/class-developer-tools.php';
 		 */
 		private function schedule_log_retention_cleanup() {
 			$hook = 'super_triggers_cleanup_logs';
-			$group = SUPER_Trigger_Scheduler::GROUP;
+			$group = SUPER_Automation_Scheduler::GROUP;
 
 			// Check if already scheduled
 			$next_scheduled = as_next_scheduled_action( $hook, array(), $group );
@@ -4289,7 +4291,7 @@ include_once 'includes/class-developer-tools.php';
 		 * @since 6.5.0
 		 */
 		public function register_triggers_rest_routes() {
-			$controller = new SUPER_Trigger_REST_Controller();
+			$controller = new SUPER_Automation_REST_Controller();
 			$controller->register_routes();
 		}
 	}

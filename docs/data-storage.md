@@ -53,16 +53,17 @@ Individual form Settings are stored inside `wp_postmeta` table under the meta ke
 
 Individual form Elements are stored inside `wp_postmeta` table under the meta key `_super_elements`
 
-## Where are the form triggers stored?
+## Where are the automations stored?
 
 **Legacy Triggers (v6.4 and earlier):**
 Individual form Triggers are stored inside `wp_postmeta` table under the meta key `_super_triggers`
 
-**New Trigger System (v6.5.0+):**
-The extensible trigger/action system uses dedicated database tables:
-- `wp_superforms_triggers` - Trigger definitions with scope support (form/global/user/role)
-- `wp_superforms_trigger_actions` - Action configurations (1:N relationship with triggers)
-- `wp_superforms_trigger_logs` - Execution history and debugging logs
+**Automation System (v6.5.0+):**
+The extensible automation system uses dedicated database tables (renamed from triggers in Phase 26):
+- `wp_superforms_automations` - Automation definitions with workflow graph support (renamed from `wp_superforms_triggers`)
+- `wp_superforms_automation_actions` - Action configurations for code-based automations (renamed from `wp_superforms_trigger_actions`)
+- `wp_superforms_automation_logs` - Execution history and debugging logs (renamed from `wp_superforms_trigger_logs`)
+- `wp_superforms_automation_states` - Workflow state management for delayed/scheduled executions (renamed from `wp_superforms_workflow_states`)
 - `wp_superforms_compliance_audit` - GDPR audit trail and compliance logging
 - `wp_superforms_api_credentials` - Encrypted OAuth tokens and API credentials (AES-256-CBC)
 - `wp_superforms_api_keys` - API key management for external REST access
@@ -71,11 +72,11 @@ The extensible trigger/action system uses dedicated database tables:
 - `wp_superforms_entry_meta` - Entry system metadata (payment IDs, integration links, flags)
 
 **Key differences from legacy triggers:**
-- Scope-aware: Triggers can be form-specific, global, user-specific, or role-based
-- Complex conditions: AND/OR/NOT grouping with tag replacement
-- 20 built-in actions: email, webhook, HTTP request, post creation, redirects, and more
-- 34 registered events: form lifecycle, entry events, file events, payment events (Stripe/PayPal)
-- REST API: Full CRUD via `/wp-json/super-forms/v1/triggers`
+- Visual workflow builder: Node-based automation flows with drag-drop interface
+- Workflow storage: JSON graph structure in `workflow_graph` column for visual mode
+- Node categories: Triggers (events), Actions (tasks), Conditions (logic), Control (flow)
+- Dual execution modes: Visual (graph-based) and Code (action list)
+- REST API: Full CRUD via `/wp-json/super-forms/v1/automations` (renamed from `/v1/triggers`)
 - Payment webhooks: `/wp-json/super-forms/v1/webhooks/stripe` and `/webhooks/paypal`
 - Performance: Indexed queries optimized for high-volume execution
 - Security: Encrypted credential storage, OAuth 2.0 support, rate limiting
