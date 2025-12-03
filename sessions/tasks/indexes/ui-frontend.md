@@ -9,6 +9,7 @@ description: Tasks related to React admin UI, Tailwind CSS, shadcn/ui, and front
 ## Active Tasks
 
 ### High Priority
+- `h-research-form-builder-v2-architecture.md` - Architecture design for Form Builder V2 (data loading, state, undo/redo, AI, automations)
 
 ### Medium Priority
 - `m-docs-ui-style-guidelines.md` - Document React/Tailwind/shadcn-ui style system
