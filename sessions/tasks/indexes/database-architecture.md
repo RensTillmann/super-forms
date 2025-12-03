@@ -17,6 +17,7 @@ description: Tasks related to database structure, data storage, performance opti
 - `h-implement-automatic-background-migration/` - Automatic frictionless background migration using Action Scheduler with per-entry verification, self-healing, and zero user intervention
 - `h-implement-cron-fallback-system.md` - WP-Cron fallback system to ensure background jobs process even when WP-Cron fails (disabled, low-traffic, server issues), with auto-detection, async processing, and simple admin UI
 - `h-implement-triggers-actions-extensibility/` - Refactor triggers/actions with custom tables (`wp_super_triggers`, `wp_super_trigger_actions`), Action Scheduler integration, and registry pattern for add-on extensibility
+- `h-refactor-form-storage-cleanup.md` - Remove legacy post-based form storage (`super_form` post type) and migrate completely to custom table system (`wp_superforms_forms`) with REST API, DAL, and JSON Patch operations
 
 ### Medium Priority
 - `m-refactor-eav-migration-status-cache.md` - Cache EAV migration status to eliminate redundant get_option() calls across multiple methods
