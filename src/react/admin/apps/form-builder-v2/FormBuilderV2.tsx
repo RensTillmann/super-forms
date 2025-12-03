@@ -2367,7 +2367,7 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
       console.error('Error adding element:', error);
       setAutoSaveStatus('error');
     }
-  }, [dispatch, items, order]);
+  }, [addElement, setSelectedElements, items, order]);
 
   // Enhanced drag and drop handlers
   const handleDragStart = useCallback((e: React.DragEvent, element: any, isNew = false) => {
@@ -2439,7 +2439,7 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
     }
     
     handleDragEnd();
-  }, [draggedElement, order, dispatch, handleDragEnd]);
+  }, [draggedElement, order, addElement, reorderElements, handleDragEnd]);
 
   const handleAddElementAtPosition = (elementData: any, position: number) => {
     const newElement = {
@@ -2590,7 +2590,7 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
       }
     }
     setContextMenu(null);
-  }, [selectedElement, dispatch, handleDeleteElement, contextMenu]);
+  }, [selectedElement, handleDeleteElement, contextMenu]);
 
   // Additional handlers
   const handleDuplicateElement = () => {

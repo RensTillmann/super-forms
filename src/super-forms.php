@@ -3217,9 +3217,7 @@ include_once 'includes/class-developer-tools.php';
 						'media'   => 'all',
 						'screen'  => array(
 							'super-forms_page_super_create_form',
-							// Future: add more screens as we expand admin React UI
-							// 'super-forms_page_super_settings',
-							// 'toplevel_page_super_forms',
+							'super-forms_page_super_form_v2',
 						),
 						'method'  => 'enqueue',
 					),
@@ -3554,9 +3552,7 @@ include_once 'includes/class-developer-tools.php';
 						'footer'  => true,
 						'screen'  => array(
 							'super-forms_page_super_create_form',
-							// Future: add more screens as we expand admin React UI
-							// 'super-forms_page_super_settings',
-							// 'toplevel_page_super_forms',
+							'super-forms_page_super_form_v2',
 						),
 						'method'  => 'enqueue',
 					),
