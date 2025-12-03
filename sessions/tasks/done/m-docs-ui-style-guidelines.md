@@ -1,7 +1,7 @@
 ---
 name: m-docs-ui-style-guidelines
 branch: feature/h-implement-triggers-actions-extensibility
-status: pending
+status: completed
 created: 2025-12-03
 ---
 
@@ -20,12 +20,12 @@ This makes it difficult for AI assistants and developers to maintain UI consiste
 **Goal:** Create comprehensive UI documentation that CLAUDE.md can reference when working on React/Tailwind/shadcn-ui tasks.
 
 ## Success Criteria
-- [ ] Document color scheme from `styles/index.css` (light/dark modes)
-- [ ] Document shadcn/ui component patterns and usage
-- [ ] Document Tailwind v4 configuration and scoping approach
-- [ ] Create CLAUDE.ui.md (or similar) consolidating all UI guidelines
-- [ ] Update main CLAUDE.md to reference new UI documentation
-- [ ] Optionally: Create/update `building-wordpress-ui` skill
+- [x] Document color scheme from `styles/index.css` (light/dark modes)
+- [x] Document shadcn/ui component patterns and usage
+- [x] Document Tailwind v4 configuration and scoping approach
+- [x] Create CLAUDE.ui.md (or similar) consolidating all UI guidelines
+- [x] Update main CLAUDE.md to reference new UI documentation
+- [x] Create/update `building-wordpress-ui` skill
 
 ## Context Manifest
 <!-- Added by context-gathering agent -->
@@ -624,4 +624,36 @@ npm run typecheck      # Must pass all type checks
 - Components in `/src/react/admin/components/ui/`
 
 ## Work Log
-<!-- Updated as work progresses -->
+
+### 2025-12-03
+
+#### Completed
+- Created comprehensive `/docs/CLAUDE.ui.md` (1225 lines) covering:
+  - CSS scoping strategy for WordPress admin isolation
+  - Design tokens (colors, typography, spacing, shadows, animations)
+  - shadcn/ui component patterns and installation guide
+  - Icons (Lucide React only - critical rule)
+  - Component patterns (page layout, cards, tables, forms)
+  - UI state patterns (loading, empty, error, success states)
+  - Accessibility guidelines (labels, focus management, ARIA)
+  - Code quality guidelines and naming conventions
+  - WordPress integration patterns with REST API
+  - Common mistakes to avoid
+  - PR checklist for UI changes
+- Updated `/CLAUDE.md` Quick Navigation with UI documentation link
+- Cleaned up `.claude/skills/building-wordpress-ui/`:
+  - Deleted 16 outdated files referencing deprecated patterns (Preline UI, old class-based scoping, JS-based Tailwind config)
+  - Created focused `SKILL.md` (130 lines) as quick-start guide pointing to CLAUDE.ui.md
+  - Included component quick-reference, common icons, color tokens, and build commands
+- Applied code review improvements:
+  - Added note about custom components beyond shadcn/ui
+  - Added cross-references to CLAUDE.javascript.md and CLAUDE.php.md
+
+#### Decisions
+- Made CLAUDE.ui.md the single authoritative source for UI guidelines
+- Positioned SKILL.md as a quick-start reference, not a duplicate documentation source
+- Kept Context Manifest in task file as comprehensive research artifact (may be useful for future reference)
+
+## Next Steps
+- Task is complete and ready for review
+- Consider marking task status as "completed" when validated

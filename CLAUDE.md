@@ -5,6 +5,7 @@
 ## Quick Navigation
 
 - **[JavaScript & React](docs/CLAUDE.javascript.md)** - React admin UI, email builder, build workflow, TypeScript
+- **[UI Style Guidelines](docs/CLAUDE.ui.md)** - Tailwind CSS v4, shadcn/ui, design tokens, component patterns
 - **[PHP & WordPress](docs/CLAUDE.php.md)** - WordPress standards, security, coding conventions
 - **[Development & Deployment](docs/CLAUDE.development.md)** - Build commands, wp-env, server access
 - **[Testing & Quality](docs/CLAUDE.testing.md)** - Testing requirements, validation protocols

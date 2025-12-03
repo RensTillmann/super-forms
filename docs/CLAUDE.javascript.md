@@ -277,6 +277,8 @@ rollupOptions: {
 
 ### TypeScript Configuration
 
+**See Also:** For comprehensive UI development guidelines, design tokens, component patterns, and accessibility standards, refer to **[docs/CLAUDE.ui.md](CLAUDE.ui.md)**.
+
 **Tech Stack:**
 - TypeScript 5.3+ for type safety
 - Strict mode enabled (`strict: true`)
@@ -316,6 +318,8 @@ npm run typecheck -- --watch
 ```
 
 ### UI Stack: Tailwind v4 + shadcn/ui + Lucide Icons
+
+**See Also:** For complete UI guidelines including design tokens, component patterns, accessibility standards, and common mistakes, refer to **[docs/CLAUDE.ui.md](CLAUDE.ui.md)**.
 
 The React Admin UI uses a consistent component stack:
 

@@ -1876,6 +1876,8 @@ wp i18n update-po languages/super-forms.pot languages/
 
 ### Integration Pattern (v6.6.1+)
 
+**See Also:** For UI implementation patterns, component usage, and styling guidelines, refer to **[docs/CLAUDE.ui.md](CLAUDE.ui.md)**.
+
 When creating React-based admin pages in Super Forms, use WordPress REST API via `wp.apiFetch()` instead of custom AJAX handlers.
 
 **Benefits:**
