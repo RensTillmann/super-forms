@@ -824,15 +824,16 @@ pages/forms-list/
 ```
 
 **Data Flow:**
-1. PHP wrapper (`page-forms-list-react.php`) fetches data via `SUPER_Form_DAL`
+1. PHP wrapper (`page-forms-list-react.php`) fetches initial data via `SUPER_Form_DAL`
 2. Passes data to React via `window.sfuiData`
 3. React renders table with Tailwind CSS + shadcn/ui components
-4. Server-side actions handled via form submission (bulk actions)
+4. All user actions handled via WordPress REST API using `wp.apiFetch()`
 
 **Key Features:**
 - Real-time search filtering (client-side)
 - Status tabs with counts (All/Published/Draft/Archived)
-- Bulk actions (delete, archive, restore)
+- Bulk actions via REST API (delete, archive, restore)
+- Single form actions via REST API (duplicate, archive/restore, delete)
 - Entry count display per form
 - Shortcode copy-to-clipboard
 - Responsive design with Tailwind CSS
@@ -871,6 +872,113 @@ const filteredForms = forms.filter(form => {
   }
   return true;
 });
+```
+
+### WordPress REST API Integration
+
+The forms list page uses `wp.apiFetch()` for all form operations instead of custom AJAX handlers.
+
+**Setup Requirements:**
+```php
+// In page-forms-list-react.php - Enqueue with wp-api-fetch dependency
+wp_enqueue_script(
+    'super-forms-list',
+    SUPER_PLUGIN_FILE . 'assets/js/backend/forms-list.js',
+    array('wp-api-fetch'),  // Critical: Required for wp.apiFetch() global
+    SUPER_VERSION,
+    true
+);
+
+// Data passed to React (no ajaxUrl or nonce needed)
+$react_data = array(
+    'forms'         => $forms_data,
+    'statusCounts'  => $status_counts,
+    'currentStatus' => $current_status,
+    'searchQuery'   => $search_query,
+);
+```
+
+**REST API Endpoints Used:**
+```typescript
+// Bulk operations (delete, archive, restore)
+await wp.apiFetch({
+  path: '/super-forms/v1/forms/bulk',
+  method: 'POST',
+  data: {
+    operation: 'delete',
+    form_ids: [1, 2, 3]
+  }
+});
+
+// Delete single form
+await wp.apiFetch({
+  path: `/super-forms/v1/forms/${formId}`,
+  method: 'DELETE'
+});
+
+// Duplicate form
+await wp.apiFetch({
+  path: `/super-forms/v1/forms/${formId}/duplicate`,
+  method: 'POST'
+});
+
+// Archive/restore (via bulk endpoint)
+await wp.apiFetch({
+  path: '/super-forms/v1/forms/bulk',
+  method: 'POST',
+  data: {
+    operation: 'archive', // or 'restore'
+    form_ids: [formId]
+  }
+});
+```
+
+**Authentication & Security:**
+- WordPress REST API handles authentication automatically via cookies
+- CSRF protection automatic via REST API nonce system
+- No manual nonce verification required in JavaScript
+- `wp-api-fetch` dependency handles all security headers
+
+**Benefits vs Custom AJAX:**
+- Removed 90+ lines of custom AJAX handler code
+- WordPress standard authentication flow
+- Automatic CSRF protection
+- Better error handling via REST API response format
+- Consistent with WordPress admin patterns
+
+**Implementation Pattern (FormsList.tsx):**
+```tsx
+// Global type definition
+declare const wp: {
+  apiFetch: (options: {
+    path: string;
+    method?: string;
+    data?: any;
+  }) => Promise<any>;
+};
+
+// Handle bulk action
+const handleBulkAction = async (action: string) => {
+  setIsLoading(true);
+
+  try {
+    await wp.apiFetch({
+      path: '/super-forms/v1/forms/bulk',
+      method: 'POST',
+      data: {
+        operation: action,
+        form_ids: Array.from(selectedForms),
+      },
+    });
+
+    window.location.reload(); // Reload to refresh data
+  } catch (error) {
+    console.error('Bulk action error:', error);
+    alert('An error occurred. Please try again.');
+  } finally {
+    setIsLoading(false);
+  }
+};
 ```
 
 ## Visual Workflow Builder (Automations Tab)

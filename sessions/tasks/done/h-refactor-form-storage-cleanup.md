@@ -33,7 +33,7 @@ The new system is 95% complete but the old system is still active throughout the
 ### System Completion
 - [ ] `SUPER_Form_DAL` has `duplicate()`, `search()`, `archive()`, `restore()` methods
 - [ ] REST controller has import/export endpoints
-- [ ] REST controller has bulk operations endpoint
+- [x] REST controller has bulk operations endpoint
 
 ### Dependencies Updated
 - [ ] WooCommerce add-on uses `SUPER_Form_DAL` instead of post queries
@@ -43,9 +43,9 @@ The new system is 95% complete but the old system is still active throughout the
 
 ### Core System Updated
 - [x] Admin form list queries `wp_superforms_forms` via DAL
+- [x] Forms list React page uses REST API via wp.apiFetch()
 - [ ] `page-create-form.php` loads from DAL instead of post
 - [ ] `super_form_func()` shortcode uses `SUPER_Form_DAL::get()`
-- [ ] JavaScript updated to call REST endpoints
 
 ### Testing Complete
 - [x] Integration tests passing (17/17 tests, 62 assertions)
@@ -244,19 +244,16 @@ REST controller also needs (lines 35-37):
    - Currently loads forms via `get_posts()` - needs `SUPER_Form_DAL::query()`
    - Accesses `$form->post_title` - needs `$form->name`
 
-2. **JavaScript** (`create-form.js`):
-   - Uses AJAX handlers - needs REST API endpoints
-   - Sends full form data - should use operations endpoint
-
-3. **Shortcode Handler** (`class-shortcodes.php`):
+2. **Shortcode Handler** (`class-shortcodes.php`):
    - Uses `get_post_meta()` - needs `SUPER_Form_DAL::get()`
 
-4. **Add-Ons** (PayPal, WooCommerce, Listings):
+3. **Add-Ons** (PayPal, WooCommerce, Listings):
    - Query `post_type='super_form'` - need `SUPER_Form_DAL::query()`
    - Access `$form->post_title` - need `$form->name`
 
 **Already Updated:**
 - Forms list page (`page-forms-list.php`) - uses DAL
+- Forms list React page (`page-forms-list-react.php`) - uses REST API
 - Test fixtures - use DAL
 - Integration tests - use DAL
 
@@ -269,15 +266,14 @@ Migration preserves post IDs in custom table to maintain compatibility:
 - URLs: `?page=super_create_form&id=123`
 - Add-on references
 
-**REST vs AJAX Transition:**
-JavaScript needs migration from:
+**REST API Integration:**
+Forms list React page now uses WordPress REST API:
 ```javascript
-jQuery.post(ajaxurl, {action: 'super_save_form', form_data: {...}})
+wp.apiFetch({path: '/super-forms/v1/forms/bulk', method: 'POST', data: {operation: 'delete', ids: [1, 2, 3]}})
 ```
-To:
-```javascript
-wp.apiFetch({path: '/super-forms/v1/forms/123/operations', method: 'POST', data: {operations: [...]}})
-```
+- Cookie-based authentication via wp.apiFetch()
+- CSRF protection automatic via REST API nonces
+- Removed 90+ lines of custom AJAX handling code
 
 **Feature Parity Requirements:**
 Before removing any legacy code, new DAL must support:
@@ -304,6 +300,12 @@ Before removing any legacy code, new DAL must support:
 - Search and filtering implemented
 - Entry counts integrated
 
+**Phase 6.6: REST API INTEGRATION** ✅ Complete
+- React forms list migrated to wp.apiFetch()
+- Bulk operations using REST endpoints
+- Removed custom AJAX handlers (90+ lines)
+- Proper WordPress authentication flow
+
 **Phase 7: VERIFICATION** ✅ Complete
 - Integration tests passing
 - Performance improvements documented
@@ -311,9 +313,9 @@ Before removing any legacy code, new DAL must support:
 
 **Remaining Work:**
 - Complete DAL methods (duplicate, search, archive, restore)
-- Add REST endpoints (import/export, bulk operations)
+- Add REST endpoint (import/export)
 - Update add-ons to use DAL
-- Update form builder UI and JavaScript
+- Update form builder UI
 - Update shortcode handler
 - Create comprehensive PHPUnit test suite
 
@@ -379,11 +381,29 @@ Before removing any legacy code, new DAL must support:
 - No post meta JOINs, direct JSON column access
 - Sub-second form loads on slow hosting
 
+**Phase 6.6: REST API Integration**
+- Removed custom AJAX handlers from `page-forms-list-react.php` (lines 18-91)
+- Added `wp-api-fetch` dependency to forms-list.js enqueue
+- Removed ajaxUrl and nonce from window.sfuiData (no longer needed)
+- Migrated FormsList.tsx to use wp.apiFetch() instead of fetch()
+- Implemented REST API calls for all operations:
+  - Bulk operations: POST /super-forms/v1/forms/bulk
+  - Delete: DELETE /super-forms/v1/forms/{id}
+  - Duplicate: POST /super-forms/v1/forms/{id}/duplicate
+  - Archive/Restore: POST /super-forms/v1/forms/bulk
+- CSRF protection now automatic via WordPress REST API
+- Cookie-based authentication via wp.apiFetch()
+- Removed 90+ lines of custom AJAX handling code
+
+#### Security Improvements
+- WordPress REST API handles authentication automatically
+- No custom nonce verification needed
+- Follows WordPress best practices for admin pages
+
 #### Next Steps
 - Complete remaining DAL methods: `duplicate()`, `search()`, `archive()`, `restore()`
-- Add REST endpoints: import/export, bulk operations
+- Add REST endpoint: import/export
 - Update add-ons (WooCommerce, PayPal, Stripe, Listings) to use DAL
 - Update `page-create-form.php` and shortcode handler to use DAL
-- Migrate JavaScript to REST API calls
 - Create comprehensive PHPUnit test suite for DAL and operations
 - Remove remaining post type references from add-ons

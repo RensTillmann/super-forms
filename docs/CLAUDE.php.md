@@ -1147,13 +1147,19 @@ $title = SUPER_Common::get_form_title($form_id);
   - Modern UI with Tailwind CSS and shadcn/ui components
   - Real-time search across form names
   - Status filters with counts (All/Published/Draft/Archived)
-  - Bulk actions (delete, archive, restore)
+  - Bulk actions via REST API (delete, archive, restore)
+  - Single form actions via REST API (duplicate, archive/restore, delete)
   - Entry count display per form
   - Responsive design
 - Performance:
   - Uses `SUPER_Form_DAL::count()` for optimized status counts
   - Single query with JOIN for entry counts (vs N+1 queries)
   - 60-70% reduction in database queries vs legacy implementation
+- Architecture:
+  - REST API integration using `wp.apiFetch()` instead of custom AJAX
+  - WordPress standard authentication via cookies (automatic)
+  - No custom nonce handling required
+  - See [CLAUDE.javascript.md - Forms List Page](docs/CLAUDE.javascript.md#forms-list-page-react--tailwind-css)
 
 **Create/Edit Forms:**
 - Create: `admin.php?page=super_create_form`
@@ -1865,6 +1871,112 @@ wp i18n make-pot . languages/super-forms.pot
 # Update PO files
 wp i18n update-po languages/super-forms.pot languages/
 ```
+
+## React Admin Pages with REST API
+
+### Integration Pattern (v6.6.1+)
+
+When creating React-based admin pages in Super Forms, use WordPress REST API via `wp.apiFetch()` instead of custom AJAX handlers.
+
+**Benefits:**
+- WordPress standard authentication (automatic via cookies)
+- CSRF protection built into REST API nonce system
+- Cleaner code (no custom AJAX handler boilerplate)
+- Better error handling via REST API response format
+- Consistent with WordPress admin patterns
+
+**PHP Side - Script Enqueue:**
+```php
+// In admin page view file (e.g., page-forms-list-react.php)
+
+// Enqueue React app with wp-api-fetch dependency
+wp_enqueue_script(
+    'super-forms-list',
+    SUPER_PLUGIN_FILE . 'assets/js/backend/forms-list.js',
+    array('wp-api-fetch'),  // CRITICAL: Required for wp.apiFetch() global
+    SUPER_VERSION,
+    true
+);
+
+// Pass initial data to React (no ajaxUrl or nonce needed)
+$react_data = array(
+    'forms'         => $forms_data,
+    'statusCounts'  => $status_counts,
+    'currentStatus' => $current_status,
+);
+
+// Render mount point
+?>
+<div class="wrap">
+    <div id="sfui-admin-root"></div>
+    <script>
+        window.sfuiData = <?php echo wp_json_encode($react_data); ?>;
+    </script>
+</div>
+```
+
+**TypeScript Side - Type Definition:**
+```typescript
+// In React component or types/global.d.ts
+declare const wp: {
+  apiFetch: (options: {
+    path: string;
+    method?: string;
+    data?: any;
+  }) => Promise<any>;
+};
+```
+
+**TypeScript Side - API Calls:**
+```typescript
+// Bulk operations
+await wp.apiFetch({
+  path: '/super-forms/v1/forms/bulk',
+  method: 'POST',
+  data: {
+    operation: 'delete',
+    form_ids: [1, 2, 3]
+  }
+});
+
+// Single resource operation
+await wp.apiFetch({
+  path: `/super-forms/v1/forms/${formId}`,
+  method: 'DELETE'
+});
+```
+
+**What NOT to Do:**
+```php
+// ❌ BAD - Custom AJAX handler (old pattern)
+wp_localize_script('my-script', 'myData', array(
+    'ajaxUrl' => admin_url('admin-ajax.php'),
+    'nonce' => wp_create_nonce('my-action')
+));
+
+// In class-ajax.php
+public static function my_custom_handler() {
+    check_ajax_referer('my-action', 'nonce');
+    // 90+ lines of boilerplate...
+}
+```
+
+```typescript
+// ❌ BAD - Custom fetch() call with manual nonce
+fetch(myData.ajaxUrl, {
+  method: 'POST',
+  body: new FormData({
+    action: 'my_action',
+    nonce: myData.nonce,
+    data: JSON.stringify(data)
+  })
+});
+```
+
+**Reference Implementation:**
+- PHP: `/src/includes/admin/views/page-forms-list-react.php`
+- React: `/src/react/admin/pages/forms-list/FormsList.tsx`
+- See [CLAUDE.javascript.md - Forms List Page](docs/CLAUDE.javascript.md#forms-list-page-react--tailwind-css)
 
 ## WordPress REST API
 

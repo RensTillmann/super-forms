@@ -237,10 +237,10 @@ if ( ! class_exists( 'SUPER_Form_REST_Controller' ) ) :
 				)
 			);
 
-			// Bulk operations
+			// Bulk operations - RESTful endpoints per operation
 			register_rest_route(
 				$this->namespace,
-				'/forms/bulk',
+				'/forms/bulk/(?P<operation>delete|archive|restore|duplicate)',
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( $this, 'bulk_operations' ),
@@ -249,19 +249,15 @@ if ( ! class_exists( 'SUPER_Form_REST_Controller' ) ) :
 						'operation' => array(
 							'required'          => true,
 							'type'              => 'string',
-							'description'       => 'Bulk operation type: delete, archive, restore, change_status',
+							'description'       => 'Bulk operation type from URL',
 							'validate_callback' => function ( $param ) {
-								return in_array( $param, array( 'delete', 'archive', 'restore', 'change_status' ), true );
+								return in_array( $param, array( 'delete', 'archive', 'restore', 'duplicate' ), true );
 							},
 						),
 						'form_ids' => array(
 							'required'    => true,
 							'type'        => 'array',
-							'description' => 'Array of form IDs',
-						),
-						'status' => array(
-							'type'        => 'string',
-							'description' => 'New status for change_status operation',
+							'description' => 'Array of form IDs to operate on',
 						),
 					),
 				)
@@ -773,6 +769,10 @@ if ( ! class_exists( 'SUPER_Form_REST_Controller' ) ) :
 
 					case 'restore':
 						$result = SUPER_Form_DAL::restore( $form_id );
+						break;
+
+					case 'duplicate':
+						$result = SUPER_Form_DAL::duplicate( $form_id );
 						break;
 
 					case 'change_status':

@@ -3,6 +3,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Search, Plus, MoreHorizontal, Copy, Archive, ArchiveRestore, Trash2, FileText } from 'lucide-react';
 
+// WordPress REST API global
+declare const wp: {
+  apiFetch: (options: {
+    path: string;
+    method?: string;
+    data?: any;
+  }) => Promise<any>;
+};
+
 interface Form {
   id: number;
   name: string;
@@ -23,8 +32,6 @@ interface FormsListProps {
   };
   currentStatus: string;
   searchQuery: string;
-  ajaxUrl: string;
-  nonce: string;
 }
 
 export function FormsList({
@@ -32,8 +39,6 @@ export function FormsList({
   statusCounts: initialStatusCounts,
   currentStatus: initialStatus,
   searchQuery: initialSearch,
-  ajaxUrl,
-  nonce,
 }: FormsListProps) {
   const [forms, setForms] = useState<Form[]>(initialForms);
   const [statusCounts, setStatusCounts] = useState(initialStatusCounts);
@@ -87,7 +92,7 @@ export function FormsList({
     setSelectedForms(newSelected);
   };
 
-  // Handle bulk action
+  // Handle bulk action using REST API
   const handleBulkAction = async (action: string) => {
     if (selectedForms.size === 0) {
       alert('Please select at least one form.');
@@ -102,22 +107,16 @@ export function FormsList({
 
     setIsLoading(true);
 
-    const formData = new FormData();
-    formData.append('action', action);
-    formData.append('_wpnonce', nonce);
-    selectedForms.forEach((id) => formData.append('form_ids[]', id.toString()));
-
     try {
-      const response = await fetch(ajaxUrl, {
+      await wp.apiFetch({
+        path: `/super-forms/v1/forms/bulk/${action}`,
         method: 'POST',
-        body: formData,
+        data: {
+          form_ids: Array.from(selectedForms),
+        },
       });
 
-      if (response.ok) {
-        window.location.reload();
-      } else {
-        alert('An error occurred. Please try again.');
-      }
+      window.location.reload();
     } catch (error) {
       console.error('Bulk action error:', error);
       alert('An error occurred. Please try again.');
@@ -126,7 +125,7 @@ export function FormsList({
     }
   };
 
-  // Handle single form action
+  // Handle single form action using REST API
   const handleFormAction = async (formId: number, action: string) => {
     if (action === 'delete') {
       if (!confirm('Are you sure you want to delete this form?')) {
@@ -136,22 +135,25 @@ export function FormsList({
 
     setIsLoading(true);
 
-    const formData = new FormData();
-    formData.append('action', action);
-    formData.append('form_id', formId.toString());
-    formData.append('_wpnonce', nonce);
-
     try {
-      const response = await fetch(ajaxUrl, {
-        method: 'POST',
-        body: formData,
-      });
-
-      if (response.ok) {
-        window.location.reload();
+      if (action === 'delete') {
+        // Use dedicated DELETE endpoint for single form
+        await wp.apiFetch({
+          path: `/super-forms/v1/forms/${formId}`,
+          method: 'DELETE',
+        });
       } else {
-        alert('An error occurred. Please try again.');
+        // Use bulk endpoint for other operations (duplicate, archive, restore)
+        await wp.apiFetch({
+          path: `/super-forms/v1/forms/bulk/${action}`,
+          method: 'POST',
+          data: {
+            form_ids: [formId],
+          },
+        });
       }
+
+      window.location.reload();
     } catch (error) {
       console.error('Form action error:', error);
       alert('An error occurred. Please try again.');

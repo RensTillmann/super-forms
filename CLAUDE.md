@@ -96,6 +96,13 @@ Super Forms is a WordPress drag & drop form builder plugin.
   - `/src/assets/js/backend/forms-list.js` (forms list page)
   - `/src/assets/css/backend/admin.css` (shared styles)
 
+**REST API Integration Pattern:**
+- Use `wp.apiFetch()` for all admin page operations
+- Enqueue scripts with `array('wp-api-fetch')` dependency
+- Authentication automatic via WordPress cookies
+- No custom AJAX handlers needed
+- See [docs/CLAUDE.php.md - React Admin Pages with REST API](docs/CLAUDE.php.md#react-admin-pages-with-rest-api)
+
 **Build Commands:**
 ```bash
 cd /home/rens/super-forms/src/react/admin

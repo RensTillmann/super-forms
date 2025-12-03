@@ -15,82 +15,8 @@ if ( ! current_user_can( 'manage_options' ) ) {
     wp_die( esc_html__( 'You do not have sufficient permissions to access this page.', 'super-forms' ) );
 }
 
-// Handle bulk actions (server-side processing)
-if ( isset( $_POST['action'] ) && check_admin_referer( 'bulk-forms' ) ) {
-    $action = sanitize_text_field( $_POST['action'] );
-    $form_ids = isset( $_POST['form_ids'] ) ? array_map( 'absint', $_POST['form_ids'] ) : array();
-
-    if ( ! empty( $form_ids ) ) {
-        $deleted = 0;
-        $errors = array();
-
-        foreach ( $form_ids as $form_id ) {
-            switch ( $action ) {
-                case 'delete':
-                    $result = SUPER_Form_DAL::delete( $form_id );
-                    if ( is_wp_error( $result ) ) {
-                        $errors[] = sprintf( 'Form #%d: %s', $form_id, $result->get_error_message() );
-                    } else {
-                        $deleted++;
-                    }
-                    break;
-
-                case 'archive':
-                    $result = SUPER_Form_DAL::update( $form_id, array( 'status' => 'archived' ) );
-                    if ( is_wp_error( $result ) ) {
-                        $errors[] = sprintf( 'Form #%d: %s', $form_id, $result->get_error_message() );
-                    } else {
-                        $deleted++;
-                    }
-                    break;
-
-                case 'restore':
-                    $result = SUPER_Form_DAL::update( $form_id, array( 'status' => 'publish' ) );
-                    if ( is_wp_error( $result ) ) {
-                        $errors[] = sprintf( 'Form #%d: %s', $form_id, $result->get_error_message() );
-                    } else {
-                        $deleted++;
-                    }
-                    break;
-            }
-        }
-
-        // Redirect with success message
-        if ( $deleted > 0 ) {
-            $message = sprintf( '%d form(s) processed successfully.', $deleted );
-            wp_redirect( add_query_arg( array( 'message' => 'success' ), remove_query_arg( array( 'action', 'form_ids', '_wpnonce' ) ) ) );
-            exit;
-        }
-    }
-}
-
-// Handle single form actions
-if ( isset( $_GET['action'] ) && isset( $_GET['form_id'] ) && check_admin_referer( 'form-action' ) ) {
-    $action = sanitize_text_field( $_GET['action'] );
-    $form_id = absint( $_GET['form_id'] );
-
-    switch ( $action ) {
-        case 'delete':
-            SUPER_Form_DAL::delete( $form_id );
-            wp_redirect( remove_query_arg( array( 'action', 'form_id', '_wpnonce' ) ) );
-            exit;
-
-        case 'duplicate':
-            SUPER_Form_DAL::duplicate( $form_id );
-            wp_redirect( remove_query_arg( array( 'action', 'form_id', '_wpnonce' ) ) );
-            exit;
-
-        case 'archive':
-            SUPER_Form_DAL::update( $form_id, array( 'status' => 'archived' ) );
-            wp_redirect( remove_query_arg( array( 'action', 'form_id', '_wpnonce' ) ) );
-            exit;
-
-        case 'restore':
-            SUPER_Form_DAL::update( $form_id, array( 'status' => 'publish' ) );
-            wp_redirect( remove_query_arg( array( 'action', 'form_id', '_wpnonce' ) ) );
-            exit;
-    }
-}
+// All form actions now handled via REST API endpoints
+// No server-side POST/GET processing needed
 
 // Get current status filter
 $current_status = isset( $_GET['status'] ) ? sanitize_text_field( $_GET['status'] ) : 'all';
@@ -163,20 +89,19 @@ $forms_data = array_map( function( $form ) {
 }, $forms );
 
 // Prepare data for React
+// Note: REST API authentication handled automatically via wp.apiFetch()
 $react_data = array(
     'forms'         => $forms_data,
     'statusCounts'  => $status_counts,
     'currentStatus' => $current_status,
     'searchQuery'   => $search_query,
-    'ajaxUrl'       => admin_url( 'admin.php?page=super_forms_list' ),
-    'nonce'         => wp_create_nonce( 'bulk-forms' ),
 );
 
-// Enqueue React app
+// Enqueue React app with wp-api-fetch dependency
 wp_enqueue_script(
     'super-forms-list',
     SUPER_PLUGIN_FILE . 'assets/js/backend/forms-list.js',
-    array(),
+    array('wp-api-fetch'),
     SUPER_VERSION,
     true
 );
