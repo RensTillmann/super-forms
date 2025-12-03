@@ -1104,7 +1104,6 @@ function SUPERreCaptcha(){
         if(args.form_id) args.formData.append('form_id', args.form_id);
         if(args.entry_id) args.formData.append('entry_id', args.entry_id);
         if(args.list_id) args.formData.append('list_id', args.list_id);
-        if(args.sf_nonce) args.formData.append('sf_nonce', args.sf_nonce);
         $.ajax({
             type: 'post',
             url: super_common_i18n.ajaxurl,
@@ -1132,38 +1131,15 @@ function SUPERreCaptcha(){
                 if(result.error===true){
                     // If session expired, retry
                     if(result.type==='session_expired'){
-                        // Generate new nonce
-                        $.ajax({
-                            url: super_common_i18n.ajaxurl,
-                            type: 'post',
-                            data: {
-                                action: 'super_create_nonce'
-                            },
-                            success: function (nonce) {
-                                // Update new nonce
-                                args.sf_nonce = nonce.trim();
-                                args.form0.querySelector('input[name="sf_nonce"]').value = nonce.trim();
-                            },
-                            complete: function(){
-                                SUPER.upload_files(args, callback);
-                            },
-                            error: function (xhr, ajaxOptions, thrownError) {
-                                // eslint-disable-next-line no-console
-                                console.log(xhr, ajaxOptions, thrownError);
-                                alert('Could not generate nonce');
-                            }
-                        });
+                        SUPER.upload_files(args, callback);
                     }else{
                         // Display error message
                         SUPER.form_submission_finished(args, result);
                     }
                 }else{
                     var i, uploadedFiles, updateHtml=[], html=[], activeFiles, fieldWrapper, filesWrapper, field,
-                        file, 
+                        file,
                         files = result.files;
-                    // Update nonce
-                    args.sf_nonce = result.sf_nonce;
-                    args.form0.querySelector('input[name="sf_nonce"]').value = result.sf_nonce.trim();
                     Object.keys(files).forEach(function(fieldName) {
                         activeFiles = args.form0.querySelector('.super-active-files[name="'+fieldName+'"]');
                         if(!activeFiles) return true; // continue to next field
@@ -4940,8 +4916,7 @@ function SUPERreCaptcha(){
                                     form_id: formData.form_id,
                                     entry_id: formData.entry_id,
                                     list_id: formData.list_id,
-                                    oldHtml: oldHtml,
-                                    sf_nonce: formData.sf_nonce
+                                    oldHtml: oldHtml
                                 };
                                 args.callback = function(){
                                     SUPER.complete_submit(args);
@@ -5789,47 +5764,15 @@ function SUPERreCaptcha(){
             $list_id = $form.find('input[name="hidden_list_id"]').val();
         }
 
-        if(createNonce===false){
-            if(typeof callback === 'function'){
-                callback({
-                    data:$data, 
-                    form_id:$form_id, 
-                    entry_id:$entry_id, 
-                    list_id:$list_id,
-                    sf_nonce: $form.find('input[name="sf_nonce"]').val()
-                });
-            }
-            return;
+        // Nonce no longer used - CSRF uses Origin/Referer check
+        if(typeof callback === 'function'){
+            callback({
+                data:$data,
+                form_id:$form_id,
+                entry_id:$entry_id,
+                list_id:$list_id
+            });
         }
-
-        // Generate new nonce
-        $.ajax({
-            url: super_common_i18n.ajaxurl,
-            type: 'post',
-            data: {
-                action: 'super_create_nonce'
-            },
-            success: function (nonce) {
-                // Update new nonce
-                $form.find('input[name="sf_nonce"]').val(nonce.trim());
-            },
-            complete: function(){
-                if(typeof callback === 'function'){
-                    callback({
-                        data:$data, 
-                        form_id:$form_id, 
-                        entry_id:$entry_id, 
-                        list_id:$list_id,
-                        sf_nonce: $form.find('input[name="sf_nonce"]').val()
-                    });
-                }
-            },
-            error: function (xhr, ajaxOptions, thrownError) {
-                // eslint-disable-next-line no-console
-                console.log(xhr, ajaxOptions, thrownError);
-                alert('Could not generate nonce');
-            }
-        });
 
     };
 
@@ -12482,7 +12425,6 @@ function SUPERreCaptcha(){
         if(args.form_id) formData.append('form_id', args.form_id);
         if(args.entry_id) formData.append('entry_id', args.entry_id);
         if(args.list_id) formData.append('list_id', args.list_id);
-        if(args.sf_nonce) formData.append('sf_nonce', args.sf_nonce);
         if(args.token) formData.append('token', args.token);
         if(args.version) formData.append('version', args.version);
         if(args.data) formData.append('data', JSON.stringify(args.data));
@@ -12515,38 +12457,12 @@ function SUPERreCaptcha(){
                 if(result.error===true){
                     // If session expired, retry
                     if(result.type==='session_expired'){
-                        // Generate new nonce
-                        $.ajax({
-                            url: super_common_i18n.ajaxurl,
-                            type: 'post',
-                            data: {
-                                action: 'super_create_nonce'
-                            },
-                            success: function (nonce) {
-                                // Update new nonce
-                                args.sf_nonce = nonce.trim();
-                                args.form0.querySelector('input[name="sf_nonce"]').value = nonce.trim();
-                            },
-                            complete: function(){
-                                SUPER.save_data(args);
-                            },
-                            error: function (xhr, ajaxOptions, thrownError) {
-                                // eslint-disable-next-line no-console
-                                console.log(xhr, ajaxOptions, thrownError);
-                                alert('Could not generate nonce');
-                            }
-                        });
-
-
+                        SUPER.save_data(args);
                     }else{
                         // Display error message
                         SUPER.form_submission_finished(args, result);
                     }
                 }else{
-                    // Update new nonce
-                    if(result.response_data && result.response_data.sf_nonce){
-                        args.form0.querySelector('input[name="sf_nonce"]').value = result.response_data.sf_nonce;
-                    }
                     // Clear form progression (if enabled)
                     if( args.form[0].classList.contains('super-save-progress') ) {
                         SUPER.save_form_progress_request('', args.form_id);

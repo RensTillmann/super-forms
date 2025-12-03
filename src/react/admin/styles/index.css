@@ -1,0 +1,308 @@
+/* ==========================================================================
+   SFUI Admin - Main Stylesheet
+   Root-level CSS for all React-powered admin UI
+
+   IMPORTANT: CSS is scoped to #sfui-admin-root to prevent Tailwind's preflight
+   from breaking WordPress admin UI (sidebar, top bar, notices).
+   ========================================================================== */
+
+/* Tailwind v4 - theme and utilities only (no global preflight reset) */
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
+
+/* Makes hover work consistently on all devices */
+@custom-variant hover (&:hover);
+
+/* ==========================================================================
+   shadcn/ui Theme Variables
+   On :root since this CSS is only loaded on Super Forms admin pages
+   ========================================================================== */
+
+:root {
+  /* Z-index for Radix UI modals/popovers - must be higher than WP admin bar (99999) */
+  --z-overlay: 100000;
+
+  --background: hsl(210.0000 40.0000% 98.0392%);
+  --foreground: hsl(217.2414 32.5843% 17.4510%);
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(217.2414 32.5843% 17.4510%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(217.2414 32.5843% 17.4510%);
+  --primary: hsl(175.0198 181.4518% 26.0563%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(220 13.0435% 90.9804%);
+  --secondary-foreground: hsl(216.9231 19.1176% 26.6667%);
+  --muted: hsl(220.0000 14.2857% 95.8824%);
+  --muted-foreground: hsl(220 8.9362% 46.0784%);
+  --accent: hsl(209.9994 40.5528% 96.0495%);
+  --accent-foreground: hsl(216.9231 19.1176% 26.6667%);
+  --destructive: hsl(0 84.2365% 60.1961%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: hsl(216.0000 12.1951% 83.9216%);
+  --input: hsl(216.0000 12.1951% 83.9216%);
+  --ring: hsl(175.0198 181.4518% 26.0563%);
+  --chart-1: hsl(238.7324 83.5294% 66.6667%);
+  --chart-2: hsl(243.3962 75.3555% 58.6275%);
+  --chart-3: hsl(244.5205 57.9365% 50.5882%);
+  --chart-4: hsl(243.6522 54.5024% 41.3725%);
+  --chart-5: hsl(242.1687 47.4286% 34.3137%);
+  --sidebar: hsl(220.0000 14.2857% 95.8824%);
+  --sidebar-foreground: hsl(217.2414 32.5843% 17.4510%);
+  --sidebar-primary: hsl(238.7324 83.5294% 66.6667%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(226.4516 100% 93.9216%);
+  --sidebar-accent-foreground: hsl(216.9231 19.1176% 26.6667%);
+  --sidebar-border: hsl(216.0000 12.1951% 83.9216%);
+  --sidebar-ring: hsl(238.7324 83.5294% 66.6667%);
+  --radius: 0.5rem;
+  --shadow-2xs: 0px 4px 8px -1px hsl(0 0% 0% / 0.05);
+  --shadow-xs: 0px 4px 8px -1px hsl(0 0% 0% / 0.05);
+  --shadow-sm: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 1px 2px -2px hsl(0 0% 0% / 0.10);
+  --shadow: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 1px 2px -2px hsl(0 0% 0% / 0.10);
+  --shadow-md: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 2px 4px -2px hsl(0 0% 0% / 0.10);
+  --shadow-lg: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 4px 6px -2px hsl(0 0% 0% / 0.10);
+  --shadow-xl: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 8px 10px -2px hsl(0 0% 0% / 0.10);
+  --shadow-2xl: 0px 4px 8px -1px hsl(0 0% 0% / 0.25);
+}
+
+/* Dark mode */
+.dark {
+  --background: hsl(222.2222 47.3684% 11.1765%);
+  --foreground: hsl(214.2857 31.8182% 91.3725%);
+  --card: hsl(217.2414 32.5843% 17.4510%);
+  --card-foreground: hsl(214.2857 31.8182% 91.3725%);
+  --popover: hsl(217.2414 32.5843% 17.4510%);
+  --popover-foreground: hsl(214.2857 31.8182% 91.3725%);
+  --primary: hsl(234.4538 89.4737% 73.9216%);
+  --primary-foreground: hsl(222.2222 47.3684% 11.1765%);
+  --secondary: hsl(217.7778 23.0769% 22.9412%);
+  --secondary-foreground: hsl(216.0000 12.1951% 83.9216%);
+  --muted: hsl(217.2414 40.8451% 13.9216%);
+  --muted-foreground: hsl(217.8947 10.6145% 64.9020%);
+  --accent: hsl(216.9231 19.1176% 26.6667%);
+  --accent-foreground: hsl(216.0000 12.1951% 83.9216%);
+  --destructive: hsl(0 84.2365% 60.1961%);
+  --destructive-foreground: hsl(222.2222 47.3684% 11.1765%);
+  --border: hsl(215 13.7931% 34.1176%);
+  --input: hsl(215 13.7931% 34.1176%);
+  --ring: hsl(234.4538 89.4737% 73.9216%);
+  --chart-1: hsl(234.4538 89.4737% 73.9216%);
+  --chart-2: hsl(238.7324 83.5294% 66.6667%);
+  --chart-3: hsl(243.3962 75.3555% 58.6275%);
+  --chart-4: hsl(244.5205 57.9365% 50.5882%);
+  --chart-5: hsl(243.6522 54.5024% 41.3725%);
+  --sidebar: hsl(217.2414 32.5843% 17.4510%);
+  --sidebar-foreground: hsl(214.2857 31.8182% 91.3725%);
+  --sidebar-primary: hsl(234.4538 89.4737% 73.9216%);
+  --sidebar-primary-foreground: hsl(222.2222 47.3684% 11.1765%);
+  --sidebar-accent: hsl(216.9231 19.1176% 26.6667%);
+  --sidebar-accent-foreground: hsl(216.0000 12.1951% 83.9216%);
+  --sidebar-border: hsl(215 13.7931% 34.1176%);
+  --sidebar-ring: hsl(234.4538 89.4737% 73.9216%);
+  --shadow-2xs: 0px 4px 8px -1px hsl(0 0% 0% / 0.05);
+  --shadow-xs: 0px 4px 8px -1px hsl(0 0% 0% / 0.05);
+  --shadow-sm: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 1px 2px -2px hsl(0 0% 0% / 0.10);
+  --shadow: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 1px 2px -2px hsl(0 0% 0% / 0.10);
+  --shadow-md: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 2px 4px -2px hsl(0 0% 0% / 0.10);
+  --shadow-lg: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 4px 6px -2px hsl(0 0% 0% / 0.10);
+  --shadow-xl: 0px 4px 8px -1px hsl(0 0% 0% / 0.10), 0px 8px 10px -2px hsl(0 0% 0% / 0.10);
+  --shadow-2xl: 0px 4px 8px -1px hsl(0 0% 0% / 0.25);
+}
+
+/* ==========================================================================
+   Tailwind v4 Theme Integration
+   Maps CSS variables to Tailwind utilities
+   ========================================================================== */
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
+}
+
+/* ==========================================================================
+   Tailwind v4 CSS-based configuration (custom additions)
+   ========================================================================== */
+
+@theme {
+  /* Custom colors (in addition to shadcn theme) */
+  --color-primary-50: #eff6ff;
+  --color-primary-100: #dbeafe;
+  --color-primary-200: #bfdbfe;
+  --color-primary-300: #93c5fd;
+  --color-primary-400: #60a5fa;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+  --color-primary-800: #1e40af;
+  --color-primary-900: #1e3a8a;
+
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+
+  /* Font family */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+
+  /* Custom spacing */
+  --spacing-18: 4.5rem;
+  --spacing-88: 22rem;
+
+  /* Animations */
+  --animate-slide-down: slideDown 0.2s ease-out;
+  --animate-slide-up: slideUp 0.2s ease-out;
+  --animate-fade-in: fadeIn 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  0% { transform: translateY(-10px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes slideUp {
+  0% { transform: translateY(10px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+/* ==========================================================================
+   Scoped Base Styles for SFUI Admin
+   All resets are scoped to #sfui-admin-root to prevent breaking WP admin UI
+   ========================================================================== */
+
+#sfui-admin-root {
+  /* Base typography and colors */
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--foreground);
+  background-color: var(--background);
+  line-height: 1.5;
+
+  /* Scoped box-sizing reset (Tailwind preflight equivalent) */
+  *, *::before, *::after {
+    box-sizing: border-box;
+    border-width: 0;
+    border-style: solid;
+    border-color: var(--border);
+  }
+
+  /* Image and media reset */
+  img, svg, video, canvas, audio, iframe, embed, object {
+    display: block;
+    vertical-align: middle;
+  }
+
+  img, video {
+    max-width: 100%;
+    height: auto;
+  }
+
+  /* Form element reset */
+  button, input, select, textarea {
+    font-family: inherit;
+    font-size: 100%;
+    line-height: inherit;
+    min-height: auto;
+    box-shadow: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Button reset */
+  button, [role="button"] {
+    cursor: pointer;
+  }
+
+  /* Link reset */
+  a {
+    color: inherit;
+    text-decoration: inherit;
+  }
+
+  /* List reset */
+  ol, ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* Table reset */
+  table {
+    border-collapse: collapse;
+    border-spacing: 0;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 0.5rem;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: #f3f4f6;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: #9ca3af;
+    border-radius: 0.25rem;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #6b7280;
+  }
+}
+

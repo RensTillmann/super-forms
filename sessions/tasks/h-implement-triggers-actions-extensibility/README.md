@@ -209,6 +209,10 @@ This task is divided into implementation phases, each documented as a separate s
 8. **[Real-time Interactions](08-implement-realtime-interactions.md)** - Client-side triggers, validation, duplicate detection
 14. **[Analytics Dashboard](14-implement-analytics-dashboard.md)** - Form analytics, live sessions, abandonment tracking, field-level insights
 
+**AI & Schema Infrastructure (Pending):**
+27. **[Operations-Based Form Editing](27-implement-operations-versioning-system.md)** - JSON Patch operations, versioning, undo/redo, MCP integration
+28. **[AI Assistant Token System](28-ai-assistant-token-system.md)** - Domain-based AI tokens, schema endpoints, MCP dynamic tools, purchase flow
+
 **Note:** Admin UI implementation deferred to separate phase. UI will consume REST API built in Phase 1.
 
 ## Success Criteria
@@ -547,6 +551,35 @@ Six confirmed issues from codebase analysis representing "refactoring hangover" 
 - [ ] Integration with Phase 18 payment tables
 - [ ] See [Phase 19 subtask](19-implement-appointments-booking.md) for details
 
+### Phase 27: Operations-Based Form Editing - PENDING
+- [ ] `SUPER_Form_Operations` class implementing JSON Patch (RFC 6902)
+- [ ] `POST /forms/{id}/operations` endpoint for atomic updates
+- [ ] `wp_superforms_form_versions` table for version snapshots
+- [ ] `GET/POST /forms/{id}/versions` endpoints for history management
+- [ ] `POST /forms/{id}/revert/{versionId}` endpoint
+- [ ] Frontend undo/redo via operation inversion
+- [ ] MCP server integration with operations endpoint
+- [ ] Performance: 2KB vs 200KB payloads, sub-second saves
+- [ ] See [Phase 27 subtask](27-implement-operations-versioning-system.md) for details
+
+### Phase 28: AI Assistant Token System - PENDING
+- [ ] MongoDB `ai_tokens` collection with domain-based tracking
+- [ ] `GET /v1/ai/tokens` - Token status endpoint (api.super-forms.com)
+- [ ] `POST /v1/ai/generate` - AI generation with token consumption
+- [ ] `POST /v1/ai/tokens/checkout` - Stripe Checkout for purchases
+- [ ] Stripe webhook handling for `ai_tokens` purchase type
+- [ ] `SUPER_Schema_Controller` - REST endpoints for element/node/settings schemas
+- [ ] `GET /v1/schema/elements` - Full element schema export
+- [ ] `GET /v1/schema/nodes` - Automation node schema export
+- [ ] `GET /v1/schema/settings` - Form settings schema
+- [ ] `GET /v1/schema/theme` - Theme settings schema
+- [ ] `GET /v1/schema/translations` - Translations schema
+- [ ] MCP server dynamic tool generation from schemas
+- [ ] AIAssistantPanel React component in form builder
+- [ ] Token display and purchase flow UI
+- [ ] Monthly reset logic (30 days, free tokens reset, purchased persist)
+- [ ] See [Phase 28 subtask](28-ai-assistant-token-system.md) for details
+
 ## Implementation Order
 
 The phases should be implemented sequentially:
@@ -590,6 +623,10 @@ The phases should be implemented sequentially:
    - ✅ Backwards compatibility layer active
    - ✅ class-ajax.php, trigger actions, listings updated
    - 🔲 Remaining: background migration, list table replacement
+
+**AI & Schema Infrastructure (Pending):**
+27. **Phase 27 (Operations/Versioning)** - JSON Patch operations, form versioning, undo/redo
+28. **Phase 28 (AI Token System)** - Domain-based tokens, schema endpoints, MCP dynamic tools
 
 **Future:**
 7. **Phase 7 (Additional Add-ons)** - Slack, Google Sheets, HubSpot integrations
@@ -678,29 +715,11 @@ Available actions (all hardcoded methods):
 6. **Single Condition Logic**: Only one condition per trigger (no AND/OR/NOT combinations)
 7. **No Execution Logging**: Once action runs, no audit trail exists
 
-**Form Settings Storage:**
+**Legacy Trigger Storage (Obsolete):**
 
-Triggers are stored in `_super_form_settings` post meta (NOT separate meta key like listings):
+The legacy trigger system (v6.4 and earlier) stored trigger configurations in the `wp_postmeta` table under the meta key `_super_triggers`.
 
-```php
-$settings = get_post_meta($form_id, '_super_form_settings', true);
-$triggers = $settings['triggers']; // Array of trigger configurations
-
-// Example structure (current):
-$settings['triggers'] = array(
-  array(
-    'event' => 'sf.after.submission',
-    'name' => 'Send confirmation email',
-    'conditions' => array( /* single condition */ ),
-    'actions' => array(
-      array(
-        'action' => 'send_email', // maps to SUPER_Triggers::send_email()
-        'data' => array( /* email options */ )
-      )
-    )
-  )
-);
-```
+As of plugin version 6.5.0, this system is obsolete, and this postmeta data is automatically cleaned up from the database upon upgrade. The new Automations system uses dedicated tables (`wp_superforms_automations`, etc.) as described in the main project documentation.
 
 **Admin UI Integration:**
 
@@ -2128,6 +2147,64 @@ CREATE TABLE wp_superforms_entry_notes (
 ### Future Phase 19: Advanced Entry Management
 
 **Concept:** Enhanced entry list view and bulk operations.
+### Discovered During Implementation
+[Date: 2025-12-01 / Session marker]
+
+During implementation, several significant architectural shifts and discoveries were made that evolved the system far beyond the initial concept of a simple trigger/action scheduler. These changes are critical for any future development.
+
+**1. Paradigm Shift to a Visual Workflow Builder:**
+The project pivoted from a linear, list-based trigger system to a full-fledged visual workflow builder. This was a fundamental change, introducing concepts like nodes, connections, and complex branching logic. This decision was made to provide users with more power and flexibility, allowing for the creation of sophisticated automations that the original list-based model could not support. As a result, the entire data model and execution engine were redesigned around a graph-based structure stored in a single JSON `workflow_graph` field, rather than normalized tables for actions.
+
+**2. Terminology Standardization: "Triggers" are now "Automations":**
+A major terminology shift occurred project-wide. The term "Trigger" was redefined to refer to the *starting node* of a workflow (e.g., "Form Submitted"), while the entire workflow entity is now called an "Automation". This change was implemented to provide clarity and align with industry standards. This impacts database schemas, class names, REST API endpoints, and all user-facing UI. For example, `wp_superforms_triggers` is now `wp_superforms_automations`.
+
+**3. Architectural Decision: Node-Level Scope:**
+A key architectural decision was to make Automations globally scoped, with the scope of execution defined at the *node level* within the workflow graph. The initial plan was to have scope (`form_id`, etc.) on the main automation record. The new approach allows a single automation to be triggered by multiple sources (e.g., two different forms, or all forms globally), providing significantly more flexibility and reusability. This is a core concept of the new architecture.
+
+**4. Codebase State: "Refactoring Hangover" and Critical Bugs:**
+Analysis of the codebase revealed significant technical debt and critical bugs stemming from the rapid architectural evolution. The `SUPER_Automation_Manager` class was found to be out of sync with the new database schema, referencing non-existent columns. A critical bug was found in the `update_entry_status` action, which used an incorrect column name (`status` instead of `entry_status`), causing it to fail silently. Furthermore, the `delay_execution` node was discovered to be non-functional "vaporware," providing no actual delay. This indicates that parts of the implementation have not kept pace with the architectural design.
+
+#### Updated Technical Details
+- **Data Model**: The primary data storage for a workflow is the `workflow_graph` JSON column in the `wp_superforms_automations` table. The `wp_superforms_automation_actions` table is only used for "code" based (legacy/list) automations.
+- **Scope**: Scope is not defined on the `wp_superforms_automations` table. It is configured within the `config` object of trigger nodes inside the `workflow_graph` JSON.
+- **Terminology**:
+    - **Automation**: The container for a workflow.
+    - **Trigger**: A node that starts an automation.
+    - **Action**: A node that performs a task.
+- **Known Issues**: The codebase contains inconsistencies where some classes (`SUPER_Automation_Manager`) still reference an older, column-based schema. The `delay_execution` feature requires a full implementation of workflow state persistence.
+- **Event Flow**: The order of event firing during form submission is specific and has been documented in `EVENT_FLOW_DOCUMENTATION.md`. For example, `entry.created` fires before duplicate detection, but `entry.saved` does not.
+
+**5. CSRF Protection Architecture: Token-Free, Cache-Compatible Design:**
+During the session data migration work (Phase 1a, Step 2), the CSRF protection system was completely refactored from a custom token-based approach to a modern, cache-compatible architecture. The old system generated per-user nonces via AJAX (`generate_nonce()` method and `create_nonce` endpoint) and embedded them in form HTML as hidden `sf_nonce` fields. This approach had a critical security vulnerability: the `create_nonce` AJAX endpoint had no CSRF protection itself, allowing evil.com to fetch nonces using the victim's cookies.
+
+The new CSRF protection relies on **Origin/Referer header validation + browser SameSite cookies** instead of tokens. This eliminates all per-user token generation and embedding, making forms fully compatible with aggressive caching (CDN, full-page cache, etc.). The server-side `SUPER_Common::verifyCSRF()` method now checks that the `Origin` or `Referer` header matches the site's hostname, preventing cross-origin POST attacks. The lenient mode allows requests with missing headers (some privacy browser extensions strip these).
+
+**What Was Removed:**
+- `SUPER_Common::generate_nonce()` method (class-common.php)
+- `SUPER_Ajax::create_nonce()` AJAX endpoint (class-ajax.php)
+- `sf_nonce` hidden input from form HTML (class-shortcodes.php)
+- All JavaScript nonce-fetching logic (common.js, elements.js)
+- Nested AJAX patterns (fetch nonce → then submit form)
+
+**Security Model:**
+1. **Browser SameSite cookies**: Modern browsers (default `SameSite=Lax`) prevent cookies from being sent on cross-origin POST requests
+2. **Origin/Referer header check**: Server validates request came from same domain
+3. **Lenient mode**: Missing headers allowed (privacy extensions compatibility)
+4. **No token storage**: No nonces in HTML, session storage, or JavaScript variables
+
+**Why This Matters for Future Development:**
+- No CSRF tokens exist in the codebase - don't look for them
+- AJAX endpoints don't need token validation - header check is automatic
+- Forms work on fully cached pages without dynamic token injection
+- Session recovery doesn't need token refresh logic
+- This is the industry-standard approach for cached pages (see Contact Form 7, WPForms research)
+
+**Related Files:**
+- `/src/includes/class-common.php` - `verifyCSRF()` header validation
+- `/src/includes/class-ajax.php` - Removed `create_nonce` endpoint
+- `/src/includes/class-shortcodes.php` - Removed `sf_nonce` hidden field
+- `/src/assets/js/common.js` - Removed nonce fetching logic
+- `/src/assets/js/frontend/elements.js` - Simplified language switcher (removed nested AJAX)
 
 **Features:**
 - Customizable columns per form
@@ -2473,6 +2550,74 @@ When adding new admin features (entries page, global settings, analytics dashboa
 - **Error Handling**: WP_Error returned consistently, no PHP fatal errors
 
 ## Work Log
+
+### 2025-12-02
+
+#### Completed
+- **Cross-Origin Protection Settings Implementation** (Phase 1a continuation)
+  - Removed all legacy nonce-based CSRF protection (earlier session)
+  - Implemented modern Origin/Referer header check + SameSite cookie protection (earlier session)
+  - **New Settings Added** (`class-settings.php`):
+    - `cross_origin_protection` - Mode selector (hidden setting): `enabled`, `compatibility`, `disabled`
+    - `trusted_origins` - Textarea for trusted domains with wildcard support
+  - **Updated `verifyCSRF()`** (`class-common.php`):
+    - Complete rewrite with three-mode validation
+    - Wildcard domain matching with length guard
+    - PHP 8.1+ safe (guards `parse_url` result before `strtolower`)
+    - Debug logging gated behind `WP_DEBUG`
+    - Migration-safe default fallback to `compatibility` mode
+  - **Updated `submit_form_checks()`** (`class-ajax.php`):
+    - Now respects `$skipChecks` parameter for CSRF check
+    - Updated error type from `csrf_expired` to `cross_origin_rejected`
+  - **Removed Old Settings**:
+    - Removed `csrf_check` setting and all references
+    - Removed commented-out dead code
+  - **Expert Review Feedback Addressed**:
+    - Migration safety: Default fallback to `compatibility` prevents upgrade breakage
+    - PHP 8.1 fix: Guarded `parse_url()` before `strtolower()`
+    - Wildcard edge case: Added length guard for substring matching
+    - Debug logging: Gated behind `WP_DEBUG` to avoid log spam
+    - `$skipChecks` parameter: Now properly respected
+  - **Cookie SameSite Audit**: Audited all `setcookie()` calls - modern browsers default to `SameSite=Lax`
+
+#### Decisions
+- **Three-Mode Cross-Origin Protection System**:
+  - `enabled` (default for new installs) - Strict, require Origin/Referer header
+  - `compatibility` (code fallback for upgrades) - Allow missing headers for legacy clients
+  - `disabled` - No validation
+- **Migration Strategy**: Existing users get `compatibility` mode by default to prevent breakage
+- **Cache-Compatible CSRF Approach**: No per-user tokens needed in HTML = fully cache-compatible
+
+#### Discovered
+- **Modern browsers default to SameSite=Lax** - Provides defense in depth without explicit configuration
+
+### 2025-12-01
+
+#### Completed
+- Implemented database cleanup for legacy `_super_triggers` postmeta.
+  - Bumped plugin version to `6.5.0` in `src/super-forms.php`.
+  - Added upgrade routine to automatically remove obsolete trigger data.
+- Updated documentation (`docs/data-storage.md`) to reflect the removal of legacy triggers.
+- Refactored migration state initialization in `class-install.php` using helper pattern:
+  - Created `init_entries_migration_if_needed()` helper method
+  - Created `init_forms_migration_if_needed()` helper method for forms migration
+  - Updated `init_migration_state()` to orchestrate both migration initializations
+  - Enhanced `ensure_migration_state_initialized()` to handle both migration types with separate debug logging
+  - Fixed orphaned code syntax error (removed method calls outside of method scope)
+- Prepared groundwork for forms migration implementation
+  - Forms table schema already exists at lines 315-329 in `class-install.php`
+  - Migration state option `superforms_forms_migration` now initialized on plugin activation
+
+#### Decisions
+- Hooked the database cleanup into the plugin's version upgrade logic for automatic execution.
+- Chose single table with JSON columns architecture for forms migration (consistent with automations system)
+- Agreed on incremental PATCH updates for forms migration to avoid large payload issues
+- Decided on helper pattern refactoring for clean, maintainable migration state initialization
+
+#### Discovered
+- Playwright requires `headless: true` to run in the CLI environment.
+- Analyzed existing migration patterns: Phase 17 entries migration and automations JSON column pattern provide solid foundation for forms migration
+- Clean code architecture benefits: Single responsibility, DRY principles, explicit intent, easy to extend
 
 ### 2025-11-20
 - Task created with 8 implementation phases
@@ -3820,3 +3965,66 @@ All components now properly aligned with node-level scope architecture:
 - Add email template selection in Send Email node properties
 - Implement email template save/load from workflow config
 - Continue Phase 22 visual workflow builder refinements
+
+### 2025-12-01
+
+#### Completed
+- **Phase 28: AI Assistant Token System - Comprehensive Architecture Planning**
+  - Created detailed specification: `28-ai-assistant-token-system.md` (650+ lines)
+  - Designed domain-based token model with separate free/purchased tracking
+  - Defined 5-schema system (elements, nodes, settings, theme, translations)
+  - Designed API endpoints for both Go backend and WordPress REST
+  - Planned 33 implementation steps across 6 parts (API infrastructure, schema endpoints, MCP updates, form builder, admin UI, testing)
+  - Estimated costs and identified profitability (5x margin on 1K token packages)
+
+- **Task File Updates**
+  - Added Phase 27 and 28 to "Subtasks" section under new "AI & Schema Infrastructure" group
+  - Added comprehensive Success Criteria sections for both phases
+  - Updated "Implementation Order" to include both phases
+
+#### Decisions
+- **Token Model**: Separate `free_remaining` + `purchased_remaining` counters per domain (not user-based)
+  - Free tokens reset monthly, purchased tokens never expire
+  - Default allocation: 1000 tokens/month free per domain
+
+- **Sync vs Async**: Sync AI generation for MVP (async added later for batch operations)
+  - Reduces complexity for initial release
+  - Sufficient for single-form operations
+
+- **Component Architecture**: No shared directory between FormBuilder and EmailBuilder
+  - FormBuilder imports specific email-builder components directly when needed
+  - Example: `import { ImageElement } from '@/components/email-builder/Builder/Elements/ImageElement'`
+  - Avoids complex dependency management, maintains separation of concerns
+
+- **Schema System**: 5 distinct schema types with React components as source of truth
+  - React components export schemas (ElementSchema, NodeSchema, etc.)
+  - REST API serves schemas to MCP server and external consumers
+  - MCP uses schemas to generate dynamic tool definitions
+  - Enables AI to understand full form/automation building capabilities
+
+- **Package Pricing**: Tiered Stripe products for different use cases
+  - Starter: 1,000 tokens for $5 ($0.005/token)
+  - Pro: 5,000 tokens for $20 ($0.004/token)
+  - Agency: 20,000 tokens for $60 ($0.003/token)
+  - Margins align with Haiku API costs (~$0.25/1M input, $1.25/1M output)
+
+#### Discovered
+- **Schemas enable AI reasoning** - Full element/node configurations allow AI to understand constraints, defaults, and relationships
+  - Example: AI knows TextInput has validation options (email, phone, regex) with conditional fields
+  - Example: AI knows send_email node supports tag replacement ({email}, {field_name}) in template
+
+- **MCP tool generation** - Server can build dynamic tools from schemas instead of hardcoding
+  - Reduces maintenance burden when adding new element types or actions
+  - Single source of truth (schema exports) flows through: React components → REST API → MCP tools → Claude
+
+#### Next Steps
+- Implement Phase 28 token system in Go API (~/api.super-forms.com):
+  - Create MongoDB `ai_tokens` collection with domain keys
+  - Implement token consumption and monthly reset logic
+  - Add Stripe webhook handling for purchase events
+- Create WordPress schema REST endpoints (`SUPER_Schema_Controller`)
+  - Element schemas from form-builder components registry
+  - Node schemas from automation registry
+  - Settings/theme/translation schemas
+- Update MCP server to fetch and cache schemas on startup
+- Begin Form Builder element porting with schema exports

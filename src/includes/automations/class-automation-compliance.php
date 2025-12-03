@@ -1,8 +1,8 @@
 <?php
 /**
- * Trigger Compliance - GDPR and Audit Trail System
+ * Automation Compliance - GDPR and Audit Trail System
  *
- * Provides compliance features for the triggers/actions system:
+ * Provides compliance features for the automations system:
  * - GDPR right to deletion (delete user data)
  * - GDPR data export (export user data)
  * - PII scrubbing from logs
@@ -150,7 +150,7 @@ if ( ! class_exists( 'SUPER_Automation_Compliance' ) ) :
 		/**
 		 * GDPR: Delete all logs for a specific entry
 		 *
-		 * Implements right to deletion for trigger execution logs
+		 * Implements right to deletion for automation execution logs
 		 *
 		 * @param int $entry_id Entry ID to delete logs for
 		 * @return int Number of deleted rows
@@ -181,7 +181,7 @@ if ( ! class_exists( 'SUPER_Automation_Compliance' ) ) :
 		}
 
 		/**
-		 * GDPR: Export all trigger logs for a specific entry
+		 * GDPR: Export all automation logs for a specific entry
 		 *
 		 * @param int    $entry_id Entry ID
 		 * @param string $format   Export format (json, csv)
@@ -301,7 +301,7 @@ if ( ! class_exists( 'SUPER_Automation_Compliance' ) ) :
 		 * @since 6.5.0
 		 */
 		private function get_pii_patterns() {
-			$custom = get_option( 'super_triggers_pii_fields', array() );
+			$custom = get_option( 'super_automations_pii_fields', array() );
 
 			if ( is_string( $custom ) ) {
 				$custom = array_filter( array_map( 'trim', explode( "\n", $custom ) ) );
@@ -317,7 +317,7 @@ if ( ! class_exists( 'SUPER_Automation_Compliance' ) ) :
 		 * @since 6.5.0
 		 */
 		private function should_scrub_pii() {
-			return (bool) get_option( 'super_triggers_scrub_pii', false );
+			return (bool) get_option( 'super_automations_scrub_pii', false );
 		}
 
 		/**
@@ -325,7 +325,7 @@ if ( ! class_exists( 'SUPER_Automation_Compliance' ) ) :
 		 *
 		 * @param string      $action_type Action type identifier
 		 * @param array       $details     Action details
-		 * @param string|null $object_type Object type (trigger, entry, credential, etc.)
+		 * @param string|null $object_type Object type (automation, entry, credential, etc.)
 		 * @param int|null    $object_id   Object ID
 		 * @since 6.5.0
 		 */
@@ -382,11 +382,11 @@ if ( ! class_exists( 'SUPER_Automation_Compliance' ) ) :
 			$this->log_compliance_action(
 				'configuration_change',
 				array(
-					'automation_id'      => $automation_id,
+					'automation_id'   => $automation_id,
 					'changes'         => $changes,
 					'previous_values' => $previous_values,
 				),
-				'trigger',
+				'automation',
 				$automation_id
 			);
 		}
@@ -405,15 +405,15 @@ if ( ! class_exists( 'SUPER_Automation_Compliance' ) ) :
 			$results = array();
 
 			// Get retention settings
-			$log_retention = (int) get_option( 'super_triggers_log_retention', 30 );
-			$audit_retention = (int) get_option( 'super_triggers_audit_retention', 90 );
+			$log_retention   = (int) get_option( 'super_automations_log_retention', 30 );
+			$audit_retention = (int) get_option( 'super_automations_audit_retention', 90 );
 
 			// Delete old execution logs
 			$logs_table = $wpdb->prefix . 'superforms_automation_logs';
 			$log_cutoff = gmdate( 'Y-m-d H:i:s', strtotime( "-{$log_retention} days" ) );
 
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-			$results['trigger_logs'] = $wpdb->query( $wpdb->prepare(
+			$results['automation_logs'] = $wpdb->query( $wpdb->prepare(
 				"DELETE FROM {$logs_table} WHERE executed_at < %s",
 				$log_cutoff
 			) );
@@ -433,10 +433,10 @@ if ( ! class_exists( 'SUPER_Automation_Compliance' ) ) :
 				$this->log_compliance_action(
 					'retention_cleanup',
 					array(
-						'trigger_logs_deleted' => $results['trigger_logs'],
-						'audit_logs_deleted'   => $results['audit_logs'],
-						'log_retention_days'   => $log_retention,
-						'audit_retention_days' => $audit_retention,
+						'automation_logs_deleted' => $results['automation_logs'],
+						'audit_logs_deleted'      => $results['audit_logs'],
+						'log_retention_days'      => $log_retention,
+						'audit_retention_days'    => $audit_retention,
 					)
 				);
 			}
@@ -609,8 +609,8 @@ if ( ! class_exists( 'SUPER_Automation_Compliance' ) ) :
 		 * @since 6.5.0
 		 */
 		public function register_data_exporter( $exporters ) {
-			$exporters['super-forms-trigger-logs'] = array(
-				'exporter_friendly_name' => __( 'Super Forms Trigger Logs', 'super-forms' ),
+			$exporters['super-forms-automation-logs'] = array(
+				'exporter_friendly_name' => __( 'Super Forms Automation Logs', 'super-forms' ),
 				'callback'               => array( $this, 'wp_privacy_exporter' ),
 			);
 
@@ -625,8 +625,8 @@ if ( ! class_exists( 'SUPER_Automation_Compliance' ) ) :
 		 * @since 6.5.0
 		 */
 		public function register_data_eraser( $erasers ) {
-			$erasers['super-forms-trigger-logs'] = array(
-				'eraser_friendly_name' => __( 'Super Forms Trigger Logs', 'super-forms' ),
+			$erasers['super-forms-automation-logs'] = array(
+				'eraser_friendly_name' => __( 'Super Forms Automation Logs', 'super-forms' ),
 				'callback'             => array( $this, 'wp_privacy_eraser' ),
 			);
 
@@ -667,9 +667,9 @@ if ( ! class_exists( 'SUPER_Automation_Compliance' ) ) :
 			$export_items = array();
 			foreach ( $logs as $log ) {
 				$export_items[] = array(
-					'group_id'    => 'super-forms-trigger-logs',
-					'group_label' => __( 'Trigger Execution Logs', 'super-forms' ),
-					'item_id'     => 'trigger-log-' . $log['id'],
+					'group_id'    => 'super-forms-automation-logs',
+					'group_label' => __( 'Automation Execution Logs', 'super-forms' ),
+					'item_id'     => 'automation-log-' . $log['id'],
 					'data'        => array(
 						array(
 							'name'  => __( 'Event', 'super-forms' ),

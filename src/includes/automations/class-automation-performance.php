@@ -181,7 +181,7 @@ if ( ! class_exists( 'SUPER_Automation_Performance' ) ) :
 				$logger = SUPER_Automation_Logger::instance();
 				$logger->warning(
 					sprintf(
-						'Slow trigger execution: %s took %.2f seconds (threshold: %.2f)',
+						'Slow automation execution: %s took %.2f seconds (threshold: %.2f)',
 						$key,
 						$duration,
 						$threshold
@@ -223,14 +223,14 @@ if ( ! class_exists( 'SUPER_Automation_Performance' ) ) :
 
 			$subject = sprintf(
 				/* translators: 1: Site name, 2: Timer key */
-				__( '[%1$s] Slow Trigger Execution Alert: %2$s', 'super-forms' ),
+				__( '[%1$s] Slow Automation Execution Alert: %2$s', 'super-forms' ),
 				$site_name,
 				$key
 			);
 
 			$message = sprintf(
 				/* translators: 1: Timer key, 2: Duration in seconds, 3: Critical threshold */
-				__( "A trigger execution exceeded the critical threshold:\n\nKey: %1\$s\nDuration: %.2f seconds\nThreshold: %.2f seconds\n\nThis may indicate a performance issue that needs attention.", 'super-forms' ),
+				__( "An automation execution exceeded the critical threshold:\n\nKey: %1\$s\nDuration: %.2f seconds\nThreshold: %.2f seconds\n\nThis may indicate a performance issue that needs attention.", 'super-forms' ),
 				$key,
 				$duration,
 				self::CRITICAL_SLOW_THRESHOLD
@@ -246,7 +246,7 @@ if ( ! class_exists( 'SUPER_Automation_Performance' ) ) :
 			$message .= "\n\n" . sprintf(
 				/* translators: URL to logs page */
 				__( 'View logs: %s', 'super-forms' ),
-				admin_url( 'admin.php?page=super-trigger-logs' )
+				admin_url( 'admin.php?page=super-automation-logs' )
 			);
 
 			wp_mail( $admin_email, $subject, $message );
@@ -260,7 +260,7 @@ if ( ! class_exists( 'SUPER_Automation_Performance' ) ) :
 		 */
 		public static function get_slow_threshold() {
 			if ( self::$slow_threshold === null ) {
-				self::$slow_threshold = (float) get_option( 'super_triggers_slow_threshold', self::DEFAULT_SLOW_THRESHOLD );
+				self::$slow_threshold = (float) get_option( 'super_automations_slow_threshold', self::DEFAULT_SLOW_THRESHOLD );
 			}
 			return self::$slow_threshold;
 		}

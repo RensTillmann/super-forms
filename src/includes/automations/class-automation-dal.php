@@ -135,18 +135,18 @@ if ( ! class_exists( 'SUPER_Automation_DAL' ) ) :
 			}
 
 			// Decode workflow_graph JSON
-			if ( ! empty( $trigger['workflow_graph'] ) ) {
-				$trigger['workflow_graph'] = json_decode( $trigger['workflow_graph'], true );
+			if ( ! empty( $automation['workflow_graph'] ) ) {
+				$automation['workflow_graph'] = json_decode( $automation['workflow_graph'], true );
 			}
 
-			return $trigger;
+			return $automation;
 		}
 
 		/**
 		 * Get all triggers
 		 *
 		 * @param bool $enabled_only Only return enabled triggers
-		 * @return array Array of triggers
+		 * @return array Array of automations
 		 * @since 6.5.0
 		 */
 		public static function get_all_automations( $enabled_only = true ) {
@@ -569,7 +569,7 @@ if ( ! class_exists( 'SUPER_Automation_DAL' ) ) :
 				SUPER_Data_Access::update_entry_data(
 					$log_data['entry_id'],
 					array(
-						'_super_last_trigger_execution' => array(
+						'_super_last_automation_execution' => array(
 							'log_id'     => $log_id,
 							'automation_id' => $log_data['automation_id'],
 							'event_id'   => $log_data['event_id'],

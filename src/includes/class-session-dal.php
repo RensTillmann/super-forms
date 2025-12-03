@@ -393,6 +393,26 @@ if ( ! class_exists( 'SUPER_Session_DAL' ) ) :
 		}
 
 		/**
+		 * Add a message to a session's metadata
+		 *
+		 * @param string $session_key Session key.
+		 * @param string $message     Message to store.
+		 * @return bool True on success.
+		 */
+		public static function add_message( $session_key, $message ) {
+			$session = self::get_by_key( $session_key );
+			if ( ! $session ) {
+				return false;
+			}
+
+			$metadata = $session['metadata'] ?: array();
+			$metadata['msg'] = $message;
+
+			return self::update_by_key( $session_key, array( 'metadata' => $metadata ) );
+		}
+
+
+		/**
 		 * Mark sessions as abandoned (no activity for 30+ minutes)
 		 *
 		 * @return int Number of sessions marked abandoned.
@@ -662,6 +682,12 @@ if ( ! class_exists( 'SUPER_Session_DAL' ) ) :
 
 			return $update_data;
 		}
+		public static function cleanup() {
+			self::mark_abandoned();
+			self::cleanup_expired();
+			self::cleanup_completed();
+		}
+
 	}
 
 endif;

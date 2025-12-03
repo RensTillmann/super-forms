@@ -1555,7 +1555,7 @@ if ( ! class_exists( 'SUPER_PayPal' ) ) :
 				if ( ( isset( $_POST['txn_type'] ) ) && ( $_POST['txn_type'] == 'subscr_eot' ) ) {
 					error_log( 'Super Forms: Paypal IPN subscription expired due to cancelation or expiration (term has ended), notify Paypal by returning 200 status code' );
 					do_action( 'super_after_paypal_ipn_subscription_expired', array( 'post' => $_POST ) );
-					SUPER_Common::triggerEvent( 'paypal.ipn.subscription.expired', array( 'sfsi_id' => $sfsi_id ) );
+					SUPER_Automation_Executor::fire_event( 'subscription.paypal.cancelled', array( 'session_key' => $sfsi_id, 'ipn_data' => $_POST, 'event_type' => $_POST['txn_type'] ) );
 					// Reply with an empty 200 response to indicate to paypal the IPN was received correctly.
 					http_response_code( 200 );
 					exit;
@@ -1565,7 +1565,7 @@ if ( ! class_exists( 'SUPER_PayPal' ) ) :
 				if ( ( isset( $_POST['txn_type'] ) ) && ( $_POST['txn_type'] == 'subscr_failed' ) ) {
 					error_log( 'Super Forms: Paypal IPN subscription payment failed, notify Paypal by returning 200 status code' );
 					do_action( 'super_after_paypal_ipn_subscription_payment_failed', array( 'post' => $_POST ) );
-					SUPER_Common::triggerEvent( 'paypal.ipn.subscription.payment.failed', array( 'sfsi_id' => $sfsi_id ) );
+					SUPER_Automation_Executor::fire_event( 'subscription.paypal.payment_failed', array( 'session_key' => $sfsi_id, 'ipn_data' => $_POST, 'event_type' => $_POST['txn_type'] ) );
 					// Reply with an empty 200 response to indicate to paypal the IPN was received correctly.
 					http_response_code( 200 );
 					exit;
@@ -1624,7 +1624,7 @@ if ( ! class_exists( 'SUPER_PayPal' ) ) :
 							'txn_type' => $_POST['txn_type'],
 						)
 					);
-					SUPER_Common::triggerEvent( 'paypal.ipn.subscription.changed', array( 'sfsi_id' => $sfsi_id ) );
+					SUPER_Automation_Executor::fire_event( 'subscription.paypal.updated', array( 'session_key' => $sfsi_id, 'ipn_data' => $_POST, 'event_type' => $_POST['txn_type'] ) );
 
 					// Reply with an empty 200 response to indicate to paypal the IPN was received correctly.
 					http_response_code( 200 );
@@ -1650,7 +1650,7 @@ if ( ! class_exists( 'SUPER_PayPal' ) ) :
 							'post_id' => $post_id,
 						)
 					);
-					SUPER_Common::triggerEvent( 'paypal.ipn.payment.refunded', array( 'sfsi_id' => $sfsi_id ) );
+					SUPER_Automation_Executor::fire_event( 'payment.paypal.capture_refunded', array( 'session_key' => $sfsi_id, 'ipn_data' => $_POST, 'event_type' => $_POST['txn_type'] ) );
 
 					// Reply with an empty 200 response to indicate to paypal the IPN was received correctly.
 					http_response_code( 200 );
@@ -2098,7 +2098,7 @@ if ( ! class_exists( 'SUPER_PayPal' ) ) :
 							'post'    => $_POST,
 						)
 					);
-					SUPER_Common::triggerEvent( 'paypal.ipn.payment.verified', array( 'sfsi_id' => $sfsi_id ) );
+					SUPER_Automation_Executor::fire_event( 'payment.paypal.capture_completed', array( 'session_key' => $sfsi_id, 'ipn_data' => $_POST, 'event_type' => $_POST['txn_type'] ) );
 
 				}
 				// Reply with an empty 200 response to indicate to paypal the IPN was received correctly.

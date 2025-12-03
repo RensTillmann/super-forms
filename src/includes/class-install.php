@@ -68,6 +68,10 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 		if ( class_exists( 'SUPER_Background_Migration' ) ) {
 			SUPER_Background_Migration::schedule_if_needed( 'activation' );
 		}
+		// Schedule form migration from wp_posts to custom table
+		if ( class_exists( 'SUPER_Form_Background_Migration' ) ) {
+			SUPER_Form_Background_Migration::schedule_if_needed();
+		}
 
 		// Update database version
 		self::update_db_version();
@@ -304,6 +308,51 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 			dbDelta( $sql );
 
 			// ─────────────────────────────────────────────────────────
+			// Forms Table (Phase 18 - Not official yet)
+			// Replaces super_form post type
+			// @since 6.6.0
+			// ─────────────────────────────────────────────────────────
+
+			// Main forms table - core form data, elements, and settings
+			$table_name = $wpdb->prefix . 'superforms_forms';
+
+			$sql = "CREATE TABLE $table_name (
+				id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+				name VARCHAR(255) NOT NULL,
+				status VARCHAR(20) NOT NULL DEFAULT 'publish',
+				elements LONGTEXT,
+				settings LONGTEXT,
+				translations LONGTEXT,
+				created_at DATETIME NOT NULL,
+				updated_at DATETIME NOT NULL,
+				PRIMARY KEY (id),
+				KEY status (status),
+				KEY name (name(191))
+			) ENGINE={$engine} $charset_collate;";
+
+			dbDelta( $sql );
+
+			// Form versions table - operations-based version control (Phase 27)
+			$table_name = $wpdb->prefix . 'superforms_form_versions';
+
+			$sql = "CREATE TABLE $table_name (
+				id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+				form_id BIGINT(20) UNSIGNED NOT NULL,
+				version_number INT NOT NULL,
+				snapshot LONGTEXT,
+				operations JSON,
+				created_by BIGINT(20) UNSIGNED DEFAULT 0,
+				created_at DATETIME NOT NULL,
+				message VARCHAR(500) DEFAULT NULL,
+				PRIMARY KEY (id),
+				KEY form_versions (form_id, version_number DESC),
+				KEY created_at (created_at),
+				KEY created_by (created_by)
+			) ENGINE=InnoDB $charset_collate;";
+
+			dbDelta( $sql );
+
+			// ─────────────────────────────────────────────────────────
 			// Contact Entries Tables (Phase 17)
 			// Replaces super_contact_entry post type
 			// @since 6.5.0
@@ -358,9 +407,6 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 
 			// Run schema upgrades for existing installations
 			self::upgrade_database_schema();
-
-			// Migrate from old 'triggers' naming to 'automations' naming
-			self::migrate_triggers_to_automations_naming();
 		}
 
 		/**
@@ -437,87 +483,82 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 		}
 
 		/**
-		 * Migrate from old 'triggers' table naming to 'automations' naming
+		 * Initialize ALL migration states during plugin activation
 		 *
-		 * This handles the terminology standardization from Phase 26.
-		 * Safe to run multiple times - checks before altering.
+		 * Orchestrator method that ensures all migration types are initialized.
 		 *
 		 * @since 6.5.0
 		 */
-		private static function migrate_triggers_to_automations_naming() {
-			global $wpdb;
-
-			// Check if old tables exist (need migration)
-			$old_table = $wpdb->prefix . 'superforms_triggers';
-			$new_table = $wpdb->prefix . 'superforms_automations';
-
-			$old_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $old_table ) ) === $old_table;
-			$new_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $new_table ) ) === $new_table;
-
-			// If old table exists and new table doesn't, rename tables
-			if ( $old_exists && ! $new_exists ) {
-				// Rename main triggers table
-				$wpdb->query( "RENAME TABLE `{$wpdb->prefix}superforms_triggers` TO `{$wpdb->prefix}superforms_automations`" );
-
-				// Rename columns in automations table
-				$wpdb->query( "ALTER TABLE `{$wpdb->prefix}superforms_automations` CHANGE `trigger_name` `name` VARCHAR(255) NOT NULL" );
-				$wpdb->query( "ALTER TABLE `{$wpdb->prefix}superforms_automations` CHANGE `workflow_type` `type` VARCHAR(50) NOT NULL DEFAULT 'visual'" );
-
-				// Rename trigger_actions table
-				$old_actions = $wpdb->prefix . 'superforms_trigger_actions';
-				if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $old_actions ) ) === $old_actions ) {
-					$wpdb->query( "RENAME TABLE `{$wpdb->prefix}superforms_trigger_actions` TO `{$wpdb->prefix}superforms_automation_actions`" );
-					$wpdb->query( "ALTER TABLE `{$wpdb->prefix}superforms_automation_actions` CHANGE `trigger_id` `automation_id` BIGINT(20) UNSIGNED NOT NULL" );
-				}
-
-				// Rename trigger_logs table
-				$old_logs = $wpdb->prefix . 'superforms_trigger_logs';
-				if ( $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $old_logs ) ) === $old_logs ) {
-					$wpdb->query( "RENAME TABLE `{$wpdb->prefix}superforms_trigger_logs` TO `{$wpdb->prefix}superforms_automation_logs`" );
-					$wpdb->query( "ALTER TABLE `{$wpdb->prefix}superforms_automation_logs` CHANGE `trigger_id` `automation_id` BIGINT(20) UNSIGNED NOT NULL" );
-				}
-
-				// Log the migration
-				if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
-					error_log( '[Super Forms] Database tables migrated from triggers to automations naming' );
-				}
-			}
+		private static function init_migration_state() {
+			self::init_entries_migration_if_needed();
+			self::init_forms_migration_if_needed();
 		}
 
-		// Verify storage engine and schedule cleanup after table creation
-		self::verify_table_engine();
-		self::schedule_automation_log_cleanup();
+		/**
+		 * Initialize entries migration state if not already set
+		 *
+		 * @return bool True if initialized, false if already existed
+		 * @since 6.5.0
+		 */
+		private static function init_entries_migration_if_needed() {
+			if ( false !== get_option( 'superforms_eav_migration' ) ) {
+				return false; // Already exists
+			}
+
+			$migration_state = array(
+				'status'                     => 'not_started',
+				'using_storage'              => 'serialized',
+				// Note: Counters calculated live in get_migration_status(), not stored
+				'failed_entries'             => array(),
+				'verification_failed'        => array(),
+				'started_at'                 => '',
+				'completed_at'               => '',
+				'last_processed_id'          => 0,
+				'verification_passed'        => false,
+				'rollback_available'         => false,
+				// Background processing fields
+				'background_enabled'         => false,
+				'last_batch_processed_at'    => '',
+				'last_schedule_attempt'      => '',
+				'auto_triggered_by'          => '',
+				'health_check_count'         => 0,
+				'last_health_check'          => '',
+			);
+			update_option( 'superforms_eav_migration', $migration_state );
+
+			return true;
+		}
 
 		/**
-		 * Initialize migration state tracking
+		 * Initialize forms migration state if not already set
 		 *
-		 * @since 6.0.0
+		 * @return bool True if initialized, false if already existed
+		 * @since 6.6.0
 		 */
-		private static function init_migration_state() {
-			// Only initialize if not already set
-			$migration = get_option( 'superforms_eav_migration' );
-			if ( false === $migration ) {
-				$migration_state = array(
-					'status'                     => 'not_started',
-					'using_storage'              => 'serialized',
-					// Note: Counters calculated live in get_migration_status(), not stored
-					'failed_entries'             => array(),
-					'verification_failed'        => array(),
-					'started_at'                 => '',
-					'completed_at'               => '',
-					'last_processed_id'          => 0,
-					'verification_passed'        => false,
-					'rollback_available'         => false,
-					// Background processing fields
-					'background_enabled'         => false,
-					'last_batch_processed_at'    => '',
-					'last_schedule_attempt'      => '',
-					'auto_triggered_by'          => '',
-					'health_check_count'         => 0,
-					'last_health_check'          => '',
-				);
-				update_option( 'superforms_eav_migration', $migration_state );
+		private static function init_forms_migration_if_needed() {
+			if ( false !== get_option( 'superforms_forms_migration' ) ) {
+				return false; // Already exists
 			}
+
+			$migration_state = array(
+				'status'                  => 'not_started',
+				'failed_forms'            => array(),
+				'started_at'              => '',
+				'completed_at'            => '',
+				'last_processed_id'       => 0,
+				'verification_passed'     => false,
+				'rollback_available'      => false,
+				// Background processing fields
+				'background_enabled'      => false,
+				'last_batch_processed_at' => '',
+				'last_schedule_attempt'   => '',
+				'auto_triggered_by'       => '',
+				'health_check_count'      => 0,
+				'last_health_check'       => '',
+			);
+			update_option( 'superforms_forms_migration', $migration_state );
+
+			return true;
 		}
 
 		/**
@@ -526,7 +567,7 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 		 * @since 6.0.0
 		 */
 		private static function update_db_version() {
-			update_option( 'superforms_db_version', '1.1.0' ); // Incremented for triggers/actions system tables
+			update_option( 'superforms_db_version', '1.1.0' ); // Automations system tables
 		}
 
 	/**
@@ -561,30 +602,34 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 	}
 
 	/**
-	 * Ensure migration state is initialized (auto-initialize if missing)
+	 * Ensure ALL migration states are initialized (auto-initialize if missing)
 	 *
 	 * Public helper for self-healing setup - can be called from version detection,
 	 * FTP uploads, git pulls, or any scenario where state might not exist yet.
 	 *
-	 * @return bool True if state was initialized, false if already existed
-	 * @since 6.0.0
+	 * @return bool True if any state was initialized, false if all already existed
+	 * @since 6.5.0
 	 */
 	public static function ensure_migration_state_initialized() {
-		$state = get_option( 'superforms_eav_migration' );
+		$initialized = false;
 
-		if ( false === $state ) {
-			// State missing - initialize it
-			self::init_migration_state();
-
-			// Log for debugging
+		// Entries migration
+		if ( self::init_entries_migration_if_needed() ) {
+			$initialized = true;
 			if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
-				error_log( '[Super Forms Migration] Migration state initialized automatically' );
+				error_log( '[Super Forms] Entries migration state auto-initialized' );
 			}
-
-			return true; // State was initialized
 		}
 
-		return false; // State already existed
+		// Forms migration
+		if ( self::init_forms_migration_if_needed() ) {
+			$initialized = true;
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG && defined( 'WP_DEBUG_LOG' ) && WP_DEBUG_LOG ) {
+				error_log( '[Super Forms] Forms migration state auto-initialized' );
+			}
+		}
+
+		return $initialized;
 	}
 
 		/**

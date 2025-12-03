@@ -187,7 +187,7 @@ if ( ! class_exists( 'SUPER_Automation_REST_Controller' ) ) :
 			// Execution logs
 			register_rest_route(
 				$this->namespace,
-				'/trigger-logs',
+				'/automation-logs',
 				array(
 					'methods'             => WP_REST_Server::READABLE,
 					'callback'            => array( $this, 'get_logs' ),
@@ -363,15 +363,15 @@ if ( ! class_exists( 'SUPER_Automation_REST_Controller' ) ) :
 		private function get_required_permission( $action ) {
 			switch ( $action ) {
 				case 'read':
-					return 'triggers';
+					return 'automations';
 				case 'create':
 				case 'update':
 				case 'delete':
-					return 'triggers';
+					return 'automations';
 				case 'execute':
 					return 'execute';
 				default:
-					return 'triggers';
+					return 'automations';
 			}
 		}
 
@@ -429,7 +429,7 @@ if ( ! class_exists( 'SUPER_Automation_REST_Controller' ) ) :
 			$params = $request->get_json_params();
 
 			$automation_data = array(
-				'name'   => $params['name'] ?? $params['trigger_name'] ?? '',
+				'name'   => $params['name'] ?? '',
 				'workflow_type'  => $params['workflow_type'] ?? 'visual',
 				'workflow_graph' => $params['workflow_graph'] ?? '',
 				'enabled'        => $params['enabled'] ?? 1,
@@ -466,8 +466,6 @@ if ( ! class_exists( 'SUPER_Automation_REST_Controller' ) ) :
 			// Only update fields that are provided (new schema)
 			if ( isset( $params['name'] ) ) {
 				$automation_data['name'] = $params['name'];
-			} elseif ( isset( $params['trigger_name'] ) ) {
-				$automation_data['name'] = $params['trigger_name'];
 			}
 			if ( isset( $params['workflow_type'] ) ) {
 				$automation_data['workflow_type'] = $params['workflow_type'];

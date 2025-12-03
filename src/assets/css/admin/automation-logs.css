@@ -1,0 +1,9 @@
+/* Super Forms - Automation Logs Admin Page Styles */
+.super-automation-logs-wrap .status-badge { display: inline-block; padding: 3px 8px; border-radius: 3px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+.super-automation-logs-wrap .status-badge.status-success { background: #d6f5d6; color: #006600; }
+.super-automation-logs-wrap .status-badge.status-failed { background: #ffd6d6; color: #990000; }
+.super-automation-logs-wrap .status-badge.status-skipped { background: #fff3cd; color: #856404; }
+.super-automation-logs-wrap .super-logs-stats { display:flex; gap:15px; margin:20px 0; }
+.super-automation-logs-wrap .stat-box { background:#fff; padding:15px 25px; border-radius:4px; box-shadow:0 1px 3px rgba(0,0,0,0.1); text-align:center; }
+.super-automation-logs-wrap .stat-box .stat-value { display:block; font-size:28px; font-weight:600; color:#1d2327; }
+.super-automation-logs-wrap .stat-box .stat-label { color:#646970; font-size:12px; }

@@ -74,9 +74,9 @@ function _init_plugin_tables() {
 
 	// Drop existing plugin tables to ensure fresh schema (order matters for FK constraints)
 	$tables = array(
-		$wpdb->prefix . 'superforms_trigger_logs',
-		$wpdb->prefix . 'superforms_trigger_actions',
-		$wpdb->prefix . 'superforms_triggers',
+		$wpdb->prefix . 'superforms_automation_logs',
+		$wpdb->prefix . 'superforms_automation_actions',
+		$wpdb->prefix . 'superforms_automations',
 		$wpdb->prefix . 'superforms_entry_data',
 		$wpdb->prefix . 'superforms_entry_meta',
 		$wpdb->prefix . 'superforms_entries',
@@ -111,9 +111,9 @@ require $wp_phpunit_dir . '/includes/bootstrap.php';
 require_once dirname( __FILE__ ) . '/class-test-helpers.php';
 require_once dirname( __FILE__ ) . '/class-test-db-logger.php';
 
-// Load trigger action classes for testing
+// Load automation action classes for testing
 $plugin_dir = defined( 'SUPER_PLUGIN_DIR' ) ? SUPER_PLUGIN_DIR : dirname( dirname( __FILE__ ) );
-$actions_dir = $plugin_dir . '/includes/triggers/actions';
+$actions_dir = $plugin_dir . '/includes/automations/actions';
 if ( is_dir( $actions_dir ) ) {
 	$action_files = glob( $actions_dir . '/class-action-*.php' );
 	foreach ( $action_files as $file ) {

@@ -5,7 +5,7 @@
  * Pre-built templates for common API integrations
  *
  * @package Super_Forms
- * @subpackage Triggers
+ * @subpackage Automations
  * @since 6.5.0
  */
 
@@ -48,13 +48,13 @@ class SUPER_HTTP_Request_Templates {
         $this->register_default_templates();
 
         // Allow add-ons to register templates
-        add_action('init', [$this, 'trigger_template_registration'], 20);
+        add_action('init', [$this, 'init_template_registration'], 20);
     }
 
     /**
-     * Trigger template registration hook
+     * Fire template registration hook
      */
-    public function trigger_template_registration() {
+    public function init_template_registration() {
         do_action('super_http_request_register_templates', $this);
     }
 

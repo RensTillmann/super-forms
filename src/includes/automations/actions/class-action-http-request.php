@@ -715,6 +715,10 @@ class SUPER_Action_HTTP_Request extends SUPER_Action_Base {
         if (in_array($method, ['GET', 'HEAD', 'OPTIONS']) || $body_type === 'none') {
             return null;
         }
+
+        switch ($body_type) {
+            case 'json':
+                $json = $config['json_body'] ?? '{}';
                 // Process repeater tags before standard tag replacement
                 $json = $this->process_repeater_tags($json, $context);
                 // Now do standard tag replacement

@@ -53,6 +53,14 @@ if ( ! class_exists( 'SUPER_Menu' ) ) :
 			);
 			add_submenu_page(
 				'super_forms',
+				esc_html__( 'Create Form V2', 'super-forms' ),
+				esc_html__( 'Create Form V2', 'super-forms' ),
+				'manage_options',
+				'super_form_v2',
+				'SUPER_Pages::create_form_v2'
+			);
+			add_submenu_page(
+				'super_forms',
 				esc_html__( 'Settings', 'super-forms' ),
 				esc_html__( 'Settings', 'super-forms' ),
 				'manage_options',

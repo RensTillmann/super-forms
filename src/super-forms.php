@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.4.200
+ * Version:           6.6.0
  * Plugin URI:        http://super-forms.com
  * Author URI:        http://super-forms.com
  * Author:            WebRehab
@@ -60,7 +60,7 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 		 *
 		 *  @since      1.0.0
 		 */
-		public $version    = '6.4.200';
+		public $version    = '6.6.0';
 		public $slug       = 'super-forms';
 		public $apiUrl     = 'https://api.dev.super-forms.com/';
 		public $apiVersion = 'v1';
@@ -253,38 +253,43 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 		include_once 'includes/class-session-dal.php'; // Phase 1a: Progressive sessions
 		include_once 'includes/class-session-cleanup.php'; // Phase 1a: Session cleanup jobs
 		include_once 'includes/class-entry-dal.php'; // Phase 17: Entry Data Access Layer
+		include_once 'includes/class-form-dal.php'; // Phase 18: Form Data Access Layer
 		include_once 'includes/class-entry-backwards-compat.php'; // Phase 17: BC hooks
 		include_once 'includes/class-entry-rest-controller.php'; // Phase 17: Entry REST API
 	include_once 'includes/class-migration-manager.php';
 	include_once 'includes/class-background-migration.php';
+	include_once 'includes/class-form-background-migration.php';
+	SUPER_Form_Background_Migration::init();
 	include_once 'includes/class-cron-fallback.php';
+	include_once 'includes/class-form-operations.php'; // Phase 27: JSON Patch operations
+	include_once 'includes/class-form-rest-controller.php'; // Phase 27: Forms REST API
 include_once 'includes/class-developer-tools.php';
 
-		// Triggers/Actions System (Phase 1 + Phase 2)
-		include_once 'includes/class-automation-dal.php';
+		// Automations System (Phase 1 + Phase 2)
+		include_once 'includes/automations/class-automation-dal.php';
 		include_once 'includes/automations/class-action-base.php';
 		include_once 'includes/automations/class-automation-registry.php';
-		include_once 'includes/class-automation-conditions.php';
-		include_once 'includes/class-automation-manager.php';
-		include_once 'includes/class-automation-scheduler.php'; // Phase 2: Action Scheduler integration
-		include_once 'includes/class-automation-executor.php';
-		include_once 'includes/class-automation-rest-controller.php';
+		include_once 'includes/automations/class-automation-conditions.php';
+		include_once 'includes/automations/class-automation-manager.php';
+		include_once 'includes/automations/class-automation-scheduler.php'; // Phase 2: Action Scheduler integration
+		include_once 'includes/automations/class-automation-executor.php';
+		include_once 'includes/automations/class-automation-rest-controller.php';
 
-		// Triggers/Actions System - Phase 3: Execution & Logging
-		include_once 'includes/class-automation-logger.php';
-		include_once 'includes/class-automation-debugger.php';
-		include_once 'includes/class-automation-performance.php';
-		include_once 'includes/class-automation-compliance.php';
+		// Automations System - Phase 3: Execution & Logging
+		include_once 'includes/automations/class-automation-logger.php';
+		include_once 'includes/automations/class-automation-debugger.php';
+		include_once 'includes/automations/class-automation-performance.php';
+		include_once 'includes/automations/class-automation-compliance.php';
 
-		// Triggers/Actions System - Phase 4: API Security & Credentials
-		include_once 'includes/class-automation-credentials.php';
-		include_once 'includes/class-automation-oauth.php';
-		include_once 'includes/class-automation-security.php';
-		include_once 'includes/class-automation-permissions.php';
-		include_once 'includes/class-automation-api-keys.php';
+		// Automations System - Phase 4: API Security & Credentials
+		include_once 'includes/automations/class-automation-credentials.php';
+		include_once 'includes/automations/class-automation-oauth.php';
+		include_once 'includes/automations/class-automation-security.php';
+		include_once 'includes/automations/class-automation-permissions.php';
+		include_once 'includes/automations/class-automation-api-keys.php';
 
-		// Email System - Phase 11: Email to Triggers Migration
-		include_once 'includes/class-email-trigger-migration.php';
+		// Email System - Phase 11: Email to Automations Migration
+		include_once 'includes/automations/class-email-automation-migration.php';
 
 			if ( $this->is_request( 'admin' ) ) {
 				include_once 'includes/class-install.php';
@@ -356,7 +361,7 @@ include_once 'includes/class-developer-tools.php';
 			add_action( 'super_cleanup_expired_uploads', array( $this, 'super_cleanup_uploads_action' ) );
 			add_action( 'super_cleanup_old_serialized_data', array( $this, 'super_cleanup_serialized_action' ) );
 			add_action( 'super_scheduled_automation_execution', array( 'SUPER_Automations', 'execute_scheduled_automation_actions' ) );
-			add_action( 'super_triggers_cleanup_logs', array( $this, 'super_triggers_cleanup_logs_action' ) );
+			add_action( 'super_automations_cleanup_logs', array( $this, 'super_automations_cleanup_logs_action' ) );
 
 			add_action( 'plugins_loaded', array( $this, 'include_add_ons' ), 0 );
 
@@ -378,9 +383,10 @@ include_once 'includes/class-developer-tools.php';
 			add_action( 'init', array( $this, 'register_shortcodes' ) );
 			add_action( 'parse_request', array( $this, 'sfapi' ) );
 
-			// Triggers/Actions System initialization
-			add_action( 'init', array( $this, 'init_triggers_system' ), 5 );
-			add_action( 'rest_api_init', array( $this, 'register_triggers_rest_routes' ) );
+			// Automations System initialization
+			add_action( 'init', array( $this, 'init_automations_system' ), 5 );
+			add_action( 'rest_api_init', array( $this, 'register_automations_rest_routes' ) );
+			add_action( 'rest_api_init', array( $this, 'register_forms_rest_routes' ) );
 
 			// Set unique submission ID to expire after 15 days due to possible delayed payment methods used by Stripe
 			// SEPA Direct Debit is a reusable, delayed notification payment method. This means that it can take up to 14 business days to receive notification on the success or failure of a payment after you initiate a debit from the customer’s account, though the average is five business days.
@@ -634,7 +640,7 @@ include_once 'includes/class-developer-tools.php';
 	}
 
 	// Action handler for trigger logs cleanup (Phase 3)
-		public static function super_triggers_cleanup_logs_action() {
+		public static function super_automations_cleanup_logs_action() {
 		if ( defined( 'WP_SETUP_CONFIG' ) || defined( 'WP_INSTALLING' ) ) {
 			return;
 		}
@@ -2004,6 +2010,12 @@ include_once 'includes/class-developer-tools.php';
 			if ( ! isset( $global_settings['backend_disable_whats_new_notice'] ) ) {
 				$version = get_option( 'super_current_version', '1.0.0' );
 				if ( version_compare( $version, $this->version, '<' ) ) {
+					// @since 6.5.0 - cleanup legacy automation data
+					if ( version_compare( $version, '6.5.0', '<' ) ) {
+						if(class_exists('SUPER_Migration_Manager')){
+							SUPER_Migration_Manager::cleanup_legacy_automations();
+						}
+					}
 					update_option( 'super_current_version', $this->version );
 					echo '<div class="notice notice-success">'; // notice-success, notice-error
 						echo '<div class="super-demos-notice">';
@@ -2616,7 +2628,7 @@ include_once 'includes/class-developer-tools.php';
 				add_action( 'super_create_form_code_tab', array( 'SUPER_Pages', 'code_tab' ), 10, 1 );
 				add_action( 'super_create_form_secrets_tab', array( 'SUPER_Pages', 'secrets_tab' ), 10, 1 );
 				add_action( 'super_create_form_translations_tab', array( 'SUPER_Pages', 'translations_tab' ), 10, 1 );
-				add_action( 'super_create_form_triggers_tab', array( 'SUPER_Pages', 'triggers_tab' ), 10, 1 );
+				add_action( 'super_create_form_automations_tab', array( 'SUPER_Pages', 'automations_tab' ), 10, 1 );
 				add_action(
 					'admin_footer',
 					function () {
@@ -4085,11 +4097,6 @@ include_once 'includes/class-developer-tools.php';
 			}
 			add_post_meta( $new_id, '_super_elements', $elements );
 
-			$s = SUPER_Common::get_form_triggers( $id );
-			error_log( 'Triggers: ' . json_encode( $s ) );
-			error_log( 'save_form_triggers(1)' );
-			SUPER_Common::save_form_triggers( $s, $id );
-
 			$s = SUPER_Common::get_form_emails_settings( $id );
 			SUPER_Common::save_form_emails_settings( $s, $id );
 
@@ -4211,11 +4218,11 @@ include_once 'includes/class-developer-tools.php';
 		}
 
 		/**
-		 * Initialize triggers/actions system
+		 * Initialize automations system
 		 *
 		 * @since 6.5.0
 		 */
-		public function init_triggers_system() {
+		public function init_automations_system() {
 			// Initialize the registry singleton
 			$registry = SUPER_Automation_Registry::get_instance();
 
@@ -4255,7 +4262,7 @@ include_once 'includes/class-developer-tools.php';
 			 * @param SUPER_Automation_Registry $registry Registry instance
 			 * @since 6.5.0
 			 */
-			do_action( 'super_register_triggers', $registry );
+			do_action( 'super_register_automations', $registry );
 		}
 
 		/**
@@ -4266,7 +4273,7 @@ include_once 'includes/class-developer-tools.php';
 		 * @since 6.5.0
 		 */
 		private function schedule_log_retention_cleanup() {
-			$hook = 'super_triggers_cleanup_logs';
+			$hook = 'super_automations_cleanup_logs';
 			$group = SUPER_Automation_Scheduler::GROUP;
 
 			// Check if already scheduled
@@ -4286,16 +4293,37 @@ include_once 'includes/class-developer-tools.php';
 		}
 
 		/**
-		 * Register REST API routes for triggers system
+		 * Register REST API routes for automations system
 		 *
 		 * @since 6.5.0
 		 */
-		public function register_triggers_rest_routes() {
+		public function register_automations_rest_routes() {
 			$controller = new SUPER_Automation_REST_Controller();
+			$controller->register_routes();
+		}
+
+		/**
+		 * Register REST API routes for forms system
+		 *
+		 * @since 6.6.0
+		 */
+		public function register_forms_rest_routes() {
+			$controller = new SUPER_Form_REST_Controller();
 			$controller->register_routes();
 		}
 	}
 endif;
+
+// Public API for event dispatching
+if( !function_exists('super_dispatch_event') ) {
+	function super_dispatch_event($event_id, $context = array()) {
+		if ( class_exists( 'SUPER_Automation_Executor' ) ) {
+			return SUPER_Automation_Executor::fire_event($event_id, $context);
+		}
+		return new WP_Error('automation_system_not_loaded', 'Super Forms Automation System is not available.');
+	}
+}
+
 
 
 /**

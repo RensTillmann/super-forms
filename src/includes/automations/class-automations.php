@@ -48,7 +48,7 @@ if ( ! class_exists( 'SUPER_Automations' ) ) :
 					error_log( 'Calling action method: ' . $automationEventParameters['actionName'] );
 					call_user_func( array( 'SUPER_Automations', $automation_options['action'] ), $automationEventParameters );
 				} else {
-					error_log( 'Automation event `' . $automationEventParameters['triggerName'] . '` tried to call an action named `' . $automation_options['action'] . "` but such action doesn't exist" );
+					error_log( 'Automation event `' . $automationEventParameters['eventName'] . '` tried to call an action named `' . $automation_options['action'] . "` but such action doesn't exist" );
 				}
 			}
 			error_log( 'execute_scheduled_automation_actions() completed' );
@@ -304,10 +304,10 @@ if ( ! class_exists( 'SUPER_Automations' ) ) :
 						if ( $scheduled_automation_action_timestamp < time() ) {
 							// Just try to add 1 extra day to the current date
 							error_log( 'Schedule still in past after adding 1 day, throwing error' );
-							error_log( 'Super Forms [ERROR]: ' . $scheduled_real_date . ' can not be used as a schedule date for automation ' . $triggerName . ' (form id: ' . $form_id . ') because it is in the past, please check your settings under [Triggers] tab on the form builder.' );
+							error_log( 'Super Forms [ERROR]: ' . $scheduled_real_date . ' can not be used as a schedule date for automation event ' . $eventName . ' (form id: ' . $form_id . ') because it is in the past, please check your settings under [Triggers] tab on the form builder.' );
 							SUPER_Common::output_message(
 								array(
-									'msg'     => '<strong>' . $scheduled_real_date . '</strong> can not be used as a schedule date for automation ' . $triggerName . ' because it is in the past, please check your settings under [Triggers] tab on the form builder.',
+									'msg'     => '<strong>' . $scheduled_real_date . '</strong> can not be used as a schedule date for automation event ' . $eventName . ' because it is in the past, please check your settings under [Triggers] tab on the form builder.',
 									'form_id' => $form_id,
 								)
 							);
@@ -356,10 +356,10 @@ if ( ! class_exists( 'SUPER_Automations' ) ) :
 					if ( is_wp_error( $scheduled_automation_action_id ) ) {
 						$errors = $scheduled_automation_action_id->get_error_messages();
 						foreach ( $errors as $error ) {
-							error_log( 'Super Forms [ERROR]: unable to create scheduled automation action ' . $triggerName . ' (form id: ' . $form_id . '), ' . $error );
+							error_log( 'Super Forms [ERROR]: unable to create scheduled automation action for event ' . $eventName . ' (form id: ' . $form_id . '), ' . $error );
 							SUPER_Common::output_message(
 								array(
-									'msg'     => 'Unable to create scheduled automation action ' . $triggerName . ', ' . $error,
+									'msg'     => 'Unable to create scheduled automation action for event ' . $eventName . ', ' . $error,
 									'form_id' => $form_id,
 								)
 							);
@@ -375,7 +375,6 @@ if ( ! class_exists( 'SUPER_Automations' ) ) :
 					$automationEventParameters = array(
 						'form_id'     => $form_id,
 						'eventName'   => $eventName,  // e.g. 'sf.after.submission'
-						'triggerName' => $triggerName,  // e.g. 'E-mail reminder #2'
 						'actionName'  => $actionName, // e.g. 'send_email'
 						'order'       => $action['order'], // e.g. 'send_email'
 						'sfsi'        => $sfsi,

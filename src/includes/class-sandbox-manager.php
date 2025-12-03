@@ -2,8 +2,8 @@
 /**
  * Sandbox Manager for Developer Tools
  *
- * Creates inspectable test forms, triggers, and entries in the live database
- * for visual validation of the trigger system.
+ * Creates inspectable test forms, automations, and entries in the live database
+ * for visual validation of the automations system.
  *
  * @package Super_Forms
  * @since 6.5.0
@@ -44,7 +44,7 @@ class SUPER_Sandbox_Manager {
     /**
      * Create a complete sandbox environment
      *
-     * Creates multiple test forms with triggers for comprehensive testing.
+     * Creates multiple test forms with automations for comprehensive testing.
      *
      * @param array $options Which form types to create (default: all)
      * @return array|WP_Error Sandbox state on success, WP_Error on failure
@@ -64,7 +64,7 @@ class SUPER_Sandbox_Manager {
         $sandbox_state = array(
             'created_at'  => current_time('mysql'),
             'forms'       => array(),
-            'trigger_ids' => array(),
+            'automation_ids' => array(),
             'entry_ids'   => array(),
         );
 
@@ -84,13 +84,13 @@ class SUPER_Sandbox_Manager {
             $sandbox_state['forms'][$form_type] = array(
                 'form_id'     => $form_id,
                 'form_title'  => $form_result['title'],
-                'trigger_ids' => array(),
+                'automation_ids' => array(),
             );
 
-            // Create triggers for this form
-            $triggers = self::create_triggers_for_form($form_id, $form_type);
-            $sandbox_state['forms'][$form_type]['trigger_ids'] = $triggers;
-            $sandbox_state['trigger_ids'] = array_merge($sandbox_state['trigger_ids'], $triggers);
+            // Create automations for this form
+            $automations = self::create_automations_for_form($form_id, $form_type);
+            $sandbox_state['forms'][$form_type]['automation_ids'] = $automations;
+            $sandbox_state['automation_ids'] = array_merge($sandbox_state['automation_ids'], $automations);
         }
 
         if (empty($sandbox_state['forms'])) {
@@ -166,39 +166,39 @@ class SUPER_Sandbox_Manager {
     }
 
     /**
-     * Create triggers appropriate for a form type
+     * Create automations appropriate for a form type
      *
      * @param int    $form_id   Form ID
      * @param string $form_type Form type identifier
-     * @return array Trigger IDs
+     * @return array Automation IDs
      */
-    private static function create_triggers_for_form($form_id, $form_type) {
-        $trigger_ids = array();
+    private static function create_automations_for_form($form_id, $form_type) {
+        $automation_ids = array();
 
-        // Use trigger factory if available
-        if (class_exists('SUPER_Test_Trigger_Factory')) {
+        // Use automation factory if available
+        if (class_exists('SUPER_Test_Automation_Factory')) {
             $options = array(
                 'on_submit_log'    => true,
                 'on_entry_created' => true,
             );
 
-            // Add conditional trigger for comprehensive forms
+            // Add conditional automation for comprehensive forms
             if ($form_type === 'comprehensive') {
                 $options['on_high_budget'] = true;
             }
 
-            $triggers = SUPER_Test_Trigger_Factory::create_trigger_set($form_id, $options);
-            foreach ($triggers as $trigger_id) {
-                if (!is_wp_error($trigger_id)) {
-                    $trigger_ids[] = $trigger_id;
+            $automations = SUPER_Test_Automation_Factory::create_automation_set($form_id, $options);
+            foreach ($automations as $automation_id) {
+                if (!is_wp_error($automation_id)) {
+                    $automation_ids[] = $automation_id;
                 }
             }
         } else {
-            // Fallback: create triggers manually
-            $trigger_ids = self::create_triggers_manually($form_id, $form_type);
+            // Fallback: create automations manually
+            $automation_ids = self::create_automations_manually($form_id, $form_type);
         }
 
-        return $trigger_ids;
+        return $automation_ids;
     }
 
     /**
@@ -262,42 +262,39 @@ class SUPER_Sandbox_Manager {
     }
 
     /**
-     * Create triggers manually (fallback when fixtures unavailable)
+     * Create automations manually (fallback when fixtures unavailable)
      *
      * @param int    $form_id   Form ID
      * @param string $form_type Form type
-     * @return array Trigger IDs
+     * @return array Automation IDs
      */
-    private static function create_triggers_manually($form_id, $form_type) {
+    private static function create_automations_manually($form_id, $form_type) {
         global $wpdb;
-        $trigger_ids = array();
+        $automation_ids = array();
 
-        // Trigger 1: Log on form submission
+        // Automation 1: Log on form submission
         $wpdb->insert(
             $wpdb->prefix . 'superforms_automations',
             array(
-                'trigger_name'    => 'Sandbox: Log Submission (' . $form_type . ')',
-                'event_id'        => 'form.submitted',
-                'scope'           => 'form',
-                'scope_id'        => $form_id,
-                'conditions'      => wp_json_encode(array()),
-                'enabled'         => 1,
-                'execution_order' => 10,
-                'created_at'      => current_time('mysql'),
-                'updated_at'      => current_time('mysql'),
+                'name'           => 'Sandbox: Log Submission (' . $form_type . ')',
+                'type'           => 'code',
+                'workflow_graph' => '',
+                'enabled'        => 1,
+                'created_at'     => current_time('mysql'),
+                'updated_at'     => current_time('mysql'),
             ),
-            array('%s', '%s', '%s', '%d', '%s', '%d', '%d', '%s', '%s')
+            array('%s', '%s', '%s', '%d', '%s', '%s')
         );
-        $trigger1_id = $wpdb->insert_id;
-        if ($trigger1_id) {
-            $trigger_ids[] = $trigger1_id;
+        $automation1_id = $wpdb->insert_id;
+        if ($automation1_id) {
+            $automation_ids[] = $automation1_id;
             $wpdb->insert(
                 $wpdb->prefix . 'superforms_automation_actions',
                 array(
-                    'trigger_id'   => $trigger1_id,
+                    'automation_id'   => $automation1_id,
                     'action_type'  => 'log_message',
-                    'action_order' => 1,
-                    'config'       => wp_json_encode(array(
+                    'execution_order' => 1,
+                    'action_config'       => wp_json_encode(array(
                         'message' => 'Sandbox submission! Form: {form_id}, Name: {name}, Email: {email}',
                         'level'   => 'info',
                     )),
@@ -307,32 +304,29 @@ class SUPER_Sandbox_Manager {
             );
         }
 
-        // Trigger 2: Log entry creation
+        // Automation 2: Log entry creation
         $wpdb->insert(
             $wpdb->prefix . 'superforms_automations',
             array(
-                'trigger_name'    => 'Sandbox: Track Entry (' . $form_type . ')',
-                'event_id'        => 'entry.created',
-                'scope'           => 'form',
-                'scope_id'        => $form_id,
-                'conditions'      => wp_json_encode(array()),
-                'enabled'         => 1,
-                'execution_order' => 10,
-                'created_at'      => current_time('mysql'),
-                'updated_at'      => current_time('mysql'),
+                'name'           => 'Sandbox: Track Entry (' . $form_type . ')',
+                'type'           => 'code',
+                'workflow_graph' => '',
+                'enabled'        => 1,
+                'created_at'     => current_time('mysql'),
+                'updated_at'     => current_time('mysql'),
             ),
-            array('%s', '%s', '%s', '%d', '%s', '%d', '%d', '%s', '%s')
+            array('%s', '%s', '%s', '%d', '%s', '%s')
         );
-        $trigger2_id = $wpdb->insert_id;
-        if ($trigger2_id) {
-            $trigger_ids[] = $trigger2_id;
+        $automation2_id = $wpdb->insert_id;
+        if ($automation2_id) {
+            $automation_ids[] = $automation2_id;
             $wpdb->insert(
                 $wpdb->prefix . 'superforms_automation_actions',
                 array(
-                    'trigger_id'   => $trigger2_id,
+                    'automation_id'   => $automation2_id,
                     'action_type'  => 'log_message',
-                    'action_order' => 1,
-                    'config'       => wp_json_encode(array(
+                    'execution_order' => 1,
+                    'action_config'       => wp_json_encode(array(
                         'message' => 'Entry created! ID: {entry_id}, Form: {form_id}',
                         'level'   => 'info',
                     )),
@@ -342,7 +336,7 @@ class SUPER_Sandbox_Manager {
             );
         }
 
-        return $trigger_ids;
+        return $automation_ids;
     }
 
     /**
@@ -355,12 +349,12 @@ class SUPER_Sandbox_Manager {
 
         if (empty($state)) {
             return array(
-                'exists'        => false,
-                'forms'         => array(),
-                'trigger_ids'   => array(),
-                'trigger_count' => 0,
-                'entry_count'   => 0,
-                'log_count'     => 0,
+                'exists'         => false,
+                'forms'          => array(),
+                'automation_ids' => array(),
+                'automation_count' => 0,
+                'entry_count'    => 0,
+                'log_count'      => 0,
             );
         }
 
@@ -372,14 +366,14 @@ class SUPER_Sandbox_Manager {
             self::SANDBOX_META_KEY
         ));
 
-        // Count trigger logs
+        // Count automation logs
         $log_count = 0;
-        $trigger_ids = !empty($state['trigger_ids']) ? $state['trigger_ids'] : array();
-        if (!empty($trigger_ids)) {
-            $placeholders = implode(',', array_fill(0, count($trigger_ids), '%d'));
+        $automation_ids = !empty($state['automation_ids']) ? $state['automation_ids'] : array();
+        if (!empty($automation_ids)) {
+            $placeholders = implode(',', array_fill(0, count($automation_ids), '%d'));
             $log_count = $wpdb->get_var($wpdb->prepare(
-                "SELECT COUNT(*) FROM {$wpdb->prefix}superforms_automation_logs WHERE trigger_id IN ($placeholders)",
-                ...$trigger_ids
+                "SELECT COUNT(*) FROM {$wpdb->prefix}superforms_automation_logs WHERE automation_id IN ($placeholders)",
+                ...$automation_ids
             ));
         }
 
@@ -390,24 +384,24 @@ class SUPER_Sandbox_Manager {
                 $form_id = $form_data['form_id'];
                 $form = get_post($form_id);
                 $forms[$type] = array(
-                    'form_id'      => $form_id,
-                    'form_title'   => $form ? $form->post_title : 'Unknown',
-                    'form_url'     => $form_id ? add_query_arg('super_sandbox', $type, home_url('/')) : '',
-                    'edit_url'     => $form_id ? admin_url('admin.php?page=super_create_form&id=' . $form_id) : '',
-                    'trigger_ids'  => $form_data['trigger_ids'] ?? array(),
-                    'trigger_count' => count($form_data['trigger_ids'] ?? array()),
+                    'form_id'         => $form_id,
+                    'form_title'      => $form ? $form->post_title : 'Unknown',
+                    'form_url'        => $form_id ? add_query_arg('super_sandbox', $type, home_url('/')) : '',
+                    'edit_url'        => $form_id ? admin_url('admin.php?page=super_create_form&id=' . $form_id) : '',
+                    'automation_ids'  => $form_data['automation_ids'] ?? array(),
+                    'automation_count' => count($form_data['automation_ids'] ?? array()),
                 );
             }
         }
 
         return array(
-            'exists'        => !empty($state['forms']),
-            'forms'         => $forms,
-            'trigger_ids'   => $trigger_ids,
-            'trigger_count' => count($trigger_ids),
-            'entry_count'   => (int) $entry_count,
-            'log_count'     => (int) $log_count,
-            'created_at'    => $state['created_at'] ?? '',
+            'exists'           => !empty($state['forms']),
+            'forms'            => $forms,
+            'automation_ids'   => $automation_ids,
+            'automation_count' => count($automation_ids),
+            'entry_count'      => (int) $entry_count,
+            'log_count'        => (int) $log_count,
+            'created_at'       => $state['created_at'] ?? '',
         );
     }
 
@@ -457,7 +451,7 @@ class SUPER_Sandbox_Manager {
             update_post_meta($entry_id, '_super_contact_entry_data', $entry_data);
         }
 
-        // Build context for trigger execution
+        // Build context for automation execution
         // Important: Include 'data' with field values for tag replacement
         $context = self::build_context($form_id, $entry_id, $entry_data);
 
@@ -487,38 +481,38 @@ class SUPER_Sandbox_Manager {
         $state['entry_ids'][] = $entry_id;
         update_option(self::SANDBOX_OPTION, $state);
 
-        // Count triggers found and executed
-        $triggers_found = 0;
-        $triggers_executed = 0;
+        // Count automations found and executed
+        $automations_found = 0;
+        $automations_executed = 0;
         foreach ($execution_results as $event => $results) {
-            $triggers_found += count($results);
-            foreach ($results as $trigger_id => $result) {
+            $automations_found += count($results);
+            foreach ($results as $automation_id => $result) {
                 if (!empty($result['success'])) {
-                    $triggers_executed++;
+                    $automations_executed++;
                 }
             }
         }
 
         return array(
-            'success'           => true,
-            'entry_id'          => $entry_id,
-            'form_id'           => $form_id,
-            'form_type'         => $form_type,
-            'entry_url'         => admin_url('admin.php?page=super_contact_entry&id=' . $entry_id),
-            'entry_data'        => $entry_data,
-            'triggers_found'    => $triggers_found,
-            'triggers_executed' => $triggers_executed,
-            'execution_results' => $execution_results,
+            'success'              => true,
+            'entry_id'             => $entry_id,
+            'form_id'              => $form_id,
+            'form_type'            => $form_type,
+            'entry_url'            => admin_url('admin.php?page=super_contact_entry&id=' . $entry_id),
+            'entry_data'           => $entry_data,
+            'automations_found'    => $automations_found,
+            'automations_executed' => $automations_executed,
+            'execution_results'    => $execution_results,
         );
     }
 
     /**
-     * Build context for trigger execution
+     * Build context for automation execution
      *
      * @param int   $form_id    Form ID
      * @param int   $entry_id   Entry ID
      * @param array $entry_data Entry field data
-     * @return array Context for trigger execution
+     * @return array Context for automation execution
      */
     private static function build_context($form_id, $entry_id, $entry_data) {
         $context = array(
@@ -613,7 +607,7 @@ class SUPER_Sandbox_Manager {
     /**
      * Run automated test suite on sandbox
      *
-     * Submits entries to all forms and verifies triggers execute correctly.
+     * Submits entries to all forms and verifies automations execute correctly.
      *
      * @return array Test results
      */
@@ -641,8 +635,8 @@ class SUPER_Sandbox_Manager {
                 'form_id'           => $form_data['form_id'],
                 'passed'            => false,
                 'entry_created'     => false,
-                'triggers_found'    => 0,
-                'triggers_executed' => 0,
+                'automations_found'    => 0,
+                'automations_executed' => 0,
                 'logs_created'      => 0,
                 'errors'            => array(),
             );
@@ -656,26 +650,26 @@ class SUPER_Sandbox_Manager {
             } else {
                 $test_result['entry_created'] = true;
                 $test_result['entry_id'] = $submission['entry_id'];
-                $test_result['triggers_found'] = $submission['triggers_found'];
-                $test_result['triggers_executed'] = $submission['triggers_executed'];
+                $test_result['automations_found'] = $submission['automations_found'];
+                $test_result['automations_executed'] = $submission['automations_executed'];
 
                 // Check logs were created
                 $logs = self::get_logs_for_entry($submission['entry_id']);
                 $test_result['logs_created'] = count($logs);
 
                 // Determine pass/fail
-                $expected_triggers = count($form_data['trigger_ids']);
-                if ($test_result['triggers_executed'] >= $expected_triggers && $test_result['logs_created'] > 0) {
+                $expected_automations = count($form_data['automation_ids']);
+                if ($test_result['automations_executed'] >= $expected_automations && $test_result['logs_created'] > 0) {
                     $test_result['passed'] = true;
                     $results['total_passed']++;
                 } else {
                     $test_result['passed'] = false;
                     $results['total_failed']++;
-                    if ($test_result['triggers_executed'] < $expected_triggers) {
+                    if ($test_result['automations_executed'] < $expected_automations) {
                         $test_result['errors'][] = sprintf(
-                            'Expected %d triggers, only %d executed',
-                            $expected_triggers,
-                            $test_result['triggers_executed']
+                            'Expected %d automations, only %d executed',
+                            $expected_automations,
+                            $test_result['automations_executed']
                         );
                     }
                     if ($test_result['logs_created'] === 0) {
@@ -693,7 +687,7 @@ class SUPER_Sandbox_Manager {
     }
 
     /**
-     * Get trigger logs for a specific entry
+     * Get automation logs for a specific entry
      *
      * @param int $entry_id Entry ID
      * @return array Log entries
@@ -707,27 +701,27 @@ class SUPER_Sandbox_Manager {
     }
 
     /**
-     * Get all trigger logs for sandbox
+     * Get all automation logs for sandbox
      *
      * @param int $limit Number of logs to return
      * @return array Array of log entries
      */
     public static function get_sandbox_logs($limit = 50) {
         $status = self::get_sandbox_status();
-        if (!$status['exists'] || empty($status['trigger_ids'])) {
+        if (!$status['exists'] || empty($status['automation_ids'])) {
             return array();
         }
 
         global $wpdb;
-        $trigger_ids = $status['trigger_ids'];
-        $placeholders = implode(',', array_fill(0, count($trigger_ids), '%d'));
+        $automation_ids = $status['automation_ids'];
+        $placeholders = implode(',', array_fill(0, count($automation_ids), '%d'));
 
         $logs = $wpdb->get_results($wpdb->prepare(
             "SELECT * FROM {$wpdb->prefix}superforms_automation_logs
-             WHERE trigger_id IN ($placeholders)
+             WHERE automation_id IN ($placeholders)
              ORDER BY executed_at DESC
              LIMIT %d",
-            ...array_merge($trigger_ids, array($limit))
+            ...array_merge($automation_ids, array($limit))
         ), ARRAY_A);
 
         return $logs;
@@ -736,17 +730,17 @@ class SUPER_Sandbox_Manager {
     /**
      * Cleanup all sandbox data
      *
-     * Removes forms, triggers, entries, and logs created by sandbox.
+     * Removes forms, automations, entries, and logs created by sandbox.
      *
      * @return array Cleanup statistics
      */
     public static function cleanup_sandbox() {
         $status = self::get_sandbox_status();
         $stats = array(
-            'forms_deleted'    => 0,
-            'triggers_deleted' => 0,
-            'entries_deleted'  => 0,
-            'logs_deleted'     => 0,
+            'forms_deleted'       => 0,
+            'automations_deleted' => 0,
+            'entries_deleted'     => 0,
+            'logs_deleted'        => 0,
         );
 
         if (!$status['exists']) {
@@ -755,30 +749,30 @@ class SUPER_Sandbox_Manager {
 
         global $wpdb;
 
-        // Delete trigger logs
-        $trigger_ids = $status['trigger_ids'];
-        if (!empty($trigger_ids)) {
-            $placeholders = implode(',', array_fill(0, count($trigger_ids), '%d'));
+        // Delete automation logs
+        $automation_ids = $status['automation_ids'];
+        if (!empty($automation_ids)) {
+            $placeholders = implode(',', array_fill(0, count($automation_ids), '%d'));
             $stats['logs_deleted'] = $wpdb->query($wpdb->prepare(
-                "DELETE FROM {$wpdb->prefix}superforms_automation_logs WHERE trigger_id IN ($placeholders)",
-                ...$trigger_ids
+                "DELETE FROM {$wpdb->prefix}superforms_automation_logs WHERE automation_id IN ($placeholders)",
+                ...$automation_ids
             ));
         }
 
-        // Delete triggers
-        foreach ($trigger_ids as $trigger_id) {
+        // Delete automations
+        foreach ($automation_ids as $automation_id) {
             $wpdb->delete(
                 $wpdb->prefix . 'superforms_automation_actions',
-                array('trigger_id' => $trigger_id),
+                array('automation_id' => $automation_id),
                 array('%d')
             );
             $deleted = $wpdb->delete(
                 $wpdb->prefix . 'superforms_automations',
-                array('id' => $trigger_id),
+                array('id' => $automation_id),
                 array('%d')
             );
             if ($deleted) {
-                $stats['triggers_deleted']++;
+                $stats['automations_deleted']++;
             }
         }
 
@@ -817,8 +811,8 @@ class SUPER_Sandbox_Manager {
         if (class_exists('SUPER_Test_Form_Factory')) {
             SUPER_Test_Form_Factory::cleanup();
         }
-        if (class_exists('SUPER_Test_Trigger_Factory')) {
-            SUPER_Test_Trigger_Factory::cleanup();
+        if (class_exists('SUPER_Test_Automation_Factory')) {
+            SUPER_Test_Automation_Factory::cleanup();
         }
 
         return $stats;

@@ -691,6 +691,82 @@ fetch(url, { signal: state.abortController.signal });
 - Custom events fire for lifecycle hooks
 - Graceful degradation if AJAX fails (form still works)
 
+## Form Version History Component
+
+**Location:** `/src/react/admin/components/VersionHistory.tsx` (283 lines)
+
+Git-like version control UI for viewing and reverting form versions.
+
+**Features:**
+- Version list with metadata (version number, timestamp, creator, commit message)
+- Operation count display (number of changes in each version)
+- Revert confirmation dialog
+- Current version badge
+- Relative timestamps ("2 hours ago")
+- Empty state for new forms
+
+**Props Interface:**
+```typescript
+interface VersionHistoryProps {
+  formId: number;                       // Form to show versions for
+  onRevert?: (version: Version) => void; // Callback after revert
+  className?: string;                   // Optional container classes
+}
+```
+
+**Version Data Structure:**
+```typescript
+interface Version {
+  id: number;
+  form_id: number;
+  version_number: number;
+  snapshot: any;                        // Full form state
+  operations: any[] | null;             // Operations since last version
+  created_by: number;
+  created_at: string;                   // ISO timestamp
+  message: string | null;               // Optional commit message
+}
+```
+
+**REST API Integration:**
+```typescript
+// Load versions
+GET /wp-json/super-forms/v1/forms/${formId}/versions?limit=20
+
+// Revert to version
+POST /wp-json/super-forms/v1/forms/${formId}/revert/${versionId}
+```
+
+**UI Components Used:**
+- shadcn/ui: `Card`, `Button`, `Dialog`, `Badge`, `ScrollArea`
+- Lucide icons: `Clock`, `GitBranch`, `RotateCcw`, `Save`, `User`
+
+**Usage Example:**
+```tsx
+import { VersionHistory } from '@/components/VersionHistory';
+
+<VersionHistory
+  formId={123}
+  onRevert={(version) => {
+    console.log('Reverted to version', version.version_number);
+    // Reload form data
+  }}
+  className="mt-4"
+/>
+```
+
+**Revert Safety:**
+- Confirmation dialog before reverting
+- Explains that current state is saved as new version before revert
+- No data loss (all versions preserved)
+- Automatic version list reload after revert
+
+**Implementation Notes:**
+- Uses WordPress REST API nonce from `window.wpApiSettings.nonce`
+- Loading and error states with user-friendly messages
+- ScrollArea limits height to 400px with scrolling
+- Current version (index 0) shows "Current" badge and no revert button
+
 ## Visual Workflow Builder (Automations Tab)
 
 The automations tab features a custom-built visual workflow editor for creating node-based automation flows. Built with TypeScript + React, based on ai-automation architecture.

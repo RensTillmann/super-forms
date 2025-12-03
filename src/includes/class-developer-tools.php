@@ -1623,9 +1623,9 @@ if (!class_exists('SUPER_Developer_Tools')) :
 	}
 
 	/**
-	 * AJAX handler: Get trigger logs
+	 * AJAX handler: Get automation logs
 	 */
-	public static function ajax_get_trigger_logs() {
+	public static function ajax_get_automation_logs() {
 		check_ajax_referer('super-form-builder', 'nonce');
 
 		if (!current_user_can('manage_options')) {
@@ -1634,21 +1634,21 @@ if (!class_exists('SUPER_Developer_Tools')) :
 
 		$limit = isset($_POST['limit']) ? absint($_POST['limit']) : 50;
 
-		$result = self::get_trigger_logs($limit);
+		$result = self::get_automation_logs($limit);
 		wp_send_json_success($result);
 	}
 
 	/**
-	 * AJAX handler: Clear trigger logs
+	 * AJAX handler: Clear automation logs
 	 */
-	public static function ajax_clear_trigger_logs() {
+	public static function ajax_clear_automation_logs() {
 		check_ajax_referer('super-form-builder', 'nonce');
 
 		if (!current_user_can('manage_options')) {
 			wp_send_json_error(array('message' => 'Unauthorized'));
 		}
 
-		$result = self::clear_trigger_logs();
+		$result = self::clear_automation_logs();
 
 		if (isset($result['success']) && !$result['success']) {
 			wp_send_json_error($result);
@@ -1658,16 +1658,16 @@ if (!class_exists('SUPER_Developer_Tools')) :
 	}
 
 	/**
-	 * AJAX handler: Test trigger
+	 * AJAX handler: Test automation
 	 */
-	public static function ajax_test_trigger() {
+	public static function ajax_test_automation() {
 		check_ajax_referer('super-form-builder', 'nonce');
 
 		if (!current_user_can('manage_options')) {
 			wp_send_json_error(array('message' => 'Unauthorized'));
 		}
 
-		$trigger_id = isset($_POST['trigger_id']) ? absint($_POST['trigger_id']) : 0;
+		$automation_id = isset($_POST['automation_id']) ? absint($_POST['automation_id']) : 0;
 		$entry_data_json = isset($_POST['entry_data']) ? wp_unslash($_POST['entry_data']) : '{}';
 		$entry_data = json_decode($entry_data_json, true);
 
@@ -1675,7 +1675,7 @@ if (!class_exists('SUPER_Developer_Tools')) :
 			wp_send_json_error(array('message' => 'Invalid JSON in entry data'));
 		}
 
-		$result = self::test_trigger($trigger_id, $entry_data);
+		$result = self::test_automation($automation_id, $entry_data);
 
 		if (is_wp_error($result)) {
 			wp_send_json_error(array('message' => $result->get_error_message()));
@@ -1685,7 +1685,7 @@ if (!class_exists('SUPER_Developer_Tools')) :
 	}
 
 	/**
-	 * Fire test event for trigger testing
+	 * Fire test event for automation testing
 	 *
 	 * @param string $event_id Event identifier
 	 * @param int $form_id Form ID
@@ -1694,7 +1694,7 @@ if (!class_exists('SUPER_Developer_Tools')) :
 	 */
 	public static function fire_test_event($event_id, $form_id, $entry_id) {
 		if (!class_exists('SUPER_Automation_Executor')) {
-			return new WP_Error('executor_not_loaded', 'Trigger Executor class not loaded');
+			return new WP_Error('executor_not_loaded', 'Automation Executor class not loaded');
 		}
 
 		// Build mock context data
@@ -1753,19 +1753,19 @@ if (!class_exists('SUPER_Developer_Tools')) :
 			'success' => true,
 			'event_id' => $event_id,
 			'context' => $context,
-			'triggers_executed' => count($results),
+			'automations_executed' => count($results),
 			'execution_time_ms' => round($execution_time, 3),
 			'results' => $results
 		);
 	}
 
 	/**
-	 * Get trigger execution logs
+	 * Get automation execution logs
 	 *
 	 * @param int $limit Number of logs to retrieve
 	 * @return array Log entries
 	 */
-	public static function get_trigger_logs($limit = 50) {
+	public static function get_automation_logs($limit = 50) {
 		global $wpdb;
 		$table_name = $wpdb->prefix . 'superforms_automation_logs';
 
@@ -1774,7 +1774,7 @@ if (!class_exists('SUPER_Developer_Tools')) :
 		if ($table_exists !== $table_name) {
 			return array(
 				'logs' => array(),
-				'message' => 'Trigger logs table does not exist yet'
+				'message' => 'Automation logs table does not exist yet'
 			);
 		}
 
@@ -1794,11 +1794,11 @@ if (!class_exists('SUPER_Developer_Tools')) :
 	}
 
 	/**
-	 * Clear all trigger logs
+	 * Clear all automation logs
 	 *
 	 * @return array Deletion results
 	 */
-	public static function clear_trigger_logs() {
+	public static function clear_automation_logs() {
 		global $wpdb;
 		$table_name = $wpdb->prefix . 'superforms_automation_logs';
 
@@ -1807,7 +1807,7 @@ if (!class_exists('SUPER_Developer_Tools')) :
 		if ($table_exists !== $table_name) {
 			return array(
 				'success' => false,
-				'message' => 'Trigger logs table does not exist'
+				'message' => 'Automation logs table does not exist'
 			);
 		}
 
@@ -1815,42 +1815,42 @@ if (!class_exists('SUPER_Developer_Tools')) :
 
 		return array(
 			'success' => $deleted !== false,
-			'message' => 'All trigger logs cleared'
+			'message' => 'All automation logs cleared'
 		);
 	}
 
 	/**
-	 * Test specific trigger with mock data
+	 * Test specific automation with mock data
 	 *
-	 * @param int $trigger_id Trigger ID to test
-	 * @param array $entry_data Mock entry data
+	 * @param int   $automation_id Automation ID to test
+	 * @param array $entry_data    Mock entry data
 	 * @return array Test results
 	 */
-	public static function test_trigger($trigger_id, $entry_data) {
+	public static function test_automation($automation_id, $entry_data) {
 		if (!class_exists('SUPER_Automation_Manager')) {
-			return new WP_Error('manager_not_loaded', 'Trigger Manager class not loaded');
+			return new WP_Error('manager_not_loaded', 'Automation Manager class not loaded');
 		}
 
 		if (!class_exists('SUPER_Automation_DAL')) {
-			return new WP_Error('dal_not_loaded', 'Trigger DAL class not loaded');
+			return new WP_Error('dal_not_loaded', 'Automation DAL class not loaded');
 		}
 
-		// Get trigger details
-		$trigger = SUPER_Automation_DAL::get_trigger($trigger_id);
-		if (is_wp_error($trigger)) {
-			return $trigger;
+		// Get automation details
+		$automation = SUPER_Automation_DAL::get_automation($automation_id);
+		if (is_wp_error($automation)) {
+			return $automation;
 		}
 
-		if (!$trigger) {
-			return new WP_Error('trigger_not_found', sprintf('Trigger #%d not found', $trigger_id));
+		if (!$automation) {
+			return new WP_Error('automation_not_found', sprintf('Automation #%d not found', $automation_id));
 		}
 
-		// Get trigger actions
-		$actions = SUPER_Automation_DAL::get_trigger_actions($trigger_id);
+		// Get automation actions
+		$actions = SUPER_Automation_DAL::get_actions($automation_id);
 
-		// Build test context
+		// Build test context (no scope available at automation level)
 		$context = array(
-			'form_id' => absint($trigger['scope_id']),
+			'form_id' => 0,
 			'entry_id' => 999,
 			'timestamp' => current_time('mysql'),
 			'user_id' => get_current_user_id(),
@@ -1858,17 +1858,11 @@ if (!class_exists('SUPER_Developer_Tools')) :
 			'is_test' => true
 		);
 
-		// Evaluate conditions
+		// Conditions evaluation not applicable at container level; default to true
 		$conditions_met = true;
-		if (!empty($trigger['conditions'])) {
-			$conditions = json_decode($trigger['conditions'], true);
-			if (class_exists('SUPER_Automation_Conditions')) {
-				$conditions_met = SUPER_Automation_Conditions::evaluate($conditions, $context);
-			}
-		}
 
 		$results = array(
-			'trigger' => $trigger,
+			'automation' => $automation,
 			'actions' => $actions,
 			'conditions_met' => $conditions_met,
 			'actions_executed' => 0,
@@ -1882,7 +1876,7 @@ if (!class_exists('SUPER_Developer_Tools')) :
 					continue;
 				}
 
-				$action_config = json_decode($action['action_config'], true);
+				$action_config = is_array($action['action_config']) ? $action['action_config'] : json_decode($action['action_config'], true);
 				$start_time = microtime(true);
 
 				$action_result = SUPER_Automation_Executor::execute_single_action(
@@ -2170,9 +2164,9 @@ if (!class_exists('SUPER_Developer_Tools')) :
 		wp_send_json_success(array(
 			'stats' => $stats,
 			'message' => sprintf(
-				'Cleaned up: %d form, %d triggers, %d entries, %d logs',
+				'Cleaned up: %d form, %d automations, %d entries, %d logs',
 				$stats['forms_deleted'],
-				$stats['triggers_deleted'],
+				$stats['automations_deleted'],
 				$stats['entries_deleted'],
 				$stats['logs_deleted']
 			),
@@ -2180,7 +2174,7 @@ if (!class_exists('SUPER_Developer_Tools')) :
 	}
 
 	/**
-	 * AJAX: Get sandbox trigger logs
+	 * AJAX: Get sandbox automation logs
 	 * @since 6.5.0
 	 */
 	public static function ajax_sandbox_logs() {

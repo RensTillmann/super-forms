@@ -73,7 +73,7 @@ if ( ! class_exists( 'SUPER_Stripe' ) ) :
 					self::exceptionHandler( $e );
 				}
 				$s        = \Stripe\Checkout\Session::retrieve( $wp->query_vars['sfssidr'], array() );
-				$sfsi     = get_option( '_sfsi_' . $s['metadata']['sfsi_id'], array() );
+				$sfsi     = get_option( '_sfsi_' . $s['metadata']['session_key'], array() );
 				$form_id  = $sfsi['form_id'];
 				$settings = SUPER_Common::get_form_settings( $form_id );
 				$s        = self::get_default_stripe_settings( $settings );
@@ -96,9 +96,14 @@ if ( ! class_exists( 'SUPER_Stripe' ) ) :
 				}
 				$s = \Stripe\Checkout\Session::retrieve( $wp->query_vars['sfssids'], array() );
 				$m = $s['metadata'];
-				// $sfsi = get_option( '_sfsi_' . $m['sfsi_id'], array() );
-				// Now redirect to success URL without checkout session ID parameter
-				$url = SUPER_Common::getClientData( 'stripe_home_success_url_' . $m['sf_id'] );
+				// Get success URL from session metadata (new system)
+				$url = false;
+				if ( class_exists( 'SUPER_Session_DAL' ) && ! empty( $m['session_key'] ) ) {
+					$session = SUPER_Session_DAL::get_by_key( $m['session_key'] );
+					if ( $session && isset( $session['metadata']['stripe_home_success_url_' . $m['sf_id']] ) ) {
+						$url = $session['metadata']['stripe_home_success_url_' . $m['sf_id']];
+					}
+				}
 				if ( $url === false ) {
 					wp_redirect( home_url() );
 					exit;
@@ -123,14 +128,14 @@ if ( ! class_exists( 'SUPER_Stripe' ) ) :
 				$s = \Stripe\Checkout\Session::retrieve( $wp->query_vars['sfssidc'], array() );
 				$m = $s['metadata'];
 				// Get form submission info
-				$sfsi = get_option( '_sfsi_' . $m['sfsi_id'], array() );
-				SUPER_Common::cleanupFormSubmissionInfo( $m['sfsi_id'], 'stripe' ); // stored in `wp_options` table as sfsi_%
+				$sfsi = get_option( '_sfsi_' . $m['session_key'], array() );
+				SUPER_Common::cleanupFormSubmissionInfo( $m['session_key'], 'stripe' ); // stored in `wp_options` table as sfsi_%
 				// Now redirect to cancel URL without checkout session ID parameter
 				$sfsi['stripe_home_cancel_url'] = remove_query_arg( array( 'sfssid' ), $sfsi['stripe_home_cancel_url'] );
 				$sfsi['stripe_home_cancel_url'] = remove_query_arg( array( 'sfr' ), $sfsi['stripe_home_cancel_url'] );
 				if ( $sfsi ) {
 					if ( ! empty( $sfsi['referer'] ) ) {
-						$url = add_query_arg( 'sfr', $m['sfsi_id'], $sfsi['referer'] );
+						$url = add_query_arg( 'sfr', $m['session_key'], $sfsi['referer'] );
 						wp_redirect( $url );
 						exit;
 					} else {
@@ -140,7 +145,7 @@ if ( ! class_exists( 'SUPER_Stripe' ) ) :
 				}
 				// Redirect to home URL instead
 				// error_log('Redirect to home URL instead');
-				wp_redirect( add_query_arg( 'sfr', $m['sfsi_id'], $sfsi['stripe_home_cancel_url'] ) );
+				wp_redirect( add_query_arg( 'sfr', $m['session_key'], $sfsi['stripe_home_cancel_url'] ) );
 				exit;
 			}
 			if ( array_key_exists( 'sfstripewebhook', $wp->query_vars ) ) {
@@ -183,12 +188,12 @@ if ( ! class_exists( 'SUPER_Stripe' ) ) :
 						case 'checkout.session.completed':
 							// The customer has successfully authorized the debit payment by submitting the Checkout form. Wait for the payment to succeed or fail.
 							$stripe_session = $event->data->object;
-							SUPER_Common::triggerEvent( 'stripe.checkout.session.completed', array( 'sfsi_id' => $stripe_session->metadata->sfsi_id ) );
+							SUPER_Automation_Executor::fire_event( 'payment.stripe.checkout_completed', array( 'session_key' => $stripe_session->metadata->sfsi_id, 'stripe_session' => $stripe_session, 'event_type' => $event->type ) );
 							if ( $stripe_session->payment_status == 'paid' || $stripe_session->payment_status == 'no_payment_required' ) {
 								// Update user role, post status, user login status or entry status
 								self::fulfillOrder(
 									array(
-										'sfsi_id'        => $stripe_session->metadata->sfsi_id,
+										'session_key'        => $stripe_session->metadata->sfsi_id,
 										'stripe_session' => $stripe_session,
 									)
 								); // array('form_id'=>$form_id, 's'=>$s, 'stripe_session'=>$stripe_session, 'sfsi'=>$sfsi));
@@ -204,10 +209,10 @@ if ( ! class_exists( 'SUPER_Stripe' ) ) :
 							// tmp // Get form settings
 							// tmp $settings = SUPER_Common::get_form_settings($form_id);
 							// tmp $s = self::get_default_stripe_settings($settings);
-							// SUPER_Common::triggerEvent('stripe.checkout.session.completed', array('sfsi_id'=>$stripe_session->metadata->sfsi_id));
+							// SUPER_Common::triggerEvent('stripe.checkout.session.completed', array('session_key'=>$stripe_session->metadata->sfsi_id));
 								// tmp //'form_id'=>$form_id, 's'=>$s, 'stripe_session'=>$stripe_session, 'sfsi'=>$sfsi
 								// tmp 'i18n'=>$i18n,
-								// tmp 'sfsi_id'=>$sfsi_id,
+								// tmp 'session_key'=>$session_key,
 								// tmp 'post'=>$_POST,
 								// tmp 'data'=>$data,
 								// tmp 'settings'=>$settings,
@@ -229,10 +234,10 @@ if ( ! class_exists( 'SUPER_Stripe' ) ) :
 							// Timings: bacs-debit T+6 (7 days max)
 							// Timings: ...
 							$stripe_session = $event->data->object;
-							SUPER_Common::triggerEvent( 'stripe.checkout.session.async_payment_succeeded', array( 'sfsi_id' => $stripe_session->metadata->sfsi_id ) ); // array('form_id'=>$form_id, 's'=>$s, 'stripe_session'=>$stripe_session, 'sfsi'=>$sfsi));
+							SUPER_Automation_Executor::fire_event( 'payment.stripe.payment_succeeded', array( 'session_key' => $stripe_session->metadata->sfsi_id, 'stripe_session' => $stripe_session, 'event_type' => $event->type ) );
 							self::fulfillOrder(
 								array(
-									'sfsi_id'        => $stripe_session->metadata->sfsi_id,
+									'session_key'        => $stripe_session->metadata->sfsi_id,
 									'stripe_session' => $stripe_session,
 								)
 							); // array('form_id'=>$form_id, 's'=>$s, 'stripe_session'=>$stripe_session, 'sfsi'=>$sfsi));
@@ -248,10 +253,10 @@ if ( ! class_exists( 'SUPER_Stripe' ) ) :
 						case 'checkout.session.async_payment_failed':
 							// The payment was declined, or failed for some other reason. Contact the customer via email and request that they place a new order.
 							$stripe_session = $event->data->object;
-							SUPER_Common::triggerEvent( 'stripe.checkout.session.async_payment_failed', array( 'sfsi_id' => $stripe_session->metadata->sfsi_id ) ); // array('form_id'=>$form_id, 's'=>$s, 'stripe_session'=>$stripe_session, 'sfsi'=>$sfsi));
+							SUPER_Automation_Executor::fire_event( 'payment.stripe.payment_failed', array( 'session_key' => $stripe_session->metadata->sfsi_id, 'stripe_session' => $stripe_session, 'event_type' => $event->type ) );
 							self::paymentFailed(
 								array(
-									'sfsi_id'        => $stripe_session->metadata->sfsi_id,
+									'session_key'        => $stripe_session->metadata->sfsi_id,
 									'stripe_session' => $stripe_session,
 								)
 							); // array('form_id'=>$form_id, 's'=>$s, 'stripe_session'=>$stripe_session, 'sfsi'=>$sfsi));
@@ -431,7 +436,7 @@ if ( ! class_exists( 'SUPER_Stripe' ) ) :
 		public static function stripeEventCustomerSubscriptionUpdatedOrDeleted( $event ) {
 			$subscription = $event->data->object;
 			$m            = $subscription->metadata;
-			$sfsi         = get_option( '_sfsi_' . $m['sfsi_id'], array() );
+			$sfsi         = get_option( '_sfsi_' . $m['session_key'], array() );
 			$data         = $sfsi['data'];
 			// Get form settings
 			$settings = SUPER_Common::get_form_settings( $m->sf_id );
@@ -782,7 +787,7 @@ if ( ! class_exists( 'SUPER_Stripe' ) ) :
 					array(
 						'sfsi'        => array(),
 						'form_id'     => 0,
-						'sfsi_id'     => '',
+						'session_key'     => '',
 						'post'        => array(),
 						'data'        => array(),
 						'settings'    => array(),
@@ -967,7 +972,7 @@ if ( ! class_exists( 'SUPER_Stripe' ) ) :
 				'sf_entry' => $entry_id,
 				'sf_user'  => ( isset( $sfsi['user_id'] ) ? $sfsi['user_id'] : 0 ),
 				'sf_post'  => ( isset( $sfsi['created_post'] ) ? $sfsi['created_post'] : 0 ),
-				'sfsi_id'  => $sfsi_id,
+				'session_key'  => $session_key,
 			);
 			$home_cancel_url   = ( isset( $s['cancel_url'] ) ? SUPER_Common::email_tags( $s['cancel_url'], $data, $settings ) : '' );
 			$home_success_url  = ( isset( $s['success_url'] ) ? SUPER_Common::email_tags( $s['success_url'], $data, $settings ) : '' );
@@ -978,23 +983,21 @@ if ( ! class_exists( 'SUPER_Stripe' ) ) :
 				$home_success_url = $_SERVER['HTTP_REFERER'];
 			}
 
-			$sfsi                            = get_option( '_sfsi_' . $sfsi_id, array() );
+			$sfsi                            = get_option( '_sfsi_' . $session_key, array() );
 			$sfsi['entry_id']                = $entry_id;
 			$sfsi['stripe_home_cancel_url']  = $home_cancel_url;
 			$sfsi['stripe_home_success_url'] = $home_success_url;
-			SUPER_Common::setClientData(
-				array(
-					'name'  => 'stripe_home_cancel_url_' . $form_id,
-					'value' => $home_cancel_url,
-				)
-			);
-			SUPER_Common::setClientData(
-				array(
-					'name'  => 'stripe_home_success_url_' . $form_id,
-					'value' => $home_success_url,
-				)
-			);
-			update_option( '_sfsi_' . $sfsi_id, $sfsi );
+			// Store URLs in session metadata (new system)
+			if ( class_exists( 'SUPER_Session_DAL' ) && ! empty( $session_key ) ) {
+				$session = SUPER_Session_DAL::get_by_key( $session_key );
+				if ( $session ) {
+					$metadata = $session['metadata'] ?: array();
+					$metadata['stripe_home_cancel_url_' . $form_id] = $home_cancel_url;
+					$metadata['stripe_home_success_url_' . $form_id] = $home_success_url;
+					SUPER_Session_DAL::update_by_key( $session_key, array( 'metadata' => $metadata ) );
+				}
+			}
+			update_option( '_sfsi_' . $session_key, $sfsi );
 			// Shipping options
 			$shipping_options = array();
 			if ( $s['shipping_options']['type'] === 'id' ) {
@@ -1588,9 +1591,9 @@ if ( ! class_exists( 'SUPER_Stripe' ) ) :
 				$stripeData = array_remove_empty( $stripeData );
 				$stripeData = apply_filters( 'super_stripe_checkout_session_create_data_filter', $stripeData );
 				// Append stripe data to submission info
-				$sfsi               = get_option( '_sfsi_' . $sfsi_id, array() );
+				$sfsi               = get_option( '_sfsi_' . $session_key, array() );
 				$sfsi['stripeData'] = $stripeData;
-				update_option( '_sfsi_' . $sfsi_id, $sfsi );
+				update_option( '_sfsi_' . $session_key, $sfsi );
 				// Create the checkout session via Stripe API
 				$expires_at               = time() + ( 3600 * 1.5 );
 				$stripeData['expires_at'] = $expires_at;
@@ -1709,8 +1712,8 @@ if ( ! class_exists( 'SUPER_Stripe' ) ) :
 			$form_id = 0;
 			error_log( 'Super Forms - Stripe checkout session error code: ' . $e->getCode() );
 			error_log( $e );
-			if ( ! empty( $metadata['sfsi_id'] ) ) {
-				$form_id = SUPER_Common::cleanupFormSubmissionInfo( $metadata['sfsi_id'], '' );
+			if ( ! empty( $metadata['session_key'] ) ) {
+				$form_id = SUPER_Common::cleanupFormSubmissionInfo( $metadata['session_key'], '' );
 			}
 			if ( ! empty( $metadata['sf_id'] ) ) {
 				$form_id = $metadata['sf_id'];
@@ -1725,12 +1728,13 @@ if ( ! class_exists( 'SUPER_Stripe' ) ) :
 		}
 		public static function fulfillOrder( $atts ) {
 			extract( $atts );
-			$sfsi = get_option( '_sfsi_' . $sfsi_id, array() );
-			// error_log('8.0: '.json_encode($sfsi));
-			if ( count( $sfsi ) > 0 ) {
-				// error_log('8.1: '.json_encode($sfsi));
-				extract( $sfsi );
-				// error_log('8.2: '.json_encode($sfsi));
+			$session = SUPER_Session_DAL::get_by_key( $session_key );
+			$sfsi    = array();
+			if ( $session ) {
+				if( !empty( $session['data'] ) ) $sfsi = $session['data'];
+				if ( is_array($sfsi) && count( $sfsi ) > 0 ) {
+					extract( $sfsi );
+				}
 			}
 			$settings           = SUPER_Common::get_form_settings( $form_id );
 			$stripe_settings    = self::get_default_stripe_settings( $settings );
@@ -1794,21 +1798,22 @@ if ( ! class_exists( 'SUPER_Stripe' ) ) :
 				}
 			}
 			// Fulfill the purchase
-			SUPER_Common::triggerEvent(
-				'stripe.fulfill_order',
+			SUPER_Automation_Executor::fire_event(
+				'payment.stripe.order_fulfilled',
 				array(
-					'sfsi_id'         => $sfsi_id,
+					'session_key'     => $session_key,
 					'stripe_settings' => $stripe_settings,
 					'stripe_session'  => $stripe_session,
+					'event_type'      => $event->type // Assuming $event is available in this scope
 				)
 			);
 			// SUPER_Common::triggerEvent('stripe.fulfill_order', $x); // $x = array('form_id'=>$form_id, 's'=>$s, 'stripe_session'=>$stripe_session, 'sfsi'=>$sfsi)
 			// Delete submission info
-			delete_option( '_sfsi_' . $sfsi_id );
+			delete_option( '_sfsi_' . $session_key );
 		}
 		public static function paymentFailed( $atts ) {
 			// tmp extract($atts);
-			// tmp $sfsi = get_option( '_sfsi_' . $sfsi_id, array() );
+			// tmp $sfsi = get_option( '_sfsi_' . $session_key, array() );
 			// tmp error_log('8.0: '.json_encode($sfsi));
 			// tmp if(count($sfsi)>0){
 			// tmp     error_log('8.1: '.json_encode($sfsi));
@@ -1863,10 +1868,10 @@ if ( ! class_exists( 'SUPER_Stripe' ) ) :
 			// tmp     }
 			// tmp }
 			// tmp // Fulfill the purchase
-			// tmp SUPER_Common::triggerEvent('stripe.fulfill_order', array('sfsi_id'=>$sfsi_id, 'stripe_settings'=>$stripe_settings, 'stripe_session'=>$stripe_session));
+			// tmp SUPER_Common::triggerEvent('stripe.fulfill_order', array('session_key'=>$session_key, 'stripe_settings'=>$stripe_settings, 'stripe_session'=>$stripe_session));
 			// tmp //SUPER_Common::triggerEvent('stripe.fulfill_order', $x); // $x = array('form_id'=>$form_id, 's'=>$s, 'stripe_session'=>$stripe_session, 'sfsi'=>$sfsi)
 			// tmp // Delete submission info
-			// tmp delete_option( '_sfsi_' . $sfsi_id );
+			// tmp delete_option( '_sfsi_' . $session_key );
 		}
 		public static function add_tab( $tabs ) {
 			$tabs['stripe'] = 'Stripe';

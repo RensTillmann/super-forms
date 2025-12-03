@@ -8302,9 +8302,6 @@ if ( ! class_exists( 'SUPER_Shortcodes' ) ) :
 				}
 			}
 
-			// @since 4.6.0 - add nonce field
-			$result .= '<input type="hidden" name="sf_nonce" value="" />';
-
 			// @since 3.2.0 - add honeypot captcha
 			$result .= '<input type="text" name="super_hp" size="25" value="" />';
 

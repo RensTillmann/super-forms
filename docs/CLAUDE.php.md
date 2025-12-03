@@ -172,9 +172,89 @@ echo '<script>var data = ' . wp_json_encode($data) . ';</script>';
 $wpdb->prepare("SELECT * FROM table WHERE id = %d AND name = %s", $id, $name);
 ```
 
-### Nonce Verification
+### CSRF Protection
 
-**ALWAYS use nonces** for all form submissions and AJAX requests:
+**Frontend Form Submissions (since v6.5.0):**
+
+Super Forms uses modern Origin/Referer header validation combined with browser SameSite cookie protection for frontend form submissions. This approach is **cache-compatible** - forms work on fully cached pages without per-user tokens.
+
+```php
+// Frontend form CSRF check (automatic in class-ajax.php)
+if (!SUPER_Common::verifyCSRF()) {
+    SUPER_Common::output_error(__('Security verification failed', 'super-forms'));
+}
+
+// Security model:
+// 1. Browser SameSite cookies prevent cross-origin POST with cookies
+// 2. Server validates Origin/Referer header matches site domain
+// 3. Three protection modes: enabled/compatibility/disabled
+// 4. Trusted origins list supports wildcards for subdomains/CDNs
+```
+
+**Cross-Origin Protection Settings:**
+
+Configure via Super Forms > Settings > Form Settings:
+
+```php
+// Setting: cross_origin_protection (default: 'compatibility' for safe upgrades)
+// - 'enabled' (recommended) - Requires Origin/Referer header, rejects if missing
+// - 'compatibility' - Allows missing headers (privacy extension compatibility)
+// - 'disabled' - No protection (not recommended)
+
+// Setting: trusted_origins (textarea, optional)
+// Additional domains allowed to submit forms (one per line, without protocol)
+// Examples:
+// - staging.example.com
+// - *.cdn-provider.com (wildcard support)
+// - app.example.com
+```
+
+**Trusted Origins Configuration:**
+
+When forms are embedded on subdomains, CDNs, or external sites:
+
+```
+// In trusted_origins setting (textarea):
+staging.example.com
+*.cdn-provider.com
+app.example.com
+partner-site.com
+```
+
+**Wildcard Matching Rules:**
+- `*.example.com` matches `sub.example.com`, `app.example.com`
+- `*.example.com` also matches bare domain `example.com`
+- Wildcards only supported at subdomain level (not TLD)
+- Case-insensitive matching
+
+**Protection Mode Behavior:**
+
+```php
+// Enabled mode: Strict protection
+// - Requires Origin or Referer header
+// - Rejects if header missing
+// - Recommended for production sites
+
+// Compatibility mode: Balanced approach (default)
+// - Requires Origin or Referer header
+// - Allows if header missing (privacy extensions)
+// - Safe for existing users upgrading
+
+// Disabled mode: No protection
+// - Allows all requests regardless of origin
+// - NOT recommended (security risk)
+```
+
+**Debug Logging (WP_DEBUG required):**
+
+```php
+// Rejection logged to debug.log when WP_DEBUG enabled:
+// Super Forms: Cross-origin rejection - Origin: https://attacker.com, Referer: (none), Expected: example.com, Trusted: (none)
+```
+
+**Admin Operations & AJAX (WordPress standard):**
+
+For admin pages and non-form AJAX operations, use WordPress nonces as usual:
 
 ```php
 // Create nonce in PHP
@@ -193,6 +273,15 @@ if (!wp_verify_nonce($_POST['super_nonce'], 'super-form-builder')) {
 // OR for AJAX
 check_ajax_referer('super-form-builder', 'security');
 ```
+
+**Why Two Approaches?**
+- **Forms**: Origin/Referer check = cache-compatible (works on Varnish, Cloudflare, etc.)
+- **Admin**: WordPress nonces = user-specific protection for logged-in operations
+
+**Migration Safety:**
+- New installations default to `enabled` mode (strict protection)
+- Existing installations default to `compatibility` mode (safe upgrade path)
+- Default prevents breaking existing sites with privacy extensions
 
 ### Capability Checks
 
@@ -933,6 +1022,297 @@ public static function complete_migration() {
 - Cleanup saves ~7MB + reduces query overhead
 
 **Reference:** Implemented in v6.4.126 as part of migration completion flow.
+
+## Form Operations & Versioning API
+
+### Overview (v6.6.0+)
+
+The operations-based architecture enables atomic form updates, version control, and AI integration via JSON Patch (RFC 6902).
+
+**Benefits:**
+- 99% payload reduction (2KB vs 200KB)
+- Built-in undo/redo via operation inversion
+- Git-like version control with snapshots
+- Natural AI/LLM integration path
+- Sub-second saves on slow hosting
+
+### Core Classes
+
+**SUPER_Form_Operations** (`/src/includes/class-form-operations.php`):
+Implements RFC 6902 JSON Patch operations for atomic form updates.
+
+```php
+// Apply single operation
+$patched_data = SUPER_Form_Operations::apply_operation($form_data, array(
+    'op' => 'add',
+    'path' => '/elements/-',
+    'value' => array(
+        'type' => 'text',
+        'name' => 'email',
+        'label' => 'Email Address'
+    )
+));
+
+// Apply multiple operations
+$operations = array(
+    array('op' => 'add', 'path' => '/elements/-', 'value' => array(...)),
+    array('op' => 'replace', 'path' => '/settings/title', 'value' => 'New Title'),
+    array('op' => 'remove', 'path' => '/elements/3')
+);
+$patched_data = SUPER_Form_Operations::apply_operations($form_data, $operations);
+
+// Generate inverse for undo
+$inverse = SUPER_Form_Operations::get_inverse_operation($operation, $old_value);
+```
+
+**Supported Operations:**
+- `add` - Add element/setting (append with `path: "/elements/-"`)
+- `remove` - Delete element/setting
+- `replace` - Update existing value
+- `move` - Reorder elements (drag & drop)
+- `copy` - Duplicate element
+- `test` - Validate precondition before applying
+
+**SUPER_Form_REST_Controller** (`/src/includes/class-form-rest-controller.php`):
+REST API endpoints for forms with operations support.
+
+**SUPER_Form_DAL** (`/src/includes/class-form-dal.php`):
+Data access layer for forms with version management.
+
+```php
+// Apply operations via DAL
+$result = SUPER_Form_DAL::apply_operations($form_id, $operations);
+
+// Create version snapshot
+$version_id = SUPER_Form_DAL::create_version(
+    $form_id,
+    $snapshot,        // Full form state
+    $operations,      // Operations since last save
+    $message          // Optional commit message
+);
+
+// Get version history
+$versions = SUPER_Form_DAL::get_versions($form_id, $limit = 20);
+
+// Revert to version
+$result = SUPER_Form_DAL::revert_to_version($form_id, $version_id);
+```
+
+### REST API Endpoints
+
+**Apply Operations** (POST):
+```
+POST /wp-json/super-forms/v1/forms/{id}/operations
+Content-Type: application/json
+
+{
+  "operations": [
+    {"op": "add", "path": "/elements/-", "value": {...}},
+    {"op": "replace", "path": "/settings/title", "value": "New Title"}
+  ]
+}
+
+Response: {
+  "success": true,
+  "operations": 2,
+  "updated_form": {...}
+}
+```
+
+**Create Version** (POST):
+```
+POST /wp-json/super-forms/v1/forms/{id}/versions
+Content-Type: application/json
+
+{
+  "message": "Added payment fields",
+  "operations": [...]
+}
+
+Response: {
+  "success": true,
+  "version_id": 42,
+  "version": {...}
+}
+```
+
+**List Versions** (GET):
+```
+GET /wp-json/super-forms/v1/forms/{id}/versions?limit=20
+
+Response: [
+  {
+    "id": 42,
+    "version_number": 5,
+    "created_by": 1,
+    "created_at": "2025-12-01 14:23:45",
+    "message": "Added payment fields",
+    "operations_count": 12
+  },
+  ...
+]
+```
+
+**Revert to Version** (POST):
+```
+POST /wp-json/super-forms/v1/forms/{id}/revert/{versionId}
+
+Response: {
+  "success": true,
+  "reverted_to": 38,
+  "updated_form": {...}
+}
+```
+
+### Database Schema
+
+**wp_superforms_form_versions:**
+```sql
+CREATE TABLE wp_superforms_form_versions (
+  id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+  form_id BIGINT(20) UNSIGNED NOT NULL,
+  version_number INT NOT NULL,
+  snapshot LONGTEXT,              -- Full form state (JSON)
+  operations JSON,                -- Operations since last version
+  created_by BIGINT(20) UNSIGNED,
+  created_at DATETIME NOT NULL,
+  message VARCHAR(500),           -- Optional commit message
+  PRIMARY KEY (id),
+  KEY form_versions (form_id, version_number DESC),
+  KEY created_at (created_at)
+) ENGINE=InnoDB;
+```
+
+### Operation Inversion Pattern
+
+For undo functionality, operations must be invertible:
+
+```php
+// Cache old value before applying operation
+$old_value = SUPER_Form_Operations::get_value_at_path($data, $path_parts);
+
+// Apply operation
+$new_data = SUPER_Form_Operations::apply_operation($data, $operation);
+
+// Generate inverse for undo
+$inverse = SUPER_Form_Operations::get_inverse_operation($operation, $old_value);
+
+// Store both operation and inverse in history
+$history[] = array(
+    'forward' => $operation,
+    'inverse' => $inverse,
+    'timestamp' => time()
+);
+```
+
+**Inversion Rules:**
+- `add` → `remove`
+- `remove` → `add` (requires cached old_value)
+- `replace` → `replace` (with old_value)
+- `move` → `move` (reverse from/path)
+- `copy` → `remove` (at destination)
+
+### Version Cleanup
+
+Automatic cleanup maintains last N versions (default: 20):
+
+```php
+// In SUPER_Form_REST_Controller::create_version()
+$this->cleanup_old_versions($form_id, 20);
+
+// Cleanup implementation
+private function cleanup_old_versions($form_id, $keep_count) {
+    global $wpdb;
+    $table = $wpdb->prefix . 'superforms_form_versions';
+
+    $wpdb->query($wpdb->prepare("
+        DELETE FROM {$table}
+        WHERE form_id = %d
+        AND id NOT IN (
+            SELECT id FROM (
+                SELECT id FROM {$table}
+                WHERE form_id = %d
+                ORDER BY version_number DESC
+                LIMIT %d
+            ) AS keep_versions
+        )
+    ", $form_id, $form_id, $keep_count));
+}
+```
+
+### AI/LLM Integration Path
+
+The operations API is designed for future AI integration via MCP (Model Context Protocol):
+
+**Example: Add form field via AI tool call**
+```typescript
+// MCP tool: add_form_element
+await add_form_element({
+  formId: 123,
+  elementType: "email",
+  position: 2,
+  label: "Email Address",
+  name: "email",
+  config: { required: true }
+});
+
+// Converts to JSON Patch operation:
+POST /wp-json/super-forms/v1/forms/123/operations
+{
+  "operations": [{
+    "op": "add",
+    "path": "/elements/2",
+    "value": {
+      "type": "email",
+      "name": "email",
+      "label": "Email Address",
+      "required": true
+    }
+  }]
+}
+```
+
+**Reference:** See `/home/rens/super-forms/sessions/tasks/h-implement-triggers-actions-extensibility/27-implement-operations-versioning-system.md` for full MCP server implementation plan.
+
+## Automation System API
+
+### super_dispatch_event()
+
+Dispatches an event to the Super Forms automation system, allowing custom code to trigger automations.
+
+**Signature:**
+```php
+function super_dispatch_event($event_id, $context = array())
+```
+
+**Parameters:**
+
+- `(string) $event_id`: A unique identifier for the event (e.g., `user_registration`, `payment_received`). This should match the event ID configured in an Automation trigger node.
+- `(array) $context`: An optional associative array of data to pass along with the event. This data becomes available as tags within the automation workflow.
+
+**Usage Example:**
+
+```php
+// When a new user registers in a custom registration form
+function my_custom_user_registration_handler($user_id) {
+    $user = get_userdata($user_id);
+
+    // Prepare context for the automation
+    $event_context = array(
+        'user_id' => $user_id,
+        'user_email' => $user->user_email,
+        'display_name' => $user->display_name,
+        'registration_time' => current_time('mysql'),
+    );
+
+    // Dispatch the event to Super Forms
+    if (function_exists('super_dispatch_event')) {
+        super_dispatch_event('custom_user_registered', $event_context);
+    }
+}
+
+add_action('user_register', 'my_custom_user_registration_handler');
+```
 
 ## WordPress Development Stack Requirements
 

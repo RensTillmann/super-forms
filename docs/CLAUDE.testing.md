@@ -214,8 +214,16 @@ wp option list --search=super --format=table
    - No direct integer interpolation in SQL queries
    - Table names sanitized with `esc_sql()` after whitelist validation
 
+6. **CSRF Protection (v6.5.0 changes):**
+   - Frontend forms use Origin/Referer header validation (cache-compatible)
+   - Admin operations use WordPress nonces (standard approach)
+   - No per-user tokens in form HTML (works with CDN/Varnish caching)
+   - Three protection modes: enabled/compatibility/disabled
+   - Trusted origins support with wildcard matching
+
 **Testing Checklist:**
-- [ ] Nonces verified on all forms
+- [ ] Frontend forms pass `verifyCSRF()` header check
+- [ ] Admin operations verify nonces
 - [ ] User capabilities checked
 - [ ] All user input sanitized
 - [ ] All output escaped
@@ -223,6 +231,67 @@ wp option list --search=super --format=table
 - [ ] TRUNCATE operations validate table existence
 - [ ] Table names validated against whitelist before use
 - [ ] File uploads validate type and size
+- [ ] Forms work on cached pages (test with Varnish/Cloudflare if available)
+
+**Cross-Origin Protection Testing:**
+
+Test the three protection modes and trusted origins configuration:
+
+```bash
+# 1. Test enabled mode (strict) - should reject missing headers
+# Set cross_origin_protection to 'enabled'
+wp option get super_settings --format=json | jq '.cross_origin_protection'
+
+# Test with curl (no Origin/Referer headers)
+curl -X POST https://example.com/wp-admin/admin-ajax.php \
+  -d "action=super_submit_form&form_id=123" \
+  # Expected: Security verification failed
+
+# 2. Test compatibility mode - should allow missing headers
+# Set cross_origin_protection to 'compatibility'
+curl -X POST https://example.com/wp-admin/admin-ajax.php \
+  -d "action=super_submit_form&form_id=123" \
+  # Expected: Form processes normally
+
+# 3. Test trusted origins with wildcard
+# Add to trusted_origins setting:
+# *.staging.example.com
+# cdn.provider.com
+
+# Test subdomain match
+curl -X POST https://example.com/wp-admin/admin-ajax.php \
+  -H "Origin: https://app.staging.example.com" \
+  -d "action=super_submit_form&form_id=123" \
+  # Expected: Form processes successfully
+
+# 4. Test origin rejection
+curl -X POST https://example.com/wp-admin/admin-ajax.php \
+  -H "Origin: https://attacker.com" \
+  -d "action=super_submit_form&form_id=123" \
+  # Expected: Security verification failed
+
+# 5. Check debug log for rejection details (requires WP_DEBUG=true)
+tail -f wp-content/debug.log | grep "Cross-origin rejection"
+```
+
+**Protection Mode Test Matrix:**
+
+| Mode | No Header | Valid Origin | Invalid Origin | Trusted Wildcard |
+|------|-----------|--------------|----------------|------------------|
+| enabled | ❌ Reject | ✅ Allow | ❌ Reject | ✅ Allow |
+| compatibility | ✅ Allow | ✅ Allow | ❌ Reject | ✅ Allow |
+| disabled | ✅ Allow | ✅ Allow | ✅ Allow | ✅ Allow |
+
+**Wildcard Matching Tests:**
+
+```php
+// Test cases for *.example.com:
+// ✅ sub.example.com
+// ✅ app.sub.example.com
+// ✅ example.com (bare domain)
+// ❌ notexample.com
+// ❌ example.com.attacker.com
+```
 
 ### Performance Impact
 

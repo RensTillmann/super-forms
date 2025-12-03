@@ -1,12 +1,12 @@
 <?php
 /**
- * Trigger Credentials Manager
+ * Automation Credentials Manager
  *
  * Provides secure encrypted storage for API credentials, OAuth tokens,
- * and other sensitive data used by trigger actions.
+ * and other sensitive data used by automation actions.
  *
  * @package    SUPER_Forms
- * @subpackage Triggers
+ * @subpackage Automations
  * @since      6.5.0
  */
 
@@ -84,7 +84,7 @@ if ( ! class_exists( 'SUPER_Automation_Credentials' ) ) :
 		private function get_encryption_key() {
 			// Use AUTH_KEY if defined (preferred - uses wp-config.php salt)
 			if ( defined( 'AUTH_KEY' ) && AUTH_KEY && strlen( AUTH_KEY ) >= 32 ) {
-				return substr( hash( 'sha256', AUTH_KEY . 'super_forms_triggers_credential_encryption' ), 0, 32 );
+				return substr( hash( 'sha256', AUTH_KEY . 'super_forms_automations_credential_encryption' ), 0, 32 );
 			}
 
 			// Fallback: generate and store a unique key

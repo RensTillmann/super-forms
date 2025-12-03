@@ -1,0 +1,56 @@
+/* ==========================================================================
+   Emails Tab - Feature-specific styles
+   Imports root admin styles and adds emails-tab specific CSS
+   ========================================================================== */
+
+/* Import root admin styles (Tailwind, shadcn theme, base styles) */
+@import "../../../../styles/index.css";
+
+/* ==========================================================================
+   Form Builder - Emails Tab Layout
+   ========================================================================== */
+
+/* Fix height chain for the emails tab in WordPress admin */
+.super-builder .super-tabs-content .super-tab-emails.super-active {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 200px);
+  min-height: 600px;
+  padding: 0;
+  float: none;
+  overflow: hidden;
+}
+
+/* Hide the right sidebar (Element Settings) when Emails tab is active */
+.super-builder:has(.super-tab-emails.super-active) .super-element-settings,
+.super-tab-emails.super-active ~ .super-element-settings,
+.super-tabs-content:has(.super-tab-emails.super-active) ~ .super-element-settings {
+  display: none;
+}
+
+/* Expand content area to full width when sidebar is hidden */
+.super-builder:has(.super-tab-emails.super-active) .super-tabs-content {
+  width: 100%;
+  float: none;
+}
+
+/* ==========================================================================
+   Emails Tab Container
+   ========================================================================== */
+
+.sfui-emails-tab {
+  position: relative;
+  flex: 1;
+  min-height: 600px;
+  /* Use calc to account for WP admin header (~32px) and form builder header (~120px) */
+  height: calc(100vh - 180px);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Email content iframe */
+.email-content iframe {
+  background: white;
+  min-height: 400px;
+}

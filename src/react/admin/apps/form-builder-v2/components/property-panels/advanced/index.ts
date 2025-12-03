@@ -1,0 +1,1 @@
+export { PaymentProperties } from './PaymentProperties';

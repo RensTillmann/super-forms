@@ -44,7 +44,6 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				'switch_language'               => false, // @since 4.7.0
 
 				'retrieve_variable_conditions'  => true,
-				'create_nonce'                  => true,
 				'upload_files'                  => true,
 				'submit_form'                   => true,
 				'save_form_progress'            => true,  // @since 3.2.0
@@ -401,10 +400,6 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			);
 			die();
 		}
-		public static function create_nonce() {
-			echo SUPER_Common::generate_nonce();
-			die();
-		}
 		public static function listings_view_entry() {
 			require_once SUPER_PLUGIN_DIR . '/includes/class-common.php';
 			require_once SUPER_PLUGIN_DIR . '/includes/extensions/listings/form-blank-page-template.php';
@@ -464,7 +459,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			}
 			if ( $allowDeleteAny ) {
 				// Allowed to delete any entry
-				// Fire entry.deleted event before deletion (new trigger system)
+				// Fire entry.deleted event before deletion (automation system)
 				if ( class_exists( 'SUPER_Automation_Executor' ) ) {
 					SUPER_Automation_Executor::fire_event( 'entry.deleted', array(
 						'entry_id'   => $entry_id,
@@ -481,7 +476,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			}
 			if ( $allowDeleteOwn === true && absint( $entry->post_author ) === $current_user_id ) {
 				// Allowed to delete his own entry
-				// Fire entry.deleted event before deletion (new trigger system)
+				// Fire entry.deleted event before deletion (automation system)
 				if ( class_exists( 'SUPER_Automation_Executor' ) ) {
 					SUPER_Automation_Executor::fire_event( 'entry.deleted', array(
 						'entry_id'   => $entry_id,
@@ -693,19 +688,6 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				// No need to do this, return message
 				$verified = false;
 			}
-			// tmp $csrfValidation = SUPER_Common::verifyCSRF();
-			// tmp if(!$csrfValidation){
-			// tmp     // Only check when not disabled by the user.
-			// tmp     // Some users want to use/load their forms via an iframe from a different domain name
-			// tmp     // In this case sessions won't work  because of browsers "SameSite by default cookies"
-			// tmp     $global_settings = SUPER_Common::get_global_settings();
-			// tmp     if(!empty($global_settings['csrf_check']) && $global_settings['csrf_check']==='false'){
-			// tmp         // Check was disabled by the user, skip it
-			// tmp     }else{
-			// tmp         // Return error
-			// tmp         $verified = false;
-			// tmp     }
-			// tmp }
 			if ( $verified === false ) {
 				SUPER_Common::output_message(
 					array(
@@ -1116,9 +1098,6 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			$version = get_post_meta( $backup_id, '_super_version', true );
 			update_post_meta( $form_id, '_super_version', $version );
 
-			$s = SUPER_Common::get_form_triggers( $backup_id );
-			error_log( 'save_form_triggers(2)' );
-			SUPER_Common::save_form_triggers( $s, $backup_id );
 
 			$s = SUPER_Common::get_form_woocommerce_settings( $backup_id );
 			SUPER_Common::save_form_woocommerce_settings( $s, $backup_id );
@@ -1635,7 +1614,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			$entry    = get_post( $entry_id );
 			$form_id  = $entry ? absint( $entry->post_parent ) : 0;
 
-			// Fire entry.deleted event before deletion (new trigger system)
+			// Fire entry.deleted event before deletion (automation system)
 			if ( class_exists( 'SUPER_Automation_Executor' ) ) {
 				SUPER_Automation_Executor::fire_event( 'entry.deleted', array(
 					'entry_id'   => $entry_id,
@@ -1918,8 +1897,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			$formSettings        = $_POST['formSettings'];
 			$formElements        = wp_unslash( $_POST['formElements'] );
 			$formElements        = json_decode( $formElements, true );
-			$emailsSettings      = get_post_meta( $form_id, '_emails', true );
-			$triggerSettings     = get_post_meta( $form_id, '_super_triggers', true );
+			// Note: Legacy _emails export removed - emails now stored in wp_superforms_forms.settings
 			$woocommerceSettings = get_post_meta( $form_id, '_super_woocommerce', true );
 			$listingsSettings    = get_post_meta( $form_id, '_super_listings', true );
 			$pdfSettings         = get_post_meta( $form_id, '_super_pdf', true );
@@ -1932,8 +1910,6 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				'title'        => $title,
 				'settings'     => $formSettings,
 				'elements'     => $formElements,
-				'emails'       => $emailsSettings,
-				'triggers'     => $triggerSettings,
 				'woocommerce'  => $woocommerceSettings,
 				'listings'     => $listingsSettings,
 				'pdf'          => $pdfSettings,
@@ -1983,8 +1959,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			// What do we need to import?
 			$import_elements     = ( isset( $_POST['elements'] ) ? $_POST['elements'] : 'false' ); // Form elements
 			$import_settings     = ( isset( $_POST['settings'] ) ? $_POST['settings'] : 'false' ); // Form settings
-			$import_emails       = ( isset( $_POST['emails'] ) ? $_POST['emails'] : 'false' ); // Emails
-			$import_triggers     = ( isset( $_POST['triggers'] ) ? $_POST['triggers'] : 'false' ); // Triggers
+			// Note: Legacy _emails import removed - emails now stored in wp_superforms_forms.settings
 			$import_woocommerce  = ( isset( $_POST['woocommerce'] ) ? $_POST['woocommerce'] : 'false' ); // WooCommerce settings
 			$import_listings     = ( isset( $_POST['listings'] ) ? $_POST['listings'] : 'false' ); // Listings settings
 			$import_pdf          = ( isset( $_POST['pdf'] ) ? $_POST['pdf'] : 'false' ); // PDF settings
@@ -2006,7 +1981,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				}
 				$contents       = maybe_unserialize( $contents );
 				$_POST['title'] = ( isset( $contents['title'] ) ? $contents['title'] : $contents['post_title'] );
-				$form_data      = array( 'version' => '6.0.0' ); // default to this version if no version number exists, this is required to move/convert some form settings to the [Triggers] TAB
+				$form_data      = array( 'version' => '6.0.0' ); // default to this version if no version number exists
 				if ( ! empty( $contents['version'] ) ) {
 					$form_data['version'] = $contents['version'];
 				}
@@ -2016,12 +1991,8 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				if ( $import_settings == 'true' && isset( $contents['settings'] ) ) {
 					$form_data['settings'] = $contents['settings'];
 				}
-				if ( $import_emails == 'true' && isset( $contents['emails'] ) ) {
-					$form_data['emails'] = $contents['emails'];
-				}
-				if ( $import_triggers == 'true' && isset( $contents['triggers'] ) ) {
-					$form_data['triggers'] = $contents['triggers'];
-				}
+				// Note: Legacy triggers import removed - now using automations system
+				// Legacy 'triggers' key in import files is no longer processed
 				if ( $import_woocommerce == 'true' && isset( $contents['woocommerce'] ) ) {
 					$form_data['woocommerce'] = $contents['woocommerce'];
 				}
@@ -2115,10 +2086,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 					} else {
 						$forms[ $k ]['elements'] = json_decode( $elements, true );
 					}
-					$emails                      = get_post_meta( $form_id, '_emails', true );
-					$forms[ $k ]['emails']       = $emails;
-					$triggers                    = get_post_meta( $form_id, '_super_triggers', true );
-					$forms[ $k ]['triggers']     = $triggers;
+					// Note: Legacy _emails and triggers export removed - now in custom tables
 					$translations                = get_post_meta( $form_id, '_super_translations', true );
 					$forms[ $k ]['translations'] = $translations;
 					$secretsSettings             = get_post_meta( $form_id, '_super_local_secrets', true );
@@ -2208,17 +2176,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 					$elements = json_decode( $elements, true );
 				}
 				add_post_meta( $form_id, '_super_elements', $elements );
-				// Save emails settings JSON
-				$emails = $v['emails'];
-				if ( ! is_array( $emails ) ) {
-					$emails = json_decode( $emails, true );
-				}
-				add_post_meta( $form_id, '_emails', $emails );
-				// Save triggers settings JSON
-				error_log( 'save_form_triggers(3)' );
-				if ( isset( $v['triggers'] ) ) {
-					SUPER_Common::save_form_triggers( $v['triggers'], $form_id );
-				}
+				// Note: Legacy _emails import removed - emails now stored in wp_superforms_forms.settings
 				// Save WooCommerce settings JSON
 				if ( isset( $v['woocommerce'] ) ) {
 					SUPER_Common::save_form_woocommerce_settings( $v['woocommerce'], $form_id );
@@ -2532,7 +2490,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				$form_data = wp_unslash( $form_data );
 				$form_data = json_decode( $form_data, true );
 			}
-			$re_slash = array( 'emails', 'elements', 'settings', 'triggers', 'woocommerce', 'listings', 'pdf', 'stripe' );
+			$re_slash = array( 'emails', 'elements', 'settings', 'woocommerce', 'listings', 'pdf', 'stripe' );
 			foreach ( $form_data as $k => $v ) {
 				// Re-slash is required to keep "Custom regex" working e.g: \\d will become \\\\d
 				// Re-slash is required to keep Custom CSS {content: '\x123';} working
@@ -2541,13 +2499,6 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				}
 			}
 			extract( $form_data );
-			error_log( json_encode( $triggers ) );
-			if ( ! isset( $emails ) ) {
-				$emails = array();
-			}
-			if ( ! isset( $triggers ) ) {
-				$triggers = array();
-			}
 			if ( ! isset( $woocommerce ) ) {
 				$woocommerce = array();
 			}
@@ -2601,8 +2552,6 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 						'form_id'        => $form_id,
 						'settings'       => $settings,
 						'elements'       => $elements,
-						'emails'         => $emails,
-						'triggers'       => $triggers,
 						'woocommerce'    => $woocommerce,
 						'listings'       => $listings,
 						'pdf'            => $pdf,
@@ -2656,8 +2605,6 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 						'form_id'        => $form_id,
 						'settings'       => $settings,
 						'elements'       => $elements,
-						'emails'         => $emails,
-						'triggers'       => $triggers,
 						'woocommerce'    => $woocommerce,
 						'listings'       => $listings,
 						'pdf'            => $pdf,
@@ -2690,16 +2637,12 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			error_log( 'save_form_meta()' );
 			extract( $x );
 			if ( $new === true ) {
-				error_log( '@@@ save_form_meta() $emails(1):' );
-				error_log( json_encode( $emails ) );
 				add_post_meta( $form_id, '_super_version', $version );
 				add_post_meta( $form_id, '_super_form_settings', $settings );
-				add_post_meta( $form_id, '_emails', $emails );
+				// Note: Legacy _emails removed - emails now stored in wp_superforms_forms.settings
 				add_post_meta( $form_id, '_super_elements', $elements );
 				add_post_meta( $form_id, '_super_translations', $translations );
 				add_post_meta( $form_id, '_super_local_secrets', $local_secrets );
-				error_log( 'save_form_triggers(4)' );
-				SUPER_Common::save_form_triggers( $triggers, $form_id );
 				SUPER_Common::save_form_woocommerce_settings( $woocommerce, $form_id );
 				error_log( 'save_form_listings_settings(1)' );
 				SUPER_Common::save_form_listings_settings( $listings, $form_id );
@@ -2707,16 +2650,12 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				SUPER_Common::save_form_stripe_settings( $stripe, $form_id );
 			} else {
 				if ( $action === 'super_save_form' ) {
-					error_log( '@@@ save_form_meta() $emails(2):' );
-					error_log( json_encode( $emails ) );
 					update_post_meta( $form_id, '_super_version', SUPER_VERSION );
 					update_post_meta( $form_id, '_super_form_settings', $settings );
 					update_post_meta( $form_id, '_super_elements', $elements );
-					update_post_meta( $form_id, '_emails', $emails );
+					// Note: Legacy _emails removed - emails now stored in wp_superforms_forms.settings
 					update_post_meta( $form_id, '_super_translations', $translations );
 					update_post_meta( $form_id, '_super_local_secrets', $local_secrets );
-					error_log( 'save_form_triggers(5)' );
-					SUPER_Common::save_form_triggers( $triggers, $form_id );
 					SUPER_Common::save_form_woocommerce_settings( $woocommerce, $form_id );
 					error_log( 'save_form_listings_settings(2)' );
 					SUPER_Common::save_form_listings_settings( $listings, $form_id );
@@ -2725,21 +2664,13 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				}
 				if ( $action === 'super_import_single_form' ) {
 					update_post_meta( $form_id, '_super_version', $version );
-					error_log( '@@@ save_form_meta() $emails(3):' );
-					error_log( json_encode( $emails ) );
 					if ( ! empty( $settings ) ) {
 						update_post_meta( $form_id, '_super_form_settings', $settings );
 					}
 					if ( ! empty( $elements ) ) {
 						update_post_meta( $form_id, '_super_elements', $elements );
 					}
-					if ( ! empty( $emails ) ) {
-						update_post_meta( $form_id, '_emails', $emails );
-					}
-					error_log( 'save_form_triggers(6)' );
-					if ( ! empty( $triggers ) ) {
-						SUPER_Common::save_form_triggers( $triggers, $form_id );
-					}
+					// Note: Legacy _emails removed - emails now stored in wp_superforms_forms.settings
 					if ( ! empty( $woocommerce ) ) {
 						SUPER_Common::save_form_woocommerce_settings( $woocommerce, $form_id );
 					}
@@ -2778,8 +2709,6 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 							'form_id'        => $backup_id,
 							'settings'       => $settings,
 							'elements'       => $elements,
-							'emails'         => $emails,
-							'triggers'       => $triggers,
 							'woocommerce'    => $woocommerce,
 							'listings'       => $listings,
 							'pdf'            => $pdf,
@@ -3207,38 +3136,31 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 		}
 
 		public static function submit_form_checks( $skipChecks = false ) {
-			$csrfValidation = SUPER_Common::verifyCSRF();
-			if ( ! $csrfValidation && empty( $GLOBALS['super_csrf'] ) ) {
-				// Only if not previously validated
-				// For example if files are being uploaded by the user
+			// Cross-origin protection: validate Origin/Referer headers
+			// Skip if $skipChecks is true (internal/trusted calls)
+			if ( ! $skipChecks && ! SUPER_Common::verifyCSRF() && empty( $GLOBALS['super_csrf'] ) ) {
+				// Mark as checked to prevent duplicate validation (e.g., file uploads)
 				$GLOBALS['super_csrf'] = true;
-				// Only check when not disabled by the user.
-				// Some users want to use/load their forms via an iframe from a different domain name
-				// In this case sessions won't work  because of browsers "SameSite by default cookies"
-				$global_settings = SUPER_Common::get_global_settings();
-				if ( ! empty( $global_settings['csrf_check'] ) && $global_settings['csrf_check'] === 'false' ) {
-					// Check was disabled by the user, skip it
-				} else {
-					// Fire form.validation_failed event (new trigger system)
-					if ( class_exists( 'SUPER_Automation_Executor' ) ) {
-						SUPER_Automation_Executor::fire_event( 'form.validation_failed', array(
-							'form_id' => absint( $_POST['form_id'] ),
-							'error_type' => 'csrf_expired',
-							'error_message' => esc_html__( 'Unable to submit form, session expired!', 'super-forms' ),
-							'timestamp' => current_time( 'mysql' ),
-							'user_id' => get_current_user_id(),
-							'user_ip' => SUPER_Common::real_ip()
-						) );
-					}
 
-					// Return error
-					SUPER_Common::output_message(
-						array(
-							'type' => 'session_expired',
-							'msg'  => esc_html__( 'Unable to submit form, session expired!', 'super-forms' ),
-						)
-					);
+				// Fire form.validation_failed event (automation system)
+				if ( class_exists( 'SUPER_Automation_Executor' ) ) {
+					SUPER_Automation_Executor::fire_event( 'form.validation_failed', array(
+						'form_id'       => absint( $_POST['form_id'] ),
+						'error_type'    => 'cross_origin_rejected',
+						'error_message' => esc_html__( 'Cross-origin request rejected', 'super-forms' ),
+						'timestamp'     => current_time( 'mysql' ),
+						'user_id'       => get_current_user_id(),
+						'user_ip'       => SUPER_Common::real_ip(),
+					) );
 				}
+
+				// Return error
+				SUPER_Common::output_message(
+					array(
+						'type' => 'cross_origin_rejected',
+						'msg'  => esc_html__( 'Form submission rejected: request appears to come from another site.', 'super-forms' ),
+					)
+				);
 			}
 			// Check if form_id exists, this is always required
 			// If it doesn't exist it is most likely due the server not being able to process all the data
@@ -3589,40 +3511,43 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				}
 			}
 
-			// Get/set unique submission identifier
-			$sfsi_id = SUPER_Common::getClientData( 'unique_submission_id_' . $form_id );
-			// error_log('Unique submission ID: '.$sfsi_id);
-			if ( $sfsi_id === false ) {
-				// error_log('Generate a new unique submission ID');
-				$sfsi_id = md5( uniqid( mt_rand(), true ) );
-				// error_log('Unique submission ID: '.$sfsi_id);
-				// . '.' . $expires . '.'. $exp_var;
-				$sfsi_id = SUPER_Common::setClientData(
-					array(
-						'name'  => 'unique_submission_id_' . $form_id,
-						'value' => $sfsi_id,
-					)
-				);
+			// Get client token from POST or generate a new one
+			$client_token = isset( $_POST['client_token'] ) ? sanitize_text_field( $_POST['client_token'] ) : null;
+			if ( empty( $client_token ) ) {
+				$client_token = wp_generate_uuid4();
+			}
+
+			$session = SUPER_Session_DAL::find_recoverable( $form_id, null, $client_token );
+
+			if ( is_null( $session ) ) {
+				// Create a new session
+				$session_id = SUPER_Session_DAL::create( array(
+					'form_id'      => $form_id,
+					'client_token' => $client_token,
+					'user_id'      => get_current_user_id() ?: null,
+					'user_ip'      => SUPER_Common::real_ip(),
+					'metadata'     => array(
+						'user_agent' => isset( $_SERVER['HTTP_USER_AGENT'] ) ? sanitize_text_field( $_SERVER['HTTP_USER_AGENT'] ) : '',
+					),
+				) );
+				if ( is_wp_error( $session_id ) ) {
+					// Handle error, perhaps return an AJAX error response
+					// For now, let's just use the fallback sfsi_id generation and log the error
+					error_log( 'SUPER_Session_DAL create error: ' . $session_id->get_error_message() );
+					$session_key = md5( uniqid( mt_rand(), true ) ); // Fallback to old behavior
+				} else {
+					$session = SUPER_Session_DAL::get( $session_id );
+					$session_key = $session['session_key'];
+				}
 			} else {
-				// Update to increase expiry
-				// error_log('Update session ID to increase expiry');
-				$s = explode( '.', $sfsi_id );
-				// error_log('@@@@@@@@DELETE _sfsi_.'.$sfsi_id);
-				delete_option( '_sfsi_' . $s[0] . '.' . $s[1] );
-				$sfsi_id = $s[0];
-				$sfsi_id = SUPER_Common::setClientData(
-					array(
-						'name'  => 'unique_submission_id_' . $form_id,
-						'value' => $sfsi_id,
-					// 'expires' => 60*60, // 60 min. (30*60)
-					// 'exp_var' => 20*60 // 20 min. (20*60)
-					)
-				);
+				// Session found, update its last_saved_at to extend expiry
+				SUPER_Session_DAL::update_by_key( $session['session_key'], array() ); // Empty array updates timestamp
+				$session_key = $session['session_key'];
 			}
 			// error_log('4: '.$i18n);
 			$x    = array(
 				'i18n'          => $i18n,
-				'sfsi_id'       => $sfsi_id,
+				'session_key'       => $session_key,
 				'data'          => $data,
 				'form_id'       => $form_id,
 				'entry_id'      => $entry_id,
@@ -3633,7 +3558,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			);
 			$sfsi = $x;
 			// error_log('SFSI $x: '.json_encode($x));
-			// error_log('SFSI $x[sfsi_id]: '.json_encode($x['sfsi_id']));
+			// error_log('SFSI $x[sfsi_id]: '.json_encode($x['session_key']));
 			// error_log('SFSI $x[data]: '.json_encode($x['data']));
 			// Store currently logged in user id
 			$sfsi['user_id']   = get_current_user_id(); // currently logged in user ID
@@ -3661,49 +3586,54 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			// unset($sfsi['settings']); // remove settings, not needed
 			// error_log('@1 updating _sfsi_ data');
 			if ( ! isset( $sfsi['i18n'] ) ) {
-				// error_log('@ i18n for _sfsi_'.$sfsi_id.' was not set');
+				// error_log('@ i18n for _sfsi_'.$session_key.' was not set');
 				$sfsi['i18n'] = $i18n;
 			}
 			if ( ! isset( $sfsi['files'] ) ) {
-				// error_log('@ files for _sfsi_'.$sfsi_id.' was not set');
+				// error_log('@ files for _sfsi_'.$session_key.' was not set');
 				$sfsi['files'] = $files;
 			}
-			if ( ! isset( $sfsi['sfsi_id'] ) ) {
-				// error_log('@ sfs_uid for _sfsi_'.$sfsi_id.' was not set');
-				$sfsi['sfsi_id'] = $sfsi_id;
+			if ( ! isset( $sfsi['session_key'] ) ) {
+				// error_log('@ sfs_uid for _sfsi_'.$session_key.' was not set');
+				$sfsi['session_key'] = $session_key;
 			}
 			if ( ! isset( $sfsi['response_data'] ) ) {
-				// error_log('@ response_data for _sfsi_'.$sfsi_id.' was not set');
+				// error_log('@ response_data for _sfsi_'.$session_key.' was not set');
 				$sfsi['response_data'] = $response_data;
 			}
 			if ( ! isset( $sfsi['data'] ) ) {
-				// error_log('@ data for _sfsi_'.$sfsi_id.' was not set');
+				// error_log('@ data for _sfsi_'.$session_key.' was not set');
 				$sfsi['data'] = $data;
 			}
 			if ( ! isset( $sfsi['list_id'] ) ) {
-				// error_log('@ list_id for _sfsi_'.$sfsi_id.' was not set');
+				// error_log('@ list_id for _sfsi_'.$session_key.' was not set');
 				$sfsi['list_id'] = $list_id;
 			}
 			if ( ! isset( $sfsi['entry_id'] ) ) {
-				// error_log('@ entry_id for _sfsi_'.$sfsi_id.' was not set');
+				// error_log('@ entry_id for _sfsi_'.$session_key.' was not set');
 				$sfsi['entry_id'] = $contact_entry_id;
 			}
 			if ( ! isset( $sfsi['form_id'] ) ) {
-				// error_log('@ form_id for _sfsi_'.$sfsi_id.' was not set');
+				// error_log('@ form_id for _sfsi_'.$session_key.' was not set');
 				$sfsi['form_id'] = $form_id;
 			}
-			// error_log('@@@@@@@@UPDATE _sfsi_.'.$sfsi_id.': '.json_encode($sfsi));
+			// error_log('@@@@@@@@UPDATE _sfsi_.'.$session_key.': '.json_encode($sfsi));
 
-			update_option( '_sfsi_' . $sfsi_id, $sfsi );
+			SUPER_Session_DAL::update_by_key( $session_key, $sfsi );
 
 			// error_log('before trigger (sf.before.submission)');
-			SUPER_Common::triggerEvent( 'sf.before.submission', $sfsi );
+			SUPER_Automation_Executor::fire_event( 'form.before_submit', array(
+				'session_key' => $session_key,
+				'form_id' => $form_id,
+				'session_data' => $sfsi,
+				'entry_id' => $contact_entry_id
+			) );
 			// error_log('after trigger (sf.before.submission)');
 			return $sfsi;
 			/*
 			array(
 			'i18n' => $i18n,
-			'sfsi_id' => $sfsi_id,
+			'session_key' => $session_key,
 			'sfsi'=>$sfsi,
 			'data'=>$data,
 			'form_id'=>$form_id,
@@ -3717,7 +3647,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 		public static function upload_files() {
 			$sfsi          = self::submit_form_checks();
 			$i18n          = $sfsi['i18n'];
-			$sfsi_id       = $sfsi['sfsi_id'];
+			$session_key       = $sfsi['session_key'];
 			$form_id       = $sfsi['form_id'];
 			$entry_id      = absint( $sfsi['entry_id'] );
 			$list_id       = absint( $sfsi['list_id'] );
@@ -4663,7 +4593,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 						);
 						// Check file size
 						if ( $file['size'] > $maxFileSize ) {
-							// Fire file.upload_failed event (new trigger system)
+							// Fire file.upload_failed event (automation system)
 							if ( class_exists( 'SUPER_Automation_Executor' ) ) {
 								SUPER_Automation_Executor::fire_event( 'file.upload_failed', array(
 									'form_id'       => $form_id,
@@ -4732,7 +4662,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 						$uploaded_file = wp_handle_upload( $file, array( 'test_form' => false ) );
 						$filename      = $uploaded_file['file'];
 						if ( isset( $uploaded_file['error'] ) ) {
-							// Fire file.upload_failed event (new trigger system)
+							// Fire file.upload_failed event (automation system)
 							if ( class_exists( 'SUPER_Automation_Executor' ) ) {
 								SUPER_Automation_Executor::fire_event( 'file.upload_failed', array(
 									'form_id'       => $form_id,
@@ -4780,7 +4710,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 							$data[ $fieldName ]['files'][ $k ]['url']        = wp_get_attachment_url( $attachment_id );
 							$data[ $fieldName ]['files'][ $k ]['attachment'] = $attachment_id;
 
-							// Fire file.uploaded event (new trigger system)
+							// Fire file.uploaded event (automation system)
 							if ( class_exists( 'SUPER_Automation_Executor' ) ) {
 								SUPER_Automation_Executor::fire_event( 'file.uploaded', array(
 									'attachment_id' => $attachment_id,
@@ -4801,11 +4731,10 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			}
 			$response = array(
 				'files'    => $data,
-				'sf_nonce' => SUPER_Common::generate_nonce(),
 			);
 			$sfsi     = array(
 				'i18n'          => $i18n,
-				'sfsi_id'       => $sfsi_id,
+				'session_key'       => $session_key,
 				'data'          => $odata,
 				'files'         => $data,
 				'form_id'       => $form_id,
@@ -4817,39 +4746,39 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			);
 			// error_log('@2 updating _sfsi_ data');
 			if ( ! isset( $sfsi['i18n'] ) ) {
-				// error_log('@ i18n for _sfsi_'.$sfsi_id.' was not set');
+				// error_log('@ i18n for _sfsi_'.$session_key.' was not set');
 				$sfsi['i18n'] = $i18n;
 			}
-			if ( ! isset( $sfsi['sfsi_id'] ) ) {
-				// error_log('@ sfs_uid for _sfsi_'.$sfsi_id.' was not set');
-				$sfsi['sfsi_id'] = $sfsi_id;
+			if ( ! isset( $sfsi['session_key'] ) ) {
+				// error_log('@ sfs_uid for _sfsi_'.$session_key.' was not set');
+				$sfsi['session_key'] = $session_key;
 			}
 			if ( ! isset( $sfsi['post'] ) ) {
-				// error_log('@ post for _sfsi_'.$sfsi_id.' was not set');
+				// error_log('@ post for _sfsi_'.$session_key.' was not set');
 				$sfsi['post'] = $_POST;
 			}
 			if ( ! isset( $sfsi['response_data'] ) ) {
-				// error_log('@ response_data for _sfsi_'.$sfsi_id.' was not set');
+				// error_log('@ response_data for _sfsi_'.$session_key.' was not set');
 				$sfsi['response_data'] = $response_data;
 			}
 			if ( ! isset( $sfsi['data'] ) ) {
-				// error_log('@ data for _sfsi_'.$sfsi_id.' was not set');
+				// error_log('@ data for _sfsi_'.$session_key.' was not set');
 				$sfsi['data'] = $odata;
 			}
 			if ( ! isset( $sfsi['settings'] ) ) {
-				// error_log('@ settings for _sfsi_'.$sfsi_id.' was not set');
+				// error_log('@ settings for _sfsi_'.$session_key.' was not set');
 				$sfsi['settings'] = $settings;
 			}
 			if ( ! isset( $sfsi['list_id'] ) ) {
-				// error_log('@ list_id for _sfsi_'.$sfsi_id.' was not set');
+				// error_log('@ list_id for _sfsi_'.$session_key.' was not set');
 				$sfsi['list_id'] = $list_id;
 			}
 			if ( ! isset( $sfsi['entry_id'] ) ) {
-				// error_log('@ entry_id for _sfsi_'.$sfsi_id.' was not set');
+				// error_log('@ entry_id for _sfsi_'.$session_key.' was not set');
 				$sfsi['entry_id'] = $contact_entry_id;
 			}
 			if ( ! isset( $sfsi['attachments'] ) ) {
-				// error_log('@ attachments for _sfsi_'.$sfsi_id.' was not set');
+				// error_log('@ attachments for _sfsi_'.$session_key.' was not set');
 				if ( empty( $attachments ) ) {
 					// error_log('$attachments are empty, this trigger might be called to early');
 					$attachments = array();
@@ -4857,16 +4786,21 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				$sfsi['attachments'] = $attachments;
 			}
 			if ( ! isset( $sfsi['form_id'] ) ) {
-				// error_log('@ form_id for _sfsi_'.$sfsi_id.' was not set');
+				// error_log('@ form_id for _sfsi_'.$session_key.' was not set');
 				$sfsi['form_id'] = $form_id;
 			}
 			if ( ! isset( $sfsi['files'] ) ) {
-				// error_log('@ files for _sfsi_'.$sfsi_id.' was not set');
+				// error_log('@ files for _sfsi_'.$session_key.' was not set');
 				$sfsi['files'] = $data;
 			}
-			// error_log('@@@@@@@@UPDATE _sfsi_.'.$sfsi_id.': '.json_encode($sfsi));
-			update_option( '_sfsi_' . $sfsi_id, $sfsi );
-			SUPER_Common::triggerEvent( 'sf.after.files.uploaded', $sfsi );
+			// error_log('@@@@@@@@UPDATE _sfsi_.'.$session_key.': '.json_encode($sfsi));
+			SUPER_Session_DAL::update_by_key( $session_key, $sfsi );
+			SUPER_Automation_Executor::fire_event( 'file.uploaded', array(
+				'session_key' => $session_key,
+				'form_id' => $form_id,
+				'session_data' => $sfsi,
+				'uploaded_files' => $response['data']
+			) );
 			echo SUPER_Common::safe_json_encode( $response );
 			die();
 		}
@@ -4885,12 +4819,13 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 					$data = wp_unslash( $_POST['data'] );
 					$data = json_decode( $data, true );
 				}
-				SUPER_Common::setClientData(
-					array(
-						'name'  => 'progress_' . $form_id,
-						'value' => $data,
-					)
-				);
+								$client_token = isset( $_POST['client_token'] ) ? sanitize_text_field( $_POST['client_token'] ) : null;
+				if ( $client_token ) {
+					$session = SUPER_Session_DAL::find_recoverable( $form_id, null, $client_token );
+					if ( ! is_null( $session ) ) {
+						SUPER_Session_DAL::update_by_key( $session['session_key'], array( 'form_data' => $data ) );
+					}
+				}
 			}
 			die();
 		}
@@ -4908,7 +4843,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			// error_log('7: '.$i18n);
 			$form_id = $sfsi['form_id'];
 			// Get/set unique submission identifier
-			$sfsi_id  = $sfsi['sfsi_id'];
+			$session_key  = $sfsi['session_key'];
 			$data     = $sfsi['data'];
 			$entry_id = absint( $sfsi['entry_id'] );
 			$list_id  = absint( $sfsi['list_id'] );
@@ -4917,7 +4852,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			// error_log(json_encode($settings));
 			$response_data = $sfsi['response_data'];
 
-			// Fire form.before_submit event (new trigger system)
+			// Fire form.before_submit event (automation system)
 			if ( class_exists( 'SUPER_Automation_Executor' ) ) {
 				SUPER_Automation_Executor::fire_event( 'form.before_submit', array(
 					'form_id' => $form_id,
@@ -5052,8 +4987,8 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			unset( $GLOBALS['super_upload_dir'] );
 			unset( $GLOBALS['super_allowed_mime_types'] );
 			$sfsi['data'] = $data;
-			// error_log('@@@@@@@@UPDATE _sfsi_.'.$sfsi_id.': '.json_encode($sfsi));
-			update_option( '_sfsi_' . $sfsi_id, $sfsi );
+			// error_log('@@@@@@@@UPDATE _sfsi_.'.$session_key.': '.json_encode($sfsi));
+			SUPER_Session_DAL::update_by_key( $session_key, $sfsi );
 
 			if ( ! empty( $settings['header_additional'] ) ) {
 				$header_additional = '';
@@ -5125,7 +5060,12 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				);
 
 				// @since 3.8.0 - save the post author based on session if set (currently used by Register & Login)
-				$post_author = SUPER_Common::getClientData( 'super_forms_registered_user_id' );
+				$session = SUPER_Session_DAL::get_by_key( $session_key );
+				if ( ! is_null( $session ) && isset( $session['metadata']['super_forms_registered_user_id'] ) ) {
+					$post_author = $session['metadata']['super_forms_registered_user_id'];
+				} else {
+					$post_author = false;
+				}
 				if ( $post_author != false ) {
 					$entry_data['user_id'] = absint( $post_author );
 				}
@@ -5139,10 +5079,10 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 
 				$sfsi['contact_entry_id'] = $contact_entry_id;
 				$sfsi['entry_id']         = $contact_entry_id;
-				// error_log('@@@@@@@@UPDATE _sfsi_.'.$sfsi_id.': '.json_encode($sfsi));
-				update_option( '_sfsi_' . $sfsi_id, $sfsi );
+				// error_log('@@@@@@@@UPDATE _sfsi_.'.$session_key.': '.json_encode($sfsi));
+				SUPER_Session_DAL::update_by_key( $session_key, $sfsi );
 
-				// Fire entry.created event (new trigger system)
+				// Fire entry.created event (automation system)
 				if ( class_exists( 'SUPER_Automation_Executor' ) ) {
 					SUPER_Automation_Executor::fire_event( 'entry.created', array(
 						'entry_id' => $contact_entry_id,
@@ -5231,7 +5171,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 						$total = SUPER_Entry_DAL::count( $count_args );
 					}
 					if ( $total > 1 ) { // If 2 entries found, it means the current created entry has the same title as an already existing entry
-						// Fire form.duplicate_detected event (new trigger system)
+						// Fire form.duplicate_detected event (automation system)
 						if ( class_exists( 'SUPER_Automation_Executor' ) ) {
 							SUPER_Automation_Executor::fire_event( 'form.duplicate_detected', array(
 								'form_id' => $form_id,
@@ -5346,7 +5286,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				}
 				$result = SUPER_Data_Access::save_entry_data( $entry_id, $final_entry_data );
 
-				// Fire entry.updated and entry.saved events (new trigger system)
+				// Fire entry.updated and entry.saved events (automation system)
 				if ( class_exists( 'SUPER_Automation_Executor' ) ) {
 					// entry.updated - specific to entry updates
 					SUPER_Automation_Executor::fire_event( 'entry.updated', array(
@@ -5404,7 +5344,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 
 					update_post_meta( $entry_id, '_super_contact_entry_status', $update_entry_status );
 
-					// Fire entry.status_changed event (new trigger system)
+					// Fire entry.status_changed event (automation system)
 					if ( class_exists( 'SUPER_Automation_Executor' ) && $previous_status !== $update_entry_status ) {
 						SUPER_Automation_Executor::fire_event( 'entry.status_changed', array(
 							'entry_id' => $entry_id,
@@ -5443,7 +5383,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			if ( $settings['save_contact_entry'] == 'yes' ) {
 				SUPER_Data_Access::save_entry_data( $contact_entry_id, $final_entry_data );
 
-				// Fire entry.saved event for new entries (new trigger system)
+				// Fire entry.saved event for new entries (automation system)
 				if ( class_exists( 'SUPER_Automation_Executor' ) ) {
 					SUPER_Automation_Executor::fire_event( 'entry.saved', array(
 						'entry_id' => $contact_entry_id,
@@ -5477,7 +5417,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				do_action(
 					'super_after_saving_contact_entry_action',
 					array(
-						'sfsi_id'  => $sfsi_id,
+						'session_key'  => $session_key,
 						'post'     => $_POST,
 						'data'     => $data,
 						'settings' => $settings,
@@ -5568,7 +5508,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			do_action(
 				'super_before_sending_email_hook',
 				array(
-					'sfsi_id'       => $sfsi_id,
+					'session_key'       => $session_key,
 					'data'          => $data,
 					'form_id'       => $form_id,
 					'entry_id'      => $entry_id,
@@ -5579,8 +5519,8 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				)
 			);
 			// We must retrieve the new session info, because the register & login might have updated the `user_id` value
-			$sfsi = get_option( '_sfsi_' . $sfsi_id );
-			// error_log('@@@@@@@@GET _sfsi_.'.$sfsi_id.': '.json_encode($sfsi));
+			$sfsi = SUPER_Session_DAL::get_by_key( $session_key );
+			// error_log('@@@@@@@@GET _sfsi_.'.$session_key.': '.json_encode($sfsi));
 			// deprecated if( $settings['send']=='yes' ) {
 			// deprecated     $email_body = $settings['email_body'];
 			// deprecated     $email_body = str_replace( '{loop_fields}', $email_loop, $email_body );
@@ -5902,8 +5842,8 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 					}
 
 					$sfsi['post_body'] = $parameters;
-					// error_log('@@@@@@@@UPDATE _sfsi_.'.$sfsi_id.': '.json_encode($sfsi));
-					update_option( '_sfsi_' . $sfsi_id, $sfsi );
+					// error_log('@@@@@@@@UPDATE _sfsi_.'.$session_key.': '.json_encode($sfsi));
+					SUPER_Session_DAL::update_by_key( $session_key, $sfsi );
 
 					$response = wp_remote_post(
 						$settings['form_post_url'],
@@ -5926,16 +5866,11 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 					}
 
 					// Clear form progression
-					SUPER_Common::setClientData(
-						array(
-							'name'  => 'progress_' . $form_id,
-							'value' => false,
-						)
-					);
+					SUPER_Session_DAL::update_by_key( $session_key, array( 'form_data' => null ) );
 
 					$sfsi['post_response'] = $response;
-					// error_log('@@@@@@@@UPDATE _sfsi_.'.$sfsi_id.': '.json_encode($sfsi));
-					update_option( '_sfsi_' . $sfsi_id, $sfsi );
+					// error_log('@@@@@@@@UPDATE _sfsi_.'.$session_key.': '.json_encode($sfsi));
+					SUPER_Session_DAL::update_by_key( $session_key, $sfsi );
 
 					do_action( 'super_after_wp_remote_post_action', $response );
 
@@ -5958,12 +5893,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				}
 
 				// Clear form progression
-				SUPER_Common::setClientData(
-					array(
-						'name'  => 'progress_' . $form_id,
-						'value' => false,
-					)
-				);
+				SUPER_Session_DAL::update_by_key( $session_key, array( 'form_data' => null ) );
 
 				/**
 				 *  Hook before outputing the success message or redirect after a succesfull submitted form
@@ -5993,47 +5923,52 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 					)
 				);
 				$sfsi['attachments'] = $attachments;
-				error_log( '@@@@@@@@BEFORE _sfsi_.' . $sfsi_id . ': ' . json_encode( $sfsi ) );
+				error_log( '@@@@@@@@BEFORE _sfsi_.' . $session_key . ': ' . json_encode( $sfsi ) );
 				if ( ! isset( $sfsi['attachments'] ) ) {
-					error_log( '@ attachments for _sfsi_' . $sfsi_id . ' was not set' );
+					error_log( '@ attachments for _sfsi_' . $session_key . ' was not set' );
 					$sfsi['attachments'] = $attachments;
 				}
 				if ( ! isset( $sfsi['i18n'] ) ) {
-					error_log( '@ i18n for _sfsi_' . $sfsi_id . ' was not set' );
+					error_log( '@ i18n for _sfsi_' . $session_key . ' was not set' );
 					$sfsi['i18n'] = $i18n;
 				}
-				if ( ! isset( $sfsi['sfsi_id'] ) ) {
-					error_log( '@ sfs_uid for _sfsi_' . $sfsi_id . ' was not set' );
-					$sfsi['sfsi_id'] = $sfsi_id;
+				if ( ! isset( $sfsi['session_key'] ) ) {
+					error_log( '@ sfs_uid for _sfsi_' . $session_key . ' was not set' );
+					$sfsi['session_key'] = $session_key;
 				}
 				if ( ! isset( $sfsi['post'] ) ) {
-					error_log( '@ post for _sfsi_' . $sfsi_id . ' was not set' );
+					error_log( '@ post for _sfsi_' . $session_key . ' was not set' );
 					$sfsi['post'] = $_POST;
 				}
 				if ( ! isset( $sfsi['data'] ) ) {
-					error_log( '@ data for _sfsi_' . $sfsi_id . ' was not set' );
+					error_log( '@ data for _sfsi_' . $session_key . ' was not set' );
 					$sfsi['data'] = $data;
 				}
 				if ( ! isset( $sfsi['settings'] ) ) {
-					error_log( '@ settings for _sfsi_' . $sfsi_id . ' was not set' );
+					error_log( '@ settings for _sfsi_' . $session_key . ' was not set' );
 					$sfsi['settings'] = $settings;
 				}
 				if ( ! isset( $sfsi['entry_id'] ) ) {
-					error_log( '@ entry_id for _sfsi_' . $sfsi_id . ' was not set' );
+					error_log( '@ entry_id for _sfsi_' . $session_key . ' was not set' );
 					$sfsi['entry_id'] = $contact_entry_id;
 				}
 				if ( ! isset( $sfsi['form_id'] ) ) {
-					error_log( '@ form_id for _sfsi_' . $sfsi_id . ' was not set' );
+					error_log( '@ form_id for _sfsi_' . $session_key . ' was not set' );
 					$sfsi['form_id'] = $form_id;
 				}
-				error_log( '@@@@@@@@UPDATE _sfsi_.' . $sfsi_id . ': ' . json_encode( $sfsi ) );
-				update_option( '_sfsi_' . $sfsi_id, $sfsi );
-				SUPER_Common::triggerEvent( 'sf.after.submission', $sfsi );
+				error_log( '@@@@@@@@UPDATE _sfsi_.' . $session_key . ': ' . json_encode( $sfsi ) );
+				SUPER_Session_DAL::update_by_key( $session_key, $sfsi );
+				SUPER_Automation_Executor::fire_event( 'form.submitted', array(
+					'session_key' => $session_key,
+					'form_id' => $form_id,
+					'session_data' => $sfsi,
+					'entry_id' => $contact_entry_id
+				) );
 				do_action(
 					'super_before_email_success_msg_action',
 					array(
 						'i18n'        => $i18n,
-						'sfsi_id'     => $sfsi_id,
+						'session_key'     => $session_key,
 						'post'        => $_POST,
 						'data'        => $data,
 						'settings'    => $settings,
@@ -6071,7 +6006,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 						if ( $v['type'] == 'files' ) {
 							if ( ( isset( $v['files'] ) ) && ( count( $v['files'] ) != 0 ) ) {
 								foreach ( $v['files'] as $file ) {
-									// Fire file.deleted event before deletion (new trigger system)
+									// Fire file.deleted event before deletion (automation system)
 									if ( class_exists( 'SUPER_Automation_Executor' ) ) {
 										SUPER_Automation_Executor::fire_event( 'file.deleted', array(
 											'attachment_id' => ! empty( $file['attachment'] ) ? absint( $file['attachment'] ) : null,
@@ -6105,7 +6040,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 					( isset( $data['_vcard']['files'] ) ) &&
 					( count( $data['_vcard']['files'] ) != 0 ) ) {
 						foreach ( $data['_vcard']['files'] as $file ) {
-							// Fire file.deleted event before deletion (new trigger system)
+							// Fire file.deleted event before deletion (automation system)
 							if ( class_exists( 'SUPER_Automation_Executor' ) ) {
 								SUPER_Automation_Executor::fire_event( 'file.deleted', array(
 									'attachment_id' => ! empty( $file['attachment'] ) ? absint( $file['attachment'] ) : null,
@@ -6137,7 +6072,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 					array(
 						'sfsi'        => $sfsi,
 						'form_id'     => $form_id,
-						'sfsi_id'     => $sfsi_id,
+						'session_key'     => $session_key,
 						'post'        => $_POST,
 						'data'        => $data,
 						'settings'    => $settings,
@@ -6147,12 +6082,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				);
 
 				// Clear form progression
-				SUPER_Common::setClientData(
-					array(
-						'name'  => 'progress_' . $form_id,
-						'value' => false,
-					)
-				);
+				SUPER_Session_DAL::update_by_key( $session_key, array( 'form_data' => null ) );
 
 				// Return message or redirect and save message to session
 				$redirect = null;
@@ -6189,12 +6119,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 						$redirect = SUPER_Common::email_tags( $settings['form_redirect'], $data, $settings );
 					}
 					if ( $save_msg == true ) {
-						SUPER_Common::setClientData(
-							array(
-								'name'  => 'msg',
-								'value' => $session_data,
-							)
-						);
+						SUPER_Session_DAL::add_message( $session_key, $session_data );
 					}
 				}
 				if ( ( ! empty( $settings['form_post_option'] ) ) && ( $save_msg == true ) ) {
@@ -6204,12 +6129,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 					// navigate to a different page it would show the thank you message again to the user while
 					// it was already displayed to the user
 					if ( $settings['form_post_custom'] !== 'true' ) {
-						SUPER_Common::setClientData(
-							array(
-								'name'  => 'msg',
-								'value' => $session_data,
-							)
-						);
+						SUPER_Session_DAL::add_message( $session_key, $session_data );
 					}
 				}
 				if ( $save_msg == false ) {
@@ -6235,7 +6155,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				);
 				if ( $redirect !== '' && $redirect !== false ) {
 					// tmp $sfsi['redirectedTo'] = $redirect;
-					// tmp update_option('_sfsi_' . $sfsi_id, $sfsi );
+					// tmp update_option('_sfsi_' . $session_key, $sfsi );
 				}
 
 				// ══════════════════════════════════════════════════════════
@@ -6248,7 +6168,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 					SUPER_Automation_Executor::fire_event( 'form.submitted', array(
 						'form_id'   => $form_id,
 						'entry_id'  => isset( $contact_entry_id ) ? $contact_entry_id : null,
-						'sfsi_id'   => $sfsi_id,
+						'session_key'   => $session_key,
 						'data'      => $data,
 						'settings'  => $settings,
 						'timestamp' => current_time( 'mysql' ),
@@ -6257,12 +6177,10 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 					) );
 				}
 
-				SUPER_Common::triggerEvent( 'sf.submission.finalized', $sfsi );
 				// Clean up submission info
 				// If we are redirecting to Stripe or PayPal checkout we won't reach this (nothing to worry about here)
-				// error_log('@@@@@@@@DELETE _sfsi_.'.$sfsi_id);
-				delete_option( '_sfsi_' . $sfsi_id );
-				$response_data['sf_nonce'] = SUPER_Common::generate_nonce();
+				// error_log('@@@@@@@@DELETE _sfsi_.'.$session_key);
+				SUPER_Session_DAL::delete_by_key( $session_key );
 				// Required by Listings to replace the old PDF URL with the newly generated URL:
 				if ( isset( $sfsi['data']['_generated_pdf_file'] ) ) {
 					$response_data['_generated_pdf_file'] = $sfsi['data']['_generated_pdf_file'];
@@ -6765,8 +6683,8 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 		$scheduled = SUPER_Background_Migration::schedule_if_needed( 'manual' );
 
 		// Also start email migration if available
-		if ( class_exists( 'SUPER_Email_Trigger_Migration' ) ) {
-			SUPER_Email_Trigger_Migration::maybe_schedule_migration();
+		if ( class_exists( 'SUPER_Email_Automation_Migration' ) ) {
+			SUPER_Email_Automation_Migration::maybe_schedule_migration();
 		}
 
 		if ( $scheduled === false ) {
@@ -6779,7 +6697,7 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				) );
 			} else {
 				// Even if no entries migration needed, email migration might be running
-				$email_state = class_exists( 'SUPER_Email_Trigger_Migration' ) ? SUPER_Email_Trigger_Migration::get_state() : null;
+				$email_state = class_exists( 'SUPER_Email_Automation_Migration' ) ? SUPER_Email_Automation_Migration::get_state() : null;
 				if ( $email_state && $email_state['status'] === 'in_progress' ) {
 					wp_send_json_success( array(
 						'message' => esc_html__( 'Email migration running in background', 'super-forms' ),

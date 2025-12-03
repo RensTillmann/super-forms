@@ -1209,10 +1209,10 @@ wp_localize_script('super-forms-developer-tools', 'devtoolsData', array(
         </div>
     </div>
 
-    <!-- Trigger System Testing Section -->
+    <!-- Automations Testing Section -->
     <div class="super-devtools-section">
-        <h2><?php echo esc_html__('8. Trigger System Testing', 'super-forms'); ?></h2>
-        <p><?php echo esc_html__('Test the trigger/action system by firing events manually and inspecting execution logs.', 'super-forms'); ?></p>
+        <h2><?php echo esc_html__('8. Automations Testing', 'super-forms'); ?></h2>
+        <p><?php echo esc_html__('Test the automation system by firing events manually and inspecting execution logs.', 'super-forms'); ?></p>
 
         <!-- Event Firing Test Panel -->
         <h3><?php echo esc_html__('Fire Test Event', 'super-forms'); ?></h3>
@@ -1246,19 +1246,19 @@ wp_localize_script('super-forms-developer-tools', 'devtoolsData', array(
                 </tr>
                 <tr>
                     <th scope="row">
-                        <label for="test-form-id-trigger"><?php echo esc_html__('Form ID:', 'super-forms'); ?></label>
+                        <label for="test-form-id-automation"><?php echo esc_html__('Form ID:', 'super-forms'); ?></label>
                     </th>
                     <td>
-                        <input type="number" id="test-form-id-trigger" value="1" min="1" style="width: 100px;">
+                        <input type="number" id="test-form-id-automation" value="1" min="1" style="width: 100px;">
                         <p class="description"><?php echo esc_html__('Form ID for event context', 'super-forms'); ?></p>
                     </td>
                 </tr>
                 <tr>
                     <th scope="row">
-                        <label for="test-entry-id-trigger"><?php echo esc_html__('Entry ID:', 'super-forms'); ?></label>
+                        <label for="test-entry-id-automation"><?php echo esc_html__('Entry ID:', 'super-forms'); ?></label>
                     </th>
                     <td>
-                        <input type="number" id="test-entry-id-trigger" value="999" min="1" style="width: 100px;">
+                        <input type="number" id="test-entry-id-automation" value="999" min="1" style="width: 100px;">
                         <p class="description"><?php echo esc_html__('Entry ID for event context (use 999 for mock)', 'super-forms'); ?></p>
                     </td>
                 </tr>
@@ -1298,17 +1298,17 @@ wp_localize_script('super-forms-developer-tools', 'devtoolsData', array(
             <div id="event-log-table-wrapper"></div>
         </div>
 
-        <!-- Trigger Testing Tool -->
-        <h3 style="margin-top: 40px;"><?php echo esc_html__('Test Specific Trigger', 'super-forms'); ?></h3>
-        <div class="trigger-test-controls">
+        <!-- Automation Testing Tool -->
+        <h3 style="margin-top: 40px;"><?php echo esc_html__('Test Specific Automation', 'super-forms'); ?></h3>
+        <div class="automation-test-controls">
             <table class="form-table">
                 <tr>
                     <th scope="row">
-                        <label for="test-trigger-id"><?php echo esc_html__('Trigger ID:', 'super-forms'); ?></label>
+                        <label for="test-automation-id"><?php echo esc_html__('Automation ID:', 'super-forms'); ?></label>
                     </th>
                     <td>
-                        <input type="number" id="test-trigger-id" min="1" placeholder="e.g., 5" style="width: 100px;">
-                        <p class="description"><?php echo esc_html__('Enter the ID of a trigger to test', 'super-forms'); ?></p>
+                        <input type="number" id="test-automation-id" min="1" placeholder="e.g., 5" style="width: 100px;">
+                        <p class="description"><?php echo esc_html__('Enter the ID of an automation to test', 'super-forms'); ?></p>
                     </td>
                 </tr>
                 <tr>
@@ -1329,23 +1329,23 @@ wp_localize_script('super-forms-developer-tools', 'devtoolsData', array(
             </table>
 
             <p>
-                <button id="test-trigger-execution-btn" class="button button-primary">
+                <button id="test-automation-execution-btn" class="button button-primary">
                     <span class="dashicons dashicons-controls-play"></span>
-                    <?php echo esc_html__('Test Trigger', 'super-forms'); ?>
+                    <?php echo esc_html__('Test Automation', 'super-forms'); ?>
                 </button>
             </p>
         </div>
 
-        <div id="trigger-test-results" style="display: none;">
-            <h4><?php echo esc_html__('Trigger Test Results:', 'super-forms'); ?></h4>
-            <div class="trigger-test-results-content"></div>
+        <div id="automation-test-results" style="display: none;">
+            <h4><?php echo esc_html__('Automation Test Results:', 'super-forms'); ?></h4>
+            <div class="automation-test-results-content"></div>
         </div>
     </div>
 
     <!-- Sandbox Testing Section -->
     <div class="super-devtools-section sandbox-testing-section">
         <h2><?php echo esc_html__('9. Sandbox Testing (Visual Validation)', 'super-forms'); ?></h2>
-        <p><?php echo esc_html__('Create inspectable test forms, triggers, and entries in your live database for visual validation. All sandbox data is tagged for easy cleanup.', 'super-forms'); ?></p>
+        <p><?php echo esc_html__('Create inspectable test forms, automations, and entries in your live database for visual validation. All sandbox data is tagged for easy cleanup.', 'super-forms'); ?></p>
 
         <!-- Sandbox Status -->
         <div id="sandbox-status-panel" class="sandbox-panel">
@@ -1369,7 +1369,7 @@ wp_localize_script('super-forms-developer-tools', 'devtoolsData', array(
                 </button>
                 <button id="sandbox-view-logs-btn" class="button button-secondary" disabled>
                     <span class="dashicons dashicons-list-view"></span>
-                    <?php echo esc_html__('View Trigger Logs', 'super-forms'); ?>
+                    <?php echo esc_html__('View Automation Logs', 'super-forms'); ?>
                 </button>
                 <button id="sandbox-cleanup-btn" class="button button-link-delete" disabled>
                     <span class="dashicons dashicons-trash"></span>
@@ -1397,7 +1397,7 @@ wp_localize_script('super-forms-developer-tools', 'devtoolsData', array(
             </table>
             <p style="margin-top: 15px;">
                 <button id="sandbox-submit-custom-btn" class="button button-primary">
-                    <?php echo esc_html__('Submit Entry & Fire Triggers', 'super-forms'); ?>
+                    <?php echo esc_html__('Submit Entry & Fire Automations', 'super-forms'); ?>
                 </button>
                 <button id="sandbox-cancel-entry-btn" class="button">
                     <?php echo esc_html__('Cancel', 'super-forms'); ?>
@@ -1407,9 +1407,9 @@ wp_localize_script('super-forms-developer-tools', 'devtoolsData', array(
 
         <!-- Sandbox Logs Panel -->
         <div id="sandbox-logs-panel" style="display: none; margin: 20px 0;">
-            <h3><?php echo esc_html__('Trigger Execution Logs', 'super-forms'); ?></h3>
+            <h3><?php echo esc_html__('Automation Execution Logs', 'super-forms'); ?></h3>
             <div id="sandbox-logs-content" style="max-height: 400px; overflow-y: auto; background: #f9f9f9; padding: 10px; border: 1px solid #ddd;">
-                <p><em><?php echo esc_html__('No logs yet. Submit a test entry to see trigger execution logs.', 'super-forms'); ?></em></p>
+                <p><em><?php echo esc_html__('No logs yet. Submit a test entry to see automation execution logs.', 'super-forms'); ?></em></p>
             </div>
         </div>
 
@@ -2365,7 +2365,7 @@ wp_localize_script('super-forms-developer-tools', 'devtoolsData', array(
     }
 }
 
-/* Trigger System Testing Styles */
+/* Automations Testing Styles */
 .super-devtools-success {
     padding: 15px;
     background: #e7f5e7;

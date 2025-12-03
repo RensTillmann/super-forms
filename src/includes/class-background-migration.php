@@ -1031,8 +1031,8 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 			}
 
 			// Check if email migration needs to run
-			if ( class_exists( 'SUPER_Email_Trigger_Migration' ) ) {
-				$email_state = SUPER_Email_Trigger_Migration::get_state();
+			if ( class_exists( 'SUPER_Email_Automation_Migration' ) ) {
+				$email_state = SUPER_Email_Automation_Migration::get_state();
 
 				if ( $email_state['status'] === 'in_progress' ) {
 					// Check if email migration is stuck (no activity in 1 hour)
@@ -1057,10 +1057,10 @@ if ( ! class_exists( 'SUPER_Background_Migration' ) ) :
 					}
 				} elseif ( $email_state['status'] === 'not_started' ) {
 					// Check if there are forms to migrate
-					$forms_count = SUPER_Email_Trigger_Migration::count_forms_needing_migration();
+					$forms_count = SUPER_Email_Automation_Migration::count_forms_needing_migration();
 					if ( $forms_count > 0 ) {
 						self::log( "Health check: Email migration needed ({$forms_count} forms), scheduling" );
-						SUPER_Email_Trigger_Migration::maybe_schedule_migration();
+						SUPER_Email_Automation_Migration::maybe_schedule_migration();
 					}
 				}
 			}

@@ -2765,116 +2765,86 @@
 
             // Switch to different language when clicked
             if(field.closest('.super-i18n-switcher')){
-                // Generate new nonce
                 var $this = $(this), $form = $this.closest('.super-form');
                 // Remove initialized class
                 $form.find('.super-button').remove();
                 $form.removeClass('super-initialized');
+
+                var $form_id = $form.find('input[name="hidden_form_id"]').val(),
+                    $i18n = $this.attr('data-value');
+
+                $this.parent().children('.super-item').removeClass('super-active');
+                $this.addClass('super-active');
+                // Also move to placeholder
+                $this.parents('.super-dropdown').children('.super-dropdown-placeholder').html($this.html());
+
+                // Get URL parameters
+                var $queryString = window.location.search;
+                var $parameters = SUPER.getAllUrlParams($queryString);
                 $.ajax({
-                    url: super_elements_i18n.ajaxurl, 
-                    type: 'post', 
-                    data: { 
-                        action: 'super_create_nonce'
+                    url: super_elements_i18n.ajaxurl,
+                    type: 'post',
+                    data: {
+                        action: 'super_language_switcher',
+                        form_id: $form_id,
+                        i18n: $i18n,
+                        parameters: $parameters
                     },
-                    success: function (nonce) {
-                        $form.find('input[name="sf_nonce"]').val(nonce.trim());
+                    success: function (result) {
+                        SUPER.switched_language = true;
+                        var data = JSON.parse(result);
+                        if(data.error && data.error===true){
+                            var i, nodes = document.querySelectorAll('.super-msg');
+                            for (i = 0; i < nodes.length; i++) {
+                                nodes[i].remove();
+                            }
+                            var $html = '<div class="super-msg super-error">';
+                            $html += data.msg;
+                            $html += '<span class="super-close"></span>';
+                            $html += '</div>';
+                            $($html).prependTo($form);
+                        }else{
+                            if(data.rtl==true){
+                                $form.addClass('super-rtl');
+                            }else{
+                                $form.removeClass('super-rtl');
+                            }
+                            $form.find('form').html(data.html);
+                            $form.data('i18n', $i18n);
+                            $form[0].dataset.i18n = $i18n;
+                            // Store the translation language code in sessionStorage
+                            sessionStorage.setItem('sf_'+$form_id+'_i18n', $i18n);
+                        }
                     },
                     complete: function(){
-                        var $form_id = $form.find('input[name="hidden_form_id"]').val(),
-                            $sf_nonce = $form.find('input[name="sf_nonce"]').val(),
-                            $i18n = $this.attr('data-value');
+                        $form.removeClass('super-initialized');
+                        $form.removeClass('super-rendered');
+                        $form.removeClass('super-form-loaded');
+                        $form.removeClass('super-form-ready');
 
-                        $this.parent().children('.super-item').removeClass('super-active');
-                        $this.addClass('super-active');
-                        // Also move to placeholder
-                        $this.parents('.super-dropdown').children('.super-dropdown-placeholder').html($this.html());
-                        
-                        // Get URL parameters
-                        var $queryString = window.location.search;
-                        var $parameters = SUPER.getAllUrlParams($queryString);
-                        $.ajax({
-                            url: super_elements_i18n.ajaxurl,
-                            type: 'post',
-                            data: {
-                                action: 'super_language_switcher',
-                                form_id: $form_id,
-                                i18n: $i18n,
-                                parameters: $parameters,
-                                sf_nonce: $sf_nonce,
-                            },
-                            success: function (result) {
-                                SUPER.switched_language = true;
-                                var data = JSON.parse(result);
-                                if(data.error && data.error===true){
-                                    var i, nodes = document.querySelectorAll('.super-msg');
-                                    for (i = 0; i < nodes.length; i++) { 
-                                        nodes[i].remove();
-                                    }
-                                    var $html = '<div class="super-msg super-error">';                            
-                                    $html += data.msg;
-                                    $html += '<span class="super-close"></span>';
-                                    $html += '</div>';
-                                    $($html).prependTo($form);
-                                }else{
-                                    if(data.rtl==true){
-                                        $form.addClass('super-rtl');
-                                    }else{
-                                        $form.removeClass('super-rtl');
-                                    }
-                                    $form.find('form').html(data.html);
-                                    $form.data('i18n', $i18n);
-                                    $form[0].dataset.i18n = $i18n;
-                                    // Store the translation language code in sessionStorage
-                                    sessionStorage.setItem('sf_'+$form_id+'_i18n', $i18n);
-                                }
-                            },
-                            complete: function(){
-                                //super-form super-form-73949 super-default-squared super-field-size-medium 
-                                //super-adaptive notranslate 
-                                //super-rendered 
-                                //super-form-loaded 
-                                //super-form-ready
+                        $form.find('.super-multipart-progress').remove();
+                        $form.find('.super-multipart-steps').remove();
 
-                                $form.removeClass('super-initialized');
-                                $form.removeClass('super-rendered');
-                                $form.removeClass('super-form-loaded');
-                                $form.removeClass('super-form-ready');
-
-                                $form.find('.super-multipart-progress').remove();
-                                $form.find('.super-multipart-steps').remove();
-
-                                // Complete:
-                                SUPER.clearFormCache();
-                                SUPER.files = [];
-                                SUPER.init_super_form_frontend({callback:function(formId){
-                                    if(SUPER.form_js && SUPER.form_js[formId] && SUPER.form_js[formId]['_entry_data']){
-                                        var data = SUPER.form_js[formId]['_entry_data'];
-                                        if(data) SUPER.populate_form_with_entry_data(data, $('.super-live-preview .super-form')[0], false);
-                                    }
-                                    SUPER.after_preview_loaded_hook(formId);
-                                }});
-
-                                //SUPER.init_super_form_frontend({form:$form[0]});
-                                //SUPER.after_preview_loaded_hook($form_id);
-                                // Set language switch dropdown to `filled` state
-                                
-                                var switcher = $form[0].querySelector('.super-i18n-switcher .super-dropdown');
-                                if(switcher){
-                                    
-                                    switcher.classList.add('super-filled');
-                                }
-                            },
-                            error: function (xhr, ajaxOptions, thrownError) {
-                                 
-                                console.log(xhr, ajaxOptions, thrownError);
-                                alert(super_elements_i18n.failed_to_process_data);
+                        // Complete:
+                        SUPER.clearFormCache();
+                        SUPER.files = [];
+                        SUPER.init_super_form_frontend({callback:function(formId){
+                            if(SUPER.form_js && SUPER.form_js[formId] && SUPER.form_js[formId]['_entry_data']){
+                                var data = SUPER.form_js[formId]['_entry_data'];
+                                if(data) SUPER.populate_form_with_entry_data(data, $('.super-live-preview .super-form')[0], false);
                             }
-                        });
+                            SUPER.after_preview_loaded_hook(formId);
+                        }});
+
+                        // Set language switch dropdown to `filled` state
+                        var switcher = $form[0].querySelector('.super-i18n-switcher .super-dropdown');
+                        if(switcher){
+                            switcher.classList.add('super-filled');
+                        }
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
-                         
                         console.log(xhr, ajaxOptions, thrownError);
-                        alert('Failed to generate nonce!');
+                        alert(super_elements_i18n.failed_to_process_data);
                     }
                 });
                 return true;

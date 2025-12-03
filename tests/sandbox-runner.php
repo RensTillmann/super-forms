@@ -2,7 +2,7 @@
 /**
  * Sandbox Test Runner
  *
- * CLI script for automated sandbox testing of the trigger system.
+ * CLI script for automated sandbox testing of the automation system.
  * Designed to be called via SSH after syncing files.
  *
  * Usage:
@@ -32,7 +32,7 @@ $options = getopt('', ['cleanup', 'keep', 'status', 'reset', 'verbose', 'help', 
 
 if (isset($options['help'])) {
     echo <<<HELP
-Sandbox Test Runner - Super Forms Trigger System Testing
+Sandbox Test Runner - Super Forms Automation System Testing
 
 Usage: php tests/sandbox-runner.php [options]
 
@@ -139,14 +139,14 @@ if (file_exists($sandbox_manager_path)) {
 // Verify required classes exist
 $required_classes = [
     'SUPER_Sandbox_Manager',
-    'SUPER_Trigger_Executor',
-    'SUPER_Trigger_DAL',
+    'SUPER_Automation_Executor',
+    'SUPER_Automation_DAL',
 ];
 
 foreach ($required_classes as $class) {
     if (!class_exists($class)) {
         output("ERROR: Required class '$class' not found.", true);
-        output("Make sure Super Forms is activated and trigger system is loaded.", true);
+        output("Make sure Super Forms is activated and automation system is loaded.", true);
         output("Plugin dir: $plugin_dir", true);
         exit(2);
     }
@@ -156,7 +156,7 @@ foreach ($required_classes as $class) {
 $fixtures_dir = dirname(__FILE__) . '/fixtures';
 $fixture_files = [
     'class-form-factory.php',
-    'class-trigger-factory.php',
+    'class-automation-factory.php',
     'class-webhook-simulator.php',
 ];
 
@@ -203,11 +203,11 @@ if (isset($options['status'])) {
         output("");
         output("Forms:");
         foreach ($status['forms'] as $type => $form) {
-            output("  - [$type] {$form['form_title']} (ID: {$form['form_id']}, Triggers: {$form['trigger_count']})");
+            output("  - [$type] {$form['form_title']} (ID: {$form['form_id']}, Automations: {$form['automation_count']})");
         }
         output("");
         output("Statistics:");
-        output("  Total Triggers: " . $status['trigger_count']);
+        output("  Total Automations: " . $status['automation_count']);
         output("  Total Entries:  " . $status['entry_count']);
         output("  Total Logs:     " . $status['log_count']);
     }
@@ -259,7 +259,7 @@ if (!$status['exists']) {
 
     output("Sandbox created successfully!");
     output("Forms: " . count($sandbox['forms']));
-    output("Triggers: " . count($sandbox['trigger_ids']));
+    output("Automations: " . count($sandbox['automation_ids']));
     output("");
 
     // Refresh status
@@ -286,8 +286,8 @@ foreach ($results['tests'] as $form_type => $test) {
 
     output("$status_icon $form_type (Form ID: {$test['form_id']})");
     output("       Entry Created:     " . ($test['entry_created'] ? 'Yes' : 'No'));
-    output("       Triggers Found:    " . $test['triggers_found']);
-    output("       Triggers Executed: " . $test['triggers_executed']);
+    output("       Automations Found:    " . $test['automations_found']);
+    output("       Automations Executed: " . $test['automations_executed']);
     output("       Logs Created:      " . $test['logs_created']);
 
     if (!empty($test['errors'])) {
@@ -324,7 +324,7 @@ output("");
 if ($verbose) {
     $logs = SUPER_Sandbox_Manager::get_sandbox_logs(10);
     if (!empty($logs)) {
-        output("Recent Trigger Logs:");
+        output("Recent Automation Logs:");
         output("-------------------------------------------");
         foreach ($logs as $log) {
             $status = $log['status'] ?? 'unknown';
@@ -343,7 +343,7 @@ if ($verbose) {
 if (isset($options['cleanup'])) {
     output("Cleaning up sandbox...");
     $cleanup_stats = SUPER_Sandbox_Manager::cleanup_sandbox();
-    output("Deleted: {$cleanup_stats['forms_deleted']} forms, {$cleanup_stats['triggers_deleted']} triggers, {$cleanup_stats['entries_deleted']} entries, {$cleanup_stats['logs_deleted']} logs");
+    output("Deleted: {$cleanup_stats['forms_deleted']} forms, {$cleanup_stats['automations_deleted']} automations, {$cleanup_stats['entries_deleted']} entries, {$cleanup_stats['logs_deleted']} logs");
     output("");
 } else {
     output("Sandbox preserved for inspection.");

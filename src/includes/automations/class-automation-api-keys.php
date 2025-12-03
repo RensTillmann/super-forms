@@ -56,8 +56,8 @@ if ( ! class_exists( 'SUPER_Automation_API_Keys' ) ) :
 		 * @var array
 		 */
 		const PERMISSIONS = array(
-			'triggers'    => 'Manage Triggers',
-			'execute'     => 'Execute Triggers',
+			'automations' => 'Manage Automations',
+			'execute'     => 'Execute Automations',
 			'logs'        => 'View Logs',
 			'credentials' => 'Manage Credentials',
 			'forms'       => 'Read Forms',

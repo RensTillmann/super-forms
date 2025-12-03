@@ -45,9 +45,9 @@ define( 'WP_TESTS_SKIP_INSTALL', false );
 $mysqli = new mysqli( DB_HOST, DB_USER, DB_PASSWORD, DB_NAME );
 if ( ! $mysqli->connect_error ) {
 	$mysqli->query( 'SET FOREIGN_KEY_CHECKS = 0' );
-	$mysqli->query( "DROP TABLE IF EXISTS {$table_prefix}superforms_trigger_logs" );
-	$mysqli->query( "DROP TABLE IF EXISTS {$table_prefix}superforms_trigger_actions" );
-	$mysqli->query( "DROP TABLE IF EXISTS {$table_prefix}superforms_triggers" );
+	$mysqli->query( "DROP TABLE IF EXISTS {$table_prefix}superforms_automation_logs" );
+	$mysqli->query( "DROP TABLE IF EXISTS {$table_prefix}superforms_automation_actions" );
+	$mysqli->query( "DROP TABLE IF EXISTS {$table_prefix}superforms_automations" );
 	$mysqli->query( "DROP TABLE IF EXISTS {$table_prefix}superforms_entry_data" );
 	$mysqli->query( 'SET FOREIGN_KEY_CHECKS = 1' );
 

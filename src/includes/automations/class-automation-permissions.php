@@ -1,12 +1,12 @@
 <?php
 /**
- * Trigger Permissions Manager
+ * Automation Permissions Manager
  *
- * Handles capability-based permissions for the triggers system,
+ * Handles capability-based permissions for the automations system,
  * including custom capabilities and scope-based access control.
  *
  * @package    SUPER_Forms
- * @subpackage Triggers
+ * @subpackage Automations
  * @since      6.5.0
  */
 
@@ -19,9 +19,9 @@ if ( ! class_exists( 'SUPER_Automation_Permissions' ) ) :
 	/**
 	 * SUPER_Automation_Permissions Class
 	 *
-	 * Manages permissions for triggers including:
+	 * Manages permissions for automations including:
 	 * - Custom WordPress capabilities
-	 * - Trigger ownership checks
+	 * - Automation ownership checks
 	 * - Scope-based access control
 	 * - Form-specific permissions
 	 *
@@ -30,19 +30,19 @@ if ( ! class_exists( 'SUPER_Automation_Permissions' ) ) :
 	class SUPER_Automation_Permissions {
 
 		/**
-		 * Capability: Manage all triggers
+		 * Capability: Manage all automations
 		 */
-		const CAP_MANAGE_TRIGGERS = 'super_manage_triggers';
+		const CAP_MANAGE_AUTOMATIONS = 'super_manage_automations';
 
 		/**
-		 * Capability: Execute triggers
+		 * Capability: Execute automations
 		 */
-		const CAP_EXECUTE_TRIGGERS = 'super_execute_triggers';
+		const CAP_EXECUTE_AUTOMATIONS = 'super_execute_automations';
 
 		/**
-		 * Capability: View trigger logs
+		 * Capability: View automation logs
 		 */
-		const CAP_VIEW_LOGS = 'super_view_trigger_logs';
+		const CAP_VIEW_LOGS = 'super_view_automation_logs';
 
 		/**
 		 * Capability: Manage API credentials
@@ -55,9 +55,9 @@ if ( ! class_exists( 'SUPER_Automation_Permissions' ) ) :
 		const CAP_MANAGE_API_KEYS = 'super_manage_api_keys';
 
 		/**
-		 * Capability: Create global triggers
+		 * Capability: Create global automations
 		 */
-		const CAP_CREATE_GLOBAL_TRIGGERS = 'super_create_global_triggers';
+		const CAP_CREATE_GLOBAL_AUTOMATIONS = 'super_create_global_automations';
 
 		/**
 		 * All custom capabilities
@@ -65,12 +65,12 @@ if ( ! class_exists( 'SUPER_Automation_Permissions' ) ) :
 		 * @var array
 		 */
 		private static $capabilities = array(
-			self::CAP_MANAGE_TRIGGERS,
-			self::CAP_EXECUTE_TRIGGERS,
+			self::CAP_MANAGE_AUTOMATIONS,
+			self::CAP_EXECUTE_AUTOMATIONS,
 			self::CAP_VIEW_LOGS,
 			self::CAP_MANAGE_CREDENTIALS,
 			self::CAP_MANAGE_API_KEYS,
-			self::CAP_CREATE_GLOBAL_TRIGGERS,
+			self::CAP_CREATE_GLOBAL_AUTOMATIONS,
 		);
 
 		/**
@@ -123,7 +123,7 @@ if ( ! class_exists( 'SUPER_Automation_Permissions' ) ) :
 		 * @return array Modified capabilities
 		 */
 		public static function filter_capabilities( $allcaps, $caps, $args, $user ) {
-			// If user has manage_options, grant all trigger capabilities
+			// If user has manage_options, grant all automation capabilities
 			if ( isset( $allcaps['manage_options'] ) && $allcaps['manage_options'] ) {
 				foreach ( self::$capabilities as $cap ) {
 					$allcaps[ $cap ] = true;
@@ -134,72 +134,72 @@ if ( ! class_exists( 'SUPER_Automation_Permissions' ) ) :
 		}
 
 		/**
-		 * Check if user can manage a specific trigger
+		 * Check if user can manage a specific automation
 		 *
-		 * @param int      $automation_id Trigger ID
-		 * @param int|null $user_id    User ID (default: current user)
+		 * @param int      $automation_id Automation ID
+		 * @param int|null $user_id       User ID (default: current user)
 		 * @return bool
 		 */
-		public static function can_manage_trigger( $automation_id, $user_id = null ) {
+		public static function can_manage_automation( $automation_id, $user_id = null ) {
 			$user_id = $user_id ?: get_current_user_id();
 
 			if ( ! $user_id ) {
 				return false;
 			}
 
-			// Admins can manage all triggers
+			// Admins can manage all automations
 			if ( user_can( $user_id, 'manage_options' ) ) {
 				return true;
 			}
 
 			// Check specific capability
-			if ( ! user_can( $user_id, self::CAP_MANAGE_TRIGGERS ) ) {
+			if ( ! user_can( $user_id, self::CAP_MANAGE_AUTOMATIONS ) ) {
 				return false;
 			}
 
-			// Get trigger to check ownership/scope
-			$trigger = SUPER_Automation_DAL::get_trigger( $automation_id );
-			if ( ! $trigger ) {
+			// Get automation to check ownership/scope
+			$automation = SUPER_Automation_DAL::get_automation( $automation_id );
+			if ( ! $automation ) {
 				return false;
 			}
 
 			// Check ownership
-			if ( isset( $trigger['created_by'] ) && $trigger['created_by'] == $user_id ) {
+			if ( isset( $automation['created_by'] ) && $automation['created_by'] == $user_id ) {
 				return true;
 			}
 
 			// Check scope-based permissions
-			return self::can_access_scope( $trigger['scope'], $trigger['scope_id'], $user_id );
+			return self::can_access_scope( $automation['scope'], $automation['scope_id'], $user_id );
 		}
 
 		/**
-		 * Check if user can create a trigger with given scope
+		 * Check if user can create an automation with given scope
 		 *
-		 * @param string   $scope    Trigger scope
+		 * @param string   $scope    Automation scope
 		 * @param int|null $scope_id Scope ID
 		 * @param int|null $user_id  User ID (default: current user)
 		 * @return bool
 		 */
-		public static function can_create_trigger( $scope, $scope_id = null, $user_id = null ) {
+		public static function can_create_automation( $scope, $scope_id = null, $user_id = null ) {
 			$user_id = $user_id ?: get_current_user_id();
 
 			if ( ! $user_id ) {
 				return false;
 			}
 
-			// Admins can create any trigger
+			// Admins can create any automation
 			if ( user_can( $user_id, 'manage_options' ) ) {
 				return true;
 			}
 
 			// Check basic capability
-			if ( ! user_can( $user_id, self::CAP_MANAGE_TRIGGERS ) ) {
+			if ( ! user_can( $user_id, self::CAP_MANAGE_AUTOMATIONS ) ) {
 				return false;
 			}
 
-			// Global triggers require special permission
+			// Global automations require special permission
 			if ( 'global' === $scope ) {
-				return user_can( $user_id, self::CAP_CREATE_GLOBAL_TRIGGERS );
+				return user_can( $user_id, self::CAP_CREATE_GLOBAL_AUTOMATIONS );
 			}
 
 			// Check scope access
@@ -223,16 +223,16 @@ if ( ! class_exists( 'SUPER_Automation_Permissions' ) ) :
 					return self::can_edit_form( $scope_id, $user_id );
 
 				case 'user':
-					// Users can only manage their own user-scoped triggers
+					// Users can only manage their own user-scoped automations
 					return $scope_id == $user_id;
 
 				case 'role':
-					// Role-scoped triggers require manage_options
+					// Role-scoped automations require manage_options
 					return user_can( $user_id, 'manage_options' );
 
 				case 'global':
-					// Global triggers require special permission
-					return user_can( $user_id, self::CAP_CREATE_GLOBAL_TRIGGERS );
+					// Global automations require special permission
+					return user_can( $user_id, self::CAP_CREATE_GLOBAL_AUTOMATIONS );
 
 				default:
 					return false;
@@ -260,7 +260,7 @@ if ( ! class_exists( 'SUPER_Automation_Permissions' ) ) :
 		}
 
 		/**
-		 * Check if user can view trigger logs
+		 * Check if user can view automation logs
 		 *
 		 * @param int|null $user_id User ID
 		 * @return bool
@@ -308,28 +308,28 @@ if ( ! class_exists( 'SUPER_Automation_Permissions' ) ) :
 		}
 
 		/**
-		 * Check if user can execute triggers
+		 * Check if user can execute automations
 		 *
 		 * @param int|null $user_id User ID
 		 * @return bool
 		 */
-		public static function can_execute_triggers( $user_id = null ) {
+		public static function can_execute_automations( $user_id = null ) {
 			$user_id = $user_id ?: get_current_user_id();
 
 			if ( user_can( $user_id, 'manage_options' ) ) {
 				return true;
 			}
 
-			return user_can( $user_id, self::CAP_EXECUTE_TRIGGERS );
+			return user_can( $user_id, self::CAP_EXECUTE_AUTOMATIONS );
 		}
 
 		/**
-		 * Get triggers that a user can access
+		 * Get automations that a user can access
 		 *
 		 * @param int|null $user_id User ID
-		 * @return array Array of trigger IDs
+		 * @return array Array of automation IDs
 		 */
-		public static function get_accessible_triggers( $user_id = null ) {
+		public static function get_accessible_automations( $user_id = null ) {
 			$user_id = $user_id ?: get_current_user_id();
 
 			// Admins can access all
@@ -339,21 +339,21 @@ if ( ! class_exists( 'SUPER_Automation_Permissions' ) ) :
 
 			$accessible = array();
 
-			// Get user's own triggers
-			$user_triggers = SUPER_Automation_DAL::get_triggers_by_user( $user_id );
-			foreach ( $user_triggers as $trigger ) {
-				$accessible[] = $trigger['id'];
+			// Get user's own automations
+			$user_automations = SUPER_Automation_DAL::get_automations_by_user( $user_id );
+			foreach ( $user_automations as $automation ) {
+				$accessible[] = $automation['id'];
 			}
 
-			// Get triggers for forms user can edit
+			// Get automations for forms user can edit
 			$user_forms = self::get_user_editable_forms( $user_id );
 			foreach ( $user_forms as $form_id ) {
-				$form_triggers = SUPER_Automation_DAL::get_triggers( array(
+				$form_automations = SUPER_Automation_DAL::get_automations( array(
 					'scope'    => 'form',
 					'scope_id' => $form_id,
 				) );
-				foreach ( $form_triggers as $trigger ) {
-					$accessible[] = $trigger['id'];
+				foreach ( $form_automations as $automation ) {
+					$accessible[] = $automation['id'];
 				}
 			}
 
@@ -425,7 +425,7 @@ if ( ! class_exists( 'SUPER_Automation_Permissions' ) ) :
 		}
 
 		/**
-		 * Get all trigger capabilities
+		 * Get all automation capabilities
 		 *
 		 * @return array
 		 */
@@ -451,7 +451,7 @@ if ( ! class_exists( 'SUPER_Automation_Permissions' ) ) :
 
 					// Check key permissions
 					$permissions = $key_data['permissions'];
-					if ( in_array( 'triggers', $permissions, true ) || in_array( $action, $permissions, true ) ) {
+					if ( in_array( 'automations', $permissions, true ) || in_array( $action, $permissions, true ) ) {
 						return true;
 					}
 
@@ -482,15 +482,15 @@ if ( ! class_exists( 'SUPER_Automation_Permissions' ) ) :
 			switch ( $action ) {
 				case 'read':
 				case 'list':
-					return self::can_view_logs() || self::can_manage_trigger( 0 );
+					return self::can_view_logs() || self::can_manage_automation( 0 );
 
 				case 'create':
 				case 'update':
 				case 'delete':
-					return current_user_can( self::CAP_MANAGE_TRIGGERS );
+					return current_user_can( self::CAP_MANAGE_AUTOMATIONS );
 
 				case 'execute':
-					return self::can_execute_triggers();
+					return self::can_execute_automations();
 
 				default:
 					return current_user_can( 'manage_options' );

@@ -2526,7 +2526,7 @@ jQuery(document).ready(function($) {
     }
 
     // ========================================
-    // Trigger System Testing
+    // Automations System Testing
     // ========================================
 
     // Fire Test Event
@@ -2536,8 +2536,8 @@ jQuery(document).ready(function($) {
         var $resultsContent = $('.event-test-results-content');
 
         var eventId = $('#test-event-id').val();
-        var formId = parseInt($('#test-form-id-trigger').val());
-        var entryId = parseInt($('#test-entry-id-trigger').val());
+        var formId = parseInt($('#test-form-id-automation').val());
+        var entryId = parseInt($('#test-entry-id-automation').val());
 
         // Disable button
         $btn.prop('disabled', true).text('Firing event...');
@@ -2559,14 +2559,14 @@ jQuery(document).ready(function($) {
                     var html = '<div class="super-devtools-success">';
                     html += '<p><strong>✓ Event fired successfully!</strong></p>';
                     html += '<p><strong>Event:</strong> ' + data.event_id + '</p>';
-                    html += '<p><strong>Triggers executed:</strong> ' + data.triggers_executed + '</p>';
+                    html += '<p><strong>Automations executed:</strong> ' + data.automations_executed + '</p>';
                     html += '<p><strong>Execution time:</strong> ' + data.execution_time_ms + ' ms</p>';
 
-                    if (data.triggers_executed > 0) {
-                        html += '<h4>Trigger Results:</h4>';
+                    if (data.automations_executed > 0) {
+                        html += '<h4>Automation Results:</h4>';
                         html += '<pre>' + JSON.stringify(data.results, null, 2) + '</pre>';
                     } else {
-                        html += '<p><em>No triggers matched this event.</em></p>';
+                        html += '<p><em>No automations matched this event.</em></p>';
                     }
 
                     html += '</div>';
@@ -2603,7 +2603,7 @@ jQuery(document).ready(function($) {
             url: ajaxurl,
             method: 'POST',
             data: {
-                action: 'super_dev_get_trigger_logs',
+                action: 'super_dev_get_automation_logs',
                 nonce: devtoolsNonce,
                 limit: 50
             },
@@ -2617,7 +2617,7 @@ jQuery(document).ready(function($) {
                         var html = '<table class="wp-list-table widefat fixed striped">';
                         html += '<thead><tr>';
                         html += '<th>Time</th><th>Event</th><th>Form</th><th>Entry</th>';
-                        html += '<th>Trigger</th><th>Action</th><th>Status</th><th>Duration</th>';
+                        html += '<th>Automation</th><th>Action</th><th>Status</th><th>Duration</th>';
                         html += '</tr></thead><tbody>';
 
                         data.logs.forEach(function(log) {
@@ -2630,7 +2630,7 @@ jQuery(document).ready(function($) {
                             html += '<td><code>' + log.event_id + '</code></td>';
                             html += '<td>' + (log.form_id || '-') + '</td>';
                             html += '<td>' + (log.entry_id || '-') + '</td>';
-                            html += '<td>#' + log.trigger_id + '</td>';
+                            html += '<td>#' + (log.automation_id || '-') + '</td>';
                             html += '<td>#' + (log.action_id || '-') + '</td>';
                             html += '<td>' + statusIcon + ' ' + log.status + '</td>';
                             html += '<td>' + (log.execution_time_ms ? parseFloat(log.execution_time_ms).toFixed(2) + ' ms' : '-') + '</td>';
@@ -2662,7 +2662,7 @@ jQuery(document).ready(function($) {
 
     // Clear Event Logs
     $('#clear-event-log-btn').on('click', function() {
-        if (!confirm('Are you sure you want to clear all trigger execution logs? This cannot be undone.')) {
+        if (!confirm('Are you sure you want to clear all automation execution logs? This cannot be undone.')) {
             return;
         }
 
@@ -2673,12 +2673,12 @@ jQuery(document).ready(function($) {
             url: ajaxurl,
             method: 'POST',
             data: {
-                action: 'super_dev_clear_trigger_logs',
+                action: 'super_dev_clear_automation_logs',
                 nonce: devtoolsNonce
             },
             success: function(response) {
                 if (response.success) {
-                    alert('All trigger logs cleared successfully!');
+                    alert('All automation logs cleared successfully!');
                     refreshEventLogs();
                 } else {
                     alert('Error: ' + (response.data.message || 'Failed to clear logs'));
@@ -2693,17 +2693,17 @@ jQuery(document).ready(function($) {
         });
     });
 
-    // Test Specific Trigger
-    $('#test-trigger-execution-btn').on('click', function() {
+    // Test Specific Automation
+    $('#test-automation-execution-btn').on('click', function() {
         var $btn = $(this);
-        var $results = $('#trigger-test-results');
-        var $resultsContent = $('.trigger-test-results-content');
+        var $results = $('#automation-test-results');
+        var $resultsContent = $('.automation-test-results-content');
 
-        var triggerId = parseInt($('#test-trigger-id').val());
+        var automationId = parseInt($('#test-automation-id').val());
         var entryDataJson = $('#test-entry-data').val();
 
-        if (!triggerId) {
-            alert('Please enter a trigger ID');
+        if (!automationId) {
+            alert('Please enter an automation ID');
             return;
         }
 
@@ -2715,25 +2715,25 @@ jQuery(document).ready(function($) {
             return;
         }
 
-        $btn.prop('disabled', true).text('Testing trigger...');
+        $btn.prop('disabled', true).text('Testing automation...');
         $results.hide();
 
         $.ajax({
             url: ajaxurl,
             method: 'POST',
             data: {
-                action: 'super_dev_test_trigger',
+                action: 'super_dev_test_automation',
                 nonce: devtoolsNonce,
-                trigger_id: triggerId,
+                automation_id: automationId,
                 entry_data: entryDataJson
             },
             success: function(response) {
                 if (response.success) {
                     var data = response.data;
                     var html = '<div class="super-devtools-success">';
-                    html += '<h4>Trigger #' + triggerId + ' Test Results:</h4>';
-                    html += '<p><strong>Trigger Name:</strong> ' + data.trigger.trigger_name + '</p>';
-                    html += '<p><strong>Event:</strong> ' + data.trigger.event_id + '</p>';
+                    html += '<h4>Automation #' + automationId + ' Test Results:</h4>';
+                    html += '<p><strong>Automation Name:</strong> ' + ((data.automation && data.automation.name) || '-') + '</p>';
+                    if (data.automation && data.automation.event_id) { html += '<p><strong>Event:</strong> ' + data.automation.event_id + '</p>'; }
                     html += '<p><strong>Conditions Met:</strong> ' + (data.conditions_met ? '✓ Yes' : '✗ No') + '</p>';
                     html += '<p><strong>Actions Executed:</strong> ' + data.actions_executed + ' / ' + data.actions.length + '</p>';
 
@@ -2762,7 +2762,7 @@ jQuery(document).ready(function($) {
                 $results.fadeIn();
             },
             complete: function() {
-                $btn.prop('disabled', false).html('<span class="dashicons dashicons-controls-play"></span> Test Trigger');
+                $btn.prop('disabled', false).html('<span class="dashicons dashicons-controls-play"></span> Test Automation');
             }
         });
     });
@@ -2787,7 +2787,7 @@ jQuery(document).ready(function($) {
             html += '<p><strong>Sandbox Active</strong></p>';
             html += '<ul style="margin: 10px 0 10px 20px;">';
             html += '<li><strong>Form:</strong> ' + status.form_title + ' (ID: ' + status.form_id + ')</li>';
-            html += '<li><strong>Triggers:</strong> ' + status.trigger_count + ' active</li>';
+            html += '<li><strong>Automations:</strong> ' + status.automation_count + ' active</li>';
             html += '<li><strong>Entries:</strong> ' + status.entry_count + ' submitted</li>';
             html += '<li><strong>Logs:</strong> ' + status.log_count + ' execution logs</li>';
             html += '</ul>';
@@ -2803,7 +2803,7 @@ jQuery(document).ready(function($) {
         } else {
             html = '<div class="sandbox-status-inactive" style="background: #f9f9f9; padding: 15px; border-left: 4px solid #999;">';
             html += '<p>No sandbox exists. Click "Create Sandbox" to get started.</p>';
-            html += '<p style="color: #666; font-size: 12px;">This will create a test form with triggers in your live database for visual validation.</p>';
+            html += '<p style="color: #666; font-size: 12px;">This will create a test form with automations in your live database for visual validation.</p>';
             html += '</div>';
 
             // Reset action buttons
@@ -2855,7 +2855,7 @@ jQuery(document).ready(function($) {
             success: function(response) {
                 if (response.success) {
                     updateSandboxStatus(response.data);
-                    showSandboxResult('Sandbox created! Form ID: ' + response.data.form_id + ', Triggers: ' + response.data.trigger_count, 'success');
+                    showSandboxResult('Sandbox created! Form ID: ' + response.data.form_id + ', Automations: ' + response.data.automation_count, 'success');
                 } else {
                     showSandboxResult('Error: ' + (response.data.message || 'Unknown error'), 'error');
                     $btn.prop('disabled', false).html('<span class="dashicons dashicons-plus-alt"></span> Create Sandbox');
@@ -2909,7 +2909,7 @@ jQuery(document).ready(function($) {
                 showSandboxResult('AJAX Error: ' + xhr.statusText, 'error');
             },
             complete: function() {
-                $btn.prop('disabled', false).text('Submit Entry & Fire Triggers');
+                $btn.prop('disabled', false).text('Submit Entry & Fire Automations');
             }
         });
     });
@@ -2936,13 +2936,13 @@ jQuery(document).ready(function($) {
             success: function(response) {
                 if (response.success && response.data.logs && response.data.logs.length > 0) {
                     var html = '<table class="wp-list-table widefat fixed striped" style="font-size: 12px;">';
-                    html += '<thead><tr><th>Time</th><th>Trigger</th><th>Event</th><th>Status</th><th>Message</th></tr></thead><tbody>';
+                    html += '<thead><tr><th>Time</th><th>Automation</th><th>Event</th><th>Status</th><th>Message</th></tr></thead><tbody>';
 
                     response.data.logs.forEach(function(log) {
                         var statusColor = log.status === 'success' ? '#46b450' : (log.status === 'error' ? '#dc3232' : '#999');
                         html += '<tr>';
                         html += '<td style="white-space: nowrap;">' + log.created_at + '</td>';
-                        html += '<td>' + log.trigger_id + '</td>';
+                        html += '<td>' + log.automation_id + '</td>';
                         html += '<td>' + (log.event_type || '-') + '</td>';
                         html += '<td style="color: ' + statusColor + ';">' + log.status + '</td>';
                         html += '<td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis;">' + (log.message || '-') + '</td>';
@@ -2952,7 +2952,7 @@ jQuery(document).ready(function($) {
                     html += '</tbody></table>';
                     $content.html(html);
                 } else {
-                    $content.html('<p><em>No logs yet. Submit a test entry to see trigger execution logs.</em></p>');
+                    $content.html('<p><em>No logs yet. Submit a test entry to see automation execution logs.</em></p>');
                 }
             },
             error: function() {
@@ -2963,7 +2963,7 @@ jQuery(document).ready(function($) {
 
     // Cleanup sandbox
     $('#sandbox-cleanup-btn').on('click', function() {
-        if (!confirm('Are you sure you want to delete all sandbox data? This will remove the test form, triggers, entries, and logs.')) {
+        if (!confirm('Are you sure you want to delete all sandbox data? This will remove the test form, automations, entries, and logs.')) {
             return;
         }
 
@@ -2983,7 +2983,7 @@ jQuery(document).ready(function($) {
                     // Reset status
                     updateSandboxStatus({ exists: false });
                     $('#sandbox-logs-panel').slideUp();
-                    $('#sandbox-logs-content').html('<p><em>No logs yet. Submit a test entry to see trigger execution logs.</em></p>');
+                    $('#sandbox-logs-content').html('<p><em>No logs yet. Submit a test entry to see automation execution logs.</em></p>');
                 } else {
                     showSandboxResult('Error: ' + (response.data.message || 'Unknown error'), 'error');
                 }

@@ -1509,16 +1509,24 @@ if ( ! class_exists( 'SUPER_Settings' ) ) :
 							'1' => esc_html__( 'Enabled', 'super-forms' ),
 						),
 					),
-					'csrf_check'                          => array(
+					'cross_origin_protection'             => array(
 						'hidden'  => true,
-						'name'    => esc_html__( 'Cross-Site Request Forgery (CSRF) check', 'super-forms' ),
-						'label'   => esc_html__( 'If you are loading forms through iframes that have a different origin you will require to disable the CSRF check in order to be able to submit forms. This is not recommended. Only use this if you have no other solution.', 'super-forms' ),
+						'name'    => esc_html__( 'Cross-Origin Protection (CSRF)', 'super-forms' ),
+						'label'   => esc_html__( 'Validates that form submissions originate from your site by checking Origin and Referer headers. Protects against Cross-Site Request Forgery attacks.', 'super-forms' ),
 						'type'    => 'select',
-						'default' => 'true',
+						'default' => 'enabled',
 						'values'  => array(
-							'true'  => esc_html__( 'Enabled (recommended)', 'super-forms' ),
-							'false' => esc_html__( 'Disabled (not recommended)', 'super-forms' ),
+							'enabled'       => esc_html__( 'Enabled (recommended)', 'super-forms' ),
+							'compatibility' => esc_html__( 'Compatibility (allow missing headers)', 'super-forms' ),
+							'disabled'      => esc_html__( 'Disabled (not recommended)', 'super-forms' ),
 						),
+					),
+					'trusted_origins'                     => array(
+						'hidden'  => true,
+						'name'    => esc_html__( 'Trusted Origins', 'super-forms' ),
+						'label'   => esc_html__( 'Additional domains allowed to submit forms. One per line, without protocol. Wildcards supported (e.g., *.example.com). Use for subdomains, CDNs, or staging environments.', 'super-forms' ),
+						'type'    => 'textarea',
+						'default' => '',
 					),
 					'allow_storing_cookies'               => array(
 						'hidden'  => true,

@@ -29,7 +29,7 @@ if ( ! class_exists( 'SUPER_Automation_Scheduler' ) ) :
 		 *
 		 * @var string
 		 */
-		const GROUP = 'super-forms-triggers';
+		const GROUP = 'super-forms-automations';
 
 		/**
 		 * Default retry limit
@@ -42,7 +42,7 @@ if ( ! class_exists( 'SUPER_Automation_Scheduler' ) ) :
 		 * Hook names
 		 */
 		const HOOK_EXECUTE_ACTION    = 'super_automation_execute_scheduled_action';
-		const HOOK_EXECUTE_DELAYED   = 'super_execute_delayed_trigger_actions';
+		const HOOK_EXECUTE_DELAYED   = 'super_execute_delayed_automation_actions';
 		const HOOK_RETRY_ACTION      = 'super_automation_retry_failed_action';
 		const HOOK_EXECUTE_RECURRING = 'super_automation_execute_recurring';
 
@@ -91,7 +91,7 @@ if ( ! class_exists( 'SUPER_Automation_Scheduler' ) ) :
 			add_action( self::HOOK_RETRY_ACTION, array( $this, 'execute_retry_action' ), 10, 1 );
 
 			// Hook for recurring triggers
-			add_action( self::HOOK_EXECUTE_RECURRING, array( $this, 'execute_recurring_trigger' ), 10, 1 );
+			add_action( self::HOOK_EXECUTE_RECURRING, array( $this, 'execute_recurring_automation' ), 10, 1 );
 		}
 
 		/**
@@ -129,14 +129,14 @@ if ( ! class_exists( 'SUPER_Automation_Scheduler' ) ) :
 		/**
 		 * Schedule a trigger action for async execution
 		 *
-		 * @param int   $automation_id Trigger ID
+		 * @param int   $automation_id Automation ID
 		 * @param int   $action_id  Action ID
 		 * @param array $context    Event context
 		 * @param int   $delay      Delay in seconds (0 for immediate async)
 		 * @return int|false Action ID or false on failure
 		 * @since 6.5.0
 		 */
-		public function schedule_trigger_action( $automation_id, $action_id, $context, $delay = 0 ) {
+		public function schedule_automation_action( $automation_id, $action_id, $context, $delay = 0 ) {
 			$timestamp = time() + $delay;
 
 			$args = array(
@@ -207,11 +207,11 @@ if ( ! class_exists( 'SUPER_Automation_Scheduler' ) ) :
 		/**
 		 * Cancel all pending actions for a trigger
 		 *
-		 * @param int $automation_id Trigger ID
+		 * @param int $automation_id Automation ID
 		 * @return int Number of cancelled actions
 		 * @since 6.5.0
 		 */
-		public function cancel_trigger_actions( $automation_id ) {
+		public function cancel_automation_actions( $automation_id ) {
 			if ( ! self::is_available() ) {
 				return 0;
 			}
@@ -490,7 +490,7 @@ if ( ! class_exists( 'SUPER_Automation_Scheduler' ) ) :
 		 * @param array $args Recurring trigger arguments
 		 * @since 6.5.0
 		 */
-		public function execute_recurring_trigger( $args ) {
+		public function execute_recurring_automation( $args ) {
 			if ( empty( $args['automation_id'] ) ) {
 				return;
 			}
@@ -498,7 +498,7 @@ if ( ! class_exists( 'SUPER_Automation_Scheduler' ) ) :
 			$automation_id = absint( $args['automation_id'] );
 
 			// Get the trigger
-			$trigger = SUPER_Automation_DAL::get_trigger( $automation_id );
+			$trigger = SUPER_Automation_DAL::get_automation( $automation_id );
 			if ( is_wp_error( $trigger ) ) {
 				return;
 			}
@@ -510,14 +510,14 @@ if ( ! class_exists( 'SUPER_Automation_Scheduler' ) ) :
 
 			// Build context for recurring execution
 			$context = array(
-				'event_id'             => 'recurring_trigger',
+				'event_id'             => 'recurring_automation',
 				'automation_id'           => $automation_id,
 				'timestamp'            => current_time( 'mysql' ),
 				'_recurring_execution' => true,
 			);
 
 			// Execute the trigger
-			SUPER_Automation_Executor::execute_trigger( $automation_id, $context );
+			SUPER_Automation_Executor::execute_automation( $automation_id, $context );
 		}
 
 		/**

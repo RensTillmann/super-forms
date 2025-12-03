@@ -2,7 +2,7 @@
 /**
  * Automation Logger - Centralized Logging System
  *
- * Provides comprehensive logging for the triggers/actions system with:
+ * Provides comprehensive logging for the automations system with:
  * - Log levels (ERROR, WARNING, INFO, DEBUG)
  * - Database storage with structured data
  * - Debug mode with verbose output
@@ -92,11 +92,11 @@ if ( ! class_exists( 'SUPER_Automation_Logger' ) ) :
 		 * @since 6.5.0
 		 */
 		private function __construct() {
-			$this->debug_mode = defined( 'SUPER_TRIGGERS_DEBUG' ) && SUPER_TRIGGERS_DEBUG;
+			$this->debug_mode = defined( 'SUPER_AUTOMATIONS_DEBUG' ) && SUPER_AUTOMATIONS_DEBUG;
 			$this->log_level  = $this->debug_mode ? self::LOG_LEVEL_DEBUG : self::LOG_LEVEL_INFO;
 
 			// Allow log level override via option
-			$configured_level = get_option( 'super_triggers_log_level', null );
+			$configured_level = get_option( 'super_automations_log_level', null );
 			if ( $configured_level !== null && is_numeric( $configured_level ) ) {
 				$this->log_level = (int) $configured_level;
 			}
@@ -120,13 +120,13 @@ if ( ! class_exists( 'SUPER_Automation_Logger' ) ) :
 		}
 
 		/**
-		 * Log a trigger execution
+		 * Log an automation execution
 		 *
-		 * Main logging method for trigger/action executions. Stores to database
+		 * Main logging method for automation executions. Stores to database
 		 * and optionally outputs to error_log and browser console.
 		 *
-		 * @param string $automation_name  Trigger name or ID
-		 * @param string $action_name   Action name or type
+		 * @param string $automation_name  Automation name or ID
+		 * @param string $action_name      Action name or type
 		 * @param string $status        Execution status (success/failed/skipped/pending/retrying)
 		 * @param string $message       Log message
 		 * @param array  $data          Additional data (form_id, entry_id, event, etc.)
@@ -249,7 +249,7 @@ if ( ! class_exists( 'SUPER_Automation_Logger' ) ) :
 		/**
 		 * Log debug message
 		 *
-		 * Only logged when SUPER_TRIGGERS_DEBUG is true
+		 * Only logged when SUPER_AUTOMATIONS_DEBUG is true
 		 *
 		 * @param string $message Debug message
 		 * @param array  $data    Additional context data
@@ -423,21 +423,19 @@ if ( ! class_exists( 'SUPER_Automation_Logger' ) ) :
 		 * @return int Number of deleted rows
 		 * @since 6.5.0
 		 */
-		public function cleanup_old_logs( $days = 30 ) {
+		public function delete_old_logs( $days = 30 ) {
 			global $wpdb;
 
 			$table = $wpdb->prefix . 'superforms_automation_logs';
-			$cutoff_date = gmdate( 'Y-m-d H:i:s', strtotime( "-{$days} days" ) );
+			$cutoff = gmdate( 'Y-m-d H:i:s', strtotime( "-{$days} days" ) );
 
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
-			$deleted = $wpdb->query( $wpdb->prepare(
-				"DELETE FROM {$table} WHERE executed_at < %s",
-				$cutoff_date
-			) );
-
-			if ( $deleted > 0 && $this->debug_mode ) {
-				$this->info( sprintf( 'Cleaned up %d old log entries (older than %d days)', $deleted, $days ) );
-			}
+			$deleted = $wpdb->query(
+				$wpdb->prepare(
+					"DELETE FROM {$table} WHERE executed_at < %s",
+					$cutoff
+				)
+			);
 
 			return $deleted;
 		}
@@ -521,8 +519,8 @@ if ( ! class_exists( 'SUPER_Automation_Logger' ) ) :
 		/**
 		 * Write to PHP error log
 		 *
-		 * @param string $automation_name Trigger name
-		 * @param string $action_name  Action name
+		 * @param string $automation_name Automation name
+		 * @param string $action_name     Action name
 		 * @param string $status       Status
 		 * @param string $message      Message
 		 * @param int    $log_level    Log level
@@ -825,6 +823,36 @@ if ( ! class_exists( 'SUPER_Automation_Logger' ) ) :
 			});
 		}
 	}
+	/**
+	 * Show InnoDB warning if detected
+	 *
+	 * @since 6.5.0
+	 */
+	public static function maybe_show_innodb_warning() {
+		// Only show if warning flag is set
+		if (get_option('super_innodb_warning')) {
+			add_action('admin_notices', function() {
+				?>
+				<div class="notice notice-error">
+					<p>
+						<strong>Super Forms:</strong> InnoDB storage engine is not available.
+						Your automation system is falling back to MyISAM, which means
+						transactions will not work properly. Please contact your
+						hosting provider to enable InnoDB in MySQL configuration.
+					</p>
+					<p>
+						<a href="<?php echo admin_url('admin.php?page=super_settings&tab=automations'); ?>">
+							Review Automation Settings
+						</a> |
+						<a href="#" onclick="if(confirm('Clear InnoDB warning and continue with MyISAM?')) { document.getElementById('super-innodb-warning').style.display='none'; }">
+							Dismiss Warning
+						</a>
+					</p>
+				</div>
+				<?php
+			});
+		}
+	}
 }
 
 // Register cleanup hook
@@ -832,37 +860,6 @@ add_action('super_automation_log_cleanup', ['SUPER_Automation_Logger', 'cleanup_
 
 // Check on admin pages
 add_action('admin_init', ['SUPER_Automation_Logger', 'maybe_show_size_warning']);
-
-/**
- * Show InnoDB warning if detected
- *
- * @since 6.5.0
- */
-public static function maybe_show_innodb_warning() {
-	// Only show if warning flag is set
-	if (get_option('super_innodb_warning')) {
-		add_action('admin_notices', function() {
-			?>
-			<div class="notice notice-error">
-				<p>
-					<strong>Super Forms:</strong> InnoDB storage engine is not available.
-					Your automation system is falling back to MyISAM, which means
-					transactions will not work properly. Please contact your
-					hosting provider to enable InnoDB in MySQL configuration.
-				</p>
-				<p>
-					<a href="<?php echo admin_url('admin.php?page=super_settings&tab=automations'); ?>">
-						Review Automation Settings
-					</a> |
-					<a href="#" onclick="if(confirm('Clear InnoDB warning and continue with MyISAM?')) { document.getElementById('super-innodb-warning').style.display='none'; }">
-						Dismiss Warning
-					</a>
-				</p>
-			</div>
-			<?php
-		});
-	}
-}
 
 // Register InnoDB warning check
 add_action('admin_init', ['SUPER_Automation_Logger', 'maybe_show_innodb_warning']);

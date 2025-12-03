@@ -1,0 +1,252 @@
+{
+  "name": "super-forms",
+  "version": "1.0.0",
+  "description": "MCP server for AI-powered form building with Super Forms",
+  "tools": [
+    {
+      "name": "add_form_element",
+      "description": "Add a new field/element to a form",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "formId": {
+            "type": "number",
+            "description": "ID of the form to modify"
+          },
+          "elementType": {
+            "type": "string",
+            "enum": [
+              "text",
+              "email",
+              "textarea",
+              "dropdown",
+              "radio",
+              "checkbox",
+              "number",
+              "date",
+              "time",
+              "file",
+              "hidden",
+              "html",
+              "heading",
+              "divider",
+              "spacer"
+            ],
+            "description": "Type of element to add"
+          },
+          "position": {
+            "type": "number",
+            "description": "Position index where element should be inserted (-1 for end)"
+          },
+          "label": {
+            "type": "string",
+            "description": "Field label shown to users"
+          },
+          "name": {
+            "type": "string",
+            "description": "Unique field name for data storage"
+          },
+          "config": {
+            "type": "object",
+            "description": "Additional field configuration (placeholder, required, validation, etc.)",
+            "properties": {
+              "placeholder": { "type": "string" },
+              "required": { "type": "boolean" },
+              "validation": { "type": "string" },
+              "description": { "type": "string" },
+              "default": { "type": "string" }
+            }
+          }
+        },
+        "required": ["formId", "elementType", "label", "name"]
+      }
+    },
+    {
+      "name": "update_form_element",
+      "description": "Update an existing form element",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "formId": {
+            "type": "number",
+            "description": "ID of the form"
+          },
+          "elementIndex": {
+            "type": "number",
+            "description": "Index of the element to update"
+          },
+          "updates": {
+            "type": "object",
+            "description": "Properties to update",
+            "properties": {
+              "label": { "type": "string" },
+              "name": { "type": "string" },
+              "placeholder": { "type": "string" },
+              "required": { "type": "boolean" },
+              "validation": { "type": "string" },
+              "description": { "type": "string" }
+            }
+          }
+        },
+        "required": ["formId", "elementIndex", "updates"]
+      }
+    },
+    {
+      "name": "remove_form_element",
+      "description": "Remove an element from a form",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "formId": {
+            "type": "number",
+            "description": "ID of the form"
+          },
+          "elementIndex": {
+            "type": "number",
+            "description": "Index of the element to remove"
+          }
+        },
+        "required": ["formId", "elementIndex"]
+      }
+    },
+    {
+      "name": "move_form_element",
+      "description": "Move/reorder a form element",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "formId": {
+            "type": "number",
+            "description": "ID of the form"
+          },
+          "fromIndex": {
+            "type": "number",
+            "description": "Current position of the element"
+          },
+          "toIndex": {
+            "type": "number",
+            "description": "New position for the element"
+          }
+        },
+        "required": ["formId", "fromIndex", "toIndex"]
+      }
+    },
+    {
+      "name": "update_form_settings",
+      "description": "Update form settings",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "formId": {
+            "type": "number",
+            "description": "ID of the form"
+          },
+          "settings": {
+            "type": "object",
+            "description": "Settings to update",
+            "properties": {
+              "form_title": { "type": "string" },
+              "form_description": { "type": "string" },
+              "submit_button_text": { "type": "string" },
+              "success_message": { "type": "string" },
+              "error_message": { "type": "string" },
+              "enable_ajax": { "type": "boolean" },
+              "enable_validation": { "type": "boolean" }
+            }
+          }
+        },
+        "required": ["formId", "settings"]
+      }
+    },
+    {
+      "name": "add_form_translation",
+      "description": "Add or update a translation for a form",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "formId": {
+            "type": "number",
+            "description": "ID of the form"
+          },
+          "language": {
+            "type": "string",
+            "description": "Language code (e.g., 'es', 'fr', 'de')"
+          },
+          "translations": {
+            "type": "object",
+            "description": "Translation key-value pairs"
+          }
+        },
+        "required": ["formId", "language", "translations"]
+      }
+    },
+    {
+      "name": "get_form",
+      "description": "Get complete form data including elements, settings, and translations",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "formId": {
+            "type": "number",
+            "description": "ID of the form to retrieve"
+          }
+        },
+        "required": ["formId"]
+      }
+    },
+    {
+      "name": "list_forms",
+      "description": "List all forms with optional filtering",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["publish", "draft", "trash", ""],
+            "description": "Filter by form status"
+          },
+          "limit": {
+            "type": "number",
+            "description": "Maximum number of forms to return"
+          }
+        }
+      }
+    },
+    {
+      "name": "save_form_version",
+      "description": "Create a version snapshot of the current form state",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "formId": {
+            "type": "number",
+            "description": "ID of the form"
+          },
+          "message": {
+            "type": "string",
+            "description": "Commit message describing the changes"
+          }
+        },
+        "required": ["formId"]
+      }
+    },
+    {
+      "name": "revert_form_version",
+      "description": "Revert form to a previous version",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "formId": {
+            "type": "number",
+            "description": "ID of the form"
+          },
+          "versionId": {
+            "type": "number",
+            "description": "ID of the version to revert to"
+          }
+        },
+        "required": ["formId", "versionId"]
+      }
+    }
+  ]
+}

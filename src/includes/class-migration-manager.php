@@ -69,18 +69,18 @@ class SUPER_Migration_Manager {
             add_action('wp_ajax_super_run_cron_fallback_tests', array(__CLASS__, 'ajax_run_cron_fallback_tests'));
         }
 
-        // Trigger System Testing (Developer Tools)
+        // Automation System Testing (Developer Tools)
         if (!has_action('wp_ajax_super_dev_fire_test_event')) {
             add_action('wp_ajax_super_dev_fire_test_event', array('SUPER_Developer_Tools', 'ajax_fire_test_event'));
         }
-        if (!has_action('wp_ajax_super_dev_get_trigger_logs')) {
-            add_action('wp_ajax_super_dev_get_trigger_logs', array('SUPER_Developer_Tools', 'ajax_get_trigger_logs'));
+        if (!has_action('wp_ajax_super_dev_get_automation_logs')) {
+            add_action('wp_ajax_super_dev_get_automation_logs', array('SUPER_Developer_Tools', 'ajax_get_automation_logs'));
         }
-        if (!has_action('wp_ajax_super_dev_clear_trigger_logs')) {
-            add_action('wp_ajax_super_dev_clear_trigger_logs', array('SUPER_Developer_Tools', 'ajax_clear_trigger_logs'));
+        if (!has_action('wp_ajax_super_dev_clear_automation_logs')) {
+            add_action('wp_ajax_super_dev_clear_automation_logs', array('SUPER_Developer_Tools', 'ajax_clear_automation_logs'));
         }
-        if (!has_action('wp_ajax_super_dev_test_trigger')) {
-            add_action('wp_ajax_super_dev_test_trigger', array('SUPER_Developer_Tools', 'ajax_test_trigger'));
+        if (!has_action('wp_ajax_super_dev_test_automation')) {
+            add_action('wp_ajax_super_dev_test_automation', array('SUPER_Developer_Tools', 'ajax_test_automation'));
         }
 
         // HTTP Request Testing (Developer Tools)
@@ -782,6 +782,59 @@ class SUPER_Migration_Manager {
      * Cleanup expired serialized data (30-day retention)
 
     /**
+     * Cleanup legacy automation data from postmeta table.
+     *
+     * Removes old `_super_triggers` and `_super_trigger-%` meta keys
+     * associated with `super_form` posts after migration to the automations system.
+     *
+     * @since 6.5.0
+     * @return array Counts of deleted metadata.
+     */
+    public static function cleanup_legacy_automations() {
+        global $wpdb;
+
+        $forms = get_posts(array(
+            'post_type' => 'super_form',
+            'posts_per_page' => -1,
+            'fields' => 'ids'
+        ));
+
+        if (empty($forms)) {
+            return array(
+                'automations_meta_deleted' => 0,
+                'automation_meta_wildcard_deleted' => 0
+            );
+        }
+
+        $automations_meta_deleted = 0;
+        $automation_meta_wildcard_deleted = 0;
+
+        foreach ($forms as $form_id) {
+            // Delete the main _super_triggers meta key (legacy)
+            if (delete_post_meta($form_id, '_super_triggers')) {
+                $automations_meta_deleted++;
+            }
+
+            // Delete all individual _super_trigger-* meta keys (legacy)
+            $query = $wpdb->prepare(
+                "DELETE FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key LIKE %s",
+                $form_id,
+                $wpdb->esc_like('_super_trigger-') . '%'
+            );
+            $deleted_rows = $wpdb->query($query);
+
+            if ($deleted_rows !== false) {
+                $automation_meta_wildcard_deleted += $deleted_rows;
+            }
+        }
+
+        return array(
+            'automations_meta_deleted' => $automations_meta_deleted,
+            'automation_meta_wildcard_deleted' => $automation_meta_wildcard_deleted
+        );
+    }
+
+    /**
      * Rollback migration to serialized storage
      *
      * @since 6.0.0
@@ -955,13 +1008,13 @@ class SUPER_Migration_Manager {
         $emails_migrated = 0;
         $emails_state = 'not_started';
 
-        if ( class_exists( 'SUPER_Email_Trigger_Migration' ) ) {
-            $email_status = SUPER_Email_Trigger_Migration::get_state();
+        if ( class_exists( 'SUPER_Email_Automation_Migration' ) ) {
+            $email_status = SUPER_Email_Automation_Migration::get_state();
             $emails_state = isset( $email_status['status'] ) ? $email_status['status'] : 'not_started';
             $emails_migrated = isset( $email_status['forms_migrated'] ) ? (int) $email_status['forms_migrated'] : 0;
 
             // Get total forms needing migration
-            $emails_total = SUPER_Email_Trigger_Migration::count_forms_needing_migration() + $emails_migrated;
+            $emails_total = SUPER_Email_Automation_Migration::count_forms_needing_migration() + $emails_migrated;
         }
 
         // Calculate combined progress

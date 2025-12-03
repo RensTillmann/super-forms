@@ -1,15 +1,15 @@
 <?php
 /**
- * Trigger Debugger - Development Debugging Tools
+ * Automation Debugger - Development Debugging Tools
  *
- * Provides debugging utilities for trigger/action development:
+ * Provides debugging utilities for automation development:
  * - Static debug data collection during request
  * - Visual debug panel in admin footer
  * - Backtrace and timing information
  * - Real-time execution flow visualization
  *
  * Enable debug mode by adding to wp-config.php:
- * define('SUPER_TRIGGERS_DEBUG', true);
+ * define('SUPER_AUTOMATIONS_DEBUG', true);
  *
  * @author      WebRehab
  * @category    Core
@@ -79,7 +79,7 @@ if ( ! class_exists( 'SUPER_Automation_Debugger' ) ) :
 		 * @since 6.5.0
 		 */
 		public static function is_debug_mode() {
-			return defined( 'SUPER_TRIGGERS_DEBUG' ) && SUPER_TRIGGERS_DEBUG;
+			return defined( 'SUPER_AUTOMATIONS_DEBUG' ) && SUPER_AUTOMATIONS_DEBUG;
 		}
 
 		/**
@@ -120,7 +120,7 @@ if ( ! class_exists( 'SUPER_Automation_Debugger' ) ) :
 			// Also write to error_log for persistent debugging
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			error_log( sprintf(
-				'[SUPER_TRIGGERS_DEBUG] [%s] %s (in %s:%d)',
+				'[SUPER_AUTOMATIONS_DEBUG] [%s] %s (in %s:%d)',
 				strtoupper( $level ),
 				$message,
 				basename( $entry['file'] ),
@@ -129,7 +129,7 @@ if ( ! class_exists( 'SUPER_Automation_Debugger' ) ) :
 		}
 
 		/**
-		 * Log trigger event firing
+		 * Log automation event firing
 		 *
 		 * @param string $event_id Event identifier
 		 * @param array  $context  Event context
@@ -157,29 +157,29 @@ if ( ! class_exists( 'SUPER_Automation_Debugger' ) ) :
 		}
 
 		/**
-		 * Log trigger evaluation
+		 * Log automation evaluation
 		 *
-		 * @param int    $automation_id Trigger ID
-		 * @param string $name       Trigger name
-		 * @param bool   $matched    Whether conditions matched
-		 * @param array  $conditions Optional conditions that were evaluated
+		 * @param int    $automation_id Automation ID
+		 * @param string $name          Automation name
+		 * @param bool   $matched       Whether conditions matched
+		 * @param array  $conditions    Optional conditions that were evaluated
 		 * @since 6.5.0
 		 */
-		public static function log_trigger_evaluated( $automation_id, $name, $matched, $conditions = array() ) {
-			self::$debug_data['triggers'][] = array(
+		public static function log_automation_evaluated( $automation_id, $name, $matched, $conditions = array() ) {
+			self::$debug_data['automations'][] = array(
 				'automation_id' => $automation_id,
-				'name'       => $name,
-				'matched'    => $matched,
-				'conditions' => $conditions,
-				'timestamp'  => microtime( true ),
+				'name'          => $name,
+				'matched'       => $matched,
+				'conditions'    => $conditions,
+				'timestamp'     => microtime( true ),
 			);
 
 			self::debug(
-				sprintf( 'Trigger evaluated: %s (#%d) - %s', $name, $automation_id, $matched ? 'MATCHED' : 'no match' ),
+				sprintf( 'Automation evaluated: %s (#%d) - %s', $name, $automation_id, $matched ? 'MATCHED' : 'no match' ),
 				array(
 					'automation_id' => $automation_id,
-					'name'       => $name,
-					'matched'    => $matched,
+					'name'          => $name,
+					'matched'       => $matched,
 				),
 				$matched ? 'success' : 'info'
 			);
@@ -311,11 +311,11 @@ if ( ! class_exists( 'SUPER_Automation_Debugger' ) ) :
 		 */
 		public static function reset() {
 			self::$debug_data = array(
-				'events'     => array(),
-				'triggers'   => array(),
-				'actions'    => array(),
-				'conditions' => array(),
-				'logs'       => array(),
+				'events'      => array(),
+				'automations' => array(),
+				'actions'     => array(),
+				'conditions'  => array(),
+				'logs'        => array(),
 			);
 		}
 
@@ -352,10 +352,10 @@ if ( ! class_exists( 'SUPER_Automation_Debugger' ) ) :
 			}
 
 			?>
-			<div id="super-triggers-debug-panel" class="super-debug-panel">
+			<div id="super-automations-debug-panel" class="super-debug-panel">
 				<div class="super-debug-header">
 					<span class="super-debug-title">
-						<strong>Super Forms Triggers Debug</strong>
+						<strong>Super Forms Automations Debug</strong>
 						<span class="super-debug-badge"><?php echo esc_html( $entry_count ); ?></span>
 					</span>
 					<span class="super-debug-stats">
@@ -375,8 +375,8 @@ if ( ! class_exists( 'SUPER_Automation_Debugger' ) ) :
 				<div class="super-debug-content">
 					<?php if ( empty( $data ) ) : ?>
 						<div class="super-debug-empty">
-							<p>No trigger activity recorded during this request.</p>
-							<p><small>Trigger events will appear here when forms are submitted or triggers are executed.</small></p>
+							<p>No automation activity recorded during this request.</p>
+							<p><small>Automation events will appear here when forms are submitted or automations are executed.</small></p>
 						</div>
 					<?php else : ?>
 						<div class="super-debug-entries">
@@ -413,7 +413,7 @@ if ( ! class_exists( 'SUPER_Automation_Debugger' ) ) :
 				</div>
 			</div>
 			<style>
-				#super-triggers-debug-panel {
+				#super-automations-debug-panel {
 					position: fixed;
 					bottom: 0;
 					left: 0;
@@ -426,10 +426,10 @@ if ( ! class_exists( 'SUPER_Automation_Debugger' ) ) :
 					box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
 					transition: transform 0.3s ease;
 				}
-				#super-triggers-debug-panel.minimized {
+				#super-automations-debug-panel.minimized {
 					transform: translateY(calc(100% - 36px));
 				}
-				#super-triggers-debug-panel.minimized .super-debug-toggle .dashicons {
+				#super-automations-debug-panel.minimized .super-debug-toggle .dashicons {
 					transform: rotate(180deg);
 				}
 				.super-debug-header {
@@ -535,13 +535,13 @@ if ( ! class_exists( 'SUPER_Automation_Debugger' ) ) :
 					color: #72777c;
 				}
 				/* Admin bar offset */
-				.admin-bar #super-triggers-debug-panel {
+				.admin-bar #super-automations-debug-panel {
 					/* No offset needed since it's fixed to bottom */
 				}
 			</style>
 			<script>
 				(function() {
-					var panel = document.getElementById('super-triggers-debug-panel');
+					var panel = document.getElementById('super-automations-debug-panel');
 					var header = panel.querySelector('.super-debug-header');
 
 					// Check cookie for initial state
@@ -569,14 +569,14 @@ if ( ! class_exists( 'SUPER_Automation_Debugger' ) ) :
 			$data = self::$debug_data;
 
 			$summary = array(
-				'total_entries'   => count( $data ),
-				'errors'          => 0,
-				'warnings'        => 0,
-				'total_time'      => self::$request_start_time ? microtime( true ) - self::$request_start_time : 0,
-				'peak_memory'     => memory_get_peak_usage( true ),
-				'events_fired'    => 0,
-				'triggers_matched' => 0,
-				'actions_executed' => 0,
+				'total_entries'       => count( $data ),
+				'errors'              => 0,
+				'warnings'            => 0,
+				'total_time'          => self::$request_start_time ? microtime( true ) - self::$request_start_time : 0,
+				'peak_memory'         => memory_get_peak_usage( true ),
+				'events_fired'        => 0,
+				'automations_matched' => 0,
+				'actions_executed'    => 0,
 			);
 
 			foreach ( $data as $entry ) {
@@ -589,8 +589,8 @@ if ( ! class_exists( 'SUPER_Automation_Debugger' ) ) :
 				// Count specific events
 				if ( strpos( $entry['message'], 'Event fired:' ) === 0 ) {
 					$summary['events_fired']++;
-				} elseif ( strpos( $entry['message'], 'Trigger evaluated:' ) === 0 && strpos( $entry['message'], 'MATCHED' ) !== false ) {
-					$summary['triggers_matched']++;
+				} elseif ( strpos( $entry['message'], 'Automation evaluated:' ) === 0 && strpos( $entry['message'], 'MATCHED' ) !== false ) {
+					$summary['automations_matched']++;
 				} elseif ( strpos( $entry['message'], 'Action executed:' ) === 0 ) {
 					$summary['actions_executed']++;
 				}

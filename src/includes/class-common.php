@@ -118,42 +118,6 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 		// tmp     return $post_ID;
 		// tmp }
 
-		public static function get_form_emails_settings( $form_id ) {
-			if ( ! empty( SUPER_Forms()->emails_settings ) && empty( SUPER_Forms()->i18n ) ) {
-				// error_log('return existing woocommerce settings...');
-				return SUPER_Forms()->emails_settings;
-			}
-
-			// @since 6.5.0 - Try to get emails from triggers if _emails is empty
-			// This enables Email v2 UI to display migrated legacy emails
-			if ( class_exists( 'SUPER_Email_Trigger_Migration' ) ) {
-				$s = SUPER_Email_Trigger_Migration::get_emails_for_ui( $form_id );
-			} else {
-				$s = get_post_meta( $form_id, '_emails', true );
-				if ( $s === false ) {
-					$s = array();
-				} else {
-					$s = maybe_unserialize( $s );
-				}
-			}
-
-			// Merge translated settings
-			if ( ! empty( $s['i18n'] ) && ! empty( $s['i18n'][ SUPER_Forms()->i18n ] ) ) {
-				$translatedSettings = $s['i18n'][ SUPER_Forms()->i18n ];
-				$s                  = self::mergeTranslatedSettings( $s, $translatedSettings );
-				unset( $s['i18n'] );
-			}
-			SUPER_Forms()->emails_settings = $s;
-			return $s;
-		}
-		public static function save_form_emails_settings( $s, $form_id ) {
-			update_post_meta( $form_id, '_emails', $s );
-
-			// @since 6.5.0 - Sync emails to trigger system
-			if ( class_exists( 'SUPER_Email_Trigger_Migration' ) ) {
-				SUPER_Email_Trigger_Migration::sync_emails_to_triggers( $form_id, $s );
-			}
-		}
 
 		/**
 		 * Get Form Triggers
@@ -247,149 +211,6 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 					do_action( 'updated_postmeta', $meta_id, $object_id, $meta_key, $meta_value );
 				}
 			} return true; }
-		public static function get_form_triggers( $form_id ) {
-			// error_log('get_form_triggers()');
-			global $wpdb;
-			$triggers = array();
-			// Get global and specific triggers
-			$rows = $wpdb->get_results( "SELECT meta_value FROM $wpdb->postmeta WHERE post_id = 0 AND (meta_key LIKE '_super_global_trigger%' OR meta_key LIKE '_super_specific_trigger%')" );
-			foreach ( $rows as $r ) {
-				array_push( $triggers, maybe_unserialize( $r->meta_value ) );
-			}
-			// Get current form triggers
-			$rows = $wpdb->get_results( "SELECT meta_value FROM $wpdb->postmeta WHERE post_id = '$form_id' AND meta_key LIKE '_super_trigger-%'" );
-			foreach ( $rows as $r ) {
-				array_push( $triggers, maybe_unserialize( $r->meta_value ) );
-			}
-			// error_log('before: '.json_encode($triggers));
-			// Unslash it before returning
-			$triggers = wp_unslash( $triggers );
-			error_log( '::::: triggers: ' . json_encode( $triggers ) );
-			return $triggers;
-		}
-
-		/**
-		 * Convert Email tab settings to trigger format
-		 *
-		 * @deprecated 6.5.0 Use SUPER_Email_Trigger_Migration for persistent triggers
-		 */
-		public static function add_emails_as_trigger( $triggers, $emails, $form_id = 0 ) {
-			// Lazy migration for edge cases (imports, restores, duplicates)
-			// Background migration via Action Scheduler is still the primary path
-			if ( $form_id && class_exists( 'SUPER_Email_Trigger_Migration' ) ) {
-				SUPER_Email_Trigger_Migration::ensure_form_migrated( $form_id );
-				// After migration, triggers are in DB - skip runtime conversion
-				if ( SUPER_Email_Trigger_Migration::is_form_migrated( $form_id ) ) {
-					return $triggers;
-				}
-			}
-
-			$email_triggers = array();
-
-			if ( empty( $emails ) || ! is_array( $emails ) ) {
-				return $triggers;
-			}
-
-			$order = 1;
-			foreach ( $emails as $email_index => $email_settings ) {
-				// Skip if this email is not enabled or doesn't have the basic required fields
-				if ( empty( $email_settings ) || ! is_array( $email_settings ) ) {
-					continue;
-				}
-
-				// Only add trigger if email is enabled
-				if ( empty( $email_settings['enabled'] ) || $email_settings['enabled'] !== 'true' ) {
-					continue;
-				}
-
-				// Create trigger for this email using the email data directly
-				$email_triggers[] = array(
-					'name'      => 'auto-email-' . $email_index,
-					'enabled'   => 'true',
-					'event'     => 'sf.after.submission',
-					'listen_to' => '',
-					'ids'       => '',
-					'order'     => $order,
-					'actions'   => array(
-						array(
-							'action'     => 'send_email',
-							'order'      => '1',
-							'conditions' => array(
-								'enabled' => 'false',
-								'f1'      => '',
-								'logic'   => '==',
-								'f2'      => '',
-							),
-							'data'       => $email_settings['data'],
-						),
-					),
-					'i18n'      => '',
-				);
-
-				++$order;
-			}
-			if ( ! empty( $email_triggers ) ) {
-				$triggers = array_merge( $triggers, $email_triggers );
-			}
-			return $triggers;
-		}
-
-		public static function save_form_triggers( $triggers, $form_id, $delete = true ) {
-			error_log( '=== SUPER FORMS: save_form_triggers() START ===' );
-			error_log( 'Form ID: ' . $form_id );
-			error_log( 'Delete existing triggers: ' . ( $delete ? 'true' : 'false' ) );
-
-			// First delete all local triggers for the current form
-			global $wpdb;
-			if ( $delete === true ) {
-				$wpdb->query( "DELETE FROM $wpdb->postmeta WHERE post_id = $form_id AND meta_key LIKE '_super_trigger-%'" );
-				// Also delete all global triggers
-				$wpdb->query( "DELETE FROM $wpdb->postmeta WHERE post_id = 0 AND meta_key LIKE '_super_global_trigger-%'" );
-				$wpdb->query( "DELETE FROM $wpdb->postmeta WHERE post_id = 0 AND meta_key LIKE '_super_specific_trigger-%'" );
-			}
-			if ( isset( $triggers ) && is_array( $triggers ) ) {
-				error_log( 'Number of triggers to save: ' . count( $triggers ) );
-				foreach ( $triggers as $trigger ) {
-					$triggerName = sanitize_title_with_dashes( trim( $trigger['name'] ) );
-					error_log( 'Processing trigger: ' . $triggerName );
-					error_log( 'trigger: ' . json_encode( $trigger ) );
-
-					// Log email trigger details
-					if ( isset( $trigger['action'] ) && $trigger['action'] === 'send_email' ) {
-						error_log( '=== Email Trigger Details ===' );
-						error_log( 'Subject: ' . ( isset( $trigger['email_subject'] ) ? $trigger['email_subject'] : 'not set' ) );
-						error_log( 'Body length: ' . ( isset( $trigger['email_body'] ) ? strlen( $trigger['email_body'] ) : '0' ) );
-						error_log( 'Body preview: ' . ( isset( $trigger['email_body'] ) ? substr( $trigger['email_body'], 0, 100 ) . '...' : 'not set' ) );
-					}
-
-					// Skip if no event was choosen
-					if ( empty( $trigger['event'] ) ) {
-						error_log( 'this trigger has no event, skip it' );
-						continue;
-					}
-					// Only current form
-					if ( empty( $trigger['listen_to'] ) ) {
-						error_log( 'listen to current form...' );
-						add_post_meta( $form_id, '_super_trigger-' . $triggerName, $trigger );
-						continue;
-					}
-					// Global trigger (for all forms)
-					if ( isset( $trigger['listen_to'] ) && $trigger['listen_to'] === 'all' ) {
-						error_log( 'listen to all forms...' );
-						// Use our custom update_metadata function because we can't parse zero value otherwise
-						self::update_metadata( 'post', 0, '_super_global_trigger-' . $triggerName, $trigger );
-						continue;
-					}
-					// Specific forms only (by ID)
-					if ( isset( $trigger['listen_to'] ) && $trigger['listen_to'] === 'id' ) {
-						error_log( 'listen to specific form ID...' );
-						self::update_metadata( 'post', 0, '_super_specific_trigger-' . $triggerName, $trigger );
-						continue;
-					}
-				}
-			}
-			error_log( '=== SUPER FORMS: save_form_triggers() END ===' );
-		}
 
 		// Function to recursively merge the translated array with the default language
 		public static function mergeTranslatedSettings( $defaultSettings, $translatedSettings ) {
@@ -653,89 +474,10 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 			update_post_meta( $form_id, '_stripe', $s );
 		}
 
-		public static function triggerEvent( $eventName, $atts ) {
-			global $wpdb;
-			error_log( 'triggerEvent(' . $eventName . ')' );
-			error_log( json_encode( $atts ) );
-			if ( ! class_exists( 'SUPER_Triggers' ) ) {
-				require_once 'class-triggers.php';
-			}
-			// error_log('7.0: '.json_encode($atts));
-			extract( $atts );
-			// error_log('7.1: '.json_encode($atts));
-			// error_log('7.2: '.json_encode($sfsi_id));
-			$sfsi = get_option( '_sfsi_' . $sfsi_id, array() );
-			error_log( json_encode( $sfsi ) );
-			if ( count( $sfsi ) > 0 ) {
-				// error_log('7.3: '.json_encode($sfsi));
-				extract( $sfsi );
-				// error_log('7.4: '.json_encode($sfsi));
-			}
-			error_log( 'form_id: ' . $form_id );
-			$triggers = self::get_form_triggers( $form_id );
-			// Add fixed Emails (if any) as a trigger for event sf.after.submission with action send_email
-			$emails   = self::get_form_emails_settings( $form_id );
-			$triggers = self::add_emails_as_trigger( $triggers, $emails, $form_id );
-			$triggers = apply_filters( 'super_triggers_filter', $triggers, array( 'sfsi' => $sfsi ) );
-			usort(
-				$triggers,
-				function ( $a, $b ) {
-					return absint( $a['order'] ) - absint( $b['order'] );
-				}
-			);
-			// Loop over all triggers, and filter out the ones that are inactive, and that do not match this event
-			error_log( 'triggers: ' . json_encode( $triggers ) );
-			foreach ( $triggers as $k => $v ) {
-				if ( ! isset( $v['enabled'] ) ) {
-					continue;
-				}
-				if ( $v['enabled'] !== 'true' ) {
-					continue;
-				}
-				if ( $v['event'] !== $eventName ) {
-					continue;
-				}
-				// Match, execute actions
-				error_log( 'match' );
-				foreach ( $v['actions'] as $ak => $av ) {
-					error_log( 'action: ' . $av['action'] );
-					if ( empty( $av['action'] ) ) {
-						continue;
-					}
-					// Check if action needs to be conditionally triggered
-					$execute = true;
-					$c       = $av['conditions'];
-					if ( $c['enabled'] === 'true' && $c['logic'] !== '' ) {
-						$logic   = $c['logic'];
-						$f1      = self::email_tags( $c['f1'], $data, $settings );
-						$f2      = self::email_tags( $c['f2'], $data, $settings );
-						$execute = self::conditional_compare_check( $f1, $logic, $f2 );
-					}
-					if ( $execute === false ) {
-						continue;
-					}
-					// Check if trigger function exists
-					if ( method_exists( 'SUPER_Triggers', $av['action'] ) ) {
-						$x = array(
-							'form_id'     => $form_id,
-							'eventName'   => $eventName,
-							'triggerName' => $v['name'],
-							'action'      => $av,
-							'sfsi'        => $sfsi,
-						);
-						error_log( 'SFSI before triggering action: ' . json_encode( $sfsi ) );
-						error_log( 'action: ' . $av['action'] );
-						error_log( json_encode( $x ) );
-						call_user_func( array( 'SUPER_Triggers', $av['action'] ), $x );
-					} else {
-						error_log( 'Trigger event `' . $eventName . '` tried to call an action named `' . $av['action'] . "` but such action doesn't exist" );
-					}
-				}
-			}
-		}
-
-		public static function cleanupFormSubmissionInfo( $sfsi_id, $reference ) {
-			$sfsi = get_option( '_sfsi_' . $sfsi_id, array() );
+		public static function cleanupFormSubmissionInfo( $session_key, $reference ) {
+			$session = SUPER_Session_DAL::get_by_key( $session_key );
+			if(!$session) return;
+			$sfsi = $session['data'] ? $session['data'] : array();
 			// Delete contact entry
 			$entry_id = ( isset( $sfsi['entry_id'] ) ? absint( $sfsi['entry_id'] ) : 0 );
 			if ( ! empty( $entry_id ) ) {
@@ -797,7 +539,14 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 			return ( isset( $sfsi['form_id'] ) ? $sfsi['form_id'] : 0 );
 		}
 
+		/**
+		 * Start client session - DEPRECATED
+		 *
+		 * @deprecated 6.5.0 Sessions are now managed per-form via SUPER_Session_DAL
+		 * The new system uses localStorage session keys instead of cookies
+		 */
 		public static function startClientSession( $x = array() ) {
+			_deprecated_function( __METHOD__, '6.5.0', 'SUPER_Session_DAL (per-form sessions)' );
 			extract(
 				shortcode_atts(
 					array(
@@ -901,77 +650,81 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 			}
 			return $id;
 		}
+		/**
+		 * Store client data - DEPRECATED
+		 *
+		 * @deprecated 6.5.0 Use SUPER_Session_DAL::update_by_key() instead
+		 * @param array $x Configuration array with 'name', 'value', 'expires', 'exp_var'
+		 * @return mixed Value on success, null on failure
+		 */
 		public static function setClientData( $x ) {
-			extract(
-				shortcode_atts(
-					array(
-						'name'    => 'undefined',
-						'value'   => '',
-						'expires' => 30 * 60, // 1800, // Defaults to 30 min. (30*60)
-						'exp_var' => 10 * 60, // 600 // Defaults to 10 min. (10*60)
-					),
-					$x
-				)
+			_deprecated_function( __METHOD__, '6.5.0', 'SUPER_Session_DAL::update_by_key()' );
+
+			// Extract parameters from argument
+			$params = shortcode_atts(
+				array(
+					'name'    => 'undefined',
+					'value'   => '',
+					'expires' => 30 * 60,
+					'exp_var' => 10 * 60,
+				),
+				$x
 			);
-			// $exp_var is used to only extend expiry of the cookie when `time() > $exp_var`
-			// that way we don't have to write to the database that many times
-			// by default the expiry is set to 30 min., and the expiry variant is set to 10 min.
 
-			// Default expiry filter
-			$expires = apply_filters( 'super_client_data_expires_filter', $expires );
-			$exp_var = apply_filters( 'super_client_data_exp_var_filter', $exp_var );
+			$name  = $params['name'];
+			$value = $params['value'];
 
-			// Allow expiry filtering for specific client data
-			$form_id = '';
-			if ( strpos( $name, 'unique_submission_id' ) === 0 ) {
-				$s       = explode( '_', $name );
-				$form_id = $s[3];
-				$name    = $s[0] . '_' . $s[1] . '_' . $s[2];
+			// For all other data, use session metadata
+			// Get form ID from context (fallback approach since methods are form-agnostic)
+			$session_key = false;
+
+			// Try to find active session from request context
+			if ( ! empty( $_POST['super_session_key'] ) ) {
+				$session_key = sanitize_text_field( wp_unslash( $_POST['super_session_key'] ) );
+			} elseif ( ! empty( $_COOKIE['super_session_' . ( ! empty( $_POST['form_id'] ) ? absint( $_POST['form_id'] ) : '' ) ] ) ) {
+				$session_key = sanitize_text_field( wp_unslash( $_COOKIE['super_session_' . absint( $_POST['form_id'] )] ) );
 			}
-			$expires = apply_filters( 'super_client_data_' . $name . '_expires_filter', $expires ); // e.g: `progress_1234`_expires_filter
-			$exp_var = apply_filters( 'super_client_data_' . $name . '_exp_var_filter', $exp_var ); // e.g: `progress_1234`_exp_var_filter
-			if ( strpos( $name, 'unique_submission_id' ) === 0 ) {
-				$name .= '_' . $form_id;
-			}
-			$now   = time(); // UTC timestamp
-			$force = false;
-			if ( $name === 'sf_nonce' ) {
-				$force = true;
-			}
-			$key = self::startClientSession( array( 'force' => $force ) );
-			if ( $key === false ) {
-				return;
-			}
-			if ( $key === '' ) {
-				return;
-			}
-			$clientData = get_option( '_sfsdata_' . $key );
-			if ( $value === false ) {
-				// Unset client data
-				if ( $clientData !== false ) {
-					unset( $clientData[ $name ] );
-					if ( count( $clientData ) < 3 ) {
-						// If empty, we can delete it, to clean it up
-						delete_option( '_sfsdata_' . $key );
-						wp_cache_delete( '_sfsdata_' . $key, 'options' );
-						return;
-					}
+
+			// If no session available, store in legacy option for backward compatibility
+			if ( ! $session_key ) {
+				// Fall back to old system to maintain backward compatibility
+				$key = self::startClientSession( array( 'force' => false ) );
+				if ( ! $key ) {
+					return false;
 				}
+				$clientData           = get_option( '_sfsdata_' . $key ) ?: array();
+				$clientData[ $name ] = $value;
+				update_option( '_sfsdata_' . $key, $clientData, 'no' );
+				wp_cache_delete( '_sfsdata_' . $key, 'options' );
+				return $value;
 			}
-			if ( strpos( $name, 'unique_submission_id_' ) === 0 ) {
-				// It starts with 'http'
-				$value = $value . '.' . ( $now + $expires );
+
+			// Store in session metadata
+			$session = SUPER_Session_DAL::get_by_key( $session_key );
+			if ( ! $session ) {
+				return false;
 			}
-			$clientData[ $name ] = array(
-				'expires' => $now + $expires,
-				'exp_var' => $now + $exp_var,
-				'value'   => $value,
-			);
-			// Cleanup old client data
-			self::cleanupOldClientData( $key, $clientData );
-			return $value;
+
+			if ( false === $value ) {
+				// Delete from metadata
+				$metadata = $session['metadata'] ?: array();
+				unset( $metadata[ $name ] );
+			} else {
+				// Add to metadata
+				$metadata = $session['metadata'] ?: array();
+				$metadata[ $name ] = $value;
+			}
+
+			$result = SUPER_Session_DAL::update_by_key( $session_key, array( 'metadata' => $metadata ) );
+			return $result ? $value : false;
 		}
+		/**
+		 * Cleanup old client data - DEPRECATED
+		 *
+		 * @deprecated 6.5.0 Session cleanup is now handled by SUPER_Session_DAL
+		 */
 		public static function cleanupOldClientData( $key, $clientData ) {
+			_deprecated_function( __METHOD__, '6.5.0', 'SUPER_Session_DAL cleanup methods' );
 			$now = time(); // UTC timestamp
 			foreach ( $clientData as $name => $data ) {
 				if ( is_array( $data ) ) {
@@ -1018,62 +771,65 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 			wp_cache_delete( '_sfsdata_' . $key, 'options' );
 		}
 
+		/**
+		 * Retrieve client data - DEPRECATED
+		 *
+		 * @deprecated 6.5.0 Use SUPER_Session_DAL::get_by_key() instead
+		 * @param string $name Data key to retrieve
+		 * @return mixed Data value or false if not found
+		 */
 		public static function getClientData( $name ) {
-			$force = false;
-			if ( $name === 'sf_nonce' ) {
-				$force = true;
+			_deprecated_function( __METHOD__, '6.5.0', 'SUPER_Session_DAL::get_by_key()' );
+
+			// Try to find active session from request context
+			$session_key = false;
+
+			// First check POST parameter
+			if ( ! empty( $_POST['super_session_key'] ) ) {
+				$session_key = sanitize_text_field( wp_unslash( $_POST['super_session_key'] ) );
+			} elseif ( ! empty( $_COOKIE['super_session_' . ( ! empty( $_POST['form_id'] ) ? absint( $_POST['form_id'] ) : '' ) ] ) ) {
+				$session_key = sanitize_text_field( wp_unslash( $_COOKIE['super_session_' . absint( $_POST['form_id'] )] ) );
 			}
+
+			// If session found, get from metadata
+			if ( $session_key ) {
+				$session = SUPER_Session_DAL::get_by_key( $session_key );
+				if ( $session && isset( $session['metadata'][ $name ] ) ) {
+					return $session['metadata'][ $name ];
+				}
+			}
+
+			// Fall back to legacy wp_options approach for backward compatibility
 			$cookieName = '_sfs_id';
 			if ( ! isset( $_COOKIE[ $cookieName ] ) ) {
 				return false;
 			}
 			$key = $_COOKIE[ $cookieName ];
-			if ( $key === false ) {
-				return false;
-			}
-			if ( $key === '' ) {
+			if ( empty( $key ) ) {
 				return false;
 			}
 			$clientData = get_option( '_sfsdata_' . $key );
+			if ( $clientData === false ) {
+				return false;
+			}
 			if ( ! isset( $clientData[ $name ] ) ) {
 				return false;
 			}
-			if ( ! isset( $clientData[ $name ]['value'] ) ) {
-				return false;
+			$data = $clientData[ $name ];
+			// Check if data is in array format with value key
+			if ( is_array( $data ) && isset( $data['value'] ) ) {
+				return $data['value'];
 			}
-			// If expired variation is reached, extend it
-			$now = time(); // UTC timestamp
-			if ( $clientData[ $name ]['exp_var'] < $now ) {
-				// Default expiry filter
-				$expires = apply_filters( 'super_client_data_expires_filter', 30 * 60 ); // 1800, // Defaults to 30 min. (30*60)
-				$exp_var = apply_filters( 'super_client_data_exp_var_filter', 10 * 60 ); // 600 // Defaults to 10 min. (10*60)
-				// Allow expiry filtering for specific client data
-				$expires                        = apply_filters( 'super_client_data_' . $name . '_expires_filter', $expires ); // e.g: `progress_1234`_expires_filter
-				$exp_var                        = apply_filters( 'super_client_data_' . $name . '_exp_var_filter', $exp_var ); // e.g: `progress_1234`_exp_var_filter
-				$clientData[ $name ]['expires'] = $now + $expires;
-				$clientData[ $name ]['exp_var'] = $now + $exp_var;
-				if ( ! headers_sent() ) {
-					$expires = apply_filters( 'super_cookie_expires_filter', 60 * 60 ); // 3600, // Defaults to 60 min. (60*60)
-					$exp_var = apply_filters( 'super_cookie_exp_var_filter', 20 * 60 ); // 1200 // Defaults to 20 min. (20*60)
-					if ( is_ssl() ) {
-						$secure = true;
-					}
-					$secure                = apply_filters( 'super_cookie_secure_filter', $secure );
-					$httponly              = apply_filters( 'super_cookie_httponly_filter', true );
-					$clientData['expires'] = $now + $expires;
-					$clientData['exp_var'] = $now + $exp_var;
-					$cookieName            = '_sfs_id';
-					@setcookie( $cookieName, $key, $clientData['expires'], COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );
-				} else {
-					error_log( 'Super Forms: Headers already sent. Cannot set cookie.' );
-				}
-				update_option( '_sfsdata_' . $key, $clientData, 'no' );
-				wp_cache_delete( '_sfsdata_' . $key, 'options' );
-			}
-			return $clientData[ $name ]['value'];
+			return $data;
 		}
 
+		/**
+		 * Get all client data - DEPRECATED
+		 *
+		 * @deprecated 6.5.0 Use SUPER_Session_DAL::get_by_key() instead
+		 */
 		public static function getAllClientData() {
+			_deprecated_function( __METHOD__, '6.5.0', 'SUPER_Session_DAL::get_by_key()' );
 			$cookieName = '_sfs_id';
 			if ( ! isset( $_COOKIE[ $cookieName ] ) ) {
 				return false;
@@ -1095,7 +851,13 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 			return $clientData;
 		}
 
+		/**
+		 * Unset client data - DEPRECATED
+		 *
+		 * @deprecated 6.5.0 Use SUPER_Session_DAL::delete() instead
+		 */
 		public static function unsetClientData( $expired ) {
+			_deprecated_function( __METHOD__, '6.5.0', 'SUPER_Session_DAL::delete()' );
 			global $wpdb;
 			if ( is_array( $expired ) ) {
 				if ( count( $expired ) === 0 ) {
@@ -1206,19 +968,12 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 				$deleted['sfsdata'] = $result;
 			}
 
-			// Cleanup expired submission info (has expiry in option_name)
-			$result = $wpdb->query( $wpdb->prepare(
-				"DELETE FROM {$wpdb->options}
-				WHERE option_name LIKE %s
-				AND SUBSTRING_INDEX(option_name, '.', -1) < %d
-				LIMIT %d",
-				$wpdb->esc_like('_sfsi_') . '%',
-				$now,
-				$limit
-			) );
-			if ( $result ) {
-				$deleted['sfsi'] = $result;
-			}
+			// We no longer need to do this because the sessions table will be cleaned up by the DAL
+			// We do however want to cleanup any sessions that are older than a certain period of time
+			// This will be handled by the SUPER_Session_DAL::cleanup() method
+			// Let's call it here
+			SUPER_Session_DAL::cleanup();
+
 
 			if ( defined( 'DEBUG_SF' ) && DEBUG_SF && ! empty( $deleted ) ) {
 				error_log( 'Super Forms: Cleaned sessions - ' . json_encode( $deleted ) );
@@ -1344,40 +1099,120 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 		}
 	}
 
-		public static function generate_nonce() {
-			// Destroy old nonce, and generate new one
-			self::setClientData(
-				array(
-					'name'  => 'sf_nonce',
-					'value' => false,
-				)
-			);
-			$sf_nonce = md5( uniqid( mt_rand(), true ) ) . md5( uniqid( mt_rand(), true ) ) . md5( uniqid( mt_rand(), true ) );
-			self::setClientData(
-				array(
-					'name'    => 'sf_nonce',
-					'value'   => $sf_nonce,
-					'expires' => 5 * 60, // nonce will expire after 30 sec. by default
-					'exp_var' => 60 * 60, // there is no need to refresh a nonce, so we set it's expire variant to a higher value
-				)
-			);
-			return $sf_nonce;
-		}
-
+		/**
+		 * Verify CSRF using Origin/Referer header check
+		 *
+		 * Combined with browser SameSite cookie protection, this provides
+		 * CSRF protection without tokens (cache-compatible).
+		 *
+		 * Modes:
+		 * - 'enabled': Require Origin/Referer header, must match site or trusted origins
+		 * - 'compatibility': Allow if headers missing (for privacy extensions/proxies)
+		 * - 'disabled': No validation
+		 *
+		 * Note: Default fallback is 'compatibility' for migration safety. Existing users
+		 * upgrading won't have the new setting yet, so we fail-safe to allow missing headers
+		 * rather than breaking their forms. New installs get 'enabled' from settings default.
+		 *
+		 * @return bool True if request is allowed, false if rejected
+		 */
 		public static function verifyCSRF() {
-			$sf_nonce = self::getClientData( 'sf_nonce' );
-			$v        = htmlspecialchars( filter_input( INPUT_POST, 'sf_nonce' ) );
-			if ( ! $v || $v !== $sf_nonce ) {
-				return false; // invalid
+			$global_settings = self::get_global_settings();
+
+			// Default to 'compatibility' for migration safety - existing users upgrading
+			// won't have this setting yet, so fail-safe to allow missing headers
+			$mode = ! empty( $global_settings['cross_origin_protection'] )
+				? $global_settings['cross_origin_protection']
+				: 'compatibility';
+
+			// Disabled mode: allow all requests
+			if ( 'disabled' === $mode ) {
+				return true;
 			}
-			// Destroy existing nonce
-			self::setClientData(
-				array(
-					'name'  => 'sf_nonce',
-					'value' => false,
-				)
-			);
-			return true; // valid
+
+			// Get Origin header (set by browsers on cross-origin requests)
+			$origin = isset( $_SERVER['HTTP_ORIGIN'] ) ? $_SERVER['HTTP_ORIGIN'] : '';
+
+			// Fall back to Referer if no Origin header
+			$referer = wp_get_referer();
+
+			$check_url = $origin ?: $referer;
+
+			// No origin/referer present
+			if ( ! $check_url ) {
+				// Enabled mode: reject (require headers)
+				// Compatibility mode: allow (some privacy extensions strip headers)
+				if ( 'enabled' === $mode ) {
+					if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+						error_log( 'Super Forms: Cross-origin rejection - No Origin/Referer header present' );
+					}
+					return false;
+				}
+				return true; // Compatibility mode
+			}
+
+			// Extract host from request (PHP 8.1+ safe: guard against null)
+			$parsed_host = parse_url( $check_url, PHP_URL_HOST );
+			$request_host = $parsed_host ? strtolower( $parsed_host ) : '';
+
+			// Get site host (normalized to lowercase, PHP 8.1+ safe)
+			$parsed_site = parse_url( home_url(), PHP_URL_HOST );
+			$site_host = $parsed_site ? strtolower( $parsed_site ) : '';
+
+			// If we couldn't parse the host, reject in enabled mode
+			if ( empty( $request_host ) ) {
+				if ( 'enabled' === $mode ) {
+					if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+						error_log( 'Super Forms: Cross-origin rejection - Could not parse host from: ' . $check_url );
+					}
+					return false;
+				}
+				return true; // Compatibility mode
+			}
+
+			// Check against site host
+			if ( $request_host === $site_host ) {
+				return true;
+			}
+
+			// Check against trusted origins
+			$trusted_origins = ! empty( $global_settings['trusted_origins'] ) ? $global_settings['trusted_origins'] : '';
+			if ( ! empty( $trusted_origins ) ) {
+				$trusted_list = array_filter( array_map( 'trim', explode( "\n", $trusted_origins ) ) );
+				foreach ( $trusted_list as $trusted ) {
+					$trusted = strtolower( $trusted );
+
+					// Handle wildcard domains (e.g., *.example.com)
+					if ( strpos( $trusted, '*.' ) === 0 ) {
+						$pattern = substr( $trusted, 2 ); // Remove *.
+						$suffix  = '.' . $pattern;
+
+						// Check if request_host ends with the pattern (e.g., sub.example.com matches *.example.com)
+						// Length guard: request_host must be longer than suffix to have a subdomain
+						if (
+							( strlen( $request_host ) > strlen( $suffix ) && substr( $request_host, -strlen( $suffix ) ) === $suffix )
+							|| $request_host === $pattern
+						) {
+							return true;
+						}
+					} elseif ( $request_host === $trusted ) {
+						return true;
+					}
+				}
+			}
+
+			// Log rejection for debugging (only when WP_DEBUG is on to avoid log spam)
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( sprintf(
+					'Super Forms: Cross-origin rejection - Origin: %s, Referer: %s, Expected: %s, Trusted: %s',
+					$origin ?: '(none)',
+					$referer ?: '(none)',
+					$site_host,
+					$trusted_origins ?: '(none)'
+				) );
+			}
+
+			return false;
 		}
 
 		public static function get_element_settings( $elements, $field_name ) {
@@ -4084,7 +3919,6 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 			$settings['confirm_body'] = $confirm_body;
 			// error_log('CONFIRM BODY: '. $settings['confirm_body']);
 
-			// Moving settings over to Triggers TAB
 			$s = $settings;
 			error_log( json_encode( $s ) );
 			// Get current form version
@@ -4092,157 +3926,11 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 			// @Important, this check is against the Super Forms plugin version, not to be confused with the WordPress version!
 			// error_log($current_form_version);
 			
-			// Check if _emails field exists, if not we need to migrate legacy settings
-			$existing_emails = get_post_meta( $form_id, '_emails', true );
-			$needs_email_migration = empty( $existing_emails ) && ( ! empty( $s['send'] ) || ! empty( $s['confirm'] ) );
-			$has_reminder_settings = ! empty( $s['email_reminder_amount'] ) && intval( $s['email_reminder_amount'] ) > 0;
-			
+
 			// Check if migration has already been completed by checking form version
-			// Handle empty version (old forms) by treating them as needing migration
-			$migration_completed = false;
-			if ( ! empty( $current_form_version ) ) {
-				$migration_completed = version_compare( $current_form_version, SUPER_VERSION, '>=' );
-			}
-			
-			// error_log( "MIGRATION DEBUG: form_id=$form_id, version=$current_form_version, existing_emails=" . json_encode($existing_emails) . ", has_reminder_settings=" . ($has_reminder_settings ? 'true' : 'false') . ", migration_completed=" . ($migration_completed ? 'true' : 'false') );
-			
-			// Skip on-demand _emails migration if this form has been migrated to persistent triggers
-		// (lazy migration in add_emails_as_trigger handles imports/restores/edge cases)
-		$form_migrated_to_triggers = class_exists( 'SUPER_Email_Trigger_Migration' ) && SUPER_Email_Trigger_Migration::is_form_migrated( $form_id );
+			$migration_completed = ! empty( $current_form_version ) && version_compare( $current_form_version, SUPER_VERSION, '>=' );
 
-		if ( ! $form_migrated_to_triggers && ! $migration_completed && ( version_compare( $current_form_version, '6.4', '<' ) || $needs_email_migration || ( empty( $existing_emails ) && $has_reminder_settings ) ) ) {
-				// error_log( 'Define Triggers for this Form if not already, for instance, copy over E-mail settings and define Admin and Confirmation E-mails as triggers' );
-				// Set recursion guard
-				$migration_in_progress[$form_id] = true;
-				// Get trigger settings
-				$triggers = self::get_form_triggers( $form_id );
-				// Regex to convert E-mail body settings to TinyMCE editor
-				$regex = '/([\s\S]*?)(<[^\/<>]+?>[^\/<>]*?{loop_fields}[\s\S]*?>)([\s\S]*)|([\s\S]*?)({loop_fields})([\s\S]*)/';
-				// --------------------
-				// Email migration: Convert legacy email settings to new _emails meta field
-				$emails = array();
-				
-				// Admin Email migration
-				if ( ! empty( $s['send'] ) && ( $s['send'] == 'yes' || $s['send'] == 'true' ) ) {
-					$emails[] = array(
-						'enabled' => 'true',
-						'name' => 'Admin E-mail',
-						'data' => array(
-							'to' => ( ! empty( $s['header_to'] ) ? $s['header_to'] : '' ),
-							'from_email' => ( ! empty( $s['header_from_type'] ) && ( $s['header_from_type'] === 'default' ) ? '{option_admin_email}' : ( ! empty( $s['header_from'] ) ? $s['header_from'] : '' ) ),
-							'from_name' => ( ! empty( $s['header_from_type'] ) && ( $s['header_from_type'] === 'default' ) ? '{option_blogname}' : ( ! empty( $s['header_from_name'] ) ? $s['header_from_name'] : '' ) ),
-							'reply_to' => array(
-								'enabled' => ( ! empty( $s['header_reply_enabled'] ) && ( $s['header_reply_enabled'] === 'true' ) ? 'true' : 'false' ),
-								'email' => ( ! empty( $s['header_reply'] ) ? $s['header_reply'] : '' ),
-								'name' => ( ! empty( $s['header_reply_name'] ) ? $s['header_reply_name'] : '' ),
-							),
-							'subject' => ( ! empty( $s['header_subject'] ) ? $s['header_subject'] : '' ),
-							'body' => ( ! empty( $s['email_body'] ) ? $s['email_body'] : '' ),
-							'loop_open' => ( ! empty( $s['email_loop'] ) ? '<table cellpadding="5">' : '' ),
-							'loop' => ( ! empty( $s['email_loop'] ) ? $s['email_loop'] : '' ),
-							'loop_close' => ( ! empty( $s['email_loop'] ) ? '</table>' : '' ),
-							'exclude_empty' => ( ! empty( $s['email_exclude_empty'] ) && ( $s['email_exclude_empty'] === 'true' ) ? 'true' : 'false' ),
-							'rtl' => ( ! empty( $s['email_rtl'] ) && ( $s['email_rtl'] === 'true' ) ? 'true' : 'false' ),
-							'cc' => ( ! empty( $s['header_cc'] ) ? $s['header_cc'] : '' ),
-							'bcc' => ( ! empty( $s['header_bcc'] ) ? $s['header_bcc'] : '' ),
-							'header_additional' => ( ! empty( $s['header_additional'] ) ? $s['header_additional'] : '' ),
-							'attachments' => ( ! empty( $s['admin_attachments'] ) ? $s['admin_attachments'] : '' ),
-							'content_type' => 'html',
-							'charset' => 'UTF-8',
-						),
-					);
-				}
-				
-				// Confirmation Email migration
-				if ( ! empty( $s['confirm'] ) && ( $s['confirm'] == 'yes' || $s['confirm'] == 'true' ) ) {
-					$emails[] = array(
-						'enabled' => 'true',
-						'name' => 'Confirmation E-mail',
-						'data' => array(
-							'to' => ( ! empty( $s['confirm_to'] ) ? $s['confirm_to'] : '' ),
-							'from_email' => ( ! empty( $s['confirm_from_type'] ) && ( $s['confirm_from_type'] === 'default' ) ? '{option_admin_email}' : ( ! empty( $s['confirm_from'] ) ? $s['confirm_from'] : '' ) ),
-							'from_name' => ( ! empty( $s['confirm_from_type'] ) && ( $s['confirm_from_type'] === 'default' ) ? '{option_blogname}' : ( ! empty( $s['confirm_from_name'] ) ? $s['confirm_from_name'] : '' ) ),
-							'reply_to' => array(
-								'enabled' => ( ! empty( $s['confirm_header_reply_enabled'] ) && ( $s['confirm_header_reply_enabled'] === 'true' ) ? 'true' : 'false' ),
-								'email' => ( ! empty( $s['confirm_header_reply'] ) ? $s['confirm_header_reply'] : '' ),
-								'name' => ( ! empty( $s['confirm_header_reply_name'] ) ? $s['confirm_header_reply_name'] : '' ),
-							),
-							'subject' => ( ! empty( $s['confirm_subject'] ) ? $s['confirm_subject'] : '' ),
-							'body' => ( ! empty( $s['confirm_body'] ) ? $s['confirm_body'] : '' ),
-							'loop_open' => ( ! empty( $s['confirm_email_loop'] ) ? '<table cellpadding="5">' : '' ),
-							'loop' => ( ! empty( $s['confirm_email_loop'] ) ? $s['confirm_email_loop'] : '' ),
-							'loop_close' => ( ! empty( $s['confirm_email_loop'] ) ? '</table>' : '' ),
-							'exclude_empty' => ( ! empty( $s['confirm_exclude_empty'] ) && ( $s['confirm_exclude_empty'] === 'true' ) ? 'true' : 'false' ),
-							'rtl' => ( ! empty( $s['confirm_rtl'] ) && ( $s['confirm_rtl'] === 'true' ) ? 'true' : 'false' ),
-							'cc' => ( ! empty( $s['confirm_header_cc'] ) ? $s['confirm_header_cc'] : '' ),
-							'bcc' => ( ! empty( $s['confirm_header_bcc'] ) ? $s['confirm_header_bcc'] : '' ),
-							'header_additional' => ( ! empty( $s['confirm_header_additional'] ) ? $s['confirm_header_additional'] : '' ),
-							'attachments' => ( ! empty( $s['confirm_attachments'] ) ? $s['confirm_attachments'] : '' ),
-							'content_type' => 'html',
-							'charset' => 'UTF-8',
-						),
-					);
-				}
-				
-				// Email Reminders migration
-				for ( $i = 1; $i <= 3; $i++ ) {
-					$reminder_key = 'email_reminder_' . $i;
-					if ( ! empty( $s[$reminder_key] ) && ( $s[$reminder_key] == 'yes' || $s[$reminder_key] == 'true' || $s[$reminder_key] === true ) ) {
-						$emails[] = array(
-							'enabled' => 'true',
-							'name' => 'Email Reminder #' . $i,
-							'data' => array(
-								'to' => ( ! empty( $s[$reminder_key . '_to'] ) ? $s[$reminder_key . '_to'] : '' ),
-								'from_email' => ( ! empty( $s[$reminder_key . '_from_type'] ) && ( $s[$reminder_key . '_from_type'] === 'default' ) ? '{option_admin_email}' : ( ! empty( $s[$reminder_key . '_from'] ) ? $s[$reminder_key . '_from'] : '' ) ),
-								'from_name' => ( ! empty( $s[$reminder_key . '_from_type'] ) && ( $s[$reminder_key . '_from_type'] === 'default' ) ? '{option_blogname}' : ( ! empty( $s[$reminder_key . '_from_name'] ) ? $s[$reminder_key . '_from_name'] : '' ) ),
-								'reply_to' => array(
-									'enabled' => ( ! empty( $s[$reminder_key . '_header_reply_enabled'] ) && ( $s[$reminder_key . '_header_reply_enabled'] === 'true' ) ? 'true' : 'false' ),
-									'email' => ( ! empty( $s[$reminder_key . '_header_reply'] ) ? $s[$reminder_key . '_header_reply'] : '' ),
-									'name' => ( ! empty( $s[$reminder_key . '_header_reply_name'] ) ? $s[$reminder_key . '_header_reply_name'] : '' ),
-								),
-								'subject' => ( ! empty( $s[$reminder_key . '_subject'] ) ? $s[$reminder_key . '_subject'] : '' ),
-								'body' => ( ! empty( $s[$reminder_key . '_body'] ) ? $s[$reminder_key . '_body'] : '' ),
-								'loop_open' => ( ! empty( $s[$reminder_key . '_email_loop'] ) ? '<table cellpadding="5">' : '' ),
-								'loop' => ( ! empty( $s[$reminder_key . '_email_loop'] ) ? $s[$reminder_key . '_email_loop'] : '' ),
-								'loop_close' => ( ! empty( $s[$reminder_key . '_email_loop'] ) ? '</table>' : '' ),
-								'exclude_empty' => ( ! empty( $s[$reminder_key . '_exclude_empty'] ) && ( $s[$reminder_key . '_exclude_empty'] === 'true' ) ? 'true' : 'false' ),
-								'rtl' => ( ! empty( $s[$reminder_key . '_rtl'] ) && ( $s[$reminder_key . '_rtl'] === 'true' ) ? 'true' : 'false' ),
-								'cc' => ( ! empty( $s[$reminder_key . '_header_cc'] ) ? $s[$reminder_key . '_header_cc'] : '' ),
-								'bcc' => ( ! empty( $s[$reminder_key . '_header_bcc'] ) ? $s[$reminder_key . '_header_bcc'] : '' ),
-								'header_additional' => ( ! empty( $s[$reminder_key . '_header_additional'] ) ? $s[$reminder_key . '_header_additional'] : '' ),
-								'attachments' => ( ! empty( $s[$reminder_key . '_attachments'] ) ? $s[$reminder_key . '_attachments'] : '' ),
-								'content_type' => 'html',
-								'charset' => 'UTF-8',
-								// Email reminder specific fields - use correct UI structure
-								'schedule' => array(
-									'enabled' => 'true',
-									'schedules' => array(
-										array(
-											'date' => ( ! empty( $s[$reminder_key . '_base_date'] ) ? $s[$reminder_key . '_base_date'] : '' ),
-											'days' => ( ! empty( $s[$reminder_key . '_date_offset'] ) ? $s[$reminder_key . '_date_offset'] : '0' ),
-											'method' => ( ! empty( $s[$reminder_key . '_time_method'] ) && $s[$reminder_key . '_time_method'] === 'fixed' ? 'time' : $s[$reminder_key . '_time_method'] ),
-											'time' => ( ! empty( $s[$reminder_key . '_time_fixed'] ) ? $s[$reminder_key . '_time_fixed'] : '09:00' ),
-										),
-									),
-								),
-							),
-						);
-					}
-				}
-				
-				// Save migrated emails to _emails meta field
-				if ( ! empty( $emails ) ) {
-					update_post_meta( $form_id, '_emails', $emails );
-					error_log( 'Migrated emails to _emails meta field: ' . json_encode( $emails ) );
-				}
-				
-				// Mark migration as completed by updating form version
-				update_post_meta( $form_id, '_super_version', SUPER_VERSION );
-				// error_log( "MIGRATION COMPLETED: Updated form version to " . SUPER_VERSION . " for form $form_id" );
-				
-				// Clear recursion guard
-				unset( $migration_in_progress[$form_id] );
-
+			if ( ! $migration_completed && version_compare( $current_form_version, '6.4', '<' ) ) {
 				// Register & Login email conversion
 				if ( ! empty( $s['register_custom_email_header'] ) && ( $s['register_custom_email_header'] === 'admin' || $s['register_custom_email_header'] === 'confirmation' ) ) {
 					if ( $s['register_custom_email_header'] === 'admin' ) {
@@ -4484,345 +4172,7 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 					}
 				}
 
-				// REMOVED: Admin emails are now stored in _emails meta field and converted to triggers at runtime
-				// This prevents duplicate email processing
-				if ( false && ! empty( $s['send'] ) && ( $s['send'] == 'yes' || $s['send'] == 'true' ) ) {
-					$t = array(
-						'enabled'   => 'true',
-						'event'     => 'sf.after.submission',
-						'name'      => 'Admin E-mail',
-						'listen_to' => '',
-						'ids'       => '',
-						'order'     => 1,
-					);
-					// Grab the body, and extract the `loop open`, `loop` and `loop close` parts
-					$loop          = $s['email_loop'];
-					$body          = str_replace( array( "\r", "\n" ), '<br />', $s['email_body'] );
-					$body_combined = $body;
-					preg_match( $regex, $body, $m );
-					// Print the entire match result
-					$body       = '';
-					$loop_open  = '';
-					$loop_close = '';
-					if ( count( $m ) === 4 || count( $m ) === 7 ) {
-						// Only if {loop_fields} tag was found
-						if ( count( $m ) === 4 ) {
-							$body    .= $m[1];
-							$body    .= '{loop_fields}';
-							$body    .= $m[3];
-							$exploded = explode( '{loop_fields}', $m[2] );
-						} else {
-							$body    .= $m[4];
-							$body    .= '{loop_fields}';
-							$body    .= $m[6];
-							$exploded = explode( '{loop_fields}', $m[5] );
-						}
-						$loop_open  = $exploded[0];
-						$loop_close = $exploded[1];
-					} else {
-						// {loop_fields} was not found just use the body
-						$body = $body_combined;
-					}
-					$s['email_body'] = $body;
-					// Only if line breaks was enabled:
-					if ( ! empty( $s['email_body_nl2br'] ) && $s['email_body_nl2br'] === 'true' ) {
-						$body = nl2br( $body );
-					}
 
-					$csv_attachment = array( 'enabled' => 'false' );
-					// error_log('csv_attachment_enable: ');
-					if ( ! empty( $s['csv_attachment_enable'] ) && $s['csv_attachment_enable'] === 'true' ) {
-						// error_log('true?');
-						$csv_attachment = array(
-							'enabled'        => 'true',
-							'name'           => ( ! empty( $s['csv_attachment_name'] ) ? $s['csv_attachment_name'] : 'super-csv-attachment' ),
-							'save_as'        => ( ! empty( $s['csv_attachment_save_as'] ) ? $s['csv_attachment_save_as'] : 'admin_email_value' ),
-							'exclude_fields' => ( ! empty( $s['csv_attachment_save_as'] ) ? $s['csv_attachment_save_as'] : 'admin_email_value' ),
-							'delimiter'      => ( ! empty( $s['csv_attachment_delimiter'] ) ? $s['csv_attachment_delimiter'] : ',' ),
-							'enclosure'      => ( ! empty( $s['csv_attachment_enclosure'] ) ? $s['csv_attachment_enclosure'] : '"' ),
-						);
-						$exclude        = array();
-						if ( ! empty( $s['csv_attachment_exclude'] ) ) {
-							$list = explode( "\n", $s['csv_attachment_exclude'] );
-							foreach ( $list as $k => $v ) {
-								$exclude[] = array( 'name' => $v );
-							}
-						}
-						$csv_attachment['exclude_fields'] = $exclude;
-					}
-
-					$xml_attachment = array( 'enabled' => 'false' );
-					// error_log('xml_attachment_enable: ');
-					if ( ! empty( $s['xml_attachment_enable'] ) && $s['xml_attachment_enable'] === 'true' ) {
-						// error_log('true?');
-						$xml_attachment = array(
-							'enabled'     => 'true',
-							'name'        => ( ! empty( $s['xml_attachment_name'] ) ? $s['xml_attachment_name'] : 'super-xml-attachment' ),
-							'xml_content' => ( ! empty( $s['xml_content'] ) ? $s['xml_content'] : '' ),
-						);
-					}
-					$t['actions'] = array(
-						array(
-							'action'     => 'send_email',
-							'order'      => '1',
-							'conditions' => array(
-								'enabled' => 'false',
-								'f1'      => '',
-								'logic'   => '==',
-								'f2'      => '',
-							),
-							'data'       => array(
-								'to'                => ( ! empty( $s['header_to'] ) ? $s['header_to'] : '' ),
-								'from_email'        => ( ! empty( $s['header_from_type'] ) && ( $s['header_from_type'] === 'default' ) ? '{option_admin_email}' : $s['header_from'] ),
-								'from_name'         => ( ! empty( $s['header_from_type'] ) && ( $s['header_from_type'] === 'default' ) ? '{option_blogname}' : $s['header_from_name'] ),
-								'reply_to'          => array(
-									'enabled' => ( ! empty( $s['header_reply_enabled'] ) && ( $s['header_reply_enabled'] === 'true' ) ? 'true' : 'false' ),
-									'email'   => ( ! empty( $s['header_reply'] ) ? $s['header_reply'] : '' ),
-									'name'    => ( ! empty( $s['header_reply_name'] ) ? $s['header_reply_name'] : '' ),
-								),
-								'subject'           => ( ! empty( $s['header_subject'] ) ? $s['header_subject'] : '' ),
-								'body'              => $body,
-								// 'line_breaks' => 'false', // no longer used since tinymce editor
-
-								'loop_open'         => $loop_open,
-								'loop'              => $loop,
-								'loop_close'        => $loop_close,
-
-								'exclude_empty'     => ( ! empty( $s['email_exclude_empty'] ) && ( $s['email_exclude_empty'] === 'true' ) ? 'true' : 'false' ),
-
-								'rtl'               => ( ! empty( $s['email_rtl'] ) && ( $s['email_rtl'] === 'true' ) ? 'true' : 'false' ),
-								'cc'                => ( ! empty( $s['header_cc'] ) ? $s['header_cc'] : '' ),
-								'bcc'               => ( ! empty( $s['header_bcc'] ) ? $s['header_bcc'] : '' ),
-								'header_additional' => ( ! empty( $s['header_additional'] ) ? $s['header_additional'] : '' ),
-								'attachments'       => ( ! empty( $s['admin_attachments'] ) ? $s['admin_attachments'] : '' ),
-								'csv_attachment'    => $csv_attachment,
-								'xml_attachment'    => $xml_attachment,
-								'content_type'      => 'html',
-								'charset'           => 'UTF-8',
-							),
-						),
-					);
-					$triggers[] = $t;
-					// error_log('triggers: '.json_encode($triggers));
-				}
-				// REMOVED: Confirmation emails are now stored in _emails meta field and converted to triggers at runtime
-				// This prevents duplicate email processing
-				if ( false && ! empty( $s['confirm'] ) && ( $s['confirm'] == 'yes' || $s['confirm'] == 'true' ) ) {
-					$t = array(
-						'enabled'   => 'true',
-						'event'     => 'sf.after.submission',
-						'name'      => 'Confirmation E-mail',
-						'listen_to' => '',
-						'ids'       => '',
-						'order'     => 2,
-					);
-					// Grab the body, and extract the `loop open`, `loop` and `loop close` parts
-					$body          = '';
-					$body         .= $s['confirm_body'];
-					$loop          = $s['confirm_email_loop'];
-					$body          = str_replace( array( "\r", "\n" ), '<br />', $body );
-					$body_combined = $body;
-					preg_match( $regex, $body, $m );
-					// Print the entire match result
-					$body       = '';
-					$loop_open  = '';
-					$loop_close = '';
-					if ( count( $m ) === 4 || count( $m ) === 7 ) {
-						// Only if {loop_fields} tag was found
-						if ( count( $m ) === 4 ) {
-							$body    .= $m[1];
-							$body    .= '{loop_fields}';
-							$body    .= $m[3];
-							$exploded = explode( '{loop_fields}', $m[2] );
-						} else {
-							$body    .= $m[4];
-							$body    .= '{loop_fields}';
-							$body    .= $m[6];
-							$exploded = explode( '{loop_fields}', $m[5] );
-						}
-						$loop_open  = $exploded[0];
-						$loop_close = $exploded[1];
-					} else {
-						// {loop_fields} was not found just use the body
-						$body = $body_combined;
-					}
-					$s['confirm_body'] = $body;
-					// Only if line breaks was enabled:
-					if ( ! empty( $s['confirm_body_nl2br'] ) && $s['confirm_body_nl2br'] === 'true' ) {
-						$body = nl2br( $body );
-					}
-					$t['actions'] = array(
-						array(
-							'action'     => 'send_email',
-							'order'      => '1',
-							'conditions' => array(
-								'enabled' => 'false',
-								'f1'      => '',
-								'logic'   => '==',
-								'f2'      => '',
-							),
-							'data'       => array(
-								'to'                => ( ! empty( $s['confirm_to'] ) ? $s['confirm_to'] : '' ),
-								'from_email'        => ( ! empty( $s['confirm_from_type'] ) && ( $s['confirm_from_type'] === 'default' ) ? '{option_admin_email}' : $s['confirm_from'] ),
-								'from_name'         => ( ! empty( $s['confirm_from_type'] ) && ( $s['confirm_from_type'] === 'default' ) ? '{option_blogname}' : $s['confirm_from_name'] ),
-								'reply_to'          => array(
-									'enabled' => ( ! empty( $s['confirm_header_reply_enabled'] ) && ( $s['confirm_header_reply_enabled'] === 'true' ) ? 'true' : 'false' ),
-									'email'   => ( ! empty( $s['confirm_header_reply'] ) ? $s['confirm_header_reply'] : '' ),
-									'name'    => ( ! empty( $s['confirm_header_reply_name'] ) ? $s['confirm_header_reply_name'] : '' ),
-								),
-								'subject'           => ( ! empty( $s['confirm_subject'] ) ? $s['confirm_subject'] : '' ),
-								'body'              => $body,
-								// 'line_breaks' => 'false', // no longer used since tinymce editor
-
-								'loop_open'         => $loop_open,
-								'loop'              => $loop,
-								'loop_close'        => $loop_close,
-
-								'exclude_empty'     => ( ! empty( $s['confirm_exclude_empty'] ) && ( $s['confirm_exclude_empty'] === 'true' ) ? 'true' : 'false' ),
-
-								'rtl'               => ( ! empty( $s['confirm_rtl'] ) && ( $s['confirm_rtl'] === 'true' ) ? 'true' : 'false' ),
-								'cc'                => ( ! empty( $s['confirm_header_cc'] ) ? $s['confirm_header_cc'] : '' ),
-								'bcc'               => ( ! empty( $s['confirm_header_bcc'] ) ? $s['confirm_header_bcc'] : '' ),
-								'header_additional' => ( ! empty( $s['confirm_header_additional'] ) ? $s['confirm_header_additional'] : '' ),
-								'attachments'       => ( ! empty( $s['confirm_attachments'] ) ? $s['confirm_attachments'] : '' ),
-								'content_type'      => 'html',
-								'charset'           => 'UTF-8',
-							),
-						),
-					);
-					$triggers[] = $t;
-					// error_log('triggers: '.json_encode($triggers));
-				}
-
-				// REMOVED: Email reminders are now stored in _emails meta field and converted to triggers at runtime
-				// This prevents duplicate email processing
-				if ( false ) {
-				if ( empty( $s['email_reminder_amount'] ) ) {
-					$s['email_reminder_amount'] = 3;
-				}
-				$limit = absint( $s['email_reminder_amount'] );
-				if ( $limit == 0 ) {
-					$limit = 3;
-				}
-				$x = 1;
-				while ( $x <= $limit ) {
-					if ( ! empty( $s[ 'email_reminder_' . $x ] ) && ( $s[ 'email_reminder_' . $x ] == 'yes' || $s[ 'email_reminder_' . $x ] == 'true' ) ) {
-						unset( $s[ 'email_reminder_' . $x ] );
-						$t = array(
-							'enabled'   => 'true',
-							'event'     => 'sf.after.submission',
-							'name'      => 'E-mail reminder #' . $x,
-							'listen_to' => '',
-							'ids'       => '',
-							'order'     => $x * 10,
-						);
-						if ( ! empty( $s[ 'email_reminder_' . $x . '_time_method' ] ) && $s[ 'email_reminder_' . $x . '_time_method' ] === 'fixed' ) {
-							$s[ 'email_reminder_' . $x . '_time_method' ] = 'time';
-						}
-						// Grab the body, and extract the `loop open`, `loop` and `loop close` parts
-						$body = '';
-						if ( ! empty( $s[ 'email_reminder_' . $x . '_body_open' ] ) ) {
-							$body .= $s[ 'email_reminder_' . $x . '_body_open' ] . '<br />';
-						}
-						unset( $s[ 'email_reminder_' . $x . '_body_open' ] );
-						$body .= $s[ 'email_reminder_' . $x . '_body' ];
-						if ( ! empty( $s[ 'email_reminder_' . $x . '_body_close' ] ) ) {
-							$body .= '<br />' . $s[ 'email_reminder_' . $x . '_body_close' ];
-						}
-						unset( $s[ 'email_reminder_' . $x . '_body_close' ] );
-						$loop_open     = '<table cellpadding="5">';
-						$loop          = $s[ 'email_reminder_' . $x . '_email_loop' ];
-						$loop_close    = '</table>';
-						$body          = str_replace( array( "\r", "\n" ), '<br />', $body );
-						$body_combined = $body;
-						preg_match( $regex, $body, $m );
-						// Print the entire match result
-						$body = '';
-						if ( count( $m ) === 4 || count( $m ) === 7 ) {
-							// Only if {loop_fields} tag was found
-							if ( count( $m ) === 4 ) {
-								$body    .= $m[1];
-								$body    .= '{loop_fields}';
-								$body    .= $m[3];
-								$exploded = explode( '{loop_fields}', $m[2] );
-							} else {
-								$body    .= $m[4];
-								$body    .= '{loop_fields}';
-								$body    .= $m[6];
-								$exploded = explode( '{loop_fields}', $m[5] );
-							}
-							$loop_open  = $exploded[0];
-							$loop_close = $exploded[1];
-						} else {
-							// {loop_fields} was not found just use the body
-							$body = $body_combined;
-						}
-						$s[ 'email_reminder_' . $x . '_body' ] = $body;
-						// error_log($s['email_reminder_'.$x.'_attachments']);
-						// Only if line breaks was enabled:
-						if ( ! empty( $s[ 'email_reminder_' . $x . '_body_nl2br' ] ) && $s[ 'email_reminder_' . $x . '_body_nl2br' ] === 'true' ) {
-							$body = nl2br( $body );
-						}
-						$t['actions'] = array(
-							array(
-								'action'     => 'send_email',
-								'order'      => '1',
-								'conditions' => array(
-									'enabled' => 'false',
-									'f1'      => '',
-									'logic'   => '==',
-									'f2'      => '',
-								),
-								'data'       => array(
-									'to'                => ( ! empty( $s[ 'email_reminder_' . $x . '_to' ] ) ? $s[ 'email_reminder_' . $x . '_to' ] : '' ),
-									'from_email'        => ( ! empty( $s[ 'email_reminder_' . $x . '_from_type' ] ) && ( $s[ 'email_reminder_' . $x . '_from_type' ] === 'default' ) ? '{option_admin_email}' : $s[ 'email_reminder_' . $x . '_from' ] ),
-									'from_name'         => ( ! empty( $s[ 'email_reminder_' . $x . '_from_type' ] ) && ( $s[ 'email_reminder_' . $x . '_from_type' ] === 'default' ) ? '{option_blogname}' : $s[ 'email_reminder_' . $x . '_from_name' ] ),
-									'reply_to'          => array(
-										'enabled' => ( ! empty( $s[ 'email_reminder_' . $x . '_header_reply_enabled' ] ) && ( $s[ 'email_reminder_' . $x . '_header_reply_enabled' ] === 'true' ) ? 'true' : 'false' ),
-										'email'   => ( ! empty( $s[ 'email_reminder_' . $x . '_header_reply' ] ) ? $s[ 'email_reminder_' . $x . '_header_reply' ] : '' ),
-										'name'    => ( ! empty( $s[ 'email_reminder_' . $x . '_header_reply_name' ] ) ? $s[ 'email_reminder_' . $x . '_header_reply_name' ] : '' ),
-									),
-									'subject'           => ( ! empty( $s[ 'email_reminder_' . $x . '_subject' ] ) ? $s[ 'email_reminder_' . $x . '_subject' ] : '' ),
-									'body'              => $body,
-									// 'line_breaks' => 'false', // no longer used since tinymce editor
-
-									'loop_open'         => $loop_open,
-									'loop'              => $loop,
-									'loop_close'        => $loop_close,
-
-									'exclude_empty'     => ( ! empty( $s[ 'email_reminder_' . $x . '_exclude_empty' ] ) && ( $s[ 'email_reminder_' . $x . '_exclude_empty' ] === 'true' ) ? 'true' : 'false' ),
-
-									'rtl'               => ( ! empty( $s[ 'email_reminder_' . $x . '_rtl' ] ) && ( $s[ 'email_reminder_' . $x . '_rtl' ] === 'true' ) ? 'true' : 'false' ),
-									'cc'                => ( ! empty( $s[ 'email_reminder_' . $x . '_header_cc' ] ) ? $s[ 'email_reminder_' . $x . '_header_cc' ] : '' ),
-									'bcc'               => ( ! empty( $s[ 'email_reminder_' . $x . '_header_bcc' ] ) ? $s[ 'email_reminder_' . $x . '_header_bcc' ] : '' ),
-									'header_additional' => ( ! empty( $s[ 'email_reminder_' . $x . '_header_additional' ] ) ? $s[ 'email_reminder_' . $x . '_header_additional' ] : '' ),
-									'attachments'       => ( ! empty( $s[ 'email_reminder_' . $x . '_attachments' ] ) ? $s[ 'email_reminder_' . $x . '_attachments' ] : '' ),
-									'content_type'      => 'html',
-									'charset'           => 'UTF-8',
-									'schedule'          => array(
-										'enabled'   => 'true',
-										'schedules' => array(
-											array(
-												'date'   => ( ! empty( $s[ 'email_reminder_' . $x . '_base_date' ] ) ? $s[ 'email_reminder_' . $x . '_base_date' ] : '' ),
-												'days'   => ( ! empty( $s[ 'email_reminder_' . $x . '_date_offset' ] ) ? $s[ 'email_reminder_' . $x . '_date_offset' ] : '0' ),
-												'method' => ( ! empty( $s[ 'email_reminder_' . $x . '_time_method' ] ) ? ( ( $s[ 'email_reminder_' . $x . '_time_method' ] == 'offset' && ( isset( $s[ 'email_reminder_' . $x . '_time_offset' ] ) && $s[ 'email_reminder_' . $x . '_time_offset' ] === '0' ) ) ? 'instant' : $s[ 'email_reminder_' . $x . '_time_method' ] ) : 'time' ),
-												'time'   => ( ! empty( $s[ 'email_reminder_' . $x . '_time_fixed' ] ) ? $s[ 'email_reminder_' . $x . '_time_fixed' ] : '09:00' ),
-												'offset' => ( ! empty( $s[ 'email_reminder_' . $x . '_time_offset' ] ) ? $s[ 'email_reminder_' . $x . '_time_offset' ] : '0' ),
-											),
-										),
-									),
-									// "email_reminder_'.$x.'_header_additional": "header-reminder:-header-reminder-value",
-									// "email_reminder_2_header_additional": "-r2:value--r2",
-									// woocommerce_completed_header_additional
-								),
-							),
-						);
-						$triggers[] = $t;
-						// error_log('triggers: '.json_encode($triggers));
-					}
-					++$x;
-				}
-				} // End of disabled email reminders section
 				// Add trigger for WooCommerce email after order completed
 				if ( ! empty( $s['woocommerce_checkout'] ) && $s['woocommerce_checkout'] === 'true' && ! empty( $s['woocommerce_completed_email'] ) && $s['woocommerce_completed_email'] === 'true' ) {
 					$t = array();
@@ -4917,12 +4267,8 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 						),
 					);
 					$triggers[] = $t;
-					// error_log('triggers: '.json_encode($triggers));
 				}
-				// error_log('save form triggers: '.json_encode($triggers));
-				// error_log('form id: '.$form_id);
-				error_log( 'save_form_triggers(7)' );
-				self::save_form_triggers( $triggers, $form_id, false );
+				// Legacy trigger migration removed - automations use wp_superforms_automations table
 
 				$s['_woocommerce']                                      = array();
 				$s['_woocommerce']['checkout']                          = ( isset( $s['woocommerce_checkout'] ) ? $s['woocommerce_checkout'] : 'false' );
@@ -5601,9 +4947,9 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 				echo self::safe_json_encode( $result );
 			}
 			if ( $form_id !== false ) {
-				$sfsi_id = self::getClientData( 'unique_submission_id_' . $form_id );
-				if ( $sfsi_id !== false ) {
-					$sfsi = get_option( '_sfsi_' . $sfsi_id, array() );
+				$session_key = self::getClientData( 'unique_submission_id_' . $form_id );
+				if ( $session_key !== false ) {
+					$sfsi = SUPER_Session_DAL::get_by_key( $session_key ) ?: array();
 					if ( $error ) {
 						$sfsi['error_msg'] = $msg;
 					} else {
@@ -5615,11 +4961,11 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 					if ( $json != true ) {
 						$sfsi['response_data'] = $response_data;
 					}
-					update_option( '_sfsi_' . $sfsi_id, $sfsi );
+					SUPER_Session_DAL::update_by_key( $session_key, array('data' => $sfsi) );
 				}
 				// When there was an error, cleanup things?
 				if ( $error === true ) {
-					self::cleanupFormSubmissionInfo( $sfsi_id, '' );
+					self::cleanupFormSubmissionInfo( $session_key, '' );
 				}
 			}
 			die();
@@ -6003,8 +5349,15 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 
 			// @since 4.9.402 - check if switching from language, if so grab initial tag values from session
 			if ( ( isset( $_POST['action'] ) ) && ( $_POST['action'] == 'super_language_switcher' ) ) {
-				// Try to get data from session
-				$tags = self::getClientData( 'tags_values' );
+				// Try to get data from session metadata (new system)
+				$tags = false;
+				if ( ! empty( $_POST['super_session_key'] ) ) {
+					$session_key = sanitize_text_field( wp_unslash( $_POST['super_session_key'] ) );
+					$session = SUPER_Session_DAL::get_by_key( $session_key );
+					if ( $session && isset( $session['metadata']['tags_values'] ) ) {
+						$tags = $session['metadata']['tags_values'];
+					}
+				}
 			} else {
 				// @since 4.0.0 - retrieve author id if on profile page
 				// First check if we are on the author profile page, and see if we can find author based on slug
@@ -6092,24 +5445,30 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 				// Or maybe rely on a filter to overrule this condition?
 				$http_referrer = '';
 				if ( strpos( $value, '{server_http_referrer_session}' ) !== false ) {
-					$http_referrer = self::getClientData( 'server_http_referrer' );
-					if ( $http_referrer == false ) {
+					// Get from session metadata (new system)
+					$http_referrer = false;
+					if ( ! empty( $_POST['super_session_key'] ) ) {
+						$session_key = sanitize_text_field( wp_unslash( $_POST['super_session_key'] ) );
+						$session = SUPER_Session_DAL::get_by_key( $session_key );
+						if ( $session && isset( $session['metadata']['server_http_referrer'] ) ) {
+							$http_referrer = $session['metadata']['server_http_referrer'];
+						}
+					}
+
+					// Fall back to current request HTTP_REFERER if not in session
+					if ( $http_referrer === false ) {
 						$http_referrer = ( isset( $_SERVER['HTTP_REFERER'] ) ? $_SERVER['HTTP_REFERER'] : '' );
 					}
-					if ( ! empty( $http_referrer ) ) {
-						self::setClientData(
-							array(
-								'name'  => 'server_http_referrer',
-								'value' => $http_referrer,
-							)
-						);
-					} else {
-						self::setClientData(
-							array(
-								'name'  => 'server_http_referrer',
-								'value' => false,
-							)
-						);
+
+					// Store in session metadata for future reference
+					if ( ! empty( $http_referrer ) && ! empty( $_POST['super_session_key'] ) ) {
+						$session_key = sanitize_text_field( wp_unslash( $_POST['super_session_key'] ) );
+						$session = SUPER_Session_DAL::get_by_key( $session_key );
+						if ( $session ) {
+							$metadata = $session['metadata'] ?: array();
+							$metadata['server_http_referrer'] = $http_referrer;
+							SUPER_Session_DAL::update_by_key( $session_key, array( 'metadata' => $metadata ) );
+						}
 					}
 				}
 
@@ -6667,12 +6026,16 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 
 				// Only store in case the language switch is enabled
 				if ( ! empty( $settings['i18n_switch'] ) && $settings['i18n_switch'] === 'true' ) {
-					self::setClientData(
-						array(
-							'name'  => 'tags_values',
-							'value' => $tags,
-						)
-					);
+					// Store in session metadata (new system)
+					if ( ! empty( $_POST['super_session_key'] ) ) {
+						$session_key = sanitize_text_field( wp_unslash( $_POST['super_session_key'] ) );
+						$session = SUPER_Session_DAL::get_by_key( $session_key );
+						if ( $session ) {
+							$metadata = $session['metadata'] ?: array();
+							$metadata['tags_values'] = $tags;
+							SUPER_Session_DAL::update_by_key( $session_key, array( 'metadata' => $metadata ) );
+						}
+					}
 				}
 			}
 

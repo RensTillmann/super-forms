@@ -20,6 +20,12 @@ Super Forms is a WordPress drag & drop form builder plugin.
 - Lucide icons
 - Action Scheduler for background jobs
 
+**Key Features:**
+- Cache-compatible forms (works with Varnish, Cloudflare, CDN caching)
+- Origin/Referer CSRF protection with configurable modes and trusted origins
+- Operations-based form editing (99% smaller payloads)
+- Visual workflow automation builder
+
 **Key Directories:**
 - `/src/react/admin/` - React admin UI (unified bundle)
 - `/src/includes/` - PHP backend (automations, DAL, migrations)
@@ -55,6 +61,29 @@ Super Forms is a WordPress drag & drop form builder plugin.
 - **Actions** - Tasks performed by the system (Send Email, Create Entry, HTTP Request, etc.)
 - **Conditions** - Branching logic (Field Comparison, A/B Test, etc.)
 - **Control** - Flow utilities (Delay, Schedule, Stop Execution, etc.)
+
+## Operations & Versioning System
+
+**Database Tables:**
+- `wp_superforms_form_versions` - Form version snapshots and operation history
+
+**Core Classes:**
+- `SUPER_Form_Operations` - JSON Patch (RFC 6902) operations handler
+- `SUPER_Form_REST_Controller` - Forms REST API with operations support
+- `SUPER_Form_DAL` - Form data access layer
+
+**REST API Endpoints:**
+- `POST /super-forms/v1/forms/{id}/operations` - Apply JSON Patch operations
+- `GET /super-forms/v1/forms/{id}/versions` - List form versions
+- `POST /super-forms/v1/forms/{id}/versions` - Create version snapshot
+- `POST /super-forms/v1/forms/{id}/revert/{versionId}` - Revert to version
+
+**Key Features:**
+- Operations-based editing (2KB vs 200KB payloads)
+- Undo/redo via operation inversion
+- Git-like version control with snapshots
+- AI/LLM integration path via MCP server
+- Sub-second saves on slow hosting
 
 ## React Development Guidelines
 

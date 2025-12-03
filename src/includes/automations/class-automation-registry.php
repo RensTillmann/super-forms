@@ -80,7 +80,7 @@ class SUPER_Automation_Registry {
         $this->load_builtin_actions();
 
         // Allow third-party registration
-        do_action('super_register_triggers', $this);
+        do_action('super_register_automations', $this);
 
         // Apply filters for events and actions
         $this->events = apply_filters('super_automation_events', $this->events);
@@ -493,6 +493,17 @@ class SUPER_Automation_Registry {
             'phase' => 6
         ]);
 
+        $this->register_event('payment.stripe.order_fulfilled', [
+            'label' => __('Stripe Order Fulfilled', 'super-forms'),
+            'description' => __('A Stripe-related order was successfully fulfilled (e.g., after payment or async confirmation)', 'super-forms'),
+            'category' => 'payment',
+            'available_context' => ['session_key', 'stripe_settings', 'stripe_session', 'event_type', 'entry_id', 'form_id'],
+            'required_context' => ['session_key', 'stripe_session'],
+            'compatible_actions' => ['send_email', 'webhook', 'update_entry_status', 'log_message', 'http_request'],
+            'addon' => 'stripe',
+            'phase' => 6
+        ]);
+
         $this->register_event('subscription.stripe.created', [
             'label' => __('Stripe Subscription Created', 'super-forms'),
             'description' => __('New subscription created', 'super-forms'),
@@ -687,7 +698,7 @@ class SUPER_Automation_Registry {
             // Try to autoload
             $file = str_replace('_', '-', strtolower($class));
             $file = str_replace('super-action-', '', $file);
-            $path = SUPER_PLUGIN_DIR . '/includes/triggers/actions/class-action-' . $file . '.php';
+            $path = SUPER_PLUGIN_DIR . '/includes/automations/actions/class-action-' . $file . '.php';
 
             if (file_exists($path)) {
                 require_once $path;

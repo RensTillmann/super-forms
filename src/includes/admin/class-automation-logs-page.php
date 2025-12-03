@@ -2,7 +2,7 @@
 /**
  * Automation Logs Admin Page
  *
- * Provides admin interface for viewing and managing trigger execution logs:
+ * Provides admin interface for viewing and managing automation execution logs:
  * - Filterable log list using WP_List_Table
  * - Status, date range, form, and entry filtering
  * - CSV export functionality
@@ -42,7 +42,7 @@ if ( ! class_exists( 'SUPER_Automation_Logs_Page' ) ) :
 			add_action( 'admin_menu', array( __CLASS__, 'add_menu_page' ), 20 );
 			add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
 			add_action( 'wp_ajax_super_get_log_details', array( __CLASS__, 'ajax_get_log_details' ) );
-			add_action( 'wp_ajax_super_export_trigger_logs', array( __CLASS__, 'ajax_export_logs' ) );
+			add_action( 'wp_ajax_super_export_automation_logs', array( __CLASS__, 'ajax_export_logs' ) );
 		}
 
 		/**
@@ -56,7 +56,7 @@ if ( ! class_exists( 'SUPER_Automation_Logs_Page' ) ) :
 				__( 'Automation Logs', 'super-forms' ),
 				__( 'Automation Logs', 'super-forms' ),
 				'manage_options',
-				'super-trigger-logs',
+				'super-automation-logs',
 				array( __CLASS__, 'render_page' )
 			);
 		}
@@ -68,14 +68,14 @@ if ( ! class_exists( 'SUPER_Automation_Logs_Page' ) ) :
 		 * @since 6.5.0
 		 */
 		public static function enqueue_scripts( $hook ) {
-			if ( $hook !== 'super-forms_page_super-trigger-logs' ) {
+			if ( $hook !== 'super-forms_page_super-automation-logs' ) {
 				return;
 			}
 
-			wp_enqueue_style( 'super-trigger-logs', SUPER_PLUGIN_FILE . 'assets/css/admin/trigger-logs.css', array(), SUPER_VERSION );
-			wp_enqueue_script( 'super-trigger-logs', SUPER_PLUGIN_FILE . 'assets/js/admin/trigger-logs.js', array( 'jquery' ), SUPER_VERSION, true );
+			wp_enqueue_style( 'super-automation-logs', SUPER_PLUGIN_FILE . 'assets/css/admin/automation-logs.css', array(), SUPER_VERSION );
+			wp_enqueue_script( 'super-automation-logs', SUPER_PLUGIN_FILE . 'assets/js/admin/automation-logs.js', array( 'jquery' ), SUPER_VERSION, true );
 
-			wp_localize_script( 'super-trigger-logs', 'superTriggerLogs', array(
+			wp_localize_script( 'super-automation-logs', 'superAutomationLogs', array(
 				'ajaxUrl' => admin_url( 'admin-ajax.php' ),
 				'nonce'   => wp_create_nonce( 'super_automation_logs' ),
 				'i18n'    => array(
@@ -109,8 +109,8 @@ if ( ! class_exists( 'SUPER_Automation_Logs_Page' ) ) :
 			$list_table->prepare_items();
 
 			?>
-			<div class="wrap super-trigger-logs-wrap">
-				<h1 class="wp-heading-inline"><?php esc_html_e( 'Trigger Execution Logs', 'super-forms' ); ?></h1>
+			<div class="wrap super-automation-logs-wrap">
+				<h1 class="wp-heading-inline"><?php esc_html_e( 'Automation Execution Logs', 'super-forms' ); ?></h1>
 
 				<!-- Stats Dashboard -->
 				<div class="super-logs-stats">
@@ -134,7 +134,7 @@ if ( ! class_exists( 'SUPER_Automation_Logs_Page' ) ) :
 
 				<!-- Filters -->
 				<form method="get" action="" class="super-logs-filters">
-					<input type="hidden" name="page" value="super-trigger-logs">
+					<input type="hidden" name="page" value="super-automation-logs">
 
 					<select name="status">
 						<option value=""><?php esc_html_e( 'All Statuses', 'super-forms' ); ?></option>
@@ -181,7 +181,7 @@ if ( ! class_exists( 'SUPER_Automation_Logs_Page' ) ) :
 									'form_id'   => isset( $_GET['form_id'] ) ? absint( $_GET['form_id'] ) : '',
 								) )
 							),
-							admin_url( 'admin.php?page=super-trigger-logs' )
+							admin_url( 'admin.php?page=super-automation-logs' )
 						),
 						'super_export_logs'
 					);
@@ -212,7 +212,7 @@ if ( ! class_exists( 'SUPER_Automation_Logs_Page' ) ) :
 			</div>
 
 			<style>
-				.super-trigger-logs-wrap { max-width: 1400px; }
+				.super-automation-logs-wrap { max-width: 1400px; }
 				.super-logs-stats {
 					display: flex;
 					gap: 15px;
@@ -411,7 +411,7 @@ if ( ! class_exists( 'SUPER_Automation_Logs_Page' ) ) :
 					<span class="detail-value"><?php echo esc_html( $log['id'] ); ?></span>
 				</div>
 				<div class="detail-row">
-					<span class="detail-label"><?php esc_html_e( 'Trigger ID', 'super-forms' ); ?></span>
+					<span class="detail-label"><?php esc_html_e( 'Automation ID', 'super-forms' ); ?></span>
 					<span class="detail-value"><?php echo esc_html( $log['automation_id'] ); ?></span>
 				</div>
 				<div class="detail-row">
@@ -528,7 +528,7 @@ if ( ! class_exists( 'SUPER_Automation_Logs_Page' ) ) :
 
 			// Set headers for CSV download
 			header( 'Content-Type: text/csv; charset=utf-8' );
-			header( 'Content-Disposition: attachment; filename=trigger-logs-' . gmdate( 'Y-m-d' ) . '.csv' );
+			header( 'Content-Disposition: attachment; filename=automation-logs-' . gmdate( 'Y-m-d' ) . '.csv' );
 			header( 'Pragma: no-cache' );
 			header( 'Expires: 0' );
 
@@ -537,7 +537,7 @@ if ( ! class_exists( 'SUPER_Automation_Logs_Page' ) ) :
 			// CSV headers
 			fputcsv( $output, array(
 				'ID',
-				'Trigger ID',
+				'Automation ID',
 				'Event',
 				'Status',
 				'Form ID',
@@ -570,7 +570,7 @@ if ( ! class_exists( 'SUPER_Automation_Logs_Page' ) ) :
 	/**
 	 * SUPER_Automation_Logs_List_Table Class
 	 *
-	 * Extends WP_List_Table for displaying trigger logs
+	 * Extends WP_List_Table for displaying automation logs
 	 */
 	class SUPER_Automation_Logs_List_Table extends WP_List_Table {
 
@@ -772,7 +772,7 @@ if ( ! class_exists( 'SUPER_Automation_Logs_Page' ) ) :
 		 * Message when no items found
 		 */
 		public function no_items() {
-			esc_html_e( 'No trigger logs found.', 'super-forms' );
+			esc_html_e( 'No automation logs found.', 'super-forms' );
 		}
 	}
 
