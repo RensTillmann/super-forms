@@ -2237,14 +2237,10 @@ if ( ! class_exists( 'SUPER_Listings' ) ) :
 			}
 
 			// Sanitize the ID
-			$form_id     = absint( $id );
-			$post_status = get_post_status( $form_id );
-			$post_type   = get_post_type( $form_id );
-			$found       = false;
-			if ( $post_status === 'publish' && $post_type === 'super_form' ) {
-				$found = true;
-			}
-			if ( $found === false ) { // Form does not exists
+			$form_id = absint( $id );
+
+			// Check if form exists
+			if ( ! SUPER_Common::form_exists( $form_id, array( 'publish' ) ) ) { // Form does not exist
 				return '<strong>' . esc_html__( 'Error', 'super-forms' ) . ':</strong> ' . sprintf( esc_html__( 'Super Forms could not find a listing with Form ID: %d', 'super-forms' ), $form_id );
 			}
 

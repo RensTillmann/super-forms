@@ -209,13 +209,19 @@ class SUPER_Form_DAL {
         $orderby = in_array( $args['orderby'], array( 'id', 'name', 'created_at', 'updated_at' ) ) ? $args['orderby'] : 'id';
         $order = in_array( strtoupper( $args['order'] ), array( 'ASC', 'DESC' ) ) ? strtoupper( $args['order'] ) : 'DESC';
 
-        $results = $wpdb->get_results(
-            $wpdb->prepare(
-                "SELECT * FROM {$table}{$where} ORDER BY {$orderby} {$order} LIMIT %d, %d",
-                $args['offset'],
-                $args['number']
-            )
-        );
+        // Build query - handle -1 for unlimited results
+        if ( $args['number'] == -1 ) {
+            $sql = "SELECT * FROM {$table}{$where} ORDER BY {$orderby} {$order}";
+            $results = $wpdb->get_results( $sql );
+        } else {
+            $results = $wpdb->get_results(
+                $wpdb->prepare(
+                    "SELECT * FROM {$table}{$where} ORDER BY {$orderby} {$order} LIMIT %d, %d",
+                    $args['offset'],
+                    $args['number']
+                )
+            );
+        }
 
         foreach ( $results as $key => $form ) {
             $results[ $key ]->elements = json_decode( $form->elements, true );
@@ -224,6 +230,175 @@ class SUPER_Form_DAL {
         }
 
         return $results;
+    }
+
+    /**
+     * Count forms matching the query.
+     *
+     * @since 6.6.1
+     * @param array $args Query arguments (only 'status' is used).
+     * @return int The number of forms matching the query.
+     */
+    public static function count( $args = array() ) {
+        global $wpdb;
+        $table = self::get_table_name();
+
+        $where = '';
+        if ( ! empty( $args['status'] ) ) {
+            $where = $wpdb->prepare( " WHERE status = %s", $args['status'] );
+        }
+
+        return (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table}{$where}" );
+    }
+
+    /**
+     * Duplicate a form
+     *
+     * @param int $form_id The ID of the form to duplicate.
+     * @return int|WP_Error The new form ID, or WP_Error on failure.
+     */
+    public static function duplicate( $form_id ) {
+        $original_form = self::get( $form_id );
+
+        if ( ! $original_form ) {
+            return new WP_Error( 'form_not_found', __( 'Form not found.', 'super-forms' ) );
+        }
+
+        // Generate new name with "(Copy)" suffix
+        $new_name = $original_form->name . ' (Copy)';
+
+        // Check if name already exists with copy suffix, increment if needed
+        global $wpdb;
+        $table = self::get_table_name();
+        $base_name = $new_name;
+        $counter = 1;
+
+        while ( $wpdb->get_var( $wpdb->prepare( "SELECT COUNT(*) FROM {$table} WHERE name = %s", $new_name ) ) > 0 ) {
+            $counter++;
+            $new_name = $base_name . ' ' . $counter;
+        }
+
+        // Create new form with duplicated data
+        $new_form_data = array(
+            'name' => $new_name,
+            'status' => 'draft', // Duplicates start as draft
+            'elements' => $original_form->elements,
+            'settings' => $original_form->settings,
+            'translations' => $original_form->translations,
+        );
+
+        $new_form_id = self::create( $new_form_data );
+
+        if ( is_wp_error( $new_form_id ) ) {
+            return $new_form_id;
+        }
+
+        // Allow add-ons to duplicate their settings
+        do_action( 'super_form_duplicated', $new_form_id, $form_id );
+
+        return $new_form_id;
+    }
+
+    /**
+     * Search forms by name or settings
+     *
+     * @param string $query Search query string.
+     * @param array $args Additional query arguments.
+     * @return array Array of matching forms.
+     */
+    public static function search( $query, $args = array() ) {
+        global $wpdb;
+        $table = self::get_table_name();
+
+        if ( empty( $query ) ) {
+            return self::query( $args );
+        }
+
+        $defaults = array(
+            'status' => '',
+            'number' => 20,
+            'offset' => 0,
+            'orderby' => 'id',
+            'order' => 'DESC',
+        );
+        $args = wp_parse_args( $args, $defaults );
+
+        $where_clauses = array();
+        $search_term = '%' . $wpdb->esc_like( $query ) . '%';
+
+        // Search in name
+        $where_clauses[] = $wpdb->prepare( 'name LIKE %s', $search_term );
+
+        // Search in settings JSON
+        $where_clauses[] = $wpdb->prepare( 'settings LIKE %s', $search_term );
+
+        $where = '(' . implode( ' OR ', $where_clauses ) . ')';
+
+        // Add status filter if specified
+        if ( ! empty( $args['status'] ) ) {
+            $where .= $wpdb->prepare( ' AND status = %s', $args['status'] );
+        }
+
+        $orderby = in_array( $args['orderby'], array( 'id', 'name', 'created_at', 'updated_at' ) ) ? $args['orderby'] : 'id';
+        $order = in_array( strtoupper( $args['order'] ), array( 'ASC', 'DESC' ) ) ? strtoupper( $args['order'] ) : 'DESC';
+
+        // Build query - handle -1 for unlimited results
+        if ( $args['number'] == -1 ) {
+            $sql = "SELECT * FROM {$table} WHERE {$where} ORDER BY {$orderby} {$order}";
+            $results = $wpdb->get_results( $sql );
+        } else {
+            $results = $wpdb->get_results(
+                $wpdb->prepare(
+                    "SELECT * FROM {$table} WHERE {$where} ORDER BY {$orderby} {$order} LIMIT %d, %d",
+                    $args['offset'],
+                    $args['number']
+                )
+            );
+        }
+
+        foreach ( $results as $key => $form ) {
+            $results[ $key ]->elements = json_decode( $form->elements, true );
+            $results[ $key ]->settings = json_decode( $form->settings, true );
+            $results[ $key ]->translations = json_decode( $form->translations, true );
+        }
+
+        return $results;
+    }
+
+    /**
+     * Archive a form (soft delete)
+     *
+     * @param int $form_id The ID of the form to archive.
+     * @return bool|WP_Error True on success, WP_Error on failure.
+     */
+    public static function archive( $form_id ) {
+        $result = self::update( $form_id, array( 'status' => 'archived' ) );
+
+        if ( is_wp_error( $result ) ) {
+            return $result;
+        }
+
+        do_action( 'super_form_archived', $form_id );
+
+        return true;
+    }
+
+    /**
+     * Restore an archived form
+     *
+     * @param int $form_id The ID of the form to restore.
+     * @return bool|WP_Error True on success, WP_Error on failure.
+     */
+    public static function restore( $form_id ) {
+        $result = self::update( $form_id, array( 'status' => 'publish' ) );
+
+        if ( is_wp_error( $result ) ) {
+            return $result;
+        }
+
+        do_action( 'super_form_restored', $form_id );
+
+        return true;
     }
 
     // =========================================================================

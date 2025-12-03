@@ -38,10 +38,11 @@ if ( ! class_exists( 'SUPER_Menu' ) ) :
 			);
 			add_submenu_page(
 				'super_forms',
-				esc_html__( 'Your Forms', 'super-forms' ),
-				esc_html__( 'Your Forms', 'super-forms' ),
+				esc_html__( 'Forms', 'super-forms' ),
+				esc_html__( 'Forms', 'super-forms' ),
 				'manage_options',
-				'edit.php?post_type=super_form'
+				'super_forms_list',
+				'SUPER_Pages::forms_list'
 			);
 			add_submenu_page(
 				'super_forms',

@@ -91,14 +91,22 @@ Super Forms is a WordPress drag & drop form builder plugin.
 - Use shadcn/ui components when possible
 - For icons: Lucide React only
 - Build location: `/src/react/admin/`
-- Build output: `/src/assets/js/backend/admin.js`
+- Build outputs:
+  - `/src/assets/js/backend/admin.js` (main admin bundle)
+  - `/src/assets/js/backend/forms-list.js` (forms list page)
+  - `/src/assets/css/backend/admin.css` (shared styles)
 
 **Build Commands:**
 ```bash
 cd /home/rens/super-forms/src/react/admin
-npm run watch    # Development mode
-npm run build    # Production build
-npm run typecheck # Type checking
+
+# Development mode
+npm run watch              # Main admin bundle
+npm run watch:forms-list   # Forms list page
+
+# Production build
+npm run build              # Build all bundles
+npm run typecheck          # Type checking
 ```
 
 ## Email Builder Architecture
@@ -117,4 +125,4 @@ You can use Playwright MCP to connect to WordPress admin:
 ```
 https://f4d.nl/dev/wp-admin/?temp-login-token=15fa51a9ef0213164b1a88ab0f3e0e07d4dd8744ee7be20c462700e807cd6723&tl-site=638e72bbb24debc0
 ```
-
+- this is local pc, sync src to dev server via sync script, it contains the ssh details. you can use wp cli on dev server for sql

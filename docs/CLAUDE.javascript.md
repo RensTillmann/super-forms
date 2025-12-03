@@ -224,10 +224,11 @@ export default defineConfig(({ mode }) => ({
 cd /home/rens/super-forms/src/react/admin
 
 # Development (with watch mode)
-npm run watch
+npm run watch              # Main admin bundle (form builder, emails, automations)
+npm run watch:forms-list   # Forms list page bundle
 
 # Production build (strips data-testid)
-npm run build
+npm run build              # Builds all bundles
 
 # Type checking (no build)
 npm run typecheck
@@ -236,9 +237,43 @@ npm run typecheck
 npm run preview
 ```
 
-**Build Output**:
-- `/src/assets/js/backend/admin.js` (IIFE bundle)
-- `/src/assets/css/backend/admin.css` (Tailwind CSS)
+**Build Outputs**:
+- `/src/assets/js/backend/admin.js` (IIFE bundle - main admin UI)
+- `/src/assets/js/backend/forms-list.js` (IIFE bundle - forms list page)
+- `/src/assets/css/backend/admin.css` (Tailwind CSS - shared styles)
+
+**Multi-Entry Build System:**
+
+The Vite configuration supports building multiple entry points via the `ENTRY` environment variable:
+
+```typescript
+// vite.config.ts - Dynamic entry point configuration
+rollupOptions: {
+  input: resolve(__dirname, process.env.ENTRY || 'index.tsx'),
+  output: {
+    format: 'iife',
+    name: process.env.ENTRY === 'pages/forms-list/index.tsx'
+      ? 'SuperFormsFormsList'
+      : 'SuperFormsAdmin',
+    entryFileNames: process.env.ENTRY === 'pages/forms-list/index.tsx'
+      ? 'forms-list.js'
+      : 'admin.js',
+  },
+}
+```
+
+**Package.json Scripts:**
+```json
+{
+  "scripts": {
+    "build": "npm run build:admin && npm run build:forms-list",
+    "build:admin": "vite build",
+    "build:forms-list": "ENTRY=pages/forms-list/index.tsx vite build",
+    "watch": "vite build --watch",
+    "watch:forms-list": "ENTRY=pages/forms-list/index.tsx vite build --watch"
+  }
+}
+```
 
 ### TypeScript Configuration
 
@@ -766,6 +801,77 @@ import { VersionHistory } from '@/components/VersionHistory';
 - Loading and error states with user-friendly messages
 - ScrollArea limits height to 400px with scrolling
 - Current version (index 0) shows "Current" badge and no revert button
+
+## Forms List Page (React + Tailwind CSS)
+
+The forms management page provides a modern UI for viewing, searching, and managing forms. Built with TypeScript + React + Tailwind CSS.
+
+**Location:** `/src/react/admin/pages/forms-list/`
+
+### Architecture
+
+**Standalone Page Pattern:**
+- Separate entry point from main admin bundle
+- Independent build: `forms-list.js` (lighter weight)
+- Loads faster than bundling with form builder
+- Reuses shared Tailwind CSS styles
+
+**File Structure:**
+```
+pages/forms-list/
+├── index.tsx           # Entry point, router
+└── FormsList.tsx       # Main component (table, filters, search)
+```
+
+**Data Flow:**
+1. PHP wrapper (`page-forms-list-react.php`) fetches data via `SUPER_Form_DAL`
+2. Passes data to React via `window.sfuiData`
+3. React renders table with Tailwind CSS + shadcn/ui components
+4. Server-side actions handled via form submission (bulk actions)
+
+**Key Features:**
+- Real-time search filtering (client-side)
+- Status tabs with counts (All/Published/Draft/Archived)
+- Bulk actions (delete, archive, restore)
+- Entry count display per form
+- Shortcode copy-to-clipboard
+- Responsive design with Tailwind CSS
+
+**Performance Optimizations:**
+- Uses `SUPER_Form_DAL::count()` for status counts (60-70% faster)
+- Single bulk query for entry counts (eliminates N+1 problem)
+- Client-side search filtering (no page reloads)
+- Separate bundle reduces initial load time vs main admin.js
+
+**Integration with DAL:**
+```php
+// PHP side - Optimized data fetching (page-forms-list-react.php)
+$status_counts = array(
+    'all'      => SUPER_Form_DAL::count(),
+    'publish'  => SUPER_Form_DAL::count(array('status' => 'publish')),
+    'draft'    => SUPER_Form_DAL::count(array('status' => 'draft')),
+    'archived' => SUPER_Form_DAL::count(array('status' => 'archived')),
+);
+
+// Get forms with entry counts (single query with GROUP BY)
+$forms = SUPER_Form_DAL::query($query_args);
+$entry_counts = $wpdb->get_results(
+    "SELECT form_id, COUNT(*) as count
+     FROM {$wpdb->prefix}superforms_entries
+     WHERE form_id IN (...) GROUP BY form_id"
+);
+```
+
+**React Component:**
+```tsx
+// FormsList.tsx - Client-side filtering
+const filteredForms = forms.filter(form => {
+  if (searchQuery) {
+    return form.name.toLowerCase().includes(searchQuery.toLowerCase());
+  }
+  return true;
+});
+```
 
 ## Visual Workflow Builder (Automations Tab)
 

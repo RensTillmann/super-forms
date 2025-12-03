@@ -81,13 +81,13 @@ export default defineConfig(({ mode }) => ({
     outDir: '../../assets/js/backend',
     emptyOutDir: false,
     rollupOptions: {
-      input: resolve(__dirname, 'index.tsx'),
+      input: resolve(__dirname, process.env.ENTRY || 'index.tsx'),
       // Bundle React - required for Radix UI / shadcn components that need React internals
       // This is safe because our admin UI runs on isolated pages (super_create_form)
       output: {
         format: 'iife',
-        name: 'SuperFormsAdmin',
-        entryFileNames: 'admin.js',
+        name: process.env.ENTRY === 'pages/forms-list/index.tsx' ? 'SuperFormsFormsList' : 'SuperFormsAdmin',
+        entryFileNames: process.env.ENTRY === 'pages/forms-list/index.tsx' ? 'forms-list.js' : 'admin.js',
         assetFileNames: 'admin[extname]',
         // IIFE doesn't support code splitting, so inline dynamic imports
         inlineDynamicImports: true,

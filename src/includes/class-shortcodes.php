@@ -7642,17 +7642,10 @@ if ( ! class_exists( 'SUPER_Shortcodes' ) ) :
 			self::$current_form_id = $form_id;
 			++self::$current_form_index;
 			// Check if the form exists
-			if ( get_post_status( $form_id ) === false || get_post_status( $form_id ) === 'trash' ) {
+			if ( ! SUPER_Common::form_exists( $form_id, array( 'publish', 'draft' ) ) ) {
 				// The form does not exist
 				$result = '<strong>' . esc_html__( 'Error', 'super-forms' ) . ':</strong> ' . sprintf( esc_html__( 'Super Forms could not find a form with ID: %d', 'super-forms' ), $form_id );
 				return $result;
-			} else {
-				// Check if the post is a super_form post type
-				$post_type = get_post_type( $form_id );
-				if ( $post_type != 'super_form' ) {
-					$result = '<strong>' . esc_html__( 'Error', 'super-forms' ) . ':</strong> ' . sprintf( esc_html__( 'Super Forms could not find a form with ID: %d', 'super-forms' ), $form_id );
-					return $result;
-				}
 			}
 
 			/**

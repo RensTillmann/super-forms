@@ -529,9 +529,12 @@ class SUPER_Test_Form_Factory {
 		}
 		self::$created_entries = array();
 
-		// Delete created forms
+		// Delete created forms using DAL
+		if ( ! class_exists( 'SUPER_Form_DAL' ) ) {
+			require_once dirname( dirname( __DIR__ ) ) . '/src/includes/class-form-dal.php';
+		}
 		foreach ( self::$created_forms as $form_id ) {
-			wp_delete_post( $form_id, true );
+			SUPER_Form_DAL::delete( $form_id );
 		}
 		self::$created_forms = array();
 	}
@@ -567,24 +570,22 @@ class SUPER_Test_Form_Factory {
 	 * @return int Form ID
 	 */
 	private static function create_form( $title, $elements, $settings ) {
-		$form_id = wp_insert_post( array(
-			'post_type'   => 'super_form',
-			'post_status' => 'publish',
-			'post_title'  => $title,
+		// Use DAL instead of legacy post type
+		if ( ! class_exists( 'SUPER_Form_DAL' ) ) {
+			require_once dirname( dirname( __DIR__ ) ) . '/src/includes/class-form-dal.php';
+		}
+
+		$form_id = SUPER_Form_DAL::create( array(
+			'name'         => $title,
+			'status'       => 'publish',
+			'elements'     => $elements,
+			'settings'     => $settings,
+			'translations' => array(),
 		) );
 
 		if ( is_wp_error( $form_id ) ) {
 			return $form_id;
 		}
-
-		// Store elements as JSON
-		update_post_meta( $form_id, '_super_elements', wp_json_encode( $elements ) );
-
-		// Store settings
-		update_post_meta( $form_id, '_super_form_settings', $settings );
-
-		// Mark as test form for cleanup
-		update_post_meta( $form_id, '_super_test_form', true );
 
 		self::$created_forms[] = $form_id;
 

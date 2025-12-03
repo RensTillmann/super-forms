@@ -56,7 +56,7 @@
   },
   "lint-staged": {
     "src/assets/js/**/*.js": [
-      "eslint --fix --ignore-pattern 'src/assets/js/backend/admin.js' --ignore-pattern 'src/assets/js/admin/automation-logs.js'"
+      "eslint --fix --ignore-pattern 'src/assets/js/backend/admin.js' --ignore-pattern 'src/assets/js/backend/forms-list.js' --ignore-pattern 'src/assets/js/admin/automation-logs.js'"
     ]
   },
   "repository": {

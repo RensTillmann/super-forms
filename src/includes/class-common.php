@@ -3850,6 +3850,10 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 		 * @since 3.8.0
 		 */
 		public static function get_form_settings( $form_id, $renew = false ) {
+			// DEPRECATED: This function reads from legacy post meta for backward compatibility
+			// New code should use SUPER_Form_DAL::get($form_id) instead
+			// This fallback will be removed in a future version
+
 			// Add recursion guard to prevent infinite loops
 			static $migration_in_progress = array();
 			if ( isset( $migration_in_progress[$form_id] ) ) {
@@ -7160,6 +7164,81 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 				);
 
 			}
+		}
+
+		/**
+		 * Check if a form exists (DAL-aware with fallback)
+		 *
+		 * @since 6.5.0
+		 * @param int $form_id Form ID to check
+		 * @param array $allowed_statuses Array of allowed statuses (default: publish, draft)
+		 * @return bool True if form exists with allowed status, false otherwise
+		 */
+		public static function form_exists( $form_id, $allowed_statuses = array( 'publish', 'draft' ) ) {
+			$form_id = absint( $form_id );
+
+			if ( class_exists( 'SUPER_Form_DAL' ) ) {
+				$form = SUPER_Form_DAL::get( $form_id );
+				if ( $form && in_array( $form->status, $allowed_statuses, true ) ) {
+					return true;
+				}
+			} else {
+				// Fallback to old method
+				$post_status = get_post_status( $form_id );
+				$post_type = get_post_type( $form_id );
+				if ( $post_status !== false && in_array( $post_status, $allowed_statuses, true ) && $post_type === 'super_form' ) {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		/**
+		 * Get all forms (DAL-aware with fallback)
+		 *
+		 * @since 6.5.0
+		 * @param array $args Query arguments
+		 * @return array Array of forms (DAL objects or WP_Post objects)
+		 */
+		public static function get_forms( $args = array() ) {
+			$defaults = array(
+				'status' => '',
+				'number' => -1,
+				'orderby' => 'name',
+				'order' => 'ASC',
+			);
+			$args = wp_parse_args( $args, $defaults );
+
+			if ( class_exists( 'SUPER_Form_DAL' ) ) {
+				return SUPER_Form_DAL::query( $args );
+			} else {
+				// Fallback to old method
+				$post_args = array(
+					'post_type' => 'super_form',
+					'posts_per_page' => $args['number'],
+					'orderby' => $args['orderby'] === 'name' ? 'title' : $args['orderby'],
+					'order' => $args['order'],
+				);
+				if ( ! empty( $args['status'] ) ) {
+					$post_args['post_status'] = $args['status'];
+				}
+				return get_posts( $post_args );
+			}
+		}
+
+		/**
+		 * Normalize form object (handle both DAL and WP_Post objects)
+		 *
+		 * @since 6.5.0
+		 * @param object $form Form object (DAL or WP_Post)
+		 * @return array Normalized array with 'id' and 'name' keys
+		 */
+		public static function normalize_form( $form ) {
+			return array(
+				'id' => isset( $form->id ) ? $form->id : $form->ID,
+				'name' => isset( $form->name ) ? $form->name : $form->post_title,
+			);
 		}
 	}
 endif;

@@ -64,23 +64,17 @@ class Test_Full_Submission_Flow extends WP_UnitTestCase {
 		$this->assertIsInt( $form_id, 'Form ID should be an integer' );
 		$this->assertGreaterThan( 0, $form_id, 'Form ID should be positive' );
 
-		// Verify form post exists
-		$form = get_post( $form_id );
-		$this->assertNotNull( $form, 'Form post should exist' );
-		$this->assertEquals( 'super_form', $form->post_type, 'Post type should be super_form' );
-		$this->assertEquals( 'publish', $form->post_status, 'Form should be published' );
+		// Verify form exists in DAL
+		$form = SUPER_Form_DAL::get( $form_id );
+		$this->assertNotNull( $form, 'Form should exist in DAL' );
+		$this->assertEquals( 'publish', $form->status, 'Form should be published' );
 
 		// Verify elements stored
-		$elements = get_post_meta( $form_id, '_super_elements', true );
-		$this->assertNotEmpty( $elements, 'Elements should be stored' );
-
-		$elements_array = json_decode( $elements, true );
-		$this->assertIsArray( $elements_array, 'Elements should be valid JSON array' );
-		$this->assertGreaterThan( 5, count( $elements_array ), 'Comprehensive form should have multiple elements' );
+		$this->assertIsArray( $form->elements, 'Elements should be stored as array' );
+		$this->assertGreaterThan( 5, count( $form->elements ), 'Comprehensive form should have multiple elements' );
 
 		// Verify settings stored
-		$settings = get_post_meta( $form_id, '_super_form_settings', true );
-		$this->assertIsArray( $settings, 'Settings should be stored as array' );
+		$this->assertIsArray( $form->settings, 'Settings should be stored as array' );
 	}
 
 	/**
@@ -96,8 +90,10 @@ class Test_Full_Submission_Flow extends WP_UnitTestCase {
 		$this->assertIsInt( $form_id );
 		$this->assertGreaterThan( 0, $form_id );
 
-		// Verify elements
-		$elements = json_decode( get_post_meta( $form_id, '_super_elements', true ), true );
+		// Verify form exists in DAL
+		$form = SUPER_Form_DAL::get( $form_id );
+		$this->assertNotNull( $form );
+		$elements = $form->elements;
 		$this->assertIsArray( $elements );
 
 		// Should have name, email, subject, message fields
@@ -117,7 +113,9 @@ class Test_Full_Submission_Flow extends WP_UnitTestCase {
 
 		$form_id = SUPER_Test_Form_Factory::create_multistep_form();
 
-		$elements = json_decode( get_post_meta( $form_id, '_super_elements', true ), true );
+		$form = SUPER_Form_DAL::get( $form_id );
+		$this->assertNotNull( $form );
+		$elements = $form->elements;
 
 		// Count multipart elements
 		$multipart_count = 0;
@@ -140,7 +138,9 @@ class Test_Full_Submission_Flow extends WP_UnitTestCase {
 
 		$form_id = SUPER_Test_Form_Factory::create_repeater_form();
 
-		$elements = json_decode( get_post_meta( $form_id, '_super_elements', true ), true );
+		$form = SUPER_Form_DAL::get( $form_id );
+		$this->assertNotNull( $form );
+		$elements = $form->elements;
 
 		// Find column with duplicate enabled
 		$has_repeater = false;
@@ -495,7 +495,9 @@ class Test_Full_Submission_Flow extends WP_UnitTestCase {
 		}
 
 		$form_id  = SUPER_Test_Form_Factory::create_simple_form();
-		$elements = json_decode( get_post_meta( $form_id, '_super_elements', true ), true );
+		$form = SUPER_Form_DAL::get( $form_id );
+		$this->assertNotNull( $form );
+		$elements = $form->elements;
 
 		// Get field names from elements
 		$form_field_names = array();
@@ -587,7 +589,7 @@ class Test_Full_Submission_Flow extends WP_UnitTestCase {
 		$entry_id   = SUPER_Test_Form_Factory::create_entry( $form_id, array() );
 
 		// Verify they exist
-		$this->assertNotNull( get_post( $form_id ) );
+		$this->assertNotNull( SUPER_Form_DAL::get( $form_id ) );
 		$this->assertNotNull( get_post( $entry_id ) );
 
 		// Track IDs before cleanup

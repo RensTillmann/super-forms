@@ -477,16 +477,24 @@ if ( ! class_exists( 'SUPER_Pages' ) ) :
 
 
 		/**
+		 * Handles the output for the forms list page in admin
+		 */
+		public static function forms_list() {
+			require_once 'admin/views/page-forms-list-react.php';
+		}
+
+		/**
 		 * Handles the output for the create form page in admin
 		 */
 		public static function create_form() {
 			include_once 'class-ui.php';
-			// Get all Forms created with Super Forms (post type: super_form)
-			$args  = array(
-				'post_type'      => 'super_form', // We want to retrieve all the Forms
-				'posts_per_page' => -1, // Make sure all matching forms will be retrieved
-			);
-			$forms = get_posts( $args );
+			// Get all Forms created with Super Forms
+			$forms = SUPER_Common::get_forms( array(
+				'status' => '', // Get all forms regardless of status
+				'number' => -1,
+				'orderby' => 'name',
+				'order' => 'ASC',
+			) );
 
 			// Check if we are editing an existing Form
 			if ( isset( $_GET['id'] ) ) {

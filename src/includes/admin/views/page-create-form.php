@@ -8,7 +8,7 @@
 		window.sfuiData = {
 			currentPage: '<?php echo esc_js( sanitize_text_field( $_GET['page'] ?? '' ) ); ?>',
 			formId: <?php echo absint( $form_id ); ?>,
-			forms: <?php echo wp_json_encode( array_map( function( $form ) { return array( 'id' => $form->ID, 'title' => $form->post_title ); }, $forms ) ); ?>,
+			forms: <?php echo wp_json_encode( array_map( array( 'SUPER_Common', 'normalize_form' ), $forms ) ); ?>,
 			translations: <?php echo wp_json_encode( $translations ); ?>,
 			settings: <?php echo wp_json_encode( $settings ); ?>,
 			ajaxUrl: '<?php echo esc_url( admin_url( 'admin-ajax.php' ) ); ?>',
@@ -63,8 +63,9 @@
 						echo '<li><a href="' . esc_url( 'admin.php?page=super_create_form' ) . '">' . esc_html__( 'No forms found, create one!', 'super-forms' ) . '</a></li>';
 					} else {
 						foreach ( $forms as $value ) {
-							if ( $form_id != $value->ID ) {
-								echo '<li value="' . $value->ID . '"><a href="' . esc_url( 'admin.php?page=super_create_form&id=' . $value->ID ) . '">' . esc_html( $value->post_title ) . '</a></li>';
+							$normalized = SUPER_Common::normalize_form( $value );
+							if ( $form_id != $normalized['id'] ) {
+								echo '<li value="' . $normalized['id'] . '"><a href="' . esc_url( 'admin.php?page=super_create_form&id=' . $normalized['id'] ) . '">' . esc_html( $normalized['name'] ) . '</a></li>';
 							}
 						}
 					}

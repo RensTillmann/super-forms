@@ -36,49 +36,9 @@ if ( ! class_exists( 'SUPER_Post_Types' ) ) :
 		 */
 		public static function register_post_types() {
 
-			if ( ! post_type_exists( 'super_form' ) ) {
-				register_post_type(
-					'super_form',
-					apply_filters(
-						'super_register_post_type_form',
-						array(
-							'label'               => 'Super Forms',
-							'exclude_from_search' => true, // @since 2.6.0 - make sure to exclude from default search
-							'description'         => '',
-							'public'              => false, // true,
-							'query_var'           => false, // true,
-							'has_archive'         => false, // true,
-							'publicaly_queryable' => false, // true,
-							'show_ui'             => true,
-							'show_in_menu'        => false,
-							'capability_type'     => 'post',
-							'map_meta_cap'        => true,
-							'hierarchical'        => false,
-							'rewrite'             => array(
-								'slug'       => 'super_form',
-								'with_front' => true,
-							),
-							'supports'            => array(),
-							'labels'              => array(
-								'name'               => 'Forms',
-								'singular_name'      => 'Form',
-								'menu_name'          => 'Super Forms',
-								'add_new'            => 'Add Form',
-								'add_new_item'       => 'Add New Form',
-								'edit'               => 'Edit',
-								'edit_item'          => 'Edit Form',
-								'new_item'           => 'New Form',
-								'view'               => 'View Form',
-								'view_item'          => 'View Form',
-								'search_items'       => 'Search Forms',
-								'not_found'          => 'No Forms Found',
-								'not_found_in_trash' => 'No Forms Found in Trash',
-								'parent'             => 'Parent Form',
-							),
-						)
-					)
-				);
-			}
+			// REMOVED: Legacy super_form post type registration
+			// Forms now stored in custom table wp_superforms_forms via SUPER_Form_DAL
+			// See class-form-dal.php for new data access layer
 
 			if ( ! post_type_exists( 'super_contact_entry' ) ) {
 				register_post_type(

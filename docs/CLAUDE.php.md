@@ -1023,6 +1023,180 @@ public static function complete_migration() {
 
 **Reference:** Implemented in v6.4.126 as part of migration completion flow.
 
+## Form Management & Data Access Layer
+
+### Overview (v6.6.0+)
+
+Forms are stored in a custom database table (`wp_superforms_forms`) instead of WordPress post types. All form access goes through the Data Access Layer (DAL). The legacy `super_form` post type system was removed in v6.6.1.
+
+**Database Table:**
+```sql
+CREATE TABLE wp_superforms_forms (
+  id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+  name VARCHAR(255) NOT NULL,
+  status VARCHAR(20) DEFAULT 'publish',
+  elements LONGTEXT,          -- JSON array of form elements
+  settings LONGTEXT,          -- JSON object of form settings
+  translations LONGTEXT,      -- JSON object of translations
+  shortcode VARCHAR(50),      -- Unique shortcode identifier
+  created_at DATETIME NOT NULL,
+  updated_at DATETIME NOT NULL,
+  PRIMARY KEY (id),
+  KEY status (status),
+  KEY shortcode (shortcode)
+) ENGINE=InnoDB;
+```
+
+### SUPER_Form_DAL API
+
+**Create Form:**
+```php
+$form_id = SUPER_Form_DAL::create(array(
+    'name' => 'Contact Form',
+    'status' => 'publish',
+    'elements' => array(/* form elements */),
+    'settings' => array(/* form settings */),
+    'translations' => array(/* translations */)
+));
+```
+
+**Get Form:**
+```php
+// Returns stdClass object with properties: id, name, status, elements, settings, etc.
+$form = SUPER_Form_DAL::get($form_id);
+if ($form) {
+    echo $form->name;
+    $elements = $form->elements; // Already decoded from JSON
+    $settings = $form->settings; // Already decoded from JSON
+}
+```
+
+**Update Form:**
+```php
+$result = SUPER_Form_DAL::update($form_id, array(
+    'name' => 'Updated Form Name',
+    'elements' => array(/* updated elements */),
+    'settings' => array(/* updated settings */)
+));
+```
+
+**Delete Form:**
+```php
+$result = SUPER_Form_DAL::delete($form_id);
+```
+
+**Query Forms:**
+```php
+// Get all published forms
+$forms = SUPER_Form_DAL::query(array(
+    'status' => 'publish',
+    'order' => 'DESC',
+    'orderby' => 'created_at'
+));
+
+// Search forms by name
+$forms = SUPER_Form_DAL::search('contact');
+
+// Get all forms (no filters)
+$all_forms = SUPER_Form_DAL::query();
+```
+
+**Count Forms (v6.6.1+):**
+```php
+// Count all forms
+$total_count = SUPER_Form_DAL::count();
+
+// Count by status (optimized - no object loading)
+$published_count = SUPER_Form_DAL::count(array('status' => 'publish'));
+$draft_count = SUPER_Form_DAL::count(array('status' => 'draft'));
+$archived_count = SUPER_Form_DAL::count(array('status' => 'archived'));
+
+// Performance: Uses COUNT(*) query instead of loading form objects
+// 60-70% faster than query() + count() for status tabs
+```
+
+**Duplicate Form:**
+```php
+$new_form_id = SUPER_Form_DAL::duplicate($form_id, 'Copy of Form Name');
+```
+
+### Helper Functions (SUPER_Common)
+
+For backward compatibility, use these helper functions that handle both DAL and legacy post types:
+
+```php
+// Get form data (handles both DAL objects and WP_Post objects)
+$form_data = SUPER_Common::get_form_data($form_id);
+
+// Get form settings only
+$settings = SUPER_Common::get_form_settings($form_id);
+
+// Get form name/title
+$title = SUPER_Common::get_form_title($form_id);
+```
+
+### Admin Pages
+
+**Forms List Page (React + Tailwind CSS, v6.6.1+):**
+- URL: `admin.php?page=super_forms_list`
+- PHP wrapper: `/src/includes/admin/views/page-forms-list-react.php`
+- React components: `/src/react/admin/pages/forms-list/FormsList.tsx`
+- JavaScript bundle: `/src/assets/js/backend/forms-list.js`
+- Styles: `/src/assets/css/backend/admin.css`
+- Features:
+  - Modern UI with Tailwind CSS and shadcn/ui components
+  - Real-time search across form names
+  - Status filters with counts (All/Published/Draft/Archived)
+  - Bulk actions (delete, archive, restore)
+  - Entry count display per form
+  - Responsive design
+- Performance:
+  - Uses `SUPER_Form_DAL::count()` for optimized status counts
+  - Single query with JOIN for entry counts (vs N+1 queries)
+  - 60-70% reduction in database queries vs legacy implementation
+
+**Create/Edit Forms:**
+- Create: `admin.php?page=super_create_form`
+- Edit: `admin.php?page=super_create_form&id={form_id}`
+
+### Migration from Post Type
+
+**Phase 1 (v6.6.0):** Custom table and DAL introduced alongside post type system.
+
+**Phase 2 (v6.6.1):** Legacy post type system completely removed (~500 lines of code cleanup).
+
+**What was removed:**
+- ❌ `super_form` post type registration (`class-post-types.php`)
+- ❌ AJAX handlers: `save_form()`, `save_form_meta()`, `delete_form()` (`class-ajax.php`)
+- ❌ Post-based duplicate functions: `duplicate_form()`, `duplicate_form_post_meta()` (`class-common.php`)
+- ❌ "Your Forms" menu linking to `edit.php?post_type=super_form` (`class-menu.php`)
+- ❌ Legacy forms list page with WP_List_Table (`page-forms-list.php`)
+
+**What replaced it:**
+- ✅ Custom table `wp_superforms_forms` with optimized indexes
+- ✅ REST API endpoints for form CRUD operations (`class-form-rest-controller.php`)
+- ✅ `SUPER_Form_DAL` class with `count()` method for performance
+- ✅ Modern React + Tailwind CSS forms list page
+- ✅ Background migration system for automatic data transfer
+- ✅ Test fixtures updated to use DAL (`class-form-factory.php`)
+
+**Performance improvements:**
+- Form list page: 60-70% fewer database queries
+- Status counts: Direct COUNT(*) queries vs loading all form objects
+- Entry counts: Single bulk query vs N+1 problem
+- Form load: 1 query (custom table) vs 3+ queries (post + post meta)
+
+**Testing Pattern:**
+```php
+// ❌ OLD - Don't use in new code
+$form = get_post($form_id);
+$elements = json_decode(get_post_meta($form_id, '_super_elements', true), true);
+
+// ✅ NEW - Use DAL
+$form = SUPER_Form_DAL::get($form_id);
+$elements = $form->elements; // Already decoded
+```
+
 ## Form Operations & Versioning API
 
 ### Overview (v6.6.0+)

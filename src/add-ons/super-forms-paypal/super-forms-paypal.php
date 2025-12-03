@@ -384,18 +384,23 @@ if ( ! class_exists( 'SUPER_PayPal' ) ) :
 		public static function filter_form_dropdown( $post_type ) {
 			if ( $post_type == 'super_paypal_txn' ) {
 				echo '<select name="super_form_filter">';
-				$args  = array(
-					'post_type'      => 'super_form',
-					'posts_per_page' => -1,
-				);
-				$forms = get_posts( $args );
+
+				// Get all published forms
+				$forms = SUPER_Common::get_forms( array(
+					'status' => 'publish',
+					'number' => -1,
+					'orderby' => 'name',
+					'order' => 'ASC',
+				) );
+
 				if ( count( $forms ) == 0 ) {
 					echo '<option value="0">' . esc_html__( 'No forms found', 'super-forms' ) . '</option>';
 				} else {
 					$super_form_filter = ( isset( $_GET['super_form_filter'] ) ? $_GET['super_form_filter'] : 0 );
 					echo '<option value="0">' . esc_html__( 'All forms', 'super-forms' ) . '</option>';
 					foreach ( $forms as $value ) {
-						echo '<option value="' . esc_attr( $value->ID ) . '" ' . ( $value->ID == $super_form_filter ? 'selected="selected"' : '' ) . '>' . $value->post_title . '</option>';
+						$normalized = SUPER_Common::normalize_form( $value );
+						echo '<option value="' . esc_attr( $normalized['id'] ) . '" ' . ( $normalized['id'] == $super_form_filter ? 'selected="selected"' : '' ) . '>' . esc_html( $normalized['name'] ) . '</option>';
 					}
 				}
 				echo '</select>';
