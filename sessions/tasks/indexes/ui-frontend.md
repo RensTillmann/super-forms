@@ -12,7 +12,7 @@ description: Tasks related to React admin UI, Tailwind CSS, shadcn/ui, and front
 - `h-research-form-builder-v2-architecture.md` - Architecture design for Form Builder V2 (data loading, state, undo/redo, AI, automations)
 
 ### Medium Priority
-- `m-migrate-form-builder-v2-tailwind/` - Migrate Form Builder V2 to Tailwind CSS + schema-driven tabs/toolbar
+- `m-implement-unified-element-tray/` - Unified element tray for Form & Email builders with context-aware filtering
 - `m-docs-ui-style-guidelines.md` - Document React/Tailwind/shadcn-ui style system
 
 ### Low Priority
@@ -20,4 +20,4 @@ description: Tasks related to React admin UI, Tailwind CSS, shadcn/ui, and front
 ### Investigate
 
 ## Completed Tasks
-<!-- Move tasks here when completed, maintaining the format -->
+- `m-migrate-form-builder-v2-tailwind/` - Migrate Form Builder V2 to Tailwind CSS + schema-driven tabs/toolbar
