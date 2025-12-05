@@ -29,11 +29,13 @@ Super Forms is a WordPress drag & drop form builder plugin.
 
 **Key Directories:**
 - `/src/react/admin/` - React admin UI (unified bundle)
+- `/src/react/admin/schemas/` - Schema-first architecture (tabs, toolbar, elements)
 - `/src/includes/` - PHP backend (automations, DAL, migrations)
 - `/src/includes/automations/` - Automation system (actions, registry, REST controller)
 - `/src/assets/` - Compiled JavaScript/CSS
 - `/sessions/tasks/` - Active development tasks
 - `/docs/` - Detailed documentation
+- `/docs/architecture/` - Architecture specifications (schema-first, REST API)
 
 ## Automation System
 
@@ -131,6 +133,7 @@ The email builder is now a reusable component library within the admin bundle:
 
 You can use Playwright MCP to connect to WordPress admin:
 ```
-https://f4d.nl/dev/wp-admin/?temp-login-token=15fa51a9ef0213164b1a88ab0f3e0e07d4dd8744ee7be20c462700e807cd6723&tl-site=638e72bbb24debc0
+https://f4d.nl/dev/wp-admin/?temp-login-token=e743c1697521d5cd707a09eb3d09df5e15e6daf6dc11d8e63cde5f9f6865f05b&tl-site=eead01cda8edfe6e
 ```
+- After login, navigate to Form Builder V2: `https://f4d.nl/dev/wp-admin/admin.php?page=super_form_v2`
 - this is local pc, sync src to dev server via sync script, it contains the ssh details. you can use wp cli on dev server for sql

@@ -220,89 +220,113 @@
 }
 
 /* ==========================================================================
-   Scoped Base Styles for SFUI Admin
-   All resets are scoped to #sfui-admin-root to prevent breaking WP admin UI
+   Scoped Tailwind Preflight for SFUI Admin
+   Using @layer base ensures utilities always override these resets
    ========================================================================== */
 
-#sfui-admin-root {
-  /* Base typography and colors */
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: var(--foreground);
-  background-color: var(--background);
-  line-height: 1.5;
+@layer base {
+  #sfui-admin-root {
+    /* Base typography and colors */
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: var(--foreground);
+    background-color: var(--background);
+    line-height: 1.5;
+  }
 
-  /* Scoped box-sizing reset (Tailwind preflight equivalent) */
-  *, *::before, *::after {
+  /* Scoped preflight resets (Tailwind preflight equivalent) */
+  #sfui-admin-root *,
+  #sfui-admin-root *::before,
+  #sfui-admin-root *::after {
     box-sizing: border-box;
-    border-width: 0;
-    border-style: solid;
-    border-color: var(--border);
+    margin: 0;
+    padding: 0;
+    border: 0 solid var(--border);
   }
 
   /* Image and media reset */
-  img, svg, video, canvas, audio, iframe, embed, object {
+  #sfui-admin-root img,
+  #sfui-admin-root svg,
+  #sfui-admin-root video,
+  #sfui-admin-root canvas,
+  #sfui-admin-root audio,
+  #sfui-admin-root iframe,
+  #sfui-admin-root embed,
+  #sfui-admin-root object {
     display: block;
     vertical-align: middle;
   }
 
-  img, video {
+  #sfui-admin-root img,
+  #sfui-admin-root video {
     max-width: 100%;
     height: auto;
   }
 
   /* Form element reset */
-  button, input, select, textarea {
+  #sfui-admin-root button,
+  #sfui-admin-root input,
+  #sfui-admin-root select,
+  #sfui-admin-root textarea {
     font-family: inherit;
     font-size: 100%;
     line-height: inherit;
-    min-height: auto;
-    box-shadow: none;
-    margin: 0;
-    padding: 0;
+    color: inherit;
   }
 
   /* Button reset */
-  button, [role="button"] {
+  #sfui-admin-root button,
+  #sfui-admin-root [role="button"] {
     cursor: pointer;
+    background-color: transparent;
   }
 
   /* Link reset */
-  a {
+  #sfui-admin-root a {
     color: inherit;
     text-decoration: inherit;
   }
 
   /* List reset */
-  ol, ul {
+  #sfui-admin-root ol,
+  #sfui-admin-root ul {
     list-style: none;
-    margin: 0;
-    padding: 0;
   }
 
   /* Table reset */
-  table {
+  #sfui-admin-root table {
     border-collapse: collapse;
     border-spacing: 0;
   }
 
-  /* Custom scrollbar */
-  ::-webkit-scrollbar {
-    width: 0.5rem;
+  /* Heading reset */
+  #sfui-admin-root h1,
+  #sfui-admin-root h2,
+  #sfui-admin-root h3,
+  #sfui-admin-root h4,
+  #sfui-admin-root h5,
+  #sfui-admin-root h6 {
+    font-size: inherit;
+    font-weight: inherit;
   }
+}
 
-  ::-webkit-scrollbar-track {
-    background-color: #f3f4f6;
-  }
+/* Custom scrollbar (not in base layer - applied directly) */
+#sfui-admin-root ::-webkit-scrollbar {
+  width: 0.5rem;
+}
 
-  ::-webkit-scrollbar-thumb {
-    background-color: #9ca3af;
-    border-radius: 0.25rem;
-  }
+#sfui-admin-root ::-webkit-scrollbar-track {
+  background-color: #f3f4f6;
+}
 
-  ::-webkit-scrollbar-thumb:hover {
-    background-color: #6b7280;
-  }
+#sfui-admin-root ::-webkit-scrollbar-thumb {
+  background-color: #9ca3af;
+  border-radius: 0.25rem;
+}
+
+#sfui-admin-root ::-webkit-scrollbar-thumb:hover {
+  background-color: #6b7280;
 }
 

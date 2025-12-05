@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
+import React, { useState, useCallback, useRef, useEffect, Suspense, lazy } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import {
   Type, Mail, FileText, List, CheckSquare, Square, Radio, Calendar,
@@ -21,7 +21,13 @@ import {
 } from 'lucide-react';
 import { useElementsStore, useBuilderStore } from './store';
 import { ElementRenderer } from './components/elements';
-import { PropertyPanelRegistry } from './components/property-panels';
+import { PropertyPanelRegistry, FloatingPanel } from './components/property-panels';
+import { TabBar } from './components/TabBar';
+import { TopBar } from './components/TopBar';
+import { cn } from '../../lib/utils';
+import { getElementSchema, isElementRegistered } from '../../schemas/core/registry';
+// Initialize tab schemas
+import '../../schemas/tabs';
 // Import UI Components from the extracted library
 import {
   FormSelector,
@@ -39,9 +45,11 @@ import {
   ZoomControls,
   InlineEditableText
 } from './components/ui';
+// Lazy loaded tabs (code splitting)
+const EmailsTab = lazy(() => import('./tabs/EmailsTab'));
+const AutomationsTab = lazy(() => import('../../components/form-builder/automations/AutomationsTab').then(m => ({ default: m.AutomationsTab })));
 
-// Import CSS styles
-import './styles/design-tokens.css';
+// Import CSS styles (form-builder.css contains element/canvas styling not yet migrated to Tailwind)
 import './styles/form-builder.css';
 
 
@@ -360,7 +368,7 @@ const FloatingPropertiesPanel: React.FC<{
                 type="text"
                 value={element.name || ''}
                 onChange={(e) => onUpdate('name', e.target.value)}
-                className="form-input"
+                className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background"
                 placeholder="field_name"
               />
             </div>
@@ -371,7 +379,7 @@ const FloatingPropertiesPanel: React.FC<{
                 type="text"
                 value={element.properties?.label || ''}
                 onChange={(e) => onUpdate('label', e.target.value)}
-                className="form-input"
+                className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background"
               />
             </div>
 
@@ -391,7 +399,7 @@ const FloatingPropertiesPanel: React.FC<{
                   ...element.properties?.validation, 
                   minLength: parseInt(e.target.value) || undefined 
                 })}
-                className="form-input"
+                className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background"
               />
             </div>
 
@@ -404,7 +412,7 @@ const FloatingPropertiesPanel: React.FC<{
                   ...element.properties?.validation, 
                   maxLength: parseInt(e.target.value) || undefined 
                 })}
-                className="form-input"
+                className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background"
               />
             </div>
 
@@ -418,7 +426,7 @@ const FloatingPropertiesPanel: React.FC<{
                     ...element.properties?.validation, 
                     pattern: e.target.value 
                   })}
-                  className="form-input"
+                  className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background"
                   placeholder="^[A-Za-z]+$"
                 />
               </div>
@@ -433,7 +441,7 @@ const FloatingPropertiesPanel: React.FC<{
                   ...element.properties?.validation, 
                   message: e.target.value 
                 })}
-                className="form-input"
+                className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background"
                 placeholder="Please enter a valid value"
               />
             </div>
@@ -447,7 +455,7 @@ const FloatingPropertiesPanel: React.FC<{
               <select
                 value={element.properties?.width || 'full'}
                 onChange={(e) => onUpdate('width', e.target.value)}
-                className="form-input"
+                className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background"
               >
                 <option value="25">25%</option>
                 <option value="33">33%</option>
@@ -464,7 +472,7 @@ const FloatingPropertiesPanel: React.FC<{
                 type="text"
                 value={element.properties?.margin || ''}
                 onChange={(e) => onUpdate('margin', e.target.value)}
-                className="form-input"
+                className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background"
                 placeholder="10px 0"
               />
             </div>
@@ -475,7 +483,7 @@ const FloatingPropertiesPanel: React.FC<{
                 type="color"
                 value={element.properties?.backgroundColor || '#ffffff'}
                 onChange={(e) => onUpdate('backgroundColor', e.target.value)}
-                className="form-input color-input"
+                className="w-full h-10 px-1 py-1 border border-border rounded-md cursor-pointer"
               />
             </div>
 
@@ -484,7 +492,7 @@ const FloatingPropertiesPanel: React.FC<{
               <select
                 value={element.properties?.borderStyle || 'solid'}
                 onChange={(e) => onUpdate('borderStyle', e.target.value)}
-                className="form-input"
+                className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background"
               >
                 <option value="none">None</option>
                 <option value="solid">Solid</option>
@@ -503,7 +511,7 @@ const FloatingPropertiesPanel: React.FC<{
                 type="text"
                 value={element.properties?.cssClass || ''}
                 onChange={(e) => onUpdate('cssClass', e.target.value)}
-                className="form-input"
+                className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background"
                 placeholder="custom-class"
               />
             </div>
@@ -513,7 +521,7 @@ const FloatingPropertiesPanel: React.FC<{
               <select
                 value={element.properties?.conditionalLogic || 'none'}
                 onChange={(e) => onUpdate('conditionalLogic', e.target.value)}
-                className="form-input"
+                className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background"
               >
                 <option value="none">No conditions</option>
                 <option value="show">Show if...</option>
@@ -529,7 +537,7 @@ const FloatingPropertiesPanel: React.FC<{
                   type="text"
                   value={element.properties?.defaultValue || ''}
                   onChange={(e) => onUpdate('defaultValue', e.target.value)}
-                  className="form-input"
+                  className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background"
                 />
               </div>
             )}
@@ -539,7 +547,7 @@ const FloatingPropertiesPanel: React.FC<{
               <textarea
                 value={element.properties?.customAttributes || ''}
                 onChange={(e) => onUpdate('customAttributes', e.target.value)}
-                className="form-input"
+                className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background"
                 rows={3}
                 placeholder="data-custom=&quot;value&quot;&#10;aria-label=&quot;Custom label&quot;"
               />
@@ -551,7 +559,7 @@ const FloatingPropertiesPanel: React.FC<{
       <div className="panel-footer">
         <button
           onClick={onDelete}
-          className="btn btn-danger btn-sm"
+          className="flex items-center gap-1 px-2 py-1 text-xs font-medium text-destructive-foreground bg-destructive hover:bg-destructive/90 rounded-md"
         >
           <Trash2 size={14} />
           Delete Element
@@ -744,7 +752,7 @@ const FormWrapperSettingsPanel: React.FC<{
               <select
                 value={settings.backgroundType}
                 onChange={(e) => onUpdate('backgroundType', e.target.value)}
-                className="form-input"
+                className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background"
               >
                 <option value="none">None</option>
                 <option value="color">Solid Color</option>
@@ -760,7 +768,7 @@ const FormWrapperSettingsPanel: React.FC<{
                     type="color"
                     value={settings.backgroundColor}
                     onChange={(e) => onUpdate('backgroundColor', e.target.value)}
-                    className="form-input"
+                    className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background"
                   />
                 </div>
                 
@@ -773,7 +781,7 @@ const FormWrapperSettingsPanel: React.FC<{
                     step="0.1"
                     value={settings.backgroundOpacity}
                     onChange={(e) => onUpdate('backgroundOpacity', parseFloat(e.target.value))}
-                    className="form-input"
+                    className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background"
                   />
                   <span className="text-sm text-gray-500">{Math.round(settings.backgroundOpacity * 100)}%</span>
                 </div>
@@ -787,7 +795,7 @@ const FormWrapperSettingsPanel: React.FC<{
                   type="url"
                   value={settings.backgroundImage}
                   onChange={(e) => onUpdate('backgroundImage', e.target.value)}
-                  className="form-input"
+                  className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background"
                   placeholder="https://example.com/image.jpg"
                 />
               </div>
@@ -822,13 +830,13 @@ const EntriesTabContent: React.FC = () => {
   const [dateFilter, setDateFilter] = useState('all');
 
   return (
-    <div className="sidebar-content">
+    <div className="flex-1 flex flex-col overflow-auto">
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold">Form Entries</h3>
           <div className="flex items-center gap-2">
             <span className="text-sm text-gray-500">247 total</span>
-            <button className="btn btn-sm btn-outline">
+            <button className="flex items-center gap-1 px-2 py-1 text-xs font-medium border border-border text-foreground hover:bg-muted rounded-md">
               <Download size={14} />
               Export
             </button>
@@ -844,7 +852,7 @@ const EntriesTabContent: React.FC = () => {
               placeholder="Search entries..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="form-input pl-10"
+              className="w-full pl-10 pr-3 py-2 border border-border rounded-md text-sm bg-background"
             />
           </div>
           
@@ -852,7 +860,7 @@ const EntriesTabContent: React.FC = () => {
             <select 
               value={statusFilter} 
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="form-input flex-1"
+              className="flex-1 px-3 py-2 border border-border rounded-md text-sm bg-background"
             >
               <option value="all">All Status</option>
               <option value="new">New</option>
@@ -863,7 +871,7 @@ const EntriesTabContent: React.FC = () => {
             <select 
               value={dateFilter} 
               onChange={(e) => setDateFilter(e.target.value)}
-              className="form-input flex-1"
+              className="flex-1 px-3 py-2 border border-border rounded-md text-sm bg-background"
             >
               <option value="all">All Time</option>
               <option value="today">Today</option>
@@ -883,7 +891,7 @@ const EntriesTabContent: React.FC = () => {
                   <span className={`entry-status ${i <= 2 ? 'entry-status-new' : i === 3 ? 'entry-status-flagged' : 'entry-status-read'}`}>
                     {i <= 2 ? 'New' : i === 3 ? 'Flagged' : 'Read'}
                   </span>
-                  <button className="btn btn-xs btn-ghost">
+                  <button className="flex items-center justify-center w-6 h-6 text-muted-foreground hover:text-foreground hover:bg-muted rounded">
                     <Eye size={12} />
                   </button>
                 </div>
@@ -902,8 +910,8 @@ const EntriesTabContent: React.FC = () => {
         <div className="flex items-center justify-between mt-4 pt-4 border-t">
           <span className="text-sm text-gray-500">Showing 1-8 of 247</span>
           <div className="flex gap-1">
-            <button className="btn btn-xs btn-outline">Previous</button>
-            <button className="btn btn-xs btn-outline">Next</button>
+            <button className="px-2 py-1 text-xs font-medium border border-border text-foreground hover:bg-muted rounded">Previous</button>
+            <button className="px-2 py-1 text-xs font-medium border border-border text-foreground hover:bg-muted rounded">Next</button>
           </div>
         </div>
       </div>
@@ -911,123 +919,25 @@ const EntriesTabContent: React.FC = () => {
   );
 };
 
-// Enhanced Logic Tab with visual rule builder
-const LogicTabContent: React.FC = () => {
-  const [rules, setRules] = useState([
-    {
-      id: '1',
-      name: 'Show Phone Number',
-      condition: 'When "Contact Method" equals "Phone"',
-      action: 'Show "Phone Number" field',
-      enabled: true
-    }
-  ]);
-
-  return (
-    <div className="sidebar-content">
-      <div className="p-4">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold">Conditional Logic</h3>
-          <button className="btn btn-sm btn-primary">
-            <Plus size={14} />
-            Add Rule
-          </button>
-        </div>
-        
-        <p className="text-sm text-gray-500 mb-4">
-          Create rules to show/hide fields, make fields required, or trigger actions based on user responses.
-        </p>
-
-        {/* Logic Rules */}
-        <div className="space-y-3">
-          {rules.map(rule => (
-            <div key={rule.id} className="logic-rule">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    checked={rule.enabled}
-                    onChange={(e) => {
-                      setRules(rules.map(r => 
-                        r.id === rule.id ? { ...r, enabled: e.target.checked } : r
-                      ));
-                    }}
-                  />
-                  <span className="font-medium">{rule.name}</span>
-                </div>
-                <div className="flex gap-1">
-                  <button className="btn btn-xs btn-ghost">
-                    <Edit3 size={12} />
-                  </button>
-                  <button className="btn btn-xs btn-ghost text-red-500">
-                    <Trash2 size={12} />
-                  </button>
-                </div>
-              </div>
-              <div className="text-sm text-gray-600 mb-1">
-                <strong>IF:</strong> {rule.condition}
-              </div>
-              <div className="text-sm text-gray-600">
-                <strong>THEN:</strong> {rule.action}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Rule Builder */}
-        <div className="mt-6 p-4 border border-dashed border-gray-300 rounded-lg">
-          <h4 className="font-medium mb-3">Quick Rule Builder</h4>
-          <div className="space-y-3">
-            <div className="flex gap-2">
-              <select className="form-input flex-1">
-                <option>Choose a field...</option>
-                <option>Contact Method</option>
-                <option>Age Range</option>
-                <option>Country</option>
-              </select>
-              <select className="form-input">
-                <option>equals</option>
-                <option>not equals</option>
-                <option>contains</option>
-                <option>is empty</option>
-                <option>is not empty</option>
-              </select>
-              <input type="text" className="form-input flex-1" placeholder="Value" />
-            </div>
-            <div className="flex gap-2">
-              <select className="form-input">
-                <option>Show</option>
-                <option>Hide</option>
-                <option>Require</option>
-                <option>Optional</option>
-              </select>
-              <select className="form-input flex-1">
-                <option>Choose a field...</option>
-                <option>Phone Number</option>
-                <option>Company Name</option>
-                <option>Address</option>
-              </select>
-            </div>
-            <button className="w-full btn btn-outline btn-sm">
-              <Plus size={14} />
-              Create Rule
-            </button>
-          </div>
-        </div>
-      </div>
+// Loading fallback for lazy-loaded tabs
+const TabLoadingFallback = () => (
+  <div className="flex-1 flex items-center justify-center p-8">
+    <div className="text-center">
+      <RefreshCw className="w-8 h-8 mx-auto text-muted-foreground/50 animate-spin mb-2" />
+      <p className="text-sm text-muted-foreground">Loading...</p>
     </div>
-  );
-};
+  </div>
+);
 
 // Style Tab with form theming options
 const StyleTabContent: React.FC = () => {
   const [activeStyleTab, setActiveStyleTab] = useState('theme');
-  
+
   return (
-    <div className="sidebar-content">
+    <div className="flex-1 flex flex-col overflow-auto">
       <div className="p-4">
         <h3 className="font-semibold mb-4">Form Styling</h3>
-        
+
         {/* Style Sub-tabs */}
         <div className="style-tabs mb-4">
           <button
@@ -1087,23 +997,23 @@ const StyleTabContent: React.FC = () => {
           <div className="space-y-4">
             <div className="property-field">
               <label className="property-label">Primary Color</label>
-              <input type="color" defaultValue="#3b82f6" className="form-input color-input" />
+              <input type="color" defaultValue="#3b82f6" className="w-full h-10 px-1 py-1 border border-border rounded-md cursor-pointer" />
             </div>
             <div className="property-field">
               <label className="property-label">Secondary Color</label>
-              <input type="color" defaultValue="#6b7280" className="form-input color-input" />
+              <input type="color" defaultValue="#6b7280" className="w-full h-10 px-1 py-1 border border-border rounded-md cursor-pointer" />
             </div>
             <div className="property-field">
               <label className="property-label">Background Color</label>
-              <input type="color" defaultValue="#ffffff" className="form-input color-input" />
+              <input type="color" defaultValue="#ffffff" className="w-full h-10 px-1 py-1 border border-border rounded-md cursor-pointer" />
             </div>
             <div className="property-field">
               <label className="property-label">Text Color</label>
-              <input type="color" defaultValue="#1f2937" className="form-input color-input" />
+              <input type="color" defaultValue="#1f2937" className="w-full h-10 px-1 py-1 border border-border rounded-md cursor-pointer" />
             </div>
             <div className="property-field">
               <label className="property-label">Border Color</label>
-              <input type="color" defaultValue="#d1d5db" className="form-input color-input" />
+              <input type="color" defaultValue="#d1d5db" className="w-full h-10 px-1 py-1 border border-border rounded-md cursor-pointer" />
             </div>
           </div>
         )}
@@ -1112,7 +1022,7 @@ const StyleTabContent: React.FC = () => {
           <div className="space-y-4">
             <div className="property-field">
               <label className="property-label">Font Family</label>
-              <select className="form-input">
+              <select className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background">
                 <option>Inter</option>
                 <option>Roboto</option>
                 <option>Open Sans</option>
@@ -1123,7 +1033,7 @@ const StyleTabContent: React.FC = () => {
             </div>
             <div className="property-field">
               <label className="property-label">Font Size</label>
-              <select className="form-input">
+              <select className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background">
                 <option>Small (14px)</option>
                 <option>Medium (16px)</option>
                 <option>Large (18px)</option>
@@ -1132,7 +1042,7 @@ const StyleTabContent: React.FC = () => {
             </div>
             <div className="property-field">
               <label className="property-label">Line Height</label>
-              <select className="form-input">
+              <select className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background">
                 <option>Compact (1.4)</option>
                 <option>Normal (1.5)</option>
                 <option>Comfortable (1.6)</option>
@@ -1147,7 +1057,7 @@ const StyleTabContent: React.FC = () => {
             <div className="property-field">
               <label className="property-label">Custom CSS</label>
               <textarea
-                className="form-input font-mono text-sm"
+                className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background font-mono"
                 rows={8}
                 placeholder={`.form-container {
   max-width: 600px;
@@ -1166,11 +1076,11 @@ const StyleTabContent: React.FC = () => {
               />
             </div>
             <div className="flex gap-2">
-              <button className="btn btn-outline btn-sm flex-1">
+              <button className="flex-1 flex items-center justify-center gap-1 px-2 py-1 text-xs font-medium border border-border text-foreground hover:bg-muted rounded-md">
                 <Eye size={14} />
                 Preview
               </button>
-              <button className="btn btn-primary btn-sm flex-1">
+              <button className="flex-1 flex items-center justify-center gap-1 px-2 py-1 text-xs font-medium text-primary-foreground bg-primary hover:bg-primary/90 rounded-md">
                 <Save size={14} />
                 Apply
               </button>
@@ -1229,7 +1139,7 @@ const StyleTabContent: React.FC = () => {
                   type="text"
                   value="#ffffff"
                   onChange={() => {}}
-                  className="form-input"
+                  className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background"
                   placeholder="#ffffff"
                 />
               </div>
@@ -1256,19 +1166,19 @@ const StyleTabContent: React.FC = () => {
               <div className="spacing-controls">
                 <div className="spacing-input">
                   <label>Top</label>
-                  <input type="number" value="40" onChange={() => {}} className="form-input" />
+                  <input type="number" value="40" onChange={() => {}} className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background" />
                 </div>
                 <div className="spacing-input">
                   <label>Right</label>
-                  <input type="number" value="40" onChange={() => {}} className="form-input" />
+                  <input type="number" value="40" onChange={() => {}} className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background" />
                 </div>
                 <div className="spacing-input">
                   <label>Bottom</label>
-                  <input type="number" value="40" onChange={() => {}} className="form-input" />
+                  <input type="number" value="40" onChange={() => {}} className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background" />
                 </div>
                 <div className="spacing-input">
                   <label>Left</label>
-                  <input type="number" value="40" onChange={() => {}} className="form-input" />
+                  <input type="number" value="40" onChange={() => {}} className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background" />
                 </div>
               </div>
             </div>
@@ -1278,19 +1188,19 @@ const StyleTabContent: React.FC = () => {
               <div className="spacing-controls">
                 <div className="spacing-input">
                   <label>Top</label>
-                  <input type="number" value="20" onChange={() => {}} className="form-input" />
+                  <input type="number" value="20" onChange={() => {}} className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background" />
                 </div>
                 <div className="spacing-input">
                   <label>Right</label>
-                  <input type="number" value="20" onChange={() => {}} className="form-input" />
+                  <input type="number" value="20" onChange={() => {}} className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background" />
                 </div>
                 <div className="spacing-input">
                   <label>Bottom</label>
-                  <input type="number" value="20" onChange={() => {}} className="form-input" />
+                  <input type="number" value="20" onChange={() => {}} className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background" />
                 </div>
                 <div className="spacing-input">
                   <label>Left</label>
-                  <input type="number" value="20" onChange={() => {}} className="form-input" />
+                  <input type="number" value="20" onChange={() => {}} className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background" />
                 </div>
               </div>
             </div>
@@ -1329,7 +1239,7 @@ const IntegrationsTabContent: React.FC = () => {
   ]);
 
   return (
-    <div className="sidebar-content">
+    <div className="flex-1 flex flex-col overflow-auto">
       <div className="p-4">
         <h3 className="font-semibold mb-4">Integrations</h3>
         
@@ -1367,7 +1277,7 @@ const IntegrationsTabContent: React.FC = () => {
                     }}
                     disabled={!integration.configured}
                   />
-                  <button className="btn btn-xs btn-outline">
+                  <button className="px-2 py-1 text-xs font-medium border border-border text-foreground hover:bg-muted rounded">
                     {integration.configured ? 'Configure' : 'Setup'}
                   </button>
                 </div>
@@ -1384,13 +1294,13 @@ const IntegrationsTabContent: React.FC = () => {
               <label className="property-label">Webhook URL</label>
               <input
                 type="url"
-                className="form-input"
+                className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background"
                 placeholder="https://your-webhook-url.com/endpoint"
               />
             </div>
             <div className="property-field">
               <label className="property-label">HTTP Method</label>
-              <select className="form-input">
+              <select className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background">
                 <option>POST</option>
                 <option>PUT</option>
                 <option>PATCH</option>
@@ -1399,13 +1309,13 @@ const IntegrationsTabContent: React.FC = () => {
             <div className="property-field">
               <label className="property-label">Custom Headers</label>
               <textarea
-                className="form-input"
+                className="w-full px-3 py-2 border border-border rounded-md text-sm bg-background"
                 rows={3}
                 placeholder={`Authorization: Bearer your-token
 Content-Type: application/json`}
               />
             </div>
-            <button className="btn btn-outline btn-sm">
+            <button className="flex items-center gap-1 px-2 py-1 text-xs font-medium border border-border text-foreground hover:bg-muted rounded-md">
               <Play size={14} />
               Test Webhook
             </button>
@@ -2244,121 +2154,50 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
     }
   };
 
-  // Add element to form
+  // Helper: Extract all default values from a schema
+  const getSchemaDefaults = (schema: ReturnType<typeof getElementSchema>) => {
+    if (!schema) return {};
+
+    const defaults: Record<string, unknown> = { ...schema.defaults };
+
+    // Also extract defaults from property definitions
+    for (const category of Object.keys(schema.properties)) {
+      const categoryProps = schema.properties[category as keyof typeof schema.properties];
+      if (categoryProps) {
+        for (const [propName, propSchema] of Object.entries(categoryProps)) {
+          if (propSchema.default !== undefined && defaults[propName] === undefined) {
+            defaults[propName] = propSchema.default;
+          }
+        }
+      }
+    }
+
+    return defaults;
+  };
+
+  // Add element to form (schema-first)
   const handleAddElement = useCallback((type: string, label: string, Icon: any) => {
     try {
-      // Check if element is a container type
-      const containerTypes = ['columns', 'step-wizard', 'tabs', 'accordion', 'section', 'repeater', 'conditional-group', 'card'];
-      const isContainer = containerTypes.includes(type);
-      
-      // Get container-specific properties
-      const getContainerProperties = () => {
-        switch (type) {
-          case 'columns':
-            return {
-              columnCount: 2,
-              columnWidths: ['50%', '50%'],
-              gap: '20px',
-              alignment: 'stretch'
-            };
-          case 'step-wizard':
-            return {
-              steps: [
-                { id: uuidv4(), title: 'Step 1', description: 'First step' },
-                { id: uuidv4(), title: 'Step 2', description: 'Second step' }
-              ],
-              currentStep: 0,
-              showStepNumbers: true,
-              allowBackNavigation: true
-            };
-          case 'tabs':
-            return {
-              tabs: [
-                { id: uuidv4(), title: 'Tab 1', active: true },
-                { id: uuidv4(), title: 'Tab 2', active: false }
-              ],
-              activeTab: 0,
-              tabPosition: 'top'
-            };
-          case 'accordion':
-            return {
-              sections: [
-                { id: uuidv4(), title: 'Section 1', expanded: true },
-                { id: uuidv4(), title: 'Section 2', expanded: false }
-              ],
-              allowMultiple: false,
-              expandFirst: true
-            };
-          case 'section':
-            return {
-              legend: label,
-              showBorder: true,
-              collapsible: false,
-              collapsed: false
-            };
-          case 'repeater':
-            return {
-              minItems: 1,
-              maxItems: 10,
-              allowAdd: true,
-              allowRemove: true,
-              allowReorder: true,
-              itemLabel: 'Item'
-            };
-          case 'conditional-group':
-            return {
-              condition: {
-                field: '',
-                operator: 'equals',
-                value: ''
-              },
-              showWhenTrue: true
-            };
-          case 'card':
-            return {
-              showHeader: true,
-              headerTitle: label,
-              showFooter: false,
-              elevation: 'medium'
-            };
-          default:
-            return {};
-        }
-      };
+      const schema = getElementSchema(type);
 
+      if (!schema) {
+        console.warn(`No schema registered for element type: ${type}`);
+        return;
+      }
+
+      // Schema-first: Create element from schema
+      const schemaDefaults = getSchemaDefaults(schema);
       const newElement = {
         id: uuidv4(),
         type,
-        label,
-        category: isContainer ? 'containers' : 'basic',
-        icon: Icon.name || type,
-        name: label.toLowerCase().replace(/\s+/g, '_'),
-        children: isContainer ? [] : undefined,
         properties: {
-          label,
-          placeholder: !['heading', 'paragraph', 'divider', 'spacer', 'html-block', 'section', 'page-break', ...containerTypes].includes(type) ? `Enter ${label.toLowerCase()}` : '',
-          required: false,
-          helperText: '',
-          validation: {},
-          content: type === 'paragraph' ? 'Add your paragraph text here...' : 
-                   type === 'heading' ? 'Heading Text' : undefined,
-          options: ['select', 'radio', 'checkbox', 'radio-cards', 'checkbox-cards'].includes(type) ? ['Option 1', 'Option 2'] : undefined,
-          htmlContent: type === 'html-block' ? '<div>Custom HTML content</div>' : undefined,
-          min: type === 'slider' ? 0 : undefined,
-          max: type === 'slider' ? 100 : type === 'rating' ? 5 : undefined,
-          step: type === 'slider' ? 1 : undefined,
-          maxRating: type === 'rating' ? 5 : undefined,
-          acceptedTypes: type === 'file' ? '.pdf,.doc,.docx' : undefined,
-          maxSize: type === 'file' ? 10 : undefined,
-          amountType: type === 'payment' ? 'fixed' : undefined,
-          currency: type === 'payment' ? 'USD' : undefined,
-          // Card-specific properties
-          showDescriptions: ['radio-cards', 'checkbox-cards'].includes(type) ? true : undefined,
-          cardLayout: ['radio-cards', 'checkbox-cards'].includes(type) ? 'grid' : undefined,
-          columnsPerRow: ['radio-cards', 'checkbox-cards'].includes(type) ? 2 : undefined,
-          ...getContainerProperties()
+          ...schemaDefaults,
+          name: schemaDefaults.name || type + '_' + Date.now().toString(36),
+          label: schemaDefaults.label || label,
         },
+        children: schema.container ? [] : undefined,
       };
+
       addElement(newElement);
       setSelectedElements([newElement.id]);
       setAutoSaveStatus('saving');
@@ -2442,20 +2281,26 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
   }, [draggedElement, order, addElement, reorderElements, handleDragEnd]);
 
   const handleAddElementAtPosition = (elementData: any, position: number) => {
+    const schema = getElementSchema(elementData.type);
+
+    if (!schema) {
+      console.warn(`No schema registered for element type: ${elementData.type}`);
+      return;
+    }
+
+    // Schema-first: Create element from schema
+    const schemaDefaults = getSchemaDefaults(schema);
     const newElement = {
       id: uuidv4(),
       type: elementData.type,
-      label: elementData.label,
-      category: 'basic',
-      icon: elementData.icon?.name || elementData.type, // Store icon name, not component
-      name: elementData.label.toLowerCase().replace(/\s+/g, '_'),
       properties: {
-        label: elementData.label,
-        placeholder: `Enter ${elementData.label.toLowerCase()}`,
-        required: false,
-        options: ['select', 'radio', 'checkbox'].includes(elementData.type) ? ['Option 1', 'Option 2'] : undefined,
+        ...schemaDefaults,
+        name: schemaDefaults.name || elementData.type + '_' + Date.now().toString(36),
+        label: schemaDefaults.label || elementData.label,
       },
+      children: schema.container ? [] : undefined,
     };
+
     addElement(newElement, position);
     setSelectedElements([newElement.id]);
     setAutoSaveStatus('saving');
@@ -3335,325 +3180,159 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
   return (
     <ErrorBoundary>
       <div className="flex flex-col h-screen">
-        {/* Enhanced Top Bar */}
-        <div className="form-builder-topbar">
-          <div className="flex items-center gap-4">
-            <FormSelector
-              currentForm={currentFormId}
-              onFormSelect={setCurrentFormId}
-            />
-            
-            <InlineEditableText
-              value={formTitle}
-              onChange={setFormTitle}
-              className="form-title"
-              placeholder="Untitled Form"
-            />
-            
-            <div className="device-selector">
-              <div className="device-dropdown" ref={deviceDropdownRef}>
-                <button
-                  className="device-dropdown-trigger"
-                  onClick={() => setIsDeviceDropdownOpen(!isDeviceDropdownOpen)}
-                  aria-haspopup="listbox"
-                  aria-expanded={isDeviceDropdownOpen}
-                >
-                  {getDeviceIcon(devicePreview)}
-                  <span className="device-dropdown-label">{getDeviceLabel(devicePreview)}</span>
-                  <ChevronDown size={14} className={`device-dropdown-chevron ${isDeviceDropdownOpen ? 'rotate-180' : ''}`} />
-                </button>
-                
-                {isDeviceDropdownOpen && (
-                  <div className="device-dropdown-menu" role="listbox">
-                    {deviceOptions.map((option) => (
-                      <div
-                        key={option.value}
-                        className={`device-dropdown-item ${devicePreview === option.value ? 'device-dropdown-item-active' : ''}`}
-                        onClick={() => {
-                          setDevicePreview(option.value as any);
-                          setIsDeviceDropdownOpen(false);
-                        }}
-                        role="option"
-                        aria-selected={devicePreview === option.value}
-                      >
-                        {option.icon}
-                        <span>{option.label}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-              
-              <button
-                className={`device-button ${showDeviceFrame ? 'device-button-active' : ''}`}
-                onClick={() => setShowDeviceFrame(!showDeviceFrame)}
-                title="Toggle Device Frame"
-              >
-                <Maximize size={18} />
-              </button>
-            </div>
-          </div>
+        {/* Top Bar - Schema Driven */}
+        <TopBar
+          currentFormId={currentFormId}
+          onFormSelect={setCurrentFormId}
+          formTitle={formTitle}
+          onFormTitleChange={setFormTitle}
+          devicePreview={devicePreview}
+          onDeviceChange={setDevicePreview}
+          showDeviceFrame={showDeviceFrame}
+          onToggleDeviceFrame={() => setShowDeviceFrame(!showDeviceFrame)}
+          canUndo={historyIndex > 0}
+          canRedo={historyIndex < history.length - 1}
+          onUndo={handleUndo}
+          onRedo={handleRedo}
+          showGrid={showGrid}
+          onToggleGrid={() => setShowGrid(!showGrid)}
+          zoom={zoom}
+          onZoomChange={setZoom}
+          showElementsPanel={showElementsPanel}
+          onToggleElementsPanel={() => setShowElementsPanel(!showElementsPanel)}
+          onShowVersionHistory={() => setShowVersionHistory(true)}
+          onShowSharePanel={() => setShowSharePanel(true)}
+          onShowExportPanel={() => setShowExportPanel(true)}
+          onShowAnalytics={() => setShowAnalytics(true)}
+          onPreview={() => {}}
+          onSave={handleSaveForm}
+          onPublish={() => {}}
+          isSaving={autoSaveStatus === 'saving'}
+          isMobile={isMobile}
+        />
 
-          <div className="action-bar">
-            {/* Undo/Redo */}
-            <div className="action-group">
-              <button 
-                className="btn btn-ghost btn-icon"
-                onClick={handleUndo}
-                disabled={historyIndex <= 0}
-                title="Undo (Ctrl+Z)"
-              >
-                <RotateCcw size={20} />
-              </button>
-              <button 
-                className="btn btn-ghost btn-icon"
-                onClick={handleRedo}
-                disabled={historyIndex >= history.length - 1}
-                title="Redo (Ctrl+Shift+Z)"
-              >
-                <RefreshCw size={20} />
-              </button>
-            </div>
-
-            {/* Canvas Controls */}
-            <div className="action-group">
-              <button
-                className={`btn btn-ghost btn-icon ${showGrid ? 'btn-active' : ''}`}
-                onClick={() => setShowGrid(!showGrid)}
-                title="Toggle Grid"
-              >
-                <Grid size={20} />
-              </button>
-              <ZoomControls currentZoom={zoom} onZoomChange={setZoom} />
-            </div>
-
-            {/* Form Actions */}
-            <div className="action-group">
-              <button 
-                className="btn btn-ghost btn-icon"
-                onClick={() => setShowElementsPanel(!showElementsPanel)}
-                title="Elements Panel"
-              >
-                <Layers size={20} />
-              </button>
-              <button 
-                className="btn btn-ghost btn-icon"
-                onClick={() => setShowVersionHistory(true)}
-                title="Version History"
-              >
-                <History size={20} />
-              </button>
-              <button 
-                className="btn btn-ghost btn-icon"
-                onClick={() => setShowSharePanel(true)}
-                title="Share & Collaborate"
-              >
-                <Share size={20} />
-              </button>
-              <button 
-                className="btn btn-ghost btn-icon"
-                onClick={() => setShowExportPanel(true)}
-                title="Export Form"
-              >
-                <Download size={20} />
-              </button>
-              <button 
-                className="btn btn-ghost btn-icon"
-                onClick={() => setShowAnalytics(true)}
-                title="Analytics"
-              >
-                <BarChart size={20} />
-              </button>
-            </div>
-
-              
-            <div className="action-group">
-              <button className="btn btn-secondary">
-                <Eye size={20} />
-                {!isMobile && "Preview"}
-              </button>
-              <button className="btn btn-save" onClick={handleSaveForm}>
-                {autoSaveStatus === 'saving' ? (
-                  <RefreshCw size={20} className="animate-spin" />
-                ) : (
-                  <Save size={20} />
-                )}
-                {!isMobile && "Save"}
-              </button>
-              <button className="btn btn-publish">
-                <Send size={20} />
-                {!isMobile && "Publish"}
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* Horizontal Tabs Bar */}
-        <div className="tabs-bar">
-          <div className="tabs-container">
-            <button
-              className={`tab-btn ${activeTab === 'settings' ? 'tab-btn-active' : ''}`}
-              onClick={() => setActiveTab('settings')}
-              title="Form Settings"
-            >
-              <Settings size={20} />
-              <span>Settings</span>
-            </button>
-            <button
-              className={`tab-btn ${activeTab === 'entries' ? 'tab-btn-active' : ''}`}
-              onClick={() => setActiveTab('entries')}
-              title="Form Entries"
-            >
-              <Database size={20} />
-              <span>Entries</span>
-            </button>
-            <button
-              className={`tab-btn ${activeTab === 'logic' ? 'tab-btn-active' : ''}`}
-              onClick={() => setActiveTab('logic')}
-              title="Conditional Logic"
-            >
-              <Zap size={20} />
-              <span>Logic</span>
-            </button>
-            <button
-              className={`tab-btn ${activeTab === 'style' ? 'tab-btn-active' : ''}`}
-              onClick={() => setActiveTab('style')}
-              title="Form Styling"
-            >
-              <PaintBucket size={20} />
-              <span>Style</span>
-            </button>
-            <button
-              className={`tab-btn ${activeTab === 'integrations' ? 'tab-btn-active' : ''}`}
-              onClick={() => setActiveTab('integrations')}
-              title="Integrations"
-            >
-              <Webhook size={20} />
-              <span>Integrations</span>
-            </button>
-          </div>
-        </div>
+        {/* Horizontal Tabs Bar - Schema Driven */}
+        <TabBar
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+        />
 
         {/* Main Content Area */}
-        <div className="main-content">
-          {/* Tab Content Panel (collapsible) */}
+        <div className="flex flex-1 overflow-hidden relative">
+          {/* Tab Content Panel (full-width, replaces canvas) */}
           {activeTab !== 'canvas' && (
-            <div className="tab-content-panel">
-              <div className="tab-panel-header">
-                <h3 className="tab-panel-title">
-                  {activeTab === 'settings' && 'Form Settings'}
-                  {activeTab === 'entries' && 'Form Entries'}
-                  {activeTab === 'logic' && 'Conditional Logic'}
-                  {activeTab === 'style' && 'Form Styling'}
-                  {activeTab === 'integrations' && 'Integrations'}
-                </h3>
-                <button 
-                  className="tab-panel-close"
-                  onClick={() => setActiveTab('canvas')}
-                  title="Close panel"
-                >
-                  <X size={16} />
-                </button>
-              </div>
+            <div className="flex-1 bg-background flex flex-col overflow-hidden">
               {activeTab === 'settings' && (
-              <div className="sidebar-content">
+              <div className="flex-1 overflow-auto">
                 <div className="p-4">
                   <h3 className="font-semibold mb-4">Form Settings</h3>
                   <div className="space-y-4">
-                    <div className="property-field">
-                      <label className="property-label">Form Name</label>
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium text-muted-foreground">Form Name</label>
                       <InlineEditableText
                         value={formTitle}
                         onChange={setFormTitle}
-                        className="form-input"
+                        className="w-full px-3 py-2 border border-border rounded-md text-sm"
                         placeholder="Form Name"
                       />
                     </div>
-                    <div className="property-field">
-                      <label className="property-label">Form Description</label>
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium text-muted-foreground">Form Description</label>
                       <InlineEditableText
                         value=""
                         onChange={() => {}}
-                        className="form-input"
+                        className="w-full px-3 py-2 border border-border rounded-md text-sm"
                         placeholder="Describe what this form is for..."
                         multiline
                       />
                     </div>
-                    <div className="property-field">
-                      <label className="property-label">Submit Button Text</label>
+                    <div className="space-y-1">
+                      <label className="text-xs font-medium text-muted-foreground">Submit Button Text</label>
                       <InlineEditableText
                         value="Submit"
                         onChange={() => {}}
-                        className="form-input"
+                        className="w-full px-3 py-2 border border-border rounded-md text-sm"
                         placeholder="Submit"
                       />
                     </div>
-                    
+
                     {/* Submission Settings */}
-                    <div className="settings-section">
+                    <div className="pt-4 border-t border-border">
                       <h4 className="font-medium mb-3">Submission Settings</h4>
                       <div className="space-y-2">
-                        <label className="flex items-center">
-                          <input type="checkbox" className="mr-2" />
-                          <span className="property-label mb-0">Require login to submit</span>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="checkbox" className="rounded border-border" />
+                          <span className="text-sm text-muted-foreground">Require login to submit</span>
                         </label>
-                        <label className="flex items-center">
-                          <input type="checkbox" className="mr-2" />
-                          <span className="property-label mb-0">Allow multiple submissions</span>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="checkbox" className="rounded border-border" />
+                          <span className="text-sm text-muted-foreground">Allow multiple submissions</span>
                         </label>
-                        <label className="flex items-center">
-                          <input type="checkbox" className="mr-2" />
-                          <span className="property-label mb-0">Save as draft</span>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="checkbox" className="rounded border-border" />
+                          <span className="text-sm text-muted-foreground">Save as draft</span>
                         </label>
-                        <label className="flex items-center">
-                          <input type="checkbox" className="mr-2" />
-                          <span className="property-label mb-0">Show progress bar</span>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input type="checkbox" className="rounded border-border" />
+                          <span className="text-sm text-muted-foreground">Show progress bar</span>
                         </label>
                       </div>
                     </div>
 
                     {/* Notification Settings */}
-                    <div className="settings-section">
+                    <div className="pt-4 border-t border-border">
                       <h4 className="font-medium mb-3">Notifications</h4>
-                      <div className="property-field">
-                        <label className="property-label">Admin Email</label>
-                        <input type="email" className="form-input" placeholder="admin@example.com" />
-                      </div>
-                      <div className="property-field">
-                        <label className="property-label">Thank You Page URL</label>
-                        <input type="url" className="form-input" placeholder="https://example.com/thank-you" />
+                      <div className="space-y-3">
+                        <div className="space-y-1">
+                          <label className="text-xs font-medium text-muted-foreground">Admin Email</label>
+                          <input type="email" className="w-full px-3 py-2 border border-border rounded-md text-sm" placeholder="admin@example.com" />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-xs font-medium text-muted-foreground">Thank You Page URL</label>
+                          <input type="url" className="w-full px-3 py-2 border border-border rounded-md text-sm" placeholder="https://example.com/thank-you" />
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
               </div>
             )}
+              {activeTab === 'emails' && (
+                <Suspense fallback={<TabLoadingFallback />}>
+                  <EmailsTab />
+                </Suspense>
+              )}
               {activeTab === 'entries' && <EntriesTabContent />}
-              {activeTab === 'logic' && <LogicTabContent />}
+              {activeTab === 'automation' && (
+                <Suspense fallback={<TabLoadingFallback />}>
+                  <AutomationsTab formId={parseInt(currentFormId) || 0} />
+                </Suspense>
+              )}
               {activeTab === 'style' && <StyleTabContent />}
               {activeTab === 'integrations' && <IntegrationsTabContent />}
             </div>
           )}
 
-          {/* Enhanced Canvas Area */}
-          <div 
-            className="canvas-container"
+          {/* Enhanced Canvas Area - only show when canvas tab is active */}
+          {activeTab === 'canvas' && (
+          <div
+            className="flex-1 flex flex-col overflow-auto bg-muted/30 p-4"
             style={{ paddingBottom: `${canvasBottomPadding}px` }}
           >
             {/* Canvas Width Control */}
-            <div className="canvas-width-control">
-              <label>
-                <input 
-                  type="checkbox" 
+            <div className="flex items-center gap-2 mb-3 text-sm text-muted-foreground">
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
                   checked={useCustomWidth}
                   onChange={(e) => setUseCustomWidth(e.target.checked)}
-                  style={{ marginRight: '8px' }}
+                  className="rounded border-border"
                 />
-                Custom Width:
+                <span>Custom Width:</span>
               </label>
-              <input 
-                type="text" 
-                className="canvas-width-input"
+              <input
+                type="text"
+                className="w-24 px-2 py-1 text-sm border border-border rounded-md bg-background disabled:opacity-50"
                 value={customCanvasWidth}
                 onChange={(e) => setCustomCanvasWidth(e.target.value)}
                 placeholder={devicePreview === 'desktop' ? '1200px' : devicePreview === 'tablet' ? '768px' : '375px'}
@@ -3662,19 +3341,21 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
             </div>
 
             {/* Canvas Zoom Wrapper */}
-            <div 
-              className="canvas-zoom-wrapper"
-              style={{ 
+            <div
+              className="flex-1 flex items-start justify-center origin-top"
+              style={{
                 transform: `scale(${zoom})`
               }}
             >
-              <div 
+              <div
                 ref={canvasRef}
-                className={`canvas-responsive ${
-                  devicePreview === 'tablet' ? 'canvas-tablet' : 
-                  devicePreview === 'mobile' ? 'canvas-mobile' : 
-                  'canvas-desktop'
-                } ${showDeviceFrame ? 'canvas-framed' : ''}`}
+                className={cn(
+                  'w-full bg-background rounded-lg shadow-sm border border-border min-h-[400px] relative mx-auto',
+                  devicePreview === 'tablet' && 'max-w-[768px]',
+                  devicePreview === 'mobile' && 'max-w-[375px]',
+                  devicePreview === 'desktop' && 'max-w-[1200px]',
+                  showDeviceFrame && 'canvas-framed'
+                )}
                 style={useCustomWidth && customCanvasWidth ? {
                   maxWidth: customCanvasWidth
                 } : {}}
@@ -4140,6 +3821,7 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
               </div>
             </div>
           </div>
+        )}
         </div>
 
         {/* Enhanced Bottom Element Tray with ALL missing elements */}
@@ -4282,13 +3964,13 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
           </div>
         </ResizableBottomTray>
 
-        {/* Enhanced Floating Properties Panel */}
+        {/* Schema-Driven Floating Properties Panel */}
         {floatingPanel && floatingPanel.element && (
-          <FloatingPropertiesPanel
+          <FloatingPanel
             element={floatingPanel.element}
             position={floatingPanel.position}
             onClose={() => setFloatingPanel(null)}
-            onUpdate={(property, value) => updateElementProperty(floatingPanel.element.id, property, value)}
+            onPropertyChange={(property, value) => updateElementProperty(floatingPanel.element.id, property, value)}
             onDelete={() => handleDeleteElement(floatingPanel.element.id)}
           />
         )}

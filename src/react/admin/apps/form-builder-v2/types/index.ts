@@ -24,9 +24,13 @@ export interface TranslationData {
 export interface FormElement {
   id: string;
   type: string;
-  category: ElementCategory;
-  label: string;
-  icon: string;
+  /** @deprecated Use properties.* - schema defines element structure */
+  category?: ElementCategory;
+  /** @deprecated Use properties.label - kept for legacy compatibility */
+  label?: string;
+  /** @deprecated Schema defines icon - kept for legacy compatibility */
+  icon?: string;
+  /** All element data - schema is the source of truth */
   properties: Record<string, any>;
   children?: string[];
   parent?: string;

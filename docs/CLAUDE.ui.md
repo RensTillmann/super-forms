@@ -72,14 +72,15 @@ React admin UI development with Tailwind CSS v4, shadcn/ui, and WordPress integr
 
 **The Problem:** Tailwind's default preflight (`@import "tailwindcss"`) resets ALL elements globally, breaking WordPress admin UI.
 
-**The Solution:** Scoped resets inside the React mount point only.
+**The Solution:** Scoped resets inside the React mount point only, using `@layer base` for proper CSS cascade.
 
 ### How It Works
 
 1. PHP renders `<div id="sfui-admin-root"></div>`
 2. CSS imports only `tailwindcss/theme` and `tailwindcss/utilities` (NO preflight)
-3. All resets scoped to `#sfui-admin-root` selector
-4. Tailwind utilities work normally inside React, WordPress untouched outside
+3. All resets scoped to `#sfui-admin-root` selector **inside `@layer base`**
+4. `@layer base` ensures Tailwind utilities always override base resets
+5. Tailwind utilities work normally inside React, WordPress untouched outside
 
 ### Complete Scoped CSS Example
 
@@ -130,47 +131,79 @@ This is the correct "final form" for scoped Tailwind in WordPress:
 }
 
 /* ==========================================================================
-   CRITICAL: All resets MUST be scoped to #sfui-admin-root
+   CRITICAL: All resets MUST be in @layer base and scoped to #sfui-admin-root
+   Using @layer base ensures Tailwind utilities always override these resets
    ========================================================================== */
 
-#sfui-admin-root {
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-  color: var(--foreground);
-  background-color: var(--background);
-  line-height: 1.5;
-
-  /* Scoped box-sizing reset */
-  *, *::before, *::after {
-    box-sizing: border-box;
-    border-width: 0;
-    border-style: solid;
-    border-color: var(--border);
+@layer base {
+  #sfui-admin-root {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    color: var(--foreground);
+    background-color: var(--background);
+    line-height: 1.5;
   }
 
-  /* Image reset */
-  img, svg, video { display: block; vertical-align: middle; }
-  img, video { max-width: 100%; height: auto; }
+  /* Scoped preflight resets */
+  #sfui-admin-root *,
+  #sfui-admin-root *::before,
+  #sfui-admin-root *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    border: 0 solid var(--border);
+  }
+
+  /* Image and media reset */
+  #sfui-admin-root img,
+  #sfui-admin-root svg,
+  #sfui-admin-root video {
+    display: block;
+    vertical-align: middle;
+  }
+
+  #sfui-admin-root img,
+  #sfui-admin-root video {
+    max-width: 100%;
+    height: auto;
+  }
 
   /* Form element reset */
-  button, input, select, textarea {
+  #sfui-admin-root button,
+  #sfui-admin-root input,
+  #sfui-admin-root select,
+  #sfui-admin-root textarea {
     font-family: inherit;
     font-size: 100%;
     line-height: inherit;
-    margin: 0;
-    padding: 0;
+    color: inherit;
   }
 
   /* Button reset */
-  button, [role="button"] { cursor: pointer; }
+  #sfui-admin-root button,
+  #sfui-admin-root [role="button"] {
+    cursor: pointer;
+    background-color: transparent;
+  }
 
   /* Link reset */
-  a { color: inherit; text-decoration: inherit; }
+  #sfui-admin-root a {
+    color: inherit;
+    text-decoration: inherit;
+  }
 
   /* List reset */
-  ol, ul { list-style: none; margin: 0; padding: 0; }
+  #sfui-admin-root ol,
+  #sfui-admin-root ul {
+    list-style: none;
+  }
 }
 ```
+
+**Why @layer base Matters:**
+- Without `@layer base`, global resets like `#sfui-admin-root button { padding: 0 }` override Tailwind utilities (px-3, py-2)
+- `@layer base` ensures utilities always win in specificity battles
+- Prevents CSS specificity conflicts with component classes
 
 ---
 

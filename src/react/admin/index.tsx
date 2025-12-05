@@ -19,13 +19,6 @@ if (document.readyState === 'loading') {
 }
 
 function initAdmin(): void {
-  // Check for Form Builder V2 root (standalone page)
-  const formBuilderV2Root = document.getElementById('super-form-builder-v2-root');
-  if (formBuilderV2Root) {
-    initPage(formBuilderV2Root, <FormBuilderV2 />);
-    return;
-  }
-
   const rootElement = document.getElementById('sfui-admin-root');
 
   if (!rootElement) {
@@ -45,6 +38,9 @@ function initAdmin(): void {
   switch (currentPage) {
     case 'super_create_form':
       initPage(rootElement, <FormBuilderRouter />);
+      break;
+    case 'super_form_v2':
+      initPage(rootElement, <FormBuilderV2 />);
       break;
     case 'super_settings':
       initPage(rootElement, <SettingsRouter />);

@@ -19,6 +19,17 @@ The React-based admin UI is built with TypeScript, Vite, Tailwind v4, and shadcn
 │   └── utils.ts                       # shadcn/ui utilities (cn helper)
 ├── styles/
 │   └── index.css                      # Global styles (scoped to #sfui-admin-root)
+├── schemas/                           # Schema-first architecture (Form Builder V2)
+│   ├── core/                          # Core types and registry
+│   ├── tabs/                          # Tab schema system
+│   ├── toolbar/                       # Toolbar item schema system
+│   ├── elements/                      # Element schemas
+│   └── index.ts                       # Aggregated exports
+├── apps/
+│   └── form-builder-v2/               # Form Builder V2 application
+│       ├── FormBuilderV2.tsx          # Main component
+│       ├── components/                # UI components (TabBar, TopBar, etc.)
+│       └── types/                     # Type definitions
 └── components/
     ├── ui/                            # shadcn/ui components (when installed)
     ├── shared/                        # Shared components (future)
@@ -31,6 +42,84 @@ The React-based admin UI is built with TypeScript, Vite, Tailwind v4, and shadcn
             └── styles/
                 └── index.css          # Feature-specific styles
 ```
+
+### Schema-First Architecture (Form Builder V2)
+
+**Location:** `/src/react/admin/schemas/`
+
+Form Builder V2 uses a schema-driven architecture where UI elements, tabs, and toolbar items are defined declaratively rather than hardcoded in components. This enables plugin extensibility and AI integration.
+
+**Core Principles:**
+1. **Single Source of Truth** - Schema defines all capabilities (UI, validation, REST API)
+2. **Declarative UI** - Tabs and toolbar items registered via schema, not JSX
+3. **Plugin Extensibility** - Third-party plugins can register tabs/toolbar items
+4. **Type Safety** - TypeScript definitions for all schemas
+
+**Schema Types:**
+
+**Tab Schema** (`/src/react/admin/schemas/tabs/`):
+```typescript
+registerTab({
+  id: 'emails',
+  label: 'Emails',
+  icon: 'Mail',                // Lucide icon name
+  position: 10,                // Sort order
+  lazyLoad: false,             // Lazy load component
+  description: 'Configure email notifications'
+});
+```
+
+**Toolbar Item Schema** (`/src/react/admin/schemas/toolbar/`):
+```typescript
+registerToolbarItem({
+  id: 'save',
+  type: 'button',              // button, toggle, dropdown, custom
+  group: 'primary',            // left, history, canvas, panels, primary
+  icon: 'Save',                // Lucide icon name
+  label: 'Save',
+  tooltip: 'Save Form',
+  variant: 'save',             // Button variant
+  position: 10,                // Sort order within group
+  showLabel: true,
+  hiddenOnMobile: true
+});
+```
+
+**Element Schema** (`/src/react/admin/schemas/elements/`):
+```typescript
+registerElement({
+  type: 'text',
+  name: 'Text Input',
+  category: 'basic',
+  icon: 'Type',
+  properties: {
+    general: { /* property definitions */ },
+    validation: { /* validation rules */ },
+    styling: { /* style options */ }
+  },
+  defaults: { /* default values */ }
+});
+```
+
+**Usage in Components:**
+```typescript
+import { TabBar } from '@/apps/form-builder-v2/components/TabBar';
+import { TopBar } from '@/apps/form-builder-v2/components/TopBar';
+
+// Renders all registered tabs from schema
+<TabBar activeTab={activeTab} onTabChange={setActiveTab} />
+
+// Renders all registered toolbar items from schema
+<TopBar onAction={handleAction} />
+```
+
+**Benefits:**
+- Reduced code size (replaced ~190 lines of hardcoded UI with schema definitions)
+- Plugin developers can add tabs/toolbar items without modifying core files
+- AI/LLM can query schema to understand available capabilities
+- Type-safe with full TypeScript support
+
+**See Also:** `/docs/architecture/form-builder-schema-spec.md` for complete specification
 
 ### SFUI Admin Infrastructure (Phase 1 & 2)
 
@@ -79,23 +168,39 @@ function initAdmin(): void {
 }
 ```
 
+**Lazy Loading Pattern (Form Builder V2):**
+```tsx
+// Import lazy-loaded tabs in FormBuilderV2.tsx
+const EmailsTab = lazy(() => import('./tabs/EmailsTab'));
+const AutomationsTab = lazy(() => import('../../components/form-builder/automations/AutomationsTab')
+  .then(m => ({ default: m.AutomationsTab })));
+
+// Wrap in Suspense boundary
+<Suspense fallback={<div>Loading...</div>}>
+  {activeTab === 'emails' && <EmailsTab />}
+  {activeTab === 'automations' && <AutomationsTab />}
+</Suspense>
+```
+
 **Why This Architecture:**
 - Single mount point prevents multiple React roots competing for DOM
 - Centralized data object follows WordPress patterns (like `wp.i18n`, `wp.ajax`)
 - Page routing enables multiple admin pages using same bundle
 - TypeScript definitions provide type safety for data object
 - `restNonce` field enables REST API calls without additional nonce generation
+- Lazy loading reduces initial bundle size by code-splitting heavy tabs
 
 ### CSS Architecture
 
-**Critical CSS Isolation Strategy** (since Phase 1):
+**Critical CSS Isolation Strategy** (updated 2025-12-05):
 
 The React admin CSS uses scoped resets to prevent Tailwind's preflight from breaking WordPress admin UI:
 
 1. **Root mount point**: `#sfui-admin-root` - All React apps render here
-2. **Scoped resets**: All CSS resets scoped to `#sfui-admin-root` selector
+2. **Scoped resets**: All CSS resets scoped to `#sfui-admin-root` selector **inside `@layer base`**
 3. **No global preflight**: Import `tailwindcss/theme` and `tailwindcss/utilities` only (NOT `tailwindcss`)
-4. **Z-index override**: Radix UI modals use `z-[100000]` to appear above WP admin bar (z-index 99999)
+4. **CSS Layers**: `@layer base` ensures Tailwind utilities always override base resets
+5. **Z-index override**: Radix UI modals use `z-[100000]` to appear above WP admin bar (z-index 99999)
 
 **CSS Structure** (`/src/react/admin/styles/index.css`):
 ```css
@@ -110,24 +215,32 @@ The React admin CSS uses scoped resets to prevent Tailwind's preflight from brea
   /* ... */
 }
 
-/* All resets scoped to #sfui-admin-root */
-#sfui-admin-root {
-  font-family: var(--font-sans);
-
-  *, *::before, *::after {
-    box-sizing: border-box;
-    border-width: 0;
+/* All resets scoped to #sfui-admin-root inside @layer base */
+@layer base {
+  #sfui-admin-root {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
     /* ... */
+  }
+
+  #sfui-admin-root *,
+  #sfui-admin-root *::before,
+  #sfui-admin-root *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    border: 0 solid var(--border);
   }
 
   /* Form element reset, button reset, etc. */
 }
 ```
 
-**Why This Matters:**
-- WordPress admin uses its own styles for sidebar, top bar, notices
-- Tailwind's default preflight (`@import "tailwindcss"`) resets ALL elements globally
-- Scoping prevents breaking WP admin UI while allowing full Tailwind power inside React apps
+**Why @layer base Matters:**
+- Without `@layer base`, global resets can override Tailwind utilities due to specificity
+- Example: `#sfui-admin-root button { padding: 0 }` would override `px-3 py-2` utilities
+- `@layer base` ensures utilities always win, preventing CSS specificity conflicts
+- WordPress admin remains untouched outside `#sfui-admin-root`
 - Z-index coordination ensures modals appear above WP admin bar
 
 **Standard Tailwind Classes** (no prefix needed):
@@ -136,6 +249,8 @@ The React admin CSS uses scoped resets to prevent Tailwind's preflight from brea
   <Button className="px-4 py-2">Click Me</Button>
 </div>
 ```
+
+**Reference:** See `/home/rens/super-forms/src/react/admin/styles/index.css` lines 223-313 for complete implementation
 
 ### Element Identification with `data-testid` (AI/Testing)
 

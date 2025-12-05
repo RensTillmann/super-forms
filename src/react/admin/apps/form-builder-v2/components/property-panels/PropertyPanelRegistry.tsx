@@ -1,20 +1,25 @@
 import React from 'react';
-import { 
-  GeneralProperties, 
-  ValidationProperties, 
-  SliderProperties, 
+import {
+  GeneralProperties,
+  ValidationProperties,
+  SliderProperties,
   FileProperties,
   ContentProperties,
   RatingProperties
 } from './basic';
 import { ChoiceProperties } from './choice';
 import { ContainerProperties } from './container';
-import { 
-  StepWizardProperties, 
-  RepeaterProperties, 
-  ConditionalGroupProperties 
+import {
+  StepWizardProperties,
+  RepeaterProperties,
+  ConditionalGroupProperties
 } from './layout';
 import { PaymentProperties } from './advanced';
+import { SchemaPropertyPanel } from './schema';
+import { isElementRegistered } from '../../../../schemas/core/registry';
+
+// Import element schemas to register them
+import '../../../../schemas/elements';
 
 interface PropertyPanelRegistryProps {
   element: any;
@@ -98,13 +103,26 @@ const PANEL_LABELS = {
   'conditional-group': 'Conditions',
 };
 
-export const PropertyPanelRegistry: React.FC<PropertyPanelRegistryProps> = ({ 
-  element, 
-  onUpdate 
+export const PropertyPanelRegistry: React.FC<PropertyPanelRegistryProps> = ({
+  element,
+  onUpdate
 }) => {
+  // Check if this element type has a schema registered
+  // If so, use the schema-driven panel instead of hardcoded panels
+  if (isElementRegistered(element.type)) {
+    return (
+      <SchemaPropertyPanel
+        elementType={element.type}
+        properties={element.properties || {}}
+        onPropertyChange={onUpdate}
+      />
+    );
+  }
+
+  // Fallback to legacy hardcoded panels for elements without schemas
   // Get the panels for this element type
   const panelTypes = PANEL_CONFIG[element.type as keyof typeof PANEL_CONFIG] || ['general'];
-  
+
   // If only one panel, render it directly
   if (panelTypes.length === 1) {
     const PanelComponent = PANEL_COMPONENTS[panelTypes[0] as keyof typeof PANEL_COMPONENTS];
@@ -112,12 +130,12 @@ export const PropertyPanelRegistry: React.FC<PropertyPanelRegistryProps> = ({
       <PanelComponent element={element} onUpdate={onUpdate} />
     ) : null;
   }
-  
+
   // Multiple panels - render with tabs or sections
   const [activePanel, setActivePanel] = React.useState(panelTypes[0]);
-  
+
   const ActivePanelComponent = PANEL_COMPONENTS[activePanel as keyof typeof PANEL_COMPONENTS];
-  
+
   return (
     <div className="property-panel-registry">
       {/* Panel Navigation */}
@@ -132,7 +150,7 @@ export const PropertyPanelRegistry: React.FC<PropertyPanelRegistryProps> = ({
           </button>
         ))}
       </div>
-      
+
       {/* Active Panel Content */}
       <div className="panel-content">
         {ActivePanelComponent && (

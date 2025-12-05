@@ -1,3 +1,31 @@
+/**
+ * Form Builder V2 Styles
+ *
+ * MIGRATION STATUS (2025-12-04):
+ * Many styles in this file are being migrated to Tailwind CSS.
+ * The following have been migrated to component-level Tailwind:
+ *
+ * MIGRATED (use Tailwind in components):
+ * - .form-builder-topbar → TopBar.tsx uses Tailwind
+ * - .tabs-bar, .tab-btn → TabBar.tsx uses Tailwind
+ * - .main-content → FormBuilderV2.tsx uses flex Tailwind
+ * - .tab-content-panel → FormBuilderV2.tsx uses Tailwind
+ * - .canvas-container → FormBuilderV2.tsx uses Tailwind
+ * - .property-field, .property-label → Using Tailwind inline
+ * - .form-input → Using Tailwind inline
+ * - .sidebar-content → Using Tailwind inline (flex-1 flex flex-col overflow-auto)
+ * - .btn, .btn-sm, .btn-xs, .btn-ghost, .btn-outline, .btn-primary, .btn-danger → Using Tailwind inline
+ *
+ * STILL IN USE (keep these):
+ * - Toast notifications (.toast-*)
+ * - Container elements (.columns-container, .tabs-container, etc.)
+ * - Element controls (.element-controls, .element-control-btn)
+ * - Canvas device frames (.canvas-framed)
+ * - Element palette (.element-search, .element-item, etc.)
+ * - Floating panels (.floating-panel-btn, .panel-close-btn, etc.)
+ * - Tray scroll buttons (.tray-scroll-btn)
+ */
+
 /* Body Background */
 body {
   background: var(--color-bg-secondary);

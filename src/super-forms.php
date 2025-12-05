@@ -288,10 +288,7 @@ include_once 'includes/class-developer-tools.php';
 		include_once 'includes/automations/class-automation-permissions.php';
 		include_once 'includes/automations/class-automation-api-keys.php';
 
-		// Email System - Phase 11: Email to Automations Migration
-		include_once 'includes/automations/class-email-automation-migration.php';
-
-			if ( $this->is_request( 'admin' ) ) {
+		if ( $this->is_request( 'admin' ) ) {
 				include_once 'includes/class-install.php';
 				include_once 'includes/class-menu.php';
 				include_once 'includes/class-pages.php';
@@ -367,11 +364,6 @@ include_once 'includes/class-developer-tools.php';
 
 			include_once 'elementor/elementor-super-forms-extension.php';
 			add_action( 'plugins_loaded', array( $this, 'include_extensions' ), 0 );
-
-			// Include Gutenberg integration for Email Builder v2
-			if ( is_admin() ) {
-				include_once 'react/emails-v2/gutenberg-enqueue.php';
-			}
 
 			register_activation_hook( __FILE__, array( 'SUPER_Install', 'install' ) );
 

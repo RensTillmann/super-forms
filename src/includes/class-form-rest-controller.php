@@ -290,7 +290,7 @@ if ( ! class_exists( 'SUPER_Form_REST_Controller' ) ) :
 				'number' => array(
 					'default'           => 20,
 					'validate_callback' => function ( $param ) {
-						return is_numeric( $param ) && $param > 0 && $param <= 100;
+						return is_numeric( $param ) && ( $param == -1 || ( $param > 0 && $param <= 100 ) );
 					},
 				),
 				'offset' => array(
@@ -311,6 +311,24 @@ if ( ! class_exists( 'SUPER_Form_REST_Controller' ) ) :
 						return in_array( strtoupper( $param ), array( 'ASC', 'DESC' ), true );
 					},
 				),
+				'fields' => array(
+					'default'           => '*',
+					'sanitize_callback' => 'sanitize_text_field',
+					'validate_callback' => function ( $param ) {
+						// Allow * or comma-separated list of valid field names
+						if ( $param === '*' ) {
+							return true;
+						}
+						$allowed = array( 'id', 'name', 'status', 'elements', 'settings', 'translations', 'created_at', 'updated_at' );
+						$fields = array_map( 'trim', explode( ',', $param ) );
+						foreach ( $fields as $field ) {
+							if ( ! in_array( $field, $allowed, true ) ) {
+								return false;
+							}
+						}
+						return true;
+					},
+				),
 			);
 		}
 
@@ -327,6 +345,7 @@ if ( ! class_exists( 'SUPER_Form_REST_Controller' ) ) :
 				'offset'  => $request->get_param( 'offset' ),
 				'orderby' => $request->get_param( 'orderby' ),
 				'order'   => $request->get_param( 'order' ),
+				'fields'  => $request->get_param( 'fields' ),
 			);
 
 			$forms = SUPER_Form_DAL::query( $args );

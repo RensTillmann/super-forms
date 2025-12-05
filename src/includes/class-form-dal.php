@@ -186,6 +186,12 @@ class SUPER_Form_DAL {
      * Query forms.
      *
      * @param array $args Query arguments.
+     *   - status: Form status to filter by (default: 'publish', empty string for all)
+     *   - number: Number of forms to return (default: 20, -1 for unlimited)
+     *   - offset: Number of forms to skip (default: 0)
+     *   - orderby: Column to order by (default: 'id')
+     *   - order: Order direction ASC/DESC (default: 'DESC')
+     *   - fields: Columns to select (default: '*', use 'id,name' for lightweight queries)
      * @return array The found forms.
      */
     public static function query( $args = array() ) {
@@ -198,6 +204,7 @@ class SUPER_Form_DAL {
             'offset' => 0,
             'orderby' => 'id',
             'order' => 'DESC',
+            'fields' => '*',
         );
         $args = wp_parse_args( $args, $defaults );
 
@@ -206,27 +213,48 @@ class SUPER_Form_DAL {
             $where = $wpdb->prepare( " WHERE status = %s", $args['status'] );
         }
 
+        // Validate and sanitize fields parameter
+        $allowed_fields = array( 'id', 'name', 'status', 'elements', 'settings', 'translations', 'created_at', 'updated_at' );
+        if ( $args['fields'] === '*' ) {
+            $select_fields = '*';
+        } else {
+            $requested_fields = array_map( 'trim', explode( ',', $args['fields'] ) );
+            $valid_fields = array_intersect( $requested_fields, $allowed_fields );
+            $select_fields = ! empty( $valid_fields ) ? implode( ', ', $valid_fields ) : '*';
+        }
+
         $orderby = in_array( $args['orderby'], array( 'id', 'name', 'created_at', 'updated_at' ) ) ? $args['orderby'] : 'id';
         $order = in_array( strtoupper( $args['order'] ), array( 'ASC', 'DESC' ) ) ? strtoupper( $args['order'] ) : 'DESC';
 
         // Build query - handle -1 for unlimited results
         if ( $args['number'] == -1 ) {
-            $sql = "SELECT * FROM {$table}{$where} ORDER BY {$orderby} {$order}";
+            $sql = "SELECT {$select_fields} FROM {$table}{$where} ORDER BY {$orderby} {$order}";
             $results = $wpdb->get_results( $sql );
         } else {
             $results = $wpdb->get_results(
                 $wpdb->prepare(
-                    "SELECT * FROM {$table}{$where} ORDER BY {$orderby} {$order} LIMIT %d, %d",
+                    "SELECT {$select_fields} FROM {$table}{$where} ORDER BY {$orderby} {$order} LIMIT %d, %d",
                     $args['offset'],
                     $args['number']
                 )
             );
         }
 
+        // Only decode JSON fields if they were selected
+        $decode_elements = ( $select_fields === '*' || strpos( $select_fields, 'elements' ) !== false );
+        $decode_settings = ( $select_fields === '*' || strpos( $select_fields, 'settings' ) !== false );
+        $decode_translations = ( $select_fields === '*' || strpos( $select_fields, 'translations' ) !== false );
+
         foreach ( $results as $key => $form ) {
-            $results[ $key ]->elements = json_decode( $form->elements, true );
-            $results[ $key ]->settings = json_decode( $form->settings, true );
-            $results[ $key ]->translations = json_decode( $form->translations, true );
+            if ( $decode_elements && isset( $form->elements ) ) {
+                $results[ $key ]->elements = json_decode( $form->elements, true );
+            }
+            if ( $decode_settings && isset( $form->settings ) ) {
+                $results[ $key ]->settings = json_decode( $form->settings, true );
+            }
+            if ( $decode_translations && isset( $form->translations ) ) {
+                $results[ $key ]->translations = json_decode( $form->translations, true );
+            }
         }
 
         return $results;

@@ -7204,7 +7204,7 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 		public static function get_forms( $args = array() ) {
 			$defaults = array(
 				'status' => '',
-				'number' => -1,
+				'number' => 20,
 				'orderby' => 'name',
 				'order' => 'ASC',
 			);

@@ -52,6 +52,27 @@ if ( ! class_exists( 'SUPER_Pages' ) ) :
 		 * Handles the output for the Create Form V2 page (React-based builder)
 		 */
 		public static function create_form_v2() {
+			// Get form list for dropdown (lightweight - only id and name)
+			// Full form data is loaded via REST API when needed
+			$forms = SUPER_Form_DAL::query( array(
+				'status'  => '', // Get all forms regardless of status
+				'number'  => -1,
+				'orderby' => 'name',
+				'order'   => 'ASC',
+				'fields'  => 'id, name', // Only fetch what's needed for dropdown
+			) );
+
+			// Check if we are editing an existing Form
+			if ( isset( $_GET['id'] ) ) {
+				$form_id = absint( $_GET['id'] );
+			} else {
+				$form_id = 0;
+			}
+
+			// Get form settings
+			$settings     = SUPER_Common::get_form_settings( $form_id );
+			$translations = SUPER_Common::get_form_translations( $form_id );
+
 			// Include the view that renders the React mount point
 			include_once SUPER_PLUGIN_DIR . '/includes/admin/views/page-create-form-v2.php';
 		}
