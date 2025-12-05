@@ -1610,7 +1610,12 @@ interface FormBuilderCompleteProps {}
 const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
   const { items, order, addElement, removeElement, updateElement, reorderElements } = useElementsStore();
   const { selectedElements, setSelectedElements } = useBuilderStore();
-  
+
+  // Collapse WP admin sidebar on mount for better form builder UX
+  useEffect(() => {
+    document.body.classList.add('sticky-menu', 'folded');
+  }, []);
+
   // Layout state
   const [activeTab, setActiveTab] = useState('canvas');
   const [devicePreview, setDevicePreview] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
@@ -1812,10 +1817,14 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
     }
   }, [devicePreview, showDeviceFrame, getDeviceMaxWidth]);
   const trayScrollRef = useRef<HTMLDivElement>(null);
-  
+
   // Continuous scrolling state
   const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const [isScrolling, setIsScrolling] = useState<'left' | 'right' | null>(null);
+
+  // Momentum scroll refs for smooth mousewheel scrolling
+  const targetScrollRef = useRef(0);
+  const momentumFrameRef = useRef<number | null>(null);
   
   // Drag and drop state
   const [isDragging, setIsDragging] = useState(false);
@@ -1927,9 +1936,10 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
   const updateScrollButtons = useCallback(() => {
     if (trayScrollRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = trayScrollRef.current;
-      const scrollThreshold = 50;
-      setCanScrollLeft(scrollLeft > scrollThreshold);
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - scrollThreshold);
+      // Low threshold for left button (show almost immediately when scrolled)
+      // Small threshold for right to avoid edge flickering
+      setCanScrollLeft(scrollLeft > 5);
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10);
       setTrayScrollLeft(scrollLeft);
     }
   }, []);
@@ -1937,16 +1947,78 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
   const scrollTray = useCallback((direction: 'left' | 'right') => {
     if (trayScrollRef.current) {
       const scrollAmount = 200;
-      const newScrollLeft = direction === 'left' 
+      const newScrollLeft = direction === 'left'
         ? trayScrollRef.current.scrollLeft - scrollAmount
         : trayScrollRef.current.scrollLeft + scrollAmount;
-      
+
       trayScrollRef.current.scrollTo({
         left: newScrollLeft,
         behavior: 'smooth'
       });
     }
   }, []);
+
+  // Momentum-based scroll animation loop
+  const animateMomentumScroll = useCallback(() => {
+    if (!trayScrollRef.current) {
+      momentumFrameRef.current = null;
+      return;
+    }
+
+    const current = trayScrollRef.current.scrollLeft;
+    const target = targetScrollRef.current;
+    const diff = target - current;
+
+    // Lerp factor: 0.2 gives a nice balance of smooth and responsive
+    const lerp = 0.2;
+
+    if (Math.abs(diff) > 0.5) {
+      trayScrollRef.current.scrollLeft = current + diff * lerp;
+      momentumFrameRef.current = requestAnimationFrame(animateMomentumScroll);
+    } else {
+      // Snap to target when close enough
+      trayScrollRef.current.scrollLeft = target;
+      momentumFrameRef.current = null;
+    }
+  }, []);
+
+  // Mousewheel horizontal scroll handler with momentum (native event for passive: false support)
+  const handleTrayWheelNative = useCallback((e: WheelEvent) => {
+    if (!trayScrollRef.current) return;
+
+    const { scrollLeft, scrollWidth, clientWidth } = trayScrollRef.current;
+    const canScroll = scrollWidth > clientWidth;
+
+    if (canScroll) {
+      const delta = e.deltaY || e.deltaX;
+      const maxScroll = scrollWidth - clientWidth;
+
+      // Initialize target from current position on first interaction
+      if (momentumFrameRef.current === null) {
+        targetScrollRef.current = scrollLeft;
+      }
+
+      // Accumulate delta to target (no speed cap!)
+      targetScrollRef.current = Math.max(0, Math.min(maxScroll, targetScrollRef.current + delta));
+
+      // Start animation loop if not already running
+      if (!momentumFrameRef.current) {
+        momentumFrameRef.current = requestAnimationFrame(animateMomentumScroll);
+      }
+
+      // Prevent page scroll - works because we use passive: false
+      e.preventDefault();
+    }
+  }, [animateMomentumScroll]);
+
+  // Attach wheel listener with passive: false to allow preventDefault
+  useEffect(() => {
+    const el = trayScrollRef.current;
+    if (!el || !isHorizontalLayout) return;
+
+    el.addEventListener('wheel', handleTrayWheelNative, { passive: false });
+    return () => el.removeEventListener('wheel', handleTrayWheelNative);
+  }, [isHorizontalLayout, handleTrayWheelNative]);
 
   // Continuous scroll functions (restored for hybrid layout)
   const stopContinuousScroll = useCallback(() => {
@@ -1955,13 +2027,22 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
       scrollIntervalRef.current = null;
     }
     setIsScrolling(null);
+    // Sync targetScrollRef to current position so wheel scroll works correctly after button scroll
+    if (trayScrollRef.current) {
+      targetScrollRef.current = trayScrollRef.current.scrollLeft;
+    }
   }, []);
 
   const startContinuousScroll = useCallback((direction: 'left' | 'right') => {
+    // Cancel any active momentum scroll to prevent conflicts
+    if (momentumFrameRef.current) {
+      cancelAnimationFrame(momentumFrameRef.current);
+      momentumFrameRef.current = null;
+    }
     if (scrollIntervalRef.current) {
       clearInterval(scrollIntervalRef.current);
     }
-    
+
     setIsScrolling(direction);
     
     const scroll = () => {
@@ -1987,6 +2068,9 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
     return () => {
       if (scrollIntervalRef.current) {
         clearInterval(scrollIntervalRef.current);
+      }
+      if (momentumFrameRef.current) {
+        cancelAnimationFrame(momentumFrameRef.current);
       }
     };
   }, []);
@@ -3832,24 +3916,29 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
           onHeightChange={handleTrayHeightChange}
         >
           {/* Enhanced Tray Header with Search and Controls */}
-          <div className="tray-header">
-            <div className="tray-header-left">
+          <div className="flex items-center justify-between px-4 py-2 border-b border-border">
+            <div className="flex items-center gap-4">
               {/* Categories positioned at the start */}
-              <div className="tray-categories">
+              <div className="flex gap-2">
                 {!searchQuery && ELEMENT_CATEGORIES.map(category => (
                   <button
                     key={category.id}
-                    className={`tray-category-btn ${activeTrayCategory === category.id ? 'tray-category-btn-active' : ''}`}
+                    className={cn(
+                      "px-3 py-2 rounded-md text-xs font-medium transition-colors",
+                      activeTrayCategory === category.id
+                        ? "bg-primary text-primary-foreground hover:bg-primary/90"
+                        : "text-muted-foreground bg-transparent hover:bg-accent hover:text-foreground"
+                    )}
                     onClick={() => setActiveTrayCategory(category.id)}
                   >
                     {category.name}
                   </button>
                 ))}
               </div>
-              
+
               {/* Search input positioned after categories */}
-              <div className="tray-search">
-                <Search size={16} className="tray-search-icon" />
+              <div className="relative w-[200px]">
+                <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
                 <input
                   type="text"
                   placeholder="Search elements..."
@@ -3866,12 +3955,12 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
                       }
                     }
                   }}
-                  className="tray-search-input"
+                  className="w-full h-8 pl-9 pr-8 text-sm border border-border rounded-md bg-background focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                 />
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery('')}
-                    className="tray-search-clear"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded hover:bg-accent text-muted-foreground hover:text-foreground"
                     title="Clear search"
                   >
                     <X size={14} />
@@ -3882,17 +3971,23 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
           </div>
 
           {/* Enhanced Elements Container with Dynamic Layout */}
-          <div 
-            className="tray-elements-container"
+          <div
+            className="relative overflow-hidden flex-1"
             style={{ height: `${elementsAreaHeight}px` }}
           >
             {/* Scrollable Elements Area */}
-            <div 
+            <div
               ref={trayScrollRef}
-              className={`tray-elements-scroll ${isMobile ? 'tray-elements-mobile' : ''}`}
+              className={cn(
+                "h-full overflow-y-auto px-4 py-3",
+                isMobile && "tray-elements-mobile"
+              )}
             >
-              <div 
-                className={`tray-elements-inner ${isHorizontalLayout ? 'tray-elements-horizontal' : 'tray-elements-grid'}`}
+              <div
+                className={cn(
+                  "gap-3 items-start",
+                  isHorizontalLayout ? "flex flex-nowrap gap-3" : "grid grid-cols-[repeat(auto-fill,minmax(120px,1fr))] gap-3"
+                )}
               >
                 {getFilteredElements().map(element => {
                   const filteredElements = getFilteredElements();
@@ -3900,36 +3995,51 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
                   return (
                     <div
                       key={element.type}
-                      className={`tray-element-item ${isSingleElement ? 'tray-element-item-highlighted' : ''}`}
+                      className={cn(
+                        "flex flex-col items-center justify-center gap-2 p-3 min-w-[120px] min-h-[80px]",
+                        "bg-white border border-border rounded-lg cursor-grab select-none",
+                        "transition-all hover:border-primary/30 hover:bg-primary/5 hover:-translate-y-0.5 hover:shadow-sm",
+                        "active:cursor-grabbing active:-translate-y-0.5",
+                        isSingleElement && "bg-primary/10 border-primary/40 shadow-sm"
+                      )}
                       draggable
                       onDragStart={(e) => handleDragStart(e, element, true)}
                       onDragEnd={handleDragEnd}
                       onClick={() => handleAddElement(element.type, element.label, element.icon)}
                     >
-                      <element.icon className="tray-element-icon" />
-                      <span className="tray-element-label">{element.label}</span>
+                      <element.icon className="w-6 h-6 text-primary" />
+                      <span className="text-xs font-medium text-foreground text-center leading-tight">{element.label}</span>
                       {isSingleElement && (
-                        <div className="tray-single-element-tooltip tray-single-element-tooltip-visible">
+                        <div className="absolute -top-9 left-1/2 -translate-x-1/2 px-2 py-1 bg-popover border border-border rounded shadow-md text-xs whitespace-nowrap opacity-100 transition-opacity">
                           Press Enter to add
                         </div>
                       )}
                     </div>
                   );
                 })}
-                
+
                 {getFilteredElements().length === 0 && searchQuery && (
-                  <div className="tray-no-results">
-                    <Search size={24} className="tray-no-results-icon" />
-                    <span className="tray-no-results-text">No elements found for "{searchQuery}"</span>
+                  <div className="flex flex-col items-center justify-center gap-2 py-8 text-muted-foreground">
+                    <Search size={24} className="opacity-50" />
+                    <span className="text-sm font-medium">No elements found for "{searchQuery}"</span>
                   </div>
                 )}
               </div>
             </div>
 
-            {/* Left Scroll Button - only show in horizontal layout */}
-            {isHorizontalLayout && canScrollLeft && (
+            {/* Left Scroll Button - always render in horizontal layout, use opacity for visibility */}
+            {isHorizontalLayout && (
               <button
-                className="tray-scroll-btn tray-scroll-left"
+                className={cn(
+                  "absolute top-1/2 -translate-y-1/2 left-0 z-[100]",
+                  "w-10 h-14 flex items-center justify-center",
+                  "bg-white/95 backdrop-blur-sm border border-border border-l-0",
+                  "rounded-r-lg pl-2 cursor-pointer",
+                  "shadow-[0_4px_20px_rgba(0,0,0,0.15),0_1px_3px_rgba(0,0,0,0.1)]",
+                  "text-foreground transition-all duration-200",
+                  "hover:bg-primary-50 hover:border-primary-300 hover:text-primary-600 hover:shadow-md",
+                  canScrollLeft ? "opacity-100" : "opacity-0 pointer-events-none"
+                )}
                 onClick={() => scrollTray('left')}
                 onMouseEnter={() => startContinuousScroll('left')}
                 onMouseLeave={stopContinuousScroll}
@@ -3939,10 +4049,19 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
               </button>
             )}
 
-            {/* Right Scroll Button - only show in horizontal layout */}
-            {isHorizontalLayout && canScrollRight && (
+            {/* Right Scroll Button - always render in horizontal layout, use opacity for visibility */}
+            {isHorizontalLayout && (
               <button
-                className="tray-scroll-btn tray-scroll-right"
+                className={cn(
+                  "absolute top-1/2 -translate-y-1/2 right-0 z-[100]",
+                  "w-10 h-14 flex items-center justify-center",
+                  "bg-white/95 backdrop-blur-sm border border-border border-r-0",
+                  "rounded-l-lg pr-2 cursor-pointer",
+                  "shadow-[0_4px_20px_rgba(0,0,0,0.15),0_1px_3px_rgba(0,0,0,0.1)]",
+                  "text-foreground transition-all duration-200",
+                  "hover:bg-primary-50 hover:border-primary-300 hover:text-primary-600 hover:shadow-md",
+                  canScrollRight ? "opacity-100" : "opacity-0 pointer-events-none"
+                )}
                 onClick={() => scrollTray('right')}
                 onMouseEnter={() => startContinuousScroll('right')}
                 onMouseLeave={stopContinuousScroll}
@@ -3952,12 +4071,22 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
               </button>
             )}
 
-            {/* Shadow Overlays - only show in horizontal layout */}
-            {isHorizontalLayout && canScrollLeft && (
-              <div className="tray-shadow-left" />
+            {/* Shadow Overlays - always render in horizontal layout, use opacity for visibility */}
+            {isHorizontalLayout && (
+              <div className={cn(
+                "absolute top-0 bottom-0 left-0 w-10 pointer-events-none z-[50]",
+                "bg-gradient-to-r from-black/10 to-transparent",
+                "transition-opacity duration-200",
+                canScrollLeft ? "opacity-100" : "opacity-0"
+              )} />
             )}
-            {isHorizontalLayout && canScrollRight && (
-              <div className="tray-shadow-right" />
+            {isHorizontalLayout && (
+              <div className={cn(
+                "absolute top-0 bottom-0 right-0 w-10 pointer-events-none z-[50]",
+                "bg-gradient-to-l from-black/10 to-transparent",
+                "transition-opacity duration-200",
+                canScrollRight ? "opacity-100" : "opacity-0"
+              )} />
             )}
 
             {/* Hover Overlay Layer - for clipping-free hover effects in horizontal layout */}

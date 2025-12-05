@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronUp, ChevronDown, GripHorizontal } from 'lucide-react';
 import { ResizableBottomTrayProps } from '../types/overlay.types';
+import { cn } from '../../../../../lib/utils';
+import { useWPAdminSidebar } from '../../../../../hooks/useWPAdminSidebar';
 
 export const ResizableBottomTray: React.FC<ResizableBottomTrayProps> = ({
   isCollapsed,
@@ -15,7 +17,10 @@ export const ResizableBottomTray: React.FC<ResizableBottomTrayProps> = ({
   const [height, setHeight] = useState(defaultHeight);
   const [isResizing, setIsResizing] = useState(false);
   const trayRef = useRef<HTMLDivElement>(null);
-  
+
+  // Get WordPress admin sidebar width for dynamic positioning
+  const { width: sidebarWidth } = useWPAdminSidebar();
+
   // Debug height changes (can be removed in production)
   // useEffect(() => {
   //   console.log(`Height changed to: ${height}, isResizing: ${isResizing}`);
@@ -128,15 +133,30 @@ export const ResizableBottomTray: React.FC<ResizableBottomTrayProps> = ({
   }, [maxHeight, minHeight, onHeightChange, isResizing]); // Added isResizing dependency
 
   return (
-    <div 
+    <div
       ref={trayRef}
-      className={`bottom-tray ${isCollapsed ? 'bottom-tray-collapsed' : ''} ${isMobile ? 'bottom-tray-mobile' : ''}`}
-      style={{ height: effectiveHeight }}
+      className={cn(
+        "fixed bottom-0 right-0 z-[50]",
+        "bg-white border-t border-border",
+        "shadow-[0_-4px_16px_-2px_rgb(0,0,0,0.1)]",
+        "transition-[height,left] duration-300 ease-out",
+        "min-h-4",
+        isMobile && "!h-auto max-h-[50vh]"
+      )}
+      style={{
+        left: sidebarWidth,
+        ...(isMobile ? {} : { height: effectiveHeight })
+      }}
     >
       {/* Resize Handle */}
       {!isCollapsed && !isMobile && (
-        <div 
-          className="tray-resize-handle"
+        <div
+          className={cn(
+            "h-4 bg-muted border-b border-border cursor-ns-resize",
+            "flex items-center justify-center",
+            "transition-colors duration-150 ease-out",
+            "text-muted-foreground hover:bg-accent"
+          )}
           onMouseDown={handleResizeStart}
           role="separator"
           aria-orientation="horizontal"
@@ -148,7 +168,18 @@ export const ResizableBottomTray: React.FC<ResizableBottomTrayProps> = ({
 
       {/* Chevron Collapse Button */}
       <button
-        className="tray-chevron-btn"
+        className={cn(
+          "absolute -top-4 left-1/2 -translate-x-1/2",
+          "w-12 h-4",
+          "bg-muted border border-border border-b-0",
+          "rounded-t-lg",
+          "cursor-pointer",
+          "flex items-center justify-center",
+          "text-muted-foreground",
+          "transition-all duration-150 ease-out",
+          "z-[1]",
+          "hover:bg-accent hover:border-primary hover:text-primary"
+        )}
         onClick={onToggleCollapse}
         aria-label={isCollapsed ? 'Show elements' : 'Hide elements'}
         aria-expanded={!isCollapsed}

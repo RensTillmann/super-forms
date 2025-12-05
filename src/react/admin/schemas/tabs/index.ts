@@ -21,6 +21,20 @@ export const CanvasTab = registerTab({
   icon: 'Layout',
   position: 0,
   lazyLoad: false,
+  hidden: true, // Hidden from tab bar, use Builder tab instead
+  description: 'Form building canvas',
+});
+
+/**
+ * Builder tab - Returns user to the canvas view
+ * Note: This is the visible tab that sets activeTab to 'canvas'
+ */
+export const BuilderTab = registerTab({
+  id: 'builder',
+  label: 'Builder',
+  icon: 'Layout',
+  position: 5,
+  lazyLoad: false,
   description: 'Form building canvas',
 });
 

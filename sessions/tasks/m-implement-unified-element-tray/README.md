@@ -1,7 +1,7 @@
 ---
 name: m-implement-unified-element-tray
 branch: feature/h-implement-triggers-actions-extensibility
-status: pending
+status: in-progress
 created: 2025-12-05
 ---
 

@@ -49,12 +49,19 @@ interface TabBarProps {
  *
  * Renders tabs from the tab registry using Tailwind CSS.
  * The Canvas tab is special - when active, no side panel is shown.
+ * The Builder tab is visible and switches activeTab to 'canvas'.
  */
 export function TabBar({ activeTab, onTabChange, className }: TabBarProps) {
   const tabs = getTabsSorted();
 
-  // Filter out the canvas tab - it's handled specially (always shows main canvas)
-  const visibleTabs = tabs.filter(tab => tab.id !== 'canvas');
+  const handleTabClick = (tabId: string) => {
+    // Builder tab switches to canvas view
+    if (tabId === 'builder') {
+      onTabChange('canvas');
+    } else {
+      onTabChange(tabId);
+    }
+  };
 
   return (
     <div
@@ -65,12 +72,12 @@ export function TabBar({ activeTab, onTabChange, className }: TabBarProps) {
       role="tablist"
       aria-label="Form builder tabs"
     >
-      {visibleTabs.map((tab) => (
+      {tabs.map((tab) => (
         <TabButton
           key={tab.id}
           tab={tab}
-          isActive={activeTab === tab.id}
-          onClick={() => onTabChange(tab.id)}
+          isActive={tab.id === 'builder' ? activeTab === 'canvas' : activeTab === tab.id}
+          onClick={() => handleTabClick(tab.id)}
         />
       ))}
     </div>
