@@ -182,7 +182,7 @@ if ( ! class_exists( 'SUPER_Automation_Security' ) ) :
 			}
 
 			// Default limit from settings or constant
-			$settings = SUPER_Settings::get_settings();
+			$settings = get_option( 'super_settings', array() );
 			return (int) ( $settings['api_rate_limit'] ?? self::RATE_LIMIT_MAX );
 		}
 

@@ -48,6 +48,7 @@ import {
 // Lazy loaded tabs (code splitting)
 const EmailsTab = lazy(() => import('./tabs/EmailsTab'));
 const AutomationsTab = lazy(() => import('../../components/form-builder/automations/AutomationsTab').then(m => ({ default: m.AutomationsTab })));
+const ThemesTab = lazy(() => import('../../components/themes').then(m => ({ default: m.ThemesTab })));
 
 // Import CSS styles (form-builder.css contains element/canvas styling not yet migrated to Tailwind)
 import './styles/form-builder.css';
@@ -3393,6 +3394,11 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
                 </Suspense>
               )}
               {activeTab === 'style' && <StyleTabContent />}
+              {activeTab === 'themes' && (
+                <Suspense fallback={<TabLoadingFallback />}>
+                  <ThemesTab />
+                </Suspense>
+              )}
               {activeTab === 'integrations' && <IntegrationsTabContent />}
             </div>
           )}

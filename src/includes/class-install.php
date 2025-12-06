@@ -61,6 +61,9 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 		// Create database tables
 		self::create_tables();
 
+		// Seed theme data
+		self::seed_themes();
+
 		// Initialize migration state tracking
 		self::init_migration_state();
 
@@ -405,8 +408,50 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 
 			dbDelta( $sql );
 
+			// ─────────────────────────────────────────────────────────
+			// Themes Table (Style & Theming System)
+			// @since 6.6.0
+			// ─────────────────────────────────────────────────────────
+
+			// Themes table - reusable style themes for forms
+			$table_name = $wpdb->prefix . 'superforms_themes';
+
+			$sql = "CREATE TABLE $table_name (
+				id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+				name VARCHAR(100) NOT NULL,
+				slug VARCHAR(100) NOT NULL,
+				description TEXT,
+				category VARCHAR(50) DEFAULT 'light',
+				styles LONGTEXT NOT NULL,
+				preview_colors TEXT,
+				is_system TINYINT(1) DEFAULT 0,
+				is_stub TINYINT(1) DEFAULT 0,
+				user_id BIGINT(20) UNSIGNED,
+				created_at DATETIME NOT NULL,
+				updated_at DATETIME NOT NULL,
+				PRIMARY KEY (id),
+				UNIQUE KEY slug (slug),
+				KEY user_id (user_id),
+				KEY category (category),
+				KEY is_system (is_system)
+			) ENGINE={$engine} $charset_collate;";
+
+			dbDelta( $sql );
+
 			// Run schema upgrades for existing installations
 			self::upgrade_database_schema();
+		}
+
+		/**
+		 * Seed default themes on activation
+		 *
+		 * @since 6.6.0
+		 */
+		private static function seed_themes() {
+			if ( class_exists( 'SUPER_Theme_DAL' ) ) {
+				SUPER_Theme_DAL::seed_system_themes();
+				SUPER_Theme_DAL::seed_stub_themes();
+			}
 		}
 
 		/**

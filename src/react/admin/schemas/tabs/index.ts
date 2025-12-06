@@ -100,6 +100,18 @@ export const StyleTab = registerTab({
 });
 
 /**
+ * Themes tab - Pick from presets or save custom themes
+ */
+export const ThemesTab = registerTab({
+  id: 'themes',
+  label: 'Themes',
+  icon: 'Palette',
+  position: 51,
+  lazyLoad: false,
+  description: 'Apply and create themes',
+});
+
+/**
  * Integrations tab - Third-party connections
  */
 export const IntegrationsTab = registerTab({

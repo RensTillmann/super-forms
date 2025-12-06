@@ -254,6 +254,8 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 		include_once 'includes/class-session-cleanup.php'; // Phase 1a: Session cleanup jobs
 		include_once 'includes/class-entry-dal.php'; // Phase 17: Entry Data Access Layer
 		include_once 'includes/class-form-dal.php'; // Phase 18: Form Data Access Layer
+		include_once 'includes/class-theme-dal.php'; // Phase: Style & Theming System
+		include_once 'includes/class-theme-rest-controller.php'; // Phase: Style & Theming System
 		include_once 'includes/class-entry-backwards-compat.php'; // Phase 17: BC hooks
 		include_once 'includes/class-entry-rest-controller.php'; // Phase 17: Entry REST API
 	include_once 'includes/class-migration-manager.php';
@@ -379,6 +381,7 @@ include_once 'includes/class-developer-tools.php';
 			add_action( 'init', array( $this, 'init_automations_system' ), 5 );
 			add_action( 'rest_api_init', array( $this, 'register_automations_rest_routes' ) );
 			add_action( 'rest_api_init', array( $this, 'register_forms_rest_routes' ) );
+			add_action( 'rest_api_init', array( $this, 'register_themes_rest_routes' ) );
 
 			// Set unique submission ID to expire after 15 days due to possible delayed payment methods used by Stripe
 			// SEPA Direct Debit is a reusable, delayed notification payment method. This means that it can take up to 14 business days to receive notification on the success or failure of a payment after you initiate a debit from the customer’s account, though the average is five business days.
@@ -3538,7 +3541,7 @@ include_once 'includes/class-developer-tools.php';
 					// @since v7.0.0 - Admin React app (Emails tab, future: other tabs/pages)
 					'super-admin'            => array(
 						'src'     => $backend_path . 'admin.js',
-						'deps'    => array(), // React bundled - no wp-element dependency needed
+						'deps'    => array( 'wp-api-fetch' ), // wp-api-fetch for REST API calls
 						// Use file modification time for cache busting in dev mode
 						'version' => ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ? filemtime( SUPER_PLUGIN_DIR . '/assets/js/backend/admin.js' ) : SUPER_VERSION,
 						'footer'  => true,
@@ -4168,6 +4171,16 @@ include_once 'includes/class-developer-tools.php';
 		 */
 		public function register_forms_rest_routes() {
 			$controller = new SUPER_Form_REST_Controller();
+			$controller->register_routes();
+		}
+
+		/**
+		 * Register REST API routes for themes system
+		 *
+		 * @since 6.6.0
+		 */
+		public function register_themes_rest_routes() {
+			$controller = new SUPER_Theme_REST_Controller();
 			$controller->register_routes();
 		}
 	}

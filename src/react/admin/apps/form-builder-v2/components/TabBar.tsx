@@ -6,6 +6,7 @@ import {
   Database,
   Zap,
   PaintBucket,
+  Palette,
   Webhook,
   Workflow,
   LucideIcon,
@@ -24,6 +25,7 @@ const iconMap: Record<string, LucideIcon> = {
   Database,
   Zap,
   PaintBucket,
+  Palette,
   Webhook,
   Workflow,
 };

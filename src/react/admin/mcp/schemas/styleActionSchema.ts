@@ -95,6 +95,72 @@ const ImportStylesAction = z.object({
 });
 
 // =============================================================================
+// Theme Actions
+// =============================================================================
+
+const ThemeCategorySchema = z.enum([
+  'light',
+  'dark',
+  'minimal',
+  'corporate',
+  'playful',
+  'highContrast',
+]);
+
+const ListThemesAction = z.object({
+  action: z.literal('listThemes'),
+  includeSystem: z.boolean().optional().default(true),
+  includeStubs: z.boolean().optional().default(true),
+  category: ThemeCategorySchema.optional(),
+});
+
+const GetThemeAction = z.object({
+  action: z.literal('getTheme'),
+  themeId: z.union([z.string(), z.number()]),
+});
+
+const ApplyThemeAction = z.object({
+  action: z.literal('applyTheme'),
+  themeId: z.union([z.string(), z.number()]), // ID or slug
+  formId: z.number().optional(), // If omitted, applies to local registry only
+});
+
+const CreateThemeAction = z.object({
+  action: z.literal('createTheme'),
+  name: z.string().min(1).max(100),
+  description: z.string().max(500).optional(),
+  category: ThemeCategorySchema.optional().default('light'),
+});
+
+const DeleteThemeAction = z.object({
+  action: z.literal('deleteTheme'),
+  themeId: z.union([z.string(), z.number()]),
+});
+
+const GenerateThemeAction = z.object({
+  action: z.literal('generateTheme'),
+  name: z.string().min(1).max(100),
+  prompt: z.string().max(500).optional(), // "warm friendly", "corporate blue"
+  baseColor: z
+    .string()
+    .regex(/^#[0-9A-Fa-f]{6}$/)
+    .optional(), // Brand color
+  density: z
+    .enum(['compact', 'comfortable', 'spacious'])
+    .optional()
+    .default('comfortable'),
+  cornerStyle: z
+    .enum(['sharp', 'rounded', 'pill'])
+    .optional()
+    .default('rounded'),
+  contrastPreference: z
+    .enum(['high', 'standard', 'soft'])
+    .optional()
+    .default('standard'),
+  save: z.boolean().optional().default(true), // Persist to database?
+});
+
+// =============================================================================
 // Combined Action Schema
 // =============================================================================
 
@@ -119,6 +185,14 @@ export const StyleActionSchema = z.discriminatedUnion('action', [
   // Import/Export
   ExportStylesAction,
   ImportStylesAction,
+
+  // Theme operations
+  ListThemesAction,
+  GetThemeAction,
+  ApplyThemeAction,
+  CreateThemeAction,
+  DeleteThemeAction,
+  GenerateThemeAction,
 ]);
 
 export type StyleAction = z.infer<typeof StyleActionSchema>;

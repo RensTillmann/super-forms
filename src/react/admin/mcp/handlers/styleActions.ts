@@ -8,6 +8,20 @@ import {
 } from '../../schemas/styles';
 import { useElementsStore } from '../../apps/form-builder-v2/store/useElementsStore';
 import { StyleActionSchema, StyleActionResponse } from '../schemas/styleActionSchema';
+import {
+  generateThemeFromOptions,
+  detectCategory,
+  extractPreviewColors,
+} from '../../lib/themeGenerator';
+
+// Declare wp.apiFetch type
+declare const wp: {
+  apiFetch: <T>(options: {
+    path: string;
+    method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
+    data?: Record<string, unknown>;
+  }) => Promise<T>;
+};
 
 /**
  * MCP Handler for style-related actions.
@@ -335,6 +349,227 @@ export async function handleStyleAction(
         };
       }
 
+      // =====================================================================
+      // Theme Operations
+      // =====================================================================
+
+      case 'listThemes': {
+        interface Theme {
+          id: number;
+          name: string;
+          slug: string;
+          category: string;
+          is_system: boolean;
+          is_stub: boolean;
+        }
+
+        const params = new URLSearchParams();
+        if (action.includeStubs !== undefined) {
+          params.set('include_stubs', String(action.includeStubs));
+        }
+        if (action.category) {
+          params.set('category', action.category);
+        }
+
+        const themes = await wp.apiFetch<Theme[]>({
+          path: `/super-forms/v1/themes?${params.toString()}`,
+          method: 'GET',
+        });
+
+        return {
+          success: true,
+          data: {
+            themes,
+            count: themes.length,
+          },
+        };
+      }
+
+      case 'getTheme': {
+        interface Theme {
+          id: number;
+          name: string;
+          slug: string;
+          styles: Record<string, unknown>;
+        }
+
+        const isNumericId =
+          typeof action.themeId === 'number' ||
+          !isNaN(Number(action.themeId));
+        const path = isNumericId
+          ? `/super-forms/v1/themes/${action.themeId}`
+          : `/super-forms/v1/themes/slug/${action.themeId}`;
+
+        const theme = await wp.apiFetch<Theme>({
+          path,
+          method: 'GET',
+        });
+
+        return {
+          success: true,
+          data: { theme },
+        };
+      }
+
+      case 'applyTheme': {
+        interface Theme {
+          id: number;
+          name: string;
+          slug: string;
+          styles: Record<string, unknown>;
+          is_stub: boolean;
+        }
+
+        // Resolve theme ID (might be slug)
+        let themeId = action.themeId;
+        const isNumericId =
+          typeof themeId === 'number' || !isNaN(Number(themeId));
+
+        const themePath = isNumericId
+          ? `/super-forms/v1/themes/${themeId}`
+          : `/super-forms/v1/themes/slug/${themeId}`;
+
+        const theme = await wp.apiFetch<Theme>({
+          path: themePath,
+          method: 'GET',
+        });
+
+        if (theme.is_stub) {
+          return {
+            success: false,
+            error: `Cannot apply stub theme "${theme.name}". This theme is coming soon.`,
+          };
+        }
+
+        themeId = theme.id;
+
+        // If formId provided, persist to database
+        if (action.formId) {
+          await wp.apiFetch({
+            path: `/super-forms/v1/themes/${themeId}/apply`,
+            method: 'POST',
+            data: { form_id: action.formId },
+          });
+        }
+
+        // Apply to local registry
+        styleRegistry.importStyles(JSON.stringify(theme.styles));
+
+        return {
+          success: true,
+          data: {
+            themeId,
+            themeName: theme.name,
+            persisted: !!action.formId,
+            message: `Theme "${theme.name}" applied successfully`,
+          },
+        };
+      }
+
+      case 'createTheme': {
+        interface CreatedTheme {
+          id: number;
+          name: string;
+          slug: string;
+        }
+
+        // Export current styles
+        const currentStyles = styleRegistry.exportStyles();
+        const parsed = JSON.parse(currentStyles) as Record<
+          string,
+          Partial<StyleProperties>
+        >;
+
+        // Generate preview colors from current theme
+        const previewColors = extractPreviewColors(parsed);
+
+        const response = await wp.apiFetch<CreatedTheme>({
+          path: '/super-forms/v1/themes',
+          method: 'POST',
+          data: {
+            name: action.name,
+            description: action.description,
+            category: action.category,
+            styles: parsed,
+            preview_colors: previewColors,
+          },
+        });
+
+        return {
+          success: true,
+          data: {
+            themeId: response.id,
+            themeName: response.name,
+            slug: response.slug,
+            message: `Theme "${response.name}" created successfully`,
+          },
+        };
+      }
+
+      case 'deleteTheme': {
+        await wp.apiFetch({
+          path: `/super-forms/v1/themes/${action.themeId}`,
+          method: 'DELETE',
+        });
+
+        return {
+          success: true,
+          data: {
+            deleted: action.themeId,
+            message: 'Theme deleted successfully',
+          },
+        };
+      }
+
+      case 'generateTheme': {
+        interface CreatedTheme {
+          id: number;
+          name: string;
+          slug: string;
+        }
+
+        const generatedStyles = generateThemeFromOptions({
+          baseColor: action.baseColor,
+          prompt: action.prompt,
+          density: action.density,
+          cornerStyle: action.cornerStyle,
+          contrastPreference: action.contrastPreference,
+        });
+
+        // Apply to registry
+        styleRegistry.importStyles(JSON.stringify(generatedStyles));
+
+        let savedTheme: CreatedTheme | null = null;
+        if (action.save) {
+          // Save to database
+          const category = detectCategory(generatedStyles);
+          const previewColors = extractPreviewColors(generatedStyles);
+
+          savedTheme = await wp.apiFetch<CreatedTheme>({
+            path: '/super-forms/v1/themes',
+            method: 'POST',
+            data: {
+              name: action.name,
+              description: `Generated theme: ${action.prompt || action.baseColor || 'custom'}`,
+              category,
+              styles: generatedStyles,
+              preview_colors: previewColors,
+            },
+          });
+        }
+
+        return {
+          success: true,
+          data: {
+            generated: true,
+            saved: action.save,
+            themeId: savedTheme?.id,
+            themeName: savedTheme?.name,
+            styles: generatedStyles,
+          },
+        };
+      }
+
       default:
         return {
           success: false,
@@ -363,10 +598,35 @@ Manage form element styles with global themes and individual overrides.
 - **Node Types**: Elements contain styleable "nodes" (label, input, error, etc.)
 - **Global Styles**: Theme-level defaults that apply to all elements
 - **Overrides**: Per-element style customizations that override globals
+- **Themes**: Saved style presets that can be applied to forms
 
-## Common Operations
+## Theme Operations
 
-### Change global theme:
+### List available themes:
+{ "action": "listThemes" }
+
+### Apply a theme (by ID or slug):
+{ "action": "applyTheme", "themeId": "dark" }
+{ "action": "applyTheme", "themeId": 123, "formId": 456 }
+
+### Save current styles as theme:
+{ "action": "createTheme", "name": "My Custom Theme" }
+
+### Generate new theme from parameters:
+{
+  "action": "generateTheme",
+  "name": "Brand Theme",
+  "baseColor": "#FF5722",
+  "density": "comfortable",
+  "cornerStyle": "rounded"
+}
+
+### Delete a custom theme:
+{ "action": "deleteTheme", "themeId": 123 }
+
+## Style Operations
+
+### Change global style:
 {
   "action": "setGlobalProperty",
   "nodeType": "label",
