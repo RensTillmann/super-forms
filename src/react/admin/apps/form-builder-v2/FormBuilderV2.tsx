@@ -831,7 +831,7 @@ const EntriesTabContent: React.FC = () => {
   const [dateFilter, setDateFilter] = useState('all');
 
   return (
-    <div className="flex-1 flex flex-col overflow-auto">
+    <div className="flex-1 overflow-auto">
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold">Form Entries</h3>
@@ -935,7 +935,7 @@ const StyleTabContent: React.FC = () => {
   const [activeStyleTab, setActiveStyleTab] = useState('theme');
 
   return (
-    <div className="flex-1 flex flex-col overflow-auto">
+    <div className="flex-1 overflow-auto">
       <div className="p-4">
         <h3 className="font-semibold mb-4">Form Styling</h3>
 
@@ -1240,10 +1240,10 @@ const IntegrationsTabContent: React.FC = () => {
   ]);
 
   return (
-    <div className="flex-1 flex flex-col overflow-auto">
+    <div className="flex-1 overflow-auto">
       <div className="p-4">
         <h3 className="font-semibold mb-4">Integrations</h3>
-        
+
         <p className="text-sm text-gray-500 mb-4">
           Connect your form to external services and automate workflows.
         </p>

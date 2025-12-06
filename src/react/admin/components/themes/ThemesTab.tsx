@@ -23,9 +23,9 @@ export const ThemesTab: React.FC = () => {
   }
 
   return (
-    <div className="flex-1 flex flex-col overflow-auto">
+    <div className="flex-1 overflow-auto">
       {/* Header */}
-      <div className="p-4 border-b border-border flex items-center justify-between">
+      <div className="p-4 border-b border-border flex items-center justify-between sticky top-0 bg-background z-10">
         <div>
           <h3 className="font-semibold text-lg">Form Themes</h3>
           <p className="text-sm text-muted-foreground">
@@ -43,7 +43,7 @@ export const ThemesTab: React.FC = () => {
       </div>
 
       {/* Gallery */}
-      <div className="flex-1 overflow-auto p-4">
+      <div className="p-4">
         <ThemeGallery
           themes={themes}
           activeThemeId={activeThemeId ?? undefined}
