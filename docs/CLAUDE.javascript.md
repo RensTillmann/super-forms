@@ -791,6 +791,411 @@ The Email v2 React app stores email data in `_emails` postmeta, which automatica
 - React app storage: Stores in `_emails` postmeta (sync transparent to React code)
 - Action renderer: `/src/includes/automations/actions/class-action-send-email.php` (handles all body types)
 
+## Themes Tab
+
+### Overview (v6.6.0+)
+
+The Themes Tab provides a gallery interface for browsing, applying, and creating form themes. Themes are first-class entities stored in the database, enabling reuse across forms and AI-powered generation.
+
+**Location:** `/src/react/admin/components/themes/`
+
+**Key Features:**
+- Theme gallery with preview swatches
+- Apply theme with one click
+- Save current styles as custom theme
+- "Coming Soon" badges for stub themes
+- Delete custom themes (system themes protected)
+- REST API integration via `wp.apiFetch()`
+
+### Component Architecture
+
+**Main Components:**
+
+**ThemesTab.tsx** - Main tab component:
+```tsx
+import { ThemesTab } from '@/components/themes';
+
+// Renders in Form Builder V2 when activeTab === 'themes'
+<ThemesTab formId={formId} />
+```
+
+Features:
+- Loads themes via `useThemes()` hook
+- Applies theme to current form
+- Shows CreateThemeDialog for saving current styles
+- Handles system theme protection (no delete button)
+- Displays "Coming Soon" badge for stub themes
+
+**ThemeGallery.tsx** - Grid layout:
+```tsx
+<ThemeGallery
+  themes={themes}
+  onApply={handleApply}
+  onDelete={handleDelete}
+  isDeleting={isDeleting}
+/>
+```
+
+Renders responsive grid (3 columns desktop, 2 tablet, 1 mobile) of theme cards.
+
+**ThemeCard.tsx** - Individual theme preview:
+```tsx
+<ThemeCard
+  theme={theme}
+  onApply={() => onApply(theme.id)}
+  onDelete={() => onDelete(theme.id)}
+  isDeleting={isDeleting}
+/>
+```
+
+Displays:
+- Theme name and description
+- Category badge (Light, Dark, etc.)
+- Preview swatches from `preview_colors` array
+- Apply button (primary action)
+- Delete button (custom themes only, not system themes)
+- "Coming Soon" badge if `is_stub === true`
+
+**CreateThemeDialog.tsx** - Save current styles:
+```tsx
+<CreateThemeDialog
+  open={open}
+  onClose={() => setOpen(false)}
+  onSave={handleSave}
+/>
+```
+
+Form fields:
+- Name (required)
+- Description (optional)
+- Category dropdown (light, dark, minimal, corporate, playful, highContrast)
+
+Captures current `styleRegistry.exportStyles()` and posts to REST API.
+
+### Custom Hook: useThemes
+
+**Location:** `/src/react/admin/components/themes/hooks/useThemes.ts`
+
+**Usage:**
+```typescript
+import { useThemes } from '@/components/themes/hooks/useThemes';
+
+function MyComponent() {
+  const {
+    themes,
+    isLoading,
+    error,
+    createTheme,
+    deleteTheme,
+    applyTheme,
+    isDeleting,
+    refetch
+  } = useThemes();
+
+  // Apply theme to form
+  await applyTheme(themeId, formId);
+
+  // Save current styles as new theme
+  await createTheme({
+    name: 'My Theme',
+    description: 'Custom brand theme',
+    category: 'light',
+    styles: styleRegistry.exportStyles(),
+    preview_colors: ['#fff', '#000', '#blue', '#gray']
+  });
+
+  // Delete custom theme
+  await deleteTheme(themeId);
+}
+```
+
+**API Methods:**
+- `themes` - Array of theme objects with decoded JSON
+- `isLoading` - Boolean for initial load state
+- `error` - Error message if fetch failed
+- `createTheme(data)` - POST to `/super-forms/v1/themes`
+- `deleteTheme(id)` - DELETE to `/super-forms/v1/themes/{id}`
+- `applyTheme(themeId, formId)` - POST to `/super-forms/v1/themes/{id}/apply`
+- `isDeleting` - Boolean for delete in progress
+- `refetch()` - Reload themes from server
+
+**REST Integration:**
+All operations use `wp.apiFetch()` with WordPress cookie authentication. No custom nonces required.
+
+### Style System Integration
+
+**styleRegistry** - In-memory style storage:
+```typescript
+import { styleRegistry } from '@/schemas/styles/registry';
+
+// Export current styles for theme creation
+const styles = styleRegistry.exportStyles();
+// Returns: Record<NodeType, Partial<StyleProperties>>
+
+// Import styles from theme
+styleRegistry.importStyles(theme.styles);
+
+// Subscribe to changes
+const unsubscribe = styleRegistry.subscribe(() => {
+  // Re-render when styles change
+});
+```
+
+**Style Resolution Flow:**
+1. Theme applied via REST API → Form settings updated
+2. Form loads → `globalStyles` from settings loaded into `styleRegistry`
+3. Elements render → `useResolvedStyle()` merges global + overrides
+4. Live preview updates on style changes
+
+### styleUtils.ts - CSS Conversion
+
+**Location:** `/src/react/admin/lib/styleUtils.ts`
+
+**Purpose:** Convert StyleProperties to React CSSProperties for element rendering.
+
+**Core Function:**
+```typescript
+import { stylesToCSS } from '@/lib/styleUtils';
+import type { StyleProperties } from '@/schemas/styles';
+
+const style: Partial<StyleProperties> = {
+  fontSize: 14,
+  color: '#1f2937',
+  margin: { top: 0, right: 0, bottom: 4, left: 0 },
+  borderRadius: 6,
+};
+
+const css = stylesToCSS(style);
+// Returns CSSProperties:
+// {
+//   fontSize: '14px',
+//   color: '#1f2937',
+//   margin: '0px 0px 4px 0px',
+//   borderRadius: '6px'
+// }
+```
+
+**Conversion Rules:**
+- Numeric values → `${value}px` (fontSize, borderRadius, letterSpacing)
+- BoxSpacing → `${top}px ${right}px ${bottom}px ${left}px` (margin, padding, border)
+- Colors → pass through (already hex strings)
+- Width → handle both numbers and strings ('100%' or 300)
+
+**Helper Function:**
+```typescript
+import { mergeWithElementProps } from '@/lib/styleUtils';
+
+const resolvedStyle = stylesToCSS(globalStyle);
+const finalStyle = mergeWithElementProps(resolvedStyle, element.properties);
+// Element properties override layout (width, margin)
+```
+
+### ElementRenderer Integration
+
+**Location:** `/src/react/admin/apps/form-builder-v2/components/elements/ElementRenderer.tsx`
+
+**Pattern:**
+```tsx
+import { useResolvedStyle } from '@/apps/form-builder-v2/hooks/useResolvedStyle';
+import { stylesToCSS } from '@/lib/styleUtils';
+
+export const ElementRenderer: React.FC<{ element }> = ({ element }) => {
+  // Resolve styles for each node type the element contains
+  const labelStyle = useResolvedStyle(element.id, 'label');
+  const inputStyle = useResolvedStyle(element.id, 'input');
+  const errorStyle = useResolvedStyle(element.id, 'error');
+
+  // Convert to React CSS
+  const labelCSS = stylesToCSS(labelStyle);
+  const inputCSS = stylesToCSS(inputStyle);
+
+  return (
+    <div>
+      <label style={labelCSS}>{element.properties?.label}</label>
+      <input style={inputCSS} disabled />
+      {error && <div style={stylesToCSS(errorStyle)}>{error}</div>}
+    </div>
+  );
+};
+```
+
+**Live Preview:**
+When theme is applied or global styles change:
+1. `styleRegistry` notifies subscribers
+2. `useResolvedStyle()` re-runs
+3. ElementRenderer gets new CSS
+4. Canvas updates instantly
+
+### FloatingPanel - Element Style Overrides
+
+**Location:** `/src/react/admin/apps/form-builder-v2/components/property-panels/FloatingPanel.tsx`
+
+**Pattern:**
+```tsx
+import { ElementStylesSection } from '@/components/settings/ElementStylesSection';
+
+// In FloatingPanel content area (after properties):
+{hasSchema && (
+  <div className="mt-6 pt-6 border-t">
+    <ElementStylesSection
+      elementId={element.id}
+      elementType={element.type}
+      onUpdate={handleUpdate}
+    />
+  </div>
+)}
+```
+
+**ElementStylesSection.tsx** - Per-element style editor:
+- Shows all applicable node types for element (label, input, error, etc.)
+- NodeStyleEditor for each node with link/unlink controls
+- Unlinked properties show override value
+- Linked properties use global value (grayed out)
+- Visual indication: chain icon = linked, broken chain = overridden
+
+**NodeStyleEditor.tsx** - Individual node controls:
+```tsx
+<NodeStyleEditor
+  nodeType="input"
+  elementId={elementId}
+  onLink={(property) => removeOverride(property)}
+  onUnlink={(property) => setOverride(property, currentValue)}
+/>
+```
+
+Controls based on `NODE_STYLE_CAPABILITIES[nodeType]`:
+- Typography: fontSize, fontWeight, fontFamily, lineHeight
+- Colors: color, backgroundColor, borderColor
+- Spacing: margin, padding, border (visual box model)
+- Layout: borderRadius, width, minHeight
+
+### MCP/AI Integration
+
+**Location:** `/src/react/admin/mcp/`
+
+**Style Action Schema:**
+```typescript
+import { z } from 'zod';
+
+const ListThemesAction = z.object({
+  action: z.literal('listThemes'),
+  includeSystem: z.boolean().optional(),
+  includeStubs: z.boolean().optional(),
+  category: z.enum(['light', 'dark', 'minimal', 'corporate', 'playful', 'highContrast']).optional(),
+});
+
+const ApplyThemeAction = z.object({
+  action: z.literal('applyTheme'),
+  themeId: z.union([z.string(), z.number()]),
+  formId: z.number().optional(),
+});
+
+const GenerateThemeAction = z.object({
+  action: z.literal('generateTheme'),
+  name: z.string().min(1).max(100),
+  baseColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+  density: z.enum(['compact', 'comfortable', 'spacious']).optional(),
+  cornerStyle: z.enum(['sharp', 'rounded', 'pill']).optional(),
+  contrastPreference: z.enum(['high', 'standard', 'soft']).optional(),
+  save: z.boolean().optional().default(true),
+});
+```
+
+**Style Actions Handler:**
+```typescript
+// src/react/admin/mcp/handlers/styleActions.ts
+export async function handleStyleAction(action: StyleAction) {
+  switch (action.action) {
+    case 'listThemes': {
+      const themes = await wp.apiFetch({
+        path: '/super-forms/v1/themes',
+        method: 'GET'
+      });
+      return { success: true, themes };
+    }
+
+    case 'applyTheme': {
+      await wp.apiFetch({
+        path: `/super-forms/v1/themes/${action.themeId}/apply`,
+        method: 'POST',
+        data: { form_id: action.formId }
+      });
+      return { success: true };
+    }
+
+    case 'generateTheme': {
+      const generatedStyles = generateThemeFromOptions({
+        baseColor: action.baseColor,
+        density: action.density,
+        cornerStyle: action.cornerStyle,
+      });
+
+      if (action.save) {
+        const theme = await wp.apiFetch({
+          path: '/super-forms/v1/themes',
+          method: 'POST',
+          data: {
+            name: action.name,
+            styles: generatedStyles,
+            preview_colors: extractPreviewColors(generatedStyles),
+          }
+        });
+        return { success: true, theme };
+      }
+
+      return { success: true, styles: generatedStyles };
+    }
+  }
+}
+```
+
+**Theme Generator:**
+```typescript
+// src/react/admin/lib/themeGenerator.ts
+export function generateThemeFromOptions(options: GenerateThemeOptions): ThemeStyles {
+  // 1. Derive full color palette from baseColor using color theory
+  const palette = deriveColorPalette(options.baseColor || '#2563eb');
+
+  // 2. Apply density settings (compact/comfortable/spacious)
+  const spacing = getDensitySpacing(options.density || 'comfortable');
+
+  // 3. Apply corner style (sharp/rounded/pill)
+  const borderRadius = getCornerRadius(options.cornerStyle || 'rounded');
+
+  // 4. Generate node styles for all 13 node types
+  return {
+    label: { fontSize: 14, color: palette.text, margin: spacing.label },
+    input: { fontSize: 14, borderColor: palette.border, borderRadius, ... },
+    // ... all node types
+  };
+}
+```
+
+Color theory functions:
+- `lighten(color, amount)` - Increase lightness
+- `darken(color, amount)` - Decrease lightness
+- `adjustHue(color, degrees)` - Shift hue on color wheel
+- `getComplementary(color)` - Opposite hue (180deg)
+- `getAnalogous(color)` - Adjacent hues (±30deg)
+- `adjustSaturation(color, amount)` - Increase/decrease saturation
+
+**AI Example Prompts:**
+```
+"use the dark theme"
+→ listThemes() → find dark → applyTheme(id: 2)
+
+"create a theme based on my brand color #FF5722"
+→ generateTheme({ name: "Orange Brand", baseColor: "#FF5722" })
+
+"make a compact corporate theme with sharp corners"
+→ generateTheme({
+    name: "Corporate",
+    density: "compact",
+    cornerStyle: "sharp",
+    baseColor: "#1d4ed8"
+  })
+```
+
 ## Vanilla JavaScript Components (Frontend)
 
 ### Session Manager (Progressive Form Saving)

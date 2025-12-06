@@ -65,6 +65,68 @@ Super Forms is a WordPress drag & drop form builder plugin.
 - **Conditions** - Branching logic (Field Comparison, A/B Test, etc.)
 - **Control** - Flow utilities (Delay, Schedule, Stop Execution, etc.)
 
+## Styles & Themes System
+
+**Database Tables:**
+- `wp_superforms_themes` - Theme storage with user ownership (v6.6.0)
+
+**Core Classes:**
+- `SUPER_Theme_DAL` - Theme CRUD operations (src/includes/class-theme-dal.php)
+- `SUPER_Theme_REST_Controller` - REST API endpoints (src/includes/class-theme-rest-controller.php)
+
+**REST API Endpoints:**
+- `GET /super-forms/v1/themes` - List all themes (with filters: category, include_stubs, user_only)
+- `GET /super-forms/v1/themes/{id}` - Get single theme
+- `GET /super-forms/v1/themes/slug/{slug}` - Get theme by slug
+- `POST /super-forms/v1/themes` - Create custom theme
+- `PUT /super-forms/v1/themes/{id}` - Update theme (custom themes only)
+- `DELETE /super-forms/v1/themes/{id}` - Delete custom theme (system themes protected)
+- `POST /super-forms/v1/themes/{id}/apply` - Apply theme to form
+- `POST /super-forms/v1/themes/{id}/duplicate` - Duplicate theme as custom theme
+
+**React Components (src/react/admin/components/themes/):**
+- `ThemesTab` - Main themes gallery tab
+- `ThemeGallery` - Grid of theme cards
+- `ThemeCard` - Individual theme preview with apply button
+- `CreateThemeDialog` - Save current styles as custom theme
+- `useThemes` - Custom hook for API integration
+
+**Style System (src/react/admin/schemas/styles/):**
+- `styleRegistry` - In-memory style management with subscription system
+- `styleUtils.ts` - CSS conversion utilities (StyleProperties to CSSProperties)
+- `useGlobalStyles()` - Subscribe to global style changes
+- `useResolvedStyle()` - Merge global styles with element-level overrides
+- `NODE_STYLE_CAPABILITIES` - Define which style properties each node type supports
+
+**MCP/AI Integration (src/react/admin/mcp/):**
+- `listThemes` - Get available themes with filtering
+- `getTheme` - Retrieve theme by ID or slug
+- `applyTheme` - Apply theme to form
+- `createTheme` - Save current styles as new theme
+- `deleteTheme` - Remove custom theme
+- `generateTheme` - Generate theme from baseColor using color theory
+- `setGlobalProperty` - Modify individual style properties with AI
+
+**System Themes:**
+- **Light** - Clean, professional with subtle grays
+- **Dark** - Modern dark mode with good contrast
+
+**Stub Themes (Coming Soon):**
+- Minimal, Classic, Modern, Corporate, Playful, High Contrast
+
+**Theme Storage:**
+Themes persist independently of forms in `wp_superforms_themes` table. Custom themes are owned by users (`user_id` column). When applied to a form, theme styles are snapshotted into form settings for version control.
+
+**Key Features:**
+- Theme gallery with preview swatches (`preview_colors`)
+- Live preview in ElementRenderer using resolved styles
+- Per-element style overrides in FloatingPanel
+- AI-powered theme generation from brand colors
+- Export/Import themes as JSON
+- Global vs individual style resolution system
+
+See [docs/CLAUDE.php.md - Theme System](docs/CLAUDE.php.md#theme-system) and [docs/CLAUDE.javascript.md - Themes Tab](docs/CLAUDE.javascript.md#themes-tab) for implementation details.
+
 ## Operations & Versioning System
 
 **Database Tables:**

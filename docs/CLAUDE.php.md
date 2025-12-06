@@ -1023,6 +1023,381 @@ public static function complete_migration() {
 
 **Reference:** Implemented in v6.4.126 as part of migration completion flow.
 
+## Theme System
+
+### Overview (v6.6.0+)
+
+The Styles & Themes system provides reusable styling templates stored independently of forms. Themes are first-class entities with their own database table, enabling sharing, AI generation, and version control.
+
+**Database Table:**
+```sql
+CREATE TABLE wp_superforms_themes (
+  id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+  name VARCHAR(100) NOT NULL,
+  slug VARCHAR(100) NOT NULL,
+  description TEXT,
+  category VARCHAR(50) DEFAULT 'light',
+  styles LONGTEXT NOT NULL,        -- JSON object of node styles
+  preview_colors TEXT,              -- JSON array of hex swatches for UI
+  is_system TINYINT(1) DEFAULT 0,   -- Protected system themes
+  is_stub TINYINT(1) DEFAULT 0,     -- "Coming Soon" placeholders
+  user_id BIGINT(20) UNSIGNED,      -- Owner (NULL for system themes)
+  created_at DATETIME NOT NULL,
+  updated_at DATETIME NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE KEY slug (slug),
+  KEY user_id (user_id),
+  KEY category (category),
+  KEY is_system (is_system)
+) ENGINE=InnoDB;
+```
+
+### SUPER_Theme_DAL API
+
+**Location:** `/src/includes/class-theme-dal.php`
+
+**Create Theme:**
+```php
+$theme_id = SUPER_Theme_DAL::create_theme(array(
+    'name' => 'My Brand Theme',
+    'description' => 'Custom theme matching company brand',
+    'category' => 'light',
+    'styles' => array(
+        'label' => array('fontSize' => 14, 'color' => '#1f2937'),
+        'input' => array('borderColor' => '#d1d5db', 'backgroundColor' => '#ffffff'),
+        // ... all 13 node types
+    ),
+    'preview_colors' => array('#ffffff', '#1f2937', '#2563eb', '#d1d5db'),
+    'user_id' => get_current_user_id()
+));
+
+if (is_wp_error($theme_id)) {
+    error_log('Theme creation failed: ' . $theme_id->get_error_message());
+}
+```
+
+**Get Theme:**
+```php
+// By ID
+$theme = SUPER_Theme_DAL::get_theme($theme_id);
+if (!is_wp_error($theme)) {
+    $styles = $theme['styles'];       // Already decoded from JSON
+    $preview = $theme['preview_colors']; // Array of hex colors
+    $is_system = $theme['is_system'];   // Boolean
+}
+
+// By slug
+$theme = SUPER_Theme_DAL::get_theme_by_slug('dark');
+```
+
+**Query Themes:**
+```php
+// All themes
+$all_themes = SUPER_Theme_DAL::get_all_themes();
+
+// Filter by category
+$light_themes = SUPER_Theme_DAL::get_all_themes(array('category' => 'light'));
+
+// User's custom themes only
+$user_themes = SUPER_Theme_DAL::get_all_themes(array(
+    'user_id' => get_current_user_id()
+));
+
+// Exclude stub themes (hide "Coming Soon")
+$ready_themes = SUPER_Theme_DAL::get_all_themes(array(
+    'include_stubs' => false
+));
+
+// System themes only
+$system_themes = SUPER_Theme_DAL::get_all_themes(array('is_system' => 1));
+```
+
+**Update Theme:**
+```php
+$result = SUPER_Theme_DAL::update_theme($theme_id, array(
+    'name' => 'Updated Theme Name',
+    'styles' => $updated_styles,
+    'preview_colors' => array('#new', '#colors', '#here', '#also')
+));
+
+// System themes cannot be modified
+if (is_wp_error($result)) {
+    // Returns WP_Error: 'cannot_modify_system_theme'
+}
+```
+
+**Delete Theme:**
+```php
+$result = SUPER_Theme_DAL::delete_theme($theme_id);
+
+// System themes protected from deletion
+if (is_wp_error($result)) {
+    // Returns WP_Error: 'cannot_delete_system_theme'
+}
+```
+
+**Check Ownership:**
+```php
+if (SUPER_Theme_DAL::is_owner($theme_id, get_current_user_id())) {
+    // User can modify/delete this theme
+}
+```
+
+### System Theme Seeding
+
+**Location:** `SUPER_Theme_DAL::seed_system_themes()` and `::seed_stub_themes()`
+
+Called automatically on plugin activation:
+
+```php
+// Light theme (fully implemented)
+SUPER_Theme_DAL::seed_system_themes();
+
+// Stub themes (placeholders for future implementation)
+SUPER_Theme_DAL::seed_stub_themes();
+```
+
+**System Themes:**
+- `light` - Clean professional look, matches frontend LIGHT_PRESET
+- `dark` - Dark mode theme, matches frontend DARK_PRESET
+
+**Stub Themes (is_stub = 1):**
+- `minimal` - Borderless, maximum whitespace
+- `classic` - Traditional form styling
+- `modern` - Rounded corners, subtle shadows
+- `corporate` - Professional blue tones
+- `playful` - Colorful, friendly
+- `high-contrast` - WCAG AAA accessibility
+
+Stubs have empty `styles` array and display "Coming Soon" badge in UI.
+
+### SUPER_Theme_REST_Controller
+
+**Location:** `/src/includes/class-theme-rest-controller.php`
+
+**Authentication:**
+Supports both WordPress cookie authentication and API key authentication (X-API-Key header).
+
+**Endpoints:**
+
+**List Themes:**
+```
+GET /wp-json/super-forms/v1/themes
+GET /wp-json/super-forms/v1/themes?category=dark
+GET /wp-json/super-forms/v1/themes?include_stubs=false
+GET /wp-json/super-forms/v1/themes?user_only=true
+
+Response: [
+  {
+    "id": 1,
+    "name": "Light",
+    "slug": "light",
+    "category": "light",
+    "styles": {...},
+    "preview_colors": ["#ffffff", "#1f2937", "#2563eb", "#d1d5db"],
+    "is_system": true,
+    "is_stub": false,
+    "user_id": null
+  },
+  ...
+]
+```
+
+**Get Theme:**
+```
+GET /wp-json/super-forms/v1/themes/1
+GET /wp-json/super-forms/v1/themes/slug/dark
+
+Response: {
+  "id": 2,
+  "name": "Dark",
+  "styles": {...},
+  ...
+}
+```
+
+**Create Theme:**
+```
+POST /wp-json/super-forms/v1/themes
+Content-Type: application/json
+
+{
+  "name": "My Theme",
+  "description": "Custom theme",
+  "category": "light",
+  "styles": {...},
+  "preview_colors": ["#fff", "#000", "#blue", "#gray"]
+}
+
+Response: {
+  "id": 10,
+  "name": "My Theme",
+  "user_id": 1,
+  ...
+}
+```
+
+**Update Theme:**
+```
+PUT /wp-json/super-forms/v1/themes/10
+Content-Type: application/json
+
+{
+  "name": "Updated Name",
+  "styles": {...}
+}
+
+Response: {
+  "id": 10,
+  "name": "Updated Name",
+  ...
+}
+```
+
+**Delete Theme:**
+```
+DELETE /wp-json/super-forms/v1/themes/10
+
+Response: {
+  "success": true,
+  "deleted": 10
+}
+```
+
+**Apply Theme to Form:**
+```
+POST /wp-json/super-forms/v1/themes/1/apply
+Content-Type: application/json
+
+{
+  "form_id": 123
+}
+
+Response: {
+  "success": true,
+  "theme_id": 1,
+  "form_id": 123,
+  "message": "Theme \"Light\" applied to form."
+}
+```
+
+When applied, theme styles are:
+1. Fetched from `wp_superforms_themes.styles`
+2. Stored in form settings as `globalStyles` (snapshot)
+3. Form settings also store `currentThemeId` for reference
+
+This allows forms to maintain stable styles even if theme is later modified.
+
+**Duplicate Theme:**
+```
+POST /wp-json/super-forms/v1/themes/1/duplicate
+Content-Type: application/json
+
+{
+  "name": "My Light Theme Copy"  // Optional
+}
+
+Response: {
+  "id": 11,
+  "name": "My Light Theme Copy",
+  "user_id": 1,  // Owned by current user
+  "is_system": false,
+  ...
+}
+```
+
+### Permission Model
+
+**Admin-Only Operations:**
+All theme operations require `manage_options` capability (WordPress admin).
+
+**Ownership Checks:**
+- System themes (`is_system = 1`): Cannot be modified or deleted
+- Custom themes: Only owner can modify/delete (unless admin)
+- Read operations: All admins can view all themes
+
+**API Key Authentication:**
+Supports X-API-Key header for MCP/AI integration:
+```
+X-API-Key: sk_super_forms_abc123xyz
+```
+
+See `SUPER_Automation_API_Keys` class for key management.
+
+### Theme JSON Structure
+
+**Styles Object:**
+```php
+array(
+  'label' => array(
+    'fontSize' => 14,
+    'fontWeight' => '500',
+    'color' => '#1f2937',
+    'margin' => array('top' => 0, 'right' => 0, 'bottom' => 4, 'left' => 0),
+  ),
+  'input' => array(
+    'fontSize' => 14,
+    'padding' => array('top' => 10, 'right' => 14, 'bottom' => 10, 'left' => 14),
+    'border' => array('top' => 1, 'right' => 1, 'bottom' => 1, 'left' => 1),
+    'borderStyle' => 'solid',
+    'borderColor' => '#d1d5db',
+    'borderRadius' => 6,
+    'backgroundColor' => '#ffffff',
+    'width' => '100%',
+    'minHeight' => 42,
+  ),
+  'error' => array(/* ... */),
+  'description' => array(/* ... */),
+  'placeholder' => array(/* ... */),
+  'required' => array(/* ... */),
+  'fieldContainer' => array(/* ... */),
+  'heading' => array(/* ... */),
+  'paragraph' => array(/* ... */),
+  'button' => array(/* ... */),
+  'divider' => array(/* ... */),
+  'optionLabel' => array(/* ... */),
+  'cardContainer' => array(/* ... */),
+)
+```
+
+All 13 node types must be present for complete theme definition.
+
+### Integration with Form Settings
+
+**Form Settings Structure:**
+```php
+$form = SUPER_Form_DAL::get($form_id);
+$settings = $form->settings;  // Already decoded from JSON
+
+// Theme reference
+$current_theme_id = $settings['currentThemeId'] ?? null;
+
+// Style snapshot (from theme at time of application)
+$global_styles = $settings['globalStyles'] ?? array();
+```
+
+**Workflow:**
+1. User selects theme in UI
+2. Frontend calls `/themes/{id}/apply` endpoint with form_id
+3. Backend loads theme styles, updates form settings
+4. Form now has copy of theme styles
+5. Frontend loads form, applies styles to styleRegistry
+6. ElementRenderer uses resolved styles for live preview
+
+### AI/MCP Integration Pattern
+
+**Example: Generate Theme from Brand Color**
+```php
+// MCP server receives: generateTheme action with baseColor
+// 1. Frontend themeGenerator.ts derives full palette using color theory
+// 2. Calls POST /themes with generated styles
+// 3. Returns theme_id to AI
+
+// AI can now apply theme to any form
+```
+
+See `/src/react/admin/lib/themeGenerator.ts` for color theory implementation.
+
 ## Form Management & Data Access Layer
 
 ### Overview (v6.6.0+)

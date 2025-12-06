@@ -1,4 +1,6 @@
-import React, { Suspense, lazy } from 'react';
+import React, { Suspense, lazy, useMemo } from 'react';
+import { useResolvedStyle } from '../../hooks/useResolvedStyle';
+import { stylesToCSS, mergeWithElementProps, ResolvedStyles } from '../../../../lib/styleUtils';
 
 // Lazy load element components
 const TextInput = lazy(() => import('./basic/TextInput'));
@@ -12,34 +14,49 @@ interface ElementRendererProps {
   element: {
     type: string;
     id: string;
-    properties?: any;
+    properties?: Record<string, unknown>;
+    styleOverrides?: Record<string, Record<string, unknown>>;
   };
-  updateElementProperty?: (id: string, property: string, value: any) => void;
-}
-
-interface CommonProps {
-  className: string;
-  disabled: boolean;
-  style: {
-    width: string;
-    margin?: string;
-    backgroundColor?: string;
-    borderStyle?: string;
-  };
+  updateElementProperty?: (id: string, property: string, value: unknown) => void;
 }
 
 export const ElementRenderer: React.FC<ElementRendererProps> = ({ element, updateElementProperty }) => {
-  // Generate common props for form elements
-  const commonProps: CommonProps = {
-    className: "form-input",
-    disabled: true,
-    style: {
-      width: element.properties?.width === 'full' ? '100%' : `${element.properties?.width || 100}%`,
-      margin: element.properties?.margin,
-      backgroundColor: element.properties?.backgroundColor,
-      borderStyle: element.properties?.borderStyle,
-    }
-  };
+  // Resolve styles for common nodes
+  const labelStyle = useResolvedStyle(element.id, 'label');
+  const inputStyle = useResolvedStyle(element.id, 'input');
+  const errorStyle = useResolvedStyle(element.id, 'error');
+  const descriptionStyle = useResolvedStyle(element.id, 'description');
+  const placeholderStyle = useResolvedStyle(element.id, 'placeholder');
+  const requiredStyle = useResolvedStyle(element.id, 'required');
+  const fieldContainerStyle = useResolvedStyle(element.id, 'fieldContainer');
+  const headingStyle = useResolvedStyle(element.id, 'heading');
+  const paragraphStyle = useResolvedStyle(element.id, 'paragraph');
+  const buttonStyle = useResolvedStyle(element.id, 'button');
+  const dividerStyle = useResolvedStyle(element.id, 'divider');
+  const optionLabelStyle = useResolvedStyle(element.id, 'optionLabel');
+  const cardContainerStyle = useResolvedStyle(element.id, 'cardContainer');
+
+  // Convert to CSS and memoize
+  const resolvedStyles = useMemo<ResolvedStyles>(() => ({
+    label: stylesToCSS(labelStyle),
+    input: mergeWithElementProps(stylesToCSS(inputStyle), element.properties),
+    error: stylesToCSS(errorStyle),
+    description: stylesToCSS(descriptionStyle),
+    placeholder: stylesToCSS(placeholderStyle),
+    required: stylesToCSS(requiredStyle),
+    fieldContainer: stylesToCSS(fieldContainerStyle),
+    heading: stylesToCSS(headingStyle),
+    paragraph: stylesToCSS(paragraphStyle),
+    button: stylesToCSS(buttonStyle),
+    divider: stylesToCSS(dividerStyle),
+    optionLabel: stylesToCSS(optionLabelStyle),
+    cardContainer: stylesToCSS(cardContainerStyle),
+  }), [
+    labelStyle, inputStyle, errorStyle, descriptionStyle, placeholderStyle,
+    requiredStyle, fieldContainerStyle, headingStyle, paragraphStyle,
+    buttonStyle, dividerStyle, optionLabelStyle, cardContainerStyle,
+    element.properties
+  ]);
 
   const renderElement = () => {
     switch (element.type) {
@@ -50,28 +67,28 @@ export const ElementRenderer: React.FC<ElementRendererProps> = ({ element, updat
       case 'password':
       case 'number':
       case 'number-formatted':
-        return <TextInput element={element} commonProps={commonProps} />;
-        
+        return <TextInput element={element} styles={resolvedStyles} />;
+
       case 'textarea':
-        return <TextArea element={element} commonProps={commonProps} />;
-        
+        return <TextArea element={element} styles={resolvedStyles} />;
+
       case 'select':
-        return <Select element={element} commonProps={commonProps} />;
-        
+        return <Select element={element} styles={resolvedStyles} />;
+
       case 'radio-cards':
-        return <RadioCards element={element} updateElementProperty={updateElementProperty!} />;
-        
+        return <RadioCards element={element} updateElementProperty={updateElementProperty!} styles={resolvedStyles} />;
+
       case 'checkbox-cards':
-        return <CheckboxCards element={element} updateElementProperty={updateElementProperty!} />;
-        
+        return <CheckboxCards element={element} updateElementProperty={updateElementProperty!} styles={resolvedStyles} />;
+
       case 'columns':
         return <ColumnsContainer element={element} />;
-        
+
       default:
         // Fallback for elements not yet extracted
         return (
           <div className="border border-gray-300 rounded-md p-4 text-center text-gray-500">
-            Element type: {element.type} (not yet extracted)
+            Element type: {element.type} (not yet styled)
           </div>
         );
     }
@@ -83,7 +100,9 @@ export const ElementRenderer: React.FC<ElementRendererProps> = ({ element, updat
         Loading element...
       </div>
     }>
-      {renderElement()}
+      <div style={resolvedStyles.fieldContainer}>
+        {renderElement()}
+      </div>
     </Suspense>
   );
 };

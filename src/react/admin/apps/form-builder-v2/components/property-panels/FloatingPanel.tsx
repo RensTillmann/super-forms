@@ -1,7 +1,10 @@
-import React, { useRef, useEffect, useMemo } from 'react';
+import React, { useRef, useEffect, useMemo, useCallback } from 'react';
 import { X, Trash2 } from 'lucide-react';
 import { SchemaPropertyPanel } from './schema';
+import { ElementStylesSection } from './ElementStylesSection';
 import { isElementRegistered, getElementSchema } from '../../../../schemas/core/registry';
+import { useElementsStore } from '../../store/useElementsStore';
+import { NodeType, StyleProperties } from '../../../../schemas/styles';
 
 // Import legacy panels for fallback
 import { GeneralProperties, ValidationProperties } from './basic';
@@ -14,6 +17,7 @@ interface FloatingPanelProps {
     label?: string;
     icon?: React.ComponentType<{ size?: number }>;
     properties?: Record<string, unknown>;
+    styleOverrides?: Record<string, Partial<StyleProperties>>;
   };
   /** Position to render the panel */
   position: { x: number; y: number };
@@ -38,9 +42,38 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
 }) => {
   const panelRef = useRef<HTMLDivElement>(null);
 
+  // Style override store methods
+  const setStyleOverride = useElementsStore((s) => s.setStyleOverride);
+  const removeStyleOverride = useElementsStore((s) => s.removeStyleOverride);
+  const clearAllStyleOverrides = useElementsStore((s) => s.clearAllStyleOverrides);
+  const clearNodeStyleOverrides = useElementsStore((s) => s.clearNodeStyleOverrides);
+
   // Check if element has a schema registered
   const hasSchema = useMemo(() => isElementRegistered(element.type), [element.type]);
   const schema = useMemo(() => hasSchema ? getElementSchema(element.type) : null, [element.type, hasSchema]);
+
+  // Style override handlers
+  const handleStyleOverrideChange = useCallback(
+    (nodeType: string, property: string, value: unknown) => {
+      if (value === undefined) {
+        removeStyleOverride(element.id, nodeType as NodeType, property as keyof StyleProperties);
+      } else {
+        setStyleOverride(element.id, nodeType as NodeType, property as keyof StyleProperties, value as StyleProperties[keyof StyleProperties]);
+      }
+    },
+    [element.id, setStyleOverride, removeStyleOverride]
+  );
+
+  const handleResetToGlobal = useCallback(
+    (nodeType?: string) => {
+      if (nodeType) {
+        clearNodeStyleOverrides(element.id, nodeType as NodeType);
+      } else {
+        clearAllStyleOverrides(element.id);
+      }
+    },
+    [element.id, clearNodeStyleOverrides, clearAllStyleOverrides]
+  );
 
   // Close on click outside
   useEffect(() => {
@@ -139,11 +172,20 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
       <div className="flex-1 overflow-y-auto p-4">
         {hasSchema ? (
           // Schema-driven panel
-          <SchemaPropertyPanel
-            elementType={element.type}
-            properties={element.properties || {}}
-            onPropertyChange={onPropertyChange}
-          />
+          <>
+            <SchemaPropertyPanel
+              elementType={element.type}
+              properties={element.properties || {}}
+              onPropertyChange={onPropertyChange}
+            />
+            <ElementStylesSection
+              elementId={element.id}
+              elementType={element.type}
+              styleOverrides={element.styleOverrides}
+              onOverrideChange={handleStyleOverrideChange}
+              onResetToGlobal={handleResetToGlobal}
+            />
+          </>
         ) : (
           // Fallback for elements without schemas
           <div className="space-y-4">
@@ -155,6 +197,13 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
             </div>
             <GeneralProperties element={element} onUpdate={onPropertyChange} />
             <ValidationProperties element={element} onUpdate={onPropertyChange} />
+            <ElementStylesSection
+              elementId={element.id}
+              elementType={element.type}
+              styleOverrides={element.styleOverrides}
+              onOverrideChange={handleStyleOverrideChange}
+              onResetToGlobal={handleResetToGlobal}
+            />
           </div>
         )}
       </div>

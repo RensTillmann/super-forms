@@ -1,30 +1,24 @@
 import React from 'react';
+import type { ResolvedStyles } from '../../../../../lib/styleUtils';
 
 interface TextInputProps {
   element: {
     type: 'text' | 'email' | 'phone' | 'url' | 'password' | 'number' | 'number-formatted';
     id: string;
     properties?: {
+      label?: string;
       placeholder?: string;
+      description?: string;
+      required?: boolean;
       width?: string | number;
-      margin?: string;
-      backgroundColor?: string;
-      borderStyle?: string;
     };
   };
-  commonProps: {
-    className: string;
-    disabled: boolean;
-    style: {
-      width: string;
-      margin?: string;
-      backgroundColor?: string;
-      borderStyle?: string;
-    };
-  };
+  styles: ResolvedStyles;
 }
 
-export const TextInput: React.FC<TextInputProps> = ({ element, commonProps }) => {
+export const TextInput: React.FC<TextInputProps> = ({ element, styles }) => {
+  const { properties = {} } = element;
+
   const getInputType = () => {
     switch (element.type) {
       case 'password':
@@ -44,10 +38,10 @@ export const TextInput: React.FC<TextInputProps> = ({ element, commonProps }) =>
   };
 
   const getPlaceholder = () => {
-    if (element.properties?.placeholder) {
-      return element.properties.placeholder;
+    if (properties.placeholder) {
+      return properties.placeholder;
     }
-    
+
     switch (element.type) {
       case 'password':
         return 'Enter password';
@@ -66,11 +60,33 @@ export const TextInput: React.FC<TextInputProps> = ({ element, commonProps }) =>
   };
 
   return (
-    <input
-      type={getInputType()}
-      placeholder={getPlaceholder()}
-      {...commonProps}
-    />
+    <div>
+      {/* Label */}
+      {properties.label && (
+        <label style={styles.label} className="block mb-1">
+          {properties.label}
+          {properties.required && (
+            <span style={styles.required} className="ml-1">*</span>
+          )}
+        </label>
+      )}
+
+      {/* Description (before input) */}
+      {properties.description && (
+        <p style={styles.description} className="text-sm mb-2">
+          {properties.description}
+        </p>
+      )}
+
+      {/* Input */}
+      <input
+        type={getInputType()}
+        placeholder={getPlaceholder()}
+        disabled
+        style={styles.input}
+        className="form-input w-full border rounded-md px-3 py-2"
+      />
+    </div>
   );
 };
 

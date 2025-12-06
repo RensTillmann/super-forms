@@ -15,11 +15,15 @@ class StyleRegistry {
   private globalStyles: Map<NodeType, Partial<StyleProperties>>;
   private listeners: Set<() => void>;
   private version: number;
+  private cachedAllStyles: Record<NodeType, Partial<StyleProperties>> | null;
+  private cachedVersion: number;
 
   constructor() {
     this.globalStyles = new Map();
     this.listeners = new Set();
     this.version = 0;
+    this.cachedAllStyles = null;
+    this.cachedVersion = -1;
 
     // Initialize with defaults
     this.resetAllToDefaults();
@@ -48,13 +52,22 @@ class StyleRegistry {
 
   /**
    * Get all global styles as a plain object.
+   * Returns a cached reference if version hasn't changed (for useSyncExternalStore).
    */
   getAllGlobalStyles(): Record<NodeType, Partial<StyleProperties>> {
+    // Return cached version if still valid
+    if (this.cachedAllStyles !== null && this.cachedVersion === this.version) {
+      return this.cachedAllStyles;
+    }
+
+    // Rebuild cache
     const result: Record<string, Partial<StyleProperties>> = {};
     this.globalStyles.forEach((styles, nodeType) => {
       result[nodeType] = { ...styles };
     });
-    return result as Record<NodeType, Partial<StyleProperties>>;
+    this.cachedAllStyles = result as Record<NodeType, Partial<StyleProperties>>;
+    this.cachedVersion = this.version;
+    return this.cachedAllStyles;
   }
 
   /**
