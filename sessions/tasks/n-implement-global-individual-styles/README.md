@@ -34,6 +34,577 @@ We need a **schema-first style system** where:
 - [ ] Form elements render using resolved styles from registry
 - [ ] Theme presets (save/load/export)
 
+## Context Manifest
+
+### How Form Builder Styling Currently Works
+
+The Form Builder V2 currently has **ad-hoc styling with no centralized system**. When you look at how elements are styled today, there's a clear absence of structure:
+
+**Current Element Rendering Pattern:**
+Form elements like `TextInput.tsx` receive a `commonProps` object that contains inline styles. The `ElementRenderer.tsx` component constructs these props by reading from `element.properties` (which is just a flat key-value record):
+
+```typescript
+// From ElementRenderer.tsx - lines 36-42
+const commonProps: CommonProps = {
+  className: "form-input",
+  disabled: true,
+  style: {
+    width: element.properties?.width === 'full' ? '100%' : `${element.properties?.width || 100}%`,
+    margin: element.properties?.margin,
+    backgroundColor: element.properties?.backgroundColor,
+    borderStyle: element.properties?.borderStyle,
+  }
+};
+```
+
+This means every element stores its own styling properties directly in `element.properties` without any inheritance, theming, or global defaults. If you want to change the background color of all inputs, you'd need to manually update every single element instance.
+
+**Where Element Data Lives (Zustand Store):**
+The Form Builder uses Zustand for state management with two main stores:
+
+1. **`useElementsStore.ts`** - Manages element instances, their properties, and ordering:
+   - `items: Record<string, FormElement>` - Map of element ID to element data
+   - `order: string[]` - Array of element IDs defining render order
+   - `deviceVisibility: Record<string, DeviceVisibility>` - Per-element visibility settings
+   - Actions: `addElement`, `updateElement`, `removeElement`, `moveElement`
+
+2. **`useBuilderStore.ts`** - Manages UI state (drag/drop, selection):
+   - `selectedElements: string[]` - Currently selected element IDs
+   - `hoveredElement: string | null` - Element being hovered
+   - `draggedElement: string | null` - Element being dragged
+
+The `FormElement` type (from `types/index.ts`) is simple:
+```typescript
+export interface FormElement {
+  id: string;
+  type: string;
+  properties: Record<string, any>;  // ← All element data lives here (flat structure)
+  children?: string[];
+  parent?: string;
+}
+```
+
+**There is NO style system yet.** The `properties` field is completely unstructured - it's just `Record<string, any>`. No global styles, no inheritance, no node type abstraction.
+
+**Property Panel System (How Users Edit Properties):**
+The Form Builder recently migrated to a **schema-first architecture**. The `FloatingPanel.tsx` component is the property editor that appears when you select an element. Here's how it works:
+
+1. User clicks an element → `FloatingPanel` opens
+2. Panel checks if element type has a registered schema via `isElementRegistered(element.type)`
+3. If yes: Renders `SchemaPropertyPanel` which reads the element's schema from the registry
+4. If no: Falls back to legacy property panels
+
+The schema comes from `/src/react/admin/schemas/core/registry.ts`:
+- Elements register themselves via `registerElement(schema)` at import time
+- Schema defines all properties organized by category: `general`, `validation`, `appearance`, `advanced`, `conditions`
+- Each property has a type (string, number, boolean, select, color, etc.) that determines which control to render
+- The `PropertyRenderer.tsx` component maps property types to UI controls (inputs, selects, checkboxes, color pickers)
+
+**Example - Text Element Schema (`schemas/elements/text.ts`):**
+```typescript
+export const TextElementSchema = registerElement({
+  type: 'text',
+  name: 'Text Input',
+  category: 'basic',
+  properties: withBaseProperties({
+    general: {
+      placeholder: { type: 'string', label: 'Placeholder', translatable: true },
+      defaultValue: { type: 'string', label: 'Default Value' },
+    },
+    validation: {
+      required: { type: 'boolean', label: 'Required', default: false },
+      minLength: { type: 'number', label: 'Minimum Length' },
+    },
+    appearance: {
+      inputIcon: { type: 'icon', label: 'Input Icon' },
+    }
+  }),
+  // ...
+});
+```
+
+When a property changes, the `FloatingPanel` calls `onPropertyChange(propertyName, value)` which triggers `useElementsStore.updateElement(id, updates)`. This updates the flat `properties` object in the store.
+
+**Key Insight:** The schema system is **already built and working**. Our new style system needs to integrate with this existing pattern. We'll be adding:
+- New schema types for style properties (e.g., `StylePropertySchema`)
+- A global style registry (similar to element registry)
+- Style-specific property renderers that understand linked/unlinked states
+
+### How Email Builder Handles Styling (Lessons to Learn)
+
+The Email Builder has a **capability-based styling system** that we should study and adapt. Located in `/src/react/admin/components/email-builder/`:
+
+**Capability Registry Pattern (`capabilities/elementCapabilities.js`):**
+Each element type declares what styling features it supports:
+
+```javascript
+export const elementCapabilities = {
+  text: {
+    resizable: { horizontal: true, vertical: false },
+    background: { color: false, image: false },
+    spacing: { margin: true, padding: false, border: false },
+    typography: { font: true, size: true, color: true, lineHeight: true },
+  },
+  button: {
+    resizable: { horizontal: true, vertical: false },
+    background: { color: true, image: false },
+    spacing: { margin: true, padding: true, border: true },
+    typography: { font: true, size: true, color: true },
+  },
+  // ... more element types
+};
+```
+
+The capability system uses helper functions:
+- `getElementCapabilities(type)` - Get all capabilities for an element
+- `hasCapability(type, 'spacing.margin')` - Check if element supports a specific capability
+- `getElementsWithCapability('typography.font')` - Find all elements with a capability
+
+**SpacingCompass Component - The Gold Standard:**
+The `SpacingCompass.jsx` is a sophisticated UI control for editing margin/padding/border in a visual "box model" interface. Key features we need to port:
+
+1. **Linked/Unlinked States** - Each spacing type (margin, border, padding) has a link button:
+   - When linked: All four sides (top/right/bottom/left) have the same value
+   - When unlinked: Each side can be edited independently
+   - Link button shows `<Link>` icon when linked, `<Unlink>` when unlinked
+
+2. **Visual Layered Interface:**
+   - Outer orange layer = margin
+   - Middle purple layer = border
+   - Inner blue layer = padding
+   - Center white box = content (background controls)
+
+3. **Debounced Updates** - Color picker changes are debounced (150ms) to prevent performance issues:
+   ```javascript
+   const debouncedBackgroundColorChange = useCallback((color) => {
+     setLocalBackgroundColor(color); // Update UI immediately
+     colorChangeTimeoutRef.current = setTimeout(() => {
+       onBackgroundColorChange(color); // Update store after delay
+     }, 150);
+   }, [onBackgroundColorChange]);
+   ```
+
+4. **DraggableNumberInput** - Number inputs support drag-to-adjust (not just typing)
+
+**Property Panel Integration (`PropertyPanels/OptimizedPropertyPanel.jsx`):**
+The email builder's property panel shows how to integrate the SpacingCompass:
+
+```javascript
+// Check capabilities first
+const capabilities = getElementCapabilities(element.type);
+
+// Only render if element supports spacing/background
+{(capabilities.spacing?.margin || capabilities.background) && (
+  <SpacingCompass
+    margin={localProps.margin || { top: 0, right: 0, bottom: 0, left: 0 }}
+    border={localProps.border || { top: 0, right: 0, bottom: 0, left: 0 }}
+    padding={localProps.padding || { top: 20, right: 20, bottom: 20, left: 20 }}
+    backgroundColor={localProps.backgroundColor || '#ffffff'}
+    onMarginChange={(margin) => updateProperty('margin', margin)}
+    onPaddingChange={(padding) => updateProperty('padding', padding)}
+    // ... more props
+  />
+)}
+```
+
+The panel uses **local state** (`localProps`) for immediate UI updates, then calls `updateProperty()` to persist to the store. This prevents re-render storms.
+
+**Email Builder Store Pattern (`hooks/useEmailStore.js`):**
+Uses Zustand with devtools middleware:
+```javascript
+const useEmailStore = createWithEqualityFn(devtools((set, get) => ({
+  // State
+  elements: [],
+
+  // Nested property updates
+  updateElement: (elementId, updates) => {
+    set((state) => ({
+      elements: state.elements.map(el =>
+        el.id === elementId ? { ...el, ...updates } : el
+      ),
+      isDirty: true
+    }));
+  },
+})));
+```
+
+### What We Need to Build: The Architecture Bridge
+
+Our new style system needs to **bridge between** the Form Builder's schema-first approach and the Email Builder's capability-based styling. Here's how the pieces connect:
+
+**1. Node Type Abstraction (NEW CONCEPT)**
+
+Form elements aren't atomic - they contain multiple "styleable nodes":
+
+```
+TextInput element (type='text')
+├── labelNode       → Can style: font, color, size, weight
+├── descriptionNode → Can style: font, color, size
+├── inputNode       → Can style: background, border, padding, font
+├── errorNode       → Can style: color, font, size
+└── containerNode   → Can style: margin, padding, background
+```
+
+Each node type has its own style capabilities. This is MORE granular than email builder's element-level capabilities.
+
+**2. Global Style Registry (NEW - Similar to Element Registry)**
+
+We'll create a singleton registry at `/src/react/admin/schemas/styles/registry.ts`:
+
+```typescript
+class StyleRegistry {
+  private globalStyles: Map<NodeType, StyleProperties>;
+  private capabilities: Map<NodeType, NodeStyleCapabilities>;
+
+  // Get/set global styles for a node type
+  getGlobalStyle(nodeType: NodeType): StyleProperties;
+  setGlobalStyle(nodeType: NodeType, property: string, value: any): void;
+
+  // Get capabilities (which properties this node type supports)
+  getCapabilities(nodeType: NodeType): NodeStyleCapabilities;
+}
+
+export const styleRegistry = new StyleRegistry(); // Singleton instance
+```
+
+This mirrors how `elementCapabilities` works in Email Builder, but adapted for Form Builder's needs.
+
+**3. Element Schema Extension (MODIFY EXISTING)**
+
+We need to extend the `FormElement` type to include style overrides:
+
+```typescript
+// Current (in types/index.ts):
+export interface FormElement {
+  id: string;
+  type: string;
+  properties: Record<string, any>;
+  // ...
+}
+
+// After our changes:
+export interface FormElement {
+  id: string;
+  type: string;
+  properties: Record<string, any>;
+  styleOverrides?: Record<NodeName, Partial<StyleProperties>>;  // ← NEW
+  // styleOverrides example:
+  // {
+  //   'labelNode': { fontSize: 18, color: '#ff0000' },  // overridden
+  //   'inputNode': { /* uses globals */ },              // not overridden
+  // }
+}
+```
+
+**4. Style Resolution Chain (NEW HOOK)**
+
+When rendering an element, we need to resolve its final styles:
+
+```typescript
+// Usage in element renderer:
+const labelStyle = useResolvedStyle(element.id, 'labelNode');
+// Returns: Global styles + element overrides (merged)
+
+// Implementation pseudocode:
+function useResolvedStyle(elementId: string, nodeName: string) {
+  const element = useElementsStore(state => state.items[elementId]);
+  const globalStyle = styleRegistry.getGlobalStyle(nodeType);
+  const override = element.styleOverrides?.[nodeName];
+
+  return useMemo(() => ({
+    ...globalStyle,    // Base from global theme
+    ...override,       // Per-element overrides win
+  }), [globalStyle, override]);
+}
+```
+
+**5. Property Panel Integration (MODIFY EXISTING)**
+
+The `FloatingPanel` needs a new section for style editing. We'll add a `NodeStylePopover` component that:
+- Shows tabs: "Global" and "Individual"
+- Global tab: Edit global styles for this node type (affects all elements)
+- Individual tab: Override specific properties for just this element
+- Each property has a link/unlink button (like SpacingCompass)
+
+The popover will use the capability system to know which controls to render:
+```typescript
+const capabilities = styleRegistry.getCapabilities('labelNode');
+// Returns: { fontSize: true, color: true, fontWeight: true, ... }
+
+// Render controls based on capabilities:
+{capabilities.fontSize && (
+  <LinkedPropertyInput
+    label="Font Size"
+    value={style.fontSize}
+    globalValue={globalStyle.fontSize}
+    isLinked={!hasOverride('fontSize')}
+    onLink={() => removeOverride('fontSize')}
+    onUnlink={() => setOverride('fontSize', globalStyle.fontSize)}
+    onChange={(val) => setOverride('fontSize', val)}
+  />
+)}
+```
+
+### MCP Integration (Future AI Access)
+
+The task mentions MCP (Model Context Protocol) for LLM-driven form building. Here's what we need to know:
+
+**Current State:**
+The CLAUDE.md mentions MCP but there are no actual MCP handler files in the codebase yet (the grep found only node_modules files). The architecture is being prepared for future MCP integration.
+
+**What We Need to Build:**
+MCP actions will be defined as Zod schemas (matching the schema-first philosophy):
+
+```typescript
+export const StyleActionSchema = z.discriminatedUnion('action', [
+  z.object({
+    action: z.literal('setGlobalStyle'),
+    nodeType: z.string(),
+    property: z.string(),
+    value: z.any()
+  }),
+  z.object({
+    action: z.literal('setElementStyleOverride'),
+    elementId: z.string(),
+    nodeName: z.string(),
+    property: z.string(),
+    value: z.any()
+  }),
+  // ... more actions
+]);
+```
+
+When MCP server is implemented, it will:
+1. Read these schemas to generate tool definitions for LLM
+2. Validate incoming requests against schemas
+3. Call our style registry methods to execute actions
+
+**For now:** We just need to ensure our style system has **programmatic APIs** (not just UI). The registry methods like `styleRegistry.setGlobalStyle()` will be called by future MCP handlers.
+
+### Technical Reference Details
+
+#### File Structure (What We'll Create)
+
+```
+/src/react/admin/schemas/styles/
+├── types.ts              # Zod schemas (StylePropertySchema, NodeTypeSchema, etc.)
+├── capabilities.ts       # NODE_STYLE_CAPABILITIES map
+├── defaults.ts           # DEFAULT_GLOBAL_STYLES
+├── registry.ts           # StyleRegistry class
+└── index.ts              # Barrel export
+
+/src/react/admin/components/ui/style-editor/
+├── NodeStylePopover.tsx       # Main style editing popover
+├── StylePropertyControls.tsx  # Renders controls based on capabilities
+├── LinkedPropertyInput.tsx    # Single property with link/unlink button
+└── SpacingCompass.tsx         # Ported from email builder
+```
+
+#### Key Patterns to Follow
+
+**1. Schema-First Registration (Matches Element Registry Pattern):**
+```typescript
+// From schemas/core/registry.ts - lines 42-59
+export function registerElement(schema: ElementSchema): ElementSchema {
+  const validated = ElementSchemaSchema.parse(schema); // Zod validation
+  if (elements.has(validated.type)) {
+    throw new Error(`Element type '${validated.type}' is already registered.`);
+  }
+  elements.set(validated.type, validated);
+  return validated;
+}
+```
+
+Our style registry will follow the same pattern:
+- Validate with Zod at registration time
+- Throw errors immediately if invalid (fail fast)
+- Store in Map for O(1) lookups
+- Export query functions (`getGlobalStyle`, `getCapabilities`, etc.)
+
+**2. Zustand Store Actions (Matches Elements Store Pattern):**
+```typescript
+// From store/useElementsStore.ts - lines 83-93
+updateElement: (id, updates) => {
+  set((state) => {
+    if (!state.items[id]) return state;
+    return {
+      items: {
+        ...state.items,
+        [id]: { ...state.items[id], ...updates },
+      },
+    };
+  });
+}
+```
+
+We'll add similar actions for style overrides:
+```typescript
+setStyleOverride: (elementId, nodeName, property, value) => {
+  set((state) => {
+    const element = state.items[elementId];
+    if (!element) return state;
+
+    const styleOverrides = element.styleOverrides || {};
+    const nodeOverrides = styleOverrides[nodeName] || {};
+
+    return {
+      items: {
+        ...state.items,
+        [elementId]: {
+          ...element,
+          styleOverrides: {
+            ...styleOverrides,
+            [nodeName]: {
+              ...nodeOverrides,
+              [property]: value,
+            },
+          },
+        },
+      },
+    };
+  });
+}
+```
+
+**3. Property Renderer Integration (Extend Existing Pattern):**
+```typescript
+// From PropertyRenderer.tsx - lines 22-47
+const renderInput = () => {
+  switch (schema.type) {
+    case 'string':
+      return <input type="text" ... />;
+    case 'number':
+      return <input type="number" ... />;
+    case 'color':
+      return <div><input type="color" ... /></div>;
+    // ...
+  }
+};
+```
+
+We'll add new style-specific property types or reuse existing ones with linking capability wrapper.
+
+#### Data Structures
+
+**StyleProperties (What Gets Stored):**
+```typescript
+interface StyleProperties {
+  // Typography
+  fontSize?: number;          // 8-72
+  fontFamily?: string;        // e.g., 'Arial, sans-serif'
+  fontWeight?: 400 | 500 | 600 | 700;
+  color?: string;             // hex color
+
+  // Spacing
+  margin?: { top: number; right: number; bottom: number; left: number };
+  padding?: { top: number; right: number; bottom: number; left: number };
+
+  // Border
+  border?: { top: number; right: number; bottom: number; left: number };
+  borderStyle?: 'solid' | 'dashed' | 'dotted' | 'none';
+  borderColor?: string;
+
+  // Background
+  backgroundColor?: string;
+  backgroundImage?: string;
+
+  // Layout
+  width?: string;
+  height?: string;
+  display?: 'block' | 'inline' | 'flex';
+}
+```
+
+**NodeStyleCapabilities (What Controls to Show):**
+```typescript
+interface NodeStyleCapabilities {
+  fontSize?: boolean;
+  fontFamily?: boolean;
+  fontWeight?: boolean;
+  color?: boolean;
+  margin?: boolean;
+  padding?: boolean;
+  border?: boolean;
+  backgroundColor?: boolean;
+  // ...
+}
+
+// Example mapping:
+const NODE_STYLE_CAPABILITIES: Record<NodeType, NodeStyleCapabilities> = {
+  'label': {
+    fontSize: true,
+    fontFamily: true,
+    fontWeight: true,
+    color: true,
+    margin: true,
+    padding: false,  // Labels don't need padding
+    border: false,
+  },
+  'input': {
+    fontSize: true,
+    color: true,
+    backgroundColor: true,
+    border: true,
+    padding: true,
+    margin: true,
+  },
+  // ...
+};
+```
+
+#### Integration Points
+
+**Where to Hook In:**
+
+1. **Element Renderer (`components/elements/ElementRenderer.tsx`):**
+   - Currently passes `commonProps` with hardcoded styles
+   - Change to: `const labelStyle = useResolvedStyle(element.id, 'labelNode')`
+   - Apply resolved styles to each node in the element
+
+2. **Property Panel (`components/property-panels/FloatingPanel.tsx`):**
+   - Add "Styles" tab/section after existing property categories
+   - Render `NodeStylePopover` for each styleable node in the element
+   - Use capability check to determine which nodes to show
+
+3. **Elements Store (`store/useElementsStore.ts`):**
+   - Add `styleOverrides` field to element schema
+   - Add actions: `setStyleOverride`, `removeStyleOverride`, `clearStyleOverrides`
+
+4. **Save/Load Flow:**
+   - Element data already serializes `properties` to database
+   - `styleOverrides` will serialize the same way (it's just another field)
+   - No PHP changes needed initially (it's JSON data)
+
+### Critical Architecture Decisions
+
+**Why Node Types Instead of Element-Level Styles?**
+
+The Email Builder uses element-level capabilities (e.g., "button element can have background color"). But Form elements are more complex - a single TextInput element contains a label, description, input field, error message, and container. Each of these needs independent styling.
+
+By introducing node types, we achieve:
+- **Granular control** - Style just the label without affecting the input
+- **Semantic organization** - "All labels should be 14px bold" is a global theme rule
+- **Reusability** - The `label` node type is used by 20+ element types
+
+**Why Global + Overrides Instead of Just Element Styles?**
+
+Users need both:
+- **Global theming** - "Make all labels blue" (one change affects entire form)
+- **Exceptions** - "But make THIS label red" (override for one element)
+
+Without globals, every element is independent (nightmare to maintain). Without overrides, you can't make exceptions (too rigid).
+
+**Why Link/Unlink Per Property?**
+
+Consider: User wants most properties linked to global (auto-update), but wants to override just the color. If link/unlink is all-or-nothing, they'd have to manually sync all other properties when globals change.
+
+Per-property linking means:
+- `fontSize` → linked (uses global, auto-updates)
+- `color` → unlinked (uses override, doesn't change when global changes)
+- `fontWeight` → linked (uses global)
+
+This is the most flexible approach and matches how design tools (Figma, Sketch) work.
+
 ## Subtasks
 
 ### 1. Core Schema & Registry

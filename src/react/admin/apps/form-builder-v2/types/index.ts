@@ -1,5 +1,7 @@
 // Form Builder Types
 
+import type { NodeType, StyleProperties } from '../../../schemas/styles';
+
 export type DeviceType = 'desktop' | 'tablet' | 'mobile';
 export type TabType = 'builder' | 'settings' | 'translations' | 'triggers' | 'pdf' | 'listings' | 'stripe';
 export type ElementCategory = 'basic' | 'advanced' | 'layout' | 'special';
@@ -34,6 +36,8 @@ export interface FormElement {
   properties: Record<string, any>;
   children?: string[];
   parent?: string;
+  /** Per-element style overrides by node type. Omitted properties use global defaults. */
+  styleOverrides?: Partial<Record<NodeType, Partial<StyleProperties>>>;
 }
 
 export interface DeviceVisibility {

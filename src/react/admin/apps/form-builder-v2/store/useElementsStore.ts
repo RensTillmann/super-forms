@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { ElementsState, FormElement, DeviceVisibility } from '../types';
+import type { NodeType, StyleProperties } from '../../../schemas/styles';
 
 interface ElementsActions {
   addElement: (element: FormElement, index?: number) => void;
@@ -9,11 +10,18 @@ interface ElementsActions {
   updateDeviceVisibility: (elementId: string, device: keyof DeviceVisibility, visible: boolean) => void;
   reorderElements: (order: string[]) => void;
   loadElements: (state: ElementsState) => void;
+  // Style override actions
+  setStyleOverride: (elementId: string, nodeType: NodeType, property: keyof StyleProperties, value: StyleProperties[keyof StyleProperties]) => void;
+  setStyleOverrides: (elementId: string, nodeType: NodeType, overrides: Partial<StyleProperties>) => void;
+  removeStyleOverride: (elementId: string, nodeType: NodeType, property: keyof StyleProperties) => void;
+  clearNodeStyleOverrides: (elementId: string, nodeType: NodeType) => void;
+  clearAllStyleOverrides: (elementId: string) => void;
+  copyStyleOverrides: (sourceElementId: string, targetElementId: string) => void;
 }
 
 type ElementsStore = ElementsState & ElementsActions;
 
-export const useElementsStore = create<ElementsStore>((set, get) => ({
+export const useElementsStore = create<ElementsStore>((set, _get) => ({
   items: {},
   order: [],
   deviceVisibility: {},
@@ -161,5 +169,145 @@ export const useElementsStore = create<ElementsStore>((set, get) => ({
 
   loadElements: (newState) => {
     set(newState);
+  },
+
+  // ===========================================================================
+  // Style Override Actions
+  // ===========================================================================
+
+  setStyleOverride: (elementId, nodeType, property, value) => {
+    set((state) => {
+      const element = state.items[elementId];
+      if (!element) return state;
+
+      const styleOverrides = element.styleOverrides ?? {};
+      const nodeOverrides = styleOverrides[nodeType] ?? {};
+
+      return {
+        items: {
+          ...state.items,
+          [elementId]: {
+            ...element,
+            styleOverrides: {
+              ...styleOverrides,
+              [nodeType]: {
+                ...nodeOverrides,
+                [property]: value,
+              },
+            },
+          },
+        },
+      };
+    });
+  },
+
+  setStyleOverrides: (elementId, nodeType, overrides) => {
+    set((state) => {
+      const element = state.items[elementId];
+      if (!element) return state;
+
+      const styleOverrides = element.styleOverrides ?? {};
+      const nodeOverrides = styleOverrides[nodeType] ?? {};
+
+      return {
+        items: {
+          ...state.items,
+          [elementId]: {
+            ...element,
+            styleOverrides: {
+              ...styleOverrides,
+              [nodeType]: {
+                ...nodeOverrides,
+                ...overrides,
+              },
+            },
+          },
+        },
+      };
+    });
+  },
+
+  removeStyleOverride: (elementId, nodeType, property) => {
+    set((state) => {
+      const element = state.items[elementId];
+      if (!element?.styleOverrides?.[nodeType]) return state;
+
+      const nodeOverrides = { ...element.styleOverrides[nodeType] };
+      delete nodeOverrides[property];
+
+      const styleOverrides = { ...element.styleOverrides };
+      if (Object.keys(nodeOverrides).length === 0) {
+        delete styleOverrides[nodeType];
+      } else {
+        styleOverrides[nodeType] = nodeOverrides;
+      }
+
+      return {
+        items: {
+          ...state.items,
+          [elementId]: {
+            ...element,
+            styleOverrides: Object.keys(styleOverrides).length > 0 ? styleOverrides : undefined,
+          },
+        },
+      };
+    });
+  },
+
+  clearNodeStyleOverrides: (elementId, nodeType) => {
+    set((state) => {
+      const element = state.items[elementId];
+      if (!element?.styleOverrides?.[nodeType]) return state;
+
+      const styleOverrides = { ...element.styleOverrides };
+      delete styleOverrides[nodeType];
+
+      return {
+        items: {
+          ...state.items,
+          [elementId]: {
+            ...element,
+            styleOverrides: Object.keys(styleOverrides).length > 0 ? styleOverrides : undefined,
+          },
+        },
+      };
+    });
+  },
+
+  clearAllStyleOverrides: (elementId) => {
+    set((state) => {
+      const element = state.items[elementId];
+      if (!element?.styleOverrides) return state;
+
+      return {
+        items: {
+          ...state.items,
+          [elementId]: {
+            ...element,
+            styleOverrides: undefined,
+          },
+        },
+      };
+    });
+  },
+
+  copyStyleOverrides: (sourceElementId, targetElementId) => {
+    set((state) => {
+      const source = state.items[sourceElementId];
+      const target = state.items[targetElementId];
+      if (!source || !target) return state;
+
+      return {
+        items: {
+          ...state.items,
+          [targetElementId]: {
+            ...target,
+            styleOverrides: source.styleOverrides
+              ? JSON.parse(JSON.stringify(source.styleOverrides))
+              : undefined,
+          },
+        },
+      };
+    });
   },
 }));
