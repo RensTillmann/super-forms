@@ -12,6 +12,7 @@ description: Tasks related to React admin UI, Tailwind CSS, shadcn/ui, and front
 - `h-research-form-builder-v2-architecture.md` - Architecture design for Form Builder V2 (data loading, state, undo/redo, AI, automations)
 
 ### Medium Priority
+- `m-refactor-canvas-form-layering.md` - Refactor canvas/form layering for clear visual hierarchy
 - `m-implement-unified-element-tray/` - Unified element tray for Form & Email builders with context-aware filtering
 - `m-docs-ui-style-guidelines.md` - Document React/Tailwind/shadcn-ui style system
 
