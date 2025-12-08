@@ -1,22 +1,20 @@
 import React, { useState, useCallback, useRef, useEffect, Suspense, lazy } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import {
-  Type, Mail, FileText, List, CheckSquare, Square, Radio, Calendar,
-  Phone, Link, Upload, Image, Star, Hash, Clock, MapPin, User,
-  CreditCard, Globe, Code, ChevronDown, Search,
-  Monitor, Tablet, Smartphone, Save, Eye, Send, Copy, Trash2,
-  Move, Settings, MoreVertical, X, Plus, Layers, Database,
-  HelpCircle, AlertCircle, Check, ChevronUp, Zap, BarChart,
+  Type, Mail, FileText, List, CheckSquare, Radio, Calendar,
+  Phone, Link, Upload, Image, Star, Hash, Clock, MapPin,
+  CreditCard, Code, ChevronDown, Search,
+  Monitor, Tablet, Smartphone, Eye, Copy, Trash2,
+  Move, Settings, X, Layers, Database,
+  ChevronUp, Zap, BarChart,
   Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight,
-  Palette, Type as FontIcon, Edit3, MousePointer, Lock, EyeOff, CheckCircle,
+  Palette, Lock, EyeOff, CheckCircle,
   PenTool, Sliders, Columns, Scissors, FileCode, Webhook,
-  Calculator, ZoomIn, ZoomOut, Grid, Activity, Share, History,
-  Download, RotateCcw, Filter, Menu, Maximize, Play, Target,
-  Palette as PaintBucket, Layers as Layers3, Repeat, Users, Key, Bell, Archive,
-  BookOpen, RefreshCw, ArrowUp, ArrowDown, Layout,
-  Pencil, Circle, Gift, Cloud as CloudUpload, ExternalLink, Terminal as Command,
+  Calculator,
+  Download, Play,
+  RefreshCw,
   Shield, CircleCheck, FolderOpen, SquareStack, Layers2,
-  ChevronDownSquare, StepForward, Container, Box, Workflow,
+  ChevronDownSquare, StepForward, Container, Box, Workflow, Key, Bell,
   ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { useElementsStore, useBuilderStore } from './store';
@@ -25,12 +23,11 @@ import { PropertyPanelRegistry, FloatingPanel } from './components/property-pane
 import { TabBar } from './components/TabBar';
 import { TopBar } from './components/TopBar';
 import { cn } from '../../lib/utils';
-import { getElementSchema, isElementRegistered } from '../../schemas/core/registry';
+import { getElementSchema } from '../../schemas/core/registry';
 // Initialize tab schemas
 import '../../schemas/tabs';
 // Import UI Components from the extracted library
 import {
-  FormSelector,
   Toast,
   ToastProvider,
   ErrorBoundary,
@@ -39,11 +36,10 @@ import {
   AnalyticsPanel,
   VersionHistoryPanel,
   ContextMenu,
-  FloatingToolbar,
   GridOverlay,
   ResizableBottomTray,
-  ZoomControls,
-  InlineEditableText
+  InlineEditableText,
+  RightSidebar
 } from './components/ui';
 // Lazy loaded tabs (code splitting)
 const EmailsTab = lazy(() => import('./tabs/EmailsTab'));
@@ -1330,6 +1326,7 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
 
   // Layout state
   const [activeTab, setActiveTab] = useState('canvas');
+  const [activeSidebar, setActiveSidebar] = useState<string | null>(null);
   const [devicePreview, setDevicePreview] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [formTitle, setFormTitle] = useState('Untitled Form');
   const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
@@ -3011,6 +3008,8 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
         <TabBar
           activeTab={activeTab}
           onTabChange={setActiveTab}
+          activeSidebar={activeSidebar}
+          onSidebarChange={setActiveSidebar}
         />
 
         {/* Main Content Area */}
@@ -3102,12 +3101,6 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
               {activeTab === 'automation' && (
                 <Suspense fallback={<TabLoadingFallback />}>
                   <AutomationsTab formId={parseInt(currentFormId) || 0} />
-                </Suspense>
-              )}
-              {activeTab === 'style' && <StyleTabContent />}
-              {activeTab === 'themes' && (
-                <Suspense fallback={<TabLoadingFallback />}>
-                  <ThemesTab />
                 </Suspense>
               )}
               {activeTab === 'integrations' && <IntegrationsTabContent />}
@@ -3623,6 +3616,23 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
             </div>
           </div>
         )}
+
+          {/* Right Sidebar for Style/Themes - overlays alongside canvas */}
+          {activeSidebar && (
+            <RightSidebar
+              isOpen={!!activeSidebar}
+              onClose={() => setActiveSidebar(null)}
+              title={activeSidebar === 'themes' ? 'Themes' : 'Style'}
+              subtitle={activeSidebar === 'themes' ? 'Apply a theme or save your current styling' : 'Customize form appearance'}
+            >
+              {activeSidebar === 'themes' && (
+                <Suspense fallback={<TabLoadingFallback />}>
+                  <ThemesTab />
+                </Suspense>
+              )}
+              {activeSidebar === 'style' && <StyleTabContent />}
+            </RightSidebar>
+          )}
         </div>
 
         {/* Enhanced Bottom Element Tray with ALL missing elements */}

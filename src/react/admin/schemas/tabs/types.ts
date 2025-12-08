@@ -44,6 +44,9 @@ export const TabSchemaSchema = z.object({
 
   /** Description for tooltips */
   description: z.string().optional(),
+
+  /** If true, shows as right sidebar overlay instead of replacing canvas */
+  sidebar: z.boolean().default(false),
 });
 
 export type TabSchema = z.infer<typeof TabSchemaSchema>;

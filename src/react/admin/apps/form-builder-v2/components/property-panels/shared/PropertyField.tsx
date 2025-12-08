@@ -1,4 +1,5 @@
 import React from 'react';
+import { Label } from '../../../../../components/ui/label';
 
 interface PropertyFieldProps {
   label: string;
@@ -6,14 +7,14 @@ interface PropertyFieldProps {
   className?: string;
 }
 
-export const PropertyField: React.FC<PropertyFieldProps> = ({ 
-  label, 
-  children, 
-  className = '' 
+export const PropertyField: React.FC<PropertyFieldProps> = ({
+  label,
+  children,
+  className = ''
 }) => {
   return (
-    <div className={`property-field ${className}`}>
-      <label className="property-label">{label}</label>
+    <div className={`space-y-1.5 ${className}`}>
+      <Label className="text-sm font-medium">{label}</Label>
       {children}
     </div>
   );

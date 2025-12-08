@@ -23,15 +23,9 @@ export const ThemesTab: React.FC = () => {
   }
 
   return (
-    <div className="flex-1 overflow-auto">
-      {/* Header */}
-      <div className="p-4 border-b border-border flex items-center justify-between sticky top-0 bg-background z-10">
-        <div>
-          <h3 className="font-semibold text-lg">Form Themes</h3>
-          <p className="text-sm text-muted-foreground">
-            Choose a preset theme or save your current styling
-          </p>
-        </div>
+    <div className="flex-1 flex flex-col min-h-0">
+      {/* Action Bar */}
+      <div className="px-4 py-3 border-b border-border flex items-center justify-end shrink-0">
         <Button
           onClick={() => setShowCreateDialog(true)}
           size="sm"
@@ -42,8 +36,8 @@ export const ThemesTab: React.FC = () => {
         </Button>
       </div>
 
-      {/* Gallery */}
-      <div className="p-4">
+      {/* Gallery - scrollable */}
+      <div className="flex-1 overflow-y-auto p-4">
         <ThemeGallery
           themes={themes}
           activeThemeId={activeThemeId ?? undefined}

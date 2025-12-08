@@ -42,6 +42,10 @@ interface TabBarProps {
   activeTab: string;
   /** Callback when tab is clicked */
   onTabChange: (tabId: string) => void;
+  /** Currently active sidebar ID (for sidebar tabs like Style/Themes) */
+  activeSidebar?: string | null;
+  /** Callback when sidebar tab is toggled */
+  onSidebarChange?: (sidebarId: string | null) => void;
   /** Optional CSS class for the container */
   className?: string;
 }
@@ -52,16 +56,37 @@ interface TabBarProps {
  * Renders tabs from the tab registry using Tailwind CSS.
  * The Canvas tab is special - when active, no side panel is shown.
  * The Builder tab is visible and switches activeTab to 'canvas'.
+ * Sidebar tabs (Style, Themes) toggle a right sidebar overlay instead of replacing the canvas.
  */
-export function TabBar({ activeTab, onTabChange, className }: TabBarProps) {
+export function TabBar({ activeTab, onTabChange, activeSidebar, onSidebarChange, className }: TabBarProps) {
   const tabs = getTabsSorted();
 
-  const handleTabClick = (tabId: string) => {
+  const handleTabClick = (tab: TabSchema) => {
+    // Sidebar tabs toggle overlay without changing activeTab
+    if (tab.sidebar && onSidebarChange) {
+      // Toggle: if already open, close it; otherwise open it
+      if (activeSidebar === tab.id) {
+        onSidebarChange(null);
+      } else {
+        onSidebarChange(tab.id);
+        // Ensure we're on canvas when opening sidebar
+        if (activeTab !== 'canvas') {
+          onTabChange('canvas');
+        }
+      }
+      return;
+    }
+
+    // Close any open sidebar when switching to a regular tab
+    if (onSidebarChange && activeSidebar) {
+      onSidebarChange(null);
+    }
+
     // Builder tab switches to canvas view
-    if (tabId === 'builder') {
+    if (tab.id === 'builder') {
       onTabChange('canvas');
     } else {
-      onTabChange(tabId);
+      onTabChange(tab.id);
     }
   };
 
@@ -74,14 +99,23 @@ export function TabBar({ activeTab, onTabChange, className }: TabBarProps) {
       role="tablist"
       aria-label="Form builder tabs"
     >
-      {tabs.map((tab) => (
-        <TabButton
-          key={tab.id}
-          tab={tab}
-          isActive={tab.id === 'builder' ? activeTab === 'canvas' : activeTab === tab.id}
-          onClick={() => handleTabClick(tab.id)}
-        />
-      ))}
+      {tabs.map((tab) => {
+        // Determine if this tab is active
+        const isActive = tab.sidebar
+          ? activeSidebar === tab.id
+          : tab.id === 'builder'
+            ? activeTab === 'canvas'
+            : activeTab === tab.id;
+
+        return (
+          <TabButton
+            key={tab.id}
+            tab={tab}
+            isActive={isActive}
+            onClick={() => handleTabClick(tab)}
+          />
+        );
+      })}
     </div>
   );
 }
@@ -94,9 +128,11 @@ interface TabButtonProps {
 
 /**
  * Individual tab button component.
+ * Sidebar tabs get a different visual indicator (left accent bar) when active.
  */
 function TabButton({ tab, isActive, onClick }: TabButtonProps) {
   const Icon = getTabIcon(tab.icon);
+  const isSidebarTab = tab.sidebar;
 
   return (
     <button
@@ -105,15 +141,19 @@ function TabButton({ tab, isActive, onClick }: TabButtonProps) {
       aria-controls={`panel-${tab.id}`}
       id={`tab-${tab.id}`}
       className={cn(
-        'flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors',
-        isActive
-          ? 'bg-background text-foreground shadow-sm'
-          : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+        'relative flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors',
+        isActive && !isSidebarTab && 'bg-background text-foreground shadow-sm',
+        isActive && isSidebarTab && 'bg-primary/10 text-primary',
+        !isActive && 'text-muted-foreground hover:text-foreground hover:bg-muted'
       )}
       onClick={onClick}
       title={tab.description}
     >
-      <Icon className="w-4 h-4" />
+      {/* Accent bar for active sidebar tabs */}
+      {isActive && isSidebarTab && (
+        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-primary rounded-full" />
+      )}
+      <Icon className={cn('w-4 h-4', isActive && isSidebarTab && 'text-primary')} />
       <span>{tab.label}</span>
     </button>
   );

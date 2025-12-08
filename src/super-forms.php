@@ -3324,6 +3324,7 @@ include_once 'includes/class-developer-tools.php';
 						'media'   => 'all',
 						'screen'  => array(
 							'super-forms_page_super_create_form',
+							'super-forms_page_super_form_v2',
 							'super-forms_page_super_settings',
 							'edit-super_contact_entry',
 							'admin_page_super_contact_entry',

@@ -88,7 +88,7 @@ export const AutomationTab = registerTab({
 });
 
 /**
- * Style tab - Form theming and appearance
+ * Style tab - Form theming and appearance (sidebar overlay)
  */
 export const StyleTab = registerTab({
   id: 'style',
@@ -96,11 +96,12 @@ export const StyleTab = registerTab({
   icon: 'PaintBucket',
   position: 50,
   lazyLoad: false,
+  sidebar: true,
   description: 'Customize form appearance',
 });
 
 /**
- * Themes tab - Pick from presets or save custom themes
+ * Themes tab - Pick from presets or save custom themes (sidebar overlay)
  */
 export const ThemesTab = registerTab({
   id: 'themes',
@@ -108,6 +109,7 @@ export const ThemesTab = registerTab({
   icon: 'Palette',
   position: 51,
   lazyLoad: false,
+  sidebar: true,
   description: 'Apply and create themes',
 });
 

@@ -191,6 +191,60 @@ The email builder is now a reusable component library within the admin bundle:
 - Single unified build replaced dual-app architecture
 - See [docs/CLAUDE.javascript.md](docs/CLAUDE.javascript.md) for details
 
+## MCP Server Usage
+
+### Proactive (use automatically when relevant)
+
+**playwright** - Visual verification after UI changes, E2E testing
+- `playwright_navigate` - Open URLs in browser
+- `playwright_screenshot` - Capture page state
+- `playwright_click`, `playwright_fill` - Interact with elements
+- `playwright_get_visible_html` - Extract page content
+- `playwright_console_logs` - Check for JS errors
+
+**shadcn** - Adding/searching UI components
+- `search_items_in_registries` - Find components by name
+- `view_items_in_registries` - Get component source
+- `get_item_examples_from_registries` - Usage examples
+- `get_add_command_for_items` - Install command
+
+**tailwindcss** - Styling utilities
+- `get_tailwind_utilities` - Look up classes
+- `convert_css_to_tailwind` - CSS → Tailwind
+- `generate_component_template` - Generate styled HTML
+
+**context7** - Current library documentation
+- `resolve-library-id` - Find library ID (e.g., "react" → "/facebook/react")
+- `get-library-docs` - Fetch docs by topic (e.g., topic: "hooks")
+- Use for: React 19, Zustand, Tailwind v4, any external library
+
+**brave-search** - Web search for current info
+- Better quality than built-in WebSearch for dev queries
+- Use for: Latest docs, error messages, library comparisons
+
+### On-demand (use when requested or for complex tasks)
+
+**memory** - Persistent knowledge graph across sessions
+- `create_entities` - Store project decisions, patterns
+- `create_relations` - Link related concepts
+- `add_observations` - Attach facts to entities
+- `search_nodes` - Query stored knowledge
+
+**What to store in memory:**
+- Architectural decisions ("chose Zustand over Redux because...")
+- User preferences ("Rens prefers short explanations")
+- Recurring patterns ("forms use wp.apiFetch for REST")
+- Bug patterns that recur
+- Project-specific conventions
+
+**sequential-thinking** - Complex multi-step reasoning
+- Use for: Architectural decisions, debugging complex issues
+- Allows revision, branching, hypothesis testing
+
+**eslint** - Lint files before commit
+- `lint-files` - Run ESLint on file paths
+- Prefer `npm run build` / `npm run typecheck` for most checks
+
 ## Visual Inspection
 
 You can use Playwright MCP to connect to WordPress admin:

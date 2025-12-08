@@ -1,5 +1,7 @@
 import React from 'react';
 import { X, Plus } from 'lucide-react';
+import { Input } from '../../../../../components/ui/input';
+import { Button } from '../../../../../components/ui/button';
 
 interface OptionsEditorProps {
   options: string[];
@@ -7,8 +9,8 @@ interface OptionsEditorProps {
   className?: string;
 }
 
-export const OptionsEditor: React.FC<OptionsEditorProps> = ({ 
-  options = ['Option 1', 'Option 2'], 
+export const OptionsEditor: React.FC<OptionsEditorProps> = ({
+  options = ['Option 1', 'Option 2'],
   onUpdate,
   className = ''
 }) => {
@@ -29,31 +31,37 @@ export const OptionsEditor: React.FC<OptionsEditorProps> = ({
   };
 
   return (
-    <div className={`options-editor ${className}`}>
+    <div className={`space-y-2 ${className}`}>
       {options.map((option, index) => (
-        <div key={index} className="option-item">
-          <input
+        <div key={index} className="flex items-center gap-2">
+          <Input
             type="text"
             value={option}
             onChange={(e) => handleOptionChange(index, e.target.value)}
-            className="form-input"
+            className="flex-1"
           />
-          <button
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
             onClick={() => handleRemoveOption(index)}
-            className="option-delete-btn"
             disabled={options.length <= 1}
+            className="h-10 w-10 shrink-0"
           >
-            <X size={14} />
-          </button>
+            <X className="h-4 w-4" />
+          </Button>
         </div>
       ))}
-      <button
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
         onClick={handleAddOption}
-        className="add-option-btn"
+        className="w-full"
       >
-        <Plus size={14} />
+        <Plus className="h-4 w-4 mr-2" />
         Add Option
-      </button>
+      </Button>
     </div>
   );
 };
