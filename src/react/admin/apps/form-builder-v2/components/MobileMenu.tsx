@@ -16,6 +16,7 @@ import {
   Maximize,
 } from 'lucide-react';
 import { cn } from '../../../lib/utils';
+import { Button } from '../../../components/ui/button';
 
 interface MobileMenuProps {
   // History actions
@@ -73,30 +74,32 @@ export function MobileMenu({
     onClick,
     disabled,
     active,
+    testId,
   }: {
     icon: React.ElementType;
     label: string;
     onClick: () => void;
     disabled?: boolean;
     active?: boolean;
+    testId?: string;
   }) => (
-    <button
+    <Button
+      variant="ghost"
       onClick={() => {
         onClick();
         setOpen(false);
       }}
       disabled={disabled}
       className={cn(
-        'flex items-center gap-3 w-full px-4 py-3 text-sm transition-colors',
-        'min-h-[44px]', // Touch target
-        disabled && 'opacity-50 cursor-not-allowed',
-        active && 'bg-primary/10 text-primary',
-        !disabled && !active && 'hover:bg-muted active:bg-muted'
+        'flex items-center justify-start gap-3 w-full h-auto px-4 py-3 text-sm',
+        'min-h-[44px] rounded-none', // Touch target, no rounded for list items
+        active && 'bg-primary/10 text-primary'
       )}
+      data-testid={testId}
     >
       <Icon className="w-5 h-5" />
       <span>{label}</span>
-    </button>
+    </Button>
   );
 
   const MenuSection = ({ title, children }: { title: string; children: React.ReactNode }) => (
@@ -109,22 +112,28 @@ export function MobileMenu({
   );
 
   return (
-    <Drawer.Root open={open} onOpenChange={setOpen}>
+    <Drawer.Root open={open} onOpenChange={setOpen} modal={false}>
       <Drawer.Trigger asChild>
-        <button
-          className="sm:hidden relative z-[101] flex items-center justify-center w-10 h-10 rounded-md hover:bg-muted text-muted-foreground transition-colors"
+        <Button
+          variant="ghost"
+          size="icon"
+          className="sm:hidden relative z-[101]"
           aria-label="Open menu"
+          data-testid="mobile-menu-trigger"
         >
           <Menu className="w-5 h-5" />
-        </button>
+        </Button>
       </Drawer.Trigger>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40 z-50" />
-        <Drawer.Content className="fixed bottom-0 left-0 right-0 z-50 bg-background rounded-t-xl max-h-[85vh] flex flex-col">
-          <div className="mx-auto w-12 h-1.5 bg-muted rounded-full mt-4 mb-2 shrink-0" />
+        <Drawer.Content
+          className="fixed bottom-0 left-0 right-0 z-50 rounded-t-xl max-h-[85vh] flex flex-col bg-background"
+        >
           <Drawer.Title className="sr-only">Menu</Drawer.Title>
+          <Drawer.Description className="sr-only">Form builder mobile navigation menu</Drawer.Description>
+          <div className="mx-auto w-12 h-1.5 bg-muted rounded-full mt-4 mb-2 shrink-0" />
 
-          <div className="flex-1 overflow-y-auto pb-safe">
+          <div className="flex-1 overflow-y-auto pb-safe" data-testid="mobile-menu-content">
             {/* History Section */}
             <MenuSection title="History">
               <MenuItem
@@ -132,12 +141,14 @@ export function MobileMenu({
                 label="Undo"
                 onClick={onUndo}
                 disabled={!canUndo}
+                testId="mobile-menu-undo"
               />
               <MenuItem
                 icon={RefreshCw}
                 label="Redo"
                 onClick={onRedo}
                 disabled={!canRedo}
+                testId="mobile-menu-redo"
               />
             </MenuSection>
 
@@ -148,12 +159,14 @@ export function MobileMenu({
                 label="Toggle Grid"
                 onClick={onToggleGrid}
                 active={showGrid}
+                testId="mobile-menu-toggle-grid"
               />
               <MenuItem
                 icon={Layers}
                 label="Elements Panel"
                 onClick={onToggleElementsPanel}
                 active={showElementsPanel}
+                testId="mobile-menu-elements-panel"
               />
             </MenuSection>
 
@@ -164,24 +177,28 @@ export function MobileMenu({
                 label="Desktop"
                 onClick={() => onDeviceChange('desktop')}
                 active={devicePreview === 'desktop'}
+                testId="mobile-menu-device-desktop"
               />
               <MenuItem
                 icon={Tablet}
                 label="Tablet"
                 onClick={() => onDeviceChange('tablet')}
                 active={devicePreview === 'tablet'}
+                testId="mobile-menu-device-tablet"
               />
               <MenuItem
                 icon={Smartphone}
                 label="Mobile"
                 onClick={() => onDeviceChange('mobile')}
                 active={devicePreview === 'mobile'}
+                testId="mobile-menu-device-mobile"
               />
               <MenuItem
                 icon={Maximize}
                 label="Device Frame"
                 onClick={onToggleDeviceFrame}
                 active={showDeviceFrame}
+                testId="mobile-menu-device-frame"
               />
             </MenuSection>
 
@@ -191,21 +208,25 @@ export function MobileMenu({
                 icon={History}
                 label="Version History"
                 onClick={onShowVersionHistory}
+                testId="mobile-menu-version-history"
               />
               <MenuItem
                 icon={Share}
                 label="Share & Collaborate"
                 onClick={onShowSharePanel}
+                testId="mobile-menu-share"
               />
               <MenuItem
                 icon={Download}
                 label="Export Form"
                 onClick={onShowExportPanel}
+                testId="mobile-menu-export"
               />
               <MenuItem
                 icon={BarChart}
                 label="Analytics"
                 onClick={onShowAnalytics}
+                testId="mobile-menu-analytics"
               />
             </MenuSection>
           </div>

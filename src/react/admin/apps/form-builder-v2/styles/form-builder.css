@@ -1071,12 +1071,15 @@ body {
   border: 2px dashed var(--color-border-primary);
   border-radius: var(--radius-md);
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  text-align: center;
   color: var(--color-text-tertiary);
   font-size: var(--font-size-sm);
   transition: all var(--duration-fast);
   margin: var(--space-4) 0;
+  padding: var(--space-6);
 }
 
 .drop-zone-active {
@@ -2924,6 +2927,31 @@ body {
   position: relative;
   z-index: 15;
   transition: all var(--duration-normal);
+  box-shadow: var(--shadow-md);
+}
+
+/* Form wrapper hover tooltip */
+.form-wrapper::before {
+  content: 'Your Form';
+  position: absolute;
+  top: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 10px;
+  background: var(--color-text-secondary);
+  color: white;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-sm);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-fast);
+  white-space: nowrap;
+  z-index: 20;
+}
+
+.form-wrapper:hover::before {
+  opacity: 1;
 }
 
 /* Layout Controls */

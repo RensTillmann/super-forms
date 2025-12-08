@@ -799,6 +799,23 @@ const FormWrapperSettingsPanel: React.FC<{
                 />
               </div>
             )}
+
+            {/* Border Radius Control */}
+            <div className="property-field mt-4 pt-4 border-t border-border">
+              <label className="property-label">Border Radius</label>
+              <div className="flex items-center gap-3">
+                <input
+                  type="range"
+                  min="0"
+                  max="48"
+                  step="2"
+                  value={settings.borderRadius ?? 12}
+                  onChange={(e) => onUpdate('borderRadius', parseInt(e.target.value))}
+                  className="flex-1"
+                />
+                <span className="text-sm text-muted-foreground w-12 text-right">{settings.borderRadius ?? 12}px</span>
+              </div>
+            </div>
           </div>
         )}
 
@@ -1475,6 +1492,7 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
     backgroundColor: '#ffffff',
     backgroundImage: '',
     backgroundOpacity: 1,
+    borderRadius: 12, // in pixels
     desktop: {
       padding: { top: 40, right: 40, bottom: 40, left: 40 },
       margin: { top: 20, right: 20, bottom: 20, left: 20 }
@@ -3121,7 +3139,7 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
               <div
                 ref={canvasRef}
                 className={cn(
-                  'w-full bg-background rounded-lg shadow-sm border border-border relative mx-auto',
+                  'w-full bg-muted/20 rounded-lg relative mx-auto',
                   devicePreview === 'tablet' && 'max-w-[768px]',
                   devicePreview === 'mobile' && 'max-w-[375px]',
                   devicePreview === 'desktop' && 'max-w-[1200px]',
@@ -3267,7 +3285,7 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
                         backgroundRepeat: formWrapperSettings.backgroundType === 'image' ? 'no-repeat' : 'auto',
                         padding: `${formWrapperSettings[devicePreview]?.padding?.top || 0}px ${formWrapperSettings[devicePreview]?.padding?.right || 0}px ${formWrapperSettings[devicePreview]?.padding?.bottom || 0}px ${formWrapperSettings[devicePreview]?.padding?.left || 0}px`,
                         margin: `${formWrapperSettings[devicePreview]?.margin?.top || 0}px ${formWrapperSettings[devicePreview]?.margin?.right || 0}px ${formWrapperSettings[devicePreview]?.margin?.bottom || 0}px ${formWrapperSettings[devicePreview]?.margin?.left || 0}px`,
-                        borderRadius: 'var(--radius-lg)',
+                        borderRadius: `${formWrapperSettings.borderRadius}px`,
                         minHeight: '200px',
                         width: '100%', // Take full width of device screen overlay
                         position: 'relative'
@@ -3476,7 +3494,7 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
                       backgroundRepeat: formWrapperSettings.backgroundType === 'image' ? 'no-repeat' : 'auto',
                       padding: `${formWrapperSettings[devicePreview]?.padding?.top || 0}px ${formWrapperSettings[devicePreview]?.padding?.right || 0}px ${formWrapperSettings[devicePreview]?.padding?.bottom || 0}px ${formWrapperSettings[devicePreview]?.padding?.left || 0}px`,
                       margin: `${formWrapperSettings[devicePreview]?.margin?.top || 0}px ${formWrapperSettings[devicePreview]?.margin?.right || 0}px ${formWrapperSettings[devicePreview]?.margin?.bottom || 0}px ${formWrapperSettings[devicePreview]?.margin?.left || 0}px`,
-                      borderRadius: 'var(--radius-lg)',
+                      borderRadius: `${formWrapperSettings.borderRadius}px`,
                       minHeight: '200px',
                       width: formWrapperWidth,
                       position: 'relative'

@@ -1,6 +1,15 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { X } from 'lucide-react';
 import { cn } from '../../../../lib/utils';
+import { useIsMobile } from '../../../../hooks/useMediaQuery';
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from '../../../../components/ui/drawer';
 
 interface RightSidebarProps {
   /** Whether the sidebar is open */
@@ -13,17 +22,20 @@ interface RightSidebarProps {
   subtitle?: string;
   /** Content to render */
   children: React.ReactNode;
-  /** Width of the sidebar */
+  /** Width of the sidebar (desktop only) */
   width?: number;
   /** Additional class names */
   className?: string;
 }
 
 /**
- * Right sidebar overlay component.
+ * Right sidebar overlay component using shadcn Drawer.
  *
  * Used for Style and Themes tabs to show content alongside the canvas
  * instead of replacing it entirely.
+ *
+ * On mobile: renders as bottom drawer
+ * On desktop: renders as right drawer
  */
 export function RightSidebar({
   isOpen,
@@ -34,59 +46,62 @@ export function RightSidebar({
   width = 400,
   className,
 }: RightSidebarProps) {
-  // Handle Escape key to close sidebar
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        onClose();
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
+  const isMobile = useIsMobile();
 
   return (
-    <div
-      className={cn(
-        'flex flex-col bg-background h-full',
-        'shadow-[-4px_0_16px_rgba(0,0,0,0.08)]',
-        // Mobile: full-screen overlay
-        'fixed inset-0 z-50',
-        // Desktop: sidebar with fixed width
-        'sm:relative sm:inset-auto sm:z-auto sm:border-l sm:border-border',
-        'sm:w-[400px] sm:min-w-[400px]',
-        // Animation
-        'animate-in slide-in-from-bottom sm:slide-in-from-right duration-200',
-        className
-      )}
+    <Drawer
+      open={isOpen}
+      onOpenChange={(open) => !open && onClose()}
+      direction={isMobile ? 'bottom' : 'right'}
+      modal={false}
+      shouldScaleBackground={false}
     >
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30 shrink-0">
-        <div>
-          <h3 className="font-semibold text-sm">{title}</h3>
-          {subtitle && (
-            <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
-          )}
-        </div>
-        <button
-          onClick={onClose}
-          className="p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-          aria-label="Close sidebar"
-        >
-          <X className="w-4 h-4" />
-        </button>
-      </div>
+      <DrawerContent
+        className={cn(
+          // Base styles
+          'flex flex-col bg-background relative',
+          // Mobile: bottom drawer
+          isMobile && [
+            'fixed inset-x-0 bottom-0 mt-0 max-h-[85vh] rounded-t-xl',
+          ],
+          // Desktop: right drawer
+          !isMobile && [
+            'fixed inset-y-0 right-0 h-full rounded-none rounded-l-none border-l',
+            'w-[400px]',
+          ],
+          className
+        )}
+        hideHandle={!isMobile}
+      >
+        {/* Close button - positioned in top-right corner */}
+        <DrawerClose asChild>
+          <button
+            className="absolute top-2 right-2 p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors z-10"
+            aria-label="Close sidebar"
+            data-testid="drawer-close-button"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </DrawerClose>
 
-      {/* Content - flex container for proper scrolling */}
-      <div className="flex-1 min-h-0 flex flex-col">
-        {children}
-      </div>
-    </div>
+        {/* Compact header */}
+        <DrawerHeader className="px-3 pt-2 pb-2 border-b border-border bg-muted/30 shrink-0 text-left">
+          <DrawerTitle className="text-sm font-semibold leading-none pr-8">
+            {title}
+          </DrawerTitle>
+          {subtitle && (
+            <DrawerDescription className="text-xs mt-0.5">
+              {subtitle}
+            </DrawerDescription>
+          )}
+        </DrawerHeader>
+
+        {/* Content */}
+        <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
+          {children}
+        </div>
+      </DrawerContent>
+    </Drawer>
   );
 }
 

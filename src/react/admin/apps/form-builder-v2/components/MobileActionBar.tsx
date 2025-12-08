@@ -1,6 +1,7 @@
 import React from 'react';
 import { Eye, Save, Send, RefreshCw } from 'lucide-react';
 import { cn } from '../../../lib/utils';
+import { Button } from '../../../components/ui/button';
 
 interface MobileActionBarProps {
   onPreview: () => void;
@@ -20,30 +21,27 @@ export function MobileActionBar({
   isSaving = false,
 }: MobileActionBarProps) {
   return (
-    <div className="fixed bottom-0 left-0 right-0 sm:hidden z-40 bg-background border-t border-border p-3 pb-safe">
+    <div
+      className="fixed bottom-0 left-0 right-0 sm:hidden z-40 bg-background border-t border-border p-3 pb-safe"
+      data-testid="mobile-action-bar"
+    >
       <div className="flex items-center justify-around gap-2">
-        <button
+        <Button
+          variant="ghost"
           onClick={onPreview}
-          className={cn(
-            'flex-1 flex flex-col items-center gap-1 py-2 rounded-md',
-            'min-h-[44px]', // Touch target
-            'text-muted-foreground hover:bg-muted active:bg-muted transition-colors'
-          )}
+          className="flex-1 flex flex-col items-center gap-1 h-auto py-2 min-h-[44px]"
+          data-testid="mobile-action-preview"
         >
           <Eye className="w-5 h-5" />
           <span className="text-xs font-medium">Preview</span>
-        </button>
+        </Button>
 
-        <button
+        <Button
+          variant="default"
           onClick={onSave}
           disabled={isSaving}
-          className={cn(
-            'flex-1 flex flex-col items-center gap-1 py-2 rounded-md',
-            'min-h-[44px]', // Touch target
-            'bg-primary text-primary-foreground',
-            'hover:bg-primary/90 active:bg-primary/80 transition-colors',
-            isSaving && 'opacity-70 cursor-not-allowed'
-          )}
+          className="flex-1 flex flex-col items-center gap-1 h-auto py-2 min-h-[44px]"
+          data-testid="mobile-action-save"
         >
           {isSaving ? (
             <RefreshCw className="w-5 h-5 animate-spin" />
@@ -51,20 +49,16 @@ export function MobileActionBar({
             <Save className="w-5 h-5" />
           )}
           <span className="text-xs font-medium">{isSaving ? 'Saving...' : 'Save'}</span>
-        </button>
+        </Button>
 
-        <button
+        <Button
           onClick={onPublish}
-          className={cn(
-            'flex-1 flex flex-col items-center gap-1 py-2 rounded-md',
-            'min-h-[44px]', // Touch target
-            'bg-green-600 text-white',
-            'hover:bg-green-700 active:bg-green-800 transition-colors'
-          )}
+          className="flex-1 flex flex-col items-center gap-1 h-auto py-2 min-h-[44px] bg-green-600 hover:bg-green-700 text-white"
+          data-testid="mobile-action-publish"
         >
           <Send className="w-5 h-5" />
           <span className="text-xs font-medium">Publish</span>
-        </button>
+        </Button>
       </div>
     </div>
   );

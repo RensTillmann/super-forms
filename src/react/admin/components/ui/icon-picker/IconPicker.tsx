@@ -9,6 +9,7 @@ import { Input } from '../input';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -453,6 +454,9 @@ export function IconPicker({ value, onChange, className }: IconPickerProps) {
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>Select Icon</DialogTitle>
+          <DialogDescription className="sr-only">
+            Browse and select an icon from Font Awesome or Lucide libraries
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">

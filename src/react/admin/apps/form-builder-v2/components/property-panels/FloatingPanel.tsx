@@ -215,12 +215,16 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
   // Mobile: Vaul drawer from bottom
   if (isMobile) {
     return (
-      <Drawer.Root open={true} onOpenChange={(open) => !open && onClose()}>
+      <Drawer.Root open={true} onOpenChange={(open) => !open && onClose()} modal={false}>
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 bg-black/40 z-50" />
-          <Drawer.Content className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-xl max-h-[85vh] flex flex-col">
+          <Drawer.Content
+            className="fixed bottom-0 left-0 right-0 z-50 rounded-t-xl max-h-[85vh] flex flex-col"
+            style={{ backgroundColor: '#ffffff' }}
+          >
             <div className="mx-auto w-12 h-1.5 bg-gray-300 rounded-full mt-4 mb-2 shrink-0" />
             <Drawer.Title className="sr-only">{displayName} Properties</Drawer.Title>
+            <Drawer.Description className="sr-only">Edit properties and styles for {displayName}</Drawer.Description>
             <PanelHeader />
             <PanelContent />
           </Drawer.Content>

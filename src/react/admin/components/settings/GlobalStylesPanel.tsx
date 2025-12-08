@@ -1,50 +1,137 @@
 import React, { useState, useRef } from 'react';
-import { Palette, Download, Upload, RotateCcw } from 'lucide-react';
+import {
+  ChevronLeft,
+  Tag,
+  FileText,
+  TextCursor,
+  Type,
+  AlertCircle,
+  Asterisk,
+  Square,
+  Heading,
+  AlignLeft,
+  MousePointer,
+  Minus,
+  CircleDot,
+  CreditCard,
+  LucideIcon,
+} from 'lucide-react';
 import {
   styleRegistry,
   NodeType,
   NODE_STYLE_CAPABILITIES,
   StyleProperties,
 } from '../../schemas/styles';
-import { THEME_PRESETS, applyPreset } from '../../schemas/styles/presets';
 import { useGlobalStyles } from '../../apps/form-builder-v2/hooks/useGlobalStyles';
 import { SpacingControl } from '../ui/style-editor/SpacingControl';
 import { ColorControl } from '../ui/style-editor/ColorControl';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '../ui/select';
+import { ButtonGroup, ButtonGroupText } from '../ui/button-group';
+import { Input } from '../ui/input';
+import { Button } from '../ui/button';
+import {
+  Item,
+  ItemGroup,
+  ItemMedia,
+  ItemContent,
+  ItemTitle,
+  ItemDescription,
+  ItemActions,
+  ItemSeparator,
+} from '../ui/item';
 
-const NODE_LABELS: Record<NodeType, string> = {
-  label: 'Field Labels',
-  description: 'Descriptions',
-  input: 'Input Fields',
-  placeholder: 'Placeholders',
-  error: 'Error Messages',
-  required: 'Required Indicator',
-  fieldContainer: 'Field Containers',
-  heading: 'Headings',
-  paragraph: 'Paragraphs',
-  button: 'Buttons',
-  divider: 'Dividers',
-  optionLabel: 'Option Labels',
-  cardContainer: 'Cards',
+interface NodeInfo {
+  name: string;
+  description: string;
+  icon: LucideIcon;
+}
+
+const NODE_INFO: Record<NodeType, NodeInfo> = {
+  label: {
+    name: 'Field Labels',
+    description: 'The main name of the field shown above inputs',
+    icon: Tag,
+  },
+  description: {
+    name: 'Descriptions',
+    description: 'Helper text shown below field labels',
+    icon: FileText,
+  },
+  input: {
+    name: 'Input Fields',
+    description: 'Text inputs, dropdowns, and other form controls',
+    icon: TextCursor,
+  },
+  placeholder: {
+    name: 'Placeholders',
+    description: 'Hint text inside empty input fields',
+    icon: Type,
+  },
+  error: {
+    name: 'Error Messages',
+    description: 'Validation error text shown below fields',
+    icon: AlertCircle,
+  },
+  required: {
+    name: 'Required Indicator',
+    description: 'The asterisk or text marking required fields',
+    icon: Asterisk,
+  },
+  fieldContainer: {
+    name: 'Field Containers',
+    description: 'The wrapper around each form field',
+    icon: Square,
+  },
+  heading: {
+    name: 'Headings',
+    description: 'Section titles and form headings',
+    icon: Heading,
+  },
+  paragraph: {
+    name: 'Paragraphs',
+    description: 'Body text and form descriptions',
+    icon: AlignLeft,
+  },
+  button: {
+    name: 'Buttons',
+    description: 'Submit, reset, and action buttons',
+    icon: MousePointer,
+  },
+  divider: {
+    name: 'Dividers',
+    description: 'Horizontal lines separating sections',
+    icon: Minus,
+  },
+  optionLabel: {
+    name: 'Option Labels',
+    description: 'Text next to checkboxes and radio buttons',
+    icon: CircleDot,
+  },
+  cardContainer: {
+    name: 'Cards',
+    description: 'Card-style containers for grouped content',
+    icon: CreditCard,
+  },
 };
 
 export function GlobalStylesPanel() {
-  const [activeNode, setActiveNode] = useState<NodeType>('label');
-  const [selectedPreset, setSelectedPreset] = useState<string>('');
-  const [showResetDialog, setShowResetDialog] = useState(false);
+  const [selectedNode, setSelectedNode] = useState<NodeType | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const globalStyles = useGlobalStyles();
 
   const nodeTypes = Object.keys(NODE_STYLE_CAPABILITIES) as NodeType[];
-  const capabilities = NODE_STYLE_CAPABILITIES[activeNode];
-  const currentStyle = globalStyles[activeNode] ?? {};
+  const capabilities = selectedNode ? NODE_STYLE_CAPABILITIES[selectedNode] : null;
+  const currentStyle = selectedNode ? (globalStyles[selectedNode] ?? {}) : {};
 
   const handlePropertyChange = (property: string, value: StyleProperties[keyof StyleProperties]) => {
-    styleRegistry.setGlobalProperty(activeNode, property as keyof StyleProperties, value);
-  };
-
-  const handleApplyPreset = () => {
-    if (selectedPreset) {
-      applyPreset(selectedPreset);
+    if (selectedNode) {
+      styleRegistry.setGlobalProperty(selectedNode, property as keyof StyleProperties, value);
     }
   };
 
@@ -54,7 +141,7 @@ export function GlobalStylesPanel() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'form-theme.json';
+    a.download = 'form-styles.json';
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -75,114 +162,79 @@ export function GlobalStylesPanel() {
     }
   };
 
-  const handleReset = () => {
-    styleRegistry.resetAllToDefaults();
-    setShowResetDialog(false);
-  };
-
   return (
-    <div className="bg-white rounded-lg border border-gray-200 shadow-sm">
-      {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-200">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <Palette className="h-5 w-5" />
-              Global Styles
-            </h3>
-            <p className="text-sm text-gray-500 mt-1">
-              Theme settings that apply to all form elements
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleExport}
-              className="inline-flex items-center gap-1 px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
-            >
-              <Download className="h-4 w-4" />
-              Export
-            </button>
-            <button
-              onClick={handleImport}
-              className="inline-flex items-center gap-1 px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
-            >
-              <Upload className="h-4 w-4" />
-              Import
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".json"
-              onChange={handleFileChange}
-              className="hidden"
-            />
-            <button
-              onClick={() => setShowResetDialog(true)}
-              className="inline-flex items-center gap-1 px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
-            >
-              <RotateCcw className="h-4 w-4" />
-              Reset
-            </button>
-          </div>
-        </div>
-      </div>
+    <div data-testid="global-styles-panel">
+      {/* Hidden file input for import functionality */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept=".json"
+        onChange={handleFileChange}
+        className="hidden"
+        data-testid="global-styles-import-input"
+      />
 
       {/* Content */}
-      <div className="p-6">
-        {/* Preset selector */}
-        <div className="flex items-center gap-4 mb-6 p-4 bg-gray-50 rounded-lg">
-          <span className="text-sm font-medium">Quick Start:</span>
-          <select
-            value={selectedPreset}
-            onChange={(e) => setSelectedPreset(e.target.value)}
-            className="w-48 px-3 py-1.5 border border-gray-300 rounded-md text-sm"
-          >
-            <option value="">Choose a preset...</option>
-            {THEME_PRESETS.map((preset) => (
-              <option key={preset.id} value={preset.id}>
-                {preset.name} - {preset.description}
-              </option>
-            ))}
-          </select>
-          <button
-            onClick={handleApplyPreset}
-            disabled={!selectedPreset}
-            className="px-4 py-1.5 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Apply Preset
-          </button>
-        </div>
-
-        {/* Node type tabs and controls */}
-        <div className="flex gap-6">
-          {/* Node selector */}
-          <div className="w-48 border-r border-gray-200 pr-4">
-            <h4 className="text-sm font-medium mb-3">Element Type</h4>
-            <div className="h-[400px] overflow-y-auto">
-              <div className="space-y-1">
-                {nodeTypes.map((nodeType) => (
-                  <button
-                    key={nodeType}
-                    onClick={() => setActiveNode(nodeType)}
-                    className={`w-full text-left px-3 py-2 rounded text-sm transition-colors ${
-                      activeNode === nodeType
-                        ? 'bg-blue-600 text-white'
-                        : 'hover:bg-gray-100'
-                    }`}
-                  >
-                    {NODE_LABELS[nodeType]}
-                  </button>
-                ))}
-              </div>
-            </div>
+      <div className="p-4">
+        {selectedNode === null ? (
+          /* List View - Show all style categories */
+          <div className="max-h-[450px] overflow-y-auto">
+            <ItemGroup>
+              {nodeTypes.map((nodeType, index) => {
+                const info = NODE_INFO[nodeType];
+                const Icon = info.icon;
+                return (
+                  <React.Fragment key={nodeType}>
+                    {index > 0 && <ItemSeparator />}
+                    <Item size="sm">
+                      <ItemMedia variant="icon">
+                        <Icon className="h-4 w-4" />
+                      </ItemMedia>
+                      <ItemContent>
+                        <ItemTitle>{info.name}</ItemTitle>
+                        <ItemDescription>{info.description}</ItemDescription>
+                      </ItemContent>
+                      <ItemActions>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setSelectedNode(nodeType)}
+                        >
+                          Edit
+                        </Button>
+                      </ItemActions>
+                    </Item>
+                  </React.Fragment>
+                );
+              })}
+            </ItemGroup>
           </div>
+        ) : (
+          /* Detail View - Show style controls for selected category */
+          <div>
+            {/* Return button */}
+            <button
+              onClick={() => setSelectedNode(null)}
+              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-4 -ml-1"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Return
+            </button>
 
-          {/* Style controls */}
-          <div className="flex-1">
-            <div className="h-[400px] overflow-y-auto pr-4">
+            {/* Category header */}
+            <div className="flex items-center gap-2 mb-4">
+              {(() => {
+                const Icon = NODE_INFO[selectedNode].icon;
+                return <Icon className="h-5 w-5 text-muted-foreground" />;
+              })()}
+              <h4 className="font-medium">{NODE_INFO[selectedNode].name}</h4>
+            </div>
+
+            {/* Style controls */}
+            <div className="max-h-[380px] overflow-y-auto pr-2">
               <div className="space-y-6">
                 {/* Typography */}
-                {(capabilities.fontSize ||
+                {capabilities && (capabilities.fontSize ||
                   capabilities.fontFamily ||
                   capabilities.color) && (
                   <div>
@@ -193,20 +245,24 @@ export function GlobalStylesPanel() {
                           <span className="text-sm text-gray-500 w-24">
                             Font Size
                           </span>
-                          <input
-                            type="number"
-                            min={8}
-                            max={72}
-                            value={currentStyle.fontSize ?? 14}
-                            onChange={(e) =>
-                              handlePropertyChange(
-                                'fontSize',
-                                parseInt(e.target.value) || 14
-                              )
-                            }
-                            className="w-20 px-2 py-1 border border-gray-300 rounded text-sm"
-                          />
-                          <span className="text-sm text-gray-500">px</span>
+                          <ButtonGroup>
+                            <Input
+                              type="number"
+                              min={8}
+                              max={72}
+                              value={currentStyle.fontSize ?? 14}
+                              onChange={(e) =>
+                                handlePropertyChange(
+                                  'fontSize',
+                                  parseInt(e.target.value) || 14
+                                )
+                              }
+                              className="w-16 h-8 text-sm"
+                            />
+                            <ButtonGroupText className="h-8 px-2 text-xs text-muted-foreground">
+                              px
+                            </ButtonGroupText>
+                          </ButtonGroup>
                         </div>
                       )}
                       {capabilities.fontWeight && (
@@ -214,18 +270,22 @@ export function GlobalStylesPanel() {
                           <span className="text-sm text-gray-500 w-24">
                             Font Weight
                           </span>
-                          <select
-                            value={currentStyle.fontWeight ?? '400'}
-                            onChange={(e) =>
-                              handlePropertyChange('fontWeight', e.target.value as StyleProperties['fontWeight'])
+                          <Select
+                            value={String(currentStyle.fontWeight ?? '400')}
+                            onValueChange={(value) =>
+                              handlePropertyChange('fontWeight', value as StyleProperties['fontWeight'])
                             }
-                            className="w-32 px-2 py-1 border border-gray-300 rounded text-sm"
                           >
-                            <option value="400">Normal</option>
-                            <option value="500">Medium</option>
-                            <option value="600">Semibold</option>
-                            <option value="700">Bold</option>
-                          </select>
+                            <SelectTrigger className="w-32 h-8 text-sm">
+                              <SelectValue placeholder="Select weight" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="400">Normal</SelectItem>
+                              <SelectItem value="500">Medium</SelectItem>
+                              <SelectItem value="600">Semibold</SelectItem>
+                              <SelectItem value="700">Bold</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
                       )}
                       {capabilities.color && (
@@ -244,7 +304,7 @@ export function GlobalStylesPanel() {
                           <span className="text-sm text-gray-500 w-24">
                             Line Height
                           </span>
-                          <input
+                          <Input
                             type="number"
                             min={1}
                             max={3}
@@ -256,7 +316,7 @@ export function GlobalStylesPanel() {
                                 parseFloat(e.target.value) || 1.4
                               )
                             }
-                            className="w-20 px-2 py-1 border border-gray-300 rounded text-sm"
+                            className="w-20 h-8 text-sm"
                           />
                         </div>
                       )}
@@ -265,7 +325,7 @@ export function GlobalStylesPanel() {
                 )}
 
                 {/* Spacing */}
-                {(capabilities.margin || capabilities.padding) && (
+                {capabilities && (capabilities.margin || capabilities.padding) && (
                   <div>
                     <h4 className="text-sm font-medium mb-3">Spacing</h4>
                     {capabilities.margin && (
@@ -303,7 +363,7 @@ export function GlobalStylesPanel() {
                 )}
 
                 {/* Background */}
-                {capabilities.backgroundColor && (
+                {capabilities && capabilities.backgroundColor && (
                   <div>
                     <h4 className="text-sm font-medium mb-3">Background</h4>
                     <div className="flex items-center gap-2">
@@ -321,7 +381,7 @@ export function GlobalStylesPanel() {
                 )}
 
                 {/* Border */}
-                {capabilities.border && (
+                {capabilities && capabilities.border && (
                   <div>
                     <h4 className="text-sm font-medium mb-3">Border</h4>
                     <SpacingControl
@@ -342,20 +402,24 @@ export function GlobalStylesPanel() {
                         <span className="text-sm text-gray-500 w-24">
                           Radius
                         </span>
-                        <input
-                          type="number"
-                          min={0}
-                          max={50}
-                          value={currentStyle.borderRadius ?? 0}
-                          onChange={(e) =>
-                            handlePropertyChange(
-                              'borderRadius',
-                              parseInt(e.target.value) || 0
-                            )
-                          }
-                          className="w-20 px-2 py-1 border border-gray-300 rounded text-sm"
-                        />
-                        <span className="text-sm text-gray-500">px</span>
+                        <ButtonGroup>
+                          <Input
+                            type="number"
+                            min={0}
+                            max={50}
+                            value={currentStyle.borderRadius ?? 0}
+                            onChange={(e) =>
+                              handlePropertyChange(
+                                'borderRadius',
+                                parseInt(e.target.value) || 0
+                              )
+                            }
+                            className="w-16 h-8 text-sm"
+                          />
+                          <ButtonGroupText className="h-8 px-2 text-xs text-muted-foreground">
+                            px
+                          </ButtonGroupText>
+                        </ButtonGroup>
                       </div>
                     )}
                     <div className="flex items-center gap-2 mt-3">
@@ -373,7 +437,7 @@ export function GlobalStylesPanel() {
                 )}
 
                 {/* Dimensions */}
-                {(capabilities.width || capabilities.minHeight) && (
+                {capabilities && (capabilities.width || capabilities.minHeight) && (
                   <div>
                     <h4 className="text-sm font-medium mb-3">Dimensions</h4>
                     <div className="space-y-3">
@@ -382,20 +446,24 @@ export function GlobalStylesPanel() {
                           <span className="text-sm text-gray-500 w-24">
                             Min Height
                           </span>
-                          <input
-                            type="number"
-                            min={0}
-                            max={500}
-                            value={currentStyle.minHeight ?? 0}
-                            onChange={(e) =>
-                              handlePropertyChange(
-                                'minHeight',
-                                parseInt(e.target.value) || 0
-                              )
-                            }
-                            className="w-20 px-2 py-1 border border-gray-300 rounded text-sm"
-                          />
-                          <span className="text-sm text-gray-500">px</span>
+                          <ButtonGroup>
+                            <Input
+                              type="number"
+                              min={0}
+                              max={500}
+                              value={currentStyle.minHeight ?? 0}
+                              onChange={(e) =>
+                                handlePropertyChange(
+                                  'minHeight',
+                                  parseInt(e.target.value) || 0
+                                )
+                              }
+                              className="w-16 h-8 text-sm"
+                            />
+                            <ButtonGroupText className="h-8 px-2 text-xs text-muted-foreground">
+                              px
+                            </ButtonGroupText>
+                          </ButtonGroup>
                         </div>
                       )}
                     </div>
@@ -404,35 +472,8 @@ export function GlobalStylesPanel() {
               </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
-
-      {/* Reset confirmation dialog */}
-      {showResetDialog && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 max-w-md mx-4">
-            <h4 className="text-lg font-semibold mb-2">Reset to defaults?</h4>
-            <p className="text-sm text-gray-500 mb-4">
-              This will reset all global styles to their default values.
-              This action cannot be undone.
-            </p>
-            <div className="flex justify-end gap-2">
-              <button
-                onClick={() => setShowResetDialog(false)}
-                className="px-4 py-2 text-sm border border-gray-300 rounded-md hover:bg-gray-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleReset}
-                className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
-              >
-                Reset
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
