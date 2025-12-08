@@ -8,6 +8,7 @@ import {
 import { usePropertyValues } from '../../hooks/useResolvedStyle';
 import { ColorControl } from '../../../../components/ui/style-editor/ColorControl';
 import { cn } from '../../../../lib/utils';
+import { Button } from '../../../../components/ui/button';
 
 interface NodeStyleEditorProps {
   elementId: string;
@@ -244,10 +245,12 @@ const StylePropertyRow: React.FC<StylePropertyRowProps> = ({
         {children(resolvedValue, handleChange)}
       </div>
 
-      <button
+      <Button
+        variant="ghost"
+        size="icon"
         onClick={handleToggleLink}
         className={cn(
-          "p-1 rounded transition-colors",
+          "h-7 w-7",
           isOverridden
             ? "text-orange-500 hover:bg-orange-50"
             : "text-gray-400 hover:bg-gray-100"
@@ -259,7 +262,7 @@ const StylePropertyRow: React.FC<StylePropertyRowProps> = ({
         ) : (
           <Link2 className="h-3.5 w-3.5" />
         )}
-      </button>
+      </Button>
     </div>
   );
 };

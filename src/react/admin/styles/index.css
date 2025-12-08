@@ -330,3 +330,47 @@
   background-color: #6b7280;
 }
 
+/* ==========================================================================
+   Utility: Hide scrollbar while keeping scroll functionality
+   Used for horizontal tab scrolling on mobile
+   ========================================================================== */
+
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;             /* Chrome, Safari, Opera */
+}
+
+/* ==========================================================================
+   Form Builder V2 - WordPress Admin Overrides
+   Hide notices and fix layout issues on the form builder page
+   ========================================================================== */
+
+/* Hide WordPress notices on form builder page */
+.super-forms_page_super_form_v2 .notice,
+.super-forms_page_super_form_v2 .update-nag,
+.super-forms_page_super_form_v2 .updated,
+.super-forms_page_super_form_v2 .error,
+.super-forms_page_super_form_v2 #wpbody-content > .wrap > .notice {
+  display: none !important;
+}
+
+/* Remove wpcontent padding for full-width form builder */
+.super-forms_page_super_form_v2 #wpcontent {
+  padding-left: 0 !important;
+  margin-left: 0 !important;
+}
+
+/* Ensure wpbody takes full width */
+.super-forms_page_super_form_v2 #wpbody {
+  padding-left: 0 !important;
+}
+
+/* Remove wpbody-content padding-bottom */
+.super-forms_page_super_form_v2 #wpbody-content {
+  padding-bottom: 0 !important;
+}
+

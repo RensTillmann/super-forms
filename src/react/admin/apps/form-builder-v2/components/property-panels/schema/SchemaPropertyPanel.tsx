@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { getElementSchema } from '../../../../../schemas/core/registry';
 import { PropertyCategory, PropertySchema } from '../../../../../schemas/core/types';
 import { PropertyRenderer } from './PropertyRenderer';
+import { Button } from '../../../../../components/ui/button';
 
 interface SchemaPropertyPanelProps {
   /** The element type (e.g., 'text', 'select') */
@@ -98,17 +99,18 @@ export const SchemaPropertyPanel: React.FC<SchemaPropertyPanelProps> = ({
       {categoriesWithProps.length > 1 && (
         <div className="flex border-b border-gray-200 mb-4">
           {categoriesWithProps.map((cat) => (
-            <button
+            <Button
               key={cat}
+              variant="ghost"
               onClick={() => setActiveCategory(cat)}
-              className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+              className={`px-4 py-2 text-sm font-medium border-b-2 rounded-none h-auto ${
                 activeCategory === cat
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
               {categoryLabels[cat]}
-            </button>
+            </Button>
           ))}
         </div>
       )}

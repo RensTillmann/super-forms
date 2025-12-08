@@ -4,6 +4,7 @@ import { getElementNodes } from '../../../../schemas/styles/elementNodes';
 import { NodeStyleEditor } from './NodeStyleEditor';
 import { cn } from '../../../../lib/utils';
 import { NodeType, StyleProperties } from '../../../../schemas/styles';
+import { Button } from '../../../../components/ui/button';
 
 // Human-readable labels for node types
 const NODE_LABELS: Record<NodeType, string> = {
@@ -57,8 +58,9 @@ export const ElementStylesSection: React.FC<ElementStylesSectionProps> = ({
   return (
     <div className="mt-6 pt-6 border-t border-gray-200">
       {/* Section Header */}
-      <button
-        className="w-full flex items-center justify-between text-left"
+      <Button
+        variant="ghost"
+        className="w-full flex items-center justify-between text-left h-auto py-2 px-0 hover:bg-transparent"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-center gap-2">
@@ -76,18 +78,20 @@ export const ElementStylesSection: React.FC<ElementStylesSectionProps> = ({
           )}
         </div>
         {overrideCount > 0 && (
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={(e) => {
               e.stopPropagation();
               onResetToGlobal();
             }}
-            className="text-xs text-gray-500 hover:text-gray-700 flex items-center gap-1"
+            className="text-xs text-gray-500 hover:text-gray-700 h-auto py-1 px-2"
           >
-            <RotateCcw className="h-3 w-3" />
+            <RotateCcw className="h-3 w-3 mr-1" />
             Reset all
-          </button>
+          </Button>
         )}
-      </button>
+      </Button>
 
       {/* Section Content */}
       {isExpanded && (
@@ -99,20 +103,19 @@ export const ElementStylesSection: React.FC<ElementStylesSectionProps> = ({
               const hasOverrides = nodeOverrides && Object.keys(nodeOverrides).length > 0;
 
               return (
-                <button
+                <Button
                   key={nodeType}
+                  variant={activeNode === nodeType ? "default" : "secondary"}
+                  size="sm"
                   onClick={() => setActiveNode(activeNode === nodeType ? null : nodeType)}
                   className={cn(
-                    "px-2.5 py-1 text-xs rounded-md transition-colors",
-                    activeNode === nodeType
-                      ? "bg-primary text-white"
-                      : "bg-gray-100 text-gray-600 hover:bg-gray-200",
+                    "px-2.5 py-1 text-xs h-auto",
                     hasOverrides && activeNode !== nodeType && "ring-1 ring-orange-300"
                   )}
                 >
                   {NODE_LABELS[nodeType] || nodeType}
                   {hasOverrides && <span className="ml-1 text-orange-400">•</span>}
-                </button>
+                </Button>
               );
             })}
           </div>

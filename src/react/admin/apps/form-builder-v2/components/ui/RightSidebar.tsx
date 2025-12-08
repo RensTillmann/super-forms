@@ -53,12 +53,17 @@ export function RightSidebar({
   return (
     <div
       className={cn(
-        'flex flex-col bg-background border-l border-border h-full',
+        'flex flex-col bg-background h-full',
         'shadow-[-4px_0_16px_rgba(0,0,0,0.08)]',
-        'animate-in slide-in-from-right duration-200',
+        // Mobile: full-screen overlay
+        'fixed inset-0 z-50',
+        // Desktop: sidebar with fixed width
+        'sm:relative sm:inset-auto sm:z-auto sm:border-l sm:border-border',
+        'sm:w-[400px] sm:min-w-[400px]',
+        // Animation
+        'animate-in slide-in-from-bottom sm:slide-in-from-right duration-200',
         className
       )}
-      style={{ width: `${width}px`, minWidth: `${width}px` }}
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-muted/30 shrink-0">

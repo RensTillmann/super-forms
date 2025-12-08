@@ -1,10 +1,14 @@
 import React, { useRef, useEffect, useMemo, useCallback } from 'react';
+import { Drawer } from 'vaul';
 import { X, Trash2 } from 'lucide-react';
 import { SchemaPropertyPanel } from './schema';
 import { ElementStylesSection } from './ElementStylesSection';
 import { isElementRegistered, getElementSchema } from '../../../../schemas/core/registry';
 import { useElementsStore } from '../../store/useElementsStore';
 import { NodeType, StyleProperties } from '../../../../schemas/styles';
+import { useIsMobile } from '../../../../hooks/useMediaQuery';
+import { cn } from '../../../../lib/utils';
+import { Button } from '../../../../components/ui/button';
 
 // Import legacy panels for fallback
 import { GeneralProperties, ValidationProperties } from './basic';
@@ -41,6 +45,7 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
   onDelete,
 }) => {
   const panelRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   // Style override store methods
   const setStyleOverride = useElementsStore((s) => s.setStyleOverride);
@@ -128,6 +133,103 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
   const displayName = schema?.name || element.label || element.type;
   const IconComponent = element.icon;
 
+  // Shared header component
+  const PanelHeader = () => (
+    <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50 shrink-0">
+      <div className="flex items-center gap-2">
+        {IconComponent && <IconComponent size={18} />}
+        <h3 className="text-sm font-semibold text-gray-900">
+          {displayName}
+        </h3>
+        {hasSchema && (
+          <span className="px-1.5 py-0.5 text-[10px] font-medium text-blue-600 bg-blue-50 rounded">
+            Schema
+          </span>
+        )}
+      </div>
+      <div className="flex items-center gap-1">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onDelete}
+          className="text-gray-400 hover:text-red-500 hover:bg-red-50"
+          title="Delete element"
+        >
+          <Trash2 size={16} />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onClose}
+          className="text-gray-400 hover:text-gray-600 hover:bg-gray-100"
+          title="Close panel"
+        >
+          <X size={16} />
+        </Button>
+      </div>
+    </div>
+  );
+
+  // Shared content component
+  const PanelContent = () => (
+    <div className="flex-1 overflow-y-auto p-4">
+      {hasSchema ? (
+        // Schema-driven panel
+        <>
+          <SchemaPropertyPanel
+            elementType={element.type}
+            properties={element.properties || {}}
+            onPropertyChange={onPropertyChange}
+          />
+          <ElementStylesSection
+            elementId={element.id}
+            elementType={element.type}
+            styleOverrides={element.styleOverrides}
+            onOverrideChange={handleStyleOverrideChange}
+            onResetToGlobal={handleResetToGlobal}
+          />
+        </>
+      ) : (
+        // Fallback for elements without schemas
+        <div className="space-y-4">
+          <div className="p-3 bg-amber-50 border border-amber-200 rounded-md">
+            <p className="text-xs text-amber-700">
+              This element type ({element.type}) doesn't have a schema yet.
+              Using legacy property panels.
+            </p>
+          </div>
+          <GeneralProperties element={element} onUpdate={onPropertyChange} />
+          <ValidationProperties element={element} onUpdate={onPropertyChange} />
+          <ElementStylesSection
+            elementId={element.id}
+            elementType={element.type}
+            styleOverrides={element.styleOverrides}
+            onOverrideChange={handleStyleOverrideChange}
+            onResetToGlobal={handleResetToGlobal}
+          />
+        </div>
+      )}
+    </div>
+  );
+
+  // Mobile: Vaul drawer from bottom
+  if (isMobile) {
+    return (
+      <Drawer.Root open={true} onOpenChange={(open) => !open && onClose()}>
+        <Drawer.Portal>
+          <Drawer.Overlay className="fixed inset-0 bg-black/40 z-50" />
+          <Drawer.Content className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-xl max-h-[85vh] flex flex-col">
+            <div className="mx-auto w-12 h-1.5 bg-gray-300 rounded-full mt-4 mb-2 shrink-0" />
+            <Drawer.Title className="sr-only">{displayName} Properties</Drawer.Title>
+            <PanelHeader />
+            <PanelContent />
+          </Drawer.Content>
+        </Drawer.Portal>
+      </Drawer.Root>
+    );
+  }
+
+  // Desktop: positioned floating panel
   return (
     <div
       ref={panelRef}
@@ -137,76 +239,8 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
         top: clampedPosition.top,
       }}
     >
-      {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50 rounded-t-lg">
-        <div className="flex items-center gap-2">
-          {IconComponent && <IconComponent size={18} />}
-          <h3 className="text-sm font-semibold text-gray-900">
-            {displayName}
-          </h3>
-          {hasSchema && (
-            <span className="px-1.5 py-0.5 text-[10px] font-medium text-blue-600 bg-blue-50 rounded">
-              Schema
-            </span>
-          )}
-        </div>
-        <div className="flex items-center gap-1">
-          <button
-            onClick={onDelete}
-            className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
-            title="Delete element"
-          >
-            <Trash2 size={16} />
-          </button>
-          <button
-            onClick={onClose}
-            className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
-            title="Close panel"
-          >
-            <X size={16} />
-          </button>
-        </div>
-      </div>
-
-      {/* Content */}
-      <div className="flex-1 overflow-y-auto p-4">
-        {hasSchema ? (
-          // Schema-driven panel
-          <>
-            <SchemaPropertyPanel
-              elementType={element.type}
-              properties={element.properties || {}}
-              onPropertyChange={onPropertyChange}
-            />
-            <ElementStylesSection
-              elementId={element.id}
-              elementType={element.type}
-              styleOverrides={element.styleOverrides}
-              onOverrideChange={handleStyleOverrideChange}
-              onResetToGlobal={handleResetToGlobal}
-            />
-          </>
-        ) : (
-          // Fallback for elements without schemas
-          <div className="space-y-4">
-            <div className="p-3 bg-amber-50 border border-amber-200 rounded-md">
-              <p className="text-xs text-amber-700">
-                This element type ({element.type}) doesn't have a schema yet.
-                Using legacy property panels.
-              </p>
-            </div>
-            <GeneralProperties element={element} onUpdate={onPropertyChange} />
-            <ValidationProperties element={element} onUpdate={onPropertyChange} />
-            <ElementStylesSection
-              elementId={element.id}
-              elementType={element.type}
-              styleOverrides={element.styleOverrides}
-              onOverrideChange={handleStyleOverrideChange}
-              onResetToGlobal={handleResetToGlobal}
-            />
-          </div>
-        )}
-      </div>
+      <PanelHeader />
+      <PanelContent />
     </div>
   );
 };

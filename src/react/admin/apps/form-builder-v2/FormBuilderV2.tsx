@@ -15,7 +15,7 @@ import {
   RefreshCw,
   Shield, CircleCheck, FolderOpen, SquareStack, Layers2,
   ChevronDownSquare, StepForward, Container, Box, Workflow, Key, Bell,
-  ChevronLeft, ChevronRight
+  ChevronLeft, ChevronRight, Plus
 } from 'lucide-react';
 import { useElementsStore, useBuilderStore } from './store';
 import { ElementRenderer } from './components/elements';
@@ -23,6 +23,7 @@ import { PropertyPanelRegistry, FloatingPanel } from './components/property-pane
 import { TabBar } from './components/TabBar';
 import { TopBar } from './components/TopBar';
 import { cn } from '../../lib/utils';
+import { useIsMobile } from '../../hooks/useMediaQuery';
 import { getElementSchema } from '../../schemas/core/registry';
 // Initialize tab schemas
 import '../../schemas/tabs';
@@ -1319,6 +1320,9 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
   const { items, order, addElement, removeElement, updateElement, reorderElements } = useElementsStore();
   const { selectedElements, setSelectedElements } = useBuilderStore();
 
+  // Detect mobile viewport for responsive behavior
+  const isMobile = useIsMobile();
+
   // Collapse WP admin sidebar on mount for better form builder UX
   useEffect(() => {
     document.body.classList.add('sticky-menu', 'folded');
@@ -1442,12 +1446,20 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
 
   // Update canvas padding when tray collapse state changes
   useEffect(() => {
-    const paddingBuffer = 100;
+    // Smaller buffer on mobile for more canvas space
+    const paddingBuffer = isMobile ? 50 : 100;
     const effectiveFooterHeight = isTrayCollapsed ? 40 : trayHeight;
     setCanvasBottomPadding(effectiveFooterHeight + paddingBuffer);
-  }, [isTrayCollapsed, trayHeight]);
+  }, [isTrayCollapsed, trayHeight, isMobile]);
 
-  
+  // Collapse tray by default on mobile viewport
+  useEffect(() => {
+    if (isMobile) {
+      setIsTrayCollapsed(true);
+    }
+  }, [isMobile]);
+
+
   // Canvas width state
   const [customCanvasWidth, setCustomCanvasWidth] = useState<string>('');
   const [useCustomWidth, setUseCustomWidth] = useState(false);
@@ -1555,10 +1567,7 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
   // Undo/Redo system
   const [history, setHistory] = useState<any[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
-  
-  // Mobile detection
-  const [isMobile, setIsMobile] = useState(false);
-  
+
   // Device selector dropdown state
   const [isDeviceDropdownOpen, setIsDeviceDropdownOpen] = useState(false);
   const deviceDropdownRef = useRef<HTMLDivElement>(null);
@@ -1831,17 +1840,6 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
     return () => scrollContainer.removeEventListener('scroll', handleScroll);
   }, [hoveredElement]);
   
-
-  // Detect mobile device
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth <= 768);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
 
   // Auto-save with toast notifications
   useEffect(() => {
@@ -3113,27 +3111,6 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
             className="flex-1 flex flex-col overflow-auto bg-muted/30 p-4"
             style={{ paddingBottom: `${canvasBottomPadding}px` }}
           >
-            {/* Canvas Width Control */}
-            <div className="flex items-center gap-2 mb-3 text-sm text-muted-foreground">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={useCustomWidth}
-                  onChange={(e) => setUseCustomWidth(e.target.checked)}
-                  className="rounded border-border"
-                />
-                <span>Custom Width:</span>
-              </label>
-              <input
-                type="text"
-                className="w-24 px-2 py-1 text-sm border border-border rounded-md bg-background disabled:opacity-50"
-                value={customCanvasWidth}
-                onChange={(e) => setCustomCanvasWidth(e.target.value)}
-                placeholder={devicePreview === 'desktop' ? '1200px' : devicePreview === 'tablet' ? '768px' : '375px'}
-                disabled={!useCustomWidth}
-              />
-            </div>
-
             {/* Canvas Zoom Wrapper */}
             <div
               className="flex-1 flex items-start justify-center origin-top"
@@ -3144,7 +3121,7 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
               <div
                 ref={canvasRef}
                 className={cn(
-                  'w-full bg-background rounded-lg shadow-sm border border-border min-h-[400px] relative mx-auto',
+                  'w-full bg-background rounded-lg shadow-sm border border-border relative mx-auto',
                   devicePreview === 'tablet' && 'max-w-[768px]',
                   devicePreview === 'mobile' && 'max-w-[375px]',
                   devicePreview === 'desktop' && 'max-w-[1200px]',
@@ -3305,6 +3282,13 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
                         >
                           <Layers size={24} className="mb-2" />
                           <p>Drag elements from the bottom tray to start building your form</p>
+                          <button
+                            onClick={() => setIsTrayCollapsed(false)}
+                            className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-md hover:bg-primary/90 transition-colors"
+                          >
+                            <Plus size={16} />
+                            Add Element
+                          </button>
                         </div>
                       ) : (
                         <div>
@@ -3396,8 +3380,8 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
                 </div>
               )}
 
-              {/* Interactive Breadcrumb - Only show for desktop mode */}
-              {(!showDeviceFrame || devicePreview === 'desktop') && (
+              {/* Interactive Breadcrumb - Only show for desktop mode, hidden on mobile */}
+              {(!showDeviceFrame || devicePreview === 'desktop') && !isMobile && (
                 <div className="simple-breadcrumb">
                 <button 
                   className={`breadcrumb-root ${isFormWrapperSelected ? 'breadcrumb-current' : ''}`}
@@ -3476,15 +3460,7 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
 
               {/* Desktop-only Form Wrapper with resize bar and centering */}
               {(!showDeviceFrame || devicePreview === 'desktop') && (
-                <div 
-                  className="desktop-form-container"
-                  style={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    width: '100%',
-                    minHeight: '200px'
-                  }}
-                >
+                <div className="flex justify-center w-full min-h-[200px]">
                   <div 
                     className={`form-wrapper ${isFormWrapperSelected ? 'form-wrapper-selected' : ''}`}
                     style={{
@@ -3523,6 +3499,13 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
                       >
                         <Layers size={24} className="mb-2" />
                         <p>Drag elements from the bottom tray to start building your form</p>
+                        <button
+                          onClick={() => setIsTrayCollapsed(false)}
+                          className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground text-sm font-medium rounded-md hover:bg-primary/90 transition-colors"
+                        >
+                          <Plus size={16} />
+                          Add Element
+                        </button>
                       </div>
                     ) : (
                       <div>
@@ -3531,7 +3514,7 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
                           {isDragging && dragOverIndex === index && (
                             <div className="drop-zone drop-zone-hover" />
                           )}
-                          
+
                           <div
                             className={`form-element ${
                               selectedElement?.id === element.id || multiSelectElements.includes(element.id) 
@@ -3643,15 +3626,15 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
           onHeightChange={handleTrayHeightChange}
         >
           {/* Enhanced Tray Header with Search and Controls */}
-          <div className="flex items-center justify-between px-4 py-2 border-b border-border">
-            <div className="flex items-center gap-4">
-              {/* Categories positioned at the start */}
-              <div className="flex gap-2">
+          <div className="flex items-center justify-between px-4 py-2 border-b border-border gap-2 sm:gap-4">
+            <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
+              {/* Categories - horizontally scrollable on mobile */}
+              <div className="flex gap-2 overflow-x-auto scrollbar-hide min-w-0 flex-shrink">
                 {!searchQuery && ELEMENT_CATEGORIES.map(category => (
                   <button
                     key={category.id}
                     className={cn(
-                      "px-3 py-2 rounded-md text-xs font-medium transition-colors",
+                      "px-3 py-2 rounded-md text-xs font-medium transition-colors whitespace-nowrap flex-shrink-0",
                       activeTrayCategory === category.id
                         ? "bg-primary text-primary-foreground hover:bg-primary/90"
                         : "text-muted-foreground bg-transparent hover:bg-accent hover:text-foreground"
@@ -3663,8 +3646,8 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
                 ))}
               </div>
 
-              {/* Search input positioned after categories */}
-              <div className="relative w-[200px]">
+              {/* Search input - hidden on mobile, positioned after categories */}
+              <div className="relative w-[200px] hidden sm:block flex-shrink-0">
                 <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
                 <input
                   type="text"

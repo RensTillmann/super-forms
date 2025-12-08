@@ -1577,17 +1577,14 @@ body {
   padding: var(--space-8);
 }
 
-/* Ensure enough height for device frames */
+/* Device frame positioning - min-height removed for mobile responsiveness */
 .canvas-framed {
-  min-height: 600px !important;
+  position: relative;
 }
 
-.canvas-framed.canvas-mobile {
-  min-height: 667px !important; /* iPhone 8 height */
-}
-
+.canvas-framed.canvas-mobile,
 .canvas-framed.canvas-tablet {
-  min-height: 700px !important; /* iPad height with padding */
+  /* Heights now determined by content */
 }
 
 /* Responsive tabs */

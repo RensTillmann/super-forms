@@ -18,6 +18,7 @@ import {
   ChevronDown,
   LucideIcon,
 } from 'lucide-react';
+import { MobileMenu } from './MobileMenu';
 import {
   getToolbarItemsByGroup,
   ToolbarItemSchema,
@@ -166,31 +167,58 @@ export function TopBar(props: TopBarProps) {
   return (
     <div className="flex items-center justify-between px-4 py-2 bg-background border-b border-border">
       {/* Left Section */}
-      <div className="flex items-center gap-4">
-        <FormSelector
-          currentForm={currentFormId}
-          onFormSelect={onFormSelect}
+      <div className="flex items-center gap-2 sm:gap-4 min-w-0">
+        {/* Mobile: Hamburger menu that contains form selector */}
+        <MobileMenu
+          canUndo={canUndo}
+          canRedo={canRedo}
+          onUndo={onUndo}
+          onRedo={onRedo}
+          showGrid={showGrid}
+          onToggleGrid={onToggleGrid}
+          showElementsPanel={showElementsPanel}
+          onToggleElementsPanel={onToggleElementsPanel}
+          onShowVersionHistory={onShowVersionHistory}
+          onShowSharePanel={onShowSharePanel}
+          onShowExportPanel={onShowExportPanel}
+          onShowAnalytics={onShowAnalytics}
+          devicePreview={devicePreview}
+          onDeviceChange={onDeviceChange}
+          showDeviceFrame={showDeviceFrame}
+          onToggleDeviceFrame={onToggleDeviceFrame}
         />
 
+        {/* Desktop: Form selector - hidden on mobile */}
+        <div className="hidden sm:block">
+          <FormSelector
+            currentForm={currentFormId}
+            onFormSelect={onFormSelect}
+          />
+        </div>
+
+        {/* Form title - hidden on mobile */}
         <InlineEditableText
           value={formTitle}
           onChange={onFormTitleChange}
-          className="text-sm font-medium"
+          className="hidden sm:block text-sm font-medium truncate max-w-[200px]"
           placeholder="Untitled Form"
         />
 
-        <DeviceSelector
-          value={devicePreview}
-          onChange={onDeviceChange}
-          showFrame={showDeviceFrame}
-          onToggleFrame={onToggleDeviceFrame}
-        />
+        {/* Device selector - hidden on mobile */}
+        <div className="hidden md:block">
+          <DeviceSelector
+            value={devicePreview}
+            onChange={onDeviceChange}
+            showFrame={showDeviceFrame}
+            onToggleFrame={onToggleDeviceFrame}
+          />
+        </div>
       </div>
 
       {/* Right Section - Action Groups */}
       <div className="flex items-center gap-2">
-        {/* History Group */}
-        <div className="flex items-center gap-1 pr-2 border-r border-border">
+        {/* History Group - always visible, no border on mobile */}
+        <div className="flex items-center gap-1 sm:pr-2 sm:border-r sm:border-border">
           <ToolbarButton
             icon="RotateCcw"
             tooltip="Undo (Ctrl+Z)"
@@ -205,8 +233,8 @@ export function TopBar(props: TopBarProps) {
           />
         </div>
 
-        {/* Canvas Group */}
-        <div className="flex items-center gap-1 pr-2 border-r border-border">
+        {/* Canvas Group - hidden on mobile */}
+        <div className="hidden md:flex items-center gap-1 pr-2 border-r border-border">
           <ToolbarToggle
             icon="Grid"
             tooltip="Toggle Grid"
@@ -216,8 +244,8 @@ export function TopBar(props: TopBarProps) {
           <ZoomControls currentZoom={zoom} onZoomChange={onZoomChange} />
         </div>
 
-        {/* Panels Group */}
-        <div className="flex items-center gap-1 pr-2 border-r border-border">
+        {/* Panels Group - hidden on mobile and tablet */}
+        <div className="hidden lg:flex items-center gap-1 pr-2 border-r border-border">
           <ToolbarToggle
             icon="Layers"
             tooltip="Elements Panel"

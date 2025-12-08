@@ -94,6 +94,7 @@ export function TabBar({ activeTab, onTabChange, activeSidebar, onSidebarChange,
     <div
       className={cn(
         'flex items-center gap-1 px-4 py-2 bg-muted/50 border-b border-border',
+        'overflow-x-auto scrollbar-hide scroll-smooth',
         className
       )}
       role="tablist"
@@ -142,6 +143,7 @@ function TabButton({ tab, isActive, onClick }: TabButtonProps) {
       id={`tab-${tab.id}`}
       className={cn(
         'relative flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors',
+        'whitespace-nowrap shrink-0',
         isActive && !isSidebarTab && 'bg-background text-foreground shadow-sm',
         isActive && isSidebarTab && 'bg-primary/10 text-primary',
         !isActive && 'text-muted-foreground hover:text-foreground hover:bg-muted'

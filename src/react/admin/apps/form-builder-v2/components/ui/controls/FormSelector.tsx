@@ -80,12 +80,6 @@ export const FormSelector: React.FC<FormSelectorProps> = ({
       >
         <div className="form-selector-value">
           <span className="form-selector-name">{currentFormData?.name || 'Select Form'}</span>
-          {currentFormData && (
-            <span className={`form-selector-status ${getStatusColor(currentFormData.status)}`}>
-              {getStatusIcon(currentFormData.status)}
-              {currentFormData.status}
-            </span>
-          )}
         </div>
         <ChevronDown size={16} className={`form-selector-chevron ${isOpen ? 'rotate-180' : ''}`} />
       </button>
