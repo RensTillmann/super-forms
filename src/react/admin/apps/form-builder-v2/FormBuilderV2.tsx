@@ -47,6 +47,7 @@ const EmailsTab = lazy(() => import('./tabs/EmailsTab'));
 const AutomationsTab = lazy(() => import('../../components/form-builder/automations/AutomationsTab').then(m => ({ default: m.AutomationsTab })));
 const ThemesTab = lazy(() => import('../../components/themes').then(m => ({ default: m.ThemesTab })));
 import { GlobalStylesPanel } from '../../components/settings/GlobalStylesPanel';
+import { Button } from '../../components/ui/button';
 
 // Import CSS styles (form-builder.css contains element/canvas styling not yet migrated to Tailwind)
 import './styles/form-builder.css';
@@ -296,9 +297,16 @@ const FloatingPropertiesPanel: React.FC<{
           <element.icon size={16} />
           {element.label} Properties
         </h3>
-        <button onClick={onClose} className="panel-close-btn">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onClose}
+          className="h-6 w-6"
+          aria-label="Close panel"
+          data-testid="element-panel-close"
+        >
           <X size={16} />
-        </button>
+        </Button>
       </div>
 
       <div className="panel-tabs">
@@ -723,9 +731,16 @@ const FormWrapperSettingsPanel: React.FC<{
             </span>
           </div>
         </div>
-        <button onClick={onClose} className="panel-close-btn">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onClose}
+          className="h-6 w-6"
+          aria-label="Close panel"
+          data-testid="wrapper-panel-close"
+        >
           <X size={16} />
-        </button>
+        </Button>
       </div>
 
       <div className="panel-tabs">
@@ -1575,7 +1590,10 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
   const [floatingPanel, setFloatingPanel] = useState<{ element: any; position: { x: number; y: number } } | null>(null);
   const [selectedTextInfo, setSelectedTextInfo] = useState<{ text: string; position: { x: number; y: number } } | null>(null);
-  
+
+  // Mobile editing state - true when editing element on mobile (hides TopBar/TabBar)
+  const isEditingElement = isMobile && floatingPanel !== null && floatingPanel.element !== null;
+
   // Panel states
   const [showVersionHistory, setShowVersionHistory] = useState(false);
   const [showSharePanel, setShowSharePanel] = useState(false);
@@ -3018,6 +3036,7 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
           onPublish={() => {}}
           isSaving={autoSaveStatus === 'saving'}
           isMobile={isMobile}
+          isEditingElement={isEditingElement}
         />
 
         {/* Horizontal Tabs Bar - Schema Driven */}
@@ -3026,6 +3045,7 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
           onTabChange={setActiveTab}
           activeSidebar={activeSidebar}
           onSidebarChange={setActiveSidebar}
+          isEditingElement={isEditingElement}
         />
 
         {/* Main Content Area */}

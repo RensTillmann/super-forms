@@ -1,10 +1,12 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { 
-  Bold, Italic, Underline, Link, Type, 
+import {
+  Bold, Italic, Underline, Link, Type,
   AlignLeft, AlignCenter, AlignRight, List,
   Palette, Highlighter
 } from 'lucide-react';
 import { FloatingToolbarProps, ToolbarItem } from '../types/overlay.types';
+import { Button } from '../../../../../components/ui/button';
+import { cn } from '../../../../../lib/utils';
 
 const defaultTools: ToolbarItem[] = [
   { id: 'bold', label: 'Bold', icon: <Bold size={16} />, action: 'bold' },
@@ -123,36 +125,44 @@ export const FloatingToolbar: React.FC<FloatingToolbarProps> = ({
       <div className="floating-toolbar-inner">
         {tools.map((tool) => {
           if (tool.id.startsWith('divider')) {
-            return <div key={tool.id} className="toolbar-divider" />;
+            return <div key={tool.id} className="w-px h-4 bg-border mx-0.5" />;
           }
 
           return (
-            <button
+            <Button
               key={tool.id}
-              className={`toolbar-btn ${activeTools.has(tool.id) ? 'toolbar-btn-active' : ''} 
-                         ${tool.disabled ? 'toolbar-btn-disabled' : ''}`}
+              variant="ghost"
+              size="icon"
+              className={cn(
+                'h-7 w-7',
+                activeTools.has(tool.id) && 'bg-muted text-foreground'
+              )}
               onClick={() => handleToolClick(tool)}
               disabled={tool.disabled}
               title={tool.label}
               aria-label={tool.label}
               aria-pressed={activeTools.has(tool.id)}
+              data-testid={`toolbar-${tool.id}`}
             >
               {tool.icon}
-            </button>
+            </Button>
           );
         })}
       </div>
 
       {showColorPicker && (
         <div className="floating-color-picker">
-          <div className="color-picker-grid">
+          <div className="grid grid-cols-4 gap-1 p-2">
             {['#000000', '#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF', '#FFFFFF'].map((color) => (
-              <button
+              <Button
                 key={color}
-                className="color-picker-swatch"
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6 p-0 rounded-sm border border-border"
                 style={{ backgroundColor: color }}
                 onClick={() => handleColorSelect(color)}
                 aria-label={`Select color ${color}`}
+                data-testid={`color-${color.replace('#', '')}`}
               />
             ))}
           </div>

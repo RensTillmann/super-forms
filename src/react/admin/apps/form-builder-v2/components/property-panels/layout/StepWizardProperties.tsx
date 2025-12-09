@@ -2,6 +2,7 @@ import React from 'react';
 import { PropertyField } from '../shared';
 import { X, Plus } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
+import { Button } from '../../../../../components/ui/button';
 
 interface StepWizardPropertiesProps {
   element: any;
@@ -58,31 +59,37 @@ export const StepWizardProperties: React.FC<StepWizardPropertiesProps> = ({
                 className="form-input mb-2"
                 placeholder="Step Description"
               />
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => {
                   const newSteps = element.properties.steps?.filter((_: any, i: number) => i !== index);
                   onUpdate('steps', newSteps);
                 }}
-                className="btn btn-ghost btn-icon text-red-500"
+                className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+                aria-label={`Delete step ${index + 1}`}
+                data-testid={`delete-step-${index}`}
               >
                 <X size={14} />
-              </button>
+              </Button>
             </div>
           ))}
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => {
-              const newSteps = [...(element.properties.steps || []), { 
-                id: uuidv4(), 
-                title: `Step ${(element.properties.steps?.length || 0) + 1}`, 
-                description: 'Step description' 
+              const newSteps = [...(element.properties.steps || []), {
+                id: uuidv4(),
+                title: `Step ${(element.properties.steps?.length || 0) + 1}`,
+                description: 'Step description'
               }];
               onUpdate('steps', newSteps);
             }}
-            className="btn btn-ghost text-sm"
+            data-testid="add-step-button"
           >
             <Plus size={14} />
             Add Step
-          </button>
+          </Button>
         </div>
       </PropertyField>
     </>

@@ -19,7 +19,7 @@ if (document.readyState === 'loading') {
 }
 
 function initAdmin(): void {
-  const rootElement = document.getElementById('sfui-admin-root');
+  const rootElement = document.getElementById('sfui-admin-mount');
 
   if (!rootElement) {
     // Not on an SFUI admin page, skip silently

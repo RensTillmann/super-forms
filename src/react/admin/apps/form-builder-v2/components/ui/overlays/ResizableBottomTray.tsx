@@ -3,6 +3,7 @@ import { ChevronUp, ChevronDown, GripHorizontal } from 'lucide-react';
 import { ResizableBottomTrayProps } from '../types/overlay.types';
 import { cn } from '../../../../../lib/utils';
 import { useWPAdminSidebar } from '../../../../../hooks/useWPAdminSidebar';
+import { Button } from '../../../../../components/ui/button';
 
 export const ResizableBottomTray: React.FC<ResizableBottomTrayProps> = ({
   isCollapsed,
@@ -167,25 +168,24 @@ export const ResizableBottomTray: React.FC<ResizableBottomTrayProps> = ({
       )}
 
       {/* Chevron Collapse Button */}
-      <button
+      <Button
+        variant="ghost"
+        size="icon"
         className={cn(
           "absolute -top-4 left-1/2 -translate-x-1/2",
-          "w-12 h-4",
+          "w-12 h-4 rounded-t-lg rounded-b-none",
           "bg-muted border border-border border-b-0",
-          "rounded-t-lg",
-          "cursor-pointer",
-          "flex items-center justify-center",
           "text-muted-foreground",
-          "transition-all duration-150 ease-out",
           "z-[1]",
           "hover:bg-accent hover:border-primary hover:text-primary"
         )}
         onClick={onToggleCollapse}
         aria-label={isCollapsed ? 'Show elements' : 'Hide elements'}
         aria-expanded={!isCollapsed}
+        data-testid="tray-collapse-button"
       >
         {isCollapsed ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
-      </button>
+      </Button>
       
       {!isCollapsed && children}
     </div>

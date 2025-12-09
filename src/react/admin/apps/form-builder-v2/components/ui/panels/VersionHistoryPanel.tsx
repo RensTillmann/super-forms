@@ -3,6 +3,7 @@ import { Clock, RotateCcw, User, FileText, ChevronRight } from 'lucide-react';
 import { VersionHistoryPanelProps, FormVersion } from '../types/panel.types';
 import { BasePanel } from './BasePanel';
 import { useToast } from '../toast';
+import { Button } from '../../../../../components/ui/button';
 
 const defaultVersions: FormVersion[] = [
   { 
@@ -131,20 +132,21 @@ export const VersionHistoryPanel: React.FC<VersionHistoryPanelProps> = ({
                   
                   {!version.isCurrent && (
                     <div className="version-actions">
-                      <button
+                      <Button
+                        size="sm"
                         onClick={(e) => {
                           e.stopPropagation();
                           handleRestore(version.id);
                         }}
-                        className="btn btn-sm btn-primary"
+                        data-testid={`restore-version-${version.id}`}
                       >
                         <RotateCcw size={14} />
                         Restore This Version
-                      </button>
+                      </Button>
                       {showComparison && (
-                        <button className="btn btn-sm btn-outline">
+                        <Button variant="outline" size="sm" data-testid={`compare-version-${version.id}`}>
                           Compare with Current
-                        </button>
+                        </Button>
                       )}
                     </div>
                   )}

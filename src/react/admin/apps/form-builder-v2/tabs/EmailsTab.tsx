@@ -5,16 +5,17 @@
 
 import React from 'react';
 import { Mail, Plus } from 'lucide-react';
+import { Button } from '../../../components/ui/button';
 
 export default function EmailsTab() {
   return (
     <div className="flex-1 overflow-auto p-4">
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold">Email Notifications</h3>
-        <button className="flex items-center gap-2 px-3 py-2 text-sm font-medium bg-primary text-primary-foreground rounded-md hover:bg-primary/90">
+        <Button size="sm" data-testid="add-email-button">
           <Plus size={14} />
           Add Email
-        </button>
+        </Button>
       </div>
       <p className="text-sm text-muted-foreground mb-4">
         Configure email notifications sent when this form is submitted.

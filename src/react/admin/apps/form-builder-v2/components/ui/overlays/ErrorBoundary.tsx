@@ -1,6 +1,7 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { ErrorBoundaryProps, ErrorBoundaryState, ErrorFallbackProps } from '../types/error-boundary.types';
+import { Button } from '../../../../../components/ui/button';
 
 const DefaultErrorFallback: React.FC<ErrorFallbackProps> = ({ error, errorInfo, onReset }) => {
   const isDevelopment = process.env.NODE_ENV === 'development';
@@ -31,19 +32,17 @@ const DefaultErrorFallback: React.FC<ErrorFallbackProps> = ({ error, errorInfo, 
         )}
         
         <div className="flex gap-2 justify-center">
-          <button 
-            onClick={onReset}
-            className="btn btn-primary"
-          >
+          <Button onClick={onReset} data-testid="error-try-again">
             <RefreshCw size={16} className="mr-2" />
             Try Again
-          </button>
-          <button 
+          </Button>
+          <Button
+            variant="outline"
             onClick={() => window.location.reload()}
-            className="btn btn-outline"
+            data-testid="error-refresh-page"
           >
             Refresh Page
-          </button>
+          </Button>
         </div>
       </div>
     </div>

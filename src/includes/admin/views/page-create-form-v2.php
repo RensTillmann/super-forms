@@ -9,9 +9,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 ?>
+<script>
+	// Add sfui-admin-root ID to body for Tailwind CSS scoping
+	// Required because shadcn/ui components like Drawer use portals that render outside React root
+	document.body.id = 'sfui-admin-root';
+</script>
 <div class="super-create-form-v2">
 	<!-- SFUI Admin React Mount Point -->
-	<div id="sfui-admin-root" class="sfui-admin-container" data-testid="sfui-admin-root"></div>
+	<div id="sfui-admin-mount" class="sfui-admin-container" data-testid="sfui-admin-root"></div>
 
 	<script>
 		// Pass data to React app - form data loaded via REST API

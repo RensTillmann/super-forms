@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useMemo, useCallback } from 'react';
+import React, { useRef, useEffect, useMemo, useCallback, useState } from 'react';
 import { Drawer } from 'vaul';
 import { X, Trash2 } from 'lucide-react';
 import { SchemaPropertyPanel } from './schema';
@@ -79,6 +79,51 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
     },
     [element.id, clearNodeStyleOverrides, clearAllStyleOverrides]
   );
+
+  // Mobile: state for dynamic snap point calculation
+  const [mobileSnapPoint, setMobileSnapPoint] = useState<number>(0.6); // Default 60% of viewport
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  // Mobile: scroll element into view and calculate snap point
+  useEffect(() => {
+    if (!isMobile) return;
+
+    // Find the element in the DOM by data-element-id attribute
+    const domElement = document.querySelector(`[data-element-id="${element.id}"]`) as HTMLElement;
+    if (!domElement) {
+      setIsScrolled(true);
+      return;
+    }
+
+    // Scroll element into view at the top
+    domElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // Calculate snap point after scroll settles
+    const calculateSnapPoint = () => {
+      const rect = domElement.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const minDrawerHeight = 400;
+
+      // Element bottom position from top of viewport
+      // Show as much of element as possible, starting from top
+      const elementVisibleBottom = Math.min(rect.bottom, viewportHeight - minDrawerHeight);
+
+      // Calculate snap point: drawer height as fraction of viewport
+      // snapPoint = (viewportHeight - elementBottom) / viewportHeight
+      // But we want minimum 400px drawer, so:
+      const drawerHeight = Math.max(minDrawerHeight, viewportHeight - elementVisibleBottom);
+      const snapPoint = drawerHeight / viewportHeight;
+
+      // Clamp between 0.4 (minimum useful drawer) and 0.95 (near full screen)
+      setMobileSnapPoint(Math.min(0.95, Math.max(0.4, snapPoint)));
+      setIsScrolled(true);
+    };
+
+    // Wait for scroll to complete before calculating
+    const timeoutId = setTimeout(calculateSnapPoint, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [isMobile, element.id]);
 
   // Close on click outside
   useEffect(() => {
@@ -212,15 +257,31 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
     </div>
   );
 
-  // Mobile: Vaul drawer from bottom
+  // Mobile: Vaul drawer from bottom with element-aware positioning
   if (isMobile) {
+    // Don't render until scroll is complete (prevents flash)
+    if (!isScrolled) {
+      return null;
+    }
+
     return (
-      <Drawer.Root open={true} onOpenChange={(open) => !open && onClose()} modal={false}>
+      <Drawer.Root
+        open={true}
+        onOpenChange={(open) => !open && onClose()}
+        modal={false}
+        snapPoints={[mobileSnapPoint, 0.95]}
+        activeSnapPoint={mobileSnapPoint}
+        setActiveSnapPoint={() => {}}
+      >
         <Drawer.Portal>
           <Drawer.Overlay className="fixed inset-0 bg-black/40 z-50" />
           <Drawer.Content
-            className="fixed bottom-0 left-0 right-0 z-50 rounded-t-xl max-h-[85vh] flex flex-col"
-            style={{ backgroundColor: '#ffffff' }}
+            className="fixed bottom-0 left-0 right-0 z-50 rounded-t-xl flex flex-col"
+            style={{
+              backgroundColor: '#ffffff',
+              height: `${mobileSnapPoint * 100}vh`,
+              maxHeight: '95vh',
+            }}
           >
             <div className="mx-auto w-12 h-1.5 bg-gray-300 rounded-full mt-4 mb-2 shrink-0" />
             <Drawer.Title className="sr-only">{displayName} Properties</Drawer.Title>

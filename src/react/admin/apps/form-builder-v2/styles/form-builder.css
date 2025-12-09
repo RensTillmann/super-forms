@@ -798,51 +798,7 @@ body {
   color: var(--color-primary-700);
 }
 
-.zoom-controls {
-  display: flex;
-  align-items: center;
-  gap: var(--space-1);
-  background: var(--color-bg-secondary);
-  border-radius: var(--radius-md);
-  padding: var(--space-1);
-}
-
-.zoom-btn {
-  background: transparent;
-  border: none;
-  color: var(--color-text-secondary);
-  padding: var(--space-1);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: all var(--duration-fast);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-}
-
-.zoom-btn:hover {
-  background: var(--color-bg-tertiary);
-  color: var(--color-text-primary);
-}
-
-.zoom-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.zoom-select {
-  background: transparent;
-  border: none;
-  color: var(--color-text-primary);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  min-width: 60px;
-  text-align: center;
-  cursor: pointer;
-  outline: none;
-}
+/* Zoom controls now use shadcn Button with Tailwind classes */
 
 .btn {
   padding: var(--space-2) var(--space-4);
@@ -1707,22 +1663,7 @@ body {
   color: var(--color-text-secondary);
 }
 
-.floating-text-toolbar button:hover {
-  background: var(--color-bg-secondary);
-  color: var(--color-text-primary);
-}
-
-.floating-text-toolbar button:active {
-  background: var(--color-primary-500);
-  color: white;
-}
-
-.floating-text-toolbar .toolbar-divider {
-  width: 1px;
-  height: 20px;
-  background: var(--color-border-primary);
-  margin: 0 var(--space-1);
-}
+/* Floating text toolbar buttons now use shadcn Button with Tailwind classes */
 
 /* Floating Properties Panel */
 .floating-properties-panel {
@@ -1757,24 +1698,7 @@ body {
   gap: var(--space-2);
 }
 
-.panel-close-btn {
-  width: 24px;
-  height: 24px;
-  border: none;
-  background: transparent;
-  border-radius: var(--radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all var(--duration-fast);
-  color: var(--color-text-secondary);
-}
-
-.panel-close-btn:hover {
-  background: var(--color-bg-tertiary);
-  color: var(--color-text-primary);
-}
+/* Panel close button now uses shadcn Button with Tailwind classes */
 
 .panel-tabs {
   display: flex;

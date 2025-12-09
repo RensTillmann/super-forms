@@ -27,6 +27,7 @@ import {
 } from '../../../schemas/toolbar';
 import { cn } from '../../../lib/utils';
 import { FormSelector, ZoomControls, InlineEditableText } from './ui';
+import { Button } from '../../../components/ui/button';
 
 /**
  * Icon mapping from string names to Lucide components.
@@ -127,6 +128,9 @@ interface TopBarProps {
 
   // Responsive
   isMobile?: boolean;
+
+  // Mobile editing state - hide toolbar when editing element on mobile
+  isEditingElement?: boolean;
 }
 
 // =============================================================================
@@ -162,10 +166,18 @@ export function TopBar(props: TopBarProps) {
     onPublish,
     isSaving = false,
     isMobile = false,
+    isEditingElement = false,
   } = props;
 
+  // Hide completely on mobile when editing element
+  if (isEditingElement) {
+    return null;
+  }
+
   return (
-    <div className="flex items-center justify-between px-4 py-2 bg-background border-b border-border">
+    <div
+      className="flex items-center justify-between px-4 py-2 bg-background border-b border-border"
+    >
       {/* Left Section */}
       <div className="flex items-center gap-2 sm:gap-4 min-w-0">
         {/* Mobile: Hamburger menu that contains form selector */}
@@ -276,18 +288,22 @@ export function TopBar(props: TopBarProps) {
 
         {/* Primary Group */}
         <div className="flex items-center gap-2">
-          <button
-            className={getVariantClasses('secondary')}
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={onPreview}
             title="Preview Form"
+            data-testid="action-preview"
           >
             <Eye className="w-4 h-4" />
             {!isMobile && <span>Preview</span>}
-          </button>
-          <button
-            className={getVariantClasses('save')}
+          </Button>
+          <Button
+            size="sm"
             onClick={onSave}
+            disabled={isSaving}
             title="Save Form"
+            data-testid="action-save"
           >
             {isSaving ? (
               <RefreshCw className="w-4 h-4 animate-spin" />
@@ -295,15 +311,17 @@ export function TopBar(props: TopBarProps) {
               <Save className="w-4 h-4" />
             )}
             {!isMobile && <span>Save</span>}
-          </button>
-          <button
-            className={getVariantClasses('publish')}
+          </Button>
+          <Button
+            size="sm"
             onClick={onPublish}
+            className="bg-green-600 hover:bg-green-700 text-white"
             title="Publish Form"
+            data-testid="action-publish"
           >
             <Send className="w-4 h-4" />
             {!isMobile && <span>Publish</span>}
-          </button>
+          </Button>
         </div>
       </div>
     </div>
@@ -325,19 +343,17 @@ function ToolbarButton({ icon, tooltip, onClick, disabled }: ToolbarButtonProps)
   const Icon = getIcon(icon);
 
   return (
-    <button
-      className={cn(
-        'flex items-center justify-center w-8 h-8 rounded-md transition-colors',
-        disabled
-          ? 'text-muted-foreground/50 cursor-not-allowed'
-          : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-      )}
+    <Button
+      variant="ghost"
+      size="icon"
+      className="h-8 w-8"
       onClick={onClick}
       disabled={disabled}
       title={tooltip}
+      data-testid={`toolbar-${icon.toLowerCase()}`}
     >
       {Icon && <Icon className="w-4 h-4" />}
-    </button>
+    </Button>
   );
 }
 
@@ -352,19 +368,17 @@ function ToolbarToggle({ icon, tooltip, isActive, onClick }: ToolbarToggleProps)
   const Icon = getIcon(icon);
 
   return (
-    <button
-      className={cn(
-        'flex items-center justify-center w-8 h-8 rounded-md transition-colors',
-        isActive
-          ? 'bg-muted text-foreground'
-          : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-      )}
+    <Button
+      variant="ghost"
+      size="icon"
+      className={cn('h-8 w-8', isActive && 'bg-muted text-foreground')}
       onClick={onClick}
       title={tooltip}
       aria-pressed={isActive}
+      data-testid={`toolbar-toggle-${icon.toLowerCase()}`}
     >
       {Icon && <Icon className="w-4 h-4" />}
-    </button>
+    </Button>
   );
 }
 
@@ -402,19 +416,18 @@ function DeviceSelector({ value, onChange, showFrame, onToggleFrame }: DeviceSel
   return (
     <div className="flex items-center gap-1">
       <div className="relative" ref={dropdownRef}>
-        <button
-          className={cn(
-            'flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors',
-            'text-muted-foreground hover:text-foreground hover:bg-muted'
-          )}
+        <Button
+          variant="ghost"
+          size="sm"
           onClick={() => setIsOpen(!isOpen)}
           aria-haspopup="listbox"
           aria-expanded={isOpen}
+          data-testid="device-selector-trigger"
         >
           <CurrentIcon className="w-4 h-4" />
           <span>{currentDevice.label}</span>
           <ChevronDown className={cn('w-3 h-3 transition-transform', isOpen && 'rotate-180')} />
-        </button>
+        </Button>
 
         {isOpen && (
           <div
@@ -424,13 +437,13 @@ function DeviceSelector({ value, onChange, showFrame, onToggleFrame }: DeviceSel
             {devices.map((device) => {
               const DeviceIcon = device.icon;
               return (
-                <button
+                <Button
                   key={device.value}
+                  variant="ghost"
+                  size="sm"
                   className={cn(
-                    'flex items-center gap-2 w-full px-3 py-2 text-sm transition-colors',
-                    value === device.value
-                      ? 'bg-muted text-foreground'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+                    'w-full justify-start rounded-none',
+                    value === device.value && 'bg-muted text-foreground'
                   )}
                   onClick={() => {
                     onChange(device.value);
@@ -438,29 +451,28 @@ function DeviceSelector({ value, onChange, showFrame, onToggleFrame }: DeviceSel
                   }}
                   role="option"
                   aria-selected={value === device.value}
+                  data-testid={`device-option-${device.value}`}
                 >
                   <DeviceIcon className="w-4 h-4" />
                   <span>{device.label}</span>
-                </button>
+                </Button>
               );
             })}
           </div>
         )}
       </div>
 
-      <button
-        className={cn(
-          'flex items-center justify-center w-8 h-8 rounded-md transition-colors',
-          showFrame
-            ? 'bg-muted text-foreground'
-            : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-        )}
+      <Button
+        variant="ghost"
+        size="icon"
+        className={cn('h-8 w-8', showFrame && 'bg-muted text-foreground')}
         onClick={onToggleFrame}
         title="Toggle Device Frame"
         aria-pressed={showFrame}
+        data-testid="toggle-device-frame"
       >
         <Maximize className="w-4 h-4" />
-      </button>
+      </Button>
     </div>
   );
 }

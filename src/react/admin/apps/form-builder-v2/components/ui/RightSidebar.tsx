@@ -10,6 +10,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from '../../../../components/ui/drawer';
+import { Button } from '../../../../components/ui/button';
 
 interface RightSidebarProps {
   /** Whether the sidebar is open */
@@ -75,13 +76,15 @@ export function RightSidebar({
       >
         {/* Close button - positioned in top-right corner */}
         <DrawerClose asChild>
-          <button
-            className="absolute top-2 right-2 p-1.5 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground transition-colors z-10"
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-2 right-2 h-7 w-7 z-10"
             aria-label="Close sidebar"
             data-testid="drawer-close-button"
           >
             <X className="w-4 h-4" />
-          </button>
+          </Button>
         </DrawerClose>
 
         {/* Compact header */}

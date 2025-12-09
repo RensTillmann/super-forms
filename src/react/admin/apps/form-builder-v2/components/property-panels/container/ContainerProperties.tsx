@@ -2,6 +2,7 @@ import React from 'react';
 import { PropertyField } from '../shared';
 import { X, Plus } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
+import { Button } from '../../../../../components/ui/button';
 
 interface ContainerPropertiesProps {
   element: any;
@@ -69,31 +70,37 @@ export const ContainerProperties: React.FC<ContainerPropertiesProps> = ({
                 className="form-input flex-1"
                 placeholder={`Tab ${index + 1}`}
               />
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => {
                   const newTabs = element.properties.tabs?.filter((_: any, i: number) => i !== index);
                   onUpdate('tabs', newTabs);
                 }}
-                className="btn btn-ghost btn-icon text-red-500"
+                className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+                aria-label={`Delete tab ${index + 1}`}
+                data-testid={`delete-tab-${index}`}
               >
                 <X size={14} />
-              </button>
+              </Button>
             </div>
           ))}
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => {
-              const newTabs = [...(element.properties.tabs || []), { 
-                id: uuidv4(), 
-                title: `Tab ${(element.properties.tabs?.length || 0) + 1}`, 
-                active: false 
+              const newTabs = [...(element.properties.tabs || []), {
+                id: uuidv4(),
+                title: `Tab ${(element.properties.tabs?.length || 0) + 1}`,
+                active: false
               }];
               onUpdate('tabs', newTabs);
             }}
-            className="btn btn-ghost text-sm"
+            data-testid="add-tab-button"
           >
             <Plus size={14} />
             Add Tab
-          </button>
+          </Button>
         </div>
       </PropertyField>
     </>
@@ -125,31 +132,37 @@ export const ContainerProperties: React.FC<ContainerPropertiesProps> = ({
                 className="form-input flex-1"
                 placeholder={`Section ${index + 1}`}
               />
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={() => {
                   const newSections = element.properties.sections?.filter((_: any, i: number) => i !== index);
                   onUpdate('sections', newSections);
                 }}
-                className="btn btn-ghost btn-icon text-red-500"
+                className="h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50"
+                aria-label={`Delete section ${index + 1}`}
+                data-testid={`delete-section-${index}`}
               >
                 <X size={14} />
-              </button>
+              </Button>
             </div>
           ))}
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => {
-              const newSections = [...(element.properties.sections || []), { 
-                id: uuidv4(), 
-                title: `Section ${(element.properties.sections?.length || 0) + 1}`, 
-                expanded: false 
+              const newSections = [...(element.properties.sections || []), {
+                id: uuidv4(),
+                title: `Section ${(element.properties.sections?.length || 0) + 1}`,
+                expanded: false
               }];
               onUpdate('sections', newSections);
             }}
-            className="btn btn-ghost text-sm"
+            data-testid="add-section-button"
           >
             <Plus size={14} />
             Add Section
-          </button>
+          </Button>
         </div>
       </PropertyField>
     </>

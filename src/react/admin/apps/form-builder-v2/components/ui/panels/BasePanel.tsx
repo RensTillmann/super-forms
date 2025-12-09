@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 import { BasePanelProps } from '../types/panel.types';
+import { Button } from '../../../../../components/ui/button';
 
 export const BasePanel: React.FC<BasePanelProps & { children: React.ReactNode }> = ({
   isOpen,
@@ -68,13 +69,16 @@ export const BasePanel: React.FC<BasePanelProps & { children: React.ReactNode }>
         {title && (
           <div className="panel-header">
             <h3 id="panel-title">{title}</h3>
-            <button 
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={onClose}
-              className="panel-close"
+              className="h-8 w-8"
               aria-label="Close panel"
+              data-testid="panel-close-button"
             >
               <X size={16} />
-            </button>
+            </Button>
           </div>
         )}
         <div className="panel-body">

@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { getTabsSorted, TabSchema } from '../../../schemas/tabs';
 import { cn } from '../../../lib/utils';
+import { Button } from '../../../components/ui/button';
 
 /**
  * Icon mapping from string names to Lucide components.
@@ -48,6 +49,8 @@ interface TabBarProps {
   onSidebarChange?: (sidebarId: string | null) => void;
   /** Optional CSS class for the container */
   className?: string;
+  /** Mobile editing state - hide tabs when editing element on mobile */
+  isEditingElement?: boolean;
 }
 
 /**
@@ -58,8 +61,13 @@ interface TabBarProps {
  * The Builder tab is visible and switches activeTab to 'canvas'.
  * Sidebar tabs (Style, Themes) toggle a right sidebar overlay instead of replacing the canvas.
  */
-export function TabBar({ activeTab, onTabChange, activeSidebar, onSidebarChange, className }: TabBarProps) {
+export function TabBar({ activeTab, onTabChange, activeSidebar, onSidebarChange, className, isEditingElement = false }: TabBarProps) {
   const tabs = getTabsSorted();
+
+  // Hide completely on mobile when editing element
+  if (isEditingElement) {
+    return null;
+  }
 
   const handleTabClick = (tab: TabSchema) => {
     // Sidebar tabs toggle overlay without changing activeTab
@@ -136,20 +144,22 @@ function TabButton({ tab, isActive, onClick }: TabButtonProps) {
   const isSidebarTab = tab.sidebar;
 
   return (
-    <button
+    <Button
+      variant="ghost"
+      size="sm"
       role="tab"
       aria-selected={isActive}
       aria-controls={`panel-${tab.id}`}
       id={`tab-${tab.id}`}
       className={cn(
-        'relative flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-md transition-colors',
-        'whitespace-nowrap shrink-0',
+        'relative flex items-center gap-2 whitespace-nowrap shrink-0',
         isActive && !isSidebarTab && 'bg-background text-foreground shadow-sm',
         isActive && isSidebarTab && 'bg-primary/10 text-primary',
-        !isActive && 'text-muted-foreground hover:text-foreground hover:bg-muted'
+        !isActive && 'text-muted-foreground'
       )}
       onClick={onClick}
       title={tab.description}
+      data-testid={`tab-${tab.id}`}
     >
       {/* Accent bar for active sidebar tabs */}
       {isActive && isSidebarTab && (
@@ -157,7 +167,7 @@ function TabButton({ tab, isActive, onClick }: TabButtonProps) {
       )}
       <Icon className={cn('w-4 h-4', isActive && isSidebarTab && 'text-primary')} />
       <span>{tab.label}</span>
-    </button>
+    </Button>
   );
 }
 

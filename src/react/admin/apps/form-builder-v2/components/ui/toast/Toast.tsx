@@ -1,6 +1,7 @@
 import React from 'react';
 import { CheckCircle, AlertCircle, HelpCircle, X } from 'lucide-react';
 import { ToastProps, ToastType } from '../types/toast.types';
+import { Button } from '../../../../../components/ui/button';
 
 const toastIcons: Record<ToastType, React.ReactNode> = {
   success: <CheckCircle size={18} />,
@@ -34,14 +35,17 @@ export const Toast: React.FC<ToastProps> = ({
       <div className="toast-message">
         {message}
       </div>
-      <button
-        className="toast-close"
+      <Button
+        variant="ghost"
+        size="icon"
+        className="toast-close h-6 w-6"
         onClick={handleClose}
         title="Close"
         aria-label="Close notification"
+        data-testid="toast-close-button"
       >
         <X size={14} />
-      </button>
+      </Button>
     </div>
   );
 };

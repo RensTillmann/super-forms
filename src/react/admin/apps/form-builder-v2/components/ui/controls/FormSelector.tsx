@@ -1,6 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown, Plus, FileText, Archive, Clock } from 'lucide-react';
 import { FormSelectorProps, FormOption } from '../types/control.types';
+import { Button } from '../../../../../components/ui/button';
+import { cn } from '../../../../../lib/utils';
 
 const defaultForms: FormOption[] = [
   { id: '1', name: 'Contact Form', status: 'published', lastModified: Date.now() - 86400000 },
@@ -72,17 +74,20 @@ export const FormSelector: React.FC<FormSelectorProps> = ({
 
   return (
     <div className="form-selector" ref={dropdownRef}>
-      <button
+      <Button
+        variant="ghost"
+        size="sm"
         onClick={() => setIsOpen(!isOpen)}
         className="form-selector-trigger"
         aria-haspopup="listbox"
         aria-expanded={isOpen}
+        data-testid="form-selector-trigger"
       >
         <div className="form-selector-value">
           <span className="form-selector-name">{currentFormData?.name || 'Select Form'}</span>
         </div>
-        <ChevronDown size={16} className={`form-selector-chevron ${isOpen ? 'rotate-180' : ''}`} />
-      </button>
+        <ChevronDown size={16} className={cn('form-selector-chevron transition-transform', isOpen && 'rotate-180')} />
+      </Button>
       
       {isOpen && (
         <div className="form-selector-dropdown" role="listbox">
