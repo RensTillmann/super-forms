@@ -12,6 +12,7 @@ description: Tasks related to React admin UI, Tailwind CSS, shadcn/ui, and front
 - `h-research-form-builder-v2-architecture.md` - Architecture design for Form Builder V2 (data loading, state, undo/redo, AI, automations)
 
 ### Medium Priority
+- `m-refactor-property-panel-ux/` - Refactor FloatingPanel & GlobalStylesPanel with 4-tab structure, mobile UX, accessibility
 - `m-refactor-buttons-to-shadcn.md` - Replace ~56 custom buttons with shadcn Button components
 - `m-refactor-canvas-form-layering.md` - Refactor canvas/form layering for clear visual hierarchy
 - `m-implement-unified-element-tray/` - Unified element tray for Form & Email builders with context-aware filtering
