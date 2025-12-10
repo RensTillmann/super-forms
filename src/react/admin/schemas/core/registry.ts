@@ -159,6 +159,12 @@ const BASE_PROPERTIES: PropertiesByCategory = {
       description: 'Label shown above the field',
       translatable: true,
     },
+    description: {
+      type: 'string',
+      label: 'Description',
+      description: 'Help text shown near the field',
+      translatable: true,
+    },
   },
   validation: {},
   appearance: {

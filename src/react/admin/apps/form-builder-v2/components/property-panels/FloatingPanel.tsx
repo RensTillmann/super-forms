@@ -1,8 +1,8 @@
 import React, { useRef, useEffect, useMemo, useCallback, useState } from 'react';
 import { Drawer } from 'vaul';
-import { X, Trash2, FileText, Palette, Settings2, Code2 } from 'lucide-react';
+import { X, Trash2, FileText, Palette, Settings2, Code2, LayoutTemplate, Sparkles } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../../../components/ui/tabs';
-import { ContentTab, StyleTab, BehaviorTab, CodeTab } from './tabs';
+import { ContentTab, StyleTab, BehaviorTab, CodeTab, TemplatesTab, AITab } from './tabs';
 import { isElementRegistered, getElementSchema } from '../../../../schemas/core/registry';
 import { useElementsStore } from '../../store/useElementsStore';
 import { NodeType, StyleProperties } from '../../../../schemas/styles';
@@ -24,13 +24,15 @@ interface FloatingPanelProps {
   onDelete: () => void;
 }
 
-type PanelTab = 'content' | 'style' | 'behavior' | 'code';
+type PanelTab = 'content' | 'style' | 'behavior' | 'code' | 'templates' | 'ai';
 
 const TAB_CONFIG: { id: PanelTab; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
   { id: 'content', label: 'Content', icon: FileText },
   { id: 'style', label: 'Style', icon: Palette },
   { id: 'behavior', label: 'Behavior', icon: Settings2 },
   { id: 'code', label: 'Code', icon: Code2 },
+  { id: 'templates', label: 'Templates', icon: LayoutTemplate },
+  { id: 'ai', label: 'AI', icon: Sparkles },
 ];
 
 // ============================================================================
@@ -334,6 +336,20 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
 
       <TabsContent value="code" className="m-0" data-testid="floating-panel-tab-content-code">
         <CodeTab
+          element={element}
+          onPropertyChange={onPropertyChange}
+        />
+      </TabsContent>
+
+      <TabsContent value="templates" className="m-0" data-testid="floating-panel-tab-content-templates">
+        <TemplatesTab
+          element={element}
+          onPropertyChange={onPropertyChange}
+        />
+      </TabsContent>
+
+      <TabsContent value="ai" className="m-0" data-testid="floating-panel-tab-content-ai">
+        <AITab
           element={element}
           onPropertyChange={onPropertyChange}
         />

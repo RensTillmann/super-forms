@@ -42,7 +42,6 @@ import {
 } from './components/ui';
 // Sonner toast (replaces custom ToastProvider)
 import { Toaster } from '../../components/ui/sonner';
-import { toast } from 'sonner';
 // Lazy loaded tabs (code splitting)
 const EmailsTab = lazy(() => import('./tabs/EmailsTab'));
 const AutomationsTab = lazy(() => import('../../components/form-builder/automations/AutomationsTab').then(m => ({ default: m.AutomationsTab })));
@@ -1842,12 +1841,11 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
   }, [hoveredElement]);
   
 
-  // Auto-save with toast notifications
+  // Auto-save status management
   useEffect(() => {
     if (autoSaveStatus === 'saving') {
       const timer = setTimeout(() => {
         setAutoSaveStatus('saved');
-        toast.success('All changes saved');
         setTimeout(() => setAutoSaveStatus('idle'), 1000);
       }, 1000);
       return () => clearTimeout(timer);
@@ -1893,7 +1891,15 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
       }
       
       if (e.key === 'Delete' || e.key === 'Backspace') {
-        if (selectedElement && !e.target?.closest('.inline-editable-input')) {
+        // Don't delete elements when focus is in an editable field
+        const activeEl = document.activeElement;
+        const isEditing = activeEl instanceof HTMLInputElement ||
+          activeEl instanceof HTMLTextAreaElement ||
+          activeEl instanceof HTMLSelectElement ||
+          activeEl?.getAttribute('contenteditable') === 'true' ||
+          (e.target as Element)?.closest('.inline-editable-input');
+
+        if (selectedElement && !isEditing) {
           e.preventDefault();
           handleDeleteElement(selectedElement.id);
         }
@@ -3333,27 +3339,7 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
                                 </button>
                               </div>
 
-                              {/* Enhanced Element Preview */}
-                              <div className="mb-2">
-                                <InlineEditableText
-                                  value={element.properties?.label || element.label}
-                                  onChange={(value) => updateElementProperty(element.id, 'label', value)}
-                                  className="property-label"
-                                  placeholder="Field Label"
-                                  onFormat={handleTextFormat}
-                                />
-                                {element.properties?.required && <span className="text-red-500 ml-1">*</span>}
-                                {element.properties?.helperText && (
-                                  <InlineEditableText
-                                    value={element.properties.helperText}
-                                    onChange={(value) => updateElementProperty(element.id, 'helperText', value)}
-                                    className="property-help"
-                                    placeholder="Helper text"
-                                  />
-                                )}
-                              </div>
-
-                              {/* Render enhanced element preview */}
+                              {/* Render element preview */}
                               <ElementRenderer 
                                 element={element} 
                                 updateElementProperty={updateElementProperty}
@@ -3550,27 +3536,7 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
                               </button>
                             </div>
 
-                            {/* Enhanced Element Preview */}
-                            <div className="mb-2">
-                              <InlineEditableText
-                                value={element.properties?.label || element.label}
-                                onChange={(value) => updateElementProperty(element.id, 'label', value)}
-                                className="property-label"
-                                placeholder="Field Label"
-                                onFormat={handleTextFormat}
-                              />
-                              {element.properties?.required && <span className="text-red-500 ml-1">*</span>}
-                              {element.properties?.helperText && (
-                                <InlineEditableText
-                                  value={element.properties.helperText}
-                                  onChange={(value) => updateElementProperty(element.id, 'helperText', value)}
-                                  className="property-help"
-                                  placeholder="Helper text"
-                                />
-                              )}
-                            </div>
-
-                            {/* Render enhanced element preview */}
+                            {/* Render element preview */}
                             <ElementRenderer 
                               element={element} 
                               updateElementProperty={updateElementProperty}
