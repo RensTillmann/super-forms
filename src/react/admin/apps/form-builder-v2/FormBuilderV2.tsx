@@ -4,8 +4,8 @@ import {
   Type, Mail, FileText, List, CheckSquare, Radio, Calendar,
   Phone, Link, Upload, Image, Star, Hash, Clock, MapPin,
   CreditCard, Code, ChevronDown, Search,
-  Monitor, Tablet, Smartphone, Eye, Copy, Trash2,
-  Move, Settings, X, Layers, Database,
+  Monitor, Tablet, Smartphone, Eye, Trash2,
+  X, Layers, Database,
   ChevronUp, Zap, BarChart,
   Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight,
   Palette, Lock, EyeOff, CheckCircle,
@@ -17,8 +17,28 @@ import {
   ChevronDownSquare, StepForward, Container, Box, Workflow, Key, Bell,
   ChevronLeft, ChevronRight, Plus
 } from 'lucide-react';
+// @dnd-kit imports for drag-and-drop
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverEvent,
+  DragStartEvent,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  DragOverlay,
+  closestCenter,
+  useDroppable,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  arrayMove,
+  sortableKeyboardCoordinates,
+} from '@dnd-kit/sortable';
 import { useElementsStore, useBuilderStore } from './store';
-import { ElementRenderer } from './components/elements';
+import { SortableElement, ElementDragPreview, DraggablePaletteItem, PaletteDragPreview, SortablePanelItem } from './components/dnd';
 import { PropertyPanelRegistry, FloatingPanel } from './components/property-panels';
 import { TabBar } from './components/TabBar';
 import { TopBar } from './components/TopBar';
@@ -1159,7 +1179,7 @@ const DraggableResizeBar: React.FC<{
 };
 
 
-// Floating Elements Panel Component
+// Floating Elements Panel Component - Uses @dnd-kit for element reordering
 const FloatingElementsPanel: React.FC<{
   isVisible: boolean;
   position: { x: number; y: number };
@@ -1171,12 +1191,23 @@ const FloatingElementsPanel: React.FC<{
 }> = ({ isVisible, position, isCollapsed, onClose, onPositionChange, onCollapse, onElementClick }) => {
   const { items, order, reorderElements, removeElement, addElement } = useElementsStore();
   const orderedElements = Array.isArray(order) ? order.map(id => items[id]).filter(Boolean) : [];
-  const [isDragging, setIsDragging] = useState(false);
+  const [isDraggingPanel, setIsDraggingPanel] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
 
+  // @dnd-kit sensors for element reordering within panel
+  const panelSensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  // Panel window drag (not element drag)
   const handleMouseDown = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest('.floating-panel-header')) {
-      setIsDragging(true);
+      setIsDraggingPanel(true);
       const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
       setDragOffset({
         x: e.clientX - rect.left,
@@ -1186,20 +1217,20 @@ const FloatingElementsPanel: React.FC<{
   };
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (isDragging) {
+    if (isDraggingPanel) {
       onPositionChange({
         x: e.clientX - dragOffset.x,
         y: e.clientY - dragOffset.y
       });
     }
-  }, [isDragging, dragOffset, onPositionChange]);
+  }, [isDraggingPanel, dragOffset, onPositionChange]);
 
   const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
+    setIsDraggingPanel(false);
   }, []);
 
   useEffect(() => {
-    if (isDragging) {
+    if (isDraggingPanel) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
       return () => {
@@ -1207,14 +1238,20 @@ const FloatingElementsPanel: React.FC<{
         document.removeEventListener('mouseup', handleMouseUp);
       };
     }
-  }, [isDragging, handleMouseMove, handleMouseUp]);
+  }, [isDraggingPanel, handleMouseMove, handleMouseUp]);
 
-  const handleReorder = (dragIndex: number, hoverIndex: number) => {
-    const newOrder = [...order];
-    const draggedId = newOrder[dragIndex];
-    newOrder.splice(dragIndex, 1);
-    newOrder.splice(hoverIndex, 0, draggedId);
-    reorderElements(newOrder);
+  // @dnd-kit drag end handler for element reordering
+  const handlePanelDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    const oldIndex = order.indexOf(active.id as string);
+    const newIndex = order.indexOf(over.id as string);
+
+    if (oldIndex !== -1 && newIndex !== -1) {
+      const newOrder = arrayMove(order, oldIndex, newIndex);
+      reorderElements(newOrder);
+    }
   };
 
   const handleDeleteElement = (elementId: string) => {
@@ -1242,14 +1279,15 @@ const FloatingElementsPanel: React.FC<{
   if (!isVisible) return null;
 
   return (
-    <div 
+    <div
       className={`floating-elements-panel ${isCollapsed ? 'floating-panel-collapsed' : ''}`}
       style={{
         left: position.x,
         top: position.y,
-        cursor: isDragging ? 'grabbing' : 'default'
+        cursor: isDraggingPanel ? 'grabbing' : 'default'
       }}
       onMouseDown={handleMouseDown}
+      data-testid="floating-elements-panel"
     >
       <div className="floating-panel-header">
         <div className="floating-panel-title">
@@ -1282,62 +1320,27 @@ const FloatingElementsPanel: React.FC<{
               <p className="text-xs text-gray-500">No elements yet</p>
             </div>
           ) : (
-            <div className="floating-elements-list">
-              {orderedElements.map((element, index) => (
-                <div 
-                  key={element.id} 
-                  className="floating-element-item"
-                  draggable
-                  onClick={() => onElementClick(element.id)}
-                  onContextMenu={(e) => handleContextMenu(e, element.id)}
-                  onDragStart={(e) => {
-                    e.dataTransfer.setData('text/plain', index.toString());
-                  }}
-                  onDragOver={(e) => e.preventDefault()}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    const dragIndex = parseInt(e.dataTransfer.getData('text/plain'));
-                    handleReorder(dragIndex, index);
-                  }}
-                >
-                  <div className="floating-element-drag">
-                    <Move size={12} />
-                  </div>
-                  
-                  <div className="floating-element-info">
-                    <div className="floating-element-label">
-                      {element.properties?.label || element.label}
-                    </div>
-                    <div className="floating-element-type">
-                      {element.type.replace('_', ' ')} {element.properties?.required && '•'}
-                    </div>
-                  </div>
-
-                  <div className="floating-element-actions">
-                    <button
-                      className="floating-element-btn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDuplicateElement(element.id);
-                      }}
-                      title="Duplicate"
-                    >
-                      <Copy size={12} />
-                    </button>
-                    <button
-                      className="floating-element-btn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteElement(element.id);
-                      }}
-                      title="Delete"
-                    >
-                      <Trash2 size={12} />
-                    </button>
-                  </div>
+            <DndContext
+              sensors={panelSensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handlePanelDragEnd}
+            >
+              <SortableContext items={order} strategy={verticalListSortingStrategy}>
+                <div className="floating-elements-list">
+                  {orderedElements.map((element) => (
+                    <SortablePanelItem
+                      key={element.id}
+                      element={element}
+                      isSelected={false}
+                      onClick={() => onElementClick(element.id)}
+                      onDuplicate={handleDuplicateElement}
+                      onDelete={handleDeleteElement}
+                      onContextMenu={handleContextMenu}
+                    />
+                  ))}
                 </div>
-              ))}
-            </div>
+              </SortableContext>
+            </DndContext>
           )}
         </div>
       )}
@@ -1349,7 +1352,7 @@ const FloatingElementsPanel: React.FC<{
 interface FormBuilderCompleteProps {}
 
 const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
-  const { items, order, addElement, removeElement, updateElement, reorderElements } = useElementsStore();
+  const { items, order, addElement, removeElement, updateElement, reorderElements, moveElement } = useElementsStore();
   const { selectedElements, setSelectedElements } = useBuilderStore();
 
   // Detect mobile viewport for responsive behavior
@@ -1537,12 +1540,29 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
   const targetScrollRef = useRef(0);
   const momentumFrameRef = useRef<number | null>(null);
   
-  // Drag and drop state
-  const [isDragging, setIsDragging] = useState(false);
-  const [draggedElement, setDraggedElement] = useState<any>(null);
-  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  // Multi-select state (for selecting multiple elements at once)
   const [multiSelectElements, setMultiSelectElements] = useState<string[]>([]);
-  
+
+  // @dnd-kit: Sensors for pointer and keyboard drag
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8, // Prevents accidental drags on click
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  // @dnd-kit: Track active drag for DragOverlay
+  const [activeId, setActiveId] = useState<string | null>(null);
+
+  // @dnd-kit: Canvas drop zone for empty canvas
+  const { setNodeRef: setCanvasDropRef, isOver: isOverCanvasDrop } = useDroppable({
+    id: 'canvas-drop-zone',
+  });
+
   // Inline editing state
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
   const [floatingPanel, setFloatingPanel] = useState<{ elementId: string | null; position: { x: number; y: number } } | null>(null);
@@ -1619,6 +1639,15 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
     { value: 'tablet', label: 'Tablet', icon: <Tablet size={18} /> },
     { value: 'mobile', label: 'Mobile', icon: <Smartphone size={18} /> }
   ];
+
+  // Get element config by type (for palette drag preview)
+  const getElementConfigByType = useCallback((type: string) => {
+    for (const category of ELEMENT_CATEGORIES) {
+      const found = category.elements.find(el => el.type === type);
+      if (found) return found;
+    }
+    return null;
+  }, []);
 
   // Filter elements based on search query
   const getFilteredElements = useCallback(() => {
@@ -2006,78 +2035,7 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
     }
   }, [addElement, setSelectedElements, items, order]);
 
-  // Enhanced drag and drop handlers
-  const handleDragStart = useCallback((e: React.DragEvent, element: any, isNew = false) => {
-    try {
-      setIsDragging(true);
-      // Only store serializable data in state
-      const serializableElement = {
-        type: element.type,
-        label: element.label,
-        icon: element.icon?.name || element.type, // Store icon name, not component
-        keywords: element.keywords,
-        isNew
-      };
-      setDraggedElement(serializableElement);
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text/plain', JSON.stringify(serializableElement));
-    } catch (error) {
-      console.error('Error in drag start:', error);
-      setIsDragging(false);
-      setDraggedElement(null);
-    }
-  }, []);
-
-  const handleDragEnd = useCallback(() => {
-    setIsDragging(false);
-    setDraggedElement(null);
-    setDragOverIndex(null);
-  }, []);
-
-  const handleDragOver = useCallback((e: React.DragEvent, index: number) => {
-    e.preventDefault();
-    e.stopPropagation();
-    e.dataTransfer.dropEffect = 'move';
-    setDragOverIndex(index);
-  }, []);
-
-  const handleDrop = useCallback((e: React.DragEvent, dropIndex: number) => {
-    e.preventDefault();
-    e.stopPropagation();
-    
-    try {
-      let elementData = draggedElement;
-      
-      if (!elementData) {
-        const transferData = e.dataTransfer.getData('text/plain');
-        if (transferData) {
-          elementData = JSON.parse(transferData);
-        }
-      }
-      
-      if (elementData) {
-        if (elementData.isNew) {
-          handleAddElementAtPosition(elementData, dropIndex);
-        } else {
-          const currentIndex = order.indexOf(elementData.id);
-          if (currentIndex !== dropIndex && currentIndex !== -1) {
-            const newOrder = [...order];
-            const [removed] = newOrder.splice(currentIndex, 1);
-            newOrder.splice(dropIndex, 0, removed);
-            reorderElements(newOrder);
-            setAutoSaveStatus('saving');
-            saveToHistory();
-          }
-        }
-      }
-    } catch (error) {
-      console.error('Error in drop handler:', error);
-      setAutoSaveStatus('error');
-    }
-    
-    handleDragEnd();
-  }, [draggedElement, order, addElement, reorderElements, handleDragEnd]);
-
+  // Add element at specific position (used by @dnd-kit drag handlers)
   const handleAddElementAtPosition = (elementData: any, position: number) => {
     const schema = getElementSchema(elementData.type);
 
@@ -2104,6 +2062,126 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
     setAutoSaveStatus('saving');
     saveToHistory();
   };
+
+  // Add element to a container (column drop)
+  const handleAddElementToContainer = useCallback((
+    elementType: string,
+    containerId: string,
+  ) => {
+    const schema = getElementSchema(elementType);
+    if (!schema) {
+      console.warn(`No schema for element type: ${elementType}`);
+      return;
+    }
+
+    const schemaDefaults = getSchemaDefaults(schema);
+    const newElement = {
+      id: uuidv4(),
+      type: elementType,
+      properties: {
+        ...schemaDefaults,
+        name: schemaDefaults.name || `${elementType}_${Date.now().toString(36)}`,
+        label: schemaDefaults.label || elementType,
+      },
+      parent: containerId,
+      children: schema.container ? [] : undefined,
+    };
+
+    // Add element to items
+    addElement(newElement);
+
+    // Update container's children array
+    const container = items[containerId];
+    if (container) {
+      const newChildren = [...(container.children || []), newElement.id];
+      updateElement(containerId, { children: newChildren });
+    }
+
+    setSelectedElements([newElement.id]);
+    setAutoSaveStatus('saving');
+    saveToHistory();
+  }, [addElement, updateElement, items, setSelectedElements, setAutoSaveStatus, saveToHistory]);
+
+  // @dnd-kit event handlers
+  const handleDndDragStart = useCallback((event: DragStartEvent) => {
+    const { active } = event;
+    setActiveId(active.id as string);
+  }, []);
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleDndDragOver = useCallback((_event: DragOverEvent) => {
+    // Reserved for future container drop detection enhancements
+  }, []);
+
+  const handleDndDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event;
+    setActiveId(null);
+
+    if (!over) return;
+
+    const activeId = active.id as string;
+    const overId = over.id as string;
+
+    // Check if it's a palette item (new element)
+    if (activeId.startsWith('palette:')) {
+      const elementType = activeId.replace('palette:', '');
+
+      // Check if dropping into a column
+      if (overId.startsWith('column:')) {
+        const [, containerId] = overId.split(':');
+        handleAddElementToContainer(elementType, containerId);
+        return;
+      }
+
+      // Determine drop position for root-level drop
+      let dropIndex = order.length; // Default to end
+
+      if (overId === 'canvas-drop-zone') {
+        // Dropped on empty canvas or general canvas area
+        dropIndex = order.length;
+      } else if (items[overId]) {
+        // Dropped on existing element - insert after
+        dropIndex = order.indexOf(overId) + 1;
+      }
+
+      // Create new element using schema system
+      handleAddElementAtPosition({ type: elementType, isNew: true }, dropIndex);
+      return;
+    }
+
+    // Handle dropping existing element into a column
+    if (overId.startsWith('column:')) {
+      const [, containerId] = overId.split(':');
+
+      // Move element into container
+      moveElement(activeId, containerId, 'inside');
+      setAutoSaveStatus('saving');
+      saveToHistory();
+      return;
+    }
+
+    // Handle dragging OUT of container to root level
+    if (items[activeId]?.parent && !overId.startsWith('column:') && items[overId]) {
+      // Element has parent but dropping on root-level element
+      moveElement(activeId, overId, 'after');
+      setAutoSaveStatus('saving');
+      saveToHistory();
+      return;
+    }
+
+    // Reordering existing elements at root level via @dnd-kit
+    if (active.id !== over.id) {
+      const oldIndex = order.indexOf(activeId);
+      const newIndex = order.indexOf(overId);
+
+      if (oldIndex !== -1 && newIndex !== -1) {
+        const newOrder = arrayMove(order, oldIndex, newIndex);
+        reorderElements(newOrder);
+        setAutoSaveStatus('saving');
+        saveToHistory();
+      }
+    }
+  }, [order, items, reorderElements, moveElement, setAutoSaveStatus, saveToHistory, handleAddElementAtPosition, handleAddElementToContainer]);
 
   // Select element and show floating panel
   const handleSelectElement = useCallback((elementId: string, event?: React.MouseEvent) => {
@@ -3126,6 +3204,14 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
                 transform: `scale(${zoom})`
               }}
             >
+              {/* @dnd-kit Context - wraps all draggable areas */}
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragStart={handleDndDragStart}
+                onDragOver={handleDndDragOver}
+                onDragEnd={handleDndDragEnd}
+              >
               <div
                 ref={canvasRef}
                 className={cn(
@@ -3284,9 +3370,14 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
                       {/* No resize bar in device mode */}
                       {orderedElements.length === 0 ? (
                         <div
-                          className={`drop-zone ${isDragging ? 'drop-zone-active' : ''}`}
-                          onDragOver={(e) => handleDragOver(e, 0)}
-                          onDrop={(e) => handleDrop(e, 0)}
+                          ref={setCanvasDropRef}
+                          role="region"
+                          aria-label="Drop zone for form elements"
+                          className={cn(
+                            "drop-zone",
+                            isOverCanvasDrop && "drop-zone-active"
+                          )}
+                          data-testid="empty-canvas-drop-zone"
                         >
                           <Layers size={24} className="mb-2" />
                           <p>Drag elements from the bottom tray to start building your form</p>
@@ -3299,69 +3390,33 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
                           </button>
                         </div>
                       ) : (
-                        <div>
-                          {orderedElements.map((element, index) => (
-                          <React.Fragment key={element.id}>
-                            {isDragging && dragOverIndex === index && (
-                              <div className="drop-zone drop-zone-hover" />
-                            )}
-                            
-                            <div
-                              className={`form-element ${
-                                selectedElement?.id === element.id || multiSelectElements.includes(element.id) 
-                                  ? 'form-element-selected' : ''
-                              } ${isDragging && draggedElement?.id === element.id ? 'form-element-dragging' : ''}`}
-                              data-element-id={element.id}
-                              draggable
-                              onDragStart={(e) => handleDragStart(e, element)}
-                              onDragEnd={handleDragEnd}
-                              onDragOver={(e) => handleDragOver(e, index + 1)}
-                              onDrop={(e) => handleDrop(e, index + 1)}
-                              onClick={(e) => handleSelectElement(element.id, e)}
-                              onContextMenu={(e) => handleContextMenu(e, element.id)}
-                            >
-                              <div className="element-controls">
-                                <button className="element-control-btn" title="Drag to reorder">
-                                  <Move size={16} />
-                                </button>
-                                <button className="element-control-btn" title="Edit Properties">
-                                  <Settings size={16} />
-                                </button>
-                                <button 
-                                  className="element-control-btn"
-                                  title="Delete"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleDeleteElement(element.id);
-                                  }}
-                                >
-                                  <Trash2 size={16} />
-                                </button>
-                              </div>
-
-                              {/* Render element preview */}
-                              <ElementRenderer 
-                                element={element} 
+                        <SortableContext items={order} strategy={verticalListSortingStrategy}>
+                          <div>
+                            {orderedElements.map((element) => (
+                              <SortableElement
+                                key={element.id}
+                                element={element}
+                                isSelected={selectedElement?.id === element.id}
+                                isMultiSelected={multiSelectElements.includes(element.id)}
+                                onSelect={handleSelectElement}
+                                onDelete={handleDeleteElement}
+                                onContextMenu={handleContextMenu}
                                 updateElementProperty={updateElementProperty}
+                                selectedElements={selectedElements}
+                              />
+                            ))}
+
+                            {/* Submit button with inline editing */}
+                            <div className="mt-6">
+                              <InlineEditableText
+                                value="Submit"
+                                onChange={() => {}}
+                                className="w-full px-4 py-2 bg-blue-500 text-white rounded-md font-medium text-center"
+                                placeholder="Submit"
                               />
                             </div>
-                            
-                            {isDragging && dragOverIndex === orderedElements.length && index === orderedElements.length - 1 && (
-                              <div className="drop-zone drop-zone-hover" />
-                            )}
-                          </React.Fragment>
-                        ))}
-                        
-                        {/* Submit button with inline editing */}
-                        <div className="mt-6">
-                          <InlineEditableText
-                            value="Submit"
-                            onChange={() => {}}
-                            className="w-full px-4 py-2 bg-blue-500 text-white rounded-md font-medium text-center"
-                            placeholder="Submit"
-                          />
-                        </div>
-                      </div>
+                          </div>
+                        </SortableContext>
                       )}
                     </div>
                   </div>
@@ -3481,9 +3536,14 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
                     />
                     {orderedElements.length === 0 ? (
                       <div
-                        className={`drop-zone ${isDragging ? 'drop-zone-active' : ''}`}
-                        onDragOver={(e) => handleDragOver(e, 0)}
-                        onDrop={(e) => handleDrop(e, 0)}
+                        ref={setCanvasDropRef}
+                        role="region"
+                        aria-label="Drop zone for form elements"
+                        className={cn(
+                          "drop-zone",
+                          isOverCanvasDrop && "drop-zone-active"
+                        )}
+                        data-testid="empty-canvas-drop-zone"
                       >
                         <Layers size={24} className="mb-2" />
                         <p>Drag elements from the bottom tray to start building your form</p>
@@ -3496,74 +3556,59 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
                         </button>
                       </div>
                     ) : (
-                      <div>
-                        {orderedElements.map((element, index) => (
-                        <React.Fragment key={element.id}>
-                          {isDragging && dragOverIndex === index && (
-                            <div className="drop-zone drop-zone-hover" />
-                          )}
-
-                          <div
-                            className={`form-element ${
-                              selectedElement?.id === element.id || multiSelectElements.includes(element.id) 
-                                ? 'form-element-selected' : ''
-                            } ${isDragging && draggedElement?.id === element.id ? 'form-element-dragging' : ''}`}
-                            data-element-id={element.id}
-                            draggable
-                            onDragStart={(e) => handleDragStart(e, element)}
-                            onDragEnd={handleDragEnd}
-                            onDragOver={(e) => handleDragOver(e, index + 1)}
-                            onDrop={(e) => handleDrop(e, index + 1)}
-                            onClick={(e) => handleSelectElement(element.id, e)}
-                            onContextMenu={(e) => handleContextMenu(e, element.id)}
-                          >
-                            <div className="element-controls">
-                              <button className="element-control-btn" title="Drag to reorder">
-                                <Move size={16} />
-                              </button>
-                              <button className="element-control-btn" title="Edit Properties">
-                                <Settings size={16} />
-                              </button>
-                              <button 
-                                className="element-control-btn"
-                                title="Delete"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteElement(element.id);
-                                }}
-                              >
-                                <Trash2 size={16} />
-                              </button>
-                            </div>
-
-                            {/* Render element preview */}
-                            <ElementRenderer 
-                              element={element} 
+                      <SortableContext items={order} strategy={verticalListSortingStrategy}>
+                        <div>
+                          {orderedElements.map((element) => (
+                            <SortableElement
+                              key={element.id}
+                              element={element}
+                              isSelected={selectedElement?.id === element.id}
+                              isMultiSelected={multiSelectElements.includes(element.id)}
+                              onSelect={handleSelectElement}
+                              onDelete={handleDeleteElement}
+                              onContextMenu={handleContextMenu}
                               updateElementProperty={updateElementProperty}
+                              selectedElements={selectedElements}
+                            />
+                          ))}
+
+                          {/* Submit button with inline editing */}
+                          <div className="mt-6">
+                            <InlineEditableText
+                              value="Submit"
+                              onChange={() => {}}
+                              className="w-full px-4 py-2 bg-blue-500 text-white rounded-md font-medium text-center"
+                              placeholder="Submit"
                             />
                           </div>
-                          
-                          {isDragging && dragOverIndex === orderedElements.length && index === orderedElements.length - 1 && (
-                            <div className="drop-zone drop-zone-hover" />
-                          )}
-                        </React.Fragment>
-                      ))}
-                      
-                      {/* Submit button with inline editing */}
-                      <div className="mt-6">
-                        <InlineEditableText
-                          value="Submit"
-                          onChange={() => {}}
-                          className="w-full px-4 py-2 bg-blue-500 text-white rounded-md font-medium text-center"
-                          placeholder="Submit"
-                        />
-                      </div>
-                    </div>
-                  )}
+                        </div>
+                      </SortableContext>
+                    )}
                   </div>
                 </div>
               )}
               </div>
+
+              {/* @dnd-kit DragOverlay for custom drag preview */}
+              <DragOverlay>
+                {activeId && (
+                  <>
+                    {/* Existing element preview */}
+                    {items[activeId] && (
+                      <ElementDragPreview element={items[activeId]} />
+                    )}
+                    {/* Palette item preview */}
+                    {activeId.startsWith('palette:') && (() => {
+                      const elementType = activeId.replace('palette:', '');
+                      const config = getElementConfigByType(elementType);
+                      return config ? (
+                        <PaletteDragPreview label={config.label} icon={config.icon} />
+                      ) : null;
+                    })()}
+                  </>
+                )}
+              </DragOverlay>
+              </DndContext>
             </div>
           </div>
         )}
@@ -3671,28 +3716,12 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
                   const filteredElements = getFilteredElements();
                   const isSingleElement = filteredElements.length === 1 && searchQuery.trim();
                   return (
-                    <div
+                    <DraggablePaletteItem
                       key={element.type}
-                      className={cn(
-                        "flex flex-col items-center justify-center gap-2 p-3 min-w-[120px] min-h-[80px]",
-                        "bg-white border border-border rounded-lg cursor-grab select-none",
-                        "transition-all hover:border-primary/30 hover:bg-primary/5 hover:-translate-y-0.5 hover:shadow-sm",
-                        "active:cursor-grabbing active:-translate-y-0.5",
-                        isSingleElement && "bg-primary/10 border-primary/40 shadow-sm"
-                      )}
-                      draggable
-                      onDragStart={(e) => handleDragStart(e, element, true)}
-                      onDragEnd={handleDragEnd}
+                      element={element}
+                      isSingleElement={!!isSingleElement}
                       onClick={() => handleAddElement(element.type, element.label, element.icon)}
-                    >
-                      <element.icon className="w-6 h-6 text-primary" />
-                      <span className="text-xs font-medium text-foreground text-center leading-tight">{element.label}</span>
-                      {isSingleElement && (
-                        <div className="absolute -top-9 left-1/2 -translate-x-1/2 px-2 py-1 bg-popover border border-border rounded shadow-md text-xs whitespace-nowrap opacity-100 transition-opacity">
-                          Press Enter to add
-                        </div>
-                      )}
-                    </div>
+                    />
                   );
                 })}
 

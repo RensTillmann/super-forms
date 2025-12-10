@@ -171,6 +171,19 @@ Form elements use schema-first property system with 27 property types. Propertie
 
 StyleTab automatically renders appearance/advanced properties alongside style overrides. See [docs/CLAUDE.javascript.md - Schema-First Architecture](docs/CLAUDE.javascript.md#schema-first-architecture-form-builder-v2) for details.
 
+**Drag-and-Drop System:**
+Form Builder V2 uses @dnd-kit for all drag-and-drop operations (migrated from native HTML5 in v6.6.0):
+- **@dnd-kit/core** ^6.1.0 - Core drag-and-drop primitives with touch and keyboard support
+- **@dnd-kit/sortable** ^8.0.0 - Sortable list utilities for element reordering
+- **Components:** `/src/react/admin/apps/form-builder-v2/components/dnd/`
+  - `SortableElement` - Canvas elements with drag handles (listeners only on Move icon)
+  - `DraggablePaletteItem` - Element palette items for adding new elements
+  - `ElementDragPreview` / `PaletteDragPreview` - Custom drag overlays
+  - `SortablePanelItem` - Floating panel tree item reordering
+- **Sensors:** PointerSensor (8px activation distance) + KeyboardSensor for accessibility
+- **Features:** Touch device support, keyboard navigation (Space to grab, arrows to move), nested container drops
+- See [docs/CLAUDE.javascript.md - Drag-and-Drop System](docs/CLAUDE.javascript.md#drag-and-drop-system-dnd-kit) for implementation details
+
 **REST API Integration Pattern:**
 - Use `wp.apiFetch()` for all admin page operations
 - Enqueue scripts with `array('wp-api-fetch')` dependency
@@ -265,3 +278,4 @@ https://f4d.nl/dev/wp-admin/?temp-login-token=e743c1697521d5cd707a09eb3d09df5e15
 - this is local pc, sync src to dev server via sync script, it contains the ssh details. you can use wp cli on dev server for sql
 - proactively add missing data-testid attributes to elements/components when editing or writing code
 - IMPORTANT: proactively add missing data-testid attributes to elements/components when editing or writing code
+- IMPORTANT: avoid writing .css styles, instead use tailwindcss classes

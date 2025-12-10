@@ -16,11 +16,24 @@ interface ElementRendererProps {
     id: string;
     properties?: Record<string, unknown>;
     styleOverrides?: Record<string, Record<string, unknown>>;
+    children?: string[];
   };
   updateElementProperty?: (id: string, property: string, value: unknown) => void;
+  // Container element handlers (passed through for nested elements)
+  onSelect?: (elementId: string, event: React.MouseEvent) => void;
+  onDelete?: (elementId: string) => void;
+  onContextMenu?: (event: React.MouseEvent, elementId: string) => void;
+  selectedElements?: string[];
 }
 
-export const ElementRenderer: React.FC<ElementRendererProps> = ({ element, updateElementProperty }) => {
+export const ElementRenderer: React.FC<ElementRendererProps> = ({
+  element,
+  updateElementProperty,
+  onSelect,
+  onDelete,
+  onContextMenu,
+  selectedElements,
+}) => {
   // Resolve styles for common nodes
   const labelStyle = useResolvedStyle(element.id, 'label');
   const inputStyle = useResolvedStyle(element.id, 'input');
@@ -82,7 +95,16 @@ export const ElementRenderer: React.FC<ElementRendererProps> = ({ element, updat
         return <CheckboxCards element={element} updateElementProperty={updateElementProperty!} styles={resolvedStyles} />;
 
       case 'columns':
-        return <ColumnsContainer element={element} />;
+        return (
+          <ColumnsContainer
+            element={element}
+            onSelect={onSelect}
+            onDelete={onDelete}
+            onContextMenu={onContextMenu}
+            updateElementProperty={updateElementProperty}
+            selectedElements={selectedElements}
+          />
+        );
 
       default:
         // Fallback for elements not yet extracted

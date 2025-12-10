@@ -1996,6 +1996,347 @@ return {
 };
 ```
 
+## Drag-and-Drop System (@dnd-kit)
+
+### Overview (v6.6.0+)
+
+Form Builder V2 uses **@dnd-kit** for all drag-and-drop operations, replacing the legacy native HTML5 drag-and-drop API. This migration provides:
+- Touch device support (mobile/tablet drag works properly)
+- Keyboard accessibility (Space to grab, arrows to move, Escape to cancel)
+- Proper scroll handling (drag handles don't trigger page scroll)
+- Custom drag overlays with smooth animations
+- Nested container support (drop elements into columns, tabs, etc.)
+
+**Migration completed:** 2025-12-10 (all legacy native drag code removed)
+
+### Architecture
+
+**Core Libraries:**
+- `@dnd-kit/core` ^6.1.0 - Core drag-and-drop primitives
+- `@dnd-kit/sortable` ^8.0.0 - Sortable list utilities and hooks
+- `@dnd-kit/utilities` ^3.2.2 - Helper functions for transforms
+
+**Component Location:** `/src/react/admin/apps/form-builder-v2/components/dnd/`
+
+**Key Components:**
+```typescript
+// Exported from components/dnd/index.ts
+export { SortableElement, ElementDragPreview } from './SortableElement';
+export { DraggablePaletteItem, PaletteDragPreview } from './DraggablePaletteItem';
+export { SortablePanelItem, PanelDragPreview } from './SortablePanelItem';
+```
+
+### DndContext Setup
+
+**Location:** `FormBuilderV2.tsx` (wraps both desktop and mobile canvas)
+
+**Sensor Configuration:**
+```typescript
+const sensors = useSensors(
+  useSensor(PointerSensor, {
+    activationConstraint: {
+      distance: 8, // 8px movement required before drag starts (prevents accidental drags)
+    },
+  }),
+  useSensor(KeyboardSensor, {
+    coordinateGetter: sortableKeyboardCoordinates, // Standard keyboard navigation
+  })
+);
+```
+
+**Collision Detection:**
+- Uses `closestCenter` algorithm for determining drop targets
+- Handles nested containers via collision detection bubbling
+
+**Event Handlers:**
+```typescript
+<DndContext
+  sensors={sensors}
+  collisionDetection={closestCenter}
+  onDragStart={handleDragStart}
+  onDragOver={handleDragOver}
+  onDragEnd={handleDragEnd}
+>
+  {/* Canvas content */}
+</DndContext>
+```
+
+### SortableElement Component
+
+**Purpose:** Canvas elements with drag handles for reordering
+
+**Key Features:**
+- Drag listeners attached **ONLY to Move icon handle** (not entire element)
+- Prevents scroll conflicts when user clicks/drags element body
+- Smooth transitions with opacity fade during drag
+- Data-testid attributes for AI/testing integration
+
+**Implementation:**
+```typescript
+// components/dnd/SortableElement.tsx
+const {
+  attributes,
+  listeners,
+  setNodeRef,
+  transform,
+  transition,
+  isDragging,
+} = useSortable({ id: element.id });
+
+return (
+  <div ref={setNodeRef} style={{ transform, transition, opacity: isDragging ? 0.5 : 1 }}>
+    <div className="element-controls">
+      {/* CRITICAL: listeners only on handle */}
+      <button {...attributes} {...listeners} className="element-control-btn">
+        <Move size={16} />
+      </button>
+      {/* Other controls don't have listeners */}
+    </div>
+    <ElementRenderer element={element} />
+  </div>
+);
+```
+
+### DraggablePaletteItem Component
+
+**Purpose:** Element palette items for adding new elements to canvas
+
+**Key Features:**
+- Uses `useDraggable` hook (not `useSortable` - palette items aren't sortable)
+- ID format: `palette:${elementType}` (distinguishes from existing element UUIDs)
+- Carries metadata via `data` object (type, label, isNew flag)
+
+**Implementation:**
+```typescript
+// components/dnd/DraggablePaletteItem.tsx
+const draggableId = `palette:${element.type}`;
+
+const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+  id: draggableId,
+  data: {
+    type: 'palette-item',
+    elementType: element.type,
+    label: element.label,
+    isNew: true,
+  },
+});
+```
+
+### Drag Overlays
+
+**Purpose:** Custom drag previews that follow the cursor
+
+**ElementDragPreview:**
+Shows existing element being reordered:
+```typescript
+<div className="drag-overlay-element">
+  <Move size={14} className="text-blue-500" />
+  <span>{element.properties?.label || element.type}</span>
+</div>
+```
+
+**PaletteDragPreview:**
+Shows new element being added from palette:
+```typescript
+<div className="palette-drag-preview">
+  <Icon className="w-6 h-6 text-primary" />
+  <span className="preview-label">{label}</span>
+  <span className="preview-hint">Drop to add</span>
+</div>
+```
+
+**DragOverlay Component:**
+```typescript
+<DragOverlay>
+  {activeId ? (
+    isPaletteItem(activeId) ? (
+      <PaletteDragPreview {...} />
+    ) : (
+      <ElementDragPreview element={items[activeId]} />
+    )
+  ) : null}
+</DragOverlay>
+```
+
+### Nested Container Support
+
+**Container Drop Zones:**
+Containers like ColumnsContainer support dropping elements into columns:
+
+**ID Format:** `column:${elementId}:${columnIndex}` for column drop zones
+
+**Example (ColumnsContainer.tsx):**
+```typescript
+{columns.map((column, index) => {
+  const columnDropId = `column:${element.id}:${index}`;
+  const columnElements = children.filter(child => child.parent === columnDropId);
+
+  return (
+    <SortableContext items={columnElements.map(e => e.id)} strategy={verticalListSortingStrategy}>
+      {columnElements.map(child => (
+        <SortableElement key={child.id} element={child} {...props} />
+      ))}
+    </SortableContext>
+  );
+})}
+```
+
+### Empty Canvas Drop Zone
+
+**Purpose:** Visual feedback when canvas is empty
+
+**Implementation:**
+```typescript
+const { setNodeRef, isOver } = useDroppable({ id: 'empty-canvas' });
+
+<div
+  ref={setNodeRef}
+  className={`drop-zone ${isDragging ? 'drop-zone-active' : ''} ${isOver ? 'drop-zone-hover' : ''}`}
+  role="region"
+  aria-label="Drop zone for new form elements"
+>
+  <p>Drag elements here to start building your form</p>
+</div>
+```
+
+### Floating Panel Integration
+
+**Purpose:** Reorder elements in tree view using same @dnd-kit system
+
+**Component:** `SortablePanelItem.tsx`
+
+**Features:**
+- Separate `DndContext` for panel (independent of canvas)
+- Shorter activation distance (5px) for tighter UI
+- Same keyboard navigation support
+
+**Implementation:**
+```typescript
+// FloatingElementsPanel
+const panelSensors = useSensors(
+  useSensor(PointerSensor, {
+    activationConstraint: { distance: 5 },
+  }),
+  useSensor(KeyboardSensor, {
+    coordinateGetter: sortableKeyboardCoordinates,
+  })
+);
+
+<DndContext sensors={panelSensors} onDragEnd={handlePanelDragEnd}>
+  <SortableContext items={order} strategy={verticalListSortingStrategy}>
+    {orderedElements.map(element => (
+      <SortablePanelItem key={element.id} element={element} {...props} />
+    ))}
+  </SortableContext>
+</DndContext>
+```
+
+### Keyboard Accessibility
+
+**Navigation Pattern (provided by @dnd-kit):**
+1. Tab to focus on element
+2. Space to grab/pick up element
+3. Arrow keys (↑↓) to move up/down in order
+4. Space again to drop at new position
+5. Escape to cancel drag operation
+
+**Screen Reader Announcements:**
+- "Element grabbed" when Space pressed
+- "Element moved to position X of Y" during arrow navigation
+- "Element dropped" when released
+
+**Implementation:**
+All accessibility features are automatic when using `useSortable` with `KeyboardSensor`.
+
+### Event Flow
+
+**Adding New Element from Palette:**
+1. User drags `DraggablePaletteItem` from bottom tray
+2. `onDragStart` → Store active ID, show `PaletteDragPreview` in `DragOverlay`
+3. `onDragOver` → Detect drop target (canvas or container column)
+4. `onDragEnd` → Check if `active.id` starts with `palette:`, extract element type, call `addElement()`
+
+**Reordering Existing Element:**
+1. User drags via Move handle on `SortableElement`
+2. `onDragStart` → Store active ID, show `ElementDragPreview` in `DragOverlay`
+3. `onDragOver` → Update visual drop indicators
+4. `onDragEnd` → Get old/new index, call `arrayMove(order, oldIndex, newIndex)`, update store
+
+**Container Drop:**
+1. User drags element over column container
+2. Collision detection identifies `column:id:index` as drop target
+3. `onDragEnd` → Parse column ID, call `moveElement(elementId, { parent: columnId, position: 'inside' })`
+
+### Migration from Native Drag API
+
+**What Was Removed (2025-12-10):**
+- All `draggable={true}` attributes
+- `onDragStart`, `onDragEnd`, `onDragOver`, `onDrop` event handlers
+- `dataTransfer` API usage
+- State variables: `isDragging`, `draggedElement`, `dragOverIndex`
+- ~70 lines of legacy drag code
+
+**What Was Added:**
+- `@dnd-kit` component wrappers (SortableElement, DraggablePaletteItem, etc.)
+- DndContext with sensor configuration
+- DragOverlay for custom previews
+- Data-testid attributes for testing
+
+**Benefits of Migration:**
+- Touch drag now works on mobile/tablet devices
+- Keyboard navigation for accessibility compliance
+- No more scroll conflicts from drag handles
+- Cleaner code with declarative hooks
+- Nested container drops fully supported
+
+### Testing Considerations
+
+**Manual Testing Required:**
+- Touch devices (iPad, Android tablets) - verify drag works
+- Keyboard navigation - verify Space/arrows work
+- Empty canvas - verify drop zone appears and accepts drops
+- Nested containers - verify elements can be dropped into columns
+- Multi-select - verify dragging multiple elements works
+- Undo/redo - verify drag operations trigger history save
+
+**Automated Testing:**
+Data-testid attributes added for Playwright/E2E tests:
+- `data-testid="sortable-element-{id}"`
+- `data-testid="drag-handle-{id}"`
+- `data-testid="palette-item-{type}"`
+- `data-testid="element-drag-preview"`
+- `data-testid="palette-drag-preview"`
+
+### Performance Considerations
+
+**Activation Constraint:**
+The 8px activation distance prevents accidental drags when users click elements for selection. This is especially important for:
+- Selecting multiple elements (Ctrl+click)
+- Opening context menus (right-click)
+- Clicking through to element content
+
+**Transition Disabling:**
+Transitions are disabled during drag for immediate visual feedback, then re-enabled on drop for smooth return animations.
+
+**Memoization:**
+Element rendering is memoized to prevent unnecessary re-renders during drag operations.
+
+### Reference Implementation
+
+**Complete working example:** `/home/rens/super-forms/src/react/admin/apps/form-builder-v2/FormBuilderV2.tsx`
+
+**Key sections:**
+- Lines 21-39: @dnd-kit imports
+- Lines 1323-1343: Desktop canvas DndContext (desktop view)
+- Lines 3208-3611: Mobile canvas DndContext (mobile view)
+- Lines 1191-1356: Floating panel DndContext (tree view)
+
+**Component files:**
+- `/src/react/admin/apps/form-builder-v2/components/dnd/SortableElement.tsx` (112 lines)
+- `/src/react/admin/apps/form-builder-v2/components/dnd/DraggablePaletteItem.tsx` (96 lines)
+- `/src/react/admin/apps/form-builder-v2/components/dnd/SortablePanelItem.tsx` (107 lines)
+- `/src/react/admin/apps/form-builder-v2/components/dnd/index.ts` (exports)
+
 ## UI Component Guidelines
 
 ### Icons - CRITICAL RULES
