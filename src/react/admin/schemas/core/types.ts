@@ -126,6 +126,11 @@ export const PropertySchemaSchema = z.object({
   // Conditional visibility
   conditions: z.array(PropertyConditionSchema).optional(),
 
+  // Style target affinity - which style targets this property applies to
+  // Used in StyleTab to show/hide properties based on selected target
+  // e.g., ['label', 'fieldContainer'] shows when Label or Wrap target selected
+  targets: z.array(z.string()).optional(),
+
   // Grouping hint for UI
   group: z.string().optional(),
 });

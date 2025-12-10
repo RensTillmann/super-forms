@@ -13,6 +13,8 @@ interface SchemaPropertyPanelProps {
   onPropertyChange: (propertyName: string, value: unknown) => void;
   /** Optional: only show specific categories */
   categories?: PropertyCategory[];
+  /** Optional: filter properties by style target (e.g., 'label', 'input') */
+  targetFilter?: string;
 }
 
 /**
@@ -26,6 +28,7 @@ export const SchemaPropertyPanel: React.FC<SchemaPropertyPanelProps> = ({
   properties,
   onPropertyChange,
   categories,
+  targetFilter,
 }) => {
   const schema = useMemo(() => getElementSchema(elementType), [elementType]);
 
@@ -67,8 +70,16 @@ export const SchemaPropertyPanel: React.FC<SchemaPropertyPanelProps> = ({
 
   const currentCategoryProps = schema.properties[activeCategory] || {};
 
-  // Check if a property should be visible based on its conditions
+  // Check if a property should be visible based on its conditions and target affinity
   const isPropertyVisible = (propSchema: PropertySchema): boolean => {
+    // Check target affinity first (if targetFilter is provided)
+    if (targetFilter && propSchema.targets && propSchema.targets.length > 0) {
+      if (!propSchema.targets.includes(targetFilter)) {
+        return false;
+      }
+    }
+
+    // Then check property conditions
     if (!propSchema.conditions || propSchema.conditions.length === 0) {
       return true;
     }

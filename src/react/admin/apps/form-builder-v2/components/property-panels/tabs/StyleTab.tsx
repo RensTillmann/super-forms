@@ -344,6 +344,7 @@ export const StyleTab: React.FC<StyleTabProps> = ({
                 properties={element.properties || {}}
                 onPropertyChange={onPropertyChange}
                 categories={['appearance']}
+                targetFilter={selectedTarget || undefined}
               />
             </CollapsibleSection>
           )}
@@ -358,6 +359,7 @@ export const StyleTab: React.FC<StyleTabProps> = ({
                 properties={element.properties || {}}
                 onPropertyChange={onPropertyChange}
                 categories={['advanced']}
+                targetFilter={selectedTarget || undefined}
               />
             </CollapsibleSection>
           )}

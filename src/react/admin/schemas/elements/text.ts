@@ -86,17 +86,20 @@ export const TextElementSchema = registerElement({
         label: 'Label Position',
         description: 'Position of the label relative to the input',
         default: 'top-left',
+        targets: ['label', 'fieldContainer'],
       },
       descriptionPosition: {
         type: 'position_picker',
         label: 'Description Position',
         description: 'Position of the description relative to the input',
         default: 'bottom-left',
+        targets: ['description', 'fieldContainer'],
       },
       inputIcon: {
         type: 'icon',
         label: 'Input Icon',
         description: 'Icon shown inside the input',
+        targets: ['input'],
       },
       iconPosition: {
         type: 'select',
@@ -106,6 +109,7 @@ export const TextElementSchema = registerElement({
           { value: 'right', label: 'Right' },
         ],
         default: 'left',
+        targets: ['input'],
         conditions: [
           { property: 'inputIcon', operator: 'not_empty' },
         ],
