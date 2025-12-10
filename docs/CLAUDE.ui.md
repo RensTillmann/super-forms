@@ -447,8 +447,47 @@ npx shadcn@latest add button dialog input select
 | `RadioGroup` | Radio selections |
 | `Skeleton` | Loading placeholders |
 | `Select` | Dropdowns |
+| `ToggleGroup` | Single/multiple choice toggle buttons |
+| `Tooltip` | Contextual help popups |
 
-**Custom Components:** `Tag.tsx`, `TagInput.tsx`, `CustomButton.tsx` - check `components/ui/` for the full list.
+**Custom Components:** `Tag.tsx`, `TagInput.tsx`, `CustomButton.tsx`, `PositionPickerRenderer.tsx` - check `components/ui/` for the full list.
+
+**Position Picker Component:**
+
+Location: `/src/react/admin/apps/form-builder-v2/components/property-panels/schema/renderers/PositionPickerRenderer.tsx`
+
+3x3 grid component for spatial positioning (used in form element property panels):
+
+```tsx
+import { PositionPickerRenderer } from '@/components/property-panels/schema/renderers/PositionPickerRenderer';
+
+type PositionValue = 'top-left' | 'top-center' | 'top-right' |
+                     'left' | 'center' | 'right' |
+                     'bottom-left' | 'bottom-center' | 'bottom-right';
+
+<PositionPickerRenderer
+  value="top-left"
+  onChange={(value) => console.log(value)}
+/>
+```
+
+Visual representation:
+```
+┌────┬────┬────┐
+│ TL │ TC │ TR │  (top-left, top-center, top-right)
+├────┼────┼────┤
+│ L  │ C  │ R  │  (left, center, right - inline positions)
+├────┼────┼────┤
+│ BL │ BC │ BR │  (bottom-left, bottom-center, bottom-right)
+└────┴────┴────┘
+```
+
+Features:
+- Single-select toggle group (only one position active)
+- Visual dot indicator shows selected position
+- Keyboard accessible (arrow keys + Enter/Space)
+- ARIA `role="radiogroup"` semantics
+- Uses shadcn/ui `ToggleGroup` component
 
 ### Button Variants
 
@@ -526,6 +565,74 @@ import { Label } from '@/components/ui/label';
   </div>
 </form>
 ```
+
+### Input Group Pattern (Prefix/Suffix)
+
+Advanced text input with prefix/suffix addons, character counter, and action buttons:
+
+```tsx
+import { Copy, X, Eye } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+
+// Input with prefix and suffix
+<div className="flex border rounded-md overflow-hidden">
+  {/* Prefix */}
+  <div className="flex items-center px-2 bg-muted/50 border-r text-sm text-muted-foreground">
+    $
+  </div>
+
+  {/* Input */}
+  <input
+    type="text"
+    placeholder="Enter amount..."
+    className="flex-1 px-3 py-2 border-0 outline-none"
+  />
+
+  {/* Suffix */}
+  <div className="flex items-center px-2 bg-muted/50 border-l text-sm text-muted-foreground">
+    USD
+  </div>
+
+  {/* Action button */}
+  <button type="button" className="px-2 flex items-center border-l">
+    <Copy className="w-4 h-4" />
+  </button>
+</div>
+
+// With character counter
+<div>
+  <div className="flex border rounded-md">
+    <input type="text" className="flex-1 px-3 py-2" maxLength={100} />
+    <div className="flex items-center px-2 text-xs text-muted-foreground">
+      25/100
+    </div>
+  </div>
+  {/* Or below input */}
+  <div className="text-xs text-muted-foreground text-right mt-1">
+    25 / 100 characters
+  </div>
+</div>
+
+// With help tooltip
+<Label>
+  Email Address
+  <Tooltip>
+    <TooltipTrigger asChild>
+      <Info className="inline-block w-3.5 h-3.5 ml-1 cursor-help" />
+    </TooltipTrigger>
+    <TooltipContent>
+      <p>Enter your primary email address</p>
+    </TooltipContent>
+  </Tooltip>
+</Label>
+```
+
+**Input Group Features:**
+- Prefix/suffix text or icons for context (currency, units, URL schemes)
+- Inline or block-end character counters
+- Action buttons (copy, clear, toggle visibility)
+- Help tooltip icons for contextual guidance
+- All elements properly aligned using flexbox
 
 ### The `cn()` Utility
 

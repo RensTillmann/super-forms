@@ -319,6 +319,7 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
       <TabsContent value="style" className="m-0" data-testid="floating-panel-tab-content-style">
         <StyleTab
           element={element}
+          onPropertyChange={onPropertyChange}
           onOverrideChange={handleStyleOverrideChange}
           onResetToGlobal={handleResetToGlobal}
         />

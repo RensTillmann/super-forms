@@ -92,14 +92,38 @@ registerElement({
   name: 'Text Input',
   category: 'basic',
   icon: 'Type',
-  properties: {
-    general: { /* property definitions */ },
-    validation: { /* validation rules */ },
-    styling: { /* style options */ }
-  },
+  properties: withBaseProperties({
+    general: {
+      placeholder: { type: 'string', label: 'Placeholder', ... },
+      prefixText: { type: 'string', label: 'Prefix Text', ... },
+      suffixIcon: { type: 'icon', label: 'Suffix Icon', ... },
+    },
+    validation: {
+      required: { type: 'boolean', label: 'Required', ... },
+      maxLength: { type: 'number', label: 'Maximum Length', ... },
+    },
+    appearance: {
+      labelPosition: { type: 'position_picker', label: 'Label Position', default: 'top-left', ... },
+      descriptionPosition: { type: 'position_picker', label: 'Description Position', default: 'bottom-left', ... },
+    },
+    advanced: {
+      showCharacterCount: { type: 'boolean', label: 'Show Character Counter', ... },
+      characterCountPosition: { type: 'select', label: 'Counter Position', ... },
+      actionButton: { type: 'select', label: 'Action Button', options: ['none', 'copy', 'clear', 'toggle-visibility'], ... },
+      helpTooltip: { type: 'string', label: 'Help Tooltip', ... },
+    }
+  }),
   defaults: { /* default values */ }
 });
 ```
+
+**Property Categories:**
+Element properties are organized into 5 categories:
+- `general` - Basic settings (name, label, placeholder, prefix/suffix)
+- `validation` - Validation rules (required, minLength, pattern)
+- `appearance` - Visual settings (labelPosition, descriptionPosition, icons)
+- `advanced` - Advanced features (character counter, action buttons, help tooltips)
+- `conditions` - Conditional logic
 
 **Usage in Components:**
 ```typescript
@@ -113,13 +137,117 @@ import { TopBar } from '@/apps/form-builder-v2/components/TopBar';
 <TopBar onAction={handleAction} />
 ```
 
+**Property Panel Integration:**
+The StyleTab now automatically renders schema-driven properties for the Appearance and Advanced categories:
+
+```typescript
+// StyleTab.tsx - Automatically displays appearance/advanced properties
+{(hasAppearanceProps || hasAdvancedProps) && (
+  <div className="p-4 space-y-2">
+    <CollapsibleSection title="Appearance" icon={<Palette />}>
+      <SchemaPropertyPanel
+        elementType={element.type}
+        properties={element.properties || {}}
+        onPropertyChange={onPropertyChange}
+        categories={['appearance']}
+      />
+    </CollapsibleSection>
+    <CollapsibleSection title="Advanced" icon={<Settings2 />}>
+      <SchemaPropertyPanel
+        categories={['advanced']}
+      />
+    </CollapsibleSection>
+  </div>
+)}
+```
+
 **Benefits:**
 - Reduced code size (replaced ~190 lines of hardcoded UI with schema definitions)
 - Plugin developers can add tabs/toolbar items without modifying core files
 - AI/LLM can query schema to understand available capabilities
 - Type-safe with full TypeScript support
+- Property panel automatically adapts to element schema changes
 
 **See Also:** `/docs/architecture/form-builder-schema-spec.md` for complete specification
+
+### Property Type System
+
+**Supported Property Types (27 total):**
+
+Form Builder V2 supports 27 property types that map to UI renderers in PropertyRenderer.tsx:
+
+**Primitives:**
+- `string` - Text input
+- `number` - Numeric input
+- `boolean` - Checkbox
+
+**Selection:**
+- `select` - Dropdown menu (single choice)
+- `multi_select` - Multi-choice dropdown
+
+**Visual:**
+- `color` - Color picker
+- `icon` - Icon picker (Font Awesome + Lucide)
+- `position_picker` - 3x3 spatial grid (top-left, top-center, top-right, left, center, right, bottom-left, bottom-center, bottom-right)
+
+**Complex Structures:**
+- `array` - Array editor
+- `object` - Object editor
+- `conditional_rules` - Conditional logic builder
+- `columns_config` - Column layout configuration
+- `items_config` - List items configuration
+- `key_value` - Key-value pairs
+- `repeater_config` - Repeatable field groups
+
+**Content:**
+- `rich_text` - WYSIWYG editor
+- `code` - Code editor with syntax highlighting
+- `tag_input` - Tag/chip input
+
+**Date/Time:**
+- `date` - Date picker
+- `time` - Time picker
+- `datetime` - Combined date/time picker
+
+**Media:**
+- `file` - File uploader
+- `image` - Image uploader
+
+**Numeric:**
+- `range` - Slider control
+
+**Form-Specific:**
+- `step_config` - Multi-step form configuration
+- `email_template` - Email template editor
+- `calculation` - Formula/calculation builder
+
+**Position Picker Implementation:**
+
+Location: `/src/react/admin/apps/form-builder-v2/components/property-panels/schema/renderers/PositionPickerRenderer.tsx`
+
+```typescript
+// Schema definition (text.ts)
+labelPosition: {
+  type: 'position_picker',
+  label: 'Label Position',
+  description: 'Position of the label relative to the input',
+  default: 'top-left',
+}
+
+// UI Component - 3x3 toggle grid using shadcn/ui
+<ToggleGroup type="single" value={currentValue}>
+  {POSITIONS.map(pos => (
+    <ToggleGroupItem value={pos.value}>
+      <span className="w-2 h-2 rounded-full bg-current" />
+    </ToggleGroupItem>
+  ))}
+</ToggleGroup>
+```
+
+**Usage in Elements:**
+- Text fields: `labelPosition`, `descriptionPosition` control label/description placement
+- Layout: Affects whether label is inline (left/right) or stacked (top/bottom)
+- Alignment: Position determines text alignment (left, center, right)
 
 ### SFUI Admin Infrastructure (Phase 1 & 2)
 

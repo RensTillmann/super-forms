@@ -103,14 +103,12 @@ export const TextInput: React.FC<TextInputProps> = ({ element, styles }) => {
         {label}
         {required && <span style={styles.required} className="ml-1">*</span>}
         {helpTooltip && (
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Info className="inline-block w-3.5 h-3.5 ml-1 text-muted-foreground cursor-help" />
-              </TooltipTrigger>
-              <TooltipContent><p>{helpTooltip}</p></TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Info className="inline-block w-3.5 h-3.5 ml-1 text-muted-foreground cursor-help" data-testid={`text-help-${element.id}`} />
+            </TooltipTrigger>
+            <TooltipContent><p>{helpTooltip}</p></TooltipContent>
+          </Tooltip>
         )}
       </label>
     );
@@ -167,11 +165,11 @@ export const TextInput: React.FC<TextInputProps> = ({ element, styles }) => {
       (showCharacterCount && characterCountPosition === 'inline-end');
 
     return (
-      <div className={cn('flex border rounded-md overflow-hidden', hasPrefix || hasPostfix ? 'items-stretch' : '')}>
-        {/* Prefix */}
+      <div className={cn('flex border rounded-md overflow-hidden', hasPrefix || hasPostfix ? 'items-stretch' : '')} data-testid={`text-input-group-${element.id}`}>
+        {/* Prefix - icon placeholder shown as bullet, actual icon rendering TBD */}
         {hasPrefix && (
-          <div className="flex items-center px-2 bg-muted/50 border-r border-border text-sm text-muted-foreground">
-            {prefixIcon && <span className="mr-1">📍</span>}
+          <div className="flex items-center px-2 bg-muted/50 border-r border-border text-sm text-muted-foreground" data-testid={`text-prefix-${element.id}`}>
+            {prefixIcon && <span className="mr-1 w-4 h-4 inline-flex items-center justify-center text-xs">•</span>}
             {prefixText}
           </div>
         )}
@@ -188,18 +186,18 @@ export const TextInput: React.FC<TextInputProps> = ({ element, styles }) => {
           data-testid={`text-input-${element.id}`}
         />
 
-        {/* Inline character count */}
+        {/* Inline character count (uses defaultValue since input is disabled in canvas preview) */}
         {showCharacterCount && maxLength && characterCountPosition === 'inline-end' && (
-          <div className="flex items-center px-2 text-xs text-muted-foreground">
+          <div className="flex items-center px-2 text-xs text-muted-foreground" data-testid={`text-counter-inline-${element.id}`}>
             {charCount}/{maxLength}
           </div>
         )}
 
-        {/* Suffix */}
+        {/* Suffix - icon placeholder shown as bullet, actual icon rendering TBD */}
         {(suffixText || suffixIcon) && (
-          <div className="flex items-center px-2 bg-muted/50 border-l border-border text-sm text-muted-foreground">
+          <div className="flex items-center px-2 bg-muted/50 border-l border-border text-sm text-muted-foreground" data-testid={`text-suffix-${element.id}`}>
             {suffixText}
-            {suffixIcon && <span className="ml-1">📍</span>}
+            {suffixIcon && <span className="ml-1 w-4 h-4 inline-flex items-center justify-center text-xs">•</span>}
           </div>
         )}
 
@@ -212,30 +210,34 @@ export const TextInput: React.FC<TextInputProps> = ({ element, styles }) => {
   // Layout based on label position
   if (isInlineLabel) {
     return (
-      <div className={cn('flex items-center gap-3', labelPosition === 'right' && 'flex-row-reverse')}>
-        <div className="w-1/3 shrink-0">{renderLabel()}</div>
-        <div className="flex-1">
-          {descriptionPosition.startsWith('top') && renderDescription()}
-          {renderInputGroup()}
-          {descriptionPosition.startsWith('bottom') && renderDescription()}
-          {renderCharCounter()}
+      <TooltipProvider>
+        <div className={cn('flex items-center gap-3', labelPosition === 'right' && 'flex-row-reverse')} data-testid={`text-field-${element.id}`}>
+          <div className="w-1/3 shrink-0">{renderLabel()}</div>
+          <div className="flex-1">
+            {descriptionPosition.startsWith('top') && renderDescription()}
+            {renderInputGroup()}
+            {descriptionPosition.startsWith('bottom') && renderDescription()}
+            {renderCharCounter()}
+          </div>
         </div>
-      </div>
+      </TooltipProvider>
     );
   }
 
   // Standard vertical layout
   return (
-    <div>
-      {labelPosition.startsWith('top') && renderLabel()}
-      {descriptionPosition.startsWith('top') && renderDescription()}
+    <TooltipProvider>
+      <div data-testid={`text-field-${element.id}`}>
+        {labelPosition.startsWith('top') && renderLabel()}
+        {descriptionPosition.startsWith('top') && renderDescription()}
 
-      {renderInputGroup()}
+        {renderInputGroup()}
 
-      {descriptionPosition.startsWith('bottom') && renderDescription()}
-      {labelPosition.startsWith('bottom') && renderLabel()}
-      {renderCharCounter()}
-    </div>
+        {descriptionPosition.startsWith('bottom') && renderDescription()}
+        {labelPosition.startsWith('bottom') && renderLabel()}
+        {renderCharCounter()}
+      </div>
+    </TooltipProvider>
   );
 };
 

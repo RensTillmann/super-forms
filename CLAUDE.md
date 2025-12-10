@@ -161,6 +161,16 @@ See [docs/CLAUDE.php.md - Theme System](docs/CLAUDE.php.md#theme-system) and [do
   - `/src/assets/js/backend/forms-list.js` (forms list page)
   - `/src/assets/css/backend/admin.css` (shared styles)
 
+**Schema-Driven Architecture:**
+Form elements use schema-first property system with 27 property types. Properties organized into 5 categories:
+- `general` - Basic settings (name, label, placeholder, prefix/suffix text/icons)
+- `validation` - Validation rules (required, minLength, maxLength, pattern)
+- `appearance` - Visual settings (labelPosition, descriptionPosition via position_picker)
+- `advanced` - Advanced features (character counter, action buttons, help tooltips)
+- `conditions` - Conditional logic
+
+StyleTab automatically renders appearance/advanced properties alongside style overrides. See [docs/CLAUDE.javascript.md - Schema-First Architecture](docs/CLAUDE.javascript.md#schema-first-architecture-form-builder-v2) for details.
+
 **REST API Integration Pattern:**
 - Use `wp.apiFetch()` for all admin page operations
 - Enqueue scripts with `array('wp-api-fetch')` dependency

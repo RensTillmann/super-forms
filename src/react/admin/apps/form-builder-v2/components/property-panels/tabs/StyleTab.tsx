@@ -9,6 +9,10 @@ import {
   BackgroundSection,
   BorderSection,
 } from '../style-sections';
+import { SchemaPropertyPanel } from '../schema';
+import { isElementRegistered, getElementSchema } from '../../../../../schemas/core/registry';
+import { CollapsibleSection } from '../style-sections/CollapsibleSection';
+import { Palette, Settings2 } from 'lucide-react';
 
 // Human-readable labels for node types (targets)
 const TARGET_LABELS: Record<NodeType, string> = {
@@ -53,8 +57,10 @@ interface StyleTabProps {
   element: {
     id: string;
     type: string;
+    properties?: Record<string, unknown>;
     styleOverrides?: Record<string, Partial<StyleProperties>>;
   };
+  onPropertyChange: (propertyName: string, value: unknown) => void;
   onOverrideChange: (nodeType: string, property: string, value: unknown) => void;
   onResetToGlobal: (nodeType?: string) => void;
 }
@@ -65,11 +71,18 @@ interface StyleTabProps {
  */
 export const StyleTab: React.FC<StyleTabProps> = ({
   element,
+  onPropertyChange,
   onOverrideChange,
   onResetToGlobal,
 }) => {
   // Get available targets for this element type
   const availableTargets = useMemo(() => getElementNodes(element.type), [element.type]);
+
+  // Check if element has schema with appearance/advanced categories
+  const hasSchema = isElementRegistered(element.type);
+  const schema = hasSchema ? getElementSchema(element.type) : null;
+  const hasAppearanceProps = schema?.properties?.appearance && Object.keys(schema.properties.appearance).length > 0;
+  const hasAdvancedProps = schema?.properties?.advanced && Object.keys(schema.properties.advanced).length > 0;
 
   // Selection state
   const [selectedTarget, setSelectedTarget] = useState<NodeType | null>(
@@ -91,8 +104,8 @@ export const StyleTab: React.FC<StyleTabProps> = ({
 
   const totalOverrides = Object.values(targetOverrideCounts).reduce((sum, count) => sum + count, 0);
 
-  // If no targets available, show message
-  if (availableTargets.length === 0) {
+  // If no targets available and no schema props, show message
+  if (availableTargets.length === 0 && !hasAppearanceProps && !hasAdvancedProps) {
     return (
       <div className="p-4 text-center text-gray-500 text-sm">
         This element has no customizable style targets.
@@ -101,8 +114,43 @@ export const StyleTab: React.FC<StyleTabProps> = ({
   }
 
   return (
-    <div className="style-tab flex flex-col h-full">
+    <div className="style-tab flex flex-col h-full overflow-y-auto">
+      {/* Schema-driven Appearance & Advanced Properties */}
+      {(hasAppearanceProps || hasAdvancedProps) && (
+        <div className="p-4 space-y-2 border-b border-gray-100" data-testid="style-schema-properties">
+          {hasAppearanceProps && (
+            <CollapsibleSection
+              title="Appearance"
+              icon={<Palette className="h-3.5 w-3.5" />}
+              defaultExpanded={true}
+            >
+              <SchemaPropertyPanel
+                elementType={element.type}
+                properties={element.properties || {}}
+                onPropertyChange={onPropertyChange}
+                categories={['appearance']}
+              />
+            </CollapsibleSection>
+          )}
+          {hasAdvancedProps && (
+            <CollapsibleSection
+              title="Advanced"
+              icon={<Settings2 className="h-3.5 w-3.5" />}
+              defaultExpanded={false}
+            >
+              <SchemaPropertyPanel
+                elementType={element.type}
+                properties={element.properties || {}}
+                onPropertyChange={onPropertyChange}
+                categories={['advanced']}
+              />
+            </CollapsibleSection>
+          )}
+        </div>
+      )}
+
       {/* Target Selector - horizontal scrollable chips */}
+      {availableTargets.length > 0 && (
       <div className="px-4 pt-2 pb-3 border-b border-gray-100">
         <div className="flex items-center justify-between mb-2">
           <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">
@@ -153,6 +201,7 @@ export const StyleTab: React.FC<StyleTabProps> = ({
           </div>
         </div>
       </div>
+      )}
 
       {/* State & Device Selectors */}
       {selectedTarget && (
