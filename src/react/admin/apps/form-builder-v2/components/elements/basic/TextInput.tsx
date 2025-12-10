@@ -135,8 +135,9 @@ export const TextInput: React.FC<TextInputProps> = ({ element, styles }) => {
     return (
       <button
         type="button"
-        className="px-2 flex items-center border-l border-border bg-muted/50"
+        className="px-2 flex items-center border-l border-border bg-muted/50 opacity-50 cursor-not-allowed"
         disabled
+        aria-label={actionButton === 'copy' ? 'Copy to clipboard' : actionButton === 'clear' ? 'Clear input' : 'Toggle password visibility'}
         data-testid={`text-action-${element.id}`}
       >
         {actionButton === 'copy' && <Copy className={iconClass} />}
@@ -165,7 +166,12 @@ export const TextInput: React.FC<TextInputProps> = ({ element, styles }) => {
       (showCharacterCount && characterCountPosition === 'inline-end');
 
     return (
-      <div className={cn('flex border rounded-md overflow-hidden', hasPrefix || hasPostfix ? 'items-stretch' : '')} data-testid={`text-input-group-${element.id}`}>
+      <div
+        role="group"
+        aria-label={label || 'Input field'}
+        className={cn('flex border rounded-md overflow-hidden', hasPrefix || hasPostfix ? 'items-stretch' : '')}
+        data-testid={`text-input-group-${element.id}`}
+      >
         {/* Prefix - icon placeholder shown as bullet, actual icon rendering TBD */}
         {hasPrefix && (
           <div className="flex items-center px-2 bg-muted/50 border-r border-border text-sm text-muted-foreground" data-testid={`text-prefix-${element.id}`}>

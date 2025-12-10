@@ -149,9 +149,14 @@ export const StyleTab: React.FC<StyleTabProps> = ({
         </div>
       )}
 
-      {/* Target Selector - horizontal scrollable chips */}
+      {/* Style Overrides Section */}
       {availableTargets.length > 0 && (
-      <div className="px-4 pt-2 pb-3 border-b border-gray-100">
+      <div className="px-4 pt-3 pb-3 border-b border-gray-100">
+        {/* Section Header */}
+        <div className="flex items-center gap-2 mb-3">
+          <span className="text-xs font-semibold text-gray-700">Style Overrides</span>
+          <span className="text-[10px] text-gray-400">per element part</span>
+        </div>
         <div className="flex items-center justify-between mb-2">
           <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">
             Target
