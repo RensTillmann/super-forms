@@ -115,48 +115,9 @@ export const StyleTab: React.FC<StyleTabProps> = ({
 
   return (
     <div className="style-tab flex flex-col h-full overflow-y-auto">
-      {/* Schema-driven Appearance & Advanced Properties */}
-      {(hasAppearanceProps || hasAdvancedProps) && (
-        <div className="p-4 space-y-2 border-b border-gray-100" data-testid="style-schema-properties">
-          {hasAppearanceProps && (
-            <CollapsibleSection
-              title="Appearance"
-              icon={<Palette className="h-3.5 w-3.5" />}
-              defaultExpanded={true}
-            >
-              <SchemaPropertyPanel
-                elementType={element.type}
-                properties={element.properties || {}}
-                onPropertyChange={onPropertyChange}
-                categories={['appearance']}
-              />
-            </CollapsibleSection>
-          )}
-          {hasAdvancedProps && (
-            <CollapsibleSection
-              title="Advanced"
-              icon={<Settings2 className="h-3.5 w-3.5" />}
-              defaultExpanded={false}
-            >
-              <SchemaPropertyPanel
-                elementType={element.type}
-                properties={element.properties || {}}
-                onPropertyChange={onPropertyChange}
-                categories={['advanced']}
-              />
-            </CollapsibleSection>
-          )}
-        </div>
-      )}
-
-      {/* Style Overrides Section */}
+      {/* Target Selector - FIRST so user picks what they're styling */}
       {availableTargets.length > 0 && (
       <div className="px-4 pt-3 pb-3 border-b border-gray-100">
-        {/* Section Header */}
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-xs font-semibold text-gray-700">Style Overrides</span>
-          <span className="text-[10px] text-gray-400">per element part</span>
-        </div>
         <div className="flex items-center justify-between mb-2">
           <span className="text-[10px] font-medium text-gray-400 uppercase tracking-wider">
             Target
@@ -368,6 +329,40 @@ export const StyleTab: React.FC<StyleTabProps> = ({
           </p>
         )}
       </div>
+
+      {/* Schema-driven Appearance & Advanced Properties - after style overrides */}
+      {(hasAppearanceProps || hasAdvancedProps) && (
+        <div className="p-4 space-y-2 border-t border-gray-100" data-testid="style-schema-properties">
+          {hasAppearanceProps && (
+            <CollapsibleSection
+              title="Appearance"
+              icon={<Palette className="h-3.5 w-3.5" />}
+              defaultExpanded={true}
+            >
+              <SchemaPropertyPanel
+                elementType={element.type}
+                properties={element.properties || {}}
+                onPropertyChange={onPropertyChange}
+                categories={['appearance']}
+              />
+            </CollapsibleSection>
+          )}
+          {hasAdvancedProps && (
+            <CollapsibleSection
+              title="Advanced"
+              icon={<Settings2 className="h-3.5 w-3.5" />}
+              defaultExpanded={false}
+            >
+              <SchemaPropertyPanel
+                elementType={element.type}
+                properties={element.properties || {}}
+                onPropertyChange={onPropertyChange}
+                categories={['advanced']}
+              />
+            </CollapsibleSection>
+          )}
+        </div>
+      )}
     </div>
   );
 };
