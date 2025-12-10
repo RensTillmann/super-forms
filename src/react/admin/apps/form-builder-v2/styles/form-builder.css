@@ -1,7 +1,7 @@
 /**
  * Form Builder V2 Styles
  *
- * MIGRATION STATUS (2025-12-04):
+ * MIGRATION STATUS (2025-12-09):
  * Many styles in this file are being migrated to Tailwind CSS.
  * The following have been migrated to component-level Tailwind:
  *
@@ -15,9 +15,9 @@
  * - .form-input → Using Tailwind inline
  * - .sidebar-content → Using Tailwind inline (flex-1 flex flex-col overflow-auto)
  * - .btn, .btn-sm, .btn-xs, .btn-ghost, .btn-outline, .btn-primary, .btn-danger → Using Tailwind inline
+ * - Toast notifications → Replaced with Sonner (shadcn/ui)
  *
  * STILL IN USE (keep these):
- * - Toast notifications (.toast-*)
  * - Container elements (.columns-container, .tabs-container, etc.)
  * - Element controls (.element-controls, .element-control-btn)
  * - Canvas device frames (.canvas-framed)
@@ -29,92 +29,6 @@
 /* Body Background */
 body {
   background: var(--color-bg-secondary);
-}
-
-/* Toast Notification */
-.toast-container {
-  position: fixed;
-  top: 110px;
-  right: 20px;
-  z-index: 60; /* Higher than tabs bar (z-index: 40) */
-  pointer-events: none;
-}
-
-.toast {
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-lg);
-  padding: var(--space-3) var(--space-4);
-  margin-bottom: var(--space-2);
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-medium);
-  color: white;
-  min-width: 200px;
-  max-width: 400px;
-  transform: translateY(-100%);
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
-  opacity: 0;
-  pointer-events: auto;
-}
-
-.toast-visible {
-  transform: translateY(0);
-  opacity: 1;
-}
-
-.toast-hiding {
-  transform: translateX(100%);
-  opacity: 0;
-}
-
-.toast-success {
-  background: var(--color-success-600);
-}
-
-.toast-error {
-  background: var(--color-error-600);
-}
-
-.toast-warning {
-  background: var(--color-warning-600);
-}
-
-.toast-info {
-  background: var(--color-primary-600);
-}
-
-.toast-icon {
-  flex-shrink: 0;
-  color: inherit;
-}
-
-.toast-message {
-  flex: 1;
-  line-height: 1.4;
-}
-
-.toast-close {
-  background: none;
-  border: none;
-  color: white;
-  cursor: pointer;
-  padding: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 20px;
-  height: 20px;
-  border-radius: var(--radius-sm);
-  transition: all var(--duration-fast);
-  opacity: 0.8;
-}
-
-.toast-close:hover {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  opacity: 1;
 }
 
 /* Loading Spinner Animation */

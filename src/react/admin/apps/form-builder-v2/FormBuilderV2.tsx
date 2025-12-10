@@ -29,8 +29,6 @@ import { getElementSchema } from '../../schemas/core/registry';
 import '../../schemas/tabs';
 // Import UI Components from the extracted library
 import {
-  Toast,
-  ToastProvider,
   ErrorBoundary,
   SharePanel,
   ExportPanel,
@@ -42,6 +40,9 @@ import {
   InlineEditableText,
   RightSidebar
 } from './components/ui';
+// Sonner toast (replaces custom ToastProvider)
+import { Toaster } from '../../components/ui/sonner';
+import { toast } from 'sonner';
 // Lazy loaded tabs (code splitting)
 const EmailsTab = lazy(() => import('./tabs/EmailsTab'));
 const AutomationsTab = lazy(() => import('../../components/form-builder/automations/AutomationsTab').then(m => ({ default: m.AutomationsTab })));
@@ -1367,50 +1368,7 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
   const [formTitle, setFormTitle] = useState('Untitled Form');
   const [autoSaveStatus, setAutoSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
   const [currentFormId, setCurrentFormId] = useState('1');
-  
-  // Toast notification state
-  const [toasts, setToasts] = useState<Array<{
-    id: string;
-    type: 'success' | 'error' | 'warning' | 'info';
-    message: string;
-    visible: boolean;
-    hiding?: boolean;
-  }>>([]);
-  
-  // Toast management functions
-  const showToast = useCallback((type: 'success' | 'error' | 'warning' | 'info', message: string, duration = 5000) => {
-    const id = Math.random().toString(36).substr(2, 9);
-    const newToast = { id, type, message, visible: false };
-    
-    setToasts(prev => [...prev, newToast]);
-    
-    // Show toast after a brief delay for animation
-    setTimeout(() => {
-      setToasts(prev => prev.map(toast => 
-        toast.id === id ? { ...toast, visible: true } : toast
-      ));
-    }, 100);
-    
-    // Auto-hide toast after duration (unless it's an error)
-    if (type !== 'error') {
-      setTimeout(() => {
-        hideToast(id);
-      }, duration);
-    }
-  }, []);
-  
-  const hideToast = useCallback((id: string) => {
-    // First add the hiding class for left-to-right exit animation
-    setToasts(prev => prev.map(toast => 
-      toast.id === id ? { ...toast, hiding: true } : toast
-    ));
-    
-    // Remove from array after animation completes (400ms for transform)
-    setTimeout(() => {
-      setToasts(prev => prev.filter(toast => toast.id !== id));
-    }, 400);
-  }, []);
-  
+
   // Canvas state
   const [zoom, setZoom] = useState(1);
   const [showGrid, setShowGrid] = useState(false);
@@ -1588,11 +1546,18 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
   
   // Inline editing state
   const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
-  const [floatingPanel, setFloatingPanel] = useState<{ element: any; position: { x: number; y: number } } | null>(null);
+  const [floatingPanel, setFloatingPanel] = useState<{ elementId: string | null; position: { x: number; y: number } } | null>(null);
   const [selectedTextInfo, setSelectedTextInfo] = useState<{ text: string; position: { x: number; y: number } } | null>(null);
 
   // Mobile editing state - true when editing element on mobile (hides TopBar/TabBar)
-  const isEditingElement = isMobile && floatingPanel !== null && floatingPanel.element !== null;
+  const isEditingElement = isMobile && floatingPanel !== null && floatingPanel.elementId !== null;
+
+  // Auto-close floating panel if element is deleted
+  useEffect(() => {
+    if (floatingPanel?.elementId && !items[floatingPanel.elementId]) {
+      setFloatingPanel(null);
+    }
+  }, [floatingPanel?.elementId, items]);
 
   // Panel states
   const [showVersionHistory, setShowVersionHistory] = useState(false);
@@ -1882,12 +1847,12 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
     if (autoSaveStatus === 'saving') {
       const timer = setTimeout(() => {
         setAutoSaveStatus('saved');
-        showToast('success', 'All changes saved');
+        toast.success('All changes saved');
         setTimeout(() => setAutoSaveStatus('idle'), 1000);
       }, 1000);
       return () => clearTimeout(timer);
     }
-  }, [autoSaveStatus, showToast]);
+  }, [autoSaveStatus]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -2164,12 +2129,11 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
         const rect = target.getBoundingClientRect();
         
         setFloatingPanel({
-          element: element,
-          position: { 
-            x: rect.left, 
-            y: rect.bottom + 10 
-          },
-          isVisible: true
+          elementId: element.id,
+          position: {
+            x: rect.left,
+            y: rect.bottom + 10
+          }
         });
       }
     }
@@ -2233,7 +2197,7 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
         switch (action) {
           case 'edit':
             setFloatingPanel({
-              element: selectedElement,
+              elementId: selectedElement.id,
               position: contextMenu || { x: 0, y: 0 }
             });
             break;
@@ -3203,10 +3167,10 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
                         
                         // Show form wrapper settings panel at center of viewport
                         setFloatingPanel({
-                          element: null, // Special case for form wrapper
-                          position: { 
-                            x: window.innerWidth / 2 - 200, // Center horizontally 
-                            y: window.innerHeight / 2 - 250  // Center vertically
+                          elementId: null, // Special case for form wrapper
+                          position: {
+                            x: window.innerWidth / 2 - 200, // Center horizontally
+                            y: window.innerHeight / 2 - 250 // Center vertically
                           }
                         });
                       }}
@@ -3441,10 +3405,10 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
                     
                     // Show form wrapper settings panel at center of viewport
                     setFloatingPanel({
-                      element: null, // Special case for form wrapper
-                      position: { 
-                        x: window.innerWidth / 2 - 200, // Center horizontally 
-                        y: window.innerHeight / 2 - 250  // Center vertically
+                      elementId: null, // Special case for form wrapper
+                      position: {
+                        x: window.innerWidth / 2 - 200, // Center horizontally
+                        y: window.innerHeight / 2 - 250 // Center vertically
                       }
                     });
                   }}
@@ -3842,18 +3806,18 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
         </ResizableBottomTray>
 
         {/* Schema-Driven Floating Properties Panel */}
-        {floatingPanel && floatingPanel.element && (
+        {floatingPanel && floatingPanel.elementId && (
           <FloatingPanel
-            element={floatingPanel.element}
+            elementId={floatingPanel.elementId}
             position={floatingPanel.position}
             onClose={() => setFloatingPanel(null)}
-            onPropertyChange={(property, value) => updateElementProperty(floatingPanel.element.id, property, value)}
-            onDelete={() => handleDeleteElement(floatingPanel.element.id)}
+            onPropertyChange={(property, value) => updateElementProperty(floatingPanel.elementId!, property, value)}
+            onDelete={() => handleDeleteElement(floatingPanel.elementId!)}
           />
         )}
 
         {/* Form Wrapper Settings Panel */}
-        {floatingPanel && !floatingPanel.element && isFormWrapperSelected && (
+        {floatingPanel && floatingPanel.elementId === null && isFormWrapperSelected && (
           <FormWrapperSettingsPanel
             position={floatingPanel.position}
             settings={formWrapperSettings}
@@ -3929,31 +3893,18 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
             console.log('Element clicked:', elementId);
           }}
         />
-        {/* Toast Notifications */}
-        <div className="toast-container">
-          {toasts.map((toast) => (
-            <Toast
-              key={toast.id}
-              id={toast.id}
-              type={toast.type}
-              message={toast.message}
-              visible={toast.visible}
-              hiding={toast.hiding}
-              onClose={hideToast}
-            />
-          ))}
-        </div>
       </div>
     </ErrorBoundary>
   );
 };
 
-// Wrapper component with ToastProvider
+// Wrapper component with Toaster
 export const FormBuilderV2: React.FC<FormBuilderCompleteProps> = (props) => {
   return (
-    <ToastProvider>
+    <>
       <FormBuilderCompleteInner {...props} />
-    </ToastProvider>
+      <Toaster />
+    </>
   );
 };
 

@@ -29,6 +29,10 @@ interface ElementStylesSectionProps {
   styleOverrides?: Record<string, Partial<StyleProperties>>;
   onOverrideChange: (nodeType: string, property: string, value: unknown) => void;
   onResetToGlobal: (nodeType?: string) => void;
+  /** Optional: override default container classes */
+  className?: string;
+  /** Optional: start expanded (for use in Style tab) */
+  defaultExpanded?: boolean;
 }
 
 export const ElementStylesSection: React.FC<ElementStylesSectionProps> = ({
@@ -37,8 +41,10 @@ export const ElementStylesSection: React.FC<ElementStylesSectionProps> = ({
   styleOverrides = {},
   onOverrideChange,
   onResetToGlobal,
+  className,
+  defaultExpanded = false,
 }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const [activeNode, setActiveNode] = useState<string | null>(null);
 
   // Get which nodes this element type contains
@@ -56,7 +62,7 @@ export const ElementStylesSection: React.FC<ElementStylesSectionProps> = ({
   }
 
   return (
-    <div className="mt-6 pt-6 border-t border-gray-200">
+    <div className={cn("mt-6 pt-6 border-t border-gray-200", className)}>
       {/* Section Header */}
       <Button
         variant="ghost"

@@ -1,6 +1,3 @@
-// Toast Components
-export * from './toast';
-
 // Panel Components
 export * from './panels';
 

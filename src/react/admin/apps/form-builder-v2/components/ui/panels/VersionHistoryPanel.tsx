@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Clock, RotateCcw, User, FileText, ChevronRight } from 'lucide-react';
 import { VersionHistoryPanelProps, FormVersion } from '../types/panel.types';
 import { BasePanel } from './BasePanel';
-import { useToast } from '../toast';
+import { toast } from 'sonner';
 import { Button } from '../../../../../components/ui/button';
 
 const defaultVersions: FormVersion[] = [
@@ -39,13 +39,12 @@ export const VersionHistoryPanel: React.FC<VersionHistoryPanelProps> = ({
 }) => {
   const [selectedVersion, setSelectedVersion] = useState<string | null>(null);
   const [showComparison, setShowComparison] = useState(false);
-  const { addToast } = useToast();
 
   const handleRestore = (versionId: string) => {
     const version = versions.find(v => v.id === versionId);
     if (version && !version.isCurrent) {
       onRestore(versionId);
-      addToast(`Restored to version: ${version.name}`, 'success');
+      toast.success(`Restored to version: ${version.name}`);
       setTimeout(() => onClose(), 1000);
     }
   };

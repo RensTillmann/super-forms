@@ -3,7 +3,7 @@ name: h-formbuilder-mobile-responsive
 branch: feature/h-implement-triggers-actions-extensibility
 status: complete
 created: 2025-12-08
-completed: 2025-12-08
+completed: 2025-12-09
 ---
 
 # FormBuilderV2 Mobile Responsive Design
@@ -562,6 +562,25 @@ npm install swiper
 - RightSidebar: `src/react/admin/apps/form-builder-v2/components/ui/RightSidebar.tsx`
 - FloatingPanel: `src/react/admin/apps/form-builder-v2/components/property-panels/FloatingPanel.tsx`
 
+### Discovered During Implementation
+[Date: 2025-12-09 / Session 3]
+
+During the mobile drawer implementation, we discovered critical incompatibilities between Vaul (drawer library) and Radix UI ScrollArea that weren't documented in either library's documentation.
+
+**Vaul + Radix ScrollArea Incompatibility:**
+The `data-vaul-no-drag` attribute must be placed directly on the scrollable element. Radix ScrollArea creates an internal `[data-radix-scroll-area-viewport]` element that handles the actual scrolling, but attributes on the ScrollArea wrapper don't propagate to this internal viewport. This causes Vaul to intercept touch events on the scroll area, blocking scroll functionality. The solution is to use native scroll (`overflow-y-auto` + `touch-pan-y`) instead of Radix ScrollArea inside Vaul drawers on mobile.
+
+**Vaul Percentage Snap Points:**
+Percentage-based snap points (e.g., `snapPoints={[0.645, 0.95]}`) don't work as expected. Vaul interprets 0.645 as "show 64.5% of the drawer's maximum height," which causes it to apply a `translateY` transform to hide the remaining 35.5%. This pushes the drawer down from its natural bottom-aligned position. For precise drawer positioning, avoid percentage snap points and instead set the drawer height directly via inline styles: `style={{ height: `${height}px` }}`.
+
+**Native Scroll Performance:**
+Native browser scroll with `overflow-y-auto`, `touch-pan-y`, and `overscroll-contain` provides better touch responsiveness than Radix ScrollArea when used inside Vaul drawers. The CSS classes handle momentum scrolling and overscroll behavior correctly on mobile devices without requiring additional JavaScript event handling.
+
+#### Updated Technical Details
+- FloatingPanel: Use conditional rendering for scroll containers (native div on mobile, ScrollArea on desktop)
+- Vaul drawer height: Calculate pixel height based on available space, avoid percentage snap points
+- Touch scroll optimization: Apply `data-vaul-no-drag` directly on scrollable element, use `touch-pan-y` for vertical scrolling
+
 ---
 
 ## Work Log
@@ -686,6 +705,47 @@ npm install swiper
 - Added `relative z-[101]` to hamburger button trigger
 - FormSelector has `z-index: 100`, button now sits above it
 - Verified hamburger button is clickable without workaround
+
+### 2025-12-09
+
+#### Session 3: Mobile Drawer Scrolling Fix
+
+**Problem Diagnosed:**
+1. Touch scrolling not working inside Vaul drawer
+2. Drawer positioned incorrectly (236px gap between element and drawer top)
+3. Content cut off at bottom (drawer extended below viewport)
+
+**Root Cause Analysis:**
+
+1. **Scroll blocking**: `data-vaul-no-drag` was on ScrollArea wrapper but NOT on Radix's internal `[data-radix-scroll-area-viewport]` element - Vaul intercepted touch events on the viewport
+2. **Drawer positioning**: Percentage-based snap points (0.645) told Vaul "show 64.5% of max height" which caused `translateY(236px)` transform, pushing drawer down
+
+**Fixes Applied:**
+
+1. **FloatingPanel.tsx** - Native scroll on mobile (line 293-307):
+   - Replaced Radix ScrollArea with native `<div>` on mobile
+   - Added `overflow-y-auto`, `touch-pan-y`, `overscroll-contain`
+   - Applied `data-vaul-no-drag` directly on scroll element
+
+2. **FloatingPanel.tsx** - Simple height-based drawer (line 310-346):
+   - Removed percentage snap points that caused transform issues
+   - Changed from `snapPoints={[0.645, 0.95]}` to direct height style
+   - Drawer height calculated as: `viewportHeight - elementBottom - 16px padding`
+
+**Results:**
+- Gap between element and drawer: 236px → 16px ✓
+- Transform: `translateY(236px)` → none ✓
+- Drawer bottom: 903px (off-screen) → 667px (viewport) ✓
+- Touch scroll in content: Blocked → Works ✓
+
+**Inline Styles Scan:**
+- Found ~60 inline style usages in FormBuilderV2
+- Most are legitimate (theme system, dynamic positions)
+- Radix UI generates internal inline styles (not controllable)
+- Some hardcoded values could be Tailwind: `cursor: 'grab'` → `cursor-grab`, `marginTop: '60px'` → `mt-[60px]`
+
+**Files Modified:**
+- `src/react/admin/apps/form-builder-v2/components/property-panels/FloatingPanel.tsx`
 
 #### Future Considerations (Phase 3)
 

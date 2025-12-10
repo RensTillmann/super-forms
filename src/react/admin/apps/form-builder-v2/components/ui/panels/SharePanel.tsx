@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Copy, Plus, Code, ExternalLink, Layout, Users, Globe, Link } from 'lucide-react';
 import { SharePanelProps, Collaborator, EmbedOption } from '../types/panel.types';
 import { BasePanel } from './BasePanel';
-import { useToast } from '../toast';
+import { toast } from 'sonner';
 import { Input } from '../../../../../components/ui/input';
 import { Button } from '../../../../../components/ui/button';
 import { Checkbox } from '../../../../../components/ui/checkbox';
@@ -24,23 +24,22 @@ export const SharePanel: React.FC<SharePanelProps> = ({
   ...basePanelProps
 }) => {
   const [activeTab, setActiveTab] = useState<'link' | 'collaborate' | 'embed'>('link');
-  const { addToast } = useToast();
 
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      addToast('Copied to clipboard!', 'success');
+      toast.success('Copied to clipboard!');
     } catch (err) {
-      addToast('Failed to copy', 'error');
+      toast.error('Failed to copy');
     }
   };
 
   const handleRemoveCollaborator = (collaboratorId: string) => {
-    addToast('Collaborator removed', 'success');
+    toast.success('Collaborator removed');
   };
 
   const handleEmbedOption = (type: string) => {
-    addToast(`${type} embed code copied`, 'success');
+    toast.success(`${type} embed code copied`);
   };
 
   return (

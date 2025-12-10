@@ -253,3 +253,5 @@ https://f4d.nl/dev/wp-admin/?temp-login-token=e743c1697521d5cd707a09eb3d09df5e15
 ```
 - After login, navigate to Form Builder V2: `https://f4d.nl/dev/wp-admin/admin.php?page=super_form_v2`
 - this is local pc, sync src to dev server via sync script, it contains the ssh details. you can use wp cli on dev server for sql
+- proactively add missing data-testid attributes to elements/components when editing or writing code
+- IMPORTANT: proactively add missing data-testid attributes to elements/components when editing or writing code

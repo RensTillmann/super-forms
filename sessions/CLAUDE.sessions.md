@@ -60,3 +60,5 @@ sessions mode discussion
 ## Workflow Protocols
 
 The system has automated protocols for task creation, startup, completion, and context compaction. When loaded, follow the protocol instructions. The user activates these with trigger phrases - you don't need to manage this.
+- proactively add missing data-testid attributes to elements/components when editing or writing code
+- IMPORTANT: proactively add missing data-testid attributes to elements/components when editing or writing code

@@ -112,7 +112,7 @@ export function MobileMenu({
   );
 
   return (
-    <Drawer.Root open={open} onOpenChange={setOpen} modal={false}>
+    <Drawer.Root open={open} onOpenChange={setOpen} modal={false} handleOnly={true}>
       <Drawer.Trigger asChild>
         <Button
           variant="ghost"
@@ -131,7 +131,7 @@ export function MobileMenu({
         >
           <Drawer.Title className="sr-only">Menu</Drawer.Title>
           <Drawer.Description className="sr-only">Form builder mobile navigation menu</Drawer.Description>
-          <div className="mx-auto w-12 h-1.5 bg-muted rounded-full mt-4 mb-2 shrink-0" />
+          <Drawer.Handle className="mx-auto w-12 h-1.5 bg-muted rounded-full mt-4 mb-2 shrink-0" data-testid="mobile-menu-handle" />
 
           <div className="flex-1 overflow-y-auto pb-safe" data-testid="mobile-menu-content">
             {/* History Section */}

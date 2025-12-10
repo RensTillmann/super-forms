@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { getElementSchema } from '../../../../../schemas/core/registry';
 import { PropertyCategory, PropertySchema } from '../../../../../schemas/core/types';
 import { PropertyRenderer } from './PropertyRenderer';
@@ -28,7 +28,17 @@ export const SchemaPropertyPanel: React.FC<SchemaPropertyPanelProps> = ({
   categories,
 }) => {
   const schema = useMemo(() => getElementSchema(elementType), [elementType]);
-  const [activeCategory, setActiveCategory] = useState<PropertyCategory>('general');
+
+  // Default to first category in the filtered list, or 'general' if no filter
+  const defaultCategory = categories?.[0] || 'general';
+  const [activeCategory, setActiveCategory] = useState<PropertyCategory>(defaultCategory);
+
+  // Update active category when categories prop changes
+  useEffect(() => {
+    if (categories && categories.length > 0 && !categories.includes(activeCategory)) {
+      setActiveCategory(categories[0]);
+    }
+  }, [categories, activeCategory]);
 
   if (!schema) {
     return (
