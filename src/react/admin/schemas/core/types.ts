@@ -30,6 +30,7 @@ export const PropertyTypeSchema = z.enum([
   // Visual
   'color',
   'icon',
+  'position_picker',
 
   // Complex structures
   'array',
@@ -249,6 +250,8 @@ export const BasePropertiesSchema = z.object({
       description: 'Label shown above the field',
       translatable: true,
     }),
+  }),
+  appearance: z.object({
     width: PropertySchemaSchema.parse({
       type: 'select',
       label: 'Width',
@@ -263,8 +266,6 @@ export const BasePropertiesSchema = z.object({
       ],
       default: 'full',
     }),
-  }),
-  appearance: z.object({
     hideLabel: PropertySchemaSchema.parse({
       type: 'boolean',
       label: 'Hide Label',

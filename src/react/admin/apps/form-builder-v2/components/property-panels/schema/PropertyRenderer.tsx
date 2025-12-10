@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from '../../../../../components/ui/select';
 import { IconPicker } from '../../../../../components/ui/icon-picker';
+import { PositionPickerRenderer } from './renderers/PositionPickerRenderer';
 
 interface PropertyRendererProps {
   name: string;
@@ -140,6 +141,14 @@ export const PropertyRenderer: React.FC<PropertyRendererProps> = ({
           <IconPicker
             value={(value as string) || ''}
             onChange={(iconValue) => onChange(iconValue)}
+          />
+        );
+
+      case 'position_picker':
+        return (
+          <PositionPickerRenderer
+            value={(value as string) || 'top-left'}
+            onChange={(posValue) => onChange(posValue)}
           />
         );
 

@@ -159,6 +159,9 @@ const BASE_PROPERTIES: PropertiesByCategory = {
       description: 'Label shown above the field',
       translatable: true,
     },
+  },
+  validation: {},
+  appearance: {
     width: {
       type: 'select',
       label: 'Width',
@@ -173,9 +176,6 @@ const BASE_PROPERTIES: PropertiesByCategory = {
       ],
       default: 'full',
     },
-  },
-  validation: {},
-  appearance: {
     hideLabel: {
       type: 'boolean',
       label: 'Hide Label',
