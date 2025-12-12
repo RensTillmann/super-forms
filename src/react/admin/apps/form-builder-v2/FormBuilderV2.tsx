@@ -1458,8 +1458,6 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
   // Canvas bottom padding state for footer height
   const [canvasBottomPadding, setCanvasBottomPadding] = useState(250);
 
-  // Visual viewport offset for keyboard compensation on mobile
-  const [viewportOffset, setViewportOffset] = useState(0);
   
   // Horizontal scroll state for scroll chevrons
   const [trayScrollLeft, setTrayScrollLeft] = useState(0);
@@ -1646,6 +1644,16 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
   const [floatingPanel, setFloatingPanel] = useState<{ elementId: string | null; position: { x: number; y: number } } | null>(null);
   const [selectedTextInfo, setSelectedTextInfo] = useState<{ text: string; position: { x: number; y: number } } | null>(null);
 
+  // Track last selected element for mobile - keeps FloatingPanel mounted
+  const lastSelectedElementIdRef = useRef<string | null>(null);
+
+  // Update last selected element when panel opens
+  useEffect(() => {
+    if (floatingPanel?.elementId) {
+      lastSelectedElementIdRef.current = floatingPanel.elementId;
+    }
+  }, [floatingPanel?.elementId]);
+
   // Mobile editing state - kept for potential future use but no longer hides bars
   const isEditingElement = isMobile && floatingPanel !== null && floatingPanel.elementId !== null;
 
@@ -1656,55 +1664,7 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
     }
   }, [floatingPanel?.elementId, items]);
 
-  // Ref to store canvas initial top position (measured when drawer opens, before keyboard)
-  const initialCanvasTopRef = useRef(0);
 
-  // Visual viewport offset compensation for mobile keyboard
-  // When keyboard opens, browser shifts viewport down (offsetTop increases)
-  // We compensate by translating the canvas down by the same amount
-  useEffect(() => {
-    if (!isMobile || !floatingPanel) {
-      setViewportOffset(0);
-      initialCanvasTopRef.current = 0;
-      return;
-    }
-
-    const vv = window.visualViewport;
-    if (!vv) return;
-
-    // Capture initial canvas position when drawer opens (before keyboard)
-    const canvasContainer = document.querySelector('[data-testid="canvas-container"]');
-    if (canvasContainer && initialCanvasTopRef.current === 0) {
-      initialCanvasTopRef.current = canvasContainer.getBoundingClientRect().top;
-    }
-
-    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-
-    const handleViewportChange = () => {
-      // Debounce to let keyboard + accessory bar fully render before applying offset
-      if (debounceTimer) clearTimeout(debounceTimer);
-      debounceTimer = setTimeout(() => {
-        const offset = vv.offsetTop || 0;
-        // Subtract the canvas's initial distance from viewport top
-        const adjustedOffset = Math.max(0, offset - initialCanvasTopRef.current);
-        console.log('[Viewport] offsetTop:', offset, 'initialTop:', initialCanvasTopRef.current, 'adjusted:', adjustedOffset);
-        setViewportOffset(adjustedOffset);
-      }, 150);
-    };
-
-    // Initial check
-    handleViewportChange();
-
-    vv.addEventListener('resize', handleViewportChange);
-    vv.addEventListener('scroll', handleViewportChange);
-
-    return () => {
-      if (debounceTimer) clearTimeout(debounceTimer);
-      vv.removeEventListener('resize', handleViewportChange);
-      vv.removeEventListener('scroll', handleViewportChange);
-      setViewportOffset(0);
-    };
-  }, [isMobile, floatingPanel]);
 
   // Panel states
   const [showVersionHistory, setShowVersionHistory] = useState(false);
@@ -3325,8 +3285,6 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
             className="flex-1 flex flex-col overflow-auto bg-muted/30 p-4"
             style={{
               paddingBottom: `${canvasBottomPadding}px`,
-              // Compensate for mobile keyboard viewport shift
-              transform: viewportOffset > 0 ? `translateY(${viewportOffset}px)` : undefined,
             }}
             data-testid="canvas-container"
           >
@@ -3934,14 +3892,55 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
         </ResizableBottomTray>
 
         {/* Schema-Driven Floating Properties Panel */}
-        {floatingPanel && floatingPanel.elementId && (
-          <FloatingPanel
-            elementId={floatingPanel.elementId}
-            position={floatingPanel.position}
-            onClose={() => setFloatingPanel(null)}
-            onPropertyChange={(property, value) => updateElementProperty(floatingPanel.elementId!, property, value)}
-            onDelete={() => handleDeleteElement(floatingPanel.elementId!)}
-          />
+        {/* Desktop: conditional render. Mobile: ALWAYS mounted for smooth animations */}
+        {isMobile ? (
+          // Mobile: ALWAYS render FloatingPanel to keep MobileDrawer mounted (prevents flash)
+          // FloatingPanel handles !element by keeping MobileDrawer mounted with open={false}
+          (() => {
+            // Get a valid element ID - must exist in items to prevent unmount/remount flash
+            const getValidElementId = (): string | null => {
+              // First: currently selected element if it exists
+              if (floatingPanel?.elementId && items[floatingPanel.elementId]) {
+                return floatingPanel.elementId;
+              }
+              // Second: last selected element if it still exists
+              if (lastSelectedElementIdRef.current && items[lastSelectedElementIdRef.current]) {
+                return lastSelectedElementIdRef.current;
+              }
+              // Third: first available element
+              const firstKey = Object.keys(items)[0];
+              return firstKey || null;
+            };
+            const currentElementId = getValidElementId();
+            const isOpen = !!(floatingPanel?.elementId && items[floatingPanel.elementId]);
+            // ALWAYS render FloatingPanel - even with no elements
+            // Pass empty string if no elements; FloatingPanel handles !element gracefully
+            return (
+              <FloatingPanel
+                elementId={currentElementId || ''}
+                position={floatingPanel?.position || { x: 0, y: 0 }}
+                onClose={() => setFloatingPanel(null)}
+                onPropertyChange={(property, value) => {
+                  if (currentElementId) updateElementProperty(currentElementId, property, value);
+                }}
+                onDelete={() => {
+                  if (currentElementId) handleDeleteElement(currentElementId);
+                }}
+                open={isOpen}
+              />
+            );
+          })()
+        ) : (
+          // Desktop: conditional render as before
+          floatingPanel && floatingPanel.elementId && (
+            <FloatingPanel
+              elementId={floatingPanel.elementId}
+              position={floatingPanel.position}
+              onClose={() => setFloatingPanel(null)}
+              onPropertyChange={(property, value) => updateElementProperty(floatingPanel.elementId!, property, value)}
+              onDelete={() => handleDeleteElement(floatingPanel.elementId!)}
+            />
+          )
         )}
 
         {/* Form Wrapper Settings Panel */}

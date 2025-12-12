@@ -84,43 +84,8 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
     return () => cancelAnimationFrame(raf1);
   }, []);
 
-  // iOS-compatible body scroll lock
-  // Uses position:fixed technique to prevent visual viewport shift when keyboard opens
-  useEffect(() => {
-    if (!open) return;
-
-    const body = document.body;
-    const scrollY = window.scrollY;
-
-    // Store original styles
-    const originalPosition = body.style.position;
-    const originalTop = body.style.top;
-    const originalLeft = body.style.left;
-    const originalRight = body.style.right;
-    const originalWidth = body.style.width;
-    const originalOverflow = body.style.overflow;
-
-    // Fix body in place at current scroll position
-    body.style.position = 'fixed';
-    body.style.top = `-${scrollY}px`;
-    body.style.left = '0';
-    body.style.right = '0';
-    body.style.width = '100%';
-    body.style.overflow = 'hidden';
-
-    return () => {
-      // Restore original styles
-      body.style.position = originalPosition;
-      body.style.top = originalTop;
-      body.style.left = originalLeft;
-      body.style.right = originalRight;
-      body.style.width = originalWidth;
-      body.style.overflow = originalOverflow;
-
-      // Restore scroll position
-      window.scrollTo(0, scrollY);
-    };
-  }, [open]);
+  // Scroll lock removed - allowing background scrolling while drawer is open
+  // This provides better UX on mobile where users may want to see the canvas
 
   // Visual Viewport API listener for keyboard-aware height and position
   // Debounced to prevent jitter from rapid resize events (e.g., keyboard animation,

@@ -22,6 +22,8 @@ interface FloatingPanelProps {
   onPropertyChange: (propertyName: string, value: unknown) => void;
   /** Called when delete is clicked */
   onDelete: () => void;
+  /** Whether the mobile drawer is open (mobile only, defaults to true) */
+  open?: boolean;
 }
 
 type PanelTab = 'content' | 'style' | 'behavior' | 'code' | 'templates' | 'ai';
@@ -151,9 +153,10 @@ const TabContentPanels = React.memo<TabContentPanelsProps>(({ isMobile, contentR
   isMobile ? (
     // Mobile: flex-1 to fill remaining drawer space, scroll internally
     // Disable focus transitions on inputs to prevent layout shifts
+    // DEBUG: Blue border on tab content panels
     <div
       ref={contentRef}
-      className="flex-1 min-h-0 overflow-y-auto overscroll-contain [&_input]:transition-none [&_textarea]:transition-none [&_select]:transition-none [&_button]:transition-none"
+      className="flex-1 min-h-0 overflow-y-auto overscroll-contain [&_input]:transition-none [&_textarea]:transition-none [&_select]:transition-none [&_button]:transition-none border-2 border-blue-500"
       data-testid="floating-panel-content"
     >
       {children}
@@ -178,6 +181,7 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
   onClose,
   onPropertyChange,
   onDelete,
+  open = true,
 }) => {
   const panelRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
@@ -269,7 +273,23 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
   }, [position]);
 
   // Early return if element doesn't exist (was deleted)
+  // On mobile: keep MobileDrawer mounted but closed to preserve mounted state and prevent flash
   if (!element) {
+    if (isMobile) {
+      return (
+        <MobileDrawer
+          open={false}
+          onClose={onClose}
+          title="Properties"
+          description="Select an element to edit"
+          data-testid="floating-panel-drawer"
+        >
+          <div className="p-4 text-muted-foreground text-sm" data-testid="floating-panel-no-element">
+            Select an element to edit its properties
+          </div>
+        </MobileDrawer>
+      );
+    }
     return null;
   }
 
@@ -330,7 +350,7 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
   if (isMobile) {
     return (
       <MobileDrawer
-        open={true}
+        open={open}
         onClose={onClose}
         title={`${displayName} Properties`}
         description={`Edit properties and styles for ${displayName}`}
@@ -345,7 +365,8 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
           onClose={onClose}
           isMobile={true}
         />
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as PanelTab)} className="flex flex-col flex-1 min-h-0">
+        {/* DEBUG: Orange border on Tabs wrapper */}
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as PanelTab)} className="flex flex-col flex-1 min-h-0 border-2 border-orange-500">
           <TabNavigation navRef={navRef} />
           <TabContentPanels isMobile={isMobile} contentRef={contentRef}>
             {tabContent}
