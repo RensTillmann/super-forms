@@ -2337,6 +2337,530 @@ Element rendering is memoized to prevent unnecessary re-renders during drag oper
 - `/src/react/admin/apps/form-builder-v2/components/dnd/SortablePanelItem.tsx` (107 lines)
 - `/src/react/admin/apps/form-builder-v2/components/dnd/index.ts` (exports)
 
+## Mobile Drawer
+
+### Overview (v6.6.0+)
+
+Form Builder V2 uses a **custom MobileDrawer component** for all mobile bottom sheet UI patterns, replacing the Vaul library. This migration provides better control, eliminates external dependencies, and fixes critical scroll/keyboard issues.
+
+**Migration completed:** 2025-12-12 (Vaul removed from package.json)
+
+**Location:** `/src/react/admin/components/ui/mobile-drawer.tsx`
+
+**Used by:**
+- FloatingPanel (element property editor on mobile)
+- RightSidebar (settings panel on mobile)
+- MobileMenu (canvas menu on mobile)
+
+### Why We Replaced Vaul
+
+**Problems with Vaul snap points:**
+1. Snap points use `translateY` transforms that push content below viewport
+2. Scrollable content becomes unreachable (e.g., fields at 70% snap point are 199px below visible area)
+3. Keyboard open/close doesn't adapt drawer height (Visual Viewport API not integrated)
+4. Radix ScrollArea incompatibility with Vaul's touch event handling
+
+**Benefits of custom solution:**
+- Direct Visual Viewport API integration for keyboard-aware height
+- No snap point transforms - drawer positioned at bottom with calculated height
+- iOS-compatible body scroll lock (fixed positioning technique)
+- Zero external dependencies - pure Tailwind CSS + React
+- Full control over touch gestures and animations
+
+### Architecture
+
+**Component Interface:**
+```typescript
+interface MobileDrawerProps {
+  /** Whether the drawer is open */
+  open: boolean;
+  /** Called when drawer should close */
+  onClose: () => void;
+  /** Fixed height in pixels, or use Visual Viewport API if not provided */
+  height?: number;
+  /** Accessible title for screen readers */
+  title?: string;
+  /** Accessible description for screen readers */
+  description?: string;
+  /** Content to render inside the drawer */
+  children: React.ReactNode;
+  /** Additional class names for the drawer content */
+  className?: string;
+  /** Test ID for the drawer */
+  'data-testid'?: string;
+}
+```
+
+**Usage Example:**
+```typescript
+import { MobileDrawer } from '@/components/ui/mobile-drawer';
+
+<MobileDrawer
+  open={isOpen}
+  onClose={() => setIsOpen(false)}
+  title="Edit Element"              // Screen reader only
+  description="Modify properties"    // Screen reader only (optional)
+  height={500}                       // Optional: fixed height in px
+  data-testid="floating-panel-drawer"
+>
+  <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+    {/* Your content - use flex-1 and overflow for scrollable content */}
+  </div>
+</MobileDrawer>
+```
+
+### Visual Viewport API Integration
+
+**Purpose:** Adapt drawer height when mobile keyboard opens/closes
+
+**Supported browsers:** iOS 13+, Chrome 62+, Firefox 91+, Safari 13+ (fallback to `window.innerHeight` on older browsers)
+
+**Implementation:**
+```typescript
+// Line 122-137 in mobile-drawer.tsx
+useEffect(() => {
+  if (!open) return;
+
+  const updateHeight = () => {
+    const vv = window.visualViewport;
+    setViewportHeight(vv ? vv.height : window.innerHeight);
+  };
+
+  updateHeight();
+  window.visualViewport?.addEventListener('resize', updateHeight);
+  window.visualViewport?.addEventListener('scroll', updateHeight);
+
+  return () => {
+    window.visualViewport?.removeEventListener('resize', updateHeight);
+    window.visualViewport?.removeEventListener('scroll', updateHeight);
+  };
+}, [open]);
+
+// Calculate drawer height (70% of viewport or provided height)
+const drawerHeight = height || Math.round(viewportHeight * 0.7);
+```
+
+**Flow:**
+1. Drawer opens → Subscribe to `visualViewport.resize` and `visualViewport.scroll` events
+2. Keyboard opens → Visual Viewport height decreases (e.g., from 844px to 400px on iPhone)
+3. `updateHeight()` fires → `viewportHeight` state updates → Drawer height recalculates
+4. Drawer shrinks to fit above keyboard → Content remains scrollable
+5. Keyboard closes → Visual Viewport height increases → Drawer expands back to 70%
+
+### Body Scroll Lock (iOS-Compatible)
+
+**Problem:** When drawer is open, background page should not scroll
+
+**Solution:** iOS-compatible fixed positioning technique
+
+**Implementation:**
+```typescript
+// Line 88-116 in mobile-drawer.tsx
+useEffect(() => {
+  if (!open) return;
+
+  const scrollY = window.scrollY;
+  const body = document.body;
+  const html = document.documentElement;
+
+  // Store original styles
+  const originalBodyStyle = body.style.cssText;
+  const originalHtmlStyle = html.style.cssText;
+
+  // Lock body scroll - iOS-compatible technique
+  body.style.position = 'fixed';
+  body.style.top = `-${scrollY}px`;  // Preserve scroll position
+  body.style.left = '0';
+  body.style.right = '0';
+  body.style.overflow = 'hidden';
+  body.style.transition = 'none';     // Disable transitions during lock
+  html.style.overflow = 'hidden';
+  html.style.scrollBehavior = 'auto'; // Disable smooth scroll
+  html.style.transition = 'none';
+
+  return () => {
+    // Restore original styles and scroll position
+    body.style.cssText = originalBodyStyle;
+    html.style.cssText = originalHtmlStyle;
+    window.scrollTo(0, scrollY);
+  };
+}, [open]);
+```
+
+**Why this works on iOS:**
+- `position: fixed` with `top: -${scrollY}px` prevents scroll without layout shift
+- Storing original `cssText` preserves any existing inline styles
+- Restoring scroll position on close prevents jump to top
+- Disabling transitions prevents any smooth scroll during lock/unlock
+
+### Touch Swipe-to-Close
+
+**Gesture:** Swipe down from drag handle to close drawer
+
+**Threshold:** 100px vertical movement
+
+**Implementation:**
+```typescript
+// Touch tracking refs
+const touchStartY = useRef<number>(0);
+const touchCurrentY = useRef<number>(0);
+const isDragging = useRef(false);
+const [dragOffset, setDragOffset] = useState(0);
+
+// Handlers (lines 140-179)
+const handleTouchStart = useCallback((e: React.TouchEvent) => {
+  const touch = e.touches[0];
+  const target = e.target as HTMLElement;
+
+  // Only allow dragging from handle or header area
+  if (target.closest('[data-drawer-handle]') || target.closest('[data-drawer-header]')) {
+    touchStartY.current = touch.clientY;
+    touchCurrentY.current = touch.clientY;
+    isDragging.current = true;
+  }
+}, []);
+
+const handleTouchMove = useCallback((e: React.TouchEvent) => {
+  if (!isDragging.current) return;
+
+  const touch = e.touches[0];
+  touchCurrentY.current = touch.clientY;
+
+  const diff = touchCurrentY.current - touchStartY.current;
+  // Only allow dragging down (positive diff)
+  if (diff > 0) {
+    setDragOffset(diff);
+  }
+}, []);
+
+const handleTouchEnd = useCallback(() => {
+  if (!isDragging.current) return;
+
+  isDragging.current = false;
+  const diff = touchCurrentY.current - touchStartY.current;
+
+  // If dragged more than 100px down, close the drawer
+  if (diff > 100) {
+    onClose();
+  } else {
+    // Snap back
+    setDragOffset(0);
+  }
+}, [onClose]);
+```
+
+**Drag handle markup:**
+```tsx
+{/* Line 244-254 in mobile-drawer.tsx */}
+<div
+  className="flex justify-center pt-2 pb-1 shrink-0 cursor-grab active:cursor-grabbing"
+  data-drawer-handle
+  data-testid={`${testId}-handle`}
+  role="separator"
+  aria-orientation="horizontal"
+  aria-label="Drag handle - swipe down to close"
+>
+  <div className="w-10 h-1 bg-muted-foreground/30 rounded-full" />
+</div>
+```
+
+**Header area also draggable:**
+```tsx
+{/* Header div (line 60-65) includes data-drawer-header attribute */}
+<div
+  ref={headerRef}
+  className={cn("bg-muted/50 border-b border-border shrink-0", !isMobile && "pt-1.5")}
+  data-testid="floating-panel-header"
+  data-drawer-header  // Enables dragging from header
+>
+```
+
+### CSS Transitions & Animations
+
+**Slide-up animation:**
+```typescript
+// Line 64-85 in mobile-drawer.tsx
+useEffect(() => {
+  if (open) {
+    setIsVisible(true);
+    // Double requestAnimationFrame ensures CSS transitions trigger correctly:
+    // 1st RAF: Browser has painted the initial state (translateY 100%)
+    // 2nd RAF: Now safe to change state, browser will animate the transition
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setIsAnimating(true);
+      });
+    });
+  } else {
+    setIsAnimating(false);
+    // Wait for animation to complete before hiding
+    const timer = setTimeout(() => {
+      setIsVisible(false);
+      setDragOffset(0);
+    }, 300);  // Matches CSS transition duration
+    return () => clearTimeout(timer);
+  }
+}, [open]);
+```
+
+**Drawer element styling:**
+```tsx
+{/* Line 224-242 */}
+<div
+  ref={drawerRef}
+  className={cn(
+    'fixed bottom-0 left-0 right-0 bg-background rounded-t-xl flex flex-col overflow-hidden',
+    'transition-transform duration-300 ease-out',
+    // Disable transition when dragging for immediate feedback
+    isDragging.current && 'transition-none',
+    className
+  )}
+  style={{
+    height: drawerHeight,
+    transform: isAnimating
+      ? `translateY(${dragOffset}px)`   // Open state (with drag offset)
+      : `translateY(100%)`,              // Closed state (offscreen)
+  }}
+  onTouchStart={handleTouchStart}
+  onTouchMove={handleTouchMove}
+  onTouchEnd={handleTouchEnd}
+>
+```
+
+**Why double requestAnimationFrame:**
+- Without it, browser may batch both state changes into single paint (no animation)
+- First RAF ensures initial state (translateY 100%) is painted
+- Second RAF ensures next state change triggers CSS transition
+
+### Accessibility
+
+**ARIA attributes:**
+```tsx
+{/* Line 204-212 */}
+<div
+  className="fixed inset-0 z-50"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby={title ? `${testId}-title` : undefined}
+  aria-describedby={description ? `${testId}-description` : undefined}
+  data-testid={testId}
+>
+```
+
+**Screen reader only title/description:**
+```tsx
+{/* Line 256-266 */}
+{title && (
+  <span id={`${testId}-title`} className="sr-only">
+    {title}
+  </span>
+)}
+{description && (
+  <span id={`${testId}-description`} className="sr-only">
+    {description}
+  </span>
+)}
+```
+
+**Keyboard support:**
+- Escape key closes drawer
+- Focus trap (not implemented - content naturally traps focus due to modal nature)
+- Drag handle has `role="separator"` and `aria-label`
+
+**Close on Escape implementation:**
+```typescript
+// Line 189-200 in mobile-drawer.tsx
+useEffect(() => {
+  if (!open) return;
+
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      onClose();
+    }
+  };
+
+  document.addEventListener('keydown', handleKeyDown);
+  return () => document.removeEventListener('keydown', handleKeyDown);
+}, [open, onClose]);
+```
+
+### Portal Rendering
+
+**Why portal to document.body:**
+- Ensures drawer renders above all other content (z-index stacking)
+- Prevents parent container overflow/clipping issues
+- Allows backdrop to cover entire viewport
+
+**Implementation:**
+```tsx
+// Line 204 in mobile-drawer.tsx
+return createPortal(
+  <div className="fixed inset-0 z-50">
+    {/* Backdrop and drawer */}
+  </div>,
+  document.body
+);
+```
+
+### FloatingPanel Integration
+
+**File:** `/src/react/admin/apps/form-builder-v2/components/property-panels/FloatingPanel.tsx`
+
+**Usage pattern:**
+```typescript
+// Line 7 import
+import { MobileDrawer } from '../../../../components/ui/mobile-drawer';
+
+// Line 201-214 (mobile render path)
+if (isMobile) {
+  return (
+    <MobileDrawer
+      open={isMobileReady}
+      onClose={onClose}
+      title={`Edit ${displayName}`}
+      description="Modify element properties and styles"
+      data-testid="floating-panel-drawer"
+    >
+      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+        {/* Header, tabs, content - same as desktop */}
+      </div>
+    </MobileDrawer>
+  );
+}
+
+// Desktop render path (positioned floating panel)
+return (
+  <div
+    ref={panelRef}
+    className="fixed bg-background border border-border rounded-lg shadow-lg w-[480px] max-h-[600px] flex flex-col overflow-hidden z-[9999]"
+    style={{ left: clampedX, top: clampedY }}
+    data-testid="floating-panel"
+  >
+    {/* Same content as mobile */}
+  </div>
+);
+```
+
+**Mobile readiness state:**
+```typescript
+// Line 147-154 - Delay mount until drawer is visually ready
+const [isMobileReady, setIsMobileReady] = useState(false);
+
+useEffect(() => {
+  if (isMobile) {
+    const timer = setTimeout(() => setIsMobileReady(true), 50);
+    return () => clearTimeout(timer);
+  }
+}, [isMobile]);
+```
+
+### Testing Considerations
+
+**Manual Testing Required:**
+- iOS Safari - verify scroll lock works, keyboard adapts height
+- Android Chrome - verify Visual Viewport API integration
+- Swipe gesture - verify 100px threshold closes drawer
+- Keyboard Escape - verify closes drawer
+- Background scroll - verify locked when drawer open
+- Drag from header - verify header area also initiates swipe
+
+**Automated Testing:**
+Data-testid attributes for Playwright/E2E tests:
+- `data-testid="mobile-drawer"` (root element)
+- `data-testid="mobile-drawer-overlay"` (backdrop)
+- `data-testid="mobile-drawer-content"` (drawer container)
+- `data-testid="mobile-drawer-handle"` (drag handle)
+
+**Common Issues:**
+- Drawer content not scrollable → Ensure child has `flex-1 flex flex-col min-h-0 overflow-hidden`
+- Keyboard doesn't adapt height → Check Visual Viewport API support (iOS 13+)
+- Background scrolls on iOS → Verify scroll lock cleanup on unmount
+- Animation jank → Ensure double requestAnimationFrame for open transition
+
+### Migration Guide (Vaul → MobileDrawer)
+
+**Before (Vaul):**
+```tsx
+import { Drawer } from '@/components/ui/drawer';
+
+<Drawer.Root open={open} onOpenChange={setOpen}>
+  <Drawer.Portal>
+    <Drawer.Overlay />
+    <Drawer.Content>
+      <Drawer.Handle />
+      <Drawer.Title>Edit Element</Drawer.Title>
+      <Drawer.Description>Modify properties</Drawer.Description>
+      {children}
+    </Drawer.Content>
+  </Drawer.Portal>
+</Drawer.Root>
+```
+
+**After (MobileDrawer):**
+```tsx
+import { MobileDrawer } from '@/components/ui/mobile-drawer';
+
+<MobileDrawer
+  open={open}
+  onClose={() => setOpen(false)}
+  title="Edit Element"              // Screen reader only
+  description="Modify properties"    // Screen reader only
+>
+  {children}
+</MobileDrawer>
+```
+
+**Key differences:**
+- No nested components (Root/Portal/Content) - single component
+- `onClose` callback instead of `onOpenChange(false)`
+- Title/description are screen reader only (not visible)
+- Drag handle included automatically
+- No need for `data-vaul-no-drag` on scrollable content
+
+**Removed from package.json:**
+```diff
+- "vaul": "^0.9.0"
+```
+
+**Deleted files:**
+```
+src/react/admin/components/ui/drawer.tsx  (Vaul wrapper)
+```
+
+### Performance Considerations
+
+**Event Listener Cleanup:**
+All event listeners (Visual Viewport, keyboard, touch) properly cleaned up in useEffect returns to prevent memory leaks.
+
+**Conditional Rendering:**
+Drawer only renders when `isVisible` state is true, preventing unnecessary DOM nodes when closed.
+
+**Scroll Lock Efficiency:**
+Original `cssText` stored and restored wholesale to avoid multiple style recalculations.
+
+**Transition Optimization:**
+Transitions disabled during drag (`transition-none` class) for immediate feedback, then re-enabled for smooth snap-back or close animation.
+
+### Reference Implementation
+
+**Complete source:** `/home/rens/super-forms/src/react/admin/components/ui/mobile-drawer.tsx` (279 lines)
+
+**Key sections:**
+- Lines 1-22: TypeScript interface and JSDoc
+- Lines 24-32: Component documentation comment
+- Lines 47-62: Visual Viewport height calculation
+- Lines 64-85: Open/close transition logic (double RAF)
+- Lines 88-116: iOS-compatible body scroll lock
+- Lines 122-137: Visual Viewport API integration
+- Lines 140-179: Touch swipe-to-close handlers
+- Lines 189-200: Escape key handler
+- Lines 204-275: JSX rendering (portal, backdrop, drawer, handle)
+
+**Consumer files:**
+- `/src/react/admin/apps/form-builder-v2/components/property-panels/FloatingPanel.tsx` (primary usage)
+- `/src/react/admin/apps/form-builder-v2/components/ui/RightSidebar.tsx`
+- `/src/react/admin/apps/form-builder-v2/components/MobileMenu.tsx`
+
 ## UI Component Guidelines
 
 ### Icons - CRITICAL RULES

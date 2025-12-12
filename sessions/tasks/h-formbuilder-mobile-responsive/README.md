@@ -16,7 +16,7 @@ Make the FormBuilderV2 page fully responsive and mobile-friendly. Currently, the
 - [x] No horizontal overflow on mobile viewports (375px)
 - [x] TabBar scrolls horizontally on mobile
 - [x] RightSidebar displays as full-screen overlay on mobile
-- [x] FloatingPanel displays as full-screen on mobile (via Vaul drawer)
+- [x] FloatingPanel displays as full-screen on mobile (via custom MobileDrawer component)
 - [x] Primary actions (Save/Publish) accessible on mobile (via MobileActionBar)
 - [x] Touch targets are >= 44px
 
@@ -755,3 +755,23 @@ Native browser scroll with `overflow-y-auto`, `touch-pan-y`, and `overscroll-con
 - Further canvas adaptation for touch
 - Gather user feedback on mobile UX
 - Test on various physical devices
+
+---
+
+### Update (2025-12-12): Vaul Replaced with Custom MobileDrawer
+
+**Why the change:**
+The Vaul library was replaced with a custom MobileDrawer component to fix persistent scroll and keyboard issues:
+- Vaul's snap point system used `translateY` transforms that pushed content below viewport
+- Fields at bottom of drawer became unreachable
+- Visual Viewport API not integrated (keyboard open/close didn't adapt drawer height)
+
+**New implementation:**
+- Custom component at `/src/react/admin/components/ui/mobile-drawer.tsx`
+- Visual Viewport API for keyboard-aware height
+- iOS-compatible body scroll lock
+- Touch swipe-to-close gesture
+- Zero external dependencies (pure Tailwind CSS + React)
+- Vaul removed from package.json, `drawer.tsx` deleted
+
+See task `h-fix-floating-panel-drawer-scroll` and [docs/CLAUDE.javascript.md - Mobile Drawer](../../docs/CLAUDE.javascript.md#mobile-drawer) for details.

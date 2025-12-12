@@ -201,7 +201,7 @@ export const PropertyRenderer: React.FC<PropertyRendererProps> = ({
   };
 
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-1.5" data-field-wrapper>
       <Label className="text-sm font-medium">
         {schema.label}
         {schema.required && <span className="text-destructive ml-1">*</span>}

@@ -1,5 +1,4 @@
 import React from 'react';
-import { Drawer } from 'vaul';
 import {
   Menu,
   RotateCcw,
@@ -17,6 +16,7 @@ import {
 } from 'lucide-react';
 import { cn } from '../../../lib/utils';
 import { Button } from '../../../components/ui/button';
+import { MobileDrawer } from '../../../components/ui/mobile-drawer';
 
 interface MobileMenuProps {
   // History actions
@@ -45,7 +45,7 @@ interface MobileMenuProps {
 }
 
 /**
- * Mobile hamburger menu with Vaul drawer.
+ * Mobile hamburger menu with custom drawer.
  * Contains all toolbar actions hidden on mobile.
  */
 export function MobileMenu({
@@ -112,127 +112,126 @@ export function MobileMenu({
   );
 
   return (
-    <Drawer.Root open={open} onOpenChange={setOpen} modal={false} handleOnly={true}>
-      <Drawer.Trigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="sm:hidden relative z-[101]"
-          aria-label="Open menu"
-          data-testid="mobile-menu-trigger"
-        >
-          <Menu className="w-5 h-5" />
-        </Button>
-      </Drawer.Trigger>
-      <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0 bg-black/40 z-50" />
-        <Drawer.Content
-          className="fixed bottom-0 left-0 right-0 z-50 rounded-t-xl max-h-[85vh] flex flex-col bg-background"
-        >
-          <Drawer.Title className="sr-only">Menu</Drawer.Title>
-          <Drawer.Description className="sr-only">Form builder mobile navigation menu</Drawer.Description>
-          <Drawer.Handle className="mx-auto w-12 h-1.5 bg-muted rounded-full mt-4 mb-2 shrink-0" data-testid="mobile-menu-handle" />
+    <>
+      {/* Trigger button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className="sm:hidden relative z-[101]"
+        aria-label="Open menu"
+        onClick={() => setOpen(true)}
+        data-testid="mobile-menu-trigger"
+      >
+        <Menu className="w-5 h-5" />
+      </Button>
 
-          <div className="flex-1 overflow-y-auto pb-safe" data-testid="mobile-menu-content">
-            {/* History Section */}
-            <MenuSection title="History">
-              <MenuItem
-                icon={RotateCcw}
-                label="Undo"
-                onClick={onUndo}
-                disabled={!canUndo}
-                testId="mobile-menu-undo"
-              />
-              <MenuItem
-                icon={RefreshCw}
-                label="Redo"
-                onClick={onRedo}
-                disabled={!canRedo}
-                testId="mobile-menu-redo"
-              />
-            </MenuSection>
+      {/* Drawer */}
+      <MobileDrawer
+        open={open}
+        onClose={() => setOpen(false)}
+        title="Menu"
+        description="Form builder mobile navigation menu"
+        data-testid="mobile-menu-drawer"
+      >
+        <div className="flex-1 overflow-y-auto pb-safe" data-testid="mobile-menu-content">
+          {/* History Section */}
+          <MenuSection title="History">
+            <MenuItem
+              icon={RotateCcw}
+              label="Undo"
+              onClick={onUndo}
+              disabled={!canUndo}
+              testId="mobile-menu-undo"
+            />
+            <MenuItem
+              icon={RefreshCw}
+              label="Redo"
+              onClick={onRedo}
+              disabled={!canRedo}
+              testId="mobile-menu-redo"
+            />
+          </MenuSection>
 
-            {/* Canvas Section */}
-            <MenuSection title="Canvas">
-              <MenuItem
-                icon={Grid}
-                label="Toggle Grid"
-                onClick={onToggleGrid}
-                active={showGrid}
-                testId="mobile-menu-toggle-grid"
-              />
-              <MenuItem
-                icon={Layers}
-                label="Elements Panel"
-                onClick={onToggleElementsPanel}
-                active={showElementsPanel}
-                testId="mobile-menu-elements-panel"
-              />
-            </MenuSection>
+          {/* Canvas Section */}
+          <MenuSection title="Canvas">
+            <MenuItem
+              icon={Grid}
+              label="Toggle Grid"
+              onClick={onToggleGrid}
+              active={showGrid}
+              testId="mobile-menu-toggle-grid"
+            />
+            <MenuItem
+              icon={Layers}
+              label="Elements Panel"
+              onClick={onToggleElementsPanel}
+              active={showElementsPanel}
+              testId="mobile-menu-elements-panel"
+            />
+          </MenuSection>
 
-            {/* Device Preview Section */}
-            <MenuSection title="Device Preview">
-              <MenuItem
-                icon={Monitor}
-                label="Desktop"
-                onClick={() => onDeviceChange('desktop')}
-                active={devicePreview === 'desktop'}
-                testId="mobile-menu-device-desktop"
-              />
-              <MenuItem
-                icon={Tablet}
-                label="Tablet"
-                onClick={() => onDeviceChange('tablet')}
-                active={devicePreview === 'tablet'}
-                testId="mobile-menu-device-tablet"
-              />
-              <MenuItem
-                icon={Smartphone}
-                label="Mobile"
-                onClick={() => onDeviceChange('mobile')}
-                active={devicePreview === 'mobile'}
-                testId="mobile-menu-device-mobile"
-              />
-              <MenuItem
-                icon={Maximize}
-                label="Device Frame"
-                onClick={onToggleDeviceFrame}
-                active={showDeviceFrame}
-                testId="mobile-menu-device-frame"
-              />
-            </MenuSection>
+          {/* Device Preview Section */}
+          <MenuSection title="Device Preview">
+            <MenuItem
+              icon={Monitor}
+              label="Desktop"
+              onClick={() => onDeviceChange('desktop')}
+              active={devicePreview === 'desktop'}
+              testId="mobile-menu-device-desktop"
+            />
+            <MenuItem
+              icon={Tablet}
+              label="Tablet"
+              onClick={() => onDeviceChange('tablet')}
+              active={devicePreview === 'tablet'}
+              testId="mobile-menu-device-tablet"
+            />
+            <MenuItem
+              icon={Smartphone}
+              label="Mobile"
+              onClick={() => onDeviceChange('mobile')}
+              active={devicePreview === 'mobile'}
+              testId="mobile-menu-device-mobile"
+            />
+            <MenuItem
+              icon={Maximize}
+              label="Device Frame"
+              onClick={onToggleDeviceFrame}
+              active={showDeviceFrame}
+              testId="mobile-menu-device-frame"
+            />
+          </MenuSection>
 
-            {/* Tools Section */}
-            <MenuSection title="Tools">
-              <MenuItem
-                icon={History}
-                label="Version History"
-                onClick={onShowVersionHistory}
-                testId="mobile-menu-version-history"
-              />
-              <MenuItem
-                icon={Share}
-                label="Share & Collaborate"
-                onClick={onShowSharePanel}
-                testId="mobile-menu-share"
-              />
-              <MenuItem
-                icon={Download}
-                label="Export Form"
-                onClick={onShowExportPanel}
-                testId="mobile-menu-export"
-              />
-              <MenuItem
-                icon={BarChart}
-                label="Analytics"
-                onClick={onShowAnalytics}
-                testId="mobile-menu-analytics"
-              />
-            </MenuSection>
-          </div>
-        </Drawer.Content>
-      </Drawer.Portal>
-    </Drawer.Root>
+          {/* Tools Section */}
+          <MenuSection title="Tools">
+            <MenuItem
+              icon={History}
+              label="Version History"
+              onClick={onShowVersionHistory}
+              testId="mobile-menu-version-history"
+            />
+            <MenuItem
+              icon={Share}
+              label="Share & Collaborate"
+              onClick={onShowSharePanel}
+              testId="mobile-menu-share"
+            />
+            <MenuItem
+              icon={Download}
+              label="Export Form"
+              onClick={onShowExportPanel}
+              testId="mobile-menu-export"
+            />
+            <MenuItem
+              icon={BarChart}
+              label="Analytics"
+              onClick={onShowAnalytics}
+              testId="mobile-menu-analytics"
+            />
+          </MenuSection>
+        </div>
+      </MobileDrawer>
+    </>
   );
 }
 

@@ -450,7 +450,52 @@ npx shadcn@latest add button dialog input select
 | `ToggleGroup` | Single/multiple choice toggle buttons |
 | `Tooltip` | Contextual help popups |
 
-**Custom Components:** `Tag.tsx`, `TagInput.tsx`, `CustomButton.tsx`, `PositionPickerRenderer.tsx` - check `components/ui/` for the full list.
+**Custom Components:** `Tag.tsx`, `TagInput.tsx`, `CustomButton.tsx`, `PositionPickerRenderer.tsx`, `MobileDrawer.tsx` - check `components/ui/` for the full list.
+
+**Mobile Drawer Component:**
+
+Location: `/src/react/admin/components/ui/mobile-drawer.tsx`
+
+Custom mobile drawer component built with pure Tailwind CSS (replaced Vaul library in v6.6.0):
+
+```tsx
+import { MobileDrawer } from '@/components/ui/mobile-drawer';
+
+<MobileDrawer
+  open={isOpen}
+  onClose={() => setIsOpen(false)}
+  title="Edit Element"              // Accessible title (screen reader only)
+  description="Modify properties"    // Accessible description (optional)
+  height={500}                       // Fixed height in px (optional)
+  data-testid="my-drawer"
+>
+  {/* Content */}
+</MobileDrawer>
+```
+
+Features:
+- **Visual Viewport API** - Drawer height adapts when mobile keyboard opens/closes (iOS 13+, Chrome 62+)
+- **Body scroll lock** - iOS-compatible technique prevents background scrolling
+- **Swipe-to-close** - Touch gesture from drag handle (swipe down >100px to close)
+- **CSS transitions** - Smooth slide-up animation (300ms duration)
+- **Portal rendering** - Renders to `document.body` for proper stacking
+- **Accessibility** - ARIA `role="dialog"`, Escape key support, screen reader announcements
+- **Auto height** - If `height` prop not provided, defaults to 70% of viewport height
+- **No dependencies** - Pure Tailwind CSS, no external libraries
+
+Technical details:
+- Double `requestAnimationFrame` ensures CSS transitions trigger correctly
+- Stores original scroll position and restores on close
+- Disables smooth scroll behavior on `<html>` to prevent interference
+- Drag handle area marked with `data-drawer-handle` for touch target
+- Header area marked with `data-drawer-header` for swipe initiation
+- Backdrop click closes drawer (click-away behavior)
+
+Why we replaced Vaul:
+- Vaul's snap point system used `translateY` transforms that conflicted with scrollable content
+- Snap points caused fields to render below viewport (unreachable)
+- Keyboard open/close didn't adapt drawer height properly
+- Custom solution provides better control and zero dependencies
 
 **Position Picker Component:**
 

@@ -52,7 +52,7 @@ The panel uses shadcn/ui's Tabs component with a configuration array (`TAB_CONFI
 4. **CodeTab** (`tabs/CodeTab.tsx`): Developer-focused settings split into CollapsibleSection groups: Identity (custom ID, CSS classes), Attributes (data-* and aria-* attributes), Custom CSS (with scoped .this selector), Events (placeholder), and Developer Info (JSON dump of element).
 
 **Mobile vs Desktop Rendering:**
-The panel has two render paths. On mobile (detected via `useIsMobile()` hook), it renders as a Vaul drawer from the bottom of the screen with a drag handle. The drawer height is calculated dynamically to position below the selected element after scrolling it into view (lines 212-246). On desktop, it's a positioned floating panel (lines 392-417) that appears near the clicked element and is clamped to viewport bounds.
+The panel has two render paths. On mobile (detected via `useIsMobile()` hook), it renders as a custom MobileDrawer component from the bottom of the screen with a drag handle. The drawer height is automatically calculated using Visual Viewport API to adapt when the mobile keyboard opens/closes. On desktop, it's a positioned floating panel that appears near the clicked element and is clamped to viewport bounds.
 
 **State Management:**
 The panel uses local React state for UI concerns (active tab, drawer height, mobile readiness) and subscribes to the elements store for element data. The `useElementsStore` subscription is scoped to just the element being edited (line 172: `s => s.items[elementId]`), preventing unnecessary re-renders when other elements change. Style overrides are managed via dedicated store actions: `setStyleOverride`, `removeStyleOverride`, `clearNodeStyleOverrides`, `clearAllStyleOverrides` (lines 175-205).

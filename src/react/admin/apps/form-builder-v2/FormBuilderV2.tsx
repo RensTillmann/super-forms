@@ -24,6 +24,7 @@ import {
   DragOverEvent,
   DragStartEvent,
   PointerSensor,
+  TouchSensor,
   KeyboardSensor,
   useSensor,
   useSensors,
@@ -1199,14 +1200,17 @@ const FloatingElementsPanel: React.FC<{
     useSensor(PointerSensor, {
       activationConstraint: { distance: 5 },
     }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 250, tolerance: 5 },
+    }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
     })
   );
 
-  // Panel window drag (not element drag)
+  // Panel window drag (not element drag) - supports both mouse and touch
   const handleMouseDown = (e: React.MouseEvent) => {
-    if ((e.target as HTMLElement).closest('.floating-panel-header')) {
+    if ((e.target as HTMLElement).closest('[data-drag-handle]')) {
       setIsDraggingPanel(true);
       const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
       setDragOffset({
@@ -1215,6 +1219,32 @@ const FloatingElementsPanel: React.FC<{
       });
     }
   };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if ((e.target as HTMLElement).closest('[data-drag-handle]')) {
+      setIsDraggingPanel(true);
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      const touch = e.touches[0];
+      setDragOffset({
+        x: touch.clientX - rect.left,
+        y: touch.clientY - rect.top
+      });
+    }
+  };
+
+  const handleTouchMove = useCallback((e: TouchEvent) => {
+    if (isDraggingPanel) {
+      const touch = e.touches[0];
+      onPositionChange({
+        x: touch.clientX - dragOffset.x,
+        y: touch.clientY - dragOffset.y
+      });
+    }
+  }, [isDraggingPanel, dragOffset, onPositionChange]);
+
+  const handleTouchEnd = useCallback(() => {
+    setIsDraggingPanel(false);
+  }, []);
 
   const handleMouseMove = useCallback((e: MouseEvent) => {
     if (isDraggingPanel) {
@@ -1233,12 +1263,16 @@ const FloatingElementsPanel: React.FC<{
     if (isDraggingPanel) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('touchmove', handleTouchMove);
+      document.addEventListener('touchend', handleTouchEnd);
       return () => {
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('touchend', handleTouchEnd);
       };
     }
-  }, [isDraggingPanel, handleMouseMove, handleMouseUp]);
+  }, [isDraggingPanel, handleMouseMove, handleMouseUp, handleTouchMove, handleTouchEnd]);
 
   // @dnd-kit drag end handler for element reordering
   const handlePanelDragEnd = (event: DragEndEvent) => {
@@ -1276,34 +1310,65 @@ const FloatingElementsPanel: React.FC<{
     console.log('Context menu for element:', elementId);
   };
 
+  const handleMoveUp = (elementId: string) => {
+    const currentIndex = order.indexOf(elementId);
+    if (currentIndex > 0) {
+      const newOrder = [...order];
+      [newOrder[currentIndex - 1], newOrder[currentIndex]] = [newOrder[currentIndex], newOrder[currentIndex - 1]];
+      reorderElements(newOrder);
+    }
+  };
+
+  const handleMoveDown = (elementId: string) => {
+    const currentIndex = order.indexOf(elementId);
+    if (currentIndex < order.length - 1) {
+      const newOrder = [...order];
+      [newOrder[currentIndex], newOrder[currentIndex + 1]] = [newOrder[currentIndex + 1], newOrder[currentIndex]];
+      reorderElements(newOrder);
+    }
+  };
+
   if (!isVisible) return null;
 
   return (
     <div
-      className={`floating-elements-panel ${isCollapsed ? 'floating-panel-collapsed' : ''}`}
+      className={cn(
+        'fixed w-72 bg-background border border-border rounded-lg shadow-lg z-[500] select-none',
+        isCollapsed && 'w-auto'
+      )}
       style={{
         left: position.x,
         top: position.y,
         cursor: isDraggingPanel ? 'grabbing' : 'default'
       }}
       onMouseDown={handleMouseDown}
+      onTouchStart={handleTouchStart}
       data-testid="floating-elements-panel"
     >
-      <div className="floating-panel-header">
-        <div className="floating-panel-title">
-          <Layers size={16} />
+      {/* Drag bar */}
+      <div
+        className="flex justify-center py-1.5 cursor-grab active:cursor-grabbing touch-none rounded-t-lg"
+        data-drag-handle
+      >
+        <div className="w-10 h-1 bg-muted-foreground/30 rounded-full" />
+      </div>
+
+      {/* Header */}
+      <div className="flex items-center justify-between px-3 pb-2 border-b border-border">
+        <div className="flex items-center gap-2 text-sm font-medium text-foreground">
+          <Layers size={16} className="text-muted-foreground" />
           <span>Elements ({orderedElements.length})</span>
         </div>
-        <div className="floating-panel-controls">
+        <div className="flex items-center gap-0.5">
           <button
-            className="floating-panel-btn"
+            className="flex items-center justify-center w-6 h-6 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
             onClick={() => onCollapse(!isCollapsed)}
             title={isCollapsed ? 'Expand' : 'Collapse'}
           >
             {isCollapsed ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
           </button>
           <button
-            className="floating-panel-btn"
+            className="flex items-center justify-center w-6 h-6 rounded text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
             onClick={onClose}
             title="Close"
           >
@@ -1312,12 +1377,13 @@ const FloatingElementsPanel: React.FC<{
         </div>
       </div>
 
+      {/* Content */}
       {!isCollapsed && (
-        <div className="floating-panel-content">
+        <div className="max-h-96 overflow-y-auto p-2">
           {orderedElements.length === 0 ? (
-            <div className="floating-panel-empty">
-              <Layers size={24} className="opacity-50" />
-              <p className="text-xs text-gray-500">No elements yet</p>
+            <div className="flex flex-col items-center justify-center py-8 text-center">
+              <Layers size={24} className="text-muted-foreground/50 mb-2" />
+              <p className="text-xs text-muted-foreground">No elements yet</p>
             </div>
           ) : (
             <DndContext
@@ -1326,8 +1392,8 @@ const FloatingElementsPanel: React.FC<{
               onDragEnd={handlePanelDragEnd}
             >
               <SortableContext items={order} strategy={verticalListSortingStrategy}>
-                <div className="floating-elements-list">
-                  {orderedElements.map((element) => (
+                <div className="flex flex-col gap-0.5">
+                  {orderedElements.map((element, index) => (
                     <SortablePanelItem
                       key={element.id}
                       element={element}
@@ -1335,7 +1401,11 @@ const FloatingElementsPanel: React.FC<{
                       onClick={() => onElementClick(element.id)}
                       onDuplicate={handleDuplicateElement}
                       onDelete={handleDeleteElement}
+                      onMoveUp={handleMoveUp}
+                      onMoveDown={handleMoveDown}
                       onContextMenu={handleContextMenu}
+                      isFirst={index === 0}
+                      isLast={index === orderedElements.length - 1}
                     />
                   ))}
                 </div>
@@ -1387,6 +1457,9 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
   
   // Canvas bottom padding state for footer height
   const [canvasBottomPadding, setCanvasBottomPadding] = useState(250);
+
+  // Visual viewport offset for keyboard compensation on mobile
+  const [viewportOffset, setViewportOffset] = useState(0);
   
   // Horizontal scroll state for scroll chevrons
   const [trayScrollLeft, setTrayScrollLeft] = useState(0);
@@ -1450,7 +1523,6 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
       setIsTrayCollapsed(true);
     }
   }, [isMobile]);
-
 
   // Canvas width state
   const [customCanvasWidth, setCustomCanvasWidth] = useState<string>('');
@@ -1543,11 +1615,17 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
   // Multi-select state (for selecting multiple elements at once)
   const [multiSelectElements, setMultiSelectElements] = useState<string[]>([]);
 
-  // @dnd-kit: Sensors for pointer and keyboard drag
+  // @dnd-kit: Sensors for pointer, touch, and keyboard drag
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 8, // Prevents accidental drags on click
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250, // Touch-hold delay before drag starts
+        tolerance: 5, // Movement tolerance during delay
       },
     }),
     useSensor(KeyboardSensor, {
@@ -1568,7 +1646,7 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
   const [floatingPanel, setFloatingPanel] = useState<{ elementId: string | null; position: { x: number; y: number } } | null>(null);
   const [selectedTextInfo, setSelectedTextInfo] = useState<{ text: string; position: { x: number; y: number } } | null>(null);
 
-  // Mobile editing state - true when editing element on mobile (hides TopBar/TabBar)
+  // Mobile editing state - kept for potential future use but no longer hides bars
   const isEditingElement = isMobile && floatingPanel !== null && floatingPanel.elementId !== null;
 
   // Auto-close floating panel if element is deleted
@@ -1577,6 +1655,56 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
       setFloatingPanel(null);
     }
   }, [floatingPanel?.elementId, items]);
+
+  // Ref to store canvas initial top position (measured when drawer opens, before keyboard)
+  const initialCanvasTopRef = useRef(0);
+
+  // Visual viewport offset compensation for mobile keyboard
+  // When keyboard opens, browser shifts viewport down (offsetTop increases)
+  // We compensate by translating the canvas down by the same amount
+  useEffect(() => {
+    if (!isMobile || !floatingPanel) {
+      setViewportOffset(0);
+      initialCanvasTopRef.current = 0;
+      return;
+    }
+
+    const vv = window.visualViewport;
+    if (!vv) return;
+
+    // Capture initial canvas position when drawer opens (before keyboard)
+    const canvasContainer = document.querySelector('[data-testid="canvas-container"]');
+    if (canvasContainer && initialCanvasTopRef.current === 0) {
+      initialCanvasTopRef.current = canvasContainer.getBoundingClientRect().top;
+    }
+
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const handleViewportChange = () => {
+      // Debounce to let keyboard + accessory bar fully render before applying offset
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        const offset = vv.offsetTop || 0;
+        // Subtract the canvas's initial distance from viewport top
+        const adjustedOffset = Math.max(0, offset - initialCanvasTopRef.current);
+        console.log('[Viewport] offsetTop:', offset, 'initialTop:', initialCanvasTopRef.current, 'adjusted:', adjustedOffset);
+        setViewportOffset(adjustedOffset);
+      }, 150);
+    };
+
+    // Initial check
+    handleViewportChange();
+
+    vv.addEventListener('resize', handleViewportChange);
+    vv.addEventListener('scroll', handleViewportChange);
+
+    return () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      vv.removeEventListener('resize', handleViewportChange);
+      vv.removeEventListener('scroll', handleViewportChange);
+      setViewportOffset(0);
+    };
+  }, [isMobile, floatingPanel]);
 
   // Panel states
   const [showVersionHistory, setShowVersionHistory] = useState(false);
@@ -3084,7 +3212,7 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
           onPublish={() => {}}
           isSaving={autoSaveStatus === 'saving'}
           isMobile={isMobile}
-          isEditingElement={isEditingElement}
+          isEditingElement={false}
         />
 
         {/* Horizontal Tabs Bar - Schema Driven */}
@@ -3093,7 +3221,7 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
           onTabChange={setActiveTab}
           activeSidebar={activeSidebar}
           onSidebarChange={setActiveSidebar}
-          isEditingElement={isEditingElement}
+          isEditingElement={false}
         />
 
         {/* Main Content Area */}
@@ -3195,7 +3323,12 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
           {activeTab === 'canvas' && (
           <div
             className="flex-1 flex flex-col overflow-auto bg-muted/30 p-4"
-            style={{ paddingBottom: `${canvasBottomPadding}px` }}
+            style={{
+              paddingBottom: `${canvasBottomPadding}px`,
+              // Compensate for mobile keyboard viewport shift
+              transform: viewportOffset > 0 ? `translateY(${viewportOffset}px)` : undefined,
+            }}
+            data-testid="canvas-container"
           >
             {/* Canvas Zoom Wrapper */}
             <div

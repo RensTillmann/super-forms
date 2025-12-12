@@ -184,6 +184,20 @@ Form Builder V2 uses @dnd-kit for all drag-and-drop operations (migrated from na
 - **Features:** Touch device support, keyboard navigation (Space to grab, arrows to move), nested container drops
 - See [docs/CLAUDE.javascript.md - Drag-and-Drop System](docs/CLAUDE.javascript.md#drag-and-drop-system-dnd-kit) for implementation details
 
+**Mobile Drawer System:**
+Form Builder V2 uses custom MobileDrawer component (replaced Vaul library in v6.6.0):
+- **Location:** `/src/react/admin/components/ui/mobile-drawer.tsx`
+- **Features:**
+  - Visual Viewport API for keyboard-aware height (adapts when mobile keyboard opens)
+  - iOS-compatible body scroll lock (prevents background scrolling)
+  - Touch swipe-to-close gesture (drag handle at top)
+  - CSS transitions for smooth animations (no external dependencies)
+  - Portal rendering to document.body
+  - Accessibility: ARIA labels, Escape key support, screen reader announcements
+- **Usage:** FloatingPanel, RightSidebar, MobileMenu render as MobileDrawer on mobile breakpoints
+- **Migration Note:** Replaced Vaul to fix snap point scroll issues and eliminate external dependency
+- See [docs/CLAUDE.javascript.md - Mobile Drawer](docs/CLAUDE.javascript.md#mobile-drawer) for implementation details
+
 **REST API Integration Pattern:**
 - Use `wp.apiFetch()` for all admin page operations
 - Enqueue scripts with `array('wp-api-fetch')` dependency

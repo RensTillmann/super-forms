@@ -1,5 +1,4 @@
-import React, { useRef, useEffect, useMemo, useCallback, useState } from 'react';
-import { Drawer } from 'vaul';
+import React, { useRef, useEffect, useMemo, useState } from 'react';
 import { X, Trash2, FileText, Palette, Settings2, Code2, LayoutTemplate, Sparkles } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../../../components/ui/tabs';
 import { ContentTab, StyleTab, BehaviorTab, CodeTab, TemplatesTab, AITab } from './tabs';
@@ -10,6 +9,7 @@ import { useIsMobile } from '../../../../hooks/useMediaQuery';
 import { cn } from '../../../../lib/utils';
 import { Button } from '../../../../components/ui/button';
 import { ScrollArea } from '../../../../components/ui/scroll-area';
+import { MobileDrawer } from '../../../../components/ui/mobile-drawer';
 
 interface FloatingPanelProps {
   /** The element ID to edit - component subscribes to store for fresh data */
@@ -46,6 +46,7 @@ interface PanelHeaderProps {
   IconComponent?: React.ComponentType<{ size?: number }>;
   onDelete: () => void;
   onClose: () => void;
+  isMobile?: boolean;
 }
 
 const PanelHeader = React.memo<PanelHeaderProps>(({
@@ -55,42 +56,57 @@ const PanelHeader = React.memo<PanelHeaderProps>(({
   IconComponent,
   onDelete,
   onClose,
+  isMobile = false,
 }) => (
-  <div ref={headerRef} className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50 shrink-0" data-testid="floating-panel-header">
-    <div className="flex items-center gap-2">
-      {IconComponent && <IconComponent size={18} />}
-      <h3 className="text-sm font-semibold text-gray-900">
-        {displayName}
-      </h3>
-      {hasSchema && (
-        <span className="px-1.5 py-0.5 text-[10px] font-medium text-blue-600 bg-blue-50 rounded">
-          Schema
-        </span>
-      )}
-    </div>
-    <div className="flex items-center gap-1">
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={onDelete}
-        className="text-gray-400 hover:text-red-500 hover:bg-red-50"
-        title="Delete element"
-        aria-label="Delete element"
-        data-testid="floating-panel-delete"
-      >
-        <Trash2 size={16} />
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={onClose}
-        className="text-gray-400 hover:text-gray-600 hover:bg-gray-100"
-        title="Close panel"
-        aria-label="Close panel"
-        data-testid="floating-panel-close"
-      >
-        <X size={16} />
-      </Button>
+  <div
+    ref={headerRef}
+    className={cn("bg-muted/50 border-b border-border shrink-0", !isMobile && "pt-1.5")}
+    data-testid="floating-panel-header"
+    data-drawer-header
+  >
+    {/* Drag bar - only show on desktop (mobile drawer has its own handle) */}
+    {!isMobile && (
+      <div className="flex justify-center pb-1">
+        <div className="w-10 h-1 bg-muted-foreground/30 rounded-full" />
+      </div>
+    )}
+    {/* Title row with icons */}
+    <div className={cn("flex items-center justify-between px-3", isMobile ? "py-2" : "pb-2")}>
+      <div className="flex items-center gap-2 min-w-0">
+        {IconComponent && <IconComponent size={16} />}
+        <h3 className="text-sm font-medium text-foreground truncate">
+          {displayName}
+        </h3>
+        {hasSchema && (
+          <span className="px-1.5 py-0.5 text-[10px] font-medium text-primary bg-primary/10 rounded shrink-0">
+            Schema
+          </span>
+        )}
+      </div>
+      <div className="flex items-center gap-0.5 shrink-0">
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onDelete}
+          className="h-7 w-7 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+          title="Delete element"
+          aria-label="Delete element"
+          data-testid="floating-panel-delete"
+        >
+          <Trash2 size={14} />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={onClose}
+          className="h-7 w-7 text-muted-foreground hover:text-foreground hover:bg-muted"
+          title="Close panel"
+          aria-label="Close panel"
+          data-testid="floating-panel-close"
+        >
+          <X size={14} />
+        </Button>
+      </div>
     </div>
   </div>
 ));
@@ -101,18 +117,18 @@ interface TabNavigationProps {
 }
 
 const TabNavigation = React.memo<TabNavigationProps>(({ navRef }) => (
-  <div ref={navRef} className="border-b border-gray-200 shrink-0" data-testid="floating-panel-nav">
+  <div ref={navRef} className="border-b border-border shrink-0" data-testid="floating-panel-nav">
     <TabsList className="w-full h-auto p-0 bg-transparent rounded-none justify-start overflow-x-auto scrollbar-hide">
       {TAB_CONFIG.map(({ id, label, icon: Icon }) => (
         <TabsTrigger
           key={id}
           value={id}
           className={cn(
-            "flex-1 sm:flex-none px-3 py-2.5 text-xs font-medium rounded-none border-b-2 gap-1.5",
+            "flex-1 sm:flex-none px-3 py-2 text-xs font-medium rounded-none border-b-2 gap-1.5",
             "data-[state=active]:border-primary data-[state=active]:text-primary data-[state=active]:bg-transparent",
-            "data-[state=inactive]:border-transparent data-[state=inactive]:text-gray-500",
-            "hover:text-gray-700 hover:bg-gray-50 transition-colors",
-            "min-h-[44px]" // Touch-friendly
+            "data-[state=inactive]:border-transparent data-[state=inactive]:text-muted-foreground",
+            "hover:text-foreground hover:bg-muted/50 transition-colors",
+            "min-h-[40px]"
           )}
           data-testid={`floating-panel-tab-${id}`}
         >
@@ -133,11 +149,12 @@ interface TabContentPanelsProps {
 
 const TabContentPanels = React.memo<TabContentPanelsProps>(({ isMobile, contentRef, children }) => (
   isMobile ? (
+    // Mobile: flex-1 to fill remaining drawer space, scroll internally
+    // Disable focus transitions on inputs to prevent layout shifts
     <div
       ref={contentRef}
-      className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y"
+      className="flex-1 min-h-0 overflow-y-auto overscroll-contain [&_input]:transition-none [&_textarea]:transition-none [&_select]:transition-none [&_button]:transition-none"
       data-testid="floating-panel-content"
-      data-vaul-no-drag
     >
       {children}
     </div>
@@ -152,8 +169,8 @@ TabContentPanels.displayName = 'TabContentPanels';
 // ============================================================================
 
 /**
- * Floating property panel with 4-tab structure.
- * Content | Style | Behavior | Code
+ * Floating property panel with 6-tab structure.
+ * Content | Style | Behavior | Code | Templates | AI
  */
 export const FloatingPanel: React.FC<FloatingPanelProps> = ({
   elementId,
@@ -163,7 +180,6 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
   onDelete,
 }) => {
   const panelRef = useRef<HTMLDivElement>(null);
-  const handleRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
   const navRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -183,75 +199,27 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
   const hasSchema = useMemo(() => element ? isElementRegistered(element.type) : false, [element?.type]);
   const schema = useMemo(() => (hasSchema && element) ? getElementSchema(element.type) : null, [element?.type, hasSchema]);
 
-  // Style override handlers (use elementId directly since it's always defined)
-  const handleStyleOverrideChange = useCallback(
-    (nodeType: string, property: string, value: unknown) => {
-      if (value === undefined) {
-        removeStyleOverride(elementId, nodeType as NodeType, property as keyof StyleProperties);
-      } else {
-        setStyleOverride(elementId, nodeType as NodeType, property as keyof StyleProperties, value as StyleProperties[keyof StyleProperties]);
-      }
-    },
-    [elementId, setStyleOverride, removeStyleOverride]
-  );
-
-  const handleResetToGlobal = useCallback(
-    (nodeType?: string) => {
-      if (nodeType) {
-        clearNodeStyleOverrides(elementId, nodeType as NodeType);
-      } else {
-        clearAllStyleOverrides(elementId);
-      }
-    },
-    [elementId, clearNodeStyleOverrides, clearAllStyleOverrides]
-  );
-
-  // Mobile: drawer height in pixels (not percentage)
-  const [drawerHeight, setDrawerHeight] = useState<number>(400);
-  const [isReady, setIsReady] = useState(false);
-
-  // Mobile: scroll element into view and calculate drawer height to position below element
-  useEffect(() => {
-    if (!isMobile) return;
-
-    const domElement = document.querySelector(`[data-element-id="${elementId}"]`) as HTMLElement;
-    if (!domElement) {
-      // Default height when element not found
-      setDrawerHeight(Math.round(window.innerHeight * 0.6));
-      setIsReady(true);
-      return;
+  // Style override handlers
+  const handleStyleOverrideChange = (nodeType: string, property: string, value: unknown) => {
+    if (value === undefined) {
+      removeStyleOverride(elementId, nodeType as NodeType, property as keyof StyleProperties);
+    } else {
+      setStyleOverride(elementId, nodeType as NodeType, property as keyof StyleProperties, value as StyleProperties[keyof StyleProperties]);
     }
+  };
 
-    // Scroll element to top of viewport so it's visible above the drawer
-    domElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const handleResetToGlobal = (nodeType?: string) => {
+    if (nodeType) {
+      clearNodeStyleOverrides(elementId, nodeType as NodeType);
+    } else {
+      clearAllStyleOverrides(elementId);
+    }
+  };
 
-    const calculateHeight = () => {
-      const rect = domElement.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
-      const minDrawerHeight = 300; // Minimum drawer height for usability
-      const maxDrawerHeight = Math.round(viewportHeight * 0.9); // Max 90% of viewport
-      const padding = 16; // Small gap between element and drawer
-
-      // Calculate space from element bottom to viewport bottom
-      const availableSpace = viewportHeight - rect.bottom - padding;
-
-      // Clamp between min and max
-      const finalHeight = Math.max(minDrawerHeight, Math.min(maxDrawerHeight, availableSpace));
-
-      setDrawerHeight(finalHeight);
-      setIsReady(true);
-    };
-
-    // Wait for scroll to complete before calculating
-    const timeoutId = setTimeout(calculateHeight, 350);
-    return () => clearTimeout(timeoutId);
-  }, [isMobile, elementId]);
-
-  // Note: Removed tab-change recalculation - drawer height stays fixed based on element position
-  // This prevents jarring resize when switching tabs
-
-  // Close on click outside
+  // Close on click outside (desktop only)
   useEffect(() => {
+    if (isMobile) return;
+
     const handleClickOutside = (event: MouseEvent) => {
       if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
         onClose();
@@ -266,10 +234,12 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
       clearTimeout(timeoutId);
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [onClose]);
+  }, [onClose, isMobile]);
 
-  // Close on Escape
+  // Close on Escape (desktop only - MobileDrawer handles its own)
   useEffect(() => {
+    if (isMobile) return;
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         onClose();
@@ -278,9 +248,9 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
 
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+  }, [onClose, isMobile]);
 
-  // Calculate clamped position to keep panel in viewport
+  // Calculate clamped position to keep panel in viewport (desktop)
   const clampedPosition = useMemo(() => {
     const panelWidth = 480;
     const panelMaxHeight = 600;
@@ -299,7 +269,6 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
   }, [position]);
 
   // Early return if element doesn't exist (was deleted)
-  // Must be after all hooks to satisfy React rules
   if (!element) {
     return null;
   }
@@ -357,50 +326,32 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
     </div>
   );
 
-  // Mobile: Vaul drawer from bottom - simple height-based (no snap points)
+  // Mobile: Custom MobileDrawer (replaces Vaul)
   if (isMobile) {
-    if (!isReady) {
-      return null;
-    }
-
     return (
-      <Drawer.Root
+      <MobileDrawer
         open={true}
-        onOpenChange={(open) => !open && onClose()}
-        modal={true}
-        handleOnly={true}
+        onClose={onClose}
+        title={`${displayName} Properties`}
+        description={`Edit properties and styles for ${displayName}`}
+        data-testid="floating-panel-drawer"
       >
-        <Drawer.Portal>
-          <Drawer.Overlay className="fixed inset-0 bg-black/40 z-50" data-testid="floating-panel-overlay" />
-          <Drawer.Content
-            className="fixed bottom-0 left-0 right-0 z-50 bg-white rounded-t-xl flex flex-col"
-            style={{ height: `${drawerHeight}px`, maxHeight: '90vh' }}
-            data-testid="floating-panel-drawer"
-          >
-            <Drawer.Handle
-              ref={handleRef}
-              className="mx-auto w-12 h-1.5 bg-gray-300 rounded-full mt-3 mb-2 shrink-0"
-              data-testid="floating-panel-handle"
-            />
-            <Drawer.Title className="sr-only">{displayName} Properties</Drawer.Title>
-            <Drawer.Description className="sr-only">Edit properties and styles for {displayName}</Drawer.Description>
-            <PanelHeader
-              headerRef={headerRef}
-              displayName={displayName}
-              hasSchema={hasSchema}
-              IconComponent={IconComponent}
-              onDelete={onDelete}
-              onClose={onClose}
-            />
-            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as PanelTab)} className="flex flex-col flex-1 min-h-0">
-              <TabNavigation navRef={navRef} />
-              <TabContentPanels isMobile={isMobile} contentRef={contentRef}>
-                {tabContent}
-              </TabContentPanels>
-            </Tabs>
-          </Drawer.Content>
-        </Drawer.Portal>
-      </Drawer.Root>
+        <PanelHeader
+          headerRef={headerRef}
+          displayName={displayName}
+          hasSchema={hasSchema}
+          IconComponent={IconComponent}
+          onDelete={onDelete}
+          onClose={onClose}
+          isMobile={true}
+        />
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as PanelTab)} className="flex flex-col flex-1 min-h-0">
+          <TabNavigation navRef={navRef} />
+          <TabContentPanels isMobile={isMobile} contentRef={contentRef}>
+            {tabContent}
+          </TabContentPanels>
+        </Tabs>
+      </MobileDrawer>
     );
   }
 
@@ -408,7 +359,7 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
   return (
     <div
       ref={panelRef}
-      className="fixed z-50 w-[480px] max-w-[calc(100vw-32px)] bg-white border border-gray-200 rounded-lg shadow-xl flex flex-col max-h-[600px]"
+      className="fixed z-50 w-[480px] max-w-[calc(100vw-32px)] bg-background border border-border rounded-lg shadow-xl flex flex-col max-h-[600px]"
       style={{
         left: clampedPosition.left,
         top: clampedPosition.top,
