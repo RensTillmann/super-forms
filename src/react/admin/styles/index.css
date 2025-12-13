@@ -2,13 +2,14 @@
    SFUI Admin - Main Stylesheet
    Root-level CSS for all React-powered admin UI
 
-   IMPORTANT: CSS is scoped to #sfui-admin-root to prevent Tailwind's preflight
-   from breaking WordPress admin UI (sidebar, top bar, notices).
+   Note: Form Builder V2 owns the entire page (body becomes #sfui-admin-root),
+   so we can safely use Tailwind's full preflight without WordPress conflicts.
    ========================================================================== */
 
-/* Tailwind v4 - theme and utilities only (no global preflight reset) */
-@import "tailwindcss/theme";
-@import "tailwindcss/utilities";
+/* Tailwind v4 - full setup with preflight */
+@import "tailwindcss/theme" layer(theme);
+@import "tailwindcss/preflight" layer(base);
+@import "tailwindcss/utilities" layer(utilities);
 
 /* Makes hover work consistently on all devices */
 @custom-variant hover (&:hover);
@@ -220,8 +221,8 @@
 }
 
 /* ==========================================================================
-   Scoped Tailwind Preflight for SFUI Admin
-   Using @layer base ensures utilities always override these resets
+   Custom Base Styles
+   Using @layer base to allow utilities to override
    ========================================================================== */
 
 @layer base {
@@ -233,84 +234,6 @@
     color: var(--foreground);
     background-color: var(--background);
     line-height: 1.5;
-  }
-
-  /* Scoped preflight resets (Tailwind preflight equivalent) */
-  #sfui-admin-root *,
-  #sfui-admin-root *::before,
-  #sfui-admin-root *::after {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    border: 0 solid var(--border);
-  }
-
-  /* Image and media reset */
-  #sfui-admin-root img,
-  #sfui-admin-root svg,
-  #sfui-admin-root video,
-  #sfui-admin-root canvas,
-  #sfui-admin-root audio,
-  #sfui-admin-root iframe,
-  #sfui-admin-root embed,
-  #sfui-admin-root object {
-    display: block;
-    vertical-align: middle;
-  }
-
-  #sfui-admin-root img,
-  #sfui-admin-root video {
-    max-width: 100%;
-    height: auto;
-  }
-
-  /* Form element reset */
-  #sfui-admin-root button,
-  #sfui-admin-root input,
-  #sfui-admin-root select,
-  #sfui-admin-root textarea {
-    font-family: inherit;
-    font-size: 100%;
-    line-height: inherit;
-    color: inherit;
-  }
-
-  /* Button reset */
-  #sfui-admin-root button,
-  #sfui-admin-root [role="button"] {
-    cursor: pointer;
-    background-color: transparent;
-    border: 0;
-    padding: 0;
-  }
-
-  /* Link reset */
-  #sfui-admin-root a {
-    color: inherit;
-    text-decoration: inherit;
-  }
-
-  /* List reset */
-  #sfui-admin-root ol,
-  #sfui-admin-root ul {
-    list-style: none;
-  }
-
-  /* Table reset */
-  #sfui-admin-root table {
-    border-collapse: collapse;
-    border-spacing: 0;
-  }
-
-  /* Heading reset */
-  #sfui-admin-root h1,
-  #sfui-admin-root h2,
-  #sfui-admin-root h3,
-  #sfui-admin-root h4,
-  #sfui-admin-root h5,
-  #sfui-admin-root h6 {
-    font-size: inherit;
-    font-weight: inherit;
   }
 }
 

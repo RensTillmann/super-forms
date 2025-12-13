@@ -1,7 +1,15 @@
 import React from 'react';
-import { Info, Copy, X, Eye, EyeOff } from 'lucide-react';
+import { Info, Copy, X, Eye } from 'lucide-react';
 import type { ResolvedStyles } from '../../../../../lib/styleUtils';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../../../../components/ui/tooltip';
+import { Input } from '../../../../../components/ui/input';
+import {
+  InputGroup,
+  InputGroupInput,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupText,
+} from '../../../../../components/ui/input-group';
 import { cn } from '../../../../../lib/utils';
 
 type PositionValue = 'top-left' | 'top-center' | 'top-right' | 'left' | 'center' | 'right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
@@ -35,6 +43,31 @@ interface TextInputProps {
   };
   styles: ResolvedStyles;
 }
+
+// Style splitting utilities to prevent double borders
+const getWrapperStyles = (inputStyles: React.CSSProperties): React.CSSProperties => {
+  return {
+    borderWidth: inputStyles.borderWidth,
+    borderStyle: inputStyles.borderStyle,
+    borderColor: inputStyles.borderColor,
+    borderRadius: inputStyles.borderRadius,
+    backgroundColor: inputStyles.backgroundColor,
+  };
+};
+
+const getInputOnlyStyles = (inputStyles: React.CSSProperties): React.CSSProperties => {
+  return {
+    fontSize: inputStyles.fontSize,
+    fontFamily: inputStyles.fontFamily,
+    fontWeight: inputStyles.fontWeight,
+    fontStyle: inputStyles.fontStyle,
+    textAlign: inputStyles.textAlign,
+    lineHeight: inputStyles.lineHeight,
+    letterSpacing: inputStyles.letterSpacing,
+    color: inputStyles.color,
+    // Omit padding - let InputGroup component handle spacing via classes
+  };
+};
 
 export const TextInput: React.FC<TextInputProps> = ({ element, styles }) => {
   const { properties = {} } = element;
@@ -128,22 +161,25 @@ export const TextInput: React.FC<TextInputProps> = ({ element, styles }) => {
     );
   };
 
-  // Render action button icon
+  // Render action button using InputGroupButton
   const renderActionButton = () => {
     if (actionButton === 'none') return null;
-    const iconClass = 'w-4 h-4 text-muted-foreground';
+    const iconClass = 'w-4 h-4';
     return (
-      <button
-        type="button"
-        className="px-2 flex items-center border-l border-border bg-muted/50 opacity-50 cursor-not-allowed"
-        disabled
-        aria-label={actionButton === 'copy' ? 'Copy to clipboard' : actionButton === 'clear' ? 'Clear input' : 'Toggle password visibility'}
-        data-testid={`text-action-${element.id}`}
-      >
-        {actionButton === 'copy' && <Copy className={iconClass} />}
-        {actionButton === 'clear' && <X className={iconClass} />}
-        {actionButton === 'toggle-visibility' && <Eye className={iconClass} />}
-      </button>
+      <InputGroupAddon align="inline-end">
+        <InputGroupButton
+          variant="ghost"
+          size="icon-xs"
+          disabled
+          className="opacity-50 cursor-not-allowed"
+          aria-label={actionButton === 'copy' ? 'Copy to clipboard' : actionButton === 'clear' ? 'Clear input' : 'Toggle password visibility'}
+          data-testid={`text-action-${element.id}`}
+        >
+          {actionButton === 'copy' && <Copy className={iconClass} />}
+          {actionButton === 'clear' && <X className={iconClass} />}
+          {actionButton === 'toggle-visibility' && <Eye className={iconClass} />}
+        </InputGroupButton>
+      </InputGroupAddon>
     );
   };
 
@@ -159,57 +195,77 @@ export const TextInput: React.FC<TextInputProps> = ({ element, styles }) => {
     );
   };
 
-  // Main input with addons
-  const renderInputGroup = () => {
-    const hasPrefix = prefixText || prefixIcon;
-    const hasPostfix = suffixText || suffixIcon || actionButton !== 'none' ||
-      (showCharacterCount && characterCountPosition === 'inline-end');
+  // Main input with conditional rendering for addons
+  const renderInput = () => {
+    const hasAddons = !!(
+      prefixText || suffixText ||
+      prefixIcon || suffixIcon ||
+      actionButton !== 'none' ||
+      (showCharacterCount && maxLength && characterCountPosition === 'inline-end')
+    );
 
-    return (
-      <div
-        role="group"
-        aria-label={label || 'Input field'}
-        className={cn('flex border rounded-md overflow-hidden', hasPrefix || hasPostfix ? 'items-stretch' : '')}
-        data-testid={`text-input-group-${element.id}`}
-      >
-        {/* Prefix - icon placeholder shown as bullet, actual icon rendering TBD */}
-        {hasPrefix && (
-          <div className="flex items-center px-2 bg-muted/50 border-r border-border text-sm text-muted-foreground" data-testid={`text-prefix-${element.id}`}>
-            {prefixIcon && <span className="mr-1 w-4 h-4 inline-flex items-center justify-center text-xs">•</span>}
-            {prefixText}
-          </div>
-        )}
-
-        {/* Input */}
-        <input
+    // Simple input without addons
+    if (!hasAddons) {
+      return (
+        <Input
           type={getInputType()}
           placeholder={getPlaceholder()}
           value={defaultValue || ''}
-          disabled
-          readOnly
           style={styles.input}
-          className="flex-1 px-3 py-2 border-0 outline-none bg-transparent pointer-events-none"
+          className="pointer-events-none"
+          data-testid={`text-input-${element.id}`}
+        />
+      );
+    }
+
+    // InputGroup with addons
+    const wrapperStyles = getWrapperStyles(styles.input);
+    const inputOnlyStyles = getInputOnlyStyles(styles.input);
+
+    return (
+      <InputGroup
+        style={wrapperStyles}
+        aria-label={label || 'Input field'}
+        data-testid={`text-input-group-${element.id}`}
+      >
+        {/* Prefix addon */}
+        {(prefixIcon || prefixText) && (
+          <InputGroupAddon align="inline-start" data-testid={`text-prefix-${element.id}`}>
+            {prefixIcon && <span className="w-4 h-4 inline-flex items-center justify-center text-xs">•</span>}
+            {prefixText && <InputGroupText>{prefixText}</InputGroupText>}
+          </InputGroupAddon>
+        )}
+
+        {/* Input */}
+        <InputGroupInput
+          type={getInputType()}
+          placeholder={getPlaceholder()}
+          value={defaultValue || ''}
+          style={inputOnlyStyles}
+          className="pointer-events-none"
           data-testid={`text-input-${element.id}`}
         />
 
-        {/* Inline character count (uses defaultValue since input is disabled in canvas preview) */}
+        {/* Inline character counter */}
         {showCharacterCount && maxLength && characterCountPosition === 'inline-end' && (
-          <div className="flex items-center px-2 text-xs text-muted-foreground" data-testid={`text-counter-inline-${element.id}`}>
-            {charCount}/{maxLength}
-          </div>
+          <InputGroupAddon align="inline-end" data-testid={`text-counter-inline-${element.id}`}>
+            <InputGroupText className="text-xs">
+              {charCount}/{maxLength}
+            </InputGroupText>
+          </InputGroupAddon>
         )}
 
-        {/* Suffix - icon placeholder shown as bullet, actual icon rendering TBD */}
+        {/* Suffix addon */}
         {(suffixText || suffixIcon) && (
-          <div className="flex items-center px-2 bg-muted/50 border-l border-border text-sm text-muted-foreground" data-testid={`text-suffix-${element.id}`}>
-            {suffixText}
-            {suffixIcon && <span className="ml-1 w-4 h-4 inline-flex items-center justify-center text-xs">•</span>}
-          </div>
+          <InputGroupAddon align="inline-end" data-testid={`text-suffix-${element.id}`}>
+            {suffixText && <InputGroupText>{suffixText}</InputGroupText>}
+            {suffixIcon && <span className="w-4 h-4 inline-flex items-center justify-center text-xs">•</span>}
+          </InputGroupAddon>
         )}
 
         {/* Action button */}
         {renderActionButton()}
-      </div>
+      </InputGroup>
     );
   };
 
@@ -221,7 +277,7 @@ export const TextInput: React.FC<TextInputProps> = ({ element, styles }) => {
           <div className="w-1/3 shrink-0">{renderLabel()}</div>
           <div className="flex-1">
             {descriptionPosition.startsWith('top') && renderDescription()}
-            {renderInputGroup()}
+            {renderInput()}
             {descriptionPosition.startsWith('bottom') && renderDescription()}
             {renderCharCounter()}
           </div>
@@ -237,7 +293,7 @@ export const TextInput: React.FC<TextInputProps> = ({ element, styles }) => {
         {labelPosition.startsWith('top') && renderLabel()}
         {descriptionPosition.startsWith('top') && renderDescription()}
 
-        {renderInputGroup()}
+        {renderInput()}
 
         {descriptionPosition.startsWith('bottom') && renderDescription()}
         {labelPosition.startsWith('bottom') && renderLabel()}
