@@ -1,4 +1,4 @@
-import React, { useRef, useState, useMemo } from 'react';
+import React, { useRef, useState, useMemo, useEffect } from 'react';
 import { ChevronUp, ChevronDown, X, Trash2, FileText, Palette, Settings2, Code2, LayoutTemplate, Sparkles } from 'lucide-react';
 import { PropertiesBottomTrayProps } from '../types/overlay.types';
 import { cn } from '../../../../../lib/utils';
@@ -22,9 +22,11 @@ const TAB_CONFIG: { id: PanelTab; label: string; icon: React.ComponentType<{ cla
 ];
 
 /**
- * Properties Bottom Tray for mobile - displays element properties in a bottom tray
+ * Mobile-only Properties Bottom Tray - displays element properties in a bottom tray.
  * Uses the same UI pattern as ResizableBottomTray (elements palette) but with higher z-index
  * to overlay on top of the elements tray.
+ *
+ * Note: Desktop uses FloatingPanel instead (see ui/desktop/).
  */
 export const PropertiesBottomTray: React.FC<PropertiesBottomTrayProps> = ({
   isCollapsed,
@@ -36,9 +38,45 @@ export const PropertiesBottomTray: React.FC<PropertiesBottomTrayProps> = ({
 }) => {
   const trayRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<PanelTab>('content');
+  const [viewportBottom, setViewportBottom] = useState(0);
+  const [visualViewportHeight, setVisualViewportHeight] = useState(window.innerHeight);
 
   // Get WordPress admin sidebar width for dynamic positioning
   const { width: sidebarWidth } = useWPAdminSidebar();
+
+  // Track visual viewport for mobile keyboard handling
+  useEffect(() => {
+    const updatePosition = () => {
+      if (window.visualViewport) {
+        const vv = window.visualViewport;
+        // Calculate offset from layout viewport bottom to visual viewport bottom
+        const bottomOffset = window.innerHeight - (vv.offsetTop + vv.height);
+        setViewportBottom(bottomOffset);
+        // Track visual viewport height for dynamic max-height
+        setVisualViewportHeight(vv.height);
+      }
+    };
+
+    // Initial update
+    updatePosition();
+
+    // Update every 10ms for smooth tracking
+    const intervalId = setInterval(updatePosition, 10);
+
+    // Also listen to visualViewport events
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', updatePosition);
+      window.visualViewport.addEventListener('scroll', updatePosition);
+    }
+
+    return () => {
+      clearInterval(intervalId);
+      if (window.visualViewport) {
+        window.visualViewport.removeEventListener('resize', updatePosition);
+        window.visualViewport.removeEventListener('scroll', updatePosition);
+      }
+    };
+  }, []);
 
   // Subscribe to store for element data
   const element = useElementsStore((s) => s.items[elementId]);
@@ -86,17 +124,18 @@ export const PropertiesBottomTray: React.FC<PropertiesBottomTrayProps> = ({
     <div
       ref={trayRef}
       className={cn(
-        "fixed bottom-0 right-0 z-[60]", // Higher z-index than elements tray (z-50)
+        "fixed right-0 z-[60]", // Higher z-index than elements tray (z-50), bottom set via style for keyboard handling
         "bg-background border-t border-border",
         "shadow-[0_-4px_16px_-2px_rgb(0,0,0,0.1)]",
         "transition-[height,left] duration-300 ease-out",
         "min-h-4",
-        "max-h-[70vh]", // Max 70% of viewport height
         "flex flex-col"
       )}
       style={{
         left: sidebarWidth,
         height: effectiveHeight,
+        bottom: viewportBottom,
+        maxHeight: visualViewportHeight * 0.5, // 50% of visual viewport (shrinks with keyboard)
       }}
       data-testid="properties-bottom-tray"
     >

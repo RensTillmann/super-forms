@@ -13,10 +13,15 @@ import {
   Tablet,
   Smartphone,
   Maximize,
+  ArrowLeft,
+  FileText,
+  Database,
+  Settings,
+  ExternalLink,
 } from 'lucide-react';
-import { cn } from '../../../lib/utils';
-import { Button } from '../../../components/ui/button';
-import { MobileDrawer } from '../../../components/ui/mobile-drawer';
+import { cn } from '../../../../../lib/utils';
+import { Button } from '../../../../../components/ui/button';
+import { MobileDrawer } from '../../../../../components/ui/mobile-drawer';
 
 interface MobileMenuProps {
   // History actions
@@ -45,7 +50,7 @@ interface MobileMenuProps {
 }
 
 /**
- * Mobile hamburger menu with custom drawer.
+ * Mobile-only hamburger menu with custom drawer.
  * Contains all toolbar actions hidden on mobile.
  */
 export function MobileMenu({
@@ -67,6 +72,9 @@ export function MobileMenu({
   onToggleDeviceFrame,
 }: MobileMenuProps) {
   const [open, setOpen] = React.useState(false);
+
+  // Get navigation URLs from PHP
+  const navigation = window.sfuiData?.navigation;
 
   const MenuItem = ({
     icon: Icon,
@@ -102,6 +110,32 @@ export function MobileMenu({
     </Button>
   );
 
+  const MenuLink = ({
+    icon: Icon,
+    label,
+    href,
+    testId,
+  }: {
+    icon: React.ElementType;
+    label: string;
+    href: string;
+    testId?: string;
+  }) => (
+    <a
+      href={href}
+      className={cn(
+        'flex items-center justify-start gap-3 w-full h-auto px-4 py-3 text-sm',
+        'min-h-[44px] rounded-none',
+        'text-muted-foreground hover:text-foreground hover:bg-muted transition-colors'
+      )}
+      data-testid={testId}
+    >
+      <Icon className="w-5 h-5" />
+      <span className="flex-1">{label}</span>
+      <ExternalLink className="w-4 h-4 opacity-50" />
+    </a>
+  );
+
   const MenuSection = ({ title, children }: { title: string; children: React.ReactNode }) => (
     <div className="py-2">
       <div className="px-4 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
@@ -134,6 +168,36 @@ export function MobileMenu({
         data-testid="mobile-menu-drawer"
       >
         <div className="flex-1 overflow-y-auto pb-safe" data-testid="mobile-menu-content">
+          {/* Navigation Section */}
+          {navigation && (
+            <MenuSection title="WordPress">
+              <MenuLink
+                icon={ArrowLeft}
+                label="Dashboard"
+                href={navigation.dashboard}
+                testId="mobile-menu-nav-dashboard"
+              />
+              <MenuLink
+                icon={FileText}
+                label="Forms"
+                href={navigation.forms}
+                testId="mobile-menu-nav-forms"
+              />
+              <MenuLink
+                icon={Database}
+                label="Entries"
+                href={navigation.entries}
+                testId="mobile-menu-nav-entries"
+              />
+              <MenuLink
+                icon={Settings}
+                label="Settings"
+                href={navigation.settings}
+                testId="mobile-menu-nav-settings"
+              />
+            </MenuSection>
+          )}
+
           {/* History Section */}
           <MenuSection title="History">
             <MenuItem

@@ -1,9 +1,14 @@
+// Generic overlay components (not device-specific)
 export { ErrorBoundary } from './ErrorBoundary';
 export { ContextMenu } from './ContextMenu';
 export { FloatingToolbar } from './FloatingToolbar';
 export { GridOverlay } from './GridOverlay';
-export { ResizableBottomTray } from './ResizableBottomTray';
-export { PropertiesBottomTray } from './PropertiesBottomTray';
+
+// Re-export from new locations for backwards compatibility
+export { ResizableBottomTray } from '../responsive';
+export { PropertiesBottomTray } from '../mobile';
+
+// Types
 export type {
   ErrorBoundaryProps,
   ErrorBoundaryState,

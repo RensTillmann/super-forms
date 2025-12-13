@@ -53,11 +53,11 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
   // This prevents the "settling" flash when drawer first renders
   const [mounted, setMounted] = useState(false);
 
-  // Touch swipe state
+  // Touch swipe state - using refs for smooth drag (no React re-renders)
   const touchStartY = useRef<number>(0);
   const touchCurrentY = useRef<number>(0);
   const isDragging = useRef(false);
-  const [dragOffset, setDragOffset] = useState(0);
+  const dragOffset = useRef<number>(0);
 
   // Visual Viewport height for keyboard awareness
   const [viewportHeight, setViewportHeight] = useState<number>(
@@ -137,11 +137,11 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
   // Reset drag offset when closing
   useEffect(() => {
     if (!open) {
-      setDragOffset(0);
+      dragOffset.current = 0;
     }
   }, [open]);
 
-  // Touch handlers for swipe-to-close
+  // Touch handlers for swipe-to-close - using direct DOM for smooth 60fps drag
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     const touch = e.touches[0];
     const target = e.target as HTMLElement;
@@ -150,20 +150,32 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
       touchStartY.current = touch.clientY;
       touchCurrentY.current = touch.clientY;
       isDragging.current = true;
+      dragOffset.current = 0;
+
+      // Disable transitions during drag for smooth movement
+      if (drawerRef.current) {
+        drawerRef.current.style.transition = 'none';
+      }
     }
   }, []);
 
   const handleTouchMove = useCallback((e: React.TouchEvent) => {
     if (!isDragging.current) return;
 
+    // Prevent pull-to-refresh
+    e.preventDefault();
+
     const touch = e.touches[0];
     touchCurrentY.current = touch.clientY;
 
     const diff = touchCurrentY.current - touchStartY.current;
-    if (diff > 0) {
-      setDragOffset(diff);
+    if (diff > 0 && drawerRef.current) {
+      dragOffset.current = diff;
+      // Direct DOM manipulation for smooth 60fps - bypass React
+      const yOffset = -keyboardOffset + diff;
+      drawerRef.current.style.transform = `translateY(${yOffset}px)`;
     }
-  }, []);
+  }, [keyboardOffset]);
 
   const handleTouchEnd = useCallback(() => {
     if (!isDragging.current) return;
@@ -171,12 +183,23 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
     isDragging.current = false;
     const diff = touchCurrentY.current - touchStartY.current;
 
+    // Re-enable transitions for snap animation
+    if (drawerRef.current) {
+      drawerRef.current.style.transition = 'transform 300ms ease-out';
+    }
+
     if (diff > 100) {
+      // Close drawer
       onClose();
     } else {
-      setDragOffset(0);
+      // Snap back to open position
+      dragOffset.current = 0;
+      if (drawerRef.current) {
+        const yOffset = -keyboardOffset;
+        drawerRef.current.style.transform = yOffset !== 0 ? `translateY(${yOffset}px)` : 'translateY(0)';
+      }
     }
-  }, [onClose]);
+  }, [onClose, keyboardOffset]);
 
   // Close on backdrop click
   const handleBackdropClick = useCallback((e: React.MouseEvent) => {
@@ -199,7 +222,8 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [open, onClose]);
 
-  // Calculate transform based on open state, keyboard offset, and drag
+  // Calculate transform based on open state and keyboard offset
+  // Note: drag offset is handled directly via DOM manipulation for smooth 60fps
   const getTransform = () => {
     // When closed, slide drawer completely off-screen
     if (!open) {
@@ -207,13 +231,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
     }
 
     // When open, move drawer up by keyboard offset to stay above keyboard
-    // Negative value moves up, positive (drag) moves down
-    let yOffset = -keyboardOffset;
-
-    if (dragOffset > 0) {
-      yOffset += dragOffset;
-    }
-
+    const yOffset = -keyboardOffset;
     return yOffset !== 0 ? `translateY(${yOffset}px)` : 'translateY(0)';
   };
 
@@ -245,27 +263,28 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
       />
 
       {/* Drawer - use inline style for transform to ensure reliable positioning */}
-      {/* DEBUG: Red border on drawer container */}
       <div
         ref={drawerRef}
         className={cn(
           'fixed bottom-0 left-0 right-0 bg-background rounded-t-xl flex flex-col overflow-hidden',
-          // Only enable transition after mounted, and not while dragging
-          mounted && !isDragging.current && 'transition-transform duration-300 ease-out',
+          // Only enable transition after mounted
+          mounted && 'transition-transform duration-300 ease-out',
           className
         )}
         style={{
           height: drawerHeight,
           transform: getTransform(),
+          overscrollBehavior: 'contain', // Prevent scroll chaining / pull-to-refresh
         }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
         data-testid={`${testId}-content`}
       >
-        {/* Drag handle */}
+        {/* Drag handle - touch-action: none prevents pull-to-refresh */}
         <div
           className="flex justify-center pt-2 pb-1 shrink-0 cursor-grab active:cursor-grabbing"
+          style={{ touchAction: 'none' }}
           data-drawer-handle
           data-testid={`${testId}-handle`}
           role="separator"

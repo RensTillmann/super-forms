@@ -5,6 +5,13 @@ import { cn } from '../../../../../lib/utils';
 import { useWPAdminSidebar } from '../../../../../hooks/useWPAdminSidebar';
 import { Button } from '../../../../../components/ui/button';
 
+/**
+ * Responsive resizable bottom tray component.
+ *
+ * Used for the elements palette. Works on both desktop and mobile.
+ * Desktop: Supports drag-to-resize
+ * Mobile: Fixed height with auto-sizing
+ */
 export const ResizableBottomTray: React.FC<ResizableBottomTrayProps> = ({
   isCollapsed,
   onToggleCollapse,
@@ -22,36 +29,26 @@ export const ResizableBottomTray: React.FC<ResizableBottomTrayProps> = ({
   // Get WordPress admin sidebar width for dynamic positioning
   const { width: sidebarWidth } = useWPAdminSidebar();
 
-  // Debug height changes (can be removed in production)
-  // useEffect(() => {
-  //   console.log(`Height changed to: ${height}, isResizing: ${isResizing}`);
-  // }, [height, isResizing]);
   const startY = useRef(0);
   const startHeight = useRef(0);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (!isResizing) return;
-      
+
       const deltaY = startY.current - e.clientY;
-      
+
       // Calculate maximum allowed height based on viewport
       // For bottom-positioned tray, we need to ensure it doesn't go above a reasonable limit
       const viewportHeight = window.innerHeight;
-      const trayBottom = trayRef.current?.getBoundingClientRect().bottom || viewportHeight;
       const availableSpaceFromBottom = viewportHeight - 50; // 50px buffer from viewport bottom
       const maxAllowedHeight = Math.min(maxHeight, availableSpaceFromBottom);
-      
+
       const proposedHeight = startHeight.current + deltaY;
       const newHeight = Math.min(maxAllowedHeight, Math.max(minHeight, proposedHeight));
-      
-      // Debug logging (can be removed in production)
-      // if (Math.abs(deltaY) > 10) {
-      //   console.log(`Resize: deltaY=${deltaY}, proposedHeight=${proposedHeight}, newHeight=${newHeight}, minHeight=${minHeight}, maxAllowedHeight=${maxAllowedHeight}`);
-      // }
-      
+
       setHeight(newHeight);
-      
+
       // Notify parent of height change
       if (onHeightChange) {
         onHeightChange(newHeight);
@@ -89,7 +86,6 @@ export const ResizableBottomTray: React.FC<ResizableBottomTrayProps> = ({
   // Notify parent of initial height and when height changes
   useEffect(() => {
     if (!isCollapsed && onHeightChange && !isResizing) {
-      // console.log(`Notifying parent of height change: ${height}`);
       onHeightChange(height);
     }
   }, [height, isCollapsed, onHeightChange, isResizing]);
@@ -99,18 +95,18 @@ export const ResizableBottomTray: React.FC<ResizableBottomTrayProps> = ({
     const handleWindowResize = () => {
       // Don't interfere if user is actively resizing
       if (isResizing) return;
-      
+
       if (trayRef.current) {
         const viewportHeight = window.innerHeight;
-        
+
         // Sanity check: ignore invalid viewport dimensions
         if (viewportHeight < 200) {
           return;
         }
-        
+
         const availableSpaceFromBottom = viewportHeight - 50; // 50px buffer
         const maxAllowedHeight = Math.min(maxHeight, availableSpaceFromBottom);
-        
+
         // Get current height from the component state
         setHeight(currentHeight => {
           if (currentHeight > maxAllowedHeight) {
@@ -127,11 +123,11 @@ export const ResizableBottomTray: React.FC<ResizableBottomTrayProps> = ({
     };
 
     window.addEventListener('resize', handleWindowResize);
-    
+
     return () => {
       window.removeEventListener('resize', handleWindowResize);
     };
-  }, [maxHeight, minHeight, onHeightChange, isResizing]); // Added isResizing dependency
+  }, [maxHeight, minHeight, onHeightChange, isResizing]);
 
   return (
     <div
@@ -148,6 +144,7 @@ export const ResizableBottomTray: React.FC<ResizableBottomTrayProps> = ({
         left: sidebarWidth,
         ...(isMobile ? {} : { height: effectiveHeight })
       }}
+      data-testid="resizable-bottom-tray"
     >
       {/* Resize Handle */}
       {!isCollapsed && !isMobile && (
@@ -162,6 +159,7 @@ export const ResizableBottomTray: React.FC<ResizableBottomTrayProps> = ({
           role="separator"
           aria-orientation="horizontal"
           aria-label="Resize tray"
+          data-testid="tray-resize-handle"
         >
           <GripHorizontal size={16} />
         </div>
@@ -186,7 +184,7 @@ export const ResizableBottomTray: React.FC<ResizableBottomTrayProps> = ({
       >
         {isCollapsed ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
       </Button>
-      
+
       {!isCollapsed && children}
     </div>
   );

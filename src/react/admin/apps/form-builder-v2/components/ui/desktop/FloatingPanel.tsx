@@ -1,15 +1,15 @@
 import React, { useRef, useEffect, useMemo, useState } from 'react';
 import { X, Trash2, FileText, Palette, Settings2, Code2, LayoutTemplate, Sparkles } from 'lucide-react';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../../../components/ui/tabs';
-import { ContentTab, StyleTab, BehaviorTab, CodeTab, TemplatesTab, AITab } from './tabs';
-import { isElementRegistered, getElementSchema } from '../../../../schemas/core/registry';
-import { useElementsStore } from '../../store/useElementsStore';
-import { NodeType, StyleProperties } from '../../../../schemas/styles';
-import { useIsMobile } from '../../../../hooks/useMediaQuery';
-import { cn } from '../../../../lib/utils';
-import { Button } from '../../../../components/ui/button';
-import { ScrollArea } from '../../../../components/ui/scroll-area';
-import { MobileDrawer } from '../../../../components/ui/mobile-drawer';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../../../../../components/ui/tabs';
+import { ContentTab, StyleTab, BehaviorTab, CodeTab, TemplatesTab, AITab } from '../../property-panels/tabs';
+import { isElementRegistered, getElementSchema } from '../../../../../schemas/core/registry';
+import { useElementsStore } from '../../../store/useElementsStore';
+import { NodeType, StyleProperties } from '../../../../../schemas/styles';
+import { useIsMobile } from '../../../../../hooks/useMediaQuery';
+import { cn } from '../../../../../lib/utils';
+import { Button } from '../../../../../components/ui/button';
+import { ScrollArea } from '../../../../../components/ui/scroll-area';
+import { MobileDrawer } from '../../../../../components/ui/mobile-drawer';
 
 interface FloatingPanelProps {
   /** The element ID to edit - component subscribes to store for fresh data */
@@ -171,8 +171,10 @@ TabContentPanels.displayName = 'TabContentPanels';
 // ============================================================================
 
 /**
- * Floating property panel with 6-tab structure.
+ * Desktop-only floating property panel with 6-tab structure.
  * Content | Style | Behavior | Code | Templates | AI
+ *
+ * Note: Mobile uses PropertiesBottomTray instead (see ui/mobile/).
  */
 export const FloatingPanel: React.FC<FloatingPanelProps> = ({
   elementId,

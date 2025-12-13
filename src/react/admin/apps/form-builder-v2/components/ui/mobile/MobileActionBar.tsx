@@ -1,7 +1,6 @@
 import React from 'react';
 import { Eye, Save, Send, RefreshCw } from 'lucide-react';
-import { cn } from '../../../lib/utils';
-import { Button } from '../../../components/ui/button';
+import { Button } from '../../../../../components/ui/button';
 
 interface MobileActionBarProps {
   onPreview: () => void;
@@ -11,7 +10,7 @@ interface MobileActionBarProps {
 }
 
 /**
- * Fixed bottom action bar for primary actions on mobile.
+ * Mobile-only fixed bottom action bar for primary actions.
  * Only visible on mobile viewports (< 640px).
  */
 export function MobileActionBar({

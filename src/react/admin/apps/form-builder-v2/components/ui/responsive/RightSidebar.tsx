@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
-import { cn } from '../../../../lib/utils';
-import { useIsMobile } from '../../../../hooks/useMediaQuery';
-import { MobileDrawer } from '../../../../components/ui/mobile-drawer';
-import { Button } from '../../../../components/ui/button';
+import { cn } from '../../../../../lib/utils';
+import { useIsMobile } from '../../../../../hooks/useMediaQuery';
+import { MobileDrawer } from '../../../../../components/ui/mobile-drawer';
+import { Button } from '../../../../../components/ui/button';
 
 interface RightSidebarProps {
   /** Whether the sidebar is open */
@@ -24,7 +24,7 @@ interface RightSidebarProps {
 }
 
 /**
- * Right sidebar overlay component.
+ * Responsive right sidebar overlay component.
  *
  * Used for Style and Themes tabs to show content alongside the canvas
  * instead of replacing it entirely.

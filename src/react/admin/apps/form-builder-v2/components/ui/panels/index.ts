@@ -3,7 +3,7 @@ export { SharePanel } from './SharePanel';
 export { ExportPanel } from './ExportPanel';
 export { AnalyticsPanel } from './AnalyticsPanel';
 export { VersionHistoryPanel } from './VersionHistoryPanel';
-export { RightSidebar } from '../RightSidebar';
+export { RightSidebar } from '../responsive';
 export type { 
   BasePanelProps,
   SharePanelProps,

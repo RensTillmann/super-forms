@@ -18,7 +18,7 @@ import {
   ChevronDown,
   LucideIcon,
 } from 'lucide-react';
-import { MobileMenu } from './MobileMenu';
+import { MobileMenu } from './ui/mobile';
 import {
   getToolbarItemsByGroup,
   ToolbarItemSchema,

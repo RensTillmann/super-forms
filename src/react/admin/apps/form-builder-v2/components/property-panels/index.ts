@@ -9,5 +9,5 @@ export * from './shared';
 // Schema-driven property panel (new architecture)
 export * from './schema';
 
-// Floating panel wrapper
-export { FloatingPanel } from './FloatingPanel';
+// Floating panel - re-export from new location for backwards compatibility
+export { FloatingPanel } from '../ui/desktop';
