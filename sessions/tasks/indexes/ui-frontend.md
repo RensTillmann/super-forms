@@ -10,6 +10,7 @@ description: Tasks related to React admin UI, Tailwind CSS, shadcn/ui, and front
 
 ### High Priority
 - `h-research-form-builder-v2-architecture.md` - Architecture design for Form Builder V2 (data loading, state, undo/redo, AI, automations)
+- `h-refactor-formbuilder-iframe-isolation.md` - Refactor Form Builder V2 to use iframe isolation for complete CSS separation (WordPress Core Gutenberg pattern)
 
 ### Medium Priority
 - `m-refactor-textinput-shadcn-input-group.md` - Refactor TextInput to use shadcn Input/InputGroup patterns, fix double borders and style conflicts
