@@ -184,8 +184,10 @@ Form Builder V2 uses @dnd-kit for all drag-and-drop operations (migrated from na
 - **Features:** Touch device support, keyboard navigation (Space to grab, arrows to move), nested container drops
 - See [docs/CLAUDE.javascript.md - Drag-and-Drop System](docs/CLAUDE.javascript.md#drag-and-drop-system-dnd-kit) for implementation details
 
-**Mobile Drawer System:**
-Form Builder V2 uses custom MobileDrawer component (replaced Vaul library in v6.6.0):
+**Mobile UI System:**
+Form Builder V2 uses custom mobile components (replaced Vaul library in v6.6.0):
+
+**MobileDrawer Component:**
 - **Location:** `/src/react/admin/components/ui/mobile-drawer.tsx`
 - **Features:**
   - Visual Viewport API for keyboard-aware height (adapts when mobile keyboard opens)
@@ -194,9 +196,22 @@ Form Builder V2 uses custom MobileDrawer component (replaced Vaul library in v6.
   - CSS transitions for smooth animations (no external dependencies)
   - Portal rendering to document.body
   - Accessibility: ARIA labels, Escape key support, screen reader announcements
-- **Usage:** FloatingPanel, RightSidebar, MobileMenu render as MobileDrawer on mobile breakpoints
+- **Usage:** RightSidebar (settings panel), MobileMenu (canvas menu)
 - **Migration Note:** Replaced Vaul to fix snap point scroll issues and eliminate external dependency
-- See [docs/CLAUDE.javascript.md - Mobile Drawer](docs/CLAUDE.javascript.md#mobile-drawer) for implementation details
+
+**PropertiesBottomTray Component (v6.6.0+):**
+- **Location:** `/src/react/admin/apps/form-builder-v2/components/ui/overlays/PropertiesBottomTray.tsx`
+- **Purpose:** Element property editor on mobile using bottom tray pattern instead of drawer
+- **Features:**
+  - Same UI pattern as ResizableBottomTray (elements palette) for consistency
+  - Higher z-index (z-60) to overlay elements tray
+  - Contains full property panel (6 tabs: Content, Style, Behavior, Code, Templates, AI)
+  - Collapsible with chevron button
+  - Scroll containment via overscroll-contain
+- **Behavior:** When element selected on mobile, properties tray appears and elements tray hides
+- **Rationale:** Bottom tray provides better scroll containment and keyboard handling than drawer pattern
+
+See [docs/CLAUDE.javascript.md - Mobile Drawer](docs/CLAUDE.javascript.md#mobile-drawer) for implementation details
 
 **REST API Integration Pattern:**
 - Use `wp.apiFetch()` for all admin page operations

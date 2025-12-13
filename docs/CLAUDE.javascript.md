@@ -1158,6 +1158,8 @@ When theme is applied or global styles change:
 
 **Location:** `/src/react/admin/apps/form-builder-v2/components/property-panels/FloatingPanel.tsx`
 
+**Note:** On mobile, element properties use PropertiesBottomTray instead of FloatingPanel (see PropertiesBottomTray section). The tab structure and property panels described below apply to both components.
+
 **Pattern:**
 ```tsx
 import { ElementStylesSection } from '@/components/settings/ElementStylesSection';
@@ -2348,9 +2350,10 @@ Form Builder V2 uses a **custom MobileDrawer component** for all mobile bottom s
 **Location:** `/src/react/admin/components/ui/mobile-drawer.tsx`
 
 **Used by:**
-- FloatingPanel (element property editor on mobile)
 - RightSidebar (settings panel on mobile)
 - MobileMenu (canvas menu on mobile)
+
+**Note:** FloatingPanel (element property editor) now uses PropertiesBottomTray on mobile instead of MobileDrawer (see PropertiesBottomTray section below).
 
 ### Why We Replaced Vaul
 
@@ -2702,56 +2705,39 @@ return createPortal(
 );
 ```
 
-### FloatingPanel Integration
+### RightSidebar and MobileMenu Integration
 
-**File:** `/src/react/admin/apps/form-builder-v2/components/property-panels/FloatingPanel.tsx`
+**Files:**
+- `/src/react/admin/apps/form-builder-v2/components/ui/RightSidebar.tsx`
+- `/src/react/admin/apps/form-builder-v2/components/MobileMenu.tsx`
 
 **Usage pattern:**
 ```typescript
-// Line 7 import
 import { MobileDrawer } from '../../../../components/ui/mobile-drawer';
 
-// Line 201-214 (mobile render path)
+// Mobile render path
 if (isMobile) {
   return (
     <MobileDrawer
-      open={isMobileReady}
+      open={isOpen}
       onClose={onClose}
-      title={`Edit ${displayName}`}
-      description="Modify element properties and styles"
-      data-testid="floating-panel-drawer"
+      title="Form Settings"
+      description="Configure form behavior and appearance"
+      data-testid="settings-drawer"
     >
       <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-        {/* Header, tabs, content - same as desktop */}
+        {/* Settings content */}
       </div>
     </MobileDrawer>
   );
 }
 
-// Desktop render path (positioned floating panel)
+// Desktop render path
 return (
-  <div
-    ref={panelRef}
-    className="fixed bg-background border border-border rounded-lg shadow-lg w-[480px] max-h-[600px] flex flex-col overflow-hidden z-[9999]"
-    style={{ left: clampedX, top: clampedY }}
-    data-testid="floating-panel"
-  >
-    {/* Same content as mobile */}
+  <div className="fixed right-0 top-0 h-full w-[360px] bg-background border-l">
+    {/* Settings content */}
   </div>
 );
-```
-
-**Mobile readiness state:**
-```typescript
-// Line 147-154 - Delay mount until drawer is visually ready
-const [isMobileReady, setIsMobileReady] = useState(false);
-
-useEffect(() => {
-  if (isMobile) {
-    const timer = setTimeout(() => setIsMobileReady(true), 50);
-    return () => clearTimeout(timer);
-  }
-}, [isMobile]);
 ```
 
 ### Testing Considerations
@@ -2857,9 +2843,244 @@ Transitions disabled during drag (`transition-none` class) for immediate feedbac
 - Lines 204-275: JSX rendering (portal, backdrop, drawer, handle)
 
 **Consumer files:**
-- `/src/react/admin/apps/form-builder-v2/components/property-panels/FloatingPanel.tsx` (primary usage)
 - `/src/react/admin/apps/form-builder-v2/components/ui/RightSidebar.tsx`
 - `/src/react/admin/apps/form-builder-v2/components/MobileMenu.tsx`
+
+## PropertiesBottomTray
+
+### Overview (v6.6.0+)
+
+On mobile, element properties now use a **bottom tray pattern** instead of MobileDrawer. This provides better scroll containment, keyboard handling, and visual consistency with the elements palette tray.
+
+**Location:** `/src/react/admin/apps/form-builder-v2/components/ui/overlays/PropertiesBottomTray.tsx`
+
+**Migration date:** 2025-12-13
+
+### Why Bottom Tray Instead of Drawer
+
+**Problems with drawer pattern for element properties:**
+1. Browser auto-scroll when focusing inputs conflicts with drawer scroll containers
+2. Input fields at the bottom of drawer content become hard to reach
+3. Visual inconsistency - elements palette uses bottom tray but properties used drawer
+4. Keyboard opening/closing creates jarring height transitions
+
+**Benefits of bottom tray:**
+- **Scroll containment:** Content scrolls within tray, browser auto-scroll for inputs works correctly
+- **Visual consistency:** Same UI pattern as ResizableBottomTray (elements palette)
+- **Simpler height behavior:** Fixed max-height (70vh) without complex Visual Viewport calculations
+- **Layered interface:** Properties tray overlays elements tray with higher z-index
+
+### Architecture
+
+**Component Interface:**
+```typescript
+interface PropertiesBottomTrayProps {
+  /** ID of the element being edited */
+  elementId: string;
+  /** Whether the tray is collapsed (minimized) */
+  isCollapsed: boolean;
+  /** Called when collapse button clicked */
+  onToggleCollapse: () => void;
+  /** Called when tray should close (X button or element deselected) */
+  onClose: () => void;
+  /** Called when element property changes */
+  onPropertyChange: (property: string, value: any) => void;
+  /** Called when delete button clicked */
+  onDelete: () => void;
+}
+```
+
+**Usage Example:**
+```typescript
+import { PropertiesBottomTray } from '@/apps/form-builder-v2/components/ui/overlays';
+
+// In FormBuilderV2.tsx - rendered when element selected on mobile
+{isMobile && floatingPanel?.elementId && (
+  <PropertiesBottomTray
+    elementId={floatingPanel.elementId}
+    isCollapsed={isPropertiesTrayCollapsed}
+    onToggleCollapse={() => setIsPropertiesTrayCollapsed(!isPropertiesTrayCollapsed)}
+    onClose={handleClosePanel}
+    onPropertyChange={handlePropertyChange}
+    onDelete={handleDeleteElement}
+  />
+)}
+```
+
+### Key Features
+
+**Z-Index Layering:**
+- Properties tray: `z-[60]`
+- Elements tray: `z-[50]`
+- Result: Properties tray overlays elements tray when open
+
+**Show/Hide Logic:**
+When properties tray is open (element selected):
+- Properties tray visible
+- Elements tray hidden (conditional rendering based on `floatingPanel?.elementId`)
+
+When properties tray closed (no element selected):
+- Properties tray hidden
+- Elements tray visible
+
+**Scroll Containment:**
+```typescript
+// Line 199 - Content area with overscroll-contain
+<div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
+  {/* Tab content panels */}
+</div>
+```
+The `overscroll-contain` prevents scroll chaining - when user scrolls to bottom of properties, scroll doesn't escape to canvas.
+
+**Header Structure:**
+- Element icon + name + "Schema" badge (if applicable)
+- Delete button (trash icon)
+- Close button (X icon)
+
+**Tab System:**
+Full 6-tab interface matching FloatingPanel desktop:
+1. **Content** - General properties (label, placeholder, etc.)
+2. **Style** - Style overrides and appearance properties
+3. **Behavior** - Validation, conditional logic
+4. **Code** - Custom code, CSS classes
+5. **Templates** - Element templates
+6. **AI** - AI-powered element configuration
+
+### FloatingPanel Integration
+
+**File:** `/src/react/admin/apps/form-builder-v2/components/property-panels/FloatingPanel.tsx`
+
+FloatingPanel now only renders on **desktop**. On mobile, FormBuilderV2 renders PropertiesBottomTray directly instead of wrapping FloatingPanel in a drawer.
+
+**Desktop render path (FloatingPanel.tsx):**
+```typescript
+// Only renders when !isMobile
+return (
+  <div
+    ref={panelRef}
+    className="fixed bg-background border rounded-lg shadow-lg w-[480px] max-h-[600px] flex flex-col overflow-hidden z-50"
+    style={{ left: clampedX, top: clampedY }}
+    data-testid="floating-panel"
+  >
+    <PanelHeader />
+    <Tabs>
+      <TabNavigation />
+      <TabContentPanels />
+    </Tabs>
+  </div>
+);
+```
+
+**Mobile render path (FormBuilderV2.tsx):**
+```typescript
+// Lines 3899-3909 in FormBuilderV2.tsx
+{isMobile && floatingPanel?.elementId && (
+  <PropertiesBottomTray
+    elementId={floatingPanel.elementId}
+    isCollapsed={isPropertiesTrayCollapsed}
+    onToggleCollapse={() => setIsPropertiesTrayCollapsed(!isPropertiesTrayCollapsed)}
+    onClose={() => setFloatingPanel(null)}
+    onPropertyChange={handlePropertyChange}
+    onDelete={() => handleDeleteElement(floatingPanel.elementId)}
+  />
+)}
+
+// FloatingPanel only renders when NOT mobile
+{!isMobile && floatingPanel?.elementId && (
+  <FloatingPanel
+    elementId={floatingPanel.elementId}
+    position={floatingPanel.position}
+    onClose={() => setFloatingPanel(null)}
+    onPropertyChange={handlePropertyChange}
+    onDelete={handleDeleteElement}
+  />
+)}
+```
+
+### State Management
+
+**FormBuilderV2 State:**
+```typescript
+// Shared state for both desktop FloatingPanel and mobile PropertiesBottomTray
+const [floatingPanel, setFloatingPanel] = useState<{
+  elementId: string | null;
+  position: { x: number; y: number };
+} | null>(null);
+
+// Mobile-specific state for tray collapse
+const [isPropertiesTrayCollapsed, setIsPropertiesTrayCollapsed] = useState(false);
+```
+
+**Element Selection Flow:**
+1. User taps element on canvas
+2. `handleSelectElement` sets `floatingPanel` state with element ID
+3. On mobile: PropertiesBottomTray renders (elements tray hidden)
+4. On desktop: FloatingPanel renders as floating panel
+
+**Close Interactions:**
+Properties tray closes when:
+- User clicks X button (calls `onClose`)
+- User clicks canvas background (`setFloatingPanel(null)`)
+- User deletes element
+- User presses Escape key
+
+### Visual Structure
+
+```
+┌─────────────────────────────────────┐
+│  ↓  (Chevron collapse button)       │ ← -top-4 positioned above tray
+└─────────────────────────────────────┘
+┌─────────────────────────────────────┐
+│ Header (bg-muted/50)                │
+│ 📝 Text Input [Schema]     🗑️  ✕   │ ← Icon, name, delete, close
+├─────────────────────────────────────┤
+│ Tabs (border-b)                     │
+│ 📄 🎨 ⚙️ 💻 📋 ✨                    │ ← 6 icon-only tabs
+├─────────────────────────────────────┤
+│ Content (overflow-y-auto)           │
+│ ┌─────────────────────────────────┐ │
+│ │ Property controls...            │ │ ← Scrollable
+│ │                                 │ │
+│ │                                 │ │
+│ └─────────────────────────────────┘ │
+└─────────────────────────────────────┘
+         max-h-[70vh]
+```
+
+### Testing Considerations
+
+**Data-testid attributes:**
+- `data-testid="properties-bottom-tray"` - Root element
+- `data-testid="properties-tray-collapse-button"` - Collapse button
+- `data-testid="properties-tray-header"` - Header section
+- `data-testid="properties-tray-delete"` - Delete button
+- `data-testid="properties-tray-close"` - Close button
+- `data-testid="properties-tray-nav"` - Tab navigation
+- `data-testid="properties-tray-content"` - Content area
+- `data-testid="properties-tray-tab-{tabId}"` - Individual tabs
+- `data-testid="properties-tray-tab-content-{tabId}"` - Tab content panels
+
+**Manual Testing Required:**
+- iOS Safari - verify scroll containment works, inputs accessible when keyboard open
+- Android Chrome - verify tray doesn't hide behind keyboard
+- Tap element - verify properties tray appears and elements tray hides
+- Close properties - verify elements tray reappears
+- Swipe between tabs - verify all 6 tabs render correctly
+- Scroll long property list - verify scrolling contained to tray
+
+### Reference Implementation
+
+**Complete source:** `/home/rens/super-forms/src/react/admin/apps/form-builder-v2/components/ui/overlays/PropertiesBottomTray.tsx` (253 lines)
+
+**Key sections:**
+- Lines 1-12: Imports and tab configuration
+- Lines 24-36: Component props and state
+- Lines 44-72: Element data and style override handlers
+- Lines 86-102: Tray container with z-index and height
+- Lines 104-121: Collapse button
+- Lines 126-167: Header with element info and action buttons
+- Lines 170-195: Tab navigation
+- Lines 198-248: Scrollable tab content panels
 
 ## UI Component Guidelines
 
