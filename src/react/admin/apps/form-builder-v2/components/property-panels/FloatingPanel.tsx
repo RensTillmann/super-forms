@@ -153,10 +153,9 @@ const TabContentPanels = React.memo<TabContentPanelsProps>(({ isMobile, contentR
   isMobile ? (
     // Mobile: flex-1 to fill remaining drawer space, scroll internally
     // Disable focus transitions on inputs to prevent layout shifts
-    // DEBUG: Blue border on tab content panels
     <div
       ref={contentRef}
-      className="flex-1 min-h-0 overflow-y-auto overscroll-contain [&_input]:transition-none [&_textarea]:transition-none [&_select]:transition-none [&_button]:transition-none border-2 border-blue-500"
+      className="flex-1 min-h-0 overflow-y-auto overscroll-contain [&_input]:transition-none [&_textarea]:transition-none [&_select]:transition-none [&_button]:transition-none"
       data-testid="floating-panel-content"
     >
       {children}
@@ -365,8 +364,7 @@ export const FloatingPanel: React.FC<FloatingPanelProps> = ({
           onClose={onClose}
           isMobile={true}
         />
-        {/* DEBUG: Orange border on Tabs wrapper */}
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as PanelTab)} className="flex flex-col flex-1 min-h-0 border-2 border-orange-500">
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as PanelTab)} className="flex flex-col flex-1 min-h-0">
           <TabNavigation navRef={navRef} />
           <TabContentPanels isMobile={isMobile} contentRef={contentRef}>
             {tabContent}

@@ -58,6 +58,7 @@ import {
   ContextMenu,
   GridOverlay,
   ResizableBottomTray,
+  PropertiesBottomTray,
   InlineEditableText,
   RightSidebar
 } from './components/ui';
@@ -1449,6 +1450,7 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
   // Bottom tray state
   const [trayHeight, setTrayHeight] = useState(250);
   const [isTrayCollapsed, setIsTrayCollapsed] = useState(false);
+  const [isPropertiesTrayCollapsed, setIsPropertiesTrayCollapsed] = useState(false);
   const [activeTrayCategory, setActiveTrayCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   // Layout mode state for hybrid grid/horizontal switching
@@ -3723,6 +3725,8 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
         </div>
 
         {/* Enhanced Bottom Element Tray with ALL missing elements */}
+        {/* On mobile: hide when element is selected (properties tray takes over) */}
+        {(!isMobile || !floatingPanel?.elementId || !items[floatingPanel.elementId]) && (
         <ResizableBottomTray
           isCollapsed={isTrayCollapsed}
           onToggleCollapse={() => setIsTrayCollapsed(!isTrayCollapsed)}
@@ -3890,57 +3894,30 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
             {/* Hover Overlay Layer - for clipping-free hover effects in horizontal layout */}
           </div>
         </ResizableBottomTray>
+        )}
 
-        {/* Schema-Driven Floating Properties Panel */}
-        {/* Desktop: conditional render. Mobile: ALWAYS mounted for smooth animations */}
-        {isMobile ? (
-          // Mobile: ALWAYS render FloatingPanel to keep MobileDrawer mounted (prevents flash)
-          // FloatingPanel handles !element by keeping MobileDrawer mounted with open={false}
-          (() => {
-            // Get a valid element ID - must exist in items to prevent unmount/remount flash
-            const getValidElementId = (): string | null => {
-              // First: currently selected element if it exists
-              if (floatingPanel?.elementId && items[floatingPanel.elementId]) {
-                return floatingPanel.elementId;
-              }
-              // Second: last selected element if it still exists
-              if (lastSelectedElementIdRef.current && items[lastSelectedElementIdRef.current]) {
-                return lastSelectedElementIdRef.current;
-              }
-              // Third: first available element
-              const firstKey = Object.keys(items)[0];
-              return firstKey || null;
-            };
-            const currentElementId = getValidElementId();
-            const isOpen = !!(floatingPanel?.elementId && items[floatingPanel.elementId]);
-            // ALWAYS render FloatingPanel - even with no elements
-            // Pass empty string if no elements; FloatingPanel handles !element gracefully
-            return (
-              <FloatingPanel
-                elementId={currentElementId || ''}
-                position={floatingPanel?.position || { x: 0, y: 0 }}
-                onClose={() => setFloatingPanel(null)}
-                onPropertyChange={(property, value) => {
-                  if (currentElementId) updateElementProperty(currentElementId, property, value);
-                }}
-                onDelete={() => {
-                  if (currentElementId) handleDeleteElement(currentElementId);
-                }}
-                open={isOpen}
-              />
-            );
-          })()
-        ) : (
-          // Desktop: conditional render as before
-          floatingPanel && floatingPanel.elementId && (
-            <FloatingPanel
-              elementId={floatingPanel.elementId}
-              position={floatingPanel.position}
-              onClose={() => setFloatingPanel(null)}
-              onPropertyChange={(property, value) => updateElementProperty(floatingPanel.elementId!, property, value)}
-              onDelete={() => handleDeleteElement(floatingPanel.elementId!)}
-            />
-          )
+        {/* Mobile Properties Bottom Tray - shows when element is selected on mobile */}
+        {isMobile && floatingPanel?.elementId && items[floatingPanel.elementId] && (
+          <PropertiesBottomTray
+            isCollapsed={isPropertiesTrayCollapsed}
+            onToggleCollapse={() => setIsPropertiesTrayCollapsed(!isPropertiesTrayCollapsed)}
+            onClose={() => setFloatingPanel(null)}
+            elementId={floatingPanel.elementId}
+            onPropertyChange={(property, value) => updateElementProperty(floatingPanel.elementId!, property, value)}
+            onDelete={() => handleDeleteElement(floatingPanel.elementId!)}
+          />
+        )}
+
+        {/* Schema-Driven Floating Properties Panel - Desktop only */}
+        {/* Mobile uses PropertiesBottomTray above */}
+        {!isMobile && floatingPanel && floatingPanel.elementId && (
+          <FloatingPanel
+            elementId={floatingPanel.elementId}
+            position={floatingPanel.position}
+            onClose={() => setFloatingPanel(null)}
+            onPropertyChange={(property, value) => updateElementProperty(floatingPanel.elementId!, property, value)}
+            onDelete={() => handleDeleteElement(floatingPanel.elementId!)}
+          />
         )}
 
         {/* Form Wrapper Settings Panel */}

@@ -61,3 +61,12 @@ export interface ResizableBottomTrayProps {
   defaultHeight?: number;
   onHeightChange?: (height: number) => void;
 }
+
+export interface PropertiesBottomTrayProps {
+  isCollapsed: boolean;
+  onToggleCollapse: () => void;
+  onClose: () => void;
+  elementId: string;
+  onPropertyChange: (propertyName: string, value: unknown) => void;
+  onDelete: () => void;
+}

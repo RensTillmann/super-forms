@@ -3,6 +3,7 @@ export { ContextMenu } from './ContextMenu';
 export { FloatingToolbar } from './FloatingToolbar';
 export { GridOverlay } from './GridOverlay';
 export { ResizableBottomTray } from './ResizableBottomTray';
+export { PropertiesBottomTray } from './PropertiesBottomTray';
 export type {
   ErrorBoundaryProps,
   ErrorBoundaryState,
@@ -14,5 +15,6 @@ export type {
   FloatingToolbarProps,
   ToolbarItem,
   GridOverlayProps,
-  ResizableBottomTrayProps
+  ResizableBottomTrayProps,
+  PropertiesBottomTrayProps
 } from '../types/overlay.types';

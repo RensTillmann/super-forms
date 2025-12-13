@@ -252,7 +252,6 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
           'fixed bottom-0 left-0 right-0 bg-background rounded-t-xl flex flex-col overflow-hidden',
           // Only enable transition after mounted, and not while dragging
           mounted && !isDragging.current && 'transition-transform duration-300 ease-out',
-          'border-2 border-red-500', // DEBUG
           className
         )}
         style={{
@@ -289,8 +288,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
         )}
 
         {/* Content */}
-        {/* DEBUG: Green border on content wrapper */}
-        <div className="flex-1 flex flex-col min-h-0 overflow-hidden border-2 border-green-500">
+        <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
           {children}
         </div>
       </div>
