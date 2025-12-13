@@ -12,6 +12,7 @@ description: Tasks related to React admin UI, Tailwind CSS, shadcn/ui, and front
 - `h-research-form-builder-v2-architecture.md` - Architecture design for Form Builder V2 (data loading, state, undo/redo, AI, automations)
 
 ### Medium Priority
+- `m-refactor-textinput-shadcn-input-group.md` - Refactor TextInput to use shadcn Input/InputGroup patterns, fix double borders and style conflicts
 - `m-refactor-dnd-kit-drag-system.md` - Replace native HTML5 drag with @dnd-kit for touch support, keyboard accessibility, proper drag handles
 - `m-implement-input-group-properties.md` - Input group features for text fields (prefix/suffix, position picker, action buttons, tooltips)
 - `m-refactor-property-panel-ux/` - Refactor FloatingPanel & GlobalStylesPanel with 4-tab structure, mobile UX, accessibility
