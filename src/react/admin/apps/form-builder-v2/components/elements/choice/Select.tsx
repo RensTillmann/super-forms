@@ -43,7 +43,7 @@ export const Select: React.FC<SelectProps> = ({ element, styles }) => {
       <select
         disabled
         style={styles.input}
-        className="form-input w-full border rounded-md px-3 py-2"
+        className="form-input w-full border rounded-md px-3 py-2 pointer-events-none"
       >
         <option>{properties.placeholder || 'Choose an option'}</option>
         {properties.options?.map((option: string, idx: number) => (

@@ -188,7 +188,7 @@ export const TextInput: React.FC<TextInputProps> = ({ element, styles }) => {
           disabled
           readOnly
           style={styles.input}
-          className="flex-1 px-3 py-2 border-0 outline-none bg-transparent"
+          className="flex-1 px-3 py-2 border-0 outline-none bg-transparent pointer-events-none"
           data-testid={`text-input-${element.id}`}
         />
 

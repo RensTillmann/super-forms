@@ -60,7 +60,8 @@ import {
   ResizableBottomTray,
   PropertiesBottomTray,
   InlineEditableText,
-  RightSidebar
+  RightSidebar,
+  ViewportDebugIndicators
 } from './components/ui';
 // Sonner toast (replaces custom ToastProvider)
 import { Toaster } from '../../components/ui/sonner';
@@ -74,6 +75,10 @@ import { Button } from '../../components/ui/button';
 // Import CSS styles (form-builder.css contains element/canvas styling not yet migrated to Tailwind)
 import './styles/form-builder.css';
 
+// Elements that are fully implemented (have schema + component + rendering)
+const IMPLEMENTED_ELEMENTS = new Set([
+  'text', // Only text has full schema registration + TextInput component
+]);
 
 // Complete Element categories with ALL form element types and searchable metadata
 const ELEMENT_CATEGORIES = [
@@ -173,7 +178,13 @@ const ELEMENT_CATEGORIES = [
       { type: 'captcha', label: 'reCAPTCHA', icon: Shield, keywords: ['captcha', 'security', 'bot', 'protection'] },
     ]
   }
-];
+].map(category => ({
+  ...category,
+  elements: category.elements.map(el => ({
+    ...el,
+    comingSoon: !IMPLEMENTED_ELEMENTS.has(el.type)
+  }))
+}));
 
 // Zoom levels for canvas
 const ZOOM_LEVELS = [0.5, 0.75, 1, 1.25, 1.5];
@@ -1656,7 +1667,8 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
     }
   }, [floatingPanel?.elementId]);
 
-  // Mobile editing state - kept for potential future use but no longer hides bars
+  // Mobile editing state - hides top bar and tab bar when editing element on mobile
+  // WP admin chrome is hidden via CSS in PHP (page-create-form-v2.php)
   const isEditingElement = isMobile && floatingPanel !== null && floatingPanel.elementId !== null;
 
   // Auto-close floating panel if element is deleted
@@ -3174,7 +3186,7 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
           onPublish={() => {}}
           isSaving={autoSaveStatus === 'saving'}
           isMobile={isMobile}
-          isEditingElement={false}
+          isEditingElement={isEditingElement}
         />
 
         {/* Horizontal Tabs Bar - Schema Driven */}
@@ -3183,7 +3195,7 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
           onTabChange={setActiveTab}
           activeSidebar={activeSidebar}
           onSidebarChange={setActiveSidebar}
-          isEditingElement={false}
+          isEditingElement={isEditingElement}
         />
 
         {/* Main Content Area */}
@@ -4008,6 +4020,8 @@ export const FormBuilderV2: React.FC<FormBuilderCompleteProps> = (props) => {
     <>
       <FormBuilderCompleteInner {...props} />
       <Toaster />
+      {/* Debug: viewport indicators for mobile keyboard testing */}
+      <ViewportDebugIndicators />
     </>
   );
 };

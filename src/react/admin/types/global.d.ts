@@ -44,6 +44,19 @@ export interface SFUIData {
 
   /** Internationalization strings */
   i18n: I18nStrings;
+
+  /** Navigation URLs for WordPress admin */
+  navigation?: NavigationUrls;
+}
+
+/**
+ * Navigation URLs passed from PHP
+ */
+export interface NavigationUrls {
+  dashboard: string;
+  forms: string;
+  entries: string;
+  settings: string;
 }
 
 /**

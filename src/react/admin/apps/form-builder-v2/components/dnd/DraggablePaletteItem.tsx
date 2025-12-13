@@ -7,6 +7,7 @@ interface ElementConfig {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   keywords?: string[];
+  comingSoon?: boolean;
 }
 
 interface DraggablePaletteItemProps {
@@ -37,6 +38,7 @@ export const DraggablePaletteItem: React.FC<DraggablePaletteItemProps> = ({
       label: element.label,
       isNew: true,
     },
+    disabled: element.comingSoon, // Disable drag for coming soon items
   });
 
   const style = transform ? {
@@ -46,25 +48,31 @@ export const DraggablePaletteItem: React.FC<DraggablePaletteItemProps> = ({
   return (
     <div
       ref={setNodeRef}
-      {...listeners}
-      {...attributes}
+      {...(!element.comingSoon && listeners)}
+      {...(!element.comingSoon && attributes)}
       style={style}
       className={cn(
         "relative flex flex-col items-center justify-center gap-2 p-3 min-w-[120px] min-h-[80px]",
-        "bg-white border border-border rounded-lg cursor-grab select-none",
-        "transition-all hover:border-primary/30 hover:bg-primary/5 hover:-translate-y-0.5 hover:shadow-sm",
-        "active:cursor-grabbing active:-translate-y-0.5",
+        "bg-white border border-border rounded-lg select-none",
+        element.comingSoon
+          ? "opacity-50 cursor-not-allowed"
+          : "cursor-grab transition-all hover:border-primary/30 hover:bg-primary/5 hover:-translate-y-0.5 hover:shadow-sm active:cursor-grabbing active:-translate-y-0.5",
         isDragging && "opacity-50",
-        isSingleElement && "bg-primary/10 border-primary/40 shadow-sm"
+        isSingleElement && !element.comingSoon && "bg-primary/10 border-primary/40 shadow-sm"
       )}
-      onClick={onClick}
+      onClick={element.comingSoon ? undefined : onClick}
       data-testid={`palette-item-${element.type}`}
     >
-      <element.icon className="w-6 h-6 text-primary" />
-      <span className="text-xs font-medium text-foreground text-center leading-tight">
+      <element.icon className={cn("w-6 h-6", element.comingSoon ? "text-muted-foreground" : "text-primary")} />
+      <span className={cn("text-xs font-medium text-center leading-tight", element.comingSoon ? "text-muted-foreground" : "text-foreground")}>
         {element.label}
       </span>
-      {isSingleElement && (
+      {element.comingSoon && (
+        <span className="absolute top-1 right-1 px-1.5 py-0.5 text-[10px] font-medium bg-muted text-muted-foreground rounded-full border border-border" data-testid={`coming-soon-badge-${element.type}`}>
+          Soon
+        </span>
+      )}
+      {isSingleElement && !element.comingSoon && (
         <div className="absolute -top-9 left-1/2 -translate-x-1/2 px-2 py-1 bg-popover border border-border rounded shadow-md text-xs whitespace-nowrap opacity-100 transition-opacity">
           Press Enter to add
         </div>

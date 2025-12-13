@@ -9,6 +9,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 ?>
+<style>
+	/* Hide WordPress admin chrome for fullscreen builder experience */
+	#adminmenumain,
+	#wpadminbar { display: none !important; }
+	#wpcontent,
+	#wpfooter { margin-left: 0 !important; }
+	#wpbody { padding-top: 0 !important; }
+	html.wp-toolbar { padding-top: 0 !important; }
+</style>
 <script>
 	// Add sfui-admin-root ID to body for Tailwind CSS scoping
 	// Required because shadcn/ui components like Drawer use portals that render outside React root
@@ -44,6 +53,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 				formSettings: '<?php echo esc_js( __( 'Form Settings', 'super-forms' ) ); ?>',
 				undo: '<?php echo esc_js( __( 'Undo', 'super-forms' ) ); ?>',
 				redo: '<?php echo esc_js( __( 'Redo', 'super-forms' ) ); ?>'
+			},
+			navigation: {
+				dashboard: '<?php echo esc_url( admin_url() ); ?>',
+				forms: '<?php echo esc_url( admin_url( 'admin.php?page=super_forms_list' ) ); ?>',
+				entries: '<?php echo esc_url( admin_url( 'edit.php?post_type=super_contact_entry' ) ); ?>',
+				settings: '<?php echo esc_url( admin_url( 'admin.php?page=super_settings' ) ); ?>'
 			}
 		};
 	</script>

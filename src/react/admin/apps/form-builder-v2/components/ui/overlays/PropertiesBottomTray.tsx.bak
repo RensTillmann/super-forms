@@ -1,5 +1,5 @@
-import React, { useRef, useState, useMemo, useEffect, useCallback } from 'react';
-import { X, Trash2, FileText, Palette, Settings2, Code2, LayoutTemplate, Sparkles } from 'lucide-react';
+import React, { useRef, useState, useMemo, useEffect } from 'react';
+import { ChevronUp, ChevronDown, X, Trash2, FileText, Palette, Settings2, Code2, LayoutTemplate, Sparkles } from 'lucide-react';
 import { PropertiesBottomTrayProps } from '../types/overlay.types';
 import { cn } from '../../../../../lib/utils';
 import { useWPAdminSidebar } from '../../../../../hooks/useWPAdminSidebar';
@@ -22,11 +22,9 @@ const TAB_CONFIG: { id: PanelTab; label: string; icon: React.ComponentType<{ cla
 ];
 
 /**
- * Mobile-only Properties Bottom Tray - displays element properties in a bottom tray.
+ * Properties Bottom Tray for mobile - displays element properties in a bottom tray
  * Uses the same UI pattern as ResizableBottomTray (elements palette) but with higher z-index
  * to overlay on top of the elements tray.
- *
- * Note: Desktop uses FloatingPanel instead (see ui/desktop/).
  */
 export const PropertiesBottomTray: React.FC<PropertiesBottomTrayProps> = ({
   isCollapsed,
@@ -40,12 +38,6 @@ export const PropertiesBottomTray: React.FC<PropertiesBottomTrayProps> = ({
   const [activeTab, setActiveTab] = useState<PanelTab>('content');
   const [viewportBottom, setViewportBottom] = useState(0);
   const [visualViewportHeight, setVisualViewportHeight] = useState(window.innerHeight);
-
-  // Swipe-to-close state (using refs for smooth 60fps drag)
-  const touchStartY = useRef<number>(0);
-  const touchCurrentY = useRef<number>(0);
-  const isDragging = useRef(false);
-  const dragOffset = useRef<number>(0);
 
   // Get WordPress admin sidebar width for dynamic positioning
   const { width: sidebarWidth } = useWPAdminSidebar();
@@ -83,77 +75,6 @@ export const PropertiesBottomTray: React.FC<PropertiesBottomTrayProps> = ({
       }
     };
   }, []);
-
-  // Touch handlers for swipe-to-close - using direct DOM for smooth 60fps drag
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    const touch = e.touches[0];
-    const target = e.target as HTMLElement;
-
-    // Only allow dragging from the drag handle
-    if (target.closest('[data-drag-handle]')) {
-      touchStartY.current = touch.clientY;
-      touchCurrentY.current = touch.clientY;
-      isDragging.current = true;
-      dragOffset.current = 0;
-
-      // Disable transitions during drag for smooth movement
-      if (trayRef.current) {
-        trayRef.current.style.transition = 'none';
-      }
-    }
-  }, []);
-
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    if (!isDragging.current) return;
-
-    // Prevent pull-to-refresh
-    e.preventDefault();
-
-    const touch = e.touches[0];
-    touchCurrentY.current = touch.clientY;
-
-    const diff = touchCurrentY.current - touchStartY.current;
-    // Only allow dragging down (positive diff)
-    if (diff > 0 && trayRef.current) {
-      dragOffset.current = diff;
-      // Direct DOM manipulation for smooth 60fps - bypass React
-      trayRef.current.style.transform = `translateY(${diff}px)`;
-    }
-  }, []);
-
-  const handleTouchEnd = useCallback(() => {
-    if (!isDragging.current) return;
-
-    isDragging.current = false;
-    const diff = touchCurrentY.current - touchStartY.current;
-
-    // Re-enable transitions for snap animation
-    if (trayRef.current) {
-      trayRef.current.style.transition = 'transform 300ms ease-out, height 300ms ease-out, left 300ms ease-out';
-    }
-
-    // If dragged more than 80px down, close the tray
-    if (diff > 80) {
-      // Animate off screen then close
-      if (trayRef.current) {
-        trayRef.current.style.transform = 'translateY(100%)';
-      }
-      // Close after animation
-      setTimeout(() => {
-        onClose();
-        // Reset transform after close
-        if (trayRef.current) {
-          trayRef.current.style.transform = '';
-        }
-      }, 300);
-    } else {
-      // Snap back to original position
-      dragOffset.current = 0;
-      if (trayRef.current) {
-        trayRef.current.style.transform = 'translateY(0)';
-      }
-    }
-  }, [onClose]);
 
   // Subscribe to store for element data
   const element = useElementsStore((s) => s.items[elementId]);
@@ -202,9 +123,9 @@ export const PropertiesBottomTray: React.FC<PropertiesBottomTrayProps> = ({
       ref={trayRef}
       className={cn(
         "fixed right-0 z-[60]", // Higher z-index than elements tray (z-50), bottom set via style for keyboard handling
-        "bg-background border-t border-border rounded-t-xl",
+        "bg-background border-t border-border",
         "shadow-[0_-4px_16px_-2px_rgb(0,0,0,0.1)]",
-        "transition-[height,left,transform] duration-300 ease-out",
+        "transition-[height,left] duration-300 ease-out",
         "min-h-4",
         "flex flex-col"
       )}
@@ -213,25 +134,28 @@ export const PropertiesBottomTray: React.FC<PropertiesBottomTrayProps> = ({
         height: effectiveHeight,
         bottom: viewportBottom,
         maxHeight: visualViewportHeight * 0.5, // 50% of visual viewport (shrinks with keyboard)
-        overscrollBehavior: 'contain', // Prevent scroll chaining / pull-to-refresh
       }}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onTouchEnd={handleTouchEnd}
       data-testid="properties-bottom-tray"
     >
-      {/* Drag handle - swipe down to close */}
-      <div
-        className="flex justify-center py-2 shrink-0 cursor-grab active:cursor-grabbing"
-        style={{ touchAction: 'none' }}
-        data-drag-handle
-        data-testid="properties-tray-drag-handle"
-        role="separator"
-        aria-orientation="horizontal"
-        aria-label="Drag handle - swipe down to close"
+      {/* Chevron Collapse Button */}
+      <Button
+        variant="ghost"
+        size="icon"
+        className={cn(
+          "absolute -top-4 left-1/2 -translate-x-1/2",
+          "w-12 h-4 rounded-t-lg rounded-b-none",
+          "bg-muted border border-border border-b-0",
+          "text-muted-foreground",
+          "z-[1]",
+          "hover:bg-accent hover:border-primary hover:text-primary"
+        )}
+        onClick={onToggleCollapse}
+        aria-label={isCollapsed ? 'Show properties' : 'Hide properties'}
+        aria-expanded={!isCollapsed}
+        data-testid="properties-tray-collapse-button"
       >
-        <div className="w-10 h-1 bg-muted-foreground/30 rounded-full" />
-      </div>
+        {isCollapsed ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+      </Button>
 
       {!isCollapsed && (
         <>

@@ -1,32 +1,76 @@
-# shadcn/ui Input Component Documentation
+---
+title: Input
+description: Displays a form input field or a component that looks like an input field.
+component: true
+---
 
-## Overview
-
-The Input component is a form control that "displays a form input field or a component that looks like an input field."
-
-## Installation
-
-```bash
-pnpm dlx shadcn@latest add input
-```
-
-## Basic Usage
-
-```typescript
+```tsx
 import { Input } from "@/components/ui/input"
 
 export function InputDemo() {
   return <Input type="email" placeholder="Email" />
 }
+
+```
+
+## Installation
+
+<CodeTabs>
+
+<TabsList>
+  <TabsTrigger value="cli">CLI</TabsTrigger>
+  <TabsTrigger value="manual">Manual</TabsTrigger>
+</TabsList>
+<TabsContent value="cli">
+
+```bash
+npx shadcn@latest add input
+```
+
+</TabsContent>
+
+<TabsContent value="manual">
+
+<Steps>
+
+<Step>Copy and paste the following code into your project.</Step>
+
+<ComponentSource name="input" title="components/ui/input.tsx" />
+
+<Step>Update the import paths to match your project setup.</Step>
+
+</Steps>
+
+</TabsContent>
+
+</CodeTabs>
+
+## Usage
+
+```tsx
+import { Input } from "@/components/ui/input"
+```
+
+```tsx
+<Input />
 ```
 
 ## Examples
 
-### Default Input
-A standard email input with placeholder text.
+### Default
 
-### File Input
-```typescript
+```tsx
+import { Input } from "@/components/ui/input"
+
+export function InputDemo() {
+  return <Input type="email" placeholder="Email" />
+}
+
+```
+
+### File
+
+```tsx
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
@@ -38,17 +82,26 @@ export function InputFile() {
     </div>
   )
 }
+
 ```
 
-### Disabled State
-```typescript
+### Disabled
+
+```tsx
+import { Input } from "@/components/ui/input"
+
 export function InputDisabled() {
   return <Input disabled type="email" placeholder="Email" />
 }
+
 ```
 
 ### With Label
-```typescript
+
+```tsx
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+
 export function InputWithLabel() {
   return (
     <div className="grid w-full max-w-sm items-center gap-3">
@@ -57,11 +110,14 @@ export function InputWithLabel() {
     </div>
   )
 }
+
 ```
 
 ### With Button
-```typescript
+
+```tsx
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 
 export function InputWithButton() {
   return (
@@ -73,8 +129,11 @@ export function InputWithButton() {
     </div>
   )
 }
+
 ```
 
-## Recent Changes
+## Changelog
 
-**2025-09-18:** Remove `flex` class — The flex class was removed from the input component as it "is no longer needed."
+### 2025-09-18 Remove `flex` class
+
+Edit `input.tsx` and remove the `flex` class from the input component. This is no longer needed.
