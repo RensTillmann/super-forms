@@ -3122,6 +3122,10 @@ include_once 'includes/class-developer-tools.php';
 			// Enqueue Javascripts
 			if ( $enqueue_scripts = self::get_scripts() ) {
 				foreach ( $enqueue_scripts as $handle => $args ) {
+					// Skip super-admin script on super_form_v2 page - it loads inside iframe instead
+					if ( $handle === 'super-admin' && $current_screen->id === 'super-forms_page_super_form_v2' ) {
+						continue;
+					}
 					if ( ( in_array( $current_screen->id, $args['screen'] ) ) || ( $args['screen'][0] == 'all' ) ) {
 						if ( $args['method'] == 'register' ) {
 							self::$scripts[] = $handle;
@@ -3135,6 +3139,10 @@ include_once 'includes/class-developer-tools.php';
 			// Enqueue Styles
 			if ( $enqueue_styles = self::get_styles() ) {
 				foreach ( $enqueue_styles as $handle => $args ) {
+					// Skip super-admin style on super_form_v2 page - it loads inside iframe instead
+					if ( $handle === 'super-admin' && $current_screen->id === 'super-forms_page_super_form_v2' ) {
+						continue;
+					}
 					if ( ( in_array( $current_screen->id, $args['screen'] ) ) || ( $args['screen'][0] == 'all' ) ) {
 						if ( $args['method'] == 'register' ) {
 							wp_register_style( $handle, $args['src'], $args['deps'], $args['version'], $args['media'] );

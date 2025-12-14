@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { cn } from '@/lib/utils';
+import { usePortalDocument } from '@/contexts/IframeContext';
 
 interface MobileDrawerProps {
   /** Whether the drawer is open */
@@ -48,6 +49,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
   'data-testid': testId = 'mobile-drawer',
 }) => {
   const drawerRef = useRef<HTMLDivElement>(null);
+  const portalDocument = usePortalDocument();
 
   // Track if component has mounted - transitions only enabled after mount
   // This prevents the "settling" flash when drawer first renders
@@ -312,7 +314,7 @@ export const MobileDrawer: React.FC<MobileDrawerProps> = ({
         </div>
       </div>
     </div>,
-    document.body
+    portalDocument.body
   );
 };
 

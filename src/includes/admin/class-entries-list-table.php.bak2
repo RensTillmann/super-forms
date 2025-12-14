@@ -726,12 +726,7 @@ if ( ! class_exists( 'SUPER_Entries_List_Table_Page' ) ) :
 			}
 
 			// Get entries
-			$items = SUPER_Entry_DAL::query( $args );
-
-		// Convert stdClass objects to arrays for WP_List_Table compatibility
-		$this->items = array_map( function( $item ) {
-			return is_object( $item ) ? (array) $item : $item;
-		}, $items );
+			$this->items = SUPER_Entry_DAL::query( $args );
 
 			// Get total count for pagination
 			$count_args = array_diff_key( $args, array( 'limit' => '', 'offset' => '', 'orderby' => '', 'order' => '' ) );

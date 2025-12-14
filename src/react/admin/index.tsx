@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { FormBuilderRouter, SettingsRouter, EntriesRouter } from './router';
 import { FormBuilderV2 } from './apps/form-builder-v2';
+import { IframeProvider } from './contexts/IframeContext';
 import './styles/index.css';
 
 // Import types - window.sfuiData is defined in types/global.d.ts
@@ -19,6 +20,15 @@ if (document.readyState === 'loading') {
 }
 
 function initAdmin(): void {
+  // Detect if we're running in iframe context
+  const isInIframe = window !== window.parent;
+
+  if (isInIframe) {
+    console.log('SFUI Admin: Running in iframe context');
+  } else {
+    console.log('SFUI Admin: Running in parent context');
+  }
+
   const rootElement = document.getElementById('sfui-admin-mount');
 
   if (!rootElement) {
@@ -61,7 +71,9 @@ function initPage(rootElement: HTMLElement, component: React.ReactNode): void {
     const root = ReactDOM.createRoot(rootElement);
     root.render(
       <React.StrictMode>
-        {component}
+        <IframeProvider>
+          {component}
+        </IframeProvider>
       </React.StrictMode>
     );
 

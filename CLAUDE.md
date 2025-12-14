@@ -184,6 +184,21 @@ Form Builder V2 uses @dnd-kit for all drag-and-drop operations (migrated from na
 - **Features:** Touch device support, keyboard navigation (Space to grab, arrows to move), nested container drops
 - See [docs/CLAUDE.javascript.md - Drag-and-Drop System](docs/CLAUDE.javascript.md#drag-and-drop-system-dnd-kit) for implementation details
 
+**Iframe Isolation Architecture (v6.6.0+):**
+Form Builder V2 runs in an isolated iframe following WordPress Gutenberg's approach:
+- **Purpose:** Complete CSS isolation from WordPress admin styles and plugin conflicts
+- **Architecture:** Same-origin iframe with `about:blank` src, document built via DOM methods
+- **CSS Loading:** admin.css loaded only in iframe head (not parent document)
+- **Script Loading:** wp.hooks → wp.i18n → wp.apiFetch → admin.js (proper dependency chain)
+- **Communication:** postMessage bridge for navigation requests and toast notifications
+- **Portal Rendering:** Components use `usePortalDocument()` hook to portal to iframe's document.body
+- **Security:** Explicit targetOrigin (window.location.origin), source verification in parent
+- **Files:**
+  - `/src/includes/admin/views/page-create-form-v2.php` - Iframe initialization
+  - `/src/react/admin/contexts/IframeContext.tsx` - Portal document context
+  - `/src/react/admin/lib/iframeMessaging.ts` - Communication helpers
+- See [docs/CLAUDE.javascript.md - Iframe Isolation](docs/CLAUDE.javascript.md#iframe-isolation-architecture) for implementation details
+
 **Mobile UI System:**
 Form Builder V2 uses custom mobile components (replaced Vaul library in v6.6.0):
 
@@ -194,7 +209,7 @@ Form Builder V2 uses custom mobile components (replaced Vaul library in v6.6.0):
   - iOS-compatible body scroll lock (prevents background scrolling)
   - Touch swipe-to-close gesture (drag handle at top)
   - CSS transitions for smooth animations (no external dependencies)
-  - Portal rendering to document.body
+  - Portal rendering to iframe's document.body via usePortalDocument()
   - Accessibility: ARIA labels, Escape key support, screen reader announcements
 - **Usage:** RightSidebar (settings panel), MobileMenu (canvas menu)
 - **Migration Note:** Replaced Vaul to fix snap point scroll issues and eliminate external dependency

@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 import { cn } from '../../../../../lib/utils';
 import { useIsMobile } from '../../../../../hooks/useMediaQuery';
+import { usePortalDocument } from '../../../../../contexts/IframeContext';
 import { MobileDrawer } from '../../../../../components/ui/mobile-drawer';
 import { Button } from '../../../../../components/ui/button';
 
@@ -42,6 +43,7 @@ export function RightSidebar({
   className,
 }: RightSidebarProps) {
   const isMobile = useIsMobile();
+  const portalDocument = usePortalDocument();
   const [isVisible, setIsVisible] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -179,7 +181,7 @@ export function RightSidebar({
         </div>
       </div>
     </div>,
-    document.body
+    portalDocument.body
   );
 }
 

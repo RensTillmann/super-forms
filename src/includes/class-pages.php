@@ -52,6 +52,9 @@ if ( ! class_exists( 'SUPER_Pages' ) ) :
 		 * Handles the output for the Create Form V2 page (React-based builder)
 		 */
 		public static function create_form_v2() {
+			// Prevent auto-loading of admin scripts in parent - they'll load inside iframe instead
+			remove_all_actions( 'admin_enqueue_scripts' );
+
 			// Get form list for dropdown (lightweight - only id and name)
 			// Full form data is loaded via REST API when needed
 			$forms = SUPER_Form_DAL::query( array(

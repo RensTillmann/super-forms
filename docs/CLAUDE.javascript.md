@@ -380,6 +380,313 @@ The React admin CSS uses scoped resets to prevent Tailwind's preflight from brea
 
 **Reference:** See `/home/rens/super-forms/src/react/admin/styles/index.css` lines 223-313 for complete implementation
 
+### Iframe Isolation Architecture
+
+**Since v6.6.0** - Form Builder V2 runs in an isolated iframe to eliminate CSS conflicts with WordPress admin styles and plugins.
+
+**Architecture Overview:**
+
+Form Builder V2 follows WordPress Gutenberg's iframe isolation pattern:
+- **Parent Document:** Minimal WordPress admin page that creates and manages the iframe
+- **Iframe Document:** Isolated HTML document with its own `<head>` and `<body>` containing the React app
+- **Same-Origin:** `about:blank` iframe allows full DOM access without CORS issues
+- **CSS Isolation:** admin.css loaded ONLY in iframe head, not in parent document
+- **Complete Independence:** WordPress admin styles, theme styles, and plugin styles cannot affect iframe content
+
+**Why Iframe Isolation:**
+
+Before v6.6.0, Form Builder V2 lived directly in the WordPress admin DOM, suffering from CSS conflicts:
+- WordPress core admin styles (wp-admin.css, ~15,000 lines)
+- Theme admin customizations
+- Other plugin admin styles
+- All using global selectors that cascaded into Form Builder elements
+
+Example bug: TextInput had double borders (1px from WordPress + 1px from shadcn/ui).
+
+**Implementation Files:**
+
+**PHP View Template** (`/src/includes/admin/views/page-create-form-v2.php`):
+```php
+<div class="super-create-form-v2">
+  <!-- Loading indicator -->
+  <div id="sfui-loading-indicator">
+    <div class="spinner"></div>
+    <p>Loading Form Builder...</p>
+  </div>
+
+  <!-- iframe for isolated Form Builder V2 -->
+  <iframe
+    id="sfui-builder-iframe"
+    title="Form Builder"
+    data-testid="form-builder-iframe"
+  ></iframe>
+</div>
+
+<script>
+// Initialize iframe when DOM ready
+function initIframe() {
+  const iframe = document.getElementById('sfui-builder-iframe');
+
+  // CRITICAL: Attach load listener BEFORE setting src (avoid race condition)
+  iframe.addEventListener('load', function onIframeLoad() {
+    const iframeDoc = iframe.contentDocument;
+
+    // Build HTML structure
+    iframeDoc.open();
+    iframeDoc.write('<!DOCTYPE html><html lang="en"></html>');
+    iframeDoc.close();
+
+    const head = iframeDoc.createElement('head');
+    const body = iframeDoc.createElement('body');
+
+    // Add meta tags
+    const metaCharset = iframeDoc.createElement('meta');
+    metaCharset.setAttribute('charset', 'UTF-8');
+    head.appendChild(metaCharset);
+
+    // Load admin.css in iframe ONLY
+    const cssLink = iframeDoc.createElement('link');
+    cssLink.rel = 'stylesheet';
+    cssLink.href = adminCssUrl;
+    head.appendChild(cssLink);
+
+    // Setup body
+    body.id = 'sfui-admin-root';
+    const mountDiv = iframeDoc.createElement('div');
+    mountDiv.id = 'sfui-admin-mount';
+    body.appendChild(mountDiv);
+
+    // Load scripts in dependency order:
+    // wp.hooks → wp.i18n → wp.apiFetch → admin.js
+    loadScriptChain(iframeDoc, body);
+
+    // Append to iframe
+    iframeDoc.documentElement.appendChild(head);
+    iframeDoc.documentElement.appendChild(body);
+  });
+
+  iframe.src = 'about:blank';
+}
+</script>
+```
+
+**React Context** (`/src/react/admin/contexts/IframeContext.tsx`):
+```typescript
+interface IframeContextValue {
+  /** The document to use for portal rendering (iframe document or parent document) */
+  portalDocument: Document;
+  /** Whether we're running in an iframe */
+  isInIframe: boolean;
+}
+
+export const IframeProvider: React.FC<IframeProviderProps> = ({ children }) => {
+  const value = useMemo<IframeContextValue>(() => {
+    const isInIframe = window !== window.parent;
+    return {
+      portalDocument: document, // Always use current document (iframe's document)
+      isInIframe,
+    };
+  }, []);
+
+  return <IframeContext.Provider value={value}>{children}</IframeContext.Provider>;
+};
+
+// Hook to get correct document for createPortal()
+export const usePortalDocument = (): Document => {
+  const { portalDocument } = useIframeContext();
+  return portalDocument;
+};
+```
+
+**React Entry Point** (`/src/react/admin/index.tsx`):
+```typescript
+function initAdmin(): void {
+  // Detect iframe context
+  const isInIframe = window !== window.parent;
+  console.log(isInIframe ? 'Running in iframe' : 'Running in parent');
+
+  const rootElement = document.getElementById('sfui-admin-mount');
+  if (!rootElement || !window.sfuiData) return;
+
+  // Route to page
+  const root = ReactDOM.createRoot(rootElement);
+  root.render(
+    <React.StrictMode>
+      <IframeProvider>
+        <FormBuilderV2 />
+      </IframeProvider>
+    </React.StrictMode>
+  );
+}
+```
+
+**Portal Rendering Pattern:**
+
+Before (pre-v6.6.0):
+```typescript
+// Portal to parent document.body - WRONG in iframe context
+return createPortal(children, document.body);
+```
+
+After (v6.6.0+):
+```typescript
+import { usePortalDocument } from '@/contexts/IframeContext';
+
+function MobileDrawer({ children }) {
+  const portalDocument = usePortalDocument();
+
+  // Portal to iframe's document.body (correct document context)
+  return createPortal(children, portalDocument.body);
+}
+```
+
+**Communication Bridge** (`/src/react/admin/lib/iframeMessaging.ts`):
+
+For operations that need to affect the parent window (navigation, notifications):
+
+```typescript
+/**
+ * Check if running in iframe context
+ */
+export function isInIframe(): boolean {
+  return window !== window.parent;
+}
+
+/**
+ * Request parent window to navigate to a URL
+ * Uses postMessage with explicit same-origin targetOrigin
+ */
+export function navigateParent(url: string): void {
+  if (isInIframe()) {
+    window.parent.postMessage(
+      { type: 'navigate', url },
+      window.location.origin // Explicit origin for security
+    );
+  } else {
+    window.location.href = url;
+  }
+}
+
+/**
+ * Send toast notification to parent window
+ */
+export function showParentToast(
+  message: string,
+  variant: 'success' | 'error' | 'info' | 'warning' = 'info'
+): void {
+  if (isInIframe()) {
+    window.parent.postMessage(
+      { type: 'toast', message, variant },
+      window.location.origin
+    );
+  } else {
+    console.log(`[Toast ${variant}]:`, message);
+  }
+}
+```
+
+**Parent Window Message Handler** (in `page-create-form-v2.php`):
+```javascript
+function setupCommunicationBridge(iframeWindow) {
+  window.addEventListener('message', function(event) {
+    // Verify message is from our iframe (security)
+    if (event.source !== iframeWindow) return;
+
+    const message = event.data;
+    if (!message || !message.type) return;
+
+    switch (message.type) {
+      case 'navigate':
+        if (message.url) {
+          window.location.href = message.url;
+        }
+        break;
+
+      case 'toast':
+        console.log('SFUI Toast:', message.message, message.variant);
+        // Future: show WordPress admin notice
+        break;
+    }
+  });
+}
+```
+
+**Usage Examples:**
+
+**Navigate after form save:**
+```typescript
+import { navigateParent } from '@/lib/iframeMessaging';
+
+async function handleSave() {
+  await saveForm();
+  // Redirect to forms list (parent window navigates)
+  navigateParent(window.sfuiData.navigation.forms);
+}
+```
+
+**Show success notification:**
+```typescript
+import { showParentToast } from '@/lib/iframeMessaging';
+
+async function handlePublish() {
+  await publishForm();
+  showParentToast('Form published successfully!', 'success');
+}
+```
+
+**Script Loading Order:**
+
+CRITICAL - WordPress scripts must load in proper dependency order:
+
+1. **wp.hooks** - WordPress hooks system (required by wp.i18n)
+2. **wp.i18n** - Internationalization (required by wp.apiFetch)
+3. **wp.apiFetch** - REST API wrapper (required by admin.js for API calls)
+4. **admin.js** - React admin bundle
+
+Each script waits for previous to load before continuing.
+
+**Security Model:**
+
+- **Same-origin only:** iframe src is `about:blank`, inherits parent origin
+- **Explicit targetOrigin:** postMessage uses `window.location.origin` (not `'*'`)
+- **Source verification:** Parent verifies `event.source === iframeWindow`
+- **Trusted URLs:** Navigation URLs come from `window.sfuiData.navigation` (server-rendered)
+
+**Browser Compatibility:**
+
+- **Visual Viewport API:** iOS 13+, Chrome 62+, Firefox 91+, Safari 13+ (fallback: `window.innerHeight`)
+- **iframe `about:blank`:** Universal support
+- **postMessage:** Universal support
+- **contentDocument/contentWindow:** Universal support (same-origin)
+
+**Testing Considerations:**
+
+- **Playwright:** Use `page.frameLocator('[data-testid="form-builder-iframe"]')` to access iframe content
+- **React DevTools:** Works in iframe (inspect iframe content directly)
+- **Console logs:** Appear in iframe's console context
+- **Hot Module Replacement:** Vite HMR works in iframe context
+
+**Components Updated for Iframe:**
+
+- `MobileDrawer` - Uses `usePortalDocument()` for portal rendering
+- `RightSidebar` - Uses `usePortalDocument()` for portal rendering (mobile mode)
+- `useWPAdminSidebar` - Checks `window.sfuiData` before DOM queries (iframe-aware)
+
+**Benefits:**
+
+- **Zero CSS conflicts** - WordPress admin styles cannot reach iframe content
+- **No plugin interference** - Other plugins cannot inject styles into iframe
+- **Future-proof** - Any WordPress admin style changes won't affect Form Builder
+- **WordPress standard** - Same pattern used by Gutenberg (proven at scale)
+- **Performance** - Negligible overhead, one-time iframe document setup
+
+**Migration Notes:**
+
+- Portal components must use `usePortalDocument()` instead of `document.body`
+- Navigation must use `navigateParent()` instead of `window.location.href`
+- Toasts should use `showParentToast()` for parent window notifications
+- All React components automatically wrapped in `<IframeProvider>` via `index.tsx`
+
 ### Element Identification with `data-testid` (AI/Testing)
 
 **Convention**: Use `data-testid` attributes on key structural elements for:
@@ -2393,6 +2700,26 @@ interface MobileDrawerProps {
   'data-testid'?: string;
 }
 ```
+
+**Iframe Portal Rendering (v6.6.0+):**
+
+MobileDrawer uses `usePortalDocument()` hook to portal to the correct document:
+
+```typescript
+import { usePortalDocument } from '@/contexts/IframeContext';
+
+export const MobileDrawer: React.FC<MobileDrawerProps> = ({ children, ...props }) => {
+  const portalDocument = usePortalDocument();
+
+  // Portal to iframe's document.body (not parent's document.body)
+  return createPortal(
+    <div className="drawer-content">{children}</div>,
+    portalDocument.body
+  );
+};
+```
+
+This ensures the drawer renders in the isolated iframe context where CSS is properly scoped.
 
 **Usage Example:**
 ```typescript

@@ -2,14 +2,27 @@ import { useState, useEffect } from 'react';
 
 /**
  * Hook to observe WordPress admin sidebar state and width.
- * Dynamically measures the actual sidebar width from the DOM.
+ *
+ * IFRAME CONTEXT: When running in iframe, sidebar DOM elements exist in parent window
+ * and cannot be queried. In this case, we use window.sfuiData.sidebarWidth passed from PHP.
+ *
+ * NON-IFRAME CONTEXT: Dynamically measures actual sidebar width from DOM.
  *
  * @returns { width: number, isFolded: boolean }
  */
 export function useWPAdminSidebar() {
   const [width, setWidth] = useState(() => {
+    // Check if we have sidebar width from sfuiData (iframe context)
+    if (window.sfuiData?.sidebarWidth !== undefined) {
+      console.log('[useWPAdminSidebar] Using sidebar width from sfuiData:', window.sfuiData.sidebarWidth);
+      return window.sfuiData.sidebarWidth;
+    }
+
+    // Fallback: measure from DOM (non-iframe context)
     const sidebar = document.getElementById('adminmenuwrap');
-    return sidebar?.offsetWidth ?? 36; // Fallback if not found
+    const measuredWidth = sidebar?.offsetWidth ?? 36;
+    console.log('[useWPAdminSidebar] Measured sidebar width from DOM:', measuredWidth, sidebar ? '(element found)' : '(element not found, using fallback)');
+    return measuredWidth;
   });
 
   const [isFolded, setIsFolded] = useState(() =>
@@ -17,13 +30,24 @@ export function useWPAdminSidebar() {
   );
 
   useEffect(() => {
+    // Skip DOM observation if we have static width from sfuiData (iframe context)
+    if (window.sfuiData?.sidebarWidth !== undefined) {
+      console.log('[useWPAdminSidebar] Skipping DOM observation (using static width from sfuiData)');
+      return; // No cleanup needed
+    }
+
+    console.log('[useWPAdminSidebar] Setting up DOM observation for sidebar changes');
+
+    // Non-iframe context: observe DOM changes
     const updateState = () => {
       setIsFolded(document.body.classList.contains('folded'));
 
       // Measure actual sidebar width from DOM
       const sidebar = document.getElementById('adminmenuwrap');
       if (sidebar) {
-        setWidth(sidebar.offsetWidth);
+        const newWidth = sidebar.offsetWidth;
+        console.log('[useWPAdminSidebar] Sidebar width updated:', newWidth);
+        setWidth(newWidth);
       }
     };
 
@@ -36,7 +60,10 @@ export function useWPAdminSidebar() {
     // Initial measurement after mount
     updateState();
 
-    return () => observer.disconnect();
+    return () => {
+      console.log('[useWPAdminSidebar] Cleaning up DOM observer');
+      observer.disconnect();
+    };
   }, []);
 
   return { width, isFolded };
