@@ -290,6 +290,10 @@ include_once 'includes/class-developer-tools.php';
 		include_once 'includes/automations/class-automation-permissions.php';
 		include_once 'includes/automations/class-automation-api-keys.php';
 
+		// Frontend Event Trigger System - Phase 6.7: Unified frontend-to-backend event pipeline
+		include_once 'includes/class-frontend-event-trigger.php';
+		SUPER_Frontend_Event_Trigger::init();
+
 		if ( $this->is_request( 'admin' ) ) {
 				include_once 'includes/class-install.php';
 				include_once 'includes/class-menu.php';
@@ -3086,6 +3090,8 @@ include_once 'includes/class-developer-tools.php';
 						// @since 3.6.0 - google tracking
 						'ga_tracking'           => ( ! isset( $global_settings['form_ga_tracking'] ) ? '' : $global_settings['form_ga_tracking'] ),
 						'super_int_phone_utils' => SUPER_PLUGIN_FILE . 'assets/js/frontend/int-phone-utils.js',
+						// @since 6.7.0 - Frontend event trigger nonce for button automations
+						'frontend_event_nonce'  => SUPER_Frontend_Event_Trigger::get_nonce(),
 					)
 				);
 				wp_enqueue_script( $handle );

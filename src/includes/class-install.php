@@ -438,6 +438,37 @@ if ( ! class_exists( 'SUPER_Install' ) ) :
 
 			dbDelta( $sql );
 
+			// ─────────────────────────────────────────────────────────
+			// Temporary Access Tokens Table (Button Actions)
+			// @since 6.7.0
+			// ─────────────────────────────────────────────────────────
+
+			// Temp access table - secure time-limited access tokens
+			$table_name = $wpdb->prefix . 'superforms_temp_access';
+
+			$sql = "CREATE TABLE $table_name (
+				id BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+				token_hash VARCHAR(64) NOT NULL,
+				resource_type VARCHAR(20) NOT NULL,
+				resource_id BIGINT(20) UNSIGNED NOT NULL,
+				access_type VARCHAR(20) NOT NULL,
+				created_by BIGINT(20) UNSIGNED,
+				created_at DATETIME NOT NULL,
+				expires_at DATETIME NOT NULL,
+				max_uses INT UNSIGNED,
+				use_count INT UNSIGNED DEFAULT 0,
+				last_used_at DATETIME,
+				revoked_at DATETIME,
+				metadata LONGTEXT,
+				PRIMARY KEY (id),
+				KEY token_hash (token_hash),
+				KEY expires_at (expires_at),
+				KEY resource_lookup (resource_type, resource_id),
+				KEY created_by (created_by)
+			) ENGINE={$engine} $charset_collate;";
+
+			dbDelta( $sql );
+
 			// Run schema upgrades for existing installations
 			self::upgrade_database_schema();
 		}

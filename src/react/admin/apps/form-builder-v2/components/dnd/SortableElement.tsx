@@ -4,6 +4,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { Move, Settings, Trash2 } from 'lucide-react';
 import type { FormElement } from '../../types';
 import { ElementRenderer } from '../elements/ElementRenderer';
+import { ButtonAutomationIndicator } from '../property-panels/button';
 
 interface SortableElementProps {
   element: FormElement;
@@ -41,16 +42,33 @@ export const SortableElement: React.FC<SortableElementProps> = ({
     opacity: isDragging ? 0.5 : 1,
   };
 
+  // Check if this is an automation button (needs indicator badge)
+  const formId = window.sfuiData?.formId ?? 0;
+  const isAutomationButton = element.type === 'button' &&
+    element.properties?.actionType === 'trigger_automation';
+  const eventId = isAutomationButton
+    ? (element.properties?.eventId as string | undefined)
+    : undefined;
+
   return (
     <div
       ref={setNodeRef}
       style={style}
-      className={`form-element ${isSelected || isMultiSelected ? 'form-element-selected' : ''} ${isDragging ? 'form-element-dragging' : ''}`}
+      className={`form-element relative ${isSelected || isMultiSelected ? 'form-element-selected' : ''} ${isDragging ? 'form-element-dragging' : ''}`}
       data-element-id={element.id}
       data-testid={`sortable-element-${element.id}`}
       onClick={(e) => onSelect(element.id, e)}
       onContextMenu={(e) => onContextMenu(e, element.id)}
     >
+      {/* Automation indicator badge for buttons */}
+      {isAutomationButton && formId > 0 && eventId && (
+        <ButtonAutomationIndicator
+          elementId={element.id}
+          eventId={eventId}
+          formId={formId}
+        />
+      )}
+
       <div className="element-controls">
         {/* CRITICAL: listeners and attributes ONLY on the Move handle */}
         <button

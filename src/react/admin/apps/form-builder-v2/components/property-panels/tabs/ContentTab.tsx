@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { SchemaPropertyPanel } from '../schema';
 import { isElementRegistered } from '../../../../../schemas/core/registry';
-import { GeneralProperties, ValidationProperties } from '../basic';
+import { GeneralProperties } from '../basic';
+import { ButtonAutomationPanel } from '../button';
 
 interface ContentTabProps {
   element: {
@@ -21,15 +22,48 @@ export const ContentTab: React.FC<ContentTabProps> = ({
   onPropertyChange,
 }) => {
   const hasSchema = isElementRegistered(element.type);
+  const formId = window.sfuiData?.formId ?? 0;
+
+  // Check if this is a button with trigger_automation action
+  const isAutomationButton = element.type === 'button' &&
+    element.properties?.actionType === 'trigger_automation';
+
+  // Handle create automation - navigate to automations tab with pre-filled trigger
+  const handleCreateAutomation = useCallback((buttonId: string, eventId: string) => {
+    // Navigate to automations tab with params to create new automation
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.set('tab', 'automations');
+    currentUrl.searchParams.set('new_trigger_event', `button.${eventId}.clicked`);
+    currentUrl.searchParams.set('button_id', buttonId);
+    window.location.href = currentUrl.toString();
+  }, []);
 
   if (hasSchema) {
     return (
-      <SchemaPropertyPanel
-        elementType={element.type}
-        properties={element.properties || {}}
-        onPropertyChange={onPropertyChange}
-        categories={['general']}
-      />
+      <div className="space-y-4">
+        <SchemaPropertyPanel
+          elementType={element.type}
+          properties={element.properties || {}}
+          onPropertyChange={onPropertyChange}
+          categories={['general']}
+        />
+
+        {/* Button Automation Panel - shown when actionType is trigger_automation */}
+        {isAutomationButton && formId > 0 && (
+          <ButtonAutomationPanel
+            element={{
+              id: element.id,
+              properties: {
+                name: element.properties?.name as string | undefined,
+                eventId: element.properties?.eventId as string | undefined,
+                actionType: element.properties?.actionType as string | undefined,
+              },
+            }}
+            formId={formId}
+            onCreateAutomation={handleCreateAutomation}
+          />
+        )}
+      </div>
     );
   }
 

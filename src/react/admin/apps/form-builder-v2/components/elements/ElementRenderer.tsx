@@ -5,6 +5,7 @@ import { stylesToCSS, mergeWithElementProps, ResolvedStyles } from '../../../../
 // Lazy load element components
 const TextInput = lazy(() => import('./basic/TextInput'));
 const TextArea = lazy(() => import('./basic/TextArea'));
+const Button = lazy(() => import('./basic/Button'));
 const Select = lazy(() => import('./choice/Select'));
 const RadioCards = lazy(() => import('./choice/RadioCards'));
 const CheckboxCards = lazy(() => import('./choice/CheckboxCards'));
@@ -48,6 +49,7 @@ export const ElementRenderer: React.FC<ElementRendererProps> = ({
   const dividerStyle = useResolvedStyle(element.id, 'divider');
   const optionLabelStyle = useResolvedStyle(element.id, 'optionLabel');
   const cardContainerStyle = useResolvedStyle(element.id, 'cardContainer');
+  const wrapperStyle = useResolvedStyle(element.id, 'wrapper');
 
   // Convert to CSS and memoize
   const resolvedStyles = useMemo<ResolvedStyles>(() => ({
@@ -64,10 +66,11 @@ export const ElementRenderer: React.FC<ElementRendererProps> = ({
     divider: stylesToCSS(dividerStyle),
     optionLabel: stylesToCSS(optionLabelStyle),
     cardContainer: stylesToCSS(cardContainerStyle),
+    wrapper: stylesToCSS(wrapperStyle),
   }), [
     labelStyle, inputStyle, errorStyle, descriptionStyle, placeholderStyle,
     requiredStyle, fieldContainerStyle, headingStyle, paragraphStyle,
-    buttonStyle, dividerStyle, optionLabelStyle, cardContainerStyle,
+    buttonStyle, dividerStyle, optionLabelStyle, cardContainerStyle, wrapperStyle,
     element.properties
   ]);
 
@@ -93,6 +96,9 @@ export const ElementRenderer: React.FC<ElementRendererProps> = ({
 
       case 'checkbox-cards':
         return <CheckboxCards element={element} updateElementProperty={updateElementProperty!} styles={resolvedStyles} />;
+
+      case 'button':
+        return <Button element={element as { type: 'button'; id: string; properties?: Record<string, unknown> }} styles={resolvedStyles} />;
 
       case 'columns':
         return (

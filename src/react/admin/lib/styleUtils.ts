@@ -1,10 +1,10 @@
-import type { StyleProperties, BoxSpacing } from '../schemas/styles/types';
+import type { StyleProperties, Spacing } from '../schemas/styles/types';
 import type { CSSProperties } from 'react';
 
 /**
- * Convert BoxSpacing to CSS margin/padding string
+ * Convert Spacing to CSS margin/padding string
  */
-function boxSpacingToCSS(spacing: BoxSpacing | undefined): string | undefined {
+function spacingToCSS(spacing: Spacing | undefined): string | undefined {
   if (!spacing) return undefined;
   return `${spacing.top}px ${spacing.right}px ${spacing.bottom}px ${spacing.left}px`;
 }
@@ -31,8 +31,8 @@ export function stylesToCSS(style: Partial<StyleProperties>): CSSProperties {
   if (style.backgroundColor !== undefined) css.backgroundColor = style.backgroundColor;
 
   // Spacing
-  if (style.margin !== undefined) css.margin = boxSpacingToCSS(style.margin);
-  if (style.padding !== undefined) css.padding = boxSpacingToCSS(style.padding);
+  if (style.margin !== undefined) css.margin = spacingToCSS(style.margin);
+  if (style.padding !== undefined) css.padding = spacingToCSS(style.padding);
 
   // Border
   if (style.border !== undefined) {
@@ -89,4 +89,5 @@ export interface ResolvedStyles {
   divider: CSSProperties;
   optionLabel: CSSProperties;
   cardContainer: CSSProperties;
+  wrapper: CSSProperties;
 }

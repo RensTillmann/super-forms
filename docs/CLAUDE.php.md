@@ -1829,7 +1829,390 @@ POST /wp-json/super-forms/v1/forms/123/operations
 
 **Reference:** See `/home/rens/super-forms/sessions/tasks/h-implement-triggers-actions-extensibility/27-implement-operations-versioning-system.md` for full MCP server implementation plan.
 
+## Frontend Event Trigger System
+
+### Overview (v6.7.0+)
+
+The Frontend Event Trigger system provides a unified AJAX endpoint for triggering automation events from the frontend. All event types (button clicks, field interactions, step navigation, timer events) go through a single handler with type-specific validation and context building.
+
+**Key Benefits:**
+- Single AJAX endpoint for all frontend events
+- Extensible event type registry
+- Type-specific validation and context builders
+- Built-in rate limiting with configurable scopes
+- Security: nonce verification, form ownership checks
+- Wildcard event pattern support
+
+### Core Class: SUPER_Frontend_Event_Trigger
+
+**Location:** `/src/includes/class-frontend-event-trigger.php`
+
+**Initialization:**
+```php
+// Automatic initialization on plugins_loaded hook
+SUPER_Frontend_Event_Trigger::init();
+```
+
+**AJAX Endpoint:**
+- Action: `super_trigger_frontend_event`
+- Both logged-in and guest: `wp_ajax_super_trigger_frontend_event` and `wp_ajax_nopriv_super_trigger_frontend_event`
+- Nonce: `super_frontend_event`
+
+### Registering Custom Event Types
+
+**Register Event Type:**
+```php
+// Register custom event type
+add_action('super_frontend_event_trigger_init', function() {
+    SUPER_Frontend_Event_Trigger::register_frontend_event_type('custom_interaction', array(
+        'event_pattern'       => 'custom.{event_id}.triggered',
+        'required_params'     => array('form_id', 'event_id', 'interaction_data'),
+        'optional_params'     => array('form_data', 'session_key'),
+        'validation_callback' => 'my_custom_validation',
+        'context_builder'     => 'my_context_builder',
+        'supports_sync'       => true,
+        'rate_limit'          => array(
+            'max_requests'   => 5,
+            'window_seconds' => 60,
+            'scope'          => 'user_form',
+        ),
+    ));
+});
+
+function my_custom_validation($params) {
+    // Return true if valid, WP_Error if invalid
+    if (empty($params['interaction_data'])) {
+        return new WP_Error('missing_data', 'Interaction data required');
+    }
+    return true;
+}
+
+function my_context_builder($params) {
+    // Build event context from params
+    return array(
+        'interaction_type' => $params['interaction_data']['type'],
+        'interaction_value' => $params['interaction_data']['value'],
+    );
+}
+```
+
+**Event Type Configuration:**
+- `event_pattern` - Event ID pattern with {placeholders} (e.g., `button.{event_id}.clicked`)
+- `required_params` - POST parameters that must be present
+- `optional_params` - POST parameters that are optional
+- `validation_callback` - Function to validate request (return true or WP_Error)
+- `context_builder` - Function to build event context from params
+- `supports_sync` - Whether event returns response to frontend
+- `rate_limit` - Rate limiting configuration (optional)
+
+**Rate Limit Configuration:**
+- `max_requests` - Maximum requests allowed in window
+- `window_seconds` - Time window in seconds
+- `scope` - Rate limit scope: `user`, `form`, `user_form`, `ip`
+
+### Built-in Event Types
+
+**Button Click Events:**
+```php
+// Event pattern: button.{event_id}.clicked
+// Required params: form_id, button_id, event_id
+// Optional params: form_data, entry_id, session_key, button_name
+
+// Context provided to automations:
+array(
+    'form_id'      => 123,
+    'button_id'    => 'button-abc',
+    'button_name'  => 'Generate PDF',
+    'event_name'   => 'generate_pdf',
+    'form_data'    => array(...),
+    'entry_id'     => 456,
+    'session_key'  => 'abc123',
+    'user_id'      => 1,
+    'user_email'   => 'user@example.com',
+    'timestamp'    => '2025-12-15T14:30:00+00:00',
+    'source_url'   => 'https://example.com/contact',
+    'user_agent'   => 'Mozilla/5.0...',
+)
+```
+
+### Request Flow
+
+**Frontend → PHP Flow:**
+1. Frontend calls `triggerFrontendEvent('button_click', params)`
+2. Request POSTed to `admin-ajax.php?action=super_trigger_frontend_event`
+3. Nonce verified (`super_frontend_event`)
+4. Event type validated (must be registered)
+5. Required params extracted and sanitized
+6. Type-specific validation callback executed
+7. Rate limit check (if configured)
+8. Event ID built from pattern (e.g., `button.generate_pdf.clicked`)
+9. Context built (common + type-specific via context_builder)
+10. Automation event fired via `SUPER_Automation_Executor::fire_event()`
+11. Response formatted and returned to frontend
+
+**Response Format:**
+```php
+// Success
+array(
+    'success' => true,
+    'data'    => array(
+        'message'           => 'Action completed successfully',
+        'execution_time_ms' => 123.45,
+        'file_url'          => 'https://example.com/generated.pdf',  // Optional
+        'redirect_url'      => 'https://example.com/thank-you',     // Optional
+        'access_url'        => 'https://example.com/access/abc123',  // Optional
+        'result'            => array(...),                           // Optional
+    ),
+)
+
+// Error
+array(
+    'success' => false,
+    'error'   => array(
+        'code'    => 'rate_limited',
+        'message' => 'Too many requests. Please wait before trying again.',
+    ),
+)
+```
+
+### TypeScript Integration
+
+**Location:** `/src/react/admin/lib/frontendEvents.ts`
+
+**Basic Usage:**
+```typescript
+import { triggerButtonClick } from '@/lib/frontendEvents';
+
+// Trigger button click event
+const result = await triggerButtonClick({
+  formId: 123,
+  buttonId: 'button-abc',
+  eventId: 'generate_pdf',
+  formData: { name: 'John', email: 'john@example.com' },
+});
+
+if (result.success && result.data?.file_url) {
+  window.open(result.data.file_url, '_blank');
+}
+```
+
+**Generic API:**
+```typescript
+import { triggerFrontendEvent } from '@/lib/frontendEvents';
+
+// Trigger any event type
+const result = await triggerFrontendEvent('field_interaction', {
+  formId: 123,
+  fieldName: 'email',
+  interactionType: 'blur',
+  fieldValue: 'john@example.com',
+});
+```
+
+**Response Handling:**
+```typescript
+import { handleFrontendEventResponse } from '@/lib/frontendEvents';
+
+const result = await triggerButtonClick({ ... });
+
+handleFrontendEventResponse(result, {
+  onFileDownload: (url) => window.open(url, '_blank'),
+  onMessage: (msg) => toast.success(msg),
+  onRedirect: (url) => window.location.href = url,
+});
+```
+
+### Filters & Hooks
+
+**Filter Context Before Firing:**
+```php
+add_filter('super_frontend_event_context', function($context, $event_id, $event_type, $params) {
+    // Modify context before automation execution
+    if ($event_type === 'button_click') {
+        $context['custom_data'] = 'additional info';
+    }
+    return $context;
+}, 10, 4);
+```
+
+**Modify Button Validation:**
+```php
+add_filter('super_validate_button_click', function($valid, $params) {
+    // Add custom validation logic
+    if ($params['button_id'] === 'restricted-button') {
+        if (!current_user_can('special_permission')) {
+            return new WP_Error('permission_denied', 'You cannot use this button');
+        }
+    }
+    return $valid;
+}, 10, 2);
+```
+
+**Modify Button Context:**
+```php
+add_filter('super_button_click_context', function($context, $params) {
+    // Add additional context for button events
+    $context['user_role'] = wp_get_current_user()->roles[0] ?? 'guest';
+    return $context;
+}, 10, 2);
+```
+
+**After Event Fired:**
+```php
+add_action('super_frontend_event_fired', function($event_id, $context, $result, $execution_time) {
+    // Log or track frontend events
+    error_log("Event $event_id executed in {$execution_time}ms");
+}, 10, 4);
+```
+
+### Security Considerations
+
+**Nonce Generation:**
+```php
+// In frontend script enqueue
+wp_localize_script('my-script', 'superData', array(
+    'frontendEventNonce' => SUPER_Frontend_Event_Trigger::get_nonce(),
+));
+```
+
+**Rate Limiting:**
+- Implemented via WordPress transients
+- Scopes: user (by user_id or IP), form, user_form, ip
+- Example: 10 requests per 60 seconds per user+form combination
+- Returns 429 status code when rate limited
+
+**Form Ownership:**
+- Validates form exists and is `super_form` post type
+- Event ID validated (non-empty, sanitized)
+- All user input sanitized before processing
+
+### Performance
+
+**Optimizations:**
+- Fast bailout for unregistered event types
+- Type-specific validation only runs for registered types
+- Rate limit checks use transients (cached)
+- Event firing delegated to existing automation executor
+
+**Monitoring:**
+```php
+// Track execution time
+add_action('super_frontend_event_fired', function($event_id, $context, $result, $execution_time) {
+    if ($execution_time > 500) {
+        error_log("Slow event: $event_id took {$execution_time}ms");
+    }
+}, 10, 4);
+```
+
 ## Automation System API
+
+### REST API Endpoints
+
+**List Automations (GET):**
+```
+GET /wp-json/super-forms/v1/automations
+GET /wp-json/super-forms/v1/automations?enabled=true
+GET /wp-json/super-forms/v1/automations?trigger_event=button.*.clicked
+GET /wp-json/super-forms/v1/automations?trigger_event=button.generate_pdf.clicked&form_id=123
+
+Query Parameters:
+- enabled (boolean): Filter to only enabled automations (default: false)
+- trigger_event (string): Filter by event pattern with wildcard support (e.g., "button.*.clicked")
+- form_id (integer): Filter by form ID (works with trigger_event for form-specific results)
+
+Response: Array of automation objects
+[
+  {
+    "id": 1,
+    "name": "Email PDF Receipt",
+    "enabled": 1,
+    "workflow_type": "visual",
+    "workflow_graph": {...}
+  },
+  ...
+]
+```
+
+**Wildcard Pattern Matching:**
+The `trigger_event` parameter supports wildcard patterns for flexible filtering:
+- `button.*.clicked` - Matches any button click event (button.save.clicked, button.submit.clicked, etc.)
+- `button.generate_pdf.clicked` - Matches exact event only
+- Pattern converted to regex internally: `*` becomes `[^.]+` (any non-dot characters)
+
+**Form Scope Filtering:**
+When both `trigger_event` and `form_id` are provided, the system:
+1. Searches workflow_graph JSON for trigger nodes matching the event pattern
+2. Checks node-level scope configuration within each trigger node
+3. Returns automations where:
+   - Node scope is "all" (global), OR
+   - Node formId matches the provided form_id
+
+**Example Use Cases:**
+```php
+// Get all button click automations (any button, any form)
+$url = '/wp-json/super-forms/v1/automations?trigger_event=button.*.clicked';
+
+// Get automations for specific button event across all forms
+$url = '/wp-json/super-forms/v1/automations?trigger_event=button.generate_pdf.clicked';
+
+// Get automations for specific button on specific form
+$url = '/wp-json/super-forms/v1/automations?trigger_event=button.generate_pdf.clicked&form_id=123';
+
+// Get only enabled automations matching pattern
+$url = '/wp-json/super-forms/v1/automations?trigger_event=button.*.clicked&enabled=true';
+```
+
+### SUPER_Automation_Manager API
+
+**Get Automations by Trigger Event:**
+```php
+/**
+ * Get automations matching a trigger event pattern
+ *
+ * @param string   $event_pattern Event pattern with wildcards (e.g., 'button.*.clicked')
+ * @param int|null $form_id       Optional form ID to filter by scope
+ * @param bool     $enabled_only  Only return enabled automations (default: true)
+ * @return array Array of matching automations
+ * @since 6.7.0
+ */
+$automations = SUPER_Automation_Manager::get_automations_by_trigger_event(
+    'button.generate_pdf.clicked',
+    123,  // form_id
+    true  // enabled_only
+);
+
+// Returns array of automation objects with workflow_graph and metadata
+```
+
+**How Pattern Matching Works:**
+1. Loads all automations from database (filtered by enabled status)
+2. Converts wildcard pattern to regex (`button.*.clicked` → `/^button\.[^.]+\.clicked$/`)
+3. For each automation, inspects workflow_graph JSON:
+   - **Visual workflows**: Checks `nodes` array for trigger nodes
+   - **Code workflows**: Checks `actions` array for trigger actions
+4. Matches node/action `type` field against regex pattern
+5. If form_id provided, validates node/action scope:
+   - `scope: 'all'` - Matches any form (global automation)
+   - `scope: 'form' + formId: 123` - Matches only specified form
+6. Returns all matching automations
+
+**Example Usage in Custom Code:**
+```php
+// Find all automations that will run when "Save Draft" button clicked on form 123
+$matching = SUPER_Automation_Manager::get_automations_by_trigger_event(
+    'button.save_draft.clicked',
+    123,
+    true  // Only enabled
+);
+
+if (empty($matching)) {
+    // No automations configured - show warning to user
+    echo 'No automations will run for this button.';
+} else {
+    // Display automation count
+    echo count($matching) . ' automation(s) will run when this button is clicked.';
+}
+```
 
 ### super_dispatch_event()
 

@@ -1,5 +1,6 @@
 export { PropertyPanelRegistry, getAvailablePanels, hasPanel } from './PropertyPanelRegistry';
 export * from './basic';
+export * from './button';
 export * from './choice';
 export * from './container';
 export * from './layout';

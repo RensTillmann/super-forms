@@ -7,6 +7,7 @@
 
 // Basic elements
 import './text';
+import './button';
 // import './email';
 // import './password';
 // import './number';

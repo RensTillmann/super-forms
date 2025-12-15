@@ -50,9 +50,10 @@ Super Forms is a WordPress drag & drop form builder plugin.
 - `SUPER_Automation_Registry` - Node and action registry
 - `SUPER_Automation_REST_Controller` - REST API endpoints
 - `SUPER_Automation_Executor` - Workflow execution engine
+- `SUPER_Frontend_Event_Trigger` - Unified frontend event handler (v6.7.0+)
 
 **REST API Endpoints:**
-- `GET /super-forms/v1/automations` - List automations
+- `GET /super-forms/v1/automations` - List automations (supports `trigger_event`, `form_id`, `enabled` filters)
 - `POST /super-forms/v1/automations` - Create automation
 - `GET /super-forms/v1/automations/{id}` - Get automation
 - `PUT /super-forms/v1/automations/{id}` - Update automation
@@ -60,10 +61,18 @@ Super Forms is a WordPress drag & drop form builder plugin.
 - `POST /super-forms/v1/automations/{id}/execute` - Execute automation
 
 **Node Categories:**
-- **Triggers** - Events that start automations (Form Submitted, Entry Updated, etc.)
+- **Triggers** - Events that start automations (Form Submitted, Entry Updated, Button Clicked, etc.)
 - **Actions** - Tasks performed by the system (Send Email, Create Entry, HTTP Request, etc.)
 - **Conditions** - Branching logic (Field Comparison, A/B Test, etc.)
 - **Control** - Flow utilities (Delay, Schedule, Stop Execution, etc.)
+
+**Frontend Event System (v6.7.0+):**
+- Unified AJAX endpoint: `wp_ajax_super_trigger_frontend_event`
+- TypeScript API: `triggerFrontendEvent()` in `/src/react/admin/lib/frontendEvents.ts`
+- Event types: button_click, field_interaction, step_navigation, timer_event
+- Features: Type-specific validation, rate limiting, extensible event registry
+- Security: Nonce verification, form ownership checks, rate limiting by scope
+- See [docs/CLAUDE.php.md - Frontend Event Trigger](docs/CLAUDE.php.md#frontend-event-trigger-system) for API details
 
 ## Styles & Themes System
 
@@ -99,6 +108,8 @@ Super Forms is a WordPress drag & drop form builder plugin.
 - `NODE_STYLE_CAPABILITIES` - Define which style properties each node type supports
 
 **MCP/AI Integration (src/react/admin/mcp/):**
+
+**Style Tools:**
 - `listThemes` - Get available themes with filtering
 - `getTheme` - Retrieve theme by ID or slug
 - `applyTheme` - Apply theme to form
@@ -106,6 +117,16 @@ Super Forms is a WordPress drag & drop form builder plugin.
 - `deleteTheme` - Remove custom theme
 - `generateTheme` - Generate theme from baseColor using color theory
 - `setGlobalProperty` - Modify individual style properties with AI
+
+**Button Tools:**
+- `addButton` - Add button element with specific action type (submit, save_state, navigate, trigger_automation, open_overlay, toggle_visibility, copy_to_clipboard, reset)
+- `configureButton` - Update button properties
+- `createButtonAutomation` - Create button with bound automation workflow in one call
+- `addNavigationButtons` - Add wizard navigation buttons (prev/next) to step
+- `getButton` - Retrieve button by ID or name
+- `listButtons` - List all buttons in form
+- `removeButton` - Remove button element
+- `duplicateButton` - Duplicate existing button
 
 **System Themes:**
 - **Light** - Clean, professional with subtle grays

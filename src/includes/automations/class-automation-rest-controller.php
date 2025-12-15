@@ -379,7 +379,7 @@ if ( ! class_exists( 'SUPER_Automation_REST_Controller' ) ) :
 		 * Get automations (list)
 		 *
 		 * Node-level scope architecture: scope is configured in event nodes within workflow_graph JSON.
-		 * This endpoint returns all automations; filtering by form/event happens at execution time.
+		 * Supports filtering by trigger_event pattern and form_id.
 		 *
 		 * @param WP_REST_Request $request Request object
 		 * @return WP_REST_Response|WP_Error Response or error
@@ -391,8 +391,21 @@ if ( ! class_exists( 'SUPER_Automation_REST_Controller' ) ) :
 			// Get enabled filter (optional)
 			$enabled_only = isset( $params['enabled'] ) ? (bool) $params['enabled'] : false;
 
-			// Get all automations using DAL
-			$automations = SUPER_Automation_DAL::get_all_automations( $enabled_only );
+			// Check for trigger_event filter
+			$trigger_event = isset( $params['trigger_event'] ) ? sanitize_text_field( $params['trigger_event'] ) : null;
+			$form_id = isset( $params['form_id'] ) ? absint( $params['form_id'] ) : null;
+
+			if ( $trigger_event ) {
+				// Use Manager's event pattern filtering
+				$automations = SUPER_Automation_Manager::get_automations_by_trigger_event(
+					$trigger_event,
+					$form_id,
+					$enabled_only
+				);
+			} else {
+				// Get all automations using DAL
+				$automations = SUPER_Automation_DAL::get_all_automations( $enabled_only );
+			}
 
 			return rest_ensure_response( $automations );
 		}
@@ -728,7 +741,7 @@ if ( ! class_exists( 'SUPER_Automation_REST_Controller' ) ) :
 		/**
 		 * Get collection params
 		 *
-		 * Node-level scope architecture: filtering by form/event happens at execution time.
+		 * Node-level scope architecture: filtering by form/event via trigger_event param.
 		 *
 		 * @return array Collection parameters
 		 * @since 6.5.0
@@ -740,6 +753,16 @@ if ( ! class_exists( 'SUPER_Automation_REST_Controller' ) ) :
 					'default'           => false,
 					'description'       => 'Filter to only enabled automations',
 					'sanitize_callback' => 'rest_sanitize_boolean',
+				),
+				'trigger_event' => array(
+					'type'              => 'string',
+					'description'       => 'Filter by trigger event pattern (e.g., button.*.clicked). Supports wildcards.',
+					'sanitize_callback' => 'sanitize_text_field',
+				),
+				'form_id' => array(
+					'type'              => 'integer',
+					'description'       => 'Filter by form ID (used with trigger_event to find form-specific automations)',
+					'sanitize_callback' => 'absint',
 				),
 			);
 		}

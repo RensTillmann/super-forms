@@ -218,6 +218,23 @@ export const EVENT_NODES: Record<string, NodeTypeDefinition> = {
       formId: null,
     },
   },
+
+  // Button Events
+  'button.clicked': {
+    id: 'button.clicked',
+    name: 'Button Clicked',
+    category: 'event',
+    color: '#10b981',
+    icon: FormInput,
+    description: 'Trigger when a button is clicked',
+    inputs: [],
+    outputs: ['button_data', 'form_data'],
+    config: {
+      scope: 'all',
+      formId: null,
+      eventId: '', // The button's event ID (e.g., 'generate_pdf')
+    },
+  },
 };
 
 /**

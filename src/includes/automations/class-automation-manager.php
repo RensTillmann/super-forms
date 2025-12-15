@@ -602,6 +602,155 @@ if ( ! class_exists( 'SUPER_Automation_Manager' ) ) :
 		}
 
 		/**
+		 * Get automations by trigger event pattern
+		 *
+		 * Searches workflow_graph JSON for trigger nodes matching the event pattern.
+		 * Supports wildcards (e.g., button.*.clicked matches button.my_btn.clicked).
+		 *
+		 * @param string   $event_pattern Event pattern to match (e.g., 'button.*.clicked')
+		 * @param int|null $form_id       Optional form ID to filter by scope
+		 * @param bool     $enabled_only  Only return enabled automations
+		 * @return array Array of matching automations
+		 * @since 6.7.0
+		 */
+		public static function get_automations_by_trigger_event( $event_pattern, $form_id = null, $enabled_only = true ) {
+			// Get all automations
+			$all_automations = SUPER_Automation_DAL::get_all_automations( $enabled_only );
+
+			if ( empty( $all_automations ) ) {
+				return array();
+			}
+
+			// Convert wildcard pattern to regex
+			$regex_pattern = self::event_pattern_to_regex( $event_pattern );
+
+			$matching_automations = array();
+
+			foreach ( $all_automations as $automation ) {
+				// Check if automation has trigger nodes matching the pattern
+				$matches = false;
+
+				if ( 'visual' === $automation['workflow_type'] && ! empty( $automation['workflow_graph']['nodes'] ) ) {
+					$matches = self::check_workflow_nodes_match_pattern(
+						$automation['workflow_graph']['nodes'],
+						$regex_pattern,
+						$form_id
+					);
+				} elseif ( 'code' === $automation['workflow_type'] && ! empty( $automation['workflow_graph']['actions'] ) ) {
+					$matches = self::check_workflow_actions_match_pattern(
+						$automation['workflow_graph']['actions'],
+						$regex_pattern,
+						$form_id
+					);
+				}
+
+				if ( $matches ) {
+					$matching_automations[] = $automation;
+				}
+			}
+
+			return $matching_automations;
+		}
+
+		/**
+		 * Convert event pattern with wildcards to regex
+		 *
+		 * @param string $pattern Event pattern (e.g., 'button.*.clicked')
+		 * @return string Regex pattern
+		 * @since 6.7.0
+		 */
+		private static function event_pattern_to_regex( $pattern ) {
+			// Escape regex special characters except *
+			$escaped = preg_quote( $pattern, '/' );
+			// Replace escaped \* with regex pattern for any characters
+			$regex = str_replace( '\\*', '[^.]+', $escaped );
+			return '/^' . $regex . '$/';
+		}
+
+		/**
+		 * Check if visual workflow nodes match event pattern
+		 *
+		 * @param array       $nodes         Workflow nodes
+		 * @param string      $regex_pattern Regex pattern to match
+		 * @param int|null    $form_id       Optional form ID filter
+		 * @return bool True if any trigger node matches
+		 * @since 6.7.0
+		 */
+		private static function check_workflow_nodes_match_pattern( $nodes, $regex_pattern, $form_id = null ) {
+			foreach ( $nodes as $node ) {
+				// Check node type against pattern
+				if ( empty( $node['type'] ) ) {
+					continue;
+				}
+
+				if ( ! preg_match( $regex_pattern, $node['type'] ) ) {
+					continue;
+				}
+
+				// If form_id filter specified, check scope
+				if ( null !== $form_id ) {
+					$node_config = isset( $node['config'] ) ? $node['config'] : array();
+					$scope = isset( $node_config['scope'] ) ? $node_config['scope'] : 'all';
+
+					if ( 'all' === $scope ) {
+						// Global scope matches any form
+						return true;
+					}
+
+					// Check specific form
+					if ( ! empty( $node_config['formId'] ) && absint( $node_config['formId'] ) === absint( $form_id ) ) {
+						return true;
+					}
+				} else {
+					// No form filter, any match counts
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		/**
+		 * Check if code workflow actions match event pattern
+		 *
+		 * @param array       $actions       Workflow actions
+		 * @param string      $regex_pattern Regex pattern to match
+		 * @param int|null    $form_id       Optional form ID filter
+		 * @return bool True if any trigger action matches
+		 * @since 6.7.0
+		 */
+		private static function check_workflow_actions_match_pattern( $actions, $regex_pattern, $form_id = null ) {
+			foreach ( $actions as $action ) {
+				// Check action type against pattern
+				if ( empty( $action['type'] ) ) {
+					continue;
+				}
+
+				if ( ! preg_match( $regex_pattern, $action['type'] ) ) {
+					continue;
+				}
+
+				// If form_id filter specified, check scope
+				if ( null !== $form_id ) {
+					$action_config = isset( $action['config'] ) ? $action['config'] : array();
+					$scope = isset( $action_config['scope'] ) ? $action_config['scope'] : 'all';
+
+					if ( 'all' === $scope ) {
+						return true;
+					}
+
+					if ( ! empty( $action_config['formId'] ) && absint( $action_config['formId'] ) === absint( $form_id ) ) {
+						return true;
+					}
+				} else {
+					return true;
+				}
+			}
+
+			return false;
+		}
+
+		/**
 		 * Duplicate trigger
 		 *
 		 * @param int   $automation_id Trigger ID to duplicate

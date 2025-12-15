@@ -381,6 +381,32 @@ class SUPER_Automation_Registry {
             'phase' => 1
         ]);
 
+        // Button Action Events
+        // @since 6.7.0 - Frontend button clicks can trigger automations
+        $this->register_event('button.*.clicked', [
+            'label' => __('Button Clicked', 'super-forms'),
+            'description' => __('Custom button triggered an automation event', 'super-forms'),
+            'category' => 'button_actions',
+            'available_context' => [
+                'form_id',
+                'button_id',
+                'button_name',
+                'event_name',
+                'form_data',
+                'entry_id',
+                'session_key',
+                'user_id',
+                'user_email',
+                'timestamp',
+                'source_url',
+                'user_agent',
+            ],
+            'required_context' => ['form_id', 'button_id', 'event_name'],
+            'compatible_actions' => ['*'], // All actions compatible with button events
+            'supports_sync' => true, // Returns response to frontend for UI updates
+            'phase' => 1
+        ]);
+
         // Entry Events
         $this->register_event('entry.created', [
             'label' => __('Entry Created', 'super-forms'),
@@ -679,6 +705,12 @@ class SUPER_Automation_Registry {
         // Phase 5: Advanced Integration Actions
         $this->register_action('http_request', 'SUPER_Action_HTTP_Request');
         // Note: execute_php deferred for security review
+
+        // Phase 6: Button Action Utilities (6.7.0)
+        $this->register_action('generate_file', 'SUPER_Action_Generate_File');
+        $this->register_action('generate_temp_access', 'SUPER_Action_Generate_Temp_Access');
+        $this->register_action('calculate', 'SUPER_Action_Calculate');
+        $this->register_action('validate_data', 'SUPER_Action_Validate_Data');
     }
 
     /**

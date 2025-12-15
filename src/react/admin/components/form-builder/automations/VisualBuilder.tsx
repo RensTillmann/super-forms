@@ -16,9 +16,11 @@ import type { WorkflowNode, WorkflowGraph } from './types/workflow.types';
 interface VisualBuilderProps {
   formId?: number;
   automationId?: number | null;
+  newTriggerEvent?: string | null;
+  buttonId?: string | null;
 }
 
-export function VisualBuilder({ formId, automationId }: VisualBuilderProps) {
+export function VisualBuilder({ formId, automationId, newTriggerEvent, buttonId }: VisualBuilderProps) {
   const editor = useNodeEditor();
   const [workflowName, setWorkflowName] = useState('Untitled Workflow');
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
@@ -39,6 +41,32 @@ export function VisualBuilder({ formId, automationId }: VisualBuilderProps) {
       loadWorkflow(automationId);
     }
   }, [automationId]);
+
+  // Pre-create trigger node if newTriggerEvent provided (from button "Create Automation")
+  useEffect(() => {
+    if (newTriggerEvent && !automationId && editor.nodes.length === 0) {
+      // Parse event pattern: button.{eventId}.clicked
+      const match = newTriggerEvent.match(/^button\.(.+)\.clicked$/);
+      if (match) {
+        const eventId = match[1];
+        // Add button.clicked trigger node with pre-filled config
+        editor.addNode('button.clicked', { x: 100, y: 100 });
+        // Update the node config with eventId and formId
+        setTimeout(() => {
+          const triggerNode = editor.nodes.find(n => n.type === 'button.clicked');
+          if (triggerNode) {
+            editor.updateNodeConfig(triggerNode.id, {
+              eventId,
+              formId: formId || null,
+              scope: formId ? 'form' : 'all',
+            });
+          }
+        }, 100);
+        // Set workflow name based on button
+        setWorkflowName(`Button ${eventId} Automation`);
+      }
+    }
+  }, [newTriggerEvent, automationId, formId, editor]);
 
   /**
    * Load workflow from backend
@@ -88,7 +116,9 @@ export function VisualBuilder({ formId, automationId }: VisualBuilderProps) {
         n.type.startsWith('form.') ||
         n.type.startsWith('entry.') ||
         n.type.startsWith('payment.') ||
-        n.type.startsWith('session.')
+        n.type.startsWith('session.') ||
+        n.type.startsWith('button.') ||
+        n.type.startsWith('file.')
       );
 
       if (!triggerNode) {

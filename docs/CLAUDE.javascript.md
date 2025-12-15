@@ -125,6 +125,10 @@ Element properties are organized into 5 categories:
 - `advanced` - Advanced features (character counter, action buttons, help tooltips)
 - `conditions` - Conditional logic
 
+**Registered Element Types:**
+- `text` - Text input with prefix/suffix addons (see `/src/react/admin/schemas/elements/text.ts`)
+- `button` - Action button with 8 action types (submit, save_state, navigate, trigger_automation, etc.) (see `/src/react/admin/schemas/elements/button.ts` and MCP Button Tools section below for full API)
+
 **Usage in Components:**
 ```typescript
 import { TabBar } from '@/apps/form-builder-v2/components/TabBar';
@@ -1616,7 +1620,7 @@ Color theory functions:
 - `getAnalogous(color)` - Adjacent hues (±30deg)
 - `adjustSaturation(color, amount)` - Increase/decrease saturation
 
-**AI Example Prompts:**
+**AI Example Prompts (Style Tools):**
 ```
 "use the dark theme"
 → listThemes() → find dark → applyTheme(id: 2)
@@ -1632,6 +1636,299 @@ Color theory functions:
     baseColor: "#1d4ed8"
   })
 ```
+
+### Button Tools
+
+**Location:** `/src/react/admin/mcp/handlers/buttonActions.ts`
+
+**Purpose:** Enable LLM agents to add and configure button elements with diverse action types including automation triggers, navigation, overlays, and state management.
+
+**Button Action Schema:**
+```typescript
+import { z } from 'zod';
+
+// Button can trigger 8 different action types
+const ButtonActionTypeSchema = z.enum([
+  'submit',              // Standard form submission
+  'save_state',          // Save as draft/pending/incomplete
+  'reset',               // Clear all form fields
+  'navigate',            // Wizard step navigation (next/previous/specific)
+  'trigger_automation',  // Fire custom event for automation workflow
+  'open_overlay',        // Open modal/drawer/popup/dialog
+  'toggle_visibility',   // Show/hide other form elements
+  'copy_to_clipboard',   // Copy content to clipboard
+]);
+
+// Add button to form
+const AddButtonAction = z.object({
+  action: z.literal('addButton'),
+  formId: z.number(),
+  buttonText: z.string(),
+  actionType: ButtonActionTypeSchema.default('submit'),
+  // Optional styling
+  variant: z.enum(['primary', 'secondary', 'outline', 'ghost', 'link', 'destructive']).optional(),
+  size: z.enum(['xs', 'sm', 'md', 'lg', 'xl']).optional(),
+  icon: z.string().optional(),
+  fullWidth: z.boolean().optional(),
+  // Action-specific properties
+  eventId: z.string().optional(),              // For trigger_automation
+  saveState: z.enum(['draft', 'pending_review', 'incomplete']).optional(),
+  navigateDirection: z.enum(['next', 'previous', 'first', 'last', 'specific']).optional(),
+  overlayType: z.enum(['modal', 'dialog', 'drawer', 'tray', 'sheet', 'popup']).optional(),
+  targetElements: z.array(z.string()).optional(),  // For toggle_visibility
+  // Behavior
+  validateBeforeAction: z.boolean().optional(),
+  loadingText: z.string().optional(),
+  successText: z.string().optional(),
+  // Placement
+  afterElementId: z.string().optional(),
+  position: z.enum(['start', 'end']).optional(),
+});
+```
+
+**Handler Functions:**
+
+```typescript
+export async function handleButtonAction(rawAction: unknown): Promise<ButtonActionResponse> {
+  const action = ButtonActionSchema.parse(rawAction);
+
+  switch (action.action) {
+    case 'addButton': {
+      const store = useElementsStore.getState();
+      const elementId = `button-${generateId()}`;
+
+      store.addElement({
+        type: 'button',
+        id: elementId,
+        properties: {
+          buttonText: action.buttonText,
+          actionType: action.actionType,
+          variant: action.variant || 'primary',
+          // ... map all properties
+        }
+      }, insertIndex);
+
+      return { success: true, data: { elementId, name } };
+    }
+
+    case 'createButtonAutomation': {
+      // Add button + create automation in one call
+      const buttonId = await addButtonElement(action);
+      const automationId = await wp.apiFetch({
+        path: '/super-forms/v1/automations',
+        method: 'POST',
+        data: {
+          name: action.automationName,
+          trigger_event: `button.${action.eventId}.clicked`,
+          actions: action.automationActions
+        }
+      });
+      return { success: true, data: { buttonId, automationId } };
+    }
+
+    case 'addNavigationButtons': {
+      // Add prev/next buttons for wizard steps
+      if (action.showPrevious) {
+        store.addElement({
+          type: 'button',
+          properties: {
+            buttonText: action.previousText || 'Back',
+            actionType: 'navigate',
+            navigateDirection: 'previous',
+            variant: 'outline'
+          }
+        });
+      }
+      if (action.showNext) {
+        store.addElement({
+          type: 'button',
+          properties: {
+            buttonText: action.isFinalStep ? 'Submit' : action.nextText || 'Next',
+            actionType: action.isFinalStep ? 'submit' : 'navigate',
+            navigateDirection: 'next',
+            variant: 'primary'
+          }
+        });
+      }
+      return { success: true };
+    }
+  }
+}
+```
+
+**AI Example Prompts (Button Tools):**
+```
+"add a submit button at the end"
+→ addButton({ formId: 123, buttonText: "Submit", actionType: "submit", position: "end" })
+
+"add a save draft button with outline style"
+→ addButton({
+    formId: 123,
+    buttonText: "Save Draft",
+    actionType: "save_state",
+    saveState: "draft",
+    variant: "outline",
+    icon: "save"
+  })
+
+"create a button that generates a PDF when clicked"
+→ createButtonAutomation({
+    formId: 123,
+    buttonText: "Generate PDF",
+    eventId: "generate_pdf",
+    icon: "file-text",
+    loadingText: "Generating...",
+    successText: "PDF Ready!",
+    automationActions: [
+      { type: "generate_file", config: { template: "invoice", format: "pdf" } }
+    ]
+  })
+
+"add navigation buttons to step 2"
+→ addNavigationButtons({
+    formId: 123,
+    stepIndex: 2,
+    showPrevious: true,
+    showNext: true,
+    nextText: "Continue",
+    validateBeforeNext: true
+  })
+
+"add a button that opens a modal with terms and conditions"
+→ addButton({
+    formId: 123,
+    buttonText: "View Terms",
+    actionType: "open_overlay",
+    overlayType: "modal",
+    overlayTitle: "Terms & Conditions",
+    overlayContent: "<p>Your terms content here...</p>",
+    variant: "link"
+  })
+
+"list all buttons in form 123"
+→ listButtons({ formId: 123 })
+
+"update button btn-abc123 to be destructive style"
+→ configureButton({
+    elementId: "btn-abc123",
+    updates: { variant: "destructive", buttonText: "Delete Entry" }
+  })
+```
+
+**Button Element Properties:**
+
+Button elements support 40+ properties organized into categories:
+
+**General Properties:**
+- `buttonText` (string, translatable, supportsTags) - Text displayed on button
+- `actionType` (select) - What happens on click (submit, save_state, reset, navigate, trigger_automation, open_overlay, toggle_visibility, copy_to_clipboard)
+- `eventId` (string) - Custom event identifier for automation binding (pattern: `^[a-z][a-z0-9_]*$`)
+- `icon` (icon) - Lucide icon name
+- `iconPosition` (select) - left/right
+
+**Action-Specific Properties:**
+- `saveState` - draft/pending_review/incomplete (shown when actionType=save_state)
+- `navigateDirection` - next/previous/first/last/specific (shown when actionType=navigate)
+- `targetStep` - Step number/ID for specific navigation
+- `overlayType` - modal/dialog/drawer/tray/sheet/popup (shown when actionType=open_overlay)
+- `overlayTitle`, `overlayContent`, `overlaySize`, `drawerPosition` - Overlay configuration
+- `targetElements` - Element IDs to show/hide (shown when actionType=toggle_visibility)
+- `visibilityAction` - toggle/show/hide
+- `copySource` - static/field/template (shown when actionType=copy_to_clipboard)
+- `copyContent`, `sourceField` - Content to copy
+
+**Validation Properties:**
+- `validateBeforeAction` (boolean, default: true) - Validate form before executing action
+- `disabledUntilValid` (boolean) - Button disabled until all required fields valid
+
+**Appearance Properties:**
+- `variant` (select) - primary/secondary/outline/ghost/link/destructive
+- `size` (select) - xs/sm/md/lg/xl
+- `fullWidth` (boolean) - Button spans full container width
+- `alignment` (select) - left/center/right
+
+**Advanced Properties:**
+- `loadingText` (string, translatable) - Text shown during action execution
+- `successText` (string, translatable) - Button text after successful action
+- `successDuration` (number, default: 2000) - How long to show success state
+- `confirmBeforeAction` (boolean) - Show confirmation dialog
+- `confirmationMessage` (string, translatable) - Confirmation dialog message
+- `successMessage` (string, translatable, supportsTags) - Toast message on success
+- `errorMessage` (string, translatable, supportsTags) - Toast message on error
+- `awaitResponse` (boolean, default: true) - Wait for automation completion (trigger_automation only)
+- `testId` (string) - data-testid attribute for testing
+
+**Property Conditional Visibility:**
+Each action type exposes relevant properties via `conditions` array. For example, `eventId` only shows when `actionType` equals `trigger_automation`.
+
+**Button Element Schema Registration:**
+
+```typescript
+// src/react/admin/schemas/elements/button.ts
+export const ButtonElementSchema = registerElement({
+  type: 'button',
+  name: 'Button',
+  description: 'Action button that triggers automations, navigation, or other behaviors',
+  category: 'basic',
+  icon: 'mouse-pointer-click',
+  container: null,
+
+  properties: withBaseProperties({
+    general: {
+      buttonText: { type: 'string', label: 'Button Text', default: 'Submit', translatable: true, supportsTags: true },
+      actionType: { type: 'select', label: 'Action Type', options: [...], default: 'submit' },
+      eventId: {
+        type: 'string',
+        label: 'Event ID',
+        pattern: '^[a-z][a-z0-9_]*$',
+        conditions: [{ property: 'actionType', operator: 'equals', value: 'trigger_automation' }]
+      },
+      // ... 40+ more properties
+    },
+    validation: { validateBeforeAction, disabledUntilValid },
+    appearance: { variant, size, fullWidth, alignment },
+    advanced: { loadingText, successText, confirmBeforeAction, awaitResponse, testId }
+  }),
+
+  defaults: {
+    buttonText: 'Submit',
+    actionType: 'submit',
+    variant: 'primary',
+    size: 'md',
+    validateBeforeAction: true,
+    hideLabel: true
+  },
+
+  translatable: ['buttonText', 'loadingText', 'successText', 'confirmationMessage', 'successMessage', 'errorMessage', 'overlayTitle', 'overlayContent'],
+  supportsTags: ['buttonText', 'copyContent', 'successMessage', 'errorMessage', 'overlayContent']
+});
+```
+
+**MCP Tool Definition:**
+
+```typescript
+export const buttonToolDefinition = {
+  name: 'form_buttons',
+  description: `Manage form button elements with various action types...`,
+  inputSchema: ButtonActionSchema
+};
+```
+
+**ElementsStore Integration:**
+
+Button MCP handlers use the ElementsStore API:
+- `addElement(element, index?)` - Add button to form
+- `updateElement(elementId, updates)` - Update button properties
+- `removeElement(elementId)` - Remove button
+- Store accessed via `useElementsStore.getState()`
+
+**Automation Event Pattern:**
+
+Buttons with `actionType: 'trigger_automation'` fire custom events:
+- Event ID pattern: `button.{eventId}.clicked`
+- Example: Button with `eventId: "generate_pdf"` fires `button.generate_pdf.clicked`
+- Automation trigger nodes can bind to these events
+- Context includes: `form_id`, `button_id`, `form_data`, `user_id`, `session_key`
 
 ## Vanilla JavaScript Components (Frontend)
 

@@ -31,6 +31,7 @@ export const NodeTypeSchema = z.enum([
   'divider',         // Separator line
   'optionLabel',     // Radio/checkbox option label
   'cardContainer',   // Card wrapper for card-style choices
+  'wrapper',         // Outer wrapper for alignment/positioning
 ]);
 
 export type NodeType = z.infer<typeof NodeTypeSchema>;
