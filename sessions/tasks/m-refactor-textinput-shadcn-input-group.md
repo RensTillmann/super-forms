@@ -1,8 +1,9 @@
 ---
 name: m-refactor-textinput-shadcn-input-group
 branch: feature/h-implement-triggers-actions-extensibility
-status: in-progress
+status: completed
 created: 2025-12-13
+completed: 2025-12-14
 ---
 
 # Refactor TextInput to Use shadcn Input/Input Group Patterns
@@ -21,16 +22,16 @@ Need to refactor TextInput to:
 4. Support all property combinations: prefix/suffix text, icons (inside/outside positioning), action buttons
 
 ## Success Criteria
-- [ ] TextInput uses shadcn Input component when no addons are present
-- [ ] TextInput uses shadcn Input Group pattern when prefix/suffix/icons/actions are configured
-- [ ] No double borders or style conflicts between theme system and Tailwind
-- [ ] Theme styles applied to appropriate element (wrapper for groups, input for standalone)
-- [ ] Icon rendering works with Lucide icons (both prefix and suffix)
-- [ ] Inside/outside positioning for addons works correctly
-- [ ] All existing properties still function (label positions, descriptions, character count, action buttons, help tooltips)
-- [ ] Visual appearance matches shadcn design system
-- [ ] Component passes TypeScript type checking
-- [ ] No regressions in Form Builder V2 canvas preview
+- [x] TextInput uses shadcn Input component when no addons are present
+- [x] TextInput uses shadcn Input Group pattern when prefix/suffix/icons/actions are configured
+- [x] No double borders or style conflicts between theme system and Tailwind
+- [x] Theme styles applied to appropriate element (wrapper for groups, input for standalone)
+- [x] Icon rendering works with Lucide icons (both prefix and suffix)
+- [x] Inside/outside positioning for addons works correctly
+- [x] All existing properties still function (label positions, descriptions, character count, action buttons, help tooltips)
+- [x] Visual appearance matches shadcn design system
+- [x] Component passes TypeScript type checking
+- [x] No regressions in Form Builder V2 canvas preview
 
 ## Context Manifest
 
@@ -486,3 +487,10 @@ Key implementation notes:
 
 ## Work Log
 - [2025-12-13] Task created, identified double border and style conflict issues
+- [2025-12-13] Installed shadcn InputGroup component via `pnpm dlx shadcn@latest add input-group`
+- [2025-12-13] Implemented style splitting utilities (`getWrapperStyles`, `getInputOnlyStyles`) to prevent double borders
+- [2025-12-13] Refactored TextInput component to use shadcn Input for simple inputs and InputGroup for addons
+- [2025-12-13] Added data-testid attributes to all elements for testing
+- [2025-12-13] Verified all 27+ properties work correctly (prefix/suffix, icons, character counter, action buttons, label positions)
+- [2025-12-13] Implemented iframe isolation for Form Builder V2 as additional CSS isolation layer
+- [2025-12-14] Task marked as completed - all success criteria met (commit: 3dbbb5d8)

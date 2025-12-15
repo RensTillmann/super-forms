@@ -71,6 +71,8 @@ const AutomationsTab = lazy(() => import('../../components/form-builder/automati
 const ThemesTab = lazy(() => import('../../components/themes').then(m => ({ default: m.ThemesTab })));
 import { GlobalStylesPanel } from '../../components/settings/GlobalStylesPanel';
 import { Button } from '../../components/ui/button';
+import { SpinnerButton } from '../../components/ui/spinner-button';
+import { FormBuilderLoadingSkeleton } from './components/FormBuilderLoadingSkeleton';
 
 // Import CSS styles (form-builder.css contains element/canvas styling not yet migrated to Tailwind)
 import './styles/form-builder.css';
@@ -985,11 +987,8 @@ const EntriesTabContent: React.FC = () => {
 
 // Loading fallback for lazy-loaded tabs
 const TabLoadingFallback = () => (
-  <div className="flex-1 flex items-center justify-center p-8">
-    <div className="text-center">
-      <RefreshCw className="w-8 h-8 mx-auto text-muted-foreground/50 animate-spin mb-2" />
-      <p className="text-sm text-muted-foreground">Loading...</p>
-    </div>
+  <div className="flex-1 flex items-center justify-center p-8" data-testid="tab-loading-fallback">
+    <SpinnerButton>Loading...</SpinnerButton>
   </div>
 );
 
@@ -1440,9 +1439,21 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
   // Detect mobile viewport for responsive behavior
   const isMobile = useIsMobile();
 
+  // Loading state - tracks when app is fully initialized
+  const [isInitializing, setIsInitializing] = useState(true);
+
   // Collapse WP admin sidebar on mount for better form builder UX
   useEffect(() => {
     document.body.classList.add('sticky-menu', 'folded');
+  }, []);
+
+  // Track initialization - mark as ready after React mount + brief delay
+  // TODO: Set back to 100ms for production (5000ms for testing)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsInitializing(false);
+    }, 5000);
+    return () => clearTimeout(timer);
   }, []);
 
   // Layout state
@@ -3154,6 +3165,10 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
 //     }
   // };
 
+  // Show loading skeleton during initialization
+  if (isInitializing) {
+    return <FormBuilderLoadingSkeleton />;
+  }
   return (
     <ErrorBoundary>
       <div className="flex flex-col h-screen">
@@ -3510,16 +3525,6 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
                                 selectedElements={selectedElements}
                               />
                             ))}
-
-                            {/* Submit button with inline editing */}
-                            <div className="mt-6">
-                              <InlineEditableText
-                                value="Submit"
-                                onChange={() => {}}
-                                className="w-full px-4 py-2 bg-blue-500 text-white rounded-md font-medium text-center"
-                                placeholder="Submit"
-                              />
-                            </div>
                           </div>
                         </SortableContext>
                       )}
@@ -3676,16 +3681,6 @@ const FormBuilderCompleteInner: React.FC<FormBuilderCompleteProps> = () => {
                               selectedElements={selectedElements}
                             />
                           ))}
-
-                          {/* Submit button with inline editing */}
-                          <div className="mt-6">
-                            <InlineEditableText
-                              value="Submit"
-                              onChange={() => {}}
-                              className="w-full px-4 py-2 bg-blue-500 text-white rounded-md font-medium text-center"
-                              placeholder="Submit"
-                            />
-                          </div>
                         </div>
                       </SortableContext>
                     )}

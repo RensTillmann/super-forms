@@ -13,12 +13,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	/* Hide WordPress admin chrome for fullscreen builder experience */
 	#adminmenumain,
 	#wpadminbar,
+	#wpfooter,
 	.notice,
 	.updated,
 	.error,
 	.update-nag { display: none !important; }
-	#wpcontent,
-	#wpfooter { margin-left: 0 !important; }
+	#wpcontent { margin-left: 0 !important; }
 	#wpbody { padding-top: 0 !important; }
 	html.wp-toolbar { padding-top: 0 !important; }
 
@@ -40,44 +40,22 @@ if ( ! defined( 'ABSPATH' ) ) {
 		display: block;
 	}
 
-	/* Loading indicator */
+	/* Loading indicator - grey background only (spinner moved to React) */
 	#sfui-loading-indicator {
 		position: fixed;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-		text-align: center;
-		z-index: 9999;
-	}
-
-	#sfui-loading-indicator .spinner {
-		width: 50px;
-		height: 50px;
-		margin: 0 auto 16px;
-		border: 4px solid #e5e7eb;
-		border-top-color: #3b82f6;
-		border-radius: 50%;
-		animation: sfui-spin 0.8s linear infinite;
-	}
-
-	@keyframes sfui-spin {
-		to { transform: rotate(360deg); }
-	}
-
-	#sfui-loading-indicator p {
-		margin: 0;
-		color: #6b7280;
-		font-size: 14px;
-		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: #f3f4f6;
+		z-index: 1;
+		/* No transition - instant removal */
 	}
 </style>
 
 <div class="super-create-form-v2">
-	<!-- Loading indicator - removed when iframe is ready -->
-	<div id="sfui-loading-indicator">
-		<div class="spinner"></div>
-		<p>Loading Form Builder...</p>
-	</div>
+	<!-- Loading indicator - just grey background, spinner in React -->
+	<div id="sfui-loading-indicator" data-testid="loading-background"></div>
 
 	<!-- iframe for isolated Form Builder V2 - Gutenberg-style isolation -->
 	<iframe
@@ -130,8 +108,9 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 	// Get asset URLs for loading in iframe
 	// Note: SUPER_PLUGIN_FILE is already a URL (plugin_dir_url), not a file path
-	const adminCssUrl = '<?php echo esc_url( SUPER_PLUGIN_FILE . 'assets/css/backend/admin.css' ); ?>';
-	const adminJsUrl = '<?php echo esc_url( SUPER_PLUGIN_FILE . 'assets/js/backend/admin.js' ); ?>';
+	// Cache-busting: using timestamp during development, use SUPER_VERSION in production
+	const adminCssUrl = '<?php echo esc_url( SUPER_PLUGIN_FILE . 'assets/css/backend/admin.css?v=' . time() ); ?>';
+	const adminJsUrl = '<?php echo esc_url( SUPER_PLUGIN_FILE . 'assets/js/backend/admin.js?v=' . time() ); ?>';
 	const wpHooksUrl = '<?php echo esc_url( includes_url( 'js/dist/hooks.min.js' ) ); ?>';
 	const wpI18nUrl = '<?php echo esc_url( includes_url( 'js/dist/i18n.min.js' ) ); ?>';
 	const wpApiFetchUrl = '<?php echo esc_url( includes_url( 'js/dist/api-fetch.min.js' ) ); ?>';
@@ -239,18 +218,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 							showLoadError('admin bundle (admin.js)', e);
 						});
 						adminScript.addEventListener('load', function() {
-							// Admin script loaded - hide loading indicator
-							// React app will mount shortly after this
-							setTimeout(function() {
-								const loadingIndicator = document.getElementById('sfui-loading-indicator');
-								if (loadingIndicator) {
-									loadingIndicator.style.opacity = '0';
-									loadingIndicator.style.transition = 'opacity 0.3s ease-out';
-									setTimeout(function() {
-										loadingIndicator.remove();
-									}, 300);
-								}
-							}, 500); // Small delay to ensure React has mounted
+							// Admin script loaded - React will show skeleton then full UI
+							// Remove parent grey background immediately
+							const loadingIndicator = document.getElementById('sfui-loading-indicator');
+							if (loadingIndicator) {
+								loadingIndicator.remove();
+							}
 						});
 						body.appendChild(adminScript);
 					});

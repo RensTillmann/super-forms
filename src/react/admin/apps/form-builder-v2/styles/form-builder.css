@@ -2854,30 +2854,6 @@ body {
   box-shadow: var(--shadow-md);
 }
 
-/* Form wrapper hover tooltip */
-.form-wrapper::before {
-  content: 'Your Form';
-  position: absolute;
-  top: -28px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 4px 10px;
-  background: var(--color-text-secondary);
-  color: white;
-  font-size: var(--font-size-xs);
-  font-weight: var(--font-weight-medium);
-  border-radius: var(--radius-sm);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity var(--duration-fast);
-  white-space: nowrap;
-  z-index: 20;
-}
-
-.form-wrapper:hover::before {
-  opacity: 1;
-}
-
 /* Layout Controls */
 .background-type-selector {
   display: flex;

@@ -13,14 +13,16 @@ import { useState, useEffect } from 'react';
 export function useWPAdminSidebar() {
   const [width, setWidth] = useState(() => {
     // Check if we have sidebar width from sfuiData (iframe context)
-    if (window.sfuiData?.sidebarWidth !== undefined) {
+    // Note: sidebarWidth can be 0, so we check !== undefined, not truthiness
+    if (window.sfuiData && 'sidebarWidth' in window.sfuiData) {
       console.log('[useWPAdminSidebar] Using sidebar width from sfuiData:', window.sfuiData.sidebarWidth);
       return window.sfuiData.sidebarWidth;
     }
 
     // Fallback: measure from DOM (non-iframe context)
     const sidebar = document.getElementById('adminmenuwrap');
-    const measuredWidth = sidebar?.offsetWidth ?? 36;
+    // If we're in an iframe (no sidebar in DOM) and no sfuiData, default to 0
+    const measuredWidth = sidebar?.offsetWidth ?? (window.self !== window.top ? 0 : 36);
     console.log('[useWPAdminSidebar] Measured sidebar width from DOM:', measuredWidth, sidebar ? '(element found)' : '(element not found, using fallback)');
     return measuredWidth;
   });

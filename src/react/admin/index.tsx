@@ -20,15 +20,6 @@ if (document.readyState === 'loading') {
 }
 
 function initAdmin(): void {
-  // Detect if we're running in iframe context
-  const isInIframe = window !== window.parent;
-
-  if (isInIframe) {
-    console.log('SFUI Admin: Running in iframe context');
-  } else {
-    console.log('SFUI Admin: Running in parent context');
-  }
-
   const rootElement = document.getElementById('sfui-admin-mount');
 
   if (!rootElement) {
@@ -65,20 +56,12 @@ function initAdmin(): void {
 }
 
 function initPage(rootElement: HTMLElement, component: React.ReactNode): void {
-  try {
-    console.log('SFUI Admin: Initializing page:', window.sfuiData?.currentPage);
-
-    const root = ReactDOM.createRoot(rootElement);
-    root.render(
-      <React.StrictMode>
-        <IframeProvider>
-          {component}
-        </IframeProvider>
-      </React.StrictMode>
-    );
-
-    console.log('SFUI Admin: Page mounted successfully');
-  } catch (error) {
-    console.error('SFUI Admin: Error during initialization:', error);
-  }
+  const root = ReactDOM.createRoot(rootElement);
+  root.render(
+    <React.StrictMode>
+      <IframeProvider>
+        {component}
+      </IframeProvider>
+    </React.StrictMode>
+  );
 }
