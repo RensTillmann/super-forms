@@ -1,7 +1,7 @@
 ---
 name: h-implement-pdf-api-service
 branch: feature/h-implement-triggers-actions-extensibility
-status: pending
+status: in-progress
 created: 2025-12-15
 ---
 
