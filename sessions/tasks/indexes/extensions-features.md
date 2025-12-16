@@ -12,6 +12,7 @@ description: Tasks related to plugin extensions, feature enhancements, and funct
 - `h-implement-triggers-actions-extensibility/` - Complete refactor of triggers/actions system with custom tables, registry pattern, and full extensibility for add-ons (CRM, AI, webhooks)
 - `h-implement-action-button-system/` - Action Button element with custom events, automation binding, and new node types (file-gen, temp-access, SQL query)
 - `h-implement-pdf-api-service/` - Server-side PDF generation service using Go + chromedp on api.super-forms.com for professional-quality vector PDFs
+- `h-implement-generate-pdf-node/` - Dedicated "Generate PDF" automation node with PDF builder UI (header/page/footer canvases) and element-level PDF settings
 
 ### Medium Priority
 - `m-implement-styles-themes-ui/` - Styles & Themes UI integration: database table for themes, REST API, MCP/AI theme generation, Styles tab, Themes tab gallery, per-element style overrides
