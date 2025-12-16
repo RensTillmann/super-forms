@@ -942,6 +942,44 @@ if ( ! class_exists( 'SUPER_Settings' ) ) :
 			);
 
 			/**
+			 *  PDF API Settings
+			 *
+			 *  @since      6.8.0
+			 */
+			$array['pdf_api_settings'] = array(
+				'hidden' => true,
+				'name'   => esc_html__( 'PDF API Service', 'super-forms' ),
+				'label'  => esc_html__( 'High-quality vector PDF generation with selectable text', 'super-forms' ),
+				'fields' => array(
+					'pdf_api_enabled'  => array(
+						'name'    => esc_html__( 'Enable PDF API', 'super-forms' ),
+						'desc'    => esc_html__( 'Use the Super Forms PDF API for server-side vector PDF generation. License is validated automatically by your site domain.', 'super-forms' ),
+						'default' => 'true',
+						'values'  => array(
+							'true' => esc_html__( 'Enable PDF API service', 'super-forms' ),
+						),
+						'type'    => 'checkbox',
+					),
+					'pdf_api_fallback' => array(
+						'name'    => esc_html__( 'Fallback Behavior', 'super-forms' ),
+						'desc'    => esc_html__( 'How to handle API failures. License errors never fall back to prevent bypassing licensing.', 'super-forms' ),
+						'default' => 'auto',
+						'type'    => 'select',
+						'values'  => array(
+							'auto'   => esc_html__( 'Automatic (fall back on network errors only)', 'super-forms' ),
+							'always' => esc_html__( 'Always fall back if API fails', 'super-forms' ),
+							'never'  => esc_html__( 'Never fall back (fail if API unavailable)', 'super-forms' ),
+						),
+						'filter'  => array(
+							'field'    => 'pdf_api_enabled',
+							'operator' => '=',
+							'value'    => 'true',
+						),
+					),
+				),
+			);
+
+			/**
 			 *  SMTP Server Configuration
 			 *
 			 *  @since      1.0.0
