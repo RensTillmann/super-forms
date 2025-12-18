@@ -41,38 +41,6 @@ export const PropertiesBottomTray: React.FC<PropertiesBottomTrayProps> = ({
   const [viewportBottom, setViewportBottom] = useState(0);
   const [visualViewportHeight, setVisualViewportHeight] = useState(window.innerHeight);
 
-  // On-screen debug logs for mobile testing
-  const [debugLogs, setDebugLogs] = useState<string[]>([]);
-  const addDebugLog = useCallback((msg: string) => {
-    console.log(msg);
-    setDebugLogs(prev => [...prev.slice(-19), msg]); // Keep last 20 logs
-  }, []);
-
-  // Helper to get current scroll state
-  const getScrollState = useCallback(() => {
-    const canvas = document.querySelector('[data-testid="canvas-container"]') as HTMLElement;
-    const element = document.querySelector(`[data-element-id="${elementId}"]`) as HTMLElement;
-    // Get parent's visual viewport offset - this is what the user ACTUALLY sees
-    let parentVVOffset = 0;
-    try {
-      if (window.parent?.visualViewport) {
-        parentVVOffset = window.parent.visualViewport.offsetTop;
-      }
-    } catch { /* cross-origin */ }
-
-    const elTop = element?.getBoundingClientRect().top ?? -999;
-    // Real visible position = element position in iframe - parent viewport offset
-    const elRealTop = elTop - parentVVOffset;
-
-    return {
-      canvasScroll: canvas?.scrollTop ?? -1,
-      docScroll: document.documentElement.scrollTop,
-      elTop: elTop,
-      parentOffset: parentVVOffset,
-      elReal: elRealTop, // Where element ACTUALLY appears to user
-    };
-  }, [elementId]);
-
   // Swipe-to-close state (using refs for smooth 60fps drag)
   const touchStartY = useRef<number>(0);
   const touchCurrentY = useRef<number>(0);
@@ -88,40 +56,24 @@ export const PropertiesBottomTray: React.FC<PropertiesBottomTrayProps> = ({
 
   /**
    * Scroll the selected element into the visible area above the tray.
-   * Centers the element if possible, or ensures at least the top portion
-   * (label, description, input) is visible for editing feedback.
+   * Centers the element in the visible viewport area.
    *
    * IMPORTANT: On mobile when keyboard opens, the parent's visualViewport shifts.
    * getBoundingClientRect() gives iframe coordinates, but the user sees the PARENT's
    * visual viewport. We must account for parentOffset in all visibility calculations.
+   *
+   * Strategy: Scroll canvas-container if scrollable, otherwise use CSS transform fallback.
    */
-  const scrollElementIntoView = useCallback((reason: string) => {
-    addDebugLog(`Called: ${reason}`);
-
-    if (!elementId || isCollapsed) {
-      addDebugLog('Skip: no element/collapsed');
-      return;
-    }
+  const scrollElementIntoView = useCallback(() => {
+    if (!elementId || isCollapsed) return;
 
     const element = document.querySelector(`[data-element-id="${elementId}"]`) as HTMLElement;
-    if (!element) {
-      addDebugLog('Skip: element not in DOM');
-      return;
-    }
-
     const canvas = document.querySelector('[data-testid="canvas-container"]') as HTMLElement;
-    if (!canvas) {
-      addDebugLog('Skip: no canvas');
-      return;
-    }
-
     const tray = trayRef.current;
-    if (!tray) {
-      addDebugLog('Skip: no tray ref');
-      return;
-    }
 
-    // Get parent's visual viewport offset - this is where the REAL visible area starts
+    if (!element || !canvas || !tray) return;
+
+    // Get parent's visual viewport offset - where the REAL visible area starts
     // When keyboard opens, parentOffset increases (visible area shifts down in iframe coords)
     let parentOffset = 0;
     try {
@@ -135,7 +87,7 @@ export const PropertiesBottomTray: React.FC<PropertiesBottomTrayProps> = ({
 
     // Calculate REAL visible area (what user actually sees)
     // - Real visible TOP = parentOffset (keyboard pushed visible area down)
-    // - Real visible BOTTOM = trayRect.top (tray already positioned above keyboard via transform)
+    // - Real visible BOTTOM = trayRect.top (tray positioned above keyboard via transform)
     const realVisibleTop = parentOffset;
     const realVisibleBottom = trayRect.top;
     const realVisibleHeight = realVisibleBottom - realVisibleTop;
@@ -146,67 +98,32 @@ export const PropertiesBottomTray: React.FC<PropertiesBottomTrayProps> = ({
     const elementBottom = elementTop + elementHeight;
 
     // Check visibility using REAL coordinates (accounting for parent viewport shift)
-    // Element is visible if it's between realVisibleTop and realVisibleBottom
-    const isAboveVisible = elementBottom < realVisibleTop + 20; // Above visible area
-    const isBelowVisible = elementTop > realVisibleBottom - 20; // Below visible area (behind tray)
+    const isAboveVisible = elementBottom < realVisibleTop + 20;
+    const isBelowVisible = elementTop > realVisibleBottom - 20;
     const isVisible = !isAboveVisible && !isBelowVisible;
 
-    addDebugLog(`pOff:${Math.round(parentOffset)} realH:${Math.round(realVisibleHeight)} elTop:${Math.round(elementTop)} vis:${isVisible}`);
+    if (isVisible) return;
 
-    if (isVisible) {
-      addDebugLog('Skip: already visible');
-      return;
-    }
-
-    // Calculate target position: center element in the REAL visible area
-    // Target in real coords (relative to what user sees) = center of visible area
+    // Calculate target: center element in the REAL visible area
     const targetRealPosition = Math.max(40, (realVisibleHeight - elementHeight) / 2);
-    // Convert to iframe coords: add parentOffset
     const targetIframePosition = realVisibleTop + targetRealPosition;
-    // How much to scroll to move element from current to target position
     const scrollDelta = elementTop - targetIframePosition;
 
-    addDebugLog(`targetReal:${Math.round(targetRealPosition)} targetIframe:${Math.round(targetIframePosition)} delta:${Math.round(scrollDelta)}`);
-
-    // Check if canvas is scrollable
-    const canvasScrollable = canvas.scrollHeight > canvas.clientHeight;
-    const docScrollable = document.documentElement.scrollHeight > document.documentElement.clientHeight;
-    addDebugLog(`canvasH:${canvas.scrollHeight}/${canvas.clientHeight} docH:${document.documentElement.scrollHeight}/${document.documentElement.clientHeight}`);
-
-    if (canvasScrollable) {
-      addDebugLog(`Scroll CANVAS by ${Math.round(scrollDelta)}px`);
+    // Scroll canvas if scrollable, otherwise use CSS transform fallback
+    if (canvas.scrollHeight > canvas.clientHeight) {
       canvas.scrollBy({ top: scrollDelta, behavior: 'smooth' });
-    } else if (docScrollable) {
-      addDebugLog(`Scroll DOC by ${Math.round(scrollDelta)}px`);
-      document.documentElement.scrollBy({ top: scrollDelta, behavior: 'smooth' });
     } else {
-      // Neither container is scrollable - use CSS transform to shift content into view
-      // This is the fallback for when form content fits entirely within the viewport
-      addDebugLog(`NO SCROLL - using transform fallback`);
-
-      // We need to shift content UP (negative translateY) to bring element into visible area
-      // scrollDelta is negative when element is above visible area (needs to move down in viewport)
-      // Transform works opposite: translateY(-X) moves content UP visually
-      // But we want the EFFECT of scrolling, so if scrollDelta is -200, we translateY(200) to shift content DOWN
-      const transformOffset = -scrollDelta; // Invert: negative scroll = positive transform (shift down)
-
-      // Store the transform offset on the canvas element for later cleanup
+      // Canvas not scrollable - use transform to shift content into view
+      // Invert scrollDelta: negative scroll (element above) = positive transform (shift down)
+      const transformOffset = -scrollDelta;
       const existingOffset = parseFloat(canvas.dataset.keyboardTransformOffset || '0');
       const newOffset = existingOffset + transformOffset;
-
-      addDebugLog(`Transform canvas by ${Math.round(transformOffset)}px (total: ${Math.round(newOffset)}px)`);
 
       canvas.style.transition = 'transform 300ms ease-out';
       canvas.style.transform = `translateY(${newOffset}px)`;
       canvas.dataset.keyboardTransformOffset = String(newOffset);
     }
-
-    setTimeout(() => {
-      const newRect = element.getBoundingClientRect();
-      const newRealTop = newRect.top - parentOffset;
-      addDebugLog(`After: iframeTop=${Math.round(newRect.top)} realTop=${Math.round(newRealTop)}`);
-    }, 400);
-  }, [elementId, isCollapsed, addDebugLog]);
+  }, [elementId, isCollapsed]);
 
   // Auto-scroll when element is selected (after tray animation)
   useEffect(() => {
@@ -224,7 +141,7 @@ export const PropertiesBottomTray: React.FC<PropertiesBottomTrayProps> = ({
     return () => clearTimeout(timeoutId);
   }, [elementId, isCollapsed, scrollElementIntoView]);
 
-  // Auto-scroll when keyboard opens - RE-ENABLED with longer delay
+  // Auto-scroll when keyboard opens
   // iOS Safari scrolls the page when focusing inputs in fixed elements.
   // We wait for iOS to finish (500ms), then scroll element back into view.
   const keyboardScrollTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -232,48 +149,25 @@ export const PropertiesBottomTray: React.FC<PropertiesBottomTrayProps> = ({
 
   useEffect(() => {
     const delta = viewportBottom - prevViewportBottom.current;
-    const absDelta = Math.abs(delta);
-
-    if (absDelta > 50) {
-      addDebugLog(`KB: ${Math.round(prevViewportBottom.current)}→${Math.round(viewportBottom)}`);
-    }
 
     // Keyboard OPENING (positive delta > 100) - only schedule once
     if (delta > 100 && !hasScheduledKeyboardScroll.current) {
-      const state = getScrollState();
-      addDebugLog(`KB OPEN! el:${Math.round(state.elTop)} pOff:${Math.round(state.parentOffset)} real:${Math.round(state.elReal)}`);
       hasScheduledKeyboardScroll.current = true;
 
-      // Log again after 100ms to see iOS scroll effect
-      setTimeout(() => {
-        const s = getScrollState();
-        addDebugLog(`+100ms el:${Math.round(s.elTop)} pOff:${Math.round(s.parentOffset)} real:${Math.round(s.elReal)}`);
-      }, 100);
-
-      // Log again after 300ms
-      setTimeout(() => {
-        const s = getScrollState();
-        addDebugLog(`+300ms el:${Math.round(s.elTop)} pOff:${Math.round(s.parentOffset)} real:${Math.round(s.elReal)}`);
-      }, 300);
-
-      // Clear any old timeout (shouldn't exist, but safety)
+      // Clear any old timeout (safety)
       if (keyboardScrollTimeout.current) {
         clearTimeout(keyboardScrollTimeout.current);
       }
 
       // Wait for iOS to finish its scroll, then bring element back into view
       keyboardScrollTimeout.current = setTimeout(() => {
-        const s = getScrollState();
-        addDebugLog(`+500ms el:${Math.round(s.elTop)} pOff:${Math.round(s.parentOffset)} real:${Math.round(s.elReal)}`);
-        addDebugLog(`Scrolling NOW`);
         hasScheduledKeyboardScroll.current = false;
-        scrollElementIntoView('keyboard-open');
+        scrollElementIntoView();
       }, 500);
     }
 
     // Keyboard CLOSED (went back to ~0)
     if (viewportBottom < 50 && prevViewportBottom.current > 100) {
-      addDebugLog(`KB closed`);
       hasScheduledKeyboardScroll.current = false;
       if (keyboardScrollTimeout.current) {
         clearTimeout(keyboardScrollTimeout.current);
@@ -283,7 +177,6 @@ export const PropertiesBottomTray: React.FC<PropertiesBottomTrayProps> = ({
       // Reset any transform offset applied during keyboard-open scroll
       const canvas = document.querySelector('[data-testid="canvas-container"]') as HTMLElement;
       if (canvas && canvas.dataset.keyboardTransformOffset) {
-        addDebugLog(`Reset canvas transform`);
         canvas.style.transition = 'transform 300ms ease-out';
         canvas.style.transform = '';
         delete canvas.dataset.keyboardTransformOffset;
@@ -291,13 +184,56 @@ export const PropertiesBottomTray: React.FC<PropertiesBottomTrayProps> = ({
     }
 
     prevViewportBottom.current = viewportBottom;
-    // NO cleanup that clears timeout - let it fire!
-  }, [viewportBottom, addDebugLog, scrollElementIntoView]);
+  }, [viewportBottom, scrollElementIntoView]);
 
-  // Reset scroll tracking when element changes
+  // Reset scroll tracking and canvas transform when element changes or tray closes
   useEffect(() => {
     hasScrolledForElement.current = null;
+
+    // Cleanup: reset canvas transform when tray closes or element changes
+    return () => {
+      const canvas = document.querySelector('[data-testid="canvas-container"]') as HTMLElement;
+      if (canvas && canvas.dataset.keyboardTransformOffset) {
+        canvas.style.transition = 'transform 300ms ease-out';
+        canvas.style.transform = '';
+        delete canvas.dataset.keyboardTransformOffset;
+      }
+    };
   }, [elementId]);
+
+  // Re-center element when focusing different fields in the tray
+  // This handles the case where user scrolls manually, then focuses another field
+  const focusScrollTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    const tray = trayRef.current;
+    if (!tray || !elementId || isCollapsed) return;
+
+    const handleFocusIn = (e: FocusEvent) => {
+      const target = e.target as HTMLElement;
+      // Only trigger for focusable form elements
+      if (!target.matches('input, textarea, select, [contenteditable="true"]')) return;
+
+      // Clear any pending scroll
+      if (focusScrollTimeout.current) {
+        clearTimeout(focusScrollTimeout.current);
+      }
+
+      // Wait a bit for iOS to do its thing, then re-center if needed
+      focusScrollTimeout.current = setTimeout(() => {
+        scrollElementIntoView();
+      }, 300);
+    };
+
+    tray.addEventListener('focusin', handleFocusIn);
+
+    return () => {
+      tray.removeEventListener('focusin', handleFocusIn);
+      if (focusScrollTimeout.current) {
+        clearTimeout(focusScrollTimeout.current);
+      }
+    };
+  }, [elementId, isCollapsed, scrollElementIntoView]);
 
   // Track visual viewport for mobile keyboard handling using rAF for smooth tracking
   // Using transform instead of bottom for GPU-accelerated positioning
@@ -495,26 +431,7 @@ export const PropertiesBottomTray: React.FC<PropertiesBottomTrayProps> = ({
   const effectiveHeight = isCollapsed ? 40 : 'auto';
 
   return (
-    <>
-      {/* Debug panel - shows on screen for mobile testing, uses transform to stay above keyboard */}
-      {debugLogs.length > 0 && (
-        <div
-          className="fixed left-0 right-0 z-[9999] bg-black/90 text-green-400 text-[9px] font-mono p-1 overflow-auto"
-          style={{
-            pointerEvents: 'none',
-            bottom: 0,
-            maxHeight: '40vh',
-            transform: `translateY(-${viewportBottom + (visualViewportHeight * 0.5) + 10}px)`, // Above tray
-          }}
-          data-testid="debug-panel"
-        >
-          {debugLogs.map((log, i) => (
-            <div key={i} className="leading-tight">{log}</div>
-          ))}
-        </div>
-      )}
-
-      <div
+    <div
         ref={trayRef}
         className={cn(
           "fixed right-0 z-[60]", // Higher z-index than elements tray (z-50), bottom set via style for keyboard handling
@@ -679,6 +596,5 @@ export const PropertiesBottomTray: React.FC<PropertiesBottomTrayProps> = ({
         </>
       )}
       </div>
-    </>
   );
 };
