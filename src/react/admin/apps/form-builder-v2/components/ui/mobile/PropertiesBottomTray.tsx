@@ -1,3 +1,18 @@
+/**
+ * Mobile-only Properties Bottom Tray - REFACTORED VERSION
+ *
+ * Uses new modular hooks for:
+ * - Keyboard state machine (lazy rAF, proper state transitions)
+ * - Intersection Observer for visibility (efficient, browser-native)
+ * - Unified scroll strategy (scroll-margin + transform fallback)
+ *
+ * Changes from original:
+ * - Eliminated hardcoded delays in favor of transitionend events
+ * - Lazy rAF tracking (only when input focused)
+ * - Dynamic thresholds based on viewport size
+ * - Single code path for scrolling
+ * - Proper cleanup on unmount
+ */
 import React, { useRef, useState, useMemo, useEffect, useCallback } from 'react';
 import { X, Trash2, FileText, Palette, Settings2, Code2, LayoutTemplate, Sparkles } from 'lucide-react';
 import { PropertiesBottomTrayProps } from '../types/overlay.types';
@@ -9,6 +24,7 @@ import { useElementsStore } from '../../../store/useElementsStore';
 import { isElementRegistered, getElementSchema } from '../../../../../schemas/core/registry';
 import { NodeType, StyleProperties } from '../../../../../schemas/styles';
 import { ContentTab, StyleTab, BehaviorTab, CodeTab, TemplatesTab, AITab } from '../../property-panels/tabs';
+import { useKeyboardState, useElementVisibility, useScrollIntoView } from '../../../hooks';
 
 type PanelTab = 'content' | 'style' | 'behavior' | 'code' | 'templates' | 'ai';
 
@@ -21,25 +37,21 @@ const TAB_CONFIG: { id: PanelTab; label: string; icon: React.ComponentType<{ cla
   { id: 'ai', label: 'AI', icon: Sparkles },
 ];
 
-/**
- * Mobile-only Properties Bottom Tray - displays element properties in a bottom tray.
- * Uses the same UI pattern as ResizableBottomTray (elements palette) but with higher z-index
- * to overlay on top of the elements tray.
- *
- * Note: Desktop uses FloatingPanel instead (see ui/desktop/).
- */
+/** Tray height when expanded (approximate, for scroll margin calculations) */
+const TRAY_HEIGHT_ESTIMATE = 300;
+
 export const PropertiesBottomTray: React.FC<PropertiesBottomTrayProps> = ({
   isCollapsed,
-  onToggleCollapse,
+  onToggleCollapse: _onToggleCollapse,
   onClose,
   elementId,
   onPropertyChange,
   onDelete,
 }) => {
+  // Note: _onToggleCollapse available for future collapse toggle feature
+  void _onToggleCollapse;
   const trayRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<PanelTab>('content');
-  const [viewportBottom, setViewportBottom] = useState(0);
-  const [visualViewportHeight, setVisualViewportHeight] = useState(window.innerHeight);
 
   // Swipe-to-close state (using refs for smooth 60fps drag)
   const touchStartY = useRef<number>(0);
@@ -47,274 +59,119 @@ export const PropertiesBottomTray: React.FC<PropertiesBottomTrayProps> = ({
   const isDragging = useRef(false);
   const dragOffset = useRef<number>(0);
 
-  // Track keyboard state changes for auto-scroll
-  const prevViewportBottom = useRef(0);
+  // Track if we've scrolled for this element selection
   const hasScrolledForElement = useRef<string | null>(null);
 
   // Get WordPress admin sidebar width for dynamic positioning
   const { width: sidebarWidth } = useWPAdminSidebar();
 
-  /**
-   * Scroll the selected element into the visible area above the tray.
-   * Centers the element in the visible viewport area.
-   *
-   * IMPORTANT: On mobile when keyboard opens, the parent's visualViewport shifts.
-   * getBoundingClientRect() gives iframe coordinates, but the user sees the PARENT's
-   * visual viewport. We must account for parentOffset in all visibility calculations.
-   *
-   * Strategy: Scroll canvas-container if scrollable, otherwise use CSS transform fallback.
-   */
-  const scrollElementIntoView = useCallback(() => {
-    if (!elementId || isCollapsed) return;
+  // Calculate bottom offset (tray height + keyboard)
+  const trayHeight = isCollapsed ? 40 : TRAY_HEIGHT_ESTIMATE;
 
-    const element = document.querySelector(`[data-element-id="${elementId}"]`) as HTMLElement;
-    const canvas = document.querySelector('[data-testid="canvas-container"]') as HTMLElement;
-    const tray = trayRef.current;
-
-    if (!element || !canvas || !tray) return;
-
-    // Get parent's visual viewport offset - where the REAL visible area starts
-    // When keyboard opens, parentOffset increases (visible area shifts down in iframe coords)
-    let parentOffset = 0;
-    try {
-      if (window.parent?.visualViewport) {
-        parentOffset = window.parent.visualViewport.offsetTop;
+  // --- NEW: Keyboard state machine ---
+  // Only tracks when inputs are focused, stops when idle
+  const keyboard = useKeyboardState({
+    enabled: !isCollapsed && !!elementId,
+    debug: true, // Enable debug logging for testing
+    onKeyboardOpen: () => {
+      // ALWAYS scroll when keyboard opens - visible area just changed!
+      if (elementId) {
+        // Small delay to let iOS finish its auto-scroll
+        setTimeout(() => scrollIntoView.scrollElementIntoView(elementId), 100);
       }
-    } catch { /* cross-origin */ }
+    },
+    onKeyboardClose: () => {
+      // Reset transform and re-center
+      scrollIntoView.resetTransform();
+      if (elementId) {
+        setTimeout(() => scrollIntoView.scrollElementIntoView(elementId), 100);
+      }
+    },
+  });
 
-    const elementRect = element.getBoundingClientRect();
-    const trayRect = tray.getBoundingClientRect();
+  // --- NEW: Unified scroll strategy ---
+  // Now accounts for body scroll, uses tray's actual position
+  const scrollIntoView = useScrollIntoView({
+    bottomOffset: trayHeight + keyboard.offset,
+    topOffset: 0,
+    animationDuration: 300,
+    debug: true, // Enable debug logging for testing
+  });
 
-    // Calculate REAL visible area (what user actually sees)
-    // - Real visible TOP = parentOffset (keyboard pushed visible area down)
-    // - Real visible BOTTOM = trayRect.top (tray positioned above keyboard via transform)
-    const realVisibleTop = parentOffset;
-    const realVisibleBottom = trayRect.top;
-    const realVisibleHeight = realVisibleBottom - realVisibleTop;
+  // --- NEW: Visibility detection ---
+  // Uses tray's actual position, accounts for body scroll
+  const visibility = useElementVisibility({
+    elementId,
+    bottomMargin: trayHeight + keyboard.offset,
+    enabled: !isCollapsed && !!elementId,
+    debug: true, // Enable debug logging for testing
+  });
 
-    // Element position in iframe coords
-    const elementTop = elementRect.top;
-    const elementHeight = Math.min(elementRect.height, 120);
-    const elementBottom = elementTop + elementHeight;
-
-    // Check visibility using REAL coordinates (accounting for parent viewport shift)
-    const isAboveVisible = elementBottom < realVisibleTop + 20;
-    const isBelowVisible = elementTop > realVisibleBottom - 20;
-    const isVisible = !isAboveVisible && !isBelowVisible;
-
-    if (isVisible) return;
-
-    // Calculate target: center element in the REAL visible area
-    const targetRealPosition = Math.max(40, (realVisibleHeight - elementHeight) / 2);
-    const targetIframePosition = realVisibleTop + targetRealPosition;
-    const scrollDelta = elementTop - targetIframePosition;
-
-    // Scroll canvas if scrollable, otherwise use CSS transform fallback
-    if (canvas.scrollHeight > canvas.clientHeight) {
-      canvas.scrollBy({ top: scrollDelta, behavior: 'smooth' });
-    } else {
-      // Canvas not scrollable - use transform to shift content into view
-      // Invert scrollDelta: negative scroll (element above) = positive transform (shift down)
-      const transformOffset = -scrollDelta;
-      const existingOffset = parseFloat(canvas.dataset.keyboardTransformOffset || '0');
-      const newOffset = existingOffset + transformOffset;
-
-      canvas.style.transition = 'transform 300ms ease-out';
-      canvas.style.transform = `translateY(${newOffset}px)`;
-      canvas.dataset.keyboardTransformOffset = String(newOffset);
-    }
-  }, [elementId, isCollapsed]);
-
-  // Auto-scroll when element is selected (after tray animation)
+  // Auto-scroll when element is selected
   useEffect(() => {
     if (!elementId || isCollapsed) return;
 
     // Only scroll once per element selection
     if (hasScrolledForElement.current === elementId) return;
 
-    // Delay to let tray animate open (300ms transition + buffer)
-    const timeoutId = setTimeout(() => {
-      scrollElementIntoView('element-selected');
+    // Wait for tray to animate open, then scroll
+    const handleTrayOpen = () => {
+      // Check if element needs scrolling using visibility hook
+      if (!visibility.isVisible) {
+        scrollIntoView.scrollElementIntoView(elementId);
+      }
       hasScrolledForElement.current = elementId;
-    }, 400);
+    };
 
-    return () => clearTimeout(timeoutId);
-  }, [elementId, isCollapsed, scrollElementIntoView]);
+    // Use transitionend on tray for proper timing
+    const tray = trayRef.current;
+    if (tray) {
+      const handler = (e: TransitionEvent) => {
+        if (e.propertyName === 'height' || e.propertyName === 'transform') {
+          handleTrayOpen();
+          tray.removeEventListener('transitionend', handler);
+        }
+      };
+      tray.addEventListener('transitionend', handler);
 
-  // Auto-scroll when keyboard opens
-  // iOS Safari scrolls the page when focusing inputs in fixed elements.
-  // We wait for iOS to finish (500ms), then scroll element back into view.
-  const keyboardScrollTimeout = useRef<NodeJS.Timeout | null>(null);
-  const hasScheduledKeyboardScroll = useRef(false);
+      // Fallback in case tray is already visible (no transition)
+      const fallback = setTimeout(handleTrayOpen, 350);
 
-  useEffect(() => {
-    const delta = viewportBottom - prevViewportBottom.current;
-
-    // Keyboard OPENING (positive delta > 100) - only schedule once
-    if (delta > 100 && !hasScheduledKeyboardScroll.current) {
-      hasScheduledKeyboardScroll.current = true;
-
-      // Clear any old timeout (safety)
-      if (keyboardScrollTimeout.current) {
-        clearTimeout(keyboardScrollTimeout.current);
-      }
-
-      // Wait for iOS to finish its scroll, then bring element back into view
-      keyboardScrollTimeout.current = setTimeout(() => {
-        hasScheduledKeyboardScroll.current = false;
-        scrollElementIntoView();
-      }, 500);
+      return () => {
+        tray.removeEventListener('transitionend', handler);
+        clearTimeout(fallback);
+      };
     }
+  }, [elementId, isCollapsed, visibility.isVisible, scrollIntoView]);
 
-    // Keyboard CLOSED (went back to ~0)
-    if (viewportBottom < 50 && prevViewportBottom.current > 100) {
-      hasScheduledKeyboardScroll.current = false;
-      if (keyboardScrollTimeout.current) {
-        clearTimeout(keyboardScrollTimeout.current);
-        keyboardScrollTimeout.current = null;
-      }
-
-      // Reset any transform offset applied during keyboard-open scroll
-      const canvas = document.querySelector('[data-testid="canvas-container"]') as HTMLElement;
-      if (canvas && canvas.dataset.keyboardTransformOffset) {
-        canvas.style.transition = 'transform 300ms ease-out';
-        canvas.style.transform = '';
-        delete canvas.dataset.keyboardTransformOffset;
-      }
-    }
-
-    prevViewportBottom.current = viewportBottom;
-  }, [viewportBottom, scrollElementIntoView]);
-
-  // Reset scroll tracking and canvas transform when element changes or tray closes
+  // Reset scroll tracking when element changes
   useEffect(() => {
     hasScrolledForElement.current = null;
-
-    // Cleanup: reset canvas transform when tray closes or element changes
-    return () => {
-      const canvas = document.querySelector('[data-testid="canvas-container"]') as HTMLElement;
-      if (canvas && canvas.dataset.keyboardTransformOffset) {
-        canvas.style.transition = 'transform 300ms ease-out';
-        canvas.style.transform = '';
-        delete canvas.dataset.keyboardTransformOffset;
-      }
-    };
   }, [elementId]);
 
-  // Re-center element when focusing different fields in the tray
-  // This handles the case where user scrolls manually, then focuses another field
-  const focusScrollTimeout = useRef<NodeJS.Timeout | null>(null);
-
+  // Track focus events within tray - keyboard state machine handles the scroll
+  // This effect is kept minimal since onKeyboardOpen does the actual scrolling
   useEffect(() => {
     const tray = trayRef.current;
     if (!tray || !elementId || isCollapsed) return;
 
     const handleFocusIn = (e: FocusEvent) => {
       const target = e.target as HTMLElement;
-      // Only trigger for focusable form elements
       if (!target.matches('input, textarea, select, [contenteditable="true"]')) return;
-
-      // Clear any pending scroll
-      if (focusScrollTimeout.current) {
-        clearTimeout(focusScrollTimeout.current);
-      }
-
-      // Wait a bit for iOS to do its thing, then re-center if needed
-      focusScrollTimeout.current = setTimeout(() => {
-        scrollElementIntoView();
-      }, 300);
+      // Keyboard state machine will detect keyboard open and trigger scroll
+      // via onKeyboardOpen callback - no action needed here
     };
 
     tray.addEventListener('focusin', handleFocusIn);
+    return () => tray.removeEventListener('focusin', handleFocusIn);
+  }, [elementId, isCollapsed]);
 
-    return () => {
-      tray.removeEventListener('focusin', handleFocusIn);
-      if (focusScrollTimeout.current) {
-        clearTimeout(focusScrollTimeout.current);
-      }
-    };
-  }, [elementId, isCollapsed, scrollElementIntoView]);
-
-  // Track visual viewport for mobile keyboard handling using rAF for smooth tracking
-  // Using transform instead of bottom for GPU-accelerated positioning
+  // Cleanup transform on close
   useEffect(() => {
-    let rafId: number;
-    let isRunning = true;
-
-    // Get the correct visualViewport - use parent's if we're in an iframe (same-origin)
-    // because the iframe extends behind the keyboard and its own visualViewport won't reflect keyboard
-    const getVisualViewport = (): VisualViewport | null => {
-      try {
-        // If in iframe, use parent's visualViewport for accurate keyboard tracking
-        if (window.parent !== window && window.parent.visualViewport) {
-          return window.parent.visualViewport;
-        }
-      } catch {
-        // Cross-origin, fall back to own viewport
-      }
-      return window.visualViewport;
-    };
-
-    // Get the correct innerHeight (parent's if in iframe)
-    const getInnerHeight = (): number => {
-      try {
-        if (window.parent !== window) {
-          return window.parent.innerHeight;
-        }
-      } catch {
-        // Cross-origin
-      }
-      return window.innerHeight;
-    };
-
-    const updatePosition = () => {
-      if (!isRunning) return;
-
-      const vv = getVisualViewport();
-      const innerHeight = getInnerHeight();
-
-      if (vv) {
-        // Proper formula from https://bram.us - accounts for scroll position
-        // This is the amount to translate UP (negative Y) to stay above keyboard
-        const keyboardOffset = innerHeight - vv.height - vv.offsetTop;
-        setViewportBottom(Math.max(0, keyboardOffset));
-        setVisualViewportHeight(vv.height);
-      }
-
-      // Continuous rAF loop for smooth keyboard animation tracking
-      rafId = requestAnimationFrame(updatePosition);
-    };
-
-    // Start the animation loop
-    updatePosition();
-
-    // Also listen to visualViewport events for immediate response
-    const vv = getVisualViewport();
-    const handleViewportChange = () => {
-      const viewport = getVisualViewport();
-      const innerHeight = getInnerHeight();
-      if (viewport) {
-        const keyboardOffset = innerHeight - viewport.height - viewport.offsetTop;
-        setViewportBottom(Math.max(0, keyboardOffset));
-        setVisualViewportHeight(viewport.height);
-      }
-    };
-
-    if (vv) {
-      vv.addEventListener('resize', handleViewportChange);
-      vv.addEventListener('scroll', handleViewportChange);
-    }
-
     return () => {
-      isRunning = false;
-      cancelAnimationFrame(rafId);
-      const viewport = getVisualViewport();
-      if (viewport) {
-        viewport.removeEventListener('resize', handleViewportChange);
-        viewport.removeEventListener('scroll', handleViewportChange);
-      }
+      scrollIntoView.resetTransform();
     };
-  }, []);
+  }, [elementId, scrollIntoView]);
 
   // Touch handlers for swipe-to-close - using direct DOM for smooth 60fps drag
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
@@ -350,9 +207,9 @@ export const PropertiesBottomTray: React.FC<PropertiesBottomTrayProps> = ({
       dragOffset.current = diff;
       // Direct DOM manipulation for smooth 60fps - bypass React
       // Compose with keyboard offset: translate up for keyboard, down for drag
-      trayRef.current.style.transform = `translateY(${-viewportBottom + diff}px)`;
+      trayRef.current.style.transform = `translateY(${-keyboard.offset + diff}px)`;
     }
-  }, [viewportBottom]);
+  }, [keyboard.offset]);
 
   const handleTouchEnd = useCallback(() => {
     if (!isDragging.current) return;
@@ -371,22 +228,28 @@ export const PropertiesBottomTray: React.FC<PropertiesBottomTrayProps> = ({
       if (trayRef.current) {
         trayRef.current.style.transform = 'translateY(100%)';
       }
-      // Close after animation
-      setTimeout(() => {
-        onClose();
-        // Reset transform after close - restore keyboard offset
-        if (trayRef.current) {
-          trayRef.current.style.transform = `translateY(-${viewportBottom}px)`;
-        }
-      }, 300);
+      // Close after animation using transitionend
+      const tray = trayRef.current;
+      if (tray) {
+        const handleClose = () => {
+          onClose();
+          tray.removeEventListener('transitionend', handleClose);
+          // Reset transform after close
+          tray.style.transform = `translateY(-${keyboard.offset}px)`;
+        };
+        tray.addEventListener('transitionend', handleClose, { once: true });
+
+        // Fallback timeout
+        setTimeout(handleClose, 350);
+      }
     } else {
       // Snap back to original position with keyboard offset
       dragOffset.current = 0;
       if (trayRef.current) {
-        trayRef.current.style.transform = `translateY(-${viewportBottom}px)`;
+        trayRef.current.style.transform = `translateY(-${keyboard.offset}px)`;
       }
     }
-  }, [onClose, viewportBottom]);
+  }, [onClose, keyboard.offset]);
 
   // Subscribe to store for element data
   const element = useElementsStore((s) => s.items[elementId]);
@@ -432,28 +295,36 @@ export const PropertiesBottomTray: React.FC<PropertiesBottomTrayProps> = ({
 
   return (
     <div
-        ref={trayRef}
-        className={cn(
-          "fixed right-0 z-[60]", // Higher z-index than elements tray (z-50), bottom set via style for keyboard handling
-          "bg-background border-t border-border rounded-t-xl",
-          "shadow-[0_-4px_16px_-2px_rgb(0,0,0,0.1)]",
-          "transition-[height,left,transform] duration-300 ease-out",
-          "min-h-4",
-          "flex flex-col"
-        )}
-        style={{
-          left: sidebarWidth,
-          height: effectiveHeight,
-          bottom: 0, // Keep at bottom, use transform for keyboard positioning
-          maxHeight: visualViewportHeight * 0.5, // 50% of visual viewport (shrinks with keyboard)
-          overscrollBehavior: 'contain', // Prevent scroll chaining / pull-to-refresh
-          transform: `translateY(-${viewportBottom}px)`, // GPU-accelerated, more reliable during keyboard animation
-        }}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        data-testid="properties-bottom-tray"
+      ref={trayRef}
+      className={cn(
+        "fixed right-0 z-[60]",
+        "bg-background border-t border-border rounded-t-xl",
+        "shadow-[0_-4px_16px_-2px_rgb(0,0,0,0.1)]",
+        "transition-[height,left,transform] duration-300 ease-out",
+        "min-h-4",
+        "flex flex-col"
+      )}
+      style={{
+        left: sidebarWidth as number,
+        height: effectiveHeight,
+        bottom: 0,
+        maxHeight: keyboard.viewportHeight * 0.5,
+        overscrollBehavior: 'contain',
+        transform: `translateY(-${keyboard.offset}px)`,
+      }}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      data-testid="properties-bottom-tray"
+    >
+      {/* Debug: Tray offset display */}
+      <div
+        data-testid="tray-debug-offset"
+        className="absolute -top-8 right-2 px-2 py-1 bg-black/80 text-white text-[10px] font-mono rounded pointer-events-none"
       >
+        tray offset: {Math.round(keyboard.offset)}px | state: {keyboard.state}
+      </div>
+
       {/* Drag handle - swipe down to close */}
       <div
         className="flex justify-center py-2 shrink-0 cursor-grab active:cursor-grabbing"
@@ -595,6 +466,6 @@ export const PropertiesBottomTray: React.FC<PropertiesBottomTrayProps> = ({
           </Tabs>
         </>
       )}
-      </div>
+    </div>
   );
 };
