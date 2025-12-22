@@ -1536,6 +1536,21 @@ body {
   padding: var(--space-8);
 }
 
+/**
+ * Canvas scroll transform for mobile keyboard handling
+ *
+ * Uses CSS custom property set on :root by useScrollIntoView hook.
+ * This approach persists across React re-renders (React doesn't control :root styles).
+ *
+ * When mobile keyboard opens and element needs scrolling into view,
+ * the hook sets --canvas-scroll-offset on :root, which triggers this transform.
+ * Transition provides smooth animation when offset changes.
+ */
+[data-testid="canvas-container"] {
+  transform: translateY(var(--canvas-scroll-offset, 0px));
+  transition: transform 300ms ease-out;
+}
+
 /* Device frame positioning - min-height removed for mobile responsiveness */
 .canvas-framed {
   position: relative;

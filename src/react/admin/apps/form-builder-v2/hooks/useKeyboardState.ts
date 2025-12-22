@@ -26,9 +26,20 @@ interface KeyboardStateInfo {
   isTransitioning: boolean;
 }
 
+/** Info passed to keyboard callbacks for scroll calculations */
+interface KeyboardCallbackInfo {
+  /** Current keyboard offset in pixels (use for scroll calculations) */
+  offset: number;
+  /** Visual viewport height */
+  viewportHeight: number;
+}
+
 interface UseKeyboardStateOptions {
-  /** Callback when keyboard finishes opening */
-  onKeyboardOpen?: () => void;
+  /** Callback when keyboard STARTS opening (immediate, for early scroll).
+   *  Receives offset info so you can pass it to scrollElementIntoView for accurate positioning. */
+  onKeyboardOpening?: (info: KeyboardCallbackInfo) => void;
+  /** Callback when keyboard finishes opening (stable) */
+  onKeyboardOpen?: (info: KeyboardCallbackInfo) => void;
   /** Callback when keyboard finishes closing */
   onKeyboardClose?: () => void;
   /** Whether tracking is enabled (disable when tray is closed) */
@@ -103,6 +114,7 @@ const getKeyboardOffset = (): number => {
 
 export function useKeyboardState(options: UseKeyboardStateOptions = {}): KeyboardStateInfo {
   const {
+    onKeyboardOpening,
     onKeyboardOpen,
     onKeyboardClose,
     enabled = true,
@@ -123,38 +135,43 @@ export function useKeyboardState(options: UseKeyboardStateOptions = {}): Keyboar
   const rafId = useRef<number | null>(null);
   const isTracking = useRef(false);
 
-  // Fixed pixel thresholds for keyboard detection
-  // With the correct offset formula (innerHeight - vv.height - vv.offsetTop),
-  // the offset is much smaller (~47px when keyboard is open vs ~340px with old formula)
-  // These thresholds detect keyboard state based on the corrected offset values
-  const openThresholdPx = 25;  // Keyboard considered "open" when offset > 25px
-  const closeThresholdPx = 10; // Keyboard considered "closed" when offset < 10px
+  // Keyboard detection using viewport height ratio (more stable than offset)
+  // When keyboard opens, visualViewport.height shrinks significantly
+  const OPEN_RATIO = 0.85;  // Keyboard "open" when vv.height < 85% of innerHeight
+  const CLOSE_RATIO = 0.95; // Keyboard "closed" when vv.height > 95% of innerHeight
 
   // Memoize callbacks to prevent stale closures
+  const onOpeningRef = useRef(onKeyboardOpening);
   const onOpenRef = useRef(onKeyboardOpen);
   const onCloseRef = useRef(onKeyboardClose);
+  onOpeningRef.current = onKeyboardOpening;
   onOpenRef.current = onKeyboardOpen;
   onCloseRef.current = onKeyboardClose;
 
   /**
    * Calculate current keyboard offset and viewport info
    * Returns the offset needed for tray positioning (accounts for offsetTop)
+   * Also returns height ratio for stable keyboard detection
    */
-  const calculateOffset = useCallback((): { offset: number; height: number } => {
-    // Use correct formula that accounts for visual viewport shift
+  const calculateOffset = useCallback((): { offset: number; height: number; heightRatio: number } => {
     const keyboardOffset = getKeyboardOffset();
     const viewportH = getParentViewportHeight();
+    const innerH = getParentInnerHeight();
+    // Height ratio: how much of layout viewport is visible (1.0 = full, 0.5 = half)
+    const heightRatio = innerH > 0 ? viewportH / innerH : 1;
 
     return {
       offset: keyboardOffset,
       height: viewportH,
+      heightRatio,
     };
   }, []);
 
   /**
    * State machine transition logic
+   * Uses height ratio for stable detection (not affected by offset fluctuations)
    */
-  const processStateTransition = useCallback((currentOffset: number) => {
+  const processStateTransition = useCallback((currentOffset: number, heightRatio: number, currentViewportHeight: number) => {
     const offsetDelta = Math.abs(currentOffset - lastOffset.current);
 
     // If offset is stable (changed < 5px), count frames
@@ -168,36 +185,45 @@ export function useKeyboardState(options: UseKeyboardStateOptions = {}): Keyboar
     // Need ~10 stable frames (~166ms at 60fps) to consider animation complete
     const isStable = stableFrameCount.current > 10;
 
+    // Use height ratio for keyboard detection (more stable than offset)
+    const keyboardLikelyOpen = heightRatio < OPEN_RATIO;   // vv.height < 85% of innerHeight
+    const keyboardLikelyClosed = heightRatio > CLOSE_RATIO; // vv.height > 95% of innerHeight
+
     setState((prevState) => {
       let nextState = prevState;
 
       switch (prevState) {
         case 'idle':
-          // Transition to opening when offset exceeds threshold
-          if (currentOffset > openThresholdPx) {
+          // Transition to opening when viewport shrinks significantly
+          if (keyboardLikelyOpen) {
             stableFrameCount.current = 0;
             nextState = 'opening';
+            // Fire early callback for immediate scroll - pass offset so caller can scroll accurately
+            if (debug) console.log('[KeyboardState] → OPENING, firing onKeyboardOpening with offset:', currentOffset);
+            const openingInfo = { offset: currentOffset, viewportHeight: currentViewportHeight };
+            setTimeout(() => onOpeningRef.current?.(openingInfo), 0);
           }
           break;
 
         case 'opening':
-          // Transition to open when animation stabilizes
-          if (isStable && currentOffset > openThresholdPx) {
+          // Transition to open when animation stabilizes AND keyboard still looks open
+          if (isStable && keyboardLikelyOpen) {
             // Fire callback on next tick to avoid setState-during-render
             if (debug) console.log('[KeyboardState] → OPEN, firing onKeyboardOpen');
-            setTimeout(() => onOpenRef.current?.(), 0);
+            const openInfo = { offset: currentOffset, viewportHeight: currentViewportHeight };
+            setTimeout(() => onOpenRef.current?.(openInfo), 0);
             nextState = 'open';
           }
           // User dismissed keyboard before it fully opened
-          else if (currentOffset < closeThresholdPx) {
+          else if (keyboardLikelyClosed) {
             stableFrameCount.current = 0;
             nextState = 'closing';
           }
           break;
 
         case 'open':
-          // Transition to closing when offset drops
-          if (currentOffset < openThresholdPx) {
+          // Transition to closing when viewport expands
+          if (!keyboardLikelyOpen) {
             stableFrameCount.current = 0;
             nextState = 'closing';
           }
@@ -205,13 +231,13 @@ export function useKeyboardState(options: UseKeyboardStateOptions = {}): Keyboar
 
         case 'closing':
           // Transition to idle when fully closed and stable
-          if (isStable && currentOffset < closeThresholdPx) {
+          if (isStable && keyboardLikelyClosed) {
             if (debug) console.log('[KeyboardState] → IDLE, firing onKeyboardClose');
             setTimeout(() => onCloseRef.current?.(), 0);
             nextState = 'idle';
           }
           // User re-opened keyboard
-          else if (currentOffset > openThresholdPx) {
+          else if (keyboardLikelyOpen) {
             stableFrameCount.current = 0;
             nextState = 'opening';
           }
@@ -224,7 +250,7 @@ export function useKeyboardState(options: UseKeyboardStateOptions = {}): Keyboar
 
       return nextState;
     });
-  }, [openThresholdPx, closeThresholdPx, debug]);
+  }, [OPEN_RATIO, CLOSE_RATIO, debug]);
 
   // Ref for debug to avoid stale closure
   const debugRef = useRef(debug);
@@ -246,10 +272,10 @@ export function useKeyboardState(options: UseKeyboardStateOptions = {}): Keyboar
     const track = () => {
       if (!isTracking.current) return;
 
-      const { offset: currentOffset, height } = calculateOffset();
+      const { offset: currentOffset, height, heightRatio } = calculateOffset();
       setOffset(currentOffset);
       setViewportHeight(height);
-      processStateTransition(currentOffset);
+      processStateTransition(currentOffset, heightRatio, height);
 
       frameCount++;
       // Log every 10 frames to avoid spam

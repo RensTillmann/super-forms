@@ -62,6 +62,9 @@ export const PropertiesBottomTray: React.FC<PropertiesBottomTrayProps> = ({
   // Track if we've scrolled for this element selection
   const hasScrolledForElement = useRef<string | null>(null);
 
+  // Ref to hold resetTransform for cleanup (avoids stale closure issues)
+  const resetTransformRef = useRef<() => void>(() => {});
+
   // Get WordPress admin sidebar width for dynamic positioning
   const { width: sidebarWidth } = useWPAdminSidebar();
 
@@ -73,11 +76,12 @@ export const PropertiesBottomTray: React.FC<PropertiesBottomTrayProps> = ({
   const keyboard = useKeyboardState({
     enabled: !isCollapsed && !!elementId,
     debug: true, // Enable debug logging for testing
-    onKeyboardOpen: () => {
-      // ALWAYS scroll when keyboard opens - visible area just changed!
+    onKeyboardOpening: ({ offset }) => {
+      // Scroll immediately when keyboard STARTS opening (snappier UX)
+      // Pass the predicted offset so scroll calculation uses correct visible area
+      // (visualViewport.offsetTop lags behind, but we know the offset from height ratio)
       if (elementId) {
-        // Small delay to let iOS finish its auto-scroll
-        setTimeout(() => scrollIntoView.scrollElementIntoView(elementId), 100);
+        scrollIntoView.scrollElementIntoView(elementId, offset);
       }
     },
     onKeyboardClose: () => {
@@ -166,12 +170,15 @@ export const PropertiesBottomTray: React.FC<PropertiesBottomTrayProps> = ({
     return () => tray.removeEventListener('focusin', handleFocusIn);
   }, [elementId, isCollapsed]);
 
-  // Cleanup transform on close
+  // Keep resetTransform ref updated (for cleanup without stale closure)
+  resetTransformRef.current = scrollIntoView.resetTransform;
+
+  // Cleanup transform on close - uses ref to avoid triggering on keyboard state changes
   useEffect(() => {
     return () => {
-      scrollIntoView.resetTransform();
+      resetTransformRef.current();
     };
-  }, [elementId, scrollIntoView]);
+  }, [elementId]); // Only cleanup on element change or unmount, not keyboard state changes
 
   // Touch handlers for swipe-to-close - using direct DOM for smooth 60fps drag
   const handleTouchStart = useCallback((e: React.TouchEvent) => {

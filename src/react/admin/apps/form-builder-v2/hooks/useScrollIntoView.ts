@@ -12,7 +12,7 @@
  * 2. Then scroll canvas to center element
  * 3. Use transform fallback if canvas isn't scrollable
  */
-import { useRef, useCallback, useEffect } from 'react';
+import { useRef, useCallback, useEffect, useMemo } from 'react';
 
 interface ScrollIntoViewOptions {
   /** CSS selector for the canvas container */
@@ -30,8 +30,14 @@ interface ScrollIntoViewOptions {
 }
 
 interface ScrollIntoViewResult {
-  /** Scroll an element into the visible area */
-  scrollElementIntoView: (elementId: string) => void;
+  /**
+   * Scroll an element into the visible area
+   * @param elementId - The element's data-element-id
+   * @param predictedKeyboardOffset - Optional: Use this offset for visible area calculation
+   *   instead of reading visualViewport.offsetTop. Useful when called during keyboard
+   *   opening animation, before offsetTop has caught up to the actual keyboard height.
+   */
+  scrollElementIntoView: (elementId: string, predictedKeyboardOffset?: number) => void;
   /** Reset any applied transforms and body scroll */
   resetTransform: () => void;
   /** Reset body scroll to 0 */
@@ -119,16 +125,25 @@ export function useScrollIntoView(options: ScrollIntoViewOptions = {}): ScrollIn
 
   /**
    * Get current scroll state for debugging and calculations
+   * @param elementId - Element to check
+   * @param predictedKeyboardOffset - Optional: predicted keyboard offset when called during
+   *   keyboard opening animation (before visualViewport.offsetTop catches up)
    */
-  const getScrollState = useCallback((elementId: string): ScrollState => {
+  const getScrollState = useCallback((elementId: string, predictedKeyboardOffset?: number): ScrollState => {
     const element = document.querySelector(`[data-element-id="${elementId}"]`) as HTMLElement;
     const canvas = document.querySelector(canvasSelector) as HTMLElement;
     const tray = document.querySelector(traySelector) as HTMLElement;
 
     const bodyScrollTop = getBodyScrollTop();
     const canvasScrollTop = canvas?.scrollTop || 0;
-    const parentViewportOffset = getParentViewportOffset();
+    const actualParentViewportOffset = getParentViewportOffset();
     const parentViewportHeight = getParentViewportHeight();
+
+    // Use predicted offset if provided (during keyboard opening animation)
+    // Fall back to actual offset for normal operations
+    const effectiveViewportOffset = predictedKeyboardOffset !== undefined
+      ? predictedKeyboardOffset
+      : actualParentViewportOffset;
 
     const elementRect = element?.getBoundingClientRect() || null;
     const trayRect = tray?.getBoundingClientRect() || null;
@@ -140,16 +155,20 @@ export function useScrollIntoView(options: ScrollIntoViewOptions = {}): ScrollIn
     //
     // visibleTop: where the visual viewport starts (accounts for keyboard shift)
     // visibleBottom: where the tray starts (elements below are obscured by tray)
-    const visibleTop = parentViewportOffset + topOffset;
+    //
+    // When using predictedKeyboardOffset:
+    // - We predict where the visible area WILL BE after keyboard animation
+    // - This allows us to scroll immediately without waiting for offsetTop to catch up
+    const visibleTop = effectiveViewportOffset + topOffset;
     const visibleBottom = trayRect
       ? trayRect.top  // Use actual tray position (includes transform)
-      : parentViewportOffset + parentViewportHeight - bottomOffset;
+      : effectiveViewportOffset + parentViewportHeight - bottomOffset;
     const visibleHeight = visibleBottom - visibleTop;
 
     return {
       bodyScrollTop,
       canvasScrollTop,
-      parentViewportOffset,
+      parentViewportOffset: effectiveViewportOffset,
       elementRect,
       trayRect,
       canvasRect,
@@ -215,12 +234,19 @@ export function useScrollIntoView(options: ScrollIntoViewOptions = {}): ScrollIn
   }, [debug]);
 
   /**
+   * Set canvas scroll transform via CSS custom property on :root
+   * Using CSS variables on :root persists across React re-renders
+   * (React doesn't control :root styles, so they won't be overwritten)
+   */
+  const setCanvasTransform = useCallback((offset: number) => {
+    document.documentElement.style.setProperty('--canvas-scroll-offset', `${offset}px`);
+    if (debug) console.log('[ScrollIntoView] Set CSS var --canvas-scroll-offset:', offset);
+  }, [debug]);
+
+  /**
    * Reset canvas transform
    */
   const resetTransform = useCallback(() => {
-    const canvas = getCanvas();
-    if (!canvas) return;
-
     // Also reset body scroll
     resetBodyScroll(false);
 
@@ -230,43 +256,28 @@ export function useScrollIntoView(options: ScrollIntoViewOptions = {}): ScrollIn
       transitionCleanupRef.current = null;
     }
 
-    if (canvas.dataset.keyboardTransformOffset) {
-      canvas.style.transition = `transform ${animationDuration}ms ease-out`;
-      canvas.style.transform = '';
+    const currentOffset = document.documentElement.style.getPropertyValue('--canvas-scroll-offset');
+    if (currentOffset && currentOffset !== '0px') {
+      // Animate back to 0 via CSS transition (defined in CSS)
+      setCanvasTransform(0);
+      hasTransformRef.current = false;
 
-      const cleanup = () => {
-        canvas.style.transition = '';
-        delete canvas.dataset.keyboardTransformOffset;
-        hasTransformRef.current = false;
-      };
-
-      const handleTransitionEnd = (e: TransitionEvent) => {
-        if (e.propertyName === 'transform') {
-          canvas.removeEventListener('transitionend', handleTransitionEnd);
-          cleanup();
-        }
-      };
-
-      canvas.addEventListener('transitionend', handleTransitionEnd);
-
+      // Cleanup after animation
       cleanupTimeoutRef.current = setTimeout(() => {
-        canvas.removeEventListener('transitionend', handleTransitionEnd);
-        cleanup();
+        // Optionally remove the property entirely after animation
+        // document.documentElement.style.removeProperty('--canvas-scroll-offset');
       }, animationDuration + 100);
-
-      transitionCleanupRef.current = () => {
-        canvas.removeEventListener('transitionend', handleTransitionEnd);
-        if (cleanupTimeoutRef.current) {
-          clearTimeout(cleanupTimeoutRef.current);
-        }
-      };
     }
-  }, [getCanvas, resetBodyScroll, animationDuration]);
+  }, [resetBodyScroll, animationDuration, setCanvasTransform]);
 
   /**
    * Scroll element into view - coordinated strategy
+   * @param elementId - The element's data-element-id
+   * @param predictedKeyboardOffset - Optional: Use this offset for visible area calculation.
+   *   Pass keyboard.offset from useKeyboardState when calling during onKeyboardOpening
+   *   to scroll immediately without waiting for visualViewport.offsetTop to catch up.
    */
-  const scrollElementIntoView = useCallback((elementId: string) => {
+  const scrollElementIntoView = useCallback((elementId: string, predictedKeyboardOffset?: number) => {
     // Debounce guard: prevent compound transforms from multiple rapid calls
     const now = Date.now();
     if (now - lastScrollTimeRef.current < SCROLL_DEBOUNCE_MS) {
@@ -283,8 +294,11 @@ export function useScrollIntoView(options: ScrollIntoViewOptions = {}): ScrollIn
       return;
     }
 
-    // Get initial state
-    const initialState = getScrollState(elementId);
+    // Get initial state (use predicted offset if provided for early scroll during keyboard animation)
+    const initialState = getScrollState(elementId, predictedKeyboardOffset);
+    if (debug && predictedKeyboardOffset !== undefined) {
+      console.log('[ScrollIntoView] Using predicted keyboard offset:', predictedKeyboardOffset);
+    }
     logScrollState(initialState, 'Initial State');
 
     // Step 1: Reset body scroll if it's not 0
@@ -297,8 +311,8 @@ export function useScrollIntoView(options: ScrollIntoViewOptions = {}): ScrollIn
       // The element will appear LOWER in the viewport by bodyScrollTop amount.
       // We need to recalculate and retry after DOM updates.
       requestAnimationFrame(() => {
-        // Recursive call after body scroll reset
-        scrollElementIntoView(elementId);
+        // Recursive call after body scroll reset (preserve predicted offset)
+        scrollElementIntoView(elementId, predictedKeyboardOffset);
       });
       return; // Exit and let the recursive call handle the rest
     }
@@ -383,36 +397,20 @@ export function useScrollIntoView(options: ScrollIntoViewOptions = {}): ScrollIn
     }
 
     // Use TRANSFORM for remainder (handles element above visible area when at scrollTop=0)
+    // Uses CSS custom property on :root to persist across React re-renders
     if (Math.abs(remainder) > 10) {
       if (debug) console.log('[ScrollIntoView] Using transform for remainder:', remainder);
 
-      const existingOffset = parseFloat(canvas.dataset.keyboardTransformOffset || '0');
+      // Get existing offset from CSS variable (persists across re-renders)
+      const existingOffsetStr = document.documentElement.style.getPropertyValue('--canvas-scroll-offset');
+      const existingOffset = existingOffsetStr ? parseFloat(existingOffsetStr) : 0;
       const newOffset = existingOffset - remainder;
 
       if (debug) console.log('[ScrollIntoView] Transform:', { existing: existingOffset, new: newOffset });
 
-      if (transitionCleanupRef.current) {
-        transitionCleanupRef.current();
-        transitionCleanupRef.current = null;
-      }
-
-      canvas.style.transition = `transform ${animationDuration}ms ease-out`;
-      canvas.style.transform = `translateY(${newOffset}px)`;
-      canvas.dataset.keyboardTransformOffset = String(newOffset);
+      // Set transform via CSS custom property (survives React re-renders)
+      setCanvasTransform(newOffset);
       hasTransformRef.current = true;
-
-      const handleTransitionEnd = (e: TransitionEvent) => {
-        if (e.propertyName === 'transform') {
-          canvas.removeEventListener('transitionend', handleTransitionEnd);
-          canvas.style.transition = '';
-        }
-      };
-
-      canvas.addEventListener('transitionend', handleTransitionEnd);
-
-      transitionCleanupRef.current = () => {
-        canvas.removeEventListener('transitionend', handleTransitionEnd);
-      };
     } else if (debug && canvasCanScroll) {
       console.log('[ScrollIntoView] Scroll was sufficient, no transform needed');
     }
@@ -426,6 +424,7 @@ export function useScrollIntoView(options: ScrollIntoViewOptions = {}): ScrollIn
     getCanvas,
     getScrollState,
     logScrollState,
+    setCanvasTransform,
     animationDuration,
     debug,
   ]);
@@ -443,19 +442,17 @@ export function useScrollIntoView(options: ScrollIntoViewOptions = {}): ScrollIn
         transitionCleanupRef.current();
       }
 
-      const canvas = document.querySelector(canvasSelector) as HTMLElement;
-      if (canvas && canvas.dataset.keyboardTransformOffset) {
-        canvas.style.transform = '';
-        canvas.style.transition = '';
-        delete canvas.dataset.keyboardTransformOffset;
-      }
+      // Clear the CSS custom property on unmount
+      document.documentElement.style.removeProperty('--canvas-scroll-offset');
     };
-  }, [canvasSelector]);
+  }, []);
 
-  return {
+  // Memoize return object to prevent cleanup effects in consumers from
+  // triggering on every render (object reference must stay stable)
+  return useMemo(() => ({
     scrollElementIntoView,
     resetTransform,
     resetBodyScroll,
     hasTransform: hasTransformRef.current,
-  };
+  }), [scrollElementIntoView, resetTransform, resetBodyScroll]);
 }
