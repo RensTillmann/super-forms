@@ -595,6 +595,32 @@
 				}
 			}
 
+			// @since 6.5.0 - Check if file upload field - supports {fieldname;duration} for total video duration
+			if (parent.classList.contains( 'super-file' )) {
+				text_field = false;
+				if (value_n === 'duration') {
+					var uploadFormId = 0,
+						uploadFormInput = form.querySelector( 'input[name="hidden_form_id"]' );
+					if (uploadFormInput) {
+						uploadFormId = uploadFormInput.value;
+					}
+					sum = 0;
+					if (typeof SUPER.files !== 'undefined' &&
+						typeof SUPER.files[uploadFormId] !== 'undefined' &&
+						typeof SUPER.files[uploadFormId][name] !== 'undefined') {
+						var fileList = SUPER.files[uploadFormId][name];
+						for (var fli = 0; fli < fileList.length; fli++) {
+							if (fileList[fli] && typeof fileList[fli]['duration'] !== 'undefined') {
+								sum += parseFloat( fileList[fli]['duration'] );
+							}
+						}
+					}
+					value = sum;
+				} else {
+					value = 0;
+				}
+			}
+
 			// Check if text or textarea field
 			if (text_field === true) {
 				value = (element.value) ? parseFloat( element.value ) : 0;

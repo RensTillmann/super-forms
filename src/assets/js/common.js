@@ -1931,6 +1931,19 @@ function SUPERreCaptcha(){
                             var totalFiles = SUPER.files[formId][fieldName].length;
                             SUPER.files[formId][fieldName][totalFiles] = file;
                             SUPER.files[formId][fieldName][totalFiles]['url'] = src; // blob
+                            // @since 6.5.0 - For video files, read duration via HTML5 File API before upload
+                            if(file.type && file.type.indexOf("video/") === 0){
+                                (function(capturedFormId, capturedFieldName, capturedIndex, capturedField, capturedForm){
+                                    var videoEl = document.createElement('video');
+                                    videoEl.preload = 'metadata';
+                                    videoEl.onloadedmetadata = function(){
+                                        URL.revokeObjectURL(videoEl.src);
+                                        SUPER.files[capturedFormId][capturedFieldName][capturedIndex]['duration'] = videoEl.duration;
+                                        SUPER.after_field_change_blur_hook({el: capturedField, form: capturedForm});
+                                    };
+                                    videoEl.src = URL.createObjectURL(file);
+                                })(formId, fieldName, totalFiles, field, form);
+                            }
                             var html = SUPER.get_single_uploaded_file_html(true, false, file.name, file.type, src);
                             data.context.data(data).attr('data-name',file.name).attr('title',file.name).attr('data-type',file.type).html(html);
                             data.context.data('file-size',file.size);
