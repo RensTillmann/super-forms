@@ -3172,7 +3172,41 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			die();
 		}
 
-		public static function submit_form_checks( $skipChecks = false ) {
+		/**
+	 * Recursively collect names of required (non-empty) fields from stored form elements.
+	 *
+	 * Returns an associative array of [ field_name => true ] for every field whose
+	 * `may_be_empty` attribute is 'false' (the default when the attribute is absent).
+	 * Fields with `may_be_empty` set to 'true' or 'conditions' are skipped because
+	 * they are either optional or governed by conditional logic that is too complex
+	 * to evaluate server-side without executing the full JavaScript condition engine.
+	 *
+	 * @since  6.5.0
+	 * @param  array $elements  Form elements as stored in `_super_elements` meta.
+	 * @return array            [ field_name => true ] map of required field names.
+	 */
+	private static function collect_required_fields( $elements ) {
+		$required = array();
+		if ( ! is_array( $elements ) ) {
+			return $required;
+		}
+		foreach ( $elements as $element ) {
+			if ( ! empty( $element['inner'] ) ) {
+				// Recurse into container elements (columns, rows, sections, etc.)
+				$required = array_merge( $required, self::collect_required_fields( $element['inner'] ) );
+			} elseif ( ! empty( $element['data'] ) && ! empty( $element['data']['name'] ) ) {
+				$edata        = $element['data'];
+				$may_be_empty = isset( $edata['may_be_empty'] ) ? $edata['may_be_empty'] : 'false';
+				// 'conditions' requires conditional logic evaluation – skip server-side.
+				if ( $may_be_empty === 'false' ) {
+					$required[ $edata['name'] ] = true;
+				}
+			}
+		}
+		return $required;
+	}
+
+	public static function submit_form_checks( $skipChecks = false ) {
 			$csrfValidation = SUPER_Common::verifyCSRF();
 			if ( ! $csrfValidation && empty( $GLOBALS['super_csrf'] ) ) {
 				// Only if not previously validated
@@ -3279,6 +3313,36 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 					'list_id'  => $list_id,
 				)
 			);
+
+			// @since 6.5.0 - Server-side required-field enforcement.
+			// Prevents submissions where JavaScript is disabled or bypassed via direct HTTP POST.
+			// Only submitted fields are checked so that conditionally hidden fields (which are
+			// legitimately absent from the payload) do not trigger a false positive.
+			// Fields with may_be_empty='conditions' are skipped because evaluating their
+			// conditional logic server-side requires the full JS condition engine.
+			if ( $skipChecks === false ) {
+				$form_elements = get_post_meta( $form_id, '_super_elements', true );
+				if ( is_array( $form_elements ) && ! empty( $form_elements ) ) {
+					$required_fields = self::collect_required_fields( $form_elements );
+					foreach ( $data as $field_name => $field_data ) {
+						// Only check simple value fields; skip file uploads and fields without a value key.
+						if ( ! isset( $field_data['value'] ) || ( isset( $field_data['type'] ) && $field_data['type'] === 'files' ) ) {
+							continue;
+						}
+						if ( isset( $required_fields[ $field_name ] ) ) {
+							$value = trim( wp_strip_all_tags( (string) $field_data['value'] ) );
+							if ( $value === '' ) {
+								SUPER_Common::output_message(
+									array(
+										'type' => 'required_field_empty',
+										'msg'  => esc_html__( 'Please fill in all required fields.', 'super-forms' ),
+									)
+								);
+							}
+						}
+					}
+				}
+			}
 
 			// @since 4.6.0 - verify reCAPTCHA token
 			if ( $skipChecks === false ) {

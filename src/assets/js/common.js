@@ -4735,7 +4735,7 @@ function SUPERreCaptcha(){
 
         // Display error messages
         if(args.allowEmpty && args.emptyValue) error = false;
-        if(typeof args.validation !== 'undefined' && !args.allowEmpty && args.emptyValue) error = true;
+        if(!args.allowEmpty && args.emptyValue) error = true;
         if(error){
             SUPER.handle_errors(args.el);
             SUPER.add_error_status_parent_layout_element($, args.el);
