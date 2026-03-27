@@ -1,4 +1,4 @@
-/* globals jQuery, SUPER, super_common_i18n */
+/* globals jQuery, SUPER, super_common_i18n, math */
 
 (function ($) {
 	// Hide scope, no $ conflict
@@ -48,7 +48,7 @@
 	// Update the math after dynamically adding a new set of field (add more +)
 	// @since 1.8.5 - make sure we execute this function AFTER all other fields have been renamed otherwise fields would be skipped if the are placed below the calculator element
 	SUPER.init_calculator_update_math = function (form, uniqueFieldNames, clone) {
-		var i,ii,wrapper,calculatorFields,column,counter,superMath,regex,array,match,values,names,name,suffix,newField;
+		var i,ii,wrapper,calculatorFields,column,counter,superMath,array,match,values,names,name,suffix,newField;
 		if (typeof clone !== 'undefined') {
 			form             = clone.closest( '.super-form' );
 			column           = clone.closest( '.super-column' );
@@ -60,7 +60,6 @@
 				if ( superMath != '' ) {
 					array = [];
 					i     = 0;
-					match;
 					while ((match = SUPER.tagsRegex.exec( superMath )) != null) {
 						array[i] = match[1];
 						i++;
@@ -273,7 +272,7 @@
 						// amount = $parse.toString('r');
 						// Methods on Date Object will convert from UTC to users timezone
 						// Set minutes to current minutes (UTC) + User local time UTC offset
-						$parse.setMinutes( $parse.getMinutes() + $parse.getTimezoneOffset() )
+						$parse.setMinutes( $parse.getMinutes() + $parse.getTimezoneOffset() );
 						// Now we can use methods on the date obj without the timezone conversion
 
 						amount = $parse.toDateString();
