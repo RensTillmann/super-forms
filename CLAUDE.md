@@ -1,6 +1,69 @@
-# Super Forms - Project Documentation Hub
+## Branch and Version Rules — Read Before Acting
 
-@sessions/CLAUDE.sessions.md
+This repository has two active development lines. **You are on `master` (stable/beta track).**
+
+### Branch Policy
+
+**`master` branch — Stable/Beta track (current: v6.4.200)**
+- All bug fixes, security patches, and backward-compatible improvements land here.
+- Minimum compatibility target: WordPress sites that upgraded from any version >= v6.3.3.
+- Before any change: verify it does not break form data, contact entries, or settings
+  stored in the legacy (pre-EAV) format.
+- No React Form Builder V2 code, no Automations system, no Themes system on this branch.
+
+**`next/v7` branch (`feature/h-implement-triggers-actions-extensibility`) — v7.0 development**
+- DO NOT target this branch for bug fixes intended for current users.
+- DO NOT cherry-pick from this branch without explicit human instruction.
+- This branch contains React Form Builder V2, Tailwind CSS v4, shadcn/ui, MCP server,
+  Automations system, Themes system — none of which exist on master.
+- Fixes always go to master first. Feature branch pulls from master quarterly.
+
+### Backward Compatibility (applies to ALL master changes)
+
+1. **Form data**: `_super_form_settings` post meta format must remain readable by v6.3.x.
+   Any structural change requires a load-time migration that handles the old format silently.
+2. **Contact entries**: Both EAV (`wp_superforms_entries`) and legacy (serialized postmeta)
+   formats are live on user sites. Never use `get_post_meta($id, '_super_contact_entry_data')`
+   directly — use `SUPER_Data_Access::get_entry_data()`.
+3. **Settings**: Form settings moved to Triggers tab in v6.4.003+ must keep the old key names
+   readable. No renames — only additions.
+4. **Database**: Never add a NOT NULL column without a DEFAULT, never rename or drop a column
+   without a migration guard.
+5. **Hooks**: Never rename `apply_filters('super_*')` or `do_action('super_*')` names.
+   New behavior = new hook alongside old one. Old hook never removed.
+6. **Shortcodes**: `[super_form]` and `[super_listings]` parameters — no renames, only additions.
+   `[super_listings list="0"]` (numeric ID format from v6.3.x) must keep working.
+
+### Before Creating Any Branch
+
+```bash
+git checkout master
+git pull origin master
+git branch --show-current  # Must show: master
+```
+Branch from master for all fixes. Branch from `next/v7` only for v7 work explicitly requested.
+
+### PR Checklist for AI Agents
+
+Every PR targeting master must include in its description:
+
+```
+## Backward Compatibility Checklist
+- [ ] No wp_options key renamed (only new keys added)
+- [ ] New options have safe defaults when key is absent
+- [ ] No direct get_post_meta($id, '_super_contact_entry_data') in new code
+- [ ] EAV table schema: additive only (no drops or renames)
+- [ ] No _super_form_settings structural changes (or load-time migration added)
+- [ ] New element attributes are optional with safe defaults
+- [ ] No filter/action hook names changed
+- [ ] Action Scheduler hook names unchanged (superforms_migrate_batch, etc.)
+- [ ] If touching class-background-migration.php or class-data-access.php:
+      label needs-human-review added
+```
+
+---
+
+# Super Forms - Project Documentation Hub
 
 ## Quick Navigation
 
@@ -243,13 +306,11 @@ The Developer Tools page supports importing real production data for migration t
 
 **Quick Access:**
 - Enable: Add `define('DEBUG_SF', true);` to wp-config.php
-- URL: `https://f4d.nl/dev/wp-admin/admin.php?page=super_developer_tools`
+- URL: `{WP_ADMIN_URL}/wp-admin/admin.php?page=super_developer_tools`
 - Documentation: See [Developer Tools Page Access](docs/CLAUDE.development.md#developer-tools-page-access)
 
-**Preloaded Test Files** (f4d.nl/dev server):
-- `superforms-test-data-3943-entries.csv` (3.4 MB)
-- `superforms-test-data-3596-entries.csv` (2.8 MB)
-- `superforms-test-data-26581-entries.csv` (18 MB)
+**Preloaded Test Files:**
+Generate test data using Super Forms CSV export or WP XML export.
 
 **Usage Notes:**
 - Imported entries tagged with `_super_test_entry` meta for cleanup
@@ -294,9 +355,29 @@ The Developer Tools page supports importing real production data for migration t
 - Persistence: Saves migrated data immediately to prevent repeated migration
 
 **Reference:**
-- Migration implementation: `/home/rens/super-forms/src/includes/class-common.php` lines 427-548
-- PHP migration pattern: `/home/rens/super-forms/docs/CLAUDE.php.md` section "Database Migration Patterns"
-- JavaScript structure requirements: `/home/rens/super-forms/docs/CLAUDE.javascript.md` section "Extension JavaScript Patterns"
+- Migration implementation: `src/includes/class-common.php` lines 427-548
+- PHP migration pattern: `docs/CLAUDE.php.md` section "Database Migration Patterns"
+- JavaScript structure requirements: `docs/CLAUDE.javascript.md` section "Extension JavaScript Patterns"
+
+## Git Workflow
+
+| Branch | Role | Tagged |
+|--------|------|--------|
+| `master` | All active dev. Stable and beta releases. | `vX.Y.Z` (stable) or `vX.Y.Z-beta.N` |
+| `next/v7` | v7.0 React rewrite. Not released. | `v7.0.0-alpha` etc. |
+| `claude/issue-{N}-{date}-{time}` | AI fix branches | none |
+| `fix/{description}` | Bug fixes | none |
+
+**Flow:** `claude/*` or `fix/*` → PR → master → (when ready) tag `vX.Y.Z` on master commit
+
+**Hotfix:** fix on master → tag new version → update stable download URL
+
+**Tagging:**
+- Stable: `git tag -a v6.4.201 <sha> -m "Release v6.4.201"` + `git push origin v6.4.201`
+- Beta: `git tag v6.4.201-beta.1 <sha>` + `git push origin v6.4.201-beta.1`
+- Never reuse or amend an existing tag.
+
+**Quarterly:** `git checkout next/v7 && git merge master` (pull security fixes into v7 branch)
 
 ## Domain-Specific Documentation
 
