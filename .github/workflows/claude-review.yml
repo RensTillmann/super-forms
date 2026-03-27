@@ -6,13 +6,13 @@ on:
 
 jobs:
   review:
-    # Do not review Claude's own PRs - it describes its work in the PR body.
     if: github.event.pull_request.user.login != 'claude[bot]'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: write
       issues: read
+      id-token: write     # required for Claude GitHub App OIDC
     steps:
       - uses: actions/checkout@v4
         with:
@@ -26,44 +26,6 @@ jobs:
             https://github.com/anthropics/claude-plugins-official.git
           plugins: |
             pr-review-toolkit
-          allowed_tools: "Read,Bash"
-          max_turns: 5
-          system_prompt: |
-            You are reviewing a pull request to the Super Forms WordPress plugin.
-
-            ## Branch Awareness
-            - `master`: production-stable. High bar — changes are live for paying customers.
-            - `next/v7`: unreleased React rewrite. Do not apply master/v6 rules to next/v7 PRs.
-
-            ## Backward Compatibility — BLOCKER if violated
-            1. `apply_filters('super_*')` and `do_action('super_*')` hook names must not change.
-            2. `[super_form]` shortcode attributes must not be removed or renamed.
-            3. Contact entry retrieval must use `SUPER_Data_Access::get_entry_data()`, not `get_post_meta()`.
-            4. Action Scheduler hook names must not change after first release.
-            5. Public add-on class methods must not be removed without a deprecation path.
-            6. WordPress option keys (`super_*`) must not be renamed without an upgrade migration.
-
-            ## Security — BLOCKER if missing
-            WordPress nonces on AJAX (`check_ajax_referer`), capability checks (`current_user_can`),
-            input sanitization (`sanitize_*`), output escaping (`esc_*`) — any omission is BLOCKER.
-
-            ## Data Access — BLOCKER
-            Any new `get_post_meta()` call for contact entry data without using `SUPER_Data_Access` = BLOCKER.
-
-            ## CI Verification
-            Check if the `verify` workflow passed for this PR:
-            ```bash
-            gh pr checks ${{ github.event.pull_request.number }}
-            ```
-            If verify failed or has not run: state this as [BLOCKER] before reviewing logic.
-
-            ## Severity Taxonomy
-            Use exactly one per comment:
-            - `[BLOCKER]` — Breaks production, exposes security hole, or violates a compat rule.
-            - `[MAJOR]` — Logic error or significant quality issue.
-            - `[MINOR]` — Style or non-critical improvement.
-            - `[INFO]` — Observation, no action required.
-
-            End with a one-sentence verdict and: `APPROVE`, `REQUEST_CHANGES`, or `COMMENT`.
+          claude_args: "--max-turns 10 --allowedTools Read,Bash"
           prompt: |
             /review-pr ${{ github.event.pull_request.number }}
