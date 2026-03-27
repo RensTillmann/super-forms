@@ -1,0 +1,33 @@
+# TinyMCE and other vendor libraries
+src/lib/
+
+# action-scheduler library
+src/includes/lib/
+
+# React build configs and compiled output
+src/react/
+src/assets/js/react/
+
+# jQuery datepicker locale files and plugin (third-party)
+src/assets/js/frontend/datepicker/
+
+# jQuery file upload plugin (third-party)
+src/assets/js/frontend/jquery-file-upload/
+
+# Third-party phone library
+src/assets/js/frontend/int-phone.js
+src/assets/js/frontend/int-phone-utils.js
+
+# Third-party currency masking library
+src/assets/js/frontend/masked-currency.js
+
+# Third-party carousel library
+src/assets/js/frontend/carousel.js
+
+# Minified files in extensions
+src/includes/extensions/pdf-generator/*.min.js
+
+# Vendor files in add-ons
+src/add-ons/**/*.min.js
+src/add-ons/**/jquery.gsap.js
+src/add-ons/**/signature.js

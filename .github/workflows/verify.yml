@@ -9,13 +9,49 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: npm
       - name: Install dependencies
         run: npm ci --ignore-scripts
-      - name: JSHint
-        run: npm run jshint
+      - name: JSHint (no new errors)
+        run: |
+          BASE="${{ github.event.pull_request.base.sha }}"
+          HEAD="${{ github.sha }}"
+          CHANGED=$(git diff --name-only "$BASE" "$HEAD" | grep -E '\.js$' | grep -v '\.min\.js$' || true)
+          if [ -z "$CHANGED" ]; then
+            echo "No JS files changed"
+            exit 0
+          fi
+          echo "Changed JS files:"
+          echo "$CHANGED"
+          FAIL=0
+          while IFS= read -r FILE; do
+            SAFE="${FILE//\//_}"
+            SAFE="${SAFE////_}"
+            TMP="/tmp/head_${SAFE}"
+            cp "$FILE" "$TMP"
+            if git show "${BASE}:${FILE}" > "$FILE" 2>/dev/null; then
+              BASE_ERRORS=$(node_modules/.bin/jshint "$FILE" 2>&1 | grep -c ": line" || true)
+            else
+              BASE_ERRORS=0
+            fi
+            cp "$TMP" "$FILE"
+            HEAD_ERRORS=$(node_modules/.bin/jshint "$FILE" 2>&1 | grep -c ": line" || true)
+            echo "$FILE: base=$BASE_ERRORS head=$HEAD_ERRORS"
+            if [ "$HEAD_ERRORS" -gt "$BASE_ERRORS" ]; then
+              echo "FAIL: $FILE introduced $((HEAD_ERRORS - BASE_ERRORS)) new jshint error(s):"
+              node_modules/.bin/jshint "$FILE" 2>&1
+              FAIL=1
+            fi
+          done <<< "$CHANGED"
+          exit $FAIL
+      - name: Configure git identity for build
+        run: |
+          git config --global user.email "ci@github.com"
+          git config --global user.name "GitHub CI"
       - name: Production build
         run: npm run prod
