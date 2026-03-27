@@ -26,11 +26,23 @@ jobs:
             echo "No JS files changed"
             exit 0
           fi
-          echo "Changed JS files: $CHANGED"
+          echo "Changed JS files:"
+          echo "$CHANGED"
           FAIL=0
           while IFS= read -r FILE; do
-            # Count errors on base; handle new files (not in base = 0 errors)
-            BASE_ERRORS=$(git show "${BASE}:${FILE}" 2>/dev/null | node_modules/.bin/jshint --stdin --filename "$FILE" 2>&1 | grep -c ": line" || true)
+            SAFE="${FILE//\//_}"
+            SAFE="${SAFE////_}"
+            TMP="/tmp/head_${SAFE}"
+            # Save HEAD version
+            cp "$FILE" "$TMP"
+            # Overwrite with BASE version (0 if new file)
+            if git show "${BASE}:${FILE}" > "$FILE" 2>/dev/null; then
+              BASE_ERRORS=$(node_modules/.bin/jshint "$FILE" 2>&1 | grep -c ": line" || true)
+            else
+              BASE_ERRORS=0
+            fi
+            # Restore HEAD version
+            cp "$TMP" "$FILE"
             HEAD_ERRORS=$(node_modules/.bin/jshint "$FILE" 2>&1 | grep -c ": line" || true)
             echo "$FILE: base=$BASE_ERRORS head=$HEAD_ERRORS"
             if [ "$HEAD_ERRORS" -gt "$BASE_ERRORS" ]; then
