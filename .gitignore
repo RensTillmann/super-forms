@@ -94,3 +94,9 @@ ai-automation/
 # Temporary setup scripts
 composer-setup.php
 claude_code_zai_env.sh
+# AI agent logs and session artifacts (committed by mistake in early dev)
+.code/agents/
+sessions/tasks/
+sessions/transcripts/
+.mcp/super-forms-server.json
+src/super-forms.php.backup-search
