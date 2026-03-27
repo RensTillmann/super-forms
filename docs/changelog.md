@@ -9,12 +9,18 @@
 
 - [PDF Generator Add-on](https://docs.super-forms.com/features/integrations/pdf-generator)
 
-## TODO:
+## Nov 18, 2025 - Version 6.4.200
 
-- Duplicate form store local/global Triggers
-- Test the PayPal trigger events/actions
-- Update keys for new PayPal settings stored under Triggers and test the PayPal payment features
-- Issue with populating existing signature from first person, when using a form that requires two persons to sign the document.
+- **Added:** WP-Cron fallback system for reliable background processing — Action Scheduler
+  now self-heals when WP-Cron is disabled on hosting environments (`72310fd4`)
+- **Improved:** Upgraded ESLint to v9; removed deprecated `.eslintignore`;
+  fixed 50+ ESLint warnings across JavaScript source files (`532d4842`, `0377c986`)
+- **Security:** Updated npm dependencies to resolve security vulnerabilities in dev toolchain
+  (`1d197c5c`)
+- **Fix:** Translation: replaced `esc_html()` with `esc_html__()` for all translatable
+  strings; fixed double-wrapped `esc_html__()` calls in countries array (`7bf7908c`, `c723ff68`)
+- **Note:** Version number advanced from 6.4.127 to 6.4.200 to align with internal build
+  numbering. No intermediate public releases exist between these two versions.
 
 ## Nov 14, 2025 - Version 6.4.127
 
