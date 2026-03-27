@@ -16,6 +16,8 @@ A clear and concise description of what the bug is.
 - PHP version:
 - Super Forms version:
 - Browser (if applicable):
+- Active Super Forms add-ons (if applicable):
+- Other active plugins that may interact:
 
 ## Steps to Reproduce
 
