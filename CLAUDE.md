@@ -1,3 +1,41 @@
+## Branch Rules — You Are on `next/v7` (v7.0.0-alpha)
+
+**This branch is the v7 development track. It is NOT the stable/beta release track.**
+
+### What exists here that does NOT exist on master
+- React Form Builder V2 (`src/react/admin/`) — Vite + TypeScript + Tailwind CSS v4 + shadcn/ui
+- Automations system (`src/includes/automations/`) — 19 built-in action types
+- Themes system (`src/includes/class-theme-dal.php`, `wp_superforms_themes` table)
+- Form Operations/Versioning (`wp_superforms_form_versions`, JSON Patch RFC 6902)
+- MCP server (`.mcp/server.js`) — 9 form manipulation tools via WP REST API
+- Schema-first architecture (`src/react/admin/schemas/`)
+
+### Branch policies
+
+- Bug fixes for users on v6.4.x or earlier → commit to `master`, not here.
+- This branch pulls FROM master quarterly: `git merge master` (resolve conflicts in favor
+  of this branch's React architecture).
+- Do not backport changes to master without explicit instruction.
+
+### Do NOT commit these files
+
+- `.code/agents/` — AI agent execution logs (gitignored; verify before staging)
+- `sessions/transcripts/` — Session transcript files
+- `src/super-forms.php.backup-search` — stale backup file
+- Any `*.txt` files in agent output directories
+
+### MCP Server usage
+
+The MCP server requires a running WordPress instance. Configure:
+```bash
+export WP_SITE_URL=http://localhost:8888  # wp-env default
+export WP_API_NONCE=<generate from WP admin>
+export WP_COOKIE=<wp_session cookie value>
+```
+Nonce expires in 24h — must be refreshed during long development sessions.
+
+---
+
 # Super Forms - Project Documentation Hub
 
 @sessions/CLAUDE.sessions.md
