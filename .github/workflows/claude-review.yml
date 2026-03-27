@@ -21,20 +21,9 @@ jobs:
         uses: anthropics/claude-code-action@main
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          claude_args: |
-            --allowedTools 'Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr comment:*)'
-            --max-turns 10
+          plugin_marketplaces: |
+            https://github.com/anthropics/claude-plugins-official.git
+          plugins: |
+            pr-review-toolkit
           prompt: |
-            Review pull request #${{ github.event.pull_request.number }} in this repository.
-
-            Steps:
-            1. Run: gh pr diff ${{ github.event.pull_request.number }}
-            2. Run: gh pr view ${{ github.event.pull_request.number }}
-            3. Review the diff for bugs, logic errors, security issues, missing error handling,
-               unclear naming, and violations of project conventions in CLAUDE.md (if present).
-            4. Post a single summary comment with your findings:
-               gh pr comment ${{ github.event.pull_request.number }} --body "REVIEW_TEXT"
-
-            Be concise. Only flag issues that genuinely matter.
-            If the PR looks correct, say so in one sentence and explain why.
-            Do not approve or request changes via the GitHub review API - comment only.
+            /review-pr ${{ github.event.pull_request.number }}
