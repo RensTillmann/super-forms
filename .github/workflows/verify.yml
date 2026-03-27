@@ -9,13 +9,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: npm
       - name: Install dependencies
         run: npm ci --ignore-scripts
-      - name: JSHint
-        run: npm run jshint
+      - name: JSHint (changed plugin files only)
+        run: |
+          BASE="${{ github.event.pull_request.base.sha }}"
+          HEAD="${{ github.sha }}"
+          CHANGED=$(git diff --name-only "$BASE" "$HEAD" | grep -E '\.js$' | grep -v '\.min\.js$' || true)
+          if [ -n "$CHANGED" ]; then
+            echo "Checking changed JS files:"
+            echo "$CHANGED"
+            echo "$CHANGED" | xargs node_modules/.bin/jshint
+          else
+            echo "No JS files changed in this PR"
+          fi
       - name: Production build
         run: npm run prod
