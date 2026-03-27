@@ -17,17 +17,28 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci --ignore-scripts
-      - name: JSHint (changed plugin files only)
+      - name: JSHint (no new errors)
         run: |
           BASE="${{ github.event.pull_request.base.sha }}"
           HEAD="${{ github.sha }}"
           CHANGED=$(git diff --name-only "$BASE" "$HEAD" | grep -E '\.js$' | grep -v '\.min\.js$' || true)
-          if [ -n "$CHANGED" ]; then
-            echo "Checking changed JS files:"
-            echo "$CHANGED"
-            echo "$CHANGED" | xargs node_modules/.bin/jshint
-          else
-            echo "No JS files changed in this PR"
+          if [ -z "$CHANGED" ]; then
+            echo "No JS files changed"
+            exit 0
           fi
+          echo "Changed JS files: $CHANGED"
+          FAIL=0
+          while IFS= read -r FILE; do
+            # Count errors on base; handle new files (not in base = 0 errors)
+            BASE_ERRORS=$(git show "${BASE}:${FILE}" 2>/dev/null | node_modules/.bin/jshint --stdin --filename "$FILE" 2>&1 | grep -c ": line" || true)
+            HEAD_ERRORS=$(node_modules/.bin/jshint "$FILE" 2>&1 | grep -c ": line" || true)
+            echo "$FILE: base=$BASE_ERRORS head=$HEAD_ERRORS"
+            if [ "$HEAD_ERRORS" -gt "$BASE_ERRORS" ]; then
+              echo "FAIL: $FILE introduced $((HEAD_ERRORS - BASE_ERRORS)) new jshint error(s):"
+              node_modules/.bin/jshint "$FILE" 2>&1
+              FAIL=1
+            fi
+          done <<< "$CHANGED"
+          exit $FAIL
       - name: Production build
         run: npm run prod
