@@ -13,11 +13,64 @@ This Add-on allows you to convert any form submission into a PDF file which woul
 
 When a user submits the form, the PDF will be generated and optionally (if enabled) attached to the Admin and/or Confirmation E-mail.
 
+### How PDF Generation Works
+
+{% hint style="warning" %}
+**Important:** PDF generation is entirely **frontend-gated**. This means the entire form submission pipeline — including saving the entry and sending all e-mails — is blocked until the PDF is fully generated in the user's browser. The server-side AJAX call that saves data and dispatches e-mails is only made **after** client-side PDF generation completes successfully.
+
+If PDF generation stalls or fails in the browser, the form submission will appear frozen indefinitely and no e-mails will be sent, even though the Submit button was clicked.
+{% endhint %}
+
+When a form with PDF generation enabled is submitted, the following sequence occurs:
+
+1. The user clicks Submit. A loading overlay is displayed (e.g. "Generating PDF file...").
+2. After a short delay, the browser begins rendering the form into a PDF using the client-side PDF library.
+3. Once generation is complete, the generated file is injected into the submission payload.
+4. The AJAX call to the server is made — the entry is saved, e-mails are dispatched, and attachments are assembled.
+
+If step 2 or 3 never completes (e.g. due to a rendering stall), the user remains on the loading screen permanently, and the server never receives the submission.
+
+{% hint style="info" %}
+**No server-side PHP error log will be generated** if the frontend PDF generation stalls, because the AJAX endpoint is never called. All diagnostic information will be in the **browser console**.
+{% endhint %}
+
+#### Forms most likely to cause generation stalls
+
+The following form characteristics increase the risk of a PDF generation freeze:
+
+* **High element count** — forms with many fields or sections take longer to render.
+* **Multi-page forms** — each page must be captured separately, multiplying render time.
+* **Heavy conditional logic** — complex show/hide rules may affect layout calculation during render.
+* **Large file upload fields** — image previews or attachments embedded in the PDF increase memory usage.
+* **Custom fonts or high render scale** — increases CPU and memory requirements during generation.
+
 The PDF file will also be attached to the Contact Entry (if enabled).
 
 You also have the option to specifically include or exclude elements from the PDF, which should give you a ton of flexibility to choose from.
 
 You can also define a Header and Footer element which would then be visible on all pages of the generated PDF file.
+
+### Debug Mode
+
+The PDF Generator has a built-in **debug mode** that is the recommended first step when diagnosing PDF-related issues.
+
+When debug mode is enabled:
+
+* The form will **not be submitted** when the Submit button is clicked.
+* Instead, the generated PDF will be **immediately downloaded** to the user's browser.
+* This allows you to verify the PDF output without affecting saved entries or sent e-mails.
+
+**To enable debug mode:**
+
+1. Open the form in the builder and click the **\[PDF]** tab.
+2. Under **General settings**, check the **Enable debug mode** option.
+3. Save the form and test it on the front-end.
+
+{% hint style="warning" %}
+**Only enable debug mode during development.** Disable it before making the form live, as it prevents form submission entirely.
+{% endhint %}
+
+Debug mode also exposes the raw PDF settings object in the browser's JavaScript console, which can help identify configuration mismatches between forms.
 
 ### Quick start
 
@@ -144,6 +197,62 @@ This feature is currently only available in the [BETA version](../../developers/
 {% endhint %}
 
 With smart page breaks enabled any element and or text will automatically be pushed onto the next page in case it didn't fit on the previous page for the full 100%.
+
+### Troubleshooting: Form Freezes at "Generating PDF File"
+
+If a form stalls indefinitely after submission with the loading overlay showing "Generating PDF file..." and no e-mail is received, follow these steps.
+
+#### Step 1: Check the browser console
+
+Open your browser's developer tools (F12) and go to the **Console** tab before clicking Submit. Look for:
+
+* JavaScript errors (red text) at the moment the freeze occurs.
+* Warnings or stack traces involving PDF-related functions.
+* Network errors if the page was making AJAX calls at the time.
+
+{% hint style="info" %}
+Because generation happens entirely in the browser, **no PHP error log will be written** during a stall. The browser console is your only diagnostic window for this scenario.
+{% endhint %}
+
+#### Step 2: Enable debug mode
+
+Enable **debug mode** (see [Debug Mode](pdf-generator.md#debug-mode) above) on the affected form. This forces an immediate PDF download instead of submission, letting you:
+
+* Confirm that the PDF generator itself can complete on this form.
+* Inspect the generated output for rendering issues.
+
+If the debug-mode download also stalls or fails, the issue is in the PDF rendering stage. If the download succeeds but submission still fails, check your server settings (Step 4).
+
+#### Step 3: Compare settings with a working form
+
+If an identical form on the same site works correctly:
+
+1. Open both forms in the builder side by side (in separate tabs).
+2. Navigate to the **\[PDF]** tab on each form.
+3. Compare every setting field by field: render scale, native mode, page format, margins, smart page breaks, etc.
+4. Also compare the **PDF Settings** section of each individual form element — check for elements set to "Only show in PDF file" or "Use as PDF header/footer".
+
+Even a single different setting (e.g. a much higher render scale, or an element embedded only in the PDF) can cause a freeze on one form but not another.
+
+#### Step 4: Check server PHP limits
+
+Although PDF generation happens in the browser, the process may make AJAX requests to the server mid-generation (e.g. for font or resource loading). If your server has restrictive settings, those requests can time out or fail silently:
+
+* **`memory_limit`** — Low PHP memory (e.g. 64M) can cause the server to reject mid-generation requests. Recommended: 256M or higher.
+* **`max_execution_time`** — Short execution limits (e.g. 30s) may terminate server requests used during generation. Recommended: 120s or higher.
+
+You can check or adjust these settings in your `php.ini`, `.htaccess`, or via your hosting control panel. After making changes, clear any caching plugins and retry.
+
+#### Step 5: Simplify the form temporarily
+
+To isolate the problematic element:
+
+1. Make a copy of the affected form.
+2. Remove half the elements and test submission.
+3. If it works, restore those elements and remove the other half.
+4. Repeat until the specific element causing the stall is identified.
+
+Complex elements — especially those with conditional logic, embedded images, or custom HTML — are common culprits.
 
 ### Pricing
 
