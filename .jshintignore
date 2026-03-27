@@ -1,0 +1,2 @@
+src/add-ons/**/*.min.js
+src/add-ons/**/jquery.gsap.js
