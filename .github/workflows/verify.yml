@@ -33,15 +33,12 @@ jobs:
             SAFE="${FILE//\//_}"
             SAFE="${SAFE////_}"
             TMP="/tmp/head_${SAFE}"
-            # Save HEAD version
             cp "$FILE" "$TMP"
-            # Overwrite with BASE version (0 if new file)
             if git show "${BASE}:${FILE}" > "$FILE" 2>/dev/null; then
               BASE_ERRORS=$(node_modules/.bin/jshint "$FILE" 2>&1 | grep -c ": line" || true)
             else
               BASE_ERRORS=0
             fi
-            # Restore HEAD version
             cp "$TMP" "$FILE"
             HEAD_ERRORS=$(node_modules/.bin/jshint "$FILE" 2>&1 | grep -c ": line" || true)
             echo "$FILE: base=$BASE_ERRORS head=$HEAD_ERRORS"
@@ -52,5 +49,9 @@ jobs:
             fi
           done <<< "$CHANGED"
           exit $FAIL
+      - name: Configure git identity for build
+        run: |
+          git config --global user.email "ci@github.com"
+          git config --global user.name "GitHub CI"
       - name: Production build
         run: npm run prod
