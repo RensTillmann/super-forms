@@ -6,13 +6,13 @@ on:
 
 jobs:
   review:
-    # Do not review Claude'''s own PRs — it already described its work in the PR body.
-    if: github.event.pull_request.user.login != '''claude[bot]'''
+    # Do not review Claude's own PRs - it describes its work in the PR body.
+    if: github.event.pull_request.user.login != 'claude[bot]'
     runs-on: ubuntu-latest
     permissions:
       contents: read
       pull-requests: write
-      id-token: write
+      issues: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -21,9 +21,20 @@ jobs:
         uses: anthropics/claude-code-action@main
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          prompt: |
-            /review-pr REPO: ${{ github.repository }} PR_NUMBER: ${{ github.event.pull_request.number }}
           claude_args: |
-            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr diff:*),Bash(gh pr view:*)"
-            --model "claude-sonnet-4-6"
-            --max-turns 15
+            --allowedTools 'Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr comment:*)'
+            --max-turns 10
+          prompt: |
+            Review pull request #${{ github.event.pull_request.number }} in this repository.
+
+            Steps:
+            1. Run: gh pr diff ${{ github.event.pull_request.number }}
+            2. Run: gh pr view ${{ github.event.pull_request.number }}
+            3. Review the diff for bugs, logic errors, security issues, missing error handling,
+               unclear naming, and violations of project conventions in CLAUDE.md (if present).
+            4. Post a single summary comment with your findings:
+               gh pr comment ${{ github.event.pull_request.number }} --body "REVIEW_TEXT"
+
+            Be concise. Only flag issues that genuinely matter.
+            If the PR looks correct, say so in one sentence and explain why.
+            Do not approve or request changes via the GitHub review API - comment only.
