@@ -277,3 +277,17 @@
   It is always a permissions problem on your server. In any case you should contact your host about this so they can correctly set the permissions for your WordPress installation.
 </details>
 
+<details>
+  <summary id="28">
+      Why does the browser back button leave the page instead of going to the previous form step?
+  </summary>
+
+  The browser's native back button operates at the **browser history level**. Pressing it will navigate away from the current page entirely — back to the previously visited page — not to the previous step of your multi-step form.
+
+  To move between form steps, visitors should use the **Prev** and **Next** buttons that are part of the multi-step form. These are the intended navigation controls for stepping through a multi-part form.
+
+  History API / `pushState` integration to intercept the browser back button is not supported. There is no built-in setting to make the browser back button return to a previous form step.
+
+  If you are concerned about visitors losing their progress when navigating away, consider enabling the [Save Form Progression](save-form-progression) feature so they can resume from where they left off.
+</details>
+

@@ -58,6 +58,22 @@ You can simply drag & drop the Multi-part into the form.
 Not that a multi-part cannot be nested in a column nor inside another multi-part.
 Once you have added the multi-part you are allowed to add any element inside it that belongs to this step of the form.
 
+## Browser Back Button Behavior
+
+The browser's native back button operates at the **browser history level**, not at the form step level. Pressing it will navigate the visitor away from the page entirely — back to whatever page they visited before — rather than returning to the previous step of the form.
+
+To navigate between form steps, users must use the **Prev** and **Next** buttons that are built into the multi-step form. These are the correct controls for moving between steps.
+
+> **Note:** History API / `pushState` integration to intercept the browser back button is not supported. There is no built-in option to make the browser back button go to the previous form step.
+
+**In practice this means:**
+
+- The **Next** button advances to the next step.
+- The **Prev** button returns to the previous step.
+- The browser's **Back** button leaves the page (standard browser navigation).
+
+If you are concerned about users accidentally leaving the form mid-way, consider enabling the [Save Form Progression](save-form-progression) feature so that returning visitors can continue from where they left off.
+
 ## Multi-part Steps and Progress Bar Customization
 
 To customize the colors of the Steps and Progress bar, you can find the settings under `Form Settings` > `Theme & Colors` on the builder page.
