@@ -9,6 +9,8 @@ This allows you to have more flexibility within your final value or for doing co
 * [How to create a variable field?](#how-to-create-a-variable-field)
 * [Creating variable conditions with CSV file](#creating-variable-conditions-with-csv-file)
 * [Using {tags} with variable fields](#using-tags-with-variable-fields)
+* [Using regex tags inside variable conditions](#using-regex-tags-inside-variable-conditions)
+* [Using email if statements with variable fields](#using-email-if-statements-with-variable-fields)
 * [Example form](#example-form)
 
 ## What is a variable field?
@@ -69,6 +71,72 @@ In our case we will map the **width** field as our Column heading, so we can ent
 ## Using {tags} with variable fields
 
 Variable fields can deal with {tags}, please read the [{tags} system](tags-system) section for more information about tags.
+
+## Using regex tags inside variable conditions
+
+Inside each condition row of a variable field the **Condition value** you compare against is a plain string, but the **field tag** you pick can reference multiple fields at once using the regex tag syntax described in [Calculation examples](calculator?id=calculation-examples).
+
+This is especially useful when your form uses a naming convention for related fields.
+
+**Example — sum all quantity fields to decide a discount tier:**
+
+Suppose you have `qty_shirts`, `qty_hats`, and `qty_bags`. Instead of adding three separate condition fields you can reference all of them as `{qty_*}` inside a Calculator element, then point your variable field at that calculator's tag.
+
+| Variable condition | Value |
+|---|---|
+| `{total_qty}` >= `100` | `tier_bulk` |
+| `{total_qty}` >= `50` | `tier_mid` |
+| `{total_qty}` >= `1` | `tier_standard` |
+
+Where `total_qty` is a Calculator field whose **Math** expression is `{qty_*}` (sums all fields starting with `qty_`).
+
+?> **Tip:** Regex tags (`{field_*}`, `{^field}`, `{field$}`) only work inside **Calculator** elements. Inside variable field conditions you compare against the tag of a single named field — use a calculator as an intermediate step when you need to aggregate multiple fields first.
+
+## Using email if statements with variable fields
+
+Once a variable field has resolved to a value you can use [email if statements](email-if-statements) to show different content in your emails or HTML elements based on that value.
+
+**Example — discount tier message in the confirmation email:**
+
+```html
+if({discount_tier}=='tier_bulk'):
+    You qualify for our <strong>Bulk discount</strong> — 25 % off your order.
+elseif:
+    if({discount_tier}=='tier_mid'):
+        You qualify for our <strong>Mid-volume discount</strong> — 15 % off your order.
+    elseif:
+        Standard pricing applies to your order.
+    endif;
+endif;
+```
+
+**Example — checking the combined services variable from the checkbox workaround:**
+
+```html
+if({selected_services}??'Design'):
+    Our design team will follow up within 1 business day.
+endif;
+
+if({selected_services}??'Hosting'):
+    Server provisioning begins within 24 hours.
+endif;
+```
+
+The `??` operator means _contains_, so the block fires whenever the variable field's resolved value includes the given string — regardless of the other services that were selected.
+
+**Checking whether a variable field was never set (conditionally hidden parent):**
+
+When the parent fields that drive a variable are conditionally hidden, the variable itself may be absent. Use `isset()` to guard against that case:
+
+```html
+if(isset(selected_services)):
+    Selected services: {selected_services}
+elseif:
+    No services were available for the selected plan.
+endif;
+```
+
+?> See [Email if statements](email-if-statements) for the full list of operators (`==`, `!=`, `>`, `<`, `??`, `!??`, etc.) and the `isset()` / `!isset()` helpers.
 
 ## Example form
 

@@ -7,6 +7,7 @@
 * [Using dynamic columns](#using-dynamic-columns)
 * [Settings](#settings)
 * [Calculation examples](#calculation-examples)
+* [Rounding calculations](#rounding-calculations)
 * [Math functions](#math-functions)
 
 ## Introduction
@@ -120,6 +121,47 @@ Let say we have 3 fields named `server_costs_1`, `server_costs_2`, `server_costs
 If you have 3 fields named `1_server_option`, `2_server_option`, `3_server_option` you could use the following regex in your calculation to sum up the fields
 
 * `{server_option$}` - *this will sum up all fields ending with **server_option** (it does not matter what it starts with)*
+
+## Rounding calculations
+
+You can wrap any calculation in a JavaScript `Math.round()` call to round the result to the nearest integer.
+
+**Round to the nearest whole number:**
+
+```
+Math.round({quantity}*{price})
+```
+
+**Round to N decimal places** — multiply before rounding, then divide:
+
+```
+Math.round({quantity}*{price}*100)/100
+```
+
+The pattern is `Math.round(expr * 10^N) / 10^N` where `N` is the number of decimal places you want to keep.
+
+| Desired precision | Expression |
+|---|---|
+| Nearest integer | `Math.round({qty}*{price})` |
+| 1 decimal place | `Math.round({qty}*{price}*10)/10` |
+| 2 decimal places | `Math.round({qty}*{price}*100)/100` |
+| 3 decimal places | `Math.round({qty}*{price}*1000)/1000` |
+
+**Round to the nearest 0.5 (half-step):**
+
+```
+Math.round({value}*2)/2
+```
+
+**Complex expression with multiple fields — wrap the entire expression:**
+
+```
+Math.round(({base_price}+{addon_price})*{quantity}*100)/100
+```
+
+?> **Note:** Parentheses control operator precedence. Always wrap the full sub-expression inside `Math.round()` before dividing by the precision factor.
+
+?> **Tip:** For display-only rounding you can also use the **Length of decimal** setting on the **[Advanced]** tab. This rounds the _displayed_ number without changing the underlying value that other fields reference via `{tag}`.
 
 ## Math functions
 
