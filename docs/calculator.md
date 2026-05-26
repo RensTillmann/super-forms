@@ -7,6 +7,7 @@
 * [Using dynamic columns](#using-dynamic-columns)
 * [Settings](#settings)
 * [Calculation examples](#calculation-examples)
+* [Rounding calculations](#rounding-calculations)
 * [Math functions](#math-functions)
 
 ## Introduction
@@ -120,6 +121,46 @@ Let say we have 3 fields named `server_costs_1`, `server_costs_2`, `server_costs
 If you have 3 fields named `1_server_option`, `2_server_option`, `3_server_option` you could use the following regex in your calculation to sum up the fields
 
 * `{server_option$}` - *this will sum up all fields ending with **server_option** (it does not matter what it starts with)*
+
+## Rounding calculations
+
+When your calculation produces a decimal result and you want to round it to the nearest whole number (or to a specific number of decimal places), wrap your entire expression in `Math.round()`.
+
+**Round to the nearest integer:**
+
+```
+Math.round({quantity}*{price})
+```
+
+If `quantity` is 3 and `price` is 9.99, the result is `Math.round(29.97)` = **30**.
+
+**Round to a specific number of decimal places:**
+
+JavaScript's `Math.round()` only rounds to whole numbers, but you can combine it with multiplication and division to control precision:
+
+```
+Math.round({quantity}*{price}*100)/100
+```
+
+This rounds to **2 decimal places**. For 1 decimal place use `*10)/10`, for 3 decimal places use `*1000)/1000`.
+
+**Round to nearest 0.5 (or any step):**
+
+```
+Math.round({value}*2)/2
+```
+
+**Wrapping more complex expressions:**
+
+You can wrap any calculation expression, including those that use other `Math.*` functions or multiple fields:
+
+```
+Math.round(({field_a}+{field_b})*{tax_rate}/100)
+```
+
+The entire expression inside `Math.round(…)` is evaluated first, then rounded. Parentheses control the order of operations as in standard mathematics.
+
+?> **Tip:** Use the **Length of decimal** setting in the **[Advanced]** tab to control how many decimal digits are _displayed_, independently of the rounding applied in the **Math** expression.
 
 ## Math functions
 

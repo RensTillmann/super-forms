@@ -41,3 +41,23 @@
   - Exclude from all emails
 - Option to not save field in Contact Entry data
 - Option to set [Conditional Logic](conditional-logic)
+
+## Conditional visibility of individual checkbox options
+
+The [Conditional Logic](conditional-logic) setting on a checkbox field controls the **entire field** — it shows or hides all of its options at once. It is **not possible** to conditionally show or hide individual options within a single multi-option checkbox group.
+
+### Workaround: use individual checkbox fields
+
+If you need to conditionally show or hide specific options based on another field's value, replace the grouped checkbox with **separate, individual checkbox fields** — one per option — and apply conditional logic to each field independently.
+
+**Example:** You have a "Services" checkbox group with options "Design", "Development", and "Hosting". You want to hide "Hosting" unless the user has selected "Business" from a plan dropdown.
+
+Instead of one checkbox field with three options, create:
+
+* A checkbox field named `service_design` with a single option "Design"
+* A checkbox field named `service_development` with a single option "Development"
+* A checkbox field named `service_hosting` with a single option "Hosting" — then apply conditional logic to **show** this field only when `plan == business`
+
+Each individual checkbox field can then have its own independent conditional logic rule.
+
+?> **Note:** When splitting options into individual checkbox fields, use the `{tag;label}` syntax in your emails or confirmation messages if you need to display the option label rather than its value.
