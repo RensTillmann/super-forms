@@ -1,0 +1,79 @@
+Jan 20, 2022 - Version 1.6.1
+- Added: Compatibility with latest version of Super Forms
+
+Oct 15, 2021 - Version 1.6.0
+- Compatibility with Super Forms v5.0.0
+
+Aug 03, 2020 - Version 1.5.2
+- Improved: create connection between created post and contact entry by storing the ID as meta data
+
+May 13, 2020 - Version 1.5.1
+- Update: hooks from main plugin
+
+Jan 23, 2020 - Version 1.5.0
+- Added: Option to save multiple taxonomies and categories when creating a post
+
+Jan 15, 2020 - Version 1.4.2
+- Fix: Compatibility with ACF and ACF Pro: If the meta key does not exist in ACF, we must save it as regular metadata, instead of trying to save through ACF function (this is for instance the case with `_sku`, used by WooCommerce products)
+                            
+Jan 09, 2020 - Version 1.4.1
+- Fix: when saving custom post meta data, make sure to use `update_post_meta()` instead of `add_post_meta()` otherwise would result in duplicate metadata (for instance with WC product `_sku`)
+
+Jan 07, 2020 - Version 1.4.0
+- Replaced deprecated function with new one
+
+Jun 14, 2019 - Version 1.3.1
+- Compliance: Working towards Envato WordPress Requirements Badge/Compliance
+  - Escaping all Translatable strings
+
+Apr 22, 2019 - Version 1.3.0
+- Compatibility with latest Super Forms
+- Improved: Update functionality
+- Front-end Posting now included in the `Super Forms - All In One Bundle` package :)
+
+Dec 06, 2018 - Version 1.2.4
+- Added: Compatibility with "ACF Photo Gallery Field" plugin
+
+Nov 01, 2018 - Version 1.2.3
+- Added: Option to save product attributes
+
+Jul 19, 2018 - Version 1.2.2
+- Added: Option to redirect to the newly created Post after form submission
+
+Feb 15, 2018 - Version 1.2.1
+- Fix: Allow settings to be empty for new Super Forms versions (values that can be left empty must not be overwritten by default value)
+
+Dec 28, 2017 - Version 1.2.0
+- Fix: Featured product setting not working with latest versions of WooCommerce
+- Improved: Now using natie WC core functions to create product
+
+Nov 27, 2017 - Version 1.1.5
+- Fix: PHP warning
+
+Nov 16, 2017 - Version 1.1.4
+- Improved: Settings "The post categories", "The cat taxonomy name", "The post tags" and "The tag taxonomy name" can now handle {tags} for more flexibility
+
+Sep 11, 2017 - Version 1.1.3
+- Added: Option to save a checkbox or select value
+- Added: Option to save a repeater field value
+
+Sep 6, 2017 - Version 1.1.2
+- Fix: Issue with ACF Pro version not able to retrieve field type because it's saved differently inside database than normal ACF plugin
+- Fix: Issue with Gallery, File, Image field types not saving correctly
+
+Sep 5, 2017 - Version 1.1.1
+- Improved: ACF checkbox/radio/select(dropdown)/image/file/gallery compatibility, save comma seperated values as Associative Array
+
+Mar 12, 2017 - Version 1.1.0
+- Added: Automatic updates
+
+Sep 7, 2016 - Version 1.0.2
+- Improved: Removed unnecessary code
+
+July 25, 2016 - Version 1.0.1
+- Fix: When saving contact entry is being disabled data is not being retrieved to save a post
+- Added: Filter Hook (super_front_end_posting_before_insert_post_filter)
+- Added: Action Hook (super_front_end_posting_after_insert_post_action)
+
+July 15, 2016 - Version 1.0.0
+- Initial release!

@@ -1,0 +1,45 @@
+# Filter hooks
+
+| Hook | File(s) |
+| ------ | ------ |
+| `super_form_styles_filter` | [includes/admin/views/page-create-form.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_form_styles_filter) |
+| `super_before_sending_email_settings_filter` | [includes/class-ajax.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_before_sending_email_settings_filter) |
+| `super_before_email_loop_data_filter` | [includes/class-ajax.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_before_email_loop_data_filter) |
+| `super_before_sending_email_body_filter` | [includes/class-ajax.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_before_sending_confirm_body_filter) |
+| `super_before_sending_confirm_body_filter` | [includes/class-ajax.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_before_sending_email_attachments_filter) |
+| `super_before_sending_email_attachments_filter` | [includes/class-ajax.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_before_sending_email_confirm_attachments_filter) |
+| `super_before_sending_email_confirm_attachments_filter` | [includes/class-ajax.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_before_sending_email_confirm_attachments_filter) |
+| `super_before_sending_email_data_filter` | [includes/class-ajax.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_before_sending_email_data_filter) |
+| `super_common_js_dynamic_functions_filter` | [includes/class-common.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_common_js_dynamic_functions_filter) |
+| `super_email_tags_filter` | [includes/class-common.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_email_tags_filter) |
+| `super_icons` | [includes/class-field-types.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_icons) |
+| `super_register_post_type_form` | [includes/class-post-types.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_register_post_type_form) |
+| `super_register_post_type_contact_entry` | [includes/class-post-types.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_register_post_type_contact_entry) |
+| `super_settings_start_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_start_filter) |
+| `super_settings_after_email_headers_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_after_email_headers_filter) |
+| `super_settings_after_email_settings_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_after_email_settings_filter) |
+| `super_settings_after_email_template_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_after_email_template_filter) |
+| `super_settings_after_form_settings_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_after_form_settings_filter) |
+| `super_settings_after_theme_colors_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_after_theme_colors_filter) |
+| `super_settings_after_backend_settings_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_after_backend_settings_filter) |
+| `super_settings_after_custom_css_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_after_custom_css_filter) |
+| `super_settings_after_custom_js_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_after_custom_js_filter) |
+| `super_settings_after_restore_default_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_after_restore_default_filter) |
+| `super_settings_after_system_status_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_after_system_status_filter) |
+| `super_settings_after_export_import_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_after_export_import_filter) |
+| `super_settings_after_support_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_after_support_filter) |
+| `super_settings_end_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_end_filter) |
+| `super_shortcodes_start_filter` | [includes/class-shortcodes.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_shortcodes_start_filter) |
+| `super_shortcodes_after_layout_elements_filter` | [includes/class-shortcodes.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_shortcodes_after_layout_elements_filter) |
+| `super_shortcodes_after_form_elements_filter` | [includes/class-shortcodes.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_shortcodes_after_form_elements_filter) |
+| `super_shortcodes_end_filter` | [includes/class-shortcodes.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_shortcodes_end_filter) |
+| `super_backend_output_element_<shortcode>_filter` | [includes/class-shortcodes.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_backend_output_element_) |
+| `super_form_styles_filter` | [includes/class-shortcodes.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_form_styles_filter) |
+| `super_form_before_do_shortcode_filter` | [includes/class-shortcodes.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_form_before_do_shortcode_filter) |
+| `super_form_settings_filter` | [includes/class-shortcodes.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_form_settings_filter) |
+| `super_common_attributes_filter` | [includes/class-shortcodes.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_common_attributes_filter) |
+| `super_form_before_do_shortcode_filter` | [includes/class-shortcodes.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_form_before_do_shortcode_filter) |
+| `super_enqueue_styles` | [super-forms.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_enqueue_styles) |
+| `super_enqueue_scripts` | [super-forms.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_enqueue_scripts) |
+| `super_after_contact_entry_data_filter` | [includes/class-pages.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_after_contact_entry_data_filter) |
+| **Deprecated** `super_settings_after_smtp_server_filter` | [includes/class-settings.php](https://github.com/RensTillmann/super-forms/search?l=PHP&q=super_settings_after_smtp_server_filter) |

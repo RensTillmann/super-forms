@@ -1,0 +1,127 @@
+Feb 24, 2022 - Version 2.0.0
+- Improved: When password reset form is submitted, not only check against user email addres, but also against username
+- Improved: Option to define custom headers for emails such as `Verification`, `Approval` and `Reset Password` E-mails
+- Improved: Don't show activation status on profile page in back-end for current logged in user, no need
+- Fix: Issue with changing user status from Pending to Active in backend
+- Fix: Issue with `Register & Login` form, when having a login form that allows all user roles, filter array and remove any possible empty values, because this could cause any user to be unable to login
+- Fix: When setting `Send email confirmation/verification email` to `Do nothing` make sure to set user status to 1, since they are not required to confirm their E-mail address, they will still not be able to login in case the `User login status` is set to anything other than `Active`
+
+Jan 20, 2022 - Version 1.9.2
+- Added: Compatibility with latest version of Super Forms
+
+Oct 19, 2021 - Version 1.9.1
+- Fix bug with registering new user when file upload element is present
+
+Oct 15, 2021 - Version 1.9.0
+- Compatibility with Super Forms v5.0.0
+
+Feb 22, 2021 - Version 1.8.7
+- Fix: Compatibility with latest WordPress version, E-mail verification broke,
+due to `action` POST parameter no longer available in latest WP version
+
+Oct 30, 2020 - Version 1.8.6
+- Fix: When using the option `Send activation email` we should also do a check on the `wp-login.php` form to make sure user can't login before they confirmed their email address with the activation code
+- Improved: Naming convention changed for setting `Send activation email` because it is conflicting with the `User status` setting. Renamed to `Send email confirmation/verification email`. Also updated the options to reflect this convention
+- Fix: PHP Notice
+
+Aug 27, 2020 - Version 1.8.2
+- Added: Prefix `super` to `close` classname for zero conflict policy
+
+Jul 20, 2020 - Version 1.8.1
+- Improved: `Allowed user role(s)` setting
+
+May 13, 2020 - Version 1.8.0
+- Added: Option to update user role after payment completed from `PayPal` and `WooCommerce`
+- Update: hooks from main plugin
+
+Jan 07, 2020 - Version 1.7.0
+- Replaced deprecated function with new one
+- Fix: PHP Notice: Undefined offset: 1
+
+Jul 07, 2019 - Version 1.6.21
+- Fix: {tags} not working when Form Custom URL redirect is enabled along with Login/Register
+
+Jun 14, 2019 - Version 1.6.2
+- Compliance: Working towards Envato WordPress Requirements Badge/Compliance
+  - Passed all JavaScript files through `JShint` excluding third party libraries
+  - Escaping all Translatable strings
+
+Apr 29, 2019 - Version 1.6.1
+- Added: option to "Show Toolbar when viewing site (enabled by default)" which by default was always disabled when a user registers
+- Added: new action "Send activation email without logging in the user", which allows to autmoatically login a newly registered user, and activate their account upon next login
+
+Apr 22, 2019 - Version 1.6.0
+- Compatibility with latest Super Forms
+- Improved: Update functionality
+- Register & Login feature now included in the `Super Forms - All In One Bundle` package :)
+
+Jul 18, 2018 - Version 1.5.5
+- Fix: type on form setting `register_login_send_activation_email` had to be `register_send_approve_email`
+
+May 10, 2018 - Version 1.5.4
+- Added: Compatability with E-mail Templates
+
+Apr 13, 2018 - Version 1.5.3
+- Fix: "Save custom user meta" placeholder and default value mixed up, causing it to not save the setting when saving form the next time the builder page was reloaded
+
+Mar 13, 2018 - Version 1.5.2
+- Fix: Bug in combination with ACF plugin, not saving other meta data which did not exist in ACF as meta field
+
+Feb 15, 2018 - Version 1.5.1
+- Fix: Allow settings to be empty for new Super Forms versions (values that can be left empty must not be overwritten by default value)
+
+Jan 14, 2018 - Version 1.5.0
+- Added: Option to Update user based on user_id field or GET or POST, A hidden field named "user_id" must be present in your form in order for this to work
+
+Jan 8, 2018 - Version 1.4.0
+- Added: Option to register new user if user doesn't exists while updating user
+
+Dec 7, 2017 - Version 1.3.0
+- Improved: When registering or updating user, update the user meta data after files have been saved to media library
+
+Nov 16, 2017 - Version 1.2.7
+- Added: Option to send Approve email after admin approves the user account via back-end
+- Added: Option to generate password on the fly when admin approves user account
+
+Sep 15, 2017 - Version 1.2.6
+- Added: Option to skip registration if user_login or user_email are not found
+
+Jun 19, 2017 - Version 1.2.5
+- Fix: small bug with login function showing the "incorrect activation code" error message on wrong moment
+
+Jun 8, 2017 - Version 1.2.4
+- Added: option to allow users to use a custom activation code, for instance generated with the unique random number with a hidden field (not secure though)
+
+May 9, 2017 - Version 1.2.3
+- Fix: E-mail function updated based on new super forms version
+- Changed: Removed suffix on css/js files (normally used for debug mode, not required)
+
+May 2, 2017 - Version 1.2.2
+- Fix: Check if wp_clean function exists
+
+Mar 12, 2017 - Version 1.2.1
+- Fix: PHP error: undefined register_login_action
+
+Feb 28, 2017 - Version 1.2.0
+- Added: Option to update current logged in user data / meta data
+- Added: Option to register multi-site 
+- Added: Return WC country list when field is named billing_country or shipping_country
+
+Feb 03, 2017 - Version 1.1.0
+- Added: Automatic updates
+
+Sep 28, 2016 - Version 1.0.4
+- Added: Option to login the user without activating it's account
+
+Sep 17, 2016 - Version 1.0.3
+- Added: User login status
+- Added: New action hook: super_after_wp_insert_user_action
+
+May 3, 2016 - Version 1.0.2
+- Fix: Parsing Super Forms version instead of own plugin version when registering script 
+
+March 29, 2016 - Version 1.0.1
+- Fix: Do not show activation message if user was already registered before Super Forms was activated
+
+January 10, 2016 - Version 1.0.0
+- Initial release!

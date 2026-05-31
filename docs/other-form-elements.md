@@ -1,0 +1,32 @@
+# Other Form Elements
+
+- E-mail address
+- Title (Mr. / Mis.)
+- First / Last name
+- Address
+- Zipcode & City
+- US State
+- Countries / Countries (ISO2) / Countries (FULL)
+- Text field
+- Text area (for large texts)
+- Dropdown
+- Checkboxes
+- Radio buttons
+- Quantity field
+- Toggle field (On/Off)
+- Color picker (let's users choose a specific color)
+- Slider field (user can drag to a specific value)
+- Currency field (autmoatically validates to correct currency value)
+- File upload (for single or multiple file uploads with file extension specification and file size limit)
+- Phone number (automatically validates for valid phone number)
+- Website URL (autmoatically validates for valid URL)
+- Date (user can pick a date from datepicker)
+- Time (user can pick a time from dropdown)
+- Rating (user can choose between 1 to 5 stars)
+- Password (invisible user input, useful for password)
+- Hidden field (not visible to users, but the value can [dynamically change on the fly](variable-fields))
+- reCAPTCHA v3 (google human verification)
+- Button (custom submit button locations, or just link to a page, or print the form)
+- [Calculator element](calculator) (show calculations on the fly based on user input/selections)
+- [MailChimp element](mailchimp) (add user to your mailchimp list upon form submission)
+- [Signature element](signature) (let user sign the form submission, compatible with touch devices)

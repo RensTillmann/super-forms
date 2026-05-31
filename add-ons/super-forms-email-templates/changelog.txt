@@ -1,0 +1,42 @@
+Jan 20, 2022 - Version 1.2.2
+- Added: Compatibility with latest version of Super Forms
+
+Nov 18, 2021 - Version 1.2.1
+- Added: Option to translate email Title, Subtitle and Copyright when using the build in translation feature in Super Forms
+
+Oct 15, 2021 - Version 1.2.0
+- Compatibility with Super Forms v5.0.0
+
+Dec 17, 2020 - Version 1.1.3
+- Fix: When using in combination with the WooCommerce Checkout and the setting to send an email after order completed, the E-mail template wasn't being applied when a third party pluign would change the WC order status to completed due to the fact that the filters where scoped in `admin` requests only. When a third party pluign wouldn't make an `admin` request it wouldn't apply the filter and thus not applying the template
+
+May 13, 2020 - Version 1.1.2
+- Update: hooks from main plugin
+
+Jun 14, 2019 - Version 1.1.1
+- Compliance: Working towards Envato WordPress Requirements Badge/Compliance
+  - Escaping all Translatable strings
+
+Apr 22, 2019 - Version 1.1.0
+- Compatibility with latest Super Forms
+- Improved: Update functionality
+- E-mail templates now included in the `Super Forms - All In One Bundle` package :)
+
+Mar 05, 2018 - Version 1.0.5
+- Fix: PHP error: Undefined offset: 1
+
+Feb 15, 2018 - Version 1.0.4
+- Fix: Allow settings to be empty for new Super Forms versions (values that can be left empty must not be overwritten by default value)
+
+Nov 16, 2017 - Version 1.0.3
+- Fix: Alt attribute for social icons in email footer
+- Added: Option to add custom name for social icons used for alt attribute in email footer
+
+Dec 28, 2016 - Version 1.0.2
+- Fix: unable to activate plugin under activation TAB
+
+Dec 5, 2016 - Version 1.0.1
+- Added: RTL compatibility
+
+Jan 15, 2016 - Version 1.0.0
+- Initial release!

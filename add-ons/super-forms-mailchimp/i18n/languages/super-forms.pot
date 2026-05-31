@@ -1,0 +1,124 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Super Forms - Mailchimp\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-05-24 17:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: \n"
+"Language: \n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.2.2; wp-5.2.1"
+
+#: super-forms-mailchimp.php:465
+msgid "Advanced"
+msgstr ""
+
+#: super-forms-mailchimp.php:438
+msgid ""
+"Allow users to select one or more interests (retrieved by given List ID)"
+msgstr ""
+
+#: super-forms-mailchimp.php:432
+msgid "Allows you to save your custom fields within MailChimp"
+msgstr ""
+
+#: super-forms-mailchimp.php:512
+msgid "API key"
+msgstr ""
+
+#: super-forms-mailchimp.php:430
+msgid "Custom fields to save (*|MERGE|* tags)"
+msgstr ""
+
+#: super-forms-mailchimp.php:437
+msgid "Display interests"
+msgstr ""
+
+#: super-forms-mailchimp.php:618
+msgid "Error: Blank email address"
+msgstr ""
+
+#. Author of the plugin
+msgid "feeling4design"
+msgstr ""
+
+#: super-forms-mailchimp.php:421
+msgid "General"
+msgstr ""
+
+#: super-forms-mailchimp.php:475
+msgid "Horizontal display ( -- )"
+msgstr ""
+
+#. URI of the plugin
+msgid "http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "http://codecanyon.net/user/feeling4design"
+msgstr ""
+
+#: super-forms-mailchimp.php:486
+msgid "Icon"
+msgstr ""
+
+#: super-forms-mailchimp.php:417 super-forms-mailchimp.php:508
+msgid "Mailchimp"
+msgstr ""
+
+#: super-forms-mailchimp.php:424
+msgid "Mailchimp List ID"
+msgstr ""
+
+#: super-forms-mailchimp.php:509
+msgid "Mailchimp Settings"
+msgstr ""
+
+#: super-forms-mailchimp.php:442 super-forms-mailchimp.php:452
+msgid "No"
+msgstr ""
+
+#: super-forms-mailchimp.php:447
+msgid "Send the Mailchimp confirmation email"
+msgstr ""
+
+#: super-forms-mailchimp.php:431
+msgid ""
+"Seperate MailChimp field and field_name by pipes \"|\" (put each on a new "
+"line).<br />Example: PHONE|phonenumber<br />With this method you can save "
+"custom MailChimp user data"
+msgstr ""
+
+#. Description of the plugin
+msgid "Subscribes and unsubscribes users from a specific Mailchimp list"
+msgstr ""
+
+#. Name of the plugin
+msgid "Super Forms - Mailchimp"
+msgstr ""
+
+#: super-forms-mailchimp.php:448
+msgid "Users will receive a confirmation email before they are subscribed"
+msgstr ""
+
+#: super-forms-mailchimp.php:470
+msgid "Vertical / Horizontal display"
+msgstr ""
+
+#: super-forms-mailchimp.php:474
+msgid "Vertical display ( | )"
+msgstr ""
+
+#: super-forms-mailchimp.php:443 super-forms-mailchimp.php:453
+msgid "Yes"
+msgstr ""
+
+#: super-forms-mailchimp.php:425
+msgid "Your List ID for example: 9e67587f52"
+msgstr ""

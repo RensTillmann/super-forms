@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+  <meta name="description" content="Description">
+  <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <link rel="stylesheet" href="//unpkg.com/docsify/lib/themes/vue.css">
+  <style>
+    section.cover.has-mask .mask {
+		opacity: 0.2;
+        display: none;
+    }
+	.markdown-section img:not(.emoji) {
+		box-shadow: 1px 1px 6px 1px #00000036;
+		border: 1px solid #cecece;
+		padding: 10px;
+		border-radius: 5px;
+	}
+	.sidebar li {
+		margin: 0;
+	}
+	.sidebar > ul,
+	.sidebar > ul > li > ul,
+	.sidebar > ul > li > ul,
+	.sidebar > ul > li > ul > li {
+		margin: 0px 0px 0px 0px;
+		padding: 0px 0px 0px 15px;
+	}
+	.sidebar > ul > li > ul > li.active {
+		background-color:#F5F6F7;
+	}
+	.sidebar > ul > li > ul > li.active ul li {
+		margin: 0px 0px 0px 0px;
+		padding: 0px 0px 0px 0px;
+	}
+	.sidebar > ul > li.active>a {
+		border-right: 5px solid;
+	}
+	section.cover .cover-main>p:last-child a:last-child:hover {
+		color: white!important;
+	}
+	.markdown-section {
+		padding-bottom:840px;
+	}
+	.markdown-section code {
+		word-wrap: break-word;
+	}
+	.markdown-section li > code {
+		background-color: #42b983;
+		color: #ffffff;
+	}
+	.markdown-section p > code {
+		color: #ff7300;
+	}
+	.markdown-section pre,
+	.markdown-section pre > code {
+		background-color:#272822;
+		color:#777777;
+
+	}
+    details {
+        margin-bottom:20px;
+        border-radius:5px;
+    }
+    summary {
+        border:1px solid #aaa;
+        padding:10px 10px 10px 15px;
+        cursor:pointer;
+        font-weight:600;
+        border-radius:5px;
+    }
+    details[open] {
+        border:1px solid #aaa;
+        padding:10px 0px 10px 15px;
+    }
+    details[open] summary {
+        background-color:#42b9831f;
+        border:0;
+        padding:0;
+        margin:-10px 0px 0px -15px;
+        padding:10px 0px 10px 15px;
+        border-radius:0px;
+        border-bottom:1px solid #aaa;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">Please wait...</div>
+  <script>
+    window.$docsify = {
+      	name: 'Super Forms',
+	    repo: 'RensTillmann/super-forms',
+		coverpage: '_coverpage.md',
+	    loadSidebar: true,
+      	subMaxLevel: 3,
+      	auto2top: true,
+      	
+		// Change to /home.md
+		homepage: 'home.md',
+
+      	ga: 'UA-100203320-2',
+
+	    // complete configuration parameters
+      	//search: 'auto', // default
+	    search: {
+	      maxAge: 86400000, // Expiration time, the default one day
+	      //paths: [], // or 'auto'
+	      placeholder: {
+	        '/': 'Search...',
+	        '/nl/': 'Zoeken...'
+	      },
+	      noData: {
+	        '/': 'No Results!',
+	        '/nl/': 'Geen resultaten!'
+	      },
+	      // Headline depth, 1 - 6
+	      depth: 2
+	    },
+
+		alias: {
+			//'/changelog': 'https://raw.githubusercontent.com/RensTillmann/super-forms/master/changelog.txt'
+			//'/foo/(+*)': '/bar/$1', // supports regexp
+			//'/zh-cn/changelog': '/changelog',
+			//'/.*/_sidebar.md': '/_sidebar.md' // See #301
+		},
+
+		plugins: [
+			function (hook, vm) {
+				hook.beforeEach(function (html) {
+					var url = 'https://github.com/RensTillmann/super-forms/blob/master/docs/' + vm.route.file
+					var editHtml = '[:pencil2: Edit document](' + url + ')\n'
+					return editHtml + html + "<hr/>Last modified {docsify-updated} "+editHtml
+				})
+			}
+	  	]
+
+
+		//themeColor: '#3F51B5'
+
+
+
+
+		// Or use the readme in your repo
+		//homepage: 'https://raw.githubusercontent.com/RensTillmann/super-forms/master/docs/README.md';
+
+
+    }
+  </script>
+  <script src="//unpkg.com/docsify/lib/docsify.js"></script>
+  <script src="//unpkg.com/docsify/lib/plugins/search.js"></script>
+  <script src="//unpkg.com/docsify/lib/plugins/ga.js"></script>
+  <script src="//unpkg.com/prismjs/components/prism-csharp.js"></script>
+</body>
+</html>

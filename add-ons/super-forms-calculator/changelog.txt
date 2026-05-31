@@ -1,0 +1,213 @@
+Jun 09, 2022 - Version 2.3.4
+- Added: Option to count words for Textarea field (without whitespace, linebreak, tabs etc) with use of `{fieldname;words}`
+- Added: Option to count characters for Textarea field (without whitespace, linebreak, tabs etc) with use of `{fieldname;chars}`
+- Added: Option to count all characters for Textarea field (including whitespace, linebreak, tabs etc) with use of `{fieldname;allchars}`
+
+Jan 20, 2022 - Version 2.3.3
+- Added: Compatibility with latest version of Super Forms
+
+Nov 23, 2021 - Version 2.3.2
+- Added: Option for datepicker to return the year, month, day or the timestamp by calling tags: `{date;year}`, `{date;month}`, `{date;day}`, `{date;timestamp}`
+
+Oct 18, 2021 - Version 2.3.1
+- Bug fix with conditional logic
+
+Oct 15, 2021 - Version 2.3.0
+- Compatibility with Super Forms v5.0.0
+
+Feb 02, 2021 - Version 2.2.3
+- Added: Option to use a space as Decimal and/or Thousand seperater under
+`Advanced` tab
+
+Jan 14, 2021 - Version 2.2.2
+- Added: Option to directly retrieve predefined tags inside math, e.g: to retrieve current year, or month, or price of current WooCommerce product
+
+Dec 08, 2020 - Version 2.2.1
+- Fix: Conditional logic wasn't working due to new CSS rule `display:fex!important;`
+
+Dec 01, 2020 - Version 2.1.9
+- Improved: `{tag}` regular expression, so that values in a HTML element like `{something like this / and this}` are not being detected as valid `{tags}`
+
+Oct 22, 2020 - Version 2.1.8
+- Improved: CSS alignment for calculator label
+
+Jul 30, 2020 - Version 2.1.6
+- Comaptibility with latest version of Super Forms
+
+Jun 02, 2020 - Version 2.1.5
+- Fix: Issue align center setting when RTL is enabled
+
+May 13, 2020 - Version 2.1.4
+- Update: hooks from main plugin
+
+Feb 19, 2020 - Version 2.1.3
+- Improved: load script/styles on ajax load via super forms hook (used in for instance Elementor builder interface)
+
+Jan 24, 2020 - Version 2.1.2
+- Fix: W3C validation error
+
+Jan 15, 2020 - Version 2.1.1
+- Fix: Datepicker and Calculator not working when `Return age for calculation fields` and `Enable birthdate calculations` are used together to return Age/Months/Days
+
+Jan 07, 2020 - Version 2.1.0
+- Replaced deprecated function with new one
+- Fix: Bug with math pointing to a conditional column that is inside a dynamic
+column (resulting in math returning zero value due to pointing to incorrect
+field)
+- Fix: JavaScript error `split()` is not a function on none string data
+
+Jun 14, 2019 - Version 2.0.51
+- Compliance: Working towards Envato WordPress Requirements Badge/Compliance
+  - Now using MathJS library for improved security when doing calculations
+  - Passed all JavaScript files through `JShint` excluding third party libraries
+  - Escaping all Translatable strings
+
+May 29, 2019 - Version 2.0.4
+- Improved: Speed improvement upon page load, now skipping calculator elements of which the value didn't yet change, so no need to loop through any elements connected to this field
+
+May 12, 2019 - Version 2.0.3
+- Fix: Thousand seperation front-end
+- Fix: Sometimes returning "NaN" as value
+
+Apr 24, 2019 - Version 2.0.1
+- Fix: Not working when using both regex and advanced tags like so: `{_option$;3}` or `{server_*;4}` or `{server_^;2}` etc.
+
+Apr 22, 2019 - Version 2.0.0
+- Compatibility with latest Super Forms
+- Improved: Update functionality
+- Calculator element now included in the `Super Forms - All In One Bundle` package :)
+
+Mar 03, 2018 - Version 1.8.9
+- Update: Compatibility with Super Forms - All In One Bundle
+
+Mar 26, 2018 - Version 1.8.8
+- Added: Ability to give a custom amount for decimals
+
+Feb 20, 2018 - Version 1.8.7
+- Fix: $clone undefined JS error
+- Fix: Allow icon to be empty
+
+Feb 01, 2018 - Version 1.8.6
+- Added: Option to return date based on a timestamp value
+
+Jan 30, 2018 - Version 1.8.5
+- Added: Ability to retrieve correct value from variable field value that used advanced tags format eg: value1;value2;value3
+- Improved: Make sure replacement of tags inside dynamic column is executed after all fields have been renamed inside the newly duplicated column
+
+Jan 26, 2018 - Version 1.8.4
+- Fix: Whenever advanced tags are used in combination with regex $, ^, *, e.g {$field;2} do a different replace method to get the correct math in return
+- Added: option "Do not save field in Contact Entry"
+
+Nov 16, 2017 - Version 1.8.2
+- Changed: Auto updates for Envato element users
+
+Oct 25, 2017 - Version 1.8.1
+- Fix: Using $this when not in object context
+
+Oct 16, 2017 - Version 1.8.0
+- Changed: made plugin ready for Envato Elements
+- Fix: replaced .data('value') with .attr('data-value') because data is no longer being used to save the calculator value
+
+Sep 01, 2017 - Version 1.7.0
+- Added: checkbox and radio buttons compatibility with advanced tags like {field;2} etc.
+- Improved: Set $form variable based on changed field after deleting a dynamic column
+- Fix: due to IE 11 bug fix for checkboxes js script was updated to keep checkbox calculations working with super forms
+- Fix: due to IE 11 bug fix for checkboxes js script was updated to keep checkbox calculations working with super forms
+- Fix: Calculations problem inside multi-part, JS selector should focus on the whole form instead of just the multi-part itself
+
+Feb 06, 2017 - Version 1.6.0
+- Improved: Speed, skipping fields that have been triggered previously by the same changed field when calling JS hook: after_field_change_blur_hook()
+- Fix: Do not skip static math calculations the first time the form loads (these won't be triggered if conditional hidden on page load)
+
+Jan 25, 2017 - Version 1.5.0
+- Improved: Overal code/speed optimization
+- Fix: update the data fields attribute after duplicating a column
+- Fix: update the data fields attribute to make sure regex tags are replaced with according field names
+- Fix: when replacing math with values make sure to not update other tags if they contain the string of another tag / field name
+- Fix: first update the data fields attribute to make sure regex tags are replaced with according field names.
+
+Jan 18, 2017 - Version 1.4.0
+- Improved: Calculator math execution
+- Improved: Overal code optimization
+
+Jan 13, 2017 - Version 1.3.3
+- Fix: Error on deactivating plugin in WordPress
+
+Jan 07, 2017 - Version 1.3.2
+- Fix: Make sure currency field is parsed as float before doing math
+
+Dec 18, 2016 - Version 1.3.1
+- Fix: Issue with large currency field values not being converted correctly
+
+Dec 15, 2016 - Version 1.3.0
+- Added: Compatibility for currency field
+- Fix: Issue with align center in Internet Explorer
+
+Nov 21, 2016 - Version 1.2.0
+- Added: Automatic updates
+- Added: Option to return years, months or days for date pickers (birthdate / age calculations)
+
+Nov 9, 2016 - Version 1.1.9
+- Fix: When previous calculator contains invalid math make sure to return true instead of false (prevents other calculators from being executed)
+
+Oct 25, 2016 - Version 1.1.8
+- Added: Math regular expression e.g: {tag_*} (contains search), {tag_^} (starts with search), {tag_$} (ends with search)
+
+Oct 20, 2016 - Version 1.1.7
+- Added: Option to count words on textarea fields that can be used with the calculator element (useful for translation estimations)
+- Improved: When adding dynamic fields update conditional logic and variable logic field names only if they exists otherwise skip them
+ 
+Oct 15, 2016 - Version 1.1.6
+- Fix: Small bug with incorrect calculation order in combination with conditional logic
+
+Oct 12, 2016 - Version 1.1.5
+- Fix: Javascript compatibility issue with Safari browser
+
+Oct 8, 2016 - Version 1.1.4
+- Fix: Issue with variable fields and calculations incorrect order resulting in wrong calculations
+- Fix: If calculator element is hidden based on conditional logic skip the email float method
+- Added: new JS hook: after_init_calculator_hook
+
+Oct 5, 2016 - Version 1.1.3
+- Added: Compatibility for automatically updating calculations (math) in dynamic fields (add more +)
+
+Oct 2, 2016 - Version 1.1.2
+- Added option to save/send the calculator value as a float
+
+Sep 26, 2016 - Version 1.1.1
+- Fix: Calculations not being made in builder preview mode
+
+Sep 9, 2016 - Version 1.1.0
+- Fix: Incorrect value being displayed visible for users when using 2+ decimal value (while the hidden value is correct).
+
+Aug 18, 2016 - Version 1.0.9
+- Fix: Issue with rounding decimals in some cases
+
+Aug 4, 2016 - Version 1.0.8
+- Added: Option to calculate age based on datepicker field
+- Added: Option to calculate time between timepickers (returns timestamp of selected time)
+
+July 29, 2016 - Version 1.0.7
+- Fix: When radio/checkboxes has an option that is not a number, make sure to parse it as a 0 
+
+July 28, 2016 - Version 1.0.6
+- Added: Possibility to calculate days between connected datepickers
+
+June 21, 2016 - Version 1.0.5
+- Fix: Removed dependecy jquery-ui-mouse (not needed)
+
+June 14, 2016 - Version 1.0.4
+- Fix: Hook dynamic function later (after conditional logic) so the calculation is done after element is made vissible/hidden
+
+May 26, 2016 - Version 1.0.3
+- Fix: When amount is minus, prepend the "-" sign before the currency symbol instead of after
+
+May 24, 2016 - Version 1.0.2
+- Fix: When no tag is used inside the math also do the calculation isn't being made
+- Added: Format option to add to the calculator amount, for instance when you want to display percentages you can now use % symbol and append it after the amount
+
+May 15, 2016 - Version 1.0.1
+- Fix: eval() not handling minus sign in calculation
+
+May 3, 2016 - Version 1.0.0
+- Initial release!

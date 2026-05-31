@@ -1,0 +1,14 @@
+.super-form .super-mailchimp .super-group-title {
+  width: 100%;
+  float: left;
+  clear: both;
+  margin-top: 10px;
+  font-weight: bold;
+}
+.super-form .super-mailchimp.display-vertical .super-field-wrapper {
+  flex-direction: column;
+}
+.super-form .super-mailchimp.display-horizontal .super-field-wrapper {
+  flex-direction: row;
+}
+  

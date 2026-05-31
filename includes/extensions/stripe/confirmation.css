@@ -1,0 +1,132 @@
+@keyframes spin {
+  	0% {
+    	transform: rotate(0deg);
+  	}
+
+  	to {
+    	transform: rotate(360deg);
+  	}
+}
+.verifying-payment {
+	display: -ms-flexbox;
+	display: flex;
+	-ms-flex-direction: column;
+	flex-direction: column;
+	-ms-flex-align: center;
+	align-items: center;
+	-ms-flex-pack: center;
+	justify-content: center;
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	text-align: center;
+	overflow: hidden;
+}
+.verifying-payment .wrapper {
+	position:relative;
+	width:100%;
+}
+.verifying-payment .wrapper * {
+	font-family: Inter UI, Open Sans, Segoe UI, sans-serif;
+}
+.verifying-payment .wrapper .caption {
+	margin-top:10px;
+	transform: translateY(75px)  scale(0);
+	position: absolute;
+	top: 130px;
+	left: 0;
+	width: 100%;
+	padding: 0 25px;
+}
+.verifying-payment.verifying .wrapper .caption {
+	top: 40px;
+}
+.verifying-payment .wrapper .caption .checkmark {
+  	position:absolute;
+  	left:0px;
+  	top:0px;
+}
+.verifying-payment .wrapper > * {
+  	transition-property: opacity, transform;
+  	transition-duration: 0.5s;
+  	opacity: 0;
+  	transform: translateY(50px)  scale(0);
+	will-change: transform, opacity;
+}
+.verifying-payment .wrapper svg .border {
+	stroke-dasharray: 251;
+	stroke-dashoffset: 62.75;
+	transform-origin: 50% 50%;
+	transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
+	animation: spin 1s linear infinite;
+	stroke: #49B4B6;
+}
+.verifying-payment .wrapper svg .checkmark {
+	stroke-dasharray: 60;
+	stroke-dashoffset: -36;
+	transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1) 0.35s;
+}
+.verifying-payment .wrapper .border {
+	stroke-dasharray: 251;
+	stroke-dashoffset: 62.75;
+	transform-origin: 50% 50%;
+	transition: all 0.35s cubic-bezier(0.165, 0.84, 0.44, 1);
+	animation: spin 1s linear infinite;
+}
+.verifying-payment.verifying .wrapper svg {
+	opacity: 1;
+	transform: translateY(0px) scale(1);
+	will-change: transform, opacity;
+}
+.verifying-payment.completed .wrapper svg {
+  	opacity: 1;
+  	transform: translateY(0px) scale(1.5);
+	will-change: transform;
+}
+.verifying-payment.verifying .wrapper .caption.verifying,
+.verifying-payment.completed .wrapper .caption.failed {
+	opacity: 1;
+  	transform: translateY(50px) scale(1);
+	will-change: transform, opacity;
+}
+.verifying-payment .wrapper .caption svg {
+  	position:absolute;
+  	right:0px;
+  	top:0px;
+  	transform: translate(35px, -6px) scale(1);
+}
+.verifying-payment.completed .wrapper svg {
+  	transform: translateY(-50px) scale(1.5);
+}
+.verifying-payment.completed .wrapper .caption {
+  	transition-duration: 0s;
+}
+.verifying-payment.completed .wrapper .caption.failed {
+  	transition-duration: 0.5s;
+  	transform: translateY(-75px) scale(1);
+}
+.verifying-payment .wrapper .caption .title {
+	position: relative;
+	color: black;
+	font-size: 16px;
+	line-height: 25px;
+	display: inline-block;
+}
+.verifying-payment .wrapper .caption.failed .title {
+	position: relative;
+	color: black;
+	font-size: 22px;
+	line-height: 45px;
+}
+.verifying-payment .wrapper .caption .description {
+	font-size: 16px;
+	line-height: 25px;
+}
+.verifying-payment .wrapper .caption.failed .description {
+	color: #616161;
+}
+.verifying-payment.completed .wrapper .border {
+	stroke: #ff6868;
+}

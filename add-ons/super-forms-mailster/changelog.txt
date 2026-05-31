@@ -1,0 +1,32 @@
+Jan 20, 2022 - Version 1.3.2
+- Added: Compatibility with latest version of Super Forms
+
+Nov 01, 2021 - Version 1.3.1
+- Fix: Compatibility issue with latest super forms version
+
+Oct 15, 2021 - Version 1.3.0
+- Compatibility with Super Forms v5.0.0
+
+May 13, 2020 - Version 1.2.1
+- Update: hooks from main plugin
+
+Jan 07, 2020 - Version 1.2.0
+- Replaced deprecated function with new one
+
+Jun 14, 2019 - Version 1.1.1
+- Compliance: Working towards Envato WordPress Requirements Badge/Compliance
+  - Escaping all Translatable strings
+
+Apr 22, 2019 - Version 1.1.0
+- Compatibility with latest Super Forms
+- Improved: Update functionality
+- Mailster settings now included in the `Super Forms - All In One Bundle` package :)
+
+Mar 21, 2018 - Version 1.0.2
+- Added: Option to conditionally save subscriber based on user input
+
+Feb 15, 2018 - Version 1.0.1
+- Fix: Allow settings to be empty for new Super Forms versions (values that can be left empty must not be overwritten by default value)
+
+Apr 10, 2017 - Version 1.0.0
+- Initial release!

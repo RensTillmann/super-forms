@@ -1,0 +1,228 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Super Forms - WooCommerce Checkout\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-05-24 17:02+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: \n"
+"Language: \n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.2.2; wp-5.2.1"
+
+#: super-forms-woocommerce.php:901
+msgid "\">edit</a> your form settings and try again"
+msgstr ""
+
+#: super-forms-woocommerce.php:1467
+msgid "Active (default)"
+msgstr ""
+
+#: super-forms-woocommerce.php:1328
+msgid "Add checkout fee(s)"
+msgstr ""
+
+#: super-forms-woocommerce.php:1340
+msgid "Add custom checkout field(s)"
+msgstr ""
+
+#: super-forms-woocommerce.php:1320
+msgid "Apply the following coupon code (leave blank for none):"
+msgstr ""
+
+#: super-forms-woocommerce.php:1429
+msgid "Attachments for woocommerce completed emails:"
+msgstr ""
+
+#: super-forms-woocommerce.php:1452
+msgid "Auto-Draft"
+msgstr ""
+
+#: super-forms-woocommerce.php:1469
+msgid "Blocked"
+msgstr ""
+
+#: super-forms-woocommerce.php:1380
+msgid "Checkout page (default)"
+msgstr ""
+
+#. Description of the plugin
+msgid ""
+"Checkout with WooCommerce after form submission. Charge users for "
+"registering or posting content."
+msgstr ""
+
+#: super-forms-woocommerce.php:1448
+msgid "Draft"
+msgstr ""
+
+#: super-forms-woocommerce.php:1270
+msgid "Empty cart before adding products"
+msgstr ""
+
+#: super-forms-woocommerce.php:1263
+msgid "Enable WooCommerce Checkout"
+msgstr ""
+
+#: super-forms-woocommerce.php:1309
+msgid "Enter the product(s) custom meta data (optional)"
+msgstr ""
+
+#: super-forms-woocommerce.php:1297
+msgid "Enter the product(s) ID that needs to be added to the cart"
+msgstr ""
+
+#. Author of the plugin
+msgid "feeling4design"
+msgstr ""
+
+#: super-forms-woocommerce.php:1447
+msgid "Future"
+msgstr ""
+
+#. URI of the plugin
+msgid "http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "http://codecanyon.net/user/feeling4design"
+msgstr ""
+
+#: super-forms-woocommerce.php:1309
+msgid ""
+"If field is inside dynamic column, system will automatically add all the "
+"meta data. Put each product ID with it's meta data on a new line separated "
+"by pipes \"|\".<br /><strong>Example with tags:</strong> {id}|Color|{color}"
+"<br /><strong>Example without tags:</strong> 82921|Color|Red<br /><strong>"
+"Allowed values:</strong> integer|string|string."
+msgstr ""
+
+#: super-forms-woocommerce.php:1297
+msgid ""
+"If field is inside dynamic column, system will automatically add all the "
+"products. Put each product ID with it's quantity on a new line separated by "
+"pipes \"|\".<br /><strong>Example with tags:</strong> {id}|{quantity}<br />"
+"<strong>Example without tags:</strong> 82921|3<br /><strong>Example with "
+"variations:</strong> {id}|{quantity}|{variation_id}<br /><strong>Example "
+"with dynamic pricing:</strong> {id}|{quantity}|none|{price}<br /><strong>"
+"Allowed values:</strong> integer|integer|integer|float<br />(dynamic pricing "
+"requires <a target=\"_blank\" href=\"https://woocommerce.com/products/name-"
+"your-price/\">WooCommerce Name Your Price add-on</a>)."
+msgstr ""
+
+#: super-forms-woocommerce.php:1342
+msgid "Leave blank for no custom fields"
+msgstr ""
+
+#: super-forms-woocommerce.php:1329
+msgid "Leave blank for no fees"
+msgstr ""
+
+#: super-forms-woocommerce.php:1382
+msgid "None (use the form redirect)"
+msgstr ""
+
+#: super-forms-woocommerce.php:1392
+msgid "Note: this will only work if you save a contact entry"
+msgstr ""
+
+#: super-forms-woocommerce.php:1368
+msgid ""
+"Only add custom field if field exists in form and not conditionally hidden"
+msgstr ""
+
+#: super-forms-woocommerce.php:1442
+msgid ""
+"Only used for Front-end posting (publish, future, draft, pending, private, "
+"trash, auto-draft)?"
+msgstr ""
+
+#: super-forms-woocommerce.php:1463
+msgid "Only used for Register & Login add-on (active, pending, blocked)?"
+msgstr ""
+
+#: super-forms-woocommerce.php:1449 super-forms-woocommerce.php:1468
+msgid "Pending"
+msgstr ""
+
+#: super-forms-woocommerce.php:1441
+msgid "Post status after payment complete"
+msgstr ""
+
+#: super-forms-woocommerce.php:1450
+msgid "Private"
+msgstr ""
+
+#: super-forms-woocommerce.php:1446
+msgid "Publish (default)"
+msgstr ""
+
+#: super-forms-woocommerce.php:1328
+msgid ""
+"Put each fee on a new line with values seperated by pipes \"|\".<br />"
+"<strong>Example with tags:</strong> {fee_name}|{amount}|{taxable}|{tax_class}"
+"<br /><strong>Example without tags:</strong> Administration "
+"fee|5|fales|''<br /><strong>Allowed values:</strong> string|float|bool|string"
+msgstr ""
+
+#: super-forms-woocommerce.php:1340
+msgid ""
+"Put each field on a new line with field options seperated by pipes \"|\"."
+msgstr ""
+
+#: super-forms-woocommerce.php:1298 super-forms-woocommerce.php:1310
+msgid "Put each on a new line, {tags} can be used to retrieve data"
+msgstr ""
+
+#: super-forms-woocommerce.php:1376
+msgid "Redirect to Checkout page or Shopping Cart?"
+msgstr ""
+
+#: super-forms-woocommerce.php:1462
+msgid "Registered user login status after payment complete"
+msgstr ""
+
+#: super-forms-woocommerce.php:1280
+msgid "Remove/clear coupons before redirecting to cart"
+msgstr ""
+
+#: super-forms-woocommerce.php:1290
+msgid "Remove/clear fees before redirecting to cart"
+msgstr ""
+
+#: super-forms-woocommerce.php:1391 super-forms-woocommerce.php:1396
+msgid "Send email after order completed"
+msgstr ""
+
+#: super-forms-woocommerce.php:1381
+msgid "Shopping Cart"
+msgstr ""
+
+#. Name of the plugin
+msgid "Super Forms - WooCommerce Checkout"
+msgstr ""
+
+#: super-forms-woocommerce.php:1451
+msgid "Trash"
+msgstr ""
+
+#: super-forms-woocommerce.php:1430
+msgid "Upload a file to send as attachment"
+msgstr ""
+
+#: super-forms-woocommerce.php:698
+msgid "User did not upload any files"
+msgstr ""
+
+#: super-forms-woocommerce.php:1255 super-forms-woocommerce.php:1256
+msgid "WooCommerce Checkout"
+msgstr ""
+
+#: super-forms-woocommerce.php:441
+msgid "WooCommerce Order"
+msgstr ""

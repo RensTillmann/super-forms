@@ -1,0 +1,73 @@
+Jan 20, 2022 - Version 1.8.2
+- Added: Compatibility with latest version of Super Forms
+
+Oct 25, 2021 - Version 1.8.1
+- Fix: Issue with signature being lost when used inside multi-part element upon navigating to next or previous step
+
+Oct 15, 2021 - Version 1.8.0
+- Compatibility with Super Forms v5.0.0
+
+Mar 04, 2020 - Version 1.6.3
+- Added: Option to set signature line color
+- Fix: Changing signature line thickness not working
+
+Oct 22, 2020 - Version 1.6.2
+- Fix: Issue with PDF generator displaying "Your browser does not support signing" text
+
+Jul 30, 2020 - Version 1.6.1
+- Compatability with latest version of Super Forms
+
+May 13, 2020 - Version 1.6.0
+- Improved: Responsiveness to retain/resize signature better
+- Update: hooks from main plugin
+
+Feb 19, 2020 - Version 1.5.1
+- Improved: load script/styles on ajax load via super forms hook (used in for instance Elementor builder interface)
+
+Jan 07, 2020 - Version 1.5.0
+- Replaced deprecated function with new one
+- Improved: When using "Contact Entry Search" the signature will be redrawn based on the entry data
+
+Jun 18, 2019 - Version 1.4.20
+- Fix: compatibility with conditional logic, signature canvas should resize to correct width/height after conditionally becoming visible.
+
+Jun 14, 2019 - Version 1.4.1
+- Compliance: Working towards Envato WordPress Requirements Badge/Compliance
+  - Passed all JavaScript files through `JShint` excluding third party libraries
+  - Escaping all Translatable strings
+
+Apr 22, 2019 - Version 1.4.0
+- Compatibility with latest Super Forms
+- Improved: Update functionality
+- Signature element now included in the `Super Forms - All In One Bundle` package :)
+
+Jan 29, 2018 - Version 1.3.0
+- Added: Predefined element and compatibility with compressed form code for newest super forms version
+
+Nov 16, 2017 - Version 1.2.2
+- Added: Possibility for signature element to be inside a dynamic column
+
+Oct 02, 2017 - Version 1.2.1
+- Fix: Parse base64 image as string, and do not decode (now done on super forms side)
+
+Feb 23, 2017 - Version 1.2.0
+- Improved: When using multiple signatures use the unique field name as filename for the signature in emails (attachment)
+
+Feb 03, 2017 - Version 1.1.0
+- Added: Automatic updates
+
+Oct 9, 2016 - Version 1.0.4
+- Improved: Hide scope, no $ conflict
+
+Aug 5, 2016 - Version 1.0.3
+- Improved: Name of signature attachment now added above the image in the email
+
+May 3, 2016 - Version 1.0.2
+- Fix: When theme uses Ajax call make sure scripts are loaded before the call is made
+- Fix: Parsing Super Forms version instead of own plugin version when registering script 
+
+March 4, 2015 - Version 1.0.1
+- Fix: When both signature and upload field is being used undefined variable is being returned after sending the email and saving the contact entry, this results in the success message not being displayed
+
+Februari 11, 2016 – Version 1.0.0
+- Initial release!

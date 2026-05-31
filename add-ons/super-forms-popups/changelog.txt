@@ -1,0 +1,77 @@
+Mar 07, 2022 - Version 1.7.3
+- Changed: Remove timeout of 0.5 sec for fading in the popup, there is no need for the half a second delay
+
+Jan 20, 2022 - Version 1.7.2
+- Added: Compatibility with latest version of Super Forms
+
+Nov 25, 2021 - Version 1.7.1
+- Fix: when no background image is set, try not to load it via styles to avoid unnecessary requests
+
+Oct 15, 2021 - Version 1.7.0
+- Compatibility with Super Forms v5.0.0
+
+Sep 08, 2020 - Version 1.5.7
+- Fix: Sticky popup setting not working
+
+Aug 27, 2020 - Version 1.5.6
+- Added: Prefix `super` to `close` classname for zero conflict policy
+
+Aug 05, 2020 - Version 1.5.5
+- Fix: Compatibility with latest Super Forms version
+
+May 13, 2020 - Version 1.5.4
+- Update: hooks from main plugin
+
+Apr 22, 2020 - Version 1.5.3
+- Fix: JavaScript error
+
+Mar 07, 2020 - Version 1.5.2
+- Updated: GSAP to v3.2.4 (solves conflict with Avada theme)
+
+Jan 20, 2020 - Version 1.5.1
+- Fix: JavaScript error `TypeError: $form.parents is not a function` when using Multi-part inside popup
+
+Jan 07, 2020 - Version 1.5.0
+- Replaced deprecated function with new one
+- Improved: Possibility to activate other popup from within another popup
+
+Jun 14, 2019 - Version 1.4.1
+- Compliance: Working towards Envato WordPress Requirements Badge/Compliance
+  - Passed all JavaScript files through `JShint` excluding third party libraries
+  - Escaping all Translatable strings
+
+Apr 22, 2019 - Version 1.4.0
+- Compatibility with latest Super Forms
+- Improved: Update functionality
+- Popups feature now included in the `Super Forms - All In One Bundle` package :)
+
+Apr 15, 2019 - Version 1.3.4
+- Improved: Upon closing popup remove success/error messages
+- Fix: Fontawesome 5 support
+
+Apr 04, 2018 - Version 1.3.2
+- Added: Possibility to allow float values for "Expiration time in days" this way you can set expiration in seconds/minutes/hours :+1: 
+- Improved: Animations and responsiveness/positioning
+- Fix: Responsiveness not correct after removing "overflow:hidden" style from wrapper element to allow overlapping content
+- Fix: Removed some PHP warnings regarding unset settings
+
+Feb 15, 2018 - Version 1.3.1
+- Fix: Allow settings to be empty for new Super Forms versions (values that can be left empty must not be overwritten by default value)
+
+Jan 31, 2017 - Version 1.3.0
+- Fix: Replaced andSelf() by addBack() which should be used with jQuery 1.8 and later.
+- Fix: Check if variable is string before using parseJSON()
+
+Nov 16, 2017 - Version 1.2.1
+- Fix: Issue with z-index when reCAPTCHA is being used and user must do a puzzle
+
+Mar 06, 2017 - Version 1.2.0
+- only show settings on form builder page
+- use overflow-y: auto on popup content
+
+Feb 03, 2017 - Version 1.1.0
+- Fix: Popup overlay being above datepicker and timepicker
+- Fix: Popup closes when date or time is selected/clicked
+
+Dec 23, 2016 - Version 1.0.0
+- Initial release!

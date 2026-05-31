@@ -1,0 +1,251 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Super Forms - WooCommerce Custom Orders\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-05-24 17:02+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: \n"
+"Language: \n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.2.2; wp-5.2.1"
+
+#: super-forms-wc-custom-orders.php:1209
+msgid "(use {tags} if needed)"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1260
+msgid "(use {tags} if needed, defaults to logged in user)"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1219
+msgid "(use {tags} if needed, leave blank for no none)"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1239
+msgid ""
+"(use {tags} if needed, leave blank for no order notes, put each order note "
+"on a new line and specify if the note is a customer note)"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1165
+msgid ""
+"<strong>Put each shipping cost on a new line. Example format:</strong><br />"
+"shipping_rate_id|shipping_rate_label|cost|method_id|instance_id<br /><strong>"
+"Example without tags:</strong> flat_rate_shipping|Ship by "
+"airplane|275|flat_rate<br /><strong>Example with tags:</strong> "
+"{shipping_method_id}|{shipping_method_label}|{cost}|{shipping_method}<br />"
+"<strong>Valid shipping method ID's are:</strong>"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1104
+msgid "Actions"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1238
+msgid "Add order notes"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1270
+msgid "Based on your form fields you can save custom meta data for your order"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1116
+msgid ""
+"Choose between redirecting to the payment gateway, the created order itself "
+"or to the \"Order received\" page"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1208
+msgid "Coupon code "
+msgstr ""
+
+#. Description of the plugin
+msgid "Create custom WooCommerce orders with Super Forms"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1110
+msgid "Create/Update WooCommerce Order"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1111
+msgid "Create/Update WooCommerce Subscription"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1122
+msgid "Created order (redirects to order in back-end)"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1259
+msgid "Customer ID"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1218
+msgid "Customer note"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1186
+msgid "Define billing address"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1197
+msgid "Define shipping address"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1124
+msgid "Disabled (do not redirect)"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1131
+msgid "Enter order ID in case you want to update an existing order "
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1153
+msgid "Enter the product(s) custom meta data (optional)"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1141
+msgid "Enter the product(s) ID that needs to be added to the order"
+msgstr ""
+
+#. Author of the plugin
+msgid "feeling4design"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1097
+msgid ""
+"first_name|{first_name}\n"
+"last_name|{last_name}\n"
+"company|{company}\n"
+"email|{email}\n"
+"phone|{phone}\n"
+"address_1|{address_1}\n"
+"address_2|{address_2}\n"
+"city|{city}\n"
+"state|{state}\n"
+"postcode|{postcode}\n"
+"country|{country}"
+msgstr ""
+
+#. URI of the plugin
+msgid "http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "http://codecanyon.net/user/feeling4design"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1176
+msgid ""
+"If field is inside dynamic column, system will automatically add all the "
+"fees. <strong>Put each fee on a new line. Example format:</strong><br />"
+"name|amount|tax_class|tax_status<br /><strong>Example without tags:</strong> "
+"Extra processing fee|45|zero-rate|taxable<br /><strong>Example with tags:"
+"</strong> {fee_name}|{amount}|zero-rate|taxable<br /><strong>Valid tax "
+"classes are:</strong>"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1154
+msgid ""
+"If field is inside dynamic column, system will automatically add all the "
+"meta data. Put each product ID with it's meta data on a new line separated "
+"by pipes \"|\".<br /><strong>Example with tags:</strong> {id}|Color|{color}"
+"<br /><strong>Example without tags:</strong> 82921|Color|Red<br /><strong>"
+"Allowed values:</strong> integer|string|string."
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1132
+msgid "Leave blank to create a new order instead (use {tags} if needed)"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1250
+msgid ""
+"Leave blank to let user decide what payment gateway to use. Use {tags} if "
+"needed.<br /><strong>Valid payment gateways are:</strong>"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1109
+msgid "None (do nothing)"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1175
+msgid "Order fee(s)"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1123
+msgid "Order received page (redirects to front-end summary page)"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1228
+msgid "Order status "
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1121
+msgid "Pay for order page (redirects to front-end payment page)"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1120
+msgid "Payment gateway (default)"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1187 super-forms-wc-custom-orders.php:1198
+msgid ""
+"Put each item on a new line and use {tags} to retrieve values dynamically"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1155
+msgid "Put each on a new line, {tags} can be used to retrieve data"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1142
+msgid ""
+"Put each one a new line. If the product ID is set to 0 or doesn\\'t exist, "
+"it will be added as an Arbitrary product instead.\n"
+"{product_id}|{quantity}|{name}|{variation_id}|{subtotal}|{total}|{tax_class}"
+"|{variation}\n"
+"Example: 0|1|T-shirt|0|10|10|0|color;red#size;XL\n"
+"                            "
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1115
+msgid "Redirect to:"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1269
+msgid "Save custom order meta data"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1249
+msgid "Set a fixed payment gateway (optional)"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1164
+msgid "Shipping cost(s)"
+msgstr ""
+
+#. Name of the plugin
+msgid "Super Forms - WooCommerce Custom Orders"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1241
+msgid ""
+"This is a customer note|true\n"
+"And this is not a customer note|false"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1229
+msgid "Use {tags} if needed.<br /><strong>Valid statuses are:</strong>"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1100
+msgid "WooCommerce Custom Orders"
+msgstr ""
+
+#: super-forms-wc-custom-orders.php:1101
+msgid "WooCommerce Custom Orders Settings"
+msgstr ""

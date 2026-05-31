@@ -1,0 +1,73 @@
+Jan 20, 2022 - Version 1.7.3
+- Added: Compatibility with latest version of Super Forms
+
+Nov 09, 2021 - Version 1.7.2
+- Improved: CSS styles to display Groups/Interests list in vertical and horizontal layout
+
+Oct 23, 2021 - Version 1.7.1
+- Fix: not retrieving Audience ID properly, causing subscription to mailchimp no longer working with latest version of super forms
+
+Oct 15, 2021 - Version 1.7.0
+- Compatibility with Super Forms v5.0.0
+
+Mar 16, 2021 - Version 1.6.0
+- Fix: PDF Generator Add-on fix for iPhone specifically, pseudo elements `:after`, `:before` not being generated 
+
+Jan 22, 2021 - Version 1.5.9
+- Added: Option to define what status the member should get after submitting the form, this allows you to create a form that will `Unsubscribe` a user
+
+Jun 16, 2020 - Version 1.5.6
+- Fix: Remove backslash from MERGE tag values, or MailChimp API would return
+error about non existing MERGE value being send
+
+May 13, 2020 - Version 1.5.5
+- Update: hooks from main plugin
+
+Mar 10, 2020 - Version 1.5.4
+- Fix: When displaying Groups/Interests loop over all groups instead of just one
+- Improved: Do not store the MailChimp data such as interests ID's and list ID into the Contact Entry to keep the data clean
+
+Jan 07, 2020 - Version 1.5.0
+- Replaced deprecated function with new one
+- Fix: When no conditional logic is set, make sure column is not hidden (which it was by default)
+- Fix: Conditional logic not working
+- Added: Option to define "Tags" to be saved along with the subscriber (this is different from Interests, which can be selected by the user himself)
+- Fix: PHP Warnings and Notices
+
+Jul 10, 2019 - Version 1.4.30
+- Improved: API error when `Send the Mailchimp confirmation email` set to `Yes` and when member already exists in Audience
+- Improved: API error handling when using custom MERGE tag when field doesn't exist (return error response to the screen)
+- Fix: Convert VIP to Boolean to avoid API error
+
+Jun 14, 2019 - Version 1.4.2
+- Compliance: Working towards Envato WordPress Requirements Badge/Compliance
+  - Escaping all Translatable strings
+
+Jun 05, 2019 - Version 1.4.1
+- Improved: Mailchimp error debugging and other small improvements
+
+Apr 22, 2019 - Version 1.4.0
+- Compatibility with latest Super Forms
+- Improved: Update functionality
+- MailChimp element now included in the `Super Forms - All In One Bundle` package :)
+
+Nov 24, 2018 - Version 1.3.2
+- Improved: Since Mailchimp no longer supports MERGE1, MERGE2 etc. for merge_fields show example as PHONE|phonenumber and not as MERGE4|phonenumber
+
+Sep 25, 2017 - Version 1.3.1
+- Improvement: Check for blank email address and output error
+
+Apr 25, 2017 - Version 1.3.0
+- Fix: Multiple interests selection not updating in mailchimp group
+
+Apr 08, 2017 - Version 1.2.0
+- Added: Option to save custom fields for your mailchimp lists (the so called *|MERGE|* tags)
+
+Mar 12, 2017 - Version 1.1.0
+- Added: Automatic updates
+
+May 3, 2016 – Version 1.0.1
+- Changed: API key no longer visible under settings on create form page
+
+December 17, 2015 – Version 1.0.0
+- Initial release!

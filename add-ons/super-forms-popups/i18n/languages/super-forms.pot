@@ -1,0 +1,394 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Super Forms - Popups\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-05-24 17:01+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: \n"
+"Language: \n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.2.2; wp-5.2.1"
+
+#: super-forms-popups.php:930 super-forms-popups.php:991
+#: super-forms-popups.php:1022
+msgid "(leave blank for default paddings)"
+msgstr ""
+
+#: super-forms-popups.php:774
+msgid "Allert message text (browser requires this)"
+msgstr ""
+
+#: super-forms-popups.php:1094
+msgid "Background Image"
+msgstr ""
+
+#: super-forms-popups.php:1102
+msgid "Background Image Repeat"
+msgstr ""
+
+#: super-forms-popups.php:1117
+msgid "Background Image Size"
+msgstr ""
+
+#: super-forms-popups.php:1075
+msgid "Body overlay color"
+msgstr ""
+
+#: super-forms-popups.php:1083
+msgid "Body overlay opacity"
+msgstr ""
+
+#: super-forms-popups.php:1219
+msgid "Border color"
+msgstr ""
+
+#: super-forms-popups.php:1249
+msgid "Border Radius Bottom Left"
+msgstr ""
+
+#: super-forms-popups.php:1260
+msgid "Border Radius Bottom Right"
+msgstr ""
+
+#: super-forms-popups.php:1227
+msgid "Border Radius Top Left"
+msgstr ""
+
+#: super-forms-popups.php:1238
+msgid "Border Radius Top Right"
+msgstr ""
+
+#: super-forms-popups.php:1208
+msgid "Border size in pixels (px)"
+msgstr ""
+
+#: super-forms-popups.php:1191
+msgid "Bottom"
+msgstr ""
+
+#: super-forms-popups.php:897
+msgid "Close button background color (leave blank for none)"
+msgstr ""
+
+#: super-forms-popups.php:960
+msgid "Close button border color"
+msgstr ""
+
+#: super-forms-popups.php:999
+msgid "Close button border radius in pixels (px)"
+msgstr ""
+
+#: super-forms-popups.php:949
+msgid "Close button border size in pixels (px)"
+msgstr ""
+
+#: super-forms-popups.php:889
+msgid "Close button icon color"
+msgstr ""
+
+#: super-forms-popups.php:938
+msgid "Close button icon size in pixels (px)"
+msgstr ""
+
+#: super-forms-popups.php:921
+msgid "Close button label bg color"
+msgstr ""
+
+#: super-forms-popups.php:913
+msgid "Close button label color"
+msgstr ""
+
+#: super-forms-popups.php:929
+msgid "Close button label paddings e.g: 0px 0px 0px 0px"
+msgstr ""
+
+#: super-forms-popups.php:905
+msgid "Close button label text e.g: Close"
+msgstr ""
+
+#: super-forms-popups.php:990
+msgid "Close button paddings e.g: 0px 0px 0px 0px"
+msgstr ""
+
+#: super-forms-popups.php:979
+msgid "Close button position right in pixels (px)"
+msgstr ""
+
+#: super-forms-popups.php:968
+msgid "Close button position top in pixels (px)"
+msgstr ""
+
+#: super-forms-popups.php:1123
+msgid "Contain / Fit (contain)"
+msgstr ""
+
+#: super-forms-popups.php:1124
+msgid "Cover / Fit (cover)"
+msgstr ""
+
+#. Description of the plugin
+msgid "Create fully customizable popups for Super Forms"
+msgstr ""
+
+#: super-forms-popups.php:1188
+msgid "default"
+msgstr ""
+
+#: super-forms-popups.php:1122
+msgid "Default (inherit)"
+msgstr ""
+
+#: super-forms-popups.php:872
+msgid "Disable popup closing"
+msgstr ""
+
+#: super-forms-popups.php:1034
+msgid "Disabled"
+msgstr ""
+
+#: super-forms-popups.php:882
+msgid "Display close (X) button"
+msgstr ""
+
+#: super-forms-popups.php:806
+msgid "Display popup after X seconds"
+msgstr ""
+
+#: super-forms-popups.php:826
+msgid "Display popup after X seconds of inactivity"
+msgstr ""
+
+#: super-forms-popups.php:786
+#, php-format
+msgid "Display popup after xx% scrolled"
+msgstr ""
+
+#: super-forms-popups.php:846
+msgid "Display popup between date range (schedule)"
+msgstr ""
+
+#: super-forms-popups.php:758
+msgid "Display popup on exit intent"
+msgstr ""
+
+#: super-forms-popups.php:768
+msgid "Display popup on page leave/close/exit"
+msgstr ""
+
+#: super-forms-popups.php:747
+msgid "Display popup on page load"
+msgstr ""
+
+#: super-forms-popups.php:1014
+msgid "Enable custom popup padding"
+msgstr ""
+
+#: super-forms-popups.php:1030
+msgid "Enable expiration cookie (show popup only once)"
+msgstr ""
+
+#: super-forms-popups.php:717
+msgid "Enable Popup"
+msgstr ""
+
+#: super-forms-popups.php:1202
+msgid "Enable Popup Border"
+msgstr ""
+
+#: super-forms-popups.php:1276
+msgid "Enable Popup Shadows"
+msgstr ""
+
+#: super-forms-popups.php:1044
+msgid "Expiration time in days"
+msgstr ""
+
+#: super-forms-popups.php:1159
+msgid "FadeIn duration in milliseconds (0 is no fade effect)"
+msgstr ""
+
+#: super-forms-popups.php:1171
+msgid "FadeOut duration in milliseconds (0 is no fade effect)"
+msgstr ""
+
+#. Author of the plugin
+msgid "feeling4design"
+msgstr ""
+
+#: super-forms-popups.php:1139
+msgid "From Bottom"
+msgstr ""
+
+#: super-forms-popups.php:852
+msgid "From date"
+msgstr ""
+
+#: super-forms-popups.php:853
+msgid "From date (yyyy-mm-dd): Display the popup within specific date range"
+msgstr ""
+
+#: super-forms-popups.php:1140
+msgid "From Left"
+msgstr ""
+
+#: super-forms-popups.php:1138
+msgid "From Right"
+msgstr ""
+
+#: super-forms-popups.php:1137
+msgid "From Top"
+msgstr ""
+
+#. URI of the plugin
+msgid "http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "http://codecanyon.net/user/feeling4design"
+msgstr ""
+
+#: super-forms-popups.php:1192
+msgid "Left"
+msgstr ""
+
+#: super-forms-popups.php:1182
+msgid "Make popup sticky"
+msgstr ""
+
+#: super-forms-popups.php:1108
+msgid "No (no-repeat)"
+msgstr ""
+
+#: super-forms-popups.php:1136
+msgid "None (default)"
+msgstr ""
+
+#: super-forms-popups.php:1067
+msgid "Popup background color"
+msgstr ""
+
+#: super-forms-popups.php:1158
+msgid "Popup FadeIn duration in milliseconds"
+msgstr ""
+
+#: super-forms-popups.php:1170
+msgid "Popup FadeOut duration in milliseconds"
+msgstr ""
+
+#: super-forms-popups.php:1021
+msgid "Popup paddings e.g: 0px 0px 0px 0px"
+msgstr ""
+
+#: super-forms-popups.php:709 super-forms-popups.php:710
+msgid "Popup Settings"
+msgstr ""
+
+#: super-forms-popups.php:1130
+msgid "Popup slide in"
+msgstr ""
+
+#: super-forms-popups.php:1146
+msgid "Popup Slide In duration in milliseconds"
+msgstr ""
+
+#: super-forms-popups.php:1056
+msgid "Popup width in pixels (px)"
+msgstr ""
+
+#: super-forms-popups.php:1109
+msgid "Repeat (repeat)"
+msgstr ""
+
+#: super-forms-popups.php:1110
+msgid "Repeat X (repeat-x)"
+msgstr ""
+
+#: super-forms-popups.php:1111
+msgid "Repeat Y (repeat-y)"
+msgstr ""
+
+#: super-forms-popups.php:1190
+msgid "Right"
+msgstr ""
+
+#: super-forms-popups.php:1304
+msgid "Shadow Blur Radius"
+msgstr ""
+
+#: super-forms-popups.php:1326
+msgid "Shadow Color"
+msgstr ""
+
+#: super-forms-popups.php:1282
+msgid "Shadow Horizontal Length"
+msgstr ""
+
+#: super-forms-popups.php:1334
+msgid "Shadow Opacity"
+msgstr ""
+
+#: super-forms-popups.php:1315
+msgid "Shadow Spread Radius"
+msgstr ""
+
+#: super-forms-popups.php:1293
+msgid "Shadow Vertical Length"
+msgstr ""
+
+#: super-forms-popups.php:725
+msgid "Show popup to logged in users"
+msgstr ""
+
+#: super-forms-popups.php:736
+msgid "Show popup to none logged in users"
+msgstr ""
+
+#: super-forms-popups.php:1147
+msgid "Slide In duration in milliseconds (0 is no fade effect)"
+msgstr ""
+
+#: super-forms-popups.php:1131
+msgid "Slide in: From Top, Right, Bottom or Left"
+msgstr ""
+
+#: super-forms-popups.php:1183
+msgid "Stick to top, right, bottom or left"
+msgstr ""
+
+#. Name of the plugin
+msgid "Super Forms - Popups"
+msgstr ""
+
+#: super-forms-popups.php:860
+msgid "Till date"
+msgstr ""
+
+#: super-forms-popups.php:861
+msgid "Till date (yyyy-mm-dd): Display the popup within specific date range"
+msgstr ""
+
+#: super-forms-popups.php:1189
+msgid "Top"
+msgstr ""
+
+#: super-forms-popups.php:775
+msgid "Wait stay with us! Please take the time to fill out our form!?"
+msgstr ""
+
+#: super-forms-popups.php:1037
+msgid "When form has been submitted"
+msgstr ""
+
+#: super-forms-popups.php:1036
+msgid "When popup has been closed"
+msgstr ""
+
+#: super-forms-popups.php:1035
+msgid "When popup has been viewed"
+msgstr ""

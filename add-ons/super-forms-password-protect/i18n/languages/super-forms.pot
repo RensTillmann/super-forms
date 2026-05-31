@@ -1,0 +1,176 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Super Forms - Password Protect\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-05-24 17:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: \n"
+"Language: \n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.2.2; wp-5.2.1"
+
+#: super-forms-password-protect.php:323
+msgid "\">edit</a> your form and try again"
+msgstr ""
+
+#: super-forms-password-protect.php:356
+msgid "\">edit</a> your form and try again."
+msgstr ""
+
+#: super-forms-password-protect.php:468
+msgid "All user roles"
+msgstr ""
+
+#: super-forms-password-protect.php:568
+msgid "Allow only logged in users"
+msgstr ""
+
+#: super-forms-password-protect.php:563
+msgid "Allow only logged in users to submit the form"
+msgstr ""
+
+#: super-forms-password-protect.php:514
+msgid "Allow only specific user roles"
+msgstr ""
+
+#: super-forms-password-protect.php:509
+msgid "Allows only specific user roles to submit the form"
+msgstr ""
+
+#: super-forms-password-protect.php:540 super-forms-password-protect.php:545
+msgid "Display a message to the locked out user"
+msgstr ""
+
+#: super-forms-password-protect.php:583 super-forms-password-protect.php:588
+msgid "Display a message to the logged out user"
+msgstr ""
+
+#: super-forms-password-protect.php:486
+msgid "Enable password protection"
+msgstr ""
+
+#: super-forms-password-protect.php:491
+msgid "Enter a password to protect the form"
+msgstr ""
+
+#. Author of the plugin
+msgid "feeling4design"
+msgstr ""
+
+#: super-forms-password-protect.php:534
+msgid "Hide form from locked out users"
+msgstr ""
+
+#: super-forms-password-protect.php:625
+msgid "Hide form from logged in users"
+msgstr ""
+
+#: super-forms-password-protect.php:577
+msgid "Hide form from not logged in users"
+msgstr ""
+
+#: super-forms-password-protect.php:529
+msgid "Hide the form from locked out users"
+msgstr ""
+
+#: super-forms-password-protect.php:621
+msgid "Hide the form from logged in users"
+msgstr ""
+
+#: super-forms-password-protect.php:572
+msgid "Hide the form from not logged in users"
+msgstr ""
+
+#. URI of the plugin
+msgid "http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "http://codecanyon.net/user/feeling4design"
+msgstr ""
+
+#: super-forms-password-protect.php:498
+msgid "Incorrect password message"
+msgstr ""
+
+#: super-forms-password-protect.php:336 super-forms-password-protect.php:500
+msgid "Incorrect password, please try again!"
+msgstr ""
+
+#: super-forms-password-protect.php:552
+msgid "Message for locked out users"
+msgstr ""
+
+#: super-forms-password-protect.php:595
+msgid "Message for not logged in users"
+msgstr ""
+
+#: super-forms-password-protect.php:611
+msgid "Only display after user tried to submit the form"
+msgstr ""
+
+#: super-forms-password-protect.php:607
+msgid "Only display the message after the user tried to submit the form"
+msgstr ""
+
+#: super-forms-password-protect.php:490
+msgid "Password"
+msgstr ""
+
+#: super-forms-password-protect.php:477
+msgid "Password Protect"
+msgstr ""
+
+#: super-forms-password-protect.php:478
+msgid "Password Protect Settings"
+msgstr ""
+
+#. Description of the plugin
+msgid ""
+"Password protect your forms or lock out specific user roles from submitting "
+"the form"
+msgstr ""
+
+#: super-forms-password-protect.php:519
+msgid "Select all user roles who are allowed to submit the form"
+msgstr ""
+
+#. Name of the plugin
+msgid "Super Forms - Password Protect"
+msgstr ""
+
+#: super-forms-password-protect.php:553
+msgid "The message to display to locked out users"
+msgstr ""
+
+#: super-forms-password-protect.php:596
+msgid "The message to display to none logged in users"
+msgstr ""
+
+#: super-forms-password-protect.php:499
+msgid "The message to display when an incorrect password was entered"
+msgstr ""
+
+#: super-forms-password-protect.php:481
+msgid "Use a password to protect the form"
+msgstr ""
+
+#: super-forms-password-protect.php:518
+msgid "Use CTRL or SHIFT to select multiple roles"
+msgstr ""
+
+#: super-forms-password-protect.php:422 super-forms-password-protect.php:597
+msgid ""
+"You are currently not logged in. In order to submit the form make sure you "
+"are logged in!"
+msgstr ""
+
+#: super-forms-password-protect.php:371 super-forms-password-protect.php:554
+msgid "You do not have permission to submit this form!"
+msgstr ""

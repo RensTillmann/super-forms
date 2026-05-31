@@ -1,0 +1,18 @@
+Jan 20, 2022 - Version 1.2.1
+- Added: Compatibility with latest version of Super Forms
+
+Oct 15, 2021 - Version 1.2.0
+- Compatibility with Super Forms v5.0.0
+
+May 13, 2020 - Version 1.1.1
+- Update: hooks from main plugin
+
+Jan 07, 2020 - Version 1.1.0
+- Replaced deprecated function with new one
+
+Jun 14, 2019 - Version 1.0.1
+- Compliance: Working towards Envato WordPress Requirements Badge/Compliance
+  - Escaping all Translatable strings
+
+May 25, 2019 - Version 1.0.0
+- Initial release!

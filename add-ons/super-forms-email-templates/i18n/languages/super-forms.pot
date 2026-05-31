@@ -1,0 +1,131 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Super Forms - E-mail Templates\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-05-24 17:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: \n"
+"Language: \n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.2.2; wp-5.2.1"
+
+#: super-forms-email-templates.php:281
+msgid "&copy; Someone, somewhere 2015"
+msgstr ""
+
+#: super-forms-email-templates.php:280
+msgid "&copy; Someone, somewhere 2016"
+msgstr ""
+
+#: super-forms-email-templates.php:261
+msgid "A subtitle to display before the email body (content)"
+msgstr ""
+
+#: super-forms-email-templates.php:270
+msgid ""
+"A subtitle to display before the email body (used for confirmation emails)"
+msgstr ""
+
+#: super-forms-email-templates.php:243
+msgid "A title to display below your logo"
+msgstr ""
+
+#: super-forms-email-templates.php:252
+msgid "A title to display below your logo (used for confirmation emails)"
+msgstr ""
+
+#. Description of the plugin
+msgid "Adds an extra email template to choose from"
+msgstr ""
+
+#: super-forms-email-templates.php:318
+msgid "Body colors"
+msgstr ""
+
+#: super-forms-email-templates.php:278
+msgid "E-mail copyright"
+msgstr ""
+
+#: super-forms-email-templates.php:233
+msgid "E-mail logo"
+msgstr ""
+
+#: super-forms-email-templates.php:289
+msgid "E-mail social icons"
+msgstr ""
+
+#: super-forms-email-templates.php:260
+msgid "E-mail subtitle"
+msgstr ""
+
+#: super-forms-email-templates.php:269
+msgid "E-mail subtitle (confirm)"
+msgstr ""
+
+#: super-forms-email-templates.php:230
+msgid "E-mail Template 1"
+msgstr ""
+
+#: super-forms-email-templates.php:242
+msgid "E-mail title"
+msgstr ""
+
+#: super-forms-email-templates.php:251
+msgid "E-mail title (confirm)"
+msgstr ""
+
+#: super-forms-email-templates.php:279
+msgid "Enter anything you like for the copyright section"
+msgstr ""
+
+#. Author of the plugin
+msgid "feeling4design"
+msgstr ""
+
+#: super-forms-email-templates.php:339
+msgid "Footer colors"
+msgstr ""
+
+#: super-forms-email-templates.php:301
+msgid "Header colors"
+msgstr ""
+
+#. URI of the plugin
+msgid "http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "http://codecanyon.net/user/feeling4design"
+msgstr ""
+
+#: super-forms-email-templates.php:291
+msgid ""
+"Put each on a new line, seperate values by pipes<br /><strong>Example:"
+"</strong> http://facebook.com/company|http://domain.com/fb-icon.png|Facebook"
+msgstr ""
+
+#: super-forms-email-templates.php:290
+msgid "Put each social icon on a new line"
+msgstr ""
+
+#. Name of the plugin
+msgid "Super Forms - E-mail Templates"
+msgstr ""
+
+#: super-forms-email-templates.php:234
+msgid "Upload a logo to use for this email template"
+msgstr ""
+
+#: super-forms-email-templates.php:262 super-forms-email-templates.php:271
+msgid "Your subtitle"
+msgstr ""
+
+#: super-forms-email-templates.php:244 super-forms-email-templates.php:253
+msgid "Your title"
+msgstr ""

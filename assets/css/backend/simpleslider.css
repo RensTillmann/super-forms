@@ -1,0 +1,46 @@
+.super-form .slider>.dragger {
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    width: 16px;
+    height: 16px
+}
+
+.super-form .slider>.highlight-track,
+.super-form .slider>.track {
+    background: #ccc;
+    height: 4px
+}
+
+.super-form-settings .super-field .slider,
+.super-settings .super-field .slider {
+    margin-bottom: 5px !important;
+}
+.super-element-settings .slider-field .slider {
+    margin-top:5px!important;
+    margin-bottom:5px!important;
+}
+
+.super-form-settings .super-field .slider>.track,
+.super-settings .super-field .slider>.track,
+.super-element-settings .slider-field .slider .track {
+    background-color: #aaa;
+    height: 4px;
+    margin-top: -4px !important;
+}
+
+.super-form-settings .super-field .slider>.dragger,
+.super-settings .super-field .slider>.dragger,
+.super-element-settings .slider-field .slider .dragger {
+    height: 16px;
+    margin-left: 0px !important;
+}
+
+.super-settings .super-field .slider>.dragger {
+    margin-top: -2px !important;
+}
+
+.super-form-settings .slider,
+.super-settings .slider {
+    width: 300px
+}

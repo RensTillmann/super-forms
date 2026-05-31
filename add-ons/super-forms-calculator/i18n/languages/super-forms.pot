@@ -1,0 +1,234 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Super Forms - Calculator\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-05-24 17:00+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: \n"
+"Language: \n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.2.2; wp-5.2.1"
+
+#: super-forms-calculator.php:659 super-forms-calculator.php:671
+msgid ", (comma)"
+msgstr ""
+
+#: super-forms-calculator.php:658 super-forms-calculator.php:670
+msgid ". (dot)"
+msgstr ""
+
+#. Description of the plugin
+msgid ""
+"Adds an extra element that allows you to do calculations on any of your "
+"fields"
+msgstr ""
+
+#: super-forms-calculator.php:641
+msgid "Advanced"
+msgstr ""
+
+#: super-forms-calculator.php:739
+msgid "Alignment"
+msgstr ""
+
+#: super-forms-calculator.php:613
+msgid "Amount format (example: %)"
+msgstr ""
+
+#: super-forms-calculator.php:605
+msgid "Amount Label"
+msgstr ""
+
+#: super-forms-calculator.php:754
+msgid "Amount wrapper width in pixels"
+msgstr ""
+
+#: super-forms-calculator.php:598
+msgid "Calculation"
+msgstr ""
+
+#: super-forms-calculator.php:569 super-forms-calculator.php:589
+msgid "Calculator"
+msgstr ""
+
+#: super-forms-calculator.php:711
+msgid "Change the date format"
+msgstr ""
+
+#: super-forms-calculator.php:645
+msgid "Choose a length for your decimals (default = 2)"
+msgstr ""
+
+#: super-forms-calculator.php:654
+msgid "Choose your decimal separator (comma or dot)"
+msgstr ""
+
+#: super-forms-calculator.php:665
+msgid "Choose your thousand separator (empty, comma or dot)"
+msgstr ""
+
+#: super-forms-calculator.php:706
+msgid "Convert timestamp to specific date format"
+msgstr ""
+
+#: super-forms-calculator.php:618
+msgid "Currency"
+msgstr ""
+
+#: super-forms-calculator.php:715
+msgid "Custom date format"
+msgstr ""
+
+#: super-forms-calculator.php:710
+msgid "Date Format"
+msgstr ""
+
+#: super-forms-calculator.php:653
+msgid "Decimal separator"
+msgstr ""
+
+#: super-forms-calculator.php:717
+msgid "Default - mm/dd/yy"
+msgstr ""
+
+#: super-forms-calculator.php:683
+msgid "Enable birthdate calculations"
+msgstr ""
+
+#: super-forms-calculator.php:716
+msgid "European - dd-mm-yy"
+msgstr ""
+
+#. Author of the plugin
+msgid "feeling4design"
+msgstr ""
+
+#: super-forms-calculator.php:721
+msgid "Full - DD, d MM, yy"
+msgstr ""
+
+#: super-forms-calculator.php:593
+msgid "General"
+msgstr ""
+
+#: super-forms-calculator.php:629
+msgid "How does this field need to be validated?"
+msgstr ""
+
+#. URI of the plugin
+msgid "http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "http://codecanyon.net/user/feeling4design"
+msgstr ""
+
+#: super-forms-calculator.php:773
+msgid "Icon"
+msgstr ""
+
+#: super-forms-calculator.php:718
+msgid "ISO 8601 - yy-mm-dd"
+msgstr ""
+
+#: super-forms-calculator.php:644
+msgid "Length of decimal"
+msgstr ""
+
+#: super-forms-calculator.php:720
+msgid "Medium - d MM, y"
+msgstr ""
+
+#: super-forms-calculator.php:633
+msgid "None"
+msgstr ""
+
+#: super-forms-calculator.php:669
+msgid "None (empty)"
+msgstr ""
+
+#: super-forms-calculator.php:634
+msgid "Required Field (not empty)"
+msgstr ""
+
+#: super-forms-calculator.php:759
+msgid "Remove margin"
+msgstr ""
+
+#: super-forms-calculator.php:279
+msgid "Return age based on selected date to use with calculations"
+msgstr ""
+
+#: super-forms-calculator.php:284
+msgid "Return age for calculation fields"
+msgstr ""
+
+#: super-forms-calculator.php:693
+msgid "Return days"
+msgstr ""
+
+#: super-forms-calculator.php:692
+msgid "Return months"
+msgstr ""
+
+#: super-forms-calculator.php:691
+msgid "Return years (age)"
+msgstr ""
+
+#: super-forms-calculator.php:687
+msgid "Select which value to return for calculations"
+msgstr ""
+
+#: super-forms-calculator.php:614
+msgid "Set a format e.g: %, EUR, USD etc."
+msgstr ""
+
+#: super-forms-calculator.php:606
+msgid "Set a label for the amount e.g: Subtotal or Total"
+msgstr ""
+
+#: super-forms-calculator.php:619
+msgid "Set the currency of or leave empty for no currency e.g: $ or €"
+msgstr ""
+
+#: super-forms-calculator.php:755
+msgid "Set to 0 to use default CSS width."
+msgstr ""
+
+#: super-forms-calculator.php:719
+msgid "Short - d M, y"
+msgstr ""
+
+#: super-forms-calculator.php:628
+msgid "Validation"
+msgstr ""
+
+#: super-forms-calculator.php:576
+msgid "subtotal"
+msgstr ""
+
+#: super-forms-calculator.php:577
+msgid "Subtotal:"
+msgstr ""
+
+#. Name of the plugin
+msgid "Super Forms - Calculator"
+msgstr ""
+
+#: super-forms-calculator.php:678
+msgid "This allows you return the age, months or days based on the birthdate"
+msgstr ""
+
+#: super-forms-calculator.php:664
+msgid "Thousand separator"
+msgstr ""
+
+#: super-forms-calculator.php:599
+msgid "You can use tags to retrieve field values e.g: ({field1}+{field2})*7.5"
+msgstr ""

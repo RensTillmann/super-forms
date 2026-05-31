@@ -1,0 +1,272 @@
+.super-sub-settings span {
+  font-weight:initial;
+}
+
+div[data-name="custom_columns"] li {
+  position:relative;
+  border: 1px dashed #c5c5c5;
+  padding: 5px 0px 7px 10px;
+  background-color: #f7f7f7;
+  margin: 10px 0px 0px 0px;
+}
+div[data-name="custom_columns"] .super-text:nth-child(3) {
+  max-width: 200px;
+}
+div[data-name="custom_columns"] .super-text:nth-child(4) {
+  max-width: 300px;
+}
+div[data-name="custom_columns"] .super-text:nth-child(5) {
+  max-width: 140px;
+}
+.super-sub-settings .super-add-column,
+.super-sub-settings .super-delete-column {
+    float: left;
+    margin-top: 17px;
+    height: 30px;
+    width: 31px;
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    border-radius: 30px;
+    background-color: #69ba00;
+    text-align: center;
+    cursor: pointer;
+    padding: 5px 0px 0px 0px;
+}
+.super-sub-settings .super-delete-column {
+    background-color: #f5234b;
+    margin-left: 5px;
+}
+.super-sub-settings .super-add-column:hover {
+    background-color: #5ea700;
+}
+.super-sub-settings .super-delete-column:hover {
+    background-color: #de153b;
+}
+.super-sub-settings .super-add-column:before,
+.super-sub-settings .super-delete-column:before {
+    content:'\f067';
+    font-weight:900;
+    font-family: 'Font awesome 5 free';
+    font-size:16px;
+    color:#ffffff;
+    text-align:center;
+}
+.super-sub-settings .super-delete-column:before {
+    content:'\f1f8';
+}
+
+
+.super-sub-settings .sort-up,
+.super-sub-settings .sort-down {
+  border:1px solid gainsboro;
+  float:left;
+  width:auto;
+  height:20px;
+  position:absolute;
+  left:-25px;
+  top: -1px;
+  padding:0px 2px 0px 2px;
+}
+.super-sub-settings .sort-up:before,
+.super-sub-settings .sort-down:before {
+    content:'\f077';
+    font-weight:900;
+    font-family: 'Font awesome 5 free';  
+    float:left;
+    font-size:16px;
+    color:#dadada;
+}
+.super-sub-settings .sort-up:hover:before,
+.super-sub-settings .sort-down:hover:before {
+    color:#989898;
+    cursor:pointer;
+}
+.super-sub-settings .sort-down:before {
+  content:'\f078';
+}
+.super-sub-settings .sort-down {
+  top: 18px;
+}
+.create-listing {
+  float: left;
+  width: 100%;
+}
+
+.sfui-setting .sfui-setting .sfui-sub-settings.sfui-inline .sfui-setting.sfui-vertical .sfui-sub-settings.sfui-vertical label {
+  padding-right: 0;
+}
+.sfui-setting .sfui-setting .sfui-sub-settings.sfui-inline .sfui-setting.sfui-vertical .sfui-sub-settings.sfui-vertical .sfui-sub-settings .sfui-setting.sfui-vertical {
+  padding-right: 0;
+}
+.sfui-setting .sfui-repeater-item .sfui-setting > label > .sfui-sub-settings > .sfui-repeater > .sfui-repeater-item {
+  padding: 0 10px 5px;
+  margin: 10px 0;
+}
+.sfui-setting .sfui-repeater-item .sfui-setting > label > .sfui-sub-settings > .sfui-repeater > .sfui-repeater-item .sfui-inline > .sfui-setting.sfui-vertical > label > .sfui-inline {
+  justify-content: center;
+  align-items: center;
+}
+.sfui-setting .sfui-repeater-item .sfui-setting > label > .sfui-sub-settings > .sfui-repeater > .sfui-repeater-item .sfui-inline > .sfui-setting.sfui-vertical > label > .sfui-inline > input[type="checkbox"] {
+  margin: 0 5px 0 0;
+}
+.sfui-setting .sfui-setting > label > .sfui-sub-settings.sfui-vertical > .sfui-setting {
+  padding-left: 0;
+}
+.sfui-setting.sfui-inline > label > input[type="checkbox"] {
+  margin: 0 5px 0 0;
+}
+.sfui-setting .sfui-sub-settings.sfui-inline > .sfui-setting.sfui-vertical > label > .sfui-inline {
+  justify-content: center;
+  align-items: center;
+}
+.sfui-setting .sfui-sub-settings.sfui-inline > .sfui-setting.sfui-vertical > label > .sfui-inline > input[type="checkbox"] {
+  margin: 0 5px 0 0;
+}
+.sfui-setting .sfui-repeater-item > .sfui-inline {
+  align-items: flex-start;
+}
+.sfui-setting .sfui-repeater-item > .sfui-inline .sfui-btn.sfui-round {
+  margin: 10px 2px 0;
+}
+.sfui-setting .sfui-repeater-item > .sfui-inline > .sfui-setting {
+  padding: 10px 10px 0;
+}
+.sfui-setting .sfui-repeater-item > .sfui-inline > .sfui-setting.sfui-vertical > label {
+  padding: 0;
+}
+.sfui-setting .sfui-setting > label > .sfui-sub-settings.sfui-inline[data-f^="date_range"] .sfui-setting.sfui-vertical {
+  flex: 0 0 auto;
+}
+.sfui-setting.sfui-vertical {
+  padding: 0 0 10px 10px;
+  margin: 0;
+}
+.sfui-setting.sfui-vertical .sfui-sub-settings {
+  margin: 0;
+}
+.sfui-setting.sfui-vertical .sfui-sub-settings .sfui-setting.sfui-inline {
+  margin: 0;
+  padding: 0;
+}
+.sfui-setting .sfui-inline {
+  min-height: 30px;
+  align-items: center;
+  justify-content: flex-start;
+}
+.sfui-setting .sfui-sub-settings .sfui-sub-settings.sfui-inline {
+  align-items: flex-start;
+}
+.sfui-setting .sfui-sub-settings .sfui-sub-settings .sfui-setting.sfui-vertical {
+  padding: 5px 20px 5px 0;
+}
+.sfui-setting .sfui-sub-settings .sfui-sub-settings .sfui-setting.sfui-vertical > label {
+  padding: 0;
+}
+.sfui-setting .sfui-sub-settings .sfui-sub-settings .sfui-sub-settings {
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+.sfui-setting .sfui-sub-settings .sfui-sub-settings .sfui-sub-settings .sfui-label {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+.sfui-setting .sfui-sub-settings .sfui-sub-settings .sfui-sub-settings input,
+.sfui-setting .sfui-sub-settings .sfui-sub-settings .sfui-sub-settings select {
+  margin: 0;
+}
+.sfui-repeater {
+  display: flex;
+  flex-direction: column;
+}
+.sfui-repeater > .sfui-repeater-item:first-child {
+  margin: 10px 0;
+}
+.sfui-repeater .sfui-repeater-item {
+  padding: 0 0 5px;
+  margin: 0 0 10px;
+}
+.sfui-repeater .sfui-repeater-item .sfui-repeater {
+  display: flex;
+  flex-direction: column;
+}
+.sfui-repeater .sfui-repeater-item .sfui-repeater > .sfui-repeater-item:first-child {
+  margin: 10px 0;
+}
+.sfui-repeater .sfui-repeater-item .sfui-repeater .sfui-repeater-item {
+  padding: 5px 0 5px 10px;
+}
+.sfui-setting .sfui-sub-settings.sfui-inline .sfui-setting.sfui-vertical,
+.sfui-repeater-item .sfui-inline.sfui-vertical .sfui-setting.sfui-vertical {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  padding: 0 20px 0 0;
+  margin: 0 0 10px;
+}
+.sfui-setting .sfui-sub-settings.sfui-inline .sfui-setting.sfui-vertical > label,
+.sfui-repeater-item .sfui-inline.sfui-vertical .sfui-setting.sfui-vertical > label {
+  padding: 0;
+  margin: 0;
+}
+.sfui-setting .sfui-sub-settings.sfui-inline .sfui-setting.sfui-vertical > label .sfui-inline,
+.sfui-repeater-item .sfui-inline.sfui-vertical .sfui-setting.sfui-vertical > label .sfui-inline {
+  min-height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.sfui-setting .sfui-sub-settings.sfui-inline .sfui-setting.sfui-vertical > label .sfui-inline input,
+.sfui-repeater-item .sfui-inline.sfui-vertical .sfui-setting.sfui-vertical > label .sfui-inline input {
+  margin: 0 5px 0 0;
+}
+.sfui-setting .sfui-sub-settings.sfui-inline .sfui-setting.sfui-vertical > label .sfui-inline .sfui-label,
+.sfui-repeater-item .sfui-inline.sfui-vertical .sfui-setting.sfui-vertical > label .sfui-inline .sfui-label {
+  padding: 0;
+}
+.sfui-setting .sfui-sub-settings.sfui-inline .sfui-setting.sfui-vertical .sfui-sub-settings.sfui-vertical,
+.sfui-repeater-item .sfui-inline.sfui-vertical .sfui-setting.sfui-vertical .sfui-sub-settings.sfui-vertical {
+  margin-left: 8px;
+  margin-top: -5px;
+}
+.sfui-setting .sfui-sub-settings.sfui-inline .sfui-setting.sfui-vertical .sfui-sub-settings.sfui-vertical > label,
+.sfui-repeater-item .sfui-inline.sfui-vertical .sfui-setting.sfui-vertical .sfui-sub-settings.sfui-vertical > label {
+  padding: 0;
+}
+.sfui-setting .sfui-sub-settings.sfui-inline .sfui-setting.sfui-vertical .sfui-sub-settings.sfui-vertical .sfui-sub-settings,
+.sfui-repeater-item .sfui-inline.sfui-vertical .sfui-setting.sfui-vertical .sfui-sub-settings.sfui-vertical .sfui-sub-settings {
+  padding: 0 0 0 10px;
+  margin: -8px 0 10px 10px;
+  width: calc(100% - 10px);
+}
+.sfui-setting .sfui-sub-settings.sfui-inline .sfui-setting.sfui-vertical .sfui-sub-settings.sfui-vertical .sfui-sub-settings .sfui-setting.sfui-vertical,
+.sfui-repeater-item .sfui-inline.sfui-vertical .sfui-setting.sfui-vertical .sfui-sub-settings.sfui-vertical .sfui-sub-settings .sfui-setting.sfui-vertical {
+  padding-right: 0;
+}
+.sfui-setting .sfui-sub-settings.sfui-inline .sfui-setting.sfui-vertical .sfui-sub-settings.sfui-vertical input,
+.sfui-setting .sfui-sub-settings.sfui-inline .sfui-setting.sfui-vertical .sfui-sub-settings.sfui-vertical select,
+.sfui-repeater-item .sfui-inline.sfui-vertical .sfui-setting.sfui-vertical .sfui-sub-settings.sfui-vertical input,
+.sfui-repeater-item .sfui-inline.sfui-vertical .sfui-setting.sfui-vertical .sfui-sub-settings.sfui-vertical select {
+  margin: 0 0 10px;
+}
+.sfui-repeater > .sfui-repeater-item {
+  margin: 0 0 10px;
+  padding: 0;
+}
+.sfui-repeater > .sfui-repeater-item > .sfui-inline {
+  padding-right: 10px;
+}
+.sfui-setting-group > .sfui-setting {
+  padding: 10px 0 10px 10px;
+  margin: 0;
+}
+.sfui-setting-group > .sfui-setting > label > .sfui-sub-settings .sfui-setting {
+  padding: 5px 0 5px 10px;
+}
+.sfui-setting-group > .sfui-setting.sfui-vertical .sfui-sub-settings {
+  padding: 0;
+  margin: 0;
+}
+.sfui-setting-group > .sfui-setting.sfui-vertical .sfui-sub-settings .sfui-setting {
+  padding: 0 0 0 10px;
+  margin: 0;
+}

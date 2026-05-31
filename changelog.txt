@@ -1,0 +1,2 @@
+You can find changelog on the following Git Page:
+https://renstillmann.github.io/super-forms/#/changelog

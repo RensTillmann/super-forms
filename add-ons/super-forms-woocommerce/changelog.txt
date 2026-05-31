@@ -1,0 +1,115 @@
+Apr 19, 2022 - Version 1.9.4
+- Added: A link to the connected Contact Entry (if any) on the Order page under the `General` section
+
+Mar 23, 2022 - Version 1.9.3
+- Added: Option to conditionally checkout to WooCommerce
+
+Jan 20, 2022 - Version 1.9.2
+- Added: Compatibility with latest version of Super Forms
+
+Nov 01, 2021 - Version 1.9.1
+- Option to hide gallery on product page
+
+Oct 15, 2021 - Version 1.9.0
+- Compatibility with Super Forms v5.0.0
+
+Jul 29, 2021 - Version 1.8.2
+- Fix: Bug with shortcodes of other plugins not being able to list/retrieve products due to a bug in the new setting option `Super Forms > Settings > WooCommerce Checkout > Hide products from the shop`
+
+Apr 09, 2021 - Version 1.8.1
+- Fix: `External/Affiliate product` URL was reset to the product permalink, this is now resolved
+
+Mar 16, 2021 - Version 1.8.0
+- Added: Option to hide products (based on ID or by category slug) from the shop so that they can only be ordered via the form
+- Added: Option to replace the default "Add to cart" area with a specific form for specific products, based on ID, or category slug
+- Fix: PDF Generator Add-on fix for iPhone specifically, psuedo elements `:after`, `:before` not being generated 
+
+Jan 08, 2021 - Version 1.7.3
+- Added: Option to update contact entry status after woocommerce order was
+completed
+
+Dec 17, 2020 - Version 1.7.2
+- Fix: `{loop_value}` not being replaced if value was empty when `WooCommerce Checkout` is used in combination with the `Send email after order completed`
+
+Dec 15, 2020 - Version 1.7.1
+- Fix: When defining `Add custom checkout fields(s)` the field name required
+to be in the form in order for it to work, this is now solved so that you can
+have a different field name on checkout and still retrieve the value from the
+form via tags
+
+May 13, 2020 - Version 1.7.0
+- Added: Option to update registered user role after payment completed (for `Register & Login` only)
+- Update: hooks from main plugin
+
+Jan 07, 2020 - Version 1.6.0
+- Replaced deprecated function with new one
+
+Oct 31, 2019 - Version 1.5.30
+- Improved: When a field value contains comma seperated product ID's add all of them into the cart/checkout
+
+Jun 14, 2019 - Version 1.5.2
+- Compliance: Working towards Envato WordPress Requirements Badge/Compliance
+  - Escaping all Translatable strings
+
+May 11, 2019 - Version 1.5.1
+- Fix: issue with amount above thousands
+
+Apr 22, 2019 - Version 1.5.0
+- Compatibility with latest Super Forms
+- Improved: Update functionality
+- WooCommerce Checkout now included in the `Super Forms - All In One Bundle` package :)
+
+Nov 28, 2018 - Version 1.4.2
+- Fix: Tax option not working for "Add checkout fee(s)" setting
+
+Nov 13, 2018 - Version 1.4.1
+- Improved: If product meta is empty do not add it to the product
+- Fix: get_checkout_url is depcrecated, replaced with wc_get_checkout_url();
+
+Aug 17, 2018 - Version 1.4.0
+- Fix: Conflict with the official WooCommerce Subscriptions Add-on not being able to renew subscriptions
+- Fix: Deprecated function $woocommerce->cart->get_cart_url() replaced with wc_get_cart_url()
+
+Jul 14, 2018 - Version 1.3.9
+- Added: Compatibility with dynamic columns for the "Custom product meta data" option
+
+Jul 09, 2018 - Version 1.3.8
+- Added: Option to send a custom email after WooCommerce order was completed
+
+Apr 25, 2018 - Version 1.3.7
+- Added: Option to retrieve field labels for use as product meta on checkout e.g: {tag;label}
+
+Apr 19, 2018 - Version 1.3.6
+- Improved: More flexibility for dynamic product meta data checkouts: Save all custom product meta data but first match all possible {tags} and check for each individual tag if it existed as a field element, if at least one existed do not unset the custom product meta data
+
+Apr 06, 2018 - Version 1.3.5
+- Improved: Do not save custom product meta data if field was conditionally hidden or none existing (but only if {tag} was being used)
+
+Mar 14, 2018 - Version 1.3.4
+- Added: Option to add custom product meta data
+
+Feb 15, 2018 - Version 1.3.3
+- Fix: Allow settings to be empty for new Super Forms versions (values that can be left empty must not be overwritten by default value)
+
+Nov 16, 2017 - Version 1.3.2
+- Changed: Auto updates for Envato element users
+
+Oct 19, 2017 - Version 1.3.1
+- Fix: Check if wc_custom_fields session is an array/set
+
+Oct 16, 2017 - Version 1.3.0
+- Changed: made plugin ready for Envato Elements
+- Added: Option to add custom checkout fields to checkout page
+- Fix: Issue with formatting checkout price with WC_Name_Your_Price_Helpers::standardize_number() function.
+
+Mar 10, 2017 - Version 1.2.0
+- Improved: Populate billing fields on checkout pages with form fields based on names that start with billing_
+- Improved: Retrieve WC countries on country field if named billing_country or shipping_country
+
+Feb 03, 2017 - Version 1.1.0
+- Fix: no need to update post status after checkout completion if front-end posting isn't being used
+- Fix: parameter $data for woocommerce_checkout_update_order_meta hook
+- Added: Automatic updates
+
+Sep 21, 2016 - Version 1.0.0
+- Initial release!

@@ -1,0 +1,189 @@
+.super-int-phone {
+  position: relative;
+  display: inline-block;
+}
+
+.super-int-phone * {
+  box-sizing: border-box;
+  -moz-box-sizing: border-box;
+}
+
+.super-int-phone_hide {
+  display: none;
+}
+
+.super-int-phone_v-hide {
+  visibility: hidden;
+}
+
+.super-int-phone input,
+.super-int-phone input[type=text],
+.super-int-phone input[type=tel] {
+  position: relative;
+  z-index: 0;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+  padding-right: 36px;
+  margin-right: 0;
+}
+
+.super-int-phone_flag-container {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  padding: 1px;
+}
+
+.super-int-phone_selected-flag {
+  z-index: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 100%;
+  padding: 0 6px 0 8px;
+}
+
+.super-int-phone_arrow {
+  margin-left: 6px;
+  width: 0;
+  height: 0;
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  border-top: 4px solid #555;
+}
+
+.super-int-phone_arrow--up {
+  border-top: none;
+  border-bottom: 4px solid #555;
+}
+
+.super-int-phone_country-list {
+  position: absolute;
+  z-index: 2;
+  list-style: none;
+  text-align: left;
+  padding: 0;
+  margin: 0 0 0 -1px;
+  box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.2);
+  background-color: white;
+  border: 1px solid #CCC;
+  white-space: nowrap;
+  max-height: 200px;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
+}
+
+.super-int-phone_country-list--dropup {
+  bottom: 100%;
+  margin-bottom: -1px;
+}
+
+@media (max-width: 500px) {
+  .super-int-phone_country-list {
+    white-space: normal;
+  }
+}
+
+.super-int-phone_flag-box {
+  display: inline-block;
+  width: 20px;
+}
+
+.super-int-phone_divider {
+  padding-bottom: 5px;
+  margin-bottom: 5px;
+  border-bottom: 1px solid #CCC;
+}
+
+.super-int-phone_country {
+  padding: 5px 10px;
+  outline: none;
+}
+
+.super-int-phone_dial-code {
+  color: #999;
+}
+
+.super-int-phone_country.super-int-phone_highlight {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.super-int-phone_flag-box,
+.super-int-phone_country-name,
+.super-int-phone_dial-code {
+  vertical-align: middle;
+}
+
+.super-int-phone_flag-box,
+.super-int-phone_country-name {
+  margin-right: 6px;
+}
+
+.super-int-phone-allow-dropdown input,
+.super-int-phone-allow-dropdown input[type=text],
+.super-int-phone-allow-dropdown input[type=tel],
+.super-int-phone-separate-dial-code input,
+.super-int-phone-separate-dial-code input[type=text],
+.super-int-phone-separate-dial-code input[type=tel] {
+  padding-right: 6px;
+  padding-left: 52px;
+  margin-left: 0;
+}
+
+.super-int-phone-allow-dropdown .super-int-phone_flag-container,
+.super-int-phone-separate-dial-code .super-int-phone_flag-container {
+  right: auto;
+  left: 0;
+}
+
+.super-int-phone-allow-dropdown .super-int-phone_flag-container:hover {
+  cursor: pointer;
+}
+
+.super-int-phone-allow-dropdown .super-int-phone_flag-container:hover .super-int-phone_selected-flag {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.super-int-phone-allow-dropdown input[disabled]+.super-int-phone_flag-container:hover,
+.super-int-phone-allow-dropdown input[readonly]+.super-int-phone_flag-container:hover {
+  cursor: default;
+}
+
+.super-int-phone-allow-dropdown input[disabled]+.super-int-phone_flag-container:hover .super-int-phone_selected-flag,
+.super-int-phone-allow-dropdown input[readonly]+.super-int-phone_flag-container:hover .super-int-phone_selected-flag {
+  background-color: transparent;
+}
+
+.super-int-phone-separate-dial-code .super-int-phone_selected-flag {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.super-int-phone-separate-dial-code .super-int-phone_selected-dial-code {
+  margin-left: 6px;
+}
+
+.super-int-phone-container {
+  position: absolute;
+  top: -1000px;
+  left: -1000px;
+  z-index: 1060;
+  padding: 1px;
+}
+
+.super-int-phone-container:hover {
+  cursor: pointer;
+}
+
+.super-int-phone-mobile .super-int-phone-container {
+  top: 30px;
+  bottom: 30px;
+  left: 30px;
+  right: 30px;
+  position: fixed;
+}
+
+.super-int-phone-mobile .super-int-phone_country-list {
+  max-height: 100%;
+  width: 100%;
+}

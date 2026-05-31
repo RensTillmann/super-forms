@@ -1,0 +1,808 @@
+/*--------------------
+    Common Styles
+---------------------*/
+[data-icon]:before {
+    content: '';
+    display: none;
+}
+.super-noselect * {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    outline: 0;
+}
+* {
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+}
+.super-preview-elements.super-loading:before,
+.enjoy_hint_label .super-tip:before,
+.super-wizard-backup-history > ul > li > i:before,
+.super-wizard-backup-history > ul > li > span:before,
+.super-theme-hide-icons-wizard > li[data-value^="yes"]:after,
+.super-undo.super-loading,
+.super-undo.super-loading:after,
+.super-redo.super-loading:after,
+.super-undo.super-loading:before,
+.super-redo.super-loading:before,
+.super-undo:before,
+.super-redo:before,
+.super-backups:before,
+.super-minimize-toggle:before,
+.super-maximize-toggle:before,
+.super-transfering:after,
+.super-elements-container.super-loading:before,
+.super-element-settings .info,
+.super-form-settings .info,
+.browse-images .image-preview > li > a.super-delete:after,
+.browse-files .file-preview > li > a.super-delete:after {
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+}
+.wp-color-result,
+.wp-switch-editor {
+    -moz-box-sizing: initial;
+    -webkit-box-sizing: initial;
+    box-sizing: initial;
+}
+@-webkit-keyframes rotating /* Safari and Chrome */ {
+  from {
+    -ms-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -ms-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -webkit-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+@keyframes rotating {
+  from {
+    -ms-transform: rotate(0deg);
+    -moz-transform: rotate(0deg);
+    -webkit-transform: rotate(0deg);
+    -o-transform: rotate(0deg);
+    transform: rotate(0deg);
+  }
+  to {
+    -ms-transform: rotate(360deg);
+    -moz-transform: rotate(360deg);
+    -webkit-transform: rotate(360deg);
+    -o-transform: rotate(360deg);
+    transform: rotate(360deg);
+  }
+}
+
+
+/*--------------------
+    Super Forms UI - Elements
+---------------------*/
+.sfui-notice {
+    padding: 10px 20px 10px 20px;
+}
+.sfui-notice:before {
+    font-family: 'Font Awesome 5 Free';
+    font-weight: 900;
+    padding: 0px 10px 0px 0px;
+}
+.sfui-btn {
+    height: 30px;
+    line-height: 30px;
+    padding: 0px 0px 0px 0px;
+    margin: 10px 10px 10px 0px;
+    background-color: red;
+    color: white;
+    position: relative;
+    float: left;
+    vertical-align: top;
+    min-width: 30px;
+    font-size: 12px;
+    cursor: pointer;
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    transition: all 0.3s ease;
+    clear: inherit;
+}
+.sfui-btn.sfui-icon {
+    display: flex;
+    align-items: center;
+    padding: 0px 10px 0px 10px;
+}
+.sfui-btn.sfui-icon > span {
+  padding:0px 0px 0px 10px;
+}
+.sfui-btn:hover {
+    opacity:0.7;
+}
+.sfui-btn i {
+    /* border-right: 1px solid white; */
+    /* width: 30px; */
+    /* height: 30px; */
+    /* text-align:center; */
+    /* position: absolute; */
+    /* top: 0px; */
+    /* left: 0px; */
+    /* line-height: 30px; */
+    /* margin-right: 10px; */
+    /* display: flex; */
+    /* align-items: center; */
+    /* padding: 0px 0px 0px 0px; */
+}
+
+
+/*--------------------
+    Super Forms UI - Colors
+---------------------*/
+.sfui-btn.sfui-green {
+    background-color: #69BA00;
+}
+.sfui-notice.sfui-red {
+    background-color: #ffd6d6;
+    color: #c11919;
+}
+.sfui-btn.sfui-grey {
+    background-color: #7f7f7f;
+}
+.sfui-notice.sfui-yellow {
+    background-color: #ffeab3;
+    color: #9e5312;
+}
+.sfui-notice.sfui-red:before {
+    content: '\f071';
+}
+.sfui-notice.sfui-yellow:before {
+    content: '\f05a';
+}
+.super-tab-code textarea.sfui-red {
+    background-color: #ffd6d6;
+    color: #4a0b0b;
+}
+
+/*--------------------
+    Buttons
+---------------------*/
+.super-tab-translations .super-button,
+.super-elements .super-button,
+.super-settings .super-button,
+.super-first-time-setup > .super-button,
+.super-wizard-backup-history > ul > li > span {
+    box-shadow: initial;
+    border: 0;
+    border-radius: initial;
+    background-color: #69BA00;
+    overflow: initial;
+    color: white;
+    height: 30px!important;
+    line-height: 1.2!important;
+    padding: 8px 15px 8px 15px!important;
+    float: initial;
+    font-size: 12px!important;
+    position: relative;
+    cursor: pointer;
+    font-weight: 100;
+    width: auto!important;
+    -webkit-transition: all 0.3s ease;
+    -moz-transition: all 0.3s ease;
+    transition: all 0.3s ease;
+    margin: 0px 6px 0px 0px;
+}
+.super-tab-translations .super-button.super-loading,
+.super-elements .super-button.super-loading,
+.super-settings .super-button.super-loading,
+.super-first-time-setup > .super-button.super-loading {
+    padding-right: 35px!important;
+}
+.super-tab-translations .super-button.super-loading:after,
+.super-elements .super-button.super-loading:after,
+.super-settings .super-button.super-loading:after,
+.super-first-time-setup > .super-button.super-loading:after {
+    content: '\f1ce';
+    font-family:'Font Awesome 5 Free';
+    position: absolute;
+    right: 10px;
+    top: 8px;
+    font-size: 14px;
+    font-weight:900;
+    text-align: center;
+    width: 14px;
+    height: 14px;
+    vertical-align: -webkit-baseline-middle;
+}
+.super-tab-translations .super-button.super-loading:after,
+.super-elements .super-button.super-loading:after,
+.super-settings .super-button.super-loading:after,
+.super-first-time-setup > .super-button.super-loading:after {
+  -webkit-animation: rotating 2s linear infinite;
+  -moz-animation: rotating 2s linear infinite;
+  -ms-animation: rotating 2s linear infinite;
+  -o-animation: rotating 2s linear infinite;
+  animation: rotating 2s linear infinite;
+}
+.super-tab-translations .super-button:hover,
+.super-elements .super-button:hover,
+.super-settings .super-button:hover,
+.super-first-time-setup > .super-button:hover,
+.super-wizard-backup-history > ul > li > span:hover {
+    opacity:0.7;
+    background-color:#69BA00;
+    color:white;
+}
+.super-header .super-actions span.super-delete {
+    margin-right:10px;
+}
+.super-tab-translations .super-button.super-save,
+.super-elements .super-button.super-save,
+.super-settings .super-button.super-save {
+    background-color: #69BA00;
+}
+.super-tab-translations .super-button.super-clear,
+.super-elements .super-button.super-clear,
+.super-settings .super-button.super-clear,
+.super-first-time-setup > .super-button.super-skip-wizard {
+    background-color: #7F7F7F;
+}
+.super-tab-translations .super-button.super-delete,
+.super-elements .super-button.super-delete,
+.super-settings .super-button.super-delete {
+    background-color: #F5234B;
+}
+
+/*--------------------
+    Color Picker
+---------------------*/
+.super-color-picker-container {
+    float: left;
+    width: 100%;
+    margin: 5px 0px 5px 0px;
+}
+.super-color-picker-container .super-color-picker-label {
+    font-size: 10px;
+    padding: 0px 0px 5px 0px;
+}
+.super-color-picker-container .wp-picker-container {
+    position: relative;
+}
+
+.super-color-picker-container .wp-picker-container .wp-picker-holder {
+    position: absolute;
+    z-index: 10;
+    left: 10px;
+    top: 35px;
+}
+.super-color-picker-container .wp-picker-container .wp-picker-holder .iris-picker {
+    padding: 0px 0px 0px 0px;
+    background-color: white;
+    border: 0px;
+    height: 160px!important;
+}
+.super-color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-picker-inner {
+    top: 30px;
+    left: 0px;
+}
+.super-color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-square {
+    width:140px!important;
+    height:140px!important;
+    margin-right: 5px;
+}
+.super-color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-slider {
+    height:140px!important;
+} 
+.super-color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-palette-container {
+    bottom:0px;
+    left:0px;
+}
+.super-color-picker-container .wp-picker-container .wp-picker-holder .iris-picker .iris-palette-container > * {
+    padding:0px;
+    margin:0px;
+    width: 20px!important;
+    height: 20px!important;
+}
+.super-color-picker-container .wp-picker-container .wp-picker-input-wrap {
+    position: absolute;
+    z-index: 11;
+    left: 10px;
+    top: 40px;
+    width: 182px;
+}
+.super-color-picker-container .wp-picker-container {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.super-color-picker-container .wp-picker-container .wp-picker-input-wrap {
+  margin: 0 !important;
+  padding: 0 !important;
+  top: 42px !important;
+  left: initial !important;
+  right: 10px !important;
+}
+.super-color-picker-container .wp-picker-container .wp-picker-input-wrap > label input {
+  height: 30px !important;
+  width: 80px !important;
+  min-width: initial !important;
+  text-align: center !important;
+  margin: 0 5px 0 0 !important;
+  padding: 0 !important;
+}
+.super-color-picker-container .wp-picker-container .wp-picker-input-wrap > input {
+  width: 50% !important;
+}
+.super-color-picker-container .wp-picker-container > .wp-picker-holder {
+  top: 34px !important;
+  left: initial !important;
+  right: 0 !important;
+}
+.super-color-picker-container .wp-picker-container > .wp-picker-holder .iris-picker {
+  width: 205px !important;
+  background: none !important;
+  margin: 0 !important;
+  padding: 0 0 110px !important;
+  top: 0 !important;
+  left: initial !important;
+  right: 0 !important;
+}
+.super-color-picker-container .wp-picker-container > .wp-picker-holder .iris-picker .iris-picker-inner {
+  background-color: #ffffff !important;
+  border-radius: 3px !important;
+  -webkit-box-shadow: 0 0 5px 0 #afafaf;
+  box-shadow: 0 0 5px 0 #afafaf;
+  height: 155px !important;
+  margin: 0 !important;
+  padding: 50px 10px 50px 23px !important;
+  top: 0 !important;
+  left: initial !important;
+  right: 0 !important;
+}
+.super-color-picker-container .wp-picker-container > .wp-picker-holder .iris-picker .iris-picker-inner .iris-square {
+  margin: 0 !important;
+  padding: 0 !important;
+  top: 0 !important;
+  left: initial !important;
+  right: 10px !important;
+}
+.super-color-picker-container .wp-picker-container > .wp-picker-holder .iris-picker .iris-picker-inner .iris-slider {
+  margin: 0 !important;
+  padding: 0 !important;
+  top: 0 !important;
+  left: initial !important;
+  right: 0 !important;
+}
+.super-color-picker-container .wp-picker-container > .wp-picker-holder .iris-picker .iris-palette-container {
+  margin: 0 !important;
+  padding: 0 10px !important;
+  bottom: initial !important;
+  top: 200px !important;
+  left: initial !important;
+  right: 0 !important;
+  width: 180px !important;
+}
+.super-color-picker-container .wp-picker-container > .wp-picker-holder .iris-picker .iris-palette-container > a {
+  margin: 0 4px 4px 0 !important;
+  padding: 0 !important;
+}
+  
+
+
+
+
+
+.slider-field input {
+    width: 60px;
+    float: left;
+    text-align: center;
+}
+
+.slider-field .slider {
+    width: 295px;
+    margin: 0px 5px 10px 0px!important;
+}
+
+.super-field .slider-field .slider .dragger {
+    top: 0px!important;
+    margin: 0px 0px 0px -2.5px!important;
+    width: 5px;
+    background: #2EA2CC;
+    border-radius: 0;
+}
+
+/*-------------------------
+    Export & Import
+--------------------------*/
+.super-export-import-single-form .super-button {
+    width: auto;
+    float: left;
+    margin: 5px 0px;
+    clear: both;
+}
+.super-form-settings .super-export-import,
+.super-form-settings .super-export-import-entries,
+.super-form-settings .super-export-import-forms {
+    display:none;
+}
+
+
+/*-------------------------
+    Icon List/Search
+--------------------------*/
+.super-shortcode-fields .field-container .super-icon-search span {
+    font-size: 12px;
+}
+.super-shortcode-fields .field-container .super-icon-search input {
+    margin: 0px 0px 10px 10px;
+    font-size: 12px;
+    width: auto;
+}
+.super-shortcode-fields .field-container .super-icon-list i,
+.super-settings .super-icon-list i,
+.super-form-settings .super-icon-list i {
+    font-size: 20px;
+    padding: 5px 0px 5px 0px;
+    width: 31px;
+    text-align: center;
+    border: 1px solid #ddd;
+    margin: 0px 0px -1px -1px;
+}
+.super-shortcode-fields .field-container .super-icon-list i:hover,
+.super-settings .super-icon-list i:hover,
+.super-form-settings .super-icon-list i:hover {
+    cursor: pointer;
+    background-color: rgb(46, 162, 204);
+    color: white;
+}
+.super-shortcode-fields .field-container .super-icon-list i.super-active,
+.super-settings .super-icon-list i.super-active,
+.super-form-settings .super-icon-list i.super-active {
+    color: white;
+    background-color: rgb(64, 171, 65);
+}
+.super-shortcode-fields .field-container > .browse-icons .button {
+    float: left;
+}
+.super-settings .super-icon-field {
+    float: left;
+    width: 75%;
+}
+.super-shortcode-fields .field-container > .browse-icons .super-icon-list,
+.super-settings .super-icon-list,
+.super-form-settings .super-icon-list {
+    margin: 10px 0px 0px 0px;
+    clear: left;
+    float: left;
+}
+.super-form-settings .super-icon-list {
+    margin: 10px 0px 0px 2px;
+}
+.super-shortcode-fields .field-container > .browse-icons .current-icon {
+    font-size: 28px;
+    width: 30px;
+    height: 27px;
+    text-align: center;
+    line-height: 30px;
+    display: block;
+    float: left;
+    margin: -2px 0px 0px 5px;
+}
+.super-shortcode-fields .field-container > .browse-icons .super-icon-list i {
+    font-size: 14px;
+    width: 29px;
+    height: 30px;
+    text-align: center;
+    line-height: 30px;
+    display: block;
+    float: left;
+    cursor: pointer;
+}
+.super-shortcode-fields .field-container > .browse-icons .super-icon-list i:hover {
+    background-color: #444;
+    font-size: 22px;
+    color: white;
+}
+.super-shortcode-fields .field-container > .browse-icons .super-icon-list i.super-active {
+    background-color: rgb(79, 168, 67);
+    font-size: 22px;
+    color: white;
+}
+
+.super-color-picker-container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-top: 4px !important;
+}
+.super-color-picker-container .super-color-picker-label {
+  font-size: 12px;
+  width: 160px;
+  line-height: normal;
+}
+.super-color-picker-container .super-color-picker {
+  width: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 0;
+}
+.super-color-picker-container .super-color-picker .wp-picker-container {
+  width: auto;
+  margin: 0 10px 0 0;
+}
+.super-color-picker-container .super-color-picker .wp-picker-container > .button {
+  margin: 0;
+}
+.super-settings .super-reset-global-value,
+.super-settings .super-lock-global-setting {
+  display: none!important;
+}
+.super-settings input,
+.super-settings textarea,
+.super-settings select {
+  border: 1px solid #cccccc;
+  color: #444;
+  min-height: 30px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  padding-right: 10px !important;
+}
+.super-settings input[type="text"] {
+  min-width: 320px;
+}
+.super-settings #field-form_locker_submission_reset {
+  width: 50%;
+}
+.super-settings .super-reset-submission-counter {
+  width: 50%;
+  margin-left: 5px;
+}
+.super-settings .super-field {
+  display: flex;
+  margin: 0 !important;
+  padding: 20px 0 20px 10px !important;
+}
+.super-settings .super-field:hover {
+  background-color: #fff9de;
+}
+.super-settings .super-field .super-field-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+.super-settings .super-field .super-field-fields {
+  flex-direction: column;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+.super-settings .super-field .super-field-fields .super-checkbox {
+  display: flex;
+}
+.super-settings .super-color-picker-label {
+  width: 300px;
+}
+.super-settings .slider-field {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  align-items: flex-start;
+}
+.super-settings .slider-field .slider {
+  margin-bottom: 0 !important;
+}
+.super-settings .slider-field > input {
+  min-width: 50px;
+  height: 32px;
+  margin: -5px 10px 0 0;
+}
+.super-settings .super-export-import-entries input,
+.super-settings .super-export-import-entries select {
+  min-width: initial;
+  height: 30px;
+}
+.super-reset-settings-buttons {
+  display: none;
+  flex-direction: row;
+  z-index: 1;
+}
+.super-reset-settings-buttons > i {
+  display: flex;
+  border-radius: 100px;
+  background-color: #eaeaea;
+  color: #999999;
+  width: 20px;
+  height: 20px;
+  justify-content: center;
+  align-items: center;
+  margin: -1px 0 0 5px;
+  font-size: 10px;
+  cursor: pointer !important;
+}
+.super-reset-settings-buttons > i:hover {
+  background-color: #49B4B6;
+  color: #fff;
+}
+.super-form-settings-tabs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.super-form-settings-tabs:hover .super-reset-settings-buttons {
+  display: flex;
+}
+.super-form-settings-tabs._g_ .super-reset-settings-buttons {
+  display: flex;
+}
+.super-form-settings-tabs._g_ .super-reset-settings-buttons > i {
+  display: none;
+}
+.super-form-settings-tabs._g_ .super-reset-settings-buttons .super-lock-global-setting {
+  display: flex;
+  background-color: #F5234B;
+  color: #fff;
+}
+.super-form-settings-tabs._g_ .super-reset-settings-buttons .super-lock-global-setting:hover {
+  background-color: #ff476a;
+}
+.super-settings .super-field .input,
+.super-form-settings .super-field .input {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.super-settings .super-field .input:hover .super-reset-settings-buttons,
+.super-form-settings .super-field .input:hover .super-reset-settings-buttons {
+  display: flex;
+}
+.super-settings .super-field._g_ .input > *:not(.super-reset-settings-buttons),
+.super-form-settings .super-field._g_ .input > *:not(.super-reset-settings-buttons) {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.super-settings .super-field._g_ .input > *:not(.super-reset-settings-buttons) label,
+.super-settings .super-field._g_ .input > *:not(.super-reset-settings-buttons) input,
+.super-form-settings .super-field._g_ .input > *:not(.super-reset-settings-buttons) label,
+.super-form-settings .super-field._g_ .input > *:not(.super-reset-settings-buttons) input {
+  cursor: not-allowed;
+}
+.super-settings .super-field._g_ .super-reset-settings-buttons,
+.super-form-settings .super-field._g_ .super-reset-settings-buttons {
+  display: flex;
+}
+.super-settings .super-field._g_ .super-reset-settings-buttons > i,
+.super-form-settings .super-field._g_ .super-reset-settings-buttons > i {
+  display: none;
+}
+.super-settings .super-field._g_ .super-reset-settings-buttons .super-lock-global-setting,
+.super-form-settings .super-field._g_ .super-reset-settings-buttons .super-lock-global-setting {
+  display: flex;
+  background-color: #F5234B;
+  color: #fff;
+}
+.super-settings .super-field._g_ .super-reset-settings-buttons .super-lock-global-setting:hover,
+.super-form-settings .super-field._g_ .super-reset-settings-buttons .super-lock-global-setting:hover {
+  background-color: #ff476a;
+}
+.super-form-settings .super-field select:disabled,
+.super-form-settings .super-field input[type="text"]:disabled,
+.super-form-settings .super-field textarea:disabled {
+  opacity: 0.5;
+}
+.super-form-settings .input.super-field-type-multicolor {
+  flex-direction: column;
+}
+.super-form-settings .input.super-field-type-multicolor:hover .super-reset-settings-buttons {
+  margin-right: 5px;
+}
+.super-form-settings .input.super-field-type-multicolor:hover .super-reset-settings-buttons > i {
+  display: none;
+}
+.super-form-settings .input.super-field-type-multicolor:hover .super-color-picker-container:hover .super-reset-settings-buttons {
+  display: flex;
+}
+.super-form-settings .input.super-field-type-multicolor:hover .super-color-picker-container:hover .super-reset-settings-buttons > i {
+  display: flex;
+}
+.super-form-settings .input:not(.super-field-type-multicolor) .super-color-picker-container .super-color-picker {
+  display: flex;
+  flex-direction: row-reverse;
+}
+.super-form-settings .super-color-picker-container._g_ .wp-picker-input-wrap,
+.super-form-settings .super-color-picker-container._g_ .wp-picker-holder {
+  display: none;
+}
+.super-form-settings .super-color-picker-container._g_ .wp-color-result:focus {
+  box-shadow: none;
+}
+.super-form-settings .super-color-picker-container._g_ .super-color-picker {
+  margin: 0;
+}
+.super-form-settings .super-color-picker-container._g_ * {
+  cursor: not-allowed;
+}
+.super-form-settings .super-color-picker-container._g_ *.wp-color-result {
+  opacity: 0.5;
+}
+.super-form-settings .super-color-picker-container._g_ .super-reset-settings-buttons {
+  display: flex;
+  margin-right: 5px;
+}
+.super-form-settings .super-color-picker-container._g_ .super-reset-settings-buttons > i {
+  display: none !important;
+}
+.super-form-settings .super-color-picker-container._g_ .super-reset-settings-buttons .super-lock-global-setting {
+  display: flex !important;
+  background-color: #F5234B;
+  color: #fff;
+}
+.super-form-settings .super-color-picker-container._g_ .super-reset-settings-buttons .super-lock-global-setting:hover {
+  background-color: #ff476a;
+}
+.super-form-settings .super-export-import-single-form {
+  display: flex;
+  flex-direction: column;
+}
+.super-form-settings .super-export-import-single-form .super-checkbox {
+  display: flex;
+  flex-direction: column;
+}
+.super-settings .super-fields .super-field .super-field-info {
+  padding-right: 35px !important;
+}
+.super-settings .super-fields .super-field .super-field-fields {
+  flex-direction: column;
+}
+.super-settings .super-fields .super-field .super-field-fields .super-field {
+  padding: 10px 0 0 !important;
+}
+.super-settings .super-fields .super-field .super-field-fields .input {
+  display: flex;
+  width: 100%;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+}
+.super-settings .super-fields .super-field .super-field-fields .input .super-reset-settings-buttons {
+  width: auto;
+  padding: 0;
+  justify-content: center;
+  align-items: center;
+}
+.super-settings .super-fields .super-field .super-field-fields .input .super-reset-settings-buttons > i {
+  margin: 0 5px 0 0;
+}
+.super-settings .super-fields .super-field .super-field-fields .input .super-tags {
+  width: auto;
+  font-size: 12px;
+  padding: 3px 5px;
+}
+.super-settings .super-fields .super-field .super-field-fields .input textarea {
+  padding: 5px;
+}
+.super-settings .super-fields .super-field .super-field-fields .input:hover {
+  margin-left: -50px;
+  width: calc(100% + 50px);
+}
+.super-settings .super-fields .super-field .super-field-fields.super-field-type-multicolor {
+  flex-direction: column;
+}
+.super-settings .super-fields .super-field .super-field-fields.super-field-type-multicolor .input {
+  flex-direction: column;
+}
+.super-settings .super-fields .super-field .super-field-fields.super-field-type-multicolor .input:hover {
+  padding-left: 0;
+  margin-left: -0px;
+  width: calc(100% + 0px);
+}
+.super-settings .super-fields .super-field .super-field-fields.super-field-type-multicolor .input:hover .super-reset-settings-buttons {
+  display: none;
+}
+.super-settings .super-fields .super-field .super-field-fields.super-field-type-multicolor .input:hover .super-color-picker-container .super-color-picker {
+  margin: 0;
+}
+.super-settings .super-fields .super-field .super-field-fields.super-field-type-multicolor .input:hover .super-color-picker-container:hover .super-reset-settings-buttons {
+  display: flex;
+}

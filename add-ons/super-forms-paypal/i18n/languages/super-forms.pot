@@ -1,0 +1,689 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Super Forms - PayPal Checkout\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-05-24 17:03+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: \n"
+"Language: \n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Loco https://localise.biz/\n"
+"X-Loco-Version: 2.2.2; wp-5.2.1"
+
+#: super-forms-paypal.php:1342
+msgid "Active"
+msgstr ""
+
+#: super-forms-paypal.php:2757
+msgid "Active (default)"
+msgstr ""
+
+#: super-forms-paypal.php:1252
+msgid "Address"
+msgstr ""
+
+#: super-forms-paypal.php:357
+msgid "All forms"
+msgstr ""
+
+#: super-forms-paypal.php:2538
+msgid "Allow buyers to specify the quantity"
+msgstr ""
+
+#: super-forms-paypal.php:2743
+msgid "Auto-Draft"
+msgstr ""
+
+#: super-forms-paypal.php:1102 super-forms-paypal.php:1354
+msgid "Based on Form"
+msgstr ""
+
+#: super-forms-paypal.php:1071
+msgid "Based on subscription"
+msgstr ""
+
+#: super-forms-paypal.php:2759
+msgid "Blocked"
+msgstr ""
+
+#: super-forms-paypal.php:2195
+msgid "Cart checkout (for multiple product checkout)"
+msgstr ""
+
+#: super-forms-paypal.php:2409
+msgid "Cart discount amount"
+msgstr ""
+
+#: super-forms-paypal.php:2422
+msgid "Cart discount rate"
+msgstr ""
+
+#: super-forms-paypal.php:2434
+msgid "Cart handling fee"
+msgstr ""
+
+#: super-forms-paypal.php:2384
+msgid "Cart tax"
+msgstr ""
+
+#: super-forms-paypal.php:2396
+msgid "Cart weight"
+msgstr ""
+
+#: super-forms-paypal.php:2385
+msgid "Cart-wide tax, overriding any individual item tax value"
+msgstr ""
+
+#: super-forms-paypal.php:2515
+msgid ""
+"Character set and character encoding for the billing information/log-in page"
+msgstr ""
+
+#. Description of the plugin
+msgid ""
+"Checkout with PayPal after form submission. Charge users for registering or "
+"posting content."
+msgstr ""
+
+#: super-forms-paypal.php:2670
+msgid "City"
+msgstr ""
+
+#: super-forms-paypal.php:1055
+msgid "Contact Entry"
+msgstr ""
+
+#: super-forms-paypal.php:1081
+msgid "Created Post"
+msgstr ""
+
+#: super-forms-paypal.php:1094
+msgid "Created User"
+msgstr ""
+
+#: super-forms-paypal.php:2209
+msgid ""
+"Description of item. If you omit this variable, buyers enter their own name "
+"during checkout."
+msgstr ""
+
+#: super-forms-paypal.php:2279
+msgid "Discount amount (leave blank for no discount)"
+msgstr ""
+
+#: super-forms-paypal.php:2280
+msgid ""
+"Discount amount associated with an item, which must be less than the selling "
+"price of the item."
+msgstr ""
+
+#: super-forms-paypal.php:2305
+msgid "Discount number"
+msgstr ""
+
+#: super-forms-paypal.php:2292
+msgid "Discount rate (leave blank for no discount)"
+msgstr ""
+
+#: super-forms-paypal.php:2293
+msgid ""
+"Discount rate, as a percentage, associated with an item. Set to a value less "
+"than 100"
+msgstr ""
+
+#: super-forms-paypal.php:2193
+msgid "Donation checkout"
+msgstr ""
+
+#: super-forms-paypal.php:2739
+msgid "Draft"
+msgstr ""
+
+#: super-forms-paypal.php:2643
+msgid "E-mail address"
+msgstr ""
+
+#: super-forms-paypal.php:2453
+msgid "Enable custom return URL"
+msgstr ""
+
+#: super-forms-paypal.php:2139
+msgid "Enable PayPal Checkout"
+msgstr ""
+
+#: super-forms-paypal.php:2146
+msgid "Enable PayPal Sandbox mode (for testing purposes only)"
+msgstr ""
+
+#: super-forms-paypal.php:2710
+msgid "Entry status after payment completed"
+msgstr ""
+
+#. Author of the plugin
+msgid "feeling4design"
+msgstr ""
+
+#: super-forms-paypal.php:2625
+msgid "First name"
+msgstr ""
+
+#: super-forms-paypal.php:2738
+msgid "Future"
+msgstr ""
+
+#: super-forms-paypal.php:1028
+msgid "Gross amount"
+msgstr ""
+
+#: super-forms-paypal.php:2525
+msgid "Handling charges"
+msgstr ""
+
+#: super-forms-paypal.php:2364
+msgid ""
+"Here you can enter the items that need to be added to the cart after form "
+"submission"
+msgstr ""
+
+#: super-forms-paypal.php:2346
+msgid "Here you can setup the subscription price, time and periods"
+msgstr ""
+
+#. URI of the plugin
+msgid "http://codecanyon.net/item/super-forms-drag-drop-form-builder/13979866"
+msgstr ""
+
+#. Author URI of the plugin
+msgid "http://codecanyon.net/user/feeling4design"
+msgstr ""
+
+#: super-forms-paypal.php:2254
+msgid ""
+"If profile-based shipping rates are configured with a basis of weight, the "
+"sum of weight values is used to calculate the shipping charges for the "
+"payment. A valid value is a decimal number with two significant digits to "
+"the right of the decimal point."
+msgstr ""
+
+#: super-forms-paypal.php:2558
+msgid "Invoice number"
+msgstr ""
+
+#: super-forms-paypal.php:2208
+msgid "Item description (leave blank to let users enter a name)"
+msgstr ""
+
+#: super-forms-paypal.php:2266
+msgid "Item number (to track product or service)"
+msgstr ""
+
+#: super-forms-paypal.php:2222
+msgid "Item price (leave blank to let user enter their own price)"
+msgstr ""
+
+#: super-forms-paypal.php:2363
+msgid "Items to be added to cart"
+msgstr ""
+
+#: super-forms-paypal.php:2505
+msgid "Language for the billing information/log-in page"
+msgstr ""
+
+#: super-forms-paypal.php:2634
+msgid "Last name"
+msgstr ""
+
+#: super-forms-paypal.php:1110 super-forms-paypal.php:1362
+msgid "Move to Trash"
+msgstr ""
+
+#: super-forms-paypal.php:354
+msgid "No forms found"
+msgstr ""
+
+#: super-forms-paypal.php:2240
+msgid ""
+"Note: The value for quantity must be a positive integer. Null, zero, or "
+"negative numbers are not allowed."
+msgstr ""
+
+#: super-forms-paypal.php:2306
+msgid ""
+"Number of additional quantities of the item to which the discount applies."
+msgstr ""
+
+#: super-forms-paypal.php:2733
+msgid ""
+"Only used for Front-end posting (publish, future, draft, pending, private, "
+"trash, auto-draft)"
+msgstr ""
+
+#: super-forms-paypal.php:2753
+msgid "Only used for Register & Login add-on (active, pending, blocked)"
+msgstr ""
+
+#: super-forms-paypal.php:1140
+msgid "Order details"
+msgstr ""
+
+#: super-forms-paypal.php:2618
+msgid "Override the PayPal member's stored address"
+msgstr ""
+
+#: super-forms-paypal.php:2606
+msgid "Parse address to paypal based on form input data."
+msgstr ""
+
+#: super-forms-paypal.php:2602
+msgid ""
+"Parse the entered address information to paypal. This will not override the "
+"PayPal member's default address unless you enable the 'Override' option "
+"below."
+msgstr ""
+
+#: super-forms-paypal.php:2267
+msgid ""
+"Pass-through variable for you to track product or service purchased or the "
+"contribution made. The value you specify is passed back to you upon payment "
+"completion."
+msgstr ""
+
+#: super-forms-paypal.php:1037 super-forms-paypal.php:1345
+msgid "Payer E-mail"
+msgstr ""
+
+#: super-forms-paypal.php:1181
+msgid "Payment details"
+msgstr ""
+
+#: super-forms-paypal.php:1034
+msgid "Payment status"
+msgstr ""
+
+#: super-forms-paypal.php:1040 super-forms-paypal.php:1348
+msgid "Payment type"
+msgstr ""
+
+#: super-forms-paypal.php:2479
+msgid "PayPal cancel URL (when payment is canceled by user)"
+msgstr ""
+
+#: super-forms-paypal.php:2131 super-forms-paypal.php:2132
+msgid "PayPal Checkout"
+msgstr ""
+
+#: super-forms-paypal.php:2163
+msgid "PayPal currency code"
+msgstr ""
+
+#: super-forms-paypal.php:2569 super-forms-paypal.php:2579
+#: super-forms-paypal.php:2589
+msgid "PayPal fills in the buyer's home phone number automatically."
+msgstr ""
+
+#: super-forms-paypal.php:2153
+msgid "PayPal merchant email (to receive payments)"
+msgstr ""
+
+#: super-forms-paypal.php:2720
+msgid "PayPal notify URL (only for developers!)"
+msgstr ""
+
+#: super-forms-paypal.php:1673
+msgid "PayPal Order"
+msgstr ""
+
+#: super-forms-paypal.php:2188
+msgid "PayPal payment method"
+msgstr ""
+
+#: super-forms-paypal.php:2464
+msgid "PayPal return URL (when user successfully returns from paypal)"
+msgstr ""
+
+#: super-forms-paypal.php:972
+msgid "PayPal Subscriptions"
+msgstr ""
+
+#: super-forms-paypal.php:949
+msgid "PayPal Transactions"
+msgstr ""
+
+#: super-forms-paypal.php:2740 super-forms-paypal.php:2758
+msgid "Pending"
+msgstr ""
+
+#: super-forms-paypal.php:2732
+msgid "Post status after payment complete"
+msgstr ""
+
+#: super-forms-paypal.php:2688
+msgid "Postal code"
+msgstr ""
+
+#: super-forms-paypal.php:1114 super-forms-paypal.php:1366
+msgid "Print"
+msgstr ""
+
+#: super-forms-paypal.php:2741
+msgid "Private"
+msgstr ""
+
+#: super-forms-paypal.php:2737
+msgid "Publish (default)"
+msgstr ""
+
+#: super-forms-paypal.php:2239
+msgid "Quantity (Number of items)"
+msgstr ""
+
+#: super-forms-paypal.php:1276 super-forms-paypal.php:1384
+msgid "Raw Transaction Data"
+msgstr ""
+
+#: super-forms-paypal.php:2752
+msgid "Registered user login status after payment complete"
+msgstr ""
+
+#: super-forms-paypal.php:2545
+msgid "Select weight unit"
+msgstr ""
+
+#: super-forms-paypal.php:2174
+msgid "Select whether or not to prompt buyers for a shipping address."
+msgstr ""
+
+#: super-forms-paypal.php:2698
+msgid "Sets shipping and billing country."
+msgstr ""
+
+#: super-forms-paypal.php:2516
+msgid ""
+"Sets the character set and character encoding for the billing "
+"information/log-in page on the PayPal website. In addition, this variable "
+"sets the same values for information that you send to PayPal in your HTML "
+"button code. Default is based on the language encoding settings in your "
+"account profile."
+msgstr ""
+
+#: super-forms-paypal.php:2506
+msgid ""
+"Sets the language for the billing information/log-in page only. Default is "
+"US."
+msgstr ""
+
+#: super-forms-paypal.php:2697
+msgid "Shipping and billing country"
+msgstr ""
+
+#: super-forms-paypal.php:2330
+msgid "Shipping cost (applies to each additional item added to cart)"
+msgstr ""
+
+#: super-forms-paypal.php:2317
+msgid "Shipping cost (applies to first item added to cart)"
+msgstr ""
+
+#: super-forms-paypal.php:2497
+msgid "Show Advanced PayPal Settings"
+msgstr ""
+
+#: super-forms-paypal.php:2410
+msgid ""
+"Single discount amount charged cart-wide. It must be less than the selling "
+"price of all items combined in the cart."
+msgstr ""
+
+#: super-forms-paypal.php:2423
+msgid ""
+"Single Discount rate, as a percentage, to be charged cart-wide. Set to a "
+"value less than 100. The variable overrides any individual item discount rate"
+msgstr ""
+
+#: super-forms-paypal.php:2435
+msgid "Single handling fee charged cart-wide."
+msgstr ""
+
+#: super-forms-paypal.php:2192
+msgid "Single product or service checkout"
+msgstr ""
+
+#: super-forms-paypal.php:1342
+msgid "Status"
+msgstr ""
+
+#: super-forms-paypal.php:2652
+msgid "Street (1 of 2 fields)"
+msgstr ""
+
+#: super-forms-paypal.php:2661
+msgid "Street (2 of 2 fields)"
+msgstr ""
+
+#: super-forms-paypal.php:1043 super-forms-paypal.php:1351
+msgid "Submitted"
+msgstr ""
+
+#: super-forms-paypal.php:1050
+msgid "Submitted by user"
+msgstr ""
+
+#: super-forms-paypal.php:1348
+msgid "Subscription"
+msgstr ""
+
+#: super-forms-paypal.php:2194
+msgid "Subscription checkout"
+msgstr ""
+
+#: super-forms-paypal.php:2345
+msgid "Subscription periods"
+msgstr ""
+
+#: super-forms-paypal.php:973
+msgid "Subscriptions"
+msgstr ""
+
+#. Name of the plugin
+msgid "Super Forms - PayPal Checkout"
+msgstr ""
+
+#: super-forms-paypal.php:2614
+msgid ""
+"The address specified with automatic fill-in variables overrides the PayPal "
+"member's stored address. Buyers see the addresses that you pass in, but they "
+"cannot edit them. PayPal does not show addresses if they are invalid or "
+"omitted."
+msgstr ""
+
+#: super-forms-paypal.php:2568
+msgid ""
+"The area code for U.S. phone numbers, or the country code for phone numbers "
+"outside the U.S."
+msgstr ""
+
+#: super-forms-paypal.php:2331
+msgid "The cost of shipping each additional unit of this item."
+msgstr ""
+
+#: super-forms-paypal.php:2318
+msgid "The cost of shipping this item."
+msgstr ""
+
+#: super-forms-paypal.php:2588
+msgid "The four-digit phone number for U.S. phone numbers."
+msgstr ""
+
+#: super-forms-paypal.php:2223
+msgid ""
+"The price or amount of the product, service, or contribution, not including "
+"shipping, handling, or tax. If you omit this variable from Buy Now or Donate "
+"buttons, buyers enter their own amount at the time of payment."
+msgstr ""
+
+#: super-forms-paypal.php:2578
+msgid ""
+"The three-digit prefix for U.S. phone numbers, or the entire phone number "
+"for phone numbers outside the U.S., excluding country code."
+msgstr ""
+
+#: super-forms-paypal.php:2546
+msgid "The unit of measure if weight is specified."
+msgstr ""
+
+#: super-forms-paypal.php:2465
+msgid ""
+"The URL to which PayPal posts information about the payment, in the form of "
+"Instant Payment Notification messages."
+msgstr ""
+
+#: super-forms-paypal.php:2397
+msgid ""
+"This value overrides the weight values of individual items. If profile-based "
+"shipping rates are configured with a basis of weight, PayPal uses this value "
+"to calculate the shipping charges for the payment."
+msgstr ""
+
+#: super-forms-paypal.php:2526
+msgid ""
+"This variable is not quantity-specific. The same handling cost applies, "
+"regardless of the number of items on the order."
+msgstr ""
+
+#: super-forms-paypal.php:1018 super-forms-paypal.php:1333
+msgid "Transaction Details"
+msgstr ""
+
+#: super-forms-paypal.php:1031 super-forms-paypal.php:1339
+msgid "Transaction ID"
+msgstr ""
+
+#: super-forms-paypal.php:950
+msgid "Transactions"
+msgstr ""
+
+#: super-forms-paypal.php:2742
+msgid "Trash"
+msgstr ""
+
+#: super-forms-paypal.php:2679
+msgid "U.S. state"
+msgstr ""
+
+#: super-forms-paypal.php:793 super-forms-paypal.php:800
+msgid "Unknown"
+msgstr ""
+
+#: super-forms-paypal.php:2559
+msgid "Use to identify your invoice number for this purchase."
+msgstr ""
+
+#: super-forms-paypal.php:2721
+msgid ""
+"Used for IPN (Instant payment notifications) when payment is confirmed by "
+"paypal"
+msgstr ""
+
+#: super-forms-paypal.php:2480
+msgid "User that cancels payment will be redirected to this URL"
+msgstr ""
+
+#: super-forms-paypal.php:2466
+msgid "User will be redirected to this URL after making a payment"
+msgstr ""
+
+#: super-forms-paypal.php:979 super-forms-paypal.php:980
+msgid "View PayPal subscription"
+msgstr ""
+
+#: super-forms-paypal.php:956 super-forms-paypal.php:957
+msgid "View PayPal transaction"
+msgstr ""
+
+#: super-forms-paypal.php:2253
+msgid "Weight of item (leave blank for none)"
+msgstr ""
+
+#: super-forms-paypal.php:2155 super-forms-paypal.php:2210
+#: super-forms-paypal.php:2241 super-forms-paypal.php:2255
+#: super-forms-paypal.php:2268 super-forms-paypal.php:2281
+#: super-forms-paypal.php:2294 super-forms-paypal.php:2307
+#: super-forms-paypal.php:2319 super-forms-paypal.php:2332
+#: super-forms-paypal.php:2386 super-forms-paypal.php:2398
+#: super-forms-paypal.php:2411 super-forms-paypal.php:2424
+#: super-forms-paypal.php:2436 super-forms-paypal.php:2527
+#: super-forms-paypal.php:2560 super-forms-paypal.php:2570
+#: super-forms-paypal.php:2580 super-forms-paypal.php:2590
+#: super-forms-paypal.php:2626 super-forms-paypal.php:2635
+#: super-forms-paypal.php:2644 super-forms-paypal.php:2653
+#: super-forms-paypal.php:2662 super-forms-paypal.php:2671
+#: super-forms-paypal.php:2680 super-forms-paypal.php:2689
+msgid "You are allowed to use {tags}."
+msgstr ""
+
+#: super-forms-paypal.php:2224
+msgid ""
+"You are allowed to use {tags}. (only decimal format is allowed e.g: "
+"16.95)"
+msgstr ""
+
+#: super-forms-paypal.php:2507
+msgid ""
+"You are allowed to use {tags}.<br />For valid values, see <a "
+"href=\"https://developer.paypal.com/docs/classic/api/country_codes/\">"
+"Countries and Regions Supported by PayPal</a>."
+msgstr ""
+
+#: super-forms-paypal.php:2517
+msgid ""
+"You are allowed to use {tags}.<br />For valid values, see <a "
+"href=\"https://developer.paypal.com/docs/classic/paypal-payments-"
+"standard/integration-guide/formbasics/#setting-the-character-set--charset\">"
+"Setting the Character Set — charset</a>."
+msgstr ""
+
+#: super-forms-paypal.php:2699
+msgid ""
+"You are allowed to use {tags}.<br />For valid values, see <a "
+"target=\"_blank\" href=\"https://developer.paypal."
+"com/docs/classic/api/country_codes/\">Country and Region Codes</a>."
+msgstr ""
+
+#: super-forms-paypal.php:2366
+#, php-format
+msgid ""
+"You are allowed to use {tags}.%1$s Put each item on a new line, seperate "
+"values by pipes%1$sLeave options blank that you do not wish to use, for "
+"example:%1$s%1$s%2$sTo add 5 times a 3.49 dollar product write it like below:"
+"%3$s%1$s3.49|5|Flowers%1$s%1$s%2$sBelow you can see a full example with "
+"{tags}:%3$s%1$s{price}|{quantity}|{item_name}|{tax}|{shipping}|{shipping2}"
+"|{discount_amount}|{discount_rate}%1$s%1$sFor more information about each "
+"option read the %4$sPayPal's Variable Reference%5$s"
+msgstr ""
+
+#: super-forms-paypal.php:2347
+msgid ""
+"You are allowed to use {tags}<br />Put each period on a new line, seperate "
+"values by pipes, for example:<br /><strong>7 day trial for free:</strong> "
+"0|7|D<br /><strong>After trial 3 weeks for 5 dollar:</strong> 5|3|W<br />"
+"<strong>After that $49.99 for each year:</strong> 49.99|1|Y<br /><strong>"
+"Time format options:</strong> D=days, W=weeks, M=months, Y=years"
+msgstr ""
+
+#: super-forms-paypal.php:2711
+#, php-format
+msgid ""
+"You can add custom statuses via %sSuper Forms > Settings > Backend "
+"Settings%s if needed"
+msgstr ""
+
+#: super-forms-paypal.php:2154
+msgid ""
+"Your PayPal ID or an email address associated with your PayPal account. "
+"E-mail addresses must be confirmed."
+msgstr ""

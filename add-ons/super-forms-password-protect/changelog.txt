@@ -1,0 +1,48 @@
+Jan 20, 2022 - Version 1.4.0
+- Added: Compatibility with latest version of Super Forms
+
+Nov 04, 2021 - Version 1.3.23
+- Fix: Compatibility issue with latest super forms version
+
+Oct 15, 2021 - Version 1.3.1
+- Compatibility with Super Forms v5.0.0
+
+Aug 27, 2020 - Version 1.2.2
+- Added: Prefix `super` to `close` classname for zero conflict policy
+
+May 13, 2020 - Version 1.2.1
+- Update: hooks from main plugin
+
+Jan 07, 2020 - Version 1.2.0
+- Replaced deprecated function with new one
+
+Jun 14, 2019 - Version 1.1.1
+- Compliance: Working towards Envato WordPress Requirements Badge/Compliance
+  - Escaping all Translatable strings
+
+Apr 22, 2019 - Version 1.1.0
+- Compatibility with latest Super Forms
+- Improved: Update functionality
+- Passowrd protect now included in the `Super Forms - All In One Bundle` package :)
+
+Apr 22, 2018 - Version 1.0.6
+- Fix: When password field would be inside a multi-part, it will no longer think the "password" field is missing
+
+Feb 15, 2018 - Version 1.0.5
+- Fix: Allow settings to be empty for new Super Forms versions (values that can be left empty must not be overwritten by default value)
+
+Jan 29, 2018 - Version 1.0.4
+- Added: Ability to even display error message when complete form is hidden
+
+Nov 16, 2017 - Version 1.0.3
+- Added: Option to hide form from logged in users
+
+Jun 21, 2017 - Version 1.0.2
+- Improvement: if user didn't select option for none logged in users lockout display at least an error
+- Improvement: error message is now positioned inside the form element, so it will pickup color styles for the error message
+
+Jun 20, 2017 - Version 1.0.1
+- Added: option to display error message regarding user not being logged in after the form is submitted (instead of on form init/pageload)
+
+Mar 17, 2017 - Version 1.0.0
+- Initial release!

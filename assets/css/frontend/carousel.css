@@ -1,0 +1,210 @@
+.carouseljs {
+  visibility: hidden;
+  overflow:hidden;
+  height:50px;
+}
+.carouseljs-wrapper {
+  position: relative;
+  padding-left: 60px;
+  padding-right: 60px;
+  margin-bottom: 50px;
+}
+.carouseljs-container {
+  overflow: hidden;
+}
+.carouseljs-container {
+  display: flex;
+  align-items: stretch;
+  min-width: 0;
+}
+.carouseljs-track {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  white-space: nowrap;
+}
+.carouseljs-track > .carouseljs-item {
+  white-space: normal;
+}
+.carouseljs-track > .carouseljs-item * {
+  max-width: 100%;
+}
+.carouseljs-container > textarea {
+  display: none;
+}
+.carouseljs-button {
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  position: absolute;
+  top: 0;
+  right: 0px;
+  transform: translate3d(0, 0, 0);
+  top: 50%;
+  margin-top: -25px;
+}
+.carouseljs-button.prev {
+  right: initial;
+  left: 0px;
+  transform: rotate(180deg);
+  margin-top: -22px;
+}
+.carouseljs-button i {
+  position: absolute;
+  width: 25px;
+  height: 3px;
+  background: #49B4B6;
+  transition: all 0.15s ease;
+  top:50%;
+  left: -4px;
+  border-radius: 25px;
+}
+.carouseljs-button.prev i,
+.carouseljs-button.next i {
+  transform-origin: 100% 50%;
+}
+/* Initial */
+.carouseljs-button.prev .top-line,
+.carouseljs-button.next .top-line {
+  transform: translate(0px, 1px) rotate(40deg);
+}
+.carouseljs-button.prev .bottom-line,
+.carouseljs-button.next .bottom-line {
+  transform: translate(0px, -1px) rotate(-40deg);
+}
+/* Hover */
+.carouseljs-button.prev:hover .top-line,
+.carouseljs-button.next:hover .top-line {
+  transform: translate(5px, 1px) rotate(40deg);
+  width: 30px;
+}
+.carouseljs-button.prev:hover .bottom-line,
+.carouseljs-button.next:hover .bottom-line {
+  transform: translate(5px, -1px) rotate(-40deg);
+  width: 30px;
+}
+/* Disabled */
+.carouseljs-button[data-state=disabled] {
+  opacity: 0.3;
+  cursor: default;
+}
+.carouseljs-button.prev[data-state=disabled] .top-line,
+.carouseljs-button.prev[data-state=disabled] .bottom-line,
+.carouseljs-button.next[data-state=disabled] .top-line,
+.carouseljs-button.next[data-state=disabled] .bottom-line {
+  transform: translate(5px, 0) rotate(0deg);
+}
+
+/* Dots */
+.carouseljs-dots {
+  position:absolute;
+  left:0px;
+  bottom: -40px;
+  width:100%;
+  text-align:center;
+}
+.carouseljs-dots > span {
+  width: 30px;
+  height: 30px;
+  display:inline-block;
+  position:relative;
+  cursor: pointer;
+}
+.carouseljs-dots > span:before {
+  content:'';
+  position:absolute;
+  left: 5px;
+  top: 5px;
+  width: 20px;
+  height: 20px;
+  display:inline-block;
+  background-color: #e2e2e2;
+  border-radius: 25px;
+}
+.carouseljs-dots > span:hover:before {
+  background-color: #c1c1c1;
+}
+.carouseljs-dots > span.carouseljs-current:before {
+  background-color: #49B4B6;
+}
+
+
+@media (min-width: 0px) {
+  .carouseljs-button {
+    transform: scale(0.7);
+    right: -25px;
+  }
+  .carouseljs-button.prev {
+    left: -25px;
+    transform: scale(0.7) rotate(180deg);
+  }  
+  .carouseljs-wrapper {
+    padding-left: 30px;
+    padding-right: 30px;
+    margin-bottom: 40px;
+  }
+
+  .carouseljs-dots > span {
+    width: 20px;
+    height: 20px;
+  }
+  .carouseljs-dots > span:before {
+    width: 10px;
+    height: 10px;
+  }
+  .carouseljs-dots {
+    bottom: -40px;
+  }
+}
+@media (min-width: 768px) {
+  .carouseljs-button {
+    transform: scale(0.85);
+    right:-15px;
+  }
+  .carouseljs-button.prev {
+    left: -15px;
+    transform: scale(0.85) rotate(180deg);
+  }  
+  .carouseljs-wrapper {
+    padding-left: 45px;
+    padding-right: 45px;
+    margin-bottom: 50px;
+  }
+  .carouseljs-dots > span {
+    width: 25px;
+    height: 25px;
+  }
+  .carouseljs-dots > span:before {
+    width: 15px;
+    height: 15px;
+  }
+  .carouseljs-dots {
+    bottom: -45px;
+  }  
+}
+@media (min-width: 1200px) {
+  .carouseljs-button {
+    transform: scale(1);
+    right: -5px;
+  }
+  .carouseljs-button.prev {
+    left: -5px;
+    transform: scale(1) rotate(180deg);
+  }  
+  .carouseljs-wrapper {
+    padding-left: 60px;
+    padding-right: 60px;
+    margin-bottom: 60px;
+  }
+  .carouseljs-dots > span {
+    width: 30px;
+    height: 30px;
+  }
+  .carouseljs-dots > span:before {
+    width: 20px;
+    height: 20px;
+  }
+  .carouseljs-dots {
+    bottom: -50px;
+  }
+}

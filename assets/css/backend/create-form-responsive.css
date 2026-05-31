@@ -1,0 +1,264 @@
+/* Simple Responsive Styling 
+   In this area we are using the "max-width" proporty 
+   for faster development, the other options are used
+   for more specific device targeting (feeling4design).
+*/
+@media only screen and (max-width: 1145px) {
+    .super-header .super-actions span {
+        clear: none;
+    }
+    .super-header .form-name {
+        width: 245px;
+    }
+    .super-header .super-get-form-shortcodes {
+        width: 286px;
+        margin-top: 5px;
+    }
+    .super-header .super-actions {
+        float: left;
+    }
+    .super-header .super-actions span {
+        width: 30px;
+        padding: 0px;
+        text-indent: -9999px;
+        margin: 0px;
+    }
+    .super-header .super-actions span.super-delete {
+        margin-right: 15px;
+    }
+    .super-header .super-actions span i {
+        text-indent: 0px;
+    }
+    .super-header .super-actions span.super-switch {
+        text-indent: initial;
+        padding: 0px 10px 0px 10px;
+        width: auto;
+    }
+    .super-builder .super-preview {
+        width: 100%;
+    }
+    .super-preview-elements {
+        padding: 5px;
+    }
+    .super-preview-elements .super-element.super_one_full {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_four_fifth {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_three_fourth {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_two_third {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_three_fifth {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_one_half {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_two_fifth {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_one_third {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_one_fourth {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_one_fifth {
+        width: 99%;
+    }
+    .super-elements {
+        width: 100%;
+        margin-top: 20px;
+        padding: 0px;
+        max-width: none!important;
+    }
+    .super-element.super-layout-elements > .super-elements-container > .super-element {
+        width: 48%;
+        margin-bottom: 5px!important;
+    }
+    .super-elements .super-element .super-elements-container,
+    .super-element-settings .tab-content, .super-form-settings .tab-content {
+        max-height: inherit!important;
+    }
+}
+@media only screen and (min-width: 0px) and (max-width: 1145px) {
+    .super-switch-forms {
+        margin-bottom: 5px;
+    }
+    .super-header .form-name {
+        width: 395px;
+        margin-bottom: 5px;
+    }
+    .super-header .super-get-form-shortcodes {
+        width: 180px;
+        padding: 0px 10px;
+        margin-bottom: 15px;
+        clear: left;
+    }
+    .super-header .super-actions {
+        float: left;
+        clear: left;
+    }
+    .super-header .super-actions span {
+        width: 30px;
+        padding: 0px;
+        text-indent: -9999px;
+        margin: 0px;
+    }
+    .super-header .super-actions span.super-delete {
+        margin-right: 15px;
+    }
+    .super-header .super-actions span i {
+        text-indent: 0px;
+    }
+    .super-header .super-actions span.super-switch {
+        text-indent: initial;
+        padding: 0px 10px 0px 10px;
+        width: auto;
+    }
+    .super-builder {
+        flex-wrap: wrap-reverse;
+    }
+
+    .super-elements:hover,
+    .super-elements.super-active {
+        width: 100%;
+        max-width: 500px;
+    }
+    .super-form-history {
+        margin-bottom:5px;
+    }
+    .super-builder .super-preview {
+        width: 100%;
+        padding: 0px 0px 0px 30px;
+    }
+    .super-preview-elements {
+        padding: 5px;
+    }
+    .super-preview-elements .super-element.super_one_full {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_four_fifth {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_three_fourth {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_two_third {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_three_fifth {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_one_half {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_two_fifth {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_one_third {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_one_fourth {
+        width: 99%;
+    }
+    .super-preview-elements .super-element.super_one_fifth {
+        width: 99%;
+    }
+    .super-elements {
+        width: 100%;
+        margin-top: 20px;
+        margin-bottom: 20px;
+        padding: 0px;
+        max-width: none!important;
+    }
+    .super-element.super-layout-elements > .super-elements-container > .super-element {
+        width: 23%;
+        margin-bottom: 5px!important;
+    }
+    .super-elements .super-element .super-elements-container,
+    .super-element-settings .tab-content, .super-form-settings .tab-content {
+        max-height: inherit!important;
+    }       
+}
+@media only screen and (min-width: 768px) and (max-width: 1145px) {
+    .super-header .super-actions {
+        float: left;
+        margin: 10px 0px 5px 0px;
+    }
+    .super-header .super-actions span.super-save {
+        margin-left: 0px;
+    }
+    .super-switch-forms {
+        margin-bottom: 5px;
+    }
+    .super-header .form-name {
+        width: 395px;
+        margin-bottom: 5px;
+    }
+    .super-header .super-get-form-shortcodes {
+        width: 180px;
+        padding: 0px 10px;
+        margin-bottom: 15px;
+        clear: left;
+    }
+    .super-header .super-actions {
+        float: left;
+        clear: left;
+    }
+    .super-header .super-actions span.super-delete {
+        margin-right: 15px;
+    }
+    .super-header .super-actions span i {
+        text-indent: 0px;
+    }
+    .super-header .super-actions span.super-switch {
+        text-indent: initial;
+        padding: 0px 10px 0px 10px;
+        width: auto;
+    }
+    .super-builder .super-preview {
+        width: 100%;
+    }
+    .super-preview-elements {
+        padding: 5px;
+    }
+    .super-elements {
+        width: 100%;
+        margin-top: 20px;
+        padding: 0px;
+        max-width: none!important;
+    }
+    .super-element.super-layout-elements > .super-elements-container > .super-element {
+        width: 23%;
+        margin-bottom: 5px!important;
+    }
+    .super-element > .super-elements-container > .super-element {
+        width: 33.33%;
+    }
+    .super-elements .super-element .super-elements-container,
+    .super-element-settings .tab-content, .super-form-settings .tab-content {
+        max-height: inherit!important;
+    }
+}
+@media only screen and (min-width: 1000px) and (max-width: 1500px) {
+    .super-element.super-layout-elements > .super-elements-container > .super-element {
+        width: 48%;
+        margin-bottom: 5px!important;
+    }
+}
+@media only screen and (min-width: 1000px) and (max-width: 1679px) {
+    .super-element > .super-elements-container > .super-element {
+        width: 33%;
+    }
+    .super-builder .super-preview {
+        width: calc(100% - 410px);
+    }
+    .super-elements {
+        width:410px!important;
+    }
+}
