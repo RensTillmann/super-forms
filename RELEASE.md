@@ -28,7 +28,7 @@ five referenced in cc-inbox AGENTS.md):
 | `public-beta-zip` | `super-forms.com/download-super-forms-beta.php` → `super-forms-beta.zip` (same f4d.nl host) | `vX.Y.Z-beta.N` | YES (opt-in download) |
 | `dev-tag` | `git tag -l 'v6.4.*'` in `super-forms.git` | `vX.Y.Z` rolling along master HEAD | NO — cc-inbox testing only |
 | `master-HEAD` | `super-forms.git@master` | (untagged tip) | NO |
-| `v7-alpha` | `super-forms-v7.git@next/v7` | `v7.0.0-alphaN` | NO — internal roadmap only |
+| `v7-alpha` | `super-forms-v7.git@next/v7` | `v7.0.0-alpha.N` | NO — internal roadmap only |
 
 The `release/6.3.x` long-lived branch is the source-of-truth for the
 stable channel from Track 1 (v6.3.313) forward. The
@@ -40,7 +40,7 @@ stable channel from Track 1 (v6.3.313) forward. The
 |---|---|---|
 | Stable | `vX.Y.Z` (bare semver) | `v6.3.313` |
 | Beta | `vX.Y.Z-beta.N` (suffix counter) | `v6.4.201-beta.1` |
-| Alpha (internal) | `vX.0.0-alphaN` | `v7.0.0-alpha1` |
+| Alpha (internal) | `vX.0.0-alpha.N` (dot-separated, semver-conventional) | `v7.0.0-alpha.1` |
 
 All tags are annotated, signed when the operator's GPG is available,
 and pushed to `origin`. Tags MUST exist before a GitHub Release is
@@ -93,18 +93,24 @@ existence are recorded by the bundled ZIP, not by git.
    `curl 'https://f4d.nl/@super-forms-updates/?action=get_metadata&slug=super-forms' | jq '.version, .tested'`.
 10. **Tag and push.** Commit the backport on `release/6.3.x`, tag the
     commit with the bare-semver tag, push branch + tag to `origin`.
-11. **Create the GitHub Release.** Single coherent surface for tag + ZIP + body:
+11. **Publish the GitHub Release via the operator-gated cc-inbox CLI.**
+    The release body and tag annotation are customer-visible. The body is
+    derived verbatim from `docs/changelog.md`; no preamble, no
+    infrastructure refs (no Channel/Source branch/Customer ZIP/Customer
+    impact/Provenance/Source commit/md5/byte-for-byte). The CLI lints the
+    body against an authoritative forbidden-token list and fails closed
+    before the operator-password gate fires.
+
+    From the cc-inbox repo:
     ```
-    gh release create v$VERSION super-forms.zip \
-        --repo RensTillmann/super-forms \
-        --title "v$VERSION" \
-        --notes-file <(awk '/^## .* - Version '$VERSION'/{f=1} f' \
-                       super-forms/docs/changelog.md | head -50)
-    gh release edit v$VERSION --repo RensTillmann/super-forms --latest
+    bun run publish-release --channel stable --version $VERSION \
+        --mode create --zip /path/to/super-forms.zip --apply
+    bun run publish-release --channel stable --version $VERSION \
+        --mode set-latest --apply
     ```
-    The asset filename MUST match the f4d.nl customer-facing name
-    (`super-forms.zip`) so a customer who downloads from GH gets a
-    byte-identical artifact to the auto-update payload.
+    Asset filename MUST be `super-forms.zip` (the f4d.nl customer-facing
+    name) so a customer who downloads from GH gets the same artifact the
+    auto-updater serves.
 
 ## 4. Cut a beta release — happy path
 
@@ -119,11 +125,11 @@ Same shape as §3 with three differences:
   `super-forms-beta.zip` download link customers use to switch
   channels). Do NOT touch `changelog-stable.md` or master's
   `docs/changelog.md`.
-- GitHub Release uses `--prerelease` (no `--latest`):
+- GitHub Release is published via the same operator-gated cc-inbox CLI;
+  `--channel beta` implies `--prerelease` and refuses `--mode set-latest`:
   ```
-  gh release create v$VERSION-beta.$N super-forms-beta.zip \
-      --repo RensTillmann/super-forms --prerelease \
-      --title "v$VERSION-beta.$N" --notes-file …
+  bun run publish-release --channel beta --version $VERSION-beta.$N \
+      --mode create --zip /path/to/super-forms-beta.zip --apply
   ```
 - The f4d.nl SFTP target is `@super-forms-updates/packages/super-forms-beta.zip`.
 
