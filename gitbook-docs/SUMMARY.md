@@ -174,4 +174,6 @@
 ***
 
 * [Changelog](changelog.md)
+  * [Stable](changelog-stable.md)
+  * [Beta](changelog-beta.md)
 * [Support](support.md)
