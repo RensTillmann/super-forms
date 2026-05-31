@@ -8,6 +8,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## May 31, 2026 - Version 6.3.313
+
+- **Improved:** Compatibility with WordPress 7.0
+
 ## Jul 14, 2022 - Version 6.3.312
 
 - **Added:** Missing country `Kosovo` for the `Countries (ISO2)` and `Countries (FULL)` elements
