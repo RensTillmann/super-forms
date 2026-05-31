@@ -11,6 +11,10 @@ description: New features, improvements and bug fixes.
 * [Listings Add-on](features/integrations/listings.md)
 * [PDF Generator Add-on](features/integrations/pdf-generator.md)
 
+### May 31, 2026 - Version 6.3.313
+
+* **Improved:** Compatibility with WordPress 7.0
+
 ### Apr 24, 2024 - Version 6.4.003-beta
 
 * **Added:** New \[Stripe] tab to configure Stripe checkout, allowing for one time payments and recurring payments.

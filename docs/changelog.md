@@ -9,6 +9,10 @@
 
 - [PDF Generator Add-on](https://docs.super-forms.com/features/integrations/pdf-generator)
 
+## May 31, 2026 - Version 6.3.313
+
+- **Improved:** Compatibility with WordPress 7.0
+
 ## Nov 18, 2025 - Version 6.4.200
 
 - **Added:** WP-Cron fallback system for reliable background processing — Action Scheduler
