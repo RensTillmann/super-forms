@@ -1,19 +1,28 @@
 name: Verify
 
+run-name: "Verify · #${{ github.event.pull_request.number }} · ${{ github.event.pull_request.title }}"
+
 on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+concurrency:
+  group: verify-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
 jobs:
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "24"
           cache: npm
       - name: Install dependencies
         run: npm ci --ignore-scripts
@@ -55,3 +64,23 @@ jobs:
           git config --global user.name "GitHub CI"
       - name: Production build
         run: npm run prod
+
+  phplint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.1"
+          tools: composer
+      - name: Validate composer.json
+        run: composer validate
+      - name: PHP syntax check (src/)
+        run: |
+          set -eo pipefail
+          find src -type f -name '*.php' -print0 | xargs -0 -n1 php -l > /dev/null
+          echo "All src/**/*.php files passed syntax check"
