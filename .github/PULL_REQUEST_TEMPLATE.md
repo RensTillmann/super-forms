@@ -6,8 +6,10 @@ Fixes # (issue)
 
 ## Target Branch
 
-- [ ] `master` (stable — bug fixes, improvements, features for current users)
-- [ ] `next/v7` (unreleased rewrite — Automations / React admin / Themes only)
+- [ ] `stable` (current v6 stable line — bug fixes, security patches, backward-compatible improvements)
+- [ ] `beta` (v6 next-minor line — feature work and release-candidate soak)
+- [ ] `alpha` (internal v7 development — unreleased; not for current-user fixes)
+- [ ] `lts/6.3.x` (v6.3 LTS — security and critical bugfix backports only)
 
 ## Super Forms Version
 
