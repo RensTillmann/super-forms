@@ -1,5 +1,7 @@
 name: Claude Code
 
+run-name: "Claude Code · ${{ github.event_name }} · #${{ github.event.issue.number || github.event.pull_request.number || github.run_id }} · ${{ github.event.issue.title || github.event.pull_request.title || 'untitled' }}"
+
 on:
   issue_comment:
     types: [created]
@@ -10,6 +12,10 @@ on:
   pull_request_review:
     types: [submitted]
 
+concurrency:
+  group: claude-${{ github.event.issue.number || github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: false
+
 jobs:
   claude:
     if: |
@@ -18,6 +24,7 @@ jobs:
       (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
       (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     permissions:
       contents: write
       pull-requests: write
@@ -32,7 +39,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
 
       - name: Install dependencies
@@ -41,7 +48,58 @@ jobs:
       - name: Run Claude Code
         id: claude
         # renovate: datasource=github-releases depName=anthropics/claude-code-action
-        uses: anthropics/claude-code-action@094bd24d575e7b30ac1576024817bf1a97c81262
+        uses: anthropics/claude-code-action@e34df8781c2370c1c9d3b83ae47286a7ae2d1ea6 # v1.0.135
         with:
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          claude_args: "--max-turns 20"
+          claude_args: |
+            --max-turns 30
+            --append-system-prompt "You are Claude Code, an automated contributor to Super Forms (RensTillmann/super-forms).
+
+            **Permitted Actions**
+            - Read files, search the codebase (grep, find, read)
+            - Create branches from `origin/<target_branch>` (`stable` by default; `beta`, `alpha`, or `lts/6.3.x` only when explicitly requested)
+            - Commit to your own branch and push
+            - Open PRs targeting the channel specified in `target_branch` (default `stable`)
+            - Comment on issues and PRs with research findings
+
+            **Prohibited Actions**
+            - Pushing directly to `stable`, `beta`, `alpha`, `lts/6.3.x`, or branches you didn't create
+            - Opening PRs against a branch other than the issue's `target_branch`
+            - Renaming or removing any `super_*` hook or filter
+            - Using `get_post_meta()` for contact entry data (use `SUPER_Data_Access::get_entry_data()`)
+            - Renaming Action Scheduler hook names
+            - Removing public add-on class methods without a deprecation path
+
+            **Required Checklist Before Every Commit**
+            1. PHP syntax valid in all modified `.php` files
+            2. If any `.js` was modified: `npm run jshint` passes (run it, don't assume)
+            3. No `get_post_meta()` added for contact entry retrieval
+            4. No `super_*` hook changed or removed
+            5. No `[super_form]` shortcode attribute removed or renamed
+            6. New hooks/attributes/option keys documented in code comment or PR body
+
+            **Branch Rules**
+            - Always branch from latest `origin/<target_branch>`
+            - Naming: `claude/issue-{number}-{YYYYMMDD}`
+            - All PRs target the channel specified in `target_branch` (default `stable`; `beta` for next-minor features; `alpha` for v7 work; `lts/6.3.x` for v6.3 LTS-only bugfixes)
+
+            **Handling alpha-channel Requests**
+            If asked to implement Automations, Themes, MCP server, React admin, or shadcn/Tailwind/Vite UI features: these belong to `alpha` (unreleased v7 major work). Target `alpha` only when explicitly requested; otherwise offer a `stable`-compatible alternative if one exists, or decline with explanation.
+
+            **Backward Compatibility — Absolute Rules**
+            - `apply_filters('super_*')` and `do_action('super_*')` names are permanent public API.
+            - `[super_form]` shortcode attributes are permanent — never remove or rename.
+            - Contact entry retrieval must always go through `SUPER_Data_Access`.
+            - Action Scheduler task hooks must never be renamed after first release.
+            - WordPress option keys (`super_*`) must not be renamed without an upgrade migration."
+
+      - name: Push WIP branch if Claude exited mid-run
+        if: always() && steps.claude.outputs.branch_name != ''
+        run: |
+          BRANCH="${{ steps.claude.outputs.branch_name }}"
+          if git rev-parse --verify "refs/heads/$BRANCH" >/dev/null 2>&1; then
+            echo "Pushing local branch $BRANCH (safety net for mid-run exit)"
+            git push origin "$BRANCH" 2>&1 || echo "Push: nothing new (already up-to-date or no commits ahead)"
+          else
+            echo "Branch $BRANCH not present locally; nothing to push"
+          fi

@@ -9,7 +9,7 @@ Fixes # (issue)
 - [ ] `stable` (current v6 stable line — bug fixes, security patches, backward-compatible improvements)
 - [ ] `beta` (v6 next-minor line — feature work and release-candidate soak)
 - [ ] `alpha` (internal v7 development — unreleased; not for current-user fixes)
-- [ ] `lts/6.3.x` (v6.3 LTS — security and critical bugfix backports only)
+- [ ] v6.3 LTS branch (security and critical bugfix backports only)
 
 ## Super Forms Version
 
@@ -45,7 +45,7 @@ Fixes # (issue)
 - [ ] JSHint passes (`npm run jshint`) — or no JS was modified
 - [ ] Production build succeeds (`npm run prod`) — or no build files were modified
 
-## Testing
+## Verification
 
 - [ ] Tested locally against WordPress 6.4+
 - [ ] Tested the specific scenario from the linked issue

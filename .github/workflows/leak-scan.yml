@@ -1,0 +1,55 @@
+# .github/workflows/leak-scan.yml
+#
+# Public super-forms repo: detect prohibited internal vocabulary in PRs
+# that touch release-body-shaped files (CHANGELOG, readme.txt, release-notes/).
+#
+# Runtime: `.github/scripts/leak-scan.cjs`, generated from the private
+# operator-side prohibited-language pattern catalogue.
+#
+# Default: BLOCKER hits fail the job. WARN-severity patterns are intentionally
+# not surfaced in this fail-closed public CI gate.
+
+name: leak-scan
+
+on:
+  pull_request:
+    paths:
+      - 'CHANGELOG*.md'
+      - 'readme.txt'
+      - 'release-notes/**'
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: List candidate files changed by this PR
+        id: candidates
+        run: |
+          set -euo pipefail
+          BASE_REF="${{ github.event.pull_request.base.ref }}"
+          BASE_SHA=$(git merge-base "origin/${BASE_REF}" HEAD)
+          git diff --name-only "${BASE_SHA}" HEAD \
+            | grep -E '^(CHANGELOG.*\.md|readme\.txt|release-notes/)' \
+            > /tmp/candidates.txt || true
+          echo "candidate files:"
+          cat /tmp/candidates.txt || true
+
+      - name: Scan each candidate for prohibited language (release_body audience)
+        run: |
+          set -uo pipefail
+          if [[ ! -s /tmp/candidates.txt ]]; then
+            echo "No candidate files changed; nothing to scan."
+            exit 0
+          fi
+          fail=0
+          while IFS= read -r f; do
+            [[ -z "$f" ]] && continue
+            if ! node .github/scripts/leak-scan.cjs "$f" --audience release_body; then
+              fail=1
+            fi
+          done < /tmp/candidates.txt
+          exit "$fail"
