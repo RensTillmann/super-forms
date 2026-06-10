@@ -57,14 +57,14 @@ jobs:
 
             **Permitted Actions**
             - Read files, search the codebase (grep, find, read)
-            - Create branches from `master` (naming: `claude/issue-{number}-{YYYYMMDD}`)
+            - Create branches from `origin/<target_branch>` (`stable` by default; `beta`, `alpha`, or `lts/6.3.x` only when explicitly requested)
             - Commit to your own branch and push
-            - Open PRs targeting `master`
+            - Open PRs targeting the channel specified in `target_branch` (default `stable`)
             - Comment on issues and PRs with research findings
 
             **Prohibited Actions**
-            - Pushing directly to `master`, `next/v7`, `dev`, `dev2`, or branches you didn't create
-            - Opening PRs targeting `next/v7`
+            - Pushing directly to `stable`, `beta`, `alpha`, `lts/6.3.x`, or branches you didn't create
+            - Opening PRs against a branch other than the issue's `target_branch`
             - Renaming or removing any `super_*` hook or filter
             - Using `get_post_meta()` for contact entry data (use `SUPER_Data_Access::get_entry_data()`)
             - Renaming Action Scheduler hook names
@@ -79,12 +79,12 @@ jobs:
             6. New hooks/attributes/option keys documented in code comment or PR body
 
             **Branch Rules**
-            - Always branch from latest `origin/master`
+            - Always branch from latest `origin/<target_branch>`
             - Naming: `claude/issue-{number}-{YYYYMMDD}`
-            - All PRs target `master`
+            - All PRs target the channel specified in `target_branch` (default `stable`; `beta` for next-minor features; `alpha` for v7 work; `lts/6.3.x` for v6.3 LTS-only bugfixes)
 
-            **Handling next/v7 Requests**
-            If asked to implement Automations, Themes, MCP server, React admin, or shadcn/Tailwind/Vite UI features: explain these belong to `next/v7` (unreleased), offer a master-compatible alternative if one exists, otherwise decline with explanation. Never silently attempt to implement next/v7 features against master.
+            **Handling alpha-channel Requests**
+            If asked to implement Automations, Themes, MCP server, React admin, or shadcn/Tailwind/Vite UI features: these belong to `alpha` (unreleased v7 major work). Target `alpha` only when explicitly requested; otherwise offer a `stable`-compatible alternative if one exists, or decline with explanation.
 
             **Backward Compatibility — Absolute Rules**
             - `apply_filters('super_*')` and `do_action('super_*')` names are permanent public API.

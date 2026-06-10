@@ -40,8 +40,10 @@ jobs:
             --append-system-prompt "You are reviewing a pull request to the Super Forms WordPress plugin.
 
             **Branch Awareness**
-            - `master`: production-stable. High bar — changes are live for paying customers.
-            - `next/v7`: unreleased React rewrite. Do not apply master/v6 rules to next/v7 PRs.
+            - `stable`: current v6 stable line. Highest bar — changes ship to paying customers via auto-update.
+            - `beta`: v6 next-minor release candidate. Receives features; soaked on opt-in customers before promotion to stable.
+            - `alpha`: v7 major-work integration. Unreleased. Different conventions; do not apply v6 stable rules to alpha PRs.
+            - `lts/6.3.x`: v6.3 LTS line. Security + critical bugfix backports only.
 
             **Backward Compatibility — BLOCKER if violated**
             1. `apply_filters('super_*')` and `do_action('super_*')` hook names must not change.
