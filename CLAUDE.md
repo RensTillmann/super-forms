@@ -1,24 +1,31 @@
 ## Branch and Version Rules — Read Before Acting
 
-This repository has two active development lines. **You are on `master` (stable/beta track).**
+This repository runs the **Plan A 3-trunk + LTS model**. The default branch is `stable` (current v6 stable line).
 
 ### Branch Policy
 
-**`master` branch — Stable/Beta track (current: v6.4.200)**
-- All bug fixes, security patches, and backward-compatible improvements land here.
+**`stable` branch — Current v6 stable line**
+- Integration trunk for the current stable v6.x release line. HEAD = next `vX.Y.Z` patch release.
+- Bug fixes, security patches, and backward-compatible improvements for current stable customers land here by default.
 - Minimum compatibility target: WordPress sites that upgraded from any version >= v6.3.3.
-- Before any change: verify it does not break form data, contact entries, or settings
-  stored in the legacy (pre-EAV) format.
-- No React Form Builder V2 code, no Automations system, no Themes system on this branch.
+- Before any change: verify it does not break form data, contact entries, or settings stored in legacy formats.
+- No React Form Builder V2 code, Automations system, or Themes system on this branch.
 
-**`next/v7` branch (`feature/h-implement-triggers-actions-extensibility`) — v7.0 development**
-- DO NOT target this branch for bug fixes intended for current users.
-- DO NOT cherry-pick from this branch without explicit human instruction.
-- This branch contains React Form Builder V2, Tailwind CSS v4, shadcn/ui, MCP server,
-  Automations system, Themes system — none of which exist on master.
-- Fixes always go to master first. Feature branch pulls from master quarterly.
+**`beta` branch — v6 next-minor line**
+- Long-lived branch for v6 next-minor features and release-candidate soak.
+- Created from `stable` at promotion boundaries; merges back to `stable` only after operator sign-off.
 
-### Backward Compatibility (applies to ALL master changes)
+**`alpha` branch — Internal v7 development**
+- Do not target this branch for bug fixes intended for current users.
+- Do not cherry-pick from this branch without explicit human instruction.
+- Contains React Form Builder V2, Tailwind CSS v4, shadcn/ui, MCP server, Automations system, and Themes system — none of which exist on `stable`.
+- Current-user fixes go to `stable` first. `alpha` pulls from `stable` periodically.
+
+**`lts/6.3.x` branch — v6.3 LTS line**
+- Security and critical bugfix backports only.
+- If a bug exists on this branch and newer channels, fix here first, then forward-port to newer affected channels.
+
+### Backward Compatibility (applies to ALL `stable`, `beta`, and LTS changes)
 
 1. **Form data**: `_super_form_settings` post meta format must remain readable by v6.3.x.
    Any structural change requires a load-time migration that handles the old format silently.
@@ -37,15 +44,16 @@ This repository has two active development lines. **You are on `master` (stable/
 ### Before Creating Any Branch
 
 ```bash
-git checkout master
-git pull origin master
-git branch --show-current  # Must show: master
+git checkout <target_branch>
+git pull origin <target_branch>
+git branch --show-current  # Must show the intended target branch
 ```
-Branch from master for all fixes. Branch from `next/v7` only for v7 work explicitly requested.
+
+Use `stable` for current-stable fixes, `beta` for next-minor v6 features, `alpha` only for explicitly requested internal v7 work, and `lts/6.3.x` for v6.3 LTS security/critical fixes.
 
 ### PR Checklist for AI Agents
 
-Every PR targeting master must include in its description:
+Every PR must include its intended target branch and a verification section. PRs touching compatibility-sensitive code must include:
 
 ```
 ## Backward Compatibility Checklist
@@ -285,7 +293,8 @@ The user isn't paying you to write code. They're paying you to solve problems. U
 
 ## Git Workflow
 
-- Main branch: `master`
+- Default branch: `stable`
+- Use `stable` for current-stable fixes, `beta` for next-minor v6 features, `alpha` for explicitly requested internal v7 work, and `lts/6.3.x` for v6.3 LTS security/critical fixes
 - Make atomic commits with clear messages
 - Test changes locally before committing
 - Run code quality checks before committing
@@ -363,21 +372,23 @@ Generate test data using Super Forms CSV export or WP XML export.
 
 | Branch | Role | Tagged |
 |--------|------|--------|
-| `master` | All active dev. Stable and beta releases. | `vX.Y.Z` (stable) or `vX.Y.Z-beta.N` |
-| `next/v7` | v7.0 React rewrite. Not released. | `v7.0.0-alpha` etc. |
+| `stable` | Current v6 stable line. Bug fixes and backward-compatible improvements for current users. | `vX.Y.Z` |
+| `beta` | v6 next-minor line. Features and release-candidate soak before promotion. | `vX.Y.Z-beta.N` |
+| `alpha` | Internal v7 development. Not released. | `v7.0.0-alpha.N` |
+| `lts/6.3.x` | v6.3 LTS line. Security and critical bugfix backports only. | v6.3.x LTS bugfix tags |
 | `claude/issue-{N}-{date}-{time}` | AI fix branches | none |
 | `fix/{description}` | Bug fixes | none |
 
-**Flow:** `claude/*` or `fix/*` → PR → master → (when ready) tag `vX.Y.Z` on master commit
+**Flow:** `claude/*` or `fix/*` → PR → target branch (default `stable`; use the issue's explicit target when present)
 
-**Hotfix:** fix on master → tag new version → update stable download URL
+**Hotfix:** fix on the oldest affected supported branch, then forward-port to each newer affected branch.
 
 **Tagging:**
 - Stable: `git tag -a v6.4.201 <sha> -m "Release v6.4.201"` + `git push origin v6.4.201`
 - Beta: `git tag v6.4.201-beta.1 <sha>` + `git push origin v6.4.201-beta.1`
 - Never reuse or amend an existing tag.
 
-**Quarterly:** `git checkout next/v7 && git merge master` (pull security fixes into v7 branch)
+**Periodic sync:** `git checkout alpha && git merge stable` (pull current-line fixes into the internal v7 branch)
 
 ## Domain-Specific Documentation
 

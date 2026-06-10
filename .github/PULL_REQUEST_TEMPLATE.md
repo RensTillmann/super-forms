@@ -6,10 +6,10 @@ Fixes # (issue)
 
 ## Target Branch
 
-- [ ] `stable` (current v6 stable line — bug fixes and backward-compatible improvements)
-- [ ] `beta` (v6 next-minor release candidate — new v6 features)
-- [ ] `alpha` (v7 major-work integration — internal-only)
-- [ ] v6.3 LTS branch (security / critical bugfix backports only)
+- [ ] `stable` (current v6 stable line — bug fixes, security patches, backward-compatible improvements)
+- [ ] `beta` (v6 next-minor line — feature work and release-candidate soak)
+- [ ] `alpha` (internal v7 development — unreleased; not for current-user fixes)
+- [ ] v6.3 LTS branch (security and critical bugfix backports only)
 
 ## Super Forms Version
 
