@@ -3146,6 +3146,10 @@ class SUPER_Ajax {
                             // If there is a generated PDF let it act as a regular file upload
                             // Try to generate PDF file
                             if(isset($value['datauristring'])){
+                                if ( empty( $settings['_pdf']['generate'] ) || $settings['_pdf']['generate'] !== 'true' ) {
+                                    unset( $data[ $k ]['files'][ $key ]['datauristring'] );
+                                    continue;
+                                }
                                 try {
                                     $imgData = str_replace( ' ', '+', $value['datauristring']);
                                     unset($value['datauristring']);
@@ -3160,11 +3164,37 @@ class SUPER_Ajax {
                                     $d = $GLOBALS['super_upload_dir'];
                                     $value['value'] = SUPER_Common::email_tags( $value['value'], $data, $settings );
                                     $value['label'] = SUPER_Common::email_tags( $value['label'], $data, $settings );
-                                    $basename = $value['value'];
-                                    $filename = trailingslashit($d['path']) . $basename;
-                                    $file = fopen($filename, 'w');
-                                    fwrite($file, $imgData);
-                                    fclose($file);
+                                    $basename = sanitize_file_name( wp_basename( (string) $value['value'] ) );
+                                    $stem     = preg_replace( '/\.[^.]*$/', '', $basename ); // drop trailing extension
+                                    $stem     = str_replace( '.', '_', (string) $stem );      // neutralize interior dots (no shell.php.pdf)
+                                    $stem     = trim( $stem, '.-_' );
+                                    if ( '' === $stem ) {
+                                        $stem = 'super-forms-' . strtotime( date_i18n( 'Y-m-d H:i:s' ) );
+                                    }
+                                    $basename       = $stem . '.pdf';
+                                    $value['value'] = $basename; // keep entry/email display in sync with the safe on-disk name
+                                    $value['name']  = $basename;
+                                    if ( '%PDF-' !== substr( (string) $imgData, 0, 5 ) ) { // decoded payload must really be a PDF
+                                        throw new Exception( esc_html__( 'Invalid file upload rejected.', 'super-forms' ) );
+                                    }
+                                    $baseDir = realpath( $d['path'] );
+                                    if ( false === $baseDir ) {
+                                        throw new Exception( esc_html__( 'Invalid upload directory.', 'super-forms' ) );
+                                    }
+                                    $filename   = trailingslashit( $baseDir ) . $basename;
+                                    $parentReal = realpath( dirname( $filename ) );
+                                    if ( false === $parentReal || 0 !== strpos( trailingslashit( $parentReal ), trailingslashit( $baseDir ) ) ) {
+                                        throw new Exception( esc_html__( 'Invalid file upload rejected.', 'super-forms' ) );
+                                    }
+                                    $file = fopen( $filename, 'wb' ); // binary mode so the PDF is not CRLF-mangled
+                                    if ( false === $file ) {
+                                        throw new Exception( esc_html__( 'Invalid file upload rejected.', 'super-forms' ) );
+                                    }
+                                    if ( false === fwrite( $file, $imgData ) ) {
+                                        fclose( $file );
+                                        throw new Exception( esc_html__( 'Invalid file upload rejected.', 'super-forms' ) );
+                                    }
+                                    fclose( $file );
                                     // Add file to media library 
                                     $attachment = array(
                                         'post_mime_type' => 'application/pdf', // $uploaded_file['type'],
