@@ -8,6 +8,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Jul 07, 2026 - Version 6.3.314
+
+- **Security fix:** Hardened form file-upload handling to prevent unauthorized file writes (CVE-2026-14894).
+
 ## May 31, 2026 - Version 6.3.313
 
 - **Improved:** Compatibility with WordPress 7.0
