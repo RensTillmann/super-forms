@@ -1,28 +1,15 @@
 ## Description
 
-Describe the change and the motivation behind it.
+<!-- What changes and why. -->
 
 Fixes # (issue)
 
 ## Target Branch
 
-- [ ] `stable` (current v6 stable line — bug fixes, security patches, backward-compatible improvements)
-- [ ] `beta` (v6 next-minor line — feature work and release-candidate soak)
-- [ ] `alpha` (internal v7 development — unreleased; not for current-user fixes)
-- [ ] v6.3 LTS branch (security and critical bugfix backports only)
-
-## Super Forms Version
-
-<!-- Which version will first ship this change? e.g. v6.4.201 -->
-**Targets version:**
-
-## User Population Affected
-
-- [ ] All users (core form builder behavior)
-- [ ] Users on v6.4.100+ (EAV migration / contact entries)
-- [ ] Users on v6.4.127+ (listings extension)
-- [ ] Add-on users only — add-on name: ___________
-- [ ] Admin / developer only (no frontend impact)
+- [ ] `stable` (current stable line: bug fixes, security patches, backward-compatible improvements)
+- [ ] `beta` (next-minor line: feature work and release-candidate soak)
+- [ ] `alpha` (internal next-major development, unreleased; not for current-user fixes)
+- [ ] LTS branch (security and critical bugfix backports only)
 
 ## Type of Change
 
@@ -42,25 +29,14 @@ Fixes # (issue)
 - [ ] No Action Scheduler hook name was changed
 - [ ] No WordPress option key (`super_*`) was renamed without a migration
 - [ ] No public add-on class method was removed or had its signature changed
-- [ ] JSHint passes (`npm run jshint`) — or no JS was modified
-- [ ] Production build succeeds (`npm run prod`) — or no build files were modified
 
 ## Verification
 
-- [ ] Tested locally against WordPress 6.4+
-- [ ] Tested the specific scenario from the linked issue
-- [ ] Tested with PHP 7.4 (minimum supported)
+<!-- Keep this heading. Describe what proves the change works: tests run,
+     manual checks, the scenario from the linked issue. There is no hosted CI
+     on pull requests, so these local checks are the floor. -->
 
----
-
-## For AI-Generated PRs (Claude/Codex)
-
-<!-- Populate these. Human contributors may delete this section. -->
-
-**Source issue:** #
-**Implementation confidence:** <!-- ready | uncertain | not_feasible -->
-**Files modified:**
-**New hooks added (if any):** <!-- exact apply_filters() / do_action() names -->
-**New option keys added (if any):** <!-- exact get_option() / update_option() keys -->
-**New shortcode attributes added (if any):**
-**Migration required:** <!-- yes / no — if yes, describe what data is migrated and when -->
+- [ ] `npm run jshint` passes, or no JavaScript was modified
+- [ ] `npm run prod` succeeds, or no build sources were modified
+- [ ] Tested against a supported WordPress install (PHP 7.4 minimum)
+- [ ] The specific scenario from the linked issue was exercised
