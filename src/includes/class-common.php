@@ -272,6 +272,47 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 					continue;
 				}
 
+				// Convert legacy FLAT _emails entry shape into the { enabled, data } shape.
+				// Some 6.4-era builds wrote flat entries carrying send/header_*/email_* keys
+				// instead of enabled/data. Without this conversion the enabled gate below would
+				// silently skip them and no email would ever be sent. Mirrors the
+				// settings->_emails migration mapping. Note: email_template has no data equivalent
+				// and is intentionally dropped. Kept as one contiguous block so a role annotation
+				// can be threaded through the conversion later.
+				if ( ! isset( $email_settings['enabled'] ) && ! isset( $email_settings['data'] ) && isset( $email_settings['send'] ) ) {
+					$flat           = $email_settings;
+					$email_settings = array(
+						'enabled' => ( $flat['send'] === 'yes' ? 'true' : 'false' ),
+						'data'    => array(
+							'to'                => ( ! empty( $flat['header_to'] ) ? $flat['header_to'] : '' ),
+							'from_email'        => ( ! empty( $flat['header_from_type'] ) && ( $flat['header_from_type'] === 'default' ) ? '{option_admin_email}' : ( ! empty( $flat['header_from_email'] ) ? $flat['header_from_email'] : '' ) ),
+							'from_name'         => ( ! empty( $flat['header_from_type'] ) && ( $flat['header_from_type'] === 'default' ) ? '{option_blogname}' : ( ! empty( $flat['header_from_name'] ) ? $flat['header_from_name'] : '' ) ),
+							'reply_to'          => array(
+								'enabled' => ( ! empty( $flat['header_reply_enabled'] ) && ( $flat['header_reply_enabled'] === 'true' ) ? 'true' : 'false' ),
+								'email'   => '',
+								'name'    => '',
+							),
+							'subject'           => ( ! empty( $flat['header_subject'] ) ? $flat['header_subject'] : '' ),
+							'body'              => ( ( ! empty( $flat['email_body_open'] ) ? $flat['email_body_open'] : '' ) . ( ! empty( $flat['email_body'] ) ? $flat['email_body'] : '' ) . ( ! empty( $flat['email_body_close'] ) ? $flat['email_body_close'] : '' ) ),
+							'loop_open'         => ( ! empty( $flat['email_loop'] ) ? '<table cellpadding="5">' : '' ),
+							'loop'              => ( ! empty( $flat['email_loop'] ) ? $flat['email_loop'] : '' ),
+							'loop_close'        => ( ! empty( $flat['email_loop'] ) ? '</table>' : '' ),
+							'content_type'      => ( isset( $flat['header_content_type'] ) ? $flat['header_content_type'] : '' ),
+							'charset'           => 'UTF-8',
+							'cc'                => '',
+							'bcc'               => '',
+							'header_additional' => '',
+							'attachments'       => '',
+							'exclude_empty'     => 'false',
+							'rtl'               => 'false',
+							'exclude'           => array(
+								'enabled'        => 'false',
+								'exclude_fields' => array(),
+							),
+						),
+					);
+				}
+
 				// Only add trigger if email is enabled
 				if ( empty( $email_settings['enabled'] ) || $email_settings['enabled'] !== 'true' ) {
 					continue;
