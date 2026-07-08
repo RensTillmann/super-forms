@@ -7457,6 +7457,8 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 				$global_settings['smtp_enabled'] = 'disabled';
 			}
 
+			// Collect inline (embedded) images and register them via one self-removing callback below.
+			$embedded_images = array();
 			foreach ( $string_attachments as $k => $v ) {
 				if ( $v['encoding'] == 'base64' && ( $v['type'] == 'image/png' || $v['type'] == 'image/jpeg' ) ) {
 					$v['data'] = substr( $v['data'], strpos( $v['data'], ',' ) );
@@ -7516,14 +7518,33 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 				$uid = sanitize_title_with_dashes( $file_name );
 				// Define attachment filename (same as the file name)
 				$name = $safe_name;
-				// Initialize PHPMailer
-				add_action(
-					'phpmailer_init',
-					function ( &$phpmailer ) use ( $file_path, $uid, $name ) {
-						$phpmailer->SMTPKeepAlive = true;
-						$phpmailer->AddEmbeddedImage( $file_path, $uid, $name );
-					}
+				// Queue the inline image; it is embedded once, right before the message is sent (see below).
+				$embedded_images[] = array(
+					'path' => $file_path,
+					'cid'  => $uid,
+					'name' => $name,
 				);
+			}
+
+			// Embed all queued inline images through a single `phpmailer_init` callback that removes
+			// itself right after it runs. Self-removal guarantees it only affects the wp_mail() call it
+			// was registered for; a leftover closure would otherwise re-fire on the next wp_mail() in the
+			// same request (e.g. the confirmation email when confirm=yes) and reference an already
+			// cleaned-up temp file, causing PHPMailer to throw "Could not access file" and a PHP fatal.
+			if ( ! empty( $embedded_images ) ) {
+				$embed_images_cb = null;
+				$embed_images_cb = function ( &$phpmailer ) use ( $embedded_images, &$embed_images_cb ) {
+					remove_action( 'phpmailer_init', $embed_images_cb );
+					$phpmailer->SMTPKeepAlive = true;
+					foreach ( $embedded_images as $img ) {
+						// Defensive: skip if the temp file no longer exists so a stale re-fire cannot fatal.
+						if ( ! file_exists( $img['path'] ) ) {
+							continue;
+						}
+						$phpmailer->AddEmbeddedImage( $img['path'], $img['cid'], $img['name'] );
+					}
+				};
+				add_action( 'phpmailer_init', $embed_images_cb );
 			}
 
 			if ( $global_settings['smtp_enabled'] == 'disabled' ) {
