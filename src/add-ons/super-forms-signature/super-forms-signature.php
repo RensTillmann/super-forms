@@ -547,6 +547,12 @@ if ( ! class_exists( 'SUPER_Signature' ) ) :
 					'filename' => $signature_filename,
 					'encoding' => $signature_encoding,
 					'type'     => $signature_type,
+					// Attach the signature ALSO as a regular (non-inline) email attachment, on top of
+					// the inline cid embed used in the HTML body. This guarantees the signature is
+					// accessible in plain-text views and in clients/filters that suppress inline images.
+					// SUPER_Common::email() reads this flag from the embedded_images queue and only then
+					// calls PHPMailer addAttachment(); base64 string attachments without it stay inline-only.
+					'attach_as_file' => true,
 				);
 				// Check if we should exclude the file from emails
 				// 0 = Do not exclude from e-mails
