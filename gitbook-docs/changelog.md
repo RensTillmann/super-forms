@@ -11,6 +11,14 @@ description: New features, improvements and bug fixes.
 * [Listings Add-on](features/integrations/listings.md)
 * [PDF Generator Add-on](features/integrations/pdf-generator.md)
 
+### Jul 07, 2026 - Version 6.4.004-beta
+
+* **Security fix:** Hardened form file-upload and signature handling to prevent unauthorized file writes (CVE-2026-14894).
+
+### Jul 07, 2026 - Version 6.3.314
+
+* **Security fix:** Hardened form file-upload handling to prevent unauthorized file writes (CVE-2026-14894).
+
 ### Apr 24, 2024 - Version 6.4.003-beta
 
 * **Added:** New \[Stripe] tab to configure Stripe checkout, allowing for one time payments and recurring payments.
