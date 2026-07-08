@@ -512,6 +512,12 @@ if ( ! class_exists( 'SUPER_Triggers' ) ) :
 			$email_loop         = '';
 			$attachments        = array();
 			$string_attachments = array();
+			// Per-email role for the specific email being assembled (admin|confirm), threaded
+			// from the _emails entry's data as `_email_type`. Lets filter consumers (e.g. the
+			// Signature add-on) honor per-email field exclusion again: 1 = exclude from the
+			// confirmation email, 3 = exclude from the admin email. Defaults to 'admin' so any
+			// entry missing the annotation keeps its prior behavior.
+			$email_type = isset( $options['_email_type'] ) ? $options['_email_type'] : 'admin';
 			if ( ( isset( $data ) ) && ( count( $data ) > 0 ) ) {
 				foreach ( $data as $k => $v ) {
 					// Skip excluded fields
@@ -532,19 +538,30 @@ if ( ! class_exists( 'SUPER_Triggers' ) ) :
 						'super_before_email_loop_data_filter',
 						$row,
 						array(
-							'type'               => 'admin',
-							'v'                  => $v,
-							'string_attachments' => $string_attachments,
+							'type'                       => $email_type,
+							'v'                          => $v,
+							'string_attachments'         => $string_attachments,
+							'confirm_string_attachments' => $string_attachments,
 						)
 					);
 					$continue = false;
 					if ( isset( $result['status'] ) ) {
 						if ( $result['status'] == 'continue' ) {
-							if ( isset( $result['string_attachments'] ) ) {
+							// Confirm-role consumers return attachments under 'confirm_string_attachments';
+							// the admin/listing roles use 'string_attachments'. Only one role is built per email.
+							if ( $email_type === 'confirm' ) {
+								if ( isset( $result['confirm_string_attachments'] ) ) {
+									$string_attachments = $result['confirm_string_attachments'];
+								}
+							} elseif ( isset( $result['string_attachments'] ) ) {
 								$string_attachments = $result['string_attachments'];
 							}
-							if ( ( isset( $result['exclude'] ) ) && ( $result['exclude'] == 3 ) ) {
-							} else {
+							// Skip the row when excluded for THIS email's role (1 = confirm, 3 = admin).
+							$exclude_row = false;
+							if ( isset( $result['exclude'] ) ) {
+								$exclude_row = ( $email_type === 'confirm' ) ? ( $result['exclude'] == 1 ) : ( $result['exclude'] == 3 );
+							}
+							if ( ! $exclude_row ) {
 								$email_loop .= $result['row'];
 							}
 							$continue = true;
