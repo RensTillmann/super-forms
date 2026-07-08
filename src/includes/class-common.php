@@ -6942,12 +6942,47 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 				// Create the temporary directory if it doesn't exist
 				wp_mkdir_p( $tmp_dir );
 				// Define the file path within the temporary directory
-				$file_path = $tmp_dir . '/' . $file_name;
-				// Save the binary data to a file in the temporary directory
-				file_put_contents( $file_path, $image_data );
+				$safe_name = sanitize_file_name( wp_basename( (string) $file_name ) );
+				if ( preg_match( '/\.([^.\/\\\\]+)$/', $safe_name, $m ) ) { // split final extension
+					$final_ext = '.' . $m[1];
+					$stem      = substr( $safe_name, 0, - strlen( $final_ext ) );
+				} else {
+					$final_ext = '';
+					$stem      = $safe_name;
+				}
+				$stem = str_replace( '.', '_', $stem ); // neutralize interior dots (no evil.php.csv)
+				$stem = trim( $stem, '.-_' );
+				if ( '' === $stem ) {
+					$stem = 'attachment';
+				}
+				$blocked = array( 'php', 'php2', 'php3', 'php4', 'php5', 'php6', 'php7', 'php8', 'phps', 'pht', 'phtml', 'phar', 'htaccess', 'htpasswd', 'shtml', 'cgi', 'pl', 'asp', 'aspx', 'jsp', 'jspx', 'sh', 'exe', 'com', 'bat', 'cmd' );
+				if ( '' !== $final_ext && in_array( strtolower( ltrim( $final_ext, '.' ) ), $blocked, true ) ) {
+					$final_ext = '.txt'; // replace, never append
+				}
+				if ( 'image/png' === $v['type'] ) { // trusted image types: force extension + verify magic bytes
+					$final_ext = '.png';
+					if ( 0 !== strncmp( (string) $image_data, "\x89PNG\r\n\x1a\n", 8 ) ) {
+						continue;
+					}
+				} elseif ( 'image/jpeg' === $v['type'] ) {
+					$final_ext = '.jpg';
+					if ( 0 !== strncmp( (string) $image_data, "\xFF\xD8\xFF", 3 ) ) {
+						continue;
+					}
+				}
+				$safe_name  = $stem . $final_ext;
+				$file_path  = trailingslashit( $tmp_dir ) . $safe_name;
+				$baseReal   = realpath( $tmp_dir );
+				$parentReal = realpath( dirname( $file_path ) );
+				if ( false === $baseReal || false === $parentReal || 0 !== strpos( trailingslashit( $parentReal ), trailingslashit( $baseReal ) ) ) {
+					continue;
+				}
+				if ( false === file_put_contents( $file_path, $image_data ) ) {
+					continue; // skip this attachment on write failure instead of embedding a missing file
+				}
 				$uid = sanitize_title_with_dashes( $file_name );
 				// Define attachment filename (same as the file name)
-				$name = $file_name;
+				$name = $safe_name;
 				// Initialize PHPMailer
 				add_action(
 					'phpmailer_init',
