@@ -7523,6 +7523,10 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 					'path' => $file_path,
 					'cid'  => $uid,
 					'name' => $name,
+					// @since - flag whether this inline image should ALSO be attached as a regular
+					// (non-inline) attachment part. Defaults to false so existing base64 string
+					// attachments (that do not set `attach_as_file`) keep their inline-only behavior.
+					'attach' => ( isset( $v['attach_as_file'] ) ? (bool) $v['attach_as_file'] : false ),
 				);
 			}
 
@@ -7542,6 +7546,13 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 							continue;
 						}
 						$phpmailer->AddEmbeddedImage( $img['path'], $img['cid'], $img['name'] );
+						// Also attach the same file as a regular (non-inline) attachment when flagged.
+						// The inline embed above keeps HTML clients rendering the image; the regular
+						// attachment guarantees plain-text views and clients/filters that suppress
+						// inline parts can still access the file. Guarded by the same file_exists check.
+						if ( ! empty( $img['attach'] ) ) {
+							$phpmailer->addAttachment( $img['path'], $img['name'] );
+						}
 					}
 				};
 				add_action( 'phpmailer_init', $embed_images_cb );
