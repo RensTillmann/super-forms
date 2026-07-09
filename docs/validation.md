@@ -3,6 +3,12 @@
 The Validation option gives you the ability to quickly add a specific validation to any of your fields.
 This will decrease the risk of a user making mistakes or typos while filling out the form.
 
+> ⚠️ **Important Security Notice — Front-End-Only Enforcement**
+>
+> All field validation in Super Forms — including required-field checks — is currently enforced exclusively in the **browser via JavaScript** (`SUPER.validate_form` / `SUPER.handle_validations`). There is **no server-side fallback**.
+>
+> This means that users who disable JavaScript, or who craft a direct HTTP POST request, can bypass all required-field rules and submit the form with blank or invalid values. Until server-side validation is added, do not rely on front-end required-field rules as a security or data-integrity guarantee for sensitive forms.
+
 Below you can find the available validation methods:
 
 ## Letters only
@@ -17,6 +23,24 @@ Only allow input field to contain letters, and nothing else
 
 This is the most used validation method, it will simply check if the field was entered or not.<br />
 This allows you to make a field a so called **Required field***.
+
+### How required-field enforcement works
+
+When you mark a field as required, Super Forms sets a `may_be_empty` flag on the field element. The JavaScript validation engine reads this flag at submit time and raises an error if the field is empty.
+
+Fields that use the **"none" validation type** (the default) rely exclusively on the `may_be_empty` flag for required enforcement. The PHP shortcode layer intentionally omits the `data-validation` HTML attribute for these fields, which means the final JavaScript check at `common.js` line 4738 —
+
+```js
+if(typeof args.validation !== 'undefined' && !args.allowEmpty && args.emptyValue) error = true;
+```
+
+— is **never reached**, because `args.validation` is `undefined` for "none"-type fields. The required check for "none"-type fields is therefore handled in the earlier `may_be_empty` path (lines 4480–4505).
+
+> ⚠️ **Known bug (v6.3.3):** A required text field configured with the default settings (`validation = 'none'`, `may_be_empty = 'false'`) may silently pass blank-submit validation under certain conditions. No error is raised and the form proceeds to submission. This bug is tracked and will be addressed in a future release.
+
+### No server-side required-field validation
+
+The server-side submission handler (`class-ajax.php::submit_form_checks()`) validates only the honeypot, reCAPTCHA, i18n, and rate-limit locks. It contains **zero required-field assertions**. A direct HTTP POST with JavaScript disabled bypasses all required-field enforcement unconditionally.
 
 ## E-mail address
 
