@@ -305,12 +305,21 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 							'attachments'       => '',
 							'exclude_empty'     => 'false',
 							'rtl'               => 'false',
+							'_email_type'       => ( $email_index === 0 ? 'admin' : 'confirm' ),
 							'exclude'           => array(
 								'enabled'        => 'false',
 								'exclude_fields' => array(),
 							),
 						),
 					);
+				}
+
+				// Backfill the per-email role for already-shaped { enabled, name, data } entries
+				// that predate the annotation, so the trigger email path can honor per-email field
+				// exclusion (1 = exclude from confirmation, 3 = exclude from admin). The flat
+				// conversion above already sets it by position, so this only fills the gap.
+				if ( isset( $email_settings['data'] ) && is_array( $email_settings['data'] ) && ! isset( $email_settings['data']['_email_type'] ) ) {
+					$email_settings['data']['_email_type'] = ( isset( $email_settings['name'] ) && $email_settings['name'] === 'Confirmation E-mail' ? 'confirm' : 'admin' );
 				}
 
 				// Only add trigger if email is enabled
@@ -4161,6 +4170,7 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 							'attachments' => ( ! empty( $s['admin_attachments'] ) ? $s['admin_attachments'] : '' ),
 							'content_type' => 'html',
 							'charset' => 'UTF-8',
+							'_email_type' => 'admin',
 						),
 					);
 				}
@@ -4192,6 +4202,7 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 							'attachments' => ( ! empty( $s['confirm_attachments'] ) ? $s['confirm_attachments'] : '' ),
 							'content_type' => 'html',
 							'charset' => 'UTF-8',
+							'_email_type' => 'confirm',
 						),
 					);
 				}
@@ -4225,6 +4236,7 @@ if ( ! class_exists( 'SUPER_Common' ) ) :
 								'attachments' => ( ! empty( $s[$reminder_key . '_attachments'] ) ? $s[$reminder_key . '_attachments'] : '' ),
 								'content_type' => 'html',
 								'charset' => 'UTF-8',
+								'_email_type' => 'confirm',
 								// Email reminder specific fields - use correct UI structure
 								'schedule' => array(
 									'enabled' => 'true',
