@@ -9,6 +9,11 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## 2026-07-08 - Version 6.4.005-beta
+
+- Fixed: fatal error after submitting a form containing a signature element when the confirmation email is enabled (500 response; the submission succeeded server-side for the first email but no success message was shown)
+- Improved: signature images are now also attached as regular file attachments in addition to being embedded inline, so email clients that hide inline images still show the signature
+
 ## Jul 07, 2026 - Version 6.4.004-beta
 
 - **Security fix:** Hardened form file-upload and signature handling to prevent unauthorized file writes (CVE-2026-14894).
