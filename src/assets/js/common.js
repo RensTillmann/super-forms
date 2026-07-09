@@ -9556,9 +9556,32 @@ function SUPERreCaptcha(){
         });
     };
 
+    SUPER.pdf_generator_abort = function(args, errorMessage){
+        if(args._pdfAborted) return; // Prevent double-abort
+        args._pdfAborted = true;
+        if(args._pdfTimeoutId) clearTimeout(args._pdfTimeoutId);
+        console.error('PDF generation aborted:', errorMessage);
+        try {
+            SUPER.pdf_generator_reset(args.form0);
+        } catch(e) { /* ignore reset errors */ }
+        if(args.loadingOverlay){
+            var msg = (errorMessage && typeof errorMessage === 'string') ? errorMessage : super_common_i18n.loadingOverlay.pdf_generation_error;
+            var innerText = args.loadingOverlay.querySelector('.super-inner-text');
+            if(innerText) innerText.innerHTML = '<span>' + msg + '</span>';
+            args.loadingOverlay.classList.add('super-error');
+        }
+    };
+
     SUPER.pdf_generator_init = function(args, callback){
-        
+
         args._save_data_callback = callback;
+        args._pdfAborted = false;
+
+        // Watchdog: if PDF generation does not complete within 120 seconds, abort and show an error
+        args._pdfTimeoutId = setTimeout(function(){
+            if(args._pdfAborted) return;
+            SUPER.pdf_generator_abort(args, super_common_i18n.loadingOverlay.pdf_generation_error);
+        }, 120000);
 
         // Page margins and print area
         // Media                Page size           Print area              Margins
@@ -10314,6 +10337,8 @@ function SUPERreCaptcha(){
     }
 
     SUPER._pdf_generator_done_callback = function(args){
+        // Cancel the watchdog timeout — generation completed successfully
+        if(args._pdfTimeoutId) clearTimeout(args._pdfTimeoutId);
         // Reset everything to how it was
         SUPER.pdf_generator_reset(args.form0);
         // Attach as file to form data
@@ -11161,15 +11186,19 @@ function SUPERreCaptcha(){
                             }
                             args._pdf.addPage(args.pdfSettings.format, args.pageOrientationChanges[args.currentPage]);
                             SUPER.pdf_generator_generate_page(args);
-                        }else{                   
+                        }else{
                             // No more pages to generate (submit form / send email)
                             SUPER._pdf_generator_done_callback(args);
                         }
+                    }).catch(function(error){
+                        // html2canvas rejected — abort generation and show error to user
+                        SUPER.pdf_generator_abort(args, super_common_i18n.loadingOverlay.pdf_generation_error);
                     });
                 }
             }
             catch(error) {
-                console.log("Error: ", error);
+                // Synchronous error during page setup — abort generation and show error to user
+                SUPER.pdf_generator_abort(args, super_common_i18n.loadingOverlay.pdf_generation_error);
             }
         }, timeout );
     }
