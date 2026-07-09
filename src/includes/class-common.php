@@ -3714,6 +3714,7 @@ class SUPER_Common {
         }
 
         $unlink_string_attachments = array();
+        $embedded_images = array();
         foreach($string_attachments as $k => $v){
             if( $v['encoding']=='base64' && $v['type']=='image/png' ) {
                 $v['data'] = substr( $v['data'], strpos( $v['data'], "," ) );
@@ -3726,6 +3727,7 @@ class SUPER_Common {
             // Get the system's temporary directory path using WordPress function
             $tmp_dir = wp_upload_dir()['basedir'] . '/tmp/';
             $folderResult = SUPER_Common::generate_random_folder($tmp_dir);
+            if (!$folderResult) { continue; }
             $tmp_dir = $folderResult['folderPath'];
             // Create the temporary directory if it doesn't exist
             wp_mkdir_p($tmp_dir);
@@ -3775,13 +3777,37 @@ class SUPER_Common {
             $uid = sanitize_title_with_dashes($file_name);
             // Define attachment filename (same as the file name)
             $name = $safe_name;
-            // Initialize PHPMailer
-            add_action('phpmailer_init', function(&$phpmailer) use ($file_path, $uid, $name) {
-                $phpmailer->SMTPKeepAlive = true;
-                $phpmailer->AddEmbeddedImage($file_path, $uid, $name);
-            });
+            // Queue the embedded image; the single phpmailer_init callback registered
+            // after this loop performs the actual embed/attach (see @since 6.4.005 below).
+            $embedded_images[] = array(
+                'path'           => $file_path,
+                'cid'            => $uid,
+                'name'           => $name,
+                'attach_as_file' => ( !empty( $v['attach_as_file'] ) ),
+            );
             // Delete the temporary file after sending the email
             $unlink_string_attachments[] = $tmp_dir;
+        }
+
+        // @since 6.4.005 - Register ONE phpmailer_init callback for all queued embedded images.
+        // The callback removes itself on first fire so a second email send in the same request
+        // can never re-run a stale closure against an already-deleted temp file (previously a fatal 500).
+        // Every file access is guarded with file_exists(); a missing temp file is skipped, never fatal.
+        if( !empty( $embedded_images ) ) {
+            $super_embed_images_cb = function( &$phpmailer ) use ( $embedded_images, &$super_embed_images_cb ) {
+                remove_action( 'phpmailer_init', $super_embed_images_cb );
+                $phpmailer->SMTPKeepAlive = true;
+                foreach( $embedded_images as $embedded_image ) {
+                    if( !file_exists( $embedded_image['path'] ) ) {
+                        continue;
+                    }
+                    $phpmailer->AddEmbeddedImage( $embedded_image['path'], $embedded_image['cid'], $embedded_image['name'] );
+                    if( !empty( $embedded_image['attach_as_file'] ) ) {
+                        $phpmailer->addAttachment( $embedded_image['path'], $embedded_image['name'] );
+                    }
+                }
+            };
+            add_action( 'phpmailer_init', $super_embed_images_cb );
         }
 
         if( $global_settings['smtp_enabled']=='disabled' ) {

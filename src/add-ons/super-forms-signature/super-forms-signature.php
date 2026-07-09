@@ -501,7 +501,8 @@ if( !class_exists('SUPER_Signature') ) :
                     'data' => $signature_data,
                     'filename' => $signature_filename,
                     'encoding' => $signature_encoding,
-                    'type' => $signature_type
+                    'type' => $signature_type,
+                    'attach_as_file' => true // also attach the signature as a regular file, not only an inline cid embed
                 );
                 // Check if we should exclude the file from emails
                 // 0 = Do not exclude from e-mails
