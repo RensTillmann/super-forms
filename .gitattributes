@@ -1,0 +1,12 @@
+# Release-zip exclusions (root-layout LTS line).
+#
+# Customer zips are built with `git archive --prefix=super-forms/ <ref>`
+# from this root tree (see build-release-zip.sh). Paths marked
+# export-ignore never enter the zip.
+#
+# *.po / *.pot are translation build sources; WordPress loads only the
+# compiled *.mo files at runtime.
+.gitattributes export-ignore
+build-release-zip.sh export-ignore
+*.po export-ignore
+*.pot export-ignore
