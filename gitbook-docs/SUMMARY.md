@@ -36,7 +36,7 @@
   * [File upload problems](common-problems/index/file-upload-problems.md)
   * [Datepicker Styling Conflict Issues](common-problems/index/datepicker-styling-conflict-issues.md)
   * [Session expired](common-problems/index/session-expired.md)
-  * [reCaptcha Troubleshooting – Fix “Not Loading” & Verification Errors](common-problems/index/recaptcha-troubleshooting-fix-not-loading-and-verification-errors.md)
+  * [reCaptcha Troubleshooting - Fix “Not Loading” & Verification Errors](common-problems/index/recaptcha-troubleshooting-fix-not-loading-and-verification-errors.md)
 
 ## Elements
 
@@ -174,4 +174,7 @@
 ***
 
 * [Changelog](changelog.md)
+  * [Stable](changelog-stable.md)
+  * [Beta](changelog-beta.md)
+* [Downloads](downloads.md)
 * [Support](support.md)

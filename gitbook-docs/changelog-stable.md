@@ -6,6 +6,10 @@ description: Release notes for the Super Forms stable channel.
 
 ## Super Forms Stable - Changelog
 
+### Jul 07, 2026 - Version 6.3.314
+
+* **Security fix:** Hardened form file-upload handling to prevent unauthorized file writes (CVE-2026-14894).
+
 ### May 31, 2026 - Version 6.3.313
 
 * **Improved:** Compatibility with WordPress 7.0
@@ -1756,6 +1760,6 @@ and Contact Entry
 * **Fixed:** Some PHP errors removed during debug mode
 * **Fixed:** Some other smaller bug fixes
 
-### December 9, 2015 – Version 1.0.0
+### December 9, 2015 - Version 1.0.0
 
 * Initial release!

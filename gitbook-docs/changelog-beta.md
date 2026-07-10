@@ -8,6 +8,17 @@ Beta is opt-in for power users who want early access to new features before they
 
 ## Super Forms Beta - Changelog
 
+### Jul 09, 2026 - Version 6.4.005-beta
+
+* **Fix:** Fatal error after submitting a form containing a signature element when the confirmation email is enabled (500 response; the first email was sent but no success message was shown)
+* **Improved:** Signature images are now also attached as regular file attachments in addition to being embedded inline, so email clients that hide inline images still show the signature
+
+### Jul 07, 2026 - Version 6.4.004-beta
+
+* **Security fix:** Hardened form file-upload and signature handling to prevent unauthorized file writes (CVE-2026-14894).
+
+This beta release delivers the same CVE-2026-14894 hardening as the stable 6.3.314 release. See the [6.3.314 release notes](https://github.com/RensTillmann/super-forms/releases/tag/v6.3.314) for details.
+
 ### Apr 24, 2024 - Version 6.4.003-beta
 
 * **Added:** New \[Stripe] tab to configure Stripe checkout, allowing for one time payments and recurring payments.
