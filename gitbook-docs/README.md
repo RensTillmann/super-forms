@@ -11,8 +11,8 @@ Download **Super Forms** installable plugin file:
 
 ### Quick links
 
-{% content-ref url="/broken/spaces/l6Kz0R6S7z3Fb6KLZYVE/pages/Qzg82nE8LuIlLKiDCT45" %}
-[Broken link](/broken/spaces/l6Kz0R6S7z3Fb6KLZYVE/pages/Qzg82nE8LuIlLKiDCT45)
+{% content-ref url="https://app.gitbook.com/s/l6Kz0R6S7z3Fb6KLZYVE/quick-start" %}
+[Quick start](https://app.gitbook.com/s/l6Kz0R6S7z3Fb6KLZYVE/quick-start)
 {% endcontent-ref %}
 
 {% content-ref url="quick-start/faq.md" %}
@@ -23,8 +23,8 @@ Download **Super Forms** installable plugin file:
 [index](common-problems/index/)
 {% endcontent-ref %}
 
-{% content-ref url="/broken/spaces/l6Kz0R6S7z3Fb6KLZYVE/pages/vaOX3BE3IW2AqgsDIhfG" %}
-[Broken link](/broken/spaces/l6Kz0R6S7z3Fb6KLZYVE/pages/vaOX3BE3IW2AqgsDIhfG)
+{% content-ref url="https://app.gitbook.com/s/l6Kz0R6S7z3Fb6KLZYVE/account" %}
+[Account](https://app.gitbook.com/s/l6Kz0R6S7z3Fb6KLZYVE/account)
 {% endcontent-ref %}
 
 {% content-ref url="changelog.md" %}
@@ -65,8 +65,8 @@ Download **Super Forms** installable plugin file:
 
 ### Tutorials
 
-{% content-ref url="/broken/spaces/l6Kz0R6S7z3Fb6KLZYVE/pages/DCKKd7CFhcjAUVZfbXND" %}
-[Broken link](/broken/spaces/l6Kz0R6S7z3Fb6KLZYVE/pages/DCKKd7CFhcjAUVZfbXND)
+{% content-ref url="https://app.gitbook.com/s/l6Kz0R6S7z3Fb6KLZYVE/tutorials" %}
+[Tutorials](https://app.gitbook.com/s/l6Kz0R6S7z3Fb6KLZYVE/tutorials)
 {% endcontent-ref %}
 
 ### Developers

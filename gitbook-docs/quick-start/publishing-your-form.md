@@ -12,6 +12,6 @@ Once you have created and tested your form you can publish it to your WordPress 
 **Tip:** If you are using a builder plugin or theme, you might want to insert the shortcode inside a native shortcode element if available. Otherwise you can put it inside a Text element.
 {% endhint %}
 
-Congratulations! :tada:, you just finished the [Quick start](/broken/pages/Qzg82nE8LuIlLKiDCT45) guide.
+Congratulations! :tada:, you just finished the [Quick start](https://app.gitbook.com/s/l6Kz0R6S7z3Fb6KLZYVE/quick-start) guide.
 
-Use the menu to learn more about Super Forms [features](/broken/pages/TblcVKfb0ZVeA92ARvXo), [elements ](/broken/pages/j2MnemiifA0Al8NdbeET)and [third party integrations](../features/integrations/) to build even more advanced forms!
+Use the menu to learn more about Super Forms [features](https://app.gitbook.com/s/l6Kz0R6S7z3Fb6KLZYVE/features), [elements ](https://app.gitbook.com/s/l6Kz0R6S7z3Fb6KLZYVE/elements)and [third party integrations](../features/integrations/) to build even more advanced forms!
