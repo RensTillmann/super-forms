@@ -949,6 +949,25 @@ class SUPER_Common {
         return apply_filters( 'super_form_settings_filter', $settings, array( 'id'=>$form_id ) );
     }
 
+    /**
+     * @since 6.3.315 - Return a form's stored elements as an ARRAY, decoding a JSON-string form
+     * when needed. `_super_elements` is stored as a PHP array by the form builder (super_save_form
+     * json_decodes before saving) but as a JSON string by other paths (super_import_single_form
+     * skips the decode; programmatic imports); get_post_meta returns whatever was stored. The decode
+     * mirrors generate_backend_elements: json_decode after stripslashes, falling back to a raw decode
+     * when the slashed decode fails, and to an empty array when neither yields an array. Callers that
+     * inspect elements server-side (required-field validation, reCAPTCHA detection) should use this
+     * instead of re-decoding inline.
+     */
+    public static function get_form_elements($form_id) {
+        $elements = get_post_meta( absint($form_id), '_super_elements', true );
+        if( is_array($elements) ) return $elements;
+        if( empty($elements) ) return array();
+        $decoded = json_decode( stripslashes($elements), true );
+        if( $decoded === null ) $decoded = json_decode( $elements, true );
+        return is_array($decoded) ? $decoded : array();
+    }
+
 
     /**
      * Generate array with default values for each settings of a specific element 
