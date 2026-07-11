@@ -216,12 +216,12 @@ if(!class_exists('SUPER_Forms')) :
         public function includes(){
             
             include_once( 'includes/class-common.php' );
+            include_once( 'includes/class-install.php' );
+            include_once( 'includes/class-settings.php' );
              
             if ( $this->is_request( 'admin' ) ) {
-                include_once( 'includes/class-install.php' );
                 include_once( 'includes/class-menu.php' );
                 include_once( 'includes/class-pages.php' );
-                include_once( 'includes/class-settings.php' );
                 include_once( 'includes/class-shortcodes.php' );
                 include_once( 'includes/class-field-types.php' );
             }
