@@ -2658,6 +2658,133 @@ class SUPER_Ajax {
         die();        
     }
 
+    /**
+     * @since 6.3.315 - Recursively collect required fields from stored form elements and
+     * classify each for safe server-side enforcement (CVE-2026-14894 follow-up).
+     *
+     * Only element tags that expose the `may_be_empty` setting AND render a client-side
+     * `data-validation` attribute are enrolled. This mirrors the front-end exactly: it only
+     * raises a required-empty error for those input tags (common.js handle_validations), and it
+     * NEVER validates data-carrier / structural elements (hidden, toggle_field, rating, recaptcha,
+     * button, html, option-item children, file). Because a genuinely-required input stores
+     * `may_be_empty` ABSENT (the 'false' default is stripped on save), absence is treated as
+     * required. Fields with may_be_empty 'true' (optional) or 'conditions' (conditional logic,
+     * not evaluable server-side) are skipped.
+     *
+     * Each enrolled field carries two flags:
+     *   - always_present: the field sits under NO conditional / mobile-hidden / repeater /
+     *     multipart ancestor and is not itself conditional/mobile-hidden, so the front-end
+     *     ALWAYS sends it; a payload missing it was tampered with (presence enforcement).
+     *   - repeater_enforceable: the field is inside a repeater whose ENTIRE enclosing chain is
+     *     conditional-free, so the positional per-row key-normalization in assets/js/common.js
+     *     cannot misalign an optional value under a required name (row-level enforcement).
+     * On a duplicate field name both flags are AND-combined, so any locked/unsafe occurrence
+     * downgrades the field everywhere (fail-safe against enforcing on an ambiguous name).
+     *
+     * @param array $elements  Stored `_super_elements` (or an `inner` subtree).
+     * @param array $ctx       Recursion context; null seeds the top-level default.
+     */
+    private static function collect_required_fields( $elements, $ctx = null ) {
+        if( $ctx === null ) $ctx = array( 'ancestor_locked' => false, 'in_repeater' => false, 'repeater_safe' => true );
+        $required = array();
+        if( !is_array( $elements ) ) return $required;
+        // The 13 input tags routed through SUPER_Shortcodes::common_attributes (data-validation + may_be_empty).
+        $validated_tags = array(
+            'text'=>true, 'textarea'=>true, 'dropdown'=>true, 'checkbox'=>true, 'radio'=>true,
+            'quantity_field'=>true, 'color'=>true, 'slider_field'=>true, 'currency'=>true,
+            'date'=>true, 'time'=>true, 'countries'=>true, 'password'=>true,
+        );
+        foreach( $elements as $element ) {
+            $edata = ( isset( $element['data'] ) && is_array( $element['data'] ) ) ? $element['data'] : array();
+            $tag = isset( $element['tag'] ) ? $element['tag'] : '';
+            // An element (or ancestor) that can hide/repeat its subtree "locks" the fields below
+            // it: the front-end may legitimately omit them, so they can never be presence-enforced.
+            // Conditional logic is not evaluable server-side; repeaters/multipart vary per
+            // submission; mobile-hidden columns drop on small viewports.
+            $ca = isset( $edata['conditional_action'] ) ? $edata['conditional_action'] : '';
+            $conditional = ( $ca !== '' && $ca !== 'disabled' );
+            $repeater = ( isset( $edata['duplicate'] ) && $edata['duplicate'] === 'enabled' );
+            $mobile_hide = ( ( isset( $edata['hide_on_mobile'] ) && $edata['hide_on_mobile'] === 'true' )
+                || ( isset( $edata['hide_on_mobile_window'] ) && $edata['hide_on_mobile_window'] === 'true' ) );
+            $is_multipart = ( $tag === 'multipart' );
+            $child_locked = ( $ctx['ancestor_locked'] || $conditional || $repeater || $mobile_hide || $is_multipart );
+            if( !empty( $element['inner'] ) ) {
+                if( $repeater ) {
+                    // A repeater is row-enforceable only when NOTHING in its subtree is conditional.
+                    $this_safe = !self::subtree_has_conditional( $element['inner'] );
+                    $child_ctx = array(
+                        'ancestor_locked' => $child_locked,
+                        'in_repeater' => true,
+                        'repeater_safe' => ( $ctx['repeater_safe'] && $this_safe ),
+                    );
+                } else {
+                    $child_ctx = array(
+                        'ancestor_locked' => $child_locked,
+                        'in_repeater' => $ctx['in_repeater'],
+                        'repeater_safe' => $ctx['repeater_safe'],
+                    );
+                }
+                foreach( self::collect_required_fields( $element['inner'], $child_ctx ) as $sub_name => $sub_meta ) {
+                    $required = self::merge_required_meta( $required, $sub_name, $sub_meta );
+                }
+            } elseif( !empty( $edata['name'] ) ) {
+                if( empty( $validated_tags[ $tag ] ) ) continue; // not a front-end-validated input tag
+                $may_be_empty = isset( $edata['may_be_empty'] ) ? $edata['may_be_empty'] : 'false';
+                if( $may_be_empty === 'false' ) {
+                    $required = self::merge_required_meta( $required, $edata['name'], array(
+                        'always_present' => !$child_locked,
+                        'repeater_enforceable' => ( $ctx['in_repeater'] && $ctx['repeater_safe'] ),
+                    ) );
+                }
+            }
+        }
+        return $required;
+    }
+
+    /**
+     * @since 6.3.315 - Merge one classified required-field into the accumulator, AND-combining
+     * both flags on a duplicate name so any locked/unsafe occurrence disables enforcement.
+     */
+    private static function merge_required_meta( $required, $name, $meta ) {
+        if( isset( $required[ $name ] ) ) {
+            $meta['always_present'] = ( $required[ $name ]['always_present'] && $meta['always_present'] );
+            $meta['repeater_enforceable'] = ( $required[ $name ]['repeater_enforceable'] && $meta['repeater_enforceable'] );
+        }
+        $required[ $name ] = $meta;
+        return $required;
+    }
+
+    /**
+     * @since 6.3.315 - True when ANY element in the subtree carries active conditional logic.
+     * Used to exempt conditional-containing repeaters from row-level enforcement: a conditional
+     * field's per-row visibility variation breaks the positional key-normalization in
+     * assets/js/common.js (an optional-empty value could be renamed under a required name).
+     */
+    private static function subtree_has_conditional( $elements ) {
+        if( !is_array( $elements ) ) return false;
+        foreach( $elements as $element ) {
+            $edata = ( isset( $element['data'] ) && is_array( $element['data'] ) ) ? $element['data'] : array();
+            $ca = isset( $edata['conditional_action'] ) ? $edata['conditional_action'] : '';
+            if( $ca !== '' && $ca !== 'disabled' ) return true;
+            if( !empty( $element['inner'] ) && self::subtree_has_conditional( $element['inner'] ) ) return true;
+        }
+        return false;
+    }
+
+    /**
+     * @since 6.3.315 - Detect whether a form contains a reCAPTCHA element.
+     * When present, the front-end always sends a reCAPTCHA token; the server must therefore
+     * require that token so a direct/scripted request cannot bypass reCAPTCHA by omitting it.
+     */
+    private static function form_has_recaptcha( $elements ) {
+        if( !is_array( $elements ) ) return false;
+        foreach( $elements as $element ) {
+            if( !empty( $element['tag'] ) && $element['tag'] === 'recaptcha' ) return true;
+            if( !empty( $element['inner'] ) && self::form_has_recaptcha( $element['inner'] ) ) return true;
+        }
+        return false;
+    }
+
     public static function submit_form_checks($skipChecks=false) {
         $csrfValidation = SUPER_Common::verifyCSRF();
         if(!$csrfValidation && empty($GLOBALS['super_csrf'])){
@@ -2716,6 +2843,13 @@ class SUPER_Ajax {
         $response_data = array();
         // Get form settings
         $form_id = absint( $_POST['form_id'] );
+        // @since 6.3.315 - Reject a submission whose form_id does not resolve to a real form
+        // (CVE-2026-14894 follow-up). A bogus/nonexistent id yields empty _super_elements, which
+        // would otherwise SKIP all enforcement below; a legit submit always targets a super_form.
+        // get_post_type() returns false for a nonexistent id and any non-form post type.
+        if( $skipChecks === false && get_post_type( $form_id ) !== 'super_form' ) {
+            SUPER_Common::output_message( array( 'msg' => esc_html__( 'Invalid form.', 'super-forms' ) ) );
+        }
         $response_data['form_id'] = $form_id;
         $settings = SUPER_Common::get_form_settings($form_id);
         // @since 4.4.0 - Let's unset some settings we don't need
@@ -2740,9 +2874,87 @@ class SUPER_Ajax {
         $entry_id = (isset($_POST['entry_id']) ? absint($_POST['entry_id']) : '');
         $list_id = (isset($_POST['list_id']) ? absint($_POST['list_id']) : '');
         $settings = apply_filters( 'super_before_submit_form_settings_filter', $settings, array( 'i18n'=>$i18n, 'data'=>$data, 'post'=>$_POST, 'entry_id'=>$entry_id, 'list_id'=>$list_id ) );        
+
+        // @since 6.3.315 - Load stored form elements once, normalized to an array (a JSON-string
+        // form — from super_import_single_form or a programmatic import — is decoded; see
+        // SUPER_Common::get_form_elements). Reused for required-field enforcement and reCAPTCHA
+        // detection below (CVE-2026-14894 follow-up); without the array normalization these checks
+        // would silently no-op on imported forms.
+        $form_elements = SUPER_Common::get_form_elements( $form_id );
+
+        // @since 6.3.315 - Server-side submission validation (CVE-2026-14894 follow-up).
+        // Front-end (JavaScript) validation is trivially bypassed by a direct HTTP POST, letting a
+        // scripted request create contact entries + trigger emails with mandatory fields blank. We
+        // enforce three low-false-positive layers, ALL skipped for upload_files() ($skipChecks=true):
+        //   (a) present-but-empty: a required field SENT blank is rejected.
+        //   (b) presence: an UNCONDITIONAL required field MISSING from the payload is rejected
+        //       (the front-end omits only conditionally/hidden fields, never an always-visible one).
+        //   (c) repeater rows: required fields inside a CONDITIONAL-FREE repeater chain must be
+        //       non-empty in every row; conditional-containing repeaters are exempt because per-row
+        //       visibility variation breaks the positional key-normalization (assets/js/common.js).
+        // Values are array-coerced (implode) before the empty test, so an array payload cannot slip
+        // past the string check. collect_required_fields() enrolls only front-end-validated input
+        // tags; file uploads (type 'files') are skipped.
+        if( $skipChecks === false && is_array( $form_elements ) && !empty( $form_elements ) ) {
+            $required_fields = self::collect_required_fields( $form_elements );
+            if( !empty( $required_fields ) ) {
+                // (a) Top-level present-but-empty.
+                foreach( $data as $field_name => $field_data ) {
+                    if( !is_array( $field_data ) || !isset( $field_data['value'] ) ) continue;
+                    if( isset( $field_data['type'] ) && $field_data['type']==='files' ) continue;
+                    if( isset( $required_fields[ $field_name ] ) ) {
+                        $value = $field_data['value'];
+                        if( is_array( $value ) ) $value = implode( '', $value );
+                        if( trim( wp_strip_all_tags( (string) $value ) )==='' ) {
+                            SUPER_Common::output_message( array( 'msg' => esc_html__( 'Please fill in all required fields.', 'super-forms' ) ) );
+                        }
+                    }
+                }
+                // (b) Presence of unconditional required fields (issue #114 gap-1).
+                foreach( $required_fields as $field_name => $meta ) {
+                    if( empty( $meta['always_present'] ) ) continue;
+                    $present = isset( $data[ $field_name ]['value'] );
+                    if( $present ) {
+                        $value = $data[ $field_name ]['value'];
+                        if( is_array( $value ) ) $value = implode( '', $value );
+                        $present = ( trim( wp_strip_all_tags( (string) $value ) )!=='' );
+                    }
+                    if( !$present ) {
+                        SUPER_Common::output_message( array( 'msg' => esc_html__( 'Please fill in all required fields.', 'super-forms' ) ) );
+                    }
+                }
+                // (c) Repeater rows (single + nested), conditional-free repeaters only.
+                if( isset( $data['_super_dynamic_data'] ) && is_array( $data['_super_dynamic_data'] ) ) {
+                    foreach( $data['_super_dynamic_data'] as $rows ) {
+                        if( !is_array( $rows ) ) continue;
+                        foreach( $rows as $row ) {
+                            if( !is_array( $row ) ) continue;
+                            foreach( $row as $field_name => $field_data ) {
+                                if( !is_array( $field_data ) || !isset( $field_data['value'] ) ) continue;
+                                if( isset( $field_data['type'] ) && $field_data['type']==='files' ) continue;
+                                if( isset( $required_fields[ $field_name ] ) && !empty( $required_fields[ $field_name ]['repeater_enforceable'] ) ) {
+                                    $value = $field_data['value'];
+                                    if( is_array( $value ) ) $value = implode( '', $value );
+                                    if( trim( wp_strip_all_tags( (string) $value ) )==='' ) {
+                                        SUPER_Common::output_message( array( 'msg' => esc_html__( 'Please fill in all required fields.', 'super-forms' ) ) );
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
         
         // @since 4.6.0 - verify reCAPTCHA token
         if($skipChecks===false){
+            // @since 6.3.315 - When the form contains a reCAPTCHA element, a token is REQUIRED. Previously the
+            // verification only ran when the client chose to send $_POST['version'], so a direct request could
+            // skip reCAPTCHA entirely by omitting it. Enforce presence server-side (CVE-2026-14894 follow-up).
+            $form_requires_recaptcha = ( isset( $form_elements ) && is_array( $form_elements ) ) ? self::form_has_recaptcha( $form_elements ) : false;
+            if( $skipChecks === false && $form_requires_recaptcha && ( empty( $_POST['version'] ) || empty( $_POST['token'] ) ) ) {
+                SUPER_Common::output_message( array( 'msg' => esc_html__( 'reCAPTCHA verification is required.', 'super-forms' ) ) );
+            }
             if(!empty($_POST['version'])){
                 $version = sanitize_text_field( $_POST['version'] );
                 $secret = $settings['form_recaptcha_secret'];
@@ -2897,7 +3109,10 @@ class SUPER_Ajax {
         );
     }
     public static function upload_files() {
-        $atts = self::submit_form_checks();
+        // @since 6.3.315 - The preliminary file-transfer request (super_upload_files) carries only
+        // the uploaded files, never the form `data`, so it must NOT run required-field / reCAPTCHA
+        // enforcement here (CVE-2026-14894 follow-up); the final super_submit_form request enforces.
+        $atts = self::submit_form_checks( true );
         $i18n = $atts['i18n'];
         $sfs_uid = $atts['sfs_uid'];
         $form_id = $atts['form_id'];
@@ -3120,11 +3335,10 @@ class SUPER_Ajax {
 
     public static function submit_form() {
         do_action( 'super_before_submit_form', array( 'post'=>$_POST ));
-        if(empty($_POST['fileUpload'])) {
-            $atts = self::submit_form_checks();
-        }else{
-            $atts = self::submit_form_checks(true);
-        }
+        // @since 6.3.315 - Always run server-side submission validation on the final submission.
+        // This is the contact-entry-creating request and must enforce required fields + reCAPTCHA
+        // regardless of how it was initiated (CVE-2026-14894 follow-up).
+        $atts = self::submit_form_checks();
         $i18n = $atts['i18n'];
         $form_id = $atts['form_id'];
         $sfsi = $atts['sfsi'];

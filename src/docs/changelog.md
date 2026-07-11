@@ -9,6 +9,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## 2026-07-11 - Version 6.4.006-beta
+
+- **Security fix:** Hardened server-side submission validation so required-field and reCAPTCHA checks cannot be bypassed by direct or automated requests (CVE-2026-14894 follow-up).
+
 ## 2026-07-08 - Version 6.4.005-beta
 
 - Fixed: fatal error after submitting a form containing a signature element when the confirmation email is enabled (500 response; the submission succeeded server-side for the first email but no success message was shown)

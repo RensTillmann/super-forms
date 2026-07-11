@@ -1,0 +1,19 @@
+# Release-zip exclusions.
+#
+# Customer zips are built with `git archive` from this src/ subtree (see
+# ../build-release-zip.sh). Paths marked export-ignore never enter the zip,
+# no matter how the archive is invoked. This keeps the zip small enough for
+# manual wp-admin uploads (host caps are commonly 2-64 MB).
+#
+# - docs: docsify build sources, not runtime files.
+# - pdf-generator fonts (~150 MB): optional payload; the plugin checks
+#   file_exists() and serves/downloads them remotely when absent
+#   (includes/class-shortcodes.php font-loading path). Zips have shipped
+#   without them since 6.4.003.
+# - *.po / *.pot: translation build sources; WordPress loads only the
+#   compiled *.mo files at runtime.
+.gitattributes export-ignore
+docs export-ignore
+includes/extensions/pdf-generator/fonts export-ignore
+*.po export-ignore
+*.pot export-ignore
