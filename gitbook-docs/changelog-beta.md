@@ -8,6 +8,10 @@ Beta is opt-in for power users who want early access to new features before they
 
 ## Super Forms Beta - Changelog
 
+### Jul 11, 2026 - Version 6.4.006-beta
+
+* **Security fix:** Hardened server-side submission validation so required-field and reCAPTCHA checks cannot be bypassed by direct or automated requests (CVE-2026-14894 follow-up).
+
 ### Jul 09, 2026 - Version 6.4.005-beta
 
 * **Fix:** Fatal error after submitting a form containing a signature element when the confirmation email is enabled (500 response; the first email was sent but no success message was shown)
