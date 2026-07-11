@@ -2,15 +2,11 @@
 description: Release notes for the Super Forms beta channel (opt-in early access).
 ---
 
-# Changelog (Beta)
+# Beta
 
 Beta is opt-in for power users who want early access to new features before they ship to the stable channel. To switch your install to beta, follow the instructions on the [BETA version](developers/beta-version.md) page.
 
 ## Super Forms Beta - Changelog
-
-### Jul 11, 2026 - Version 6.4.006-beta
-
-* **Security fix:** Hardened server-side submission validation so required-field and reCAPTCHA checks cannot be bypassed by direct or automated requests (CVE-2026-14894 follow-up).
 
 ### Jul 09, 2026 - Version 6.4.005-beta
 

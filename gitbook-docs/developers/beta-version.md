@@ -12,7 +12,7 @@ This version has already been tested by a small set of users, so you will probab
 {% endhint %}
 
 {% hint style="success" %}
-**Download:** [super-forms-beta.zip](https://super-forms.com/download-super-forms-beta.php) (**v6.4.006-beta** - Jul 11, 2026)
+**Download:** [super-forms-beta.zip](https://super-forms.com/download-super-forms-beta.php) (**v6.4.004-beta** - Jul 07, 2026)
 {% endhint %}
 
 {% hint style="info" %}

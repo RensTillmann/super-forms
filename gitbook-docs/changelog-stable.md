@@ -2,13 +2,9 @@
 description: Release notes for the Super Forms stable channel.
 ---
 
-# Changelog (Stable)
+# Stable
 
 ## Super Forms Stable - Changelog
-
-### Jul 11, 2026 - Version 6.3.315
-
-* **Security fix:** Closed a form-submission validation bypass, so reCAPTCHA and required-field checks can no longer be skipped by direct or automated requests (CVE-2026-14894 follow-up).
 
 ### Jul 07, 2026 - Version 6.3.314
 
@@ -40,7 +36,7 @@ description: Release notes for the Super Forms stable channel.
 
 ### Jun 26, 2022 - Version 6.3.307
 
-* **Fix:** When using `Name Your Price` with `WooCommerce Checkout` in combination with  thousand seperator `.` (dot) and decimal `,` (comma) for prices (can be defined in the WooCommerce settings), make sure the price is formatted accordingly before parsing it to Name Your Price.
+* **Fix:** When using `Name Your Price` with `WooCommerce Checkout` in combination with thousand seperator `.` (dot) and decimal `,` (comma) for prices (can be defined in the WooCommerce settings), make sure the price is formatted accordingly before parsing it to Name Your Price.
 
 ### Jun 22, 2022 - Version 6.3.306
 
@@ -66,9 +62,9 @@ description: Release notes for the Super Forms stable channel.
 * **Added:** MailPoet v3 settings under `Form Settings > MailPoet Settings` which allows you to subscribe users after they submit the form. Optionally you can mape custom fields to store additional information/date for the user
 * **Added:** New option under `Form Settings > Form Settings` called `Disable Multi-part current step parameter in the URL` which prevents the step parameters `#step-58731-2` from being added to the URL
 * **Added:** New option under `Form Settings > Popup Settings` called `Clear form after closing popup` which will reset/clear the form when the popup is being closed, this is especially useful when you are using the same form but populating it with different values when the popup is being opened
-* **Added:** `WooCommerce Checkout` Option to conditionally checkout to WooCommerce 
+* **Added:** `WooCommerce Checkout` Option to conditionally checkout to WooCommerce
 * **Added:** Buttons/Icons to reset form settings to it's Default, Last known or Global value. Or to lock the setting to it's global value
-* **Added:** New predefined tag `{option_****}` to retrieve any option from the wp_options database table. If the option is of type Array, you can also filter the sub values by defining a key like so `{option_****;arrayKey}`. When the arrayKey is omitted, a json representation of the Array will be returned.
+* **Added:** New predefined tag `{option_****}` to retrieve any option from the wp\_options database table. If the option is of type Array, you can also filter the sub values by defining a key like so `{option_****;arrayKey}`. When the arrayKey is omitted, a json representation of the Array will be returned.
 * **Added:** Extra filter logic `Starts with (from left to right)` to filter from start to end instead of "Contains" method for both the `Auto suggest` and `Tags/Keyword` field field
 * **Improved:** Cookie/Session system, which allows to filter the expiry and expiration variation values to increase or decrease the lifetime of client data
 * **Improved:** `Register & Login` Option to define custom headers for emails such as `Verification`, `Approval` and `Reset Password` E-mails
@@ -97,7 +93,7 @@ description: Release notes for the Super Forms stable channel.
 * **Fix:** When renaming the `Button` name, spaces were being replaced with underscores
 * **Fix:** Fix an issue with the `File upload` element when a maximum is set in combination with a user trying to add more files at once via the file explorer
 * **Fix:** When deleting a `CSV file` from a `Dropdown` element it would scroll the user to the top of the page
-* **Fix:** In the back-end when defining condtional logic for a field the user was not able to define a `Value` comparison that had the same value as the current field name e.g: `DC` field name and having a conditional logic value equals to `DC` which should be allowed. However the `Field name` isn't allowed to point to the current field, so that still needs to be validated 
+* **Fix:** In the back-end when defining condtional logic for a field the user was not able to define a `Value` comparison that had the same value as the current field name e.g: `DC` field name and having a conditional logic value equals to `DC` which should be allowed. However the `Field name` isn't allowed to point to the current field, so that still needs to be validated
 * **Fix:** Redirect message undefined in JS, causing form not redirecting at all
 * **Fix:** Toggle button alignment for `Field label` and `Field description`
 * **Fix:** Issue with WooCommerce Checkout
@@ -135,7 +131,7 @@ description: Release notes for the Super Forms stable channel.
 
 ### Dec 09, 2021 - Version 5.0.200
 
-* **Added:** Option to filter based on form ID when exporting entries to CSV via `Super Forms > Settings > Export & Import` 
+* **Added:** Option to filter based on form ID when exporting entries to CSV via `Super Forms > Settings > Export & Import`
 * **Added:** Option to sort by oldest or newest first when exporting entries to CSV via `Super Forms > Settings > Export & Import` and `Super Forms > Contact Enties`
 * **Added:** Option to define custom delimiter and enclosure when exportin entries to CSV via `Super Forms > Contact Enties`
 * **Added:** Option for datepicker to use {tags} inside the `Default value` setting
@@ -153,7 +149,7 @@ description: Release notes for the Super Forms stable channel.
 * **Fix:** Form settings translation bug
 * **Fix:** HTML element automatic linebreak not working when using {tags} inside the HTML
 * **Fix:** HTML element causing 404 when using {tag} to apply dynamic source tag on images
-* **Fix:** Issue with HTML not being generated when no {tags} are used, due to above 404 bug fix 
+* **Fix:** Issue with HTML not being generated when no {tags} are used, due to above 404 bug fix
 * **Fix:** Slider label positioning on theme `minimal` and when `adaptive placeholders` are enabled
 * **Fix:** Slider amount positioning incorrect when conditionally became visible and when value was the same as last known value
 * **Fix:** JS error `Uncaught ReferenceError: nodes is not defined`
@@ -184,30 +180,31 @@ description: Release notes for the Super Forms stable channel.
 * **Added:** New element `HTML Elements > PDF Page Break` for PDF Generator Add-on, which allows you to start a new page after a specific element. You can also switch between orientation `Portrait` and `Landscape` if needed.
 * **Added:** New file upload system, file upload element will now display image/document in thumbnail preview before it's being uploaded to the server, they will also be visible in the generated PDF `PDF Generator Add-on`
 * **Added:** New tags for file upload element, can be used inside HTML element on front-end and inside E-mail body
-  - `{fieldname}` (retrieve list with file name(s))
-  - `{fieldname;count}` (retrieve total amount of files connected to this file upload element)
-  - `{fieldname;new_count}` (retrieve total amount of files that are yet to be uploaded)
-  - `{fieldname;existing_count}` (retrieve total amount of files already/previously uploaded)
-  - `{fieldname;url}` (retrieve file  "blob" or "URL")
-  - `{fieldname;size}` (retrieve file size)
-  - `{fieldname;type}` (retrieve file type)
-  - `{fieldname;name}` (retrieve file name)
-  - `{fieldname;ext}` (retrieve file extension)
-  - `{fieldname;attachment_id}` (retrieve file ID after file has been uploaded when form is submitted)
-  - `{fieldname;url[2]}` (retrieve specific file data, this example retrieves the third file URL if it exists based on array index)
-  - `{fieldname;allFileNames}` (retrieve list with all file names, it's possible to filter this list with filter hook: `super_filter_all_file_names_filter`
-  - `{fieldname;allFileUrls}` (retrieve list with all file URLs, it's possible to filter this list with filter hook: `super_filter_all_file_urls_filter`
-  - `{fieldname;allFileLinks}` (retrieve list with a link to the file, it's possible to filter this list with filter hook: `super_filter_all_file_links_filter`
-* **Added:** Compatibility for file upload with `foreach` loop inside HTML element and E-mail body example:
-  ```php
-  foreach(fileupload_field_name_here;loop):
-      <strong>Name (<%counter%>):</strong> <%name%><br />
-      <strong>URL (<%counter%>):</strong> <%url%><br />
-      <strong>Extension (<%counter%>):</strong> <%ext%><br />
-      <strong>Type (<%counter%>):</strong> <%type%><br />
-      <strong>ID (<%counter%>):</strong> <%attachment_id%><br />
-  endforeach;
-  ```
+  * `{fieldname}` (retrieve list with file name(s))
+  * `{fieldname;count}` (retrieve total amount of files connected to this file upload element)
+  * `{fieldname;new_count}` (retrieve total amount of files that are yet to be uploaded)
+  * `{fieldname;existing_count}` (retrieve total amount of files already/previously uploaded)
+  * `{fieldname;url}` (retrieve file "blob" or "URL")
+  * `{fieldname;size}` (retrieve file size)
+  * `{fieldname;type}` (retrieve file type)
+  * `{fieldname;name}` (retrieve file name)
+  * `{fieldname;ext}` (retrieve file extension)
+  * `{fieldname;attachment_id}` (retrieve file ID after file has been uploaded when form is submitted)
+  * `{fieldname;url[2]}` (retrieve specific file data, this example retrieves the third file URL if it exists based on array index)
+  * `{fieldname;allFileNames}` (retrieve list with all file names, it's possible to filter this list with filter hook: `super_filter_all_file_names_filter`
+  * `{fieldname;allFileUrls}` (retrieve list with all file URLs, it's possible to filter this list with filter hook: `super_filter_all_file_urls_filter`
+  * `{fieldname;allFileLinks}` (retrieve list with a link to the file, it's possible to filter this list with filter hook: `super_filter_all_file_links_filter`
+*   **Added:** Compatibility for file upload with `foreach` loop inside HTML element and E-mail body example:
+
+    ```php
+    foreach(fileupload_field_name_here;loop):
+        <strong>Name (<%counter%>):</strong> <%name%><br />
+        <strong>URL (<%counter%>):</strong> <%url%><br />
+        <strong>Extension (<%counter%>):</strong> <%ext%><br />
+        <strong>Type (<%counter%>):</strong> <%type%><br />
+        <strong>ID (<%counter%>):</strong> <%attachment_id%><br />
+    endforeach;
+    ```
 * **Added:** New option under global settings `Super Forms > Settings > WooCommerce My Account Menu Items` to add custom menu items with custom content/shortcode or a custom URL to redirect to a custom page. This allows you to display any extra content for the `/my-account` page. For instance you could list contact entries with the use of the `Listings Add-on` on the `My Account` page. Since you can use shortcodes you could also use it for other usecases that are not even related to Super Forms.
 * **Added:** Option to override form settings via shortcode attribute e.g: `[super_form id="54903" _setting_retrieve_last_entry_data="false"]` would override the option defined under `Form Settings > Form Settings > Retrieve form data from users last submission`. This allows you to have a single form to maintain while having seperate forms with slightly different settings/options defined. If you don't know the `key` of a settings just submit a ticket. But most settings can be found in the file `includes/class-settings.php`
 * **Added:** Option to define colors for Dropdowns via `Form Settings > Theme & Colors`
@@ -219,14 +216,14 @@ description: Release notes for the Super Forms stable channel.
 * **Added:** `MailChimp Add-on` escape html in output message and replace psuedo after/before elements with normal DOM element
 * **Added:** New tags to be used inside E-mails `{_generated_pdf_file_label}`, `{_generated_pdf_file_name}`, `{_generated_pdf_file_url}` allows you to retrieve the Generated PDF url so you can create a button that links to the file for download
 * **Added:** New actions `Prev/Next Multipart/Step` for `Button` element to have more control over when to show the Previous / Next buttons in a multi-part element.
-* **Added:** New filter hook `super_form_enctype_filter` to alter the form enctype attribute which defaults to `multipart/form-data`
-  ```php
-  add_filter( 'super_form_enctype_filter', 'f4d_change_enctype', 10, 2 );
-  function f4d_change_enctype($enctype, $attr){
-      return 'application/x-www-form-urlencoded':
-  }
-  ```
+*   **Added:** New filter hook `super_form_enctype_filter` to alter the form enctype attribute which defaults to `multipart/form-data`
 
+    ```php
+    add_filter( 'super_form_enctype_filter', 'f4d_change_enctype', 10, 2 );
+    function f4d_change_enctype($enctype, $attr){
+        return 'application/x-www-form-urlencoded':
+    }
+    ```
 * **Improved:** Created a new Tabbing system (TAB/Shift TAB) to navigate through all elements properly and allow to select/deselect items such as radio/checkbox/dropdown items
 * **Improved:** `Front-end posting Add-on` - create connection between created post and contact entry by storing the ID as meta data
 * **Fix:** `PDF Generator Add-on` option to exclude generated PDF from contact entry not working
@@ -240,6 +237,7 @@ description: Release notes for the Super Forms stable channel.
 * **Fix:** Possible RCE (Remote Code Exectuion) vulnerability in old file upload system (doesn't affect most servers, but it's recommended to update to the latest version anyway)
 
 ### Mar 16, 2021 - Version 4.9.800
+
 * **Added:** `WooCommerce Checkout Add-on` option via `Super Forms > Settings > WooCommerce Checkout` to exclude products the shop so that they can only be ordered via the form
 * **Added:** `WooCommerce Checkout Add-on` option via `Super Forms > Settings > WooCommerce Checkout` to replace the default "Add to cart" section with a specific form
 * **Added:** `Signature Add-on` Option to set signature line color
@@ -251,7 +249,7 @@ description: Release notes for the Super Forms stable channel.
 * **Added:** When `Prevent submitting form when entry title already exists` is enabled there is an extra option called `Also compare against trashed contact entries` which allows you to also check against possible trashed contact entries
 * **Added:** `Calculator Add-on` option to use space for Decimal and Thousand seperator via `Advanced` tab
 * **Improved:** Add missing escaped attributes
-* **Fix:** PDF Generator Add-on fix for iPhone specifically, psuedo elements `:after`, `:before` not being generated 
+* **Fix:** PDF Generator Add-on fix for iPhone specifically, psuedo elements `:after`, `:before` not being generated
 * **Fix:** When using google address autocomplete field, the value was not being displayed on the entry page in the back-end `Super Forms > Contact Entry`
 * **Fix:** `Signature Add-on` Changing signature line thickness not working
 * **Fix:** Some hosts use a firewall rule that didn't allow to upload files due to it being uploaded inside a folder called `uploads` and `files` (uploads/php/files). This is now changed to (u/f) which solves a 403 error returned by the host
@@ -267,48 +265,48 @@ description: Release notes for the Super Forms stable channel.
 * **Improved:** Time picker element now uses WP core `current_time()` function when `Return current time as default value` is enabled to get time with the GMT offset in the WordPress option.
 * **Improved:** Contact entry search will also trigger when "copy/pasting" text into the input field on mobile devices
 * **Added:** Back-end translations:
-  - Afrikaans
-  - Arabic
-  - Bengali (Bangladesh)
-  - Czech
-  - Danish
-  - Dutch
-  - French (Canada)
-  - French (France)
-  - German
-  - Gujarati
-  - Hindi
-  - Hungarian
-  - Indonesian
-  - Italian
-  - Japanese
-  - Javanese
-  - Kannada
-  - Korean
-  - Marathi
-  - Norwegian (Nynorsk)
-  - Persian
-  - Polish
-  - Portuguese (Portugal)
-  - Punjabi
-  - Russian
-  - Spanish (Spain)
-  - Swahili
-  - Swedish
-  - Tamil
-  - Telugu
-  - Thai
-  - Turkish
-  - Urdu
-  - Vietnamese
-  - 香港中文版
-  - 繁體中文
-  - 简体中文
+  * Afrikaans
+  * Arabic
+  * Bengali (Bangladesh)
+  * Czech
+  * Danish
+  * Dutch
+  * French (Canada)
+  * French (France)
+  * German
+  * Gujarati
+  * Hindi
+  * Hungarian
+  * Indonesian
+  * Italian
+  * Japanese
+  * Javanese
+  * Kannada
+  * Korean
+  * Marathi
+  * Norwegian (Nynorsk)
+  * Persian
+  * Polish
+  * Portuguese (Portugal)
+  * Punjabi
+  * Russian
+  * Spanish (Spain)
+  * Swahili
+  * Swedish
+  * Tamil
+  * Telugu
+  * Thai
+  * Turkish
+  * Urdu
+  * Vietnamese
+  * 香港中文版
+  * 繁體中文
+  * 简体中文
 
 ### Jan 19, 2021 - Version 4.9.600
 
 * **Added:** Option to prevent saving contact entry if a contact entry with the same title already exists, more info here:
-  - [Prevent/disallow duplicate contact entry titles](https://webrehab.zendesk.com/hc/en-gb/articles/360017147758)
+  * [Prevent/disallow duplicate contact entry titles](https://webrehab.zendesk.com/hc/en-gb/articles/360017147758)
 * **Added:** `MailChimp Add-on` option to unsubscribe users by setting `Send the Mailchimp confirmation email` to `No` and setting `Subscriber status after submitting the form` to `Unsubscribed`
 * **Improved:** Form loading speed when using many HTML elements that contain many {tags}. Super Forms now remembers tag values and will not re-process these if they haven't changed since. This speeds up the loading speed significantly for forms that are using many HTML elements with many {tags}
 * **Fix:** When `Enable form POST method` is enabled in combination with `Enable custom parameter string for POST method` do not store `Thank you message` into a session, otherwise it would be displayed twice when user navigates to a different page.
@@ -319,7 +317,7 @@ description: Release notes for the Super Forms stable channel.
 * **Added:** Option to add field {tags} inside the `Default value` setting, which would populate it on page load with the value from that field value. Previously you could only use predefined tags.
 * **Added:** `Calculator Add-on` option to directly retrieve [predefined tags](https://webrehab.zendesk.com/hc/en-gb/articles/360016934317#h_01EVVEFFDD34J8V4FM6W4ZPC6N) inside math, e.g: to retrieve current year, month or price of current WooCommerce product etc.
 * **Added:** Option to set separate error messages for validation error or empty field `Validation error message`, `Empty error message` more info here:
-  - [Displaying a separate error message for validation and when a field is empty](https://webrehab.zendesk.com/hc/en-gb/articles/360017041918-Displaying-a-separate-error-message-for-validation-and-when-a-field-is-empty)
+  * [Displaying a separate error message for validation and when a field is empty](https://webrehab.zendesk.com/hc/en-gb/articles/360017041918-Displaying-a-separate-error-message-for-validation-and-when-a-field-is-empty)
 * **Fix:** Bug with `Date` element when setting `Allow user to choose a maximum of X dates` to anything higher than `1` causing it to switch to current month e.g when choosing 2 dates in month `Feb`, it would switch back to month `Jan`
 * **Fix:** Issue with dragging elements in Accordion element
 * **Fix:** Back-end settings CSS fix
@@ -344,11 +342,11 @@ description: Release notes for the Super Forms stable channel.
 ### Dec 22, 2020 - Version 4.9.570
 
 * **Added:** Option for [Address auto complete (google places)](address-auto-complete.md) to specify the types of results to return e.g:
-  - `geocode`: return only geocoding results, rather than business results. Generally, you use this request to disambiguate results where the location specified may be indeterminate.
-  - `address`: return only geocoding results with a precise address. Generally, you use this request when you know the user will be looking for a fully specified address.
-  - `establishment`: return only business results.
-  - `(regions)`: return any result matching the following types: locality, sublocality, postal_code, country, administrative_area_level_1, administrative_area_level_2
-  - `(cities)`: type collection instructs the Places service to return results that match locality or administrative_area_level_3
+  * `geocode`: return only geocoding results, rather than business results. Generally, you use this request to disambiguate results where the location specified may be indeterminate.
+  * `address`: return only geocoding results with a precise address. Generally, you use this request when you know the user will be looking for a fully specified address.
+  * `establishment`: return only business results.
+  * `(regions)`: return any result matching the following types: locality, sublocality, postal\_code, country, administrative\_area\_level\_1, administrative\_area\_level\_2
+  * `(cities)`: type collection instructs the Places service to return results that match locality or administrative\_area\_level\_3
 * **Added:** Option for [Address auto complete (google places)](address-auto-complete.md) to restrict results by countrie(s) e.g: fr,nl,de (to restrict results by France, Netherlands and Germany)
 * **Improved:** `Keyword field` style improvements
 * **Improved:** [Auto suggest](auto-suggest.md) style improvements
@@ -448,13 +446,13 @@ description: Release notes for the Super Forms stable channel.
 ### Jul 21, 2020 - Version 4.9.502
 
 * **Improved:** Envato Quality Indicator Application
-  - Removed prefix from third-party assets handles
-  - Renamed asset handles to match filename, and without extension
-  - Missing translatable text strings
-  - Escape translatable strings
-  - Remove all unused code
-  - Escape all translatable strings
-  - Use `.on()` rather than `.click()`, `.bind()`, `.hover()`, `.submit()` etc.
+  * Removed prefix from third-party assets handles
+  * Renamed asset handles to match filename, and without extension
+  * Missing translatable text strings
+  * Escape translatable strings
+  * Remove all unused code
+  * Escape all translatable strings
+  * Use `.on()` rather than `.click()`, `.bind()`, `.hover()`, `.submit()` etc.
 * **Fix:** Clear form after submission throwing javascript error
 
 ### Jul 20, 2020 - Version 4.9.501
@@ -521,16 +519,12 @@ description: Release notes for the Super Forms stable channel.
 ### May 13, 2020 - Version 4.9.450
 
 * **New:** `Secure file uploads` setting under `Super Forms > Settings > File Upload Settings`
-  - option to define a custom directory name relative to the site root e.g:
-    `wp-content/uploads/superforms` _the default upload directory for file uploads_
-    `my-custom-public-folder` _custom file upload directory outside wp-content directory (which is still publically accessible but will not store in Media Library)_
-    `../my-custom-private-folder` _secure file uploads_
-    `../../my-custom-private-folder` _secure file uploads when WP is installed in a subdirectory_
-  - optionally choose to organize uploaded files in a month/year based structure e.g: `2020/05`
-  - option to hide file uploads from the `Media Library` even if the file was uploaded to a directory inside wp-content directory
-    - Note that if you are uploading files outside the root of your site then files will not be uploaded to the Media Library by default
-  - only allow logged in users to download secure/private files
-  - only allow specific roles to download secure/private files
+  * option to define a custom directory name relative to the site root e.g: `wp-content/uploads/superforms` _the default upload directory for file uploads_ `my-custom-public-folder` _custom file upload directory outside wp-content directory (which is still publically accessible but will not store in Media Library)_ `../my-custom-private-folder` _secure file uploads_ `../../my-custom-private-folder` _secure file uploads when WP is installed in a subdirectory_
+  * optionally choose to organize uploaded files in a month/year based structure e.g: `2020/05`
+  * option to hide file uploads from the `Media Library` even if the file was uploaded to a directory inside wp-content directory
+    * Note that if you are uploading files outside the root of your site then files will not be uploaded to the Media Library by default
+  * only allow logged in users to download secure/private files
+  * only allow specific roles to download secure/private files
 * **New:** Option to remove hyperlinks (URLs) of file uploads in the email list
 * **New:** Option to remove the uploaded files in the email list `{loop_fields}` (this will still send it as an attachment though)
 * **New:** Option to hide file uploads from Media Library via `Super Forms > Settings > File Upload Settings`
@@ -548,13 +542,12 @@ description: Release notes for the Super Forms stable channel.
 * **Fix:** Issue with regex backslash and with custom CSS backslashes
 * **Fix:** Form/User Locker would stil display a message even when disabled
 * **Fix:** Brand icons not working on `Button` element
-* **Fix:** Issue inside `Translation mode` where the form would say that there are 2 duplicate field names (which was due to the field names being empty)
-and Contact Entry
+* **Fix:** Issue inside `Translation mode` where the form would say that there are 2 duplicate field names (which was due to the field names being empty) and Contact Entry
 * **Fix:** When using field typ `number` on a `Text` field make sure the `Max/Min number` settings are correctly added as min/max attributes
 * **Fix:** JavaScript error when using Accordion/TABs element
 * **Added:** Two new options for datepicker element to allow users to select multiple dates independently from eachother
-  - `Allow user to choose a maximum of X dates` _Defaults to 1, which allows a user to only pick 1 date)_
-  - `Require user to choose a minimum of X dates` _(Defaults to 0, which allows a user to pick no date at all)_
+  * `Allow user to choose a maximum of X dates` _Defaults to 1, which allows a user to only pick 1 date)_
+  * `Require user to choose a minimum of X dates` _(Defaults to 0, which allows a user to pick no date at all)_
 * **Fix:** Conflict when using multiple datepickers and one of them had `Allow users to select work days` or `Allow users to select weekends` disabled causing dates for other datepickers to be affected
 * **Fix:** `Print` action not working for Button element
 * **Fix:** Custom regex validation would still be applied even though validation was set to `None`
@@ -574,15 +567,14 @@ and Contact Entry
 
 * **NEW:** `Adaptive Placeholders`, can be enabled under `Form Settings > Theme & Colors > Enable Adaptive Placeholders`
 * **Added:** `Exclude dates or a range of dates` for `Datepicker` element to disallow users from selecting specific dates, examples:
-  - `2020-03-25` (excludes a specific date)
-  - `2020-06-12;2020-07-26` (excludes a date range)
-  - `01` (excludes first day for all months)
-  - `10` (excludes 10th day for all months)
-  - `Jan` (excludes the month January)
-  - `Mar` (excludes the month March)
-  - `Dec` (excludes the month December)
-* **Added:** Localization options for `Datepicker` element:
-  `English / Western (default)`, `Afrikaans`, `Algerian Arabic`, `Arabic`, `Azerbaijani`, `Belarusian`, `Bulgarian`, `Bosnian`, `Català`, `Czech`, `Welsh/UK`, `Danish`, `German`, `Greek`, `English/Australia`, `English/UK`, `English/New Zealand`, `Esperanto`, `Español`, `Estonian`, `Karrikas-ek`, `Persian`, `Finnish`, `Faroese`, `Canadian-French`, `Swiss-French`, `French`, `Galician`, `Hebrew`, `Hindi`, `Croatian`, `Hungarian`, `Armenian`, `Indonesian`, `Icelandic`, `Italian`, `Japanese`, `Georgian`, `Kazakh`, `Khmer`, `Korean`, `Kyrgyz`, `Luxembourgish`, `Lithuanian`, `Latvian`, `Macedonian`, `Malayalam`, `Malaysian`, `Norwegian Bokmål`, `Dutch (Belgium)`, `Dutch`, `Norwegian Nynorsk`, `Norwegian`, `Polish`, `Brazilian`, `Portuguese`, `Romansh`, `Romanian`, `Russian`, `Slovak`, `Slovenian`, `Albanian`, `Serbian`, `Swedish`, `Tamil`, `Thai`, `Tajiki`, `Turkish`, `Ukrainian`, `Vietnamese`, `Chinese zh-CN`, `Chinese zh-HK`, `Chinese zh-TW`
+  * `2020-03-25` (excludes a specific date)
+  * `2020-06-12;2020-07-26` (excludes a date range)
+  * `01` (excludes first day for all months)
+  * `10` (excludes 10th day for all months)
+  * `Jan` (excludes the month January)
+  * `Mar` (excludes the month March)
+  * `Dec` (excludes the month December)
+* **Added:** Localization options for `Datepicker` element: `English / Western (default)`, `Afrikaans`, `Algerian Arabic`, `Arabic`, `Azerbaijani`, `Belarusian`, `Bulgarian`, `Bosnian`, `Català`, `Czech`, `Welsh/UK`, `Danish`, `German`, `Greek`, `English/Australia`, `English/UK`, `English/New Zealand`, `Esperanto`, `Español`, `Estonian`, `Karrikas-ek`, `Persian`, `Finnish`, `Faroese`, `Canadian-French`, `Swiss-French`, `French`, `Galician`, `Hebrew`, `Hindi`, `Croatian`, `Hungarian`, `Armenian`, `Indonesian`, `Icelandic`, `Italian`, `Japanese`, `Georgian`, `Kazakh`, `Khmer`, `Korean`, `Kyrgyz`, `Luxembourgish`, `Lithuanian`, `Latvian`, `Macedonian`, `Malayalam`, `Malaysian`, `Norwegian Bokmål`, `Dutch (Belgium)`, `Dutch`, `Norwegian Nynorsk`, `Norwegian`, `Polish`, `Brazilian`, `Portuguese`, `Romansh`, `Romanian`, `Russian`, `Slovak`, `Slovenian`, `Albanian`, `Serbian`, `Swedish`, `Tamil`, `Thai`, `Tajiki`, `Turkish`, `Ukrainian`, `Vietnamese`, `Chinese zh-CN`, `Chinese zh-HK`, `Chinese zh-TW`
 * **Added:** Super Forms Widget for `Elementor` plugin. You are now no longer allowed to use a Text widget to render your forms. Instead you must either use the native `Super Forms Widget` or the build in `Shortcode Widget` of Elementor (if you don't an error will be shown)
 * **Added:** `PayPal Add-on` - option to conditionally checkout to PayPal, this allows you to optionally let the user pay via PayPal
 * **Added:** Option for Dropdown element to choose a `Filter logic` between `Contains` or `Starts with (from left to right)` so that when a user starts typing it either filters from the beginning of the string instead of doing a global search. This is useful for filtering countries, because you would want the user to jump to `Switzerland` when typing `Sw` and not to `Botswana`.
@@ -630,8 +622,8 @@ and Contact Entry
 * **Fixed:** Bug with TAB/Accordion element inside Dynamic Column in combination with "Save form progress"
 * **Fixed:** Bug with advanced tag {field;label} not populated correctly for radio/checkbox/dropdown items upon page load
 * **Fixed:** Bug with Google Address Autocomplete and Distance Calculation sometimes parsing wrong address
-* **Fixed:** `Signature` wasn't being displayed due esc_attr() function, replaced it with esc_url() and add `data` as an excluded protocol
-  - this was caused after Envato requirements update
+* **Fixed:** `Signature` wasn't being displayed due esc\_attr() function, replaced it with esc\_url() and add `data` as an excluded protocol
+  * this was caused after Envato requirements update
 * **Fixed:** [E-mail foreach loops](email-foreach-loops.md) on HTML element not working with Text field with keyword feature enabled
 * **Fixed:** JS error related to HTML element that has conditional logic and put inside a dynamic column
 * **Fixed:** Export/Import missing translation languages
@@ -655,15 +647,15 @@ and Contact Entry
 
 * **Improved:** Fall back to default WP ajax request when server returns an error. For instance, iThemes security might block requests when "Disable PHP in Plugins" is enabled.
 * **Improved:** When exporting entries to CSV under `Super Forms > Contact Entries > Export to CSV` it will remember sorting and selection of fields on the client
-* **Added:** [Mailchimp] Option to define "Tags" to be saved along with the subscriber (this is different from Interests, which can be selected by the user himself)
-* **Added:** [Super Forms] accordion border radius and margins settings
-* **Added:** [CSV Attachments] display an error message when unable to write file
+* **Added:** \[Mailchimp] Option to define "Tags" to be saved along with the subscriber (this is different from Interests, which can be selected by the user himself)
+* **Added:** \[Super Forms] accordion border radius and margins settings
+* **Added:** \[CSV Attachments] display an error message when unable to write file
 * **Added:** `Slider` layout for Checkbox/Radio elements
 * **Added:** 3 new dropdown fields `Country`, `Country ISO2`, `Country (FULL)` which will allow to retrieve ISO2, ISO3, Official name and Short name of a country
-  - will no longer use the `contries.txt` to retrieve items, instead you can now use the `Custom items` method to change the list.
-  - the old `Country` element still exists and is available for backwards compatibility, it is advised to start using the new `Country` element(s)
+  * will no longer use the `contries.txt` to retrieve items, instead you can now use the `Custom items` method to change the list.
+  * the old `Country` element still exists and is available for backwards compatibility, it is advised to start using the new `Country` element(s)
 * **Added:** New setting `Do not create a new Contact Entry when an existing one was updated` when `Enable contact entry updating` is enabled
-* **Added:** Ability to update the users last Contact Entry (without a "Search Contact Entry" field or $_GET $_POST key) simply by adding a `Hidden` field named `hidden_contact_entry_id` with {tag} `{user_last_entry_id}` as it's `Default value`
+* **Added:** Ability to update the users last Contact Entry (without a "Search Contact Entry" field or $\_GET $\_POST key) simply by adding a `Hidden` field named `hidden_contact_entry_id` with {tag} `{user_last_entry_id}` as it's `Default value`
 * **Added:** New tag `{last_entry_id}` to retrieve the latest `Contact Entry ID` that was created for the form
 * **Added:** New tag `{user_last_entry_id}` to retrieve the latest `Contact Entry ID` that was created by the logged in user
 * **Added:** New tag `{user_last_entry_status}` to retrieve the latest `Contact Entry status` that was created by the logged in user
@@ -689,7 +681,7 @@ and Contact Entry
 * **Fixed:** Bug with `Signature Add-on` and `Color picker` not initializing upon dragging it on the canvas (due to Envato rules `¯\_(ツ)_/¯`)
 * **Fixed:** Bug with checkbox/radio items not being updated upon "Update Element"
 * **Removed:** Skype element, API doesn't exist anymore
-* **Added:** [Data Storage](data-storage) section in documentation describing where specific data being stored by super forms
+* **Added:** [Data Storage](data-storage/) section in documentation describing where specific data being stored by super forms
 * **Added:** Option to load list into radio/checkbox/dropdown based on custom meta data field of the current post
 * **Improved:** Rephrased "Current page, post or profile author meta data" to "Current author meta data"
 * **Changed:** temporary disabling nonce check because it is causing a lot of problems with websites that are caching their pages.
@@ -714,24 +706,23 @@ and Contact Entry
 ### Jun 15, 2019 - Version 4.7.0
 
 * **Compliance:** Working towards Envato WordPress Requirements Badge/Compliance
-  - Calculator Add-on: now using MathJS library for improved security when doing calculations
-  - Passed all JavaScript files through `JShint` excluding third party libraries3
-  - Escaping all Translatable strings
+  * Calculator Add-on: now using MathJS library for improved security when doing calculations
+  * Passed all JavaScript files through `JShint` excluding third party libraries3
+  * Escaping all Translatable strings
 * **Added:** Missing Font Awesome 5 brand icons & updated Font Awesome to v5.9
 * **Added:** Option to define a so called `specifier` to position the counter for `E-mail Labels` when using Dynamic Columns, example:
-  - `Product %d quantity:` would be converted into `Product 3 quantity:`
-  - `Product %d price:` would be converted into `Product 3 price:`
+  * `Product %d quantity:` would be converted into `Product 3 quantity:`
+  * `Product %d price:` would be converted into `Product 3 price:`
 * **Added:** Compatibility for TinyMCE Visual editor to count words with Calculator Add-on
 * **Added:** Option to specify field type for "Text" fields, allowing to determine what "Keyboard Layout" it should use on mobile devices. To name a few:
-  - `email` (for email keyboard layout)
-  - `tel` (for phone number keyboard layout)
-  - `url` (for URL keyboard layout)
-  - `number` (for number keyboard layout)
-  - `date` (for keyboard layout to choose a specific date
-  - `month` (for keyboard layout to choose a specific month)
+  * `email` (for email keyboard layout)
+  * `tel` (for phone number keyboard layout)
+  * `url` (for URL keyboard layout)
+  * `number` (for number keyboard layout)
+  * `date` (for keyboard layout to choose a specific date
+  * `month` (for keyboard layout to choose a specific month)
 * **Added:** A custom Ajax handler for faster Ajax requests (significant speed improvement for building/editing forms)
-* **Added:** Translation feature (allows you to translate your form into multiple languages, this also includes translating specific form settings)
-*when in translation mode, you won't be able to delete and change the layout of the form, just the strings of each element and the form settings*
+* **Added:** Translation feature (allows you to translate your form into multiple languages, this also includes translating specific form settings) _when in translation mode, you won't be able to delete and change the layout of the form, just the strings of each element and the form settings_
 * **Added:** Compatibility for HTML elements to handle {tags} with regexes `*` (contains), `$` (ends with) and `^` (starts with)
 * **Improved:** Custom ajax handler compatible with older WP versions (tested up to v4.7)
 * **Improved:** Mailchimp error debugging and other small improvements
@@ -744,7 +735,7 @@ and Contact Entry
 * **Fixed:** Issue with autosuggest keywords on mobile phone when autofill is applied by the browser, it would not validate the field correctly
 * **Fixed:** Issue with new ajax handler not working in combination with active WC installation
 * **Fixed:** Signature attachment not being a valid bitmap file when sending email over SMTP
-* **Fixed:** Bug fix conditional logic when setting $_GET on radio buttons
+* **Fixed:** Bug fix conditional logic when setting $\_GET on radio buttons
 * **Fixed:** Radio buttons not responsding to predefined `$_GET` or `$_POST` parameters
 * **Fixed:** When doing custom POST and "Enable custom parameter string for POST method" is enabled file URL's where not parsed as data
 * **Fixed:** Bug in Ajax handler, make sure to not load external unrequired plugins, because they might depend on functions that we didn't load
@@ -772,9 +763,9 @@ and Contact Entry
 ```
 
 * **Added:** New option `Include dynamic data (enable this when using dynamic columns)` for sending POST data, this can be used with for instance `WebMerge` to loop through dynamic columns when creating PDF's
-* **Added:** Conditional logic field selected can now be entered manually, this allows you to use advanced tags to get a field value, but it also allows you to combine 2 field selectors together like so: {option;2}_{color;2} == [your conditional value] etc.
-* **Added:** Option to do foreach() loops inside HTML elements to create a summary when using dynamic columns. Read here for more info [https://renstillmann.github.io/super-forms/#/email-foreach-loops](email-foreach-loops).
-* **Added:** Option to do if() statements inside HTML elements. Read here for more info [https://renstillmann.github.io/super-forms/#/email-if-statements](email-if-statements)
+* **Added:** Conditional logic field selected can now be entered manually, this allows you to use advanced tags to get a field value, but it also allows you to combine 2 field selectors together like so: {option;2}\_{color;2} == \[your conditional value] etc.
+* **Added:** Option to do foreach() loops inside HTML elements to create a summary when using dynamic columns. Read here for more info [https://renstillmann.github.io/super-forms/#/email-foreach-loops](email-foreach-loops/).
+* **Added:** Option to do if() statements inside HTML elements. Read here for more info [https://renstillmann.github.io/super-forms/#/email-if-statements](email-if-statements/)
 * **Added:** Uploaded files will now be parsed onto `super_before_email_success_msg_action` action hook, allowing to transfer files to DropBox or Google Drive through Zapier Add-on
 * **Added:** In the back-end when creating forms you will now be able to `Transfer` elements from form A to form B, or to reposition it easily within form A itself
 * **Added:** Text fields can now also become a so called `Variable field` just like hidden fields, meaning you can populate them with data dynamically, while still allowing the user to edit this value
@@ -795,7 +786,7 @@ and Contact Entry
 * **Improved:** Undo/Redo feature
 * **Improved:** Form elements json now saved in localStorage, instead of a textarea element
 * **Improved:** When using dynamic columns, a seperate data key called `_super_dynamic_data` will hold all the dynamic column data as an Array object (useful for usage with for instance `WebMerge`) to generate PDF files with product tables/rows
-* **Fixed:** WooCommerce Checkout setting `Send email after order completed` was not compatible with [E-mail IF statements](email-if-statements)
+* **Fixed:** WooCommerce Checkout setting `Send email after order completed` was not compatible with [E-mail IF statements](email-if-statements/)
 * **Fixed:** Issue with File Upload element when using custom Image button, it would still display the placeholder text
 * **Fixed:** Issue with WooCommerce Checkout not saving CC and BCC settings
 * **Fixed:** bug in Calculator Add-on when using advanced tags in combination with wildcards e.g: `{field_*;2}` inside math
@@ -813,7 +804,7 @@ and Contact Entry
 * **Improved:** When a dropdown has retrieve method post type 'product' and the product is a variable product it will list all it's variations
 * **Fixed:** Bug with HTML element inside dynamic columns not correctly renaming tags that retrieve multi values e.g: changing `{fieldname;3}` to `{fieldname_2;3}` etc.
 * **Fixed:** Path Traversal in File Upload via PHPSESSID Cookie and potentially Remote Code Execution
-* **Fixed:** issue with conditional logic running based of page load via field values that where set through $_GET parameters
+* **Fixed:** issue with conditional logic running based of page load via field values that where set through $\_GET parameters
 * **Added:** option to add post meta data as item attribute for dropdown elements (to do things from the front-end useful for developers)
 * **Fixed:** Javascript error when Conditional Logic was set based on an element that was deleted at a later stage in time
 
@@ -828,7 +819,7 @@ and Contact Entry
 * **Fixed:** color picker not initialized correctly inside dynamic columns
 * **Fixed:** bug with conditional logic and dropdown when using `greater than` methods
 * **Fixed:** Issue with dropdown searching
-* **Fixed:** Call to undefined function wc_get_product()
+* **Fixed:** Call to undefined function wc\_get\_product()
 * **Fixed:** Keyword autosuggest CSV retrieve method not correctly retrieving items
 * **Fixed:** Keyword autosuggest Max/Min selections
 * **Improved:** Keyword autosuggest search speed for larger amount of items
@@ -843,7 +834,7 @@ and Contact Entry
 * **Added:** tag `{product_attributes_****}` to retrieve product attributes
 * **Added:** option to send POST as JSON string
 * **Added:** Russian languages files
-* **Added:** tag to retrieve Form Settings with {form_setting_*****} e.g: {form_setting_email_body} or {form_setting_header_subject}
+* **Added:** tag to retrieve Form Settings with {form\_setting\_\*\*\*\*\*} e.g: {form\_setting\_email\_body} or {form\_setting\_header\_subject}
 * **Added:** Option to set the maximum upload size for all files combined for a file upload element
 * **Added:** Documentation about [Save Form Progression](save-form-progression.md)
 * **Added:** Documentation about [Retrieve form data from users last submission](retrieve-data-last-submission.md)
@@ -864,13 +855,13 @@ and Contact Entry
 
 ### Jul 29, 2018 - Version 4.3.0
 
-* **Added:** new filter hook - `super_redirect_url_filter`  (filter hook to change the redirect URL after form submission)
+* **Added:** new filter hook - `super_redirect_url_filter` (filter hook to change the redirect URL after form submission)
 * **Added:** Option to disable scrolling for multi-part next prev buttons
 * **Added:** Option to prevent scrolling effect for multi-part when an error was found
 * **Added:** Variable fields in combination with {tags} will now also be able to have dynamic values within dynamic columns (add more +)
 * **Added:** New filter hook `super_' . $tag . '_' . $atts['name'] . '_items_filter` (to filter items of dropdowns/checkboxes/radio)
 * **Fixed:** Bug with checkboxes/radio precheck not working
-* **Fixed:** use wp_slash() to make sure any backslashes used in custom regex is escaped properly
+* **Fixed:** use wp\_slash() to make sure any backslashes used in custom regex is escaped properly
 * **Fixed:** Error message on file upload element not disappearing after trying to upload to large file size or not allowed file extension
 * **Fixed:** Issue with dynamic columns in combination with calculator element (not updating calculation correctly after adding column)
 
@@ -880,8 +871,8 @@ and Contact Entry
 * **Added:** Option to automatically replace line breaks for `<br />` tags on HTML element content
 * **Added:** Option to add custom javascript under `Super Forms > Settings > Custom JS`
 * **Added:** Option to create variable conditional logic with a CSV file, see `[Variable Fields]` documentation for more information
-* **Added:** new filter hook - `super_conditional_items_*****_filter`  (filter hook to change conditional items on the fly for specific element)
-* **Added:** new filter hook - `super_variable_conditions_*****_filter`  (filter hook to change variable conditions on the fly for specific field)
+* **Added:** new filter hook - `super_conditional_items_*****_filter` (filter hook to change conditional items on the fly for specific element)
+* **Added:** new filter hook - `super_variable_conditions_*****_filter` (filter hook to change variable conditions on the fly for specific field)
 * **Improved:** Bind `keyup` for Quantity field to trigger field change hook
 * **Fixed:** Google ReCAPTCHA not always being rendered on page load
 * **Fixed:** Quantity field not populating with last entry data
@@ -910,7 +901,7 @@ and Contact Entry
 ### Mar 16, 2018 - Version 4.0.0
 
 * **Added:** Introduction tutorial (to explain back-end)
-* **Added:** de_DE_formal translation file
+* **Added:** de\_DE\_formal translation file
 * **Added:** `{user_meta_****}` tag to retrieve current logged in user custom meta data
 * **Added:** `{post_meta_****}` tag to retrieve current post custom meta data
 * **Added:** Option to retrieve current author meta data for dropdown element with
@@ -922,7 +913,7 @@ and Contact Entry
 * **Improved:** Export/import system for single forms via Form Settings > Export & Import
 * **Improved:** Global settings and form settings are now merged for better sync and more controllable way when having to deal with many forms
 * **Improved:** Use `CSS Flexbox Layout Module` to solve Safari 0px height issue/bug for conditional hidden items
-* **Updated:** de_DE translation file
+* **Updated:** de\_DE translation file
 * **Fixed:** removed 'wpembed' from tinymce plugin list (was dropped since wordpress 4.8)
 * **Fixed:** Issue with Register & Login Add-on when saving custom user meta data
 * **Fixed:** Issue with Print action for Button element when no HTML file was choosen
@@ -932,13 +923,13 @@ and Contact Entry
 * **Added:** Tag to retrieve selected option label in emails with `{fieldname;label}`
 * **Added:** Option to replace comma's with HTML in emails for checkbox/radio/dropdown elements under Advanced TAB
 * **Added:** Cool new feature to do if foreach loops inside email body content with {tag} compatibility e.g:
-  - This method is intended to be used in combination with dynamic columns
-  - **Example:** `foreach(first_name): Person #<%counter%>: <%first_name%> <%last_name%><br /> endforeach;`
+  * This method is intended to be used in combination with dynamic columns
+  * **Example:** `foreach(first_name): Person #<%counter%>: <%first_name%> <%last_name%><br /> endforeach;`
 * **Added:** Cool new feature to do if `isset` and `!isset` checks inside email body content with {tag} compatibility e.g:
-  - This method should be used whenever you conditionally hide fields and they are no longer set and {tags} inside email would then not be converted because no such field was found
-  - **Example 1:** `isset(first_name): The field exists! endif;`
-  - **Example 2:** `!isset(first_name): This field does not exists! endif;`
-  - **Example 3:** `isset(first_name): This field exists! elseif: This field does not exists! endif;`
+  * This method should be used whenever you conditionally hide fields and they are no longer set and {tags} inside email would then not be converted because no such field was found
+  * **Example 1:** `isset(first_name): The field exists! endif;`
+  * **Example 2:** `!isset(first_name): This field does not exists! endif;`
+  * **Example 3:** `isset(first_name): This field exists! elseif: This field does not exists! endif;`
 * **Added:** Option for submit button to print or save PDF based on custom HTML that supports {tags} to dynamically retrieve form data
 * **Added:** Print button can support signatures when used like `<embed type="image/png" src="{signature}"></embed>`
 * **Added:** tag `{dynamic_column_counter}` to retrieve current dynamic column number added by user (this tag can currently only be used inside HTML element)
@@ -946,7 +937,7 @@ and Contact Entry
 * **Added:** `htmlentities` Flags `ENT_NOQUOTES | ENT_SUBSTITUTE | ENT_DISALLOWED`
 * **Improved:** Don't save settings that are the same as global settings
 * **Fixed:** Form settings that did not have a filter value where not correctly updates when changing and saving form.
-* **Fixed:** &quot was being replaced with " when updating/saving elements
+* **Fixed:** \&quot was being replaced with " when updating/saving elements
 * **Fixed:** `{tag;label}` not removed from HTML element when field is conditionally hidden
 
 ### Jan 29, 2018 - Version 3.8.0
@@ -961,12 +952,12 @@ and Contact Entry
 * **Improved:** Compressed the form json code by roughly 50% up to 80%
 * **Improved:** Compressed the form settings json code by roughly 50% up to 80%
 * **Improved:** Redo / Undo system, resulting in a smoother user experience when building forms on low end devices
-* **Fixed:** Undefined index: admin_attachments
+* **Fixed:** Undefined index: admin\_attachments
 * **Fixed:** Form backup history restore sometimes returns blank forms (json error)
 * **Fixed:** Button link open new tab not working
 * **Fixed:** Google analytics conversion tracking not working when Custom form POST method is enabled
 * **Fixed:** Only save tracking settings on global level and not on form level
-* **Fixed:** HTML entities in json form code should not be decoded, e.g: &quot should be &quot and not converted to "
+* **Fixed:** HTML entities in json form code should not be decoded, e.g: \&quot should be \&quot and not converted to "
 * **Fixed:** Honeypot captcha is filled out by Google Chrome saved username/passwords
 * **Fixed:** Distance calculations variable overridden with destination address
 * **Fixed:** Icons inside field with Medium size field
@@ -990,18 +981,10 @@ and Contact Entry
 * **Added:** Option to add google analytics tracking events via: Super Forms > Settings > Form Settings
 * **Added:** Option to center form via: Form Settings > Theme & Colors
 * **Added:** Cool new feature to do if statements inside email body content with {tag} compatibility e.g:
-  - (possible constructors are: ==, !=, >, <, >=, <=)
-  - **Example 1:** `if({field}==123): Extra information here... endif;`
-  - **Example 2:** `if({age}<18): You are underaged! elseif: You are an adult! endif;`
-* **Added:** Extra conditional validation methods with option to compare 2 values instead of just 1 e.g:
-`> && < Greater than AND Less than`
-`> || < Greater than OR Less than`
-`>= && < Greater than or equal to AND Less than`
-`>= || < Greater than or equal to OR Less than`
-`> && <= Greater than AND Less than or equal to`
-`> || <= Greater than OR Less than or equal to`
-`>= && <= Greater than or equal to AND Less than or equal to`
-`>= || <= Greater than or equal to OR Less than or equal to`
+  * (possible constructors are: ==, !=, >, <, >=, <=)
+  * **Example 1:** `if({field}==123): Extra information here... endif;`
+  * **Example 2:** `if({age}<18): You are underaged! elseif: You are an adult! endif;`
+* **Added:** Extra conditional validation methods with option to compare 2 values instead of just 1 e.g: `> && < Greater than AND Less than` `> || < Greater than OR Less than` `>= && < Greater than or equal to AND Less than` `>= || < Greater than or equal to OR Less than` `> && <= Greater than AND Less than or equal to` `> || <= Greater than OR Less than or equal to` `>= && <= Greater than or equal to AND Less than or equal to` `>= || <= Greater than or equal to OR Less than or equal to`
 * **Added:** Ability to retrieve checkbox/radio/dropdown Label with tag `{field;label}` (currently works for variable fields, conditional logics only in combination with checkbox/radio/dropdowns)
 * **Added:** Option for datepicker field to exclude specific days from the calendar so users won't be able to select them when choosing a date
 * **Added:** Option to disable autofocus for first element inside multi-part when multi-part becomes active
@@ -1021,7 +1004,7 @@ and Contact Entry
 * **Added:** Compatibility with {tags} for conditional logic values and AND values
 * **Added:** Google Map element (with polylines options for drawing point A to B dynamically, for instance for calc. distance with google address autocomplete)
 * **Added:** Option for Google Address Autocomplete to populate street name and number and visa versa at once (combined)
-* **Added:** Backwards compatibility with older form codes that have image field and other HTML field in group form_elements instead of html_elements
+* **Added:** Backwards compatibility with older form codes that have image field and other HTML field in group form\_elements instead of html\_elements
 * **Added:** Shortcode compatibility for default field value
 * **Added:** Google distance calculation setting for dropdown element (allows to let user choose specific locations and calculate distance based on that)
 * **Improved:** Split up Form and HTML elements under their own TAB
@@ -1045,7 +1028,7 @@ and Contact Entry
 * **Added:** Option to send default attachment(s) for all email for both admin and confirmation emails
 * **Improved:** Allow decimal values for quantity field
 * **Fixed:** Issue with conditional logic function when using multi-parts and when "Check for errors before going to next step" is enabled on the multi-part
-* **Fixed:** Check if HTTP_REFERRER is defined, otherwise php will throw error
+* **Fixed:** Check if HTTP\_REFERRER is defined, otherwise php will throw error
 * **Fixed:** `{tag;1}`, `{tag;2}` etc. where only accepting int types and not var types
 * **Fixed:** If Ante/Post meridiem 12 hour format make sure to convert it to 24 hour format in order to return correct timestamp to do calculations with Calculator element
 * **Fixed:** In rare cases custom regex e.g: \d would result in invalid json string seeing blank form in back-end
@@ -1056,7 +1039,7 @@ and Contact Entry
 
 * **Changed:** made plugin ready for Envato Elements
 * **Added:** Tag `{server_http_referrer}` to retrieve the previous location where the user navigate from before landing on the page with the form
-* **Added:** Tag `{server_http_referrer_session}` saves HTTP_REFERRER into session so it will not be subject to change after navigating away and returning back at later time
+* **Added:** Tag `{server_http_referrer_session}` saves HTTP\_REFERRER into session so it will not be subject to change after navigating away and returning back at later time
 * **Added:** Tags to retrieve current date values: `{server_timestamp}`, `{server_day}`, `{server_month}`, `{server_year}`, `{server_hour}`, `{server_minute}`, `{server_seconds}`
 * **Added:** Ability to update Contact Entry title
 * **Added:** Option to exclude fields from being save in Contact Entries
@@ -1065,7 +1048,7 @@ and Contact Entry
 * **Added:** Option to disable form submission on pressing "Enter" key on keyboard (via Form Settings > Form Settings)
 * **Added:** Option to show/hide Multi-part progress bar via Form Settings > Theme & Colors
 * **Added:** Option to show/hide Multi-part steps via Form Settings > Theme & Colors
-* **Added:** JS action hook: SUPER.after_appending_duplicated_column_hook()
+* **Added:** JS action hook: SUPER.after\_appending\_duplicated\_column\_hook()
 * **Improved:** Make sure to skip the multi-part if no visible elements are found (in case multi-part is blank because conditional logic hides every element)
 * **Fixed:** Issue with double quotes in json elements, sometimes backups are giving back a invalid json format resulting in a blank form
 * **Fixed:** Do not skip multi-part when only HTML element or other similar element is found
@@ -1084,11 +1067,11 @@ and Contact Entry
 * **Added:** Option to skip specific fields from being populated with entry data after a successfull contact entry search
 * **Added:** Honeypot captcha to avoid spam by default (of course you can still use Google reCAPTCHA for a better anti-spam if required)
 * **Added:** Option to add custom TAB index (order) for fields
-* **Added:** new filter hook for javascrip translation string and other manipulation such as tab index class exclusion - super_common_i18n_filter
-* **Added:** new filter hook for javascrip translation string and other manipulation such as tab index class exclusion - super_elements_i18n_filter
+* **Added:** new filter hook for javascrip translation string and other manipulation such as tab index class exclusion - super\_common\_i18n\_filter
+* **Added:** new filter hook for javascrip translation string and other manipulation such as tab index class exclusion - super\_elements\_i18n\_filter
 * **Added:** Tag to retrieve user roles from logged in user `{user_roles}`
 * **Changed:** Allow uppercase for unique field names in backend (previously uppercase characters where converted to lowercase automatically)
-* **Removed:** use of session_start() for performance improvements, replaced with custom Session manager
+* **Removed:** use of session\_start() for performance improvements, replaced with custom Session manager
 * **Improved:** TAB index, and mobile TAB index for RTL
 * **Improved:** google places address complete
 * **Improved:** distance calculation between addresses
@@ -1104,15 +1087,15 @@ and Contact Entry
 * **Added:** Dutch (NL) translation
 * **Added:** Backup history and restore previous form backup/autosave
 * **Added:** Redo/undo buttons on form builder page
-* **Added:** Option to save multiple values for dropdown/radio/checkbox and retrieve with tags like: value1;value2  retrieve value1 with `{field;1}` and value2 with `{field;2}` etc.
+* **Added:** Option to save multiple values for dropdown/radio/checkbox and retrieve with tags like: value1;value2 retrieve value1 with `{field;1}` and value2 with `{field;2}` etc.
 * **Added:** Distance/Duration calculator between 2 addresses / zipcodes (google directions api)
 * **Added:** Option to change the first day of the week on date picker element
-* **Added:** new filter hook - super_form_before_first_form_element_filter
-* **Added:** new filter hook - super_form_after_last_form_element_filter
+* **Added:** new filter hook - super\_form\_before\_first\_form\_element\_filter
+* **Added:** new filter hook - super\_form\_after\_last\_form\_element\_filter
 * **Added:** Option for text fields to automatically transform user input to uppercase text
 * **Added:** Option to disable automatic line breaks in emails (useful for pure HTML emails)
 * **Added:** Option to add the IP address to the columns on the Contact Entries listing
-* **Added:** When $_GET or $_POST contains the key of a field that is used to search/autopopulate the form based on a contact entry title, automatically update the form on page load if a entry was found based on the parameter value
+* **Added:** When $\_GET or $\_POST contains the key of a field that is used to search/autopopulate the form based on a contact entry title, automatically update the form on page load if a entry was found based on the parameter value
 * **Improved:** datepicker improvements
 * **Improved:** Documentation extended with some chapters
 * **Fixed:** iOS devices upload file extension uppercase/lowercase issue
@@ -1133,7 +1116,7 @@ and Contact Entry
 * **Fixed:** Bug in IE11 with checkbox/radio that have images
 * **Fixed:** issue with quotes on variable fields values
 * **Fixed:** Issue with multi-parts and tags not updating correctly
-* **Fixed:** Mailster bug issue with parsing an empty header via array() Mailster doesn't like this when they hook into wp_mail()
+* **Fixed:** Mailster bug issue with parsing an empty header via array() Mailster doesn't like this when they hook into wp\_mail()
 * **Fixed:** When disabling the Thank you message via checkbox the session should not write the thank you information
 * **Fixed:** Datepicker table padding
 * **Fixed:** Because JS Composer developers using global CSS selector and didn't wanted to change it we decided to take matter in our own hands and fixed a margin issue when form is placed inside Text Block element of Visual Composer
@@ -1160,7 +1143,7 @@ and Contact Entry
 * **Fixed:** RTL alignment issues / padding issues with some elements depending on theme field sizes
 * **Fixed:** Issue with replacing whitespace for value containing only the letter "s"
 * **Fixed:** issue with dropdowns items that have the same value being send to email while user didn't select them
-* **Fixed:** $entry_data not required for output_builder_html()
+* **Fixed:** $entry\_data not required for output\_builder\_html()
 * **Fixed:** buttons radio/checkbox icon left alignment for medium size theme
 * **Fixed:** Issue with empty default values returning Array in field and textarea due to {tag} not found
 * **Fixed:** ReCAPTCHA alignment fix
@@ -1179,7 +1162,7 @@ and Contact Entry
 * **Fixed:** Problem with checkbox/radio images cutting the image, using contain method instead of cover now.
 * **Fixed:** issue with showing "All" Contact entries also showing deleted items
 * **Fixed:** Browsing images not working back-end checkbox images when adding new checkbox option
-* **Fixed:** When using "Clear / reset the form after submitting" do not empty hidden_form_id field
+* **Fixed:** When using "Clear / reset the form after submitting" do not empty hidden\_form\_id field
 * **Fixed:** When using "Clear / reset the form after submitting" make sure we trigger conditional logic and other actions after fields are emptied
 * **Fixed:** issue with unique code gerator when length is set to 0
 * **Fixed:** issue with file upload field inside dynamic columns
@@ -1190,7 +1173,7 @@ and Contact Entry
 * **Added:** custom reply to headers independent for admin and confirmation emails
 * **Added:** Option to send independent additional headers for admin and confirmation emails
 * **Added:** Option to also add CC and BCC for confirmation emails
-* **Added:** new filter hook - super_countries_list_filter
+* **Added:** new filter hook - super\_countries\_list\_filter
 * **Added:** unique id attribute on form, might become in handy for any plugin/script that only accepts selection by id attribute
 * **Improved:** User friendly and logical navigation for the email settings and headers
 * **Improved:** Quantity field can now have decimal steps e.g 0.5 or custom increment below 1
@@ -1200,7 +1183,7 @@ and Contact Entry
 * **Improved:** Use transient to cache generated codes instead of saving it to database on each page load
 * **Fixed:** Reply-To: header setting for admin and confirmation email not replacing {tags} with values
 * **Fixed:** issue with generating random codes typo: upercase > uppercase
-* **Fixed:** issue with dynamic columns and variable fields not updating {tags} correctly on data attribute and {tags} inside new_value attribute
+* **Fixed:** issue with dynamic columns and variable fields not updating {tags} correctly on data attribute and {tags} inside new\_value attribute
 * **Fixed:** SMPT throws PHP error when additional headers are not empty
 * **Fixed:** not triggering to update field values based on fields that where conditionally hidden and after visible again
 * **Removed:** placeholder setting for currency fields
@@ -1237,7 +1220,7 @@ and Contact Entry
 
 ### Feb 06, 2017 - Version 2.5.0
 
-* **Improved:** Speed, skipping fields that have been triggered previously by the same changed field when calling JS hook: after_field_change_blur_hook()
+* **Improved:** Speed, skipping fields that have been triggered previously by the same changed field when calling JS hook: after\_field\_change\_blur\_hook()
 * **Fixed:** Some third party plugins sometimes conflict with file upload element
 * **Fixed:** RTL for success message
 * **Fixed:** Back-end preview mode conflict with conditional logic (finding 2 fields with same name because of builder page containing the same field)
@@ -1246,7 +1229,7 @@ and Contact Entry
 ### Jan 25, 2017 - Version 2.4.0
 
 * **Added:** Loading icon for search field for contact entry/auto populate field with entry data
-* **Added:** JS action hook: SUPER.after_duplicating_column_hook()
+* **Added:** JS action hook: SUPER.after\_duplicating\_column\_hook()
 * **Changed:** CSS selector for messages from: error to: super-error, success to: super-success, info to: super-info
 * **Improved:** Overal code/speed optimization
 * **Improved:** Dropdown item responsiveness (don't cut words)
@@ -1258,7 +1241,7 @@ and Contact Entry
 * **Fixed:** undefined variable $class on currency element
 * **Fixed:** File upload issue: cannot call methods on fileupload prior to initialization
 * **Fixed:** Even when max / min file upload was set to 0 it would still display an error message
-* **Fixed:** checking with !session_id() instead of session_status()==PHP_SESSION_NONE for PHP 5.4+
+* **Fixed:** checking with !session\_id() instead of session\_status()==PHP\_SESSION\_NONE for PHP 5.4+
 
 ### Jan 18, 2017 - Version 2.3.0
 
@@ -1282,9 +1265,9 @@ and Contact Entry
 
 ### Dec 18, 2016 - Version 2.1.0
 
-* **Added:** JS action hook: SUPER.before_scrolling_to_message_hook()
-* **Added:** JS action hook: SUPER.before_scrolling_to_error_hook()
-* **Added:** Option to use {tags} in variable field conditional logic e.g: [Field 1] >= {field2}
+* **Added:** JS action hook: SUPER.before\_scrolling\_to\_message\_hook()
+* **Added:** JS action hook: SUPER.before\_scrolling\_to\_error\_hook()
+* **Added:** Option to use {tags} in variable field conditional logic e.g: \[Field 1] >= {field2}
 * **Fixed:** Make sure grid system column counter is reset after form has been generated to prevent issues with multiple forms on a single page
 * Included: Document with all actions and filter hooks
 
@@ -1293,14 +1276,14 @@ and Contact Entry
 * **Added:** Currency field
 * **Added:** Button option to reset / clear the form fields
 * **Added:** Option to reset / clear the form after submitting
-* **Added:** JS action hook: SUPER.after_form_cleared_hook()
+* **Added:** JS action hook: SUPER.after\_form\_cleared\_hook()
 * **Added:** Option to enter the submit button loading state text e.g: Loading...
 * **Added:** Option to change button loading state name via settings
 * **Added:** Option to hide / show the form after form being submitted
 * **Added:** Option to set margin for success message (thank you message)
 * **Added:** validate multi-part before going to next step
-* **Added:** new filter hook - super_before_sending_email_attachments_filter
-* **Added:** new filter hook - super_before_sending_email_confirm_attachments_filter
+* **Added:** new filter hook - super\_before\_sending\_email\_attachments\_filter
+* **Added:** new filter hook - super\_before\_sending\_email\_confirm\_attachments\_filter
 * **Fixed:** datepicker not showing because of timepicker undefined bug
 * **Fixed:** bug with max / min selection for dropdown and checkboxes
 * **Fixed:** multi-part validation trying to submit the form if no errors where found in the mulit-part
@@ -1323,8 +1306,8 @@ and Contact Entry
 * **Added:** Custom (wrapper) class option for all elements
 * **Added:** Background image option for columns
 * **Added:** Option to set background opacity on columns
-* **Added:** JS action hook: SUPER.after_preview_loaded_hook()
-* **Added:** JS action hook: SUPER.before_submit_button_click_hook()
+* **Added:** JS action hook: SUPER.after\_preview\_loaded\_hook()
+* **Added:** JS action hook: SUPER.before\_submit\_button\_click\_hook()
 * **Fixed:** File upload field not displaying errors inside multi-part column
 * **Fixed:** HTML element {tags} must only reflect on the form elements inside it's current form and not an other form (when more than 1 is used on a single page)
 * **Fixed:** Issue with masked input not converting the mask to a string
@@ -1345,10 +1328,10 @@ and Contact Entry
 * **Fixed:** file upload element exclude from email setting not only working on body content but not for the email attachment
 * **Fixed:** conditional logic not being updated on columns that are inside a dynamic column
 * **Fixed:** Using custom submit button with preloader disabled shows the default button for a split second
-* **Fixed:** $forms_custom_css undefined
+* **Fixed:** $forms\_custom\_css undefined
 * **Fixed:** Search issue contact entries
 * **Improved:** Updated plugin activation timeout from 5 seconds to 60 seconds for slow servers
-* **Added:** new filter hook - super_before_sending_email_data_filter
+* **Added:** new filter hook - super\_before\_sending\_email\_data\_filter
 
 ### Oct 25, 2016 - Version 1.7.0
 
@@ -1373,7 +1356,7 @@ and Contact Entry
 * **Fixed:** Avada making the datepicker month next/prev buttons font color white
 * **Fixed:** undefined $data, issue with dynamic columns and updating the conditional logic dynamically
 * **Fixed:** When using reCAPTCHA and only sending dropdown label the value is duplicated in email
-* **Removed:** filter function do_shortcode on the_content, causes issues in some ocasions (let the theme handle this filter instead)
+* **Removed:** filter function do\_shortcode on the\_content, causes issues in some ocasions (let the theme handle this filter instead)
 
 ### Oct 15, 2016 - Version 1.6.0
 
@@ -1384,28 +1367,28 @@ and Contact Entry
 
 * **Fixed:** Javascript compatibility issue with Safari browser
 * **Fixed:** Last field duplicated in confirmation email (send to submitted)
-* **Improved:** When typing a unique field name unwanted characters are stripped, only numbers, letters, - and _ are allowed.
+* **Improved:** When typing a unique field name unwanted characters are stripped, only numbers, letters, - and \_ are allowed.
 * **Added:** Option to only allow users to select weekends or work days for datepickers
 
 ### Oct 8, 2016 - Version 1.4.0
 
 * **Fixed:** Issue with file uploading when filename contains comma's
 * **Fixed:** Issue with variable fields and calculations incorrect order resulting in wrong calculations
-* **Added:** Option to retrieve Contact Entry ID with tag: `{contact_entry_id}`  (can be used in success message and emails)
+* **Added:** Option to retrieve Contact Entry ID with tag: `{contact_entry_id}` (can be used in success message and emails)
 
 ### Oct 5, 2016 - Version 1.3.0
 
-* **Fixed:** Conflict class WP_AutoUpdate, changed it to SUPER_WP_AutoUpdate
+* **Fixed:** Conflict class WP\_AutoUpdate, changed it to SUPER\_WP\_AutoUpdate
 * **Fixed:** Dropdown no longer being largen when focussed
 * **Fixed:** Duplicate column fields no longer hiding dropdown content (overflow:hidden removed)
-* **Fixed:** saving directory home_url() changed to site_url() (in case core files are located different location on server)
+* **Fixed:** saving directory home\_url() changed to site\_url() (in case core files are located different location on server)
 * **Fixed:** Checkbox images retrieving thumbnail version, now returning original image
 * **Fixed:** Issue with font-awesome stylesheet not having a unique name, changed it to super-font-awesome
 * **Fixed:** {tag} in HTML element not displaying negative calculator value correctly
 * **Added:** Option to update conditional logic dynamically when using dynamic fields (add more +)
-* **Added:** JS action hook: SUPER.after_responsive_form_hook()
-* **Added:** JS action hook: SUPER.after_duplicate_column_fields_hook()
-* **Added:** JS filter hook: SUPER.after_form_data_collected_hook()
+* **Added:** JS action hook: SUPER.after\_responsive\_form\_hook()
+* **Added:** JS action hook: SUPER.after\_duplicate\_column\_fields\_hook()
+* **Added:** JS filter hook: SUPER.after\_form\_data\_collected\_hook()
 * **Added:** option to add padding to columns
 * **Added:** option to add background color to columns
 * **Added:** Option to return current date (server time) for datepicker field
@@ -1423,8 +1406,8 @@ and Contact Entry
 * **Fixed:** Class align-left conflict with Heading elements in Visual Composer
 * **Fixed:** HTML value not updated correctly with {tag} for calculator element
 * **Added:** Option to save only the value or both value and label for contact entry data for elements dropdown/checkbox/radio
-* **Added:** new action hook - super_after_saving_contact_entry_action
-* **Added:** new filter hook - super_after_contact_entry_data_filter
+* **Added:** new action hook - super\_after\_saving\_contact\_entry\_action
+* **Added:** new filter hook - super\_after\_contact\_entry\_data\_filter
 * **Added:** Option to make disable fields (disallow user from editing input value)
 * **Added:** Option to use {tags} within the variable field update value setting
 * **Added:** Option to add the Form name to columns on the the contact entries listing
@@ -1438,7 +1421,7 @@ and Contact Entry
 * **Added:** Option to add custom CSS per form
 * **Added:** Option to allow user input filter the dropdown options/values
 * **Added:** Option to add custom class on button element
-* **Added:** new filter hook - super_form_settings_filter
+* **Added:** new filter hook - super\_form\_settings\_filter
 * **Improved:** Grid system
 * **Improved:** In backend font-awesome only loaded on the Super Forms pages that uses fontawesom icons
 
@@ -1447,7 +1430,7 @@ and Contact Entry
 * **Added:** 5 new demo forms!
 * **Fixed:** Small bug when changing column size (in some cases not being saved/remembered)
 * **Fixed:** Uncaught TypeError when datepicker default value is empty
-* **Fixed:** Only apply meta_query custom search for super forms contact entries
+* **Fixed:** Only apply meta\_query custom search for super forms contact entries
 * **Fixed:** When WP network site is enabled, wrong directory is called for media uploads
 * **Added:** Option to calculate difference between 2 timepickers (Calculator element required!)
 * **Added:** Option to calculate age based on birth date for datepickers (Calculator element required!)
@@ -1459,8 +1442,8 @@ and Contact Entry
 * **Added:** Setting to chose what value should be send to emails for dropdowns, checkbox and radio buttons
 * **Added:** `{field_label_****}` tag to use in emails and subjects etc.
 * **Added:** Option to do math between datepickers with Calculator element
-* **Added:** new filter hook - super_common_attributes_filter
-* **Improved:** Contact entry export to CSV now includes: entry_id, entry_title, entry_date, entry_author, entry_status and entry_ip
+* **Added:** new filter hook - super\_common\_attributes\_filter
+* **Improved:** Contact entry export to CSV now includes: entry\_id, entry\_title, entry\_date, entry\_author, entry\_status and entry\_ip
 
 ### July 26, 2016 - Version 1.2.6
 
@@ -1469,7 +1452,7 @@ and Contact Entry
 * **Added:** Ability to automatically update the plugin without the need to delete it first
 * **Added:** Option to import Contact Entries from CSV file
 * **Improved:** Contact entry filter / search function
-* **Improved:** __DIR__ replaced with dirname( __FILE__ ) due to PHP version < 5.4
+* **Improved:** **DIR** replaced with dirname( **FILE** ) due to PHP version < 5.4
 
 ### July 14, 2016 - Version 1.2.5
 
@@ -1486,7 +1469,7 @@ and Contact Entry
 * **Added:** Option to set delimiter and enclosure for dropdowns and autosuggest when using CSV file
 * **Added:** Option to translate/rename multi-part Prev and Next buttons independently
 * **Added:** 5 demo forms for Add-on Front-end posting
-* **Added:** new filter hook - super_form_before_do_shortcode_filter
+* **Added:** new filter hook - super\_form\_before\_do\_shortcode\_filter
 * **Improved:** General CSS improvements
 * **Improved:** Dropdown items now have overflow hidden to avoid problems with long options
 * **Improved:** TAB functionality for both multi-part and without multi-part columns
@@ -1527,12 +1510,12 @@ and Contact Entry
 
 ### May 15, 2016 - Version 1.2.2
 
-* **Fixed:** wp_enqueue_media(); not called on settings page
+* **Fixed:** wp\_enqueue\_media(); not called on settings page
 * **Fixed:** Conditional logic in combination with preloader
 * **Fixed:** File upload error message fading out after 1 sec.
 * **Fixed:** Default radio/checkbox/dropdown selection now automatically apply/filter conditional logics
 * **Fixed:** Enqueue datepicker / timepicker if Ajax calls are enabled
-* **Improved:** Now using wp_remote_post instead of file_get_contents because of the 15 sec. open connection on some hosts
+* **Improved:** Now using wp\_remote\_post instead of file\_get\_contents because of the 15 sec. open connection on some hosts
 * **Improved:** Allowed extensions for file uploads
 * **Improved:** Overall conditional logic
 * **Improved:** Overall drag & drop sensitity
@@ -1542,7 +1525,7 @@ and Contact Entry
 * **Added:** Option to make columns invisible although they can still be used for calculations and saved or send by mail
 * **Added:** Option to minimize elements and columns/multiparts in backend (even more user friendly form building!)
 * **Added:** Currency, Decimals, Thousand separator, Decimal separator options for Slider field
-* **Added:** parameter entry_id on action hook "super_before_email_success_msg_action"
+* **Added:** parameter entry\_id on action hook "super\_before\_email\_success\_msg\_action"
 * **Added:** Option to do a single condition with 2 seperate validations with (AND / OR)
 
 ### May 3, 2016 - Version 1.2.1
@@ -1564,8 +1547,8 @@ and Contact Entry
 
 ### April 29, 2016 - Version 1.2
 
-* **Fixed:** If a theme is using an ajax call get_the_title cannot be used for `{post_title}` to retrieve the Post Title, now it will check if post_id is set by the ajax call, if this is the case it will try to use it to retrieve the title, otherwise the field value will stay empty
-* **Fixed:** Conditional logic broken on column after changing .column class to .super-column for js_composer conflict with styles
+* **Fixed:** If a theme is using an ajax call get\_the\_title cannot be used for `{post_title}` to retrieve the Post Title, now it will check if post\_id is set by the ajax call, if this is the case it will try to use it to retrieve the title, otherwise the field value will stay empty
+* **Fixed:** Conditional logic broken on column after changing .column class to .super-column for js\_composer conflict with styles
 * **Fixed:** If multiple forms are used on a single page the form will scroll to the first error on the page instead of checking on the current form itself
 * **Fixed:** For the element button the target attribute (open in new browser) was not being affected
 * **Fixed:** If contact entries are exported to CSV the /uploads/files folder must exist
@@ -1576,11 +1559,11 @@ and Contact Entry
 
 ### April 24, 2016 - Version 1.1.9
 
-* **Fixed:** wp_mail() additional headers not parsed since v1.1.7
+* **Fixed:** wp\_mail() additional headers not parsed since v1.1.7
 * **Added:** Option to export Contact entries to CSV file (including attachments via URLs)
 * **Added:** Progress bar on file upload element
 * **Improved:** When alement is added, it will automatically be renamed if same field name exists
-* **Improved:** Better script for processing attachments to email for both wp_mail & smtp
+* **Improved:** Better script for processing attachments to email for both wp\_mail & smtp
 * **Improved:** Form builder page is now more user friendly (backend)
 * **Improved:** Responsiveness of form builder page (backend)
 
@@ -1605,7 +1588,7 @@ and Contact Entry
 * **Fixed:** reCAPTCHA conditional-validation-value undefined
 * **Fixed:** When minimum files are not set for file upload it will not proceed to submit the form
 * **Fixed:** textarea cannot add line breaks, form is trying to submit after pressing enter when textarea is focussed
-* **Fixed:** Warning: array_merge(): Argument #2 is not an array, when first time creating Form
+* **Fixed:** Warning: array\_merge(): Argument #2 is not an array, when first time creating Form
 * **Added:** Submit Button element, allows you to add conditional logic on submit button if placed inside colum
 * **Added:** Tags to retrieve values of logged in user `{user_login}`, `{user_email}`, `{user_firstname}`, `{user_lastname}`, `{user_display}`, `{user_id}`
 
@@ -1642,7 +1625,7 @@ and Contact Entry
 * **Fixed:** if next field is a checkbox or radio button the TAB did not focus this field
 * **Improved:** line height for dropdown items adjusted for more user friendly expierience
 * **Added:** functionality to dynamically add and execute javascript functions with new provided filter hooks
-* **Added:** new filter hook - super_common_js_dynamic_functions_filter
+* **Added:** new filter hook - super\_common\_js\_dynamic\_functions\_filter
 
 ### February 28, 2016 - Version 1.1.2
 
@@ -1672,7 +1655,7 @@ and Contact Entry
 
 ### February 19, 2016 - Version 1.0.9
 
-* **Fixed:** Result 'status' in filter super_before_email_loop_data_filter not being set caused uncaught error
+* **Fixed:** Result 'status' in filter super\_before\_email\_loop\_data\_filter not being set caused uncaught error
 * **Fixed:** When in preview mode conditional logic not triggered after changing dropdown selection
 * **Fixed:** reCAPTCHA initialized twice instead of once, which results in error 'placeholder must be empty'
 * **Fixed:** reCAPTCHA now also loaded in preview mode
@@ -1683,21 +1666,21 @@ and Contact Entry
 ### February 11, 2016 - Version 1.0.8.1
 
 * **Fixed:** after previous update all fields could have duplicate field name
-* **Added:** New filter hook - super_before_email_loop_data_filter
+* **Added:** New filter hook - super\_before\_email\_loop\_data\_filter
 
 ### February 9, 2016 - Version 1.0.8
 
 * **Fixed:** Multiple file upload fields not seen as unique field names when actually containing unique names
 * **Fixed:** When conditional logic used on an element inside a column that is placed inside a multipart it fails to display the multipart
 * **Fixed:** Submit button sometimes not correctly aligned
-* **Added:** New filter hook - super_form_styles_filter
+* **Added:** New filter hook - super\_form\_styles\_filter
 * **Added:** New predefined element (E-mail address)
 
 ### January 14, 2016 - Version 1.0.7
 
 * **Fixed:** Datepacker in some cases not visible when theme is overiding styles
 * **Fixed:** Element to browse images only initialized when editing element and not on Create form page load
-* **Fixed:** SUPER_Settings class php error when in preview mode
+* **Fixed:** SUPER\_Settings class php error when in preview mode
 * **Added:** Possibility to translate the date picker month and day names
 
 ### January 9, 2016 - Version 1.0.6
@@ -1713,15 +1696,15 @@ and Contact Entry
 * **Added:** Files are now attached as an file in emails
 * **Added:** Option to retrieve tags inside the thank you title and description after a successful submitted form
 * **Added:** New notifications function for better and more flexible way to display messages to users
-* **Added:** Option to retrieve Post title (post_title) and Post ID (post_ID) as default value
+* **Added:** Option to retrieve Post title (post\_title) and Post ID (post\_ID) as default value
 * **Added:** Conditional Validation for fields (== equal, ? contains, > greater than etc.)
 * **Added:** Dropdown CSV upload possibility
-* **Added:** Dropdown retrieve WP categories (by taxonomy name e.g category, product_cat etc.)
+* **Added:** Dropdown retrieve WP categories (by taxonomy name e.g category, product\_cat etc.)
 * **Added:** Option to export and import form settings per form and the default form settings
 * **Added:** For Add-on purposes, a function to return error and success messages
-* **Added:** New action hook - super_before_email_success_msg_action
-* **Added:** New action hook - super_before_printing_message
-* **Changed:** Action hook from super_before_printing_redirect_js_action to super_before_email_success_msg_action
+* **Added:** New action hook - super\_before\_email\_success\_msg\_action
+* **Added:** New action hook - super\_before\_printing\_message
+* **Changed:** Action hook from super\_before\_printing\_redirect\_js\_action to super\_before\_email\_success\_msg\_action
 
 ### December 18, 2015 - Version 1.0.5
 
@@ -1753,9 +1736,9 @@ and Contact Entry
 
 ### December 11, 2015 - Version 1.0.2
 
-* **Added:** Action Hook (super_before_printing_redirect_js_action) to do something before displaying or redirecting after completed submitted form.
+* **Added:** Action Hook (super\_before\_printing\_redirect\_js\_action) to do something before displaying or redirecting after completed submitted form.
 * **Fixed:** On editing column previously generated fields are not correctly retrieved.
-* **Fixed:** For columns the conditional logic wasn't looping through multiple conditions only through the first condition.  
+* **Fixed:** For columns the conditional logic wasn't looping through multiple conditions only through the first condition.
 
 ### December 10, 2015 - Version 1.0.1
 
