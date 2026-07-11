@@ -8,6 +8,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Jul 11, 2026 - Version 6.3.315
+
+- **Security fix:** Closed a form-submission validation bypass, so reCAPTCHA and required-field checks can no longer be skipped by direct or automated requests (CVE-2026-14894 follow-up).
+
 ## Jul 07, 2026 - Version 6.3.314
 
 - **Security fix:** Hardened form file-upload handling to prevent unauthorized file writes (CVE-2026-14894).
