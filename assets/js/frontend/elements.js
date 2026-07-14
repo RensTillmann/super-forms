@@ -2251,11 +2251,19 @@
 
         // Delete dynamic column
         $doc.on('click', '.super-duplicate-column-fields .super-delete-duplicate', function(){
+            var parent = this.closest('.super-duplicate-column-fields'),
+                siblingRows = parent.parentNode.children,
+                rowCount = 0,
+                rowIndex;
+            for(rowIndex=0; rowIndex<siblingRows.length; rowIndex++){
+                if(siblingRows[rowIndex].classList.contains('super-duplicate-column-fields')) rowCount++;
+            }
+            if(rowCount<=1) return;
+
             var i, x, nodes, found,
                 form = this.closest('.super-form'),
                 removedFields = {},
                 dataFields,
-                parent = this.closest('.super-duplicate-column-fields'),
                 foundElements = [];
             nodes = parent.querySelectorAll('.super-shortcode-field');
             for (i = 0; i < nodes.length; ++i) {
