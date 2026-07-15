@@ -8,6 +8,11 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Jul 15, 2026 - Version 6.3.316
+
+- **Fix:** Corrected server-side validation so optional fields can be left empty while required fields, including Toggle elements and fields in repeated rows, are enforced.
+- **Improved:** Compatibility with WordPress 7.0.1
+
 ## Jul 11, 2026 - Version 6.3.315
 
 - **Security fix:** Closed a form-submission validation bypass, so reCAPTCHA and required-field checks can no longer be skipped by direct or automated requests (CVE-2026-14894 follow-up).

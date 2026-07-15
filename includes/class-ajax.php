@@ -2427,39 +2427,99 @@ class SUPER_Ajax {
     }
 
     /**
+     * Return the field name used by common.js as this repeater's
+     * `_super_dynamic_data` group key: the first rendered payload carrier.
+     * An unfamiliar named leaf makes the key unknowable, so row enforcement
+     * is disabled rather than risking a false rejection.
+     */
+    private static function first_repeater_group_name( $elements ) {
+        if( !is_array( $elements ) ) return '';
+        static $payload_tags = array(
+            'quantity'=>true, 'toggle'=>true, 'color'=>true, 'slider'=>true,
+            'currency'=>true, 'text'=>true, 'textarea'=>true, 'dropdown'=>true, 'checkbox'=>true,
+            'radio'=>true, 'file'=>true, 'date'=>true, 'time'=>true, 'rating'=>true,
+            'countries'=>true, 'password'=>true, 'hidden'=>true, 'html'=>true,
+            'tinymce'=>true, 'calculator'=>true, 'signature'=>true,
+        );
+        static $non_payload_tags = array(
+            'button'=>true, 'heading'=>true, 'divider'=>true,
+            'spacer'=>true, 'image'=>true, 'recaptcha'=>true,
+        );
+        foreach( $elements as $element ) {
+            if( !empty( $element['inner'] ) ) {
+                $name = self::first_repeater_group_name( $element['inner'] );
+                if( $name === null || $name !== '' ) return $name;
+                continue;
+            }
+            $edata = ( isset( $element['data'] ) && is_array( $element['data'] ) ) ? $element['data'] : array();
+            if( !isset( $edata['name'] ) || !is_string( $edata['name'] ) || $edata['name'] === '' ) continue;
+            $tag = isset( $element['tag'] ) ? $element['tag'] : '';
+            if( isset( $payload_tags[ $tag ] ) ) {
+                if( $tag === 'html' || $tag === 'tinymce' ) {
+                    $html = ( isset( $edata['html'] ) && is_string( $edata['html'] ) ) ? $edata['html'] : '';
+                    $translations = ( isset( $edata['i18n'] ) && is_array( $edata['i18n'] ) ) ? $edata['i18n'] : array();
+                    if( $html === '' ) {
+                        foreach( $translations as $translation ) {
+                            if( is_array( $translation )
+                                && isset( $translation['html'] )
+                                && is_string( $translation['html'] )
+                                && $translation['html'] !== '' ) {
+                                return null;
+                            }
+                        }
+                        continue;
+                    }
+                    foreach( $translations as $translation ) {
+                        if( is_array( $translation )
+                            && array_key_exists( 'html', $translation )
+                            && ( !is_string( $translation['html'] ) || $translation['html'] === '' ) ) {
+                            return null;
+                        }
+                    }
+                }
+                return $edata['name'];
+            }
+            if( isset( $non_payload_tags[ $tag ] ) ) continue;
+            return null;
+        }
+        return '';
+    }
+
+    /**
      * @since 6.3.315 - Recursively collect required fields from stored form elements and
      * classify each for safe server-side enforcement (CVE-2026-14894 follow-up).
      *
-     * Only element tags that expose the `may_be_empty` setting AND render a client-side
-     * `data-validation` attribute are enrolled. This mirrors the front-end exactly: it only
-     * raises a required-empty error for those input tags (common.js handle_validations), and it
-     * NEVER validates data-carrier / structural elements (hidden, toggle_field, rating, recaptcha,
-     * button, html, option-item children, file). Because a genuinely-required input stores
-     * `may_be_empty` ABSENT (the 'false' default is stripped on save), absence is treated as
-     * required. Fields with may_be_empty 'true' (optional) or 'conditions' (conditional logic,
-     * not evaluable server-side) are skipped.
+     * Only element tags that expose the `may_be_empty` setting and have an explicit
+     * client-side validation rule are enrolled. This mirrors the front-end exactly:
+     * `SUPER_Shortcodes::common_attributes()` renders `data-validation` only for a
+     * non-empty rule other than `none`, and common.js validates only those fields.
+     * Data-carrier / structural elements (hidden, toggle_field, rating, recaptcha,
+     * button, html, option-item children, file) are never enrolled. Because a
+     * genuinely-required validated input stores `may_be_empty` absent (the `false`
+     * default is stripped on save), absence is treated as required. Fields without
+     * a validation rule and fields with may_be_empty `true` or `conditions` are skipped.
      *
-     * Each enrolled field carries two flags:
+     * Each enrolled field carries enforcement metadata:
      *   - always_present: the field sits under NO conditional / mobile-hidden / repeater /
      *     multipart ancestor and is not itself conditional/mobile-hidden, so the front-end
      *     ALWAYS sends it; a payload missing it was tampered with (presence enforcement).
-     *   - repeater_enforceable: the field is inside a repeater whose ENTIRE enclosing chain is
-     *     conditional-free, so the positional per-row key-normalization in assets/js/common.js
-     *     cannot misalign an optional value under a required name (row-level enforcement).
-     * On a duplicate field name both flags are AND-combined, so any locked/unsafe occurrence
-     * downgrades the field everywhere (fail-safe against enforcing on an ambiguous name).
+     *   - repeater_enforceable: the field is inside a repeater whose ENTIRE enclosing chain has
+     *     deterministic visibility, so positional row data can be validated safely.
+     *   - repeater_group: the stored-tree payload key common.js assigns to that repeater.
+     * On a duplicate field name, always_present is AND-combined and row enforcement is disabled
+     * because the payload cannot identify which same-named occurrence supplied the value.
      *
      * @param array $elements  Stored `_super_elements` (or an `inner` subtree).
      * @param array $ctx       Recursion context; null seeds the top-level default.
      */
     private static function collect_required_fields( $elements, $ctx = null ) {
-        if( $ctx === null ) $ctx = array( 'ancestor_locked' => false, 'in_repeater' => false, 'repeater_safe' => true );
+        if( $ctx === null ) $ctx = array( 'ancestor_locked' => false, 'in_repeater' => false, 'repeater_safe' => true, 'repeater_group' => '' );
         $required = array();
         if( !is_array( $elements ) ) return $required;
-        // The 13 input tags routed through SUPER_Shortcodes::common_attributes (data-validation + may_be_empty).
+        // The 14 stored input tags routed through SUPER_Shortcodes::common_attributes (data-validation + may_be_empty).
         $validated_tags = array(
             'text'=>true, 'textarea'=>true, 'dropdown'=>true, 'checkbox'=>true, 'radio'=>true,
-            'quantity_field'=>true, 'color'=>true, 'slider_field'=>true, 'currency'=>true,
+            'quantity'=>true, 'toggle'=>true, 'color'=>true, 'slider'=>true, 'currency'=>true,
             'date'=>true, 'time'=>true, 'countries'=>true, 'password'=>true,
         );
         foreach( $elements as $element ) {
@@ -2478,18 +2538,22 @@ class SUPER_Ajax {
             $child_locked = ( $ctx['ancestor_locked'] || $conditional || $repeater || $mobile_hide || $is_multipart );
             if( !empty( $element['inner'] ) ) {
                 if( $repeater ) {
-                    // A repeater is row-enforceable only when NOTHING in its subtree is conditional.
-                    $this_safe = !self::subtree_has_conditional( $element['inner'] );
+                    // A repeater is row-enforceable only when its payload group is known and
+                    // NOTHING in its subtree has conditional or mobile-dependent visibility.
+                    $repeater_group = self::first_repeater_group_name( $element['inner'] );
+                    $this_safe = ( is_string( $repeater_group ) && $repeater_group !== '' && !self::subtree_has_dynamic_visibility( $element['inner'] ) );
                     $child_ctx = array(
                         'ancestor_locked' => $child_locked,
                         'in_repeater' => true,
                         'repeater_safe' => ( $ctx['repeater_safe'] && $this_safe ),
+                        'repeater_group' => $repeater_group,
                     );
                 } else {
                     $child_ctx = array(
                         'ancestor_locked' => $child_locked,
                         'in_repeater' => $ctx['in_repeater'],
                         'repeater_safe' => $ctx['repeater_safe'],
+                        'repeater_group' => $ctx['repeater_group'],
                     );
                 }
                 foreach( self::collect_required_fields( $element['inner'], $child_ctx ) as $sub_name => $sub_meta ) {
@@ -2497,11 +2561,14 @@ class SUPER_Ajax {
                 }
             } elseif( !empty( $edata['name'] ) ) {
                 if( empty( $validated_tags[ $tag ] ) ) continue; // not a front-end-validated input tag
+                $validation = isset( $edata['validation'] ) ? $edata['validation'] : '';
+                if( !is_string( $validation ) || $validation === '' || $validation === 'none' ) continue; // no data-validation attribute on the rendered field
                 $may_be_empty = isset( $edata['may_be_empty'] ) ? $edata['may_be_empty'] : 'false';
                 if( $may_be_empty === 'false' ) {
                     $required = self::merge_required_meta( $required, $edata['name'], array(
                         'always_present' => !$child_locked,
-                        'repeater_enforceable' => ( $ctx['in_repeater'] && $ctx['repeater_safe'] ),
+                        'repeater_enforceable' => ( $ctx['in_repeater'] && $ctx['repeater_safe'] && $ctx['repeater_group'] !== '' ),
+                        'repeater_group' => $ctx['repeater_group'],
                     ) );
                 }
             }
@@ -2510,31 +2577,90 @@ class SUPER_Ajax {
     }
 
     /**
-     * @since 6.3.315 - Merge one classified required-field into the accumulator, AND-combining
-     * both flags on a duplicate name so any locked/unsafe occurrence disables enforcement.
+     * Treat scalar and flat scalar-array values like the browser does while rejecting
+     * nested or object payloads as empty. This prevents malformed direct requests from
+     * turning required-field validation into a PHP error.
+     */
+    private static function required_field_value_present( $value ) {
+        if( is_array( $value ) ) {
+            $parts = array();
+            foreach( $value as $part ) {
+                if( !is_scalar( $part ) && $part !== null ) return false;
+                $parts[] = ( $part === null ) ? '' : (string) $part;
+            }
+            $value = implode( '', $parts );
+        } elseif( !is_scalar( $value ) && $value !== null ) {
+            return false;
+        }
+        return trim( wp_strip_all_tags( (string) $value ) ) !== '';
+    }
+
+    /**
+     * Validate every required field in every row of the repeater group assigned
+     * from the stored form tree. Payload-provided group names never establish
+     * membership, so moving a valid value into a forged group cannot bypass checks.
+     */
+    private static function validate_repeater_required_values( $dynamic_data, $required_fields ) {
+        $groups = array();
+        foreach( $required_fields as $field_name => $meta ) {
+            if( empty( $meta['repeater_enforceable'] ) ) continue;
+            $group_name = isset( $meta['repeater_group'] ) ? $meta['repeater_group'] : '';
+            if( !is_string( $group_name ) || $group_name === '' ) return false;
+            if( !isset( $groups[ $group_name ] ) ) $groups[ $group_name ] = array();
+            $groups[ $group_name ][ $field_name ] = true;
+        }
+        if( empty( $groups ) ) return true;
+        if( !is_array( $dynamic_data ) ) return false;
+        foreach( $groups as $group_name => $group_required_fields ) {
+            if( !isset( $dynamic_data[ $group_name ] )
+                || !is_array( $dynamic_data[ $group_name ] )
+                || empty( $dynamic_data[ $group_name ] ) ) {
+                return false;
+            }
+            foreach( $dynamic_data[ $group_name ] as $row ) {
+                if( !is_array( $row ) ) return false;
+                foreach( $group_required_fields as $field_name => $_required ) {
+                    if( !isset( $row[ $field_name ] )
+                        || !is_array( $row[ $field_name ] )
+                        || !array_key_exists( 'value', $row[ $field_name ] )
+                        || !self::required_field_value_present( $row[ $field_name ]['value'] ) ) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+
+    /**
+     * @since 6.3.315 - Merge one classified required field into the accumulator.
+     * Duplicate names remain eligible for top-level enforcement only when every
+     * occurrence is unconditional. Row enforcement is disabled because a payload
+     * cannot identify which same-named repeater occurrence a value belongs to.
      */
     private static function merge_required_meta( $required, $name, $meta ) {
         if( isset( $required[ $name ] ) ) {
             $meta['always_present'] = ( $required[ $name ]['always_present'] && $meta['always_present'] );
-            $meta['repeater_enforceable'] = ( $required[ $name ]['repeater_enforceable'] && $meta['repeater_enforceable'] );
+            $meta['repeater_enforceable'] = false;
         }
         $required[ $name ] = $meta;
         return $required;
     }
 
     /**
-     * @since 6.3.315 - True when ANY element in the subtree carries active conditional logic.
-     * Used to exempt conditional-containing repeaters from row-level enforcement: a conditional
-     * field's per-row visibility variation breaks the positional key-normalization in
-     * assets/js/common.js (an optional-empty value could be renamed under a required name).
+     * @since 6.3.315 - True when ANY element in the subtree can disappear
+     * conditionally or on mobile. Such repeaters are exempt from row-level
+     * enforcement because common.js can change positional key normalization.
      */
-    private static function subtree_has_conditional( $elements ) {
+    private static function subtree_has_dynamic_visibility( $elements ) {
         if( !is_array( $elements ) ) return false;
         foreach( $elements as $element ) {
             $edata = ( isset( $element['data'] ) && is_array( $element['data'] ) ) ? $element['data'] : array();
             $ca = isset( $edata['conditional_action'] ) ? $edata['conditional_action'] : '';
-            if( $ca !== '' && $ca !== 'disabled' ) return true;
-            if( !empty( $element['inner'] ) && self::subtree_has_conditional( $element['inner'] ) ) return true;
+            $mobile_hide = ( ( isset( $edata['hide_on_mobile'] ) && $edata['hide_on_mobile'] === 'true' )
+                || ( isset( $edata['hide_on_mobile_window'] ) && $edata['hide_on_mobile_window'] === 'true' ) );
+            if( ( $ca !== '' && $ca !== 'disabled' ) || $mobile_hide ) return true;
+            if( !empty( $element['inner'] ) && self::subtree_has_dynamic_visibility( $element['inner'] ) ) return true;
         }
         return false;
     }
@@ -2635,9 +2761,9 @@ class SUPER_Ajax {
         //   (c) repeater rows: required fields inside a CONDITIONAL-FREE repeater chain must be
         //       non-empty in every row; conditional-containing repeaters are exempt because per-row
         //       visibility variation breaks the positional key-normalization (assets/js/common.js).
-        // Values are array-coerced (implode) before the empty test, so an array payload cannot slip
-        // past the string check. collect_required_fields() enrolls only front-end-validated input
-        // tags; file uploads (type 'files') are skipped.
+        // Flat array values are joined before the empty test; malformed nested/object payloads
+        // are rejected without triggering a PHP error.
+        // File-upload carriers remain outside this check.
         if( $skipChecks === false && is_array( $form_elements ) && !empty( $form_elements ) ) {
             $required_fields = self::collect_required_fields( $form_elements );
             if( !empty( $required_fields ) ) {
@@ -2646,9 +2772,7 @@ class SUPER_Ajax {
                     if( !is_array( $field_data ) || !isset( $field_data['value'] ) ) continue;
                     if( isset( $field_data['type'] ) && $field_data['type']==='files' ) continue;
                     if( isset( $required_fields[ $field_name ] ) ) {
-                        $value = $field_data['value'];
-                        if( is_array( $value ) ) $value = implode( '', $value );
-                        if( trim( wp_strip_all_tags( (string) $value ) )==='' ) {
+                        if( !self::required_field_value_present( $field_data['value'] ) ) {
                             SUPER_Common::output_message( $error = true, esc_html__( 'Please fill in all required fields.', 'super-forms' ) );
                         }
                     }
@@ -2656,35 +2780,16 @@ class SUPER_Ajax {
                 // (b) Presence of unconditional required fields (issue #114 gap-1).
                 foreach( $required_fields as $field_name => $meta ) {
                     if( empty( $meta['always_present'] ) ) continue;
-                    $present = isset( $data[ $field_name ]['value'] );
-                    if( $present ) {
-                        $value = $data[ $field_name ]['value'];
-                        if( is_array( $value ) ) $value = implode( '', $value );
-                        $present = ( trim( wp_strip_all_tags( (string) $value ) )!=='' );
-                    }
+                    $present = isset( $data[ $field_name ]['value'] )
+                        && self::required_field_value_present( $data[ $field_name ]['value'] );
                     if( !$present ) {
                         SUPER_Common::output_message( $error = true, esc_html__( 'Please fill in all required fields.', 'super-forms' ) );
                     }
                 }
                 // (c) Repeater rows (single + nested), conditional-free repeaters only.
-                if( isset( $data['_super_dynamic_data'] ) && is_array( $data['_super_dynamic_data'] ) ) {
-                    foreach( $data['_super_dynamic_data'] as $rows ) {
-                        if( !is_array( $rows ) ) continue;
-                        foreach( $rows as $row ) {
-                            if( !is_array( $row ) ) continue;
-                            foreach( $row as $field_name => $field_data ) {
-                                if( !is_array( $field_data ) || !isset( $field_data['value'] ) ) continue;
-                                if( isset( $field_data['type'] ) && $field_data['type']==='files' ) continue;
-                                if( isset( $required_fields[ $field_name ] ) && !empty( $required_fields[ $field_name ]['repeater_enforceable'] ) ) {
-                                    $value = $field_data['value'];
-                                    if( is_array( $value ) ) $value = implode( '', $value );
-                                    if( trim( wp_strip_all_tags( (string) $value ) )==='' ) {
-                                        SUPER_Common::output_message( $error = true, esc_html__( 'Please fill in all required fields.', 'super-forms' ) );
-                                    }
-                                }
-                            }
-                        }
-                    }
+                $dynamic_data = isset( $data['_super_dynamic_data'] ) ? $data['_super_dynamic_data'] : null;
+                if( !self::validate_repeater_required_values( $dynamic_data, $required_fields ) ) {
+                    SUPER_Common::output_message( $error = true, esc_html__( 'Please fill in all required fields.', 'super-forms' ) );
                 }
             }
         }
