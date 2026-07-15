@@ -3,18 +3,18 @@
  * Super Forms
  *
  * @package   Super Forms
- * @author    feeling4design
- * @link      http://super-forms.com
- * @copyright 2022 by feeling4design
+ * @author    Rens Tillmann
+ * @link      https://super-forms.com
+ * @copyright 2026 by Rens Tillmann
  * @license   GPL-2.0-or-later
  *
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
  * Version:           6.4.007
- * Plugin URI:        http://super-forms.com
- * Author URI:        http://super-forms.com
- * Author:            feeling4design
+ * Plugin URI:        https://super-forms.com
+ * Author URI:        https://github.com/RensTillmann
+ * Author:            Rens Tillmann
  * Text Domain:       super-forms
  * Domain Path:       /i18n/languages/
  * License:           GPL v2 or later
