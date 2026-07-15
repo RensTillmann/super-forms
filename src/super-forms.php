@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.4.006
+ * Version:           6.4.007
  * Plugin URI:        http://super-forms.com
  * Author URI:        http://super-forms.com
  * Author:            feeling4design
@@ -20,6 +20,7 @@
  * License:           GPL v2 or later
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Requires at least: 4.9
+ * Tested up to:      7.0.1
  * Requires PHP:      5.4
  */
 
@@ -43,7 +44,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '6.4.006';
+        public $version = '6.4.007';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
