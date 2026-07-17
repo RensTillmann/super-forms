@@ -12,6 +12,7 @@ To install a downloaded zip: WordPress admin > Plugins > Add New > Upload Plugin
 
 ## Stable channel
 
+* **v6.3.316** (Jul 15, 2026) - [release page](https://github.com/RensTillmann/super-forms/releases/tag/v6.3.316)
 * **v6.3.315** (Jul 11, 2026) - [release page](https://github.com/RensTillmann/super-forms/releases/tag/v6.3.315)
 * **v6.3.314** (Jul 07, 2026) - [release page](https://github.com/RensTillmann/super-forms/releases/tag/v6.3.314) - Security fix: hardened form file-upload handling (CVE-2026-14894).
 
