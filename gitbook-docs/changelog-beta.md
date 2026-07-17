@@ -8,6 +8,11 @@ Beta is opt-in for power users who want early access to new features before they
 
 ## Super Forms Beta - Changelog
 
+### Jul 17, 2026 - Version 6.4.007
+
+* **Fix:** Corrected server-side validation so optional fields can be left empty while required fields, including Toggle elements and fields in repeated rows, are enforced.
+* **Improved:** Compatibility with WordPress 7.0.1
+
 ### Jul 09, 2026 - Version 6.4.005-beta
 
 * **Fix:** Fatal error after submitting a form containing a signature element when the confirmation email is enabled (500 response; the first email was sent but no success message was shown)
