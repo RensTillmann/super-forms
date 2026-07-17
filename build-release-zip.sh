@@ -35,8 +35,8 @@ command -v zip >/dev/null
 
 COMMIT="$(git rev-parse "${REF}^{commit}")"
 [[ "$COMMIT" == "$(git rev-parse HEAD)" ]] || { echo "builder must run at requested commit" >&2; exit 2; }
-SOURCE_AUTHOR_DATE="$(git show -s --format=%aI "$COMMIT")"
-SOURCE_COMMIT_DATE="$(git show -s --format=%cI "$COMMIT")"
+SOURCE_AUTHOR_DATE="$(git show -s --diff-merges=off --format=%aI "$COMMIT")"
+SOURCE_COMMIT_DATE="$(git show -s --diff-merges=off --format=%cI "$COMMIT")"
 TMP="$(mktemp -d)"
 INDEX="$TMP/index"
 trap 'rm -rf "$TMP"' EXIT
