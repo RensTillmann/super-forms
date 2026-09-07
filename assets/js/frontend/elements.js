@@ -2369,14 +2369,18 @@
             var $this = $(this);
             var $fieldWrapper = $this.parents('.super-field-wrapper:eq(0)');
             var $fieldName = $fieldWrapper.find('.super-active-files').attr('name');
-            var $index = $this.parents('div:eq(0)').index();
-            // Modify file list, and remove one element at $index
-            // We use splice() instead of delete() because we don't want to leave the old index with an `undefined` value
-            if(SUPER.files){
-                if(SUPER.files[formId]){
-                    if(SUPER.files[formId][$fieldName]){
-                        SUPER.files[formId][$fieldName].splice($index, 1); 
-                    }
+            var fileNode = $this.parents('div:eq(0)')[0];
+            // Only browser-pending File objects live in SUPER.files. Existing entry files and
+            // server-issued receipts are represented by the DOM and must not shift that queue.
+            if(fileNode && !fileNode.classList.contains('super-uploaded') && !fileNode.hasAttribute('data-upload-token')){
+                var pendingIndex = 0;
+                var sibling = fileNode.previousElementSibling;
+                while(sibling){
+                    if(!sibling.classList.contains('super-uploaded') && !sibling.hasAttribute('data-upload-token')) pendingIndex++;
+                    sibling = sibling.previousElementSibling;
+                }
+                if(SUPER.files && SUPER.files[formId] && SUPER.files[formId][$fieldName]){
+                    SUPER.files[formId][$fieldName].splice(pendingIndex, 1);
                 }
             }
             var $parent = $this.parents('.super-fileupload-files:eq(0)');
@@ -2940,14 +2944,23 @@
 
         $doc.on('change', '.super-form select', function () {
             var $form = SUPER.get_frontend_or_backend_form({el: this}),
+                $parent = this.closest('.super-field'),
                 $min = this.dataset.minlength,
                 $max = this.dataset.maxlength,
+                $count,
                 $validation;
-            if(($min>0) && (this.value === null)){
+            if($parent && (typeof this.options !== 'undefined')){
+                $count = SUPER.selection_value_count(this, $parent);
+                if(($min>0) && ($count < parseInt($min, 10))){
+                    SUPER.handle_errors(this);
+                }else if(($max!=='') && ($count > parseInt($max, 10))){
+                    SUPER.handle_errors(this);
+                }else{
+                    this.closest('.super-field').classList.remove('super-error-active');
+                }
+            }else if(($min>0) && (SUPER.unicode_length(this.value) < parseInt($min, 10))){
                 SUPER.handle_errors(this);
-            }else if(this.value.length > $max){
-                SUPER.handle_errors(this);
-            }else if(this.value.length < $min){
+            }else if(($max!=='') && (SUPER.unicode_length(this.value) > parseInt($max, 10))){
                 SUPER.handle_errors(this);
             }else{
                 this.closest('.super-field').classList.remove('super-error-active');

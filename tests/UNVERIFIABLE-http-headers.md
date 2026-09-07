@@ -1,0 +1,5 @@
+# HTTP-SAPI-only observation boundary
+
+This CLI harness cannot directly observe raw response headers, `Set-Cookie` transport, or `filter_input(INPUT_POST)` reads the way a real HTTP request can. Tests in this corpus therefore prove the durable boundary-visible core instead: body bytes, decoded JSON payloads, status captured through WordPress hooks, persisted option/post/user state, and explicitly labeled helper or reflection supplements where needed. Any residual contract that depends on actual header transport or HTTP input normalization remains an HTTP-SAPI-only concern and is documented here rather than inferred from CLI oracles that always report empty state.
+
+Row 10 follows that boundary exactly: the dispatcher tests prove response body bytes, the denied-path status code captured through `status_header`, and the export record's persisted state before and after token use. Cache-policy arrays returned by `SUPER_Forms::download_cache_headers()` remain labeled reflection supplements here, not direct transport-header observations.

@@ -885,28 +885,35 @@
                         // offsetWidth is zero if input is in a hidden container during initialisation
                         var selectedFlagWidth = this.selectedFlag.offsetWidth || this._getHiddenSelectedFlagWidth();
                         var el = this.telInput;
-                        var adaptivePlaceholder = el.closest('.super-field-wrapper').querySelector('.super-adaptive-placeholder');
+                        // Ancestor lookups may return null when the field is rendered outside the
+                        // expected wrapper/form/shortcode markup. Guard each closest() result so a
+                        // missing ancestor only skips the cosmetic padding adjustment instead of
+                        // throwing a TypeError that would abort form JS initialisation.
+                        var fieldWrapper = el.closest('.super-field-wrapper');
+                        var adaptivePlaceholder = fieldWrapper ? fieldWrapper.querySelector('.super-adaptive-placeholder') : null;
+                        var superForm = el.closest('.super-form');
+                        var superShortcode = el.closest('.super-shortcode');
                         // Check if RTL
-                        if(el.closest('.super-form').classList.contains('super-rtl')){
+                        if(superForm && superForm.classList.contains('super-rtl')){
                             // Is RTL
                             // add 6px of padding after the grey selected-dial-code box, as this is what we use in the css
                             this.telInput.style.paddingRight = "".concat(selectedFlagWidth + 0, "px");
-                            if(adaptivePlaceholder){
-                                if( (!el.closest('.super-shortcode').classList.contains('super-icon-inside')) && (!el.closest('.super-shortcode').classList.contains('super-icon-outside')) ){
+                            if(adaptivePlaceholder && superShortcode){
+                                if( (!superShortcode.classList.contains('super-icon-inside')) && (!superShortcode.classList.contains('super-icon-outside')) ){
                                     adaptivePlaceholder.style.paddingRight = "".concat(selectedFlagWidth - 10, "px");
                                 }else{
-                                    if(el.closest('.super-shortcode').classList.contains('super-icon-outside')){
-                                        if(el.closest('.super-shortcode').classList.contains('super-icon-left')){
+                                    if(superShortcode.classList.contains('super-icon-outside')){
+                                        if(superShortcode.classList.contains('super-icon-left')){
                                             adaptivePlaceholder.style.paddingRight = "".concat(selectedFlagWidth - 12, "px");
                                         }
-                                        if(el.closest('.super-shortcode').classList.contains('super-icon-right')){
+                                        if(superShortcode.classList.contains('super-icon-right')){
                                             adaptivePlaceholder.style.paddingRight = "".concat(selectedFlagWidth - 10, "px");
                                         }
                                     }else{
-                                        if(el.closest('.super-shortcode').classList.contains('super-icon-left')){
+                                        if(superShortcode.classList.contains('super-icon-left')){
                                             adaptivePlaceholder.style.paddingRight = "".concat(selectedFlagWidth - 10, "px");
                                         }
-                                        if(el.closest('.super-shortcode').classList.contains('super-icon-right')){
+                                        if(superShortcode.classList.contains('super-icon-right')){
                                             adaptivePlaceholder.style.paddingRight = "".concat(selectedFlagWidth - 0, "px");
                                         }
                                     }
@@ -916,22 +923,22 @@
                             // Is LTR
                             // add 6px of padding after the grey selected-dial-code box, as this is what we use in the css
                             this.telInput.style.paddingLeft = "".concat(selectedFlagWidth + 0, "px");
-                            if(adaptivePlaceholder){
-                                if( (!el.closest('.super-shortcode').classList.contains('super-icon-inside')) && (!el.closest('.super-shortcode').classList.contains('super-icon-outside')) ){
+                            if(adaptivePlaceholder && superShortcode){
+                                if( (!superShortcode.classList.contains('super-icon-inside')) && (!superShortcode.classList.contains('super-icon-outside')) ){
                                     adaptivePlaceholder.style.paddingLeft = "".concat(selectedFlagWidth - 10, "px");
                                 }else{
-                                    if(el.closest('.super-shortcode').classList.contains('super-icon-outside')){
-                                        if(el.closest('.super-shortcode').classList.contains('super-icon-left')){
+                                    if(superShortcode.classList.contains('super-icon-outside')){
+                                        if(superShortcode.classList.contains('super-icon-left')){
                                             adaptivePlaceholder.style.paddingLeft = "".concat(selectedFlagWidth - 7, "px");
                                         }
-                                        if(el.closest('.super-shortcode').classList.contains('super-icon-right')){
+                                        if(superShortcode.classList.contains('super-icon-right')){
                                             adaptivePlaceholder.style.paddingLeft = "".concat(selectedFlagWidth - 10, "px");
                                         }
                                     }else{
-                                        if(el.closest('.super-shortcode').classList.contains('super-icon-left')){
+                                        if(superShortcode.classList.contains('super-icon-left')){
                                             adaptivePlaceholder.style.paddingLeft = "".concat(selectedFlagWidth - 0, "px");
                                         }
-                                        if(el.closest('.super-shortcode').classList.contains('super-icon-right')){
+                                        if(superShortcode.classList.contains('super-icon-right')){
                                             adaptivePlaceholder.style.paddingLeft = "".concat(selectedFlagWidth - 10, "px");
                                         }
                                     }

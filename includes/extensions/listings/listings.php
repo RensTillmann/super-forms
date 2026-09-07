@@ -73,10 +73,21 @@ if(!class_exists('SUPER_Listings')) :
                 add_filter( 'super_enqueue_styles', array( $this, 'add_style' ), 10, 1 );
                 add_filter( 'super_enqueue_scripts', array( $this, 'add_script' ), 10, 1 );
             }
-            add_action( 'wp_ajax_super_load_form_inside_modal', array( $this, 'load_form_inside_modal' ) );
-            add_action( 'wp_ajax_nopriv_super_load_form_inside_modal', array( $this, 'load_form_inside_modal' ) );
             add_filter( 'super_before_form_render_settings_filter', array( $this, 'alter_form_settings_before_rendering' ), 10, 2 );
             add_filter( 'super_before_submit_form_settings_filter', array( $this, 'alter_form_settings_before_submit' ), 10, 2 );
+        }
+        /**
+         * Deprecated compatibility wrapper. The hardened edit endpoint remains the
+         * only execution path; this method must not be registered as an AJAX action.
+         *
+         * @deprecated 6.3.317 Use SUPER_Ajax::listings_edit_entry().
+         */
+        public static function load_form_inside_modal() {
+            _deprecated_function( __METHOD__, '6.3.317', 'SUPER_Ajax::listings_edit_entry()' );
+            if( !class_exists('SUPER_Ajax') ) {
+                require_once( SUPER_PLUGIN_DIR . '/includes/class-ajax.php' );
+            }
+            SUPER_Ajax::listings_edit_entry();
         }
 
         // Required to change some settings when editing/updating an existing entry via Listings Add-on
@@ -376,31 +387,6 @@ if(!class_exists('SUPER_Listings')) :
         public static function form_blank_page_template( $template ) {
             require_once( SUPER_PLUGIN_DIR . '/includes/class-common.php' );
             return dirname( __FILE__ ) . '/form-blank-page-template.php';
-        }
-        public static function load_form_inside_modal() {
-            $entry_id = absint($_POST['entry_id']);
-            // Check if invalid Entry ID
-            if( $entry_id==0 ) {
-                SUPER_Common::output_message(
-                    $error = true,
-                    $msg = esc_html__( 'No entry found with ID:', 'super-forms' ) . ' ' . $entry_id 
-                );
-                die();
-            }
-            // Check if this entry does not have the correct post type, if not then the entry doesn't exist
-            if( get_post_type($entry_id)!='super_contact_entry' ) {
-                SUPER_Common::output_message(
-                    $error = true,
-                    $msg = esc_html__( 'No entry found with ID:', 'super-forms' ) . ' ' . $entry_id 
-                );
-                die();
-            }
-            // Seems that everything is OK, continue and load the form
-            $entry = get_post($entry_id);
-            $form_id = $entry->post_parent; // This will hold the form ID
-            // Now print out the form by executing the shortcode function
-            echo SUPER_Shortcodes::super_form_func( array( 'id'=>$form_id ) );
-            die();
         }
         public static function add_style($styles){
             $assets_path = str_replace( array( 'http:', 'https:' ), '', plugin_dir_url( __FILE__ ) ) . 'assets/';
@@ -1386,6 +1372,76 @@ if(!class_exists('SUPER_Listings')) :
             return $list;
         }
 
+        /**
+         * Check whether an entry's authoritative form is inside a list's retrieval scope.
+         */
+        public static function entry_is_in_retrieval_scope($list, $entry_form_id, $host_form_id) {
+            if(!is_array($list)) return false;
+            $retrieve = isset($list['retrieve']) ? $list['retrieve'] : 'this_form';
+            $entry_form_id = self::parse_form_id($entry_form_id);
+            $host_form_id = self::parse_form_id($host_form_id);
+            if($entry_form_id===false || $host_form_id===false) return false;
+            if($retrieve==='this_form') return $entry_form_id===$host_form_id;
+            if($retrieve==='all_forms') return true;
+            if($retrieve!=='specific_forms') return false;
+            $form_ids = self::get_retrieval_form_ids($list);
+            if(empty($form_ids)) return false;
+            return in_array($entry_form_id, $form_ids, true);
+        }
+
+        private static function get_retrieval_form_ids($list) {
+            if(!is_array($list) || !isset($list['form_ids']) || !is_scalar($list['form_ids'])) {
+                return array();
+            }
+            $form_ids = array();
+            foreach((array) preg_split('/[\s,]+/', trim((string)$list['form_ids']), -1, PREG_SPLIT_NO_EMPTY) as $allowed_form_id) {
+                $parsed = self::parse_form_id($allowed_form_id);
+                if($parsed!==false) {
+                    $form_ids[$parsed] = $parsed;
+                }
+            }
+            return array_values($form_ids);
+        }
+
+        /**
+         * One ID grammar for rendered Listings, AJAX authorization and configured
+         * `specific_forms`: positive base-10 decimals only, with no coercion.
+         */
+        public static function parse_form_id($value) {
+            if(!is_scalar($value) || is_bool($value)) return false;
+            $value = (string)$value;
+            if(preg_match('/^[0-9]+$/D', $value)!==1) return false;
+            $normalized = ltrim($value, '0');
+            if($normalized==='') return false;
+            $max = (string)PHP_INT_MAX;
+            if(strlen($normalized)>strlen($max) || (strlen($normalized)===strlen($max) && strcmp($normalized, $max)>0)) return false;
+            $value = (int)$value;
+            return ($value>0 ? $value : false);
+        }
+
+        private static function is_valid_listings_date($value) {
+            if(!is_string($value) || preg_match('/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/D', $value)!==1) return false;
+            $parts = array_map('intval', explode('-', $value));
+            return checkdate($parts[1], $parts[2], $parts[0]);
+        }
+
+        private static function get_listings_dropdown_values($filter) {
+            $values = array();
+            if(!isset($filter['items'])) return $values;
+            if(is_array($filter['items'])){
+                foreach($filter['items'] as $value => $label){
+                    if(is_scalar($value)) $values[] = (string)$value;
+                }
+                return $values;
+            }
+            if(!is_scalar($filter['items'])) return $values;
+            foreach(explode("\n", (string)$filter['items']) as $item){
+                $item = explode('|', $item, 2);
+                if($item[0]!=='') $values[] = $item[0];
+            }
+            return $values;
+        }
+
         // Return data for script handles.
         public static function register_shortcodes(){
             add_shortcode( 'super_listings', array( 'SUPER_Listings', 'super_listings_func' ) );
@@ -1405,7 +1461,7 @@ if(!class_exists('SUPER_Listings')) :
             }
 
             // Sanitize the ID
-            $form_id = absint($id);
+            $form_id = self::parse_form_id($id);
             $post_status = get_post_status($form_id);
             $post_type = get_post_type($form_id);
             $found = false;
@@ -1452,7 +1508,6 @@ if(!class_exists('SUPER_Listings')) :
             );
             wp_enqueue_script( $handle );
 
-            // Enqueue scripts and styles
             $handle = 'super-listings';
             $name = str_replace( '-', '_', $handle ) . '_i18n';
             wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'assets/js/frontend/script.js', array( 'super-common' ), SUPER_VERSION, false );  
@@ -1461,7 +1516,8 @@ if(!class_exists('SUPER_Listings')) :
                 $name,
                 array( 
                     'get_home_url' => get_home_url(),
-                    'ajaxurl' => $ajax_url
+                    'ajaxurl' => $ajax_url,
+                    'modal_error' => esc_html__( 'Unable to load this entry. Please close this window and try again.', 'super-forms' )
                 )
             );
             wp_enqueue_script( $handle );
@@ -1569,132 +1625,149 @@ if(!class_exists('SUPER_Listings')) :
             // Now re-order all columns based on order number
             array_multisort(array_column($columns, 'order'), SORT_ASC, $columns);
 
-            // Filters by user
+            // Only enabled, configured columns with supported filter types may accept request filters.
             $hasFilters = false;
-            $filters = '';
-
-            $limit = absint($list['limit']);
-            // Check if custom limit was choosen by the user
-            if( isset($_GET['limit']) ) {
-                $limit = absint($_GET['limit']);
-            }
-
-            // Check if we need to filter on a column
-            $filterColumns = array();
-            foreach($_GET as $gk => $gv){
-                if(substr($gk, 0, 3)!=='fc_') continue;
-                // is a filter column
-                $filterColumns[sanitize_text_field(substr($gk, 3, strlen($gk)))] = sanitize_text_field($gv);
-            }
-            
-            // Filter by entry data
-            $having = '';
+            $filters = array();
+            $having = array();
             $filter_by_entry_data = "";
-            // Now first check if this is a custom column
-            // Custom column always starts with underscore
-            foreach($filterColumns as $fck => $fcv){
-                if($fck[0]==='_'){ // starts with underscore, which means this is custom column
-                    $fck = substr($fck, 1);
-                    // If so, it means that we need to filter the contact entry data
-                    if($list['custom_columns']['enabled']==='true'){
-                        $customColumns = $list['custom_columns']['columns'];
-                        foreach($customColumns as $cv){
-                            if($cv['field_name']==$fck){
-                                $fckLength = strlen($fck);
-                                $filter_by_entry_data .= ", SUBSTRING_INDEX( SUBSTRING_INDEX( SUBSTRING_INDEX(meta.meta_value, 's:4:\"name\";s:$fckLength:\"$fck\";s:5:\"value\";', -1), '\";s:', 1), ':\"', -1) AS filterValue";
-                                if( !empty($having) ){
-                                    $having .= " AND filterValue LIKE '%$fcv%'";
-                                }else{
-                                    $having .= " HAVING filterValue LIKE '%$fcv%'";
-                                }
-                                break;
-                            }
-                        }
-                    }
-                }else{
-                    // Filter by default column
-                    if($fck=='entry_date'){
-                        $dateFilter = explode(';', $fcv);
-                        if(!empty($dateFilter[1])){
-                            $from = $dateFilter[0];
-                            $until = $dateFilter[1];
-                            $filters .= " post.post_date BETWEEN CAST('$from' AS DATE) AND CAST('$until' AS DATE)";
-                        }else{
-                            $from = $dateFilter[0];
-                            $filters .= " post.post_date LIKE '$from%'"; // Only filter starting with
-                        }
-                    }elseif($fck=='post_title') {
-                        if( !empty($filters) ) $filters .= ' AND';
-                        $filters .= ' post.post_title LIKE "%' . $fcv . '%"';
-                    }elseif($fck=='wp_post_title'){
-                        if( !empty($filters) ) $filters .= ' AND';
-                        $filters .= ' created_post.post_title LIKE "%' . $fcv . '%"';
-                    }elseif($fck=='wp_post_status'){
-                        if( !empty($filters) ) $filters .= ' AND';
-                        $filters .= ' created_post.post_status = "' . $fcv . '"';
-                    }elseif($fck=='entry_status'){
-                        if( !empty($filters) ) $filters .= ' AND';
-                        $filters .= ' entry_status.meta_value = "' . $fcv . '"';
-                    }elseif($fck=='wc_order'){
-                        if( !empty($filters) ) $filters .= ' AND';
-                        // If starts with hashtag then remove it
-                        if(substr($fcv, 0, 1)=='#') $fcv = substr($fcv, 1, strlen($fcv));
-                        $filters .= ' wc_order.ID LIKE "%' . $fcv . '%"';
-                    }elseif($fck=='wc_order_status'){
-                        if( !empty($filters) ) $filters .= ' AND';
-                        $filters .= ' wc_order.post_status = "' . $fcv . '"';
-                    }elseif($fck=='generated_pdf'){
-                        if( !empty($having) ){
-                            $having .= ' AND pdfFileName LIKE "%'.$fcv.'%"';
-                        }else{
-                            $having .= ' HAVING pdfFileName LIKE "%'.$fcv.'%"';
-                        }
-                    }elseif($fck=='paypal_order'){
-                        if( !empty($filters) ) $filters .= ' AND';
-                        $filters .= ' paypal_order.post_title LIKE "%' . $fcv . '%"';
-                    }elseif($fck=='paypal_order_status'){
-                        if( !empty($having) ){
-                            $having .= ' AND paypalTxnStatus LIKE "%'.$fcv.'%"';
-                        }else{
-                            $having .= ' HAVING paypalTxnStatus LIKE "%'.$fcv.'%"';
-                        }
-                    }elseif($fck=='paypal_subscription'){
-                        if( !empty($filters) ) $filters .= ' AND';
-                        $filters .= ' paypal_order.post_title LIKE "%' . $fcv . '%"';
-                    }elseif($fck=='paypal_subscription_status'){
-                        if( !empty($having) ){
-                            $having .= ' AND paypalSubscriptionStatus = "'.$fcv.'"';
-                        }else{
-                            $having .= ' HAVING paypalSubscriptionStatus = "'.$fcv.'"';
-                        }
-                    }elseif($fck=='author_username'){
-                        if( !empty($filters) ) $filters .= ' AND';
-                        $filters .= ' author.user_login LIKE "%' . $fcv . '%"';
-                    }elseif($fck=='author_firstname'){
-                        if( !empty($filters) ) $filters .= ' AND';
-                        $filters .= ' author_firstname.meta_value LIKE "%' . $fcv . '%"';
-                    }elseif($fck=='author_lastname'){
-                        if( !empty($filters) ) $filters .= ' AND';
-                        $filters .= ' author_lastname.meta_value LIKE "%' . $fcv . '%"';
-                    }elseif($fck=='author_fullname'){
-                        if( !empty($filters) ) $filters .= ' AND';
-                        $filters .= ' CONCAT(author_firstname.meta_value, author_lastname.meta_value) LIKE "%' . $fcv . '%"';
-                    }elseif($fck=='author_nickname'){
-                        if( !empty($filters) ) $filters .= ' AND';
-                        $filters .= ' author_nickname.meta_value LIKE "%' . $fcv . '%"';
-                    }elseif($fck=='author_display'){
-                        if( !empty($filters) ) $filters .= ' AND';
-                        $filters .= ' author.display_name LIKE "%' . $fcv . '%"';
-                    }elseif($fck=='author_email'){
-                        if( !empty($filters) ) $filters .= ' AND';
-                        $filters .= ' author.user_email LIKE "%' . $fcv . '%"';
-                    }elseif($fck=='author_id'){
-                        if( !empty($filters) ) $filters .= ' AND';
-                        $filters .= ' post.post_author = "' . $fcv . '"';
-                    }else{
+            $allowed_filter_columns = array();
+            $allowed_sort_columns = array();
+            foreach($columns as $column_key => $column){
+                $request_column = $column_key;
+                if(isset($column['field_name'])){
+                    if(!is_scalar($column['field_name']) || (string)$column['field_name']==='') continue;
+                    $request_column = '_' . (string)$column['field_name'];
+                }
+                if(isset($column['filter']) && is_array($column['filter']) && isset($column['filter']['enabled']) && $column['filter']['enabled']==='true'){
+                    $filter_type = (empty($column['filter']['type']) ? 'text' : $column['filter']['type']);
+                    if($request_column==='entry_date') $filter_type = 'datepicker';
+                    if(in_array($filter_type, array('text', 'dropdown', 'datepicker'), true)){
+                        $allowed_filter_columns[$request_column] = array(
+                            'column' => $column,
+                            'type' => $filter_type
+                        );
                     }
                 }
+                if(isset($column['sort']) && $column['sort']==='true'){
+                    $allowed_sort_columns[$request_column] = $column;
+                }
             }
+
+            $limit = max(1, absint($list['limit']));
+            if(isset($_GET['limit'])){
+                $requested_limit = self::parse_form_id($_GET['limit']);
+                if($requested_limit!==false) $limit = $requested_limit;
+            }
+
+            $filterColumns = array();
+            foreach($_GET as $gk => $gv){
+                if(!is_string($gk) || substr($gk, 0, 3)!=='fc_' || !is_scalar($gv) || is_bool($gv)) continue;
+                $filter_key = substr($gk, 3);
+                if(!isset($allowed_filter_columns[$filter_key])) continue;
+                $filter_value = wp_unslash((string)$gv);
+                if($filter_value==='') continue;
+                $filter_config = $allowed_filter_columns[$filter_key];
+                if($filter_config['type']==='dropdown'){
+                    $dropdown_values = self::get_listings_dropdown_values($filter_config['column']['filter']);
+                    if(!in_array($filter_value, $dropdown_values, true)) continue;
+                }
+                $filter_config['value'] = $filter_value;
+                $filterColumns[$filter_key] = $filter_config;
+            }
+
+            $like_filter_columns = array(
+                'post_title' => 'post.post_title',
+                'wp_post_title' => 'created_post.post_title',
+                'paypal_order' => 'paypal_order.post_title',
+                'paypal_subscription' => 'paypal_order.post_title',
+                'author_username' => 'author.user_login',
+                'author_firstname' => 'author_firstname.meta_value',
+                'author_lastname' => 'author_lastname.meta_value',
+                'author_fullname' => 'CONCAT(author_firstname.meta_value, author_lastname.meta_value)',
+                'author_nickname' => 'author_nickname.meta_value',
+                'author_display' => 'author.display_name',
+                'author_email' => 'author.user_email'
+            );
+            $status_filter_columns = array(
+                'wp_post_status' => 'created_post.post_status',
+                'entry_status' => 'entry_status.meta_value',
+                'wc_order_status' => 'wc_order.post_status'
+            );
+            $custom_filter_counter = 0;
+            foreach($filterColumns as $fck => $filter_config){
+                $fcv = $filter_config['value'];
+                if(substr($fck, 0, 1)==='_'){
+                    $field_name = (string)$filter_config['column']['field_name'];
+                    $custom_filter_counter++;
+                    $filter_alias = 'filterValue_' . $custom_filter_counter;
+                    $serialized_field_marker = 's:4:"name";s:' . strlen($field_name) . ':"' . $field_name . '";s:5:"value";';
+                    $filter_by_entry_data .= $wpdb->prepare(
+                        ", SUBSTRING_INDEX( SUBSTRING_INDEX( SUBSTRING_INDEX(meta.meta_value, %s, -1), '\";s:', 1), ':\"', -1) AS $filter_alias",
+                        $serialized_field_marker
+                    );
+                    $having[] = $wpdb->prepare(
+                        "$filter_alias LIKE %s",
+                        '%' . $wpdb->esc_like($fcv) . '%'
+                    );
+                    continue;
+                }
+
+                if($fck==='entry_date'){
+                    $date_filter = explode(';', $fcv);
+                    if(count($date_filter)>2) continue;
+                    $from = $date_filter[0];
+                    $until = (isset($date_filter[1]) ? $date_filter[1] : '');
+                    if($from!=='' && !self::is_valid_listings_date($from)) continue;
+                    if($until!=='' && !self::is_valid_listings_date($until)) continue;
+                    if($from!=='' && $until!=='' && strcmp($from, $until)>0) continue;
+                    if($from!=='' && $until!==''){
+                        $filters[] = $wpdb->prepare('DATE(post.post_date) BETWEEN %s AND %s', $from, $until);
+                    }elseif($from!=='' && isset($date_filter[1])){
+                        $filters[] = $wpdb->prepare('DATE(post.post_date) >= %s', $from);
+                    }elseif($until!==''){
+                        $filters[] = $wpdb->prepare('DATE(post.post_date) <= %s', $until);
+                    }elseif($from!==''){
+                        $filters[] = $wpdb->prepare('DATE(post.post_date) = %s', $from);
+                    }
+                    continue;
+                }
+
+                if(isset($like_filter_columns[$fck])){
+                    $filters[] = $wpdb->prepare(
+                        $like_filter_columns[$fck] . ' LIKE %s',
+                        '%' . $wpdb->esc_like($fcv) . '%'
+                    );
+                    continue;
+                }
+
+                if(isset($status_filter_columns[$fck])){
+                    if($filter_config['type']!=='dropdown' && (sanitize_key($fcv)==='' || sanitize_key($fcv)!==$fcv)) continue;
+                    $filters[] = $wpdb->prepare($status_filter_columns[$fck] . ' = %s', $fcv);
+                    continue;
+                }
+
+                if($fck==='wc_order' || $fck==='author_id'){
+                    if($fck==='wc_order' && substr($fcv, 0, 1)==='#') $fcv = substr($fcv, 1);
+                    $numeric_id = self::parse_form_id($fcv);
+                    if($numeric_id===false) continue;
+                    $id_column = ($fck==='wc_order' ? 'wc_order.ID' : 'post.post_author');
+                    $filters[] = $wpdb->prepare($id_column . ' = %d', $numeric_id);
+                    continue;
+                }
+
+                if($fck==='generated_pdf'){
+                    $having[] = $wpdb->prepare('pdfFileName LIKE %s', '%' . $wpdb->esc_like($fcv) . '%');
+                    continue;
+                }
+
+                if($fck==='paypal_order_status' || $fck==='paypal_subscription_status'){
+                    if($filter_config['type']!=='dropdown' && (sanitize_key($fcv)==='' || sanitize_key($fcv)!==$fcv)) continue;
+                    $status_alias = ($fck==='paypal_order_status' ? 'paypalTxnStatus' : 'paypalSubscriptionStatus');
+                    $having[] = $wpdb->prepare($status_alias . ' = %s', $fcv);
+                }
+            }
+            $filters = implode(' AND ', $filters);
+            $having = (empty($having) ? '' : ' HAVING ' . implode(' AND ', $having));
             $other_selectors = "
 paypal_order.ID AS paypalOrderId,
 SUBSTRING_INDEX( SUBSTRING_INDEX( SUBSTRING_INDEX(paypal_txn_data.meta_value, 's:8:\"txn_type\";', -1), '\";s:', 1), ':\"', -1) AS paypalTxnType,
@@ -1725,90 +1798,108 @@ CASE
 END AS paypalSubscriptionId
 ";
 
-            // Check if custom sort was choosen by the user
+            $sort_columns = array(
+                'post_title' => 'post.post_title',
+                'entry_status' => 'entry_status.meta_value',
+                'entry_date' => 'post.post_date',
+                'wc_order' => 'wc_order.ID',
+                'wc_order_status' => 'wc_order.post_status',
+                'paypal_order' => 'paypalTxnId',
+                'paypal_order_status' => 'paypalTxnStatus',
+                'paypal_subscription' => 'paypalSubscriptionId',
+                'paypal_subscription_status' => 'paypalSubscriptionStatus',
+                'wp_post_title' => 'created_post.post_title',
+                'wp_post_status' => 'created_post.post_status',
+                'author_username' => 'author.user_login',
+                'author_firstname' => 'author_firstname.meta_value',
+                'author_lastname' => 'author_lastname.meta_value',
+                'author_fullname' => 'CONCAT(author_firstname.meta_value, author_lastname.meta_value)',
+                'author_nickname' => 'author_nickname.meta_value',
+                'author_display' => 'author.display_name',
+                'author_email' => 'author.user_email',
+                'author_id' => 'post.post_author'
+            );
             $order_by_entry_data = "";
-            $sc = 'post_date'; // sort column (defaults to 'date')
-            $originalSc = $sc;
-            if( !empty($_GET['sc']) ) {
-                $sc = sanitize_text_field($_GET['sc']);
-                $originalSc = $sc;
-                // Entry date
-                if($sc==='entry_date') $sc = 'post_date';
-                // Paypal transactions
-                if($sc==='paypal_order') $sc = 'paypalTxnId';
-                if($sc==='paypal_order_status') $sc = 'paypalTxnStatus';
-                // Paypal subscriptions
-                if($sc==='paypal_subscription') $sc = 'paypalSubscriptionId';
-                if($sc==='paypal_subscription_status') $sc = 'paypalSubscriptionStatus';
-                // Generated PDF file
-                if($sc==='generated_pdf'){
-                    $order_by_entry_data = ", SUBSTRING_INDEX( SUBSTRING_INDEX( SUBSTRING_INDEX(meta.meta_value, 's:19:\"_generated_pdf_file\";', -1), '\";s:5:\"value\";', 1), ':\"', -1) AS orderValue";
-                } 
+            $sort_key = 'entry_date';
+            if(isset($_GET['sc']) && is_scalar($_GET['sc']) && !is_bool($_GET['sc'])){
+                $requested_sort_key = wp_unslash((string)$_GET['sc']);
+                if(isset($allowed_sort_columns[$requested_sort_key])) $sort_key = $requested_sort_key;
+            }
+            $originalSc = $sort_key;
+            $order_by = $sort_columns['entry_date'];
+            if(substr($sort_key, 0, 1)==='_'){
+                $sort_field_name = (string)$allowed_sort_columns[$sort_key]['field_name'];
+                $serialized_sort_marker = 's:4:"name";s:' . strlen($sort_field_name) . ':"' . $sort_field_name . '";s:5:"value";';
+                $order_by_entry_data = $wpdb->prepare(
+                    ", SUBSTRING_INDEX( SUBSTRING_INDEX( SUBSTRING_INDEX(meta.meta_value, %s, -1), '\";s:', 1), ':\"', -1) AS orderValue",
+                    $serialized_sort_marker
+                );
+                $order_by = 'orderValue';
+            }elseif($sort_key==='generated_pdf'){
+                $order_by_entry_data = ", SUBSTRING_INDEX( SUBSTRING_INDEX( SUBSTRING_INDEX(meta.meta_value, 's:19:\"_generated_pdf_file\";', -1), '\";s:5:\"value\";', 1), ':\"', -1) AS orderValue";
+                $order_by = 'orderValue';
+            }elseif(isset($sort_columns[$sort_key])){
+                $order_by = $sort_columns[$sort_key];
             }
 
-            // Now first check if this is a custom column
-            // Custom column always starts with underscore
-            if($sc[0]=='_'){
-                $sc = substr($sc, 1);
-                // If so, it means that we need to filter the contact entry data
-                if($list['custom_columns']['enabled']==='true'){
-                    $customColumns = $list['custom_columns']['columns'];
-                    foreach($customColumns as $cv){
-                        if($cv['field_name']==$sc){
-                            $scLength = strlen($sc);
-                            $order_by_entry_data = ", SUBSTRING_INDEX( SUBSTRING_INDEX( SUBSTRING_INDEX(meta.meta_value, 's:4:\"name\";s:$scLength:\"$sc\";s:5:\"value\";', -1), '\";s:', 1), ':\"', -1) AS orderValue";
-                            break;
-                        }
-                    }
-                }
+            // Sort method is a fixed direction enum; invalid values retain the default.
+            $sm = 'DESC';
+            if(isset($_GET['sm']) && is_scalar($_GET['sm']) && !is_bool($_GET['sm'])){
+                $requested_sort_method = wp_unslash((string)$_GET['sm']);
+                if($requested_sort_method==='a') $sm = 'ASC';
+                if($requested_sort_method==='d') $sm = 'DESC';
             }
-            
-            // Sort method, either `a` (ASC) or `d` (DESC)` (defaults to ASC)
-            $sm = 'DESC'; 
-            if( (!empty($_GET['sm'])) && ($_GET['sm']=='a') ){
-                $sm = 'ASC';
-            }
-            $order_by = "$sc $sm";
-            if(!empty($order_by_entry_data)){
-                $order_by = "orderValue $sm";
-            }
+            $order_by .= ' ' . $sm;
 
-            $offset = 0; // If page is 1, offset is 0, If page is 2 offset is 1 etc.
             $currentPage = 1;
-            if( !empty($_GET['sfp']) ) {
-                $currentPage = absint($_GET['sfp']);
+            if(isset($_GET['sfp'])){
+                $requested_page = self::parse_form_id($_GET['sfp']);
+                if($requested_page!==false) $currentPage = $requested_page;
             }
             $offset = $limit*($currentPage-1);
+            $pagination_sql = $wpdb->prepare('LIMIT %d OFFSET %d', $limit, $offset);
 
             $where = '';
             $whereWithoutFilters = '';
-            if( $list['retrieve']=='this_form' ) {
-                $where .= " AND post.post_parent = '" . absint($form_id) . "'";
-                $whereWithoutFilters .= " AND post.post_parent = '" . absint($form_id) . "'";
+            if($list['retrieve']==='this_form'){
+                $form_scope = $wpdb->prepare(' AND post.post_parent = %d', $form_id);
+                $where .= $form_scope;
+                $whereWithoutFilters .= $form_scope;
+            }elseif($list['retrieve']==='specific_forms'){
+                $retrieval_form_ids = self::get_retrieval_form_ids($list);
+                if(empty($retrieval_form_ids)) {
+                    $form_scope = ' AND 1 = 0';
+                }else{
+                    $form_scope = $wpdb->prepare(
+                        ' AND post.post_parent IN (' . implode(', ', array_fill(0, count($retrieval_form_ids), '%d')) . ')',
+                        $retrieval_form_ids
+                    );
+                }
+                $where .= $form_scope;
+                $whereWithoutFilters .= $form_scope;
             }
 
-            if( $list['date_range']['enabled']==='true'){
-                $from = $list['date_range']['from'];
-                $until = $list['date_range']['until'];
-                if( !empty($from) || !empty($until) ){
-                    if( !empty($from) && empty($until) ){
-                        $where .= " AND DATE(post.post_date) >= CAST('$from' AS DATE)";
-                    }
-                    if( empty($from) && !empty($until) ){
-                        $where .= " AND DATE(post.post_date) <= CAST('$until' AS DATE)";
-                    }
-                    if( !empty($from) && !empty($until) ){
-                        $where .= " AND post.post_date BETWEEN CAST('$from' AS DATE) AND CAST('$until' AS DATE)";
+            if($list['date_range']['enabled']==='true'){
+                $from = (isset($list['date_range']['from']) && is_scalar($list['date_range']['from']) ? (string)$list['date_range']['from'] : '');
+                $until = (isset($list['date_range']['until']) && is_scalar($list['date_range']['until']) ? (string)$list['date_range']['until'] : '');
+                $dates_are_valid = ($from==='' || self::is_valid_listings_date($from));
+                $dates_are_valid = ($dates_are_valid && ($until==='' || self::is_valid_listings_date($until)));
+                $dates_are_valid = ($dates_are_valid && ($from==='' || $until==='' || strcmp($from, $until)<=0));
+                if($dates_are_valid){
+                    if($from!=='' && $until===''){
+                        $where .= $wpdb->prepare(' AND DATE(post.post_date) >= %s', $from);
+                    }elseif($from==='' && $until!==''){
+                        $where .= $wpdb->prepare(' AND DATE(post.post_date) <= %s', $until);
+                    }elseif($from!=='' && $until!==''){
+                        $where .= $wpdb->prepare(' AND DATE(post.post_date) BETWEEN %s AND %s', $from, $until);
                     }
                 }
             }
             
-            if($allow['allowSeeAny']===true){
-                // Allow user to see any entries in the list
-            }else{
-                // Only allow to see entries that belong to the currently logged in user
-                $where .= ' AND post.post_author = "' . absint( $current_user->ID ) . '"';
-                $whereWithoutFilters .= ' AND post.post_author = "' . absint( $current_user->ID ) . '"';
+            if($allow['allowSeeAny']!==true){
+                $author_scope = $wpdb->prepare(' AND post.post_author = %d', absint($current_user->ID));
+                $where .= $author_scope;
+                $whereWithoutFilters .= $author_scope;
             }
 
             if( !empty($filters) ) {
@@ -1955,14 +2046,13 @@ END AS paypalSubscriptionId
             $where
             $having
             ORDER BY $order_by
-            LIMIT $limit
-            OFFSET $offset
+            $pagination_sql
             ";
             $entries = $wpdb->get_results($query);
 
             $result = '';
             $result .= SUPER_Common::load_google_fonts($settings);
-            $result .= '<div class="super-listings'.($hasFilters ? ' super-has-filters' : '').'" data-form-id="'.absint($form_id).'" data-list-id="'.absint($list_id).'">';
+            $result .= '<div class="super-listings'.($hasFilters ? ' super-has-filters' : '').'" data-form-id="'.absint($form_id).'" data-list-id="'.absint($list_id).'" data-entry-nonce="'.esc_attr(wp_create_nonce('super_listings_entry_'.absint($form_id).'_'.absint($list_id))).'" data-delete-nonce="'.esc_attr(wp_create_nonce('super_listings_delete_entry_'.absint($form_id).'_'.absint($list_id))).'">';
                 $result .= '<div class="super-listings-wrap">';
                     if($absoluteZeroResults===true && $list['onlyDisplayMessage']==='true'){
                         // Do not show filters/columns
@@ -2153,10 +2243,12 @@ END AS paypalSubscriptionId
                                                     // Generated PDF file (PDF Generator)
                                                     if( isset( $data['_generated_pdf_file']['files'] ) ) {
                                                         foreach( $data['_generated_pdf_file']['files'] as $fk => $fv ) {
-                                                            $linkUrl = $fv['url'];
-                                                            if( !empty( $fv['attachment'] ) ) { // only if file was inserted to Media Library
-                                                                $linkUrl = wp_get_attachment_url( $fv['attachment'] );
-                                                                if($linkUrl===false) $linkUrl = '';
+                                                            $linkUrl = '';
+                                                            if( class_exists('SUPER_Forms') ) {
+                                                                $linkUrl = SUPER_Forms::public_owned_upload_url( $fv, $settings, 'attachment' );
+                                                            }
+                                                            if( $linkUrl==='' && !empty( $fv['url'] ) ) {
+                                                                $linkUrl = $fv['url'];
                                                             }
                                                             $linkType = 'download';
                                                             $linkTitle = esc_html__( 'Download PDF', 'super-forms' );
@@ -2256,14 +2348,9 @@ END AS paypalSubscriptionId
                                                     }
                                                 }
                                             }elseif($column_key=='wc_order_status'){
-                                                $order_id = get_post_meta( $entry->entry_id, '_super_contact_entry_wc_order_id', true );
-                                                if(!empty($order_id)){
-                                                    $order_id = absint($order_id);
-                                                    $order = wc_get_order( $order_id );
-                                                    $order_status  = $order->get_status();
-                                                    if($order_id!=0) {
-                                                        $cellValue = '<mark class="order-status status-'.$order_status.' tips"><span>'.$wc_order_statuses['wc-'.$order_status].'</span></mark>';
-                                                    }
+                                                $order_status = (string) $entry->wc_order_status;
+                                                if ('' !== $order_status && isset($wc_order_statuses[$order_status])) {
+                                                    $cellValue = '<mark class="order-status status-' . esc_attr(substr($order_status, 3)) . ' tips"><span>' . esc_html($wc_order_statuses[$order_status]) . '</span></mark>';
                                                 }
                                             }elseif($column_key=='paypal_order'){
                                                 $cellValue = esc_html($entry->paypalTxnId);
@@ -2325,8 +2412,11 @@ END AS paypalSubscriptionId
                                                                 $files = $data[$column_key]['files'];
                                                                 foreach($files as $fk => $fv){
                                                                     $url = (!empty($fv['url']) ? $fv['url'] : '');
-                                                                    if( !empty( $fv['attachment'] ) ) { // only if file was inserted to Media Library
-                                                                        $url = wp_get_attachment_url( $fv['attachment'] );
+                                                                    if( class_exists('SUPER_Forms') ) {
+                                                                        $downloadUrl = SUPER_Forms::public_owned_upload_url( $fv, $settings, 'attachment' );
+                                                                        if( is_string($downloadUrl) && $downloadUrl!=='' ) {
+                                                                            $url = $downloadUrl;
+                                                                        }
                                                                     }
                                                                     if(!empty($url)){
                                                                         $cellValue .= '<a target="_blank" download href="' . esc_url( $url ) . '">';
@@ -2415,6 +2505,13 @@ END AS paypalSubscriptionId
 
             return $result;
         }
+        private static function current_actor_matches_entry_author( $author_id ) {
+            global $current_user;
+            $current_user_id = isset($current_user->ID) ? absint($current_user->ID) : 0;
+            $author_id = absint($author_id);
+            return $current_user_id>0 && $author_id>0 && $current_user_id===$author_id;
+        }
+
         public static function get_action_permissions($atts){
             global $current_user;
             $list = $atts['list'];
@@ -2432,7 +2529,7 @@ END AS paypalSubscriptionId
             // Display listings (wether or not the listing should be generated/displayed to this user)
             $allowDisplay = true;
             if(!empty($list['display'])){
-                if($list['display']['enabled']==='true'){
+                if(!empty($list['display']['enabled']) && $list['display']['enabled']==='true'){
                     $allowDisplay = false;
                     // Check if both roles and user ID's are empty
                     if( (empty($list['display']['user_roles'])) && (empty($list['display']['user_ids'])) ){
@@ -2480,7 +2577,7 @@ END AS paypalSubscriptionId
             // SEE ANY (logged in users can always see their own entries in the list)
             $allowSeeAny = false;
             if(!empty($list['see_any'])) {
-                if($list['see_any']['enabled']==='true'){
+                if(!empty($list['see_any']['enabled']) && $list['see_any']['enabled']==='true'){
                     // Check if both roles and user ID's are empty
                     if( (empty($list['see_any']['user_roles'])) && (empty($list['see_any']['user_ids'])) ){
                         $allowSeeAny = true;
@@ -2527,7 +2624,7 @@ END AS paypalSubscriptionId
             // VIEW ANY (allow clicking the "view" icon which will open the entry data in a popup with a optional custom HTML template)
             $allowViewAny = false;
             if(!empty($list['view_any'])) {
-                if($list['view_any']['enabled']==='true'){
+                if(!empty($list['view_any']['enabled']) && $list['view_any']['enabled']==='true'){
                     // Check if both roles and user ID's are empty
                     if( (empty($list['view_any']['user_roles'])) && (empty($list['view_any']['user_ids'])) ){
                         $allowViewAny = true;
@@ -2573,9 +2670,9 @@ END AS paypalSubscriptionId
             // VIEW OWN (allow clicking the "view" icon which will open the entry data in a popup with a optional custom HTML template)
             $allowViewOwn = false;
             if(!empty($list['view_own']) && isset($entry)) {
-                if($list['view_own']['enabled']==='true'){
+                if(!empty($list['view_own']['enabled']) && $list['view_own']['enabled']==='true'){
                     // First check if entry author ID equals logged in user ID
-                    if(absint($current_user->ID) === absint($authorId)){
+                    if(self::current_actor_matches_entry_author($authorId)){
                         $allowViewOwn = true;
                     }
                 }
@@ -2585,7 +2682,7 @@ END AS paypalSubscriptionId
             // Check if any user or own user is allowed to edit entry
             $allowEditAny = false;
             if(!empty($list['edit_any'])) {
-                if($list['edit_any']['enabled']==='true'){
+                if(!empty($list['edit_any']['enabled']) && $list['edit_any']['enabled']==='true'){
                     // Check if both roles and user ID's are empty
                     if( (empty($list['edit_any']['user_roles'])) && (empty($list['edit_any']['user_ids'])) ){
                         $allowEditAny = true;
@@ -2631,9 +2728,9 @@ END AS paypalSubscriptionId
             // EDIT OWN
             $allowEditOwn = false;
             if(!empty($list['edit_own']) && isset($entry)) {
-                if($list['edit_own']['enabled']==='true'){
+                if(!empty($list['edit_own']['enabled']) && $list['edit_own']['enabled']==='true'){
                     // First check if entry author ID equals logged in user ID
-                    if(absint($current_user->ID) === absint($authorId)){
+                    if(self::current_actor_matches_entry_author($authorId)){
                         // Check if both roles and user ID's are empty
                         if( (empty($list['edit_own']['user_roles'])) && (empty($list['edit_own']['user_ids'])) ){
                             $allowEditOwn = true;
@@ -2680,7 +2777,7 @@ END AS paypalSubscriptionId
             // DELETE ANY
             $allowDeleteAny = false;
             if(!empty($list['delete_any'])) {
-                if($list['delete_any']['enabled']==='true'){
+                if(!empty($list['delete_any']['enabled']) && $list['delete_any']['enabled']==='true'){
                     // Check if both roles and user ID's are empty
                     if( (empty($list['delete_any']['user_roles'])) && (empty($list['delete_any']['user_ids'])) ){
                         $allowDeleteAny = true;
@@ -2726,9 +2823,9 @@ END AS paypalSubscriptionId
             // DELETE OWN
             $allowDeleteOwn = false;
             if(!empty($list['delete_own']) && isset($entry)) {
-                if($list['delete_own']['enabled']==='true'){
+                if(!empty($list['delete_own']['enabled']) && $list['delete_own']['enabled']==='true'){
                     // First check if entry author ID equals logged in user ID
-                    if(absint($current_user->ID) === absint($authorId)){
+                    if(self::current_actor_matches_entry_author($authorId)){
                         // Check if both roles and user ID's are empty
                         if( (empty($list['delete_own']['user_roles'])) && (empty($list['delete_own']['user_ids'])) ){
                             $allowDeleteOwn = true;

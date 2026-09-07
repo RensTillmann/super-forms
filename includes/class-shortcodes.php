@@ -3089,10 +3089,12 @@ class SUPER_Shortcodes {
             $result .= ' value="' . esc_attr($atts['value']) . '"';
         }
 
+        $search_form_id = absint(self::$current_form_id);
         // @since 2.2.0   - search / populate with contact entry data
         if( $atts['enable_search']=='true' ) {
+            $method = sanitize_text_field( $atts['search_method'] );
             $result .= ' data-search="' . $atts['enable_search'] . '"';
-            $result .= ' data-search-method="' . $atts['search_method'] . '"';
+            $result .= ' data-search-method="' . $method . '"';
             
             // @since 3.2.0 - skip specific fields from being populated
             $skip = '';
@@ -3100,21 +3102,54 @@ class SUPER_Shortcodes {
                 $skip = sanitize_text_field( $atts['search_skip'] );
                 $result .= ' data-search-skip="' . $skip . '"';
             }
+            if( $search_form_id!==0 ) {
+                $capability = SUPER_Common::issue_public_populate_capability( array(
+                    'form_id' => $search_form_id,
+                    'field_name' => $atts['name'],
+                    'method' => $method,
+                    'skip' => $skip,
+                    'result_scope' => 'contact_entry',
+                ) );
+                if( is_string($capability) && $capability!=='' ) {
+                    $result .= ' data-search-capability="' . esc_attr($capability) . '"';
+                }
+            }
 
             // @since 3.1.0
             // make sure if the parameter of this field element is set in the POST or GET we 
             // have to set the GET variables to auto fill the form fields based on the contact entry found
-            if( $atts['value']!='' ) {
+            if( $atts['value']!='' && $search_form_id!==0 ) {
                 global $wpdb;
                 $value = sanitize_text_field($atts['value']);
-                $method = sanitize_text_field($atts['search_method']);
-                $table = $wpdb->prefix . 'posts';
-                $table_meta = $wpdb->prefix . 'postmeta';
-                if($method=='equals') $query = "post_title = BINARY '$value'";
-                if($method=='contains') $query = "post_title LIKE BINARY '%$value%'";
-                $entry = $wpdb->get_row("SELECT ID FROM $table WHERE $query AND post_status IN ('publish','super_unread','super_read') AND post_type = 'super_contact_entry'");
+                $table = $wpdb->posts;
+                $query = false;
+                if($method==='equals') {
+                    $query = $wpdb->prepare(
+                        "SELECT ID FROM {$table}
+                        WHERE post_parent = %d
+                        AND post_title = BINARY %s
+                        AND post_status IN ('publish','super_unread','super_read')
+                        AND post_type = 'super_contact_entry'
+                        LIMIT 1",
+                        $search_form_id,
+                        $value
+                    );
+                }
+                if($method==='contains') {
+                    $query = $wpdb->prepare(
+                        "SELECT ID FROM {$table}
+                        WHERE post_parent = %d
+                        AND post_title LIKE BINARY %s
+                        AND post_status IN ('publish','super_unread','super_read')
+                        AND post_type = 'super_contact_entry'
+                        LIMIT 1",
+                        $search_form_id,
+                        '%' . $wpdb->esc_like($value) . '%'
+                    );
+                }
+                $entry = is_string($query) ? $wpdb->get_row($query) : false;
                 if($entry){
-                    $data = get_post_meta( $entry->ID, '_super_contact_entry_data', true );
+                    $data = SUPER_Data_Access::get_entry_data( $entry->ID );
                     unset($data['hidden_form_id']);
                     $skip_fields = explode( "|", $skip );
                     foreach($skip_fields as $field_name){
@@ -3122,11 +3157,13 @@ class SUPER_Shortcodes {
                             unset($data[$field_name]);
                         }
                     }
-                    $data['hidden_contact_entry_id'] = array(
-                        'name' => 'hidden_contact_entry_id',
-                        'value' => $entry->ID,
-                        'type' => 'entry_id'
-                    );
+                    if( !SUPER_Common::entry_has_wc_order( $entry->ID ) ) {
+                        $data['hidden_contact_entry_id'] = array(
+                            'name' => 'hidden_contact_entry_id',
+                            'value' => $entry->ID,
+                            'type' => 'entry_id'
+                        );
+                    }
                     if (is_array($data) || is_object($data)) {
                         foreach($data as $k => $v){
                             $_GET[$k] = $v['value'];
@@ -3141,51 +3178,81 @@ class SUPER_Shortcodes {
             if(!empty($atts['wc_order_search_filterby'])) $result .= ' data-wcosfb="' . implode(';',explode("\n",$atts['wc_order_search_filterby'])) . '"';
             if(!empty($atts['wc_order_search_return_label'])) $result .= ' data-wcosrl="' . esc_attr($atts['wc_order_search_return_label']) . '"';
             if(!empty($atts['wc_order_search_return_value'])) $result .= ' data-wcosrv="' . esc_attr($atts['wc_order_search_return_value']) . '"';
-            if(!empty($atts['wc_order_search_populate'])) $result .= ' data-wcosp="' . esc_attr($atts['wc_order_search_populate']) . '"';
-            if(!empty($atts['wc_order_search_skip'])) $result .= ' data-wcoss="' . esc_attr($atts['wc_order_search_skip']) . '"';
+            $wc_order_skip = '';
+            if(!empty($atts['wc_order_search_skip'])) {
+                $wc_order_skip = sanitize_text_field($atts['wc_order_search_skip']);
+                $result .= ' data-wcoss="' . esc_attr($wc_order_skip) . '"';
+            }
+            if(!empty($atts['wc_order_search_populate'])) {
+                $result .= ' data-wcosp="' . esc_attr($atts['wc_order_search_populate']) . '"';
+                if( $search_form_id!==0 ) {
+                    $wc_capability = SUPER_Common::issue_public_populate_capability( array(
+                        'form_id' => $search_form_id,
+                        'field_name' => $atts['name'],
+                        'method' => 'wc_order_id',
+                        'skip' => $wc_order_skip,
+                        'result_scope' => 'wc_order_entry',
+                    ) );
+                    if( is_string($wc_capability) && $wc_capability!=='' ) {
+                        $result .= ' data-wcosc="' . esc_attr($wc_capability) . '"';
+                    }
+                }
+            }
             if(!empty($atts['wc_order_search_status'])) $result .= ' data-wcosst="' . implode(';',explode("\n",$atts['wc_order_search_status'])) . '"';
             if(!empty($atts['value'])) {
-                $value = sanitize_text_field($atts['value']);
-                $method = $atts['wc_order_search_method'];
-                $query = '';
-                if($method=='equals') {
-                    $query .= "(wc_order.ID LIKE '$value') OR ";
-                }
-                if($method=='contains') {
-                    $query .= "(wc_order.ID LIKE '%$value%') OR ";
-                }
                 global $wpdb;
+                $value = sanitize_text_field($atts['value']);
+                $method = sanitize_text_field($atts['wc_order_search_method']);
+                if( $method!=='contains' ) {
+                    $method = 'equals';
+                }
+                $like_value = ( $method==='contains' )
+                    ? '%' . $wpdb->esc_like($value) . '%'
+                    : $value;
+                $where = array( 'wc_order.ID LIKE %s' );
+                $prepare_values = array( $search_form_id, $like_value );
                 $filterby = explode(";", $atts['wc_order_search_filterby']);
-                foreach($filterby as $k => $v){
-                    if(!empty($v)){
-                        if($k>0){
-                            $query .= " OR ";
-                        }
-                        if($method=='equals') {
-                            $query .= "(meta.meta_key = '".$v."' AND meta.meta_value LIKE '$value')";
-                        }
-                        if($method=='contains') {
-                            $query .= "(meta.meta_key = '".$v."' AND meta.meta_value LIKE '%$value%')";
+                foreach($filterby as $meta_key){
+                    $meta_key = sanitize_text_field($meta_key);
+                    if($meta_key==='' || $meta_key==='ID'){
+                        continue;
+                    }
+                    $where[] = '(meta.meta_key = %s AND meta.meta_value LIKE %s)';
+                    $prepare_values[] = $meta_key;
+                    $prepare_values[] = $like_value;
+                }
+                $query = "SELECT wc_order.ID
+                    FROM $wpdb->posts AS entry
+                    INNER JOIN $wpdb->postmeta AS entry_wc_order ON entry_wc_order.post_id = entry.ID AND entry_wc_order.meta_key = '_super_contact_entry_wc_order_id'
+                    INNER JOIN $wpdb->posts AS wc_order ON wc_order.ID = entry_wc_order.meta_value
+                    INNER JOIN $wpdb->postmeta AS meta ON meta.post_id = wc_order.ID
+                    WHERE entry.post_parent = %d
+                    AND entry.post_type = 'super_contact_entry'
+                    AND wc_order.post_type = 'shop_order'
+                    AND (" . implode(' OR ', $where) . ")";
+                if(!empty($atts['wc_order_search_status'])) {
+                    $statuses = array_filter(array_map('trim', explode(';', str_replace("\n", ';', (string) $atts['wc_order_search_status']))));
+                    if( !empty($statuses) ) {
+                        $query .= " AND wc_order.post_status IN (" . implode(',', array_fill(0, count($statuses), '%s')) . ")";
+                        foreach( $statuses as $status ) {
+                            $prepare_values[] = sanitize_text_field($status);
                         }
                     }
                 }
-
-                $order = $wpdb->get_row("SELECT ID
-                    FROM $wpdb->posts AS wc_order
-                    INNER JOIN $wpdb->postmeta AS meta ON meta.post_id = wc_order.ID
-                    WHERE $query
-                    AND post_type = 'shop_order'
-                    LIMIT 1");
-                if($order){
-                    if(!empty($atts['wc_order_search_populate'])){
-                        $data = SUPER_Common::get_entry_data_by_wc_order_id($order->ID, $atts['wc_order_search_skip']);
+                $query .= " GROUP BY wc_order.ID
+                    LIMIT 1";
+                $order_id = $wpdb->get_var( $wpdb->prepare( $query, $prepare_values ) );
+                $order_id = absint($order_id);
+                if($order_id!==0){
+                    if(!empty($atts['wc_order_search_populate']) && $search_form_id!==0){
+                        $data = SUPER_Common::get_entry_data_by_wc_order_id($order_id, $wc_order_skip, $search_form_id);
                         if(is_array($data)){
                             foreach($data as $k => $v){
                                 if(isset($v['value'])){
                                     $_GET[$k] = $v['value'];
                                 }
                             }
-                        }                        
+                        }
                     }
                 }
             }
@@ -3840,6 +3907,16 @@ class SUPER_Shortcodes {
             if(isset($entry_data[$atts['name']]['files'])) {
                 foreach( $entry_data[$atts['name']]['files'] as $k => $v ) {
                     if( isset($v['url']) ) {
+                        $upload_token = '';
+                        $retention_token = '';
+                        if( $formProgress ) {
+                            if( empty($v['upload_token']) || !is_string($v['upload_token']) || preg_match('/^[a-f0-9]{64}$/D', $v['upload_token'])!==1 ) {
+                                continue;
+                            }
+                            $upload_token = $v['upload_token'];
+                        }else{
+                            $retention_token = 'entry';
+                        }
                         // Before adding the file, check if the file still exists.
                         // In some cases this might not be the case due to the file being deleted from the server manually
                         // or when the setting "Delete files from server after form submissions" is enabled
@@ -3848,15 +3925,24 @@ class SUPER_Shortcodes {
                             $v['url'] = wp_get_attachment_url($v['attachment']);
                         }
                         $file = $v['url'];
+                        $display_file = $file;
+                        if( class_exists('SUPER_Forms') ) {
+                            $resolved_display_file = SUPER_Forms::public_owned_upload_url( $v, $settings );
+                            if( is_string($resolved_display_file) && $resolved_display_file!=='' ) {
+                                $display_file = $resolved_display_file;
+                            }
+                        }
                         $fileType = (!empty($v['type']) ? $v['type'] : '');
-                        $basename = basename($file);
-                        $file_headers = @get_headers($file);
-                        if($file_headers && (strpos($file_headers[0], '404'))===false) {
-                            // File exists, let's add it to the list
-                            $files .= '<div class="super-uploaded" data-name="' . esc_attr($basename) . '" title="' . esc_attr($basename) . '" data-type="' . esc_attr($fileType) . '" data-url="' . esc_url($file) . '">';
+                        $basename = ( isset($v['value']) && is_string($v['value']) && $v['value']!=='' ) ? basename($v['value']) : basename($file);
+                        if( is_string($display_file) && $display_file!=='' && $basename!=='' ) {
+                            $fileSize = '';
+                            if( isset($v['size']) && is_numeric($v['size']) ) {
+                                $fileSize = absint($v['size']);
+                            }
+                            $files .= '<div class="super-uploaded" data-name="' . esc_attr($basename) . '" title="' . esc_attr($basename) . '" data-type="' . esc_attr($fileType) . '" data-url="' . esc_url($file) . '" data-file-size="' . esc_attr($fileSize) . '"' . ( $upload_token!=='' ? ' data-upload-token="' . esc_attr($upload_token) . '"' : ' data-retention-token="' . esc_attr($retention_token) . '"' ) . '>';
                                 if(!empty($fileType) && (strpos($fileType, 'image/'))===0){
                                     $files .= '<span class="super-fileupload-image super-file-type-' . esc_attr(str_replace('/', '-', $fileType)) . '">';
-                                        $files .= '<img src="' . esc_url($file) . '">';
+                                        $files .= '<img src="' . esc_url($display_file) . '">';
                                     $files .= '</span>';
                                 }else{
                                     $files .= '<span class="super-fileupload-document super-file-type-' . esc_attr(str_replace('/', '-', $fileType)) . '"></span>';
@@ -4871,8 +4957,14 @@ class SUPER_Shortcodes {
                     $result .= $name;
                     // @since 3.9.0 - option for print action to use custom HTML
                     if( !empty($atts['print_custom']) ) {
-                        if( !empty($atts['print_file']) ) {
-                            $result .= '<input type="hidden" name="print_file" value="' . absint($atts['print_file']) . '" />';
+                        $print_file = absint($atts['print_file']);
+                        if( $print_file!==0 ) {
+                            $print_capability = SUPER_Common::issue_public_print_capability( array(
+                                'form_id' => absint(self::$current_form_id),
+                                'file_id' => $print_file,
+                            ) );
+                            $result .= '<input type="hidden" name="print_file" value="' . $print_file . '" />';
+                            $result .= '<input type="hidden" name="print_capability" value="' . esc_attr( is_string($print_capability) ? $print_capability : '' ) . '" />';
                         }
                     }
                 $result .= '</div>';
@@ -5694,6 +5786,7 @@ class SUPER_Shortcodes {
             'id' => '',
             'list_id' => '',
             'entry_id' => '',
+            'listing_form_id' => '',
             'i18n' => ''
         ), $atts ) );
 
@@ -5704,8 +5797,8 @@ class SUPER_Shortcodes {
 
         // @since 4.6.0 - set GET parameters for parsed shortcode params
         foreach($atts as $k => $v){
-            // Skip the default "id" parameter
-            if($k!='id'){
+            // Skip internal routing attributes that must remain server-owned.
+            if($k!='id' && $k!='listing_form_id'){
                 // Only save the value if it doesn't exist yet
                 // This way it allows us to override any params through URL parameters
                 if(!isset($_GET[$k])){
@@ -5749,6 +5842,7 @@ class SUPER_Shortcodes {
         require_once( SUPER_PLUGIN_DIR . '/includes/class-settings.php' );
 
         $settings = SUPER_Common::get_form_settings($form_id);
+
         // Allow users to override any form settings through the shortcode, this way you can have a single form that can be used many times with different settings
         foreach($atts as $k => $v){
             // If the shortcode attribute starts with "_setting_" we use it 
@@ -5760,7 +5854,7 @@ class SUPER_Shortcodes {
             }
         }
         // Allow us to manipulate form settings, currently used by Listings Add-on
-        $settings = apply_filters( 'super_before_form_render_settings_filter', $settings, array( 'id' => $id, 'list_id' => $list_id, 'entry_id' => $entry_id, 'i18n' => $i18n ) );        
+        $settings = apply_filters( 'super_before_form_render_settings_filter', $settings, array( 'id' => $id, 'list_id' => $list_id, 'entry_id' => $entry_id, 'listing_form_id' => $listing_form_id, 'i18n' => $i18n ) );        
 
         $translations = SUPER_Common::get_form_translations($form_id);
 
@@ -5772,6 +5866,8 @@ class SUPER_Shortcodes {
                 unset($settings['i18n']);
             }
         }
+        $update_contact_entry_enabled = !empty($settings['update_contact_entry'])
+            && $settings['update_contact_entry']==='true';
 
         SUPER_Forms()->enqueue_element_styles();
         SUPER_Forms()->enqueue_element_scripts($settings, false, $form_id);
@@ -5839,87 +5935,103 @@ class SUPER_Shortcodes {
         $entry_data = null;
 
         $contact_entry_id = 0;
+        $explicit_contact_entry_id = false;
         if( isset( $_GET['contact_entry_id'] ) ) {
             $contact_entry_id = absint($_GET['contact_entry_id']);
+            $explicit_contact_entry_id = true;
         }else{
             if( isset( $_POST['contact_entry_id'] ) ) {
                 $contact_entry_id = absint($_POST['contact_entry_id']);
+                $explicit_contact_entry_id = true;
             }
         }
         if($contact_entry_id!=0){
-            // If Admin, we are allowed to access this data directly
-            if( current_user_can('administrator') ) {
-                $entry_data = get_post_meta( $contact_entry_id, '_super_contact_entry_data', true );
-            }else{
-                // User must be logged in to access this data, or transient with entry ID should be available
-                $authenticated_entry_id = get_transient( 'super_form_authenticated_entry_id_' . $contact_entry_id );
-                if($authenticated_entry_id!==false){
-                    $entry_data = get_post_meta( $authenticated_entry_id, '_super_contact_entry_data', true );
-                    delete_transient( 'super_form_authenticated_entry_id_' . $contact_entry_id );
+            $entry = get_post($contact_entry_id);
+            if( $entry instanceof WP_Post
+                && $entry->post_type==='super_contact_entry'
+                && absint($entry->post_parent)===absint($form_id) ) {
+                $authorized_entry_id = 0;
+                // If Admin, we are allowed to access this data directly
+                if( current_user_can('manage_options') ) {
+                    $authorized_entry_id = $contact_entry_id;
                 }else{
-                    $current_user_id = get_current_user_id();
-                    if( $current_user_id!=0 ) {
-                        // By default retrieve entry data based on this form ID
-                        $form_ids = array($form_id);
-                        // Check if we are retrieving entry data based on other form ID
-                        if( ( isset( $settings['retrieve_last_entry_form'] ) ) && ( $settings['retrieve_last_entry_form']!='' ) ) {
-                            $form_ids = explode( ",", $settings['retrieve_last_entry_form'] );
-                        }
-                        $form_ids = implode("','", $form_ids);
-                        // Lookup contact entries based on this user ID and form ID(s)
-                        global $wpdb;
-                        $table = $wpdb->prefix . 'posts';
-                        $table_meta = $wpdb->prefix . 'postmeta';
-                        $entry = $wpdb->get_results("
-                        SELECT  ID 
-                        FROM    $table 
-                        WHERE   post_author = $current_user_id AND
-                                post_parent IN ('$form_ids') AND
-                                post_status IN ('publish','super_unread','super_read') AND 
-                                post_type = 'super_contact_entry'
-                        ORDER BY ID DESC
-                        LIMIT 1");
-                        if( isset($entry[0])) {
-                            $entry_data = get_post_meta( $entry[0]->ID, '_super_contact_entry_data', true );
+                    // Anonymous access requires the single-use credential issued to the submitting browser
+                    $entry_access = SUPER_Common::consume_entry_access_credential( $contact_entry_id, $form_id );
+                    if( $entry_access!==false && $entry_access['storage']==='post_type'
+                        && absint($entry_access['entry_id'])===absint($entry->ID) ) {
+                        $authorized_entry_id = $entry_access['entry_id'];
+                    }else{
+                        $current_user_id = get_current_user_id();
+                        if( $current_user_id>0 && $current_user_id===absint($entry->post_author) ) {
+                            $authorized_entry_id = $entry->ID;
                         }
                     }
                 }
+                if( $authorized_entry_id!==0 ) {
+                    $authorized_entry_id = absint($authorized_entry_id);
+                    $entry_data = SUPER_Data_Access::get_entry_data( $authorized_entry_id );
+                    if( (string) $list_id!=='' ) {
+                        $contact_entry_id = $authorized_entry_id;
+                    }elseif( $update_contact_entry_enabled && !SUPER_Common::entry_has_wc_order( $authorized_entry_id ) ) {
+                        $contact_entry_id = $authorized_entry_id;
+                    }else{
+                        $contact_entry_id = 0;
+                    }
+                }else{
+                    $contact_entry_id = 0;
+                }
+            }else{
+                $contact_entry_id = 0;
             }
         }
         // @since 2.9.0 - autopopulate form with user last submitted entry data
         if( ( isset( $settings['retrieve_last_entry_data'] ) ) && ( $settings['retrieve_last_entry_data']=='true' ) ) {
 
-            // @since 3.8.0 - retrieve entry data based on $_GET['contact_entry_id'] or $_POST['contact_entry_id'] 
-            if( empty($contact_entry_id) ) {
+            // @since 3.8.0 - retrieve entry data based on $_GET['contact_entry_id'] or $_POST['contact_entry_id']
+            if( empty($contact_entry_id) && $explicit_contact_entry_id===false ) {
                 $current_user_id = get_current_user_id();
                 if( $current_user_id!=0 ) {
-                    $form_ids = array($form_id);
-                    if( ( isset( $settings['retrieve_last_entry_form'] ) ) && ( $settings['retrieve_last_entry_form']!='' ) ) {
-                        $form_ids = explode( ",", $settings['retrieve_last_entry_form'] );
-                    }
-                    $form_ids = implode("','", $form_ids);
-
-                    // First check if we can find contact entries based on user ID and Form ID
-                    global $wpdb;
-                    $table = $wpdb->prefix . 'posts';
-                    $table_meta = $wpdb->prefix . 'postmeta';
-                    $entry = $wpdb->get_results("
-                    SELECT  ID 
-                    FROM    $table 
-                    WHERE   post_author = $current_user_id AND
-                            post_parent IN ('$form_ids') AND
-                            post_status IN ('publish','super_unread','super_read') AND 
-                            post_type = 'super_contact_entry'
-                    ORDER BY ID DESC
-                    LIMIT 1");
-                    if( isset($entry[0])) {
-                        // If entry exists, set the ID so we can actually update it based on the ID later
-                        if( !empty($settings['update_contact_entry']) ) {
-                            $contact_entry_id = absint($entry[0]->ID);
+                    $form_ids = SUPER_Common::configured_retrieve_last_entry_form_ids( $form_id, $settings );
+                    if( !empty($form_ids) ) {
+                        // First check if we can find contact entries based on user ID and Form ID
+                        global $wpdb;
+                        $table = $wpdb->prefix . 'posts';
+                        $placeholders = implode(', ', array_fill(0, count($form_ids), '%d'));
+                        $query = call_user_func_array(
+                            array( $wpdb, 'prepare' ),
+                            array_merge(
+                                array(
+                                    "SELECT ID
+                                    FROM $table
+                                    WHERE post_author = %d AND
+                                            post_parent IN ($placeholders) AND
+                                            post_status IN ('publish','super_unread','super_read') AND
+                                            post_type = 'super_contact_entry'
+                                    ORDER BY ID DESC
+                                    LIMIT 1"
+                                ),
+                                array_merge( array( $current_user_id ), $form_ids )
+                            )
+                        );
+                        $entry = is_string($query) ? $wpdb->get_results($query) : array();
+                        if( isset($entry[0])) {
+                            if( $update_contact_entry_enabled && !SUPER_Common::entry_has_wc_order( $entry[0]->ID ) ) {
+                                $contact_entry_id = absint($entry[0]->ID);
+                            }
+                            $entry_data = SUPER_Data_Access::get_entry_data( $entry[0]->ID );
                         }
-                        $entry_data = get_post_meta( $entry[0]->ID, '_super_contact_entry_data', true );
                     }
                 }
+            }
+        }
+        if( $contact_entry_id!==0 && is_array($entry_data) && (string)$list_id==='' && $update_contact_entry_enabled ) {
+            $update_grant = SUPER_Common::current_entry_update_grant_value( true );
+            if( $update_grant!==false ) {
+                SUPER_Common::setClientData( array(
+                    'name' => 'update_contact_entry_' . absint($form_id) . '_' . absint($contact_entry_id),
+                    'value' => $update_grant,
+                    'force' => true
+                ) );
             }
         }
         if(!empty($entry_data)){
@@ -6182,6 +6294,7 @@ class SUPER_Shortcodes {
         
         // @since 4.6.0 - add nonce field
         $result .= '<input type="hidden" name="sf_nonce" value="" />';
+        $result .= '<input type="hidden" name="super_create_nonce" value="' . esc_attr( wp_create_nonce( 'super_create_nonce_' . $form_id ) ) . '" />';
         
         // @since 3.2.0 - add honeypot captcha
         $result .= '<input type="text" name="super_hp" size="25" value="" />';
@@ -6195,9 +6308,15 @@ class SUPER_Shortcodes {
 
         // When editing a contact entry, we need to pass the below values to handle the ajax request
         if($editingContactEntry===true){
+            if($listing_form_id===''){
+                $listing_form_id = $form_id;
+            }
             // Holds list ID
             $result .= '<div class="super-shortcode super-field super-hidden">';
             $result .= '<input class="super-shortcode-field" type="hidden" value="' . absint($list_id) . '" name="hidden_list_id" />';
+            $result .= '</div>';
+            $result .= '<div class="super-shortcode super-field super-hidden">';
+            $result .= '<input class="super-shortcode-field" type="hidden" value="' . absint($listing_form_id) . '" name="hidden_listing_form_id" />';
             $result .= '</div>';
         }
 

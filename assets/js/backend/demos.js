@@ -20,6 +20,7 @@
                     url: ajaxurl,
                     data: {
                         action: 'super_demos_install_item',
+                        nonce: super_demos_i18n.admin_nonce,
                         title: $title,
                         elements: $elements,
                         settings: $settings,
