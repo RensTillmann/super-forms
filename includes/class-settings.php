@@ -553,6 +553,13 @@ class SUPER_Settings {
         );
         $array = apply_filters( 'super_settings_after_confirmation_email_filter', $array, array( 'settings'=>$s, 'default'=>$default ) );
 
+        // Determine the site host without relying on $_SERVER['SERVER_NAME'], which is undefined in CLI/cron context
+        $site_host = wp_parse_url( home_url(), PHP_URL_HOST );
+        if ( empty( $site_host ) && isset( $_SERVER['SERVER_NAME'] ) ) {
+            $site_host = sanitize_text_field( wp_unslash( $_SERVER['SERVER_NAME'] ) );
+        }
+        $site_host = is_string( $site_host ) ? $site_host : '';
+
         /** 
          *	Global Overriding
          *
@@ -606,7 +613,7 @@ class SUPER_Settings {
                 // Set global 'From' header, can override 'header_from' and 'confirm_from' settings
                 'global_email_from' => array(
                     'name' => esc_html__( 'From email', 'super-forms' ),
-                    'desc' => sprintf( esc_html__( 'The email address which emails are sent from.%s(if you encounter issues with receiving emails, try to use info@%s).%sIf you are using an email provider (Gmail, Yahoo, Outlook.com, etc) it should be the email address of that account.', 'super-forms' ), '<br />', '<strong style="color:red;">' . str_replace('www.', '', $_SERVER["SERVER_NAME"]) . '</strong>', '<br />' ),
+                    'desc' => sprintf( esc_html__( 'The email address which emails are sent from.%s(if you encounter issues with receiving emails, try to use info@%s).%sIf you are using an email provider (Gmail, Yahoo, Outlook.com, etc) it should be the email address of that account.', 'super-forms' ), '<br />', '<strong style="color:red;">' . str_replace('www.', '', $site_host) . '</strong>', '<br />' ),
                     'default' =>  '{option_admin_email}',
                     'placeholder' => esc_html__( 'Enter an email address', 'super-forms' ),
                     'children' => array(

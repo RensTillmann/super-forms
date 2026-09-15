@@ -167,7 +167,7 @@ if(!class_exists('SUPER_Listings')) :
                 );
                 $global_settings = SUPER_Common::get_global_settings();
                 $i = 1;
-                while($i <= absint($global_settings['email_reminder_amount'])){
+                while($i <= ( isset($global_settings['email_reminder_amount']) ? absint($global_settings['email_reminder_amount']) : 0 )){
                     $overrideSettings['email_reminder_'.$i] = '';
                     $i++;
                 }
@@ -2311,7 +2311,7 @@ END AS paypalSubscriptionId
                                             }elseif($entry->author_id && $column_key=='author_id'){
                                                 $cellValue = esc_html($entry->author_id);
                                             }elseif($column_key=='entry_status'){
-                                                if( (isset($entry_statuses[$entry->status])) && ($entry->status!='') ) {
+                                                if( ($entry->status!==null) && ($entry->status!='') && (isset($entry_statuses[$entry->status])) ) {
                                                     $cellValue = '<span class="super-entry-status super-entry-status-' . $entry->status . '" style="color:' . $entry_statuses[$entry->status]['color'] . ';background-color:' . $entry_statuses[$entry->status]['bg_color'] . '">' . $entry_statuses[$entry->status]['name'] . '</span>';
                                                 }else{
                                                     $post_status = get_post_status($entry->entry_id);
