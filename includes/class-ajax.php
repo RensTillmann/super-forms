@@ -5322,14 +5322,14 @@ class SUPER_Ajax {
     }
 
     private static function submission_listing_host_form_id( $form_id ) {
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; CSRF-verified before it is reached: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; CSRF-verified before it is reached: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5292-5299) in upload_files() (includes/class-ajax.php:8172-8174) and submit_form() (includes/class-ajax.php:8479-8481)
         if( !isset($_POST['listing_form_id']) ) {
             return absint($form_id);
         }
         if( !class_exists('SUPER_Listings') ) {
             return false;
         }
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; CSRF-verified before it is reached: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; CSRF-verified before it is reached: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5292-5299) in upload_files() (includes/class-ajax.php:8172-8174) and submit_form() (includes/class-ajax.php:8479-8481)
         $requested_listing_form_id = is_scalar($_POST['listing_form_id']) ? sanitize_text_field(wp_unslash($_POST['listing_form_id'])) : false;
         $listing_form_id = SUPER_Listings::parse_form_id($requested_listing_form_id);
         if( $listing_form_id===false || get_post_type($listing_form_id)!=='super_form' ) {
@@ -5622,9 +5622,9 @@ class SUPER_Ajax {
         if( !is_array($routes) || !is_array($file_routes) ) {
             return false;
         }
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; CSRF-verified before it is reached: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; CSRF-verified before it is reached: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5292-5299) in upload_files() (includes/class-ajax.php:8172-8174) and submit_form() (includes/class-ajax.php:8479-8481)
         $submitted = ( isset($_POST['file_field_map']) && is_array($_POST['file_field_map']) )
-            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; CSRF-verified before it is reached: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; CSRF-verified before it is reached: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5292-5299) in upload_files() (includes/class-ajax.php:8172-8174) and submit_form() (includes/class-ajax.php:8479-8481)
             ? map_deep(wp_unslash($_POST['file_field_map']), 'sanitize_text_field')
             : array();
         if( !empty(array_diff_key($submitted, $routes)) ) {
@@ -7883,7 +7883,7 @@ class SUPER_Ajax {
                 );
             }
         }
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5292-5299) in upload_files() (includes/class-ajax.php:8172-8174) and submit_form() (includes/class-ajax.php:8479-8481)
         $form_id = absint($_POST['form_id']);
         if( !$form_id || !self::upload_form_id_is_valid($form_id) ) {
             SUPER_Common::output_message( $error = true, esc_html__( 'Invalid form.', 'super-forms' ) );
@@ -7907,7 +7907,7 @@ class SUPER_Ajax {
             // Validate that the payload is a JSON object/array literal before decoding: filter_var()
             // returns the subject byte-for-byte when the pattern matches and false otherwise, so a
             // non-string payload (e.g. an array) is rejected below instead of reaching json_decode().
-            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5292-5299) in upload_files() (includes/class-ajax.php:8172-8174) and submit_form() (includes/class-ajax.php:8479-8481)
             $data = json_decode(filter_var(wp_unslash($_POST['data']), FILTER_VALIDATE_REGEXP, array('options'=>array('regexp'=>'`\A\s*[\[{]`'))), true);
             if( !is_array($data) ) {
                 SUPER_Common::output_message( $error = true, esc_html__( 'Invalid form data.', 'super-forms' ) );
@@ -7926,9 +7926,9 @@ class SUPER_Ajax {
             unset($settings['theme_custom_css']);
             unset($settings['form_custom_css']);
         }
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5292-5299) in upload_files() (includes/class-ajax.php:8172-8174) and submit_form() (includes/class-ajax.php:8479-8481)
         $entry_id = isset($_POST['entry_id']) ? absint($_POST['entry_id']) : 0;
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5292-5299) in upload_files() (includes/class-ajax.php:8172-8174) and submit_form() (includes/class-ajax.php:8479-8481)
         $list_id = isset($_POST['list_id']) ? absint($_POST['list_id']) : '';
         $listing_settings = $stored_settings;
         $listing_form_id = $form_id;
@@ -7975,7 +7975,7 @@ class SUPER_Ajax {
         $settings_filter_data = self::submission_data_without_files($data);
         // Snapshot the request array before $_POST['data'] is rewritten for the settings
         // extensions, so the original payload can be restored byte-for-byte afterwards.
-        $original_post = $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
+        $original_post = $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5292-5299) in upload_files() (includes/class-ajax.php:8172-8174) and submit_form() (includes/class-ajax.php:8479-8481)
         $had_post_data = array_key_exists('data', $original_post);
         $original_post_data = $had_post_data ? $original_post['data'] : null;
         $_POST['data'] = self::submission_request_post_data_json($settings_filter_data);
@@ -7983,7 +7983,7 @@ class SUPER_Ajax {
             $settings = apply_filters(
                 'super_before_submit_form_settings_filter',
                 $settings,
-                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5292-5299) in upload_files() (includes/class-ajax.php:8172-8174) and submit_form() (includes/class-ajax.php:8479-8481)
                 array('data'=>$settings_filter_data, 'post'=>$_POST, 'entry_id'=>$entry_id, 'list_id'=>$list_id)
             );
         } catch( Exception $e ) {
@@ -8032,19 +8032,19 @@ class SUPER_Ajax {
         $captcha_versions = array();
         self::form_recaptcha_versions($form_elements, $captcha_versions);
         if( !empty($captcha_versions) ) {
-            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5292-5299) in upload_files() (includes/class-ajax.php:8172-8174) and submit_form() (includes/class-ajax.php:8479-8481)
             if( !isset($_POST['version'], $_POST['token'])
-                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5292-5299) in upload_files() (includes/class-ajax.php:8172-8174) and submit_form() (includes/class-ajax.php:8479-8481)
                 || !is_string($_POST['version']) || !is_string($_POST['token'])
-                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5292-5299) in upload_files() (includes/class-ajax.php:8172-8174) and submit_form() (includes/class-ajax.php:8479-8481)
                 || $_POST['token']==='' || !isset($captcha_versions[$_POST['version']]) ) {
                 SUPER_Common::output_message( $error=true, esc_html__( 'reCAPTCHA verification is required.', 'super-forms' ) );
             }
             // The gate above accepted only an exact stored version key ('v2'/'v3'), so
             // sanitizing the request fields cannot change the selected policy.
-            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5292-5299) in upload_files() (includes/class-ajax.php:8172-8174) and submit_form() (includes/class-ajax.php:8479-8481)
             $version = sanitize_key(wp_unslash($_POST['version']));
-            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5292-5299) in upload_files() (includes/class-ajax.php:8172-8174) and submit_form() (includes/class-ajax.php:8479-8481)
             $token = sanitize_text_field(wp_unslash($_POST['token']));
             $secret_key = $version==='v3' ? 'form_recaptcha_v3_secret' : 'form_recaptcha_secret';
             $secret = ( is_array($settings) && isset($settings[$secret_key]) ) ? $settings[$secret_key] : '';
@@ -8148,13 +8148,13 @@ class SUPER_Ajax {
         $data = apply_filters(
             'super_before_sending_email_data_filter',
             $data,
-            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5292-5299) in upload_files() (includes/class-ajax.php:8172-8174) and submit_form() (includes/class-ajax.php:8479-8481)
             array('data'=>$data, 'post'=>$_POST, 'settings'=>$settings)
         );
         if( !is_array($data) ) {
             SUPER_Common::output_message($error = true, esc_html__( 'Invalid form data.', 'super-forms' ));
         }
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5292-5299) in upload_files() (includes/class-ajax.php:8172-8174) and submit_form() (includes/class-ajax.php:8479-8481)
         do_action('super_before_sending_email_hook', array('data'=>$data, 'post'=>$_POST, 'settings'=>$settings));
 
         return array(
@@ -8177,15 +8177,15 @@ class SUPER_Ajax {
                 esc_html__( 'Unable to upload file, session expired!', 'super-forms' )
             );
         }
-        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified at the top of this same function: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:8173-8175, definition includes/class-ajax.php:5293-5300)
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified at the top of this same function: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:8172-8174, definition includes/class-ajax.php:5292-5299)
         if( array_key_exists('super_hp', $_POST) ) {
-            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified at the top of this same function: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:8173-8175, definition includes/class-ajax.php:5293-5300)
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified at the top of this same function: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:8172-8174, definition includes/class-ajax.php:5292-5299)
             if( !is_scalar($_POST['super_hp']) && $_POST['super_hp']!==null ) {
                 exit;
             }
             // Any submitted honeypot content cancels the request. Comparing the raw value
             // keeps content that sanitizing would strip from passing as empty.
-            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified at the top of this same function: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:8173-8175, definition includes/class-ajax.php:5293-5300)
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified at the top of this same function: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:8172-8174, definition includes/class-ajax.php:5292-5299)
             if( $_POST['super_hp']!==null && $_POST['super_hp']!=='' ) {
                 exit;
             }
@@ -8201,7 +8201,7 @@ class SUPER_Ajax {
         // The upload envelope is request structure built by PHP, not a submitted value: it is taken
         // as a whole-array copy and validated element-wise by self::upload_files_are_parallel()
         // below, because value-sanitizing it would rewrite legitimate uploaded file names.
-        $upload_request = $_FILES; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified at the top of this same function: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:8173-8175, definition includes/class-ajax.php:5293-5300)
+        $upload_request = $_FILES; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified at the top of this same function: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:8172-8174, definition includes/class-ajax.php:5292-5299)
         $files = isset($upload_request['files']) ? $upload_request['files'] : array();
         if( !self::upload_files_are_parallel($files) ) {
             SUPER_Common::output_message($error = true, esc_html__( 'Invalid file upload request.', 'super-forms' ));
