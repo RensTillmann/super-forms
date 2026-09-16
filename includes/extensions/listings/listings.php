@@ -2096,7 +2096,7 @@ END AS paypalSubscriptionId
                                 }
 
                                 // Check if a filter was set for this column
-                                $inputValue = (!empty($_GET['fc_'.$column_name]) ? sanitize_text_field($_GET['fc_'.$column_name]) : ''); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only [super_listings] render (listings.php:1451): the value is only echoed back as the filter input's current value and changes no state
+                                $inputValue = (!empty($_GET['fc_'.$column_name]) ? sanitize_text_field(wp_unslash($_GET['fc_'.$column_name])) : ''); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only [super_listings] render (listings.php:1451): the value is only echoed back as the filter input's current value and changes no state
                                 $result .= '<div class="super-col-wrap '.($column_name===$originalSc ? 'super-sort-'.strtolower($sm) : '').'" data-name="' . $column_name . '"' . $styles . '>';
                                     $result .= '<span class="super-col-name">' . $v['name'] . '</span>';
                                     if( isset($v['sort']) && $v['sort']==='true' ) {

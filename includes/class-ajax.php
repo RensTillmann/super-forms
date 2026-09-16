@@ -176,7 +176,7 @@ class SUPER_Ajax {
         }
 
         $entry_id = isset($_POST['entry_id']) ? absint($_POST['entry_id']) : 0;
-        $form_id = isset($_POST['form_id']) ? SUPER_Listings::parse_form_id(wp_unslash($_POST['form_id'])) : false;
+        $form_id = isset($_POST['form_id']) ? SUPER_Listings::parse_form_id(filter_var(wp_unslash($_POST['form_id']), FILTER_DEFAULT)) : false;
         $list_id = isset($_POST['list_id']) ? absint($_POST['list_id']) : -1;
         if( !$form_id || get_post_type($form_id)!=='super_form' ) {
             echo esc_html__( 'Permission denied, because this form does not exist', 'super-forms' );
@@ -623,7 +623,7 @@ class SUPER_Ajax {
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nopriv print endpoint authenticated by SUPER_Common::consume_public_print_capability() (includes/class-common.php:252, enforced at includes/class-ajax.php:633-639)
         $file_id = isset($_POST['file_id']) ? absint($_POST['file_id']) : 0;
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nopriv print endpoint authenticated by SUPER_Common::consume_public_print_capability() (includes/class-common.php:252, enforced at includes/class-ajax.php:633-639)
-        $data = ( isset( $_POST['data'] ) && is_array($_POST['data']) ) ? $_POST['data'] : array();
+        $data = ( isset( $_POST['data'] ) && is_array($_POST['data']) ) ? filter_var(wp_unslash($_POST['data']), FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) : array();
         $form_id = isset($data['hidden_form_id']['value']) ? absint($data['hidden_form_id']['value']) : 0;
         $form = get_post( $form_id );
         if( $file_id===0
@@ -1117,7 +1117,7 @@ class SUPER_Ajax {
         }
         $form_id = isset($_POST['form_id']) ? absint($_POST['form_id']) : 0;
         $field_name = isset($_POST['field_name']) && is_scalar($_POST['field_name'])
-            ? (string) wp_unslash($_POST['field_name'])
+            ? (string) filter_var(wp_unslash($_POST['field_name']), FILTER_DEFAULT)
             : '';
         $method = isset($_POST['method']) && is_scalar($_POST['method'])
             ? sanitize_text_field(wp_unslash($_POST['method']))
@@ -1289,7 +1289,7 @@ class SUPER_Ajax {
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nopriv populate endpoint authenticated by SUPER_Common::consume_public_populate_capability() (includes/class-common.php:183, enforced at includes/class-ajax.php:1306-1314 and 1333-1341)
         $field_name = isset($_POST['field_name']) && is_scalar($_POST['field_name'])
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nopriv populate endpoint authenticated by SUPER_Common::consume_public_populate_capability() (includes/class-common.php:183, enforced at includes/class-ajax.php:1306-1314 and 1333-1341)
-            ? (string) wp_unslash($_POST['field_name'])
+            ? (string) filter_var(wp_unslash($_POST['field_name']), FILTER_DEFAULT)
             : '';
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nopriv populate endpoint authenticated by SUPER_Common::consume_public_populate_capability() (includes/class-common.php:183, enforced at includes/class-ajax.php:1306-1314 and 1333-1341)
         $method = isset($_POST['method']) && is_scalar($_POST['method'])
@@ -1368,7 +1368,7 @@ class SUPER_Ajax {
         $id = isset($_POST['id']) ? absint($_POST['id']) : 0;
         self::require_admin_contact_entry($id);
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_admin_ajax_request() (includes/class-ajax.php:2075-2080, manage_options + check_ajax_referer('super_admin_ajax'))
-        $new_data = (isset($_POST['data']) && is_array($_POST['data'])) ? wp_unslash($_POST['data']) : array();
+        $new_data = (isset($_POST['data']) && is_array($_POST['data'])) ? filter_var(wp_unslash($_POST['data']), FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) : array();
         foreach( $new_data as $field_name => $value ) {
             if( !is_string($field_name) || $field_name==='' || !is_scalar($value) ) {
                 SUPER_Common::output_message(
@@ -1438,7 +1438,7 @@ class SUPER_Ajax {
         global $wpdb;
 
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_admin_ajax_request() (includes/class-ajax.php:2075-2080, manage_options + check_ajax_referer('super_admin_ajax'))
-        $columns = isset($_POST['columns']) && is_array($_POST['columns']) ? wp_unslash($_POST['columns']) : array();
+        $columns = isset($_POST['columns']) && is_array($_POST['columns']) ? filter_var(wp_unslash($_POST['columns']), FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) : array();
         if( empty($columns) ) {
             self::reject_admin_ajax_request();
         }
@@ -1450,7 +1450,7 @@ class SUPER_Ajax {
         }
 
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_admin_ajax_request() (includes/class-ajax.php:2075-2080, manage_options + check_ajax_referer('super_admin_ajax'))
-        $entry_ids = self::strict_positive_id_array(isset($_POST['entries']) ? $_POST['entries'] : null);
+        $entry_ids = self::strict_positive_id_array(isset($_POST['entries']) ? filter_var(wp_unslash($_POST['entries']), FILTER_DEFAULT, FILTER_REQUIRE_ARRAY) : null);
         $form_ids = self::admin_contact_entry_form_scope();
         self::require_admin_contact_entries($entry_ids, $form_ids);
         $order_by_filter = self::contact_entry_order_clause();
@@ -1581,7 +1581,7 @@ class SUPER_Ajax {
         global $wpdb;
 
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_admin_ajax_request() (includes/class-ajax.php:2075-2080, manage_options + check_ajax_referer('super_admin_ajax'))
-        $entry_ids = self::strict_positive_id_array(isset($_POST['entries']) ? $_POST['entries'] : null);
+        $entry_ids = self::strict_positive_id_array(isset($_POST['entries']) ? filter_var(wp_unslash($_POST['entries']), FILTER_UNSAFE_RAW, FILTER_REQUIRE_ARRAY) : null);
         $form_ids = self::admin_contact_entry_form_scope();
         self::require_admin_contact_entries($entry_ids, $form_ids);
 
@@ -1805,17 +1805,17 @@ class SUPER_Ajax {
 
         $file_id = self::strict_positive_id_array(
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_admin_ajax_request() (includes/class-ajax.php:2075-2080, manage_options + check_ajax_referer('super_admin_ajax'))
-            array(isset($_POST['file_id']) ? $_POST['file_id'] : null)
+            array(isset($_POST['file_id']) ? filter_var(wp_unslash($_POST['file_id']), FILTER_UNSAFE_RAW) : null)
         );
         $file_id = $file_id[0];
         $file = self::require_admin_contact_entry_import_file($file_id, true);
         $column_connections = self::contact_entry_import_columns(
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_admin_ajax_request() (includes/class-ajax.php:2075-2080, manage_options + check_ajax_referer('super_admin_ajax'))
-            isset($_POST['column_connections']) ? $_POST['column_connections'] : null
+            isset($_POST['column_connections']) ? filter_var(wp_unslash($_POST['column_connections']), FILTER_UNSAFE_RAW, FILTER_REQUIRE_ARRAY) : null
         );
         $skip_first = self::contact_entry_import_skip_first(
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_admin_ajax_request() (includes/class-ajax.php:2075-2080, manage_options + check_ajax_referer('super_admin_ajax'))
-            isset($_POST['skip_first']) ? $_POST['skip_first'] : false
+            isset($_POST['skip_first']) ? filter_var(wp_unslash($_POST['skip_first']), FILTER_UNSAFE_RAW, is_array($_POST['skip_first']) ? FILTER_REQUIRE_ARRAY : 0) : false
         );
         $delimiter = self::contact_entry_csv_character('import_delimiter', ',');
         $enclosure = self::contact_entry_csv_character('import_enclosure', '"');
@@ -1958,7 +1958,7 @@ class SUPER_Ajax {
 
         $file_id = self::strict_positive_id_array(
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_admin_ajax_request() (includes/class-ajax.php:2075-2080, manage_options + check_ajax_referer('super_admin_ajax'))
-            array(isset($_POST['file_id']) ? $_POST['file_id'] : null)
+            array(isset($_POST['file_id']) ? filter_var(wp_unslash($_POST['file_id']), FILTER_UNSAFE_RAW) : null)
         );
         $file_id = $file_id[0];
         $file = self::require_admin_contact_entry_import_file($file_id, false);
@@ -2147,11 +2147,11 @@ class SUPER_Ajax {
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; every caller runs SUPER_Ajax::authorize_admin_ajax_request() first (includes/class-ajax.php:2075-2080, check_ajax_referer('super_admin_ajax'))
         if( isset($_POST['form_id']) ) {
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; every caller runs SUPER_Ajax::authorize_admin_ajax_request() first (includes/class-ajax.php:2075-2080, check_ajax_referer('super_admin_ajax'))
-            $form_ids = self::strict_positive_id_array(array($_POST['form_id']));
+            $form_ids = self::strict_positive_id_array(array(filter_var(wp_unslash($_POST['form_id']), FILTER_UNSAFE_RAW)));
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; every caller runs SUPER_Ajax::authorize_admin_ajax_request() first (includes/class-ajax.php:2075-2080, check_ajax_referer('super_admin_ajax'))
         }elseif( isset($_POST['form_ids']) ) {
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; every caller runs SUPER_Ajax::authorize_admin_ajax_request() first (includes/class-ajax.php:2075-2080, check_ajax_referer('super_admin_ajax'))
-            $form_ids = self::strict_form_id_list($_POST['form_ids']);
+            $form_ids = self::strict_form_id_list(filter_var(wp_unslash($_POST['form_ids']), FILTER_UNSAFE_RAW, is_array($_POST['form_ids']) ? FILTER_REQUIRE_ARRAY : 0));
         }else{
             return array();
         }
@@ -2183,9 +2183,9 @@ class SUPER_Ajax {
             'entry_status' => 'entry.post_status'
         );
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; every caller runs SUPER_Ajax::authorize_admin_ajax_request() first (includes/class-ajax.php:2075-2080, check_ajax_referer('super_admin_ajax'))
-        $sort_by = isset($_POST['sort_by']) ? wp_unslash($_POST['sort_by']) : 'entry_date';
+        $sort_by = isset($_POST['sort_by']) ? filter_var(wp_unslash($_POST['sort_by']), FILTER_UNSAFE_RAW) : 'entry_date';
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; every caller runs SUPER_Ajax::authorize_admin_ajax_request() first (includes/class-ajax.php:2075-2080, check_ajax_referer('super_admin_ajax'))
-        $order_by = isset($_POST['order_by']) ? wp_unslash($_POST['order_by']) : 'ASC';
+        $order_by = isset($_POST['order_by']) ? filter_var(wp_unslash($_POST['order_by']), FILTER_UNSAFE_RAW) : 'ASC';
         if( !is_string($sort_by) || !is_string($order_by) ) {
             self::reject_admin_ajax_request();
         }
@@ -2205,7 +2205,7 @@ class SUPER_Ajax {
             self::reject_admin_ajax_request();
         }
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; every caller runs SUPER_Ajax::authorize_admin_ajax_request() first (includes/class-ajax.php:2075-2080, check_ajax_referer('super_admin_ajax'))
-        $value = wp_unslash($_POST[$name]);
+        $value = filter_var(wp_unslash($_POST[$name]), FILTER_UNSAFE_RAW);
         if( strlen($value)!==1 ) {
             self::reject_admin_ajax_request();
         }
@@ -2283,7 +2283,7 @@ class SUPER_Ajax {
         if( !is_string($value) ) {
             return '';
         }
-        $value = wp_unslash($value);
+        // Request data arrives unslashed once from the only caller (import_contact_entries(), includes/class-ajax.php:1812-1815).
         if( $value==='' || preg_match('/^[A-Za-z0-9_-]+$/D', $value)!==1 ) {
             return '';
         }
@@ -2324,7 +2324,7 @@ class SUPER_Ajax {
                 $entry_data_names[$name] = true;
             }
             $label = isset($connection['label']) && is_string($connection['label'])
-                ? sanitize_text_field(wp_unslash($connection['label']))
+                ? sanitize_text_field($connection['label'])
                 : '';
             $connections[] = array(
                 'column' => $column,
@@ -2624,7 +2624,7 @@ class SUPER_Ajax {
             self::reject_admin_ajax_request();
         }
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_admin_ajax_request() (includes/class-ajax.php:2075-2080, manage_options + check_ajax_referer('super_admin_ajax'))
-        $form_ids = isset($_POST['form_ids']) ? self::strict_form_id_list($_POST['form_ids']) : array();
+        $form_ids = isset($_POST['form_ids']) ? self::strict_form_id_list(filter_var(wp_unslash($_POST['form_ids']), FILTER_UNSAFE_RAW, is_array($_POST['form_ids']) ? FILTER_REQUIRE_ARRAY : 0)) : array();
         foreach( $form_ids as $form_id ) {
             self::require_admin_form($form_id);
         }
