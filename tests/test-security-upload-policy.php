@@ -260,10 +260,12 @@ class Test_Super_Forms_Upload_Policy_Security extends Super_Forms_Upload_Securit
             ),
         ) );
         $this->set_request( $control_form, array(), array( 'files' => $control_files ) );
+        $this->require_php_received_upload();
         $control_result = $this->run_dying_handler( array( 'SUPER_Ajax', 'upload_files' ) );
         $this->assertSame( 0, $control_result['status'], $control_result['output'] );
         $control_response = json_decode( $control_result['output'], true );
         $this->assertIsArray( $control_response, $control_result['output'] );
+        $this->assertArrayHasKey( 'documents', $control_response, $control_result['output'] );
         $this->assertSame( 'at-limit.png', $control_response['documents']['files'][0]['value'] );
         $this->assertSame( strlen( $control_bytes ), $control_response['documents']['files'][0]['size'] );
         $this->assertMatchesRegularExpression(
@@ -528,6 +530,7 @@ class Test_Super_Forms_Upload_Policy_Security extends Super_Forms_Upload_Securit
         );
     }
     public function test_upload_endpoint_allows_a_partial_batch_but_public_submit_enforces_the_stored_minimum() {
+        $this->require_php_received_upload();
         $this->configure_csrf( 'false' );
         $form_id = $this->create_form(
             'publish',

@@ -32,8 +32,27 @@ class Test_Security_Form_Authoring extends WP_UnitTestCase {
 	private $scope;
 	private $user_ids = array();
 
+	/**
+	 * Load the AJAX handlers under test.
+	 *
+	 * The WordPress test bootstrap never defines DOING_AJAX, so
+	 * super-forms.php:230 (is_request('ajax')) skips ajax_includes() and none of
+	 * the wp_ajax_super_* actions exist in the test process. Including
+	 * includes/class-ajax.php runs SUPER_Ajax::init() (class-ajax.php:9140),
+	 * which registers the handlers this class exercises.
+	 */
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
+		if ( ! class_exists( 'SUPER_Ajax' ) ) {
+			require_once dirname( __DIR__ ) . '/includes/class-ajax.php';
+		}
+	}
+
 	public function set_up() {
 		parent::set_up();
+		if ( ! has_action( 'wp_ajax_super_save_form' ) ) {
+			SUPER_Ajax::init();
+		}
 
 		$this->scope                 = 'sf-authoring-' . str_replace( '-', '', wp_generate_uuid4() );
 		$this->original_current_user = get_current_user_id();
@@ -406,6 +425,73 @@ class Test_Security_Form_Authoring extends WP_UnitTestCase {
 		);
 	}
 
+	/**
+	 * Run an AJAX action whose only exit is a raw die() out of process.
+	 *
+	 * SUPER_Common::output_message() terminates with die()
+	 * (includes/class-common.php:1761), which ends the whole PHP process, so a
+	 * rejection that is reported through it cannot be observed in-process.
+	 * Status 0 means the handler terminated without ever returning.
+	 */
+	private function run_dying_ajax( $action ) {
+		if ( ! function_exists( 'pcntl_fork' ) || ! function_exists( 'pcntl_waitpid' ) || ! function_exists( 'pcntl_exec' ) ) {
+			$this->fail( 'The raw-die authoring regression requires pcntl fork, wait, and exec support.' );
+		}
+		$capture = tempnam( sys_get_temp_dir(), 'sf-authoring-die-' );
+		$this->assertNotFalse( $capture );
+		$pid = pcntl_fork();
+		$this->assertNotSame( -1, $pid );
+		if ( 0 === $pid ) {
+			$returned = false;
+			ob_start(
+				static function ( $buffer ) use ( $capture ) {
+					file_put_contents( $capture, $buffer, FILE_APPEND | LOCK_EX );
+					return '';
+				}
+			);
+			// Exec at shutdown avoids destructing the inherited mysqli connection,
+			// which would roll back the parent WP_UnitTestCase transaction.
+			register_shutdown_function(
+				static function () use ( &$returned ) {
+					$last_error = error_get_last();
+					$fatal      = $last_error && in_array(
+						$last_error['type'],
+						array( E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR ),
+						true
+					);
+					$status = ( ! $returned && ! $fatal ) ? 0 : 97;
+					while ( ob_get_level() > 0 ) {
+						@ob_end_flush();
+					}
+					pcntl_exec( PHP_BINARY, array( '-r', 'exit(' . $status . ');' ) );
+				}
+			);
+			try {
+				do_action( $action );
+				$returned = true;
+			} catch ( Throwable $exception ) {
+				echo get_class( $exception ) . ': ' . $exception->getMessage();
+				$returned = true;
+			}
+			exit( 97 );
+		}
+
+		$status = 0;
+		pcntl_waitpid( $pid, $status );
+		global $wpdb;
+		if ( isset( $wpdb ) && method_exists( $wpdb, 'check_connection' ) ) {
+			$wpdb->check_connection( false );
+		}
+		wp_cache_flush();
+		$output = file_get_contents( $capture );
+		unlink( $capture );
+		$this->assertTrue( pcntl_wifexited( $status ), (string) $output );
+		return array(
+			'status' => pcntl_wexitstatus( $status ),
+			'output' => ( false === $output ) ? '' : $output,
+		);
+	}
+
 	private function find_root_form_by_title( $title, $candidate_ids ) {
 		$matches = array();
 		foreach ( $candidate_ids as $form_id ) {
@@ -681,13 +767,15 @@ class Test_Security_Form_Authoring extends WP_UnitTestCase {
 		$this->apply_nonce( 'valid' );
 		$this->install_global_secret_mutation_trap( true );
 
-		$result = $this->invoke_with_wp_die_capture(
-			static function () {
-				do_action( 'wp_ajax_super_save_form' );
-			}
+		$result = $this->run_dying_ajax( 'wp_ajax_super_save_form' );
+		$this->assertSame( 0, $result['status'], $result['output'] );
+		$decoded = json_decode( $result['output'], true );
+		$this->assertIsArray( $decoded, $result['output'] );
+		$this->assertTrue( $decoded['error'], $result['output'] );
+		$this->assertStringContainsString(
+			'JavaScript Unicode regular expressions',
+			wp_strip_all_tags( $decoded['msg'] )
 		);
-		$this->assertSame( 'wp_die', $result['termination'] );
-		$this->assertStringContainsString( 'JavaScript Unicode regular expressions', $result['output'] );
 		$this->assertSame( $before_ids, $this->all_form_ids() );
 	}
 }

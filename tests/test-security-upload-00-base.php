@@ -17,8 +17,32 @@ abstract class Super_Forms_Upload_Security_Test_Case extends WP_UnitTestCase {
     private $original_global_settings_exists;
     private $original_global_settings;
 
+    /**
+     * The WordPress test bootstrap never defines DOING_AJAX, so super-forms.php:197-232
+     * (is_request('ajax')) skips ajax_includes() and includes/class-ajax.php is never loaded.
+     * Load it explicitly so SUPER_Ajax exists and its wp_ajax_super_* actions are registered.
+     */
+    public static function set_up_before_class() {
+        parent::set_up_before_class();
+        if( !class_exists( 'SUPER_Ajax' ) ) {
+            require_once dirname( __DIR__ ) . '/includes/class-ajax.php';
+        }
+    }
+
     public function set_up() {
         parent::set_up();
+
+        // WP_UnitTestCase restores $wp_filter per test, which drops the wp_ajax_super_*
+        // registrations made when includes/class-ajax.php was loaded; init() is idempotent.
+        if( !has_action( 'wp_ajax_nopriv_super_submit_form' ) ) {
+            SUPER_Ajax::init();
+        }
+        // The contact-entry post statuses are registered only on admin requests
+        // (super-forms.php:333,343) and WP_Query silently drops unregistered statuses,
+        // so entry queries in this frontend-context process need them registered.
+        if( !get_post_status_object( 'super_unread' ) ) {
+            SUPER_Forms::custom_contact_entry_status();
+        }
 
         $this->original_post = $_POST;
         $this->original_request = $_REQUEST;
@@ -115,6 +139,23 @@ abstract class Super_Forms_Upload_Security_Test_Case extends WP_UnitTestCase {
         parent::tear_down();
     }
 
+    /**
+     * `wp_handle_upload()` accepts a file only when PHP itself received it as an
+     * upload (`is_uploaded_file()`, wp-admin/includes/file.php:936); the CLI SAPI
+     * never has one, and downgrading to the sideload check would let a crafted
+     * tmp_name read arbitrary readable paths. A successful public upload is
+     * therefore HTTP-SAPI-only evidence; the rejection halves stay proven here.
+     * Recorded in tests/UNVERIFIABLE-http-headers.md.
+     */
+    protected function require_php_received_upload() {
+        if( PHP_SAPI!=='cli' && PHP_SAPI!=='phpdbg' ) {
+            return;
+        }
+        $this->markTestSkipped(
+            'A successful wp_handle_upload() needs a PHP-received upload (is_uploaded_file); see tests/UNVERIFIABLE-http-headers.md.'
+        );
+    }
+
     protected function invoke_ajax_private( $method_name, $arguments=array() ) {
         $method = new ReflectionMethod( 'SUPER_Ajax', $method_name );
         $method->setAccessible( true );
@@ -156,8 +197,36 @@ abstract class Super_Forms_Upload_Security_Test_Case extends WP_UnitTestCase {
         if( isset( $_COOKIE['_sfs_id'] ) && is_string( $_COOKIE['_sfs_id'] ) && $_COOKIE['_sfs_id']!=='' ) {
             return;
         }
-        $session_id = SUPER_Common::startClientSession( array( 'force' => true ) );
-        $this->assertTrue( is_string( $session_id ) && $session_id!=='' );
+        // PHPUnit runs under the CLI SAPI, where headers_sent() is already true once the
+        // runner emits progress output, so startClientSession() can never publish a fresh
+        // Set-Cookie header: includes/class-common.php:610-612 returns false for a brand new
+        // session and the $publish_session closure (includes/class-common.php:559-577) refuses
+        // as well. Seed the exact cookie/option pair a real first response persists, then
+        // require the hardened adoption path to accept it unchanged without re-issuing.
+        $session_id = bin2hex( random_bytes( 32 ) );
+        $now = time();
+        // The third record matters: SUPER_Common::setClientData() DELETES a session row
+        // that drops below three keys (includes/class-common.php:649-657), and the CLI SAPI
+        // can never publish a replacement cookie. Any `value => false` client-data write
+        // would otherwise destroy the whole session - including the process-wide shutdown
+        // handler SUPER_Register_Login arms once per process
+        // (add-ons/super-forms-register-login/super-forms-register-login.php:1148-1153),
+        // which every forked child inherits and runs on exit. A live browser session always
+        // carries at least one unrelated record; the other seeding helpers do the same
+        // (tests/test-security-listings.php:43-51, tests/test-security-proof-row1-retained.php:53-56).
+        update_option( '_sfsdata_' . $session_id, array(
+            'expires' => $now + HOUR_IN_SECONDS,
+            'exp_var' => $now + ( 20 * MINUTE_IN_SECONDS ),
+            'session_marker' => array(
+                'expires' => $now + HOUR_IN_SECONDS,
+                'exp_var' => $now + ( 20 * MINUTE_IN_SECONDS ),
+                'value' => 'seeded-session-marker',
+            ),
+        ), 'no' );
+        $_COOKIE['_sfs_id'] = $session_id;
+        $adopted = SUPER_Common::startClientSession( array( 'force' => true ) );
+        $this->assertTrue( is_string( $adopted ) && $adopted!=='' );
+        $this->assertSame( $session_id, $adopted );
         $this->assertSame( $session_id, $_COOKIE['_sfs_id'] );
     }
 
@@ -184,6 +253,9 @@ abstract class Super_Forms_Upload_Security_Test_Case extends WP_UnitTestCase {
 
     protected function file_element( $name='documents', $overrides=array() ) {
         return array(
+            // Every stored element carries its builder group; the renderer reads it
+            // unguarded (includes/class-shortcodes.php:6356).
+            'group' => 'form_elements',
             'tag' => 'file',
             'data' => array_merge( array(
                 'name' => $name,
@@ -364,6 +436,18 @@ abstract class Super_Forms_Upload_Security_Test_Case extends WP_UnitTestCase {
     }
 
     protected function issue_receipt( $owned ) {
+        // Actor-bound receipts resolve the anonymous browser session through
+        // SUPER_Common::startClientSession() (includes/class-ajax.php:5429-5449), which cannot
+        // publish a cookie under the CLI SAPI; adopt a seeded session first. Bearer-bound
+        // (sessionless) receipts must keep issuing without any session artifact, so they are
+        // left untouched here: includes/class-ajax.php:5225-5227.
+        $bearer = $this->invoke_ajax_private(
+            'upload_receipt_uses_bearer_binding',
+            array( isset( $owned['form_id'] ) ? $owned['form_id'] : 0 )
+        );
+        if( $bearer!==true ) {
+            $this->bootstrap_shared_anonymous_session();
+        }
         $token = $this->invoke_ajax_private( 'issue_upload_receipt', array( $owned ) );
         $this->assertTrue( is_string( $token ) );
         $this->assertMatchesRegularExpression( '/^[a-f0-9]{64}$/D', $token );

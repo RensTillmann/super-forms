@@ -40,6 +40,28 @@ class Test_Super_Forms_Proof_Row1_Retained_Listings_Lifecycle extends Super_Form
         $cookie = wp_generate_auth_cookie($user_id, $expiration, 'logged_in', $session_token);
         $_COOKIE[LOGGED_IN_COOKIE] = $cookie;
         wp_set_current_user( $user_id );
+        // A real logged-in browser also presents the Super Forms session cookie a
+        // previous response persisted; the CLI SAPI can never publish one
+        // (headers_sent() is permanently true, includes/class-common.php:610-617), and
+        // without it no render grant can be stored at all. The third record keeps the
+        // row alive across `value => false` writes (includes/class-common.php:649-657).
+        // Switching actors must not rotate the browser session: the negatives below
+        // isolate the actor, so an already-presented session is kept as-is.
+        if( !isset( $_COOKIE['_sfs_id'] ) || !is_string( $_COOKIE['_sfs_id'] ) || $_COOKIE['_sfs_id']==='' ) {
+            $session_id = bin2hex( random_bytes( 32 ) );
+            $now = time();
+            update_option( '_sfsdata_' . $session_id, array(
+                'expires' => $now + HOUR_IN_SECONDS,
+                'exp_var' => $now + ( 20 * MINUTE_IN_SECONDS ),
+                'session_marker' => array(
+                    'expires' => $now + HOUR_IN_SECONDS,
+                    'exp_var' => $now + ( 20 * MINUTE_IN_SECONDS ),
+                    'value' => 'seeded-session-marker',
+                ),
+            ), 'no' );
+            $_COOKIE['_sfs_id'] = $session_id;
+            $this->assertSame( $session_id, SUPER_Common::startClientSession( array( 'force' => true ) ) );
+        }
         $this->created_user_sessions[] = array( $user_id, $session_token );
         return array( 'token' => $session_token, 'cookie' => $cookie );
     }
@@ -91,7 +113,13 @@ class Test_Super_Forms_Proof_Row1_Retained_Listings_Lifecycle extends Super_Form
 
         list( $parent, $root ) = $this->create_temporary_root( true );
         $file_upload_dir_setting = '../' . basename( $parent ) . '/' . basename( $root );
-        $elements = array( $this->file_element( 'documents_archive', array( 'extensions' => 'png' ) ) );
+        // Real saved elements always carry their builder `group` (see the exported
+        // form JSON in includes/admin/views/page-demos.php:139); the render loop at
+        // includes/class-shortcodes.php:6356 reads it directly.
+        $elements = array( array_merge(
+            $this->file_element( 'documents_archive', array( 'extensions' => 'png' ) ),
+            array( 'group' => 'form_elements' )
+        ) );
         $target_settings = array(
             'file_upload_dir' => $file_upload_dir_setting,
             'send' => 'no',
@@ -151,6 +179,13 @@ class Test_Super_Forms_Proof_Row1_Retained_Listings_Lifecycle extends Super_Form
         $this->assertRenderedInputValue( $modal_output, 'hidden_form_id', $target_form_id );
         $this->assertRenderedInputValue( $modal_output, 'hidden_contact_entry_id', $entry_id );
         $this->assertSame( SUPER_Common::current_entry_update_grant_value(), SUPER_Common::getClientData( $grant ) );
+
+        // From here on the CLI SAPI cannot satisfy verifyCSRF(): filter_input(INPUT_POST)
+        // is never populated outside a real HTTP request (recorded in
+        // tests/UNVERIFIABLE-http-headers.md). Disable only that gate -- the listing
+        // grant check the submit path performs (includes/class-ajax.php:5292-5338)
+        // never consults the sessionless-mode flag, so every boundary below still runs.
+        $this->configure_csrf( 'false' );
 
         $data = array(
             'documents_archive' => array(
@@ -587,7 +622,10 @@ class Test_Super_Forms_Proof_Row13_Ownership_Salt_And_Root extends Super_Forms_U
         $this->assertNotFalse( $parent_real );
         $this->assertNotFalse( $root_real );
         $this->temporary_parents[] = $parent_real;
-        $setting = trailingslashit( $relative_uploads ) . $slug;
+        // The configured setting must name the exact directory the files live in
+        // (super-forms.php:1145-1152 resolves the stored subdir's own setting back to a
+        // root and requires the resolved file to be the stored one).
+        $setting = trailingslashit( $relative_uploads ) . $slug . '/owned';
         return array( $root_real, $setting );
     }
 

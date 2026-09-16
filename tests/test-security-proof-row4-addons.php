@@ -50,6 +50,18 @@ class Test_Super_Forms_Proof_Row4_Register_Login_Activation extends Super_Forms_
         }
         $this->original_get = $_GET;
         parent::set_up();
+        // WP_UnitTestCase restores $wp_filter to the snapshot taken before the
+        // add-on was loaded, so re-attach the hooks its constructor registers
+        // (super-forms-register-login.php:178-179).
+        $register_login = SUPER_Register_Login();
+        foreach( array( 'add_activation_code_element', 'submission_carrier_contracts' ) as $method ) {
+            $hook = ( $method==='add_activation_code_element' )
+                ? 'super_shortcodes_after_form_elements_filter'
+                : 'super_submission_carrier_contracts_filter';
+            if( !has_filter( $hook, array( $register_login, $method ) ) ) {
+                add_filter( $hook, array( $register_login, $method ), 10, 2 );
+            }
+        }
         $_GET = array();
         $this->configure_csrf( 'false' );
     }
@@ -95,14 +107,17 @@ class Test_Super_Forms_Proof_Row4_Register_Login_Activation extends Super_Forms_
             array(
                 array(
                     'tag' => 'activation_code',
+                    'group' => 'form_elements',
                     'data' => array(),
                 ),
                 array(
                     'tag' => 'text',
+                    'group' => 'form_elements',
                     'data' => array( 'name' => 'user_login', 'label' => 'Username' ),
                 ),
                 array(
                     'tag' => 'password',
+                    'group' => 'form_elements',
                     'data' => array( 'name' => 'user_pass', 'label' => 'Password' ),
                 ),
             ),
@@ -310,6 +325,20 @@ class Test_Super_Forms_Proof_Row4_Mailchimp_Interests extends Super_Forms_Upload
         }
         $this->original_get = $_GET;
         parent::set_up();
+        // WP_UnitTestCase restores $wp_filter to the snapshot taken before the
+        // add-on was loaded, so re-attach the hooks its constructor registers
+        // (super-forms-mailchimp.php:163, 175-176).
+        $mailchimp = SUPER_Mailchimp();
+        $hooks = array(
+            'super_shortcodes_after_form_elements_filter' => 'add_mailchimp_element',
+            'super_before_sending_email_data_filter' => 'remove_mailchimp_data',
+            'super_submission_carrier_contracts_filter' => 'submission_carrier_contracts',
+        );
+        foreach( $hooks as $hook => $method ) {
+            if( !has_filter( $hook, array( $mailchimp, $method ) ) ) {
+                add_filter( $hook, array( $mailchimp, $method ), 10, 2 );
+            }
+        }
         $_GET = array();
     }
 
@@ -369,11 +398,13 @@ class Test_Super_Forms_Proof_Row4_Mailchimp_Interests extends Super_Forms_Upload
     }
 
     private function create_mailchimp_form( $mailchimp_elements ) {
+        // Every saved element carries its builder group; the renderer reads
+        // $v['group'] unguarded (includes/class-shortcodes.php:6356).
         $elements = array();
         foreach( $mailchimp_elements as $data ) {
-            $elements[] = array( 'tag' => 'mailchimp', 'data' => $data );
+            $elements[] = array( 'tag' => 'mailchimp', 'group' => 'form_elements', 'data' => $data );
         }
-        $elements[] = array( 'tag' => 'text', 'data' => array( 'name' => 'email' ) );
+        $elements[] = array( 'tag' => 'text', 'group' => 'form_elements', 'data' => array( 'name' => 'email' ) );
         return $this->create_form( 'publish', $elements, $this->form_settings() );
     }
 
@@ -494,7 +525,12 @@ class Test_Super_Forms_Proof_Row4_Mailchimp_Interests extends Super_Forms_Upload
         $this->assertCount( 1, $consumed );
         $this->assertArrayNotHasKey( 'mailchimp_interests', $consumed[0]['data'] );
         $this->assertArrayNotHasKey( 'mailchimp_list_id', $consumed[0]['data'] );
-        $post_data = json_decode( $consumed[0]['post']['data'], true );
+        // submit_form_checks republishes $_POST['data'] slashed, exactly like an
+        // incoming WordPress request (class-ajax.php:6662-6665, 8073), so a
+        // consumer must unslash before decoding - see the add-on's own
+        // update_mailchimp_subscribers().
+        $post_data = json_decode( wp_unslash( $consumed[0]['post']['data'] ), true );
+        $this->assertIsArray( $post_data );
         $received_interests = $post_data['mailchimp_interests'];
         $this->assertArrayNotHasKey( 'selected_values', $received_interests );
         $this->assertSame( 'interest_a', $received_interests['value'] );

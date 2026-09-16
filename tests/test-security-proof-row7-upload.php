@@ -139,6 +139,7 @@ class Test_Super_Forms_Proof_Row7_Upload extends Super_Forms_Upload_Security_Tes
         $this->assertTrue( $this->invoke_ajax_private( 'upload_files_are_parallel', array( $files ) ) );
 
         $this->set_request( $form_id, array(), array( 'files' => $files ) );
+        $this->require_php_received_upload();
         $result = $this->run_dying_handler( array( 'SUPER_Ajax', 'upload_files' ) );
         $this->assertSame( 0, $result['status'], $result['output'] );
 

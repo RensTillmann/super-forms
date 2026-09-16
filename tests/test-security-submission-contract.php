@@ -6,17 +6,103 @@
  */
 
 class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
-    public function set_up() {
-        parent::set_up();
+    private $client_sessions = array();
+    private $original_cookie_exists = false;
+    private $original_cookie_value = null;
+    public static function set_up_before_class() {
+        parent::set_up_before_class();
+        // DOING_AJAX is never defined in the WP test bootstrap, so super-forms.php
+        // is_request('ajax') is false and ajax_includes() never loads SUPER_Ajax.
+        if( !class_exists( 'SUPER_Ajax' ) ) {
+            require_once dirname( __DIR__ ) . '/includes/class-ajax.php';
+        }
         if( !class_exists( 'SUPER_Register_Login' ) ) {
             require_once dirname( __DIR__ ) . '/add-ons/super-forms-register-login/super-forms-register-login.php';
         }
         if( !class_exists( 'SUPER_Mailchimp' ) ) {
             require_once dirname( __DIR__ ) . '/add-ons/super-forms-mailchimp/super-forms-mailchimp.php';
         }
+    }
+    /**
+     * WP_UnitTestCase restores $wp_filter to the snapshot taken before the add-ons
+     * were loaded, so the hooks their constructors registered are gone from the
+     * second test onwards. Re-attach exactly the ones these regressions rely on.
+     */
+    private function ensure_addon_hooks() {
+        $hooks = array(
+            array( 'super_shortcodes_after_form_elements_filter', array( SUPER_Register_Login(), 'add_activation_code_element' ) ),
+            array( 'super_submission_carrier_contracts_filter', array( SUPER_Register_Login(), 'submission_carrier_contracts' ) ),
+            array( 'super_shortcodes_after_form_elements_filter', array( SUPER_Mailchimp(), 'add_mailchimp_element' ) ),
+            array( 'super_submission_carrier_contracts_filter', array( SUPER_Mailchimp(), 'submission_carrier_contracts' ) ),
+            array( 'super_before_sending_email_data_filter', array( SUPER_Mailchimp(), 'remove_mailchimp_data' ) ),
+        );
+        foreach( $hooks as $hook ) {
+            if( !has_filter( $hook[0], $hook[1] ) ) {
+                add_filter( $hook[0], $hook[1], 10, 2 );
+            }
+        }
+    }
+    public function set_up() {
+        parent::set_up();
+        if( !has_action( 'wp_ajax_nopriv_super_submit_form' ) ) {
+            SUPER_Ajax::init();
+        }
+        $this->ensure_addon_hooks();
+        $this->original_cookie_exists = array_key_exists( '_sfs_id', $_COOKIE );
+        $this->original_cookie_value = $this->original_cookie_exists ? $_COOKIE['_sfs_id'] : null;
+        $this->client_sessions = array();
         $_POST = array();
         $_REQUEST = array();
         wp_set_current_user( 0 );
+    }
+    public function tear_down() {
+        foreach( array_unique( $this->client_sessions ) as $session_id ) {
+            delete_option( '_sfsdata_' . $session_id );
+        }
+        if( $this->original_cookie_exists ) {
+            $_COOKIE['_sfs_id'] = $this->original_cookie_value;
+        }else{
+            unset( $_COOKIE['_sfs_id'] );
+        }
+        parent::tear_down();
+    }
+    /**
+     * A real first response mints the browser session cookie; under the CLI SAPI
+     * setcookie() can never succeed (headers are already sent), so seed exactly the
+     * cookie + `_sfsdata_` option a served page would have persisted. The hardened
+     * adoption path in SUPER_Common::startClientSession then resolves it normally.
+     */
+    private function seed_client_session() {
+        $session_id = 'sfcontract' . str_replace( '-', '', wp_generate_uuid4() );
+        $_COOKIE['_sfs_id'] = $session_id;
+        update_option( '_sfsdata_' . $session_id, array(
+            'expires' => time() + HOUR_IN_SECONDS,
+            'exp_var' => time() + HOUR_IN_SECONDS,
+        ), false );
+        $this->client_sessions[] = $session_id;
+        $this->assertSame( $session_id, SUPER_Common::startClientSession( array( 'force' => true ) ) );
+        return $session_id;
+    }
+    /**
+     * Requiredness is deliberately NOT part of the carrier-shape contract
+     * (class-ajax.php:4484-4486); submit_form_checks enforces repeater rows through
+     * collect_required_fields() + validate_repeater_required_values()
+     * (class-ajax.php:7903-7926). Exercise that exact route.
+     */
+    private function repeater_required_values_valid( $data, $elements, $form_id=41 ) {
+        $collect = new ReflectionMethod( 'SUPER_Ajax', 'collect_required_fields' );
+        $collect->setAccessible( true );
+        $required_fields = $collect->invoke( null, $elements );
+        $this->assertNotEmpty( $required_fields );
+        $validate = new ReflectionMethod( 'SUPER_Ajax', 'validate_repeater_required_values' );
+        $validate->setAccessible( true );
+        return $validate->invoke(
+            null,
+            isset( $data['_super_dynamic_data'] ) ? $data['_super_dynamic_data'] : null,
+            $required_fields,
+            $elements,
+            $form_id
+        );
     }
     private function validate( $data, $elements, $form_id=41, $entry_id='', $list_id='' ) {
         $method = new ReflectionMethod( 'SUPER_Ajax', 'submission_data_matches_contract' );
@@ -46,13 +132,17 @@ class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
         }
         return $form_id;
     }
+    /**
+     * Query the posts table directly: the inventory must count EVERY contact entry
+     * stored under the form, including statuses a WP_Query status whitelist would
+     * silently drop, so "exactly one new entry" cannot pass by omission.
+     */
     private function entry_ids_for( $form_id ) {
-        return array_map( 'intval', get_posts( array(
-            'post_type' => 'super_contact_entry',
-            'post_parent' => $form_id,
-            'post_status' => array( 'publish', 'super_unread', 'super_read' ),
-            'fields' => 'ids',
-            'posts_per_page' => -1,
+        global $wpdb;
+        return array_map( 'intval', $wpdb->get_col( $wpdb->prepare(
+            "SELECT ID FROM {$wpdb->posts} WHERE post_type = %s AND post_parent = %d",
+            'super_contact_entry',
+            absint( $form_id )
         ) ) );
     }
     private function with_super_settings( $settings, $callback ) {
@@ -94,7 +184,8 @@ class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
             'email' => array(
                 'name' => 'email',
                 'value' => $email,
-                'type' => 'email',
+                // common.js:4303-4312 posts 'var' for every text input.
+                'type' => 'var',
             ),
             'hidden_form_id' => array(
                 'name' => 'hidden_form_id',
@@ -261,57 +352,51 @@ class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
             'status' => pcntl_wifexited($status) ? pcntl_wexitstatus($status) : null,
         );
     }
-    private function mailchimp_elements( $display_interests='yes', $vip='false', $duplicates=1 ) {
-        $elements = array(
-            array(
-                'tag' => 'email',
-                'data' => array(
-                    'name' => 'email',
-                ),
+    /**
+     * Stored element shape of a real Mailchimp form: the builder's "Email Address"
+     * entry is a predefined TEXT element (includes/shortcodes/form-elements.php:72-89),
+     * and every saved element carries its builder group (class-shortcodes.php:6356
+     * reads $v['group'] unguarded).
+     */
+    private function email_element() {
+        return array(
+            'tag' => 'text',
+            'group' => 'form_elements',
+            'data' => array(
+                'name' => 'email',
+                'type' => 'email',
+                'validation' => 'email',
             ),
         );
+    }
+    private function mailchimp_element( $overrides=array() ) {
+        return array(
+            'tag' => 'mailchimp',
+            'group' => 'form_elements',
+            'data' => array_merge( array(
+                'list_id' => 'audience123',
+                'display_interests' => 'yes',
+                'send_confirmation' => 'no',
+                'subscriber_status' => 'subscribed',
+                'vip' => 'false',
+            ), $overrides ),
+        );
+    }
+    private function mailchimp_elements( $display_interests='yes', $vip='false', $duplicates=1 ) {
+        $elements = array( $this->email_element() );
         for( $i = 0; $i < $duplicates; $i++ ) {
-            $elements[] = array(
-                'tag' => 'mailchimp',
-                'data' => array(
-                    'list_id' => 'audience123',
-                    'display_interests' => $display_interests,
-                    'send_confirmation' => 'no',
-                    'subscriber_status' => 'subscribed',
-                    'vip' => $vip,
-                ),
-            );
+            $elements[] = $this->mailchimp_element( array(
+                'display_interests' => $display_interests,
+                'vip' => $vip,
+            ) );
         }
         return $elements;
     }
     private function conflicting_mailchimp_elements() {
         return array(
-            array(
-                'tag' => 'email',
-                'data' => array(
-                    'name' => 'email',
-                ),
-            ),
-            array(
-                'tag' => 'mailchimp',
-                'data' => array(
-                    'list_id' => 'audience123',
-                    'display_interests' => 'no',
-                    'send_confirmation' => 'no',
-                    'subscriber_status' => 'subscribed',
-                    'vip' => 'true',
-                ),
-            ),
-            array(
-                'tag' => 'mailchimp',
-                'data' => array(
-                    'list_id' => 'audience123',
-                    'display_interests' => 'no',
-                    'send_confirmation' => 'no',
-                    'subscriber_status' => 'subscribed',
-                    'vip' => 'false',
-                ),
-            ),
+            $this->email_element(),
+            $this->mailchimp_element( array( 'display_interests' => 'no', 'vip' => 'true' ) ),
+            $this->mailchimp_element( array( 'display_interests' => 'no', 'vip' => 'false' ) ),
         );
     }
 
@@ -908,10 +993,16 @@ class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
         // actually presented (mirrors the populate/print capability pattern). The
         // carrier is never admitted from the client payload alone.
         unset( $_GET['code'] );
+        $this->seed_client_session();
+        $grant = SUPER_Common::current_entry_update_grant_value( true );
+        $this->assertIsArray( $grant );
         SUPER_Common::setClientData( array(
             'name' => 'activation_code_presented_41',
-            'value' => SUPER_Common::current_entry_update_grant_value( true ),
+            'value' => $grant,
             'force' => true,
+        ) );
+        $this->assertTrue( SUPER_Common::entry_update_grant_matches_current(
+            SUPER_Common::getClientData( 'activation_code_presented_41', false )
         ) );
         $this->set_submission_request( 41, $with_codes, array( 'action' => 'super_submit_form' ) );
         $this->assertTrue( $this->validate( $with_codes, $elements ) );
@@ -926,6 +1017,17 @@ class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
         );
         $this->set_submission_request( 41, $tampered, array( 'action' => 'super_submit_form' ) );
         $this->assertFalse( $this->validate( $tampered, $elements ) );
+        // Third shape: the activation-code field was never presented, so the
+        // renderer issued no proof and the repeater group is keyed off the first
+        // field that really rendered. Drop the proof issued above to model that.
+        SUPER_Common::setClientData( array(
+            'name' => 'activation_code_presented_41',
+            'value' => false,
+            'force' => true,
+        ) );
+        $this->assertFalse( SUPER_Common::entry_update_grant_matches_current(
+            SUPER_Common::getClientData( 'activation_code_presented_41', false )
+        ) );
         $without_codes = array(
             '_super_dynamic_data' => array(
                 'user_login' => array(
@@ -1202,6 +1304,10 @@ class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
     }
 
     public function test_dropdown_and_checkbox_length_limits_count_selected_options() {
+        // Every choice used below is a genuinely rendered option, so the rejections
+        // are driven purely by the selected-option COUNT and not by an unknown-choice
+        // refusal (a dropdown with no stored items legitimately admits nothing:
+        // class-ajax.php:3873-3875 + 4481-4483).
         $elements = array(
             array(
                 'tag' => 'dropdown',
@@ -1209,6 +1315,11 @@ class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
                     'name' => 'choices',
                     'minlength' => '2',
                     'maxlength' => '2',
+                    'dropdown_items' => array(
+                        array( 'value' => 'alpha', 'label' => 'Alpha' ),
+                        array( 'value' => 'beta', 'label' => 'Beta' ),
+                        array( 'value' => 'alphabet', 'label' => 'Alphabet' ),
+                    ),
                 ),
             ),
             array(
@@ -1217,6 +1328,11 @@ class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
                     'name' => 'checks',
                     'minlength' => '1',
                     'maxlength' => '2',
+                    'checkbox_items' => array(
+                        array( 'value' => 'one', 'label' => 'One' ),
+                        array( 'value' => 'two', 'label' => 'Two' ),
+                        array( 'value' => 'three', 'label' => 'Three' ),
+                    ),
                 ),
             ),
         );
@@ -1478,7 +1594,7 @@ class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
         }
     }
 
-    public function test_ambiguous_runtime_choice_schemas_allow_empty_optional_values_only_when_the_field_is_unset() {
+    public function test_duplicate_choice_items_dedupe_by_value_and_keep_presentation_server_owned() {
         $elements = array(
             array(
                 'tag' => 'dropdown',
@@ -1511,13 +1627,32 @@ class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
         );
         $this->assertTrue( $this->validate( $valid, $elements ) );
 
+        // A second item repeating the same VALUE with a different label is deduped
+        // by value, first label wins (class-ajax.php:3709-3724): the option really
+        // was rendered, so the carrier stays admissible...
         $conflicting = $elements;
         $conflicting[0]['data']['dropdown_items'][1]['label'] = 'Conflicting';
         $empty = $valid;
         $empty['choices']['value'] = '';
         $empty['choices']['selected_values'] = array();
         $this->assertTrue( $this->validate( $empty, $conflicting ) );
-        $this->assertFalse( $this->validate( $valid, $conflicting ) );
+        $this->assertTrue( $this->validate( $valid, $conflicting ) );
+
+        // ...while a value that was never rendered is still refused,
+        $forged = $valid;
+        $forged['choices']['value'] = 'administrator';
+        $forged['choices']['selected_values'] = array( 'administrator' );
+        $this->assertFalse( $this->validate( $forged, $conflicting ) );
+
+        // and every presentation key stays server-owned: the client-sent
+        // selected_values never survive into the stored entry data
+        // (class-ajax.php:7338-7354).
+        $client_presentation = $valid;
+        $client_presentation['choices']['label'] = 'Forged label';
+        $rebuilt = $this->rebuild_selection_entry_data( $client_presentation, $conflicting );
+        $this->assertIsArray( $rebuilt );
+        $this->assertArrayNotHasKey( 'selected_values', $rebuilt['choices'] );
+        $this->assertNotSame( 'Forged label', $rebuilt['choices']['label'] );
     }
     public function test_duplicate_selection_names_rebuild_server_owned_presentation_only_when_every_match_agrees() {
         $elements = array(
@@ -1884,11 +2019,15 @@ class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
             ),
         );
         $this->assertTrue( $this->validate( $valid, $elements ) );
+        $this->assertTrue( $this->repeater_required_values_valid( $valid, $elements ) );
 
+        // An emptied row value keeps a well-formed carrier shape, so the contract
+        // still matches; the row-level required rule is what must refuse it.
         $missing = $valid;
         $missing['_super_dynamic_data']['guest_email'][1]['guest_email_2']['value'] = '';
         $missing['guest_email_2']['value'] = '';
-        $this->assertFalse( $this->validate( $missing, $elements ) );
+        $this->assertTrue( $this->validate( $missing, $elements ) );
+        $this->assertFalse( $this->repeater_required_values_valid( $missing, $elements ) );
         $this->assertSame( 'ada@example.test', $valid['_super_dynamic_data']['guest_email'][0]['guest_email']['value'] );
     }
     public function test_repeater_required_validation_matches_the_exact_stored_route_name() {
@@ -1955,10 +2094,12 @@ class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
             ),
         );
         $this->assertTrue( $this->validate( $valid, $elements ) );
+        $this->assertTrue( $this->repeater_required_values_valid( $valid, $elements ) );
         $missing = $valid;
         $missing['part_1']['value'] = '';
         $missing['_super_dynamic_data']['part_1'][0]['part_1']['value'] = '';
-        $this->assertFalse( $this->validate( $missing, $elements ) );
+        $this->assertTrue( $this->validate( $missing, $elements ) );
+        $this->assertFalse( $this->repeater_required_values_valid( $missing, $elements ) );
     }
     public function test_required_file_routes_inside_multipart_steps_still_require_a_present_carrier() {
         $elements = array(

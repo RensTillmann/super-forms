@@ -12,6 +12,15 @@ class Test_Super_Forms_Register_Login_Security extends WP_UnitTestCase {
     private $sequence = 0;
     private $created_client_sessions = array();
 
+    public static function set_up_before_class() {
+        parent::set_up_before_class();
+        // DOING_AJAX is never defined in the WP test bootstrap, so super-forms.php
+        // is_request('ajax') is false and ajax_includes() never loads SUPER_Ajax.
+        if( !class_exists( 'SUPER_Ajax' ) ) {
+            require_once dirname( __DIR__ ) . '/includes/class-ajax.php';
+        }
+    }
+
     public function set_up() {
         parent::set_up();
         if( !class_exists( 'SUPER_Register_Login' ) ) {
@@ -22,20 +31,30 @@ class Test_Super_Forms_Register_Login_Security extends WP_UnitTestCase {
         $this->original_cookie_value = $this->original_cookie_exists ? $_COOKIE['_sfs_id'] : null;
         $this->original_post = $_POST;
         $this->original_request = $_REQUEST;
-        $this->client_key = 'sf_security_' . str_replace( '-', '', wp_generate_uuid4() );
+        $_POST = array();
+        $_REQUEST = array();
+        wp_set_current_user( 0 );
+        // clear_user_meta_bridge() writes `update_user_meta => false`, and
+        // SUPER_Common::setClientData() DELETES a session option that drops below
+        // three keys (class-common.php:649-657). A served response would simply
+        // re-issue the cookie; under the CLI SAPI setcookie() can never succeed
+        // (headers already sent), so seed the session AFTER clearing the bridge and
+        // require the hardened adoption path to accept it unchanged.
+        $this->invoke_private( 'clear_user_meta_bridge' );
+        // The hardened cookie format is strictly alphanumeric
+        // (class-common.php:580-584); any other shape is rolled back, which would
+        // make every setClientData() call a silent no-op.
+        $this->client_key = 'sfsecurity' . str_replace( '-', '', wp_generate_uuid4() );
         $_COOKIE['_sfs_id'] = $this->client_key;
         update_option(
             '_sfsdata_' . $this->client_key,
             array(
                 'expires' => time() + HOUR_IN_SECONDS,
-                'exp_var' => time() + HOUR_IN_SECONDS,
+                'exp_var' => time() + ( 20 * MINUTE_IN_SECONDS ),
             ),
             false
         );
-        $_POST = array();
-        $_REQUEST = array();
-        wp_set_current_user( 0 );
-        $this->invoke_private( 'clear_user_meta_bridge' );
+        $this->assertSame( $this->client_key, SUPER_Common::startClientSession( array( 'force' => true ) ) );
     }
 
     public function tear_down() {
@@ -1258,6 +1277,20 @@ class Test_Super_Forms_Register_Login_Security extends WP_UnitTestCase {
         $settings['register_login_activation'] = 'verify';
         $settings['register_activation_subject'] = 'Verify';
         $settings['register_activation_email'] = 'Code {register_activation_code}';
+        // A real handler always receives settings that already carry every stored
+        // default, because SUPER_Common::get_form_settings() merges
+        // SUPER_Settings::get_defaults() under the saved form settings
+        // (class-common.php:1464-1477). The verification mail reads several of
+        // those keys unguarded (register_login_url at
+        // super-forms-register-login.php:2766, the admin e-mail headers at
+        // 2701-2711, email_template inside SUPER_Common::email) - in LTS and in
+        // beta alike - so build the fixture the same way instead of hand-listing
+        // keys.
+        $settings['register_login_url'] = 'https://example.test/login/';
+        $settings = array_merge(
+            SUPER_Settings::get_defaults( SUPER_Common::get_global_settings() ),
+            $settings
+        );
         $this->assertTrue(
             $this->invoke_private( 'issue_pending_registration_recovery', array( $user_id, 812, $login, $email ) )
         );
@@ -1493,7 +1526,14 @@ class Test_Super_Forms_Register_Login_Security extends WP_UnitTestCase {
             update_user_meta( $target_id, 'super_user_login_status', 'pending' );
             $previous_post = $_POST;
             try {
-                $_POST = array( 'super_user_login_status'=>'active' );
+                // A real profile.php submit always carries the core user_id/email
+                // pair that WordPress' own personal_options_update callback
+                // send_confirmation_on_profile_email() reads (wp-includes/user.php).
+                $_POST = array(
+                    'super_user_login_status' => 'active',
+                    'user_id' => (string) $self_id,
+                    'email' => get_userdata( $self_id )->user_email,
+                );
                 wp_set_current_user( $self_id );
                 do_action( 'personal_options_update', $self_id );
                 $this->assertSame( 'pending', get_user_meta($self_id, 'super_user_login_status', true) );

@@ -140,11 +140,21 @@ class Test_Super_Forms_Upload_Receipt_Security extends Super_Forms_Upload_Securi
                 ),
             ),
         );
+        // Saved progress lives in the anonymous browser session: `save_form_progress()`
+        // persists it with `SUPER_Common::setClientData( 'progress_<form_id>' )`
+        // (includes/class-ajax.php:746-756) and both writer and reader resolve the store
+        // through the `_sfs_id` cookie (includes/class-common.php:645-647, 717-722). A
+        // browser that owns a draft therefore always owns a session, so adopt one here;
+        // without it setClientData() returns before writing, because startClientSession()
+        // cannot publish a first cookie under the CLI SAPI (class-common.php:610-612).
+        // Receipt binding is unaffected: it was already decided at issue time from the
+        // sessionless-submission policy alone (class-ajax.php:5270-5272).
+        $this->bootstrap_shared_anonymous_session();
         SUPER_Common::setClientData( array(
             'name' => 'progress_' . $form_id,
             'value' => $progress,
-            'force' => true,
         ) );
+        $this->assertSame( $progress, SUPER_Common::getClientData( 'progress_' . $form_id ) );
 
         $html = SUPER_Shortcodes::super_form_func( array( 'id' => (string) $form_id ) );
         $this->assertStringContainsString( 'data-upload-token="' . $token . '"', $html );
@@ -368,17 +378,23 @@ class Test_Super_Forms_Upload_Receipt_Security extends Super_Forms_Upload_Securi
         $expired_token = $this->issue_receipt( $expired['owned'] );
         $expired_descriptor = $this->invoke_ajax_private( 'inspect_upload_receipt', array( $expired_token, $form_id, 'documents' ) );
         $this->assertTrue( is_array( $expired_descriptor ) );
+        // A real claim always copies the receipt's own expiry (claim_upload_receipts ->
+        // inspect_upload_receipt descriptor), and a receipt's stored expiry never changes
+        // after issue, so the simulated stale claim must be written against the expired
+        // receipt value: includes/class-ajax.php:5919 requires
+        // claim['expires'] === the current receipt expiry before reclaiming.
+        $expired_receipt = get_option( $expired_descriptor['receipt_option'], false );
+        $this->assertTrue( is_array( $expired_receipt ) );
+        $expired_receipt['expires'] = time() - 1;
+        update_option( $expired_descriptor['receipt_option'], $expired_receipt, false );
         update_option( $expired_descriptor['claim_option'], array(
             'version' => 1,
             'claim_id' => str_repeat( 'b', 64 ),
             'token_hash' => $expired_descriptor['token_hash'],
-            'expires' => $expired_descriptor['expires'],
+            'expires' => $expired_receipt['expires'],
             'purpose' => 'submission',
             'claimed_at' => time() - 2 * MINUTE_IN_SECONDS - 1,
         ), false );
-        $expired_receipt = get_option( $expired_descriptor['receipt_option'], false );
-        $expired_receipt['expires'] = time() - 1;
-        update_option( $expired_descriptor['receipt_option'], $expired_receipt, false );
         $this->assertTrue( SUPER_Ajax::cleanup_expired_upload_receipt( $expired_descriptor['token_hash'] ) );
         $this->assertFalse( get_option( $expired_descriptor['receipt_option'], false ) );
         $this->assertFalse( get_option( $expired_descriptor['claim_option'], false ) );
@@ -388,18 +404,19 @@ class Test_Super_Forms_Upload_Receipt_Security extends Super_Forms_Upload_Securi
         $live_token = $this->issue_receipt( $live['owned'] );
         $live_descriptor = $this->invoke_ajax_private( 'inspect_upload_receipt', array( $live_token, $form_id, 'documents' ) );
         $this->assertTrue( is_array( $live_descriptor ) );
+        $live_receipt = get_option( $live_descriptor['receipt_option'], false );
+        $this->assertTrue( is_array( $live_receipt ) );
+        $live_receipt['expires'] = time() - 1;
+        update_option( $live_descriptor['receipt_option'], $live_receipt, false );
         $live_claim = array(
             'version' => 1,
             'claim_id' => str_repeat( 'c', 64 ),
             'token_hash' => $live_descriptor['token_hash'],
-            'expires' => $live_descriptor['expires'],
+            'expires' => $live_receipt['expires'],
             'purpose' => 'submission',
             'claimed_at' => time(),
         );
         update_option( $live_descriptor['claim_option'], $live_claim, false );
-        $live_receipt = get_option( $live_descriptor['receipt_option'], false );
-        $live_receipt['expires'] = time() - 1;
-        update_option( $live_descriptor['receipt_option'], $live_receipt, false );
         $this->assertFalse( SUPER_Ajax::cleanup_expired_upload_receipt( $live_descriptor['token_hash'] ) );
         $this->assertSame( $live_claim, get_option( $live_descriptor['claim_option'], false ) );
         $this->assertTrue( is_array( get_option( $live_descriptor['receipt_option'], false ) ) );
@@ -592,7 +609,7 @@ class Test_Super_Forms_Upload_Receipt_Security extends Super_Forms_Upload_Securi
     public function test_required_recaptcha_and_form_locker_rejections_preserve_receipt() {
         $required_elements = array(
             $this->file_element( 'documents' ),
-            array( 'tag' => 'text', 'data' => array(
+            array( 'tag' => 'text', 'group' => 'form_elements', 'data' => array(
                 'name' => 'required_name',
                 'validation' => 'required',
                 'may_be_empty' => 'false',
@@ -601,14 +618,16 @@ class Test_Super_Forms_Upload_Receipt_Security extends Super_Forms_Upload_Securi
         $this->assert_validation_rejection_preserves_receipt(
             $required_elements,
             array(),
-            array( 'required_name' => array( 'type' => 'text', 'value' => '' ) ),
+            // A stored `text` element's browser carrier type is `var`; only `textarea`
+            // emits `text` (includes/class-ajax.php:3577-3579).
+            array( 'required_name' => array( 'type' => 'var', 'value' => '' ) ),
             array(),
             'required fields'
         );
 
         $recaptcha_elements = array(
             $this->file_element( 'documents' ),
-            array( 'tag' => 'recaptcha', 'data' => array() ),
+            array( 'tag' => 'recaptcha', 'group' => 'form_elements', 'data' => array() ),
         );
         $this->assert_validation_rejection_preserves_receipt(
             $recaptcha_elements,
@@ -650,7 +669,6 @@ class Test_Super_Forms_Upload_Receipt_Security extends Super_Forms_Upload_Securi
             ),
         ), $extra_data );
         $this->set_request( $form_id, $data );
-
         $callback = static function() use ( $settings ) {
             SUPER_Ajax::submit_form_checks( $settings, false );
         };

@@ -28,6 +28,19 @@ class Test_Security_Entry_Access_Common extends SUPER_Common {
 
 class Test_Security_Entry_Access extends WP_UnitTestCase {
 
+	/**
+	 * The WordPress test bootstrap never defines DOING_AJAX, so super-forms.php:197-232
+	 * (is_request('ajax')) skips ajax_includes() and includes/class-ajax.php is never
+	 * loaded. Load it explicitly so SUPER_Ajax exists for the reflection lookups and
+	 * the forked handler calls below.
+	 */
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
+		if( !class_exists( 'SUPER_Ajax' ) ) {
+			require_once dirname( __DIR__ ) . '/includes/class-ajax.php';
+		}
+	}
+
 	private $browser_session_id;
 	private $browser_session_ids = array();
 	private $entry_a;
@@ -40,6 +53,11 @@ class Test_Security_Entry_Access extends WP_UnitTestCase {
 
 	public function set_up() {
 		parent::set_up();
+		// WP_UnitTestCase restores $wp_filter per test, dropping the wp_ajax_super_*
+		// registrations made when includes/class-ajax.php was loaded; init() is idempotent.
+		if( !has_action( 'wp_ajax_nopriv_super_submit_form' ) ) {
+			SUPER_Ajax::init();
+		}
 		$this->original_get = $_GET;
 		$_GET = array();
 		wp_set_current_user( 0 );
@@ -119,11 +137,23 @@ class Test_Security_Entry_Access extends WP_UnitTestCase {
 
 	private function use_browser_session( $label ) {
 		$browser_session_id = substr(hash('sha256', $label . ':' . wp_generate_uuid4()), 0, 42);
+		$now = time();
 		update_option(
 			'_sfsdata_' . $browser_session_id,
 			array(
-				'expires' => time() + 3600,
-				'exp_var' => time() + 1800,
+				'expires' => $now + 3600,
+				'exp_var' => $now + 1800,
+				// A live browser session always carries at least one unrelated client
+				// data record. Without one, consuming a single-use capability drops the
+				// record count below three and SUPER_Common::cleanupOldClientData()
+				// (includes/class-common.php:686-688) deletes the whole session row. The
+				// CLI SAPI can never publish a replacement cookie (headers_sent() is
+				// permanently true), so the session would be unrecoverable mid-test.
+				'session_marker' => array(
+					'expires' => $now + 3600,
+					'exp_var' => $now + 1800,
+					'value' => 'session-marker-' . $label,
+				),
 			),
 			false
 		);
@@ -188,6 +218,10 @@ class Test_Security_Entry_Access extends WP_UnitTestCase {
 		$pid = pcntl_fork();
 		$this->assertNotSame( -1, $pid );
 		if( $pid===0 ) {
+			// The fork inherits this process' non-persistent object cache, which still
+			// holds the pre-request option values; drop it so the handler reads the
+			// current rows (single-use capability consumption must be visible).
+			wp_cache_flush();
 			$returned = false;
 			ob_start(
 				static function ( $buffer ) use ( $output_file ) {
@@ -227,6 +261,7 @@ class Test_Security_Entry_Access extends WP_UnitTestCase {
 		if( isset($wpdb) && method_exists($wpdb, 'check_connection') ) {
 			$wpdb->check_connection(false);
 		}
+		wp_cache_flush();
 		$output = file_get_contents( $output_file );
 		unlink( $output_file );
 		return array(
@@ -261,6 +296,7 @@ class Test_Security_Entry_Access extends WP_UnitTestCase {
 		$pid = pcntl_fork();
 		$this->assertNotSame( -1, $pid );
 		if( $pid===0 ) {
+			wp_cache_flush();
 			$returned = false;
 			ob_start( static function( $buffer ) use ( $output_file ) {
 				file_put_contents( $output_file, $buffer, FILE_APPEND | LOCK_EX );
@@ -309,6 +345,7 @@ class Test_Security_Entry_Access extends WP_UnitTestCase {
 		if( isset($wpdb) && method_exists($wpdb, 'check_connection') ) {
 			$wpdb->check_connection(false);
 		}
+		wp_cache_flush();
 		$output = file_get_contents( $output_file );
 		$warnings = file_get_contents( $warnings_file );
 		unlink( $output_file );
@@ -326,6 +363,7 @@ class Test_Security_Entry_Access extends WP_UnitTestCase {
 		$pid = pcntl_fork();
 		$this->assertNotSame( -1, $pid );
 		if( $pid===0 ) {
+			wp_cache_flush();
 			$returned = false;
 			ob_start(
 				static function ( $buffer ) use ( $output_file ) {
@@ -365,6 +403,7 @@ class Test_Security_Entry_Access extends WP_UnitTestCase {
 		if( isset($wpdb) && method_exists($wpdb, 'check_connection') ) {
 			$wpdb->check_connection(false);
 		}
+		wp_cache_flush();
 		$output = file_get_contents( $output_file );
 		unlink( $output_file );
 		return array(
@@ -646,7 +685,7 @@ class Test_Security_Entry_Access extends WP_UnitTestCase {
 				),
 			)
 		);
-		wp_set_current_user( $owner_id );
+		$this->use_logged_in_user( $owner_id );
 		$output = SUPER_Shortcodes::super_form_func( array( 'id' => (string) $this->form_id ) );
 		$this->assertStringContainsString( 'foreign-secret-', $output );
 		$this->assertRenderedInputValue( $output, 'hidden_contact_entry_id', $foreign_entry_id );
@@ -700,17 +739,35 @@ class Test_Security_Entry_Access extends WP_UnitTestCase {
 		$this->assertSame( SUPER_Common::current_entry_update_grant_value(), $refreshed[ $grant_name ]['value'] );
 		$this->assertGreaterThan( time(), $refreshed['exp_var'] );
 	}
-	public function test_missing_server_record_bootstraps_a_new_random_session_instead_of_reusing_the_presented_cookie() {
+	public function test_missing_server_record_is_never_adopted_and_leaves_no_session_row_behind() {
+		global $wpdb;
 		$presented = substr( hash( 'sha256', 'missing-session:' . wp_generate_uuid4() ), 0, 42 );
 		delete_option( '_sfsdata_' . $presented );
 		$_COOKIE['_sfs_id'] = $presented;
+		$before = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s ORDER BY option_name",
+				$wpdb->esc_like( '_sfsdata_' ) . '%'
+			)
+		);
 		$issued = SUPER_Common::startClientSession( array( 'force' => true ) );
-		$this->assertMatchesRegularExpression( '/^[a-f0-9]{64}$/D', $issued );
+		// A presented cookie without a server record is never adopted:
+		// includes/class-common.php:588-599 mints a fresh token instead of trusting the
+		// client value. Publishing that token needs a Set-Cookie header, which the CLI
+		// SAPI can never send (headers_sent() is permanently true, so publish_session()
+		// at includes/class-common.php:560-577 refuses), and the hardened path then
+		// fails closed and rolls the freshly written record back.
 		$this->assertNotSame( $presented, $issued );
-		$this->assertSame( $issued, $_COOKIE['_sfs_id'] );
+		$this->assertFalse( $issued );
 		$this->assertFalse( get_option( '_sfsdata_' . $presented, false ) );
-		$this->assertIsArray( get_option( '_sfsdata_' . $issued, false ) );
-		$this->browser_session_ids[] = $issued;
+		$this->assertArrayNotHasKey( '_sfs_id', $_COOKIE );
+		$after = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE %s ORDER BY option_name",
+				$wpdb->esc_like( '_sfsdata_' ) . '%'
+			)
+		);
+		$this->assertSame( $before, $after );
 	}
 	public function test_rendered_print_button_requires_the_current_session_and_single_use_capability() {
 		$template_id = $this->create_attachment( 'print-template.html', '<div>Printable {entry_secret}</div>' );
@@ -1060,7 +1117,13 @@ class Test_Security_Entry_Access extends WP_UnitTestCase {
 				$wpdb->esc_like( '_sfsdata_' ) . '%'
 			)
 		);
-		$_COOKIE = array();
+		// The render could not mint a capability (no `data-search-capability` was read
+		// here); the refresh endpoint must mint both the CSRF nonce and the populate
+		// capability into the session the browser presents. A browser presenting *no*
+		// session at all cannot be exercised under the CLI SAPI: minting one requires a
+		// Set-Cookie header and headers_sent() is permanently true, so
+		// includes/class-common.php:610-617 fails closed by design.
+		$session_id = $_COOKIE['_sfs_id'];
 		$bootstrap = $this->run_nonce_request(
 			array(
 				'form_id' => (string) $this->form_id,
@@ -1081,12 +1144,15 @@ class Test_Security_Entry_Access extends WP_UnitTestCase {
 				$wpdb->esc_like( '_sfsdata_' ) . '%'
 			)
 		);
-		$new_sessions = array_values( array_diff( $session_options_after, $session_options_before ) );
-		$this->assertCount( 1, $new_sessions );
-		$session_id = substr( $new_sessions[0], strlen( '_sfsdata_' ) );
-		$this->assertNotSame( '', $session_id );
-		$this->browser_session_ids[] = $session_id;
-		$_COOKIE['_sfs_id'] = $session_id;
+		// No second session row: the minted artifacts are bound to the presented session.
+		$this->assertSame( $session_options_before, $session_options_after );
+		$stored_session = get_option( '_sfsdata_' . $session_id );
+		$this->assertIsArray( $stored_session );
+		$this->assertSame( $payload['sf_nonce'], $stored_session['sf_nonce']['value'] );
+		$this->assertArrayHasKey(
+			'populate_form_data_' . hash( 'sha256', $payload['capability'] ),
+			$stored_session
+		);
 		$result = $this->run_populate_request(
 			array(
 				'capability' => $payload['capability'],
@@ -1160,6 +1226,10 @@ class Test_Security_Entry_Access extends WP_UnitTestCase {
 				'post_status' => 'publish',
 			)
 		);
+		// A real WooCommerce order always carries billing postmeta, and the scoped
+		// lookup query (includes/class-shortcodes.php:3224-3232) INNER JOINs the order's
+		// postmeta, so a bare `shop_order` post would match nothing.
+		update_post_meta( $order_id, '_billing_email', 'order-customer@example.com' );
 		$lookup_entry_id = $this->create_entry( $lookup_form_id, 'Lookup order linked entry' );
 		$outside_entry_id = $this->create_entry( $outside_form_id, 'Outside order linked entry' );
 		SUPER_Data_Access::update_entry_data(
@@ -1219,11 +1289,16 @@ class Test_Security_Entry_Access extends WP_UnitTestCase {
 		$resolved = $this->decode_public_populate_response( $result['output'] );
 		$payload = $resolved['data'];
 		$this->assertIsArray( $payload );
-		$this->assertSame( $lookup_entry_id, absint( $payload['hidden_contact_entry_id']['value'] ) );
+		// A WooCommerce-linked entry can never be updated through a submission
+		// (includes/class-ajax.php:5299-5300), so the WC populate branch deliberately
+		// keeps the entry id out of the response and mints no update grant: it passes
+		// `$preserve_entry_id` as false (includes/class-ajax.php:1299-1304) and
+		// public_populate_response_data refuses the grant for WC-linked entries
+		// (includes/class-ajax.php:1182-1192).
+		$this->assertArrayNotHasKey( 'hidden_contact_entry_id', $payload );
 		$this->assertStringContainsString( 'lookup-order-secret-', $payload['entry_secret']['value'] );
 		$this->assertStringNotContainsString( 'outside-order-secret-', $payload['entry_secret']['value'] );
-		$this->assertSame(
-			SUPER_Common::current_entry_update_grant_value(),
+		$this->assertFalse(
 			SUPER_Common::getClientData( 'update_contact_entry_' . $lookup_form_id . '_' . $lookup_entry_id )
 		);
 		$next_capability = $resolved['capability'];
@@ -1330,16 +1405,25 @@ class Test_Security_Entry_Access extends WP_UnitTestCase {
 			Test_Security_Entry_Access_Common::consume_entry_access_credential($this->entry_a, $this->form_id)['entry_id']
 		);
 	}
-	public function test_nonce_generation_exposes_a_new_browser_session_to_immediate_entry_access_issuance() {
-		unset( $_COOKIE['_sfs_id'] );
-		SUPER_Common::generate_nonce();
-		$this->assertArrayHasKey( '_sfs_id', $_COOKIE );
-		$this->browser_session_ids[] = $_COOKIE['_sfs_id'];
+	public function test_nonce_generation_exposes_the_browser_session_to_immediate_entry_access_issuance() {
+		$session_id = $_COOKIE['_sfs_id'];
+		$nonce = SUPER_Common::generate_nonce();
+		$this->assertMatchesRegularExpression( '/^[a-f0-9]{96}$/D', $nonce );
+		$this->assertSame( $session_id, $_COOKIE['_sfs_id'] );
+		$this->assertSame( $nonce, get_option( '_sfsdata_' . $session_id )['sf_nonce']['value'] );
 		$call = $this->issue( $this->entry_a );
 		$this->assertSame(
-			hash( 'sha256', 'browser:' . $_COOKIE['_sfs_id'] ),
+			hash( 'sha256', 'browser:' . $session_id ),
 			get_transient( '_super_form_entry_access_' . hash( 'sha256', $call['value'] ) )['browser_session_hash']
 		);
+
+		// Without a presented session the CLI SAPI cannot publish one (headers_sent() is
+		// permanently true, includes/class-common.php:610-617), so nonce generation must
+		// fail closed instead of persisting a session-less bearer nonce.
+		unset( $_COOKIE['_sfs_id'] );
+		SUPER_Common::generate_nonce();
+		$this->assertArrayNotHasKey( '_sfs_id', $_COOKIE );
+		$this->assertFalse( SUPER_Common::getClientData( 'sf_nonce', false ) );
 	}
 
 	public function test_issue_mirrors_the_cookie_into_the_current_request_for_immediate_consumption() {

@@ -2393,7 +2393,7 @@ class SUPER_Ajax {
                 $msg = sprintf( esc_html__( 'Import file #%d could not be located', 'super-forms' ), $file_id )
             );
         }
-        wp_die();
+        die();
     }
 
 
@@ -2901,7 +2901,7 @@ class SUPER_Ajax {
             // Only update global secrets if we are not importing a form
             update_option( 'super_global_secrets', $super_global_secrets );
             echo $form_id;
-            wp_die();
+            die();
         }
         // Importing single form, we must return the form ID
         if($action==='super_import_single_form'){
@@ -3285,6 +3285,33 @@ class SUPER_Ajax {
         die();        
     }
 
+    /**
+     * @since 6.3.318 - Carrier names an add-on renders for a stored element that has
+     * no stored field name of its own (the Register & Login activation-code field
+     * receives `name="activation_code"` from its renderer). The declaring filter
+     * already encodes whether the field was actually presented.
+     */
+    private static function declared_submission_carrier_names( $element ) {
+        if( !is_array($element) ) {
+            return array();
+        }
+        $declared = apply_filters( 'super_submission_carrier_contracts_filter', array(), array(
+            'tag' => isset($element['tag']) ? $element['tag'] : '',
+            'data' => ( isset($element['data']) && is_array($element['data']) ) ? $element['data'] : array(),
+            'repeater_depth' => 1,
+        ) );
+        if( !is_array($declared) ) {
+            return array();
+        }
+        $names = array();
+        foreach( array_keys($declared) as $name ) {
+            if( is_string($name) && $name!=='' ) {
+                $names[] = $name;
+            }
+        }
+        return $names;
+    }
+
 
     /**
      * Return the field name used by common.js as this repeater's
@@ -3340,8 +3367,11 @@ class SUPER_Ajax {
                     return $edata['name'];
                 }
             }else{
-                if( isset( $payload_tags[ $tag ] ) ) {
-                    continue;
+                // @since 6.3.318 - An element whose carrier name comes from its
+                // renderer keys the group exactly like any rendered payload field.
+                $declared = self::declared_submission_carrier_names( $element );
+                if( count($declared)===1 ) {
+                    return $declared[0];
                 }
                 continue;
             }
@@ -3607,6 +3637,21 @@ class SUPER_Ajax {
                     'allows_signature_lines'=>( $tag==='signature' ),
                     'allows_hidden_code'=>( $tag==='hidden' ),
                 ), true);
+            }
+            // @since 6.3.318 - Let add-ons declare the server-owned carriers for the
+            // elements they render (e.g. the Register & Login activation code or the
+            // Mailchimp hidden audience carriers). Declarations are never authoritative,
+            // so a rendered core field always wins a name collision.
+            $declared = apply_filters( 'super_submission_carrier_contracts_filter', array(), array(
+                'tag' => $tag,
+                'data' => $data,
+                'repeater_depth' => $repeater_depth,
+            ) );
+            if( is_array($declared) ) {
+                foreach( $declared as $declared_name => $declared_meta ) {
+                    if( !is_string($declared_name) || $declared_name==='' || !is_array($declared_meta) ) continue;
+                    self::register_submission_contract_entry($contract, $declared_name, $declared_meta);
+                }
             }
         }
     }
@@ -6301,6 +6346,10 @@ class SUPER_Ajax {
             $owned['legacy_source_field'] = $field_name;
             $owned['legacy_source_key'] = $source_key;
             $owned['cleanup_parent'] = absint($entry_id);
+            // The attachment identity above is fully verified (post type, entry parent,
+            // upload markers, mime and configured root), so this record may finalize its
+            // own cleanup. Its use is re-verified by retained_owned_upload_is_current().
+            $owned['cleanup_authority'] = true;
             $record = self::owned_upload_file_record($owned, $field_name);
             $record['_super_file_authority'] = 'retained';
             return $record;

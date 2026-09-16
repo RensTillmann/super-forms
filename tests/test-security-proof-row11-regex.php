@@ -33,6 +33,22 @@ class Test_Super_Forms_Proof_Row11_Regex_And_Length_Parity extends Super_Forms_U
         return array_map( 'intval', $ids );
     }
 
+    /**
+     * Root forms only: an authorized re-save intentionally stores a 'backup'
+     * child revision of the form it updated (class-ajax.php:2934-2941), so the
+     * "no new form" check for an accepted re-save has to ignore those.
+     */
+    private function root_form_ids() {
+        global $wpdb;
+        $ids = $wpdb->get_col(
+            $wpdb->prepare(
+                "SELECT ID FROM {$wpdb->posts} WHERE post_type = %s AND post_parent = 0 AND post_status != 'backup' ORDER BY ID ASC",
+                'super_form'
+            )
+        );
+        return array_map( 'intval', $ids );
+    }
+
     private function form_settings_no_side_effects() {
         return array(
             'send' => 'no',
@@ -43,6 +59,20 @@ class Test_Super_Forms_Proof_Row11_Regex_And_Length_Parity extends Super_Forms_U
             'form_show_thanks_msg' => '',
             'form_redirect_option' => '',
         );
+    }
+
+    /**
+     * Create a form whose stored elements keep their backslashes.
+     *
+     * update_post_meta() unslashes its value, so handing raw '\A' to the
+     * shared create_form() helper stores 'A'. save_form() slashes the elements
+     * before save_form_meta() (class-ajax.php:2838), so a fixture that stands
+     * in for an already-saved form has to slash them the same way.
+     */
+    private function create_form_with_stored_elements( $elements, $settings=array() ) {
+        $form_id = $this->create_form( 'publish', array(), $settings );
+        update_post_meta( $form_id, '_super_elements', wp_slash( $elements ) );
+        return $form_id;
     }
 
     /**
@@ -270,8 +300,8 @@ class Test_Super_Forms_Proof_Row11_Regex_And_Length_Parity extends Super_Forms_U
                 ),
             ),
         );
-        $form_id = $this->create_form( 'publish', $elements, $this->form_settings_no_side_effects() );
-        $before_ids = $this->all_form_ids();
+        $form_id = $this->create_form_with_stored_elements( $elements, $this->form_settings_no_side_effects() );
+        $before_ids = $this->root_form_ids();
         $result = $this->save_form_via_admin_ajax(
             'Row11 legacy regex resave ' . wp_generate_uuid4(),
             $elements,
@@ -280,15 +310,14 @@ class Test_Super_Forms_Proof_Row11_Regex_And_Length_Parity extends Super_Forms_U
         );
         $this->assertSame( 0, $result['status'], $result['output'] );
         $this->assertSame( (string) $form_id, trim( $result['output'] ) );
-        $this->assertSame( $before_ids, $this->all_form_ids(), 'Resaving an existing form must not create a new form.' );
+        $this->assertSame( $before_ids, $this->root_form_ids(), 'Resaving an existing form must not create a new form.' );
         $stored_elements = get_post_meta( $form_id, '_super_elements', true );
         $this->assertIsArray( $stored_elements );
         $this->assertSame( '\A', $stored_elements[0]['data']['custom_regex'] );
     }
 
     public function test_legacy_js_incompatible_custom_regex_matches_the_plain_regexp_fallback_on_public_submit() {
-        $form_id = $this->create_form(
-            'publish',
+        $form_id = $this->create_form_with_stored_elements(
             array(
                 array(
                     'tag' => 'text',
@@ -330,8 +359,7 @@ class Test_Super_Forms_Proof_Row11_Regex_And_Length_Parity extends Super_Forms_U
         );
     }
     public function test_legacy_plain_submit_treats_backslash_c_before_a_non_letter_as_a_literal_sequence() {
-        $form_id = $this->create_form(
-            'publish',
+        $form_id = $this->create_form_with_stored_elements(
             array(
                 array(
                     'tag' => 'text',
@@ -367,8 +395,7 @@ class Test_Super_Forms_Proof_Row11_Regex_And_Length_Parity extends Super_Forms_U
     }
 
     public function test_legacy_plain_submit_keeps_annex_b_braced_u_escape_quantifier_semantics() {
-        $form_id = $this->create_form(
-            'publish',
+        $form_id = $this->create_form_with_stored_elements(
             array(
                 array(
                     'tag' => 'text',
@@ -404,8 +431,7 @@ class Test_Super_Forms_Proof_Row11_Regex_And_Length_Parity extends Super_Forms_U
     }
 
     public function test_legacy_plain_submit_keeps_annex_b_property_escape_literal_semantics() {
-        $form_id = $this->create_form(
-            'publish',
+        $form_id = $this->create_form_with_stored_elements(
             array(
                 array(
                     'tag' => 'text',
@@ -461,7 +487,7 @@ class Test_Super_Forms_Proof_Row11_Regex_And_Length_Parity extends Super_Forms_U
                 ),
             ),
         );
-        $form_id = $this->create_form( 'publish', $stored_elements, $this->form_settings_no_side_effects() );
+        $form_id = $this->create_form_with_stored_elements( $stored_elements, $this->form_settings_no_side_effects() );
         $result = $this->save_form_via_admin_ajax(
             'Row11 legacy regex moved field ' . wp_generate_uuid4(),
             $submitted_elements,
@@ -650,26 +676,36 @@ class Test_Super_Forms_Proof_Row18_Byte_Preservation extends Super_Forms_Upload_
         $scope = 'row18-' . str_replace( '-', '', wp_generate_uuid4() );
         $byte_value = "It's a \\backslash\\ value with \"quotes\" inside " . $scope;
 
-        $form_id = $this->create_form(
-            'publish',
+        $elements = array(
             array(
-                array(
-                    'tag' => 'text',
-                    'data' => array(
-                        'name' => 'regex_field',
-                        'validation' => 'custom',
-                        'custom_regex' => '^[\s\S]{1,160}$',
-                    ),
-                ),
-                array(
-                    'tag' => 'text',
-                    'data' => array(
-                        'name' => 'maxlen_field',
-                        'maxlength' => '160',
-                    ),
+                'tag' => 'text',
+                'data' => array(
+                    'name' => 'regex_field',
+                    'validation' => 'custom',
+                    'custom_regex' => '^[\s\S]{1,160}$',
                 ),
             ),
-            $this->form_settings_no_side_effects()
+            array(
+                'tag' => 'text',
+                'data' => array(
+                    'name' => 'maxlen_field',
+                    'maxlength' => '160',
+                ),
+            ),
+        );
+        $form_id = $this->create_form( 'publish', array(), $this->form_settings_no_side_effects() );
+        // update_post_meta() unslashes its value, so handing the raw pattern to the
+        // shared create_form() helper would store '^[sS]{1,160}$' and reject every
+        // byte outside [sS]. save_form() slashes the elements before save_form_meta()
+        // (includes/class-ajax.php:2838), so a fixture that stands in for an
+        // already-saved form has to slash them the same way (same contract as the
+        // Row11 helper at test-security-proof-row11-regex.php:72-76).
+        update_post_meta( $form_id, '_super_elements', wp_slash( $elements ) );
+        $stored_elements = get_post_meta( $form_id, '_super_elements', true );
+        $this->assertSame(
+            '^[\s\S]{1,160}$',
+            $stored_elements[0]['data']['custom_regex'],
+            'The fixture must store the exact custom regex the saved form carried.'
         );
 
         // Public submit preserves the stored bytes.

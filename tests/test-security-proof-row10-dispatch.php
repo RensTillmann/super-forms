@@ -197,6 +197,18 @@ class Test_Super_Forms_Proof_Row10_Download_Dispatch extends WP_UnitTestCase {
 			unset( $_SERVER['HTTP_IF_MODIFIED_SINCE'], $_SERVER['HTTP_IF_NONE_MATCH'] );
 			$wp             = new stdClass();
 			$wp->query_vars = $query_vars;
+			// The CLI SAPI has already flushed the runner's own output, so every real
+			// header() call in the dispatcher raises "Cannot modify header information".
+			// PHPUnit converts warnings into exceptions, which would make the dispatcher's
+			// terminal response path look like a plain return. Swallow only that exact
+			// warning and let every other diagnostic reach PHPUnit's handler.
+			set_error_handler(
+				static function ( $errno, $errstr ) {
+					return ( E_WARNING === $errno
+						&& false !== strpos( $errstr, 'Cannot modify header information' ) );
+				},
+				E_WARNING
+			);
 			try {
 				SUPER_Forms()->parse_request( $wp );
 				$returned = true;
@@ -211,7 +223,12 @@ class Test_Super_Forms_Proof_Row10_Download_Dispatch extends WP_UnitTestCase {
 		$status = null;
 		$this->assertSame( $pid, pcntl_waitpid( $pid, $status ), 'Could not wait for the dispatcher child.' );
 		$this->assertTrue( pcntl_wifexited( $status ), 'Dispatcher child terminated by signal.' );
-		$this->assertSame( 0, pcntl_wexitstatus( $status ), 'Dispatcher returned instead of taking its terminal response path.' );
+		$this->assertSame(
+			0,
+			pcntl_wexitstatus( $status ),
+			'Dispatcher returned instead of taking its terminal response path. Child output: '
+				. (string) file_get_contents( $output_file )
+		);
 
 		global $wpdb;
 		if ( isset( $wpdb ) && method_exists( $wpdb, 'check_connection' ) ) {
@@ -550,7 +567,11 @@ class Test_Super_Forms_Proof_Row13_Delete_Dispatch extends Super_Forms_Upload_Se
 			'root'    => $root,
 			'file'    => $file,
 			'setting' => '../' . basename( $parent ) . '/' . basename( $root ),
-			'subdir'  => '../' . basename( $parent ) . '/' . basename( $root ) . '/' . $slot . '/' . $basename,
+			// The upload endpoint stores the WordPress subdir verbatim, so a configured
+			// parent-relative root yields a leading-slash legacy subdir
+			// (includes/class-ajax.php:8282), and both the proof HMAC and the deletion
+			// validator's canonical_subdir use exactly that form (super-forms.php:1930-1957).
+			'subdir'  => '/../' . basename( $parent ) . '/' . basename( $root ) . '/' . $slot . '/' . $basename,
 		);
 	}
 

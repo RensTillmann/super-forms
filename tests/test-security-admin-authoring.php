@@ -47,8 +47,27 @@ class Test_Security_Admin_Authoring extends WP_UnitTestCase {
 		$this->markTestSkipped( $message );
 	}
 
+	/**
+	 * Load the AJAX handlers under test.
+	 *
+	 * The WordPress test bootstrap never defines DOING_AJAX, so
+	 * super-forms.php:230 (is_request('ajax')) skips ajax_includes() and none of
+	 * the wp_ajax_super_* actions exist in the test process. Including
+	 * includes/class-ajax.php runs SUPER_Ajax::init() (class-ajax.php:9140),
+	 * which registers the handlers this class exercises.
+	 */
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
+		if ( ! class_exists( 'SUPER_Ajax' ) ) {
+			require_once dirname( __DIR__ ) . '/includes/class-ajax.php';
+		}
+	}
+
 	public function set_up() {
 		parent::set_up();
+		if ( ! has_action( 'wp_ajax_super_save_settings' ) ) {
+			SUPER_Ajax::init();
+		}
 		if( !class_exists( 'SUPER_Pages' ) ) {
 			require_once dirname( __DIR__ ) . '/includes/class-pages.php';
 		}

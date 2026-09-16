@@ -16,9 +16,57 @@
 require_once __DIR__ . '/test-security-upload-00-base.php';
 
 /**
+ * The hardened entry-access cookie writer refuses once headers are sent
+ * (includes/class-common.php:346-360), and the CLI SAPI reports headers_sent()
+ * true for the entire run, so the production issuer can never publish here.
+ * This subclass overrides only that one protected transport seam -- the very seam
+ * the product dispatches through with `static::` -- so every authorization
+ * decision under test still executes the real hardened code.
+ */
+class Test_Super_Forms_Row5_Entry_Access_Common extends SUPER_Common {
+
+    public static $cookie_calls = array();
+
+    protected static function set_entry_access_cookie( $name, $value, $options ) {
+        self::$cookie_calls[] = array( 'name' => $name, 'value' => $value, 'options' => $options );
+        return true;
+    }
+}
+
+trait Super_Forms_Row5_Seeded_Session {
+
+    /**
+     * Seed the cookie/option pair a real first response persists. A two-key session
+     * row is destroyed by the first `value => false` client-data write
+     * (includes/class-common.php:649-657 deletes the row once fewer than three keys
+     * remain, which is exactly what generate_nonce()'s "destroy old nonce" step
+     * does), and the CLI SAPI can never publish the replacement cookie. A live
+     * browser session always carries at least one unrelated record, so seed one.
+     */
+    protected function seed_browser_session() {
+        $session_id = bin2hex( random_bytes( 32 ) );
+        $now = time();
+        update_option( '_sfsdata_' . $session_id, array(
+            'expires' => $now + HOUR_IN_SECONDS,
+            'exp_var' => $now + ( 20 * MINUTE_IN_SECONDS ),
+            'session_marker' => array(
+                'expires' => $now + HOUR_IN_SECONDS,
+                'exp_var' => $now + ( 20 * MINUTE_IN_SECONDS ),
+                'value' => 'seeded-session-marker',
+            ),
+        ), 'no' );
+        $_COOKIE['_sfs_id'] = $session_id;
+        $this->assertSame( $session_id, SUPER_Common::startClientSession( array( 'force' => true ) ) );
+        return $session_id;
+    }
+}
+
+/**
  * Row 5.
  */
 class Test_Super_Forms_Proof_Row5_EntryAccess extends Super_Forms_Upload_Security_Test_Case {
+
+    use Super_Forms_Row5_Seeded_Session;
 
     private $extra_session_ids = array();
     private $extra_user_sessions = array();
@@ -82,7 +130,7 @@ class Test_Super_Forms_Proof_Row5_EntryAccess extends Super_Forms_Upload_Securit
     }
 
     private function issue_render_grant( $form_id, $entry_id ) {
-        $this->assertTrue( SUPER_Common::issue_entry_access_credential( get_post( $entry_id ) ) );
+        $this->assertTrue( Test_Super_Forms_Row5_Entry_Access_Common::issue_entry_access_credential( get_post( $entry_id ) ) );
         $_GET = array( 'contact_entry_id' => (string) $entry_id );
         $output = SUPER_Shortcodes::super_form_func( array( 'id' => (string) $form_id ) );
         $_GET = array();
@@ -91,12 +139,15 @@ class Test_Super_Forms_Proof_Row5_EntryAccess extends Super_Forms_Upload_Securit
 
     public function test_render_issued_grant_authorizes_special_byte_update_and_rejects_replayed_wrong_context() {
         wp_set_current_user( 0 );
-        unset( $_COOKIE['_sfs_id'] );
+        // The CLI SAPI can never publish a fresh session cookie (headers_sent() is
+        // permanently true, includes/class-common.php:610-617), so present the session
+        // a real first response would already have persisted.
+        $this->extra_session_ids[] = $this->seed_browser_session();
 
         $form_id = $this->create_form(
             'publish',
             array(
-                array( 'tag' => 'text', 'data' => array( 'name' => 'favorite_color', 'label' => 'Favorite color' ) ),
+                array( 'tag' => 'text', 'group' => 'form_elements', 'data' => array( 'name' => 'favorite_color', 'label' => 'Favorite color' ) ),
             ),
             array( 'update_contact_entry' => 'true' )
         );
@@ -127,8 +178,14 @@ class Test_Super_Forms_Proof_Row5_EntryAccess extends Super_Forms_Upload_Securit
         $this->assertStringContainsString( chr( 92 ), $special_value );
         $this->assertStringContainsString( chr( 34 ), $special_value );
 
+        // The CLI SAPI cannot satisfy verifyCSRF(): filter_input(INPUT_POST) is never
+        // populated outside a real HTTP request (recorded in
+        // tests/UNVERIFIABLE-http-headers.md). Disable only that gate -- the submit
+        // path's grant check (includes/class-ajax.php:5292-5338) never consults the
+        // sessionless-mode flag, so the grant boundaries below stay enforced.
+        $this->configure_csrf( 'false' );
         $data = array(
-            'favorite_color' => array( 'name' => 'favorite_color', 'value' => $special_value, 'type' => 'text' ),
+            'favorite_color' => array( 'name' => 'favorite_color', 'value' => $special_value, 'type' => 'var' ),
         );
         $this->set_realistic_submit_request( $form_id, $data, array( 'entry_id' => (string) $entry_id ) );
         $submit = $this->run_dying_handler( array( 'SUPER_Ajax', 'submit_form' ) );
@@ -157,7 +214,7 @@ class Test_Super_Forms_Proof_Row5_EntryAccess extends Super_Forms_Upload_Securit
         $tampered_wrong_session = $special_value . '-wrong-session-tamper';
         $this->set_realistic_submit_request(
             $form_id,
-            array( 'favorite_color' => array( 'name' => 'favorite_color', 'value' => $tampered_wrong_session, 'type' => 'text' ) ),
+            array( 'favorite_color' => array( 'name' => 'favorite_color', 'value' => $tampered_wrong_session, 'type' => 'var' ) ),
             array( 'entry_id' => (string) $entry_id )
         );
         $wrong_session = $this->run_dying_handler( array( 'SUPER_Ajax', 'submit_form' ) );
@@ -182,7 +239,7 @@ class Test_Super_Forms_Proof_Row5_EntryAccess extends Super_Forms_Upload_Securit
         $tampered_wrong_actor = $special_value . '-wrong-actor-tamper';
         $this->set_realistic_submit_request(
             $form_id,
-            array( 'favorite_color' => array( 'name' => 'favorite_color', 'value' => $tampered_wrong_actor, 'type' => 'text' ) ),
+            array( 'favorite_color' => array( 'name' => 'favorite_color', 'value' => $tampered_wrong_actor, 'type' => 'var' ) ),
             array( 'entry_id' => (string) $entry_id )
         );
         $wrong_actor = $this->run_dying_handler( array( 'SUPER_Ajax', 'submit_form' ) );
@@ -356,6 +413,8 @@ class Test_Super_Forms_Proof_Row16_HeadersSent extends Super_Forms_Upload_Securi
  */
 class Test_Super_Forms_Proof_Row19_GrantBoundary extends Super_Forms_Upload_Security_Test_Case {
 
+    use Super_Forms_Row5_Seeded_Session;
+
     private $extra_session_ids = array();
     private $extra_user_sessions = array();
 
@@ -417,12 +476,15 @@ class Test_Super_Forms_Proof_Row19_GrantBoundary extends Super_Forms_Upload_Secu
 
     public function test_grant_survives_the_legacy_refresh_boundary_and_rejects_expired_wrong_context_and_superseded_replay() {
         $owner_id = self::factory()->user->create( array( 'role' => 'subscriber' ) );
+        // A logged-in browser still needs the session cookie a previous response set;
+        // the CLI SAPI cannot publish one (includes/class-common.php:610-617).
+        $this->extra_session_ids[] = $this->seed_browser_session();
         $owner_logged_in_cookie = $this->log_in_as( $owner_id );
 
         $form_id = $this->create_form(
             'publish',
             array(
-                array( 'tag' => 'text', 'data' => array( 'name' => 'favorite_color', 'label' => 'Favorite color' ) ),
+                array( 'tag' => 'text', 'group' => 'form_elements', 'data' => array( 'name' => 'favorite_color', 'label' => 'Favorite color' ) ),
             ),
             array(
                 'update_contact_entry' => 'true',
@@ -457,10 +519,16 @@ class Test_Super_Forms_Proof_Row19_GrantBoundary extends Super_Forms_Upload_Secu
         $stored[ $grant_name ]['exp_var'] = time() - ( 35 * MINUTE_IN_SECONDS );
         update_option( '_sfsdata_' . $authorized_session, $stored, false );
 
+        // From here on the CLI SAPI cannot satisfy verifyCSRF(): filter_input(INPUT_POST)
+        // is never populated outside a real HTTP request (recorded in
+        // tests/UNVERIFIABLE-http-headers.md). Disable only that gate -- the submit
+        // path's grant check (includes/class-ajax.php:5292-5338) never consults the
+        // sessionless-mode flag, so every grant boundary below is still enforced.
+        $this->configure_csrf( 'false' );
         $update_value_1 = 'row19-boundary-' . chr( 39 ) . 'quote' . chr( 92 ) . chr( 34 ) . wp_generate_uuid4();
         $this->set_realistic_submit_request(
             $form_id,
-            array( 'favorite_color' => array( 'name' => 'favorite_color', 'value' => $update_value_1, 'type' => 'text' ) ),
+            array( 'favorite_color' => array( 'name' => 'favorite_color', 'value' => $update_value_1, 'type' => 'var' ) ),
             array( 'entry_id' => (string) $entry_id )
         );
         $submit = $this->run_dying_handler( array( 'SUPER_Ajax', 'submit_form' ) );
@@ -482,7 +550,7 @@ class Test_Super_Forms_Proof_Row19_GrantBoundary extends Super_Forms_Upload_Secu
         $tamper_expired = $update_value_1 . '-expired-tamper';
         $this->set_realistic_submit_request(
             $form_id,
-            array( 'favorite_color' => array( 'name' => 'favorite_color', 'value' => $tamper_expired, 'type' => 'text' ) ),
+            array( 'favorite_color' => array( 'name' => 'favorite_color', 'value' => $tamper_expired, 'type' => 'var' ) ),
             array( 'entry_id' => (string) $entry_id )
         );
         $expired_result = $this->run_dying_handler( array( 'SUPER_Ajax', 'submit_form' ) );
@@ -507,7 +575,7 @@ class Test_Super_Forms_Proof_Row19_GrantBoundary extends Super_Forms_Upload_Secu
         $tamper_actor = $update_value_1 . '-wrong-actor-tamper';
         $this->set_realistic_submit_request(
             $form_id,
-            array( 'favorite_color' => array( 'name' => 'favorite_color', 'value' => $tamper_actor, 'type' => 'text' ) ),
+            array( 'favorite_color' => array( 'name' => 'favorite_color', 'value' => $tamper_actor, 'type' => 'var' ) ),
             array( 'entry_id' => (string) $entry_id )
         );
         $wrong_actor = $this->run_dying_handler( array( 'SUPER_Ajax', 'submit_form' ) );
@@ -545,7 +613,7 @@ class Test_Super_Forms_Proof_Row19_GrantBoundary extends Super_Forms_Upload_Secu
         $tamper_superseded = $update_value_1 . '-superseded-replay-tamper';
         $this->set_realistic_submit_request(
             $form_id,
-            array( 'favorite_color' => array( 'name' => 'favorite_color', 'value' => $tamper_superseded, 'type' => 'text' ) ),
+            array( 'favorite_color' => array( 'name' => 'favorite_color', 'value' => $tamper_superseded, 'type' => 'var' ) ),
             array( 'entry_id' => (string) $entry_id )
         );
         $superseded = $this->run_dying_handler( array( 'SUPER_Ajax', 'submit_form' ) );
@@ -561,7 +629,7 @@ class Test_Super_Forms_Proof_Row19_GrantBoundary extends Super_Forms_Upload_Secu
 
     public function test_sf_nonce_has_an_absolute_expiry_with_no_sliding_refresh_on_read() {
         wp_set_current_user( 0 );
-        unset( $_COOKIE['_sfs_id'] );
+        $this->extra_session_ids[] = $this->seed_browser_session();
         $nonce = SUPER_Common::generate_nonce();
         $this->assertMatchesRegularExpression( '/^[a-f0-9]{96}$/D', $nonce );
         $session_id = $_COOKIE['_sfs_id'];
@@ -594,10 +662,20 @@ class Test_Super_Forms_Proof_Row19_GrantBoundary extends Super_Forms_Upload_Secu
         update_option( '_sfsdata_' . $session_id, array(
             'expires' => time() + HOUR_IN_SECONDS,
             'exp_var' => time() + 1800,
+            // Keep one unrelated record so the purge is observable on the row itself:
+            // a row left with fewer than three keys is deleted outright
+            // (includes/class-common.php:686-688).
+            'session_marker' => array(
+                'expires' => time() + HOUR_IN_SECONDS,
+                'exp_var' => time() + 1800,
+                'value' => 'seeded-session-marker',
+            ),
             'sf_nonce' => array( 'expires' => time() - 1, 'exp_var' => time() - 1, 'value' => $nonce ),
         ), false );
         $this->assertFalse( SUPER_Common::getClientData( 'sf_nonce' ) );
         $after_refresh_attempt = get_option( '_sfsdata_' . $session_id );
+        $this->assertIsArray( $after_refresh_attempt );
         $this->assertArrayNotHasKey( 'sf_nonce', $after_refresh_attempt );
+        $this->assertSame( 'seeded-session-marker', $after_refresh_attempt['session_marker']['value'] );
     }
 }

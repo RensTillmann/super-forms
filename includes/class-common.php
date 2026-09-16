@@ -1949,7 +1949,9 @@ class SUPER_Common {
         $folderName = rand(1000000, 9999999) . rand(100000, 999999);
         $folderPath = trailingslashit($folder) . $folderName;
         if( file_exists( $folderPath ) ) {
-            self::generate_random_folder( $folder );
+            // A collision must yield the retried folder, not null: the caller treats
+            // a non-array result as "Invalid upload directory." (beta retries the same way).
+            return self::generate_random_folder( $folder );
         }else{
             if ( !mkdir($folderPath, 0755, true) ) {
                 $error = error_get_last();

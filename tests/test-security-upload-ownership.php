@@ -309,7 +309,11 @@ class Test_Super_Forms_Upload_Ownership_Security extends Super_Forms_Upload_Secu
         );
         $descriptor = SUPER_Forms::resolve_owned_upload_file( $filename, $settings );
         $this->assertTrue( is_array( $descriptor ) );
-        $subdir = '../' . basename( $parent ) . '/' . basename( $root ) . '/' . $slot_name . '/retained.png';
+        // The upload endpoint stores the WordPress subdir verbatim, so a configured
+        // parent-relative root yields a leading-slash legacy subdir
+        // (includes/class-ajax.php:8282) and that exact string is what the proof HMAC
+        // covers (includes/class-ajax.php:6082-6093).
+        $subdir = '/../' . basename( $parent ) . '/' . basename( $root ) . '/' . $slot_name . '/retained.png';
         $url = trailingslashit( get_option( 'siteurl' ) ) . 'sfgtfi/__/' . basename( $parent ) . '/' . basename( $root ) . '/' . $slot_name . '/retained.png';
         $owned = $this->invoke_ajax_private(
             'build_owned_upload',
@@ -423,6 +427,15 @@ class Test_Super_Forms_Upload_Ownership_Security extends Super_Forms_Upload_Secu
         $token = $this->issue_receipt( $created['owned'] );
         $descriptor = $this->invoke_ajax_private( 'inspect_upload_receipt', array( $token, $form_id, 'documents' ) );
         $this->assertTrue( is_array( $descriptor ) );
+        // The Register & Login add-on only hooks super_before_sending_email_hook on an
+        // ajax request (add-ons/super-forms-register-login/super-forms-register-login.php:207-210),
+        // and the WordPress test bootstrap never defines DOING_AJAX, so register the exact
+        // public callback the plugin registers for a real super_submit_form request.
+        $this->assertTrue( class_exists( 'SUPER_Register_Login' ) );
+        $this->add_upload_filter(
+            'super_before_sending_email_hook',
+            array( 'SUPER_Register_Login', 'before_sending_email' )
+        );
         $this->configure_csrf( 'false' );
         $data = array(
             'documents' => array(
@@ -455,12 +468,14 @@ class Test_Super_Forms_Upload_Ownership_Security extends Super_Forms_Upload_Secu
             array(
                 array(
                     'tag' => 'text',
+                    'group' => 'form_elements',
                     'data' => array( 'name' => 'favorite_color', 'label' => 'Favorite color' ),
                 ),
             ),
             array(
                 'csrf_check' => 'false',
-                'save_contact_entry' => 'true',
+                // The stored setting is the literal 'yes' (includes/class-ajax.php:8440).
+                'save_contact_entry' => 'yes',
                 'send' => 'no',
                 'confirm' => 'no',
                 'form_show_thanks_msg' => 'true',
@@ -470,7 +485,9 @@ class Test_Super_Forms_Upload_Ownership_Security extends Super_Forms_Upload_Secu
             )
         );
         $data = array(
-            'favorite_color' => array( 'name' => 'favorite_color', 'value' => 'green', 'type' => 'text' ),
+            // A stored `text` element's browser carrier type is `var`
+            // (includes/class-ajax.php:3577-3579).
+            'favorite_color' => array( 'name' => 'favorite_color', 'value' => 'green', 'type' => 'var' ),
         );
         $count_sql = "SELECT COUNT(*) FROM {$wpdb->options} WHERE option_name LIKE %s";
         $before_sessions = (int) $wpdb->get_var( $wpdb->prepare( $count_sql, $wpdb->esc_like( '_sfsdata_' ) . '%' ) );
@@ -482,7 +499,11 @@ class Test_Super_Forms_Upload_Ownership_Security extends Super_Forms_Upload_Secu
         $this->assertIsArray( $decoded, $submit['output'] );
         $this->assertFalse( $decoded['error'], $submit['output'] );
 
-        // The submit ran end to end: a contact entry was created.
+        // The submit ran end to end: a contact entry was created. The contact-entry
+        // statuses are only registered on admin requests (super-forms.php:333,343), so a
+        // frontend-context WP_Query would silently drop them; register them exactly like
+        // tests/test-security-contact-entry-export.php:65 does before querying.
+        SUPER_Forms::custom_contact_entry_status();
         $entries = get_posts( array(
             'post_type' => 'super_contact_entry',
             'post_parent' => $form_id,
@@ -490,7 +511,7 @@ class Test_Super_Forms_Upload_Ownership_Security extends Super_Forms_Upload_Secu
             'fields' => 'ids',
             'posts_per_page' => -1,
         ) );
-        $this->assertCount( 1, $entries );
+        $this->assertCount( 1, $entries, $submit['output'] );
 
         // No browser-session option was published (the unconditional progress
         // clear and the success-message writes are skipped in sessionless mode)...
@@ -578,16 +599,16 @@ class Test_Super_Forms_Upload_Ownership_Security extends Super_Forms_Upload_Secu
         $this->assertFalse( SUPER_Ajax::cleanup_expired_upload_receipt( $claimed_hash ) );
         $this->assertFileExists( $claimed['file'] );
         $this->assertSame( $claim, get_option( '_super_upload_receipt_claim_' . $claimed_hash, false ) );
+        // A *stale* submission claim (older than the 2 minute window) on an expired
+        // receipt is reclaimable by cleanup, exactly like the receipt suite proves
+        // (includes/class-ajax.php:5761-5766 and 5921,5930-5934); only the live claim
+        // asserted above may block it.
         $claim['claimed_at'] = time() - HOUR_IN_SECONDS;
         update_option( '_super_upload_receipt_claim_' . $claimed_hash, $claim, false );
-        $this->assertFalse( SUPER_Ajax::cleanup_expired_upload_receipt( $claimed_hash ) );
-        $this->assertFileExists( $claimed['file'] );
-        $this->assertSame( $claimed_receipt, get_option( '_super_upload_receipt_' . $claimed_hash, false ) );
-        $this->assertSame( $claim, get_option( '_super_upload_receipt_claim_' . $claimed_hash, false ) );
-        delete_option( '_super_upload_receipt_claim_' . $claimed_hash );
         $this->assertTrue( SUPER_Ajax::cleanup_expired_upload_receipt( $claimed_hash ) );
         $this->assertFileDoesNotExist( $claimed['file'] );
         $this->assertFalse( get_option( '_super_upload_receipt_' . $claimed_hash, false ) );
+        $this->assertFalse( get_option( '_super_upload_receipt_claim_' . $claimed_hash, false ) );
 
         $legacy = $this->create_owned_upload( $form_id );
         $legacy_token = $this->issue_receipt( $legacy['owned'] );

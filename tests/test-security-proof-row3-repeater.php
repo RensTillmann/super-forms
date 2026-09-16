@@ -13,6 +13,27 @@
 
 require_once __DIR__ . '/test-security-upload-00-base.php';
 
+/**
+ * Minimal stand-in for WC()->session.
+ *
+ * The WooCommerce add-on reads and writes $woocommerce->session unguarded
+ * during submission (add-ons/super-forms-woocommerce/super-forms-woocommerce.php:611,1569),
+ * exactly like the alpha line does, so a fake WooCommerce global has to carry a
+ * session object or the real code path raises an undefined-property warning.
+ */
+class Super_Forms_Row12_Wc_Session_Stub {
+
+	private $data = array();
+
+	public function get( $key, $default=null ) {
+		return array_key_exists( $key, $this->data ) ? $this->data[$key] : $default;
+	}
+
+	public function set( $key, $value ) {
+		$this->data[$key] = $value;
+	}
+}
+
 
 class Test_Super_Forms_Proof_Row3_Repeater_Security extends Super_Forms_Upload_Security_Test_Case {
 
@@ -347,9 +368,28 @@ class Test_Super_Forms_Proof_Row12_Dropdown_Security extends Super_Forms_Upload_
 		$entry_data = SUPER_Data_Access::get_entry_data( $entry_ids[0] );
 
 		// Canonical presentation variants must be rebuilt from stored configuration.
+		// The stored entry carries the configured contact-entry presentation in
+		// 'value': submit_form() applies entry_value before saving
+		// (class-ajax.php:8414-8416), exactly like the alpha line
+		// (super-forms-alpha/cve-2026-security-alpha/src/includes/class-ajax.php:6015-6016).
 		foreach( array(
 			array( $entry_data['choices'], 'top-level route (row 1, collides with the standalone dropdown)' ),
 			array( $entry_data['choices_2'], 'aliased repeater route (row 2)' ),
+		) as $case ) {
+			list( $carrier, $label ) = $case;
+			$this->assertSame( 'Member (member)', $carrier['value'], $label );
+			$this->assertSame( 'Membership', $carrier['label'], $label );
+			$this->assertSame( 'Member', $carrier['option_label'], $label );
+			$this->assertSame( 'Member (member)', $carrier['admin_value'], $label );
+			$this->assertSame( 'Member', $carrier['confirm_value'], $label );
+			$this->assertSame( 'Member (member)', $carrier['entry_value'], $label );
+			$this->assertArrayNotHasKey( 'selected_values', $carrier, $label );
+		}
+		// The repeater's own dynamic-data rows keep the canonical submitted value
+		// and carry the same server-rebuilt presentation variants.
+		foreach( array(
+			array( $entry_data['_super_dynamic_data']['choices'][0]['choices'], 'row 1 dynamic-data copy' ),
+			array( $entry_data['_super_dynamic_data']['choices'][1]['choices_2'], 'row 2 dynamic-data copy' ),
 		) as $case ) {
 			list( $carrier, $label ) = $case;
 			$this->assertSame( 'member', $carrier['value'], $label );
@@ -360,13 +400,13 @@ class Test_Super_Forms_Proof_Row12_Dropdown_Security extends Super_Forms_Upload_
 			$this->assertSame( 'Member (member)', $carrier['entry_value'], $label );
 			$this->assertArrayNotHasKey( 'selected_values', $carrier, $label );
 		}
-		$this->assertSame( $entry_data['choices'], $entry_data['_super_dynamic_data']['choices'][0]['choices'] );
-		$this->assertSame( $entry_data['choices_2'], $entry_data['_super_dynamic_data']['choices'][1]['choices_2'] );
 
 		$hook_data = $capture['hook_data'];
 		$this->assertIsArray( $hook_data );
-		$this->assertSame( $entry_data['choices'], $hook_data['choices'] );
-		$this->assertSame( $entry_data['choices_2'], $hook_data['choices_2'] );
+		// The email hook receives the canonical carriers with the rebuilt variants;
+		// only the saved entry has 'value' replaced by entry_value.
+		$this->assertSame( $entry_data['_super_dynamic_data']['choices'][0]['choices'], $hook_data['choices'] );
+		$this->assertSame( $entry_data['_super_dynamic_data']['choices'][1]['choices_2'], $hook_data['choices_2'] );
 	}
 
 	public function test_conflicting_duplicate_dropdown_names_strip_presentation_at_the_public_boundary() {
@@ -472,6 +512,7 @@ class Test_Super_Forms_Proof_Row12_Product_Attribute_Security extends Super_Form
 				}
 				$GLOBALS['woocommerce'] = (object) array(
 					'cart' => null,
+					'session' => new Super_Forms_Row12_Wc_Session_Stub(),
 				);
 				SUPER_Ajax::submit_form();
 			} );
@@ -528,7 +569,10 @@ class Test_Super_Forms_Proof_Row12_Product_Attribute_Security extends Super_Form
 		$entry_id = (int) $decoded['response_data']['contact_entry_id'];
 		$this->assertGreaterThan( 0, $entry_id );
 		$stored = SUPER_Data_Access::get_entry_data( $entry_id );
-		$this->assertSame( 'blue', $stored['finish']['value'] );
+		// 'value' holds the configured contact-entry presentation: submit_form()
+		// applies entry_value before saving (class-ajax.php:8414-8416).
+		$this->assertSame( 'blue (blue)', $stored['finish']['value'] );
+		$this->assertArrayNotHasKey( 'selected_values', $stored['finish'] );
 		$this->assertSame( 'blue', $stored['finish']['option_label'] );
 		$this->assertSame( 'blue (blue)', $stored['finish']['admin_value'] );
 		$this->assertSame( 'blue', $stored['finish']['confirm_value'] );

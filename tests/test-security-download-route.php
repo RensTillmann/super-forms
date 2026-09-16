@@ -19,6 +19,18 @@ class Test_Security_Download_Route extends WP_UnitTestCase {
 	private $unrelated_file;
 	private $unrelated_bytes;
 	private $legacy_prefix;
+	/**
+	 * The WordPress test bootstrap never defines DOING_AJAX, so super-forms.php:197-232
+	 * skips ajax_includes() and includes/class-ajax.php is never loaded; this class
+	 * reflects into SUPER_Ajax for the generated-PDF materializer.
+	 */
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
+		if ( ! class_exists( 'SUPER_Ajax' ) ) {
+			require_once dirname( __DIR__ ) . '/includes/class-ajax.php';
+		}
+	}
+
 	public function set_up() {
 		parent::set_up();
 
@@ -739,7 +751,12 @@ class Test_Security_Download_Route extends WP_UnitTestCase {
 	}
 
 	public function test_public_dispatcher_downloads_only_exact_encoded_route_for_external_custom_root() {
-		$external_base = wp_normalize_path( dirname( dirname( untrailingslashit( ABSPATH ) ) ) . '/' . basename( sys_get_temp_dir() ) );
+		// ABSPATH's grandparent is '/', and wp_normalize_path() deliberately preserves a
+		// leading '//' (network shares), so concatenating another '/' would yield '//tmp'
+		// and shift every substr() offset taken against this root by one byte.
+		$external_base = wp_normalize_path(
+			trailingslashit( dirname( dirname( untrailingslashit( ABSPATH ) ) ) ) . basename( sys_get_temp_dir() )
+		);
 		$external_root = $this->create_owned_directory( $external_base . '/sf-route-external-' . $this->scope );
 		$external_setting = '../../' . basename( sys_get_temp_dir() ) . '/sf-route-external-' . $this->scope;
 		$bytes = "%PDF-1.4\nexternal custom root\n%%EOF";
@@ -759,7 +776,11 @@ class Test_Security_Download_Route extends WP_UnitTestCase {
 			$exact_route
 		);
 
-		$this->assertSame( $exact_route, $emitted_route );
+		$this->assertSame(
+			$exact_route,
+			$emitted_route,
+			'root=' . $external_root . ' file=' . $file . ' url=' . $record['url']
+		);
 		$this->assertFalse( $this->invoke_resolver( $external_setting . '/' . $relative_file, $settings ) );
 		$this->assertFalse( $this->invoke_resolver( $relative_file, $settings ) );
 		$this->assertFalse( $this->invoke_resolver( $tampered_route, $settings ) );

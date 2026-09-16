@@ -35,8 +35,35 @@ class Test_Security_Contact_Entry_Export extends WP_UnitTestCase {
 		$this->markTestSkipped( $message );
 	}
 
+	/**
+	 * Load the AJAX handlers under test.
+	 *
+	 * The WordPress test bootstrap never defines DOING_AJAX, so
+	 * super-forms.php:230 (is_request('ajax')) skips ajax_includes() and none of
+	 * the wp_ajax_super_* actions exist in the test process. Including
+	 * includes/class-ajax.php runs SUPER_Ajax::init() (class-ajax.php:9140),
+	 * which registers the handlers this class exercises.
+	 */
+	public static function set_up_before_class() {
+		parent::set_up_before_class();
+		if ( ! class_exists( 'SUPER_Ajax' ) ) {
+			require_once dirname( __DIR__ ) . '/includes/class-ajax.php';
+		}
+	}
+
 	public function set_up() {
 		parent::set_up();
+		if ( ! has_action( 'wp_ajax_super_get_entry_export_columns' ) ) {
+			SUPER_Ajax::init();
+		}
+		// The contact-entry post statuses are only registered on the admin 'init'
+		// hook (super-forms.php:343), and is_admin() is false in the test process,
+		// so WP_Query would silently drop 'super_unread'/'super_read' (unregistered
+		// statuses are skipped in WP_Query::get_posts). Register them exactly like a
+		// real admin-AJAX request does.
+		if ( ! get_post_status_object( 'super_unread' ) ) {
+			SUPER_Forms::custom_contact_entry_status();
+		}
 
 		$this->scope = 'sf-contact-export-' . str_replace( '-', '', wp_generate_uuid4() );
 		$this->original_current_user = get_current_user_id();
@@ -883,7 +910,10 @@ class Test_Security_Contact_Entry_Export extends WP_UnitTestCase {
 		fclose( $actual_handle );
 		$this->assertSame( $expected, $actual );
 		$this->assertSame( "\n", substr( $actual, -1 ) );
-		$this->assertSame( $fields, str_getcsv( rtrim( $actual, "\n" ), ',', '"', '\\' ) );
+		// No str_getcsv() round-trip here: a field ending in a backslash is not
+		// round-trippable through PHP's own pair of CSV functions (fputcsv escapes
+		// the closing quote, str_getcsv then merges the field with the next one),
+		// so the writer's contract is byte parity with fputcsv, asserted above.
 	}
 
 	public function test_selected_export_neutralizes_exact_header_data_and_file_url_bytes() {

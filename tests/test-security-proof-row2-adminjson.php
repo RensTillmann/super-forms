@@ -290,6 +290,11 @@ class Test_Super_Forms_Proof_Row2_Row14_Register_Admin_Json extends Super_Forms_
         return $method->invoke( null, $form_id );
     }
     private function issue_pending_registration_recovery_for( $user_id, $form_id, $login, $email ) {
+        // The recovery token is deliberately session-bound: without a persisted
+        // browser session issue_pending_registration_recovery() fails closed
+        // (super-forms-register-login.php:1205-1215). A real registration response
+        // always has one, so seed it exactly like a served page would.
+        $this->bootstrap_shared_anonymous_session();
         $method = new ReflectionMethod( 'SUPER_Register_Login', 'issue_pending_registration_recovery' );
         $method->setAccessible( true );
         $result = $method->invoke( null, $user_id, $form_id, $login, $email );
@@ -341,7 +346,10 @@ class Test_Super_Forms_Proof_Row2_Row14_Register_Admin_Json extends Super_Forms_
             $form_id,
             $login,
             $email,
-            array( 'role' => array( 'name' => 'role', 'value' => 'administrator', 'type' => 'text' ) )
+            // common.js:4303-4312 posts type 'var' for a text input; 'text' is
+            // reserved for textareas, so only 'var' is a shape the stored
+            // contract can admit at all.
+            array( 'role' => array( 'name' => 'role', 'value' => 'administrator', 'type' => 'var' ) )
         );
 
         $user = $this->assert_registration_created_with_role( $result, $login, 'subscriber' );
