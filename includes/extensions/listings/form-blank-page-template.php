@@ -87,6 +87,7 @@ if( isset($_POST['action']) && isset($_POST['entry_id']) && isset($_POST['form_i
                                             ) );
                                         }
                                     }
+                                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- complete rendered form document returned by SUPER_Shortcodes::super_form_func() (includes/class-shortcodes.php:5778) for a listing edit modal: the request is nonce-verified at includes/extensions/listings/form-blank-page-template.php:17-18 and the entry is authorized via SUPER_Common::issue_entry_access_credential() (line 70); wp_kses_post() would drop form/input/select/script/style and esc_html() would render the markup as text
                                     echo $form_html;
                                 }
                             }

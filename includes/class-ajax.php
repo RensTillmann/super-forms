@@ -664,6 +664,7 @@ class SUPER_Ajax {
         $settings = SUPER_Common::get_form_settings($form_id);
         $html = SUPER_Common::email_tags( $html, $data, $settings );
         $html = SUPER_Forms()->email_if_statements( $html, $data );
+        // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- complete print document: the admin-authored print template file is fetched by file_id after SUPER_Common::consume_public_print_capability() (includes/class-common.php:252, enforced at includes/class-ajax.php:633-639) authorized this form_id/file_id pair; tags are rendered by SUPER_Common::email_tags() (includes/class-common.php:2064) and email_if_statements() (super-forms.php:2082), and every escaper would destroy the html/head/body/style markup the template consists of
         echo $html;
         die();
     }
