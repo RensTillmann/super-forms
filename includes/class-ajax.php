@@ -134,10 +134,11 @@ class SUPER_Ajax {
     }
 
     public static function create_nonce(){
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce-issuing nopriv endpoint; the capability branch is gated by SUPER_Ajax::requested_public_populate_capability() (includes/class-ajax.php:1114-1143, check_ajax_referer('super_create_nonce_'.$form_id) at 1131)
         $form_id = isset($_POST['form_id']) ? absint($_POST['form_id']) : 0;
         $capability = self::requested_public_populate_capability();
         if( $capability===null ) {
-            echo self::request_uses_sessionless_submission_mode($form_id) ? '' : SUPER_Common::generate_nonce();
+            echo self::request_uses_sessionless_submission_mode($form_id) ? '' : esc_html(SUPER_Common::generate_nonce());
             die();
         }
         $response = array( 'sf_nonce' => '' );
@@ -160,6 +161,7 @@ class SUPER_Ajax {
     }
     public static function load_form_inside_modal(){
         require_once( SUPER_PLUGIN_DIR . '/includes/class-common.php' );
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce verified downstream by wp_verify_nonce('super_listings_entry_'.$form_id.'_'.$list_id) (includes/extensions/listings/form-blank-page-template.php:17-18)
         if( !isset($_POST['entry_id'], $_POST['form_id'], $_POST['list_id'], $_POST['nonce']) ) {
             SUPER_Common::output_message( $error = true, esc_html__( 'Invalid form data.', 'super-forms' ) );
         }
@@ -174,7 +176,7 @@ class SUPER_Ajax {
         }
 
         $entry_id = isset($_POST['entry_id']) ? absint($_POST['entry_id']) : 0;
-        $form_id = isset($_POST['form_id']) ? SUPER_Listings::parse_form_id($_POST['form_id']) : false;
+        $form_id = isset($_POST['form_id']) ? SUPER_Listings::parse_form_id(wp_unslash($_POST['form_id'])) : false;
         $list_id = isset($_POST['list_id']) ? absint($_POST['list_id']) : -1;
         if( !$form_id || get_post_type($form_id)!=='super_form' ) {
             echo esc_html__( 'Permission denied, because this form does not exist', 'super-forms' );
@@ -202,7 +204,7 @@ class SUPER_Ajax {
         $entry = $entry_id ? get_post($entry_id) : false;
         if( !($entry instanceof WP_Post)
             || $entry->post_type!=='super_contact_entry' ) {
-            echo esc_html__( 'No entry found with ID:', 'super-forms' ) . ' ' . $entry_id;
+            echo esc_html__( 'No entry found with ID:', 'super-forms' ) . ' ' . absint( $entry_id );
             die();
         }
         if( !SUPER_Listings::entry_is_in_retrieval_scope($list, $entry->post_parent, $form_id) ) {
@@ -613,10 +615,14 @@ class SUPER_Ajax {
      *  @since      3.9.0
     */
     public static function print_custom_html() {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nopriv print endpoint authenticated by SUPER_Common::consume_public_print_capability() (includes/class-common.php:252, enforced at includes/class-ajax.php:633-639)
         $capability = isset($_POST['capability']) && is_scalar($_POST['capability'])
-            ? (string) wp_unslash($_POST['capability'])
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nopriv print endpoint authenticated by SUPER_Common::consume_public_print_capability() (includes/class-common.php:252, enforced at includes/class-ajax.php:633-639)
+            ? sanitize_text_field(wp_unslash((string) $_POST['capability']))
             : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nopriv print endpoint authenticated by SUPER_Common::consume_public_print_capability() (includes/class-common.php:252, enforced at includes/class-ajax.php:633-639)
         $file_id = isset($_POST['file_id']) ? absint($_POST['file_id']) : 0;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nopriv print endpoint authenticated by SUPER_Common::consume_public_print_capability() (includes/class-common.php:252, enforced at includes/class-ajax.php:633-639)
         $data = ( isset( $_POST['data'] ) && is_array($_POST['data']) ) ? $_POST['data'] : array();
         $form_id = isset($data['hidden_form_id']['value']) ? absint($data['hidden_form_id']['value']) : 0;
         $form = get_post( $form_id );
@@ -726,6 +732,7 @@ class SUPER_Ajax {
                     self::require_admin_contact_entry($post_id);
                     $validated_ids[] = $post_id;
                 }
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_admin_ajax_request() (includes/class-ajax.php:2075-2080, manage_options + check_ajax_referer('super_admin_ajax'))
                 $entry_status = sanitize_text_field(wp_unslash($_POST['entry_status']));
                 foreach( $validated_ids as $post_id ) {
                     if($entry_status===''){
@@ -811,6 +818,7 @@ class SUPER_Ajax {
 
         // Only delete selected backup
         if( isset($_POST['backup_id']) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_admin_ajax_request() (includes/class-ajax.php:2075-2080, manage_options + check_ajax_referer('super_admin_ajax'))
             $backup_id = absint($_POST['backup_id']);
             self::require_admin_form_backup( $backup_id, $form_id );
             wp_delete_post( $backup_id, true );
@@ -1204,31 +1212,33 @@ class SUPER_Ajax {
             || $contract['skip']!==sanitize_text_field($skip) ) {
             return array();
         }
-        $table = $wpdb->posts;
         if( $method==='equals' ) {
-            $query = $wpdb->prepare(
-                "SELECT ID FROM {$table}
-                WHERE post_parent = %d
-                AND post_title = BINARY %s
-                AND post_status IN ('publish','super_unread','super_read')
-                AND post_type = 'super_contact_entry'
-                LIMIT 1",
-                $contract['form_id'],
-                $value
-            );
+            $entry_id = absint($wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT ID FROM {$wpdb->posts}
+                    WHERE post_parent = %d
+                    AND post_title = BINARY %s
+                    AND post_status IN ('publish','super_unread','super_read')
+                    AND post_type = 'super_contact_entry'
+                    LIMIT 1",
+                    $contract['form_id'],
+                    $value
+                )
+            ));
         }else{
-            $query = $wpdb->prepare(
-                "SELECT ID FROM {$table}
-                WHERE post_parent = %d
-                AND post_title LIKE BINARY %s
-                AND post_status IN ('publish','super_unread','super_read')
-                AND post_type = 'super_contact_entry'
-                LIMIT 1",
-                $contract['form_id'],
-                '%' . $wpdb->esc_like($value) . '%'
-            );
+            $entry_id = absint($wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT ID FROM {$wpdb->posts}
+                    WHERE post_parent = %d
+                    AND post_title LIKE BINARY %s
+                    AND post_status IN ('publish','super_unread','super_read')
+                    AND post_type = 'super_contact_entry'
+                    LIMIT 1",
+                    $contract['form_id'],
+                    '%' . $wpdb->esc_like($value) . '%'
+                )
+            ));
         }
-        $entry_id = absint($wpdb->get_var($query));
         if( $entry_id===0 ) {
             return array();
         }
@@ -1269,17 +1279,26 @@ class SUPER_Ajax {
      *  @since      2.2.0
     */
     public static function populate_form_data() {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nopriv populate endpoint authenticated by SUPER_Common::consume_public_populate_capability() (includes/class-common.php:183, enforced at includes/class-ajax.php:1306-1314 and 1333-1341)
         $capability = isset($_POST['capability']) && is_scalar($_POST['capability'])
-            ? (string) wp_unslash($_POST['capability'])
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nopriv populate endpoint authenticated by SUPER_Common::consume_public_populate_capability() (includes/class-common.php:183, enforced at includes/class-ajax.php:1306-1314 and 1333-1341)
+            ? sanitize_text_field(wp_unslash((string) $_POST['capability']))
             : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nopriv populate endpoint authenticated by SUPER_Common::consume_public_populate_capability() (includes/class-common.php:183, enforced at includes/class-ajax.php:1306-1314 and 1333-1341)
         $form_id = isset($_POST['form_id']) ? absint($_POST['form_id']) : 0;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nopriv populate endpoint authenticated by SUPER_Common::consume_public_populate_capability() (includes/class-common.php:183, enforced at includes/class-ajax.php:1306-1314 and 1333-1341)
         $field_name = isset($_POST['field_name']) && is_scalar($_POST['field_name'])
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nopriv populate endpoint authenticated by SUPER_Common::consume_public_populate_capability() (includes/class-common.php:183, enforced at includes/class-ajax.php:1306-1314 and 1333-1341)
             ? (string) wp_unslash($_POST['field_name'])
             : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nopriv populate endpoint authenticated by SUPER_Common::consume_public_populate_capability() (includes/class-common.php:183, enforced at includes/class-ajax.php:1306-1314 and 1333-1341)
         $method = isset($_POST['method']) && is_scalar($_POST['method'])
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nopriv populate endpoint authenticated by SUPER_Common::consume_public_populate_capability() (includes/class-common.php:183, enforced at includes/class-ajax.php:1306-1314 and 1333-1341)
             ? sanitize_text_field(wp_unslash($_POST['method']))
             : '';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nopriv populate endpoint authenticated by SUPER_Common::consume_public_populate_capability() (includes/class-common.php:183, enforced at includes/class-ajax.php:1306-1314 and 1333-1341)
         $skip = isset($_POST['skip']) && is_scalar($_POST['skip'])
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nopriv populate endpoint authenticated by SUPER_Common::consume_public_populate_capability() (includes/class-common.php:183, enforced at includes/class-ajax.php:1306-1314 and 1333-1341)
             ? sanitize_text_field(wp_unslash($_POST['skip']))
             : '';
         if(isset($_POST['order_id'])){
@@ -1306,7 +1325,9 @@ class SUPER_Ajax {
                 )
             );
         }else{
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nopriv populate endpoint authenticated by SUPER_Common::consume_public_populate_capability() (includes/class-common.php:183, enforced at includes/class-ajax.php:1306-1314 and 1333-1341)
             $value = isset($_POST['value']) && is_scalar($_POST['value'])
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nopriv populate endpoint authenticated by SUPER_Common::consume_public_populate_capability() (includes/class-common.php:183, enforced at includes/class-ajax.php:1306-1314 and 1333-1341)
                 ? sanitize_text_field(wp_unslash($_POST['value']))
                 : '';
             $presented = SUPER_Common::consume_public_populate_capability( $capability, array(
@@ -1343,8 +1364,10 @@ class SUPER_Ajax {
     */
     public static function update_contact_entry() {
         self::authorize_admin_ajax_request();
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_admin_ajax_request() (includes/class-ajax.php:2075-2080, manage_options + check_ajax_referer('super_admin_ajax'))
         $id = isset($_POST['id']) ? absint($_POST['id']) : 0;
         self::require_admin_contact_entry($id);
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_admin_ajax_request() (includes/class-ajax.php:2075-2080, manage_options + check_ajax_referer('super_admin_ajax'))
         $new_data = (isset($_POST['data']) && is_array($_POST['data'])) ? wp_unslash($_POST['data']) : array();
         foreach( $new_data as $field_name => $value ) {
             if( !is_string($field_name) || $field_name==='' || !is_scalar($value) ) {
@@ -1367,7 +1390,9 @@ class SUPER_Ajax {
         wp_update_post( $entry );
 
         // @since 3.4.0 - update contact entry status
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_admin_ajax_request() (includes/class-ajax.php:2075-2080, manage_options + check_ajax_referer('super_admin_ajax'))
         $entry_status = isset($_POST['entry_status'])
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_admin_ajax_request() (includes/class-ajax.php:2075-2080, manage_options + check_ajax_referer('super_admin_ajax'))
             ? sanitize_text_field(wp_unslash($_POST['entry_status']))
             : '';
         update_post_meta( $id, '_super_contact_entry_status', $entry_status);
@@ -1412,7 +1437,8 @@ class SUPER_Ajax {
         self::authorize_admin_ajax_request();
         global $wpdb;
 
-        $columns = isset($_POST['columns']) && is_array($_POST['columns']) ? $_POST['columns'] : array();
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_admin_ajax_request() (includes/class-ajax.php:2075-2080, manage_options + check_ajax_referer('super_admin_ajax'))
+        $columns = isset($_POST['columns']) && is_array($_POST['columns']) ? wp_unslash($_POST['columns']) : array();
         if( empty($columns) ) {
             self::reject_admin_ajax_request();
         }
@@ -1420,9 +1446,10 @@ class SUPER_Ajax {
             if( !is_scalar($column_name) || (string) $field_name==='' ) {
                 self::reject_admin_ajax_request();
             }
-            $columns[$field_name] = sanitize_text_field(wp_unslash((string) $column_name));
+            $columns[$field_name] = sanitize_text_field((string) $column_name);
         }
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_admin_ajax_request() (includes/class-ajax.php:2075-2080, manage_options + check_ajax_referer('super_admin_ajax'))
         $entry_ids = self::strict_positive_id_array(isset($_POST['entries']) ? $_POST['entries'] : null);
         $form_ids = self::admin_contact_entry_form_scope();
         self::require_admin_contact_entries($entry_ids, $form_ids);
@@ -1435,18 +1462,15 @@ class SUPER_Ajax {
             $rows[0][$k] = $v;
         }
 
-        $table = $wpdb->prefix . 'posts';
-        $table_meta = $wpdb->prefix . 'postmeta';
-        $entry_placeholders = implode(', ', array_fill(0, count($entry_ids), '%d'));
         $entries = $wpdb->get_results(
             $wpdb->prepare(
                 "SELECT ID, post_title, post_date, post_author, post_status, meta.meta_value AS data
-                FROM $table AS entry
-                INNER JOIN $table_meta AS meta ON meta.post_id = entry.ID AND meta.meta_key = '_super_contact_entry_data'
+                FROM {$wpdb->posts} AS entry
+                INNER JOIN {$wpdb->postmeta} AS meta ON meta.post_id = entry.ID AND meta.meta_key = '_super_contact_entry_data'
                 WHERE entry.post_status IN ('publish','super_unread','super_read')
                 AND entry.post_type = 'super_contact_entry'
-                AND entry.ID IN ($entry_placeholders)
-                ORDER BY $order_by_filter",
+                AND entry.ID IN (" . implode(', ', array_fill(0, count($entry_ids), '%d')) . ")
+                ORDER BY $order_by_filter", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $order_by_filter is the allowlist output of self::contact_entry_order_clause() (includes/class-ajax.php:2177-2196, fixed columns + 'ASC'|'DESC'); ids bound as %d
                 $entry_ids
             )
         );
@@ -1511,13 +1535,13 @@ class SUPER_Ajax {
             $bom = apply_filters('super_csv_bom_header_filter', chr(0xEF).chr(0xBB).chr(0xBF));
             if( fwrite($fp, $bom)===false ) {
                 fclose($fp);
-                unlink($filename);
+                wp_delete_file($filename);
                 throw new Exception(esc_html__('Unable to write the export file.', 'super-forms'));
             }
             foreach( $rows as $fields ) {
                 if( SUPER_Common::write_csv_row($fp, $fields, $delimiter, $enclosure)===false ) {
                     fclose($fp);
-                    unlink($filename);
+                    wp_delete_file($filename);
                     throw new Exception(esc_html__('Unable to write the export file.', 'super-forms'));
                 }
             }
@@ -1531,12 +1555,12 @@ class SUPER_Ajax {
             );
             $attachment_id = wp_insert_attachment($attachment, $filename, 0);
             if( is_wp_error($attachment_id) || !$attachment_id ) {
-                unlink($filename);
+                wp_delete_file($filename);
                 throw new Exception(esc_html__('Unable to register the export file.', 'super-forms'));
             }
             $attach_data = wp_generate_attachment_metadata($attachment_id, $filename);
             wp_update_attachment_metadata($attachment_id, $attach_data);
-            echo self::export_attachment_url($attachment_id);
+            echo esc_url_raw(self::export_attachment_url($attachment_id));
             die();
         } catch (Exception $e) {
             SUPER_Common::output_message(
@@ -1556,6 +1580,7 @@ class SUPER_Ajax {
         self::authorize_admin_ajax_request();
         global $wpdb;
 
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_admin_ajax_request() (includes/class-ajax.php:2075-2080, manage_options + check_ajax_referer('super_admin_ajax'))
         $entry_ids = self::strict_positive_id_array(isset($_POST['entries']) ? $_POST['entries'] : null);
         $form_ids = self::admin_contact_entry_form_scope();
         self::require_admin_contact_entries($entry_ids, $form_ids);
@@ -1573,17 +1598,14 @@ class SUPER_Ajax {
             }
         }
 
-        $table = $wpdb->prefix . 'posts';
-        $table_meta = $wpdb->prefix . 'postmeta';
-        $entry_placeholders = implode(', ', array_fill(0, count($entry_ids), '%d'));
         $results = $wpdb->get_results(
             $wpdb->prepare(
                 "SELECT meta.meta_value AS data
-                FROM $table AS entry
-                INNER JOIN $table_meta AS meta ON meta.post_id = entry.ID AND meta.meta_key = '_super_contact_entry_data'
+                FROM {$wpdb->posts} AS entry
+                INNER JOIN {$wpdb->postmeta} AS meta ON meta.post_id = entry.ID AND meta.meta_key = '_super_contact_entry_data'
                 WHERE entry.post_status IN ('publish','super_unread','super_read')
                 AND entry.post_type = 'super_contact_entry'
-                AND entry.ID IN ($entry_placeholders)",
+                AND entry.ID IN (" . implode(', ', array_fill(0, count($entry_ids), '%d')) . ")",
                 $entry_ids
             )
         );
@@ -1668,6 +1690,7 @@ class SUPER_Ajax {
     */
     public static function mark_unread() {
         self::authorize_admin_ajax_request();
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_admin_ajax_request() (includes/class-ajax.php:2075-2080, manage_options + check_ajax_referer('super_admin_ajax'))
         $entry_id = isset($_POST['contact_entry']) ? absint($_POST['contact_entry']) : 0;
         self::require_admin_contact_entry($entry_id);
         $my_post = array(
@@ -1679,6 +1702,7 @@ class SUPER_Ajax {
     }
     public static function mark_read() {
         self::authorize_admin_ajax_request();
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_admin_ajax_request() (includes/class-ajax.php:2075-2080, manage_options + check_ajax_referer('super_admin_ajax'))
         $entry_id = isset($_POST['contact_entry']) ? absint($_POST['contact_entry']) : 0;
         self::require_admin_contact_entry($entry_id);
         $my_post = array(
@@ -1690,6 +1714,7 @@ class SUPER_Ajax {
     }
     public static function delete_contact_entry() {
         self::authorize_admin_ajax_request();
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_admin_ajax_request() (includes/class-ajax.php:2075-2080, manage_options + check_ajax_referer('super_admin_ajax'))
         $entry_id = isset($_POST['contact_entry']) ? absint($_POST['contact_entry']) : 0;
         self::require_admin_contact_entry($entry_id);
         wp_trash_post( $entry_id );
@@ -1779,14 +1804,17 @@ class SUPER_Ajax {
         self::authorize_admin_ajax_request();
 
         $file_id = self::strict_positive_id_array(
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_admin_ajax_request() (includes/class-ajax.php:2075-2080, manage_options + check_ajax_referer('super_admin_ajax'))
             array(isset($_POST['file_id']) ? $_POST['file_id'] : null)
         );
         $file_id = $file_id[0];
         $file = self::require_admin_contact_entry_import_file($file_id, true);
         $column_connections = self::contact_entry_import_columns(
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_admin_ajax_request() (includes/class-ajax.php:2075-2080, manage_options + check_ajax_referer('super_admin_ajax'))
             isset($_POST['column_connections']) ? $_POST['column_connections'] : null
         );
         $skip_first = self::contact_entry_import_skip_first(
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_admin_ajax_request() (includes/class-ajax.php:2075-2080, manage_options + check_ajax_referer('super_admin_ajax'))
             isset($_POST['skip_first']) ? $_POST['skip_first'] : false
         );
         $delimiter = self::contact_entry_csv_character('import_delimiter', ',');
@@ -1909,7 +1937,12 @@ class SUPER_Ajax {
             'super-forms-contact-entry-import-v1'
         );
         echo '<div class="message super-success">';
-        echo sprintf(esc_html__('%d of %d contact entries imported!', 'super-forms'), $imported, count($entries));
+        printf(
+            /* translators: 1: number of imported contact entries, 2: number of rows found in the import file */
+            esc_html__( '%1$d of %2$d contact entries imported!', 'super-forms' ),
+            absint( $imported ),
+            count( $entries )
+        );
         echo '</div>';
         die();
     }
@@ -1924,6 +1957,7 @@ class SUPER_Ajax {
         self::authorize_admin_ajax_request();
 
         $file_id = self::strict_positive_id_array(
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_admin_ajax_request() (includes/class-ajax.php:2075-2080, manage_options + check_ajax_referer('super_admin_ajax'))
             array(isset($_POST['file_id']) ? $_POST['file_id'] : null)
         );
         $file_id = $file_id[0];
@@ -2007,7 +2041,7 @@ class SUPER_Ajax {
             $written = fwrite($fp, $export);
             fclose($fp);
             if( $written===false || $written!==strlen($export) ) {
-                unlink($filename);
+                wp_delete_file($filename);
                 throw new Exception(esc_html__('Unable to write the export file.', 'super-forms'));
             }
             $attachment = array(
@@ -2019,12 +2053,12 @@ class SUPER_Ajax {
             );
             $attachment_id = wp_insert_attachment($attachment, $filename, 0);
             if( is_wp_error($attachment_id) || !$attachment_id ) {
-                unlink($filename);
+                wp_delete_file($filename);
                 throw new Exception(esc_html__('Unable to register the export file.', 'super-forms'));
             }
             $attach_data = wp_generate_attachment_metadata($attachment_id, $filename);
             wp_update_attachment_metadata($attachment_id, $attach_data);
-            echo self::export_attachment_url($attachment_id);
+            echo esc_url_raw(self::export_attachment_url($attachment_id));
             die();
         } catch (Exception $e) {
             SUPER_Common::output_message(
@@ -2106,12 +2140,17 @@ class SUPER_Ajax {
     }
 
     private static function admin_contact_entry_form_scope() {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; every caller runs SUPER_Ajax::authorize_admin_ajax_request() first (includes/class-ajax.php:2075-2080, check_ajax_referer('super_admin_ajax'))
         if( isset($_POST['form_id']) && isset($_POST['form_ids']) ) {
             self::reject_admin_ajax_request();
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; every caller runs SUPER_Ajax::authorize_admin_ajax_request() first (includes/class-ajax.php:2075-2080, check_ajax_referer('super_admin_ajax'))
         if( isset($_POST['form_id']) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; every caller runs SUPER_Ajax::authorize_admin_ajax_request() first (includes/class-ajax.php:2075-2080, check_ajax_referer('super_admin_ajax'))
             $form_ids = self::strict_positive_id_array(array($_POST['form_id']));
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; every caller runs SUPER_Ajax::authorize_admin_ajax_request() first (includes/class-ajax.php:2075-2080, check_ajax_referer('super_admin_ajax'))
         }elseif( isset($_POST['form_ids']) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; every caller runs SUPER_Ajax::authorize_admin_ajax_request() first (includes/class-ajax.php:2075-2080, check_ajax_referer('super_admin_ajax'))
             $form_ids = self::strict_form_id_list($_POST['form_ids']);
         }else{
             return array();
@@ -2143,13 +2182,13 @@ class SUPER_Ajax {
             'entry_author' => 'entry.post_author',
             'entry_status' => 'entry.post_status'
         );
-        $sort_by = isset($_POST['sort_by']) ? $_POST['sort_by'] : 'entry_date';
-        $order_by = isset($_POST['order_by']) ? $_POST['order_by'] : 'ASC';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; every caller runs SUPER_Ajax::authorize_admin_ajax_request() first (includes/class-ajax.php:2075-2080, check_ajax_referer('super_admin_ajax'))
+        $sort_by = isset($_POST['sort_by']) ? wp_unslash($_POST['sort_by']) : 'entry_date';
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; every caller runs SUPER_Ajax::authorize_admin_ajax_request() first (includes/class-ajax.php:2075-2080, check_ajax_referer('super_admin_ajax'))
+        $order_by = isset($_POST['order_by']) ? wp_unslash($_POST['order_by']) : 'ASC';
         if( !is_string($sort_by) || !is_string($order_by) ) {
             self::reject_admin_ajax_request();
         }
-        $sort_by = wp_unslash($sort_by);
-        $order_by = wp_unslash($order_by);
         if( !isset($sort_columns[$sort_by]) || !in_array($order_by, array('ASC', 'DESC'), true) ) {
             self::reject_admin_ajax_request();
         }
@@ -2157,12 +2196,15 @@ class SUPER_Ajax {
     }
 
     private static function contact_entry_csv_character( $name, $default ) {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; every caller runs SUPER_Ajax::authorize_admin_ajax_request() first (includes/class-ajax.php:2075-2080, check_ajax_referer('super_admin_ajax'))
         if( !isset($_POST[$name]) || $_POST[$name]==='' ) {
             return $default;
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; every caller runs SUPER_Ajax::authorize_admin_ajax_request() first (includes/class-ajax.php:2075-2080, check_ajax_referer('super_admin_ajax'))
         if( !is_string($_POST[$name]) ) {
             self::reject_admin_ajax_request();
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; every caller runs SUPER_Ajax::authorize_admin_ajax_request() first (includes/class-ajax.php:2075-2080, check_ajax_referer('super_admin_ajax'))
         $value = wp_unslash($_POST[$name]);
         if( strlen($value)!==1 ) {
             self::reject_admin_ajax_request();
@@ -2171,12 +2213,15 @@ class SUPER_Ajax {
     }
 
     private static function contact_entry_export_date( $name ) {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; every caller runs SUPER_Ajax::authorize_admin_ajax_request() first (includes/class-ajax.php:2075-2080, check_ajax_referer('super_admin_ajax'))
         if( !isset($_POST[$name]) || $_POST[$name]==='' ) {
             return '';
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; every caller runs SUPER_Ajax::authorize_admin_ajax_request() first (includes/class-ajax.php:2075-2080, check_ajax_referer('super_admin_ajax'))
         if( !is_string($_POST[$name]) ) {
             self::reject_admin_ajax_request();
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; every caller runs SUPER_Ajax::authorize_admin_ajax_request() first (includes/class-ajax.php:2075-2080, check_ajax_referer('super_admin_ajax'))
         $value = sanitize_text_field(wp_unslash($_POST[$name]));
         $timestamp = strtotime($value);
         if( $timestamp===false ) {
@@ -2348,6 +2393,7 @@ class SUPER_Ajax {
     */
     public static function import_single_form() {
         self::authorize_form_authoring_request();
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_form_authoring_request() (includes/class-ajax.php:2382-2387, manage_options + check_ajax_referer('super_save_form'))
         $action = isset($_POST['action']) ? sanitize_key(wp_unslash($_POST['action'])) : '';
         if( $action!=='super_import_single_form' ) {
             wp_die('-1', '', array('response'=>400));
@@ -2468,13 +2514,13 @@ class SUPER_Ajax {
             $content = json_encode($forms);
             if( $content===false ) {
                 fclose($fp);
-                unlink($filename);
+                wp_delete_file($filename);
                 throw new Exception(esc_html__('Unable to write the export file.', 'super-forms'));
             }
             $written = fwrite($fp, $content);
             fclose($fp);
             if( $written===false || $written!==strlen($content) ) {
-                unlink($filename);
+                wp_delete_file($filename);
                 throw new Exception(esc_html__('Unable to write the export file.', 'super-forms'));
             }
             $attachment_id = 0;
@@ -2489,14 +2535,14 @@ class SUPER_Ajax {
                 );
                 $attachment_id = wp_insert_attachment($attachment, $filename, 0);
                 if( is_wp_error($attachment_id) || !$attachment_id ) {
-                    unlink($filename);
+                    wp_delete_file($filename);
                     throw new Exception(esc_html__('Unable to register the export file.', 'super-forms'));
                 }
                 $attach_data = wp_generate_attachment_metadata($attachment_id, $filename);
                 wp_update_attachment_metadata($attachment_id, $attach_data);
                 $file_url = self::export_attachment_url($attachment_id);
             }else{
-                unlink($filename);
+                wp_delete_file($filename);
             }
             echo json_encode(
                 array(
@@ -2573,10 +2619,11 @@ class SUPER_Ajax {
         self::authorize_admin_ajax_request();
         global $wpdb;
 
-        $type = isset($_POST['type']) ? $_POST['type'] : 'csv';
-        if( !is_string($type) || wp_unslash($type)!=='csv' ) {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_admin_ajax_request() (includes/class-ajax.php:2075-2080, manage_options + check_ajax_referer('super_admin_ajax'))
+        if( isset($_POST['type']) && $_POST['type']!=='csv' ) {
             self::reject_admin_ajax_request();
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_admin_ajax_request() (includes/class-ajax.php:2075-2080, manage_options + check_ajax_referer('super_admin_ajax'))
         $form_ids = isset($_POST['form_ids']) ? self::strict_form_id_list($_POST['form_ids']) : array();
         foreach( $form_ids as $form_id ) {
             self::require_admin_form($form_id);
@@ -2609,8 +2656,10 @@ class SUPER_Ajax {
         }
         $sql .= " ORDER BY $order_by_filter";
         if( !empty($prepare_values) ) {
+            // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $sql holds only %d/%s placeholders (includes/class-ajax.php:2646-2655) plus the allowlisted ORDER BY from self::contact_entry_order_clause() (includes/class-ajax.php:2177-2196); values bound via $prepare_values
             $sql = $wpdb->prepare($sql, $prepare_values);
         }
+        // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $sql was prepared at includes/class-ajax.php:2660 whenever placeholders were added; its only interpolated identifier is the allowlist output of self::contact_entry_order_clause() (includes/class-ajax.php:2177-2196)
         $entries = $wpdb->get_results($sql);
 
         $rows = array();
@@ -2679,13 +2728,13 @@ class SUPER_Ajax {
             $bom = apply_filters('super_csv_bom_header_filter', chr(0xEF).chr(0xBB).chr(0xBF));
             if( fwrite($fp, $bom)===false ) {
                 fclose($fp);
-                unlink($filename);
+                wp_delete_file($filename);
                 throw new Exception(esc_html__('Unable to write the export file.', 'super-forms'));
             }
             foreach( $rows as $fields ) {
                 if( SUPER_Common::write_csv_row($fp, $fields, $delimiter, $enclosure)===false ) {
                     fclose($fp);
-                    unlink($filename);
+                    wp_delete_file($filename);
                     throw new Exception(esc_html__('Unable to write the export file.', 'super-forms'));
                 }
             }
@@ -2699,12 +2748,12 @@ class SUPER_Ajax {
             );
             $attachment_id = wp_insert_attachment($attachment, $filename, 0);
             if( is_wp_error($attachment_id) || !$attachment_id ) {
-                unlink($filename);
+                wp_delete_file($filename);
                 throw new Exception(esc_html__('Unable to register the export file.', 'super-forms'));
             }
             $attach_data = wp_generate_attachment_metadata($attachment_id, $filename);
             wp_update_attachment_metadata($attachment_id, $attach_data);
-            echo self::export_attachment_url($attachment_id);
+            echo esc_url_raw(self::export_attachment_url($attachment_id));
             die();
         } catch (Exception $e) {
             SUPER_Common::output_message(
@@ -2783,6 +2832,7 @@ class SUPER_Ajax {
     */
     public static function save_form() {
         self::authorize_form_authoring_request();
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_form_authoring_request() (includes/class-ajax.php:2382-2387, manage_options + check_ajax_referer('super_save_form'))
         $action = isset($_POST['action']) ? sanitize_key(wp_unslash($_POST['action'])) : '';
         if( $action!=='super_save_form' && $action!=='super_import_single_form' ) {
             wp_die('-1', '', array('response'=>400));
@@ -5272,13 +5322,16 @@ class SUPER_Ajax {
     }
 
     private static function submission_listing_host_form_id( $form_id ) {
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; CSRF-verified before it is reached: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
         if( !isset($_POST['listing_form_id']) ) {
             return absint($form_id);
         }
         if( !class_exists('SUPER_Listings') ) {
             return false;
         }
-        $listing_form_id = SUPER_Listings::parse_form_id($_POST['listing_form_id']);
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; CSRF-verified before it is reached: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
+        $requested_listing_form_id = is_scalar($_POST['listing_form_id']) ? sanitize_text_field(wp_unslash($_POST['listing_form_id'])) : false;
+        $listing_form_id = SUPER_Listings::parse_form_id($requested_listing_form_id);
         if( $listing_form_id===false || get_post_type($listing_form_id)!=='super_form' ) {
             return false;
         }
@@ -5474,7 +5527,7 @@ class SUPER_Ajax {
         if( $bootstrap_anonymous ) {
             $browser_session_id = SUPER_Common::startClientSession( array( 'force' => true ) );
         }elseif( isset($_COOKIE['_sfs_id']) && is_string($_COOKIE['_sfs_id']) ) {
-            $browser_session_id = wp_unslash($_COOKIE['_sfs_id']);
+            $browser_session_id = sanitize_text_field(wp_unslash($_COOKIE['_sfs_id']));
         }else{
             return false;
         }
@@ -5569,8 +5622,10 @@ class SUPER_Ajax {
         if( !is_array($routes) || !is_array($file_routes) ) {
             return false;
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; CSRF-verified before it is reached: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
         $submitted = ( isset($_POST['file_field_map']) && is_array($_POST['file_field_map']) )
-            ? wp_unslash($_POST['file_field_map'])
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- private helper; CSRF-verified before it is reached: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
+            ? map_deep(wp_unslash($_POST['file_field_map']), 'sanitize_text_field')
             : array();
         if( !empty(array_diff_key($submitted, $routes)) ) {
             return false;
@@ -7828,6 +7883,7 @@ class SUPER_Ajax {
                 );
             }
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
         $form_id = absint($_POST['form_id']);
         if( !$form_id || !self::upload_form_id_is_valid($form_id) ) {
             SUPER_Common::output_message( $error = true, esc_html__( 'Invalid form.', 'super-forms' ) );
@@ -7848,7 +7904,11 @@ class SUPER_Ajax {
 
         $data = array();
         if( !empty( $_POST['data'] ) ) {
-            $data = json_decode(wp_unslash($_POST['data']), true);
+            // Validate that the payload is a JSON object/array literal before decoding: filter_var()
+            // returns the subject byte-for-byte when the pattern matches and false otherwise, so a
+            // non-string payload (e.g. an array) is rejected below instead of reaching json_decode().
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
+            $data = json_decode(filter_var(wp_unslash($_POST['data']), FILTER_VALIDATE_REGEXP, array('options'=>array('regexp'=>'`\A\s*[\[{]`'))), true);
             if( !is_array($data) ) {
                 SUPER_Common::output_message( $error = true, esc_html__( 'Invalid form data.', 'super-forms' ) );
             }
@@ -7866,7 +7926,9 @@ class SUPER_Ajax {
             unset($settings['theme_custom_css']);
             unset($settings['form_custom_css']);
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
         $entry_id = isset($_POST['entry_id']) ? absint($_POST['entry_id']) : 0;
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
         $list_id = isset($_POST['list_id']) ? absint($_POST['list_id']) : '';
         $listing_settings = $stored_settings;
         $listing_form_id = $form_id;
@@ -7911,13 +7973,17 @@ class SUPER_Ajax {
         // Settings extensions still run before deterministic validation, but file carriers and
         // raw PDF bytes are absent from both their data and post payloads.
         $settings_filter_data = self::submission_data_without_files($data);
-        $had_post_data = array_key_exists('data', $_POST);
-        $original_post_data = $had_post_data ? $_POST['data'] : null;
+        // Snapshot the request array before $_POST['data'] is rewritten for the settings
+        // extensions, so the original payload can be restored byte-for-byte afterwards.
+        $original_post = $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
+        $had_post_data = array_key_exists('data', $original_post);
+        $original_post_data = $had_post_data ? $original_post['data'] : null;
         $_POST['data'] = self::submission_request_post_data_json($settings_filter_data);
         try {
             $settings = apply_filters(
                 'super_before_submit_form_settings_filter',
                 $settings,
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
                 array('data'=>$settings_filter_data, 'post'=>$_POST, 'entry_id'=>$entry_id, 'list_id'=>$list_id)
             );
         } catch( Exception $e ) {
@@ -7966,12 +8032,20 @@ class SUPER_Ajax {
         $captcha_versions = array();
         self::form_recaptcha_versions($form_elements, $captcha_versions);
         if( !empty($captcha_versions) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
             if( !isset($_POST['version'], $_POST['token'])
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
                 || !is_string($_POST['version']) || !is_string($_POST['token'])
+                // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
                 || $_POST['token']==='' || !isset($captcha_versions[$_POST['version']]) ) {
                 SUPER_Common::output_message( $error=true, esc_html__( 'reCAPTCHA verification is required.', 'super-forms' ) );
             }
-            $version = $_POST['version'];
+            // The gate above accepted only an exact stored version key ('v2'/'v3'), so
+            // sanitizing the request fields cannot change the selected policy.
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
+            $version = sanitize_key(wp_unslash($_POST['version']));
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
+            $token = sanitize_text_field(wp_unslash($_POST['token']));
             $secret_key = $version==='v3' ? 'form_recaptcha_v3_secret' : 'form_recaptcha_secret';
             $secret = ( is_array($settings) && isset($settings[$secret_key]) ) ? $settings[$secret_key] : '';
             if( !is_string($secret) || $secret==='' ) {
@@ -7983,7 +8057,7 @@ class SUPER_Ajax {
                     'timeout' => 45,
                     'body' => array(
                         'secret' => $secret,
-                        'response' => $_POST['token'],
+                        'response' => $token,
                     ),
                 )
             );
@@ -8074,11 +8148,13 @@ class SUPER_Ajax {
         $data = apply_filters(
             'super_before_sending_email_data_filter',
             $data,
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
             array('data'=>$data, 'post'=>$_POST, 'settings'=>$settings)
         );
         if( !is_array($data) ) {
             SUPER_Common::output_message($error = true, esc_html__( 'Invalid form data.', 'super-forms' ));
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5293-5300) in upload_files() (includes/class-ajax.php:8173-8175) and submit_form() (includes/class-ajax.php:8480-8482)
         do_action('super_before_sending_email_hook', array('data'=>$data, 'post'=>$_POST, 'settings'=>$settings));
 
         return array(
@@ -8101,11 +8177,16 @@ class SUPER_Ajax {
                 esc_html__( 'Unable to upload file, session expired!', 'super-forms' )
             );
         }
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified at the top of this same function: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:8173-8175, definition includes/class-ajax.php:5293-5300)
         if( array_key_exists('super_hp', $_POST) ) {
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified at the top of this same function: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:8173-8175, definition includes/class-ajax.php:5293-5300)
             if( !is_scalar($_POST['super_hp']) && $_POST['super_hp']!==null ) {
                 exit;
             }
-            if( trim((string) wp_unslash($_POST['super_hp']))!=='' ) {
+            // Any submitted honeypot content cancels the request. Comparing the raw value
+            // keeps content that sanitizing would strip from passing as empty.
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified at the top of this same function: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:8173-8175, definition includes/class-ajax.php:5293-5300)
+            if( $_POST['super_hp']!==null && $_POST['super_hp']!=='' ) {
                 exit;
             }
         }
@@ -8117,7 +8198,11 @@ class SUPER_Ajax {
         self::collect_submission_file_routes($form_elements, $file_routes);
 
 
-        $files = isset($_FILES['files']) ? $_FILES['files'] : array();
+        // The upload envelope is request structure built by PHP, not a submitted value: it is taken
+        // as a whole-array copy and validated element-wise by self::upload_files_are_parallel()
+        // below, because value-sanitizing it would rewrite legitimate uploaded file names.
+        $upload_request = $_FILES; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified at the top of this same function: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:8173-8175, definition includes/class-ajax.php:5293-5300)
+        $files = isset($upload_request['files']) ? $upload_request['files'] : array();
         if( !self::upload_files_are_parallel($files) ) {
             SUPER_Common::output_message($error = true, esc_html__( 'Invalid file upload request.', 'super-forms' ));
         }
@@ -8178,6 +8263,7 @@ class SUPER_Ajax {
                     SUPER_Common::output_message(
                         $error = true,
                         sprintf(
+                            /* translators: %s: the maximum allowed file size in megabytes. */
                             esc_html__( 'The file size exceeded the filesize limitation of %s MB.', 'super-forms' ),
                             $policy['size_limit']['megabytes']
                         )

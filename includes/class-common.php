@@ -47,7 +47,7 @@ class SUPER_Common {
         if( $bootstrap_browser_session ) {
             $browser_session_id = self::startClientSession( array( 'force' => true ) );
         }elseif( isset($_COOKIE['_sfs_id']) && is_string($_COOKIE['_sfs_id']) ) {
-            $browser_session_id = wp_unslash($_COOKIE['_sfs_id']);
+            $browser_session_id = sanitize_text_field( wp_unslash( $_COOKIE['_sfs_id'] ) );
         }
         if( is_string($browser_session_id)
             && $browser_session_id!==''
@@ -422,7 +422,7 @@ class SUPER_Common {
 
         $cookie_name = 'super_form_entry_access_' . $entry_id;
         if( !isset($_COOKIE[$cookie_name]) || !is_string($_COOKIE[$cookie_name]) ) return false;
-        $token = wp_unslash($_COOKIE[$cookie_name]);
+        $token = sanitize_text_field( wp_unslash( $_COOKIE[$cookie_name] ) );
         static::expire_entry_access_cookie($cookie_name);
         if( preg_match('/\A[a-f0-9]{64}\z/', $token)!==1 ) return false;
 
@@ -560,7 +560,7 @@ class SUPER_Common {
         $publish_session = function( $session_id ) use ( $cookieName, $expires, $secure, $httponly ) {
             $already_present = isset($_COOKIE[$cookieName])
                 && is_string($_COOKIE[$cookieName])
-                && wp_unslash($_COOKIE[$cookieName])===$session_id;
+                && sanitize_text_field( wp_unslash( $_COOKIE[$cookieName] ) )===$session_id;
             if( $already_present ) {
                 $_COOKIE[$cookieName] = $session_id;
                 if( headers_sent() ) {
@@ -578,7 +578,7 @@ class SUPER_Common {
 
         $id = '';
         if(isset($_COOKIE[$cookieName]) && is_string($_COOKIE[$cookieName])) {
-            $id = wp_unslash($_COOKIE[$cookieName]);
+            $id = sanitize_text_field( wp_unslash( $_COOKIE[$cookieName] ) );
             if( preg_match('/\A[A-Za-z0-9]{32,128}\z/', $id)!==1 ) {
                 $rollback_session($id);
                 $id = '';

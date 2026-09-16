@@ -256,7 +256,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                 
                 // Set $_GET values for user data
                 foreach( $user_data as $k => $v ) {
-                    if( !isset($_GET[$k]) ) {
+                    if( !isset($_GET[$k]) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- existence probe only, inside the read-only settings filter for the logged-in user's own `update` form prefill (super-forms-register-login.php:251); no request value is consumed, the assigned value comes from $current_user->data (super-forms-register-login.php:255)
                         $_GET[$k] = $v;
                     }
                 }
@@ -292,7 +292,7 @@ if( !class_exists('SUPER_Register_Login') ) :
             }else{
                 // Check if user has not activated their account yet
                 $status = get_user_meta( $user->ID, 'super_account_status', true ); // 0 = inactive, 1 = active
-                if( (!isset($_POST['action'])) || (isset($_POST['action']) && $_POST['action']!=='super_submit_form')){
+                if( (!isset($_POST['action'])) || (isset($_POST['action']) && $_POST['action']!=='super_submit_form')){ // phpcs:ignore WordPress.Security.NonceVerification.Missing -- route detection only inside the core `authenticate` filter (SUPER_Register_Login::check_user_login_status(), super-forms-register-login.php:286), where WordPress core owns the login credential/nonce flow; the branch only decides whether to return a WP_Error (super-forms-register-login.php:296-299) and changes no state
                     if( $status!=1 && $status!=='' ) {
                         remove_action('authenticate', 'wp_authenticate_username_password', 20);
                         $user = new WP_Error( 'account_not_active', esc_html__( 'You haven\'t verified your email address yet. Please check your email!' ) );
@@ -392,11 +392,11 @@ if( !class_exists('SUPER_Register_Login') ) :
         public function save_customer_meta_fields( $user_id ) {
             $user_id = absint( $user_id );
             if( !self::can_manage_user_login_status($user_id)
-                || !isset($_POST['super_user_login_status'])
-                || !is_string($_POST['super_user_login_status']) ) {
+                || !isset($_POST['super_user_login_status']) // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Register_Login::can_manage_user_login_status() (super-forms-register-login.php:375-383, edit_users + edit_user + no self-edit); the request nonce is verified by WordPress core (check_admin_referer('update-user_'.$user_id) in wp-admin/user-edit.php) before it fires personal_options_update / edit_user_profile_update (hooked at super-forms-register-login.php:203-204)
+                || !is_string($_POST['super_user_login_status']) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- same capability guard SUPER_Register_Login::can_manage_user_login_status() (super-forms-register-login.php:375-383) plus core's update-user_{id} nonce check before the hook (super-forms-register-login.php:203-204)
                 return;
             }
-            $new_status = wp_unslash( $_POST['super_user_login_status'] );
+            $new_status = sanitize_text_field( wp_unslash( $_POST['super_user_login_status'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- same capability guard SUPER_Register_Login::can_manage_user_login_status() (super-forms-register-login.php:375-383) plus core's update-user_{id} nonce check before personal_options_update / edit_user_profile_update (super-forms-register-login.php:203-204); value is allowlisted at super-forms-register-login.php:400
             if( !in_array($new_status, array('active', 'pending', 'blocked'), true) ) {
                 return;
             }
@@ -458,14 +458,14 @@ if( !class_exists('SUPER_Register_Login') ) :
          * submission carriers from the stored form tree.
          */
         private static function activation_code_render_value() {
-            if( ( SUPER_Forms::is_request( 'frontend' ) ) && ( isset( $_GET['code'] ) ) ) {
-                return sanitize_text_field( $_GET['code'] );
+            if( ( SUPER_Forms::is_request( 'frontend' ) ) && ( isset( $_GET['code'] ) ) ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- emailed activation URL: ?code= is itself the bearer credential and cannot carry a nonce; it is only mirrored into the render contract here and re-validated on submit against the session-bound render proof SUPER_Register_Login::activation_code_render_proof_presented() (super-forms-register-login.php:554-557)
+                return sanitize_text_field( wp_unslash( $_GET['code'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- same emailed activation URL credential; no state is changed here and the value is re-validated on submit via SUPER_Register_Login::activation_code_render_proof_presented() (super-forms-register-login.php:554-557)
             }
             if ( SUPER_Forms::is_request( 'admin' ) ) {
                 $code = '';
                 // If switching between language
-                if(isset($_POST['i18n']) && isset($_GET['code']) && isset($_POST['action']) && $_POST['action']==='super_language_switcher'){
-                    $code = sanitize_text_field( $_GET['code'] );
+                if(isset($_POST['i18n']) && isset($_GET['code']) && isset($_POST['action']) && $_POST['action']==='super_language_switcher'){ // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.NonceVerification.Recommended -- route detection only: SUPER_Ajax::language_switcher() is CSRF-verified by SUPER_Common::verifyCSRF() (includes/class-common.php:785) at includes/class-ajax.php:421 and aborts with output_message() before any state change
+                    $code = sanitize_text_field( wp_unslash( $_GET['code'] ) ); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- same CSRF-verified super_language_switcher route (SUPER_Common::verifyCSRF(), includes/class-common.php:785, enforced at includes/class-ajax.php:421); the value only mirrors the rendered activation-code field
                 }
                 return $code;
             }
@@ -550,7 +550,7 @@ if( !class_exists('SUPER_Register_Login') ) :
             // derive contract keys from the client payload; the shared submission
             // route matcher resolves any repeater ordinal (e.g. `activation_code_2`)
             // from the single stored base key.
-            $form_id = isset($_POST['form_id']) ? absint($_POST['form_id']) : 0;
+            $form_id = isset($_POST['form_id']) ? absint($_POST['form_id']) : 0; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- runs only inside the CSRF-verified submit route: SUPER_Common::verifyCSRF() (includes/class-common.php:785) gates SUPER_Ajax::submit_form() (includes/class-ajax.php:8399) before it applies super_submission_carrier_contracts_filter (includes/class-ajax.php:3297,3644); the value is coerced with absint()
             if( self::activation_code_render_value()===false
                 && !self::activation_code_render_proof_presented( $form_id ) ) {
                 return $contracts;
@@ -2024,11 +2024,17 @@ if( !class_exists('SUPER_Register_Login') ) :
                     global $wpdb;
                     $length = strlen( $meta_key );
                     if( class_exists('acf_pro') ) {
-                        $sql = "SELECT post_name FROM {$wpdb->posts} WHERE post_excerpt = '$meta_key' AND post_type = 'acf-field'";
+                        $acf_field = $wpdb->get_var( $wpdb->prepare(
+                            "SELECT post_name FROM {$wpdb->posts} WHERE post_excerpt = %s AND post_type = 'acf-field'",
+                            $meta_key
+                        ) );
                     }else{
-                        $sql = "SELECT meta_key FROM {$wpdb->postmeta} WHERE meta_key LIKE 'field_%' AND meta_value LIKE '%\"name\";s:$length:\"$meta_key\";%';";
+                        $acf_field = $wpdb->get_var( $wpdb->prepare(
+                            "SELECT meta_key FROM {$wpdb->postmeta} WHERE meta_key LIKE %s AND meta_value LIKE %s",
+                            $wpdb->esc_like('field_') . '%',
+                            '%' . $wpdb->esc_like('"name";s:' . $length . ':"' . $meta_key . '";') . '%'
+                        ) );
                     }
-                    $acf_field = $wpdb->get_var( $sql );
                     if( $acf_field ) {
                         $acf_field = get_field_object( $acf_field );
                         if( ($acf_field['type']==='checkbox') || ($acf_field['type']==='select') || ($acf_field['type']==='radio') || ($acf_field['type']==='gallery') ) {
@@ -2546,7 +2552,12 @@ if( !class_exists('SUPER_Register_Login') ) :
                         // Maybe this user was already registered before Super Forms was used, if so skip the test
                         if( ( !isset( $data['activation_code'] ) ) && ( $status==0 ) && ( $status!='' ) ) {
                             wp_logout();
-                            $msg = sprintf( esc_html__( 'You haven\'t verified your account yet. Please check your email or click %shere%s to resend your verification email.', 'super-forms' ), '<a href="#" class="resend-code" data-form="' . absint( $post['form_id'] ) . '" data-user="' . esc_attr($user->user_login) . '" data-email="' . esc_attr($user->user_email) . '" data-nonce="' . esc_attr( self::resend_activation_request_nonce() ) . '">', '</a>' );
+                            $msg = sprintf(
+                                /* translators: 1: opening HTML link tag for resending the verification email, 2: closing HTML link tag. */
+                                esc_html__( 'You haven\'t verified your account yet. Please check your email or click %1$shere%2$s to resend your verification email.', 'super-forms' ),
+                                '<a href="#" class="resend-code" data-form="' . absint( $post['form_id'] ) . '" data-user="' . esc_attr($user->user_login) . '" data-email="' . esc_attr($user->user_email) . '" data-nonce="' . esc_attr( self::resend_activation_request_nonce() ) . '">',
+                                '</a>'
+                            );
                             // Only store message in session, if overlay popup is not enabled
                             if(!empty($settings['form_processing_overlay']) && $settings['form_processing_overlay']==='true'){
                                 // Overlay enabled
@@ -2845,7 +2856,9 @@ if( !class_exists('SUPER_Register_Login') ) :
         */
         public static function resend_activation() {
             check_ajax_referer( 'super_resend_activation', 'nonce' );
-            $data = isset($_POST['data']) && is_array($_POST['data']) ? $_POST['data'] : array();
+            $data = isset($_POST['data']) && is_array($_POST['data'])
+                ? map_deep( wp_unslash( $_POST['data'] ), 'sanitize_text_field' )
+                : array();
             $username = isset($data['username']) ? sanitize_user( $data['username'] ) : '';
             $user_email = isset($data['email']) ? sanitize_email( $data['email'] ) : '';
             $form_id = isset($data['form']) ? absint( $data['form'] ) : 0;

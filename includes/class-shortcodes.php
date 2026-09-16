@@ -3121,33 +3121,34 @@ class SUPER_Shortcodes {
             if( $atts['value']!='' && $search_form_id!==0 ) {
                 global $wpdb;
                 $value = sanitize_text_field($atts['value']);
-                $table = $wpdb->posts;
-                $query = false;
+                $entry = false;
                 if($method==='equals') {
-                    $query = $wpdb->prepare(
-                        "SELECT ID FROM {$table}
-                        WHERE post_parent = %d
-                        AND post_title = BINARY %s
-                        AND post_status IN ('publish','super_unread','super_read')
-                        AND post_type = 'super_contact_entry'
-                        LIMIT 1",
-                        $search_form_id,
-                        $value
+                    $entry = $wpdb->get_row(
+                        $wpdb->prepare(
+                            "SELECT ID FROM {$wpdb->posts}
+                            WHERE post_parent = %d
+                            AND post_title = BINARY %s
+                            AND post_status IN ('publish','super_unread','super_read')
+                            AND post_type = 'super_contact_entry'
+                            LIMIT 1",
+                            $search_form_id,
+                            $value
+                        )
+                    );
+                }elseif($method==='contains') {
+                    $entry = $wpdb->get_row(
+                        $wpdb->prepare(
+                            "SELECT ID FROM {$wpdb->posts}
+                            WHERE post_parent = %d
+                            AND post_title LIKE BINARY %s
+                            AND post_status IN ('publish','super_unread','super_read')
+                            AND post_type = 'super_contact_entry'
+                            LIMIT 1",
+                            $search_form_id,
+                            '%' . $wpdb->esc_like($value) . '%'
+                        )
                     );
                 }
-                if($method==='contains') {
-                    $query = $wpdb->prepare(
-                        "SELECT ID FROM {$table}
-                        WHERE post_parent = %d
-                        AND post_title LIKE BINARY %s
-                        AND post_status IN ('publish','super_unread','super_read')
-                        AND post_type = 'super_contact_entry'
-                        LIMIT 1",
-                        $search_form_id,
-                        '%' . $wpdb->esc_like($value) . '%'
-                    );
-                }
-                $entry = is_string($query) ? $wpdb->get_row($query) : false;
                 if($entry){
                     $data = SUPER_Data_Access::get_entry_data( $entry->ID );
                     unset($data['hidden_form_id']);
@@ -3241,6 +3242,7 @@ class SUPER_Shortcodes {
                 }
                 $query .= " GROUP BY wc_order.ID
                     LIMIT 1";
+                // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $query holds only literal SQL plus generated placeholders: implode( ' OR ', $where ) over the literals 'wc_order.ID LIKE %s' / '(meta.meta_key = %s AND meta.meta_value LIKE %s)' (includes/class-shortcodes.php:3213-3233) and implode( ',', array_fill( 0, count( $statuses ), '%s' ) ) (includes/class-shortcodes.php:3237); every value travels in $prepare_values through $wpdb->prepare() on this line.
                 $order_id = $wpdb->get_var( $wpdb->prepare( $query, $prepare_values ) );
                 $order_id = absint($order_id);
                 if($order_id!==0){
@@ -5995,25 +5997,22 @@ class SUPER_Shortcodes {
                     if( !empty($form_ids) ) {
                         // First check if we can find contact entries based on user ID and Form ID
                         global $wpdb;
-                        $table = $wpdb->prefix . 'posts';
-                        $placeholders = implode(', ', array_fill(0, count($form_ids), '%d'));
-                        $query = call_user_func_array(
-                            array( $wpdb, 'prepare' ),
-                            array_merge(
-                                array(
-                                    "SELECT ID
-                                    FROM $table
-                                    WHERE post_author = %d AND
-                                            post_parent IN ($placeholders) AND
-                                            post_status IN ('publish','super_unread','super_read') AND
-                                            post_type = 'super_contact_entry'
-                                    ORDER BY ID DESC
-                                    LIMIT 1"
-                                ),
+                        // $form_ids is a non-empty list of absint form IDs (see the enclosing
+                        // !empty() check and SUPER_Common::configured_retrieve_last_entry_form_ids()),
+                        // so the generated %d list always matches the passed values.
+                        $entry = $wpdb->get_results(
+                            $wpdb->prepare(
+                                "SELECT ID
+                                FROM {$wpdb->posts}
+                                WHERE post_author = %d AND
+                                        post_parent IN (" . implode( ', ', array_fill( 0, count( $form_ids ), '%d' ) ) . ") AND
+                                        post_status IN ('publish','super_unread','super_read') AND
+                                        post_type = 'super_contact_entry'
+                                ORDER BY ID DESC
+                                LIMIT 1",
                                 array_merge( array( $current_user_id ), $form_ids )
                             )
                         );
-                        $entry = is_string($query) ? $wpdb->get_results($query) : array();
                         if( isset($entry[0])) {
                             if( $update_contact_entry_enabled && !SUPER_Common::entry_has_wc_order( $entry[0]->ID ) ) {
                                 $contact_entry_id = absint($entry[0]->ID);

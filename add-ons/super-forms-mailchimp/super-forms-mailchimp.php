@@ -768,7 +768,8 @@ if( !class_exists('SUPER_Mailchimp') ) :
                 SUPER_Common::output_message(
                     $error = true,
                     $msg = sprintf( 
-                        esc_html__( '%1$sError:%2$s Couldn\'t subscribe the user to Mailchimp because no %1$sE-mail Address%2$s field was found in your form. Make sure to add this field and that it\'s named %1$semail%2$s', 'super_forms' ), 
+                        /* translators: 1: opening HTML strong tag, 2: closing HTML strong tag. */
+                        esc_html__( '%1$sError:%2$s Couldn\'t subscribe the user to Mailchimp because no %1$sE-mail Address%2$s field was found in your form. Make sure to add this field and that it\'s named %1$semail%2$s', 'super-forms' ), 
                         '<strong>', 
                         '</strong>'
                     )

@@ -602,10 +602,10 @@ if(!class_exists('SUPER_Forms')) :
             // Unlike "If-Unmodified-Since", "If-Modified-Since" can only be used with a GET or HEAD.
             if( !$protected && ( isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) || isset($_SERVER['HTTP_IF_NONE_MATCH']) ) ) {
                 $client_etag = isset($_SERVER['HTTP_IF_NONE_MATCH'])
-                    ? str_replace('"', '', stripslashes($_SERVER['HTTP_IF_NONE_MATCH']))
+                    ? str_replace('"', '', sanitize_text_field( wp_unslash( $_SERVER['HTTP_IF_NONE_MATCH'] ) ))
                     : '';
                 $client_modified = isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])
-                    ? $_SERVER['HTTP_IF_MODIFIED_SINCE']
+                    ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) )
                     : '';
                 if( ($client_modified!=='' && $client_modified===$last_modified)
                     || ($client_etag!=='' && $client_etag===$etag) ) {
@@ -1436,7 +1436,7 @@ if(!class_exists('SUPER_Forms')) :
             $current_user  = get_current_user_id();
             if ( ! $attachment_id || ! $current_user
                 || ! current_user_can( 'manage_options' ) ) {
-                return new WP_Error( 'export_download_forbidden', __( 'Sorry, you are not allowed to export this file.' ) );
+                return new WP_Error( 'export_download_forbidden', __( 'Sorry, you are not allowed to export this file.', 'super-forms' ) );
             }
             $owner   = get_post_meta( $attachment_id, '_super_forms_export_owner', true );
             $expires = get_post_meta( $attachment_id, '_super_forms_export_expires', true );
@@ -1448,28 +1448,28 @@ if(!class_exists('SUPER_Forms')) :
                 || ! is_scalar( $expires ) || ! preg_match( '/^[0-9]+$/D', (string) $expires )
                 || time() >= (int) $expires
                 || ! is_string( $token ) || ! preg_match( '/^[a-f0-9]{64}$/D', $token ) ) {
-                return new WP_Error( 'invalid_export_download', __( 'File not found' ) );
+                return new WP_Error( 'invalid_export_download', __( 'File not found', 'super-forms' ) );
             }
             $stored_hash = get_post_meta( $attachment_id, '_super_forms_export_token_hash', true );
             $token_hash  = hash( 'sha256', $token );
             if ( ! is_string( $stored_hash ) || ! preg_match( '/^[a-f0-9]{64}$/D', $stored_hash )
                 || ! hash_equals( $stored_hash, $token_hash ) ) {
-                return new WP_Error( 'invalid_export_download', __( 'File not found' ) );
+                return new WP_Error( 'invalid_export_download', __( 'File not found', 'super-forms' ) );
             }
             $opened = self::open_export_attachment( $attachment_id );
             if ( false === $opened ) {
-                return new WP_Error( 'export_download_fetch_failed', __( 'File not found' ) );
+                return new WP_Error( 'export_download_fetch_failed', __( 'File not found', 'super-forms' ) );
             }
             if ( $opened['size'] < 0 ) {
                 fclose( $opened['handle'] );
-                return new WP_Error( 'export_download_fetch_failed', __( 'File not found' ) );
+                return new WP_Error( 'export_download_fetch_failed', __( 'File not found', 'super-forms' ) );
             }
             // Atomically claim the single-use token before any bytes are served.
             // Only the caller that removes the exact stored hash wins the grant;
             // a concurrent or replayed request fails closed here.
             if ( ! delete_post_meta( $attachment_id, '_super_forms_export_token_hash', $stored_hash ) ) {
                 fclose( $opened['handle'] );
-                return new WP_Error( 'export_download_consumed', __( 'File not found' ) );
+                return new WP_Error( 'export_download_consumed', __( 'File not found', 'super-forms' ) );
             }
             wp_unschedule_event( (int) $expires, 'super_cleanup_export_attachment', array( $attachment_id ) );
             return array(
@@ -1514,14 +1514,15 @@ if(!class_exists('SUPER_Forms')) :
 
         public function parse_request( &$wp ) {
             if ( array_key_exists( 'sfdlfi', $wp->query_vars ) ) {
-                $request_method = isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper((string) $_SERVER['REQUEST_METHOD']) : 'GET';
+                $request_method = isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) : 'GET';
                 if ( 'GET' !== $request_method ) {
-                    wp_die( __( 'File not found' ), '', array( 'response' => 404 ) );
+                    wp_die( esc_html__( 'File not found', 'super-forms' ), '', array( 'response' => 404 ) );
                 }
-                $token = isset( $wp->query_vars['sfdlfi_token'] ) ? $wp->query_vars['sfdlfi_token'] : ( isset( $_GET['sfdlfi_token'] ) ? wp_unslash( $_GET['sfdlfi_token'] ) : '' );
+                // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- authenticity is the single-use export token itself, verified by SUPER_Forms::consume_export_download() (super-forms.php:1434-1482: hash_equals() against the stored sha256 token hash plus an atomic delete_post_meta() single-use claim).
+                $token = isset( $wp->query_vars['sfdlfi_token'] ) ? $wp->query_vars['sfdlfi_token'] : ( isset( $_GET['sfdlfi_token'] ) ? sanitize_text_field( wp_unslash( $_GET['sfdlfi_token'] ) ) : '' );
                 $download = self::consume_export_download( $wp->query_vars['sfdlfi'], $token );
                 if ( is_wp_error( $download ) ) {
-                    wp_die( __( 'File not found' ), '', array( 'response' => 404 ) );
+                    wp_die( esc_html__( 'File not found', 'super-forms' ), '', array( 'response' => 404 ) );
                 }
                 $attachment_id = absint( $download['attachment_id'] );
                 $handle        = $download['handle'];
@@ -1539,14 +1540,9 @@ if(!class_exists('SUPER_Forms')) :
                     header( 'X-Content-Type-Options: nosniff' );
                     header( 'Referrer-Policy: no-referrer' );
                     header( 'Content-Length: ' . $download['size'] );
-                    // Stream in bounded chunks instead of buffering the whole file.
-                    while ( ! feof( $handle ) ) {
-                        $chunk = fread( $handle, 8192 );
-                        if ( false === $chunk ) {
-                            break;
-                        }
-                        echo $chunk;
-                    }
+                    // Stream straight from the open handle: PHP reads in bounded
+                    // internal chunks, so the export is never buffered in memory.
+                    fpassthru( $handle );
                 } finally {
                     if ( is_resource( $handle ) ) {
                         fclose( $handle );
@@ -1611,10 +1607,12 @@ if(!class_exists('SUPER_Forms')) :
                     }
                 }
                 $route = is_string( $wp->query_vars['sfgtfi'] ) ? $wp->query_vars['sfgtfi'] : '';
+                // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- disposition is only honoured when SUPER_Forms::signed_sfgtfi_route_is_valid() (super-forms.php:978-985, hash_equals() against hash_hmac('sha256') over disposition + route) validates it at super-forms.php:1612-1617, and it is then reduced to the inline|attachment allowlist by SUPER_Forms::normalize_owned_upload_disposition() (super-forms.php:946-951).
                 $requested_disposition = isset($_GET['sfgtfi_disp']) ? sanitize_key(wp_unslash($_GET['sfgtfi_disp'])) : '';
                 $signed_disposition = self::signed_sfgtfi_route_is_valid(
                     $route,
-                    isset($_GET['sfgtfi_sig']) && is_string($_GET['sfgtfi_sig']) ? wp_unslash($_GET['sfgtfi_sig']) : '',
+                    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- this value IS the request authenticator: SUPER_Forms::signed_sfgtfi_route_is_valid() (super-forms.php:978-985) shape-checks it with preg_match('/^[a-f0-9]{64}$/D') and hash_equals() compares it to SUPER_Forms::signed_sfgtfi_route_signature() (super-forms.php:971-976).
+                    isset($_GET['sfgtfi_sig']) && is_string($_GET['sfgtfi_sig']) ? sanitize_text_field( wp_unslash($_GET['sfgtfi_sig']) ) : '',
                     $requested_disposition
                 ) ? self::normalize_owned_upload_disposition( $requested_disposition ) : '';
                 $resolved_file = self::resolve_sfgtfi_file( $route, $settings );
@@ -1654,7 +1652,7 @@ if(!class_exists('SUPER_Forms')) :
                 header( 'Content-Type: ' . $mimetype );
                 header( 'X-Content-Type-Options: nosniff' );
                 header( 'Content-Disposition: ' . $disposition . '; filename="' . sanitize_file_name( basename( $file ) ) . '"' );
-                if ( false === strpos( isset( $_SERVER['SERVER_SOFTWARE'] ) ? $_SERVER['SERVER_SOFTWARE'] : '', 'Microsoft-IIS' ) ) {
+                if ( false === strpos( isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : '', 'Microsoft-IIS' ) ) {
                     header( 'Content-Length: ' . (string) $opened['size'] );
                 }
                 self::caching_headers( $file, $opened['mtime'], ! empty( $settings['file_upload_auth'] ) );

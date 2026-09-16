@@ -1456,7 +1456,7 @@ if(!class_exists('SUPER_Listings')) :
                 'list' => '' // Determine what list settings to use
             ), $atts ) );
 
-            if(!empty($_POST['action']) && ($_POST['action']==='elementor_ajax') && is_admin()){
+            if(!empty($_POST['action']) && ($_POST['action']==='elementor_ajax') && is_admin()){ // phpcs:ignore WordPress.Security.NonceVerification.Missing -- route detection only inside the read-only [super_listings] shortcode (SUPER_Listings::super_listings_func(), listings.php:1451); the branch returns a static admin notice (listings.php:1460) and changes no state
                 return '<p style="color:red;font-size:12px;"><strong>' . esc_html__('Note', 'super-forms' ).':</strong> ' . esc_html__('Super Forms Listings will only be generated on the front-end', 'super-forms' ) . ' - <code>' . sprintf('[super_listings list="%d" id="%d"]', $list, $id) . '</code></p>';
             }
 
@@ -1654,13 +1654,13 @@ if(!class_exists('SUPER_Listings')) :
             }
 
             $limit = max(1, absint($list['limit']));
-            if(isset($_GET['limit'])){
-                $requested_limit = self::parse_form_id($_GET['limit']);
+            if(isset($_GET['limit'])){ // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only [super_listings] render (SUPER_Listings::super_listings_func(), listings.php:1451); the value only shapes the display SELECT and writes nothing
+                $requested_limit = self::parse_form_id(sanitize_text_field(wp_unslash($_GET['limit']))); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- same read-only render path (listings.php:1451); value validated by SUPER_Listings::parse_form_id() (listings.php:1410-1419) and bound as %d (listings.php:1866)
                 if($requested_limit!==false) $limit = $requested_limit;
             }
 
             $filterColumns = array();
-            foreach($_GET as $gk => $gv){
+            foreach($_GET as $gk => $gv){ // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- same read-only render path (listings.php:1451); only keys present in the configured filter allowlist $allowed_filter_columns (listings.php:1641-1650) are consumed (listings.php:1666)
                 if(!is_string($gk) || substr($gk, 0, 3)!=='fc_' || !is_scalar($gv) || is_bool($gv)) continue;
                 $filter_key = substr($gk, 3);
                 if(!isset($allowed_filter_columns[$filter_key])) continue;
@@ -1702,11 +1702,11 @@ if(!class_exists('SUPER_Listings')) :
                     $filter_alias = 'filterValue_' . $custom_filter_counter;
                     $serialized_field_marker = 's:4:"name";s:' . strlen($field_name) . ':"' . $field_name . '";s:5:"value";';
                     $filter_by_entry_data .= $wpdb->prepare(
-                        ", SUBSTRING_INDEX( SUBSTRING_INDEX( SUBSTRING_INDEX(meta.meta_value, %s, -1), '\";s:', 1), ':\"', -1) AS $filter_alias",
+                        ", SUBSTRING_INDEX( SUBSTRING_INDEX( SUBSTRING_INDEX(meta.meta_value, %s, -1), '\";s:', 1), ':\"', -1) AS $filter_alias", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- $filter_alias is the plugin-generated alias 'filterValue_' . $custom_filter_counter (listings.php:1702), never request data; the only request-derived value is bound as %s (listings.php:1706)
                         $serialized_field_marker
                     );
                     $having[] = $wpdb->prepare(
-                        "$filter_alias LIKE %s",
+                        "$filter_alias LIKE %s", // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- same plugin-generated alias $filter_alias (listings.php:1702); the request value is bound as %s with $wpdb->esc_like() (listings.php:1710)
                         '%' . $wpdb->esc_like($fcv) . '%'
                     );
                     continue;
@@ -1734,7 +1734,7 @@ if(!class_exists('SUPER_Listings')) :
 
                 if(isset($like_filter_columns[$fck])){
                     $filters[] = $wpdb->prepare(
-                        $like_filter_columns[$fck] . ' LIKE %s',
+                        $like_filter_columns[$fck] . ' LIKE %s', // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- the column identifier is read from the fixed in-file allowlist $like_filter_columns (11 literal entries, listings.php:1678-1690) and only for a key that passed isset($like_filter_columns[$fck]) (listings.php:1735); the request value is bound as %s with $wpdb->esc_like() (listings.php:1738)
                         '%' . $wpdb->esc_like($fcv) . '%'
                     );
                     continue;
@@ -1742,7 +1742,7 @@ if(!class_exists('SUPER_Listings')) :
 
                 if(isset($status_filter_columns[$fck])){
                     if($filter_config['type']!=='dropdown' && (sanitize_key($fcv)==='' || sanitize_key($fcv)!==$fcv)) continue;
-                    $filters[] = $wpdb->prepare($status_filter_columns[$fck] . ' = %s', $fcv);
+                    $filters[] = $wpdb->prepare($status_filter_columns[$fck] . ' = %s', $fcv); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- the column identifier is read from the fixed in-file allowlist $status_filter_columns (3 literal entries, listings.php:1691-1695) and only for a key that passed isset($status_filter_columns[$fck]) (listings.php:1743); the request value is bound as %s
                     continue;
                 }
 
@@ -1750,8 +1750,11 @@ if(!class_exists('SUPER_Listings')) :
                     if($fck==='wc_order' && substr($fcv, 0, 1)==='#') $fcv = substr($fcv, 1);
                     $numeric_id = self::parse_form_id($fcv);
                     if($numeric_id===false) continue;
-                    $id_column = ($fck==='wc_order' ? 'wc_order.ID' : 'post.post_author');
-                    $filters[] = $wpdb->prepare($id_column . ' = %d', $numeric_id);
+                    if($fck==='wc_order'){
+                        $filters[] = $wpdb->prepare('wc_order.ID = %d', $numeric_id);
+                    }else{
+                        $filters[] = $wpdb->prepare('post.post_author = %d', $numeric_id);
+                    }
                     continue;
                 }
 
@@ -1762,8 +1765,11 @@ if(!class_exists('SUPER_Listings')) :
 
                 if($fck==='paypal_order_status' || $fck==='paypal_subscription_status'){
                     if($filter_config['type']!=='dropdown' && (sanitize_key($fcv)==='' || sanitize_key($fcv)!==$fcv)) continue;
-                    $status_alias = ($fck==='paypal_order_status' ? 'paypalTxnStatus' : 'paypalSubscriptionStatus');
-                    $having[] = $wpdb->prepare($status_alias . ' = %s', $fcv);
+                    if($fck==='paypal_order_status'){
+                        $having[] = $wpdb->prepare('paypalTxnStatus = %s', $fcv);
+                    }else{
+                        $having[] = $wpdb->prepare('paypalSubscriptionStatus = %s', $fcv);
+                    }
                 }
             }
             $filters = implode(' AND ', $filters);
@@ -1821,8 +1827,8 @@ END AS paypalSubscriptionId
             );
             $order_by_entry_data = "";
             $sort_key = 'entry_date';
-            if(isset($_GET['sc']) && is_scalar($_GET['sc']) && !is_bool($_GET['sc'])){
-                $requested_sort_key = wp_unslash((string)$_GET['sc']);
+            if(isset($_GET['sc']) && is_scalar($_GET['sc']) && !is_bool($_GET['sc'])){ // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only [super_listings] render (listings.php:1451); the sort column only shapes the display SELECT and writes nothing
+                $requested_sort_key = sanitize_text_field(wp_unslash((string)$_GET['sc'])); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- same read-only render path (listings.php:1451); the value is only accepted when present in the configured sort allowlist $allowed_sort_columns (built at listings.php:1651-1653, checked at listings.php:1832)
                 if(isset($allowed_sort_columns[$requested_sort_key])) $sort_key = $requested_sort_key;
             }
             $originalSc = $sort_key;
@@ -1844,16 +1850,16 @@ END AS paypalSubscriptionId
 
             // Sort method is a fixed direction enum; invalid values retain the default.
             $sm = 'DESC';
-            if(isset($_GET['sm']) && is_scalar($_GET['sm']) && !is_bool($_GET['sm'])){
-                $requested_sort_method = wp_unslash((string)$_GET['sm']);
+            if(isset($_GET['sm']) && is_scalar($_GET['sm']) && !is_bool($_GET['sm'])){ // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only [super_listings] render (listings.php:1451); the sort direction only shapes the display SELECT and writes nothing
+                $requested_sort_method = sanitize_text_field(wp_unslash((string)$_GET['sm'])); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- same read-only render path (listings.php:1451); the value is compared against the fixed 'a'/'d' enum (listings.php:1855-1856), every other value keeps the default 'DESC'
                 if($requested_sort_method==='a') $sm = 'ASC';
                 if($requested_sort_method==='d') $sm = 'DESC';
             }
             $order_by .= ' ' . $sm;
 
             $currentPage = 1;
-            if(isset($_GET['sfp'])){
-                $requested_page = self::parse_form_id($_GET['sfp']);
+            if(isset($_GET['sfp'])){ // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only [super_listings] render (listings.php:1451); the page number only shapes the display SELECT and writes nothing
+                $requested_page = self::parse_form_id(sanitize_text_field(wp_unslash($_GET['sfp']))); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- same read-only render path (listings.php:1451); value validated by SUPER_Listings::parse_form_id() (listings.php:1410-1419) and bound as %d (listings.php:1866)
                 if($requested_page!==false) $currentPage = $requested_page;
             }
             $offset = $limit*($currentPage-1);
@@ -1954,7 +1960,7 @@ END AS paypalSubscriptionId
                 $where
                 $having
             ) a";
-            $results_found = $wpdb->get_var($count_query);
+            $results_found = $wpdb->get_var($count_query); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $count_query (listings.php:1919-1962) interpolates only in-file literals and already-prepared fragments: $other_selectors (static SQL, listings.php:1777-1805), $order_by_entry_data / $filter_by_entry_data ($wpdb->prepare(), listings.php:1839-1842 / 1704-1707), $where (prepared fragments, listings.php:1871,1896-1900,1906,1913 with $filters imploded from $wpdb->prepare() at listings.php:1775) and $having ($wpdb->prepare() fragments imploded at listings.php:1776)
             $count_without_filters_query = "SELECT COUNT(entry_id) AS total
             FROM (
                 SELECT 
@@ -1995,7 +2001,7 @@ END AS paypalSubscriptionId
                 WHERE post.post_type = 'super_contact_entry' AND post.post_status != 'trash'
                 $whereWithoutFilters
             ) a";
-            $absoluteZeroResults = $wpdb->get_var($count_without_filters_query);
+            $absoluteZeroResults = $wpdb->get_var($count_without_filters_query); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $count_without_filters_query (listings.php:1964-2003) interpolates only in-file literals plus $whereWithoutFilters, which is built exclusively from $wpdb->prepare() fragments (listings.php:1871-1885,1906-1908) and never carries request data
             if(absint($absoluteZeroResults)===0) {
                 $absoluteZeroResults = true;
             }else{
@@ -2048,7 +2054,7 @@ END AS paypalSubscriptionId
             ORDER BY $order_by
             $pagination_sql
             ";
-            $entries = $wpdb->get_results($query);
+            $entries = $wpdb->get_results($query); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $query (listings.php:2011-2056) interpolates only in-file literals and already-prepared fragments: $other_selectors (static SQL, listings.php:1777-1805), $order_by_entry_data / $filter_by_entry_data ($wpdb->prepare(), listings.php:1839-1842 / 1704-1707), $where / $having (prepared fragments, listings.php:1775-1776), $order_by (from the $sort_columns allowlist listings.php:1807-1827 plus the 'ASC'/'DESC' enum listings.php:1855-1858) and $pagination_sql ($wpdb->prepare('LIMIT %d OFFSET %d'), listings.php:1866)
 
             $result = '';
             $result .= SUPER_Common::load_google_fonts($settings);
@@ -2090,7 +2096,7 @@ END AS paypalSubscriptionId
                                 }
 
                                 // Check if a filter was set for this column
-                                $inputValue = (!empty($_GET['fc_'.$column_name]) ? sanitize_text_field($_GET['fc_'.$column_name]) : '');
+                                $inputValue = (!empty($_GET['fc_'.$column_name]) ? sanitize_text_field($_GET['fc_'.$column_name]) : ''); // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- read-only [super_listings] render (listings.php:1451): the value is only echoed back as the filter input's current value and changes no state
                                 $result .= '<div class="super-col-wrap '.($column_name===$originalSc ? 'super-sort-'.strtolower($sm) : '').'" data-name="' . $column_name . '"' . $styles . '>';
                                     $result .= '<span class="super-col-name">' . $v['name'] . '</span>';
                                     if( isset($v['sort']) && $v['sort']==='true' ) {

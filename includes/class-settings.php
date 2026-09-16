@@ -613,7 +613,8 @@ class SUPER_Settings {
                 // Set global 'From' header, can override 'header_from' and 'confirm_from' settings
                 'global_email_from' => array(
                     'name' => esc_html__( 'From email', 'super-forms' ),
-                    'desc' => sprintf( esc_html__( 'The email address which emails are sent from.%s(if you encounter issues with receiving emails, try to use info@%s).%sIf you are using an email provider (Gmail, Yahoo, Outlook.com, etc) it should be the email address of that account.', 'super-forms' ), '<br />', '<strong style="color:red;">' . str_replace('www.', '', $site_host) . '</strong>', '<br />' ),
+                    /* translators: 1: line break, 2: site host suggested for the from address, 3: line break. */
+                    'desc' => sprintf( esc_html__( 'The email address which emails are sent from.%1$s(if you encounter issues with receiving emails, try to use info@%2$s).%3$sIf you are using an email provider (Gmail, Yahoo, Outlook.com, etc) it should be the email address of that account.', 'super-forms' ), '<br />', '<strong style="color:red;">' . str_replace('www.', '', $site_host) . '</strong>', '<br />' ),
                     'default' =>  '{option_admin_email}',
                     'placeholder' => esc_html__( 'Enter an email address', 'super-forms' ),
                     'children' => array(
