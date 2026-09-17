@@ -347,8 +347,6 @@ if(!class_exists('SUPER_PDF_Generator')) :
                 // Form already exists (previously saved)
                 if(!isset($s['cyrillicText'])) {
                     $s['cyrillicText'] = 'true'; // makes sure that we don't break existing PDF Generations
-                }else{
-                    $s['cyrillicText'] = 'false'; // false by default
                 }
             }
             if(empty($s['cyrillicText'])) $s['cyrillicText'] = 'false'; // disabled by default, unless otherwise specified

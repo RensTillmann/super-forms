@@ -470,7 +470,11 @@ class SUPER_Pages {
      * Handles the output for the view contact entry page in admin
      */
     public static function contact_entry() {
-        $id = $_GET['id'];
+        if ( ! current_user_can( 'manage_options' ) ) {
+            wp_die( esc_html__( 'Sorry, you are not allowed to view this contact entry.', 'super-forms' ), '', array( 'response' => 403 ) );
+        }
+        // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- this admin screen is reached through nonce-less admin list-table links, so authority is the capability gate: current_user_can( 'manage_options' ) at includes/class-pages.php:473-475 (mirroring the hidden submenu registration in includes/class-menu.php:100-107), and the id is absint()-normalised here plus post-type checked at includes/class-pages.php:478.
+        $id = absint( wp_unslash( $_GET['id'] ?? 0 ) );
         if ( (FALSE === get_post_status($id)) && (get_post_type($id)!='super_contact_entry') ) {
             // The post does not exist
             echo 'This contact entry does not exist.';
@@ -485,7 +489,7 @@ class SUPER_Pages {
             $ip = get_post_meta($id, '_super_contact_entry_ip', true);
             $entry_status = get_post_meta($id, '_super_contact_entry_status', true);
             $global_settings = SUPER_Common::get_global_settings();
-            $data = get_post_meta($_GET['id'], '_super_contact_entry_data', true);
+            $data = SUPER_Data_Access::get_entry_data( $id );
             if(is_array($data)){
                 foreach($data as $k => $v){
                     if( (isset($v['type'])) && (
@@ -499,10 +503,14 @@ class SUPER_Pages {
                         ($v['type']=='files')) ) {
                         $data['fields'][] = $v;
                     }elseif((isset($v['type'])) && ($v['type']=='form_id')){
-                        $data['form_id'][] = $v;
+                        continue;
                     }
                 }
             }
+            $entry_form_id = absint( get_post_field( 'post_parent', $id ) );
+            $entry_form_settings = ( $entry_form_id!==0 )
+                ? SUPER_Common::get_form_settings($entry_form_id)
+                : array();
                                     
             // @since 3.4.0  - custom contact entry status
             $statuses = SUPER_Settings::get_entry_statuses($global_settings);
@@ -541,7 +549,7 @@ class SUPER_Pages {
                                                     <span><?php echo esc_html__('IP-address', 'super-forms' ).':'; ?> <strong><?php if(empty($ip)){ echo esc_html__('Unknown', 'super-forms' ); }else{ echo $ip; } ?></strong></span>
                                                 </div>
                                                 <div class="misc-pub-section">
-                                                    <?php echo '<span>' . esc_html__('Based on Form', 'super-forms' ) . ': <strong><a href="' . esc_url('admin.php?page=super_create_form&id=' . $data['form_id'][0]['value']) . '">' . get_the_title( $data['form_id'][0]['value'] ) . '</a></strong></span>'; ?>
+                                                    <?php echo '<span>' . esc_html__('Based on Form', 'super-forms' ) . ': <strong><a href="' . esc_url('admin.php?page=super_create_form&id=' . $entry_form_id) . '">' . esc_html( get_the_title( $entry_form_id ) ) . '</a></strong></span>'; ?>
                                                 </div>
                                                 <?php
                                                 if(SUPER_WC_ACTIVE){
@@ -628,9 +636,14 @@ class SUPER_Pages {
                                                                     echo '<tr class="super-file-upload"><th align="right">' . esc_html( $fv['label'] ) . '</th>';
                                                                     echo '<td><span class="super-contact-entry-data-value">';
                                                                 }
-                                                                $url = $fv['url'];
+                                                                $url = isset( $fv['url'] ) ? $fv['url'] : '';
                                                                 if( !empty( $fv['attachment'] ) ) { // only if file was inserted to Media Library
                                                                     $url = wp_get_attachment_url( $fv['attachment'] );
+                                                                }elseif( class_exists('SUPER_Forms') ) {
+                                                                    $resolved_url = SUPER_Forms::public_owned_upload_url( $fv, $entry_form_settings );
+                                                                    if( is_string($resolved_url) && $resolved_url!=='' ) {
+                                                                        $url = $resolved_url;
+                                                                    }
                                                                 }
                                                                 if($fk>0) echo '<br />';
                                                                 if(!empty($url)){
@@ -684,7 +697,7 @@ class SUPER_Pages {
                                                     }
                                                 }
                                             }
-                                            echo '<input type="hidden" class="super-shortcode-field" name="form_id" value="' . absint($data['form_id'][0]['value']) . '" />';
+                                            echo '<input type="hidden" class="super-shortcode-field" name="form_id" value="' . esc_attr( $entry_form_id ) . '" />';
 
                                             echo apply_filters( 'super_after_contact_entry_data_filter', '', array( 'entry_id'=>$_GET['id'], 'data'=>$data ) );
 

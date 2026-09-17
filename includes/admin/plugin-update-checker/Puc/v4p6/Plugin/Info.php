@@ -39,6 +39,8 @@ if ( !class_exists('Puc_v4p6_Plugin_Info', false) ):
 
 		public $filename; //Plugin filename relative to the plugins directory.
 
+		public $request_time_elapsed; //Time the update API request took, as reported by the update API.
+
 		/**
 		 * Create a new instance of Plugin Info from JSON-encoded plugin info
 		 * returned by an external update API.

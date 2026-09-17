@@ -19,6 +19,472 @@ if( !class_exists( 'SUPER_Common' ) ) :
  * SUPER_Common
  */
 class SUPER_Common {
+
+    private static function entry_access_cookie_options( $expires ) {
+        return array(
+            'expires' => $expires,
+            'path' => ( defined( 'COOKIEPATH' ) && is_string(COOKIEPATH) && COOKIEPATH!=='' ? COOKIEPATH : '/' ),
+            'domain' => ( defined( 'COOKIE_DOMAIN' ) && is_string(COOKIE_DOMAIN) ? COOKIE_DOMAIN : '' ),
+            'secure' => is_ssl(),
+            'httponly' => true,
+            'samesite' => 'Lax'
+        );
+    }
+
+    private static function generate_entry_access_token() {
+        if( !class_exists('SUPER_Forms') ) {
+            return false;
+        }
+        $token = SUPER_Forms::generate_secure_hex(32);
+        return ( is_string($token) && preg_match('/\A[a-f0-9]{64}\z/', $token)===1 )
+            ? $token
+            : false;
+    }
+
+    private static function current_entry_access_context( $bootstrap_browser_session=false ) {
+        $browser_session_hash = '';
+        $browser_session_id = '';
+        if( $bootstrap_browser_session ) {
+            $browser_session_id = self::startClientSession( array( 'force' => true ) );
+        }elseif( isset($_COOKIE['_sfs_id']) && is_string($_COOKIE['_sfs_id']) ) {
+            $browser_session_id = sanitize_text_field( wp_unslash( $_COOKIE['_sfs_id'] ) );
+        }
+        if( is_string($browser_session_id)
+            && $browser_session_id!==''
+            && preg_match('/\A[A-Za-z0-9]{32,128}\z/', $browser_session_id)===1 ) {
+            $client_data = get_option('_sfsdata_' . $browser_session_id, false);
+            if( is_array($client_data)
+                && isset($client_data['expires'])
+                && absint($client_data['expires'])>=time() ) {
+                $browser_session_hash = hash('sha256', 'browser:' . $browser_session_id);
+            }elseif( $bootstrap_browser_session ) {
+                delete_option('_sfsdata_' . $browser_session_id);
+                unset($_COOKIE['_sfs_id']);
+                if( !headers_sent() ) {
+                    @setcookie( '_sfs_id', '', time() - 3600, COOKIEPATH, COOKIE_DOMAIN, is_ssl(), true );
+                }
+                return false;
+            }
+        }elseif( $bootstrap_browser_session ) {
+            return false;
+        }
+
+        $actor_id = get_current_user_id();
+        $user_session_hash = '';
+        if( $actor_id!==0 ) {
+            $user_session_token = wp_get_session_token();
+            if( !is_string($user_session_token) || $user_session_token==='' ) return false;
+            $user_session_hash = hash('sha256', 'wordpress:' . $user_session_token);
+        }
+        if( $browser_session_hash==='' && $user_session_hash==='' ) return false;
+        return array(
+            'actor_id' => $actor_id,
+            'browser_session_hash' => $browser_session_hash,
+            'user_session_hash' => $user_session_hash
+        );
+    }
+    public static function current_entry_update_grant_value( $bootstrap_browser_session=false ) {
+        $context = self::current_entry_access_context( $bootstrap_browser_session );
+        if( $context===false ) return false;
+        return array(
+            'version' => 1,
+            'actor_id' => absint($context['actor_id']),
+            'browser_session_hash' => (string) $context['browser_session_hash'],
+            'user_session_hash' => (string) $context['user_session_hash'],
+        );
+    }
+
+    public static function entry_update_grant_matches_current( $grant ) {
+        $current = self::current_entry_update_grant_value();
+        return is_array($grant)
+            && is_array($current)
+            && isset($grant['version'], $grant['actor_id'], $grant['browser_session_hash'], $grant['user_session_hash'])
+            && $grant['version']===1
+            && absint($grant['actor_id'])===absint($current['actor_id'])
+            && is_string($grant['browser_session_hash'])
+            && is_string($grant['user_session_hash'])
+            && hash_equals($grant['browser_session_hash'], $current['browser_session_hash'])
+            && hash_equals($grant['user_session_hash'], $current['user_session_hash']);
+    }
+    /**
+     * Legacy sessionless submission mode: the site has disabled CSRF checks
+     * (`csrf_check==='false'`) or turned off cookie storage
+     * (`allow_storing_cookies==='0'`). In these two modes Super Forms never
+     * persists a browser session, so no public issuer may mint a session-bound
+     * grant: a grant stored without a session degrades into an unauthenticated
+     * bearer token. This one shared check lets every public grant/capability
+     * issuer fail closed in these modes.
+     */
+    public static function uses_legacy_sessionless_mode() {
+        $global_settings = self::get_global_settings();
+        return is_array($global_settings)
+            && (
+                ( !empty($global_settings['csrf_check']) && $global_settings['csrf_check']==='false' )
+                || ( isset($global_settings['allow_storing_cookies']) && $global_settings['allow_storing_cookies']==='0' )
+            );
+    }
+    private static function public_populate_capability_name( $token_hash ) {
+        return 'populate_form_data_' . $token_hash;
+    }
+    private static function normalize_public_populate_capability( $payload ) {
+        if( !is_array($payload) ) return false;
+        $form_id = isset($payload['form_id']) ? absint($payload['form_id']) : 0;
+        $field_name = isset($payload['field_name']) && is_string($payload['field_name'])
+            ? (string) $payload['field_name']
+            : '';
+        $method = isset($payload['method']) && is_string($payload['method'])
+            ? (string) $payload['method']
+            : '';
+        $skip = isset($payload['skip']) && is_scalar($payload['skip'])
+            ? sanitize_text_field((string) $payload['skip'])
+            : '';
+        $result_scope = isset($payload['result_scope']) && is_string($payload['result_scope'])
+            ? (string) $payload['result_scope']
+            : '';
+        if( $form_id===0 || $field_name==='' || $method==='' || $result_scope==='' ) {
+            return false;
+        }
+        return array(
+            'version' => 1,
+            'form_id' => $form_id,
+            'field_name' => $field_name,
+            'method' => $method,
+            'skip' => $skip,
+            'result_scope' => $result_scope,
+        );
+    }
+    public static function issue_public_populate_capability( $payload ) {
+        $payload = self::normalize_public_populate_capability($payload);
+        if( $payload===false ) return false;
+        if( self::uses_legacy_sessionless_mode() ) return false;
+        if( self::startClientSession()===false ) return false;
+        $token = self::generate_entry_access_token();
+        if( !is_string($token) || preg_match('/\A[a-f0-9]{64}\z/', $token)!==1 ) return false;
+        $token_hash = hash('sha256', $token);
+        $payload['token_hash'] = $token_hash;
+        $name = self::public_populate_capability_name($token_hash);
+        self::setClientData( array(
+            'name' => $name,
+            'value' => $payload,
+            'expires' => 10 * MINUTE_IN_SECONDS,
+            'exp_var' => 10 * MINUTE_IN_SECONDS,
+            'force' => true,
+        ) );
+        $stored = self::getClientData( $name, false );
+        if( !is_array($stored)
+            || empty($stored['token_hash'])
+            || !is_string($stored['token_hash'])
+            || !hash_equals($token_hash, $stored['token_hash']) ) {
+            self::setClientData( array( 'name' => $name, 'value' => false, 'force' => true ) );
+            return false;
+        }
+        return $token;
+    }
+    public static function consume_public_populate_capability( $token, $expected ) {
+        if( !is_string($token) || preg_match('/\A[a-f0-9]{64}\z/', $token)!==1 ) return false;
+        $expected = self::normalize_public_populate_capability($expected);
+        if( $expected===false ) return false;
+        $name = self::public_populate_capability_name( hash('sha256', $token) );
+        $stored = self::getClientData( $name, false );
+        if( $stored!==false ) {
+            self::setClientData( array( 'name' => $name, 'value' => false, 'force' => true ) );
+        }
+        if( !is_array($stored)
+            || !isset($stored['version'], $stored['form_id'], $stored['field_name'], $stored['method'], $stored['skip'], $stored['result_scope'], $stored['token_hash'])
+            || $stored['version']!==1
+            || !is_string($stored['token_hash'])
+            || !hash_equals($stored['token_hash'], hash('sha256', $token)) ) {
+            return false;
+        }
+        $normalized = self::normalize_public_populate_capability($stored);
+        if( $normalized===false ) return false;
+        return (
+            $normalized['form_id']===$expected['form_id']
+            && $normalized['field_name']===$expected['field_name']
+            && $normalized['method']===$expected['method']
+            && $normalized['skip']===$expected['skip']
+            && $normalized['result_scope']===$expected['result_scope']
+        ) ? $normalized : false;
+    }
+    private static function public_print_capability_name( $token_hash ) {
+        return 'print_custom_html_' . $token_hash;
+    }
+    private static function normalize_public_print_capability( $payload ) {
+        if( !is_array($payload) ) return false;
+        $form_id = isset($payload['form_id']) ? absint($payload['form_id']) : 0;
+        $file_id = isset($payload['file_id']) ? absint($payload['file_id']) : 0;
+        if( $form_id===0 || $file_id===0 ) {
+            return false;
+        }
+        return array(
+            'version' => 1,
+            'form_id' => $form_id,
+            'file_id' => $file_id,
+        );
+    }
+    public static function issue_public_print_capability( $payload ) {
+        $payload = self::normalize_public_print_capability($payload);
+        if( $payload===false ) return false;
+        if( self::uses_legacy_sessionless_mode() ) return false;
+        if( self::startClientSession( array( 'force' => true ) )===false ) return false;
+        $token = self::generate_entry_access_token();
+        if( !is_string($token) || preg_match('/\A[a-f0-9]{64}\z/', $token)!==1 ) return false;
+        $token_hash = hash('sha256', $token);
+        $payload['token_hash'] = $token_hash;
+        $name = self::public_print_capability_name($token_hash);
+        self::setClientData( array(
+            'name' => $name,
+            'value' => $payload,
+            'expires' => 10 * MINUTE_IN_SECONDS,
+            'exp_var' => 10 * MINUTE_IN_SECONDS,
+            'force' => true,
+        ) );
+        $stored = self::getClientData( $name, false );
+        if( !is_array($stored)
+            || empty($stored['token_hash'])
+            || !is_string($stored['token_hash'])
+            || !hash_equals($token_hash, $stored['token_hash']) ) {
+            self::setClientData( array( 'name' => $name, 'value' => false, 'force' => true ) );
+            return false;
+        }
+        return $token;
+    }
+    public static function consume_public_print_capability( $token, $expected ) {
+        if( !is_string($token) || preg_match('/\A[a-f0-9]{64}\z/', $token)!==1 ) return false;
+        $expected = self::normalize_public_print_capability($expected);
+        if( $expected===false ) return false;
+        $name = self::public_print_capability_name( hash('sha256', $token) );
+        $stored = self::getClientData( $name, false );
+        if( $stored!==false ) {
+            self::setClientData( array( 'name' => $name, 'value' => false, 'force' => true ) );
+        }
+        if( !is_array($stored)
+            || !isset($stored['version'], $stored['form_id'], $stored['file_id'], $stored['token_hash'])
+            || $stored['version']!==1
+            || !is_string($stored['token_hash'])
+            || !hash_equals($stored['token_hash'], hash('sha256', $token)) ) {
+            return false;
+        }
+        $normalized = self::normalize_public_print_capability($stored);
+        if( $normalized===false ) return false;
+        return (
+            $normalized['form_id']===$expected['form_id']
+            && $normalized['file_id']===$expected['file_id']
+        ) ? $normalized : false;
+    }
+    private static function client_data_expiry_policy( $name, $expires=30*60, $exp_var=10*60 ) {
+        $name = is_string($name) ? $name : '';
+        $expires = (int) apply_filters( 'super_client_data_expires_filter', $expires );
+        $exp_var = (int) apply_filters( 'super_client_data_exp_var_filter', $exp_var );
+        $expires = (int) apply_filters( 'super_client_data_' . $name . '_expires_filter', $expires );
+        $exp_var = (int) apply_filters( 'super_client_data_' . $name . '_exp_var_filter', $exp_var );
+        if( strpos($name, 'update_contact_entry_')===0 ) {
+            $expires = max( $expires, DAY_IN_SECONDS );
+            $exp_var = max( $exp_var, 12 * HOUR_IN_SECONDS );
+        }
+        $expires = max( 1, $expires );
+        $exp_var = max( 1, $exp_var );
+        if( $exp_var>$expires ) {
+            $exp_var = $expires;
+        }
+        return array(
+            'expires' => $expires,
+            'exp_var' => $exp_var,
+        );
+    }
+
+    public static function configured_retrieve_last_entry_form_ids( $form_id, $settings ) {
+        $form_id = absint($form_id);
+        if( $form_id===0 ) {
+            return array();
+        }
+        $configured = array($form_id);
+        if( is_array($settings)
+            && isset($settings['retrieve_last_entry_form'])
+            && is_scalar($settings['retrieve_last_entry_form'])
+            && trim((string) $settings['retrieve_last_entry_form'])!=='' ) {
+            $configured = explode(',', (string) $settings['retrieve_last_entry_form']);
+        }
+        $form_ids = array();
+        foreach( $configured as $configured_form_id ) {
+            if( !is_scalar($configured_form_id) ) {
+                continue;
+            }
+            $candidate = absint(trim((string) $configured_form_id));
+            if( $candidate===0 || isset($form_ids[$candidate]) ) {
+                continue;
+            }
+            $form_ids[$candidate] = $candidate;
+        }
+        return array_values($form_ids);
+    }
+
+    private static function merge_client_session_payload( $payload, $expires, $exp_var ) {
+        $merged = is_array($payload) ? $payload : array();
+        $merged['expires'] = absint($expires);
+        $merged['exp_var'] = absint($exp_var);
+        return $merged;
+    }
+
+    private static function client_session_payload_matches( $stored, $expected ) {
+        if( !is_array($stored) || !is_array($expected) ) {
+            return false;
+        }
+        foreach( $expected as $key => $value ) {
+            if( !array_key_exists($key, $stored) || $stored[$key]!==$value ) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+
+    protected static function delete_entry_access_transient( $transient_key ) {
+        return delete_transient($transient_key);
+    }
+
+    protected static function set_entry_access_cookie( $name, $value, $options ) {
+        if( headers_sent() ) return false;
+        if( PHP_VERSION_ID >= 70300 ) {
+            return @setcookie( $name, $value, $options );
+        }
+        return @setcookie(
+            $name,
+            $value,
+            $options['expires'],
+            $options['path'] . '; SameSite=' . $options['samesite'],
+            $options['domain'],
+            $options['secure'],
+            $options['httponly']
+        );
+    }
+
+    private static function expire_entry_access_cookie( $name ) {
+        unset( $_COOKIE[$name] );
+        return static::set_entry_access_cookie(
+            $name,
+            '',
+            self::entry_access_cookie_options( time() - 3600 )
+        );
+    }
+
+    public static function issue_entry_access_credential( $entry ) {
+        if( !($entry instanceof WP_Post) ) return false;
+        if( self::uses_legacy_sessionless_mode() ) return false;
+        $entry_id = absint($entry->ID);
+        $loaded_entry = get_post($entry_id);
+        if( !($loaded_entry instanceof WP_Post)
+            || $loaded_entry->ID!==$entry_id
+            || $loaded_entry->post_type!=='super_contact_entry'
+            || $entry->ID!==$loaded_entry->ID
+            || $entry->post_type!==$loaded_entry->post_type
+            || absint($entry->post_parent)!==absint($loaded_entry->post_parent) ) {
+            return false;
+        }
+        $context = self::current_entry_access_context(true);
+        if( $context===false ) return false;
+
+        $token = self::generate_entry_access_token();
+        if( !is_string($token) || preg_match('/\A[a-f0-9]{64}\z/', $token)!==1 ) return false;
+        $transient_key = '_super_form_entry_access_' . hash('sha256', $token);
+        $payload = array(
+            'version' => 1,
+            'entry_id' => $entry_id,
+            'form_id' => absint($loaded_entry->post_parent),
+            'storage' => 'post_type',
+            'actor_id' => $context['actor_id'],
+            'browser_session_hash' => $context['browser_session_hash'],
+            'user_session_hash' => $context['user_session_hash']
+        );
+        if( set_transient($transient_key, $payload, 30)!==true ) {
+            delete_transient($transient_key);
+            return false;
+        }
+
+        $cookie_name = 'super_form_entry_access_' . $entry_id;
+        if( static::set_entry_access_cookie(
+            $cookie_name,
+            $token,
+            self::entry_access_cookie_options(time() + 30)
+        )!==true ) {
+            delete_transient($transient_key);
+            static::expire_entry_access_cookie($cookie_name);
+            return false;
+        }
+        $_COOKIE[$cookie_name] = $token;
+        return true;
+    }
+
+    public static function consume_entry_access_credential( $entry_id, $form_id ) {
+        $entry_id = absint($entry_id);
+        $form_id = absint($form_id);
+        if( !$entry_id || !$form_id ) return false;
+
+        $cookie_name = 'super_form_entry_access_' . $entry_id;
+        if( !isset($_COOKIE[$cookie_name]) || !is_string($_COOKIE[$cookie_name]) ) return false;
+        $token = sanitize_text_field( wp_unslash( $_COOKIE[$cookie_name] ) );
+        static::expire_entry_access_cookie($cookie_name);
+        if( preg_match('/\A[a-f0-9]{64}\z/', $token)!==1 ) return false;
+
+        $transient_key = '_super_form_entry_access_' . hash('sha256', $token);
+        $payload = get_transient($transient_key);
+        if( $payload===false || static::delete_entry_access_transient($transient_key)!==true ) return false;
+        $context = self::current_entry_access_context();
+        if( $context===false
+            || !is_array($payload)
+            || !isset($payload['version'], $payload['entry_id'], $payload['form_id'], $payload['storage'], $payload['actor_id'], $payload['browser_session_hash'], $payload['user_session_hash'])
+            || $payload['version']!==1
+            || absint($payload['entry_id'])!==$entry_id
+            || absint($payload['form_id'])!==$form_id
+            || $payload['storage']!=='post_type'
+            || absint($payload['actor_id'])!==$context['actor_id']
+            || !is_string($payload['browser_session_hash'])
+            || !is_string($payload['user_session_hash'])
+            || !hash_equals($payload['browser_session_hash'], $context['browser_session_hash'])
+            || !hash_equals($payload['user_session_hash'], $context['user_session_hash']) ) {
+            return false;
+        }
+
+        $entry = get_post($entry_id);
+        if( !($entry instanceof WP_Post)
+            || $entry->ID!==$entry_id
+            || $entry->post_type!=='super_contact_entry'
+            || absint($entry->post_parent)!==$form_id ) {
+            return false;
+        }
+        return array(
+            'entry_id' => $entry_id,
+            'form_id' => $form_id,
+            'storage' => $payload['storage']
+        );
+    }
+
+    public static function neutralize_csv_cell( $value ) {
+        if( !is_string($value) ) {
+            if( is_int($value) || is_float($value) || is_bool($value) || $value===null ) {
+                return $value;
+            }
+            return '';
+        }
+        if( preg_match('/\A[\x00-\x20\x7F]*[=+\-@]/', $value)===1 ) {
+            return "'" . $value;
+        }
+        return $value;
+    }
+
+    public static function write_csv_row( $handle, $fields, $delimiter=',', $enclosure='"' ) {
+        if( !is_resource($handle) || !is_array($fields) ) {
+            return false;
+        }
+        $safe_fields = array();
+        foreach( $fields as $field ) {
+            $safe_fields[] = self::neutralize_csv_cell($field);
+        }
+        if( PHP_VERSION_ID >= 80100 ) {
+            return fputcsv($handle, $safe_fields, $delimiter, $enclosure, '\\', "\n");
+        }
+        return fputcsv($handle, $safe_fields, $delimiter, $enclosure, '\\');
+    }
     
     public static function startClientSession( $x=array() ){
         extract( 
@@ -64,36 +530,93 @@ class SUPER_Common {
 		$httponly = apply_filters('super_cookie_httponly_filter', $httponly);
 
         $cookieName = '_sfs_id';
-        if(isset($_COOKIE[$cookieName])) {
-            // If cookie already exists, check if we need to extend expiry
-            // First grab the cookie ID
-            $id = $_COOKIE[$cookieName];
-            // Now lookup this ID in the database
+        $persist_session = function( $session_id, $payload=false, $force_write=false ) use ( $expires, $exp_var, $update_option ) {
+            if( !is_string($session_id) || $session_id==='' ) {
+                return false;
+            }
+            if( !$update_option && !$force_write ) {
+                return true;
+            }
+            if( $payload===false ) {
+                $payload = get_option( '_sfsdata_' . $session_id, false );
+            }
+            $payload = self::merge_client_session_payload( $payload, $expires, $exp_var );
+            update_option( '_sfsdata_' . $session_id, $payload, 'no' );
+            $stored = get_option( '_sfsdata_' . $session_id, false );
+            return self::client_session_payload_matches( $stored, $payload );
+        };
+        $expire_session_cookie = function() use ( $cookieName, $secure, $httponly ) {
+            unset($_COOKIE[$cookieName]);
+            if( !headers_sent() ) {
+                @setcookie( $cookieName, '', time() - 3600, COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );
+            }
+        };
+        $rollback_session = function( $session_id, $force_delete=false ) use ( $update_option, $expire_session_cookie ) {
+            if( ($update_option || $force_delete) && is_string($session_id) && $session_id!=='' ) {
+                delete_option( '_sfsdata_' . $session_id );
+            }
+            $expire_session_cookie();
+        };
+        $publish_session = function( $session_id ) use ( $cookieName, $expires, $secure, $httponly ) {
+            $already_present = isset($_COOKIE[$cookieName])
+                && is_string($_COOKIE[$cookieName])
+                && sanitize_text_field( wp_unslash( $_COOKIE[$cookieName] ) )===$session_id;
+            if( $already_present ) {
+                $_COOKIE[$cookieName] = $session_id;
+                if( headers_sent() ) {
+                    return true;
+                }
+            }elseif( headers_sent() ) {
+                return false;
+            }
+            if( @setcookie( $cookieName, $session_id, $expires, COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly )!==true ) {
+                return false;
+            }
+            $_COOKIE[$cookieName] = $session_id;
+            return true;
+        };
+
+        $id = '';
+        if(isset($_COOKIE[$cookieName]) && is_string($_COOKIE[$cookieName])) {
+            $id = sanitize_text_field( wp_unslash( $_COOKIE[$cookieName] ) );
+            if( preg_match('/\A[A-Za-z0-9]{32,128}\z/', $id)!==1 ) {
+                $rollback_session($id);
+                $id = '';
+            }
+        }
+        if($id!==''){
             $clientData = get_option( '_sfsdata_' . $id, false );
-            if($clientData!==false){
-                if($now > $clientData['exp_var']){
-                    // We will want to extend expiration for this cookie
-                    if(!headers_sent()){
-                        @setcookie( $cookieName, $id, $expires, COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );
-                        if($update_option) {
-                            update_option( '_sfsdata_' . $id, array('expires'=>$expires, 'exp_var'=>$exp_var), 'no' );
-                        }
-                    }
+            if($clientData===false){
+                $issued_id = self::generate_entry_access_token();
+                if( !is_string($issued_id) || $issued_id==='' ) {
+                    $rollback_session($id);
+                    return false;
                 }
-            }else{
-                if($update_option) {
-                    update_option( '_sfsdata_' . $id, array('expires'=>$expires, 'exp_var'=>$exp_var), 'no' );
+                if( !$persist_session($issued_id, false, true) || !$publish_session($issued_id) ) {
+                    $rollback_session($issued_id, true);
+                    return false;
                 }
-            }
-        }else{
-            if(!headers_sent()){
-                $id = md5(uniqid(mt_rand(), true)) . $now;
-                // We can only set a cookie when headers are not sent prior anyways
-                @setcookie( $cookieName, $id, $expires, COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );
-                if($update_option) {
-                    update_option( '_sfsdata_' . $id, array('expires'=>$expires, 'exp_var'=>$exp_var), 'no' );
+                return $issued_id;
+            }elseif( !is_array($clientData)
+                || !isset($clientData['exp_var'])
+                || $now > absint($clientData['exp_var']) ) {
+                if( !$persist_session($id, $clientData) || !$publish_session($id) ) {
+                    $rollback_session($id);
+                    return false;
                 }
             }
+            return $id;
+        }
+        if(headers_sent()){
+            return false;
+        }
+        $id = self::generate_entry_access_token();
+        if( !is_string($id) || $id==='' ) {
+            return false;
+        }
+        if( !$persist_session($id, false, true) || !$publish_session($id) ) {
+            $rollback_session($id, true);
+            return false;
         }
         return $id;
     }
@@ -104,7 +627,8 @@ class SUPER_Common {
                     'name' => 'undefined', 
                     'value' => '',
                     'expires' => 30*60, //1800, // Defaults to 30 min. (30*60)
-                    'exp_var' => 10*60 //600 // Defaults to 10 min. (10*60)
+                    'exp_var' => 10*60, //600 // Defaults to 10 min. (10*60)
+                    'force' => false
                 ), $x 
             )
         );
@@ -112,16 +636,11 @@ class SUPER_Common {
         // that way we don't have to write to the database that many times
         // by default the expiry is set to 30 min., and the expiry variant is set to 10 min.
 
-        // Default expiry filter
-		$expires = apply_filters( 'super_client_data_expires_filter', $expires );
-		$exp_var = apply_filters( 'super_client_data_exp_var_filter', $exp_var );
-
-        // Allow expiry filtering for specific client data
-		$expires = apply_filters( 'super_client_data_' . $name . '_expires_filter', $expires ); // e.g: `progress_1234`_expires_filter
-		$exp_var = apply_filters( 'super_client_data_' . $name . '_exp_var_filter', $exp_var ); // e.g: `progress_1234`_exp_var_filter
+        $policy = self::client_data_expiry_policy( $name, $expires, $exp_var );
+        $expires = $policy['expires'];
+        $exp_var = $policy['exp_var'];
 
         $now = time();
-        $force = false;
         if($name==='sf_nonce') $force = true;
         $key = self::startClientSession(array('force'=>$force));
         if($key===false) return;
@@ -154,12 +673,9 @@ class SUPER_Common {
                     unset($clientData[$name]);
                 }else{
                     if($data['exp_var'] < $now){
-                        // Default expiry filter
-                        $expires = apply_filters( 'super_client_data_expires_filter', 30*60 ); //1800, // Defaults to 30 min. (30*60)
-                        $exp_var = apply_filters( 'super_client_data_exp_var_filter', 10*60 ); //600 // Defaults to 10 min. (10*60)
-                        // Allow expiry filtering for specific client data
-                        $expires = apply_filters( 'super_client_data_' . $name . '_expires_filter', $expires ); // e.g: `progress_1234`_expires_filter
-                        $exp_var = apply_filters( 'super_client_data_' . $name . '_exp_var_filter', $exp_var ); // e.g: `progress_1234`_exp_var_filter
+                        $policy = self::client_data_expiry_policy( $name );
+                        $expires = $policy['expires'];
+                        $exp_var = $policy['exp_var'];
                         $clientData[$name]['expires'] = $now + $expires;
                         $clientData[$name]['exp_var'] = $now + $exp_var;
                     }
@@ -174,17 +690,20 @@ class SUPER_Common {
             if($clientData['expires'] < $now){
                 delete_option( '_sfsdata_' . $key );
             }else{
-                if(!headers_sent()){
-                    if($clientData['exp_var'] < $now){
-                        $expires = apply_filters( 'super_cookie_expires_filter', 60*60); //3600, // Defaults to 60 min. (60*60)
-                        $exp_var = apply_filters( 'super_cookie_exp_var_filter', 20*60); //1200 // Defaults to 20 min. (20*60)
-                        if(is_ssl()) $secure = true;
-                        $secure = apply_filters('super_cookie_secure_filter', $secure);
-                        $httponly = apply_filters('super_cookie_httponly_filter', $httponly);
-                        $clientData['expires'] = $now + $expires;
-                        $clientData['exp_var'] = $now + $exp_var;
+                if($clientData['exp_var'] < $now){
+                    $secure = false;
+                    $httponly = true;
+                    $expires = (int) apply_filters( 'super_cookie_expires_filter', 60*60); //3600, // Defaults to 60 min. (60*60)
+                    $exp_var = (int) apply_filters( 'super_cookie_exp_var_filter', 20*60); //1200 // Defaults to 20 min. (20*60)
+                    if(is_ssl()) $secure = true;
+                    $secure = apply_filters('super_cookie_secure_filter', $secure);
+                    $httponly = apply_filters('super_cookie_httponly_filter', $httponly);
+                    $clientData['expires'] = $now + max( 1, $expires );
+                    $clientData['exp_var'] = $now + max( 1, $exp_var );
+                    if(!headers_sent()){
                         $cookieName = '_sfs_id';
                         @setcookie( $cookieName, $key, $clientData['expires'], COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );
+                        $_COOKIE[$cookieName] = $key;
                     }
                 }
             }
@@ -192,7 +711,7 @@ class SUPER_Common {
         update_option( '_sfsdata_' . $key, $clientData, 'no' );
     }
 
-    public static function getClientData( $name ) {
+    public static function getClientData( $name, $refresh=true ) {
         $force = false;
         if($name==='sf_nonce') $force = true;
         $cookieName = '_sfs_id';
@@ -203,31 +722,38 @@ class SUPER_Common {
         $clientData = get_option( '_sfsdata_' . $key );
         if(!isset($clientData[$name])) return false;
         if(!isset($clientData[$name]['value'])) return false;
-        // If expired variation is reached, extend it
         $now = time();
-        if($clientData[$name]['exp_var'] < $now){
-            // Default expiry filter
-            $expires = apply_filters( 'super_client_data_expires_filter', 30*60 ); //1800, // Defaults to 30 min. (30*60)
-            $exp_var = apply_filters( 'super_client_data_exp_var_filter', 10*60 ); //600 // Defaults to 10 min. (10*60)
-            // Allow expiry filtering for specific client data
-            $expires = apply_filters( 'super_client_data_' . $name . '_expires_filter', $expires ); // e.g: `progress_1234`_expires_filter
-            $exp_var = apply_filters( 'super_client_data_' . $name . '_exp_var_filter', $exp_var ); // e.g: `progress_1234`_exp_var_filter
+        $record = $clientData[$name];
+        if( isset($record['expires']) && absint($record['expires']) < $now ) {
+            unset($clientData[$name]);
+            self::cleanupOldClientData($key, $clientData);
+            return false;
+        }
+        // If expired variation is reached, extend it
+        if($refresh && isset($record['exp_var']) && $record['exp_var'] < $now){
+            $policy = self::client_data_expiry_policy( $name );
+            $expires = $policy['expires'];
+            $exp_var = $policy['exp_var'];
             $clientData[$name]['expires'] = $now + $expires;
             $clientData[$name]['exp_var'] = $now + $exp_var;
+            $secure = false;
+            $httponly = true;
+            $expires = (int) apply_filters( 'super_cookie_expires_filter', 60*60); //3600, // Defaults to 60 min. (60*60)
+            $exp_var = (int) apply_filters( 'super_cookie_exp_var_filter', 20*60); //1200 // Defaults to 20 min. (20*60)
+            if(is_ssl()) $secure = true;
+            $secure = apply_filters('super_cookie_secure_filter', $secure);
+            $httponly = apply_filters('super_cookie_httponly_filter', $httponly);
+            $clientData['expires'] = $now + max( 1, $expires );
+            $clientData['exp_var'] = $now + max( 1, $exp_var );
             if(!headers_sent()){
-                $expires = apply_filters( 'super_cookie_expires_filter', 60*60); //3600, // Defaults to 60 min. (60*60)
-                $exp_var = apply_filters( 'super_cookie_exp_var_filter', 20*60); //1200 // Defaults to 20 min. (20*60)
-                if(is_ssl()) $secure = true;
-                $secure = apply_filters('super_cookie_secure_filter', $secure);
-                $httponly = apply_filters('super_cookie_httponly_filter', $httponly);
-                $clientData['expires'] = $now + $expires;
-                $clientData['exp_var'] = $now + $exp_var;
                 $cookieName = '_sfs_id';
                 @setcookie( $cookieName, $key, $clientData['expires'], COOKIEPATH, COOKIE_DOMAIN, $secure, $httponly );
+                $_COOKIE[$cookieName] = $key;
             }
             update_option( '_sfsdata_' . $key, $clientData, 'no' );
+            $record = $clientData[$name];
         }
-        return $clientData[$name]['value'];
+        return $record['value'];
     }
 
     public static function deleteOldClientData($limit=0) {
@@ -245,20 +771,21 @@ class SUPER_Common {
         // Destroy old nonce, and generate new one
         SUPER_Common::setClientData( array( 'name'=> 'sf_nonce', 'value'=>false ) );
         $sf_nonce = md5(uniqid(mt_rand(), true)) . md5(uniqid(mt_rand(), true)) . md5(uniqid(mt_rand(), true));
-        SUPER_Common::setClientData( 
-            array( 
-                'name' => 'sf_nonce', 
+        SUPER_Common::setClientData(
+            array(
+                'name' => 'sf_nonce',
                 'value' => $sf_nonce,
-                'expires' => 30, // nonce will expire after 30 sec. by default
-                'exp_var' => 60*60 // there is no need to refresh a nonce, so we set it's expire variant to a higher value
+                'expires' => 15 * MINUTE_IN_SECONDS,
+                'exp_var' => 15 * MINUTE_IN_SECONDS
             )
         );
         return $sf_nonce;
     }
 
     public static function verifyCSRF(){
-        $sf_nonce = SUPER_Common::getClientData( 'sf_nonce' );
-        $v = filter_input(INPUT_POST, 'sf_nonce', FILTER_SANITIZE_STRING);
+        $sf_nonce = SUPER_Common::getClientData( 'sf_nonce', false );
+        $input = filter_input(INPUT_POST, 'sf_nonce');
+        $v = is_string($input) ? htmlspecialchars($input) : '';
         if(!$v || $v !== $sf_nonce){
             return false; // invalid
         }
@@ -993,46 +1520,83 @@ class SUPER_Common {
         return $defaults;
     }
 
+    public static function entry_has_wc_order( $entry_id ) {
+        $entry_id = absint($entry_id);
+        if( $entry_id===0 ) {
+            return false;
+        }
+        return !empty( get_post_meta( $entry_id, '_super_contact_entry_wc_order_id', true ) );
+    }
+
 
     /**
      * Get the entry data based on a WC order ID
      *
      * @since 3.8.0
      */
-    public static function get_entry_data_by_wc_order_id($order_id, $skip){
+    public static function get_entry_data_by_wc_order_id($order_id, $skip, $form_id=0){
         global $wpdb;
-        $contact_entry_id = $wpdb->get_var("
-            SELECT post_id 
-            FROM $wpdb->postmeta 
-            WHERE meta_key = '_super_contact_entry_wc_order_id' 
-            AND meta_value = '" . absint($order_id) . "'"
+        $order_id = absint($order_id);
+        $form_id = absint($form_id);
+        if( $order_id===0 ) {
+            return array();
+        }
+        if( $form_id!==0 ) {
+            $contact_entry_id = $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT meta.post_id
+                    FROM $wpdb->postmeta AS meta
+                    INNER JOIN $wpdb->posts AS post ON post.ID = meta.post_id
+                    WHERE meta.meta_key = '_super_contact_entry_wc_order_id'
+                    AND meta.meta_value = %s
+                    AND post.post_parent = %d
+                    AND post.post_type = 'super_contact_entry'
+                    LIMIT 1",
+                    (string) $order_id,
+                    $form_id
+                )
+            );
+        }else{
+            $contact_entry_id = $wpdb->get_var(
+                $wpdb->prepare(
+                    "SELECT post_id
+                    FROM $wpdb->postmeta
+                    WHERE meta_key = '_super_contact_entry_wc_order_id'
+                    AND meta_value = %s
+                    LIMIT 1",
+                    (string) $order_id
+                )
+            );
+        }
+        $contact_entry_id = absint($contact_entry_id);
+        if( $contact_entry_id===0 ) {
+            return array();
+        }
+        $data = SUPER_Data_Access::get_entry_data( $contact_entry_id );
+        if( empty($data) || !is_array($data) ) {
+            return array();
+        }
+        unset($data['hidden_form_id']);
+        $entry_status = get_post_meta( $contact_entry_id, '_super_contact_entry_status', true );
+        if( empty($entry_status) ) {
+            $entry_status = get_post_status($contact_entry_id);
+        }
+        $data['hidden_contact_entry_status'] = array(
+            'name' => 'hidden_contact_entry_status',
+            'value' => $entry_status,
+            'type' => 'var'
         );
-        $data = get_post_meta( absint($contact_entry_id), '_super_contact_entry_data', true );
-        if(!empty($data)){
-            unset($data['hidden_form_id']);
-            $data['hidden_contact_entry_id'] = array(
-                'name' => 'hidden_contact_entry_id',
-                'value' => $contact_entry_id,
-                'type' => 'entry_id'
-            );
-            $entry_status = get_post_meta( absint($contact_entry_id), '_super_contact_entry_status', true );
-            $data['hidden_contact_entry_status'] = array(
-                'name' => 'hidden_contact_entry_status',
-                'value' => $entry_status,
-                'type' => 'var'
-            );
-            $entry_title = get_the_title(absint($contact_entry_id));
-            $data['hidden_contact_entry_title'] = array(
-                'name' => 'hidden_contact_entry_title',
-                'value' => $entry_title,
-                'type' => 'var'
-            );
-            if(!empty($skip)){
-                $skip_fields = explode( "|", $skip );
-                foreach($skip_fields as $field_name){
-                    if( isset($data[$field_name]) ) {
-                        unset($data[$field_name]);
-                    }
+        $entry_title = get_the_title($contact_entry_id);
+        $data['hidden_contact_entry_title'] = array(
+            'name' => 'hidden_contact_entry_title',
+            'value' => $entry_title,
+            'type' => 'var'
+        );
+        if(!empty($skip)){
+            $skip_fields = explode( "|", sanitize_text_field($skip) );
+            foreach($skip_fields as $field_name){
+                if( isset($data[$field_name]) ) {
+                    unset($data[$field_name]);
                 }
             }
         }
@@ -1385,11 +1949,17 @@ class SUPER_Common {
         $folderName = rand(1000000, 9999999) . rand(100000, 999999);
         $folderPath = trailingslashit($folder) . $folderName;
         if( file_exists( $folderPath ) ) {
-            self::generate_random_folder( $folder );
+            // A collision must yield the retried folder, not null: the caller treats
+            // a non-array result as "Invalid upload directory." (beta retries the same way).
+            return self::generate_random_folder( $folder );
         }else{
             if ( !mkdir($folderPath, 0755, true) ) {
                 $error = error_get_last();
-                SUPER_Common::output_message(true, '<strong>' . esc_html__( 'Upload failed', 'super-forms' ) . ':</strong> ' . $error['message']);
+                $error_message = is_array( $error ) && isset( $error['message'] )
+                    ? $error['message']
+                    : __( 'Could not create the upload directory.', 'super-forms' );
+                SUPER_Common::output_message(true, '<strong>' . esc_html__( 'Upload failed', 'super-forms' ) . ':</strong> ' . esc_html( $error_message ));
+                return false;
             }
             return array(
                 'folderPath' => $folderPath,
@@ -1668,9 +2238,12 @@ class SUPER_Common {
                     if(!isset($fv['url'])) continue;
                     $_generated_pdf_file_label = esc_html($fv['label']);
                     $_generated_pdf_file_name = esc_html($fv['name']);
-                    $linkUrl = esc_url($fv['url']);
-                    if( !empty( $fv['attachment'] ) ) { // only if file was inserted to Media Library
-                        $linkUrl = wp_get_attachment_url( $fv['attachment'] );
+                    $linkUrl = '';
+                    if( class_exists('SUPER_Forms') ) {
+                        $linkUrl = SUPER_Forms::public_owned_upload_url( $fv, $settings, 'attachment' );
+                    }
+                    if( $linkUrl==='' && isset($fv['url']) ) {
+                        $linkUrl = esc_url($fv['url']);
                     }
                     $_generated_pdf_file_url = $linkUrl;
                 }
@@ -2057,9 +2630,21 @@ class SUPER_Common {
                                 $fv['attachment'] = 0; 
                                 $v['files'][$fk]['attachment'] = 0; 
                             }
+                            $publicFileUrl = isset($fv['url']) ? $fv['url'] : '';
+                            $downloadFileUrl = $publicFileUrl;
+                            if( class_exists('SUPER_Forms') ) {
+                                $resolvedPublicFileUrl = SUPER_Forms::public_owned_upload_url( $fv, $settings );
+                                if( is_string($resolvedPublicFileUrl) && $resolvedPublicFileUrl!=='' ) {
+                                    $publicFileUrl = $resolvedPublicFileUrl;
+                                }
+                                $resolvedDownloadFileUrl = SUPER_Forms::public_owned_upload_url( $fv, $settings, 'attachment' );
+                                if( is_string($resolvedDownloadFileUrl) && $resolvedDownloadFileUrl!=='' ) {
+                                    $downloadFileUrl = $resolvedDownloadFileUrl;
+                                }
+                            }
                             $allFileNames[] = self::decode($fv['value']);
-                            $allFileUrls[] = self::decode($fv['url']);
-                            $allFileLinks[] = self::decode('<a href="'.esc_attr($fv['url']).'">'.$fv['value'].'</a>');
+                            $allFileUrls[] = self::decode($publicFileUrl);
+                            $allFileLinks[] = self::decode('<a href="'.esc_attr($downloadFileUrl).'">'.$fv['value'].'</a>');
                         }
                         // Below filter should return a string, if it's still an array we will convert it into a string seperated by line breaks
                         $allFileNames = apply_filters( 'super_filter_all_file_names_filter', $allFileNames, array( 'fieldName'=>$k, 'fieldData'=>$v ) );
@@ -2081,8 +2666,15 @@ class SUPER_Common {
                             $value = str_replace( '{' . $k . ';new_count}', count($v['files']), $value );
                             $value = str_replace( '{' . $k . ';existing_count}', count($v['files']), $value );
                             // URL
-                            $value = str_replace( '{' . $k . ';url}', self::decode($fv['url']), $value );
-                            $value = str_replace( '{' . $k . ';url['.$fk.']}', self::decode($fv['url']), $value );
+                            $publicFileUrl = isset($fv['url']) ? $fv['url'] : '';
+                            if( class_exists('SUPER_Forms') ) {
+                                $resolvedPublicFileUrl = SUPER_Forms::public_owned_upload_url( $fv, $settings );
+                                if( is_string($resolvedPublicFileUrl) && $resolvedPublicFileUrl!=='' ) {
+                                    $publicFileUrl = $resolvedPublicFileUrl;
+                                }
+                            }
+                            $value = str_replace( '{' . $k . ';url}', self::decode($publicFileUrl), $value );
+                            $value = str_replace( '{' . $k . ';url['.$fk.']}', self::decode($publicFileUrl), $value );
                             // Extension
                             $ext = pathinfo($fv['value'], PATHINFO_EXTENSION);
                             $value = str_replace( '{' . $k . ';ext}', self::decode($ext), $value );
@@ -2105,7 +2697,7 @@ class SUPER_Common {
                             if(isset($fv['attachment'])) $value = str_replace( '{' . $k . ';attachment}', self::decode($fv['attachment']), $value );
                             if(isset($fv['attachment'])) $value = str_replace( '{' . $k . ';attachment['.$fk.']}', self::decode($fv['attachment']), $value );
                             // E-mail label
-                            $value = str_replace( '{' . $k . ';label}', self::decode($v['label']), $value );
+                            if(isset($v['label'])) $value = str_replace( '{' . $k . ';label}', self::decode($v['label']), $value );
                         }
                         continue;
                     }
@@ -2306,6 +2898,7 @@ class SUPER_Common {
         $attachments = array();
         $confirm_attachments = array();
         $string_attachments = array();
+        $confirm_string_attachments = array();
         if( ( isset( $data ) ) && ( count( $data )>0 ) ) {
             foreach( $data as $k => $v ) {
                 // Skip dynamic data
@@ -2345,25 +2938,34 @@ class SUPER_Common {
                  *  @since      1.0.9
                 */
                 $result = apply_filters( 'super_before_email_loop_data_filter', $row, array( 'v'=>$v, 'string_attachments'=>$string_attachments ) );
-                $confirm_result = apply_filters( 'super_before_email_loop_data_filter', $confirm_row, array( 'v'=>$v, 'string_attachments'=>$string_attachments ) );
+                $confirm_result = apply_filters( 'super_before_email_loop_data_filter', $confirm_row, array( 'v'=>$v, 'string_attachments'=>$confirm_string_attachments ) );
                 $listing_result = apply_filters( 'super_before_listing_loop_data_filter', $listing_row, array( 'v'=>$v, 'string_attachments'=>$string_attachments ) );
                 $continue = false;
                 if( isset( $result['status'] ) ) {
                     if( $result['status']=='continue' ) {
-                        if( isset( $result['string_attachments'] ) ) {
-                            $string_attachments = $result['string_attachments'];
+                        // 3 = Exclude from admin email: drop both the loop row and
+                        // the admin string attachment (mirrors the file-field
+                        // attachments vs confirm_attachments branching below).
+                        if( ( isset( $result['exclude'] ) ) && ( $result['exclude']==3 ) ) {
+                        }else{
+                            if( isset( $result['string_attachments'] ) ) {
+                                $string_attachments = $result['string_attachments'];
+                            }
+                            $email_loop .= $result['row'];
                         }
-                        $email_loop .= $result['row'];
                         $continue = true;
                     }
                 }
                 if( isset( $confirm_result['status'] ) ) {
                     if( $confirm_result['status']=='continue' ) {
-                        if( isset( $confirm_result['string_attachments'] ) ) {
-                            $string_attachments = $confirm_result['string_attachments'];
-                        }
                         if( ( isset( $confirm_result['exclude'] ) ) && ( $confirm_result['exclude']==1 ) ) {
+                            // 1 = Exclude from confirmation email: drop both the loop
+                            // row and the confirmation string attachment (e.g. the
+                            // signature image) so exclude is honored per recipient.
                         }else{
+                            if( isset( $confirm_result['string_attachments'] ) ) {
+                                $confirm_string_attachments = $confirm_result['string_attachments'];
+                            }
                             $confirm_loop .= $confirm_result['row'];
                         }
                         $continue = true;
@@ -2533,46 +3135,184 @@ class SUPER_Common {
             'confirm_loop' => $confirm_loop,
             'attachments' => $attachments,
             'confirm_attachments' => $confirm_attachments,
-            'string_attachments' => $string_attachments
+            'string_attachments' => $string_attachments,
+            'confirm_string_attachments' => $confirm_string_attachments
         );
     }
 
 
 
     /**
-     * Remove directory and it's contents
+     * Normalize an existing filesystem path without accepting lexical aliases or symlinks.
      *
-     * @since 1.1.8
-    */
-    public static function delete_dir($dir) {
-        if ( (is_dir( $dir )) && (ABSPATH!=$dir) ) {
-            if ( substr( $dir, strlen( $dir ) - 1, 1 ) != '/' ) {
-                $dir .= '/';
-            }
-            $files = glob( $dir . '*', GLOB_MARK );
-            foreach ( $files as $file ) {
-                if ( is_dir( $file ) ) {
-                    self::delete_dir( $file );
-                } else {
-                    unlink( $file );
-                }
-            }
-            rmdir($dir);
+     * @since 6.3.317
+     */
+    private static function canonical_delete_path( $path, $directory ) {
+        if( !is_string($path) || $path==='' || strpos($path, "\0")!==false ) return false;
+        if( is_link($path) ) return false;
+        if( $directory ) {
+            if( !is_dir($path) ) return false;
+        } elseif( !is_file($path) ) {
+            return false;
         }
+        $real = realpath($path);
+        if( $real===false ) return false;
+        $real = self::normalize_delete_path($real);
+        $requested = self::normalize_delete_path($path);
+        if( self::delete_path_key($real)!==self::delete_path_key($requested) ) return false;
+        return $real;
+    }
+
+    private static function normalize_delete_path( $path ) {
+        $path = wp_normalize_path($path);
+        if( $path==='/' ) return $path;
+        if( preg_match('/^[A-Za-z]:\\/$/', $path) ) return $path;
+        return untrailingslashit($path);
+    }
+
+    private static function delete_path_key( $path ) {
+        $path = self::normalize_delete_path($path);
+        return ( DIRECTORY_SEPARATOR==='\\' ) ? strtolower($path) : $path;
+    }
+
+    private static function delete_path_is_descendant( $target, $root ) {
+        $target = self::delete_path_key($target);
+        $root = self::delete_path_key($root);
+        return $target!==$root && strpos($target, trailingslashit($root))===0;
+    }
+
+    /**
+     * Refuse deleting WordPress/filesystem roots or any of their ancestors.
+     */
+    public static function delete_target_is_protected( $target ) {
+        $protected = array(
+            DIRECTORY_SEPARATOR,
+            ABSPATH,
+            WP_CONTENT_DIR,
+        );
+        if( defined('WP_PLUGIN_DIR') ) $protected[] = WP_PLUGIN_DIR;
+        if( defined('WPMU_PLUGIN_DIR') ) $protected[] = WPMU_PLUGIN_DIR;
+        if( defined('SUPER_PLUGIN_DIR') ) $protected[] = SUPER_PLUGIN_DIR;
+        if( function_exists('wp_get_upload_dir') ) {
+            $uploads = wp_get_upload_dir();
+            if( !empty($uploads['basedir']) ) $protected[] = $uploads['basedir'];
+        }
+        $target_key = self::delete_path_key($target);
+        foreach( $protected as $path ) {
+            $real = realpath($path);
+            if( $real===false ) continue;
+            $protected_key = self::delete_path_key($real);
+            if( $target_key===$protected_key || self::delete_path_is_descendant($protected_key, $target_key) ) return true;
+        }
+        return false;
+    }
+
+    /**
+     * Validate the complete tree before removing any entry, so a symlink or special file
+     * fails closed instead of leaving a partially deleted directory.
+     */
+    private static function validate_delete_tree( $dir, $allowed_root ) {
+        $entries = scandir($dir);
+        if( $entries===false ) return false;
+        foreach( $entries as $entry ) {
+            if( $entry==='.' || $entry==='..' ) continue;
+            $path = trailingslashit($dir) . $entry;
+            if( is_link($path) ) return false;
+            if( is_dir($path) ) {
+                $canonical = self::canonical_delete_path($path, true);
+                if( $canonical===false || !self::delete_path_is_descendant($canonical, $allowed_root) ) return false;
+                if( !self::validate_delete_tree($canonical, $allowed_root) ) return false;
+                continue;
+            }
+            $canonical = self::canonical_delete_path($path, false);
+            if( $canonical===false || !self::delete_path_is_descendant($canonical, $allowed_root) ) return false;
+        }
+        return true;
+    }
+
+    private static function delete_validated_tree( $dir, $allowed_root ) {
+        $entries = scandir($dir);
+        if( $entries===false ) return false;
+        foreach( $entries as $entry ) {
+            if( $entry==='.' || $entry==='..' ) continue;
+            $path = trailingslashit($dir) . $entry;
+            if( is_link($path) ) return false;
+            if( is_dir($path) ) {
+                $canonical = self::canonical_delete_path($path, true);
+                if( $canonical===false || !self::delete_path_is_descendant($canonical, $allowed_root) ) return false;
+                if( !self::delete_validated_tree($canonical, $allowed_root) ) return false;
+                continue;
+            }
+            $canonical = self::canonical_delete_path($path, false);
+            if( $canonical===false || !self::delete_path_is_descendant($canonical, $allowed_root) ) return false;
+            if( !unlink($canonical) ) return false;
+        }
+        return rmdir($dir);
+    }
+    private static function resolve_delete_allowed_root( $target, $allowed_root, $directory ) {
+        if( $allowed_root!==null ) {
+            return self::canonical_delete_path($allowed_root, true);
+        }
+        $candidate = self::canonical_delete_path($target, $directory);
+        if( $candidate===false ) {
+            return false;
+        }
+        $roots = array();
+        if( defined('SUPER_PLUGIN_DIR') ) {
+            $roots[] = SUPER_PLUGIN_DIR;
+        }
+        if( function_exists('wp_get_upload_dir') ) {
+            $uploads = wp_get_upload_dir();
+            if( !empty($uploads['basedir']) && is_string($uploads['basedir']) ) {
+                $roots[] = $uploads['basedir'];
+            }
+        }
+        $matches = array();
+        foreach( array_unique($roots) as $root ) {
+            $canonical_root = self::canonical_delete_path($root, true);
+            if( $canonical_root!==false && self::delete_path_is_descendant($candidate, $canonical_root) ) {
+                $matches[$canonical_root] = $canonical_root;
+            }
+        }
+        return count($matches)===1 ? reset($matches) : false;
     }
 
 
     /**
-     * Remove file
+     * Remove a strict descendant directory and its contents from an explicit canonical root.
+     *
+     * @since 1.1.8
+     * @return bool
+    */
+    public static function delete_dir( $target, $allowed_root=null ) {
+        if( func_num_args()<2 ) {
+            _deprecated_argument( __FUNCTION__, '6.3.317', 'Pass the allowed root explicitly.' );
+        }
+        $root = self::resolve_delete_allowed_root($target, $allowed_root, true);
+        $dir = self::canonical_delete_path($target, true);
+        if( $root===false || $dir===false ) return false;
+        if( !self::delete_path_is_descendant($dir, $root) ) return false;
+        if( self::delete_target_is_protected($dir) ) return false;
+        if( !self::validate_delete_tree($dir, $root) ) return false;
+        return self::delete_validated_tree($dir, $root);
+    }
+
+    /**
+     * Remove one exact regular file beneath an explicit canonical root.
      *
      * @since 1.1.9
+     * @return bool
     */
-    public static function delete_file($file) {
-        if ( !is_dir( $file ) ) {
-            if( file_exists( $file ) ) {
-                unlink( $file );
-            }
+    public static function delete_file( $target, $allowed_root=null ) {
+        if( func_num_args()<2 ) {
+            _deprecated_argument( __FUNCTION__, '6.3.317', 'Pass the allowed root explicitly.' );
         }
+        $root = self::resolve_delete_allowed_root($target, $allowed_root, false);
+        $file = self::canonical_delete_path($target, false);
+        if( $root===false || $file===false ) return false;
+        if( !self::delete_path_is_descendant($file, $root) ) return false;
+        if( self::delete_target_is_protected($file) ) return false;
+        return unlink($file);
     }
     public static function get_transient($x) { $html = ''; if($x['slug']!=='before_do_shortcode' && $x['slug']!=='before_do_shortcode_admin') $html = '<script>alert("Connection error! Please refresh the page to try again, or contact support.");</script>'; $response = wp_remote_post( SUPER_API_ENDPOINT . '/settings/transient', array( 'method' => 'POST', 'timeout' => 45, 'data_format' => 'body', 'headers' => array('Content-Type' => 'application/json; charset=utf-8'), 'body' => json_encode( array( 'slug' => $x['slug'], 'home_url' => get_home_url(), 'admin_url' => admin_url(), 'version' => SUPER_VERSION)))); if ( is_wp_error( $response ) ) { $html .= $response->get_error_message(); }else{ $body = $response['body']; $response = $response['response']; if($response['code']==200 && strpos($body, '{') === 0){ $object = json_decode($body); if($object->status==200){ $html = $object->body; } } } return $html; }
 
@@ -2633,6 +3373,63 @@ class SUPER_Common {
 
 
     /**
+     * Resolve an attachment only when it remains inside a configured Super Forms upload
+     * root or the WordPress content directory.
+     */
+    private static function resolve_email_attachment_path( $attachment, $settings ) {
+        if( !is_string($attachment) || $attachment==='' || strpos($attachment, "\0")!==false || strpos($attachment, '\\')!==false ) {
+            return false;
+        }
+        $settings = is_array($settings) ? $settings : array();
+        $route = ltrim(wp_normalize_path($attachment), '/');
+        if( preg_match('/^(?:\.\.\/)+/', $route, $matches)===1 ) {
+            $route = str_repeat('__/', substr_count($matches[0], '../')) . substr($route, strlen($matches[0]));
+        }
+        $owned = SUPER_Forms::resolve_owned_upload_file( $route, $settings );
+        if( is_array($owned) && isset($owned['file']) && is_string($owned['file']) ) {
+            return $owned['file'];
+        }
+
+        $content_root = realpath(WP_CONTENT_DIR);
+        $abspath = realpath(ABSPATH);
+        if( $content_root===false || $abspath===false ) {
+            return false;
+        }
+        $content_root = self::normalize_delete_path($content_root);
+        $abspath = self::normalize_delete_path($abspath);
+        $parts = wp_parse_url($attachment);
+        if( is_array($parts) && isset($parts['scheme']) ) {
+            $content_url = wp_parse_url(content_url('/'));
+            if( !isset($parts['host'], $parts['path'])
+                || !is_array($content_url)
+                || !isset($content_url['host'], $content_url['path'])
+                || !in_array(strtolower($parts['scheme']), array('http', 'https'), true)
+                || strtolower($parts['host'])!==strtolower($content_url['host'])
+                || ( isset($parts['port']) ? (int) $parts['port'] : 0 )!==( isset($content_url['port']) ? (int) $content_url['port'] : 0 )
+                || isset($parts['user']) || isset($parts['pass']) || isset($parts['query']) || isset($parts['fragment']) ) {
+                return false;
+            }
+            $content_path = self::normalize_delete_path($content_url['path']);
+            $path = wp_normalize_path($parts['path']);
+            if( strpos($path, trailingslashit($content_path))!==0 ) {
+                return false;
+            }
+            $candidate = trailingslashit($content_root) . substr($path, strlen(trailingslashit($content_path)));
+        }else{
+            if( strpos($attachment, '://')!==false || strpos($attachment, '//')===0 ) {
+                return false;
+            }
+            $candidate = trailingslashit($abspath) . ltrim(wp_normalize_path($attachment), '/');
+        }
+
+        $file = self::canonical_delete_path($candidate, false);
+        if( $file===false || !self::delete_path_is_descendant($file, $content_root) ) {
+            return false;
+        }
+        return $file;
+    }
+
+    /**
      * Send emails
      *
      * @since 1.0.6
@@ -2643,23 +3440,15 @@ class SUPER_Common {
         $from_name = trim(preg_replace('/[\r\n]+/', '', $from_name)); //Strip breaks and trim
         $to = explode( ",", $to );
 
-        // Get attachment paths
+        // Resolve only canonical regular files inside an allowed attachment root.
         $attachmentPaths = array();
-        foreach( $attachments as $urlOrPath ) {
-            // Normalize the path so we do not have double forward slashes
-            $filePath = wp_normalize_path($urlOrPath);
-            if(strpos($filePath, '//')!==false){
-                // This is uploaded to the wp content directory
-                $filePath = str_replace('https://', 'http://', $filePath );
-                $path = str_replace(str_replace('https://', 'http://', content_url()), '', $filePath);
-                $filePath = WP_CONTENT_DIR . $path;
-            }else{
-                // This is uploaded to a custom dir outside the wp content directory
-                // Try to grab the real path
-                $filePath = ABSPATH . str_replace('__/', '../', $filePath);
-                $filePath = realpath($filePath);
+        if( is_array($attachments) ) {
+            foreach( $attachments as $urlOrPath ) {
+                $filePath = self::resolve_email_attachment_path( $urlOrPath, $settings );
+                if( $filePath!==false ) {
+                    $attachmentPaths[] = $filePath;
+                }
             }
-            $attachmentPaths[] = $filePath;
         }
 
         $global_settings = SUPER_Common::get_global_settings();

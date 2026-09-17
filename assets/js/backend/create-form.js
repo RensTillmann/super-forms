@@ -1064,6 +1064,7 @@
 
         var params = {
             action: 'super_save_form',
+            nonce: super_create_form_i18n.save_form_nonce,
             form_id: $('.super-create-form input[name="form_id"]').val(),
             title: $('.super-create-form input[name="title"]').val(),
             formElements: document.querySelector('.super-raw-code-form-elements textarea').value,
@@ -1535,6 +1536,7 @@
                 url: ajaxurl,
                 data: {
                     action: 'super_tutorial_do_not_show_again',
+                    nonce: super_create_form_i18n.admin_nonce,
                     status: $status
                 }
             });
@@ -1808,6 +1810,7 @@
                 url: ajaxurl,
                 data: {
                     action: 'super_restore_backup',
+                    nonce: super_create_form_i18n.admin_nonce,
                     form_id: $('.super-create-form input[name="form_id"]').val()
                 },
                 success: function (data) {
@@ -1828,6 +1831,7 @@
                 url: ajaxurl,
                 data: {
                     action: 'super_restore_backup',
+                    nonce: super_create_form_i18n.admin_nonce,
                     form_id: $('.super-create-form input[name="form_id"]').val(),
                     backup_id: $(this).parent('li').attr('data-id')
                 },
@@ -1847,6 +1851,8 @@
                     url: ajaxurl,
                     data: {
                         action: 'super_delete_backups',
+                        nonce: super_create_form_i18n.admin_nonce,
+                        form_id: $('.super-create-form input[name="form_id"]').val(),
                         backup_id: $backup.data('id')
                     },
                     success: function () {
@@ -1871,6 +1877,7 @@
                 url: ajaxurl,
                 data: {
                     action: 'super_delete_backups',
+                    nonce: super_create_form_i18n.admin_nonce,
                     form_id: $('.super-create-form input[name="form_id"]').val()
                 },
                 success: function () {
@@ -2657,6 +2664,7 @@
                     url: ajaxurl,
                     data: {
                         action: 'super_delete_form',
+                        nonce: super_create_form_i18n.admin_nonce,
                         form_id: $('.super-create-form input[name="form_id"]').val(),
                     },
                     success: function () {
@@ -2824,6 +2832,7 @@
                     url: ajaxurl,
                     data: {
                         action: 'super_reset_user_submission_counter',
+                        nonce: super_create_form_i18n.admin_nonce,
                         form_id: $('.super-create-form input[name="form_id"]').val()
                     },
                     complete: function () {
@@ -2844,6 +2853,7 @@
                     url: ajaxurl,
                     data: {
                         action: 'super_reset_submission_counter',
+                        nonce: super_create_form_i18n.admin_nonce,
                         counter: $('.super-create-form input[name="form_locker_submission_reset"]').val(),
                         form_id: $('.super-create-form input[name="form_id"]').val()
                     },
@@ -2876,6 +2886,7 @@
                 url: ajaxurl,
                 data: {
                     action: 'super_export_single_form',
+                    nonce: super_create_form_i18n.admin_nonce,
                     form_id: $('.super-create-form input[name="form_id"]').val(),
                     formElements: document.querySelector('.super-raw-code-form-elements > textarea').value,
                     formSettings: SUPER.get_form_settings(),
@@ -2923,6 +2934,7 @@
                     url: ajaxurl,
                     data: {
                         action: 'super_import_single_form',
+                        nonce: super_create_form_i18n.save_form_nonce,
                         form_id: $form_id,
                         file_id: $file_id,
                         settings: $settings,
@@ -2960,6 +2972,7 @@
                     url: ajaxurl,
                     data: {
                         action: 'super_reset_form_settings',
+                        nonce: super_create_form_i18n.admin_nonce,
                         form_id: $('.super-create-form input[name="form_id"]').val(),
                     },
                     success: function (data) {

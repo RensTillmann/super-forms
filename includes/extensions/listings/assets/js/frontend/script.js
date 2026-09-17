@@ -165,11 +165,22 @@
     };
 
     // When view button is clicked open a modal/popup window and display entry data based on HTML {loop_fields} or custom HTML
+    SUPER.frontEndListing.showModalRequestError = function(modal, loadingIcon){
+        if(loadingIcon && loadingIcon.parentNode) loadingIcon.parentNode.removeChild(loadingIcon);
+        if(!modal.querySelector('.super-listing-entry-error')){
+            var error = document.createElement('div');
+            error.classList.add('super-msg', 'super-error', 'super-listing-entry-error');
+            error.textContent = super_listings_i18n.modal_error;
+            modal.appendChild(error);
+        }
+    };
+
     SUPER.frontEndListing.viewEntry = function(el){
         var parent = getParents(el, '.super-entry')[0];
         var entry_id = parent.dataset.id;
         var form_id = getParents(el, '.super-listings')[0].dataset.formId;
         var list_id = getParents(el, '.super-listings')[0].dataset.listId;
+        var nonce = getParents(el, '.super-listings')[0].dataset.entryNonce;
         // Create popup window and load the form + it's entry data
         var modal = document.createElement('div');
         modal.classList.add('super-listings-modal');
@@ -192,22 +203,22 @@
         //var form_id = getParents(el, '.super-listings')[0].dataset.formId;
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
-            if (this.readyState == 4) {
-                // Success:
-                if (this.status == 200) {
+            if (this.readyState === 4) {
+                if (this.status === 200) {
                     var node = document.createElement('div');
                     node.classList.add('super-listing-entry-wrapper');
                     node.innerHTML = this.responseText;
                     modal.appendChild(node);
                     loadingIcon.remove();
+                } else {
+                    SUPER.frontEndListing.showModalRequestError(modal, loadingIcon);
                 }
-                // Complete:
                 parent.classList.remove('super-loading');
             }
         };
         xhttp.onerror = function () {
-            console.log(this);
-            console.log("** An error occurred during the transaction");
+            SUPER.frontEndListing.showModalRequestError(modal, loadingIcon);
+            parent.classList.remove('super-loading');
         };
         xhttp.open("POST", super_listings_i18n.ajaxurl, true);
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
@@ -215,7 +226,8 @@
             action: 'super_listings_view_entry',
             entry_id: entry_id,
             form_id: form_id,
-            list_id: list_id
+            list_id: list_id,
+            nonce: nonce
         };
         params = jQuery.param(params);
         xhttp.send(params);
@@ -227,6 +239,7 @@
         var entry_id = parent.dataset.id;
         var form_id = getParents(el, '.super-listings')[0].dataset.formId;
         var list_id = getParents(el, '.super-listings')[0].dataset.listId;
+        var nonce = getParents(el, '.super-listings')[0].dataset.entryNonce;
         // Create popup window and load the form + it's entry data
         var modal = document.createElement('div');
         modal.classList.add('super-listings-modal');
@@ -245,31 +258,25 @@
         modal.appendChild(closeBtn);
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
-            if (this.readyState == 4) {
-                // Success:
-                if (this.status == 200) {
+            if (this.readyState === 4) {
+                if (this.status === 200) {
                     var node = document.createElement('div');
                     node.classList.add('super-listing-entry-wrapper');
                     node.innerHTML = this.responseText;
                     modal.appendChild(node);
-                    SUPER.init_tooltips(); 
+                    SUPER.init_tooltips();
                     SUPER.init_distance_calculators();
                     SUPER.init_super_form_frontend();
-                    //var form = modal.querySelector('.super-form');
-                    //form.classList.add('super-initialized');
-                    //SUPER.init_common_fields();
-                    //SUPER.init_replace_html_tags({el: undefined, form: form});
-                    //SUPER.init_super_responsive_form_fields({form: form});
-                    //SUPER.handle_columns(); // Required for tabbing to work properly, need to itterate over fields and add tab-index
                     loadingIcon.remove();
+                } else {
+                    SUPER.frontEndListing.showModalRequestError(modal, loadingIcon);
                 }
-                // Complete:
                 parent.classList.remove('super-loading');
             }
         };
         xhttp.onerror = function () {
-            console.log(this);
-            console.log("** An error occurred during the transaction");
+            SUPER.frontEndListing.showModalRequestError(modal, loadingIcon);
+            parent.classList.remove('super-loading');
         };
         xhttp.open("POST", super_listings_i18n.ajaxurl, true);
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
@@ -277,7 +284,8 @@
             action: 'super_listings_edit_entry',
             entry_id: entry_id,
             form_id: form_id,
-            list_id: list_id
+            list_id: list_id,
+            nonce: nonce
         };
         params = jQuery.param(params);
         xhttp.send(params);
@@ -290,6 +298,7 @@
         parent.classList.add('super-loading');
         var entry_id = parent.dataset.id;
         var form_id = getParents(el, '.super-listings')[0].dataset.formId;
+        var nonce = getParents(el, '.super-listings')[0].dataset.deleteNonce;
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
             if (this.readyState == 4) {
@@ -316,7 +325,8 @@
             action: 'super_listings_delete_entry',
             entry_id: entry_id,
             form_id: form_id,
-            list_id: list_id
+            list_id: list_id,
+            nonce: nonce
         };
         params = jQuery.param(params);
         xhttp.send(params);

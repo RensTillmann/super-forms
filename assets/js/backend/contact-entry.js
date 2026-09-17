@@ -1,4 +1,4 @@
-/* globals jQuery, inlineEditPost, ajaxurl */
+/* globals jQuery, inlineEditPost, ajaxurl, super_contact_entry_i18n */
 "use strict";
 (function() { // Hide scope, no $ conflict
 
@@ -65,6 +65,7 @@
                 url: ajaxurl,
                 data: {
                     action: 'super_update_contact_entry',
+                    nonce: super_contact_entry_i18n.admin_nonce,
                     id: $id,
                     entry_status: $entry_status,
                     data: $data
@@ -105,6 +106,7 @@
                     url: ajaxurl,
                     data: {
                         action: 'super_get_entry_export_columns',
+                        nonce: super_contact_entry_i18n.admin_nonce,
                         entries: $entries
                     },
                     success: function (data) {
@@ -153,7 +155,9 @@
         $doc.on('click', '.super-export-selected-columns', function(){
             var $btn = $(this);
             var $dialog = $(this).parent();
-            var $query = $dialog.find('input[name="query"]').val();
+            var $entries = $dialog.find('input[name="entries[]"]').map(function(){
+                return $(this).val();
+            }).get();
             var $columns = {};
             $dialog.find('.super-export-entry-columns > .super-entry-column').each(function(){
                 var $checked = $(this).children('input[type="checkbox"]').is(":checked");
@@ -169,11 +173,13 @@
                 url: ajaxurl,
                 data: {
                     action: 'super_export_selected_entries',
+                    nonce: super_contact_entry_i18n.admin_nonce,
+                    sort_by: 'entry_date',
                     delimiter: $('.super-contact-entries-export-modal input[name="delimiter"]').val(),
                     enclosure: $('.super-contact-entries-export-modal input[name="enclosure"]').val(),
                     order_by: $('.super-contact-entries-export-modal select[name="order_by"]').val(),
                     columns: $columns,
-                    query: $query
+                    entries: $entries
                 },
                 success: function (data) {
                     window.location.href = data;
@@ -192,6 +198,7 @@
                 url: ajaxurl,
                 data: {
                     action: 'super_mark_unread',
+                    nonce: super_contact_entry_i18n.admin_nonce,
                     contact_entry: $(this).attr('data-contact-entry')
                 },
                 success: function () {
@@ -206,6 +213,7 @@
                 url: ajaxurl,
                 data: {
                     action: 'super_mark_read',
+                    nonce: super_contact_entry_i18n.admin_nonce,
                     contact_entry: $(this).attr('data-contact-entry')
                 },
                 success: function () {
@@ -219,6 +227,7 @@
                 url: ajaxurl,
                 data: {
                     action: 'super_delete_contact_entry',
+                    nonce: super_contact_entry_i18n.admin_nonce,
                     contact_entry: $(this).attr('data-contact-entry')
                 },
                 success: function () {
@@ -342,6 +351,7 @@
                 cache: false,
                 data: {
                     action: 'super_bulk_edit_entries', // this is the name of our WP AJAX function that we'll set up next
+                    nonce: super_contact_entry_i18n.admin_nonce,
                     post_ids: $post_ids, // and these are the 2 parameters we're passing to our function
                     entry_status: $entry_status
                 }

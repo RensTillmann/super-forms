@@ -20,7 +20,7 @@
  * License:           GPL v2 or later
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Requires at least: 4.9
- * Requires PHP:      5.4
+ * Requires PHP:      7.1
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -173,6 +173,7 @@ if( !class_exists('SUPER_Mailchimp') ) :
 
             // @since 1.5.4
             add_filter( 'super_before_sending_email_data_filter', array( $this, 'remove_mailchimp_data' ), 10, 2 );
+            add_filter( 'super_submission_carrier_contracts_filter', array( $this, 'submission_carrier_contracts' ), 10, 2 );
 
             // Load scripts before Ajax request
             add_action( 'super_after_enqueue_element_scripts_action', array( $this, 'load_scripts' ) );
@@ -199,12 +200,163 @@ if( !class_exists('SUPER_Mailchimp') ) :
             unset($data['mailchimp_subscriber_status']);
             unset($data['mailchimp_list_id']);
             foreach($data as $k => $v){
-                if(substr($k, 0, 24)==='mailchimp_custom_fields_') {
+                if(substr($k, 0, 24)==='mailchimp_custom_fields_'
+                    || substr($k, 0, 18)==='mailchimp_variant_') {
                     unset($data[$k]);
                 }
             }
             return $data;
         }
+        public function submission_carrier_contracts( $contracts, $atts ) {
+            if( !is_array($contracts) ) {
+                $contracts = array();
+            }
+            if( !is_array($atts) || empty($atts['tag']) || $atts['tag']!=='mailchimp' ) {
+                return $contracts;
+            }
+            $data = (isset($atts['data']) && is_array($atts['data'])) ? $atts['data'] : array();
+            $global_settings = get_option( 'super_settings' );
+            $show_hidden_field = !empty($global_settings['mailchimp_key'])
+                && isset($data['list_id'])
+                && is_string($data['list_id'])
+                && sanitize_text_field($data['list_id'])!=='';
+            if( !empty($data['display_interests']) && $data['display_interests']==='yes' ) {
+                $contracts['mailchimp_interests'] = array(
+                    'type' => 'var',
+                    'allows_selected_values' => true,
+                );
+            }
+            if( !empty($data['send_confirmation']) && $data['send_confirmation']==='yes' ) {
+                $contracts['mailchimp_send_confirmation'] = array(
+                    'type' => 'var',
+                    'exact_value' => '1',
+                );
+            } else {
+                $contracts['mailchimp_subscriber_status'] = array(
+                    'type' => 'var',
+                );
+            }
+            if( !$show_hidden_field ) {
+                return $contracts;
+            }
+            $list_id = sanitize_text_field($data['list_id']);
+            $variant_id = self::mailchimp_variant_id($data);
+            if( is_string($variant_id) ) {
+                $contracts['mailchimp_variant_' . $variant_id] = array(
+                    'type' => 'var',
+                    'exact_value' => '1',
+                );
+            }
+            $contracts['mailchimp_list_id'] = array(
+                'type' => 'var',
+            );
+            if( isset($data['custom_fields']) && is_string($data['custom_fields']) && $data['custom_fields']!=='' ) {
+                $contracts['mailchimp_custom_fields_' . $list_id] = array(
+                    'type' => 'var',
+                );
+            }
+            return $contracts;
+        }
+        private static function collect_mailchimp_elements( $elements, &$matches=array() ) {
+            if( !is_array($elements) ) {
+                return;
+            }
+            foreach( $elements as $element ) {
+                if( !is_array($element) ) {
+                    continue;
+                }
+                if( !empty($element['inner']) ) {
+                    self::collect_mailchimp_elements( $element['inner'], $matches );
+                }
+                if( isset($element['tag']) && $element['tag']==='mailchimp' ) {
+                    $matches[] = $element;
+                }
+            }
+        }
+
+        private static function mailchimp_variant_payload( $element_data ) {
+            $element_data = is_array($element_data) ? $element_data : array();
+            return array(
+                'list_id' => isset($element_data['list_id']) && is_scalar($element_data['list_id']) ? (string)$element_data['list_id'] : '',
+                'display_interests' => !empty($element_data['display_interests']) && $element_data['display_interests']==='yes' ? 'yes' : 'no',
+                'send_confirmation' => !empty($element_data['send_confirmation']) && $element_data['send_confirmation']==='yes' ? 'yes' : 'no',
+                'subscriber_status' => !empty($element_data['subscriber_status']) ? (string)$element_data['subscriber_status'] : 'subscribed',
+                'subscriber_tags' => isset($element_data['subscriber_tags']) && is_scalar($element_data['subscriber_tags']) ? (string)$element_data['subscriber_tags'] : '',
+                'vip' => isset($element_data['vip']) && is_scalar($element_data['vip']) ? (string)$element_data['vip'] : '',
+                'custom_fields' => isset($element_data['custom_fields']) && is_scalar($element_data['custom_fields']) ? (string)$element_data['custom_fields'] : '',
+            );
+        }
+
+        private static function mailchimp_variant_id( $element_data ) {
+            $encoded = wp_json_encode( self::mailchimp_variant_payload($element_data), JSON_UNESCAPED_SLASHES );
+            return is_string($encoded) ? hash('sha256', $encoded) : false;
+        }
+
+        private static function submitted_mailchimp_variant_id( $data ) {
+            if( !is_array($data) ) {
+                return null;
+            }
+            $variant_id = null;
+            foreach( $data as $name => $carrier ) {
+                if( !is_string($name) || preg_match('/^mailchimp_variant_([a-f0-9]{64})$/D', $name, $matches)!==1 ) {
+                    continue;
+                }
+                if( !is_array($carrier) || !isset($carrier['value']) || !is_scalar($carrier['value']) || (string)$carrier['value']!=='1' ) {
+                    return false;
+                }
+                if( $variant_id!==null && $variant_id!==$matches[1] ) {
+                    return false;
+                }
+                $variant_id = $matches[1];
+            }
+            return $variant_id;
+        }
+
+        private static function resolve_mailchimp_variant_settings( $form_id, $data, $settings ) {
+            $variant_id = self::submitted_mailchimp_variant_id($data);
+            if( $variant_id===null ) {
+                return null;
+            }
+            if( $variant_id===false ) {
+                return false;
+            }
+            $matches = array();
+            self::collect_mailchimp_elements( SUPER_Common::get_form_elements( $form_id ), $matches );
+            $resolved = null;
+            foreach( $matches as $element ) {
+                $element_data = ( isset($element['data']) && is_array($element['data']) ) ? $element['data'] : array();
+                if( self::mailchimp_variant_id($element_data)!==$variant_id ) {
+                    continue;
+                }
+                $candidate = array(
+                    'list_id' => isset($element_data['list_id']) && is_scalar($element_data['list_id'])
+                        ? sanitize_text_field( SUPER_Common::email_tags( (string) $element_data['list_id'], $data, $settings ) )
+                        : '',
+                    'display_interests' => !empty($element_data['display_interests']) && $element_data['display_interests']==='yes' ? 'yes' : 'no',
+                    'send_confirmation' => !empty($element_data['send_confirmation']) && $element_data['send_confirmation']==='yes' ? 'yes' : 'no',
+                    'subscriber_status' => !empty($element_data['subscriber_status']) ? (string)$element_data['subscriber_status'] : 'subscribed',
+                    'subscriber_tags' => isset($element_data['subscriber_tags']) && is_scalar($element_data['subscriber_tags'])
+                        ? (string) SUPER_Common::email_tags( (string) $element_data['subscriber_tags'], $data, $settings )
+                        : '',
+                    'vip' => isset($element_data['vip']) && is_scalar($element_data['vip'])
+                        ? (string) SUPER_Common::email_tags( (string) $element_data['vip'], $data, $settings )
+                        : '',
+                    'custom_fields' => isset($element_data['custom_fields']) && is_scalar($element_data['custom_fields'])
+                        ? (string) $element_data['custom_fields']
+                        : '',
+                );
+                if( $candidate['list_id']==='' ) {
+                    return false;
+                }
+                if( $resolved!==null && $resolved!==$candidate ) {
+                    return false;
+                }
+                $resolved = $candidate;
+            }
+            return $resolved;
+        }
+
+
 
 
         /**
@@ -425,10 +577,12 @@ if( !class_exists('SUPER_Mailchimp') ) :
                 $classes = ' hidden';
                 $result .= SUPER_Shortcodes::opening_tag( 'hidden', $atts, $classes );
                 $result .= '<input class="super-shortcode-field" type="hidden" value="' . $list_id . '" name="mailchimp_list_id" data-exclude="2"';
-                if( !empty($atts['subscriber_tags'] ) ) $result .= ' data-subscriber-tags="' . $atts['subscriber_tags'] . '"';
-                if( !empty($atts['vip'] ) ) $result .= ' data-vip="' . $atts['vip'] . '"';
                 $result .= ' />';
                 $result .= '</div>';
+                $variant_id = self::mailchimp_variant_id($atts);
+                if( is_string($variant_id) ) {
+                    $result .= '<input class="super-shortcode-field" type="hidden" value="1" name="mailchimp_variant_' . esc_attr($variant_id) . '" data-exclude="2" />';
+                }
 
                 // @since 1.2.0 - add the merge fields
                 if( (isset($atts['custom_fields'])) && ($atts['custom_fields']!='') ) $result .= '<textarea class="super-shortcode-field super-hidden" name="mailchimp_custom_fields_' . $list_id . '" data-exclude="2">' . $atts['custom_fields'] . '</textarea>';
@@ -597,39 +751,170 @@ if( !class_exists('SUPER_Mailchimp') ) :
             if(!isset($atts['post']['data'])) return false;
             $data = wp_unslash($atts['post']['data']);
             $data = json_decode($data, true);
-            if( isset( $data['mailchimp_list_id'] ) ) {
-                // First check if 'email' field exists, because this is required to make the request
-                if( (empty($data['email'])) || (empty($data['email']['value'])) ) {
-                    SUPER_Common::output_message(
-                        $error = true,
-                        $msg = sprintf( 
-                            esc_html__( '%1$sError:%2$s Couldn\'t subscribe the user to Mailchimp because no %1$sE-mail Address%2$s field was found in your form. Make sure to add this field and that it\'s named %1$semail%2$s', 'super_forms' ), 
-                            '<strong>', 
-                            '</strong>'
-                        )
-                    );
+            $form_id = isset($atts['post']['form_id']) ? absint($atts['post']['form_id']) : 0;
+            $resolved = self::resolve_mailchimp_variant_settings( $form_id, $data, $settings );
+            if( $resolved===null ) {
+                return false;
+            }
+            if( $resolved===false ) {
+                SUPER_Common::output_message(
+                    $error = true,
+                    $msg = esc_html__( 'Invalid form data.', 'super-forms' )
+                );
+            }
+
+            // First check if 'email' field exists, because this is required to make the request
+            if( (empty($data['email'])) || (empty($data['email']['value'])) ) {
+                SUPER_Common::output_message(
+                    $error = true,
+                    $msg = sprintf( 
+                        /* translators: 1: opening HTML strong tag, 2: closing HTML strong tag. */
+                        esc_html__( '%1$sError:%2$s Couldn\'t subscribe the user to Mailchimp because no %1$sE-mail Address%2$s field was found in your form. Make sure to add this field and that it\'s named %1$semail%2$s', 'super-forms' ), 
+                        '<strong>', 
+                        '</strong>'
+                    )
+                );
+            }
+
+            $list_id = $resolved['list_id'];
+
+            // Setup CURL
+            $global_settings = get_option( 'super_settings' );
+            $api_key = $global_settings['mailchimp_key'];
+            $datacenter = explode('-', $api_key);
+            $datacenter = $datacenter[1];
+            $endpoint = 'https://' . $datacenter . '.api.mailchimp.com/3.0/';
+            $request = 'lists/' . $list_id . '/interest-categories/';
+
+            $email = sanitize_email( $data['email']['value'] );
+            $email = strtolower($email);
+            $email_md5 = md5($email);
+            $request = 'lists/' . $list_id . '/members/';
+            $url = $endpoint.$request;
+            $patch_url = $url . $email_md5;
+            $get_url = $url . $email_md5;
+
+            // First find out if this member already exists
+            $response = wp_remote_post( 
+                $patch_url, 
+                array(
+                    'headers' => array(
+                        'Content-Type' => 'application/json; charset=utf-8',
+                        'Authorization' => 'Bearer ' . $api_key
+                    ),
+                    'body' => null,
+                    'method' => 'GET',
+                    'data_format' => 'body'
+                )
+            );
+            if ( is_wp_error( $response ) ) {
+                $error_message = $response->get_error_message();
+                SUPER_Common::output_message(
+                    $error = true,
+                    $msg = $error_message
+                );
+            }
+
+            // Setup default user data
+            $user_data = array();
+
+            // Set user info
+            $user_data['email_address'] = $email;
+            if( isset( $data['first_name'] ) ) {
+                $user_data['merge_fields']['FNAME'] = $data['first_name']['value'];
+            }
+            if( isset( $data['last_name'] ) ) {
+                $user_data['merge_fields']['LNAME'] = $data['last_name']['value'];
+            }
+
+            $resolved_vip = $resolved['vip'];
+            if( $resolved_vip!=='' && $resolved_vip!=='true' && $resolved_vip!=='false' ) {
+                SUPER_Common::output_message(
+                    $error = true,
+                    $msg = esc_html__( 'Invalid form data.', 'super-forms' )
+                );
+            }
+            $user_data['vip'] = ( $resolved_vip==='true' );
+
+            // @since 1.2.0 - option to save custom fields
+            if( $resolved['custom_fields']!=='' ) {
+                $merge_fields = array();
+                $fields = explode( "\n", $resolved['custom_fields'] );
+                foreach( $fields as $k ) {
+                    $field = explode( "|", $k );
+                    if( !isset($field[0], $field[1]) ) {
+                        continue;
+                    }
+                    // first check if a field with the name exists
+                    if( isset( $data[$field[1]]['value'] ) ) {
+                        $merge_fields[$field[0]] = $data[$field[1]]['value'];
+                    }else{
+                        // if no field exists, just save it as a string
+                        $string = SUPER_Common::email_tags( $field[1], $data, $global_settings );
+                        // check if string is serialized array
+                        $unserialize = unserialize($string);
+                        if ($unserialize !== false) {
+                            $merge_fields[$field[0]] = $unserialize;
+                        }else{
+                            $merge_fields[$field[0]] = $string;
+                        }
+                    }
                 }
+                foreach( $merge_fields as $k => $v ) {
+                    $user_data['merge_fields'][$k] = wp_unslash($v);
+                }
+            }
 
-                // Retreive the list ID
-                $list_id = sanitize_text_field( $data['mailchimp_list_id']['value'] );
+            if( $resolved['send_confirmation']==='yes' ) {
+                $user_data['status'] = 'pending'; // When user needs to confirm their E-mail address, we want to set status to pending
+            }else{
+                $user_data['status'] = $resolved['subscriber_status'];
+            }
 
-                // Setup CURL
-                $global_settings = get_option( 'super_settings' );
-                $api_key = $global_settings['mailchimp_key'];
-                $datacenter = explode('-', $api_key);
-                $datacenter = $datacenter[1];
-                $endpoint = 'https://' . $datacenter . '.api.mailchimp.com/3.0/';
-                $request = 'lists/' . $list_id . '/interest-categories/';
+            // Find out if we have some selected interests
+            if( $resolved['display_interests']==='yes' && isset( $data['mailchimp_interests'] ) ) {
+                $interests = array();
+                $user_data['interests'] = array();
+                if( isset($data['mailchimp_interests']['selected_values']) && is_array($data['mailchimp_interests']['selected_values']) ) {
+                    $interests = $data['mailchimp_interests']['selected_values'];
+                }elseif( isset($data['mailchimp_interests']['value']) && is_scalar($data['mailchimp_interests']['value']) ) {
+                    $interests = explode( ',', (string) $data['mailchimp_interests']['value'] );
+                }
+                foreach($interests as $k => $v ){
+                    if( !is_scalar($v) ) {
+                        SUPER_Common::output_message(
+                            $error = true,
+                            $msg = esc_html__( 'Invalid form data.', 'super-forms' )
+                        );
+                    }
+                    $v = (string) $v;
+                    if( $v!=='' ) {
+                        $user_data['interests'][$v] = true;
+                    }
+                }
+            }
 
-                $email = sanitize_email( $data['email']['value'] );
-                $email = strtolower($email);
-                $email_md5 = md5($email);
-                $request = 'lists/' . $list_id . '/members/';
-                $url = $endpoint.$request;
-                $patch_url = $url . $email_md5;
-                $get_url = $url . $email_md5;
+            $data_string = json_encode($user_data);
 
-                // First find out if this member already exists
+            $obj = json_decode( $response['body'], true );
+            if( $obj['status']=='pending' || $obj['status']=='subscribed' || $obj['status']=='unsubscribed' ) {
+                // The user exists, let's PATCH instead of POST
+                // Only delete interests if this form is actually giving the user the option to select interests
+                if( $resolved['display_interests']==='yes' && isset( $user_data['interests'] ) ) {
+                    // Merge new interests with existing ones, set every known list interest to the submitted boolean state
+                    $interests = is_array($obj['interests']) ? $obj['interests'] : array();
+                    foreach( $user_data['interests'] as $interest_key => $interest_value ) {
+                        if( !isset($interests[$interest_key]) ) {
+                            $interests[$interest_key] = false;
+                        }
+                    }
+                    foreach( $interests as $interest_key => $interest_value ) {
+                        $interests[$interest_key] = isset($user_data['interests'][$interest_key]);
+                    }
+                    $user_data['interests'] = $interests;
+                    $data_string = json_encode($user_data); 
+                }
+                // Now update the user with it's new interests
                 $response = wp_remote_post( 
                     $patch_url, 
                     array(
@@ -637,162 +922,55 @@ if( !class_exists('SUPER_Mailchimp') ) :
                             'Content-Type' => 'application/json; charset=utf-8',
                             'Authorization' => 'Bearer ' . $api_key
                         ),
-                        'body' => null,
-                        'method' => 'GET',
+                        'body' => $data_string,
+                        'method' => 'PATCH',
                         'data_format' => 'body'
                     )
                 );
-                if ( is_wp_error( $response ) ) {
-                    $error_message = $response->get_error_message();
-                    SUPER_Common::output_message(
-                        $error = true,
-                        $msg = $error_message
+                // Handle response
+                self::handle_api_response($response);
+            }else{
+                // The user does not exist, let's create a new one
+                $response = wp_remote_post( 
+                    $url, 
+                    array(
+                        'headers' => array(
+                            'Content-Type' => 'application/json; charset=utf-8',
+                            'Authorization' => 'Bearer ' . $api_key
+                        ),
+                        'body' => $data_string,
+                        'method' => 'POST',
+                        'data_format' => 'body'
+                    )
+                );
+                // Handle response
+                self::handle_api_response($response);
+            }
+            
+            if( $resolved['subscriber_tags']!=='' ) {
+                $tags = explode(',', $resolved['subscriber_tags']);
+                foreach($tags as $k => $v){
+                    $tags[$k] = array(
+                        'name' => trim($v),
+                        'status' => 'active'
                     );
-                }  
-
-                // Setup default user data
-                $user_data = array();
-
-                // Set user info
-                $user_data['email_address'] = $email;
-                if( isset( $data['first_name'] ) ) {
-                    $user_data['merge_fields']['FNAME'] = $data['first_name']['value'];
                 }
-                if( isset( $data['last_name'] ) ) {
-                    $user_data['merge_fields']['LNAME'] = $data['last_name']['value'];
-                } 
-
-                // Retreive the VIP status if any
-                $user_data['vip'] = 'false';
-                if(!empty($data['mailchimp_list_id']['vip'])){
-                    $user_data['vip'] = $data['mailchimp_list_id']['vip'];
-                }
-                // Convert to Boolean
-                $user_data['vip'] = $user_data['vip'] === 'true'? true: false;
-
-                // @since 1.2.0 - option to save custom fields
-                if( ( isset( $data['mailchimp_custom_fields_' . $list_id] ) ) && ($data['mailchimp_custom_fields_' . $list_id]!='') ) {
-                    $merge_fields = array();
-                    $fields = explode( "\n", $data['mailchimp_custom_fields_' . $list_id]['value'] );
-                    foreach( $fields as $k ) {
-                        $field = explode( "|", $k );
-                        // first check if a field with the name exists
-                        if( isset( $data[$field[1]]['value'] ) ) {
-                            $merge_fields[$field[0]] = $data[$field[1]]['value'];
-                        }else{
-                            // if no field exists, just save it as a string
-                            $string = SUPER_Common::email_tags( $field[1], $data, $global_settings );
-                            // check if string is serialized array
-                            $unserialize = unserialize($string);
-                            if ($unserialize !== false) {
-                                $merge_fields[$field[0]] = $unserialize;
-                            }else{
-                                $merge_fields[$field[0]] = $string;
-                            }
-                        }
-                    }
-                    foreach( $merge_fields as $k => $v ) {
-                        $user_data['merge_fields'][$k] = wp_unslash($v);
-                    }
-                }
-
-                if( (!empty($data['mailchimp_send_confirmation']['value'])) && ($data['mailchimp_send_confirmation']['value']==1 )) {
-                    $user_data['status'] = 'pending'; // When user needs to confirm their E-mail address, we want to set status to pending
-                }else{
-                    // Use the status defined on the field
-                    if(empty($data['mailchimp_subscriber_status']['value'])) {
-                        $data['mailchimp_subscriber_status'] = 'subscribed';
-                    }
-                    // Can be `subscribed` or `unsubscribed`
-                    $user_data['status'] = $data['mailchimp_subscriber_status']['value'];
-                }
-
-                // Find out if we have some selected interests
-                if( isset( $data['mailchimp_interests'] ) ) {
-                    $interests = explode( ',', $data['mailchimp_interests']['value'] );
-                    foreach($interests as $k => $v ){
-                        $user_data['interests'][$v] = true;
-                    }
-                }
-
-                $data_string = json_encode($user_data);
-
-                $obj = json_decode( $response['body'], true );
-                if( $obj['status']=='pending' || $obj['status']=='subscribed' || $obj['status']=='unsubscribed' ) {
-                    // The user exists, let's PATCH instead of POST
-                    // Only delete interests if this for is actually giving the user the option to select interests
-                    if( isset( $data['mailchimp_interests'] ) ) {
-                        // Merge new interests with existing ones, set old ones to false if need be
-                        foreach( $obj['interests'] as $k => $v ) {
-                            if(!isset($user_data['interest'][$k])){
-                                $obj['interests'][$k] = false;
-                                if(isset($user_data['interests'][$k])) $obj['interests'][$k] = true;
-                            }
-                        }
-                        $user_data['interests'] = $obj['interests'];
-                        $data_string = json_encode($user_data); 
-                    }
-                    // Now update the user with it's new interests
-                    $response = wp_remote_post( 
-                        $patch_url, 
-                        array(
-                            'headers' => array(
-                                'Content-Type' => 'application/json; charset=utf-8',
-                                'Authorization' => 'Bearer ' . $api_key
-                            ),
-                            'body' => $data_string,
-                            'method' => 'PATCH',
-                            'data_format' => 'body'
-                        )
-                    );
-                    // Handle response
-                    self::handle_api_response($response);
-                }else{
-                    // The user does not exist, let's create a new one
-                    $response = wp_remote_post( 
-                        $url, 
-                        array(
-                            'headers' => array(
-                                'Content-Type' => 'application/json; charset=utf-8',
-                                'Authorization' => 'Bearer ' . $api_key
-                            ),
-                            'body' => $data_string,
-                            'method' => 'POST',
-                            'data_format' => 'body'
-                        )
-                    );
-                    // Handle response
-                    self::handle_api_response($response);
-                }
-                
-                // Set subscription tags if any
-                if(!empty($data['mailchimp_list_id']['subscriber_tags'])){
-                    $tags = $data['mailchimp_list_id']['subscriber_tags'];
-                    $tags = explode(',', $tags);
-                    foreach($tags as $k => $v){
-                        $tags[$k] = array(
-                            'name' => trim($v),
-                            'status' => 'active'
-                        );
-                    }
-                    $tags = array('tags' => $tags);
-                    $tags = json_encode($tags);
-                    $response = wp_remote_post( 
-                        $patch_url . '/tags', 
-                        array(
-                            'headers' => array(
-                                'Content-Type' => 'application/json; charset=utf-8',
-                                'Authorization' => 'Bearer ' . $api_key
-                            ),
-                            'body' => $tags,
-                            'method' => 'POST',
-                            'data_format' => 'body'
-                        )
-                    );
-                    // Handle response
-                    self::handle_api_response($response);
-                } 
-
+                $tags = array('tags' => $tags);
+                $tags = json_encode($tags);
+                $response = wp_remote_post( 
+                    $patch_url . '/tags', 
+                    array(
+                        'headers' => array(
+                            'Content-Type' => 'application/json; charset=utf-8',
+                            'Authorization' => 'Bearer ' . $api_key
+                        ),
+                        'body' => $tags,
+                        'method' => 'POST',
+                        'data_format' => 'body'
+                    )
+                );
+                // Handle response
+                self::handle_api_response($response);
             }
         }
     }

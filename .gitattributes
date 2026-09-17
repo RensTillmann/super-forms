@@ -10,3 +10,6 @@
 build-release-zip.sh export-ignore
 *.po export-ignore
 *.pot export-ignore
+# tests/ holds the PHPUnit security regressions and verifier notes; they are
+# harness inputs, never customer plugin files.
+tests/ export-ignore

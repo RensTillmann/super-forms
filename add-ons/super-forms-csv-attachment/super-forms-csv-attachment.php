@@ -20,7 +20,7 @@
  * License:           GPL v2 or later
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Requires at least: 4.9
- * Requires PHP:      5.4
+ * Requires PHP:      7.1
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -234,7 +234,7 @@ if( !class_exists('SUPER_CSV_Attachment') ) :
                     if(empty($delimiter)) $delimiter = ',';
                     if(empty($enclosure)) $enclosure = '"';
                     foreach ( $rows as $fields ) {
-                        fputcsv( $fp, $fields, $delimiter, $enclosure, PHP_EOL);
+                        SUPER_Common::write_csv_row($fp, $fields, $delimiter, $enclosure);
                     }
                     fclose( $fp );
                     $attachment = array(

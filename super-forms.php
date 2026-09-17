@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.3.316
+ * Version:           6.3.317
  * Plugin URI:        http://f4d.nl/super-forms
  * Author URI:        http://f4d.nl/super-forms
  * Author:            feeling4design
@@ -21,7 +21,7 @@
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Requires at least: 4.9
  * Tested up to:      7.0.1
- * Requires PHP:      5.4
+ * Requires PHP:      7.1
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -44,7 +44,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '6.3.316';
+        public $version = '6.3.317';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -216,6 +216,7 @@ if(!class_exists('SUPER_Forms')) :
         public function includes(){
             
             include_once( 'includes/class-common.php' );
+            include_once( 'includes/class-data-access.php' );
             include_once( 'includes/class-install.php' );
             include_once( 'includes/class-settings.php' );
              
@@ -226,7 +227,7 @@ if(!class_exists('SUPER_Forms')) :
                 include_once( 'includes/class-field-types.php' );
             }
 
-            if ( $this->is_request( 'ajax' ) ) {
+            if ( $this->is_request( 'ajax' ) || $this->is_request( 'cron' ) ) {
                 $this->ajax_includes();
             }
 
@@ -293,6 +294,16 @@ if(!class_exists('SUPER_Forms')) :
     
                 // Filters since 1.0.0
                 add_filter( 'widget_text', 'do_shortcode', 100 );
+
+                // Prevent WordPress wptexturize() from mutating the raw JSON that
+                // conditional-logic / variable-logic fields embed as a <textarea>
+                // text node. Block (FSE) themes run a second whole-page wptexturize()
+                // pass after shortcode expansion; <textarea> is not texturize-exempt
+                // by default, so straight quotes inside the JSON become curly-quote
+                // entities and the client-side JSON.parse() throws, aborting form
+                // init and hiding every field. Excluding <textarea> keeps the payload
+                // byte-identical so it parses correctly.
+                add_filter( 'no_texturize_tags', array( $this, 'no_texturize_tags' ) );
 
                 // Actions since 1.0.6
                 add_action( 'loop_start', array( $this, 'print_message_before_content' ) );
@@ -384,6 +395,7 @@ if(!class_exists('SUPER_Forms')) :
             add_action( 'init', array( $this, 'rewrite_rules' ) );
             add_action( 'query_vars', array( $this, 'query_vars' ) );
             add_filter( 'parse_request', array( $this, 'parse_request' ) );
+            add_action( 'super_cleanup_export_attachment', array( __CLASS__, 'cleanup_export_attachment' ) );
 
             // Allow text/plain MIME type for export/import
             add_filter( 'wp_check_filetype_and_ext', function($types, $file, $filename, $mimes) {
@@ -406,7 +418,7 @@ if(!class_exists('SUPER_Forms')) :
             foreach($deprecatedFolders as $folder){
                 $path = trailingslashit(SUPER_PLUGIN_DIR) . $folder;
                 if(is_dir($path)){
-                    SUPER_Common::delete_dir( $path );
+                    SUPER_Common::delete_dir( $path, SUPER_PLUGIN_DIR );
                 }
             }
 
@@ -416,7 +428,7 @@ if(!class_exists('SUPER_Forms')) :
             );
             foreach($deprecatedFiles as $file){
                 $path = trailingslashit(SUPER_PLUGIN_DIR) . $file;
-                SUPER_Common::delete_file( $path );
+                SUPER_Common::delete_file( $path, SUPER_PLUGIN_DIR );
             }
         }
 
@@ -431,6 +443,28 @@ if(!class_exists('SUPER_Forms')) :
                 'display' => esc_html__( 'Every minute', 'super-forms' )
             );
             return $schedules;
+        }
+
+        /**
+         * Exclude <textarea> from wptexturize().
+         *
+         * Conditional-logic and variable-logic fields (see
+         * SUPER_Shortcodes::loop_conditions() and loop_variable_conditions())
+         * embed raw json_encode() output as a <textarea> text node. Keeping
+         * <textarea> out of texturize preserves that JSON exactly as emitted so the
+         * client-side JSON.parse() succeeds even under block themes that run a
+         * second whole-page wptexturize() pass after shortcode expansion.
+         *
+         *  @since      6.3.317
+        */
+        public static function no_texturize_tags( $tags ) {
+            if( !is_array($tags) ) {
+                return $tags;
+            }
+            if( !in_array( 'textarea', $tags, true ) ) {
+                $tags[] = 'textarea';
+            }
+            return $tags;
         }
 
         public static function super_client_data_cleanup() {
@@ -524,10 +558,27 @@ if(!class_exists('SUPER_Forms')) :
         }
         public function query_vars( $query_vars ){
             $query_vars[] = 'sfdlfi';
+            $query_vars[] = 'sfdlfi_token';
             $query_vars[] = 'sfgtfi';
             return $query_vars;
         }
-        public function caching_headers($file, $timestamp) {
+        private static function download_cache_headers( $protected ) {
+            if ( $protected ) {
+                return array(
+                    'Expires'       => 'Wed, 11 Jan 1984 05:00:00 GMT',
+                    'Cache-Control' => 'no-cache, must-revalidate, max-age=0, no-store, private',
+                    'Vary'          => 'Cookie',
+                    'Last-Modified' => false,
+                    'ETag'          => false,
+                );
+            }
+            return array(
+                'Cache-Control' => 'public',
+                'Expires'       => gmdate( 'D, d M Y H:i:s', time() + 86400 * 30 ) . ' GMT',
+            );
+        }
+
+        public function caching_headers($file, $timestamp, $protected = false) {
             // Example: Tue, 12 May 2020 22:17:04 GMT
             $last_modified = gmdate('D, d M Y H:i:s T', $timestamp); 
             // If the content has not changed, do not resend a full response
@@ -538,25 +589,668 @@ if(!class_exists('SUPER_Forms')) :
             // Even though ETag is more accurate, add a 
             // "Last-Modified" header as a fallback method.
             header('Last-Modified: ' . $last_modified);
-            // May be stored by any cache, 
-            // even if the response is normally non-cacheable.
-            header('Cache-Control: public');
-            // The Expires header contains the date/time after which the response is considered stale.
-            // "stale" means "not fresh"
-            header( 'Expires: ' . gmdate( 'D, d M Y H:i:s', time() + 86400*30 ) . ' GMT' ); // +30 days
+            foreach ( self::download_cache_headers( $protected ) as $name => $value ) {
+                if ( false === $value ) {
+                    header_remove( $name );
+                    continue;
+                }
+                header( $name . ': ' . $value, true );
+            }
             // Only send back the requested resource (with a 200 status)
             // if it has been last modified after the given date.
             // If the request has not been modified since, send back a 304 without any body
             // Unlike "If-Unmodified-Since", "If-Modified-Since" can only be used with a GET or HEAD.
-            if( isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) || isset($_SERVER['HTTP_IF_NONE_MATCH']) ) {
-                $clientEtag = str_replace('"', '', stripslashes($_SERVER['HTTP_IF_NONE_MATCH']));
-                if( ($_SERVER['HTTP_IF_MODIFIED_SINCE']==$last_modified) || ($clientEtag==$etag) ) {
+            if( !$protected && ( isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) || isset($_SERVER['HTTP_IF_NONE_MATCH']) ) ) {
+                $client_etag = isset($_SERVER['HTTP_IF_NONE_MATCH'])
+                    ? str_replace('"', '', sanitize_text_field( wp_unslash( $_SERVER['HTTP_IF_NONE_MATCH'] ) ))
+                    : '';
+                $client_modified = isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])
+                    ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_IF_MODIFIED_SINCE'] ) )
+                    : '';
+                if( ($client_modified!=='' && $client_modified===$last_modified)
+                    || ($client_etag!=='' && $client_etag===$etag) ) {
                     status_header(304);
                     header("Vary: Accept-Encoding,User-Agent");
                     exit();
                 }
             }
         }
+
+        private static function is_strict_path_descendant( $path, $root ) {
+            $path = untrailingslashit( wp_normalize_path( $path ) );
+            $root = untrailingslashit( wp_normalize_path( $root ) );
+            if ( '\\' === DIRECTORY_SEPARATOR ) {
+                $path = strtolower( $path );
+                $root = strtolower( $root );
+            }
+            return ( $path !== $root && 0 === strpos( $path, trailingslashit( $root ) ) );
+        }
+
+        private static function normalize_configured_upload_root( $upload_root, $create = false ) {
+            if ( ! is_string( $upload_root )
+                || false !== strpos( $upload_root, "\0" )
+                || false !== strpos( $upload_root, '\\' ) ) {
+                return false;
+            }
+            $upload_root = trim( wp_normalize_path( $upload_root ) );
+            $upload_root = trim( $upload_root, '/' );
+            if ( '' === $upload_root || false !== strpos( $upload_root, '//' ) ) {
+                return false;
+            }
+
+            $segments  = explode( '/', $upload_root );
+            $seen_name = false;
+            foreach ( $segments as $segment ) {
+                if ( '' === $segment || '.' === $segment || ( '..' === $segment && $seen_name ) ) {
+                    return false;
+                }
+                if ( '..' !== $segment ) {
+                    $seen_name = true;
+                }
+            }
+            if ( ! $seen_name ) {
+                return false;
+            }
+
+            $path = realpath( ABSPATH );
+            if ( false === $path || ! is_dir( $path ) ) {
+                return false;
+            }
+            $path = untrailingslashit( wp_normalize_path( $path ) );
+            foreach ( $segments as $segment ) {
+                if ( '..' === $segment ) {
+                    $path = dirname( $path );
+                    continue;
+                }
+                $candidate = wp_normalize_path( trailingslashit( $path ) . $segment );
+                if ( is_link( $candidate ) ) {
+                    return false;
+                }
+                if ( file_exists( $candidate ) ) {
+                    $real = realpath( $candidate );
+                    if ( false === $real || ! is_dir( $real ) ) {
+                        return false;
+                    }
+                    $candidate = wp_normalize_path( $real );
+                }
+                $path = untrailingslashit( $candidate );
+            }
+
+            $protected_paths = array(
+                realpath( DIRECTORY_SEPARATOR ),
+                realpath( ABSPATH ),
+                realpath( WP_CONTENT_DIR ),
+                realpath( SUPER_PLUGIN_DIR ),
+            );
+            $comparison_path = '\\' === DIRECTORY_SEPARATOR ? strtolower( $path ) : $path;
+            foreach ( $protected_paths as $protected_path ) {
+                if ( false === $protected_path ) {
+                    continue;
+                }
+                $protected_path       = untrailingslashit( wp_normalize_path( $protected_path ) );
+                $comparison_protected = '\\' === DIRECTORY_SEPARATOR ? strtolower( $protected_path ) : $protected_path;
+                if ( $comparison_path === $comparison_protected || self::is_strict_path_descendant( $protected_path, $path ) ) {
+                    return false;
+                }
+            }
+
+            if ( $create && ! is_dir( $path ) && ! wp_mkdir_p( $path ) ) {
+                return false;
+            }
+            $canonical_root = realpath( $path );
+            if ( false === $canonical_root || ! is_dir( $canonical_root ) || is_link( $path ) ) {
+                return false;
+            }
+            $canonical_root    = untrailingslashit( wp_normalize_path( $canonical_root ) );
+            $comparison_root   = '\\' === DIRECTORY_SEPARATOR ? strtolower( $canonical_root ) : $canonical_root;
+            $comparison_target = '\\' === DIRECTORY_SEPARATOR ? strtolower( $path ) : $path;
+            if ( $comparison_root !== $comparison_target ) {
+                return false;
+            }
+            return array(
+                'path'                  => $canonical_root,
+                'route_prefix'          => str_replace( '../', '__/', $upload_root ),
+                'requires_route_prefix' => '..' === $segments[0],
+                'setting'               => $upload_root,
+            );
+        }
+
+        private static function get_allowed_upload_roots( $settings ) {
+            $root_settings = array( SUPER_FORMS_UPLOAD_DIR );
+            if ( isset( $settings['file_upload_dir'] ) && is_string( $settings['file_upload_dir'] ) && '' !== trim( $settings['file_upload_dir'] ) ) {
+                $root_settings[] = $settings['file_upload_dir'];
+            }
+
+            $roots = array();
+            foreach ( $root_settings as $upload_root ) {
+                $root = self::normalize_configured_upload_root( $upload_root );
+                if ( false === $root ) {
+                    continue;
+                }
+                unset( $root['setting'] );
+                $root_key = ( '\\' === DIRECTORY_SEPARATOR ? strtolower( $root['path'] ) : $root['path'] ) . "\0" . $root['route_prefix'];
+                $roots[ $root_key ] = $root;
+            }
+            return array_values( $roots );
+        }
+        public static function generate_secure_hex( $bytes_length, $force_fallback=false ) {
+            $bytes_length = absint($bytes_length);
+            if( $bytes_length===0 ) {
+                return false;
+            }
+            if( !$force_fallback && function_exists('random_bytes') ) {
+                try {
+                    $bytes = random_bytes($bytes_length);
+                    if( is_string($bytes) && strlen($bytes)===$bytes_length ) {
+                        return bin2hex($bytes);
+                    }
+                } catch( Exception $e ) {
+                    // Continue to the compatibility fallbacks below.
+                }
+            }
+            if( function_exists('openssl_random_pseudo_bytes') ) {
+                $strong = false;
+                $bytes = @openssl_random_pseudo_bytes($bytes_length, $strong);
+                if( $strong && is_string($bytes) && strlen($bytes)===$bytes_length ) {
+                    return bin2hex($bytes);
+                }
+            }
+            $hex = '';
+            $minimum = $bytes_length * 2;
+            while( strlen($hex) < $minimum ) {
+                $seed = wp_generate_password(max(64, $minimum), true, true);
+                $seed .= '|' . microtime(true) . '|' . uniqid('', true) . '|' . wp_rand();
+                $hex .= hash('sha256', $seed);
+            }
+            return substr($hex, 0, $minimum);
+        }
+
+
+        private static function is_safe_upload_relative_path( $path ) {
+            if ( ! is_string( $path ) || '' === $path || '/' === substr( $path, 0, 1 ) ) {
+                return false;
+            }
+            if ( false !== strpos( $path, "\0" ) || false !== strpos( $path, '\\' ) || false !== strpos( $path, '//' ) ) {
+                return false;
+            }
+            if ( preg_match( '/^[a-zA-Z]:\//', $path ) || preg_match( '/%[0-9a-fA-F]{2}/', $path ) ) {
+                return false;
+            }
+            foreach ( explode( '/', $path ) as $segment ) {
+                if ( '' === $segment || '.' === $segment || '..' === $segment || '__' === $segment ) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        private static function core_download_extensions() {
+            static $extensions = null;
+            if ( null !== $extensions ) {
+                return $extensions;
+            }
+            $extensions = array();
+            if ( ! function_exists( 'wp_get_ext_types' ) ) {
+                return $extensions;
+            }
+            foreach ( wp_get_ext_types() as $type_extensions ) {
+                if ( ! is_array( $type_extensions ) ) {
+                    continue;
+                }
+                foreach ( $type_extensions as $extension ) {
+                    $extension = strtolower( (string) $extension );
+                    if ( preg_match( '/^[a-z0-9]+$/D', $extension ) ) {
+                        $extensions[$extension] = true;
+                    }
+                }
+            }
+            return $extensions;
+        }
+
+        private static function dangerous_download_extensions() {
+            static $extensions = null;
+            if ( null === $extensions ) {
+                $extensions = array_fill_keys(
+                    array(
+                        'php', 'php2', 'php3', 'php4', 'php5', 'php6', 'php7', 'php8',
+                        'phtml', 'pht', 'phtm', 'phps', 'phar', 'inc',
+                        'asp', 'aspx', 'asa', 'cer', 'jsp', 'jspx', 'cfm', 'cfc',
+                        'cgi', 'pl', 'pm', 'py', 'pyc', 'pyo', 'rb',
+                        'sh', 'bash', 'zsh', 'ksh', 'fish', 'ps1', 'psm1',
+                        'bat', 'cmd', 'com', 'exe', 'dll', 'msi', 'msp', 'scr',
+                        'jar', 'class', 'war', 'vbs', 'vbe', 'wsf', 'wsh', 'hta',
+                        'htm', 'html', 'shtm', 'shtml', 'xht', 'xhtml',
+                        'js', 'mjs', 'cjs', 'css', 'svg', 'svgz', 'xml', 'xsl', 'xslt', 'swf',
+                        'htaccess', 'userini',
+                    ),
+                    true
+                );
+            }
+            return $extensions;
+        }
+
+        private static function is_safe_download_basename( $basename ) {
+            if ( ! is_string( $basename ) || '' === $basename || '.' === substr( $basename, 0, 1 ) ) {
+                return false;
+            }
+            $parts = explode( '.', strtolower( $basename ) );
+            if ( count( $parts ) < 2 || '' === $parts[0] ) {
+                return false;
+            }
+            $dangerous = self::dangerous_download_extensions();
+            foreach ( array_slice( $parts, 1 ) as $suffix ) {
+                if ( '' === $suffix || isset( $dangerous[$suffix] ) ) {
+                    return false;
+                }
+            }
+            $extension = end( $parts );
+            $allowed = self::core_download_extensions();
+            return isset( $allowed[$extension] );
+        }
+
+        private static function is_generated_upload_relative_path( $relative_path ) {
+            $segments = explode( '/', $relative_path );
+            if ( 2 === count( $segments ) ) {
+                $slot = $segments[0];
+                $basename = $segments[1];
+            } elseif ( 4 === count( $segments ) ) {
+                if ( ! preg_match( '/^[0-9]{4}$/D', $segments[0] )
+                    || ! preg_match( '/^(?:0[1-9]|1[0-2])$/D', $segments[1] ) ) {
+                    return false;
+                }
+                $slot = $segments[2];
+                $basename = $segments[3];
+            } else {
+                return false;
+            }
+            return (bool) preg_match( '/^[0-9]{13}$/D', $slot )
+                && self::is_safe_download_basename( $basename );
+        }
+
+
+        private static function upload_path_contains_symlink( $root, $relative_path ) {
+            $candidate = untrailingslashit( wp_normalize_path( $root ) );
+            foreach ( explode( '/', $relative_path ) as $segment ) {
+                $candidate .= '/' . $segment;
+                if ( is_link( $candidate ) ) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private static function resolve_file_under_upload_root( $root, $relative_path ) {
+            if ( ! self::is_safe_upload_relative_path( $relative_path )
+                || ! self::is_generated_upload_relative_path( $relative_path )
+                || self::upload_path_contains_symlink( $root, $relative_path ) ) {
+                return false;
+            }
+            $file = realpath( wp_normalize_path( trailingslashit( $root ) . $relative_path ) );
+            if ( false === $file || ! is_file( $file ) ) {
+                return false;
+            }
+            $file = wp_normalize_path( $file );
+            if ( ! self::is_strict_path_descendant( $file, $root ) ) {
+                return false;
+            }
+            return array(
+                'file' => $file,
+                'root' => $root,
+            );
+        }
+
+        private static function resolve_sfgtfi_file( $file_location, $settings ) {
+            if ( ! is_string( $file_location ) ) {
+                return false;
+            }
+            $file_location = rawurldecode( $file_location );
+            if ( '' === $file_location || '/' === substr( $file_location, 0, 1 ) ) {
+                return false;
+            }
+            if ( false !== strpos( $file_location, "\0" ) || false !== strpos( $file_location, '\\' ) || false !== strpos( $file_location, '//' ) ) {
+                return false;
+            }
+            if ( preg_match( '/^[a-zA-Z]:\//', $file_location ) || preg_match( '/%[0-9a-fA-F]{2}/', $file_location ) ) {
+                return false;
+            }
+
+            $segments = explode( '/', $file_location );
+            foreach ( $segments as $segment ) {
+                if ( '' === $segment || '.' === $segment || '..' === $segment ) {
+                    return false;
+                }
+            }
+            $has_encoded_parent = in_array( '__', $segments, true );
+            $resolved_files = array();
+            foreach ( self::get_allowed_upload_roots( $settings ) as $root ) {
+                $route_prefix = trailingslashit( $root['route_prefix'] );
+                if ( 0 === strpos( $file_location, $route_prefix ) ) {
+                    $relative_path = substr( $file_location, strlen( $route_prefix ) );
+                    $resolved = self::resolve_file_under_upload_root( $root['path'], $relative_path );
+                    if ( false !== $resolved ) {
+                        $resolved_files[$resolved['file']] = $resolved;
+                    }
+                }
+                if ( ! $has_encoded_parent && empty( $root['requires_route_prefix'] ) ) {
+                    $resolved = self::resolve_file_under_upload_root( $root['path'], $file_location );
+                    if ( false !== $resolved ) {
+                        $resolved_files[$resolved['file']] = $resolved;
+                    }
+                }
+            }
+            if ( 1 !== count( $resolved_files ) ) {
+                return false;
+            }
+            return reset( $resolved_files );
+        }
+
+        private static function normalize_owned_upload_disposition( $disposition, $fallback='' ) {
+            if( is_string($disposition) && in_array($disposition, array('inline', 'attachment'), true) ) {
+                return $disposition;
+            }
+            return in_array($fallback, array('inline', 'attachment'), true) ? $fallback : '';
+        }
+        private static function owned_upload_public_route_from_record( $file_record ) {
+            if( !is_array($file_record) ) {
+                return '';
+            }
+            if( isset($file_record['url']) && is_string($file_record['url']) && $file_record['url']!=='' ) {
+                $parts = wp_parse_url($file_record['url']);
+                if( is_array($parts) && !empty($parts['path']) && is_string($parts['path']) ) {
+                    $route_marker = '/sfgtfi/';
+                    $route_start = strpos( $parts['path'], $route_marker );
+                    if( false!==$route_start ) {
+                        return ltrim(rawurldecode(substr($parts['path'], $route_start + strlen($route_marker))), '/');
+                    }
+                }
+            }
+            if( isset($file_record['subdir']) && is_string($file_record['subdir']) && $file_record['subdir']!=='' ) {
+                return ltrim(str_replace('../', '__/', wp_normalize_path(wp_unslash($file_record['subdir']))), '/');
+            }
+            return '';
+        }
+        private static function signed_sfgtfi_route_signature( $file_location, $disposition ) {
+            $disposition = self::normalize_owned_upload_disposition( $disposition );
+            if( !is_string($file_location) || $file_location==='' || $disposition==='' ) {
+                return false;
+            }
+            return hash_hmac('sha256', $disposition . "\n" . $file_location, wp_salt('auth'));
+        }
+        private static function signed_sfgtfi_route_is_valid( $file_location, $signature, $disposition ) {
+            $disposition = self::normalize_owned_upload_disposition( $disposition );
+            if( !is_string($signature) || preg_match('/^[a-f0-9]{64}$/D', $signature)!==1 || $disposition==='' ) {
+                return false;
+            }
+            $expected = self::signed_sfgtfi_route_signature( $file_location, $disposition );
+            return is_string($expected) && hash_equals($expected, $signature);
+        }
+        private static function resolve_signed_sfgtfi_file( $file_location ) {
+            if( !is_string($file_location) || $file_location==='' ) {
+                return false;
+            }
+            $resolved_files = array();
+            foreach( self::resolve_stored_owned_upload_candidates_from_subdir('/' . ltrim($file_location, '/')) as $candidate ) {
+                if( !is_array($candidate)
+                    || empty($candidate['file']) || !is_string($candidate['file'])
+                    || empty($candidate['root']) || !is_string($candidate['root']) ) {
+                    continue;
+                }
+                $resolved_files[ wp_normalize_path( $candidate['file'] ) ] = array(
+                    'file' => wp_normalize_path( $candidate['file'] ),
+                    'root' => wp_normalize_path( $candidate['root'] ),
+                );
+            }
+            return count($resolved_files)===1 ? reset($resolved_files) : false;
+        }
+        public static function public_owned_upload_url( $file_record, $settings=array(), $disposition='' ) {
+            if( !is_array($file_record) ) {
+                return '';
+            }
+            $settings = is_array($settings) ? $settings : array();
+            if( !empty($file_record['attachment']) ) {
+                $url = wp_get_attachment_url( absint($file_record['attachment']) );
+                return ( is_string($url) && $url!=='' )
+                    ? $url
+                    : ( isset($file_record['url']) && is_string($file_record['url']) ? $file_record['url'] : '' );
+            }
+            if( empty($file_record['url']) || !is_string($file_record['url']) ) {
+                return '';
+            }
+            $proof = isset($file_record['_super_file_proof']) && is_string($file_record['_super_file_proof'])
+                ? $file_record['_super_file_proof']
+                : '';
+            $route = self::owned_upload_public_route_from_record( $file_record );
+            if( $route==='' || preg_match('/^[a-f0-9]{64}$/D', $proof)!==1 ) {
+                return $file_record['url'];
+            }
+            $default_disposition = ( isset($file_record['type']) && is_string($file_record['type']) && strpos($file_record['type'], 'image/')===0 )
+                ? 'inline'
+                : 'attachment';
+            $disposition = self::normalize_owned_upload_disposition( $disposition, $default_disposition );
+            if( $disposition==='inline' ) {
+                $global_settings = SUPER_Common::get_form_settings(0);
+                if( self::resolve_sfgtfi_file( $route, is_array($global_settings) ? $global_settings : array() )!==false ) {
+                    return $file_record['url'];
+                }
+            }
+            $signature = self::signed_sfgtfi_route_signature( $route, $disposition );
+            if( !is_string($signature) ) {
+                return $file_record['url'];
+            }
+            return add_query_arg(
+                array(
+                    'sfgtfi_disp' => $disposition,
+                    'sfgtfi_sig' => $signature,
+                ),
+                trailingslashit( site_url( '/' ) ) . 'sfgtfi/' . ltrim( $route, '/' )
+            );
+        }
+
+        /**
+         * Resolve a stored upload path or same-site URL to one exact configured upload root.
+         */
+        public static function resolve_owned_upload_file( $file, $settings ) {
+            $resolved = self::resolve_existing_upload_file( $file, $settings );
+            if ( false === $resolved ) {
+                return false;
+            }
+            $basename = basename( $resolved['file'] );
+            if ( ! self::is_safe_download_basename( $basename ) ) {
+                return false;
+            }
+            $parts = explode( '.', strtolower( $basename ) );
+            $extension = end( $parts );
+            $verified = wp_check_filetype_and_ext( $resolved['file'], $basename );
+            if ( ! is_array( $verified ) || empty( $verified['ext'] ) || empty( $verified['type'] )
+                || strtolower( $verified['ext'] ) !== $extension ) {
+                return false;
+            }
+            $resolved['ext'] = $extension;
+            $resolved['mime'] = $verified['type'];
+            return $resolved;
+        }
+        private static function parse_stored_owned_upload_subdir( $subdir, $basename='' ) {
+            if( !is_string($subdir) || $subdir===''
+                || strpos($subdir, "\0")!==false || strpos($subdir, '\\')!==false ) {
+                return false;
+            }
+            if( $basename!=='' && ( !is_string($basename) || strpos($basename, "\0")!==false ) ) {
+                return false;
+            }
+            $subdir = ltrim(wp_normalize_path(wp_unslash($subdir)), '/');
+            if( $subdir==='' || strpos($subdir, '//')!==false ) {
+                return false;
+            }
+            $segments = explode('/', $subdir);
+            if( count($segments)<2 ) {
+                return false;
+            }
+            foreach( $segments as $segment ) {
+                if( $segment==='' || $segment==='.' ) {
+                    return false;
+                }
+            }
+            $slot_index = count($segments) - 2;
+            if( !isset($segments[$slot_index]) || !preg_match('/^[0-9]{13}$/D', $segments[$slot_index]) ) {
+                return false;
+            }
+            $suffix_index = $slot_index;
+            if( $slot_index>=2
+                && preg_match('/^[0-9]{4}$/D', $segments[$slot_index - 2])
+                && preg_match('/^[0-9]{2}$/D', $segments[$slot_index - 1]) ) {
+                $suffix_index = $slot_index - 2;
+            }
+            $upload_root_segments = array_slice($segments, 0, $suffix_index);
+            $relative_segments = array_slice($segments, $suffix_index);
+            if( empty($upload_root_segments) || count($relative_segments)<2 ) {
+                return false;
+            }
+            $relative_path = implode('/', $relative_segments);
+            if( $basename!=='' && basename($relative_path)!==$basename ) {
+                return false;
+            }
+            foreach( $upload_root_segments as $index => $segment ) {
+                if( $segment==='__' ) {
+                    $upload_root_segments[$index] = '..';
+                }
+            }
+            return array(
+                'setting' => implode('/', $upload_root_segments),
+                'relative_path' => $relative_path,
+            );
+        }
+        /**
+         * Resolve the canonical file/root pair for a stored custom-upload record without
+         * trusting the form's current upload-root setting.
+         */
+        public static function resolve_stored_owned_upload_candidates( $file, $subdir ) {
+            if( !is_string($file) || !is_string($subdir)
+                || $file==='' || $subdir===''
+                || strpos($file, "\0")!==false || strpos($subdir, "\0")!==false
+                || strpos($file, '\\')!==false || strpos($subdir, '\\')!==false
+                || is_link($file) || !is_file($file) ) {
+                return array();
+            }
+            $real = realpath($file);
+            if( $real===false ) {
+                return array();
+            }
+            $real = wp_normalize_path($real);
+            if( $real!==wp_normalize_path($file) ) {
+                return array();
+            }
+            $parsed = self::parse_stored_owned_upload_subdir( $subdir, basename($real) );
+            if( $parsed===false ) {
+                return array();
+            }
+            $root = self::normalize_configured_upload_root($parsed['setting']);
+            if( $root===false ) {
+                return array();
+            }
+            $resolved = self::resolve_file_under_upload_root($root['path'], $parsed['relative_path']);
+            if( $resolved===false || $resolved['file']!==$real ) {
+                return array();
+            }
+            unset($root['setting']);
+            return array(
+                array(
+                    'file' => $real,
+                    'root' => $root['path'],
+                    'route_prefix' => $root['route_prefix'],
+                    'relative_path' => $parsed['relative_path'],
+                ),
+            );
+        }
+
+        /**
+         * Resolve candidate custom-upload files from the stored legacy subdirectory alone.
+         *
+         * Legacy retained records may predate the hardened path/proof fields; rebuild them
+         * only from one exact server-owned root plus the canonical basename and route.
+         */
+        public static function resolve_stored_owned_upload_candidates_from_subdir( $subdir, $basename='' ) {
+            $parsed = self::parse_stored_owned_upload_subdir( $subdir, $basename );
+            if( $parsed===false ) {
+                return array();
+            }
+            $root = self::normalize_configured_upload_root($parsed['setting']);
+            if( $root===false ) {
+                return array();
+            }
+            $resolved = self::resolve_file_under_upload_root($root['path'], $parsed['relative_path']);
+            if( $resolved===false || is_link($resolved['file']) || !is_file($resolved['file']) ) {
+                return array();
+            }
+            unset($root['setting']);
+            return array(
+                array(
+                    'file' => $resolved['file'],
+                    'root' => $root['path'],
+                    'route_prefix' => $root['route_prefix'],
+                    'relative_path' => $parsed['relative_path'],
+                ),
+            );
+        }
+
+
+        private static function resolve_existing_upload_file( $file, $settings ) {
+            if ( ! is_string( $file ) || '' === $file || false !== strpos( $file, "\0" ) || false !== strpos( $file, '\\' ) ) {
+                return false;
+            }
+            $candidate = $file;
+            $parts = wp_parse_url( $candidate );
+            if ( is_array( $parts ) && isset( $parts['scheme'] ) ) {
+                $site = wp_parse_url( site_url( '/' ) );
+                if ( ! is_array( $site ) || ! isset( $parts['host'], $parts['path'], $site['scheme'], $site['host'] )
+                    || strtolower( $parts['scheme'] ) !== strtolower( $site['scheme'] )
+                    || strtolower( $parts['host'] ) !== strtolower( $site['host'] )
+                    || ( isset( $parts['port'] ) ? (int) $parts['port'] : 0 ) !== ( isset( $site['port'] ) ? (int) $site['port'] : 0 )
+                    || isset( $parts['user'] ) || isset( $parts['pass'] ) || isset( $parts['query'] ) || isset( $parts['fragment'] )
+                    || false !== strpos( $parts['path'], '%' ) ) {
+                    return false;
+                }
+                $route_marker = '/sfgtfi/';
+                $route_start = strpos( $parts['path'], $route_marker );
+                if ( false !== $route_start ) {
+                    $route = substr( $parts['path'], $route_start + strlen( $route_marker ) );
+                    $resolved = self::resolve_sfgtfi_file( $route, $settings );
+                    return ( false !== $resolved ) ? $resolved : self::resolve_signed_sfgtfi_file( $route );
+                }
+                $site_path = isset( $site['path'] ) ? untrailingslashit( $site['path'] ) : '';
+                if ( '' !== $site_path ) {
+                    if ( 0 !== strpos( $parts['path'], trailingslashit( $site_path ) ) ) {
+                        return false;
+                    }
+                    $candidate = substr( $parts['path'], strlen( trailingslashit( $site_path ) ) );
+                } else {
+                    $candidate = ltrim( $parts['path'], '/' );
+                }
+                $candidate = trailingslashit( ABSPATH ) . $candidate;
+            }
+            $candidate = wp_normalize_path( $candidate );
+            if ( '/' !== substr( $candidate, 0, 1 ) && ! preg_match( '/^[a-zA-Z]:\//', $candidate ) ) {
+                $resolved = self::resolve_sfgtfi_file( ltrim( $candidate, '/' ), $settings );
+                return ( false !== $resolved ) ? $resolved : self::resolve_signed_sfgtfi_file( ltrim( $candidate, '/' ) );
+            }
+            $real = realpath( $candidate );
+            if ( false === $real || is_link( $candidate ) || ! is_file( $real ) ) {
+                return false;
+            }
+            $real = wp_normalize_path( $real );
+            if ( $real !== $candidate ) {
+                return false;
+            }
+            $matches = array();
+            foreach ( self::get_allowed_upload_roots( $settings ) as $root ) {
+                if ( self::is_strict_path_descendant( $real, $root['path'] ) ) {
+                    $matches[$root['path']] = array(
+                        'file' => $real,
+                        'root' => $root['path'],
+                    );
+                }
+            }
+            return 1 === count( $matches ) ? reset( $matches ) : false;
+        }
+
 
         public static function filter_upload_dir($dirs){
             if(!empty($GLOBALS['super_upload_dir'])){
@@ -565,22 +1259,49 @@ if(!class_exists('SUPER_Forms')) :
             $global_settings = SUPER_Common::get_global_settings();
             $defaults = SUPER_Settings::get_defaults($global_settings);
             $global_settings = array_merge( $defaults, $global_settings );
-            $upload_folder = $global_settings['file_upload_dir'];
-            if(!isset($settings['file_upload_use_year_month_folders']) || !empty($settings['file_upload_use_year_month_folders'])) {
-                $upload_folder = $global_settings['file_upload_dir'] . $dirs['subdir'];
+            $root = self::normalize_configured_upload_root( $global_settings['file_upload_dir'], true );
+            if ( false === $root ) {
+                $dirs['path'] = '';
+                $dirs['error'] = esc_html__( 'Invalid upload directory.', 'super-forms' );
+                return $dirs;
             }
-            $upload_dir = ABSPATH . $upload_folder;
+
+            $upload_folder = $root['setting'];
+            $upload_dir = $root['path'];
+            if(!isset($global_settings['file_upload_use_year_month_folders']) || !empty($global_settings['file_upload_use_year_month_folders'])) {
+                $time = current_time( 'mysql' );
+                $year = substr( $time, 0, 4 );
+                $month = substr( $time, 5, 2 );
+                $upload_folder = $upload_folder . '/' . $year . '/' . $month;
+                $month_dir = wp_normalize_path( trailingslashit( $upload_dir ) . $year . '/' . $month );
+                $month_real = false;
+                if ( ( is_dir( $month_dir ) || wp_mkdir_p( $month_dir ) ) && ! is_link( $month_dir ) ) {
+                    $month_real = realpath( $month_dir );
+                }
+                if ( false === $month_real || ! self::is_strict_path_descendant( $month_real, $upload_dir ) ) {
+                    $dirs['path'] = '';
+                    $dirs['error'] = esc_html__( 'Invalid upload directory.', 'super-forms' );
+                    return $dirs;
+                }
+                $upload_dir = untrailingslashit( wp_normalize_path( $month_real ) );
+            }
+
             $folderResult = SUPER_Common::generate_random_folder($upload_dir);
+            if ( ! is_array( $folderResult )
+                || empty( $folderResult['folderName'] )
+                || empty( $folderResult['folderPath'] ) ) {
+                $dirs['path'] = '';
+                $dirs['error'] = esc_html__( 'Invalid upload directory.', 'super-forms' );
+                return $dirs;
+            }
             $upload_folder = $upload_folder . '/' . $folderResult['folderName'];
             $siteurl = get_option('siteurl');
             $dirs['path'] = $folderResult['folderPath'];
             $dirs['url'] = trailingslashit($siteurl) . $upload_folder;
-            $dirs['subdir'] = $upload_folder;
-            if(substr($upload_folder, 0, 1) !== '/') {
-                $dirs['subdir'] = '/'.$upload_folder;
-            }
+            $dirs['subdir'] = '/' . ltrim( $upload_folder, '/' );
             $dirs['basedir'] = ABSPATH;
             $dirs['baseurl'] = $siteurl;
+            $dirs['error'] = false;
             return $dirs;
         }
         public static function filter_mime_types($mime_types){
@@ -592,30 +1313,244 @@ if(!class_exists('SUPER_Forms')) :
         }
 
 
+        private static function open_export_attachment( $attachment_id ) {
+            $file = get_attached_file( $attachment_id );
+            if ( ! is_string( $file ) || '' === $file ) {
+                return false;
+            }
+            $file       = wp_normalize_path( $file );
+            $upload_dir = wp_upload_dir();
+            $root       = is_array( $upload_dir ) && empty( $upload_dir['error'] ) && ! empty( $upload_dir['basedir'] )
+                ? realpath( $upload_dir['basedir'] )
+                : false;
+            $real       = realpath( $file );
+            if ( false === $root || false === $real || ! is_file( $real ) || ! is_readable( $real ) ) {
+                return false;
+            }
+            $root = wp_normalize_path( $root );
+            $real = wp_normalize_path( $real );
+            if ( ! self::is_strict_path_descendant( $real, $root ) ) {
+                return false;
+            }
+            $handle = @fopen( $real, 'rb' );
+            if ( false === $handle ) {
+                return false;
+            }
+            $opened       = @fstat( $handle );
+            $current_file = get_attached_file( $attachment_id );
+            $current_real = is_string( $current_file ) && '' !== $current_file ? realpath( $current_file ) : false;
+            $path_stat    = @lstat( $real );
+            $regular      = is_array( $opened ) && isset( $opened['mode'] )
+                && ( ( $opened['mode'] & 0170000 ) === 0100000 );
+            $same_identity = is_array( $opened ) && is_array( $path_stat )
+                && isset( $opened['dev'], $opened['ino'], $path_stat['dev'], $path_stat['ino'] )
+                && (string) $opened['dev'] === (string) $path_stat['dev']
+                && (string) $opened['ino'] === (string) $path_stat['ino'];
+            if ( ! $regular || ! $same_identity || false === $current_real
+                || wp_normalize_path( $current_real ) !== $real ) {
+                fclose( $handle );
+                return false;
+            }
+            $filename = sanitize_file_name( basename( $real ) );
+            $mime     = get_post_mime_type( $attachment_id );
+            return array(
+                'file'     => $real,
+                'filename' => '' !== $filename ? $filename : 'export.txt',
+                'handle'   => $handle,
+                'mime'     => is_string( $mime ) && '' !== $mime ? $mime : 'text/plain',
+                'size'     => isset( $opened['size'] ) ? (int) $opened['size'] : -1,
+            );
+        }
+
+        /**
+         * WordPress 4.9's wp_schedule_single_event() returns void on success.
+         * Its side effect, rather than that legacy return value, is authoritative.
+         */
+        private static function export_cleanup_schedule_succeeded( $schedule_result, $attachment_id ) {
+            if ( is_wp_error( $schedule_result ) || false === $schedule_result ) {
+                return false;
+            }
+            return false !== wp_next_scheduled(
+                'super_cleanup_export_attachment',
+                array( $attachment_id )
+            );
+        }
+
+        public static function create_export_download_url( $attachment_id ) {
+            $attachment_id = absint( $attachment_id );
+            $owner_id      = get_current_user_id();
+            if ( ! $attachment_id || ! $owner_id
+                || 'attachment' !== get_post_type( $attachment_id )
+                || absint( get_post_field( 'post_author', $attachment_id ) ) !== $owner_id
+                || ! current_user_can( 'manage_options' ) ) {
+                return false;
+            }
+            $opened = self::open_export_attachment( $attachment_id );
+            if ( false === $opened ) {
+                return false;
+            }
+            fclose( $opened['handle'] );
+            $token = self::generate_secure_hex(32);
+            if( !is_string($token) || preg_match('/^[a-f0-9]{64}$/D', $token)!==1 ) {
+                return false;
+            }
+            $expires = time() + 5 * MINUTE_IN_SECONDS;
+            $metadata = array(
+                '_super_forms_export_owner'      => $owner_id,
+                '_super_forms_export_expires'    => $expires,
+                '_super_forms_export_token_hash' => hash( 'sha256', $token ),
+                '_super_forms_export_file'       => 1,
+            );
+            $stored = array();
+            foreach ( $metadata as $key => $value ) {
+                if ( ! add_post_meta( $attachment_id, $key, $value, true ) ) {
+                    foreach ( $stored as $stored_key => $stored_value ) {
+                        delete_post_meta( $attachment_id, $stored_key, $stored_value );
+                    }
+                    return false;
+                }
+                $stored[ $key ] = $value;
+            }
+            $scheduled = wp_schedule_single_event(
+                $expires,
+                'super_cleanup_export_attachment',
+                array( $attachment_id )
+            );
+            if ( ! self::export_cleanup_schedule_succeeded( $scheduled, $attachment_id ) ) {
+                foreach ( $stored as $stored_key => $stored_value ) {
+                    delete_post_meta( $attachment_id, $stored_key, $stored_value );
+                }
+                return false;
+            }
+            return add_query_arg(
+                array(
+                    'sfdlfi'       => $attachment_id,
+                    'sfdlfi_token' => $token,
+                ),
+                home_url( '/' )
+            );
+        }
+
+        public static function consume_export_download( $attachment_id, $token ) {
+            $attachment_id = absint( $attachment_id );
+            $current_user  = get_current_user_id();
+            if ( ! $attachment_id || ! $current_user
+                || ! current_user_can( 'manage_options' ) ) {
+                return new WP_Error( 'export_download_forbidden', __( 'Sorry, you are not allowed to export this file.', 'super-forms' ) );
+            }
+            $owner   = get_post_meta( $attachment_id, '_super_forms_export_owner', true );
+            $expires = get_post_meta( $attachment_id, '_super_forms_export_expires', true );
+            if ( 'attachment' !== get_post_type( $attachment_id )
+                || '1' !== (string) get_post_meta( $attachment_id, '_super_forms_export_file', true )
+                || ! is_scalar( $owner ) || ! preg_match( '/^[0-9]+$/D', (string) $owner )
+                || absint( $owner ) !== $current_user
+                || absint( get_post_field( 'post_author', $attachment_id ) ) !== $current_user
+                || ! is_scalar( $expires ) || ! preg_match( '/^[0-9]+$/D', (string) $expires )
+                || time() >= (int) $expires
+                || ! is_string( $token ) || ! preg_match( '/^[a-f0-9]{64}$/D', $token ) ) {
+                return new WP_Error( 'invalid_export_download', __( 'File not found', 'super-forms' ) );
+            }
+            $stored_hash = get_post_meta( $attachment_id, '_super_forms_export_token_hash', true );
+            $token_hash  = hash( 'sha256', $token );
+            if ( ! is_string( $stored_hash ) || ! preg_match( '/^[a-f0-9]{64}$/D', $stored_hash )
+                || ! hash_equals( $stored_hash, $token_hash ) ) {
+                return new WP_Error( 'invalid_export_download', __( 'File not found', 'super-forms' ) );
+            }
+            $opened = self::open_export_attachment( $attachment_id );
+            if ( false === $opened ) {
+                return new WP_Error( 'export_download_fetch_failed', __( 'File not found', 'super-forms' ) );
+            }
+            if ( $opened['size'] < 0 ) {
+                fclose( $opened['handle'] );
+                return new WP_Error( 'export_download_fetch_failed', __( 'File not found', 'super-forms' ) );
+            }
+            // Atomically claim the single-use token before any bytes are served.
+            // Only the caller that removes the exact stored hash wins the grant;
+            // a concurrent or replayed request fails closed here.
+            if ( ! delete_post_meta( $attachment_id, '_super_forms_export_token_hash', $stored_hash ) ) {
+                fclose( $opened['handle'] );
+                return new WP_Error( 'export_download_consumed', __( 'File not found', 'super-forms' ) );
+            }
+            wp_unschedule_event( (int) $expires, 'super_cleanup_export_attachment', array( $attachment_id ) );
+            return array(
+                'attachment_id' => $attachment_id,
+                'handle'        => $opened['handle'],
+                'size'          => (int) $opened['size'],
+                'filename'      => $opened['filename'],
+                'mime'          => $opened['mime'],
+            );
+        }
+
+        public static function cleanup_export_attachment( $attachment_id ) {
+            $attachment_id = absint( $attachment_id );
+            if ( ! $attachment_id || 'attachment' !== get_post_type( $attachment_id )
+                || '1' !== (string) get_post_meta( $attachment_id, '_super_forms_export_file', true ) ) {
+                return;
+            }
+            $owner       = get_post_meta( $attachment_id, '_super_forms_export_owner', true );
+            $expires     = get_post_meta( $attachment_id, '_super_forms_export_expires', true );
+            $stored_hash = get_post_meta( $attachment_id, '_super_forms_export_token_hash', true );
+            if ( ! is_scalar( $owner ) || ! preg_match( '/^[0-9]+$/D', (string) $owner ) || ! absint( $owner )
+                || absint( get_post_field( 'post_author', $attachment_id ) ) !== absint( $owner )
+                || ! is_scalar( $expires ) || ! preg_match( '/^[0-9]+$/D', (string) $expires )
+                || time() < (int) $expires
+                || ! is_string( $stored_hash ) || ! preg_match( '/^[a-f0-9]{64}$/D', $stored_hash ) ) {
+                return;
+            }
+            $opened = self::open_export_attachment( $attachment_id );
+            if ( false === $opened ) {
+                return;
+            }
+            if ( ! delete_post_meta( $attachment_id, '_super_forms_export_token_hash', $stored_hash ) ) {
+                fclose( $opened['handle'] );
+                return;
+            }
+            fclose( $opened['handle'] );
+            if ( ! wp_delete_attachment( $attachment_id, true ) && get_post( $attachment_id )
+                && add_post_meta( $attachment_id, '_super_forms_export_token_hash', $stored_hash, true ) ) {
+                wp_schedule_single_event( time() + MINUTE_IN_SECONDS, 'super_cleanup_export_attachment', array( $attachment_id ) );
+            }
+        }
+
         public function parse_request( &$wp ) {
             if ( array_key_exists( 'sfdlfi', $wp->query_vars ) ) {
-                if ( ! current_user_can( 'export' ) ) {
-                    wp_die( __( 'Sorry, you are not allowed to export the content of this site.' ) );
+                $request_method = isset( $_SERVER['REQUEST_METHOD'] ) ? strtoupper( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_METHOD'] ) ) ) : 'GET';
+                if ( 'GET' !== $request_method ) {
+                    wp_die( esc_html__( 'File not found', 'super-forms' ), '', array( 'response' => 404 ) );
                 }
-                $fileLocation = $wp->query_vars['sfdlfi'];
-                $url = wp_get_attachment_url( $fileLocation );
-                if(empty($url)){
-                    header("HTTP/1.1 404 Not Found");
-                    exit;
+                // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- authenticity is the single-use export token itself, verified by SUPER_Forms::consume_export_download() (super-forms.php:1434-1482: hash_equals() against the stored sha256 token hash plus an atomic delete_post_meta() single-use claim).
+                $token = isset( $wp->query_vars['sfdlfi_token'] ) ? $wp->query_vars['sfdlfi_token'] : ( isset( $_GET['sfdlfi_token'] ) ? sanitize_text_field( wp_unslash( $_GET['sfdlfi_token'] ) ) : '' );
+                $download = self::consume_export_download( $wp->query_vars['sfdlfi'], $token );
+                if ( is_wp_error( $download ) ) {
+                    wp_die( esc_html__( 'File not found', 'super-forms' ), '', array( 'response' => 404 ) );
                 }
-                $request = wp_safe_remote_get($url);
-                if ( is_wp_error( $request ) ) {
-                    header("HTTP/1.1 404 Not Found");
-                    exit;
+                $attachment_id = absint( $download['attachment_id'] );
+                $handle        = $download['handle'];
+                try {
+                    foreach ( self::download_cache_headers( true ) as $name => $value ) {
+                        if ( false === $value ) {
+                            header_remove( $name );
+                            continue;
+                        }
+                        header( $name . ': ' . $value, true );
+                    }
+                    header( 'Content-Description: File Transfer' );
+                    header( 'Content-Disposition: attachment; filename="' . $download['filename'] . '"' );
+                    header( 'Content-Type: ' . $download['mime'] );
+                    header( 'X-Content-Type-Options: nosniff' );
+                    header( 'Referrer-Policy: no-referrer' );
+                    header( 'Content-Length: ' . $download['size'] );
+                    // Stream straight from the open handle: PHP reads in bounded
+                    // internal chunks, so the export is never buffered in memory.
+                    fpassthru( $handle );
+                } finally {
+                    if ( is_resource( $handle ) ) {
+                        fclose( $handle );
+                    }
+                    // Guaranteed cleanup: the token is already claimed, so delete
+                    // the single-use export attachment even if streaming aborted.
+                    wp_delete_attachment( $attachment_id, true );
                 }
-                $content = wp_remote_retrieve_body( $request );
-
-                // Delete the export data
-                wp_delete_attachment( $fileLocation, true );
-                header('Content-Description: File Transfer');
-                header('Content-Disposition: attachment; filename=' . basename($url) );
-                header('Content-Type: text/txt; charset=' . get_option( 'blog_charset' ), true );
-                echo $content;
                 exit;
             }
             if ( array_key_exists( 'sfgtfi', $wp->query_vars ) ) {
@@ -649,58 +1584,80 @@ if(!class_exists('SUPER_Forms')) :
                     }
                 }
                 if($auth===false){
-                    auth_redirect();
+                    if ( ! is_user_logged_in() ) {
+                        auth_redirect();
+                    }
+                    foreach ( self::download_cache_headers( true ) as $name => $value ) {
+                        if ( false === $value ) {
+                            header_remove( $name );
+                            continue;
+                        }
+                        header( $name . ': ' . $value, true );
+                    }
+                    status_header(404);
+                    exit;
                 }
-                $fileLocation = $wp->query_vars['sfgtfi'];
-                // Check if this file was uploaded via the new file upload system (v5.0.0+)
-                // This is true if the subdir is 13 digits long
-                $new = false;
-                $re = '/[0-9]{13}\/.*\..*/m';
-                preg_match_all($re, $fileLocation, $matches, PREG_SET_ORDER, 0);
-                if($matches) $new = true;
-                $re = '/[0-9]{4}\/[0-9]{2}\/[0-9]{13}\/.*\..*/m';
-                preg_match_all($re, $fileLocation, $matches, PREG_SET_ORDER, 0);
-                if($matches) $new = true;
-                if($new){
-                    // Was uploaded with the new file upload system...
-                    $file = ABSPATH . str_replace('__/', '../', $wp->query_vars['sfgtfi']);
-                    $file = urldecode(urlencode($file));
-                    if(!is_file($file)) {
+                if ( ! empty( $settings['file_upload_auth'] ) ) {
+                    foreach ( self::download_cache_headers( true ) as $name => $value ) {
+                        if ( false === $value ) {
+                            header_remove( $name );
+                            continue;
+                        }
+                        header( $name . ': ' . $value, true );
+                    }
+                }
+                $route = is_string( $wp->query_vars['sfgtfi'] ) ? $wp->query_vars['sfgtfi'] : '';
+                // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- disposition is only honoured when SUPER_Forms::signed_sfgtfi_route_is_valid() (super-forms.php:978-985, hash_equals() against hash_hmac('sha256') over disposition + route) validates it at super-forms.php:1612-1617, and it is then reduced to the inline|attachment allowlist by SUPER_Forms::normalize_owned_upload_disposition() (super-forms.php:946-951).
+                $requested_disposition = isset($_GET['sfgtfi_disp']) ? sanitize_key(wp_unslash($_GET['sfgtfi_disp'])) : '';
+                $signed_disposition = self::signed_sfgtfi_route_is_valid(
+                    $route,
+                    // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- this value IS the request authenticator: SUPER_Forms::signed_sfgtfi_route_is_valid() (super-forms.php:978-985) shape-checks it with preg_match('/^[a-f0-9]{64}$/D') and hash_equals() compares it to SUPER_Forms::signed_sfgtfi_route_signature() (super-forms.php:971-976).
+                    isset($_GET['sfgtfi_sig']) && is_string($_GET['sfgtfi_sig']) ? sanitize_text_field( wp_unslash($_GET['sfgtfi_sig']) ) : '',
+                    $requested_disposition
+                ) ? self::normalize_owned_upload_disposition( $requested_disposition ) : '';
+                $resolved_file = self::resolve_sfgtfi_file( $route, $settings );
+                if ( false === $resolved_file && $signed_disposition!=='' ) {
+                    $resolved_file = self::resolve_signed_sfgtfi_file( $route );
+                }
+                if ( false === $resolved_file ) {
                         status_header(404);
                         exit;
                     }
-                }else{
-                    // Get settings
-                    $settings = SUPER_Common::get_form_settings(0);
-                    // Default to super forms directory
-                    $uploadPath = SUPER_FORMS_UPLOAD_DIR;
-                    if(!empty($settings['file_upload_dir'])){
-                        // User defined directory
-                        $uploadPath = ABSPATH . $settings['file_upload_dir'];
+                $file = $resolved_file['file'];
+                $handle = @fopen( $file, 'rb' );
+                $opened = ( false !== $handle ) ? fstat( $handle ) : false;
+                $path_stat = @lstat( $file );
+                $canonical_now = realpath( $file );
+                $regular_mode = is_array( $opened ) && isset( $opened['mode'] )
+                    && ( ( $opened['mode'] & 0170000 ) === 0100000 );
+                $same_identity = is_array( $opened ) && is_array( $path_stat )
+                    && isset( $opened['dev'], $opened['ino'], $path_stat['dev'], $path_stat['ino'] )
+                    && (string) $opened['dev'] === (string) $path_stat['dev']
+                    && (string) $opened['ino'] === (string) $path_stat['ino'];
+                if ( false === $handle || ! $regular_mode || ! $same_identity
+                    || is_link( $file ) || false === $canonical_now
+                    || wp_normalize_path( $canonical_now ) !== wp_normalize_path( $file ) ) {
+                    if ( is_resource( $handle ) ) {
+                        fclose( $handle );
                     }
-                    $file =  wp_normalize_path(trailingslashit($uploadPath) . $fileLocation);
-                    $file = urldecode( $file );
-                    if (!$uploadPath || !is_file($file)) {
-                        status_header(404);
-                        exit;
-                    }
+                    status_header(404);
+                    exit;
                 }
-                $mime = wp_check_filetype($file);
-                if( false === $mime[ 'type' ] && function_exists( 'mime_content_type' ) ) {
-                    $mime[ 'type' ] = mime_content_type( $file );
+                $mime = wp_check_filetype( basename( $file ) );
+                $mimetype = ! empty( $mime['type'] ) ? $mime['type'] : 'application/octet-stream';
+                $disposition = self::normalize_owned_upload_disposition(
+                    $signed_disposition,
+                    ( strpos( $mimetype, 'image/' ) === 0 ) ? 'inline' : 'attachment'
+                );
+                header( 'Content-Type: ' . $mimetype );
+                header( 'X-Content-Type-Options: nosniff' );
+                header( 'Content-Disposition: ' . $disposition . '; filename="' . sanitize_file_name( basename( $file ) ) . '"' );
+                if ( false === strpos( isset( $_SERVER['SERVER_SOFTWARE'] ) ? sanitize_text_field( wp_unslash( $_SERVER['SERVER_SOFTWARE'] ) ) : '', 'Microsoft-IIS' ) ) {
+                    header( 'Content-Length: ' . (string) $opened['size'] );
                 }
-                if($mime['type']) {
-                    $mimetype = $mime['type'];
-                }else{
-                    $mimetype = 'image/' . substr( $file, strrpos( $file, '.' ) + 1 );
-                }
-                header( 'Content-Type: ' . $mimetype ); // always send this
-                if ( false === strpos( $_SERVER['SERVER_SOFTWARE'], 'Microsoft-IIS' ) ) {
-                    header( 'Content-Length: ' . filesize( $file ) );
-                }
-                self::caching_headers($file, filemtime($file));
-                // If we made it this far, just serve the file
-                readfile( $file );
+                self::caching_headers( $file, $opened['mtime'], ! empty( $settings['file_upload_auth'] ) );
+                fpassthru( $handle );
+                fclose( $handle );
                 exit();
             }
             return;
@@ -730,6 +1687,15 @@ if(!class_exists('SUPER_Forms')) :
                     )
                 ) );
             }
+            $meta_query = $query->get( 'meta_query' );
+            if ( ! is_array( $meta_query ) ) {
+                $meta_query = array();
+            }
+            $meta_query[] = array(
+                'key'     => '_super_forms_export_file',
+                'compare' => 'NOT EXISTS',
+            );
+            $query->set( 'meta_query', $meta_query );
 
         }
         // Hide file uploads in grid view (Media Library) and from overlay view (popup)
@@ -751,6 +1717,13 @@ if(!class_exists('SUPER_Forms')) :
                     )
                 );
             }
+            if ( ! isset( $args['meta_query'] ) || ! is_array( $args['meta_query'] ) ) {
+                $args['meta_query'] = array();
+            }
+            $args['meta_query'][] = array(
+                'key'     => '_super_forms_export_file',
+                'compare' => 'NOT EXISTS',
+            );
             return $args;
         }
         public function api_post_activation() {
@@ -848,40 +1821,240 @@ if(!class_exists('SUPER_Forms')) :
             return $post_types;
         }
 
-        // If enabled, delete all attachments related to this contact entry
-        public static function delete_entry_attachments( $post_id ) {
-            // First check if this is a contact entry
-            if( get_post_type($post_id)=='super_contact_entry' ) {
-                $global_settings = SUPER_Common::get_global_settings();
-                if(!empty($global_settings['file_upload_entry_delete'])){
-                    $attachments = get_attached_media( '', $post_id );
-                    foreach( $attachments as $attachment ) {
-                        // Force delete this attachment
-                        wp_delete_attachment( $attachment->ID, true );
+        private static function entry_attachment_delete_allowlist( $entry_data ) {
+            $allowlist = array();
+            if( !is_array($entry_data) ) {
+                return $allowlist;
+            }
+            foreach( $entry_data as $field_name => $field ) {
+                if( !is_array($field) || empty($field['files']) || !is_array($field['files']) ) {
+                    continue;
+                }
+                $stored_field_name = ( isset($field['field_name']) && is_string($field['field_name']) && $field['field_name']!=='' )
+                    ? $field['field_name']
+                    : ( is_string($field_name) ? $field_name : '' );
+                if( $stored_field_name==='' ) {
+                    continue;
+                }
+                foreach( $field['files'] as $file ) {
+                    if( !is_array($file) || empty($file['attachment']) ) {
+                        continue;
                     }
-                    // Must also delete private uploaded files (if any)
-                    $contact_entry_data = get_post_meta( $post_id, '_super_contact_entry_data', true );
-                    if( is_array($contact_entry_data) ) {
-                        foreach( $contact_entry_data as $k => $v ) {
-                            if( isset($v['type']) && ($v['type']=='files') ) {
-                                if( isset( $v['files'] ) ) {
-                                    // Delete possible generated PDF file
-                                    foreach( $v['files'] as $fk => $fv ) {
-                                        if($k==='_generated_pdf_file'){
-                                            if(!empty($fv['url'])){
-                                                // Try to delete it
-                                                SUPER_Common::delete_dir( $fv['url'] );
-                                            }
-                                        }else{
-                                            if(!empty($fv['path'])){
-                                                // Try to delete it
-                                                SUPER_Common::delete_dir( $fv['path'] );
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                    $attachment_id = absint($file['attachment']);
+                    if( $attachment_id<=0 ) {
+                        continue;
+                    }
+                    if( isset($allowlist[$attachment_id]) && $allowlist[$attachment_id]!==$stored_field_name ) {
+                        $allowlist[$attachment_id] = false;
+                        continue;
+                    }
+                    $allowlist[$attachment_id] = $stored_field_name;
+                }
+            }
+            return $allowlist;
+        }
+
+        private static function legacy_entry_attachment_is_deletable( $attachment_id, $entry_id ) {
+            $attachment_id = absint($attachment_id);
+            $entry_id = absint($entry_id);
+            if( !$attachment_id || !$entry_id || get_post_type($attachment_id)!=='attachment'
+                || wp_get_post_parent_id($attachment_id)!==$entry_id ) {
+                return false;
+            }
+            $upload_dir = wp_upload_dir();
+            $root = ( is_array($upload_dir) && empty($upload_dir['error']) && !empty($upload_dir['basedir']) )
+                ? realpath($upload_dir['basedir'])
+                : false;
+            if( $root===false || !is_dir($root) ) {
+                return false;
+            }
+            $root = untrailingslashit( wp_normalize_path($root) );
+            $attached_file = get_attached_file($attachment_id);
+            if( !is_string($attached_file) || $attached_file==='' || is_link($attached_file) ) {
+                return false;
+            }
+            $real = realpath($attached_file);
+            if( $real===false || !is_file($real) ) {
+                return false;
+            }
+            $real = wp_normalize_path($real);
+            return self::is_strict_path_descendant($real, $root);
+        }
+        private static function legacy_entry_custom_file_allowed_root( $file, $form_id, $stored_field_name ) {
+            if( !is_array($file)
+                || !empty($file['attachment'])
+                || empty($file['path'])
+                || empty($file['subdir'])
+                || empty($file['type'])
+                || empty($file['url'])
+                || !is_string($file['path'])
+                || !is_string($file['subdir'])
+                || !is_string($file['type'])
+                || !is_string($file['url']) ) {
+                return false;
+            }
+            $stored_proof = ( isset($file['_super_file_proof']) && is_string($file['_super_file_proof']) )
+                ? $file['_super_file_proof']
+                : '';
+            if( $stored_proof!=='' && preg_match('/^[a-f0-9]{64}$/D', $stored_proof)!==1 ) {
+                return false;
+            }
+            $stored_value = ( isset($file['value']) && is_string($file['value']) ) ? $file['value'] : basename($file['path']);
+            if( $stored_value===''
+                || basename($file['path'])!==$stored_value
+                || is_link($file['path'])
+                || !is_file($file['path']) ) {
+                return false;
+            }
+            $size = filesize($file['path']);
+            if( !is_int($size) || $size<0 ) {
+                return false;
+            }
+            $proof_matches = array();
+            $legacy_matches = array();
+            $candidates = self::resolve_stored_owned_upload_candidates($file['path'], $file['subdir']);
+            if( empty($candidates) ) {
+                $candidates = self::resolve_stored_owned_upload_candidates_from_subdir($file['subdir'], $stored_value);
+            }
+            foreach( $candidates as $candidate ) {
+                if( !is_array($candidate)
+                    || empty($candidate['file']) || !is_string($candidate['file'])
+                    || empty($candidate['root']) || !is_string($candidate['root'])
+                    || empty($candidate['route_prefix']) || !is_string($candidate['route_prefix'])
+                    || empty($candidate['relative_path']) || !is_string($candidate['relative_path'])
+                    || basename($candidate['file'])!==$stored_value
+                    || wp_normalize_path($candidate['file'])!==wp_normalize_path($file['path']) ) {
+                    continue;
+                }
+                $canonical_subdir = '/' . ltrim(
+                    trailingslashit(str_replace('__/', '../', $candidate['route_prefix'])) . $candidate['relative_path'],
+                    '/'
+                );
+                if( !in_array($file['subdir'], array($canonical_subdir, ltrim($canonical_subdir, '/')), true) ) {
+                    continue;
+                }
+                $canonical_url = trailingslashit( get_option('siteurl') ) . 'sfgtfi/' . ltrim(
+                    trailingslashit($candidate['route_prefix']) . $candidate['relative_path'],
+                    '/'
+                );
+                $stored_route_offset = strpos( $file['url'], '/sfgtfi/' );
+                $canonical_route_offset = strpos( $canonical_url, '/sfgtfi/' );
+                if( $stored_route_offset===false || $canonical_route_offset===false
+                    || substr( $file['url'], $stored_route_offset )!==substr( $canonical_url, $canonical_route_offset ) ) {
+                    continue;
+                }
+                $owned = SUPER_Ajax::build_owned_upload(
+                    $form_id,
+                    $stored_field_name,
+                    $candidate['file'],
+                    $file['type'],
+                    $file['url'],
+                    0,
+                    $candidate['root'],
+                    $size,
+                    $canonical_subdir
+                );
+                if( !is_array($owned) ) {
+                    continue;
+                }
+                $proof = SUPER_Ajax::owned_custom_upload_proof($owned);
+                if( $stored_proof!=='' ) {
+                    if( $proof!==false && hash_equals($stored_proof, $proof) ) {
+                        $proof_matches[$candidate['root']] = $candidate['root'];
+                    }
+                    continue;
+                }
+                $legacy_matches[$candidate['root']] = $candidate['root'];
+            }
+            if( $stored_proof!=='' ) {
+                return count($proof_matches)===1 ? reset($proof_matches) : false;
+            }
+            return count($legacy_matches)===1 ? reset($legacy_matches) : false;
+        }
+
+        // If enabled, delete all attachments and owned custom files related to this contact entry
+        public static function delete_entry_attachments( $post_id ) {
+            $entry = get_post( $post_id );
+            if( !($entry instanceof WP_Post) || $entry->post_type!=='super_contact_entry' ) {
+                return;
+            }
+            if( !class_exists('SUPER_Ajax') ) {
+                require_once( SUPER_PLUGIN_DIR . '/includes/class-ajax.php' );
+            }
+            if( !class_exists('SUPER_Ajax') ) {
+                return;
+            }
+            $global_settings = SUPER_Common::get_global_settings();
+            if( empty($global_settings['file_upload_entry_delete']) ) {
+                return;
+            }
+            $entry_id = absint( $entry->ID );
+            $form_id = absint( $entry->post_parent );
+            $entry_data = SUPER_Data_Access::get_entry_data($entry_id);
+            $attachment_allowlist = self::entry_attachment_delete_allowlist($entry_data);
+            foreach( get_attached_media( '', $entry_id ) as $attachment ) {
+                $attachment_id = isset($attachment->ID) ? absint($attachment->ID) : 0;
+                if( !$attachment_id
+                    || !isset($attachment_allowlist[$attachment_id])
+                    || $attachment_allowlist[$attachment_id]===false
+                    || get_post_type($attachment_id)!=='attachment'
+                    || wp_get_post_parent_id($attachment_id)!==$entry_id ) {
+                    continue;
+                }
+                if( metadata_exists('post', $attachment_id, '_super_forms_upload_form_id') ) {
+                    $stored_form_id = get_post_meta($attachment_id, '_super_forms_upload_form_id', true);
+                    if( !is_scalar($stored_form_id)
+                        || !preg_match('/^[0-9]+$/D', (string) $stored_form_id)
+                        || absint($stored_form_id)!==$form_id ) {
+                        continue;
+                    }
+                }
+                if( metadata_exists('post', $attachment_id, '_super_forms_upload_field') ) {
+                    $stored_field = get_post_meta($attachment_id, '_super_forms_upload_field', true);
+                    if( !is_string($stored_field) || $stored_field==='' || $stored_field!==$attachment_allowlist[$attachment_id] ) {
+                        continue;
+                    }
+                }
+                $has_marker = !!get_post_meta($attachment_id, 'super-forms-form-upload-file', true);
+                if( !$has_marker && !self::legacy_entry_attachment_is_deletable($attachment_id, $entry_id) ) {
+                    continue;
+                }
+                wp_delete_attachment( $attachment_id, true );
+            }
+            if( !is_array($entry_data) ) {
+                return;
+            }
+            foreach( $entry_data as $field_name => $field ) {
+                if( !is_array($field) || empty($field['files']) || !is_array($field['files']) ) {
+                    continue;
+                }
+                $stored_field_name = ( isset($field['field_name']) && is_string($field['field_name']) && $field['field_name']!=='' )
+                    ? $field['field_name']
+                    : $field_name;
+                if( !is_string($stored_field_name) || $stored_field_name==='' ) {
+                    continue;
+                }
+                foreach( $field['files'] as $file ) {
+                    if( !is_array($file)
+                        || !empty($file['attachment'])
+                        || empty($file['path'])
+                        || empty($file['subdir'])
+                        || empty($file['type'])
+                        || empty($file['url'])
+                        || !is_string($field_name)
+                        || !is_string($file['path'])
+                        || !is_string($file['subdir'])
+                        || !is_string($file['type'])
+                        || !is_string($file['url']) ) {
+                        continue;
+                    }
+                    $matched_root = self::legacy_entry_custom_file_allowed_root(
+                        $file,
+                        $form_id,
+                        $stored_field_name
+                    );
+                    if( $matched_root!==false ) {
+                        SUPER_Common::delete_file( $file['path'], $matched_root );
                     }
                 }
             }
@@ -2358,6 +3531,8 @@ if(!class_exists('SUPER_Forms')) :
                         ),
                         'method'  => 'register', // Register because we need to localize it
                         'localize'=> array(
+                            'save_form_nonce' => wp_create_nonce( 'super_save_form' ),
+                            'admin_nonce' => wp_create_nonce( 'super_admin_ajax' ),
                             'not_editing_an_element' => sprintf( esc_html__( 'You are currently not editing an element.%sEdit any alement by clicking the %s icon.', 'super-forms' ), '<br />', '<i class="fa fa-pencil"></i>' ),
                             'no_backups_found' => esc_html__( 'No backups found...', 'super-forms' ),
                             'confirm_reset' => esc_html__( 'Are you sure you want to reset all the form settings according to your current global settings?', 'super-forms' ),
@@ -2391,11 +3566,14 @@ if(!class_exists('SUPER_Forms')) :
                         'deps'    => array( 'super-common', 'jquery-ui-datepicker', 'jquery-ui-sortable' ), 
                         'version' => SUPER_VERSION,
                         'footer'  => false,
+                        'localize' => array(
+                            'admin_nonce' => wp_create_nonce( 'super_admin_ajax' ),
+                        ),
                         'screen'  => array(
                             'edit-super_contact_entry',
                             'admin_page_super_contact_entry'
                         ),
-                        'method'  => 'enqueue',
+                        'method'  => 'register',
                     ),
                     'jquery-pep' => array(
                         'src'     => $backend_path . 'jquery-pep.js',
@@ -2413,6 +3591,7 @@ if(!class_exists('SUPER_Forms')) :
                         'screen'  => array( 'super-forms_page_super_settings' ),
                         'method'  => 'register', // Register because we need to localize it
                         'localize' => array(
+                            'admin_nonce' => wp_create_nonce( 'super_admin_ajax' ),
                             'import_working' => esc_html__( 'Importing...', 'super-forms' ),
                             'import_completed' => esc_html__( 'Import completed', 'super-forms' ),
                             'import_error' => esc_html__( 'Import failed: something went wrong while importing.', 'super-forms' ),
@@ -2438,6 +3617,7 @@ if(!class_exists('SUPER_Forms')) :
                         'screen'  => array( 'super-forms_page_super_demos' ),
                         'method'  => 'register', // Register because we need to localize it
                         'localize' => array(
+                            'admin_nonce' => wp_create_nonce( 'super_admin_ajax' ),
                             'reason' => esc_html__( 'Reason', 'super-forms' ),
                             'reason_empty' => esc_html__( 'Please enter a reason!', 'super-forms' ),
                             'connection_lost' => esc_html__( 'Connection lost, please try again', 'super-forms' ),
