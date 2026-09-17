@@ -6,7 +6,7 @@ description: An advanced, flexible yet easy to use premium form builder for Word
 
 Download **Super Forms** installable plugin file:
 
-* [super-forms.zip](https://super-forms.com/download-super-forms-stable.php) (<mark style="color:green;">stable release v6.3.316</mark>).
+* [super-forms.zip](https://super-forms.com/download-super-forms-stable.php) (<mark style="color:green;">stable release v6.3.317</mark>).
 * [super-forms-beta.zip](developers/beta-version.md) (<mark style="color:red;">v6.4.007 - Jul 17, 2026</mark>).
 
 ### Quick links
