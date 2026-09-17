@@ -7906,7 +7906,7 @@ class SUPER_Ajax {
         $data = array();
         if( !empty( $_POST['data'] ) ) {
             // Validate that the payload is a JSON object/array literal before decoding: filter_var()
-            // returns the subject byte-for-byte when the pattern matches and false otherwise, so a
+            // returns the subject unchanged when the pattern matches and false otherwise, so a
             // non-string payload (e.g. an array) is rejected below instead of reaching json_decode().
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5292-5299) in upload_files() (includes/class-ajax.php:8172-8174) and submit_form() (includes/class-ajax.php:8479-8481)
             $data = json_decode(filter_var(wp_unslash($_POST['data']), FILTER_VALIDATE_REGEXP, array('options'=>array('regexp'=>'`\A\s*[\[{]`'))), true);
@@ -7975,7 +7975,7 @@ class SUPER_Ajax {
         // raw PDF bytes are absent from both their data and post payloads.
         $settings_filter_data = self::submission_data_without_files($data);
         // Snapshot the request array before $_POST['data'] is rewritten for the settings
-        // extensions, so the original payload can be restored byte-for-byte afterwards.
+        // extensions, so the original payload can be restored unchanged afterwards.
         $original_post = $_POST; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- CSRF-verified by both callers of submit_form_checks() before this read: SUPER_Common::verifyCSRF() (includes/class-common.php:785-793) + SUPER_Ajax::csrf_policy_allows_request() (includes/class-ajax.php:5292-5299) in upload_files() (includes/class-ajax.php:8172-8174) and submit_form() (includes/class-ajax.php:8479-8481)
         $had_post_data = array_key_exists('data', $original_post);
         $original_post_data = $had_post_data ? $original_post['data'] : null;
