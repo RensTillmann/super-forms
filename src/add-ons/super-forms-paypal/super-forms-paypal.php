@@ -1973,7 +1973,12 @@ if( !class_exists('SUPER_PayPal') ) :
             	}
 
 				// Get User ID and save it in custom parameter for paypal so we can update the user status after successfull payment complete
-				$user_id = SUPER_Common::getClientData( 'super_forms_registered_user_id' );
+				$submission_info = !empty($atts['sfs_uid']) && is_string($atts['sfs_uid'])
+                    ? get_option('_sfsi_' . $atts['sfs_uid'], array()) : array();
+                $user_id = is_array($submission_info)
+                    && isset($submission_info['form_id'], $submission_info['account_user_id'])
+                    && absint($submission_info['form_id'])===absint($atts['post']['form_id'])
+                    ? absint($submission_info['account_user_id']) : 0;
 				if( $user_id==false ) {
 					$user_id = 0;
             	}

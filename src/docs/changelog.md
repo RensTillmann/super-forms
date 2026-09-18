@@ -9,6 +9,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## 2026-08-30 - Version 6.4.008-beta
+
+- **Security fix:** Hardened form file uploads, generated file downloads, account registration and updates, Listings entry actions, form administration, and contact entry imports and exports.
+
 ## 2026-07-15 - Version 6.4.007-beta
 
 - **Fix:** Corrected server-side validation so optional fields can be left empty while required fields, including Toggle elements and fields in repeated rows, are enforced.
