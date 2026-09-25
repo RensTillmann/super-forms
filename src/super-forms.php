@@ -21,7 +21,7 @@
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Requires at least: 4.9
  * Tested up to:      7.0.1
- * Requires PHP:      5.4
+ * Requires PHP:      7.4
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
