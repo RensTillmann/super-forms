@@ -1,10 +1,10 @@
 <?php return array(
     'root' => array(
-        'name' => 'super-forms/google-lib',
+        'name' => 'super-forms/super-forms',
         'pretty_version' => '1.0.0+no-version-set',
         'version' => '1.0.0.0',
         'reference' => null,
-        'type' => 'library',
+        'type' => 'wordpress-plugin',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
         'dev' => false,
@@ -187,11 +187,20 @@
             'aliases' => array(),
             'dev_requirement' => false,
         ),
-        'super-forms/google-lib' => array(
+        'stripe/stripe-php' => array(
+            'pretty_version' => 'v14.2.0',
+            'version' => '14.2.0.0',
+            'reference' => '6b77ba6b2f8791dabc5404befd6c0ead59203892',
+            'type' => 'library',
+            'install_path' => __DIR__ . '/../stripe/stripe-php',
+            'aliases' => array(),
+            'dev_requirement' => false,
+        ),
+        'super-forms/super-forms' => array(
             'pretty_version' => '1.0.0+no-version-set',
             'version' => '1.0.0.0',
             'reference' => null,
-            'type' => 'library',
+            'type' => 'wordpress-plugin',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
             'dev_requirement' => false,

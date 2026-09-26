@@ -1251,7 +1251,8 @@ class SUPER_Shortcodes {
                 if ( PHP_VERSION_ID < 70400 ) {
                     throw new RuntimeException( sprintf( esc_html__( 'Google Sheets requires PHP 7.4 or higher (this site runs PHP %s).', 'super-forms' ), PHP_VERSION ) );
                 }
-                require_once( SUPER_PLUGIN_DIR .'/lib/google/vendor/autoload.php' ); 
+                // The Google API client is installed from the plugin's composer.lock at build time (vendor/ is not committed).
+                require_once( SUPER_PLUGIN_DIR . '/vendor/autoload.php' );
                 // Your Google API code that may throw a Google\Service\Exception
                 $client = new Google_Client();
                 $client->setApplicationName('Google Sheets API Example');

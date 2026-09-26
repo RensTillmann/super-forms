@@ -1399,7 +1399,8 @@ if(!class_exists('SUPER_Stripe')) :
             die();
         }
         public static function setAppInfo(){
-            require_once 'stripe-php/init.php';
+            // The Stripe PHP SDK is installed from the plugin's composer.lock at build time (vendor/ is not committed).
+            require_once SUPER_PLUGIN_DIR . '/vendor/autoload.php';
             \Stripe\Stripe::setAppInfo('Super Forms - Stripe Add-on', SUPER_VERSION, 'https://super-forms.com');
             $global_settings = SUPER_Common::get_global_settings();
             if(!empty($global_settings['stripe_mode']) ) {
