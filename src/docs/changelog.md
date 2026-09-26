@@ -9,9 +9,19 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## 2026-08-30 - Version 6.4.008-beta
+## 2026-09-27 - Version 6.4.008-beta
 
-- **Security fix:** Hardened form file uploads, generated file downloads, account registration and updates, Listings entry actions, form administration, and contact entry imports and exports.
+- **Security fix:** Hardened form file uploads, generated file downloads, account registration and updates, Listings entry actions, form administration, and contact entry imports and exports (the same fixes as stable 6.3.317).
+- **Fix:** Multi-step forms wait for asynchronous validation before switching steps (Next button and step tabs).
+- **Fix:** Prefilled stored files are no longer uploaded again when a form is submitted a second time.
+- **Fix:** Listings: a missing column setting or an empty entry status no longer breaks the listing; the entry status can only be changed with the edit and change-status permissions, and the change is never stored as entry data.
+- **Fix:** "Delete files after submission" keeps working when an entry is edited; files that are no longer current are skipped instead of failing the edit.
+- **Fix:** Stripe checkout: session expiry is calculated in UTC; unknown or expired sessions on the success, cancel and retry links redirect to the home page instead of showing an error.
+- **Fix:** Rewrite rules are refreshed once per plugin version after an update, so sites coming from 6.3 get the new routes (for example the Stripe return URLs) without re-activating the plugin.
+- **Fix:** Google Sheets connected fields show an error item instead of a fatal error on PHP older than 7.4 or when the library fails.
+- **Fix:** Register & Login: safer user lookups for ACF-based fields; settings use the site URL instead of the server name.
+- **Improved:** The bundled Google API client (2.16.1) and Stripe PHP library (14.2.0) are now managed from one Composer lockfile.
+- **Note:** This version requires PHP 7.4 or newer.
 
 ## 2026-07-15 - Version 6.4.007-beta
 
