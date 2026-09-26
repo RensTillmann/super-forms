@@ -20,6 +20,11 @@ abstract class Super_Forms_Upload_Security_Test_Case extends WP_UnitTestCase {
     public function set_up() {
         parent::set_up();
 
+        // SUPER_Ajax is loaded only on AJAX requests; these tests call it directly.
+        if( !class_exists('SUPER_Ajax') ) {
+            require_once SUPER_PLUGIN_DIR . '/includes/class-ajax.php';
+        }
+
         $this->original_post = $_POST;
         $this->original_request = $_REQUEST;
         $this->original_files = $_FILES;
@@ -38,7 +43,7 @@ abstract class Super_Forms_Upload_Security_Test_Case extends WP_UnitTestCase {
         $_POST = array();
         $_REQUEST = array();
         $_FILES = array();
-        unset( $_COOKIE['_sfs_id'] );
+        $this->seed_browser_session();
         wp_set_current_user( 0 );
         unset( $GLOBALS['super_upload_dir'] );
         remove_filter( 'upload_dir', array( 'SUPER_Forms', 'filter_upload_dir' ) );
@@ -103,6 +108,30 @@ abstract class Super_Forms_Upload_Security_Test_Case extends WP_UnitTestCase {
         $_FILES = $this->original_files;
 
         parent::tear_down();
+    }
+
+    /**
+     * Stand in for the browser session a first visit gets. The plugin issues it with
+     * Set-Cookie, which a CLI test run cannot send once PHPUnit has printed output, so seed
+     * a valid session (32-128 alphanumeric id, stored payload with other client data).
+     */
+    protected function seed_browser_session() {
+        $session_id = 'sfupload' . bin2hex( random_bytes( 16 ) );
+        $_COOKIE['_sfs_id'] = $session_id;
+        update_option(
+            '_sfsdata_' . $session_id,
+            array(
+                'expires' => time() + HOUR_IN_SECONDS,
+                'exp_var' => time() + HOUR_IN_SECONDS,
+                'sf_test_session_anchor' => array(
+                    'expires' => time() + HOUR_IN_SECONDS,
+                    'exp_var' => time() + HOUR_IN_SECONDS,
+                    'value' => 'anchor',
+                ),
+            ),
+            false
+        );
+        return $session_id;
     }
 
     protected function invoke_ajax_private( $method_name, $arguments=array() ) {

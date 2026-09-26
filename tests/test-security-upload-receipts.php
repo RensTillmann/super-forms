@@ -4,7 +4,7 @@ require_once __DIR__ . '/test-security-upload-00-base.php';
 
 class Test_Super_Forms_Upload_Receipt_Security extends Super_Forms_Upload_Security_Test_Case {
     public function test_cookie_less_receipt_is_a_random_hash_bound_server_capability() {
-        unset( $_COOKIE['_sfs_id'] );
+        $this->seed_browser_session(); // fresh session: CLI cannot issue the Set-Cookie a first visit gets
         $form_id = $this->create_form( 'publish' );
         $created = $this->create_owned_upload( $form_id );
         $token = $this->issue_receipt( $created['owned'] );
@@ -296,6 +296,8 @@ class Test_Super_Forms_Upload_Receipt_Security extends Super_Forms_Upload_Securi
         foreach( $atts['owned_files'] as $owned_file ) {
             $this->track_owned_cleanup( $owned_file );
         }
+        // submit_form() fires the first file-aware hook right after the checks return.
+        do_action( 'super_before_sending_email_hook', $atts + array( 'post' => $_POST ) );
 
         $this->assertTrue( is_array( $settings_boundary_record ) );
         $this->assertTrue( is_array( $settings_boundary_data ) );
@@ -321,14 +323,14 @@ class Test_Super_Forms_Upload_Receipt_Security extends Super_Forms_Upload_Securi
             $this->file_element( 'documents' ),
             array( 'tag' => 'text', 'data' => array(
                 'name' => 'required_name',
-                'validation' => 'required',
+                'validation' => 'empty', // Super Forms' "required" validation value
                 'may_be_empty' => 'false',
             ) ),
         );
         $this->assert_validation_rejection_preserves_receipt(
             $required_elements,
             array(),
-            array( 'required_name' => array( 'type' => 'text', 'value' => '' ) ),
+            array( 'required_name' => array( 'type' => 'var', 'value' => '' ) ), // text fields submit as 'var' carriers
             array(),
             'required fields'
         );

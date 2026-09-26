@@ -1989,9 +1989,13 @@ if( !class_exists('SUPER_Register_Login') ) :
                     global $wpdb;
                     $length = strlen( $meta_key );
                     if( class_exists('acf_pro') ) {
-                        $sql = "SELECT post_name FROM {$wpdb->posts} WHERE post_excerpt = '$meta_key' AND post_type = 'acf-field'";
+                        $sql = $wpdb->prepare( "SELECT post_name FROM {$wpdb->posts} WHERE post_excerpt = %s AND post_type = 'acf-field'", $meta_key );
                     }else{
-                        $sql = "SELECT meta_key FROM {$wpdb->postmeta} WHERE meta_key LIKE 'field_%' AND meta_value LIKE '%\"name\";s:$length:\"$meta_key\";%';";
+                        $sql = $wpdb->prepare(
+                            "SELECT meta_key FROM {$wpdb->postmeta} WHERE meta_key LIKE %s AND meta_value LIKE %s",
+                            $wpdb->esc_like( 'field_' ) . '%',
+                            '%' . $wpdb->esc_like( '"name";s:' . $length . ':"' . $meta_key . '";' ) . '%'
+                        );
                     }
                     $acf_field = $wpdb->get_var( $sql );
                     if( $acf_field ) {

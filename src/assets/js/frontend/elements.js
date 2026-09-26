@@ -4,7 +4,7 @@
     // Switch between multiparts (prev/next or clicking on step)
     SUPER.switchMultipart = function(e, target, dir){
         // First get active part
-        var i, index, validate, result, skip, progress, multipart,
+        var i, index, validate, skip, progress, multipart,
             form = target.closest('.super-form'),
             stepParams = (form.dataset.stepParams ? form.dataset.stepParams : ''), // default
             nodes = form.querySelectorAll('.super-multipart'),
@@ -30,13 +30,19 @@
             }else{
                 // @since 2.0.0 - validate multi-part before going to next step
                 validate = form.querySelector('.super-multipart.super-active').dataset.validate;
-                if(validate=='true'){
-                    result = SUPER.validate_form({el: target, form: form.querySelector('.super-multipart.super-active'), submitButton: target, validateMultipart: true, event: e});
-                    if(result!==true) return false;
-                }
                 index = currentStep+1;
+                if(validate=='true'){
+                    // Validation is asynchronous: only switch once it reports no errors.
+                    SUPER.validate_form({el: target, form: form.querySelector('.super-multipart.super-active'), submitButton: target, validateMultipart: true, event: e}, function(hasErrors){
+                        if(!hasErrors) goToStep();
+                    });
+                    return false;
+                }
             }
         }
+        return goToStep();
+
+        function goToStep(){
         for( i = 0; i < nodes.length; i++){
             nodes[i].classList.remove('super-active');
             steps[i].classList.remove('super-active');
@@ -75,6 +81,7 @@
         // Focus first TAB index field in next multi-part
         multipart = form.querySelector('.super-multipart.super-active');
         SUPER.focusFirstTabIndexField(e, form, multipart);
+        }
     };
     // Make sure to skip the multi-part if no visible elements are found
     SUPER.skipMultipart = function(el, form, index, activeIndex){
@@ -2968,7 +2975,6 @@
                 index = clickedChildren.indexOf(el),
                 total = form.querySelectorAll('.super-multipart').length,
                 validate,
-                result,
                 progress,
                 multipart,
                 skip;
@@ -2976,11 +2982,17 @@
             // @since 2.0.0 - validate multi-part before going to next step
             if(activeIndex < index){ // Always allow going to previous step
                 validate = currentActive.dataset.validate;
-                if(validate=='true'){
-                    result = SUPER.validate_form({el: el, form: currentActive, submitButton: el, validateMultipart: true, event: e});
-                    if(result!==true) return false;
+                if(validate=='true' && el.dataset.superStepValidated!=='1'){
+                    // Validation is asynchronous: re-run this click once it reports no errors.
+                    SUPER.validate_form({el: el, form: currentActive, submitButton: el, validateMultipart: true, event: e}, function(hasErrors){
+                        if(hasErrors) return;
+                        el.dataset.superStepValidated = '1';
+                        el.click();
+                    });
+                    return false;
                 }
             }
+            delete el.dataset.superStepValidated;
             if(stepParams!=='false'){
                 window.location.hash = 'step-'+form_id+'-'+(parseInt(index,10)+1);
             }

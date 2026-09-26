@@ -81,6 +81,8 @@ class Test_Super_Forms_Listings_Security extends Super_Forms_Upload_Security_Tes
             'list_id' => 0,
             'nonce' => wp_create_nonce( 'super_listings_delete_entry_' . $form_id . '_1' ),
         );
+        // check_ajax_referer() reads the nonce from $_REQUEST, as a real admin-ajax POST fills it.
+        $_REQUEST = $_POST;
         $wrong_nonce = $this->run_dying_handler( array( 'SUPER_Ajax', 'listings_delete_entry' ) );
         $this->assertSame( 0, $wrong_nonce['status'], $wrong_nonce['output'] );
         $this->assertStringContainsString( 'permission to delete', strtolower( $wrong_nonce['output'] ) );
@@ -94,12 +96,17 @@ class Test_Super_Forms_Listings_Security extends Super_Forms_Upload_Security_Tes
             'list_id' => 0,
             'nonce' => wp_create_nonce( 'super_listings_delete_entry_' . $form_id . '_0' ),
         );
+        $_REQUEST = $_POST;
         $wrong_scope = $this->run_dying_handler( array( 'SUPER_Ajax', 'listings_delete_entry' ) );
         $this->assertSame( 0, $wrong_scope['status'], $wrong_scope['output'] );
-        $this->assertStringContainsString( 'No entry found with ID', $wrong_scope['output'] );
+        // An existing entry outside the list's retrieval scope is refused with the same
+        // permission denial the other scope tests in this class expect; "No entry found"
+        // is reserved for IDs that are not contact entries at all.
+        $this->assertStringContainsString( 'permission to delete', strtolower( $wrong_scope['output'] ) );
         $this->assertSame( 'super_contact_entry', get_post_type( $other_entry_id ) );
 
         $_POST['entry_id'] = $owned_entry_id;
+        $_REQUEST = $_POST;
         $not_owner = $this->run_dying_handler( array( 'SUPER_Ajax', 'listings_delete_entry' ) );
         $this->assertSame( 0, $not_owner['status'], $not_owner['output'] );
         $this->assertStringContainsString( 'permission to delete', strtolower( $not_owner['output'] ) );
@@ -239,6 +246,8 @@ class Test_Super_Forms_Listings_Security extends Super_Forms_Upload_Security_Tes
             'nonce' => wp_create_nonce( 'super_listings_delete_entry_' . $host_form_id . '_0' ),
         );
 
+        $_REQUEST = $_POST;
+
         $result = $this->run_dying_handler( array( 'SUPER_Ajax', 'listings_delete_entry' ) );
 
         $this->assertSame( 0, $result['status'], $result['output'] );
@@ -291,10 +300,12 @@ class Test_Super_Forms_Listings_Security extends Super_Forms_Upload_Security_Tes
                 )
             );
 
+            // A cross-form listing edit submits the entry's own form (form-blank-page-template
+            // renders the entry's parent form) with the host listing form as listing_form_id.
             $this->assertTrue(
                 $this->invoke_ajax_private(
                     'submission_entry_update_is_authorized',
-                    array( $entry_id, '0', $host_form_id, $settings )
+                    array( $entry_id, '0', $source_form_id, $settings, $host_form_id )
                 ),
                 $retrieve . ' must authorize an in-scope cross-form entry update.'
             );
@@ -305,6 +316,7 @@ class Test_Super_Forms_Listings_Security extends Super_Forms_Upload_Security_Tes
                 'list_id' => 0,
                 'nonce' => wp_create_nonce( 'super_listings_delete_entry_' . $host_form_id . '_0' ),
             );
+            $_REQUEST = $_POST;
             $result = $this->run_dying_handler( array( 'SUPER_Ajax', 'listings_delete_entry' ) );
             $this->assertSame( 0, $result['status'], $result['output'] );
             $this->assertSame( '1', $result['output'] );
@@ -340,7 +352,7 @@ class Test_Super_Forms_Listings_Security extends Super_Forms_Upload_Security_Tes
         $this->assertFalse(
             $this->invoke_ajax_private(
                 'submission_entry_update_is_authorized',
-                array( $outside_entry_id, '0', $specific_host_form_id, $specific_settings )
+                array( $outside_entry_id, '0', $outside_form_id, $specific_settings, $specific_host_form_id )
             ),
             'A cross-form entry outside specific_forms must remain unauthorized.'
         );
@@ -351,6 +363,7 @@ class Test_Super_Forms_Listings_Security extends Super_Forms_Upload_Security_Tes
             'list_id' => 0,
             'nonce' => wp_create_nonce( 'super_listings_delete_entry_' . $specific_host_form_id . '_0' ),
         );
+        $_REQUEST = $_POST;
         $denied = $this->run_dying_handler( array( 'SUPER_Ajax', 'listings_delete_entry' ) );
         $this->assertSame( 0, $denied['status'], $denied['output'] );
         $this->assertStringContainsString( 'permission to delete', strtolower( $denied['output'] ) );

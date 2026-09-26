@@ -23,6 +23,15 @@ class Test_Security_Contact_Entry_Export extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
+		// The plugin loads its AJAX handlers only on AJAX requests; these tests dispatch
+		// wp_ajax_* actions directly. The test framework restores the hooks after every
+		// test, so register the handlers again for each test.
+		if ( ! class_exists( 'SUPER_Ajax' ) ) {
+			require_once SUPER_PLUGIN_DIR . '/includes/class-ajax.php';
+		} elseif ( ! has_action( 'wp_ajax_super_save_settings' ) ) {
+			SUPER_Ajax::init();
+		}
+
 		$this->scope = 'sf-contact-export-' . str_replace( '-', '', wp_generate_uuid4() );
 		$this->original_current_user = get_current_user_id();
 		$this->original_post = $_POST;
@@ -576,7 +585,16 @@ class Test_Security_Contact_Entry_Export extends WP_UnitTestCase {
 			)
 		);
 		$prepare_response = $this->invoke_raw_ajax( 'prepare_contact_entry_import' );
-		$this->assertSame( array( 'Form ID', 'Title', 'Field' ), json_decode( $prepare_response, true ) );
+		// Each column carries its header and the server-sanitized default field name; the
+		// settings screen (assets/js/backend/settings.js) reads both.
+		$this->assertSame(
+			array(
+				array( 'header' => 'Form ID', 'name' => 'Form_ID' ),
+				array( 'header' => 'Title', 'name' => 'Title' ),
+				array( 'header' => 'Field', 'name' => 'Field' ),
+			),
+			json_decode( $prepare_response, true )
+		);
 		$this->assertSame(
 			'super-forms-contact-entry-import-v1',
 			get_post_meta( $file_id, '_super_forms_contact_entry_import_file', true )
@@ -602,22 +620,19 @@ class Test_Security_Contact_Entry_Export extends WP_UnitTestCase {
 		$this->assertSame( $before_count + 1, $this->count_contact_entries() );
 		$this->assertSame( '', get_post_meta( $file_id, '_super_forms_contact_entry_import_file', true ) );
 
-		$entries = get_posts(
-			array(
-				'post_type' => 'super_contact_entry',
-				'post_status' => array( 'super_unread', 'super_read', 'publish' ),
-				'post_parent' => $form_id,
-				's' => $imported_title,
-				'numberposts' => 10,
+		// Query the table directly: the plugin registers its custom entry statuses
+		// (super_unread, super_read) only in request contexts, and WP_Query drops
+		// statuses that are not registered.
+		global $wpdb;
+		$imported_ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT ID FROM {$wpdb->posts} WHERE post_type = 'super_contact_entry' AND post_parent = %d AND post_title = %s",
+				$form_id,
+				$imported_title
 			)
 		);
-		$imported_entry = null;
-		foreach ( $entries as $entry ) {
-			if ( $entry->post_title===$imported_title ) {
-				$imported_entry = $entry;
-				break;
-			}
-		}
+		$this->assertCount( 1, $imported_ids );
+		$imported_entry = get_post( (int) $imported_ids[0] );
 		$this->assertInstanceOf( WP_Post::class, $imported_entry );
 		$this->post_ids[] = $imported_entry->ID;
 		$data = get_post_meta( $imported_entry->ID, '_super_contact_entry_data', true );

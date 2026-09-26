@@ -18,13 +18,22 @@ class Test_Super_Forms_Register_Login_Security extends WP_UnitTestCase {
         $this->original_cookie_value = $this->original_cookie_exists ? $_COOKIE['_sfs_id'] : null;
         $this->original_post = $_POST;
         $this->original_request = $_REQUEST;
-        $this->client_key = 'sf_security_' . str_replace( '-', '', wp_generate_uuid4() );
+        // Session ids must be 32-128 alphanumeric characters (startClientSession rejects others).
+        $this->client_key = 'sfsecurity' . str_replace( '-', '', wp_generate_uuid4() );
         $_COOKIE['_sfs_id'] = $this->client_key;
         update_option(
             '_sfsdata_' . $this->client_key,
             array(
                 'expires' => time() + HOUR_IN_SECONDS,
                 'exp_var' => time() + HOUR_IN_SECONDS,
+                // A browser session normally holds other client data (e.g. sf_nonce). Without
+                // it, clearing the bridge empties the session, setClientData deletes it, and
+                // the next write must issue a new cookie, which a CLI test run cannot send.
+                'sf_test_session_anchor' => array(
+                    'expires' => time() + HOUR_IN_SECONDS,
+                    'exp_var' => time() + HOUR_IN_SECONDS,
+                    'value' => 'anchor',
+                ),
             ),
             false
         );
@@ -735,6 +744,20 @@ class Test_Super_Forms_Register_Login_Security extends WP_UnitTestCase {
                 'path' => wp_normalize_path($file),
                 'subdir' => '/' . trim(SUPER_FORMS_UPLOAD_DIR, '/') . '/' . $slot . '/profile.txt',
             );
+            // Authority comes from the server-issued proof that binds form, field, path,
+            // subdir, mime, url and size: issue it the way the upload pipeline does.
+            if( !class_exists('SUPER_Ajax') ) {
+                require_once SUPER_PLUGIN_DIR . '/includes/class-ajax.php';
+            }
+            $candidates = SUPER_Forms::resolve_stored_owned_upload_candidates( $record['path'], $record['subdir'] );
+            $this->assertCount( 1, $candidates );
+            $owned = SUPER_Ajax::build_owned_upload(
+                812, 'upload_field', $candidates[0]['file'], $record['type'], $record['url'], 0,
+                $candidates[0]['root'], filesize( $candidates[0]['file'] ), $record['subdir']
+            );
+            $this->assertIsArray( $owned );
+            $record['_super_file_proof'] = SUPER_Ajax::owned_custom_upload_proof( $owned );
+            $this->assertMatchesRegularExpression( '/^[a-f0-9]{64}$/D', $record['_super_file_proof'] );
             $settings = $this->update_settings( 'upload_field|sf_upload_meta' );
             $data = array(
                 'user_id' => array( 'type' => 'text', 'value' => (string) $user_id ),

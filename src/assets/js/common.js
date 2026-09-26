@@ -647,10 +647,18 @@ function SUPERreCaptcha(){
                 pendingDataIndexes[key].push(y);
             }
             if(!args.files[key] || args.files[key].length===0) return;
-            args.formData.append('file_field_map['+key+']', fieldName);
+            // Only real browser File/Blob objects are uploads. Files already stored on the server
+            // (prefilled from a previous entry or a listing edit) sit in SUPER.files as plain
+            // records and are submitted through their carrier instead, never re-uploaded.
+            var newFiles = [];
             for( y = 0; y < args.files[key].length; y++){
+                if(typeof Blob !== 'undefined' && args.files[key][y] instanceof Blob) newFiles.push(args.files[key][y]);
+            }
+            if(newFiles.length===0) return;
+            args.formData.append('file_field_map['+key+']', fieldName);
+            for( y = 0; y < newFiles.length; y++){
                 x++;
-                args.formData.append('files['+key+']['+y+']', args.files[key][y]); // holds: file, src, name, size, type
+                args.formData.append('files['+key+']['+y+']', newFiles[y]); // holds: file, src, name, size, type
             }
         });
         if(x===0){
@@ -3672,7 +3680,8 @@ function SUPERreCaptcha(){
                 for(var x=0; x<cols.length; x++){
                     var fieldName = cols[x].className.replace('super-col super-','');
                     if(fieldName==='entry_status'){
-                        var status = result.response_data.entry_status;
+                        var status = result.response_data ? result.response_data.entry_status : null;
+                        if(!status) continue; // keep the column as is when no status came back
                         cols[x].innerHTML = '<span class="super-entry-status super-entry-status-' + status.key + '" style="color:' + status.color + ';background-color:' + status.bg_color + '">' + status.name + '</span>';
                         continue;
                     }
@@ -4171,7 +4180,9 @@ function SUPERreCaptcha(){
     };
 
     // Validate the form
-    SUPER.validate_form = function(args){ // form, submitButton, validateMultipart, e, doingSubmit
+    // callback(hasErrors) is optional: validation finishes asynchronously (lookups run in an
+    // interval), so callers that need the outcome, such as multi-part Next, must use it.
+    SUPER.validate_form = function(args, callback){ // form, submitButton, validateMultipart, e, doingSubmit
         SUPER.validationLookups = 0;
         SUPER.resetFocussedFields();
         SUPER.conditional_logic(args);
@@ -4317,10 +4328,14 @@ function SUPERreCaptcha(){
                     // Currently used by Stripe feature to check for invalid card numbers for instance
                     if(args.form.querySelectorAll('.super-error-active').length){
                         SUPER.scrollToError(args.form);
+                        if(typeof callback === 'function') callback(true);
                         return true;
                     }
                     // @since 2.0.0 - multipart validation
-                    if(args.validateMultipart===true) return true;
+                    if(args.validateMultipart===true){
+                        if(typeof callback === 'function') callback(false);
+                        return true;
+                    }
                     submitButtonName = args.submitButton.querySelector('.super-button-name');
                     args.submitButton.closest('.super-form-button').classList.add('super-loading');
                     oldHtml = submitButtonName.innerHTML;
@@ -4370,6 +4385,7 @@ function SUPERreCaptcha(){
 
                 }else{
                     SUPER.scrollToError(args.form, args.validateMultipart);
+                    if(typeof callback === 'function') callback(true);
                 }
                 SUPER.after_validating_form_hook(undefined, args.form);
             }

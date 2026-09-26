@@ -3054,10 +3054,11 @@ class SUPER_Common {
         // Random folder must be 13 characters long
         // Since 32 bit system only allow a maximum of 2147483647 as int value
         // we will generate 2 random numbers separately and combine them as one
-        $folderName = rand(1000000, 9999999) . rand(100000, 999999);
+        $folderName = random_int(1000000, 9999999) . random_int(100000, 999999);
         $folderPath = trailingslashit($folder) . $folderName;
         if( file_exists( $folderPath ) ) {
-            self::generate_random_folder( $folder );
+            // Name clash: try again and pass that result back (it was dropped before).
+            return self::generate_random_folder( $folder );
         }else{
             if(!mkdir($folderPath, 0755, true) ) {
                 $error = error_get_last();

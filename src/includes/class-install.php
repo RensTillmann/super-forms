@@ -28,7 +28,11 @@ class SUPER_Install {
 	 *	@since		1.0.0
 	 */
 	public static function install(){
+        // Activation runs after init, so the init-hooked rewrite_rules() has not registered
+        // the plugin's own rules in this request yet: register them before flushing.
+        if( function_exists( 'SUPER_Forms' ) ) SUPER_Forms()->rewrite_rules();
         flush_rewrite_rules(); // required for add_rewrite_rule() to be affected after updating the plugin or installing it for the first time
+        if( defined( 'SUPER_VERSION' ) ) update_option( 'super_rewrite_rules_version', SUPER_VERSION, false );
         global $wpdb;
         if(!defined('SUPER_INSTALLING')){
             define('SUPER_INSTALLING', true);

@@ -1995,6 +1995,13 @@ class SUPER_Ajax {
             }
             if( $name==='hidden_form_id' || $name==='hidden_contact_entry_id' ) continue;
             if( $name==='_generated_pdf_file' ) continue; // materialized later under stored PDF settings.
+            if( $name==='update_entry_status' ) {
+                // The Listings "change status" dropdown is rendered into listing edits only;
+                // whether the user may change the status is decided later in submit_form().
+                if( $list_id==='' || !is_array($carrier) || !array_key_exists('value', $carrier)
+                    || !is_scalar($carrier['value']) ) return false;
+                continue;
+            }
             if( !is_string($name) ) return false;
             $dynamic_route = isset($dynamic_routes[$name]) ? $dynamic_routes[$name] : false;
             if( isset($contract[$name]) && $contract[$name]!==false ) {
@@ -3295,6 +3302,10 @@ class SUPER_Ajax {
             $owned['legacy_source_field'] = $field_name;
             $owned['legacy_source_key'] = $source_key;
             $owned['cleanup_parent'] = absint($entry_id);
+            // The attachment was verified above (upload marker, exact parent entry, form and
+            // field metadata), so like the custom-file branch it may be cleaned up when the
+            // form deletes files after submission.
+            $owned['cleanup_authority'] = true;
             $record = self::owned_upload_file_record($owned, $field_name);
             $record['_super_file_authority'] = 'retained';
             return $record;
@@ -4437,6 +4448,11 @@ class SUPER_Ajax {
             if( $field!==null && (!isset($owned['field']) || $owned['field']!==$field) ) continue;
             $storage = isset($owned['storage']) ? $owned['storage'] : '';
             $retained = isset($owned['legacy_entry_id']);
+            // A kept (retained) file that no longer matches the saved entry, e.g. because its
+            // field is excluded from the entry, is left in place: keeping a file is the safe
+            // outcome and must not fail a submission that has already been saved.
+            if( $retained && in_array($storage, array('attachment', 'custom'), true)
+                && !self::retained_owned_upload_is_current($owned) ) continue;
             if( !in_array($storage, array('attachment', 'custom'), true)
                 || ($retained
                     ? !self::retained_owned_upload_is_current($owned)
@@ -8946,6 +8962,31 @@ class SUPER_Ajax {
 
         // @since 2.2.0 - update contact entry data by ID
         if($entry_id!=0){
+            // Listings "change status" dropdown: never stored as entry data, and applied only
+            // when the listing grants this user "edit any" + "change status" and the value is
+            // a configured entry status.
+            $update_entry_status = false;
+            if( isset($final_entry_data['update_entry_status']) ) {
+                $requested_status = ( is_array($final_entry_data['update_entry_status'])
+                    && isset($final_entry_data['update_entry_status']['value'])
+                    && is_scalar($final_entry_data['update_entry_status']['value']) )
+                    ? (string) $final_entry_data['update_entry_status']['value'] : null;
+                unset($final_entry_data['update_entry_status']);
+                if( $requested_status!==null && $list_id!=='' && class_exists('SUPER_Listings') ) {
+                    $status_listing_form_id = self::submission_listing_host_form_id($form_id);
+                    $status_listing_settings = $status_listing_form_id ? SUPER_Common::get_form_settings($status_listing_form_id) : false;
+                    $status_lists = ( is_array($status_listing_settings) && isset($status_listing_settings['_listings']['lists']) && is_array($status_listing_settings['_listings']['lists']) )
+                        ? $status_listing_settings['_listings']['lists'] : array();
+                    $entry_statuses = SUPER_Settings::get_entry_statuses();
+                    if( isset($status_lists[$list_id]) && is_array($entry_statuses) && array_key_exists($requested_status, $entry_statuses) ) {
+                        $allow = SUPER_Listings::get_action_permissions(array('list' => $status_lists[$list_id]));
+                        if( !empty($allow['allowEditAny']) && $allow['allowEditAny']===true
+                            && !empty($allow['allowChangeEntryStatus']) && $allow['allowChangeEntryStatus']===true ) {
+                            $update_entry_status = $requested_status;
+                        }
+                    }
+                }
+            }
             SUPER_Data_Access::update_entry_data( $entry_id, $final_entry_data);
 
             // Check if we prevent saving duplicate entry titles
@@ -8988,6 +9029,14 @@ class SUPER_Ajax {
             if($update_entry_status===false) {
                 if($list_id===''){
                     update_post_meta( $entry_id, '_super_contact_entry_status', $settings['contact_entry_custom_status_update'] );
+                }else{
+                    // Listing edit without a status change: return the entry's current status so
+                    // the listing can redraw its status column (common.js reads entry_status).
+                    $current_status = (string) get_post_meta( $entry_id, '_super_contact_entry_status', true );
+                    $entry_statuses = SUPER_Settings::get_entry_statuses(SUPER_Common::get_global_settings());
+                    $_entry_status = (isset($entry_statuses[$current_status]) ? $entry_statuses[$current_status] : $entry_statuses['']);
+                    $_entry_status['key'] = $current_status;
+                    $response_data['entry_status'] = $_entry_status;
                 }
             }
             if($list_id!=='' && isset($settings['_listings']) && isset($settings['_listings']['lists']) && isset($settings['_listings']['lists'][$list_id])){

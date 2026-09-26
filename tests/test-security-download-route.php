@@ -24,6 +24,11 @@ class Test_Security_Download_Route extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
+		// SUPER_Ajax is loaded only on AJAX requests; these tests call it directly.
+		if( !class_exists('SUPER_Ajax') ) {
+		    require_once SUPER_PLUGIN_DIR . '/includes/class-ajax.php';
+		}
+
 		$this->scope = 'sf-route-' . str_replace( '-', '', wp_generate_uuid4() );
 		$legacy_base = substr( (string) floor( microtime( true ) * 1000 ), 0, 10 );
 		$legacy_slot = abs( crc32( $this->scope ) ) % 1000;
@@ -891,11 +896,16 @@ class Test_Security_Download_Route extends WP_UnitTestCase {
 		$attachment_id = $this->create_owned_attachment( $file );
 		$token         = $this->create_export_grant( $attachment_id );
 
-		$download = SUPER_Forms::consume_export_download( $attachment_id, $token );
-		$this->assertIsArray( $download );
-		$this->assertSame( $bytes, $download['content'] );
-		$this->assertSame( basename( $file ), $download['filename'] );
-		$this->assertSame( 'text/plain', $download['mime'] );
+		// consume_export_download() claims the token and returns an open handle; the sfdlfi
+		// dispatcher streams it and deletes the attachment. Exercise that real terminal path.
+		$output = $this->run_dispatcher_in_child(
+			array(
+				'sfdlfi'       => (string) $attachment_id,
+				'sfdlfi_token' => $token,
+			)
+		);
+		wp_cache_flush();
+		$this->assertSame( $bytes, $output );
 		$this->assertFalse( file_exists( $file ), 'Successful export did not delete its attachment file.' );
 		$this->assertSame( $this->unrelated_bytes, file_get_contents( $this->unrelated_file ) );
 		clean_post_cache( $attachment_id );
@@ -986,6 +996,12 @@ class Test_Security_Download_Route extends WP_UnitTestCase {
 		$unmarked = $this->create_entry_cleanup_attachment( $entry_id, false, $form_id );
 		$mismatched = $this->create_entry_cleanup_attachment( $entry_id, true, $form_id + 1 );
 		$attachment_ids = array( $exact_marked, $legacy_marked, $unmarked, $mismatched );
+		// Submitted uploads are referenced by attachment ID in the entry data (6.4.007 did the
+		// same); only referenced attachments are cleanup candidates, so reference all four.
+		$attachment_records = array();
+		foreach ( $attachment_ids as $attachment_id ) {
+			$attachment_records[] = array( 'attachment' => $attachment_id );
+		}
 
 		$custom_file = $this->create_owned_file( $this->default_fixture . '/forged-custom-delete.txt', 'preserve custom' );
 		update_post_meta(
@@ -1000,6 +1016,10 @@ class Test_Security_Download_Route extends WP_UnitTestCase {
 							'path'                  => $custom_file,
 						),
 					),
+				),
+				'documents' => array(
+					'type'  => 'files',
+					'files' => $attachment_records,
 				),
 			)
 		);
@@ -1054,10 +1074,15 @@ class Test_Security_Download_Route extends WP_UnitTestCase {
 		$original_screen     = $had_current_screen ? $GLOBALS['current_screen'] : null;
 		$had_main_query      = array_key_exists( 'wp_the_query', $GLOBALS );
 		$original_main_query = $had_main_query ? $GLOBALS['wp_the_query'] : null;
+		$had_hook_suffix     = array_key_exists( 'hook_suffix', $GLOBALS );
+		$original_hook_suffix = $had_hook_suffix ? $GLOBALS['hook_suffix'] : null;
 		$attachments         = array();
 
 		try {
-			set_current_screen( 'upload' );
+			// Resolve the screen the way wp-admin/upload.php does. set_current_screen( 'upload' )
+			// with an explicit hook name leaves post_type empty, unlike the real Media Library.
+			$GLOBALS['hook_suffix'] = 'upload.php';
+			set_current_screen();
 			foreach ( array( 'public-first', 'public-second', 'nonmatch', 'hidden', 'export', 'upload' ) as $name ) {
 				$attachment_id = wp_insert_attachment(
 					array(
@@ -1151,6 +1176,11 @@ class Test_Security_Download_Route extends WP_UnitTestCase {
 				$GLOBALS['wp_the_query'] = $original_main_query;
 			} else {
 				unset( $GLOBALS['wp_the_query'] );
+			}
+			if ( $had_hook_suffix ) {
+				$GLOBALS['hook_suffix'] = $original_hook_suffix;
+			} else {
+				unset( $GLOBALS['hook_suffix'] );
 			}
 			foreach ( $attachments as $attachment_id ) {
 				wp_delete_attachment( $attachment_id, true );

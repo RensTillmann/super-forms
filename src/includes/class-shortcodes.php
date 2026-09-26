@@ -1247,6 +1247,10 @@ class SUPER_Shortcodes {
             $items = array();
             // Set up Google API credentials
             try {
+                // The bundled Google API library needs PHP 7.4+; show an error item instead of a fatal error on older PHP.
+                if ( PHP_VERSION_ID < 70400 ) {
+                    throw new RuntimeException( sprintf( esc_html__( 'Google Sheets requires PHP 7.4 or higher (this site runs PHP %s).', 'super-forms' ), PHP_VERSION ) );
+                }
                 require_once( SUPER_PLUGIN_DIR .'/lib/google/vendor/autoload.php' ); 
                 // Your Google API code that may throw a Google\Service\Exception
                 $client = new Google_Client();
@@ -1275,7 +1279,12 @@ class SUPER_Shortcodes {
                 // Example: Display error message
                 $value = 'error';
                 $title = $errorMessage;
-                $items[] = '<li class="super-item' . ($atts['value']==$value ? ' super-active' : '') . '" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $title ) . '"' . SUPER_Common::get_tags_attributes($value) . '><div' . SUPER_Common::get_tags_attributes($title) . '>' . $title . '</div></li>';
+                $items[] = '<li class="super-item' . ($atts['value']==$value ? ' super-active' : '') . '" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $title ) . '"' . SUPER_Common::get_tags_attributes($value) . '><div' . SUPER_Common::get_tags_attributes($title) . '>' . esc_html( $title ) . '</div></li>';
+            } catch (Throwable $exception) {
+                // Missing requirements (old PHP, Composer platform check) or a library error: show it as an error item, never a fatal error.
+                $value = 'error';
+                $title = $exception->getMessage();
+                $items[] = '<li class="super-item' . ($atts['value']==$value ? ' super-active' : '') . '" data-value="' . esc_attr( $value ) . '" data-search-value="' . esc_attr( $title ) . '"><div>' . esc_html( $title ) . '</div></li>';
             }
             // Process the retrieved data
             if(!empty($values)){

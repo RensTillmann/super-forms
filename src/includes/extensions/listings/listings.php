@@ -1494,7 +1494,7 @@ if(!class_exists('SUPER_Listings')) :
                 echo '<span class="sfui-label">' . esc_html__( 'Allow filter', 'super-forms' ) . '</span>';
                 echo '<label>';
                     echo '<div class="sfui-inline">';
-                        echo '<input type="checkbox" name="'.$pre.'filter.enabled" value="true"' . ($v['filter']['enabled']==='true' ? ' checked="checked"' : '') . ' />';
+                        echo '<input type="checkbox" name="'.$pre.'filter.enabled" value="true"' . ((isset($v['filter']['enabled']) && $v['filter']['enabled']==='true') ? ' checked="checked"' : '') . ' />';
                         echo '<span class="sfui-label">' . esc_html__( 'Yes', 'super-forms' ) . '</span>';
                     echo '</div>';
                 echo '</label>';
@@ -2147,7 +2147,7 @@ if(!class_exists('SUPER_Listings')) :
             $columns = array(); 
             $standardColumns = self::getStandardColumns();
             foreach($standardColumns as $sk => $sv){
-                if( $list[$sk.'_column']['enabled']==='true' ) {
+                if( (isset($list[$sk.'_column']['enabled']) && $list[$sk.'_column']['enabled']==='true') ) {
                     $columns[$sv['meta_key']] = array(
                         'order' => absint($list[$sk.'_column']['order']),
                         'name' => $list[$sk.'_column']['name'],
@@ -2210,7 +2210,7 @@ if(!class_exists('SUPER_Listings')) :
             }
 
             // Add custom columns if enabled
-            if($list['custom_columns']['enabled']==='true'){
+            if((isset($list['custom_columns']['enabled']) && $list['custom_columns']['enabled']==='true')){
                 $columns = array_merge($columns, $list['custom_columns']['columns']);      
             }
 
@@ -2483,7 +2483,7 @@ END AS paypalSubscriptionId
                 $whereWithoutFilters .= $form_scope;
             }
 
-            if($list['date_range']['enabled']==='true'){
+            if((isset($list['date_range']['enabled']) && $list['date_range']['enabled']==='true')){
                 $from = (isset($list['date_range']['from']) && is_scalar($list['date_range']['from']) ? (string)$list['date_range']['from'] : '');
                 $until = (isset($list['date_range']['until']) && is_scalar($list['date_range']['until']) ? (string)$list['date_range']['until'] : '');
                 $dates_are_valid = ($from==='' || self::is_valid_listings_date($from));
@@ -2706,7 +2706,7 @@ END AS paypalSubscriptionId
                                             $result .= '<span class="super-sort-up" onclick="SUPER.frontEndListing.sort(event, this)">↑</span>';
                                         $result .= '</div>';
                                     }
-                                    if($v['filter']['enabled']==='true'){
+                                    if((isset($v['filter']['enabled']) && $v['filter']['enabled']==='true')){
                                         $result .= '<div class="super-col-filter">';
                                             if(empty($v['filter']['type'])) $v['filter']['type'] = 'text';
                                             if($column_name==='entry_date'){
@@ -3142,7 +3142,7 @@ END AS paypalSubscriptionId
             // Display listings (wether or not the listing should be generated/displayed to this user)
             $allowDisplay = true;
             if(!empty($list['display'])){
-                if($list['display']['enabled']==='true'){
+                if((isset($list['display']['enabled']) && $list['display']['enabled']==='true')){
                     $allowDisplay = false;
                     // Check if both roles and user ID's are empty
                     if( (empty($list['display']['user_roles'])) && (empty($list['display']['user_ids'])) ){
@@ -3190,7 +3190,7 @@ END AS paypalSubscriptionId
             // SEE ANY (logged in users can always see their own entries in the list)
             $allowSeeAny = false;
             if(!empty($list['see_any'])) {
-                if($list['see_any']['enabled']==='true'){
+                if((isset($list['see_any']['enabled']) && $list['see_any']['enabled']==='true')){
                     // Check if both roles and user ID's are empty
                     if( (empty($list['see_any']['user_roles'])) && (empty($list['see_any']['user_ids'])) ){
                         $allowSeeAny = true;
@@ -3237,7 +3237,7 @@ END AS paypalSubscriptionId
             // VIEW ANY (allow clicking the "view" icon which will open the entry data in a popup with a optional custom HTML template)
             $allowViewAny = false;
             if(!empty($list['view_any'])) {
-                if($list['view_any']['enabled']==='true'){
+                if((isset($list['view_any']['enabled']) && $list['view_any']['enabled']==='true')){
                     // Check if both roles and user ID's are empty
                     if( (empty($list['view_any']['user_roles'])) && (empty($list['view_any']['user_ids'])) ){
                         $allowViewAny = true;
@@ -3283,7 +3283,7 @@ END AS paypalSubscriptionId
             // VIEW OWN (allow clicking the "view" icon which will open the entry data in a popup with a optional custom HTML template)
             $allowViewOwn = false;
             if(!empty($list['view_own']) && isset($entry)) {
-                if($list['view_own']['enabled']==='true'){
+                if((isset($list['view_own']['enabled']) && $list['view_own']['enabled']==='true')){
                     // First check if entry author ID equals logged in user ID
                     if( self::current_actor_matches_entry_author($authorId)){
                         $allowViewOwn = true;
@@ -3295,7 +3295,7 @@ END AS paypalSubscriptionId
             // Check if any user or own user is allowed to edit entry
             $allowEditAny = false;
             if(!empty($list['edit_any'])) {
-                if($list['edit_any']['enabled']==='true'){
+                if((isset($list['edit_any']['enabled']) && $list['edit_any']['enabled']==='true')){
                     // Check if both roles and user ID's are empty
                     if( (empty($list['edit_any']['user_roles'])) && (empty($list['edit_any']['user_ids'])) ){
                         $allowEditAny = true;
@@ -3341,7 +3341,7 @@ END AS paypalSubscriptionId
             // EDIT OWN
             $allowEditOwn = false;
             if(!empty($list['edit_own']) && isset($entry)) {
-                if($list['edit_own']['enabled']==='true'){
+                if((isset($list['edit_own']['enabled']) && $list['edit_own']['enabled']==='true')){
                     // First check if entry author ID equals logged in user ID
                     if( self::current_actor_matches_entry_author($authorId)){
                         // Check if both roles and user ID's are empty
@@ -3390,7 +3390,7 @@ END AS paypalSubscriptionId
             // DELETE ANY
             $allowDeleteAny = false;
             if(!empty($list['delete_any'])) {
-                if($list['delete_any']['enabled']==='true'){
+                if((isset($list['delete_any']['enabled']) && $list['delete_any']['enabled']==='true')){
                     // Check if both roles and user ID's are empty
                     if( (empty($list['delete_any']['user_roles'])) && (empty($list['delete_any']['user_ids'])) ){
                         $allowDeleteAny = true;
@@ -3436,7 +3436,7 @@ END AS paypalSubscriptionId
             // DELETE OWN
             $allowDeleteOwn = false;
             if(!empty($list['delete_own']) && isset($entry)) {
-                if($list['delete_own']['enabled']==='true'){
+                if((isset($list['delete_own']['enabled']) && $list['delete_own']['enabled']==='true')){
                     // First check if entry author ID equals logged in user ID
                     if( self::current_actor_matches_entry_author($authorId)){
                         // Check if both roles and user ID's are empty
@@ -3487,7 +3487,7 @@ END AS paypalSubscriptionId
             if($allowEditAny===true){
                 if(!empty($list['edit_any'])) {
                     if(!empty($list['edit_any']['change_status'])){
-                        if($list['edit_any']['change_status']['enabled']==='true'){
+                        if((isset($list['edit_any']['change_status']['enabled']) && $list['edit_any']['change_status']['enabled']==='true')){
                             // Check if `when_not` is enabled
                             $allowChangeEntryStatus = true;
                         }

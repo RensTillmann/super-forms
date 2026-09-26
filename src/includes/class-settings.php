@@ -189,7 +189,7 @@ class SUPER_Settings {
                 ),
                 'header_from_type' => array(
                     'name'=> esc_html__( 'Send email from:', 'super-forms' ),
-                    'label' => esc_html__( 'Enter a custom email address or use the blog settings', 'super-forms' ) . '<br />(' . sprintf( esc_html__( 'if you encounter issues with receiving emails, try to use info@%1$s', 'super-forms' ), '<strong style="color:red;">'.str_replace('www.', '', $_SERVER["SERVER_NAME"]).'</strong>' ) . ')',
+                    'label' => esc_html__( 'Enter a custom email address or use the blog settings', 'super-forms' ) . '<br />(' . sprintf( esc_html__( 'if you encounter issues with receiving emails, try to use info@%1$s', 'super-forms' ), '<strong style="color:red;">'.str_replace('www.', '', (string) wp_parse_url( home_url(), PHP_URL_HOST )).'</strong>' ) . ')',
                     'default' => 'default',
                     'type'=>'select',
                     'values'=>array(
@@ -384,7 +384,7 @@ class SUPER_Settings {
                 ),
                 'confirm_from_type' => array(
                     'name'=> esc_html__( 'Send email from:', 'super-forms' ),
-                    'label' => esc_html__( 'Enter a custom email address or use the blog settings', 'super-forms' ) . '<br />(' . sprintf( esc_html__( 'if you encounter issues with receiving emails, try to use info@%1$s', 'super-forms' ), '<strong style="color:red;">'.str_replace('www.', '', $_SERVER["SERVER_NAME"]).'</strong>' ) . ')',
+                    'label' => esc_html__( 'Enter a custom email address or use the blog settings', 'super-forms' ) . '<br />(' . sprintf( esc_html__( 'if you encounter issues with receiving emails, try to use info@%1$s', 'super-forms' ), '<strong style="color:red;">'.str_replace('www.', '', (string) wp_parse_url( home_url(), PHP_URL_HOST )).'</strong>' ) . ')',
                     'default' =>  'default',
                     'filter'=>true,
                     'parent'=>'confirm',
@@ -589,7 +589,7 @@ class SUPER_Settings {
                 // Set global 'From' header, can override 'header_from' and 'confirm_from' settings
                 'global_email_from' => array(
                     'name' => esc_html__( 'From email', 'super-forms' ),
-                    'desc' => sprintf( esc_html__( 'The email address which emails are sent from.%s(if you encounter issues with receiving emails, try to use info@%s).%sIf you are using an email provider (Gmail, Yahoo, Outlook.com, etc) it should be the email address of that account.', 'super-forms' ), '<br />', '<strong style="color:red;">' . str_replace('www.', '', $_SERVER["SERVER_NAME"]) . '</strong>', '<br />' ),
+                    'desc' => sprintf( esc_html__( 'The email address which emails are sent from.%s(if you encounter issues with receiving emails, try to use info@%s).%sIf you are using an email provider (Gmail, Yahoo, Outlook.com, etc) it should be the email address of that account.', 'super-forms' ), '<br />', '<strong style="color:red;">' . str_replace('www.', '', (string) wp_parse_url( home_url(), PHP_URL_HOST )) . '</strong>', '<br />' ),
                     'default' =>  '{option_admin_email}',
                     'placeholder' => esc_html__( 'Enter an email address', 'super-forms' ),
                     'children' => array(

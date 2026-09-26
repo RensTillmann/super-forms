@@ -65,6 +65,8 @@ class Test_Super_Forms_Upload_Ownership_Security extends Super_Forms_Upload_Secu
         $this->set_request( $form_id, $data );
 
         $atts = SUPER_Ajax::submit_form_checks( false );
+        // submit_form() fires the first file-aware action right after the checks return.
+        do_action( 'super_before_sending_email_hook', $atts + array( 'post' => $_POST ) );
         if( isset( $atts['owned_files'] ) && is_array( $atts['owned_files'] ) ) {
             foreach( $atts['owned_files'] as $owned_file ) {
                 $this->track_owned_cleanup( $owned_file );
@@ -80,7 +82,9 @@ class Test_Super_Forms_Upload_Ownership_Security extends Super_Forms_Upload_Secu
             $server_file = $observed['_generated_pdf_file']['files'][0];
             $this->assertArrayNotHasKey( 'datauristring', $server_file );
             $this->assertSame( 'application/pdf', $server_file['type'] );
-            $this->assertSame( '_generated_pdf_file', $server_file['name'] );
+            // The generated PDF record carries its stored file name in 'name' (as 6.4.007 did);
+            // the {_generated_pdf_file_name} email tag reads it. The field route is the carrier key.
+            $this->assertSame( $server_file['value'], $server_file['name'] );
             $this->assertSame( 'pdf', strtolower( pathinfo( $server_file['value'], PATHINFO_EXTENSION ) ) );
         }
     }
@@ -319,7 +323,8 @@ class Test_Super_Forms_Upload_Ownership_Security extends Super_Forms_Upload_Secu
                 0,
                 $descriptor['root'],
                 filesize( $filename ),
-                '../' . basename( $parent ) . '/' . basename( $root ) . '/' . $slot_name . '/retained.png',
+                // Real custom-root uploads store the filter_upload_dir subdir, which starts with '/'.
+                '/../' . basename( $parent ) . '/' . basename( $root ) . '/' . $slot_name . '/retained.png',
             )
         );
         $stored = $this->invoke_ajax_private( 'owned_upload_file_record', array( $owned ) );
@@ -383,7 +388,9 @@ class Test_Super_Forms_Upload_Ownership_Security extends Super_Forms_Upload_Secu
         );
         $mutated_entry_data['documents']['files'][0]['_super_file_proof'] = str_repeat( '0', 64 );
         update_post_meta( $entry_id, '_super_contact_entry_data', $mutated_entry_data );
-        $this->assertFalse(
+        // A kept file that no longer matches the saved entry is skipped (kept) instead of failing
+        // the already-saved submission, so the call succeeds; the file must still exist.
+        $this->assertTrue(
             $this->invoke_ajax_private(
                 'delete_finalized_owned_uploads',
                 array( array( $matched_owned ), $entry_id, $form_id )
@@ -402,7 +409,7 @@ class Test_Super_Forms_Upload_Ownership_Security extends Super_Forms_Upload_Secu
         $this->assertFileDoesNotExist( $filename );
     }
 
-    public function test_retained_attachment_survives_resubmission_without_reparent_or_cleanup_authority() {
+    public function test_retained_attachment_is_not_reparented_and_survives_submission_checks() {
         list( $parent, $root ) = $this->create_temporary_root( true );
         $filename = trailingslashit( $root ) . 'retained.png';
         $this->assertNotFalse( file_put_contents($filename, $this->valid_png_bytes()) );
@@ -470,8 +477,31 @@ class Test_Super_Forms_Upload_Ownership_Security extends Super_Forms_Upload_Secu
         );
         $this->configure_csrf( 'false' );
         $this->set_request( $form_id, $data, array(), array('entry_id'=>(string) $entry_id, 'list_id'=>'0') );
+        // Opening the listing edit modal issues this browser- and login-session-bound update
+        // grant (form-blank-page-template.php); a listing update without it is refused. A CLI
+        // run has no login cookie, so give the actor the WordPress session a browser would carry.
+        $had_logged_in_cookie = array_key_exists( LOGGED_IN_COOKIE, $_COOKIE );
+        $original_logged_in_cookie = $had_logged_in_cookie ? $_COOKIE[LOGGED_IN_COOKIE] : null;
+        $expiration = time() + HOUR_IN_SECONDS;
+        $session_token = WP_Session_Tokens::get_instance( $actor_id )->create( $expiration );
+        $_COOKIE[LOGGED_IN_COOKIE] = wp_generate_auth_cookie( $actor_id, $expiration, 'logged_in', $session_token );
+        try {
+            $grant = SUPER_Common::current_entry_update_grant_value();
+            $this->assertTrue( is_array( $grant ) );
+            SUPER_Common::setClientData( array(
+                'name' => 'update_contact_entry_' . $form_id . '_' . $form_id . '_0_' . $entry_id,
+                'value' => $grant,
+                'force' => true,
+            ) );
 
-        $atts = SUPER_Ajax::submit_form_checks( false );
+            $atts = SUPER_Ajax::submit_form_checks( false );
+        } finally {
+            if( $had_logged_in_cookie ) {
+                $_COOKIE[LOGGED_IN_COOKIE] = $original_logged_in_cookie;
+            } else {
+                unset( $_COOKIE[LOGGED_IN_COOKIE] );
+            }
+        }
         $this->assertSame( array(), $atts['owned_files'] );
         $this->assertSame( $attachment_id, $atts['data']['documents']['files'][0]['attachment'] );
         $this->assertSame( $entry_id, wp_get_post_parent_id($attachment_id) );
@@ -522,9 +552,12 @@ class Test_Super_Forms_Upload_Ownership_Security extends Super_Forms_Upload_Secu
         $this->set_request( $form_id, $data );
         $this->assertFileExists( $created['file'] );
 
+        // The account action runs on super_before_sending_email_hook, which submit_form() fires
+        // after the checks; the add-on registers it only for DOING_AJAX, so invoke it the same way.
         $this->assert_handler_rejected_with(
             static function() use ( $settings ) {
-                SUPER_Ajax::submit_form_checks( false );
+                $atts = SUPER_Ajax::submit_form_checks( false );
+                SUPER_Register_Login::before_sending_email( $atts + array( 'post' => $_POST ) );
             },
             'Account authorization rejected.'
         );
@@ -593,16 +626,16 @@ class Test_Super_Forms_Upload_Ownership_Security extends Super_Forms_Upload_Secu
         $this->assertFalse( SUPER_Ajax::cleanup_expired_upload_receipt( $claimed_hash ) );
         $this->assertFileExists( $claimed['file'] );
         $this->assertSame( $claim, get_option( '_super_upload_receipt_claim_' . $claimed_hash, false ) );
+        // A submission claim older than the two-minute live window is abandoned (a submission
+        // claims and consumes within one request); like claim_upload_receipts() (see
+        // test_only_exact_expired_submission_claims_are_reclaimed), cleanup reclaims it for an
+        // expired receipt, otherwise a crashed submission would orphan the upload forever.
         $claim['claimed_at'] = time() - HOUR_IN_SECONDS;
         update_option( '_super_upload_receipt_claim_' . $claimed_hash, $claim, false );
-        $this->assertFalse( SUPER_Ajax::cleanup_expired_upload_receipt( $claimed_hash ) );
-        $this->assertFileExists( $claimed['file'] );
-        $this->assertSame( $claimed_receipt, get_option( '_super_upload_receipt_' . $claimed_hash, false ) );
-        $this->assertSame( $claim, get_option( '_super_upload_receipt_claim_' . $claimed_hash, false ) );
-        delete_option( '_super_upload_receipt_claim_' . $claimed_hash );
         $this->assertTrue( SUPER_Ajax::cleanup_expired_upload_receipt( $claimed_hash ) );
         $this->assertFileDoesNotExist( $claimed['file'] );
         $this->assertFalse( get_option( '_super_upload_receipt_' . $claimed_hash, false ) );
+        $this->assertFalse( get_option( '_super_upload_receipt_claim_' . $claimed_hash, false ) );
 
         $legacy = $this->create_owned_upload( $form_id );
         $legacy_token = $this->issue_receipt( $legacy['owned'] );
@@ -749,7 +782,9 @@ class Test_Super_Forms_Upload_Ownership_Security extends Super_Forms_Upload_Secu
         $mutated = $current;
         $mutated['documents']['files'][19]['url'] .= '?changed';
         update_post_meta( $entry_id, '_super_contact_entry_data', $mutated );
-        $this->assertFalse(
+        // A tampered kept file is skipped (kept) instead of failing the saved submission, so the
+        // call succeeds; the attachment must still exist.
+        $this->assertTrue(
             $this->invoke_ajax_private(
                 'delete_finalized_owned_uploads',
                 array( $resolved['retained_owned_files'], $entry_id, $form_id )
@@ -761,7 +796,8 @@ class Test_Super_Forms_Upload_Ownership_Security extends Super_Forms_Upload_Secu
         $rekeyed['documents']['files'][20] = $rekeyed['documents']['files'][19];
         unset( $rekeyed['documents']['files'][19] );
         update_post_meta( $entry_id, '_super_contact_entry_data', $rekeyed );
-        $this->assertFalse(
+        // Same for a re-keyed kept file: skipped, attachment kept.
+        $this->assertTrue(
             $this->invoke_ajax_private(
                 'delete_finalized_owned_uploads',
                 array( $resolved['retained_owned_files'], $entry_id, $form_id )

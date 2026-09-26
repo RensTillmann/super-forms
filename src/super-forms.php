@@ -1602,6 +1602,16 @@ if(!class_exists('SUPER_Forms')) :
                 'index.php?sfstripewebhook=true', 
                 'top' 
             );
+            // Plugin updates never run the activation hook, so rules that a newer version adds (for example the
+            // Stripe return URLs on a site that comes from 6.3) would return 404 until the permalinks are saved again.
+            // Flush once per plugin version, after every plugin has registered its rules on init.
+            if( get_option( 'super_rewrite_rules_version' ) !== $this->version ) {
+                add_action( 'wp_loaded', array( $this, 'flush_rewrite_rules_once' ) );
+            }
+        }
+        public function flush_rewrite_rules_once() {
+            flush_rewrite_rules( false );
+            update_option( 'super_rewrite_rules_version', $this->version, false );
         }
         public function query_vars( $query_vars ){
             $query_vars[] = 'sfdlfi';
@@ -2454,15 +2464,15 @@ if(!class_exists('SUPER_Forms')) :
 
 
         /**
-         * Show PHP version error if PHP below v5.4 is installed
+         * Show PHP version error if PHP below v7.4 is installed
          *
          *  @since      4.0.0
         */
         public function show_admin_notices() {
-            if( version_compare(phpversion(), '5.4.0', '<') ) {
+            if( version_compare(phpversion(), '7.4.0', '<') ) {
                 echo '<div class="notice notice-error">'; // notice-success, notice-error
                 echo '<p>';
-                echo sprintf( esc_html__( '%sPlease note:%s Super Forms requires at least v5.4.0 or higher to be installed to work properly, your current PHP version is %s', 'super_forms' ), '<strong>', '</strong>', phpversion() );
+                echo sprintf( esc_html__( '%sPlease note:%s Super Forms requires at least v7.4.0 or higher to be installed to work properly, your current PHP version is %s', 'super_forms' ), '<strong>', '</strong>', phpversion() );
                 echo '</p>';
                 echo '</div>';
             }

@@ -33,6 +33,15 @@ class Test_Security_Admin_Authoring extends WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
+		// The plugin loads its AJAX handlers only on AJAX requests; these tests dispatch
+		// wp_ajax_* actions directly. The test framework restores the hooks after every
+		// test, so register the handlers again for each test.
+		if ( ! class_exists( 'SUPER_Ajax' ) ) {
+			require_once SUPER_PLUGIN_DIR . '/includes/class-ajax.php';
+		} elseif ( ! has_action( 'wp_ajax_super_save_settings' ) ) {
+			SUPER_Ajax::init();
+		}
+
 		$this->scope                 = 'sf-admin-authoring-' . str_replace( '-', '', wp_generate_uuid4() );
 		$this->original_current_user = get_current_user_id();
 		$this->original_post         = $_POST;

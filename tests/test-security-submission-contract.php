@@ -6,6 +6,14 @@
  */
 
 class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
+    public static function set_up_before_class() {
+        parent::set_up_before_class();
+        // SUPER_Ajax is loaded only on AJAX requests; these tests call it directly.
+        if( !class_exists('SUPER_Ajax') ) {
+            require_once SUPER_PLUGIN_DIR . '/includes/class-ajax.php';
+        }
+    }
+
     private function validate( $data, $elements, $form_id=41, $entry_id='', $list_id='' ) {
         $method = new ReflectionMethod( 'SUPER_Ajax', 'submission_data_matches_contract' );
         $method->setAccessible( true );
@@ -88,7 +96,7 @@ class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
     }
 
     private function production_repeater_data() {
-        return array(
+        $data = array(
             'hidden_form_id' => array(
                 'name' => 'hidden_form_id',
                 'value' => '41',
@@ -120,9 +128,11 @@ class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
                             'files' => array(),
                         ),
                     ),
+                    // A duplicated row's fields carry the browser's suffixed route names
+                    // (guest_name_2); a repeated bare route would be a duplicate carrier.
                     array(
-                        'guest_name' => array(
-                            'name' => 'guest_name',
+                        'guest_name_2' => array(
+                            'name' => 'guest_name_2',
                             'value' => 'Grace',
                             'label' => 'Guest name',
                             'exclude' => 'false',
@@ -135,6 +145,14 @@ class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
                 ),
             ),
         );
+        // SUPER.collect_dynamic_columns_data() copies each row carrier from the top-level
+        // form data, so the browser submits every row route at the top level as well.
+        foreach( $data['_super_dynamic_data']['guest_name'] as $row ) {
+            foreach( $row as $route_name => $carrier ) {
+                $data[$route_name] = $carrier;
+            }
+        }
+        return $data;
     }
 
     public function test_production_address_and_html_carriers_match_the_stored_schema() {
