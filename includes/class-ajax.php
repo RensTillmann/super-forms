@@ -388,12 +388,87 @@ class SUPER_Ajax {
     // Update unique code when browser "Back" button was pressed
     // Otherwise some browsers might retain the previously generated code
     // Which causes duplicated (none unique) codes
+    /**
+     * Preview a unique code for a saved code field. Never reserves anything: codes and invoice
+     * numbers are reserved by submit_form() for the real submission (reserve_generated_codes).
+     * The generator settings always come from the saved form, not from the request.
+     */
     public static function update_unique_code() {
-        $submittingForm = ($_POST['submittingForm']==='true' ? true : false);
-        $codesettings = wp_unslash($_POST['codesettings']);
-        $codesettings = json_decode($codesettings, true);
-        echo SUPER_Common::generate_random_code($codesettings, $submittingForm);
+        $form_id = isset($_POST['form_id']) ? absint($_POST['form_id']) : 0;
+        $field_name = ( isset($_POST['field_name']) && is_scalar($_POST['field_name']) ) ? (string) wp_unslash($_POST['field_name']) : '';
+        if( $form_id===0 || $field_name==='' || !check_ajax_referer( 'super_create_nonce_' . $form_id, 'nonce', false ) ) {
+            die();
+        }
+        $fields = SUPER_Common::stored_code_fields( $form_id );
+        if( !isset($fields[$field_name]) ) {
+            die();
+        }
+        echo esc_html( SUPER_Common::generate_random_code( $fields[$field_name], false ) );
         die();
+    }
+
+    /**
+     * Reserve the final unique code / invoice number for each saved code field of this submission,
+     * server-side and once. The value the browser previewed is kept when it can still be claimed
+     * exactly (so a PDF built in the browser matches); otherwise a fresh code is reserved.
+     * Dynamic column copies are matched only when they are not saved fields themselves, and the
+     * row data in _super_dynamic_data is kept in sync.
+     */
+    private static function reserve_generated_codes( $form_id, $data ) {
+        if( !is_array($data) ) {
+            return $data;
+        }
+        $fields = SUPER_Common::stored_code_fields( $form_id );
+        if( empty($fields) ) {
+            return $data;
+        }
+        $saved_names = array();
+        $walk = function( $elements ) use ( &$walk, &$saved_names ) {
+            if( !is_array($elements) ) return;
+            foreach( $elements as $element ) {
+                if( !is_array($element) ) continue;
+                if( isset($element['data']['name']) && is_string($element['data']['name']) ) $saved_names[$element['data']['name']] = true;
+                if( !empty($element['inner']) ) $walk( $element['inner'] );
+            }
+        };
+        $walk( SUPER_Common::get_form_elements( absint($form_id) ) );
+        $copies = array();
+        foreach( $data as $key => $field_data ) {
+            if( $key==='_super_dynamic_data' || !is_string($key) || !is_array($field_data) ) continue;
+            $base = false;
+            if( isset($fields[$key]) ) {
+                $base = $key;
+            }elseif( !isset($saved_names[$key]) && preg_match('/^(.+)_\d+$/', $key, $m) && isset($fields[$m[1]]) ) {
+                $base = $m[1];
+                $copies[$base] = isset($copies[$base]) ? $copies[$base]+1 : 1;
+                if( $copies[$base]>100 ) {
+                    SUPER_Common::output_message( true, esc_html__( 'Invalid form data.', 'super-forms' ) );
+                }
+            }
+            if( $base===false ) continue;
+            $candidate = isset($field_data['value']) && is_scalar($field_data['value']) ? (string) $field_data['value'] : '';
+            $code = SUPER_Common::claim_generated_code( $fields[$base], $candidate )
+                ? $candidate
+                : SUPER_Common::generate_random_code( $fields[$base], true );
+            $data[$key]['value'] = $code;
+            if( isset($data[$key]['entry_value']) ) {
+                $data[$key]['entry_value'] = $code;
+            }
+            if( isset($data['_super_dynamic_data']) && is_array($data['_super_dynamic_data']) ) {
+                foreach( $data['_super_dynamic_data'] as $group => $rows ) {
+                    if( !is_array($rows) ) continue;
+                    foreach( $rows as $row_index => $row ) {
+                        if( is_array($row) && isset($row[$key]) && is_array($row[$key]) ) {
+                            $data['_super_dynamic_data'][$group][$row_index][$key]['value'] = $code;
+                            if( isset($row[$key]['entry_value']) ) {
+                                $data['_super_dynamic_data'][$group][$row_index][$key]['entry_value'] = $code;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return $data;
     }
 
     /** 
@@ -916,90 +991,117 @@ class SUPER_Ajax {
      *
      *  @since      4.6.0
     */
+    /**
+     * Resolve the one stored text field that is configured for WooCommerce order search.
+     * Every query setting comes from the saved form, never from the request.
+     */
+    private static function public_wc_order_search_field( $form_id, $field_name ) {
+        $form_id = absint($form_id);
+        if( $form_id===0 || !is_string($field_name) || $field_name==='' ) {
+            return false;
+        }
+        $matches = array();
+        self::collect_wc_order_search_fields( SUPER_Common::get_form_elements($form_id), $field_name, $matches );
+        if( count($matches)!==1 ) {
+            return false;
+        }
+        return ( isset($matches[0]['data']) && is_array($matches[0]['data']) ) ? $matches[0]['data'] : false;
+    }
+
+    private static function collect_wc_order_search_fields( $elements, $field_name, &$matches=array() ) {
+        if( !is_array($elements) ) {
+            return;
+        }
+        foreach( $elements as $element ) {
+            if( !is_array($element) ) {
+                continue;
+            }
+            if( !empty($element['inner']) ) {
+                self::collect_wc_order_search_fields( $element['inner'], $field_name, $matches );
+            }
+            $data = ( isset($element['data']) && is_array($element['data']) ) ? $element['data'] : array();
+            if( ( isset($element['tag']) ? $element['tag'] : '' )==='text'
+                && isset($data['wc_order_search'], $data['name'])
+                && $data['wc_order_search']==='true'
+                && $data['name']===$field_name ) {
+                $matches[] = $element;
+            }
+        }
+    }
+
+    private static function wc_order_search_keys( $lines ) {
+        $keys = array();
+        foreach( preg_split( '/[\r\n;]+/', (string) $lines ) as $key ) {
+            $key = trim($key);
+            if( $key!=='' && preg_match('/^[A-Za-z0-9_\-]{1,191}$/', $key) ) {
+                $keys[] = $key;
+            }
+        }
+        return array_values(array_unique($keys));
+    }
+
     public static function search_wc_orders() {
-        $value = sanitize_text_field($_POST['value']);
-        $method = sanitize_text_field($_POST['method']);
-        $filterby = sanitize_text_field($_POST['filterby']);
-        if(empty($filterby)){
-            $filterby = 'ID;_billing_email;_billing_address_1;_billing_postcode;_billing_first_name;_billing_last_name;_billing_company'; 
-        }
-        $default_return_label = '[Order #{ID} - {_billing_email}, {_billing_first_name} {_billing_last_name}]';
-        if(!empty($_POST['return_label'])) $default_return_label = sanitize_text_field($_POST['return_label']);
-        $return_value = 'ID;_billing_email;_billing_first_name;_billing_last_name';
-        if(!empty($_POST['return_value'])) $return_value = sanitize_text_field($_POST['return_value']);
-        $populate = sanitize_text_field($_POST['populate']);
-        $skip = sanitize_text_field($_POST['skip']);
-        $query = "(post_type = 'shop_order') AND (";
-        if($method=='equals') {
-            $query .= "(wc_order.ID LIKE '$value')";
-        }
-        if($method=='contains') {
-            $query .= "(wc_order.ID LIKE '%$value%')";
-        }
         global $wpdb;
-        $filterby = explode(";", $filterby);
-        foreach($filterby as $k => $v){
-            if(!empty($v)){
-                if($method=='equals') {
-                    $query .= " OR (meta.meta_key = '".$v."' AND meta.meta_value LIKE '$value')";
-                }
-                if($method=='contains') {
-                    $query .= " OR (meta.meta_key = '".$v."' AND meta.meta_value LIKE '%$value%')";
-                }
-            }
+        $form_id = isset($_POST['form_id']) ? absint($_POST['form_id']) : 0;
+        $field_name = ( isset($_POST['field_name']) && is_scalar($_POST['field_name']) ) ? (string) wp_unslash($_POST['field_name']) : '';
+        $value = ( isset($_POST['value']) && is_scalar($_POST['value']) ) ? sanitize_text_field(wp_unslash($_POST['value'])) : '';
+        if( $form_id===0 || $field_name==='' || $value==='' || !check_ajax_referer( 'super_create_nonce_' . $form_id, 'nonce', false ) ) {
+            die();
         }
-        $query .= ")";
-        if(!empty($_POST['status'])){
-            $status = sanitize_text_field($_POST['status']);
-            $status = explode(';', $status);
-            foreach($status as $k => $v){
-                $status[$k] = trim($v);
-            }
-            $status = "'" . implode("','", $status) . "'";
-            $query .= "AND wc_order.post_status IN ($status)";
+        $field = self::public_wc_order_search_field( $form_id, $field_name );
+        if( $field===false ) {
+            die();
         }
-        $query = "SELECT wc_order.*
-        FROM $wpdb->posts AS wc_order
-        INNER JOIN $wpdb->postmeta AS meta ON meta.post_id = wc_order.ID
-        WHERE $query
-        GROUP BY wc_order.ID
-        LIMIT 50";
-        $orders = $wpdb->get_results($query);
-        $regex = '/\{(.*?)\}/';
-        $orders_array = array();
-        foreach($orders as $k => $v){
-            $v = (array) $v;
-            // Replace all {tags} and build the user label
-            $order_label = $default_return_label;
-            preg_match_all($regex, $order_label, $matches, PREG_SET_ORDER, 0);
-            foreach($matches as $mk => $mv){
-                if( isset($mv[1]) && isset($v[$mv[1]]) ) {
-                    $order_label = str_replace( '{' . $mv[1] . '}', $v[$mv[1]], $order_label );
-                }else{
-                    // Maybe we need to search in user meta data
-                    $meta_value = get_post_meta( $v['ID'], $mv[1], true );
-                    $order_label = str_replace( '{' . $mv[1] . '}', $meta_value, $order_label );
-                }
-            }
-            // Replace all meta_keys and build the user value
-            $mk = explode(";", $return_value);
-            $order_value = array();
-            foreach($mk as $mv){
-                if( isset($v[$mv]) ) {
-                    $order_value[] = $v[$mv];
-                }else{
-                    // Maybe we need to search in user meta data
-                    $meta_value = get_post_meta( $v['ID'], $mv, true );
-                    $order_value[] = $meta_value;
-                }   
-            }
-            $orders_array[] = array(
-                'label' => $order_label,
-                'value' => implode(';', $order_value)
-            );
+        $scope = SUPER_Common::wc_order_search_scope( $form_id, $field_name );
+        if( $scope===false ) {
+            die();
         }
-        foreach($orders_array as $k => $v){
-            echo '<li class="super-item" data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '">' . esc_html( $v['label'] ) . '</li>';
+        $method = ( isset($field['wc_order_search_method']) && $field['wc_order_search_method']==='equals' ) ? 'equals' : 'contains';
+        $filterby = self::wc_order_search_keys( isset($field['wc_order_search_filterby']) ? $field['wc_order_search_filterby'] : '' );
+        if( empty($filterby) ) {
+            $filterby = array( 'ID', '_billing_email', '_billing_address_1', '_billing_postcode', '_billing_first_name', '_billing_last_name', '_billing_company' );
+        }
+        $return_label = ( !empty($field['wc_order_search_return_label']) && is_string($field['wc_order_search_return_label']) )
+            ? $field['wc_order_search_return_label']
+            : '[Order #{ID} - {_billing_email}, {_billing_first_name} {_billing_last_name}]';
+        $return_value = self::wc_order_search_keys( isset($field['wc_order_search_return_value']) ? $field['wc_order_search_return_value'] : '' );
+        if( empty($return_value) ) {
+            $return_value = array( 'ID', '_billing_email', '_billing_first_name', '_billing_last_name' );
+        }
+        $statuses = self::wc_order_search_keys( isset($field['wc_order_search_status']) ? $field['wc_order_search_status'] : '' );
+
+        $like = ( $method==='equals' ) ? $wpdb->esc_like($value) : '%' . $wpdb->esc_like($value) . '%';
+        $where = array( '(wc_order.ID LIKE %s)' );
+        $args = array( $like );
+        foreach( $filterby as $key ) {
+            if( $key==='ID' ) continue;
+            $where[] = '(meta.meta_key = %s AND meta.meta_value LIKE %s)';
+            $args[] = $key;
+            $args[] = $like;
+        }
+        $sql = "SELECT wc_order.* FROM $wpdb->posts AS wc_order
+            INNER JOIN $wpdb->postmeta AS meta ON meta.post_id = wc_order.ID
+            WHERE wc_order.post_type = 'shop_order' AND (" . implode( ' OR ', $where ) . ')';
+        if( !empty($statuses) ) {
+            $sql .= ' AND wc_order.post_status IN (' . implode( ',', array_fill( 0, count($statuses), '%s' ) ) . ')';
+            $args = array_merge( $args, $statuses );
+        }
+        if( $scope!=='all' ) {
+            $sql .= " AND EXISTS (SELECT 1 FROM $wpdb->postmeta AS owner WHERE owner.post_id = wc_order.ID AND owner.meta_key = '_customer_user' AND owner.meta_value = %s)";
+            $args[] = (string) $scope;
+        }
+        $sql .= ' GROUP BY wc_order.ID LIMIT 50';
+        $orders = $wpdb->get_results( $wpdb->prepare( $sql, $args ) );
+        foreach( (array) $orders as $row ) {
+            $row = (array) $row;
+            $label = preg_replace_callback( '/\{([A-Za-z0-9_\-]{1,191})\}/', function( $m ) use ( $row ) {
+                return isset($row[$m[1]]) ? (string) $row[$m[1]] : (string) get_post_meta( $row['ID'], $m[1], true );
+            }, $return_label );
+            $values = array();
+            foreach( $return_value as $key ) {
+                $values[] = isset($row[$key]) ? (string) $row[$key] : (string) get_post_meta( $row['ID'], $key, true );
+            }
+            echo '<li class="super-item" data-value="' . esc_attr( implode(';', $values) ) . '" data-search-value="' . esc_attr( $label ) . '">' . esc_html( $label ) . '</li>';
         }
         die();
     }
@@ -1312,7 +1414,9 @@ class SUPER_Ajax {
                 'result_scope' => 'wc_order_entry',
             ) );
             $contract = ( $presented===false ) ? false : self::public_wc_order_search_contract( $presented['form_id'], $presented['field_name'] );
-            if( $presented===false || $contract===false || !self::public_populate_contract_matches( $presented, $contract ) ) {
+            $order_scope = ( $contract===false ) ? false : SUPER_Common::wc_order_search_scope( $contract['form_id'], $contract['field_name'] );
+            if( $presented===false || $contract===false || !self::public_populate_contract_matches( $presented, $contract )
+                || $order_scope===false || !SUPER_Common::wc_order_in_scope( $order_id, $order_scope ) ) {
                 echo wp_json_encode( self::public_populate_capability_rejected_response() );
                 die();
             }
@@ -8145,6 +8249,8 @@ class SUPER_Ajax {
             self::cleanup_owned_uploads($owned_files);
             SUPER_Common::output_message($error = true, esc_html__( 'Invalid form data.', 'super-forms' ));
         }
+        // Codes and invoice numbers are final before any filter, action or trigger sees the data.
+        $data = self::reserve_generated_codes( $form_id, $data );
         $_POST['data'] = self::submission_request_post_data_json($data);
         $data = apply_filters(
             'super_before_sending_email_data_filter',

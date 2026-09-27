@@ -6919,9 +6919,11 @@ function SUPERreCaptcha(){
             url: super_common_i18n.ajaxurl,
             type: 'post',
             data: {
+                // Preview only: the server reads the saved code settings and reserves the final code on submit.
                 action: 'super_update_unique_code',
-                submittingForm: submittingForm,
-                codesettings: el.dataset.codesettings // {"invoice_key:"","len":"7","char":"1","pre":"","inv":"","invp":"4","suf":"","upper":"true","lower":""}
+                form_id: (el.closest('form') && el.closest('form').querySelector('input[name="hidden_form_id"]')) ? el.closest('form').querySelector('input[name="hidden_form_id"]').value : '',
+                field_name: (el.dataset.oname ? el.dataset.oname : el.name),
+                nonce: (el.closest('form') && el.closest('form').querySelector('input[name="super_create_nonce"]')) ? el.closest('form').querySelector('input[name="super_create_nonce"]').value : ''
             },
             success: function (result) {
                 el.value = result;
@@ -8812,28 +8814,22 @@ function SUPERreCaptcha(){
             }
             timeout2 = setTimeout(function () {
                 var $value = $this.val();
-                var $method = $this.data('wcosm');
-                var $filterby = $this.data('wcosfb');
-                var $return_label = $this.data('wcosrl');
-                var $return_value = $this.data('wcosrv');
-                var $populate = $this.data('wcosp');
-                var $skip = $this.data('wcoss');
-                var $status = $this.data('wcosst');
+                var $orderForm = $this.closest('form');
+                var $formId = $orderForm.find('input[name="hidden_form_id"]').val() || '';
+                var $nonce = $orderForm.find('input[name="super_create_nonce"]').val() || '';
+                var $fieldName = $this.data('oname') ? $this.data('oname') : $this.attr('name');
                 if( $value.length>0 ) {
                     $this.parents('.super-field-wrapper:eq(0)').addClass('super-populating');
                     $.ajax({
                         url: super_common_i18n.ajaxurl,
                         type: 'post',
                         data: {
+                            // The server reads every search setting from the saved form.
                             action: 'super_search_wc_orders',
                             value: $value,
-                            method: $method,
-                            filterby: $filterby,
-                            return_label: $return_label,
-                            return_value: $return_value,
-                            populate: $populate,
-                            skip: $skip,
-                            status: $status
+                            form_id: $formId,
+                            field_name: $fieldName,
+                            nonce: $nonce
                         },
                         success: function (result) {
                             if(result!==''){

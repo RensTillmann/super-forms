@@ -3176,9 +3176,6 @@ class SUPER_Shortcodes {
         }
         if( $atts['wc_order_search']=='true' ) {
             if(!empty($atts['wc_order_search_method'])) $result .= ' data-wcosm="' . esc_attr($atts['wc_order_search_method']) . '"';
-            if(!empty($atts['wc_order_search_filterby'])) $result .= ' data-wcosfb="' . implode(';',explode("\n",$atts['wc_order_search_filterby'])) . '"';
-            if(!empty($atts['wc_order_search_return_label'])) $result .= ' data-wcosrl="' . esc_attr($atts['wc_order_search_return_label']) . '"';
-            if(!empty($atts['wc_order_search_return_value'])) $result .= ' data-wcosrv="' . esc_attr($atts['wc_order_search_return_value']) . '"';
             $wc_order_skip = '';
             if(!empty($atts['wc_order_search_skip'])) {
                 $wc_order_skip = sanitize_text_field($atts['wc_order_search_skip']);
@@ -3199,7 +3196,6 @@ class SUPER_Shortcodes {
                     }
                 }
             }
-            if(!empty($atts['wc_order_search_status'])) $result .= ' data-wcosst="' . implode(';',explode("\n",$atts['wc_order_search_status'])) . '"';
             if(!empty($atts['value'])) {
                 global $wpdb;
                 $value = sanitize_text_field($atts['value']);
@@ -3240,12 +3236,18 @@ class SUPER_Shortcodes {
                         }
                     }
                 }
+                // Only orders the visitor may see (shop staff: all, customers: their own, guests: none).
+                $order_scope = SUPER_Common::wc_order_search_scope( $search_form_id, $atts['name'] );
+                if( $order_scope!=='all' ) {
+                    $query .= " AND EXISTS (SELECT 1 FROM $wpdb->postmeta AS owner WHERE owner.post_id = wc_order.ID AND owner.meta_key = '_customer_user' AND owner.meta_value = %s)";
+                    $prepare_values[] = ( $order_scope===false ) ? '-1' : (string) $order_scope;
+                }
                 $query .= " GROUP BY wc_order.ID
                     LIMIT 1";
                 // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $query holds only literal SQL plus generated placeholders: implode( ' OR ', $where ) over the literals 'wc_order.ID LIKE %s' / '(meta.meta_key = %s AND meta.meta_value LIKE %s)' (includes/class-shortcodes.php:3213-3233) and implode( ',', array_fill( 0, count( $statuses ), '%s' ) ) (includes/class-shortcodes.php:3237); every value travels in $prepare_values through $wpdb->prepare() on this line.
                 $order_id = $wpdb->get_var( $wpdb->prepare( $query, $prepare_values ) );
                 $order_id = absint($order_id);
-                if($order_id!==0){
+                if($order_id!==0 && $order_scope!==false && SUPER_Common::wc_order_in_scope($order_id, $order_scope)){
                     if(!empty($atts['wc_order_search_populate']) && $search_form_id!==0){
                         $data = SUPER_Common::get_entry_data_by_wc_order_id($order_id, $wc_order_skip, $search_form_id);
                         if(is_array($data)){
@@ -4411,7 +4413,6 @@ class SUPER_Shortcodes {
         if( $atts['enable_random_code']=='true' ) $result .= ' data-code="' . $atts['enable_random_code'] . '"';
         if( $atts['code_invoice']=='true' ) $result .= ' data-invoice-padding="' . $atts['code_invoice_padding'] . '"';
 
-        if(!empty($codeSettings)) $result .= ' data-codeSettings="' . esc_attr(json_encode($codeSettings)) . '"';
         $result .= ' />';
 
         $result .= self::loop_variable_conditions( $atts );

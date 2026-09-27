@@ -1853,11 +1853,160 @@ class SUPER_Common {
      *
      * @since 2.2.0
     */
+    /**
+     * Who may see which WooCommerce orders through a form's order search / order populate:
+     * shop staff see all orders, a logged-in customer only their own orders, guests none.
+     * Returns 'all', a user ID, or false. Site owners can change this with the
+     * `super_wc_order_search_scope` filter (return 'all', a user ID or false).
+     */
+    public static function wc_order_search_scope( $form_id, $field_name ) {
+        $scope = false;
+        if( is_user_logged_in() ) {
+            $scope = ( current_user_can('edit_shop_orders') || current_user_can('manage_woocommerce') ) ? 'all' : get_current_user_id();
+        }
+        $scope = apply_filters( 'super_wc_order_search_scope', $scope, absint($form_id), (string) $field_name );
+        if( $scope==='all' ) {
+            return 'all';
+        }
+        $scope = is_numeric($scope) ? absint($scope) : 0;
+        return ( $scope>0 ) ? $scope : false;
+    }
+
+    /** True when the given order may be read under the given scope. */
+    public static function wc_order_in_scope( $order_id, $scope ) {
+        if( $scope==='all' ) {
+            return true;
+        }
+        if( !is_int($scope) || $scope<1 ) {
+            return false;
+        }
+        return absint( get_post_meta( absint($order_id), '_customer_user', true ) )===$scope;
+    }
+
+    /**
+     * Code generator settings for a stored element, or false when the element does not generate codes.
+     * Mirrors the defaults the form renderer applies.
+     */
+    public static function code_settings_from_atts( $atts ) {
+        if( !is_array($atts) || !isset($atts['enable_random_code']) || $atts['enable_random_code']!=='true' ) {
+            return false;
+        }
+        $get = function( $key, $default ) use ( $atts ) {
+            return ( isset($atts[$key]) && is_scalar($atts[$key]) ) ? (string) $atts[$key] : $default;
+        };
+        return array(
+            'invoice_key' => $get( 'code_invoice_key', '' ),
+            'len' => $get( 'code_length', '7' ),
+            'char' => $get( 'code_characters', '1' ),
+            'pre' => $get( 'code_prefix', '' ),
+            'inv' => $get( 'code_invoice', '' ),
+            'invp' => $get( 'code_invoice_padding', '' ),
+            'suf' => $get( 'code_suffix', '' ),
+            'upper' => $get( 'code_uppercase', '' ),
+            'lower' => $get( 'code_lowercase', '' ),
+        );
+    }
+
+    /** Map of field name => code settings for every code-generating element saved on a form. */
+    public static function stored_code_fields( $form_id ) {
+        $fields = array();
+        $walk = function( $elements ) use ( &$walk, &$fields ) {
+            if( !is_array($elements) ) return;
+            foreach( $elements as $element ) {
+                if( !is_array($element) ) continue;
+                if( !empty($element['inner']) ) $walk( $element['inner'] );
+                $data = ( isset($element['data']) && is_array($element['data']) ) ? $element['data'] : array();
+                $settings = self::code_settings_from_atts( $data );
+                if( $settings!==false && isset($data['name']) && is_string($data['name']) && $data['name']!=='' ) {
+                    $fields[$data['name']] = $settings;
+                }
+            }
+        };
+        $walk( self::get_form_elements( absint($form_id) ) );
+        return $fields;
+    }
+
+    /**
+     * Claim a code the visitor's browser previewed (and may already have printed, e.g. in a PDF),
+     * when it still matches the saved settings exactly: prefix, suffix, length, character set,
+     * and for invoice numbers the next counter value. Claims atomically; returns false when the
+     * value cannot be claimed so the caller generates a fresh code instead.
+     */
+    public static function claim_generated_code( $codesettings, $candidate ) {
+        global $wpdb;
+        if( !is_array($codesettings) || !is_string($candidate) || $candidate==='' || strlen($candidate)>150 ) {
+            return false;
+        }
+        $setting = function( $key ) use ( $codesettings ) {
+            return ( isset($codesettings[$key]) && is_scalar($codesettings[$key]) ) ? (string) $codesettings[$key] : '';
+        };
+        $length = max( 0, min( 64, absint( $setting('len')==='' ? 7 : $setting('len') ) ) );
+        $prefix = $setting('pre');
+        $suffix = $setting('suf');
+        if( strlen($candidate) < strlen($prefix)+strlen($suffix)
+            || ( $prefix!=='' && strpos($candidate, $prefix)!==0 )
+            || ( $suffix!=='' && substr($candidate, -strlen($suffix))!==$suffix ) ) {
+            return false;
+        }
+        $core = (string) substr( $candidate, strlen($prefix), strlen($candidate)-strlen($prefix)-strlen($suffix) );
+        $random = (string) substr( $core, 0, $length );
+        $rest = (string) substr( $core, $length );
+        if( strlen($random)!==$length ) {
+            return false;
+        }
+        $characters = $setting('char');
+        $allowed = '';
+        if( in_array($characters, array('1','2','3'), true) ) $allowed .= '0123456789';
+        if( in_array($characters, array('1','2','4'), true) ) {
+            if( $setting('upper')==='true' ) $allowed .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            if( $setting('lower')==='true' ) $allowed .= 'abcdefghijklmnopqrstuvwxyz';
+        }
+        if( $characters==='2' ) $allowed .= '!@#$%^&*()';
+        if( $length>0 && ( $allowed==='' || strspn($random, $allowed)!==$length ) ) {
+            return false;
+        }
+        $invoice = ( $setting('inv')==='true' && ctype_digit($setting('invp')) );
+        $number = 0;
+        $counter_names = array();
+        $current = null;
+        if( $invoice ) {
+            if( $rest==='' || !ctype_digit($rest) ) return false;
+            $number = (int) $rest;
+            if( sprintf('%0' . $setting('invp') . 'd', $number)!==$rest ) return false;
+            $key = $setting('invoice_key');
+            $counter_names = array( '_super_form_invoice_number' . ( $key!=='' ? '_' . $key : '' ), '_sf_invoice_number' . ( $key!=='' ? '_' . $key : '' ) );
+            $current = $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM $wpdb->options WHERE option_name = %s OR option_name = %s", $counter_names[0], $counter_names[1] ) );
+            if( $current===null || !is_numeric($current) || $number!==( (int) $current )+1 ) return false;
+        }elseif( $rest!=='' ) {
+            return false;
+        }
+        if( $wpdb->get_var( $wpdb->prepare( "SELECT option_id FROM $wpdb->options WHERE option_name = %s", '_super_contact_entry_code-' . $candidate ) )!==null ) {
+            return false;
+        }
+        $claimed = $wpdb->query( $wpdb->prepare( "INSERT IGNORE INTO $wpdb->options (option_name, option_value, autoload) VALUES ( %s, %s, 'no' )", '_sf_unique_code-' . $candidate, $candidate ) );
+        if( $claimed!==1 ) {
+            return false;
+        }
+        if( $invoice ) {
+            $advanced = $wpdb->query( $wpdb->prepare(
+                "UPDATE $wpdb->options SET option_value = %d WHERE ( option_name = %s OR option_name = %s ) AND option_value = %s",
+                $number, $counter_names[0], $counter_names[1], (string) $current
+            ) );
+            if( !$advanced ) {
+                $wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->options WHERE option_name = %s", '_sf_unique_code-' . $candidate ) );
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static function generate_random_code($codesettings, $submittingForm=false, $counter=0){
         global $wpdb;
         // First check if we are submitting the form or not
         $invoice_key = (!empty($codesettings['invoice_key']) ? $codesettings['invoice_key'] : '');
-        $length = $codesettings['len'];
+        // Bounded length: settings are admin-authored, but never let a stored value request an unbounded string.
+        $length = isset($codesettings['len']) ? absint($codesettings['len']) : 7;
+        $length = max( 0, min( 64, $length ) );
         $characters = $codesettings['char'];
         $prefix = $codesettings['pre'];
         $invoice = $codesettings['inv'];
@@ -1887,7 +2036,7 @@ class SUPER_Common {
                 $table = $wpdb->prefix . 'options';
                 // This is the global invoice key ID, if user defines a custom one, we will save it under a different option name.
                 // This allows for multiple usecases, for instance if you have a form that needs to generate a invoice, and if you have 
-                // a seperate form that generates quotes. That way a next quote number could be "0025" while the next invoice number would be "0018"
+                // a separate form that generates quotes. That way a next quote number could be "0025" while the next invoice number would be "0018"
                 $option_name_old = '_super_form_invoice_number';
                 $option_name = '_sf_invoice_number';
                 if(!empty($invoice_key)){
@@ -1896,17 +2045,21 @@ class SUPER_Common {
                 }
                 $invoiceNumber = $wpdb->get_var($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = '%s' OR option_name = '%s'  ", $option_name_old, $option_name));
                 // If this number doesn't exist yet create it
-                if(!$invoiceNumber){
-                    $wpdb->query($wpdb->prepare("INSERT INTO $wpdb->options (option_name, option_value, autoload) VALUES ( %s, %d, %s ) ", array( $option_name, 0, 'no' ) ) );
+                if($invoiceNumber===null){
+                    $invoiceNumber = 1;
+                    $filterCode = '_sf_unique_code-'.$prefix.'%'; // 
+                    $lastKnownInvoiceNumber = $wpdb->get_var($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name LIKE '%s'", $filterCode));
+                    if($lastKnownInvoiceNumber!==null){
+                        $invoiceNumber = intval($lastKnownInvoiceNumber);
+                    }else{
+                        $invoiceNumber = 0;
+                    }
+                    $wpdb->query($wpdb->prepare("INSERT INTO $wpdb->options (option_name, option_value, autoload) VALUES ( %s, %d, %s ) ", array( $option_name, $invoiceNumber, 'no' ) ) );
                 }
                 $invoiceNumber = intval($invoiceNumber);
+                $invoiceNumber = $invoiceNumber+1;
                 if($submittingForm){
-                    $invoiceNumber = $invoiceNumber+1;
                     $wpdb->query($wpdb->prepare("UPDATE $wpdb->options SET option_value = %d WHERE option_name = '%s' OR option_name = '%s'", $invoiceNumber, $option_name_old, $option_name));
-                }else{
-                    if($invoiceNumber===0){
-                        $invoiceNumber = 1;
-                    }
                 }
                 $code .= sprintf('%0'.$invoice_padding.'d', $invoiceNumber );
             }
