@@ -5379,24 +5379,63 @@ class SUPER_Ajax {
 
     /**
      * Reserve the final unique code / invoice number for each saved code field of this submission,
-     * server-side and once, replacing whatever value the browser sent.
+     * server-side and once. The value the browser previewed is kept when it can still be claimed
+     * exactly (so a PDF built in the browser matches); otherwise a fresh code is reserved.
+     * Dynamic column copies are matched only when they are not saved fields themselves, and the
+     * row data in _super_dynamic_data is kept in sync.
      */
     private static function reserve_generated_codes( $form_id, $data ) {
         if( !is_array($data) ) {
             return $data;
         }
         $fields = SUPER_Common::stored_code_fields( $form_id );
-        foreach( $data as $key => $field_data ) {
-            if( !is_array($field_data) || !is_string($key) ) continue;
-            $base = $key;
-            if( !isset($fields[$base]) && preg_match('/^(.+)_\d+$/', $key, $m) && isset($fields[$m[1]]) ) {
-                $base = $m[1]; // dynamic column clone of a saved code field
+        if( empty($fields) ) {
+            return $data;
+        }
+        $saved_names = array();
+        $walk = function( $elements ) use ( &$walk, &$saved_names ) {
+            if( !is_array($elements) ) return;
+            foreach( $elements as $element ) {
+                if( !is_array($element) ) continue;
+                if( isset($element['data']['name']) && is_string($element['data']['name']) ) $saved_names[$element['data']['name']] = true;
+                if( !empty($element['inner']) ) $walk( $element['inner'] );
             }
-            if( !isset($fields[$base]) ) continue;
-            $code = SUPER_Common::generate_random_code( $fields[$base], true );
+        };
+        $walk( SUPER_Common::get_form_elements( absint($form_id) ) );
+        $copies = array();
+        foreach( $data as $key => $field_data ) {
+            if( $key==='_super_dynamic_data' || !is_string($key) || !is_array($field_data) ) continue;
+            $base = false;
+            if( isset($fields[$key]) ) {
+                $base = $key;
+            }elseif( !isset($saved_names[$key]) && preg_match('/^(.+)_\d+$/', $key, $m) && isset($fields[$m[1]]) ) {
+                $base = $m[1];
+                $copies[$base] = isset($copies[$base]) ? $copies[$base]+1 : 1;
+                if( $copies[$base]>100 ) {
+                    SUPER_Common::output_message( array( 'error' => true, 'msg' => esc_html__( 'Invalid form data.', 'super-forms' ) ) );
+                }
+            }
+            if( $base===false ) continue;
+            $candidate = isset($field_data['value']) && is_scalar($field_data['value']) ? (string) $field_data['value'] : '';
+            $code = SUPER_Common::claim_generated_code( $fields[$base], $candidate )
+                ? $candidate
+                : SUPER_Common::generate_random_code( $fields[$base], true );
             $data[$key]['value'] = $code;
             if( isset($data[$key]['entry_value']) ) {
                 $data[$key]['entry_value'] = $code;
+            }
+            if( isset($data['_super_dynamic_data']) && is_array($data['_super_dynamic_data']) ) {
+                foreach( $data['_super_dynamic_data'] as $group => $rows ) {
+                    if( !is_array($rows) ) continue;
+                    foreach( $rows as $row_index => $row ) {
+                        if( is_array($row) && isset($row[$key]) && is_array($row[$key]) ) {
+                            $data['_super_dynamic_data'][$group][$row_index][$key]['value'] = $code;
+                            if( isset($row[$key]['entry_value']) ) {
+                                $data['_super_dynamic_data'][$group][$row_index][$key]['entry_value'] = $code;
+                            }
+                        }
+                    }
+                }
             }
         }
         return $data;
@@ -8386,6 +8425,8 @@ class SUPER_Ajax {
             self::cleanup_owned_uploads($owned_files);
             SUPER_Common::output_message( array( 'error' => true, 'msg' => esc_html__( 'Invalid form data.', 'super-forms' ) ) );
         }
+        // Codes and invoice numbers are final before any filter, action or trigger sees the data.
+        $data = self::reserve_generated_codes( $form_id, $data );
         $_POST['data'] = self::submission_request_post_data_json($data);
         $data = apply_filters(
             'super_before_sending_email_data_filter',
@@ -8746,7 +8787,6 @@ class SUPER_Ajax {
                 SUPER_Common::output_message( array( 'error' => true, 'msg' => esc_html__( 'Unable to submit form, session expired!', 'super-forms' ) ) );
         }
         $atts = self::submit_form_checks();
-        $atts['data'] = self::reserve_generated_codes( $atts['form_id'], $atts['data'] );
         $i18n = $atts['i18n'];
         $sfs_uid = $atts['sfs_uid'];
         $sfsi = $atts['sfsi'];

@@ -3030,6 +3030,80 @@ class SUPER_Common {
         return $fields;
     }
 
+    /**
+     * Claim a code the visitor's browser previewed (and may already have printed, e.g. in a PDF),
+     * when it still matches the saved settings exactly: prefix, suffix, length, character set,
+     * and for invoice numbers the next counter value. Claims atomically; returns false when the
+     * value cannot be claimed so the caller generates a fresh code instead.
+     */
+    public static function claim_generated_code( $codesettings, $candidate ) {
+        global $wpdb;
+        if( !is_array($codesettings) || !is_string($candidate) || $candidate==='' || strlen($candidate)>150 ) {
+            return false;
+        }
+        $setting = function( $key ) use ( $codesettings ) {
+            return ( isset($codesettings[$key]) && is_scalar($codesettings[$key]) ) ? (string) $codesettings[$key] : '';
+        };
+        $length = max( 0, min( 64, absint( $setting('len')==='' ? 7 : $setting('len') ) ) );
+        $prefix = $setting('pre');
+        $suffix = $setting('suf');
+        if( strlen($candidate) < strlen($prefix)+strlen($suffix)
+            || ( $prefix!=='' && strpos($candidate, $prefix)!==0 )
+            || ( $suffix!=='' && substr($candidate, -strlen($suffix))!==$suffix ) ) {
+            return false;
+        }
+        $core = (string) substr( $candidate, strlen($prefix), strlen($candidate)-strlen($prefix)-strlen($suffix) );
+        $random = (string) substr( $core, 0, $length );
+        $rest = (string) substr( $core, $length );
+        if( strlen($random)!==$length ) {
+            return false;
+        }
+        $characters = $setting('char');
+        $allowed = '';
+        if( in_array($characters, array('1','2','3'), true) ) $allowed .= '0123456789';
+        if( in_array($characters, array('1','2','4'), true) ) {
+            if( $setting('upper')==='true' ) $allowed .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            if( $setting('lower')==='true' ) $allowed .= 'abcdefghijklmnopqrstuvwxyz';
+        }
+        if( $characters==='2' ) $allowed .= '!@#$%^&*()';
+        if( $length>0 && ( $allowed==='' || strspn($random, $allowed)!==$length ) ) {
+            return false;
+        }
+        $invoice = ( $setting('inv')==='true' && ctype_digit($setting('invp')) );
+        $number = 0;
+        $counter_names = array();
+        $current = null;
+        if( $invoice ) {
+            if( $rest==='' || !ctype_digit($rest) ) return false;
+            $number = (int) $rest;
+            if( sprintf('%0' . $setting('invp') . 'd', $number)!==$rest ) return false;
+            $key = $setting('invoice_key');
+            $counter_names = array( '_super_form_invoice_number' . ( $key!=='' ? '_' . $key : '' ), '_sf_invoice_number' . ( $key!=='' ? '_' . $key : '' ) );
+            $current = $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM $wpdb->options WHERE option_name = %s OR option_name = %s", $counter_names[0], $counter_names[1] ) );
+            if( $current===null || !is_numeric($current) || $number!==( (int) $current )+1 ) return false;
+        }elseif( $rest!=='' ) {
+            return false;
+        }
+        if( $wpdb->get_var( $wpdb->prepare( "SELECT option_id FROM $wpdb->options WHERE option_name = %s", '_super_contact_entry_code-' . $candidate ) )!==null ) {
+            return false;
+        }
+        $claimed = $wpdb->query( $wpdb->prepare( "INSERT IGNORE INTO $wpdb->options (option_name, option_value, autoload) VALUES ( %s, %s, 'no' )", '_sf_unique_code-' . $candidate, $candidate ) );
+        if( $claimed!==1 ) {
+            return false;
+        }
+        if( $invoice ) {
+            $advanced = $wpdb->query( $wpdb->prepare(
+                "UPDATE $wpdb->options SET option_value = %d WHERE ( option_name = %s OR option_name = %s ) AND option_value = %s",
+                $number, $counter_names[0], $counter_names[1], (string) $current
+            ) );
+            if( !$advanced ) {
+                $wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->options WHERE option_name = %s", '_sf_unique_code-' . $candidate ) );
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static function generate_random_code($codesettings, $submittingForm=false, $counter=0){
         global $wpdb;
         // First check if we are submitting the form or not

@@ -280,6 +280,71 @@ class Test_Security_Public_Endpoints extends Super_Forms_Upload_Security_Test_Ca
         $this->assertSame( 'INV-0002', $again['invoice_code']['value'] );
     }
 
+    public function test_submission_keeps_a_previewed_invoice_number_it_can_claim() {
+        $form_id = $this->code_form();
+        $settings = SUPER_Common::stored_code_fields( $form_id )['invoice_code'];
+        $preview = SUPER_Common::generate_random_code( $settings, false ); // what the browser shows and a PDF may print
+        $data = array( 'invoice_code' => array( 'name' => 'invoice_code', 'value' => $preview, 'type' => 'var' ) );
+        $reserved = $this->invoke_ajax_private( 'reserve_generated_codes', array( $form_id, $data ) );
+        $this->assertSame( $preview, $reserved['invoice_code']['value'] );
+        $this->assertSame( '1', $this->invoice_counter( 'unit' ) );
+        // The same number cannot be claimed twice.
+        $again = $this->invoke_ajax_private( 'reserve_generated_codes', array( $form_id, $data ) );
+        $this->assertSame( 'INV-0002', $again['invoice_code']['value'] );
+    }
+
+    public function test_submission_keeps_a_previewed_random_code_once() {
+        $form_id = $this->code_form( array( 'code_invoice' => '', 'code_length' => '8', 'code_uppercase' => 'true', 'code_characters' => '1' ) );
+        $settings = SUPER_Common::stored_code_fields( $form_id )['invoice_code'];
+        $preview = SUPER_Common::generate_random_code( $settings, false );
+        $data = array( 'invoice_code' => array( 'name' => 'invoice_code', 'value' => $preview, 'type' => 'var' ) );
+        $first = $this->invoke_ajax_private( 'reserve_generated_codes', array( $form_id, $data ) );
+        $this->assertSame( $preview, $first['invoice_code']['value'] );
+        $second = $this->invoke_ajax_private( 'reserve_generated_codes', array( $form_id, $data ) );
+        $this->assertNotSame( $preview, $second['invoice_code']['value'] );
+    }
+
+    public function test_submission_replaces_codes_that_do_not_match_the_saved_format() {
+        $form_id = $this->code_form();
+        foreach( array( 'EVIL-0001', 'INV-0005', 'INV-01', 'INV-0001x', 'INV-' ) as $tampered ) {
+            $data = array( 'invoice_code' => array( 'name' => 'invoice_code', 'value' => $tampered, 'type' => 'var' ) );
+            $reserved = $this->invoke_ajax_private( 'reserve_generated_codes', array( $form_id, $data ) );
+            $this->assertMatchesRegularExpression( '/\AINV-\d{4}\z/', $reserved['invoice_code']['value'] );
+            $this->assertNotSame( $tampered, $reserved['invoice_code']['value'] );
+        }
+    }
+
+    public function test_dynamic_column_copies_are_reserved_but_unrelated_fields_are_left_alone() {
+        $form_id = $this->create_form( 'publish', array(
+            array( 'tag' => 'hidden', 'group' => 'form_elements', 'data' => array( 'name' => 'code', 'enable_random_code' => 'true', 'code_length' => '0', 'code_prefix' => 'C-', 'code_invoice' => 'true', 'code_invoice_padding' => '3', 'code_invoice_key' => 'dyn' ) ),
+            array( 'tag' => 'text', 'group' => 'form_elements', 'data' => array( 'name' => 'code_9' ) ),
+        ) );
+        $data = array(
+            'code' => array( 'name' => 'code', 'value' => 'x', 'type' => 'var' ),
+            'code_2' => array( 'name' => 'code_2', 'value' => 'x', 'type' => 'var' ),
+            'code_9' => array( 'name' => 'code_9', 'value' => 'keep me', 'type' => 'var' ),
+            '_super_dynamic_data' => array( 'code' => array( array( 'code' => array( 'name' => 'code', 'value' => 'x' ) ), array( 'code_2' => array( 'name' => 'code_2', 'value' => 'x' ) ) ) ),
+        );
+        $reserved = $this->invoke_ajax_private( 'reserve_generated_codes', array( $form_id, $data ) );
+        $this->assertSame( 'C-001', $reserved['code']['value'] );
+        $this->assertSame( 'C-002', $reserved['code_2']['value'] );
+        $this->assertSame( 'keep me', $reserved['code_9']['value'] );
+        $this->assertSame( 'C-002', $reserved['_super_dynamic_data']['code'][1]['code_2']['value'] );
+    }
+
+    public function test_filters_already_see_the_reserved_code() {
+        $form_id = $this->code_form();
+        $seen = null;
+        $this->add_upload_filter( 'super_before_sending_email_data_filter', static function( $filtered ) use ( &$seen ) {
+            $seen = $filtered;
+            return $filtered;
+        }, 10, 2 );
+        $this->set_request( $form_id, array( 'invoice_code' => array( 'name' => 'invoice_code', 'value' => 'CLIENT', 'type' => 'var' ) ) );
+        $atts = SUPER_Ajax::submit_form_checks( false );
+        $this->assertSame( 'INV-0001', $seen['invoice_code']['value'] );
+        $this->assertSame( 'INV-0001', $atts['data']['invoice_code']['value'] );
+    }
+
     public function test_code_length_is_bounded() {
         $code = SUPER_Common::generate_random_code( array( 'invoice_key' => '', 'len' => '100000', 'char' => '1', 'pre' => '', 'inv' => '', 'invp' => '', 'suf' => '', 'upper' => '', 'lower' => '' ), false );
         $this->assertLessThanOrEqual( 64, strlen( $code ) );
@@ -316,6 +381,48 @@ class Test_Security_Public_Endpoints extends Super_Forms_Upload_Security_Test_Ca
         $this->set_post( $post );
         $paypal = $this->paypal();
         return $this->run_dying_handler( static function() use ( $paypal ) { $paypal->paypal_ipn(); } );
+    }
+
+    private function signed_custom( $fields ) {
+        $method = new ReflectionMethod( 'SUPER_PayPal', 'sign_custom' );
+        $method->setAccessible( true );
+        return $method->invoke( null, $fields );
+    }
+
+    private function paypal_form( $settings=array() ) {
+        return $this->create_form( 'publish', array(), array_merge( array(
+            'paypal_merchant_email' => 'merchant@example.test',
+            'paypal_mode' => 'live',
+            'paypal_completed_post_status' => 'publish',
+        ), $settings ) );
+    }
+
+    private function verified_payment( $form_id, $custom ) {
+        return array(
+            'txn_type' => 'web_accept', 'payment_status' => 'Completed', 'txn_id' => 'TXN-' . wp_generate_password( 8, false ),
+            'receiver_email' => 'merchant@example.test', 'mc_gross' => '0.01', 'mc_currency' => 'USD', 'custom' => $custom,
+        );
+    }
+
+    public function test_tampered_custom_cannot_point_a_payment_at_another_post() {
+        $this->paypal();
+        $form_id = $this->paypal_form();
+        $victim_post = self::factory()->post->create( array( 'post_status' => 'draft' ) );
+        $legit = $this->signed_custom( array( $form_id, 'single', 0, 0, 0, 0 ) );
+        $tampered = preg_replace( '/^(\d+\|single\|0\|0\|)0/', '${1}' . $victim_post, $legit );
+        $this->send_ipn( $this->verified_payment( $form_id, $tampered ), 'VERIFIED' );
+        $this->assertSame( 'draft', get_post_status( $victim_post ) );
+        $unsigned = $form_id . '|single|0|0|' . $victim_post . '|0';
+        $this->send_ipn( $this->verified_payment( $form_id, $unsigned ), 'VERIFIED' );
+        $this->assertSame( 'draft', get_post_status( $victim_post ) );
+    }
+
+    public function test_signed_custom_updates_the_post_it_was_issued_for() {
+        $this->paypal();
+        $form_id = $this->paypal_form();
+        $own_post = self::factory()->post->create( array( 'post_status' => 'draft' ) );
+        $this->send_ipn( $this->verified_payment( $form_id, $this->signed_custom( array( $form_id, 'single', 0, 0, $own_post, 0 ) ) ), 'VERIFIED' );
+        $this->assertSame( 'publish', get_post_status( $own_post ) );
     }
 
     public function test_unverified_subscription_cancel_changes_nothing() {

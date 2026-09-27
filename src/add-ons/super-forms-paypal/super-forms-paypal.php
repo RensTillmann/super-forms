@@ -1370,6 +1370,25 @@ if( !class_exists('SUPER_PayPal') ) :
 		 * @since       1.0.0
 		 */
 		/**
+		 * The pass-through `custom` value travels through the buyer's browser, so it is signed:
+		 * form ID, payment type, contact entry, author, post and user can then not be changed.
+		 */
+		private static function sign_custom( $fields ) {
+			$payload = implode( '|', array_map( 'strval', $fields ) );
+			return $payload . '|' . substr( hash_hmac( 'sha256', 'super_paypal_custom|' . $payload, wp_salt( 'auth' ) ), 0, 32 );
+		}
+
+		/** The six signed fields of a `custom` value, or false when it is unsigned or altered. */
+		private static function verified_custom( $raw ) {
+			if ( !is_string($raw) ) return false;
+			$parts = explode( '|', $raw );
+			if ( count($parts) !== 7 || !preg_match( '/\A[a-f0-9]{32}\z/', $parts[6] ) ) return false;
+			$fields = array_slice( $parts, 0, 6 );
+			$expected = substr( hash_hmac( 'sha256', 'super_paypal_custom|' . implode( '|', $fields ), wp_salt( 'auth' ) ), 0, 32 );
+			return hash_equals( $expected, $parts[6] ) ? $fields : false;
+		}
+
+		/**
 		 * Ask PayPal whether this exact IPN message was sent by PayPal.
 		 * Returns 'VERIFIED', 'INVALID' or 'ERROR' (network/HTTP failure, PayPal will retry).
 		 */
@@ -1523,8 +1542,18 @@ if( !class_exists('SUPER_PayPal') ) :
 				}
 
 				// First retrieve the form settings
-				$custom = apply_filters( 'super_paypal_custom_data_filter', $_POST['custom'] );
+				// Only a signed `custom` may point this payment at an entry, post or user. Payments started
+				// before signing was added are still recorded, but change nothing else.
+				$custom_raw = isset($_POST['custom']) ? wp_unslash( (string) $_POST['custom'] ) : '';
+				$custom_fields = self::verified_custom( $custom_raw );
+				$custom = apply_filters( 'super_paypal_custom_data_filter', ( $custom_fields !== false ) ? implode( '|', $custom_fields ) : $custom_raw );
 				$custom = explode('|', $custom);
+				if ( $custom_fields === false ) {
+					error_log('Super Forms: PayPal IPN without a valid signed custom value; recording the payment only');
+					foreach ( array( 2, 3, 4, 5 ) as $index ) {
+						$custom[$index] = 0;
+					}
+				}
 				$form_id = $custom[0];
 				if (!$form_id) return;
 				if (absint($form_id) == 0) return;
@@ -2099,7 +2128,7 @@ if( !class_exists('SUPER_PayPal') ) :
 				$message .= '<input type="hidden" name="currency_code" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_currency_code'], $data, $settings)) . '" />';
 				
 				// Pass-through variable for your own tracking purposes, which buyers do not see.
-				$message .= '<input type="hidden" name="custom" value="' . esc_attr(implode("|", $custom)) . '">';
+				$message .= '<input type="hidden" name="custom" value="' . esc_attr(self::sign_custom($custom)) . '">';
 				
 				// Pass-through variable you can use to identify your invoice number for this purchase.
 				if( !empty($settings['paypal_invoice']) ) {
