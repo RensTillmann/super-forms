@@ -1022,7 +1022,7 @@ if( !class_exists('SUPER_PayPal') ) :
 														$sub_id = sanitize_text_field( $txn_data['recurring_payment_id'] );
 													}
 													global $wpdb;
-													$post_id = $wpdb->get_var("SELECT post_id FROM $wpdb->postmeta AS meta INNER JOIN $wpdb->posts AS post ON post.id = meta.post_id WHERE post.post_type = 'super_paypal_sub' AND meta_key = '_super_sub_id' AND meta_value = '$sub_id'");
+													$post_id = $wpdb->get_var( $wpdb->prepare( "SELECT post_id FROM $wpdb->postmeta AS meta INNER JOIN $wpdb->posts AS post ON post.id = meta.post_id WHERE post.post_type = 'super_paypal_sub' AND meta_key = '_super_sub_id' AND meta_value = %s", isset($sub_id) ? $sub_id : '' ) );
 													if(absint($post_id)!=0){
 														echo '<div class="misc-pub-section">';
 	                                                		echo '<span>' . esc_html__( 'Based on subscription', 'super-forms' ) . ': <a href="' . esc_url('admin.php?page=super_paypal_sub&id=' . $post_id) . '"><strong>' . $sub_id . '</strong></a></span>';
@@ -1369,6 +1369,35 @@ if( !class_exists('SUPER_PayPal') ) :
 		 *
 		 * @since       1.0.0
 		 */
+		/**
+		 * Ask PayPal whether this exact IPN message was sent by PayPal.
+		 * Returns 'VERIFIED', 'INVALID' or 'ERROR' (network/HTTP failure, PayPal will retry).
+		 */
+		private function verify_ipn_message( $sandbox ) {
+			$url = 'https://ipnpb.' . ( $sandbox ? 'sandbox.' : '' ) . 'paypal.com/cgi-bin/webscr';
+			// Filterable for tests; the body PayPal posted is what gets echoed back for verification.
+			$raw_post_data = apply_filters( 'super_paypal_ipn_raw_body', file_get_contents('php://input') );
+			if ( !is_string($raw_post_data) || $raw_post_data === '' ) return 'INVALID';
+			$req = 'cmd=_notify-validate';
+			foreach ( explode('&', $raw_post_data) as $keyval ) {
+				$keyval = explode('=', $keyval, 2);
+				if ( count($keyval) !== 2 ) continue;
+				// Keep the plus in the payment_date string encoded as PayPal sent it.
+				if ( $keyval[0] === 'payment_date' && substr_count($keyval[1], '+') === 1 ) {
+					$keyval[1] = str_replace('+', '%2B', $keyval[1]);
+				}
+				$req .= '&' . $keyval[0] . '=' . urlencode( urldecode($keyval[1]) );
+			}
+			$response = wp_remote_post( $url, array(
+				'sslverify' => true,
+				'body' => $req,
+				'timeout' => 20,
+				'headers' => array( 'Connection' => 'close' ),
+			) );
+			if ( is_wp_error($response) || (int) wp_remote_retrieve_response_code($response) !== 200 ) return 'ERROR';
+			return ( trim( wp_remote_retrieve_body($response) ) === 'VERIFIED' ) ? 'VERIFIED' : 'INVALID';
+		}
+
 		public function paypal_ipn() {
 
 			if ((isset($_GET['page'])) && ($_GET['page'] == 'super_paypal_ipn')) {
@@ -1380,6 +1409,20 @@ if( !class_exists('SUPER_PayPal') ) :
 					error_log($_POST['txn_type']);
 					die();
 				} 
+
+				// Verify with PayPal before anything below reads or changes stored transactions/subscriptions.
+				$ipn_sandbox = ( isset($_POST['test_ipn']) && (string) $_POST['test_ipn'] === '1' );
+				$ipn_verdict = $this->verify_ipn_message( $ipn_sandbox );
+				if ( $ipn_verdict === 'ERROR' ) {
+					error_log('Super Forms: could not reach PayPal to verify an IPN, asking PayPal to retry');
+					http_response_code(503);
+					exit;
+				}
+				if ( $ipn_verdict !== 'VERIFIED' ) {
+					error_log('Super Forms: ignored an IPN that PayPal did not verify');
+					http_response_code(200);
+					exit;
+				}
 
 				// txn_type options are:
 				// subscr_signup
@@ -1422,7 +1465,7 @@ if( !class_exists('SUPER_PayPal') ) :
 
 					// Get ID based on ipn tracking ID
 					global $wpdb;
-					$post_id = $wpdb->get_var("SELECT post_id FROM $wpdb->postmeta AS meta INNER JOIN $wpdb->posts AS post ON post.id = meta.post_id WHERE post.post_type = 'super_paypal_sub' AND meta_key = '_super_sub_id' AND meta_value = '$sub_id'");
+					$post_id = $wpdb->get_var( $wpdb->prepare( "SELECT post_id FROM $wpdb->postmeta AS meta INNER JOIN $wpdb->posts AS post ON post.id = meta.post_id WHERE post.post_type = 'super_paypal_sub' AND meta_key = '_super_sub_id' AND meta_value = %s", isset($sub_id) ? $sub_id : '' ) );
 					
 					// Update data accordingly
 					if( isset($_POST['subscr_id']) ) {
@@ -1467,7 +1510,7 @@ if( !class_exists('SUPER_PayPal') ) :
 					// Get ID based on ipn tracking ID
 					global $wpdb;
 					$parent_txn_id = sanitize_text_field($_POST['parent_txn_id']);
-					$post_id = $wpdb->get_var("SELECT ID FROM $wpdb->posts WHERE post_type = 'super_paypal_txn' AND post_title = '$parent_txn_id'");
+					$post_id = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_type = 'super_paypal_txn' AND post_title = %s", $parent_txn_id ) );
 					$post_txn_data = get_post_meta( $post_id, '_super_txn_data', true );
 					$post_txn_data['payment_status'] = 'Refunded';
 					update_post_meta( $post_id, '_super_txn_data', $post_txn_data );
@@ -1501,45 +1544,11 @@ if( !class_exists('SUPER_PayPal') ) :
 					}
 				}
 				if ($email_found == false) return;
-				// Set endpoint URL to post the verification data to
+				// Verified with PayPal at the start of this handler. Only accept it for a form whose mode
+				// (live or sandbox) matches the PayPal environment that verified it.
 				if (!isset($settings['paypal_mode'])) $settings['paypal_mode'] = '';
-				$url = 'https://www.' . ($settings['paypal_mode'] == 'sandbox' ? 'sandbox.' : '') . 'paypal.com/cgi-bin/webscr';
-				// Build the body of the verification post request, adding the _notify-validate command.
-				$raw_post_data = file_get_contents('php://input');
-				$raw_post_array = explode('&', $raw_post_data);
-				$myPost = array();
-				foreach($raw_post_array as $keyval) {
-					$keyval = explode('=', $keyval);
-					if (count($keyval) == 2) {
-						// Since we do not want the plus in the datetime string to be encoded to a space, we manually encode it.
-						if ($keyval[0] === 'payment_date') {
-							if (substr_count($keyval[1], '+') === 1) {
-								$keyval[1] = str_replace('+', '%2B', $keyval[1]);
-							}
-						}
-						$myPost[$keyval[0]] = urldecode($keyval[1]);
-					}
-				}
-				$req = 'cmd=_notify-validate';
-				foreach($myPost as $key => $value) {
-                    $value = urlencode($value);
-					$req.= "&$key=$value";
-				}
-				// Post the data back to PayPal.
-				$http = new WP_Http();
-				$response = $http->post($url, array(
-					'sslverify' => false,
-					'ssl' => true,
-					'body' => $req,
-					'timeout' => 20
-				));
-				$http_code = $response['response']['code'];
-				if ($http_code != 200) {
-					throw new Exception("PayPal responded with HTTP code $http_code");
-				}
-
-				// Check if PayPal verifies the IPN data, and if so, return true.
-				if ((!is_wp_error($response)) && ($response['body'] == 'VERIFIED')) {
+				if ( ( $settings['paypal_mode'] == 'sandbox' ) !== $ipn_sandbox ) return;
+				if ( $ipn_verdict === 'VERIFIED' ) {
 					$post_type = 'super_paypal_txn';
 					if( $_POST['txn_type']=='subscr_signup' ) {
 						$post_status = 'publish';

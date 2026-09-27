@@ -3382,9 +3382,6 @@ class SUPER_Shortcodes {
         }
         if( $atts['wc_order_search']=='true' ) {
             if(!empty($atts['wc_order_search_method'])) $result .= ' data-wcosm="' . esc_attr($atts['wc_order_search_method']) . '"';
-            if(!empty($atts['wc_order_search_filterby'])) $result .= ' data-wcosfb="' . implode(';',explode("\n",$atts['wc_order_search_filterby'])) . '"';
-            if(!empty($atts['wc_order_search_return_label'])) $result .= ' data-wcosrl="' . esc_attr($atts['wc_order_search_return_label']) . '"';
-            if(!empty($atts['wc_order_search_return_value'])) $result .= ' data-wcosrv="' . esc_attr($atts['wc_order_search_return_value']) . '"';
             
             $wc_order_skip = '';
             if(!empty($atts['wc_order_search_skip'])) {
@@ -3407,7 +3404,6 @@ class SUPER_Shortcodes {
                     }
                 }
             }
-            if(!empty($atts['wc_order_search_status'])) $result .= ' data-wcosst="' . implode(';',explode("\n",$atts['wc_order_search_status'])) . '"';
             if(!empty($atts['value'])) {
                 
                 global $wpdb;
@@ -4629,7 +4625,6 @@ class SUPER_Shortcodes {
         if( $atts['enable_random_code']=='true' ) $result .= ' data-code="' . $atts['enable_random_code'] . '"';
         if( $atts['code_invoice']=='true' ) $result .= ' data-invoice-padding="' . $atts['code_invoice_padding'] . '"';
 
-        if(!empty($codeSettings)) $result .= ' data-codeSettings="' . esc_attr(SUPER_Common::safe_json_encode($codeSettings)) . '"';
         $result .= ' />';
 
         $result .= self::loop_variable_conditions( $atts );

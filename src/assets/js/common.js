@@ -7757,20 +7757,21 @@ function SUPERreCaptcha(){
     };
     SUPER.populate_form_order_data_ajax = function(args){
         if( args.el.value.length>0 ) {
+            var orderSearchForm = args.el.closest('form'),
+                orderSearchFormId = (orderSearchForm && orderSearchForm.querySelector('input[name="hidden_form_id"]')) ? orderSearchForm.querySelector('input[name="hidden_form_id"]').value : '',
+                orderSearchNonce = (orderSearchForm && orderSearchForm.querySelector('input[name="super_create_nonce"]')) ? orderSearchForm.querySelector('input[name="super_create_nonce"]').value : '';
             args.el.closest('.super-field-wrapper').classList.add('super-populating');
+            // The server reads every search setting from the saved form; only the typed value,
+            // the form and the field travel with the request.
             $.ajax({
                 url: super_common_i18n.ajaxurl,
                 type: 'post',
                 data: {
                     action: 'super_search_wc_orders',
                     value: args.el.value,
-                    method: args.el.dataset.wcosm,
-                    filterby: args.el.dataset.wcosfb,
-                    return_label: args.el.dataset.wcosrl,
-                    return_value: args.el.dataset.wcosrv,
-                    populate: args.el.dataset.wcosp,
-                    skip: args.el.dataset.wcoss,
-                    status: args.el.dataset.wcosst
+                    form_id: orderSearchFormId,
+                    field_name: (args.el.dataset.oname ? args.el.dataset.oname : args.el.name),
+                    nonce: orderSearchNonce
                 },
                 success: function (result) {
                     if(result!==''){
@@ -7806,10 +7807,13 @@ function SUPERreCaptcha(){
         $.ajax({
             url: super_common_i18n.ajaxurl,
             type: 'post',
+            // Preview only: the server reads the code settings from the saved form and reserves the
+            // final code itself when the form is submitted, so the request carries no settings.
             data: {
                 action: 'super_update_unique_code',
-                submittingForm: submittingForm,
-                codesettings: el.dataset.codesettings // {"invoice_key:"","len":"7","char":"1","pre":"","inv":"","invp":"4","suf":"","upper":"true","lower":""}
+                form_id: (el.closest('form') && el.closest('form').querySelector('input[name="hidden_form_id"]')) ? el.closest('form').querySelector('input[name="hidden_form_id"]').value : '',
+                field_name: (el.dataset.oname ? el.dataset.oname : el.name),
+                nonce: (el.closest('form') && el.closest('form').querySelector('input[name="super_create_nonce"]')) ? el.closest('form').querySelector('input[name="super_create_nonce"]').value : ''
             },
             success: function (result) {
                 el.value = result;

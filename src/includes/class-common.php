@@ -2957,11 +2957,56 @@ class SUPER_Common {
      *
      * @since 2.2.0
     */
+    /**
+     * Code generator settings for a stored element, or false when the element does not generate codes.
+     * Mirrors the defaults the form renderer applies.
+     */
+    public static function code_settings_from_atts( $atts ) {
+        if( !is_array($atts) || !isset($atts['enable_random_code']) || $atts['enable_random_code']!=='true' ) {
+            return false;
+        }
+        $get = function( $key, $default ) use ( $atts ) {
+            return ( isset($atts[$key]) && is_scalar($atts[$key]) ) ? (string) $atts[$key] : $default;
+        };
+        return array(
+            'invoice_key' => $get( 'code_invoice_key', '' ),
+            'len' => $get( 'code_length', '7' ),
+            'char' => $get( 'code_characters', '1' ),
+            'pre' => $get( 'code_prefix', '' ),
+            'inv' => $get( 'code_invoice', '' ),
+            'invp' => $get( 'code_invoice_padding', '' ),
+            'suf' => $get( 'code_suffix', '' ),
+            'upper' => $get( 'code_uppercase', '' ),
+            'lower' => $get( 'code_lowercase', '' ),
+        );
+    }
+
+    /** Map of field name => code settings for every code-generating element saved on a form. */
+    public static function stored_code_fields( $form_id ) {
+        $fields = array();
+        $walk = function( $elements ) use ( &$walk, &$fields ) {
+            if( !is_array($elements) ) return;
+            foreach( $elements as $element ) {
+                if( !is_array($element) ) continue;
+                if( !empty($element['inner']) ) $walk( $element['inner'] );
+                $data = ( isset($element['data']) && is_array($element['data']) ) ? $element['data'] : array();
+                $settings = self::code_settings_from_atts( $data );
+                if( $settings!==false && isset($data['name']) && is_string($data['name']) && $data['name']!=='' ) {
+                    $fields[$data['name']] = $settings;
+                }
+            }
+        };
+        $walk( self::get_form_elements( absint($form_id) ) );
+        return $fields;
+    }
+
     public static function generate_random_code($codesettings, $submittingForm=false, $counter=0){
         global $wpdb;
         // First check if we are submitting the form or not
         $invoice_key = (!empty($codesettings['invoice_key']) ? $codesettings['invoice_key'] : '');
-        $length = $codesettings['len'];
+        // Bounded length: settings are admin-authored, but never let a stored value request an unbounded string.
+        $length = isset($codesettings['len']) ? absint($codesettings['len']) : 7;
+        $length = max( 0, min( 64, $length ) );
         $characters = $codesettings['char'];
         $prefix = (!empty($codesettings['pre']) ? $codesettings['pre'] : '');
         $invoice = (!empty($codesettings['inv']) ? $codesettings['inv'] : '');
