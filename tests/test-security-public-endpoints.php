@@ -125,8 +125,19 @@ class Test_Security_Public_Endpoints extends Super_Forms_Upload_Security_Test_Ca
 
     // ---- WooCommerce order populate (click on a search result) --------------------------
 
+    /** Browser session cookie + stored session row (three records, as a live session carries). */
+    private function seed_session() {
+        $session_id = bin2hex( random_bytes( 32 ) );
+        $_COOKIE['_sfs_id'] = $session_id;
+        update_option( '_sfsdata_' . $session_id, array(
+            'expires' => time() + HOUR_IN_SECONDS,
+            'exp_var' => time() + HOUR_IN_SECONDS,
+            'sf_test_session_anchor' => array( 'expires' => time() + HOUR_IN_SECONDS, 'exp_var' => time() + HOUR_IN_SECONDS, 'value' => 'anchor' ),
+        ), false );
+    }
+
     private function populate_order( $form_id, $order_id ) {
-        $this->seed_browser_session();
+        $this->seed_session();
         $capability = SUPER_Common::issue_public_populate_capability( array(
             'form_id' => $form_id,
             'field_name' => 'order_lookup',
