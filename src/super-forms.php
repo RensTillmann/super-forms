@@ -2464,7 +2464,7 @@ if(!class_exists('SUPER_Forms')) :
 
 
         /**
-         * Show PHP version error if PHP below v7.4 is installed
+         * Show PHP version error if PHP below 7.4 is installed
          *
          *  @since      4.0.0
         */
@@ -2472,7 +2472,7 @@ if(!class_exists('SUPER_Forms')) :
             if( version_compare(phpversion(), '7.4.0', '<') ) {
                 echo '<div class="notice notice-error">'; // notice-success, notice-error
                 echo '<p>';
-                echo sprintf( esc_html__( '%sPlease note:%s Super Forms requires at least v7.4.0 or higher to be installed to work properly, your current PHP version is %s', 'super_forms' ), '<strong>', '</strong>', phpversion() );
+                echo sprintf( esc_html__( '%sPlease note:%s Super Forms requires PHP 7.4 or higher to work properly, your current PHP version is %s', 'super_forms' ), '<strong>', '</strong>', phpversion() );
                 echo '</p>';
                 echo '</div>';
             }
