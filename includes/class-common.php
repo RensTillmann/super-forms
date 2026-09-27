@@ -2046,14 +2046,8 @@ class SUPER_Common {
                 $invoiceNumber = $wpdb->get_var($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = '%s' OR option_name = '%s'  ", $option_name_old, $option_name));
                 // If this number doesn't exist yet create it
                 if($invoiceNumber===null){
-                    $invoiceNumber = 1;
-                    $filterCode = '_sf_unique_code-'.$prefix.'%'; // 
-                    $lastKnownInvoiceNumber = $wpdb->get_var($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name LIKE '%s'", $filterCode));
-                    if($lastKnownInvoiceNumber!==null){
-                        $invoiceNumber = intval($lastKnownInvoiceNumber);
-                    }else{
-                        $invoiceNumber = 0;
-                    }
+                    // A new counter starts at 0, as it always has on the 6.3 line.
+                    $invoiceNumber = 0;
                     $wpdb->query($wpdb->prepare("INSERT INTO $wpdb->options (option_name, option_value, autoload) VALUES ( %s, %d, %s ) ", array( $option_name, $invoiceNumber, 'no' ) ) );
                 }
                 $invoiceNumber = intval($invoiceNumber);
