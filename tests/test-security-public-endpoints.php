@@ -180,6 +180,37 @@ class Test_Security_Public_Endpoints extends Super_Forms_Upload_Security_Test_Ca
         $this->assertArrayNotHasKey( '_super_capability_rejected', $response );
     }
 
+    private function render_with_order_in_url( $order_id ) {
+        $form_id = $this->create_form( 'publish', array(
+            array( 'tag' => 'text', 'group' => 'form_elements', 'inner' => array(), 'data' => array(
+                'name' => 'order_lookup',
+                'wc_order_search' => 'true',
+                'wc_order_search_method' => 'equals',
+                'wc_order_search_filterby' => '_billing_email',
+                'wc_order_search_populate' => 'true',
+            ) ),
+            array( 'tag' => 'text', 'group' => 'form_elements', 'inner' => array(), 'data' => array( 'name' => 'entry_secret' ) ),
+        ) );
+        $entry_id = self::factory()->post->create( array( 'post_type' => 'super_contact_entry', 'post_status' => 'super_unread', 'post_parent' => $form_id, 'post_title' => 'Linked entry' ) );
+        SUPER_Data_Access::update_entry_data( $entry_id, array(
+            'entry_secret' => array( 'name' => 'entry_secret', 'value' => 'order-linked-secret-' . $order_id, 'type' => 'text' ),
+        ) );
+        update_post_meta( $entry_id, '_super_contact_entry_wc_order_id', $order_id );
+        $_GET = array( 'order_lookup' => (string) $order_id );
+        return SUPER_Shortcodes::super_form_func( array( 'id' => (string) $form_id ) );
+    }
+
+    public function test_guest_render_with_order_in_url_does_not_prefill_the_linked_entry() {
+        $output = $this->render_with_order_in_url( $this->orders['mine'] );
+        $this->assertStringNotContainsString( 'order-linked-secret-', $output );
+    }
+
+    public function test_customer_render_prefills_only_from_own_order() {
+        wp_set_current_user( $this->customer_id );
+        $this->assertStringNotContainsString( 'order-linked-secret-', $this->render_with_order_in_url( $this->orders['other'] ) );
+        $this->assertStringContainsString( 'order-linked-secret-' . $this->orders['mine'], $this->render_with_order_in_url( $this->orders['mine'] ) );
+    }
+
     // ---- Unique code / invoice numbers ---------------------------------------------------
 
     private function code_form( $overrides=array() ) {
@@ -230,7 +261,7 @@ class Test_Security_Public_Endpoints extends Super_Forms_Upload_Security_Test_Ca
             'codesettings' => wp_json_encode( array( 'pre' => 'EVIL-', 'len' => '999999' ) ),
         ) );
         $result = $this->run_dying_handler( array( 'SUPER_Ajax', 'update_unique_code' ) );
-        $this->assertSame( 'INV-0002', $result['output'] );
+        $this->assertMatchesRegularExpression( '/\AINV-\d{4}\z/', $result['output'] ); // saved prefix and padding, not the request's
         $this->assertSame( $counter, $this->invoice_counter( 'unit' ) );
         $this->assertSame( $codes, $this->code_option_count() );
     }

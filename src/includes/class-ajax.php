@@ -5964,36 +5964,6 @@ class SUPER_Ajax {
         }
     }
 
-    /**
-     * Who may see which WooCommerce orders through a form's order search / order populate:
-     * shop staff see all orders, a logged-in customer only their own orders, guests none.
-     * Returns 'all', a user ID, or false. Site owners can change this with the
-     * `super_wc_order_search_scope` filter (return 'all', a user ID or false).
-     */
-    public static function wc_order_search_scope( $form_id, $field_name ) {
-        $scope = false;
-        if( is_user_logged_in() ) {
-            $scope = ( current_user_can('edit_shop_orders') || current_user_can('manage_woocommerce') ) ? 'all' : get_current_user_id();
-        }
-        $scope = apply_filters( 'super_wc_order_search_scope', $scope, absint($form_id), (string) $field_name );
-        if( $scope==='all' ) {
-            return 'all';
-        }
-        $scope = is_numeric($scope) ? absint($scope) : 0;
-        return ( $scope>0 ) ? $scope : false;
-    }
-
-    /** True when the given order may be read under the given scope. */
-    public static function wc_order_in_scope( $order_id, $scope ) {
-        if( $scope==='all' ) {
-            return true;
-        }
-        if( !is_int($scope) || $scope<1 ) {
-            return false;
-        }
-        return absint( get_post_meta( absint($order_id), '_customer_user', true ) )===$scope;
-    }
-
     private static function wc_order_search_keys( $lines ) {
         $keys = array();
         foreach( preg_split( '/[\r\n;]+/', (string) $lines ) as $key ) {
@@ -6017,7 +5987,7 @@ class SUPER_Ajax {
         if( $field===false ) {
             die();
         }
-        $scope = self::wc_order_search_scope( $form_id, $field_name );
+        $scope = SUPER_Common::wc_order_search_scope( $form_id, $field_name );
         if( $scope===false ) {
             die();
         }
@@ -6100,9 +6070,9 @@ class SUPER_Ajax {
                 'result_scope' => 'wc_order_entry',
             ) );
             $contract = ( $presented===false ) ? false : self::public_wc_order_search_contract( $presented['form_id'], $presented['field_name'] );
-            $order_scope = ( $contract===false ) ? false : self::wc_order_search_scope( $contract['form_id'], $contract['field_name'] );
+            $order_scope = ( $contract===false ) ? false : SUPER_Common::wc_order_search_scope( $contract['form_id'], $contract['field_name'] );
             if( $presented===false || $contract===false || !self::public_populate_contract_matches( $presented, $contract )
-                || $order_scope===false || !self::wc_order_in_scope( $order_id, $order_scope ) ) {
+                || $order_scope===false || !SUPER_Common::wc_order_in_scope( $order_id, $order_scope ) ) {
                 echo wp_json_encode( self::public_populate_capability_rejected_response() );
                 die();
             }

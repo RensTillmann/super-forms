@@ -3448,11 +3448,23 @@ class SUPER_Shortcodes {
                     }
                 }
 
+                // Only orders the visitor may see (shop staff: all, customers: their own, guests: none).
+
+                $order_scope = SUPER_Common::wc_order_search_scope( $search_form_id, $atts['name'] );
+
+                if( $order_scope!=='all' ) {
+
+                    $query .= " AND EXISTS (SELECT 1 FROM $wpdb->postmeta AS owner WHERE owner.post_id = wc_order.ID AND owner.meta_key = '_customer_user' AND owner.meta_value = %s)";
+
+                    $prepare_values[] = ( $order_scope===false ) ? '-1' : (string) $order_scope;
+
+                }
+
                 $query .= " GROUP BY wc_order.ID
                     LIMIT 1";
                 $order_id = $wpdb->get_var($wpdb->prepare( $query, $prepare_values ) );
                 $order_id = absint($order_id);
-                if($order_id!==0){
+                if($order_id!==0 && $order_scope!==false && SUPER_Common::wc_order_in_scope($order_id, $order_scope)){
                     if(!empty($atts['wc_order_search_populate']) && $search_form_id!==0){
                         $data = SUPER_Common::get_entry_data_by_wc_order_id($order_id, $wc_order_skip, $search_form_id);
                         if(is_array($data)){
