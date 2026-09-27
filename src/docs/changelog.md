@@ -11,7 +11,9 @@
 
 ## 2026-09-27 - Version 6.4.008-beta
 
-- **Security fix:** Hardened form file uploads, generated file downloads, account registration and updates, Listings entry actions, form administration, and contact entry imports and exports (the same fixes as stable 6.3.317).
+- **Security fix:** Hardened form file uploads, generated file downloads, account registration and updates, Listings entry actions, form administration, contact entry imports and exports, WooCommerce order search, unique code and invoice number generation, and PayPal payment notifications (the same fixes as stable 6.3.318).
+- **Changed:** WooCommerce Order Search now shows orders only to shop staff (all orders) and to logged-in customers (their own orders); the search settings saved in the form are always used. Site owners can adjust who may search with the `super_wc_order_search_scope` filter.
+- **Changed:** Unique codes and invoice numbers are reserved when the form is submitted; the code shown while filling in the form is a preview.
 - **Fix:** Multi-step forms wait for asynchronous validation before switching steps (Next button and step tabs).
 - **Fix:** Prefilled stored files are no longer uploaded again when a form is submitted a second time.
 - **Fix:** Listings: a missing column setting or an empty entry status no longer breaks the listing; the entry status can only be changed with the edit and change-status permissions, and the change is never stored as entry data.
