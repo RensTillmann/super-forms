@@ -5434,7 +5434,7 @@ class SUPER_Ajax {
         $entry = $entry_id? get_post($entry_id): false;
         if( !($entry instanceof WP_Post)
             || $entry->post_type!=='super_contact_entry' ) {
-                echo esc_html__( 'No entry found with ID:', 'super-forms' ) . ' ' . $entry_id;
+                echo esc_html__( 'No entry found with ID:', 'super-forms' ) . ' ' . absint( $entry_id );
             die();
             }
         if( !SUPER_Listings::entry_is_in_retrieval_scope($list,
