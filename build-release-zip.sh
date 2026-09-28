@@ -60,6 +60,10 @@ rm -rf "$STAGE/super-forms/docs" "$STAGE/super-forms/react" "$STAGE/super-forms/
 find "$STAGE/super-forms" -type f \( -name '*.sass' -o -name '*.css.map' -o -name '*.po' -o -name '*.pot' -o -name '*.backup-*' \) -delete
 find "$STAGE/super-forms" -type d \( -name build -o -name test -o -name tests -o -name .sass-cache \) -prune -exec rm -rf {} +
 rm -f "$STAGE/super-forms/.gitattributes" "$STAGE/super-forms/build-release-zip.sh" "$STAGE/super-forms/zip.sh"
+# Composer's upstream PHAR build helper is not used by the WordPress plugin.
+# Dashboard upload does not retain its executable bit, so omit the build-only
+# script rather than shipping a ZIP that cannot match the installed tree.
+rm -f "$STAGE/super-forms/vendor/paragonie/random_compat/build-phar.sh"
 
 PACKAGE_GIT_DIR="$TMP/package.git"
 git init -q --bare "$PACKAGE_GIT_DIR"
