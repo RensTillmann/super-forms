@@ -133,7 +133,44 @@ class SUPER_Ajax {
         return $url;
     }
 
+    private static function saved_form_has_print_attachment( $elements, $file_id ) {
+        if( !is_array($elements) ) return false;
+        foreach( $elements as $element ) {
+            if( !is_array($element) ) continue;
+            $data = isset($element['data']) && is_array($element['data']) ? $element['data'] : array();
+            if( isset($element['tag'], $data['action'], $data['print_custom'], $data['print_file'])
+                && $element['tag']==='button' && $data['action']==='print'
+                && $data['print_custom']==='true' && is_scalar($data['print_file'])
+                && (string)$data['print_file']===(string)$file_id ) return true;
+            if( isset($element['inner']) && self::saved_form_has_print_attachment($element['inner'], $file_id) ) return true;
+        }
+        return false;
+    }
+
+    private static function requested_public_print_capability() {
+        if( !isset($_POST['form_id'], $_POST['print_file_id'])
+            || !is_scalar($_POST['form_id']) || !is_scalar($_POST['print_file_id'])
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Require exact positive-decimal bytes; unslashing/sanitizing would accept malformed IDs. check_ajax_referer below must succeed before any grant is issued.
+            || !preg_match('/^[1-9][0-9]*$/D', (string)$_POST['form_id'])
+            // phpcs:ignore WordPress.Security.NonceVerification.Missing,WordPress.Security.ValidatedSanitizedInput.MissingUnslash,WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Require exact positive-decimal bytes; unslashing/sanitizing would accept malformed IDs. check_ajax_referer below must succeed before any grant is issued.
+            || !preg_match('/^[1-9][0-9]*$/D', (string)$_POST['print_file_id']) ) return '';
+        $form_id = absint($_POST['form_id']);
+        $file_id = absint($_POST['print_file_id']);
+        if( !check_ajax_referer('super_create_nonce_' . $form_id, 'nonce', false)
+            || get_post_type($form_id)!=='super_form'
+            || (get_post_status($form_id)!=='publish' && !current_user_can('edit_post', $form_id))
+            || get_post_type($file_id)!=='attachment'
+            || !self::saved_form_has_print_attachment(SUPER_Common::get_form_elements($form_id), $file_id) ) return '';
+        $token = SUPER_Common::issue_public_print_capability(array('form_id'=>$form_id, 'file_id'=>$file_id));
+        return is_string($token) ? $token : '';
+    }
+
     public static function create_nonce(){
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Dispatch only; requested_public_print_capability verifies the exact form nonce, form access and saved attachment before issuing a grant.
+        if( array_key_exists('print_file_id', $_POST) ) {
+            echo wp_json_encode(array('print_capability'=>self::requested_public_print_capability()));
+            die();
+        }
         // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nonce-issuing nopriv endpoint; the capability branch is gated by SUPER_Ajax::requested_public_populate_capability() (includes/class-ajax.php:1114-1143, check_ajax_referer('super_create_nonce_'.$form_id) at 1131)
         $form_id = isset($_POST['form_id']) ? absint($_POST['form_id']) : 0;
         $capability = self::requested_public_populate_capability();
@@ -388,12 +425,108 @@ class SUPER_Ajax {
     // Update unique code when browser "Back" button was pressed
     // Otherwise some browsers might retain the previously generated code
     // Which causes duplicated (none unique) codes
+    /**
+     * Preview a unique code for a saved code field. Never reserves anything: codes and invoice
+     * numbers are reserved by submit_form() for the real submission (reserve_generated_codes).
+     * The generator settings always come from the saved form, not from the request.
+     */
     public static function update_unique_code() {
-        $submittingForm = ($_POST['submittingForm']==='true' ? true : false);
-        $codesettings = wp_unslash($_POST['codesettings']);
-        $codesettings = json_decode($codesettings, true);
-        echo SUPER_Common::generate_random_code($codesettings, $submittingForm);
+        $form_id = isset($_POST['form_id']) ? absint($_POST['form_id']) : 0;
+        $field_name = ( isset($_POST['field_name']) && is_scalar($_POST['field_name']) ) ? sanitize_text_field(wp_unslash($_POST['field_name'])) : '';
+        if( $form_id===0 || $field_name==='' || !check_ajax_referer( 'super_create_nonce_' . $form_id, 'nonce', false ) ) {
+            die();
+        }
+        $fields = SUPER_Common::stored_code_fields( $form_id );
+        if( !isset($fields[$field_name]) ) {
+            die();
+        }
+        if( !headers_sent() ) {
+            header( 'Content-Type: text/plain; charset=UTF-8' );
+        }
+        echo SUPER_Common::generate_random_code( $fields[$field_name], false ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Nonce-validated saved-field preview uses text/plain above; HTML escaping would alter the generated code.
         die();
+    }
+
+    /**
+     * Reserve the final unique code / invoice number for each saved code field of this submission,
+     * server-side and once. The value the browser previewed is kept when it can still be claimed
+     * exactly (so a PDF built in the browser matches); otherwise a fresh code is reserved.
+     * Dynamic column copies are matched only when they are not saved fields themselves, and the
+     * row data in _super_dynamic_data is kept in sync.
+     */
+    private static function reserve_generated_codes( $form_id, $data ) {
+        if( !is_array($data) ) {
+            return $data;
+        }
+        $fields = SUPER_Common::stored_code_fields( $form_id );
+        if( empty($fields) ) {
+            return $data;
+        }
+        $always_present = array();
+        $walk = function( $elements, $ancestor_locked=false ) use ( &$walk, &$always_present ) {
+            if( !is_array($elements) ) return;
+            foreach( $elements as $element ) {
+                if( !is_array($element) ) continue;
+                $settings = isset($element['data']) && is_array($element['data']) ? $element['data'] : array();
+                $action = isset($settings['conditional_action']) ? $settings['conditional_action'] : '';
+                $locked = $ancestor_locked || ($action!=='' && $action!=='disabled')
+                    || (isset($settings['duplicate']) && $settings['duplicate']==='enabled')
+                    || (isset($settings['hide_on_mobile']) && $settings['hide_on_mobile']==='true')
+                    || (isset($settings['hide_on_mobile_window']) && $settings['hide_on_mobile_window']==='true');
+                if( isset($settings['name']) && is_string($settings['name']) ) {
+                    $name = $settings['name'];
+                    $always_present[$name] = ! $locked || !empty($always_present[$name]);
+                }
+                if( !empty($element['inner']) ) $walk( $element['inner'], $locked );
+            }
+        };
+        $elements = SUPER_Common::get_form_elements(absint($form_id));
+        $walk($elements);
+        $contract = array();
+        self::collect_submission_field_contract($elements, $contract, 0, $form_id);
+        foreach( $fields as $name => $settings ) {
+            if( !empty($always_present[$name]) && !array_key_exists($name, $data) ) {
+                SUPER_Common::output_message( true, esc_html__( 'Invalid form data.', 'super-forms' ) );
+            }
+        }
+        $copies = array();
+        foreach( $data as $key => $field_data ) {
+            if( $key==='_super_dynamic_data' || !is_string($key) || !is_array($field_data) ) continue;
+            $identity = self::submission_route_contract_identity($key, $contract);
+            $base = is_array($identity) ? $identity['stored_field_name'] : false;
+            if( $base===false || !isset($fields[$base]) ) continue;
+            if( $key!==$base ) {
+                $copies[$base] = isset($copies[$base]) ? $copies[$base]+1 : 1;
+                if( $copies[$base]>100 ) {
+                    SUPER_Common::output_message( true, esc_html__( 'Invalid form data.', 'super-forms' ) );
+                }
+            }
+            $candidate = isset($field_data['value']) && is_scalar($field_data['value']) ? (string) $field_data['value'] : '';
+            $code = SUPER_Common::claim_generated_code( $fields[$base], $candidate )
+                ? $candidate
+                : SUPER_Common::generate_random_code( $fields[$base], true );
+            if( $code===false ) {
+                SUPER_Common::output_message( true, esc_html__( 'Unable to reserve a unique code.', 'super-forms' ) );
+            }
+            $data[$key]['value'] = $code;
+            if( isset($data[$key]['entry_value']) ) {
+                $data[$key]['entry_value'] = $code;
+            }
+            if( isset($data['_super_dynamic_data']) && is_array($data['_super_dynamic_data']) ) {
+                foreach( $data['_super_dynamic_data'] as $group => $rows ) {
+                    if( !is_array($rows) ) continue;
+                    foreach( $rows as $row_index => $row ) {
+                        if( is_array($row) && isset($row[$key]) && is_array($row[$key]) ) {
+                            $data['_super_dynamic_data'][$group][$row_index][$key]['value'] = $code;
+                            if( isset($row[$key]['entry_value']) ) {
+                                $data['_super_dynamic_data'][$group][$row_index][$key]['entry_value'] = $code;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return $data;
     }
 
     /** 
@@ -916,90 +1049,96 @@ class SUPER_Ajax {
      *
      *  @since      4.6.0
     */
+    /**
+     * Resolve the one stored text field that is configured for WooCommerce order search.
+     * Every query setting comes from the saved form, never from the request.
+     */
+    private static function public_wc_order_search_field( $form_id, $field_name ) {
+        $form_id = absint($form_id);
+        if( $form_id===0 || !is_string($field_name) || $field_name==='' ) {
+            return false;
+        }
+        $matches = array();
+        self::collect_wc_order_search_fields( SUPER_Common::get_form_elements($form_id), $field_name, $matches );
+        if( count($matches)!==1 ) {
+            return false;
+        }
+        return ( isset($matches[0]['data']) && is_array($matches[0]['data']) ) ? $matches[0]['data'] : false;
+    }
+
+    private static function wc_order_search_keys( $lines ) {
+        $keys = array();
+        foreach( preg_split( '/[\r\n;]+/', (string) $lines ) as $key ) {
+            $key = trim($key);
+            if( $key!=='' && preg_match('/^[A-Za-z0-9_\-]{1,191}$/', $key) ) {
+                $keys[] = $key;
+            }
+        }
+        return array_values(array_unique($keys));
+    }
+
     public static function search_wc_orders() {
-        $value = sanitize_text_field($_POST['value']);
-        $method = sanitize_text_field($_POST['method']);
-        $filterby = sanitize_text_field($_POST['filterby']);
-        if(empty($filterby)){
-            $filterby = 'ID;_billing_email;_billing_address_1;_billing_postcode;_billing_first_name;_billing_last_name;_billing_company'; 
-        }
-        $default_return_label = '[Order #{ID} - {_billing_email}, {_billing_first_name} {_billing_last_name}]';
-        if(!empty($_POST['return_label'])) $default_return_label = sanitize_text_field($_POST['return_label']);
-        $return_value = 'ID;_billing_email;_billing_first_name;_billing_last_name';
-        if(!empty($_POST['return_value'])) $return_value = sanitize_text_field($_POST['return_value']);
-        $populate = sanitize_text_field($_POST['populate']);
-        $skip = sanitize_text_field($_POST['skip']);
-        $query = "(post_type = 'shop_order') AND (";
-        if($method=='equals') {
-            $query .= "(wc_order.ID LIKE '$value')";
-        }
-        if($method=='contains') {
-            $query .= "(wc_order.ID LIKE '%$value%')";
-        }
         global $wpdb;
-        $filterby = explode(";", $filterby);
-        foreach($filterby as $k => $v){
-            if(!empty($v)){
-                if($method=='equals') {
-                    $query .= " OR (meta.meta_key = '".$v."' AND meta.meta_value LIKE '$value')";
-                }
-                if($method=='contains') {
-                    $query .= " OR (meta.meta_key = '".$v."' AND meta.meta_value LIKE '%$value%')";
-                }
-            }
+        $form_id = isset($_POST['form_id']) ? absint($_POST['form_id']) : 0;
+        $field_name = ( isset($_POST['field_name']) && is_scalar($_POST['field_name']) ) ? sanitize_text_field(wp_unslash($_POST['field_name'])) : '';
+        $value = ( isset($_POST['value']) && is_scalar($_POST['value']) ) ? sanitize_text_field(wp_unslash($_POST['value'])) : '';
+        if( $form_id===0 || $field_name==='' || $value==='' || !check_ajax_referer( 'super_create_nonce_' . $form_id, 'nonce', false ) ) {
+            die();
         }
-        $query .= ")";
-        if(!empty($_POST['status'])){
-            $status = sanitize_text_field($_POST['status']);
-            $status = explode(';', $status);
-            foreach($status as $k => $v){
-                $status[$k] = trim($v);
-            }
-            $status = "'" . implode("','", $status) . "'";
-            $query .= "AND wc_order.post_status IN ($status)";
+        $field = self::public_wc_order_search_field( $form_id, $field_name );
+        if( $field===false ) {
+            die();
         }
-        $query = "SELECT wc_order.*
-        FROM $wpdb->posts AS wc_order
-        INNER JOIN $wpdb->postmeta AS meta ON meta.post_id = wc_order.ID
-        WHERE $query
-        GROUP BY wc_order.ID
-        LIMIT 50";
-        $orders = $wpdb->get_results($query);
-        $regex = '/\{(.*?)\}/';
-        $orders_array = array();
-        foreach($orders as $k => $v){
-            $v = (array) $v;
-            // Replace all {tags} and build the user label
-            $order_label = $default_return_label;
-            preg_match_all($regex, $order_label, $matches, PREG_SET_ORDER, 0);
-            foreach($matches as $mk => $mv){
-                if( isset($mv[1]) && isset($v[$mv[1]]) ) {
-                    $order_label = str_replace( '{' . $mv[1] . '}', $v[$mv[1]], $order_label );
-                }else{
-                    // Maybe we need to search in user meta data
-                    $meta_value = get_post_meta( $v['ID'], $mv[1], true );
-                    $order_label = str_replace( '{' . $mv[1] . '}', $meta_value, $order_label );
-                }
-            }
-            // Replace all meta_keys and build the user value
-            $mk = explode(";", $return_value);
-            $order_value = array();
-            foreach($mk as $mv){
-                if( isset($v[$mv]) ) {
-                    $order_value[] = $v[$mv];
-                }else{
-                    // Maybe we need to search in user meta data
-                    $meta_value = get_post_meta( $v['ID'], $mv, true );
-                    $order_value[] = $meta_value;
-                }   
-            }
-            $orders_array[] = array(
-                'label' => $order_label,
-                'value' => implode(';', $order_value)
-            );
+        $scope = SUPER_Common::wc_order_search_scope( $form_id, $field_name );
+        if( $scope===false ) {
+            die();
         }
-        foreach($orders_array as $k => $v){
-            echo '<li class="super-item" data-value="' . esc_attr( $v['value'] ) . '" data-search-value="' . esc_attr( $v['label'] ) . '">' . esc_html( $v['label'] ) . '</li>';
+        $method = ( isset($field['wc_order_search_method']) && $field['wc_order_search_method']==='equals' ) ? 'equals' : 'contains';
+        $filterby = self::wc_order_search_keys( isset($field['wc_order_search_filterby']) ? $field['wc_order_search_filterby'] : '' );
+        if( empty($filterby) ) {
+            $filterby = array( 'ID', '_billing_email', '_billing_address_1', '_billing_postcode', '_billing_first_name', '_billing_last_name', '_billing_company' );
+        }
+        $return_label = ( !empty($field['wc_order_search_return_label']) && is_string($field['wc_order_search_return_label']) )
+            ? $field['wc_order_search_return_label']
+            : '[Order #{ID} - {_billing_email}, {_billing_first_name} {_billing_last_name}]';
+        $return_value = self::wc_order_search_keys( isset($field['wc_order_search_return_value']) ? $field['wc_order_search_return_value'] : '' );
+        if( empty($return_value) ) {
+            $return_value = array( 'ID', '_billing_email', '_billing_first_name', '_billing_last_name' );
+        }
+        $statuses = self::wc_order_search_keys( isset($field['wc_order_search_status']) ? $field['wc_order_search_status'] : '' );
+
+        $like = ( $method==='equals' ) ? $wpdb->esc_like($value) : '%' . $wpdb->esc_like($value) . '%';
+        $where = array( '(wc_order.ID LIKE %s)' );
+        $args = array( $like );
+        foreach( $filterby as $key ) {
+            if( $key==='ID' ) continue;
+            $where[] = '(meta.meta_key = %s AND meta.meta_value LIKE %s)';
+            $args[] = $key;
+            $args[] = $like;
+        }
+        $sql = "SELECT wc_order.* FROM $wpdb->posts AS wc_order
+            INNER JOIN $wpdb->postmeta AS meta ON meta.post_id = wc_order.ID
+            WHERE wc_order.post_type = 'shop_order' AND (" . implode( ' OR ', $where ) . ')';
+        if( !empty($statuses) ) {
+            $sql .= ' AND wc_order.post_status IN (' . implode( ',', array_fill( 0, count($statuses), '%s' ) ) . ')';
+            $args = array_merge( $args, $statuses );
+        }
+        if( $scope!=='all' ) {
+            $sql .= " AND EXISTS (SELECT 1 FROM $wpdb->postmeta AS owner WHERE owner.post_id = wc_order.ID AND owner.meta_key = '_customer_user' AND owner.meta_value = %s)";
+            $args[] = (string) $scope;
+        }
+        $sql .= ' GROUP BY wc_order.ID LIMIT 50';
+        $orders = $wpdb->get_results( $wpdb->prepare( $sql, $args ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- SQL fragments are fixed; all search, status and owner values use placeholders and $args.
+        foreach( (array) $orders as $row ) {
+            $row = (array) $row;
+            $label = preg_replace_callback( '/\{([A-Za-z0-9_\-]{1,191})\}/', function( $m ) use ( $row ) {
+                return isset($row[$m[1]]) ? (string) $row[$m[1]] : (string) get_post_meta( $row['ID'], $m[1], true );
+            }, $return_label );
+            $values = array();
+            foreach( $return_value as $key ) {
+                $values[] = isset($row[$key]) ? (string) $row[$key] : (string) get_post_meta( $row['ID'], $key, true );
+            }
+            echo '<li class="super-item" data-value="' . esc_attr( implode(';', $values) ) . '" data-search-value="' . esc_attr( $label ) . '">' . esc_html( $label ) . '</li>';
         }
         die();
     }
@@ -1028,7 +1167,7 @@ class SUPER_Ajax {
         }
     }
 
-    private static function collect_public_wc_order_search_fields( $elements, $field_name, &$matches=array() ) {
+    private static function collect_wc_order_search_fields( $elements, $field_name, &$matches=array(), $require_populate=false ) {
         if( !is_array($elements) || !is_string($field_name) || $field_name==='' ) {
             return;
         }
@@ -1037,14 +1176,14 @@ class SUPER_Ajax {
                 continue;
             }
             if( !empty($element['inner']) ) {
-                self::collect_public_wc_order_search_fields( $element['inner'], $field_name, $matches );
+                self::collect_wc_order_search_fields( $element['inner'], $field_name, $matches, $require_populate );
             }
             $data = ( isset($element['data']) && is_array($element['data']) ) ? $element['data'] : array();
             if( ( isset($element['tag']) ? $element['tag'] : '' )!=='text'
                 || empty($data['wc_order_search'])
                 || $data['wc_order_search']!=='true'
-                || empty($data['wc_order_search_populate'])
-                || $data['wc_order_search_populate']!=='true'
+                || ( $require_populate && ( empty($data['wc_order_search_populate'])
+                    || $data['wc_order_search_populate']!=='true' ) )
                 || !isset($data['name'])
                 || !is_string($data['name'])
                 || $data['name']!==$field_name ) {
@@ -1085,7 +1224,7 @@ class SUPER_Ajax {
             return false;
         }
         $matches = array();
-        self::collect_public_wc_order_search_fields( SUPER_Common::get_form_elements($form_id), $field_name, $matches );
+        self::collect_wc_order_search_fields( SUPER_Common::get_form_elements($form_id), $field_name, $matches, true );
         if( count($matches)!==1 ) {
             return false;
         }
@@ -1202,11 +1341,17 @@ class SUPER_Ajax {
         return $data;
     }
 
+    private static function public_entry_search_value_is_valid( $value ) {
+        if( !is_string($value) ) return false;
+        $length = preg_match_all('/./us', trim($value));
+        return $length!==false && $length>=3 && $length<=200;
+    }
+
     private static function public_entry_search_data( $form_id, $field_name, $value, $method, $skip ) {
         global $wpdb;
         $contract = self::public_entry_search_contract( $form_id, $field_name );
         if( $contract===false
-            || !is_string($value)
+            || !self::public_entry_search_value_is_valid($value)
             || !is_string($method)
             || !is_string($skip)
             || $contract['method']!==$method
@@ -1312,7 +1457,9 @@ class SUPER_Ajax {
                 'result_scope' => 'wc_order_entry',
             ) );
             $contract = ( $presented===false ) ? false : self::public_wc_order_search_contract( $presented['form_id'], $presented['field_name'] );
-            if( $presented===false || $contract===false || !self::public_populate_contract_matches( $presented, $contract ) ) {
+            $order_scope = ( $contract===false ) ? false : SUPER_Common::wc_order_search_scope( $contract['form_id'], $contract['field_name'] );
+            if( $presented===false || $contract===false || !self::public_populate_contract_matches( $presented, $contract )
+                || $order_scope===false || !SUPER_Common::wc_order_in_scope( $order_id, $order_scope ) ) {
                 echo wp_json_encode( self::public_populate_capability_rejected_response() );
                 die();
             }
@@ -1331,6 +1478,10 @@ class SUPER_Ajax {
                 // phpcs:ignore WordPress.Security.NonceVerification.Missing -- nopriv populate endpoint authenticated by SUPER_Common::consume_public_populate_capability() (includes/class-common.php:183, enforced at includes/class-ajax.php:1306-1314 and 1333-1341)
                 ? sanitize_text_field(wp_unslash($_POST['value']))
                 : '';
+            if( !self::public_entry_search_value_is_valid($value) ) {
+                echo wp_json_encode( self::public_populate_capability_rejected_response() );
+                die();
+            }
             $presented = SUPER_Common::consume_public_populate_capability( $capability, array(
                 'form_id' => $form_id,
                 'field_name' => $field_name,
@@ -3356,6 +3507,7 @@ class SUPER_Ajax {
         }
         $names = array();
         foreach( array_keys($declared) as $name ) {
+            if( is_int($name) ) $name = (string)$name;
             if( is_string($name) && $name!=='' ) {
                 $names[] = $name;
             }
@@ -3506,7 +3658,7 @@ class SUPER_Ajax {
                 foreach( self::collect_required_fields( $element['inner'], $child_ctx ) as $sub_name => $sub_meta ) {
                     $required = self::merge_required_meta( $required, $sub_name, $sub_meta );
                 }
-            } elseif( !empty( $edata['name'] ) ) {
+            } elseif( isset($edata['name']) && is_string($edata['name']) && $edata['name']!=='' ) {
                 if( empty( $validated_tags[ $tag ] ) ) continue; // not a front-end-validated input tag
                 $validation = isset( $edata['validation'] ) ? $edata['validation'] : '';
                 if( !is_string( $validation ) || $validation === '' || $validation === 'none' ) continue; // no data-validation attribute on the rendered field
@@ -3663,7 +3815,7 @@ class SUPER_Ajax {
                     && $data['enable_address_auto_complete']==='true' ) $type = 'google_address';
                 if( in_array($tag, array('dropdown', 'checkbox', 'radio', 'countries'), true) ) {
                     $length_mode = 'selection';
-                }elseif( $tag==='date' ) {
+                }elseif( $tag==='date' || $tag==='time' ) {
                     $length_mode = 'skip';
                 }elseif( $tag==='text' && !empty($data['enable_keywords']) ) {
                     $length_mode = 'keywords';
@@ -4542,6 +4694,132 @@ class SUPER_Ajax {
         return $stored_patterns===$submitted_patterns;
     }
 
+    private static function submission_iban_is_valid( $value ) {
+        if( !is_string($value) ) {
+            return false;
+        }
+        $iban = strtoupper((string) preg_replace('/[^A-Za-z0-9]/', '', $value));
+        // Keep this table aligned with the country and BBAN rules in bundled iban-check.js.
+        static $specifications = array(
+            'AD'=>array(24, 'F04F04A12'),
+            'AE'=>array(23, 'F03F16'),
+            'AL'=>array(28, 'F08A16'),
+            'AO'=>array(25, 'F21'),
+            'AT'=>array(20, 'F05F11'),
+            'AZ'=>array(28, 'U04A20'),
+            'BA'=>array(20, 'F03F03F08F02'),
+            'BE'=>array(16, 'F03F07F02'),
+            'BF'=>array(27, 'F23'),
+            'BG'=>array(22, 'U04F04F02A08'),
+            'BH'=>array(22, 'U04A14'),
+            'BI'=>array(16, 'F12'),
+            'BJ'=>array(28, 'F24'),
+            'BR'=>array(29, 'F08F05F10U01A01'),
+            'CH'=>array(21, 'F05A12'),
+            'CI'=>array(28, 'U01F23'),
+            'CM'=>array(27, 'F23'),
+            'CR'=>array(22, 'F04F14'),
+            'CV'=>array(25, 'F21'),
+            'CY'=>array(28, 'F03F05A16'),
+            'CZ'=>array(24, 'F04F06F10'),
+            'DE'=>array(22, 'F08F10'),
+            'DK'=>array(18, 'F04F09F01'),
+            'DO'=>array(28, 'U04F20'),
+            'DZ'=>array(24, 'F20'),
+            'EE'=>array(20, 'F02F02F11F01'),
+            'ES'=>array(24, 'F04F04F01F01F10'),
+            'FI'=>array(18, 'F06F07F01'),
+            'FO'=>array(18, 'F04F09F01'),
+            'FR'=>array(27, 'F05F05A11F02'),
+            'GB'=>array(22, 'U04F06F08'),
+            'GE'=>array(22, 'U02F16'),
+            'GI'=>array(23, 'U04A15'),
+            'GL'=>array(18, 'F04F09F01'),
+            'GR'=>array(27, 'F03F04A16'),
+            'GT'=>array(28, 'A04A20'),
+            'HR'=>array(21, 'F07F10'),
+            'HU'=>array(28, 'F03F04F01F15F01'),
+            'IE'=>array(22, 'U04F06F08'),
+            'IL'=>array(23, 'F03F03F13'),
+            'IR'=>array(26, 'F22'),
+            'IS'=>array(26, 'F04F02F06F10'),
+            'IT'=>array(27, 'U01F05F05A12'),
+            'JO'=>array(30, 'A04F22'),
+            'KW'=>array(30, 'U04A22'),
+            'KZ'=>array(20, 'F03A13'),
+            'LB'=>array(28, 'F04A20'),
+            'LC'=>array(32, 'U04F24'),
+            'LI'=>array(21, 'F05A12'),
+            'LT'=>array(20, 'F05F11'),
+            'LU'=>array(20, 'F03A13'),
+            'LV'=>array(21, 'U04A13'),
+            'MC'=>array(27, 'F05F05A11F02'),
+            'MD'=>array(24, 'U02A18'),
+            'ME'=>array(22, 'F03F13F02'),
+            'MG'=>array(27, 'F23'),
+            'MK'=>array(19, 'F03A10F02'),
+            'ML'=>array(28, 'U01F23'),
+            'MR'=>array(27, 'F05F05F11F02'),
+            'MT'=>array(31, 'U04F05A18'),
+            'MU'=>array(30, 'U04F02F02F12F03U03'),
+            'MZ'=>array(25, 'F21'),
+            'NL'=>array(18, 'U04F10'),
+            'NO'=>array(15, 'F04F06F01'),
+            'PK'=>array(24, 'U04A16'),
+            'PL'=>array(28, 'F08F16'),
+            'PS'=>array(29, 'U04A21'),
+            'PT'=>array(25, 'F04F04F11F02'),
+            'QA'=>array(29, 'U04A21'),
+            'RO'=>array(24, 'U04A16'),
+            'RS'=>array(22, 'F03F13F02'),
+            'SA'=>array(24, 'F02A18'),
+            'SE'=>array(24, 'F03F16F01'),
+            'SI'=>array(19, 'F05F08F02'),
+            'SK'=>array(24, 'F04F06F10'),
+            'SM'=>array(27, 'U01F05F05A12'),
+            'SN'=>array(28, 'U01F23'),
+            'ST'=>array(25, 'F08F11F02'),
+            'TL'=>array(23, 'F03F14F02'),
+            'TN'=>array(24, 'F02F03F13F02'),
+            'TR'=>array(26, 'F05F01A16'),
+            'UA'=>array(29, 'F25'),
+            'VG'=>array(24, 'U04F16'),
+            'XK'=>array(20, 'F04F10F02'),
+        );
+        $country = substr($iban, 0, 2);
+        if( !isset($specifications[$country]) || strlen($iban)!==$specifications[$country][0]
+            || preg_match('/^[A-Z]{2}[0-9]{2}$/D', substr($iban, 0, 4))!==1 ) {
+            return false;
+        }
+        $classes = array(
+            'A'=>'0-9A-Z', 'B'=>'0-9A-Z', 'C'=>'A-Z', 'F'=>'0-9',
+            'L'=>'a-z', 'U'=>'A-Z', 'W'=>'0-9a-z',
+        );
+        $pattern = '';
+        foreach( str_split($specifications[$country][1], 3) as $block ) {
+            $kind = substr($block, 0, 1);
+            $count = (int) substr($block, 1, 2);
+            if( !isset($classes[$kind]) || $count<1 ) {
+                return false;
+            }
+            $pattern .= '[' . $classes[$kind] . ']{' . $count . '}';
+        }
+        if( preg_match('/^' . $pattern . '$/D', substr($iban, 4))!==1 ) {
+            return false;
+        }
+        $rearranged = substr($iban, 4) . substr($iban, 0, 4);
+        $remainder = 0;
+        foreach( str_split($rearranged) as $character ) {
+            $digits = ($character>='0' && $character<='9')
+                ? $character
+                : (string) (ord($character) - ord('A') + 10);
+            foreach( str_split($digits) as $digit ) {
+                $remainder = ($remainder * 10 + (int) $digit) % 97;
+            }
+        }
+        return $remainder===1;
+    }
+
     private static function submission_value_matches_validation( $value, $meta, $carrier=null ) {
         if( !is_array($meta) || !is_scalar($value) && $value!==null ) return false;
         $value = (string)$value;
@@ -4569,6 +4847,7 @@ class SUPER_Ajax {
         if( $validation==='numeric' && preg_match('/^\d+$/D', $value)!==1 ) return false;
         if( $validation==='float' && preg_match('/^[+-]?\d+(?:\.\d+)?$/D', $value)!==1 ) return false;
         if( $validation==='email' && !is_email($value) ) return false;
+        if( $validation==='iban' && !self::submission_iban_is_valid($value) ) return false;
         if( $validation==='phone'
             && preg_match('/^((\+)?[1-9]{1,2})?([-\s.])?((\(\d{1,4}\))|\d{1,4})(([-\s.])?[0-9]{1,12}){1,2}$/D', $value)!==1 ) return false;
         if( $validation==='website'
@@ -4584,7 +4863,7 @@ class SUPER_Ajax {
             return true;
         }
         foreach(array('minlength'=>'min', 'maxlength'=>'max') as $key=>$bound) {
-            if( isset($meta[$key]) && $meta[$key]!=='' && is_numeric($meta[$key]) ) {
+            if( isset($meta[$key]) && $meta[$key]!=='' && is_numeric($meta[$key]) && ($bound!=='max' || (int)$meta[$key]>0) ) {
                 $length = self::submission_value_length( $value, $meta, $carrier );
                 if( $length<0 || ($bound==='min' && $length<(int)$meta[$key]) || ($bound==='max' && $length>(int)$meta[$key]) ) return false;
             }
@@ -4691,6 +4970,7 @@ class SUPER_Ajax {
     }
 
     private static function submission_dynamic_route_name( $name, $carrier ) {
+        if( is_int($name) ) $name = (string)$name;
         if( !is_string($name) || $name==='' || !is_array($carrier) ) {
             return false;
         }
@@ -4703,15 +4983,9 @@ class SUPER_Ajax {
     }
 
 
-    private static function submission_dynamic_contract_meta( $name, $contract ) {
-        if( !is_string($name) || !is_array($contract) ) {
-            return false;
-        }
-        $identity = self::submission_route_contract_identity($name, $contract);
-        return $identity===false ? false : $identity['meta'];
-    }
-
     private static function submission_route_contract_identity( $route_name, $contract, $expected_stored_field_name=null ) {
+        if( is_int($route_name) ) $route_name = (string)$route_name;
+        if( is_int($expected_stored_field_name) ) $expected_stored_field_name = (string)$expected_stored_field_name;
         if( !is_string($route_name) || $route_name==='' || !is_array($contract) ) {
             return false;
         }
@@ -4758,6 +5032,7 @@ class SUPER_Ajax {
         }
         $matches = array();
         foreach( $contract as $stored_field_name => $meta ) {
+            if( is_int($stored_field_name) ) $stored_field_name = (string)$stored_field_name;
             if( !is_string($stored_field_name) || !is_array($meta) || $stored_field_name===$route_name ) {
                 continue;
             }
@@ -4781,6 +5056,7 @@ class SUPER_Ajax {
     }
 
     private static function submission_name_targets_repeatable_field( $name, $contract ) {
+        if( is_int($name) ) $name = (string)$name;
         if( !is_string($name) || !is_array($contract) ) {
             return false;
         }
@@ -4795,6 +5071,7 @@ class SUPER_Ajax {
     }
 
     private static function submission_carrier_matches_contract( $name, $carrier, $meta ) {
+        if( is_int($name) ) $name = (string)$name;
         if( !is_string($name) || !is_array($carrier) || !is_array($meta)
             || !isset($carrier['type']) || !is_string($carrier['type'])
             || !isset($meta['type']) || $carrier['type']!==$meta['type']
@@ -4830,12 +5107,14 @@ class SUPER_Ajax {
         if( !is_array($dynamic_data) || !is_array($groups) ) return false;
         $routes = array();
         foreach( $dynamic_data as $group_name=>$rows ) {
+            if( is_int($group_name) ) $group_name = (string)$group_name;
             if( !is_string($group_name) || !isset($groups[$group_name]) || $groups[$group_name]===false
                 || empty($rows) || !self::submission_array_is_indexed($rows) ) return false;
             foreach( $rows as $row ) {
                 $row_identity = null;
-                if( !is_array($row) || empty($row) || self::submission_array_is_indexed($row) ) return false;
+                if( !is_array($row) || empty($row) ) return false;
                 foreach( $row as $name=>$carrier ) {
+                    if( is_int($name) ) $name = (string)$name;
                     if( !is_string($name) || !is_array($carrier) ) return false;
                     $route_name = self::submission_dynamic_route_name($name, $carrier);
                     // Dynamic-group carriers resolve through the shared route-contract identity resolver.
@@ -4910,6 +5189,7 @@ class SUPER_Ajax {
             }
         }
         foreach( $data as $name=>$carrier ) {
+            if( is_int($name) ) $name = (string)$name;
             if( $name==='_super_dynamic_data' ) {
                 continue;
             }
@@ -5209,6 +5489,15 @@ class SUPER_Ajax {
         $file = untrailingslashit(wp_normalize_path($file));
         if( !self::upload_path_is_descendant($file, $root) ) return false;
         $attachment_id = absint($attachment_id);
+        if( $attachment_id===0 && is_string($legacy_subdir) && $legacy_subdir!=='' ) {
+            // Creation uses a generated leaf directory; retained records resolve the
+            // configured root from the stored route. Bind both to that canonical root.
+            $candidates = SUPER_Forms::resolve_stored_owned_upload_candidates($file, $legacy_subdir);
+            if( count($candidates)===1 && $candidates[0]['file']===$file
+                && self::upload_path_is_descendant($file, $candidates[0]['root']) ) {
+                $root = $candidates[0]['root'];
+            }
+        }
         if( $attachment_id!==0 ) {
             $attached_file = get_attached_file($attachment_id);
             $attached_real = $attached_file ? realpath($attached_file) : false;
@@ -5672,6 +5961,7 @@ class SUPER_Ajax {
             if( !self::upload_array_keys_match($files['name'], $files[$part]) ) return false;
         }
         foreach( $files['name'] as $field_name => $names ) {
+            if( is_int($field_name) ) $field_name = (string)$field_name;
             if( !is_string($field_name) || $field_name==='' || !is_array($names) || empty($names) ) return false;
             if( $has_full_path && ( !isset($files['full_path'][$field_name])
                 || !self::upload_array_keys_match($names, $files['full_path'][$field_name]) ) ) return false;
@@ -6477,6 +6767,7 @@ class SUPER_Ajax {
         $file_routes = array();
         self::collect_submission_file_routes($form_elements, $file_routes);
         foreach( $data as $field_name => $field_data ) {
+            if( is_int($field_name) ) $field_name = (string)$field_name;
             if( !is_array($field_data) || !isset($field_data['type']) || $field_data['type']!=='files' ) continue;
             if( !isset($field_data['files']) || !is_array($field_data['files']) ) {
                 return new WP_Error('invalid_upload', esc_html__( 'Invalid file upload.', 'super-forms' ));
@@ -6652,7 +6943,7 @@ class SUPER_Ajax {
                     $required[$route_name] = $policy;
                 }
             }
-            if( $tag!=='file' || empty($edata['name']) || !is_string($edata['name']) ) {
+            if( $tag!=='file' || !isset($edata['name']) || !is_string($edata['name']) || $edata['name']==='' ) {
                 continue;
             }
             $policy = self::get_upload_field_policy($edata);
@@ -6676,6 +6967,7 @@ class SUPER_Ajax {
             }
         }
         foreach( $data as $field_name => $field_data ) {
+            if( is_int($field_name) ) $field_name = (string)$field_name;
             if( !is_string($field_name)
                 || !is_array($field_data)
                 || !isset($field_data['type'])
@@ -7087,7 +7379,7 @@ class SUPER_Ajax {
         $cutoff = ($current_year % 100) + 10;
         return $current_century + $year + ( $year<=$cutoff ? 0 : -100 );
     }
-    private static function submission_date_timestamp_from_value_and_format( $value, $format, $localization='' ) {
+    private static function submission_date_timestamp_from_value_and_format( $value, $format, $localization='', $consume_prefix=false, &$consumed=null ) {
         if( !is_string($value) || $value==='' || !is_string($format) || $format==='' ) {
             return false;
         }
@@ -7277,9 +7569,10 @@ class SUPER_Ajax {
             $value_offset++;
             $i++;
         }
-        if( $value_offset!==strlen($value) ) {
+        if( !$consume_prefix && $value_offset!==strlen($value) ) {
             return false;
         }
+        $consumed = $value_offset;
         if( $parts['unix_ms']!==null ) {
             if( $parts['windows_ticks']!==null || $parts['year']!==null || $parts['month']!==null || $parts['day']!==null || $parts['day_of_year']!==null ) {
                 return false;
@@ -7301,7 +7594,9 @@ class SUPER_Ajax {
             }
             return (string) $milliseconds;
         }
-        $year = isset($parts['year']) ? absint($parts['year']) : 0;
+        // Like the datepicker, a format without a year uses the current year.
+        // Derive it on the server; never reuse the submitted timestamp.
+        $year = isset($parts['year']) ? absint($parts['year']) : (int)gmdate('Y');
         if( $year < 1 || $year > 9999 ) {
             return false;
         }
@@ -7337,10 +7632,11 @@ class SUPER_Ajax {
             return false;
         }
         $value = (string) $field_data['value'];
-        if( $value==='' ) {
-            return '';
-        }
         $element_data = (isset($element['data']) && is_array($element['data'])) ? $element['data'] : array();
+        $min_picks = isset($element_data['minPicks']) ? absint($element_data['minPicks']) : 0;
+        if( $value==='' ) {
+            return $min_picks>0 ? false : '';
+        }
         $format = isset($element_data['format']) && is_string($element_data['format']) ? $element_data['format'] : '';
         if( $format==='custom' ) {
             $format = isset($element_data['custom_format']) && is_string($element_data['custom_format'])
@@ -7353,10 +7649,33 @@ class SUPER_Ajax {
         $max_picks = isset($element_data['maxPicks']) ? absint($element_data['maxPicks']) : 0;
         $timestamp = self::submission_date_timestamp_from_value_and_format( $value, $format, $localization );
         if( $timestamp!==false ) {
-            return $timestamp;
+            return $min_picks>1 ? false : $timestamp;
         }
         if( $max_picks>1 ) {
-            return '';
+            $formats = array($format);
+            if( $localization!=='' ) {
+                $symbols = self::datepicker_localization_symbols($localization);
+                if( !empty($symbols['dateFormat']) ) $formats[] = $symbols['dateFormat'];
+            }
+            foreach( array_unique($formats) as $candidate_format ) {
+                $remaining = $value;
+                $seen = array();
+                while( $remaining!=='' && count($seen)<$max_picks ) {
+                    $consumed = 0;
+                    $parsed = self::submission_date_timestamp_from_value_and_format($remaining, $candidate_format, $localization, true, $consumed);
+                    if( $parsed===false || $consumed<1 || isset($seen[$parsed]) ) break;
+                    $seen[$parsed] = true;
+                    $remaining = substr($remaining, $consumed);
+                    if( $remaining==='' ) {
+                        if( count($seen)<$min_picks ) return false;
+                        return count($seen)===1 ? $parsed : '';
+                    }
+                    // Consume one formatted date first: its format can itself contain commas.
+                    if( substr($remaining, 0, 2)!==', ' || strlen($remaining)===2 ) break;
+                    $remaining = substr($remaining, 2);
+                }
+            }
+            return false;
         }
         if( $localization==='' ) {
             return false;
@@ -7366,6 +7685,7 @@ class SUPER_Ajax {
         if( $localized_format==='' || $localized_format===$format ) {
             return false;
         }
+        if( $min_picks>1 ) return false;
         return self::submission_date_timestamp_from_value_and_format( $value, $localized_format, $localization );
     }
     private static function server_owned_date_timestamp( $field_name, $field_data, $form_elements ) {
@@ -7397,11 +7717,34 @@ class SUPER_Ajax {
         }
         return $date_matches>0 ? $timestamp : null;
     }
+    private static function translated_submission_elements( $elements, $language ) {
+        if( !is_array($elements) || !is_string($language) ) return false;
+        if( $language==='' ) return $elements;
+        $walk = function( $items ) use ( &$walk, $language ) {
+            foreach( $items as &$element ) {
+                if( !is_array($element) ) continue;
+                if( isset($element['data']['i18n'][$language]) && is_array($element['data']['i18n'][$language]) ) {
+                    // Match rendering using only this form's saved translation.
+                    $element['data'] = array_replace_recursive($element['data'], $element['data']['i18n'][$language]);
+                }
+                if( isset($element['inner']) && is_array($element['inner']) ) $element['inner'] = $walk($element['inner']);
+            }
+            unset($element);
+            return $items;
+        };
+        return $walk($elements);
+    }
+
+
     private static function rebuild_selection_entry_values( $data, $form_elements, $form_id=0 ) {
         if( !is_array($data) || !is_array($form_elements) ) {
             return false;
         }
         foreach( $data as $field_name => $field_data ) {
+            // Integer row indexes remain containers; numeric named carriers are fields.
+            if( is_int($field_name) && is_array($field_data) && isset($field_data['type']) ) {
+                $field_name = (string)$field_name;
+            }
             if( !is_array($field_data) ) {
                 continue;
             }
@@ -7422,9 +7765,10 @@ class SUPER_Ajax {
                 if( $variants===false ) {
                     return false;
                 }
-                $server_timestamp = array_key_exists('timestamp', $field_data)
-                    ? self::server_owned_date_timestamp($field_name, $field_data, $form_elements)
-                    : null;
+                $server_timestamp = self::server_owned_date_timestamp($field_name, $field_data, $form_elements);
+                if( $server_timestamp===false ) {
+                    return false;
+                }
                 unset(
                     $field_data['label'],
                     $field_data['option_label'],
@@ -7957,6 +8301,14 @@ class SUPER_Ajax {
             SUPER_Common::output_message( $error = true, esc_html__( 'You do not have permission to edit this entry.', 'super-forms' ) );
         }
         $form_elements = SUPER_Common::get_form_elements($form_id);
+        // Both callers verify the configured CSRF policy before submission checks.
+        $submission_language = isset($_POST['i18n']) ? $_POST['i18n'] : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- Validated as a string, unslashed and sanitized below, then used only to select saved element translations, matching rendering.
+        if( is_string($submission_language) ) $submission_language = sanitize_text_field(wp_unslash($submission_language));
+        $form_elements = self::translated_submission_elements($form_elements, $submission_language);
+        if( $form_elements===false ) {
+            SUPER_Common::output_message( $error = true, esc_html__( 'Invalid form data.', 'super-forms' ) );
+        }
+
         if( !self::submission_data_matches_contract($data, $form_elements, $form_id, $entry_id ? $entry_id : '', $list_id) ) {
             SUPER_Common::output_message( $error = true, esc_html__( 'Invalid form data.', 'super-forms' ) );
         }
@@ -8069,7 +8421,7 @@ class SUPER_Ajax {
                 );
             }
             $result = json_decode( $response['body'], true );
-            if( !is_array($result) || empty($result['success']) ) {
+            if( !is_array($result) || !isset($result['success']) || $result['success']!==true ) {
                 SUPER_Common::output_message( $error=true, esc_html__( 'Google reCAPTCHA verification failed!', 'super-forms' ) );
             }
         }
@@ -8145,6 +8497,8 @@ class SUPER_Ajax {
             self::cleanup_owned_uploads($owned_files);
             SUPER_Common::output_message($error = true, esc_html__( 'Invalid form data.', 'super-forms' ));
         }
+        // Codes and invoice numbers are final before any filter, action or trigger sees the data.
+        $data = self::reserve_generated_codes( $form_id, $data );
         $_POST['data'] = self::submission_request_post_data_json($data);
         $data = apply_filters(
             'super_before_sending_email_data_filter',
@@ -8216,6 +8570,7 @@ class SUPER_Ajax {
         $dangerous = self::dangerous_upload_extensions();
         $plans = array();
         foreach( $files['name'] as $field_name => $file_names ) {
+            if( is_int($field_name) ) $field_name = (string)$field_name;
             $identity = isset($field_identities[$field_name]) ? $field_identities[$field_name] : false;
             $stored_field_name = ( is_array($identity) && isset($identity['stored_field_name']) )
                 ? $identity['stored_field_name']
@@ -8308,6 +8663,7 @@ class SUPER_Ajax {
         require_once( ABSPATH . 'wp-admin/includes/media.php' );
 
         foreach( $plans as $field_name => $plan ) {
+            if( is_int($field_name) ) $field_name = (string)$field_name;
             $data[$field_name] = array('type'=>'files', 'files'=>array());
             if( $plan['field_name']!==$field_name ) {
                 $data[$field_name]['field_name'] = $plan['field_name'];

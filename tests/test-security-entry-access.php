@@ -954,7 +954,7 @@ class Test_Security_Entry_Access extends WP_UnitTestCase {
 		$_GET = array( 'lookup_title' => 'Shared lookup title' );
 		$output = SUPER_Shortcodes::super_form_func( array( 'id' => (string) $lookup_form_id ) );
 		$this->assertStringNotContainsString( 'Warning', $output );
-		$this->assertStringContainsString( 'lookup-secret-', $output );
+		$this->assertStringNotContainsString( 'lookup-secret-', $output );
 		$this->assertStringNotContainsString( 'outside-secret-', $output );
 		$this->assertSame(
 			1,
@@ -1230,6 +1230,9 @@ class Test_Security_Entry_Access extends WP_UnitTestCase {
 		// lookup query (includes/class-shortcodes.php:3224-3232) INNER JOINs the order's
 		// postmeta, so a bare `shop_order` post would match nothing.
 		update_post_meta( $order_id, '_billing_email', 'order-customer@example.com' );
+		// Order lookups only resolve orders the visitor may see: shop staff all, a customer their own.
+		$owner_id = self::factory()->user->create( array( 'role' => 'subscriber' ) );
+		update_post_meta( $order_id, '_customer_user', (string) $owner_id );
 		$lookup_entry_id = $this->create_entry( $lookup_form_id, 'Lookup order linked entry' );
 		$outside_entry_id = $this->create_entry( $outside_form_id, 'Outside order linked entry' );
 		SUPER_Data_Access::update_entry_data(
@@ -1254,6 +1257,13 @@ class Test_Security_Entry_Access extends WP_UnitTestCase {
 		);
 		update_post_meta( $lookup_entry_id, '_super_contact_entry_wc_order_id', $order_id );
 		update_post_meta( $outside_entry_id, '_super_contact_entry_wc_order_id', $order_id );
+		$_GET = array( 'order_lookup' => (string) $order_id );
+		// A guest never gets an order's linked entry, not even through the URL at render time.
+		$guest_output = SUPER_Shortcodes::super_form_func( array( 'id' => (string) $lookup_form_id ) );
+		$this->assertStringNotContainsString( 'lookup-order-secret-', $guest_output );
+		$this->assertStringNotContainsString( 'outside-order-secret-', $guest_output );
+		wp_set_current_user( $owner_id );
+		$this->use_browser_session('order-owner');
 		$_GET = array( 'order_lookup' => (string) $order_id );
 		$output = SUPER_Shortcodes::super_form_func( array( 'id' => (string) $lookup_form_id ) );
 		$this->assertStringNotContainsString( 'Warning', $output );
@@ -1424,6 +1434,19 @@ class Test_Security_Entry_Access extends WP_UnitTestCase {
 		SUPER_Common::generate_nonce();
 		$this->assertArrayNotHasKey( '_sfs_id', $_COOKIE );
 		$this->assertFalse( SUPER_Common::getClientData( 'sf_nonce', false ) );
+	}
+
+	public function test_refreshing_nonce_preserves_a_nonce_only_browser_session() {
+		$session_id = $_COOKIE['_sfs_id'];
+		update_option( '_sfsdata_' . $session_id, array(
+			'expires' => time() + HOUR_IN_SECONDS,
+			'exp_var' => time() + 20 * MINUTE_IN_SECONDS,
+		), false );
+		$first = SUPER_Common::generate_nonce();
+		$second = SUPER_Common::generate_nonce();
+		$this->assertNotSame( $first, $second );
+		$this->assertSame( $session_id, $_COOKIE['_sfs_id'] );
+		$this->assertSame( $second, get_option( '_sfsdata_' . $session_id )['sf_nonce']['value'] );
 	}
 
 	public function test_issue_mirrors_the_cookie_into_the_current_request_for_immediate_consumption() {

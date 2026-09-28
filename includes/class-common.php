@@ -123,6 +123,39 @@ class SUPER_Common {
                 || ( isset($global_settings['allow_storing_cookies']) && $global_settings['allow_storing_cookies']==='0' )
             );
     }
+    private static function store_sessionless_public_capability( $name, $payload ) {
+        $payload['expires'] = time() + 10 * MINUTE_IN_SECONDS;
+        $payload['actor_id'] = get_current_user_id();
+        $payload['actor_session_hash'] = hash('sha256', wp_get_session_token());
+        return set_transient('sf_public_' . hash('sha256', $name), $payload, 10 * MINUTE_IN_SECONDS);
+    }
+
+    private static function take_sessionless_public_capability( $name ) {
+        global $wpdb;
+        $key = 'sf_public_' . hash('sha256', $name);
+        $stored = get_transient($key);
+        if( !is_array($stored) || !isset($stored['expires'], $stored['actor_id'], $stored['actor_session_hash']) ) return false;
+        if( !is_int($stored['expires']) || $stored['expires']<=time() ) {
+            delete_transient($key);
+            return false;
+        }
+        if( $stored['actor_id']!==get_current_user_id() || !is_string($stored['actor_session_hash'])
+            || !hash_equals($stored['actor_session_hash'], hash('sha256', wp_get_session_token())) ) return false;
+        // Only one caller may consume the bearer token, even with stale cached data.
+        if( wp_using_ext_object_cache() ) {
+            if( !wp_cache_add($key . '_claimed', 1, 'transient', max(1, $stored['expires'] - time())) ) return false;
+        } else {
+            $deleted = $wpdb->query($wpdb->prepare(
+                "DELETE FROM {$wpdb->options} WHERE option_name = %s AND option_value = %s",
+                '_transient_' . $key, maybe_serialize($stored)
+            ));
+            if( $deleted!==1 ) return false;
+            wp_cache_delete('_transient_' . $key, 'options');
+        }
+        delete_transient($key);
+        return $stored;
+    }
+
     private static function public_populate_capability_name( $token_hash ) {
         return 'populate_form_data_' . $token_hash;
     }
@@ -156,13 +189,14 @@ class SUPER_Common {
     public static function issue_public_populate_capability( $payload ) {
         $payload = self::normalize_public_populate_capability($payload);
         if( $payload===false ) return false;
-        if( self::uses_legacy_sessionless_mode() ) return false;
-        if( self::startClientSession()===false ) return false;
+        $sessionless = self::uses_legacy_sessionless_mode();
+        if( !$sessionless && self::startClientSession()===false ) return false;
         $token = self::generate_entry_access_token();
         if( !is_string($token) || preg_match('/\A[a-f0-9]{64}\z/', $token)!==1 ) return false;
         $token_hash = hash('sha256', $token);
         $payload['token_hash'] = $token_hash;
         $name = self::public_populate_capability_name($token_hash);
+        if( $sessionless ) return self::store_sessionless_public_capability($name, $payload) ? $token : false;
         self::setClientData( array(
             'name' => $name,
             'value' => $payload,
@@ -185,8 +219,9 @@ class SUPER_Common {
         $expected = self::normalize_public_populate_capability($expected);
         if( $expected===false ) return false;
         $name = self::public_populate_capability_name( hash('sha256', $token) );
-        $stored = self::getClientData( $name, false );
-        if( $stored!==false ) {
+        $sessionless = self::uses_legacy_sessionless_mode();
+        $stored = $sessionless ? self::take_sessionless_public_capability($name) : self::getClientData( $name, false );
+        if( !$sessionless && $stored!==false ) {
             self::setClientData( array( 'name' => $name, 'value' => false, 'force' => true ) );
         }
         if( !is_array($stored)
@@ -225,13 +260,14 @@ class SUPER_Common {
     public static function issue_public_print_capability( $payload ) {
         $payload = self::normalize_public_print_capability($payload);
         if( $payload===false ) return false;
-        if( self::uses_legacy_sessionless_mode() ) return false;
-        if( self::startClientSession( array( 'force' => true ) )===false ) return false;
+        $sessionless = self::uses_legacy_sessionless_mode();
+        if( !$sessionless && self::startClientSession( array( 'force' => true ) )===false ) return false;
         $token = self::generate_entry_access_token();
         if( !is_string($token) || preg_match('/\A[a-f0-9]{64}\z/', $token)!==1 ) return false;
         $token_hash = hash('sha256', $token);
         $payload['token_hash'] = $token_hash;
         $name = self::public_print_capability_name($token_hash);
+        if( $sessionless ) return self::store_sessionless_public_capability($name, $payload) ? $token : false;
         self::setClientData( array(
             'name' => $name,
             'value' => $payload,
@@ -254,8 +290,9 @@ class SUPER_Common {
         $expected = self::normalize_public_print_capability($expected);
         if( $expected===false ) return false;
         $name = self::public_print_capability_name( hash('sha256', $token) );
-        $stored = self::getClientData( $name, false );
-        if( $stored!==false ) {
+        $sessionless = self::uses_legacy_sessionless_mode();
+        $stored = $sessionless ? self::take_sessionless_public_capability($name) : self::getClientData( $name, false );
+        if( !$sessionless && $stored!==false ) {
             self::setClientData( array( 'name' => $name, 'value' => false, 'force' => true ) );
         }
         if( !is_array($stored)
@@ -665,6 +702,18 @@ class SUPER_Common {
         // Cleanup old client data
         self::cleanupOldClientData($key, $clientData);
     }
+    public static function with_registered_account_lock($user_id, $callback) {
+        global $wpdb;
+        if(!is_callable($callback) || !absint($user_id)) return false;
+        $name = 'sf-registration-' . sha1($wpdb->prefix . ':' . absint($user_id));
+        if((string) $wpdb->get_var($wpdb->prepare('SELECT GET_LOCK(%s, 0)', $name))!=='1') return false;
+        try {
+            return call_user_func($callback);
+        } finally {
+            $wpdb->get_var($wpdb->prepare('SELECT RELEASE_LOCK(%s)', $name));
+        }
+    }
+
     public static function cleanupOldClientData($key, $clientData) {
         $now = time();
         foreach($clientData as $name => $data){
@@ -768,8 +817,8 @@ class SUPER_Common {
 	}
 
     public static function generate_nonce(){
-        // Destroy old nonce, and generate new one
-        SUPER_Common::setClientData( array( 'name'=> 'sf_nonce', 'value'=>false ) );
+        // setClientData replaces the prior nonce in the same session. Removing it
+        // first can delete a nonce-only session and rotate the upload actor.
         $sf_nonce = md5(uniqid(mt_rand(), true)) . md5(uniqid(mt_rand(), true)) . md5(uniqid(mt_rand(), true));
         SUPER_Common::setClientData(
             array(
@@ -1853,11 +1902,188 @@ class SUPER_Common {
      *
      * @since 2.2.0
     */
+    /**
+     * Who may see which WooCommerce orders through a form's order search / order populate:
+     * shop staff see all orders, a logged-in customer only their own orders, guests none.
+     * Returns 'all', a user ID, or false. Site owners can change this with the
+     * `super_wc_order_search_scope` filter (return 'all', a user ID or false).
+     */
+    public static function wc_order_search_scope( $form_id, $field_name ) {
+        $scope = false;
+        if( is_user_logged_in() ) {
+            $scope = ( current_user_can('edit_shop_orders') || current_user_can('manage_woocommerce') ) ? 'all' : get_current_user_id();
+        }
+        $scope = apply_filters( 'super_wc_order_search_scope', $scope, absint($form_id), (string) $field_name );
+        if( $scope==='all' ) {
+            return 'all';
+        }
+        $scope = is_numeric($scope) ? absint($scope) : 0;
+        return ( $scope>0 ) ? $scope : false;
+    }
+
+    /** True when the given order may be read under the given scope. */
+    public static function wc_order_in_scope( $order_id, $scope ) {
+        if( $scope==='all' ) {
+            return true;
+        }
+        if( !is_int($scope) || $scope<1 ) {
+            return false;
+        }
+        return absint( get_post_meta( absint($order_id), '_customer_user', true ) )===$scope;
+    }
+
+    /**
+     * Code generator settings for a stored element, or false when the element does not generate codes.
+     * Mirrors the defaults the form renderer applies.
+     */
+    public static function code_settings_from_atts( $atts ) {
+        if( !is_array($atts) || !isset($atts['enable_random_code']) || $atts['enable_random_code']!=='true' ) {
+            return false;
+        }
+        $get = function( $key, $default ) use ( $atts ) {
+            return ( isset($atts[$key]) && is_scalar($atts[$key]) ) ? (string) $atts[$key] : $default;
+        };
+        return array(
+            'invoice_key' => $get( 'code_invoice_key', '' ),
+            'len' => $get( 'code_length', '7' ),
+            'char' => $get( 'code_characters', '1' ),
+            'pre' => $get( 'code_prefix', '' ),
+            'inv' => $get( 'code_invoice', '' ),
+            'invp' => $get( 'code_invoice_padding', '' ),
+            'suf' => $get( 'code_suffix', '' ),
+            'upper' => $get( 'code_uppercase', '' ),
+            'lower' => $get( 'code_lowercase', '' ),
+        );
+    }
+
+    /** Map of field name => code settings for every code-generating element saved on a form. */
+    public static function stored_code_fields( $form_id ) {
+        $fields = array();
+        $walk = function( $elements ) use ( &$walk, &$fields ) {
+            if( !is_array($elements) ) return;
+            foreach( $elements as $element ) {
+                if( !is_array($element) ) continue;
+                if( !empty($element['inner']) ) $walk( $element['inner'] );
+                $data = ( isset($element['data']) && is_array($element['data']) ) ? $element['data'] : array();
+                $settings = self::code_settings_from_atts( $data );
+                if( $settings!==false && isset($data['name']) && is_string($data['name']) && $data['name']!=='' ) {
+                    $fields[$data['name']] = $settings;
+                }
+            }
+        };
+        $walk( self::get_form_elements( absint($form_id) ) );
+        return $fields;
+    }
+
+    /**
+     * Claim a code the visitor's browser previewed (and may already have printed, e.g. in a PDF),
+     * when it still matches the saved settings exactly: prefix, suffix, length, character set,
+     * and for invoice numbers the next counter value. Claims atomically; returns false when the
+     * value cannot be claimed so the caller generates a fresh code instead.
+     */
+    public static function claim_generated_code( $codesettings, $candidate ) {
+        global $wpdb;
+        if( !is_array($codesettings) || !is_string($candidate) || $candidate==='' ) {
+            return false;
+        }
+        $setting = function( $key ) use ( $codesettings ) {
+            return ( isset($codesettings[$key]) && is_scalar($codesettings[$key]) ) ? (string) $codesettings[$key] : '';
+        };
+        $length = max( 0, min( 64, absint( $setting('len')==='' ? 7 : $setting('len') ) ) );
+        $prefix = $setting('pre');
+        $suffix = $setting('suf');
+        if( strlen($candidate) < strlen($prefix)+strlen($suffix)
+            || ( $prefix!=='' && strpos($candidate, $prefix)!==0 )
+            || ( $suffix!=='' && substr($candidate, -strlen($suffix))!==$suffix ) ) {
+            return false;
+        }
+        $core = (string) substr( $candidate, strlen($prefix), strlen($candidate)-strlen($prefix)-strlen($suffix) );
+        $random = (string) substr( $core, 0, $length );
+        $rest = (string) substr( $core, $length );
+        if( strlen($random)!==$length ) {
+            return false;
+        }
+        $characters = $setting('char');
+        $allowed = '';
+        if( in_array($characters, array('1','2','3'), true) ) $allowed .= '0123456789';
+        if( in_array($characters, array('1','2','4'), true) ) {
+            if( $setting('upper')==='true' ) $allowed .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            if( $setting('lower')==='true' ) $allowed .= 'abcdefghijklmnopqrstuvwxyz';
+        }
+        if( $characters==='2' ) $allowed .= '!@#$%^&*()';
+        if( $length>0 && ( $allowed==='' || strspn($random, $allowed)!==$length ) ) {
+            return false;
+        }
+        $invoice = ( $setting('inv')==='true' && ctype_digit($setting('invp')) );
+        $number = 0;
+        $counter_names = array();
+        $current = null;
+        if( $invoice ) {
+            if( $rest==='' || !ctype_digit($rest) ) return false;
+            $number = (int) $rest;
+            if( sprintf('%0' . $setting('invp') . 'd', $number)!==$rest ) return false;
+            $key = $setting('invoice_key');
+            $counter_names = array( '_super_form_invoice_number' . ( $key!=='' ? '_' . $key : '' ), '_sf_invoice_number' . ( $key!=='' ? '_' . $key : '' ) );
+            $current = $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM $wpdb->options WHERE option_name = %s OR option_name = %s", $counter_names[0], $counter_names[1] ) );
+            if( $current===null || !is_numeric($current) || $number!==( (int) $current )+1 ) return false;
+        }elseif( $rest!=='' ) {
+            return false;
+        }
+        $legacy_name = '_super_contact_entry_code-' . $candidate;
+        $claim_name = strlen($candidate)>150
+            ? '_sf_unique_code_sha256-' . hash('sha256', $candidate)
+            : '_sf_unique_code-' . $candidate;
+        if( strlen($candidate)>150 ) {
+            // A historical direct-name claim can still hold the full value even when its key was truncated.
+            $old_claim = $wpdb->get_var( $wpdb->prepare(
+                "SELECT option_id FROM $wpdb->options WHERE option_value = %s AND ( option_name LIKE %s OR option_name LIKE %s ) LIMIT 1",
+                $candidate,
+                $wpdb->esc_like('_super_contact_entry_code-') . '%',
+                $wpdb->esc_like('_sf_unique_code-') . '%'
+            ) );
+        }else{
+            $old_claim = $wpdb->get_var( $wpdb->prepare(
+                "SELECT option_id FROM $wpdb->options WHERE option_name = %s OR option_name = %s LIMIT 1",
+                $legacy_name, $claim_name
+            ) );
+        }
+        if( $old_claim!==null ) return false;
+        $claimed = $wpdb->query( $wpdb->prepare( "INSERT IGNORE INTO $wpdb->options (option_name, option_value, autoload) VALUES ( %s, %s, 'no' )", $claim_name, $candidate ) );
+        if( $claimed!==1 ) {
+            return false;
+        }
+        if( $invoice ) {
+            $advanced = $wpdb->query( $wpdb->prepare(
+                "UPDATE $wpdb->options SET option_value = %d WHERE ( option_name = %s OR option_name = %s ) AND option_value = %s",
+                $number, $counter_names[0], $counter_names[1], (string) $current
+            ) );
+            if( !$advanced ) {
+                $wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->options WHERE option_name = %s", $claim_name ) );
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static function generate_random_code($codesettings, $submittingForm=false, $counter=0){
         global $wpdb;
+        // Legacy callers may request a final code here. Reserve it through the
+        // same atomic claim path used by public submissions; never return an
+        // unclaimed value when a concurrent request wins the counter or code.
+        if( $submittingForm ) {
+            for( $attempt=0; $attempt<50; $attempt++ ) {
+                $candidate = self::generate_random_code($codesettings, false);
+                if( is_string($candidate) && self::claim_generated_code($codesettings, $candidate) ) {
+                    return $candidate;
+                }
+            }
+            return false;
+        }
         // First check if we are submitting the form or not
         $invoice_key = (!empty($codesettings['invoice_key']) ? $codesettings['invoice_key'] : '');
-        $length = $codesettings['len'];
+        // Bounded length: settings are admin-authored, but never let a stored value request an unbounded string.
+        $length = isset($codesettings['len']) ? absint($codesettings['len']) : 7;
+        $length = max( 0, min( 64, $length ) );
         $characters = $codesettings['char'];
         $prefix = $codesettings['pre'];
         $invoice = $codesettings['inv'];
@@ -1887,7 +2113,7 @@ class SUPER_Common {
                 $table = $wpdb->prefix . 'options';
                 // This is the global invoice key ID, if user defines a custom one, we will save it under a different option name.
                 // This allows for multiple usecases, for instance if you have a form that needs to generate a invoice, and if you have 
-                // a seperate form that generates quotes. That way a next quote number could be "0025" while the next invoice number would be "0018"
+                // a separate form that generates quotes. That way a next quote number could be "0025" while the next invoice number would be "0018"
                 $option_name_old = '_super_form_invoice_number';
                 $option_name = '_sf_invoice_number';
                 if(!empty($invoice_key)){
@@ -1896,44 +2122,18 @@ class SUPER_Common {
                 }
                 $invoiceNumber = $wpdb->get_var($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = '%s' OR option_name = '%s'  ", $option_name_old, $option_name));
                 // If this number doesn't exist yet create it
-                if(!$invoiceNumber){
-                    $wpdb->query($wpdb->prepare("INSERT INTO $wpdb->options (option_name, option_value, autoload) VALUES ( %s, %d, %s ) ", array( $option_name, 0, 'no' ) ) );
+                if($invoiceNumber===null){
+                    // A new counter starts at 0, as it always has on the 6.3 line.
+                    $invoiceNumber = 0;
+                    $wpdb->query($wpdb->prepare("INSERT INTO $wpdb->options (option_name, option_value, autoload) VALUES ( %s, %d, %s ) ", array( $option_name, $invoiceNumber, 'no' ) ) );
                 }
                 $invoiceNumber = intval($invoiceNumber);
-                if($submittingForm){
-                    $invoiceNumber = $invoiceNumber+1;
-                    $wpdb->query($wpdb->prepare("UPDATE $wpdb->options SET option_value = %d WHERE option_name = '%s' OR option_name = '%s'", $invoiceNumber, $option_name_old, $option_name));
-                }else{
-                    if($invoiceNumber===0){
-                        $invoiceNumber = 1;
-                    }
-                }
+                $invoiceNumber = $invoiceNumber+1;
                 $code .= sprintf('%0'.$invoice_padding.'d', $invoiceNumber );
             }
         }
         $code = $prefix.$code.$suffix;
-        if($submittingForm===false){
-            // If we are not submitting the form we can return the code instantly
-            return $code;
-        }else{
-            // Upon submitting the form, make sure code doesn't exist yet, if it does generate a new one
-            $option_name_old = '_super_contact_entry_code-' . $code;
-            $option_name = '_sf_unique_code-' . $code;
-            $currentCode = $wpdb->get_var($wpdb->prepare("SELECT option_value FROM $wpdb->options WHERE option_name = '%s' OR option_name = '%s'", $option_name_old, $option_name));
-            // If this code doesn't exist yet create it
-            if(!$currentCode){
-                $wpdb->query($wpdb->prepare("INSERT INTO $wpdb->options (option_name, option_value, autoload) VALUES ( %s, %s, %s ) ", array( $option_name, $code, 'no' ) ) );
-                return $code;
-            }
-            if($counter<50){ // just to make sure there won't be an endless loop
-                $counter++;
-                return self::generate_random_code(
-                    array('invoice_key' => $invoice_key, 'len' => $length, 'char' => $characters, 'pre' => $prefix, 'inv' => $invoice, 'invp' => $invoice_padding, 'suf' => $suffix, 'upper' => $uppercase, 'lower' => $lowercase),
-                    $submittingForm, 
-                    $counter
-                );
-            }
-        }
+        return $code;
     }
     
     

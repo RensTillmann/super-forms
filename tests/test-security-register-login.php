@@ -865,6 +865,7 @@ class Test_Super_Forms_Register_Login_Security extends WP_UnitTestCase {
                 'super_user_login_status',
                 'super_user_approve_data',
                 'super_last_login',
+                'super_pending_registration_recovery',
             )
         );
 
@@ -906,6 +907,94 @@ class Test_Super_Forms_Register_Login_Security extends WP_UnitTestCase {
         $this->consume_account_action( $safe_atts );
         $this->assertSame( 'safe persisted metadata', get_user_meta( $user_id, 'sf_benign_meta', true ) );
         $this->assert_bridge_cleared();
+    }
+
+    public function test_legacy_inactive_login_establishes_bound_resend_only_after_valid_credentials() {
+        global $wpdb;
+        // A served page has session data besides expiry. Keep that anchor across
+        // account bridge cleanup; CLI cannot reissue a cookie after headers are sent.
+        $session_key = '_sfsdata_' . $_COOKIE['_sfs_id'];
+        $session = get_option($session_key);
+        $session['legacy_resend_test_anchor'] = array('expires' => time()+HOUR_IN_SECONDS, 'exp_var' => time()+HOUR_IN_SECONDS, 'value' => 'anchor');
+        update_option($session_key, $session, false);
+        $login = $this->token('legacy_resend');
+        $email = $login . '@example.test';
+        $password = 'Synthetic-test-password-49!';
+        $user_id = self::factory()->user->create(array('user_login' => $login, 'user_email' => $email, 'user_pass' => $password, 'role' => 'subscriber'));
+        $this->created_users[] = $user_id;
+        update_user_meta($user_id, 'super_account_status', '0');
+        update_user_meta($user_id, 'super_account_activation', 'existing-activation-code');
+        update_user_meta($user_id, 'super_user_login_status', 'active');
+        $form_id = self::factory()->post->create(array('post_type' => 'super_form', 'post_status' => 'publish'));
+        $saved_settings = array('register_login_action' => 'login', 'register_login_activation' => 'none',
+            'register_login_url' => 'https://example.test/activate', 'register_activation_subject' => 'Verify your account',
+            'register_activation_email' => 'Code: {register_activation_code}', 'form_processing_overlay' => 'true',
+            'header_reply_enabled' => 'false');
+        update_post_meta($form_id, '_super_form_settings', $saved_settings);
+        $settings = SUPER_Common::get_form_settings($form_id);
+        $data = array('user_login' => array('value' => $login), 'user_pass' => array('value' => 'wrong-password'));
+        $atts = $this->request_atts($settings, $data, $form_id);
+        $atts['form_id'] = $form_id;
+        $atts['sfs_uid'] = $this->token('resend_submission');
+        update_option('_sfsi_' . $atts['sfs_uid'], array('form_id' => $form_id), false);
+        $mail_key = '_legacy_resend_mail_' . $user_id;
+        $capture_mail = static function($return, $mail) use ($mail_key) {
+            update_option($mail_key, array('to' => $mail['to'], 'message' => $mail['message']), false);
+            return true;
+        };
+        add_filter('pre_wp_mail', $capture_mail, 10, 2);
+        add_filter('send_auth_cookies', '__return_false');
+        try {
+            $this->set_request_globals($atts['post']);
+            $bad = $this->run_dying_handler(static function() use ($atts) { SUPER_Register_Login::before_sending_email($atts); });
+            $this->assertSame(0, $bad['status'], $bad['output']);
+            $this->assertStringNotContainsString('resend-code', $bad['output']);
+            wp_cache_delete($user_id, 'user_meta');
+            $this->assertSame('', get_user_meta($user_id, 'super_pending_registration_recovery', true));
+            $atts['data']['user_pass']['value'] = $password;
+            $atts['post']['data'] = wp_json_encode($atts['data']);
+            $this->set_request_globals($atts['post']);
+            $good = $this->run_dying_handler(static function() use ($atts) { SUPER_Register_Login::before_sending_email($atts); });
+            $this->assertSame(0, $good['status'], $good['output']);
+            $this->assertStringContainsString('resend-code', $good['output']);
+            wp_cache_delete($user_id, 'user_meta');
+            $payload = get_user_meta($user_id, 'super_pending_registration_recovery', true);
+            $this->assertIsArray($payload);
+            $this->assertSame($form_id, $payload['form_id']);
+            $this->assertSame($user_id, $payload['user_id']);
+            $this->assertNotSame($password, $payload['token_hash']);
+            $request = array('action' => 'super_resend_activation', 'nonce' => wp_create_nonce('super_resend_activation'),
+                'data' => array('username' => $login, 'email' => $email, 'form' => $form_id));
+            $original_cookie = $_COOKIE['_sfs_id'];
+            $_COOKIE['_sfs_id'] = str_repeat('d', 48);
+            $this->set_request_globals($request);
+            $other_browser = $this->run_dying_handler(array('SUPER_Register_Login', 'resend_activation'));
+            $this->assertSame(0, $other_browser['status'], $other_browser['output']);
+            $this->assertNull($wpdb->get_var($wpdb->prepare("SELECT option_value FROM {$wpdb->options} WHERE option_name = %s", $mail_key)));
+            $_COOKIE['_sfs_id'] = $original_cookie;
+            $other_form = self::factory()->post->create(array('post_type' => 'super_form', 'post_status' => 'publish'));
+            update_post_meta($other_form, '_super_form_settings', $saved_settings);
+            $request['data']['form'] = $other_form;
+            $this->set_request_globals($request);
+            $denied = $this->run_dying_handler(array('SUPER_Register_Login', 'resend_activation'));
+            $this->assertSame(0, $denied['status'], $denied['output']);
+            $this->assertNull($wpdb->get_var($wpdb->prepare("SELECT option_value FROM {$wpdb->options} WHERE option_name = %s", $mail_key)));
+            $request['data']['form'] = $form_id;
+            $this->set_request_globals($request);
+            $sent = $this->run_dying_handler(array('SUPER_Register_Login', 'resend_activation'));
+            $this->assertSame(0, $sent['status'], $sent['output']);
+            $mail = maybe_unserialize($wpdb->get_var($wpdb->prepare("SELECT option_value FROM {$wpdb->options} WHERE option_name = %s", $mail_key)));
+            $this->assertIsArray($mail);
+            $this->assertSame($email, is_array($mail['to']) ? $mail['to'][0] : $mail['to']);
+            $this->assertStringContainsString('existing-activation-code', $mail['message']);
+            $this->assertStringNotContainsString($password, $mail['message']);
+            $this->assertSame('0', get_user_meta($user_id, 'super_account_status', true));
+        } finally {
+            remove_filter('pre_wp_mail', $capture_mail, 10);
+            remove_filter('send_auth_cookies', '__return_false');
+            delete_option($mail_key);
+            delete_option('_sfsi_' . $atts['sfs_uid']);
+        }
     }
 
     public function test_malformed_custom_meta_mapping_is_rejected_before_mutation() {
@@ -1435,7 +1524,7 @@ class Test_Super_Forms_Register_Login_Security extends WP_UnitTestCase {
         $this->assertSame( $before, $this->user_state( $user_id, array( 'super_user_login_status', 'super_account_status', 'super_account_activation' ) ) );
         wp_delete_post( $form_id, true );
     }
-    public function test_resend_activation_accepts_only_published_registration_forms_with_verification_enabled() {
+    public function test_resend_activation_accepts_published_verification_registration_and_login_forms() {
         $verify_settings = $this->register_settings();
         $verify_settings['register_login_activation'] = 'verify';
         $verify_login_settings = $this->register_settings();
@@ -1487,7 +1576,7 @@ class Test_Super_Forms_Register_Login_Security extends WP_UnitTestCase {
             $this->assertIsArray( $this->invoke_private( 'resend_activation_form_settings', array( $ids[1] ) ) );
             $this->assertIsArray( $this->invoke_private( 'resend_activation_form_settings', array( $ids[2] ) ) );
             $this->assertFalse( $this->invoke_private( 'resend_activation_form_settings', array( $ids[3] ) ) );
-            $this->assertFalse( $this->invoke_private( 'resend_activation_form_settings', array( $ids[4] ) ) );
+            $this->assertIsArray( $this->invoke_private( 'resend_activation_form_settings', array( $ids[4] ) ) );
             $this->assertFalse( $this->invoke_private( 'resend_activation_form_settings', array( $ids[5] ) ) );
             $this->assertFalse( $this->invoke_private( 'resend_activation_form_settings', array( $ids[6] ) ) );
             $this->assertFalse( $this->invoke_private( 'resend_activation_form_settings', array( 0 ) ) );

@@ -8,6 +8,13 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Sep 27, 2026 - Version 6.3.318
+
+- **Security fix:** Hardened WooCommerce order search, unique code and invoice number generation, and PayPal payment notifications.
+- **Changed:** WooCommerce Order Search now shows orders only to shop staff (all orders) and to logged-in customers (their own orders); the search settings saved in the form are always used. Site owners can adjust who may search with the `super_wc_order_search_scope` filter.
+- **Changed:** Unique codes and invoice numbers are reserved when the form is submitted; the code shown while filling in the form is a preview.
+- **Changed:** PayPal payments are now linked to their contact entry, post and user through a signed reference. Payments that were started before this update are still recorded, but do not change the entry, post or user status automatically; update those by hand if needed.
+
 ## Aug 21, 2026 - Version 6.3.317
 
 - **Security fix:** Hardened form file uploads, generated file downloads, account registration and updates, Listings entry actions, form administration, and contact entry imports and exports.
