@@ -48,7 +48,13 @@ if( !class_exists('SUPER_VCF_Attachment') ) :
                 }
                 $vcard_name = SUPER_Common::email_tags( $atts['settings']['vcard_name'], $atts['data'], $atts['settings'] );
                 $vcard_content = SUPER_Common::email_tags( $atts['settings']['vcard_content'], $atts['data'], $atts['settings'] );
+                $form_id = isset($atts['form_id']) ? absint($atts['form_id']) : 0;
+                $attachment_id = 0;
+                $filename = '';
+                $upload_root = '';
+                $created_file = false;
                 try {
+                    if( !$form_id ) throw new Exception(esc_html__('Unable to authorize the generated vCard.', 'super-forms'));
                     $value = array(
                         'label' => 'vCard:',
                         'name' => $vcard_name.'.vcf',
@@ -62,14 +68,21 @@ if( !class_exists('SUPER_VCF_Attachment') ) :
                         $GLOBALS['super_upload_dir'] = wp_upload_dir();
                     }
                     $d = $GLOBALS['super_upload_dir'];
-                    $basename = $vcard_name.'.vcf';
-                    $filename = trailingslashit($d['path']) . $basename;
-                    $file = fopen($filename, 'w');
-                    $cardData = "BEGIN:VCARD\n";
-                    $cardData .= trim($vcard_content);
-                    $cardData .= "\nEND:VCARD";
-                    fwrite($file, $cardData);
+                    if( !empty($d['error']) || empty($d['path']) || !is_dir($d['path']) ) {
+                        throw new Exception(esc_html__('Unable to create the generated vCard.', 'super-forms'));
+                    }
+                    $upload_root = $d['path'];
+                    $basename = wp_unique_filename($upload_root, sanitize_file_name($vcard_name) . '.vcf');
+                    $filename = trailingslashit($upload_root) . $basename;
+                    $file = fopen($filename, 'x');
+                    if( $file===false ) throw new Exception(esc_html__('Unable to create the generated vCard.', 'super-forms'));
+                    $created_file = true;
+                    $cardData = "BEGIN:VCARD\n" . trim($vcard_content) . "\nEND:VCARD";
+                    $written = fwrite($file, $cardData);
                     fclose($file);
+                    if( $written!==strlen($cardData) ) throw new Exception(esc_html__('Unable to write the generated vCard.', 'super-forms'));
+                    $value['name'] = $basename;
+                    $value['value'] = $basename;
                     // Add file to media library 
                     $attachment = array(
                         'post_mime_type' => 'text/vcard',
@@ -95,7 +108,13 @@ if( !class_exists('SUPER_VCF_Attachment') ) :
                         unset($GLOBALS['super_upload_dir']);
                         remove_filter( 'upload_dir', array( 'SUPER_Forms', 'filter_upload_dir' ));
                         $attachment_id = wp_insert_attachment( $attachment, $filename, 0 );
+                        if( is_wp_error($attachment_id) || !$attachment_id ) {
+                            $attachment_id = 0;
+                            throw new Exception(esc_html__('Unable to save the generated vCard.', 'super-forms'));
+                        }
                         add_post_meta($attachment_id, 'super-forms-form-upload-file', true);
+                        add_post_meta($attachment_id, '_super_forms_upload_form_id', $form_id);
+                        add_post_meta($attachment_id, '_super_forms_upload_field', '_vcard');
                         if((!empty($atts['settings']['vcard_hide'])) && ($atts['settings']['vcard_hide']==='true')){
                             add_post_meta($attachment_id, 'super-forms-is-hidden', true);
                         }
@@ -104,6 +123,15 @@ if( !class_exists('SUPER_VCF_Attachment') ) :
                         $value['url'] = wp_get_attachment_url( $attachment_id );
                         $value['attachment'] = $attachment_id;
                     }
+                    $owned = SUPER_Ajax::build_owned_upload(
+                        $form_id, '_vcard', $filename, 'text/vcard', $value['url'],
+                        $attachment_id, $upload_root, filesize($filename),
+                        isset($value['subdir']) ? $value['subdir'] : ''
+                    );
+                    if( $owned===false || !SUPER_Ajax::append_pending_owned_upload_cleanup($owned) ) {
+                        throw new Exception(esc_html__('Unable to authorize the generated vCard.', 'super-forms'));
+                    }
+                    $value = array('label'=>'vCard:') + SUPER_Ajax::owned_upload_file_record($owned);
                     $data['_vcard'] = array(
                         'label' => 'vCard',
                         'type' => 'files',
@@ -125,11 +153,20 @@ if( !class_exists('SUPER_VCF_Attachment') ) :
                     }
                     $data['_vcard']['exclude'] = $exclude;
                 } catch (Exception $e) {
+                    if( $attachment_id ) {
+                        wp_delete_attachment($attachment_id, true);
+                    }elseif( $created_file ) {
+                        SUPER_Common::delete_file($filename, $upload_root);
+                    }
+                    unset($GLOBALS['super_upload_dir']);
+                    remove_filter('upload_dir', array('SUPER_Forms', 'filter_upload_dir'));
                     // Print error message
                     SUPER_Common::output_message( array(
                         'msg' => $e->getMessage()
                     ));
                 }
+                unset($GLOBALS['super_upload_dir']);
+                remove_filter('upload_dir', array('SUPER_Forms', 'filter_upload_dir'));
             }
             return $data;
         }

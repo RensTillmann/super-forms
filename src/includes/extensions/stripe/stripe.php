@@ -63,6 +63,24 @@ if(!class_exists('SUPER_Stripe')) :
                 add_action( 'after_contact_entry_metabox_hook', array( $this, 'add_transaction_link' ), 0 );
             }
         }
+        /**
+         * Retrieve the Checkout session named in a success/cancel/retry URL. An unknown, expired or
+         * mistyped session ID (or a Stripe API error) sends the visitor to the home page instead of
+         * ending in an uncaught exception and a "critical error" page.
+         */
+        private static function retrieve_return_session( $session_id ) {
+            try {
+                $session = \Stripe\Checkout\Session::retrieve( $session_id, [] );
+            } catch ( \Throwable $e ) {
+                error_log( 'Super Forms Stripe: could not retrieve the checkout session from the return URL.' ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Fixed operational diagnostic excludes provider exception text, credentials, and request identifiers.
+                $session = null;
+            }
+            if ( ! $session || empty( $session['metadata'] ) ) {
+                wp_safe_redirect( home_url() );
+                exit;
+            }
+            return $session;
+        }
         public static function handle_webhooks($wp){
             if ( array_key_exists( 'sfssidr', $wp->query_vars ) ) {
                 error_log('Re-create a checkout session based on the retry URL {stripe_retry_payment_url} inside E-mails');
@@ -72,14 +90,20 @@ if(!class_exists('SUPER_Stripe')) :
                 }catch(Exception $e){
                     self::exceptionHandler($e);
                 }
-                $s = \Stripe\Checkout\Session::retrieve($wp->query_vars['sfssidr'], []);
+                $s = self::retrieve_return_session( $wp->query_vars['sfssidr'] );
                 $sfsi = get_option( '_sfsi_' . $s['metadata']['sfsi_id'], array() );
+                if ( empty( $sfsi['form_id'] ) || empty( $sfsi['stripeData'] ) ) {
+                    // The stored submission info is gone (already paid, cleaned up or expired): nothing to retry.
+                    wp_safe_redirect( home_url() );
+                    exit;
+                }
                 $form_id = $sfsi['form_id'];
                 $settings = SUPER_Common::get_form_settings($form_id);
                 $s = SUPER_Stripe::get_default_stripe_settings($settings);
                 $expiry = $s['retryPaymentEmail']['expiry']; // expiry in hours 1 = 1 hour, 0.5 = 30min.
                 // Calculate expiry for the retry checkout session
-                $expires_at = current_time('timestamp') + (3600 * $expiry);
+                // Stripe expects a real Unix timestamp (UTC): time(), not the site-local current_time().
+                $expires_at = time() + (3600 * $expiry);
                 $sfsi['stripeData']['expires_at'] = $expires_at;
                 $checkout_session = \Stripe\Checkout\Session::create($sfsi['stripeData']);
                 wp_redirect($checkout_session->url);
@@ -94,7 +118,7 @@ if(!class_exists('SUPER_Stripe')) :
                 }catch(Exception $e){
                     self::exceptionHandler($e);
                 }
-                $s = \Stripe\Checkout\Session::retrieve($wp->query_vars['sfssids'], []);
+                $s = self::retrieve_return_session( $wp->query_vars['sfssids'] );
                 $m = $s['metadata'];
                 //$sfsi = get_option( '_sfsi_' . $m['sfsi_id'], array() );
                 // Now redirect to success URL without checkout session ID parameter
@@ -115,7 +139,7 @@ if(!class_exists('SUPER_Stripe')) :
                 }catch(Exception $e){
                     self::exceptionHandler($e);
                 }
-                $s = \Stripe\Checkout\Session::retrieve($wp->query_vars['sfssidc'], []);
+                $s = self::retrieve_return_session( $wp->query_vars['sfssidc'] );
                 $m = $s['metadata'];
                 // Get form submission info
                 $sfsi = get_option( '_sfsi_' . $m['sfsi_id'], array() );
@@ -1355,7 +1379,9 @@ if(!class_exists('SUPER_Stripe')) :
                 $sfsi['stripeData'] = $stripeData;
                 update_option('_sfsi_' . $sfs_uid, $sfsi );
                 // Create the checkout session via Stripe API
-                $expires_at = current_time('timestamp') - (3600 * 1.5);
+                // Checkout sessions must expire in the future (Stripe allows 30 minutes to 24 hours):
+                // 1.5 hours from now, as a real Unix timestamp.
+                $expires_at = time() + (3600 * 1.5);
                 $stripeData['expires_at'] = $expires_at;
                 $checkout_session = \Stripe\Checkout\Session::create($stripeData);
             } catch( Exception $e ){
@@ -1373,7 +1399,8 @@ if(!class_exists('SUPER_Stripe')) :
             die();
         }
         public static function setAppInfo(){
-            require_once 'stripe-php/init.php';
+            // The Stripe PHP SDK in src/vendor is generated from composer.lock and committed with the plugin.
+            require_once SUPER_PLUGIN_DIR . '/vendor/autoload.php';
             \Stripe\Stripe::setAppInfo('Super Forms - Stripe Add-on', SUPER_VERSION, 'https://super-forms.com');
             $global_settings = SUPER_Common::get_global_settings();
             if(!empty($global_settings['stripe_mode']) ) {

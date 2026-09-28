@@ -1,4 +1,4 @@
-/* globals SUPER */
+/* globals SUPER, super_listings_i18n */
 "use strict";
 (function() { // Hide scope, no $ conflict
 
@@ -165,11 +165,21 @@
     };
 
     // When view button is clicked open a modal/popup window and display entry data based on HTML {loop_fields} or custom HTML
+    SUPER.frontEndListing.showModalRequestError = function(modal, loadingIcon){
+        if(loadingIcon && loadingIcon.parentNode) loadingIcon.parentNode.removeChild(loadingIcon);
+        if(!modal.querySelector('.super-listing-entry-error')){
+            var error = document.createElement('div');
+            error.classList.add('super-msg', 'super-error', 'super-listing-entry-error');
+            error.textContent = super_listings_i18n.modal_error;
+            modal.appendChild(error);
+        }
+    };
     SUPER.frontEndListing.viewEntry = function(el){
         var parent = getParents(el, '.super-entry')[0];
         var entry_id = parent.dataset.id;
         var form_id = getParents(el, '.super-listings')[0].dataset.formId;
         var list_id = getParents(el, '.super-listings')[0].dataset.listId;
+        var nonce = getParents(el, '.super-listings')[0].dataset.entryNonce;
         // Create popup window and load the form + it's entry data
         var modal = document.createElement('div');
         modal.classList.add('super-listings-modal');
@@ -201,14 +211,15 @@
                     node.innerHTML = result.html;
                     modal.appendChild(node);
                     loadingIcon.remove();
+                } else {
+                    SUPER.frontEndListing.showModalRequestError(modal, loadingIcon);
                 }
-                // Complete:
                 parent.classList.remove('super-loading');
             }
         };
         xhttp.onerror = function () {
-            console.log(this);
-            console.log("** An error occurred during the transaction");
+            SUPER.frontEndListing.showModalRequestError(modal, loadingIcon);
+            parent.classList.remove('super-loading');
         };
         xhttp.open("POST", super_listings_i18n.ajaxurl, true);
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
@@ -216,7 +227,8 @@
             action: 'super_listings_view_entry',
             entry_id: entry_id,
             form_id: form_id,
-            list_id: list_id
+            list_id: list_id,
+            nonce: nonce
         };
         params = jQuery.param(params);
         xhttp.send(params);
@@ -228,6 +240,7 @@
         var entry_id = parent.dataset.id;
         var form_id = getParents(el, '.super-listings')[0].dataset.formId;
         var list_id = getParents(el, '.super-listings')[0].dataset.listId;
+        var nonce = getParents(el, '.super-listings')[0].dataset.entryNonce;
         // Create popup window and load the form + it's entry data
         var modal = document.createElement('div');
         modal.classList.add('super-listings-modal');
@@ -258,25 +271,26 @@
                         node.innerHTML = result.html;
                     }
                     modal.appendChild(node);
-                    if(typeof SUPER.form_js === "undefined"){
-                        SUPER.form_js = {};
-                        SUPER.form_js[form_id] = {};
-                    }else{
-                        if(!SUPER.form_js[form_id]){
-                            SUPER.form_js[form_id] = {};
-                        }
+                    // The listing host authorizes the request; the returned form owns its entry data.
+                    var targetForm = node.querySelector('.super-form');
+                    var targetFormId = targetForm && /^super-form-[1-9][0-9]*$/.test(targetForm.id) ?
+                        parseInt(targetForm.id.replace('super-form-', ''), 10) : 0;
+                    if(result.error!==true && targetFormId){
+                        if(typeof SUPER.form_js === "undefined") SUPER.form_js = {};
+                        if(!SUPER.form_js[targetFormId]) SUPER.form_js[targetFormId] = {};
+                        SUPER.form_js[targetFormId]['_entry_data'] = JSON.stringify(result.entry_data);
+                        SUPER.init_super_form_frontend();
                     }
-                    SUPER.form_js[form_id]['_entry_data'] = JSON.stringify(result.entry_data);
-                    SUPER.init_super_form_frontend();
                     loadingIcon.remove();
+                } else {
+                    SUPER.frontEndListing.showModalRequestError(modal, loadingIcon);
                 }
-                // Complete:
                 parent.classList.remove('super-loading');
             }
         };
         xhttp.onerror = function () {
-            console.log(this);
-            console.log("** An error occurred during the transaction");
+            SUPER.frontEndListing.showModalRequestError(modal, loadingIcon);
+            parent.classList.remove('super-loading');
         };
         xhttp.open("POST", super_listings_i18n.ajaxurl, true);
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
@@ -284,7 +298,8 @@
             action: 'super_listings_edit_entry',
             entry_id: entry_id,
             form_id: form_id,
-            list_id: list_id
+            list_id: list_id,
+            nonce: nonce
         };
         params = jQuery.param(params);
         xhttp.send(params);
@@ -297,6 +312,7 @@
         parent.classList.add('super-loading');
         var entry_id = parent.dataset.id;
         var form_id = getParents(el, '.super-listings')[0].dataset.formId;
+        var nonce = getParents(el, '.super-listings')[0].dataset.deleteNonce;
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
             if (this.readyState == 4) {
@@ -323,7 +339,8 @@
             action: 'super_listings_delete_entry',
             entry_id: entry_id,
             form_id: form_id,
-            list_id: list_id
+            list_id: list_id,
+            nonce: nonce
         };
         params = jQuery.param(params);
         xhttp.send(params);

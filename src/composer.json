@@ -1,0 +1,32 @@
+{
+  "name": "super-forms/super-forms",
+  "description": "Third-party PHP libraries shipped inside the Super Forms plugin. src/vendor is generated from composer.lock and committed with the plugin.",
+  "type": "wordpress-plugin",
+  "license": "GPL-2.0-or-later",
+  "require": {
+    "php": ">=7.4",
+    "google/apiclient": "^2.16",
+    "stripe/stripe-php": "14.2.0"
+  },
+  "scripts": {
+    "pre-autoload-dump": "Google\\Task\\Composer::cleanup"
+  },
+  "extra": {
+    "google/apiclient-services": [
+      "Sheets"
+    ]
+  },
+  "config": {
+    "platform": {
+      "php": "7.4.33"
+    },
+    "platform-check": false,
+    "optimize-autoloader": true,
+    "sort-packages": true,
+    "audit": {
+      "ignore": {
+        "PKSA-y2cr-5h3j-g3ys": "firebase/php-jwt 7 needs PHP 8; google/apiclient on PHP 7.4 requires php-jwt ~6.0. Low severity (key-size weakness), not reachable: Super Forms only signs Google service-account JWTs with Google-issued RSA keys."
+      }
+    }
+  }
+}
