@@ -4,7 +4,7 @@
  *
  * @package   Super Forms
  * @author    feeling4design
- * @link      http://f4d.nl/super-forms
+ * @link      https://f4d.nl/super-forms
  * @copyright 2022 by feeling4design
  * @license   GPL-2.0-or-later
  *
@@ -12,8 +12,8 @@
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
  * Version:           6.3.317
- * Plugin URI:        http://f4d.nl/super-forms
- * Author URI:        http://f4d.nl/super-forms
+ * Plugin URI:        https://f4d.nl/super-forms
+ * Author URI:        https://f4d.nl/super-forms
  * Author:            feeling4design
  * Text Domain:       super-forms
  * Domain Path:       /i18n/languages/
