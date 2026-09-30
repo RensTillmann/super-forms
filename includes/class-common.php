@@ -2061,6 +2061,33 @@ class SUPER_Common {
      *
      * @since 1.0.6
     */
+    /**
+     * Whether an option, array key or setting name looks like it holds a secret (password, API key,
+     * token, salt...). Used to keep such values out of page source when tags are resolved for display.
+     *
+     * @since 6.3.318
+    */
+    public static function is_secret_like_name( $name ) {
+        if( !is_string($name) && !is_int($name) ) return false;
+        return ( preg_match( '/(^|[_\-.])(pass|password|passwd|pwd|secret|secrets|token|tokens|key|keys|apikey|salt|auth|api|private)([_\-.]|$)/i', (string) $name ) === 1 );
+    }
+
+    /**
+     * Remove secret-looking keys (see is_secret_like_name()) from an array, recursively.
+     *
+     * @since 6.3.318
+    */
+    public static function strip_secret_like_keys( $array ) {
+        foreach( $array as $k => $v ) {
+            if( self::is_secret_like_name($k) ) {
+                unset($array[$k]);
+            }elseif( is_array($v) ) {
+                $array[$k] = self::strip_secret_like_keys($v);
+            }
+        }
+        return $array;
+    }
+
     public static function email_tags( $value=null, $data=null, $settings=null, $user=null, $skip=true, $skipSecrets=false, $skipOptions=false ) {
         if( ($value==='') && ($skip==true) ) return '';
         $current_author = null;
@@ -2759,7 +2786,7 @@ class SUPER_Common {
                     if(is_array($v)) continue;
                     // Form settings include the merged global settings (SMTP password, API keys...), never expose
                     // those when secrets are skipped (values that end up in the page source)
-                    if( $skipSecrets===true && preg_match( '/(smtp_|pass|secret|token|key|api|auth)/i', $k ) ) continue;
+                    if( $skipSecrets===true && self::is_secret_like_name( $k ) ) continue;
                     $value = strval($value);
                     $value = str_replace( '{form_setting_' . $k . '}', self::decode( $v ), $value, $count );
                     // After replacing the settings {tag} with data, make sure to once more replace any possible {tags}
@@ -2802,12 +2829,17 @@ class SUPER_Common {
                 $option_key = str_replace('{option_', '', $value);
                 $option_key = str_replace('}', '', $option_key);
                 $keys = explode(';', $option_key);
+                // With $skipSecrets (values printed in the page) an option or array key whose name looks
+                // secret is left as the literal tag, like {@secrets}: it stays out of the page source and
+                // is still resolved on submission (e.g. {option_super_settings;smtp_password}, {option_auth_key})
+                if( $skipSecrets===true && ( self::is_secret_like_name($keys[0]) || ( isset($keys[1]) && self::is_secret_like_name($keys[1]) ) ) ) return $value;
                 $value = get_option( $keys[0] );
                 if(is_array($value)){
                     if(isset($keys[1])){
                         $key = $keys[1];
                         if(isset($value[$key])) return $value[$key];
                     }
+                    if( $skipSecrets===true ) $value = self::strip_secret_like_keys($value);
                     $json = json_encode($value);
                     return $json;
                 }
