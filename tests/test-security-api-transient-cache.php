@@ -1,0 +1,469 @@
+<?php
+/**
+ * Regressions for the cached licence-transient call SUPER_Common::get_transient()
+ * (includes/class-common.php) and SUPER_Common::flush_api_transients().
+ *
+ * The API is mocked through the pre_http_request filter; no test reaches the
+ * network. The disable-cache scenario defines SUPER_API_TRANSIENT_DISABLE_CACHE
+ * for the rest of the process, so it is the last method of this class and the
+ * cache scenarios skip themselves when the constant is already set.
+ *
+ * @package Super_Forms\Tests
+ */
+
+class Test_Security_Api_Transient_Cache extends WP_UnitTestCase {
+
+	const ALERT      = '<script>alert("Connection error! Please refresh the page to try again, or contact support.");</script>';
+	const ERROR_TEXT = 'SENTINEL-ERROR-TEXT-must-never-reach-the-page';
+
+	private static $slugs = array( 'before_do_shortcode', 'before_do_shortcode_admin', 'super-forms_page_super_create_form' );
+
+	private $filters   = array();
+	private $requests  = array();
+	private $responder = null;
+
+	public function set_up() {
+		parent::set_up();
+		$this->requests  = array();
+		$this->responder = null;
+		$this->reset_cache_state();
+		$this->add_tracked_filter( 'pre_http_request', array( $this, 'mock_api' ), 10, 3 );
+	}
+
+	public function tear_down() {
+		foreach ( array_reverse( $this->filters ) as $filter ) {
+			remove_filter( $filter['tag'], $filter['callback'], $filter['priority'] );
+		}
+		$this->filters = array();
+		$this->reset_cache_state();
+		parent::tear_down();
+	}
+
+	private function add_tracked_filter( $tag, $callback, $priority = 10, $accepted_args = 1 ) {
+		add_filter( $tag, $callback, $priority, $accepted_args );
+		$this->filters[] = array(
+			'tag'      => $tag,
+			'callback' => $callback,
+			'priority' => $priority,
+		);
+	}
+
+	private function reset_cache_state() {
+		SUPER_Common::flush_api_transients();
+		foreach ( self::$slugs as $slug ) {
+			delete_option( '_super_api_transient_last_' . $this->key( $slug ) );
+		}
+	}
+
+	private function key( $slug ) {
+		return md5( $slug . '|' . get_home_url() );
+	}
+
+	private function endpoint() {
+		return SUPER_API_ENDPOINT . '/settings/transient';
+	}
+
+	private function fixture_body( $prefix ) {
+		// Quotes, slashes, angle brackets, a newline and non-ASCII: the bytes the API really serves.
+		return '<script id="sftmp">var u = "https://example.test/wp-admin/";' . "\n" . '/* ' . $prefix . ' ünïcödé ✓ */ if(a<b && c>d){ x = "\\u0041"; }</script>';
+	}
+
+	/**
+	 * Encode like the Go API (encoding/json escapes <, > and &).
+	 */
+	private function api_json( $status, $body ) {
+		return json_encode( array( 'status' => $status, 'body' => $body ), JSON_HEX_TAG | JSON_HEX_AMP );
+	}
+
+	private function http_response( $code, $body ) {
+		return array(
+			'headers'  => array(),
+			'body'     => $body,
+			'response' => array(
+				'code'    => $code,
+				'message' => ( 200 === $code ) ? 'OK' : 'Error',
+			),
+			'cookies'  => array(),
+			'filename' => null,
+		);
+	}
+
+	public function mock_api( $preempt, $args, $url ) {
+		if ( $this->endpoint() !== $url ) {
+			return $preempt;
+		}
+		$this->requests[] = array(
+			'url'  => $url,
+			'args' => $args,
+		);
+		if ( null === $this->responder ) {
+			$this->fail( 'The licence transient call reached the API without a mocked response.' );
+		}
+		return call_user_func( $this->responder, $args, $url );
+	}
+
+	private function respond_with_body( $body ) {
+		$json            = $this->api_json( 200, $body );
+		$this->responder = function () use ( $json ) {
+			return $this->http_response( 200, $json );
+		};
+	}
+
+	private function respond_with_failure( $kind ) {
+		$this->responder = function () use ( $kind ) {
+			switch ( $kind ) {
+				case 'wp_error':
+					return new WP_Error( 'http_request_failed', 'cURL error 28: ' . self::ERROR_TEXT );
+				case 'http_500':
+					return $this->http_response( 500, '{"status":500,"message":"' . self::ERROR_TEXT . '"}' );
+				case 'non_json':
+					return $this->http_response( 200, '<html>' . self::ERROR_TEXT . '</html>' );
+				case 'status_not_200':
+					return $this->http_response( 200, $this->api_json( 403, self::ERROR_TEXT ) );
+				case 'empty':
+					return $this->http_response( 200, '' );
+			}
+			$this->fail( 'Unknown failure kind ' . $kind );
+		};
+	}
+
+	private function fallback_for( $slug ) {
+		return ( 'super-forms_page_super_create_form' === $slug ) ? self::ALERT : '';
+	}
+
+	private function call( $slug ) {
+		return SUPER_Common::get_transient( array( 'slug' => $slug ) );
+	}
+
+	private function assert_no_error_text( $output, $message ) {
+		$this->assertIsString( $output, $message );
+		$this->assertStringNotContainsString( self::ERROR_TEXT, $output, $message );
+		$this->assertStringNotContainsString( 'cURL error', $output, $message );
+	}
+
+	private function require_cache_enabled() {
+		if ( defined( 'SUPER_API_TRANSIENT_DISABLE_CACHE' ) && SUPER_API_TRANSIENT_DISABLE_CACHE ) {
+			$this->markTestSkipped( 'SUPER_API_TRANSIENT_DISABLE_CACHE is defined in this process.' );
+		}
+	}
+
+	public static function slug_provider() {
+		return array(
+			'front-end slug'       => array( 'before_do_shortcode' ),
+			'front-end admin slug' => array( 'before_do_shortcode_admin' ),
+			'builder slug'         => array( 'super-forms_page_super_create_form' ),
+		);
+	}
+
+	public static function failure_provider() {
+		return array(
+			'WP_Error'           => array( 'wp_error' ),
+			'HTTP 500'           => array( 'http_500' ),
+			'non-JSON body'      => array( 'non_json' ),
+			'JSON status != 200' => array( 'status_not_200' ),
+			'empty response'     => array( 'empty' ),
+		);
+	}
+
+	/**
+	 * (i) success body served byte-identical and cached (fresh transient + last-known-good option)
+	 *
+	 * @dataProvider slug_provider
+	 */
+	public function test_success_body_is_served_byte_identical_and_cached( $slug ) {
+		$this->require_cache_enabled();
+		$body = $this->fixture_body( $slug );
+		$this->respond_with_body( $body );
+
+		$before = time();
+		$this->assertSame( $body, $this->call( $slug ), 'The served body must be byte-identical to what the API sent.' );
+		$this->assertCount( 1, $this->requests );
+
+		$key = $this->key( $slug );
+		$this->assertSame( $body, get_transient( '_super_api_transient_' . $key ), 'The fresh transient must hold the exact body.' );
+		$last = get_option( '_super_api_transient_last_' . $key );
+		$this->assertIsArray( $last );
+		$this->assertSame( $body, $last['body'], 'The last-known-good option must hold the exact body.' );
+		$this->assertGreaterThanOrEqual( $before, (int) $last['time'] );
+		$this->assertLessThanOrEqual( time(), (int) $last['time'] );
+		$this->assertFalse( get_transient( '_super_api_transient_cb' ), 'A success must not trip the breaker.' );
+		$this->assertFalse( get_option( '_super_api_transient_lock_' . $key ), 'The refresh lock must be released after a success.' );
+		if ( ! wp_using_ext_object_cache() ) {
+			$this->assertSame( 'no', $this->autoload_of( '_super_api_transient_last_' . $key ), 'The last-known-good option must not be autoloaded.' );
+		}
+	}
+
+	private function autoload_of( $option ) {
+		global $wpdb;
+		return $wpdb->get_var( $wpdb->prepare( "SELECT autoload FROM {$wpdb->options} WHERE option_name = %s", $option ) );
+	}
+
+	/**
+	 * (i) an empty body (licensed site, front-end slug) is a valid answer and is cached as such
+	 */
+	public function test_empty_success_body_is_cached_and_served_without_a_second_request() {
+		$this->require_cache_enabled();
+		$this->respond_with_body( '' );
+		$this->assertSame( '', $this->call( 'before_do_shortcode' ) );
+		$this->assertSame( '', $this->call( 'before_do_shortcode' ) );
+		$this->assertCount( 1, $this->requests, 'An empty body is a valid cached answer, not a miss.' );
+		$this->assertFalse( get_transient( '_super_api_transient_cb' ) );
+	}
+
+	/**
+	 * (ii) second call makes no HTTP request
+	 */
+	public function test_second_call_is_served_from_the_fresh_transient_without_a_request() {
+		$this->require_cache_enabled();
+		$body = $this->fixture_body( 'cached' );
+		$this->respond_with_body( $body );
+		$this->assertSame( $body, $this->call( 'before_do_shortcode_admin' ) );
+		$this->respond_with_body( 'changed-on-the-api' );
+		$this->assertSame( $body, $this->call( 'before_do_shortcode_admin' ) );
+		$this->assertCount( 1, $this->requests, 'The second call must be served from the transient.' );
+	}
+
+	/**
+	 * (iii) failure after a cached good answer -> stale body served, output contains no error text
+	 *
+	 * @dataProvider failure_provider
+	 */
+	public function test_failure_after_a_cached_good_answer_serves_the_stale_body_without_error_text( $kind ) {
+		$this->require_cache_enabled();
+		foreach ( self::$slugs as $slug ) {
+			$good = $this->fixture_body( 'good-' . $slug );
+			$this->respond_with_body( $good );
+			$this->assertSame( $good, $this->call( $slug ) );
+			$count = count( $this->requests );
+
+			// Expire the fresh copy and the breaker so the next call really refreshes.
+			delete_transient( '_super_api_transient_' . $this->key( $slug ) );
+			delete_transient( '_super_api_transient_cb' );
+			$this->respond_with_failure( $kind );
+
+			$output = $this->call( $slug );
+			$this->assertCount( $count + 1, $this->requests, 'The refresh must have been attempted once.' );
+			$this->assertSame( $good, $output, 'The last-known-good body must be served on ' . $kind . ' for ' . $slug );
+			$this->assert_no_error_text( $output, $kind . ' leaked into the page for ' . $slug );
+			$this->assertNotFalse( get_transient( '_super_api_transient_cb' ), 'A failure must trip the breaker.' );
+			$this->assertFalse( get_option( '_super_api_transient_lock_' . $this->key( $slug ) ), 'The refresh lock must be released after a failure.' );
+			delete_transient( '_super_api_transient_cb' );
+		}
+	}
+
+	/**
+	 * (iv) failure with nothing cached -> '' for the front slugs, the alert only for the builder slug
+	 *
+	 * @dataProvider failure_provider
+	 */
+	public function test_failure_with_nothing_cached_returns_empty_for_front_slugs_and_the_alert_for_the_builder( $kind ) {
+		$this->require_cache_enabled();
+		$this->respond_with_failure( $kind );
+		foreach ( self::$slugs as $slug ) {
+			delete_transient( '_super_api_transient_cb' );
+			$count  = count( $this->requests );
+			$output = $this->call( $slug );
+			$this->assertCount( $count + 1, $this->requests, 'The request must have been attempted for ' . $slug );
+			$this->assertSame( $this->fallback_for( $slug ), $output, $kind . ' must yield the bare fallback for ' . $slug );
+			$this->assert_no_error_text( $output, $kind . ' leaked into the page for ' . $slug );
+			$this->assertFalse( get_transient( '_super_api_transient_' . $this->key( $slug ) ), 'A failure must not be cached as fresh.' );
+			$this->assertFalse( get_option( '_super_api_transient_last_' . $this->key( $slug ) ), 'A failure must not become last-known-good.' );
+		}
+	}
+
+	/**
+	 * (v) the breaker prevents a second request within 5 minutes (for every slug)
+	 */
+	public function test_breaker_prevents_a_second_request_within_five_minutes() {
+		$this->require_cache_enabled();
+		$this->respond_with_failure( 'wp_error' );
+		$this->assertSame( '', $this->call( 'before_do_shortcode' ) );
+		$this->assertCount( 1, $this->requests );
+		$this->assertNotFalse( get_transient( '_super_api_transient_cb' ) );
+
+		$this->respond_with_body( 'would-be-served-if-requested' );
+		$this->assertSame( '', $this->call( 'before_do_shortcode' ) );
+		$this->assertSame( '', $this->call( 'before_do_shortcode_admin' ) );
+		$this->assertSame( self::ALERT, $this->call( 'super-forms_page_super_create_form' ) );
+		$this->assertCount( 1, $this->requests, 'No request may be made while the breaker transient exists.' );
+
+		if ( ! wp_using_ext_object_cache() ) {
+			$timeout = (int) get_option( '_transient_timeout__super_api_transient_cb' );
+			$this->assertGreaterThan( time() + 4 * MINUTE_IN_SECONDS, $timeout );
+			$this->assertLessThanOrEqual( time() + 5 * MINUTE_IN_SECONDS, $timeout );
+		}
+
+		delete_transient( '_super_api_transient_cb' );
+		$this->assertSame( 'would-be-served-if-requested', $this->call( 'before_do_shortcode' ) );
+		$this->assertCount( 2, $this->requests, 'Once the breaker is gone the request is made again.' );
+	}
+
+	/**
+	 * (vi) the request args carry timeout 3 and the unchanged endpoint, headers and body fields
+	 *
+	 * @dataProvider slug_provider
+	 */
+	public function test_request_carries_timeout_three_and_the_unchanged_body_fields( $slug ) {
+		$this->respond_with_body( 'ok' );
+		delete_transient( '_super_api_transient_cb' );
+		$this->assertSame( 'ok', $this->call( $slug ) );
+		$this->assertCount( 1, $this->requests );
+
+		$request = $this->requests[0];
+		$this->assertSame( $this->endpoint(), $request['url'] );
+		$args = $request['args'];
+		$this->assertSame( 'POST', $args['method'] );
+		$this->assertSame( 3, $args['timeout'], 'The licence call must give up after 3 seconds.' );
+		$this->assertSame( 'body', $args['data_format'] );
+		$this->assertSame( array( 'Content-Type' => 'application/json; charset=utf-8' ), $args['headers'] );
+		$this->assertSame(
+			array(
+				'slug'      => $slug,
+				'home_url'  => get_home_url(),
+				'admin_url' => admin_url(),
+				'version'   => SUPER_VERSION,
+			),
+			json_decode( $args['body'], true ),
+			'The request body must keep exactly the fields and order the API golden tests expect.'
+		);
+	}
+
+	/**
+	 * (vii) flush_api_transients() forces a refresh but keeps the last-known-good copy
+	 */
+	public function test_flush_api_transients_forces_a_refresh_and_keeps_last_known_good() {
+		$this->require_cache_enabled();
+		$first = $this->fixture_body( 'first' );
+		$this->respond_with_body( $first );
+		$this->assertSame( $first, $this->call( 'before_do_shortcode' ) );
+		$this->assertSame( $first, $this->call( 'super-forms_page_super_create_form' ) );
+		$this->assertCount( 2, $this->requests );
+
+		$second = $this->fixture_body( 'second' );
+		$this->respond_with_body( $second );
+		$this->assertSame( $first, $this->call( 'before_do_shortcode' ), 'Still cached before the flush.' );
+		$this->assertCount( 2, $this->requests );
+
+		// A lock and a tripped breaker are cleared by the flush as well.
+		add_option( '_super_api_transient_lock_' . $this->key( 'before_do_shortcode' ), time(), '', 'no' );
+		set_transient( '_super_api_transient_cb', time(), 5 * MINUTE_IN_SECONDS );
+
+		SUPER_Common::flush_api_transients();
+
+		foreach ( self::$slugs as $slug ) {
+			$this->assertFalse( get_transient( '_super_api_transient_' . $this->key( $slug ) ), 'The flush must drop the fresh transient of ' . $slug );
+			$this->assertFalse( get_option( '_super_api_transient_lock_' . $this->key( $slug ) ), 'The flush must drop the lock of ' . $slug );
+		}
+		$this->assertFalse( get_transient( '_super_api_transient_cb' ), 'The flush must drop the breaker.' );
+		$last = get_option( '_super_api_transient_last_' . $this->key( 'before_do_shortcode' ) );
+		$this->assertSame( $first, $last['body'], 'The flush must keep the last-known-good copy.' );
+
+		$this->assertSame( $second, $this->call( 'before_do_shortcode' ) );
+		$this->assertSame( $second, $this->call( 'super-forms_page_super_create_form' ) );
+		$this->assertCount( 4, $this->requests, 'Each slug must be fetched again after the flush.' );
+	}
+
+	/**
+	 * (3) a last-known-good copy older than the stale maximum is not served
+	 */
+	public function test_last_known_good_older_than_seven_days_falls_back_to_empty_or_alert() {
+		$this->require_cache_enabled();
+		$this->respond_with_failure( 'wp_error' );
+		foreach ( self::$slugs as $slug ) {
+			$option = '_super_api_transient_last_' . $this->key( $slug );
+			delete_transient( '_super_api_transient_cb' );
+
+			update_option( $option, array( 'body' => 'young-' . $slug, 'time' => time() - 7 * DAY_IN_SECONDS + MINUTE_IN_SECONDS ), 'no' );
+			$this->assertSame( 'young-' . $slug, $this->call( $slug ), 'A copy younger than 7 days must be served.' );
+
+			delete_transient( '_super_api_transient_cb' );
+			update_option( $option, array( 'body' => 'old-' . $slug, 'time' => time() - 7 * DAY_IN_SECONDS - MINUTE_IN_SECONDS ), 'no' );
+			$output = $this->call( $slug );
+			$this->assertSame( $this->fallback_for( $slug ), $output, 'A copy older than 7 days must not be served for ' . $slug );
+			$this->assert_no_error_text( $output, 'error text leaked for ' . $slug );
+		}
+	}
+
+	/**
+	 * (5) single-flight: a held lock serves last-known-good without a request; a stale lock is taken over
+	 */
+	public function test_lock_held_by_another_request_serves_last_known_good_and_a_stale_lock_is_taken_over() {
+		$this->require_cache_enabled();
+		$slug = 'before_do_shortcode_admin';
+		$lock = '_super_api_transient_lock_' . $this->key( $slug );
+		$this->respond_with_body( 'fresh-from-api' );
+
+		// Another request holds a young lock: nothing cached -> '' and no request, lock untouched.
+		$this->assertTrue( add_option( $lock, time(), '', 'no' ) );
+		$this->assertSame( '', $this->call( $slug ) );
+		$this->assertCount( 0, $this->requests );
+		$this->assertNotFalse( get_option( $lock ), 'A request that does not own the lock must not release it.' );
+
+		// Same with a last-known-good copy: it is served.
+		update_option( '_super_api_transient_last_' . $this->key( $slug ), array( 'body' => 'known-good', 'time' => time() ), 'no' );
+		$this->assertSame( 'known-good', $this->call( $slug ) );
+		$this->assertCount( 0, $this->requests );
+
+		// The builder slug with nothing cached gets its alert while another request refreshes.
+		$builder_lock = '_super_api_transient_lock_' . $this->key( 'super-forms_page_super_create_form' );
+		$this->assertTrue( add_option( $builder_lock, time(), '', 'no' ) );
+		$this->assertSame( self::ALERT, $this->call( 'super-forms_page_super_create_form' ) );
+		$this->assertCount( 0, $this->requests );
+
+		// A lock older than 30 seconds is stale: it is taken over, the request is made, the lock released.
+		update_option( $lock, time() - 31 );
+		$this->assertSame( 'fresh-from-api', $this->call( $slug ) );
+		$this->assertCount( 1, $this->requests );
+		$this->assertFalse( get_option( $lock ), 'The taken-over lock must be released.' );
+	}
+
+	/**
+	 * (2/7) SUPER_API_TRANSIENT_TTL is honoured when defined; the default is 15 minutes
+	 */
+	public function test_fresh_transient_ttl_is_fifteen_minutes_by_default_or_the_defined_constant() {
+		$this->require_cache_enabled();
+		if ( wp_using_ext_object_cache() ) {
+			$this->markTestSkipped( 'Transient timeouts are not observable with an external object cache.' );
+		}
+		$this->respond_with_body( 'ttl' );
+		$this->assertSame( 'ttl', $this->call( 'before_do_shortcode' ) );
+		$expected = defined( 'SUPER_API_TRANSIENT_TTL' ) ? (int) SUPER_API_TRANSIENT_TTL : 900;
+		$timeout  = (int) get_option( '_transient_timeout__super_api_transient_' . $this->key( 'before_do_shortcode' ) );
+		$this->assertGreaterThan( time() + $expected - 5, $timeout );
+		$this->assertLessThanOrEqual( time() + $expected, $timeout );
+	}
+
+	/**
+	 * (viii) SUPER_API_TRANSIENT_DISABLE_CACHE: always fetch, 3 second timeout, never any error text.
+	 *
+	 * Defines the constant for the remainder of the process; keep this the last test of the class.
+	 */
+	public function test_disable_cache_constant_always_fetches_and_never_prints_error_text() {
+		if ( ! defined( 'SUPER_API_TRANSIENT_DISABLE_CACHE' ) ) {
+			define( 'SUPER_API_TRANSIENT_DISABLE_CACHE', true );
+		}
+		if ( ! SUPER_API_TRANSIENT_DISABLE_CACHE ) {
+			$this->markTestSkipped( 'SUPER_API_TRANSIENT_DISABLE_CACHE is defined false in this process.' );
+		}
+
+		$this->respond_with_body( 'live' );
+		$this->assertSame( 'live', $this->call( 'before_do_shortcode' ) );
+		$this->assertSame( 'live', $this->call( 'before_do_shortcode' ) );
+		$this->assertCount( 2, $this->requests, 'Without the cache every call fetches.' );
+		$this->assertSame( 3, $this->requests[1]['args']['timeout'] );
+		$this->assertFalse( get_transient( '_super_api_transient_' . $this->key( 'before_do_shortcode' ) ), 'Nothing may be cached while the cache is disabled.' );
+		$this->assertFalse( get_option( '_super_api_transient_last_' . $this->key( 'before_do_shortcode' ) ) );
+
+		foreach ( array( 'wp_error', 'http_500', 'non_json', 'status_not_200', 'empty' ) as $kind ) {
+			$this->respond_with_failure( $kind );
+			foreach ( self::$slugs as $slug ) {
+				$count  = count( $this->requests );
+				$output = $this->call( $slug );
+				$this->assertCount( $count + 1, $this->requests );
+				$this->assertSame( $this->fallback_for( $slug ), $output, $kind . ' must yield the bare fallback for ' . $slug );
+				$this->assert_no_error_text( $output, $kind . ' leaked into the page for ' . $slug );
+			}
+		}
+		$this->assertFalse( get_transient( '_super_api_transient_cb' ), 'The breaker is not used while the cache is disabled.' );
+	}
+}
