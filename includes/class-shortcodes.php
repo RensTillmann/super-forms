@@ -161,21 +161,39 @@ class SUPER_Shortcodes {
      *  @since      4.9.3
     */
     public static function get_default_value( $tag, $atts, $settings, $entry_data, $default='' ) {
+        // Only the default value configured by the form author may contain {tags} and shortcodes.
+        // Values coming from the request (GET/POST) or from entry data (previous submission, saved
+        // form progress) are user input and are kept literal, otherwise any visitor could read
+        // options/meta data (e.g. {option_super_settings;smtp_password}) or run shortcodes
+        $literal = false;
         // Check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+            $literal = true;
         }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
             $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
+            $literal = true;
         }
         // Get the value for from entry data
         if( !isset( $atts['value'] ) ) $atts['value'] = $default;
         $entry_data_value = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
         if( (isset($entry_data_value)) && ($entry_data_value!=='') ){
             $atts['value'] = $entry_data_value;
+            if( isset( $entry_data[$atts['name']] ) ) $literal = true;
         }
-        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings, $user=null, $skip=true, $skipSecrets=true );
-        // Add shortcode compatibility for default field value
-        $atts['value'] = do_shortcode($atts['value']);
+        if( $literal===false ) {
+            // Author default: resolve tags, but never options ({option_*} is meant for e-mails) or secrets
+            if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings, $user=null, $skip=true, $skipSecrets=true, $skipOptions=true );
+            // Add shortcode compatibility for default field value
+            $atts['value'] = do_shortcode($atts['value']);
+        }else{
+            // The complete form HTML is passed through do_shortcode() once more (end of super_form_func()),
+            // so escape the brackets the same way WordPress core does, otherwise a [shortcode] typed in the
+            // URL or stored in entry data would still run there. do_shortcode() restores the brackets
+            // afterwards (unescape_invalid_shortcodes) and the browser decodes the entities, so the
+            // visitor sees the value exactly as it was typed
+            $atts['value'] = str_replace( array( '[', ']' ), array( '&#91;', '&#93;' ), $atts['value'] );
+        }
 
         // Required for dropdown field:
         if( $tag=='dropdown' && !empty($atts['absolute_default']) && empty($atts['value']) ) {
@@ -1657,8 +1675,10 @@ class SUPER_Shortcodes {
         }
         
         // @since 4.7.7 - absolute default value based on settings
+        // This is the author default value once more (see output_element_html()), so apply the same
+        // rules as get_default_value(): never resolve options ({option_*} is meant for e-mails) or secrets
         if( isset($atts['absolute_default']) ) {
-            $result .= ' data-absolute-default="' . esc_attr(SUPER_Common::email_tags( $atts['absolute_default'], null, $settings )) . '"';
+            $result .= ' data-absolute-default="' . esc_attr(SUPER_Common::email_tags( $atts['absolute_default'], null, $settings, $user=null, $skip=true, $skipSecrets=true, $skipOptions=true )) . '"';
         }
 
         
