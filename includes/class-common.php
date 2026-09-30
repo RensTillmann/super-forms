@@ -3367,16 +3367,12 @@ class SUPER_Common {
         }
         if( get_transient('_super_api_transient_cb')!==false ) return $html;
         $lock = '_super_api_transient_lock_'.$key;
-        if( !add_option($lock, time(), '', 'no') ) {
-            $held = get_option($lock);
-            if( !is_numeric($held) || (time()-(int)$held)<=30 ) return $html;
-            delete_option($lock);
-            if( !add_option($lock, time(), '', 'no') ) return $html;
-        }
+        $token = self::api_transient_lock($lock);
+        if( $token===false ) return $html;
         try {
             $body = self::api_transient_request($slug);
         } finally {
-            delete_option($lock);
+            self::api_transient_unlock($lock, $token);
         }
         if( $body===false ) {
             set_transient('_super_api_transient_cb', time(), 5*MINUTE_IN_SECONDS);
@@ -3385,6 +3381,53 @@ class SUPER_Common {
         set_transient('_super_api_transient_'.$key, $body, $ttl);
         update_option('_super_api_transient_last_'.$key, array('body'=>$body, 'time'=>time()), 'no');
         return $body;
+    }
+
+    /**
+     * Take the single-flight refresh lock, or return false when another request holds it.
+     *
+     * add_option() is not atomic: two requests can both pass its get_option() check, and its
+     * INSERT ... ON DUPLICATE KEY UPDATE then reports success to both when their time()
+     * differs. INSERT IGNORE affects exactly one row only for the request that creates the
+     * row. A lock older than 30 seconds is taken over with a DELETE that only succeeds while
+     * the stale value is unchanged, so only one request can win the takeover.
+     *
+     * @return string|false The token that identifies this request's lock
+    */
+    private static function api_transient_lock($lock) {
+        global $wpdb;
+        $token = sprintf('%d.%06d', time(), mt_rand(0, 999999));
+        $insert = $wpdb->prepare("INSERT IGNORE INTO {$wpdb->options} (option_name, option_value, autoload) VALUES (%s, %s, 'no')", $lock, $token);
+        $won = ( $wpdb->query($insert)===1 );
+        if( !$won ) {
+            $held = $wpdb->get_var($wpdb->prepare("SELECT option_value FROM {$wpdb->options} WHERE option_name = %s", $lock));
+            if( $held!==null && is_numeric($held) && (time()-(int)$held)<=30 ) return false;
+            if( $held!==null && $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->options} WHERE option_name = %s AND option_value = %s", $lock, $held))!==1 ) return false;
+            $won = ( $wpdb->query($insert)===1 );
+        }
+        self::api_transient_lock_cache_reset($lock);
+        return ( $won ? $token : false );
+    }
+
+    /**
+     * Release the lock only if it is still ours (a request that took over a stale lock keeps it)
+    */
+    private static function api_transient_unlock($lock, $token) {
+        global $wpdb;
+        $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->options} WHERE option_name = %s AND option_value = %s", $lock, $token));
+        self::api_transient_lock_cache_reset($lock);
+    }
+
+    /**
+     * The lock row is written with SQL, so drop any copy the options cache holds
+    */
+    private static function api_transient_lock_cache_reset($lock) {
+        wp_cache_delete($lock, 'options');
+        $notoptions = wp_cache_get('notoptions', 'options');
+        if( is_array($notoptions) && isset($notoptions[$lock]) ) {
+            unset($notoptions[$lock]);
+            wp_cache_set('notoptions', $notoptions, 'options');
+        }
     }
 
     /**

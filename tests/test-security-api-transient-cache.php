@@ -418,6 +418,63 @@ class Test_Security_Api_Transient_Cache extends WP_UnitTestCase {
 		$this->assertFalse( get_option( $lock ), 'The taken-over lock must be released.' );
 	}
 
+	private function lock_row( $lock ) {
+		global $wpdb;
+		return $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM {$wpdb->options} WHERE option_name = %s", $lock ) );
+	}
+
+	/**
+	 * (5b) The lock is atomic even when the options cache says the lock does not exist.
+	 *
+	 * This is the race add_option() lost: a second request whose get_option() pre-check
+	 * misses (another request inserted the row a moment ago, or a stale notoptions cache)
+	 * ran INSERT ... ON DUPLICATE KEY UPDATE, which reports success when time() differs,
+	 * so both requests believed they held the lock.
+	 */
+	public function test_lock_is_not_granted_twice_when_the_options_cache_misses_the_row() {
+		global $wpdb;
+		$this->require_cache_enabled();
+		$slug = 'before_do_shortcode';
+		$lock = '_super_api_transient_lock_' . $this->key( $slug );
+		$this->respond_with_body( 'fresh-from-api' );
+
+		$held = ( time() - 5 ) . '.123456';
+		$wpdb->query( $wpdb->prepare( "INSERT INTO {$wpdb->options} (option_name, option_value, autoload) VALUES (%s, %s, 'no')", $lock, $held ) );
+		wp_cache_delete( $lock, 'options' );
+		$notoptions          = (array) wp_cache_get( 'notoptions', 'options' );
+		$notoptions[ $lock ] = true;
+		wp_cache_set( 'notoptions', $notoptions, 'options' );
+		$this->assertFalse( get_option( $lock ), 'Precondition: the options cache misses the lock row.' );
+
+		$this->assertSame( '', $this->call( $slug ) );
+		$this->assertCount( 0, $this->requests, 'A second request must not refresh while another holds the lock.' );
+		$this->assertSame( $held, $this->lock_row( $lock ), 'The holder\'s lock row must not be overwritten.' );
+	}
+
+	/**
+	 * (5c) A request only releases its own lock: if another request took the lock over
+	 * while this one was waiting for the API, that lock stays.
+	 */
+	public function test_request_releases_only_its_own_lock() {
+		global $wpdb;
+		$this->require_cache_enabled();
+		$slug  = 'before_do_shortcode';
+		$lock  = '_super_api_transient_lock_' . $this->key( $slug );
+		$other = time() . '.999999';
+		$json  = $this->api_json( 200, 'fresh-from-api' );
+
+		$this->responder = function () use ( $json, $lock, $other, $wpdb ) {
+			$this->assertNotNull( $this->lock_row( $lock ), 'The lock is held during the API request.' );
+			$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->options} SET option_value = %s WHERE option_name = %s", $other, $lock ) );
+			return $this->http_response( 200, $json );
+		};
+
+		$this->assertSame( 'fresh-from-api', $this->call( $slug ) );
+		$this->assertCount( 1, $this->requests );
+		$this->assertSame( $other, $this->lock_row( $lock ), 'Another request\'s lock must not be released.' );
+		$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name = %s", $lock ) );
+	}
+
 	/**
 	 * (2/7) SUPER_API_TRANSIENT_TTL is honoured when defined; the default is 15 minutes
 	 */
