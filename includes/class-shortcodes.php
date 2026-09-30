@@ -182,8 +182,7 @@ class SUPER_Shortcodes {
             if( isset( $entry_data[$atts['name']] ) ) $literal = true;
         }
         if( $literal===false ) {
-            // Author default: resolve tags as before, but never secrets ({@...}, and options or settings
-            // whose name looks secret, see SUPER_Common::is_secret_like_name()) because the value is printed in the page
+            // Author default: tags resolve exactly as before ({@secrets} stay hidden until submission)
             if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings, $user=null, $skip=true, $skipSecrets=true );
             // Add shortcode compatibility for default field value
             $atts['value'] = do_shortcode($atts['value']);
@@ -1676,8 +1675,8 @@ class SUPER_Shortcodes {
         }
         
         // @since 4.7.7 - absolute default value based on settings
-        // This is the author default value once more (see output_element_html()), so apply the same
-        // rules as get_default_value(): tags resolve, secrets never do
+        // This is the author default value once more (see output_element_html()): like get_default_value(),
+        // never print {@secrets} (Secrets tab) into the page source
         if( isset($atts['absolute_default']) ) {
             $result .= ' data-absolute-default="' . esc_attr(SUPER_Common::email_tags( $atts['absolute_default'], null, $settings, $user=null, $skip=true, $skipSecrets=true )) . '"';
         }
