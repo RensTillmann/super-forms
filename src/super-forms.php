@@ -56,7 +56,7 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 		 */
 		public $version    = '6.4.200';
 		public $slug       = 'super-forms';
-		public $apiUrl     = 'https://api.dev.super-forms.com/';
+		public $apiUrl     = 'https://api.super-forms.com/';
 		public $apiVersion = 'v1';
 
 		/**
@@ -190,6 +190,9 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 			$this->define( 'SUPER_PLUGIN_BASENAME', plugin_basename( __FILE__ ) ); // super-forms/super-forms.php
 			$this->define( 'SUPER_PLUGIN_DIR', __DIR__ ); // /home/domains/domain.com/public_html/wp-content/plugins/super-forms
 			$this->define( 'SUPER_VERSION', $this->version );
+			// Development override: define( 'SUPER_API_URL', 'https://<dev-api-host>/' ); in wp-config.php
+			// points this site at another API host. Only an https:// URL is honoured, anything else keeps production.
+			$this->apiUrl = self::resolve_api_url( $this->apiUrl, ( defined( 'SUPER_API_URL' ) ? SUPER_API_URL : null ) );
 			$this->define( 'SUPER_API_ENDPOINT', $this->apiUrl . $this->apiVersion );
 			$this->define( 'SUPER_API_VERSION', $this->apiVersion );
 			$this->define( 'SUPER_WC_ACTIVE', in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) );
@@ -209,6 +212,29 @@ if ( ! class_exists( 'SUPER_Forms' ) ) :
 			if ( ! defined( $name ) ) {
 				define( $name, $value );
 			}
+		}
+
+
+		/**
+		 * Resolve the API base URL (without the version segment)
+		 *
+		 * Returns $override when it is a plain https:// URL with a host and no
+		 * credentials, query or fragment, normalised to end with a single slash.
+		 * Anything else (undefined, empty, http://, not a URL) returns $default.
+		 *
+		 * @param  string      $default  Production API base URL
+		 * @param  string|null $override Value of the SUPER_API_URL constant, or null when undefined
+		 * @return string
+		 */
+		public static function resolve_api_url( $default, $override = null ) {
+			if ( is_string( $override ) ) {
+				$override = trim( $override );
+				$parts    = ( strpos( $override, 'https://' ) === 0 ? parse_url( $override ) : false );
+				if ( is_array( $parts ) && ! empty( $parts['host'] ) && empty( $parts['user'] ) && ! isset( $parts['query'] ) && ! isset( $parts['fragment'] ) ) {
+					return rtrim( $override, '/' ) . '/';
+				}
+			}
+			return $default;
 		}
 
 
