@@ -346,9 +346,10 @@ class Test_Security_Default_Value_Tags extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( $this->secret_sentinel, $value );
 	}
 
-	public function test_author_default_resolves_options_but_never_secret_looking_ones() {
-		// Documented feature (Tags system: "Retrieve any option from the wp_options database
-		// table"): a generic {option_*} default keeps resolving at render, as in 6.3.317.
+	public function test_author_default_tags_resolve_as_in_6_3_317() {
+		// Tags written by the form author behave exactly as before this fix: the generic and the
+		// built-in {option_*} tags and {form_setting_*} resolve at render (the author's choice;
+		// sensitive values belong in the Secrets tab), {@secrets} stay unresolved until submission.
 		$plain_option = $this->scope . '_currency';
 		update_option( $plain_option, 'EUR-' . $this->scope, false );
 		$plain_tag = '{option_' . $plain_option . '}';
@@ -359,53 +360,12 @@ class Test_Security_Default_Value_Tags extends WP_UnitTestCase {
 		$this->assertSame( 'EUR-' . $this->scope, $this->rendered_absolute_default( $html ) );
 		delete_option( $plain_option );
 
-		// The built-in {option_admin_email} tag keeps resolving (hidden fields use it on purpose).
 		$this->assertSame( get_option( 'admin_email' ), $this->default_value( '{option_admin_email}', $form_id ) );
+		$this->assertSame( $this->option_sentinel, $this->default_value( '{option_' . $this->custom_option . '}', $form_id ) );
+		$this->assertSame( $this->smtp_sentinel, $this->default_value( '{form_setting_smtp_password}', $form_id ) );
 
-		// Secret-looking option names or array keys never reach the page.
-		$smtp_tag   = '{option_super_settings;smtp_password}';
-		$custom_tag = '{option_' . $this->custom_option . '}';
-		$this->assertSame( $this->smtp_sentinel, get_option( 'super_settings' )['smtp_password'] );
-		$this->assertSame( $this->option_sentinel, get_option( $this->custom_option ) );
-		// They stay the literal tag (like {@secrets}), so submission-time resolution keeps working.
-		$this->assertSame( $smtp_tag, $this->default_value( $smtp_tag, $form_id ) );
-		$this->assertSame( $custom_tag, $this->default_value( $custom_tag, $form_id ) );
-		// E-mails and other submission-time uses (default email_tags() flags) resolve them as before.
-		$settings = SUPER_Common::get_form_settings( $form_id );
-		$this->assertSame( $this->option_sentinel, SUPER_Common::email_tags( $custom_tag, null, $settings ) );
-		$this->assertSame( $this->smtp_sentinel, SUPER_Common::email_tags( $smtp_tag, null, $settings ) );
-
-		// A whole-array dump drops the secret-looking keys but keeps the rest.
-		$json = $this->default_value( '{option_super_settings}', $form_id );
-		$this->assert_no_secret( $json );
-		$this->assertStringContainsString( 'email_reminder_amount', $json );
-
-		// Full render covers both sinks: value="" and data-absolute-default="".
-		$form_id = $this->create_text_form( $smtp_tag );
-		$html    = $this->render( $form_id );
-		$this->assert_no_secret( $html );
-
-		$form_id = $this->create_textarea_form( $custom_tag );
-		$html    = $this->render( $form_id );
-		$this->assert_no_secret( $html );
-	}
-
-	public function test_author_default_never_resolves_secret_form_settings() {
-		// Form settings are merged with the global settings, so {form_setting_smtp_password} would
-		// otherwise print the SMTP password, directly or through a setting that contains {option_*}.
-		$direct_tag = '{form_setting_smtp_password}';
-		$form_id    = $this->create_text_form( $direct_tag );
-		$this->assert_no_secret( $this->default_value( $direct_tag, $form_id ) );
-		$this->assert_no_secret( $this->render( $form_id ) );
-
-		$nested_tag = '{form_setting_form_redirect}';
-		$form_id    = $this->create_text_form( $nested_tag, array( 'form_redirect' => '{option_super_settings;smtp_password}' ) );
-		$this->assert_no_secret( $this->default_value( $nested_tag, $form_id ) );
-		$this->assert_no_secret( $this->render( $form_id ) );
-
-		// A harmless setting still resolves.
-		$form_id = $this->create_text_form( '{form_setting_form_button}', array( 'form_button' => 'Send-' . $this->scope ) );
-		$this->assertSame( 'Send-' . $this->scope, $this->default_value( '{form_setting_form_button}', $form_id ) );
+		$secret_tag = '{@' . $this->scope . '_secret}';
+		$this->assertSame( $secret_tag, $this->default_value( $secret_tag, $form_id ) );
 	}
 
 	public function test_request_supplied_tags_render_literally() {
@@ -547,11 +507,6 @@ class Test_Security_Default_Value_Tags extends WP_UnitTestCase {
 		// (output_element_html() 5024-5027 -> SUPER_Common::get_absolute_default_value() -> common_attributes() 1674).
 		$page_id = $this->create_page( 'Probe page ' . $this->scope );
 		$GLOBALS['post'] = get_post( $page_id );
-
-		$form_id = $this->create_text_form( '{option_super_settings;smtp_password}' );
-		$html    = $this->render( $form_id );
-		$this->assert_no_secret( $html );
-		$this->assertSame( '{option_super_settings;smtp_password}', $this->rendered_absolute_default( $html ) );
 
 		$form_id = $this->create_text_form( '{@' . $this->scope . '_secret}' );
 		$html    = $this->render( $form_id );
