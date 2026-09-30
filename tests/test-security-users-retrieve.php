@@ -3,6 +3,9 @@
  * Security regressions for retrieve_method=users (and the author meta retrieve
  * method): WP user data and user meta that SUPER_Shortcodes::get_items()
  * (includes/class-shortcodes.php) renders into the public form HTML.
+ * Also covers the {author_meta_*} tags that SUPER_Common::email_tags()
+ * (includes/class-common.php) resolves for element default values, where
+ * ?author=<id> makes the author request-chosen.
  *
  * @package Super_Forms_Tests
  */
@@ -140,6 +143,31 @@ class Test_Security_Users_Retrieve extends WP_UnitTestCase {
                     'retrieve_method' => 'users',
                     'retrieve_method_role_filters' => 'subscriber',
                 ), $element_data ),
+                'inner' => array(),
+            ),
+        ) );
+        return $form_id;
+    }
+
+    /**
+     * A published form with one hidden field whose default value is a {tag}:
+     * SUPER_Shortcodes::get_default_value() (includes/class-shortcodes.php:176)
+     * resolves it through SUPER_Common::email_tags() when the form renders.
+     */
+    private function create_hidden_form( $default_value ) {
+        $form_id = self::factory()->post->create( array(
+            'post_type' => 'super_form',
+            'post_status' => 'publish',
+        ) );
+        $this->form_ids[] = $form_id;
+        update_post_meta( $form_id, '_super_elements', array(
+            array(
+                'tag' => 'hidden',
+                'group' => 'form_elements',
+                'data' => array(
+                    'name' => 'author_data',
+                    'value' => $default_value,
+                ),
                 'inner' => array(),
             ),
         ) );
@@ -320,6 +348,54 @@ class Test_Security_Users_Retrieve extends WP_UnitTestCase {
         $this->assertStringNotContainsString( $alice['token'], $denied_html, 'secret_token meta rendered through the author retrieve method' );
         $this->assertStringContainsString( 'data-value="red" data-search-value="Red ' . $this->scope . '"', $allowed_html );
         $this->assertStringContainsString( '<div>Blue ' . $this->scope . '</div>', $allowed_html );
+    }
+
+    public function test_author_meta_tags_never_resolve_denied_fields_for_the_request_chosen_author() {
+        $alice = $this->users['alice'];
+        $forms = array();
+        // WP_User data fields, user meta and public WP_User properties (caps/allcaps hold arrays).
+        foreach( array( 'user_pass', 'user_activation_key', 'secret_token', '_private_note', 'session_tokens', 'wp_capabilities', 'caps', 'allcaps' ) as $key ) {
+            $forms[$key] = $this->create_hidden_form( '{author_meta_' . $key . '}' );
+        }
+        // ?author=<id> makes the author attacker-chosen (includes/class-common.php:2080).
+        $_GET['author'] = (string) $alice['id'];
+
+        foreach( array( 'anonymous', 'administrator' ) as $role ) {
+            $this->act_as( $role );
+            foreach( $forms as $key => $form_id ) {
+                $html = $this->render( $form_id );
+                $this->assertStringContainsString( 'name="author_data" value=""', $html, $role . ': {author_meta_' . $key . '} must render empty' );
+                $this->assert_no_sensitive_user_data( $html, $alice, $role . '/{author_meta_' . $key . '}' );
+            }
+        }
+    }
+
+    public function test_author_meta_tags_keep_resolving_profile_fields_and_ordinary_meta() {
+        $alice = $this->users['alice'];
+        update_user_meta( $alice['id'], 'description', 'Bio ' . $this->scope );
+        $_GET['author'] = (string) $alice['id'];
+
+        $expected = array(
+            // user meta resolves through get_user_meta()
+            '{author_meta_first_name}' => $alice['first'],
+            '{author_meta_description}' => 'Bio ' . $this->scope,
+            // WP_User data fields resolve through the (now restricted) property fallback
+            '{author_meta_display_name}' => $alice['display'],
+            '{author_meta_user_nicename}' => $alice['nicename'],
+            '{author_meta_ID}' => (string) $alice['id'],
+            // The contact-the-author pattern (a hidden {author_meta_user_email} / {author_email}
+            // feeding the e-mail "To" header) is unchanged: the author e-mail stays resolvable.
+            '{author_meta_user_email}' => $alice['email'],
+            '{author_email}' => $alice['email'],
+            // Other WP_User properties (roles, filter, ...) and unknown keys are no fallback source
+            '{author_meta_roles}' => '',
+            '{author_meta_filter}' => '',
+            '{author_meta_no_such_field}' => '',
+        );
+        foreach( $expected as $tag => $value ) {
+            $html = $this->render( $this->create_hidden_form( $tag ) );
+            $this->assertStringContainsString( 'name="author_data" value="' . esc_attr( $value ) . '"', $html, $tag );
+        }
     }
 
     public function test_field_helpers_deny_credentials_and_private_meta_for_everyone() {
