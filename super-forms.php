@@ -2479,11 +2479,62 @@ if(!class_exists('SUPER_Forms')) :
 
             $slug = $this->slug;
             require_once ( 'includes/admin/plugin-update-checker/plugin-update-checker.php' );
+            // Defense in depth: PUC applies 'puc_request_info_result-{slug}' to the parsed metadata
+            // (Puc/v4p6/Plugin/UpdateChecker.php:138); returning null makes requestUpdate() report
+            // "no update" (:153-155) and injectInfo() fall back to the core result (:184-188).
+            add_filter( 'puc_request_info_result-' . $slug, array( 'SUPER_Forms', 'filter_update_info' ), 10, 2 );
             $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
-                'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=' . $slug,  //Metadata URL
+                'https://f4d.nl/@super-forms-updates/?action=get_metadata&slug=' . $slug,  //Metadata URL (https only: the http URL merely 301s, and that first hop is unauthenticated)
                 __FILE__, //Full path to the main plugin file.
                 $slug //Plugin slug. Usually it's the same as the name of the directory.
             );
+            return $MyUpdateChecker;
+        }
+
+
+        /**
+         * Only accept update packages that WordPress will download over https from our own hosts
+         *
+         * Even if the metadata response were forged or tampered with, the package URL must
+         * never point WordPress at an attacker controlled host.
+        */
+        public static function is_trusted_update_package_url( $url ) {
+            if( !is_string( $url ) || $url === '' ) return false;
+            $parts = ( function_exists( 'wp_parse_url' ) ? wp_parse_url( $url ) : parse_url( $url ) );
+            if( !is_array( $parts ) || empty( $parts['scheme'] ) || empty( $parts['host'] ) ) return false;
+            if( strtolower( $parts['scheme'] ) !== 'https' ) return false;
+            // userinfo tricks like https://f4d.nl@evil.example/ resolve to the host after the "@"
+            if( isset( $parts['user'] ) || isset( $parts['pass'] ) ) return false;
+            $host = strtolower( $parts['host'] );
+            if( !preg_match( '/^[a-z0-9.-]+$/', $host ) ) return false;
+            if( $host === 'f4d.nl' || $host === 'super-forms.com' ) return true;
+            return ( substr( $host, -16 ) === '.super-forms.com' );
+        }
+
+
+        /**
+         * Filter callback for 'puc_request_info_result-super-forms'
+         *
+         * Drops the update when the download URL (or any translation package URL) is not
+         * an https URL on one of our own hosts, see is_trusted_update_package_url()
+        */
+        public static function filter_update_info( $info, $result = null ) {
+            if( !is_object( $info ) ) return $info;
+            $urls = array( ( isset( $info->download_url ) ? $info->download_url : '' ) );
+            if( !empty( $info->translations ) && is_array( $info->translations ) ) {
+                foreach( $info->translations as $translation ) {
+                    $translation = (array) $translation;
+                    if( isset( $translation['package'] ) ) $urls[] = $translation['package'];
+                }
+            }
+            foreach( $urls as $url ) {
+                if( !self::is_trusted_update_package_url( $url ) ) {
+                    $url = ( is_string( $url ) ? preg_replace( '/[^\x20-\x7E]/', '?', substr( $url, 0, 200 ) ) : gettype( $url ) );
+                    error_log( 'Super Forms: update ignored, package URL is not https on f4d.nl or super-forms.com: ' . $url );
+                    return null;
+                }
+            }
+            return $info;
         }
 
 
