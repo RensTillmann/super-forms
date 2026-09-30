@@ -2757,12 +2757,15 @@ class SUPER_Common {
             if( is_array( $settings ) ) {
                 foreach( $settings as $k => $v ) {
                     if(is_array($v)) continue;
+                    // Form settings include the merged global settings (SMTP password, API keys...), never expose
+                    // those when secrets are skipped (values that end up in the page source)
+                    if( $skipSecrets===true && preg_match( '/(smtp_|pass|secret|token|key|api|auth)/i', $k ) ) continue;
                     $value = strval($value);
                     $value = str_replace( '{form_setting_' . $k . '}', self::decode( $v ), $value, $count );
                     // After replacing the settings {tag} with data, make sure to once more replace any possible {tags}
                     // Only execute if replacing took place
                     if ($count > 0) {
-                        $value = self::email_tags( $value, $data, $settings, $user, $skip );
+                        $value = self::email_tags( $value, $data, $settings, $user, $skip, $skipSecrets, $skipOptions );
                     }
                 }
             }
