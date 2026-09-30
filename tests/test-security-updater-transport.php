@@ -297,6 +297,37 @@ class Test_Security_Updater_Transport extends WP_UnitTestCase {
 		$this->assertSame( '', $this->logged() );
 	}
 
+	public function test_rejected_update_shows_an_admin_notice_until_a_trusted_update_arrives() {
+		delete_option( '_super_update_rejected' );
+		$admin = self::factory()->user->create( array( 'role' => 'administrator' ) );
+		if ( is_multisite() ) {
+			grant_super_admin( $admin );
+		}
+		wp_set_current_user( $admin );
+
+		$this->assertNull( SUPER_Forms::filter_update_info( $this->plugin_info( 'https://evil.example/super-forms.zip' ) ) );
+		$rejected = get_option( '_super_update_rejected' );
+		$this->assertIsArray( $rejected );
+		$this->assertStringContainsString( 'evil.example', $rejected['reason'] );
+
+		ob_start();
+		SUPER_Forms()->show_admin_notices();
+		$html = ob_get_clean();
+		$this->assertStringContainsString( 'notice-error', $html );
+		$this->assertStringContainsString( 'evil.example', $html );
+
+		// Users who can not update plugins do not see it.
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'editor' ) ) );
+		ob_start();
+		SUPER_Forms()->show_admin_notices();
+		$this->assertStringNotContainsString( 'evil.example', ob_get_clean() );
+
+		// A trusted update clears it.
+		SUPER_Forms::filter_update_info( $this->plugin_info( 'https://f4d.nl/@super-forms-updates/?action=download&slug=super-forms' ) );
+		$this->assertFalse( get_option( '_super_update_rejected' ) );
+		wp_set_current_user( 0 );
+	}
+
 	public function test_filter_passes_null_through_when_the_request_failed() {
 		$this->assertNull( SUPER_Forms::filter_update_info( null, new WP_Error( 'http_request_failed', 'timeout' ) ) );
 		$this->assertSame( '', $this->logged() );

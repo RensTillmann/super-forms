@@ -2376,6 +2376,15 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      4.0.0
         */
         public function show_admin_notices() {
+            // An update was refused because its download location is not trusted (SUPER_Forms::filter_update_info())
+            $rejected = get_option( '_super_update_rejected' );
+            if( is_array( $rejected ) && !empty( $rejected['reason'] ) && current_user_can( 'update_plugins' ) ) {
+                echo '<div class="notice notice-error"><p>';
+                echo '<strong>' . esc_html__( 'Super Forms:', 'super-forms' ) . '</strong> ';
+                echo esc_html__( 'an available update was not installed because its download location could not be verified. Please download the latest version manually from super-forms.com or contact support.', 'super-forms' );
+                echo '<br /><small>' . esc_html( $rejected['reason'] ) . '</small>';
+                echo '</p></div>';
+            }
             if( version_compare(phpversion(), '5.4.0', '<') ) {
                 echo '<div class="notice notice-error">'; // notice-success, notice-error
                 echo '<p>';
@@ -2542,19 +2551,29 @@ if(!class_exists('SUPER_Forms')) :
             foreach( $translations as $translation ) {
                 $translation = (array) $translation;
                 if( !isset( $translation['package'] ) ) {
-                    error_log( 'Super Forms: update ignored, translation entry has no package URL' );
-                    return null;
+                    return self::reject_update_info( 'translation entry has no package URL' );
                 }
                 $urls[] = $translation['package'];
             }
             foreach( $urls as $url ) {
                 if( !self::is_trusted_update_package_url( $url ) ) {
                     $url = ( is_string( $url ) ? preg_replace( '/[^\x20-\x7E]/', '?', substr( $url, 0, 200 ) ) : gettype( $url ) );
-                    error_log( 'Super Forms: update ignored, package URL is not https on a trusted host (super_forms_trusted_update_hosts): ' . $url );
-                    return null;
+                    return self::reject_update_info( 'package URL is not https on a trusted host (super_forms_trusted_update_hosts): ' . $url );
                 }
             }
+            // A trusted update clears a previous rejection notice
+            if( get_option( '_super_update_rejected' )!==false ) delete_option( '_super_update_rejected' );
             return $info;
+        }
+
+        /**
+         * Drop an update and remember why, so administrators see it (show_admin_notices()) instead
+         * of updates silently stopping
+         */
+        public static function reject_update_info( $reason ) {
+            error_log( 'Super Forms: update ignored, ' . $reason );
+            update_option( '_super_update_rejected', array( 'reason' => $reason, 'time' => time() ), 'no' );
+            return null;
         }
 
 
