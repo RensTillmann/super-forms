@@ -2521,11 +2521,18 @@ if(!class_exists('SUPER_Forms')) :
         public static function filter_update_info( $info, $result = null ) {
             if( !is_object( $info ) ) return $info;
             $urls = array( ( isset( $info->download_url ) ? $info->download_url : '' ) );
-            if( !empty( $info->translations ) && is_array( $info->translations ) ) {
-                foreach( $info->translations as $translation ) {
-                    $translation = (array) $translation;
-                    if( isset( $translation['package'] ) ) $urls[] = $translation['package'];
+            // json_decode() hands a JSON object back as stdClass and PUC copies it through as is
+            // (Puc/v4p6/Metadata.php:31,46-48), so cast the list instead of gating on is_array():
+            // that would skip an object-shaped list and let its packages reach the language pack
+            // upgrader unchecked. An entry without a package URL fails closed as well.
+            $translations = ( isset( $info->translations ) ? (array) $info->translations : array() );
+            foreach( $translations as $translation ) {
+                $translation = (array) $translation;
+                if( !isset( $translation['package'] ) ) {
+                    error_log( 'Super Forms: update ignored, translation entry has no package URL' );
+                    return null;
                 }
+                $urls[] = $translation['package'];
             }
             foreach( $urls as $url ) {
                 if( !self::is_trusted_update_package_url( $url ) ) {

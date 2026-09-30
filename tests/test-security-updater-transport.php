@@ -61,6 +61,44 @@ class Test_Security_Updater_Transport extends WP_UnitTestCase {
 		return $info;
 	}
 
+	private function translation( $package ) {
+		return (object) array(
+			'language' => 'nl_NL',
+			'version'  => '99.0.0',
+			'updated'  => '2026-09-30 00:00:00',
+			'package'  => $package,
+		);
+	}
+
+	/**
+	 * Run $checker->requestUpdate() against a mocked metadata response so the real
+	 * PUC 4.6 request path (wp_remote_get -> Puc_v4p6_Plugin_Info::fromJson -> the
+	 * result filter -> filterUpdateResult) is exercised. $metadata is encoded with
+	 * wp_json_encode(), so an associative array becomes a JSON object like the
+	 * server would send it.
+	 */
+	private function request_update_with_metadata( $checker, array $metadata ) {
+		$body = wp_json_encode( $metadata );
+		$mock = static function( $pre, $args, $url ) use ( $body ) {
+			if ( 0 !== strpos( $url, 'https://f4d.nl/@super-forms-updates/' ) ) {
+				return $pre;
+			}
+			return array(
+				'headers'  => array( 'content-type' => 'application/json' ),
+				'body'     => $body,
+				'response' => array( 'code' => 200, 'message' => 'OK' ),
+				'cookies'  => array(),
+				'filename' => null,
+			);
+		};
+		add_filter( 'pre_http_request', $mock, 10, 3 );
+		try {
+			return $checker->requestUpdate();
+		} finally {
+			remove_filter( 'pre_http_request', $mock, 10 );
+		}
+	}
+
 	/* -------------------------------------------------------------------
 	 * (i) metadata URL
 	 * -------------------------------------------------------------------
@@ -172,24 +210,56 @@ class Test_Security_Updater_Transport extends WP_UnitTestCase {
 	}
 
 	public function test_filter_drops_update_for_foreign_translation_package() {
-		$translation = (object) array(
-			'language' => 'nl_NL',
-			'version'  => '99.0.0',
-			'updated'  => '2026-09-30 00:00:00',
-			'package'  => 'https://evil.example/super-forms-nl_NL.zip',
-		);
+		$translation = $this->translation( 'https://evil.example/super-forms-nl_NL.zip' );
 		$info = $this->plugin_info( 'https://f4d.nl/@super-forms-updates/?action=download&slug=super-forms', array( $translation ) );
 		$this->assertNull( SUPER_Forms::filter_update_info( $info ) );
 		$this->assertStringContainsString( 'evil.example', $this->logged() );
 	}
 
-	public function test_filter_keeps_update_from_trusted_https_host_untouched() {
-		$translation = (object) array(
-			'language' => 'nl_NL',
-			'version'  => '99.0.0',
-			'updated'  => '2026-09-30 00:00:00',
-			'package'  => 'https://f4d.nl/@super-forms-updates/?action=download_translation&slug=super-forms&language=nl_NL',
+	/**
+	 * A JSON *object* {"translations":{"x":{...}}} reaches the filter as stdClass, not as an
+	 * array (Puc_v4p6_Metadata::createFromJson() copies json_decode()'s output as is), and
+	 * PUC iterates a stdClass just as happily as an array. The package check must not be
+	 * skipped for that encoding.
+	 */
+	public function test_filter_drops_update_for_foreign_translation_package_in_object_form() {
+		$translations = (object) array( 'x' => $this->translation( 'https://evil.example/nl.zip' ) );
+		$info = $this->plugin_info( 'https://f4d.nl/@super-forms-updates/?action=download&slug=super-forms', $translations );
+		$this->assertNull( SUPER_Forms::filter_update_info( $info ) );
+		$this->assertStringContainsString( 'Super Forms: update ignored', $this->logged() );
+		$this->assertStringContainsString( 'evil.example', $this->logged() );
+	}
+
+	public function test_filter_keeps_update_with_trusted_translation_package_in_object_form() {
+		$translations = (object) array( 'nl_NL' => $this->translation( 'https://f4d.nl/@super-forms-updates/?action=download_translation&slug=super-forms&language=nl_NL' ) );
+		$info = $this->plugin_info( 'https://f4d.nl/@super-forms-updates/?action=download&slug=super-forms', $translations );
+		$this->assertSame( $info, SUPER_Forms::filter_update_info( $info ) );
+		$this->assertSame( '', $this->logged() );
+	}
+
+	public function malformed_translation_lists() {
+		return array(
+			'string'                  => array( 'https://evil.example/nl.zip' ),
+			'integer'                 => array( 42 ),
+			'boolean'                 => array( true ),
+			'null entry'              => array( array( null ) ),
+			'string entry'            => array( array( 'https://evil.example/nl.zip' ) ),
+			'entry without package'   => array( array( (object) array( 'language' => 'nl_NL', 'version' => '99.0.0', 'updated' => '2026-09-30 00:00:00' ) ) ),
+			'entry with null package' => array( array( (object) array( 'language' => 'nl_NL', 'package' => null ) ) ),
 		);
+	}
+
+	/**
+	 * @dataProvider malformed_translation_lists
+	 */
+	public function test_filter_drops_update_when_translations_is_malformed( $translations ) {
+		$info = $this->plugin_info( 'https://f4d.nl/@super-forms-updates/?action=download&slug=super-forms', $translations );
+		$this->assertNull( SUPER_Forms::filter_update_info( $info ) );
+		$this->assertSame( 1, substr_count( $this->logged(), 'Super Forms: update ignored' ) );
+	}
+
+	public function test_filter_keeps_update_from_trusted_https_host_untouched() {
+		$translation = $this->translation( 'https://f4d.nl/@super-forms-updates/?action=download_translation&slug=super-forms&language=nl_NL' );
 		$info = $this->plugin_info( 'https://f4d.nl/@super-forms-updates/?action=download&slug=super-forms', array( $translation ) );
 
 		$filtered = SUPER_Forms::filter_update_info( $info );
@@ -225,32 +295,35 @@ class Test_Security_Updater_Transport extends WP_UnitTestCase {
 
 	public function test_checker_reports_no_update_when_metadata_points_at_foreign_host() {
 		$checker = SUPER_Forms()->update_plugin();
-		$body    = wp_json_encode( array(
+
+		$update = $this->request_update_with_metadata( $checker, array(
 			'name'         => 'Super Forms',
 			'slug'         => 'super-forms',
 			'version'      => '99.0.0',
 			'download_url' => 'https://evil.example/super-forms.zip',
 		) );
-		$mock = static function( $pre, $args, $url ) use ( $body ) {
-			if ( 0 !== strpos( $url, 'https://f4d.nl/@super-forms-updates/' ) ) {
-				return $pre;
-			}
-			return array(
-				'headers'  => array( 'content-type' => 'application/json' ),
-				'body'     => $body,
-				'response' => array( 'code' => 200, 'message' => 'OK' ),
-				'cookies'  => array(),
-				'filename' => null,
-			);
-		};
-		add_filter( 'pre_http_request', $mock, 10, 3 );
-		try {
-			$update = $checker->requestUpdate();
-		} finally {
-			remove_filter( 'pre_http_request', $mock, 10 );
-		}
 
 		$this->assertNull( $update );
 		$this->assertStringContainsString( 'evil.example', $this->logged() );
+	}
+
+	public function test_checker_reports_no_update_when_object_shaped_translations_point_at_foreign_host() {
+		$checker = SUPER_Forms()->update_plugin();
+
+		// An associative array encodes as a JSON object, which json_decode() turns into stdClass.
+		$update = $this->request_update_with_metadata( $checker, array(
+			'name'         => 'Super Forms',
+			'slug'         => 'super-forms',
+			'version'      => '99.0.0',
+			'download_url' => 'https://f4d.nl/@super-forms-updates/?action=download&slug=super-forms',
+			'translations' => array( 'x' => (array) $this->translation( 'https://evil.example/nl.zip' ) ),
+		) );
+
+		$this->assertNull( $update );
+		$this->assertStringContainsString( 'evil.example', $this->logged() );
+		// Nothing is left for injectTranslationUpdates() to hand to the language pack upgrader.
+		$this->assertSame( array(), $checker->getTranslationUpdates() );
+		$transient = $checker->injectTranslationUpdates( (object) array( 'translations' => array() ) );
+		$this->assertSame( array(), $transient->translations );
 	}
 }
