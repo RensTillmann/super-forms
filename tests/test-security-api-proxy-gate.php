@@ -34,14 +34,14 @@ class Test_Security_Api_Proxy_Gate extends WP_UnitTestCase {
 		$this->original_post = $_POST;
 		$this->requests      = array();
 		add_filter( 'pre_http_request', array( $this, 'capture_request' ), 10, 3 );
-		add_filter( 'wp_die_handler', array( $this, 'wp_die_handler' ) );
-		add_filter( 'wp_die_ajax_handler', array( $this, 'wp_die_handler' ) );
+		add_filter( 'wp_die_handler', array( $this, 'sf_die_handler' ) );
+		add_filter( 'wp_die_ajax_handler', array( $this, 'sf_die_handler' ) );
 	}
 
 	public function tear_down() {
 		remove_filter( 'pre_http_request', array( $this, 'capture_request' ), 10 );
-		remove_filter( 'wp_die_handler', array( $this, 'wp_die_handler' ) );
-		remove_filter( 'wp_die_ajax_handler', array( $this, 'wp_die_handler' ) );
+		remove_filter( 'wp_die_handler', array( $this, 'sf_die_handler' ) );
+		remove_filter( 'wp_die_ajax_handler', array( $this, 'sf_die_handler' ) );
 		$_POST = $this->original_post;
 		wp_set_current_user( 0 );
 		parent::tear_down();
@@ -58,7 +58,7 @@ class Test_Security_Api_Proxy_Gate extends WP_UnitTestCase {
 		);
 	}
 
-	public function wp_die_handler() {
+	public function sf_die_handler() {
 		return array( $this, 'throw_wp_die' );
 	}
 
