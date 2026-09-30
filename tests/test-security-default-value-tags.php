@@ -50,7 +50,8 @@ class Test_Security_Default_Value_Tags extends WP_UnitTestCase {
 
 		$this->scope           = 'sfdv' . str_replace( '-', '', wp_generate_uuid4() );
 		$this->field           = $this->scope . '_field';
-		$this->custom_option   = $this->scope . '_option';
+		// A secret-looking option name: must never be resolved into the page.
+		$this->custom_option   = $this->scope . '_api_key';
 		$this->shortcode_tag   = $this->scope . '_probe';
 		$this->smtp_sentinel   = 'smtp-secret-' . $this->scope;
 		$this->option_sentinel = 'option-secret-' . $this->scope;
@@ -345,33 +346,48 @@ class Test_Security_Default_Value_Tags extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( $this->secret_sentinel, $value );
 	}
 
-	public function test_author_default_never_resolves_options() {
+	public function test_author_default_resolves_options_but_never_secret_looking_ones() {
+		// Documented feature (Tags system: "Retrieve any option from the wp_options database
+		// table"): a generic {option_*} default keeps resolving at render, as in 6.3.317.
+		$plain_option = $this->scope . '_currency';
+		update_option( $plain_option, 'EUR-' . $this->scope, false );
+		$plain_tag = '{option_' . $plain_option . '}';
+		$form_id   = $this->create_text_form( $plain_tag );
+		$this->assertSame( 'EUR-' . $this->scope, $this->default_value( $plain_tag, $form_id ) );
+		$html = $this->render( $form_id );
+		$this->assertSame( 'EUR-' . $this->scope, $this->rendered_value( $html ) );
+		$this->assertSame( 'EUR-' . $this->scope, $this->rendered_absolute_default( $html ) );
+		delete_option( $plain_option );
+
+		// The built-in {option_admin_email} tag keeps resolving (hidden fields use it on purpose).
+		$this->assertSame( get_option( 'admin_email' ), $this->default_value( '{option_admin_email}', $form_id ) );
+
+		// Secret-looking option names or array keys never reach the page.
 		$smtp_tag   = '{option_super_settings;smtp_password}';
 		$custom_tag = '{option_' . $this->custom_option . '}';
-		$form_id    = $this->create_text_form( $smtp_tag );
-
 		$this->assertSame( $this->smtp_sentinel, get_option( 'super_settings' )['smtp_password'] );
 		$this->assertSame( $this->option_sentinel, get_option( $this->custom_option ) );
+		// They stay the literal tag (like {@secrets}), so submission-time resolution keeps working.
+		$this->assertSame( $smtp_tag, $this->default_value( $smtp_tag, $form_id ) );
+		$this->assertSame( $custom_tag, $this->default_value( $custom_tag, $form_id ) );
+		// E-mails and other submission-time uses (default email_tags() flags) resolve them as before.
+		$settings = SUPER_Common::get_form_settings( $form_id );
+		$this->assertSame( $this->option_sentinel, SUPER_Common::email_tags( $custom_tag, null, $settings ) );
+		$this->assertSame( $this->smtp_sentinel, SUPER_Common::email_tags( $smtp_tag, null, $settings ) );
 
-		$direct = $this->default_value( $smtp_tag, $form_id );
-		$this->assert_no_secret( $direct );
-		$this->assertSame( $smtp_tag, $direct );
-
-		$direct = $this->default_value( $custom_tag, $form_id );
-		$this->assert_no_secret( $direct );
-		$this->assertSame( $custom_tag, $direct );
+		// A whole-array dump drops the secret-looking keys but keeps the rest.
+		$json = $this->default_value( '{option_super_settings}', $form_id );
+		$this->assert_no_secret( $json );
+		$this->assertStringContainsString( 'email_reminder_amount', $json );
 
 		// Full render covers both sinks: value="" and data-absolute-default="".
-		$html = $this->render( $form_id );
+		$form_id = $this->create_text_form( $smtp_tag );
+		$html    = $this->render( $form_id );
 		$this->assert_no_secret( $html );
-		$this->assertSame( $smtp_tag, $this->rendered_value( $html ) );
-		$this->assertSame( $smtp_tag, $this->rendered_absolute_default( $html ) );
 
 		$form_id = $this->create_textarea_form( $custom_tag );
 		$html    = $this->render( $form_id );
 		$this->assert_no_secret( $html );
-		$this->assertSame( $custom_tag, $this->rendered_textarea_value( $html ) );
-		$this->assertSame( $custom_tag, $this->rendered_absolute_default( $html ) );
 	}
 
 	public function test_author_default_never_resolves_secret_form_settings() {
