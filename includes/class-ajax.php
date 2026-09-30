@@ -239,6 +239,7 @@ class SUPER_Ajax {
 		return array("wp_admin" => "false");
     }
     public static function api_auth(){
+        self::api_verify_access();
         $auth = $_POST['auth'];
         $result = setcookie(
             'super_forms[wp_admin]', // name
@@ -345,16 +346,50 @@ class SUPER_Ajax {
     }
 
     public static function api_do_request($route, $custom_args, $method='echo'){
+        self::api_verify_access();
         $args = self::api_default_post_args($custom_args);
         if($route==='logout'){
             setcookie('super_forms[wp_admin]', '', time()-3600);
         }
-        $api_endpoint = (isset($_POST['api_endpoint']) ? $_POST['api_endpoint'] : SUPER_API_ENDPOINT);
+        $api_endpoint = (isset($_POST['api_endpoint']) ? self::api_resolve_endpoint($_POST['api_endpoint'], SUPER_API_ENDPOINT) : SUPER_API_ENDPOINT);
         $r = wp_remote_post($api_endpoint . '/' . $route, $args);
         $response = self::api_handle_response($r, $args);
         if($method=='return') return $response;
         if($method=='echo') echo $response;
         die();
+    }
+
+    // The super_api_* handlers are registered for every logged-in user, but they only serve
+    // the Licenses screen (manage_options, see SUPER_Menu::register_menu()), so require that here
+    public static function api_verify_access(){
+        if( !current_user_can('manage_options') ) {
+            wp_die( esc_html__( 'You do not have permission to do this.', 'super-forms' ), 403 );
+        }
+    }
+
+    /**
+     * Only honour a caller supplied API endpoint when it lives on our own API host
+     *
+     * The remotely rendered Licenses screen posts back the endpoint the plugin sent it
+     * (SUPER_API_ENDPOINT). Anything else (http://, another host, credentials, query or
+     * fragment) falls back to $default so a request can not be pointed at an arbitrary server.
+     *
+     * @param  mixed  $requested Value of $_POST['api_endpoint']
+     * @param  string $default   SUPER_API_ENDPOINT
+     * @return string
+     */
+    public static function api_resolve_endpoint($requested, $default){
+        if( is_string($requested) && strpos($requested, 'https://')===0 ) {
+            $parts = wp_parse_url($requested);
+            $host = ( is_array($parts) && !empty($parts['host']) ? strtolower($parts['host']) : '' );
+            if( $host!=='' && empty($parts['user']) && !isset($parts['pass']) && !isset($parts['query']) && !isset($parts['fragment']) ) {
+                $default_host = strtolower( (string) wp_parse_url($default, PHP_URL_HOST) );
+                if( $host===$default_host || ( strlen($host)>16 && substr($host, -16)==='.super-forms.com' ) ) {
+                    return rtrim($requested, '/');
+                }
+            }
+        }
+        return $default;
     }
 
     public static function api_default_post_args($custom_args){
