@@ -188,9 +188,10 @@ class Test_Security_Api_Transient_Cache extends WP_UnitTestCase {
 		$this->assertLessThanOrEqual( time(), (int) $last['time'] );
 		$this->assertFalse( get_transient( '_super_api_transient_cb' ), 'A success must not trip the breaker.' );
 		$this->assertFalse( get_option( '_super_api_transient_lock_' . $key ), 'The refresh lock must be released after a success.' );
-		if ( ! wp_using_ext_object_cache() ) {
-			$this->assertSame( 'no', $this->autoload_of( '_super_api_transient_last_' . $key ), 'The last-known-good option must not be autoloaded.' );
-		}
+		// Not autoloaded on every WordPress version: absent from the alloptions set, and the raw
+		// column reads 'no' before 6.6 and 'off' since (wp_determine_option_autoload_value()).
+		$this->assertArrayNotHasKey( '_super_api_transient_last_' . $key, wp_load_alloptions(), 'The last-known-good option must not be autoloaded.' );
+		$this->assertContains( $this->autoload_of( '_super_api_transient_last_' . $key ), array( 'no', 'off' ), 'The last-known-good option must not be autoloaded.' );
 	}
 
 	private function autoload_of( $option ) {
