@@ -955,7 +955,8 @@ class SUPER_Shortcodes {
                         $author_id = $post->post_author;
                     }
                 }
-                $data = get_user_meta( absint($author_id), $meta_field_name, true ); 
+                // Security: credentials, tokens and private `_` meta are never rendered (see users_retrieve_field_denied())
+                $data = ( self::users_retrieve_field_denied( $meta_field_name ) ? '' : get_user_meta( absint($author_id), $meta_field_name, true ) );
             }
             
             // Retrieve meta data from post
@@ -1058,6 +1059,12 @@ class SUPER_Shortcodes {
             if( !empty( $atts[$prefix.'retrieve_method_role_filters'] ) ) $role_filters = explode("\n",$atts[$prefix.'retrieve_method_role_filters']);
             if( !empty( $atts[$prefix.'retrieve_method_user_label'] ) ) $default_user_label = $atts[$prefix.'retrieve_method_user_label'];
             if( !empty( $atts[$prefix.'retrieve_method_user_meta_keys'] ) ) $meta_keys = $atts[$prefix.'retrieve_method_user_meta_keys'];
+            // Security: user data ends up in the public form HTML, only expose the fields this viewer may see
+            $user_fields = self::users_retrieve_allowed_fields( $atts );
+            if( !$user_fields['privileged'] && $default_user_label==='#{ID} - {first_name} {last_name} ({user_email})' ) {
+                // Keep the old default label readable for unprivileged viewers (no empty parentheses)
+                $default_user_label = '#{ID} - {display_name}';
+            }
             foreach($role_filters as $k => $v){
                 $role_filters[$k] = trim($v);    
             }
@@ -1077,6 +1084,11 @@ class SUPER_Shortcodes {
                 preg_match_all($regex, $user_label, $matches, PREG_SET_ORDER, 0);
                 foreach($matches as $mk => $mv){
                     if( empty($mv[1]) ) continue;
+                    if( !self::users_retrieve_field_allowed( $mv[1], $user_fields ) ) {
+                        // Denied {tags} resolve to an empty string
+                        $user_label = str_replace( '{' . $mv[1] . '}', '', $user_label );
+                        continue;
+                    }
                     if( isset($mv[1]) && isset($v[$mv[1]]) ) {
                         $user_label = str_replace( '{' . $mv[1] . '}', $v[$mv[1]], $user_label );
                     }else{
@@ -1090,6 +1102,11 @@ class SUPER_Shortcodes {
                 $user_value = array();
                 foreach($mk as $mv){
                     if( empty($mv) ) continue;
+                    if( !self::users_retrieve_field_allowed( $mv, $user_fields ) ) {
+                        // Denied keys resolve to an empty string, keeping the {field;N} positions intact
+                        $user_value[] = '';
+                        continue;
+                    }
                     if( isset($v[$mv]) ) {
                         $user_value[] = $v[$mv];
                     }else{
@@ -1232,6 +1249,81 @@ class SUPER_Shortcodes {
         }
         if(empty($items_values)) $items_values = array();
         return apply_filters( 'super_' . $tag . '_' . $atts['name'] . '_items_filter', array('items'=>$items, 'items_values'=>$items_values, 'atts'=>$atts), array( 'tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings, 'entry_data'=>$entry_data ) );
+    }
+
+    /**
+     * Hard denylist for the "users" and "author" retrieve methods: credentials,
+     * tokens, capabilities and private `_` meta are never rendered into the
+     * form HTML, for any viewer.
+     *
+     * @param string $key user data field or user meta key
+     * @return bool
+     */
+    public static function users_retrieve_field_denied( $key ) {
+        $key = trim( (string) $key );
+        if( $key==='' || $key[0]==='_' ) return true;
+        if( in_array( strtolower( $key ), array( 'user_pass', 'user_activation_key', 'session_tokens' ), true ) ) return true;
+        return (bool) preg_match( '/(^|_)(capabilities|user_level|password|pass|token|secret|key|salt|hash)($|_)/i', $key );
+    }
+
+    /**
+     * Which user fields the current viewer may see through retrieve_method=users
+     * ({tag} labels and the meta keys that build the option value).
+     *
+     * Unprivileged viewers (not logged in, or lacking the `list_users` capability)
+     * only get the public profile fields. Privileged viewers keep every user data
+     * field and user meta key, minus the hard denylist (users_retrieve_field_denied()).
+     *
+     * Site owners can extend the allowlist deliberately with the
+     * `super_users_retrieve_allowed_fields` filter, which receives
+     * (array $allowed, bool $privileged, array $atts): the field names for
+     * unprivileged viewers, whether the viewer may already see all non-denied
+     * fields, and the element attributes (name, retrieve_method_* settings, ...).
+     * E.g. to list `user_url` on a public form:
+     *
+     *     add_filter( 'super_users_retrieve_allowed_fields', function( $allowed, $privileged, $atts ) {
+     *         if( !$privileged ) $allowed[] = 'user_url';
+     *         return $allowed;
+     *     }, 10, 3 );
+     *
+     * The filter cannot lift the hard denylist, and `ID` is always allowed.
+     *
+     * @param array $atts element attributes
+     * @return array {
+     *     @type bool  $privileged viewer may see all non-denied fields
+     *     @type array $allowed    lower-case field names for unprivileged viewers
+     * }
+     */
+    public static function users_retrieve_allowed_fields( $atts ) {
+        $privileged = ( is_user_logged_in() && current_user_can( 'list_users' ) );
+        $allowed = array( 'ID', 'display_name', 'user_nicename', 'nickname', 'first_name', 'last_name' );
+        $allowed = apply_filters( 'super_users_retrieve_allowed_fields', $allowed, $privileged, $atts );
+        $fields = array();
+        if( is_array( $allowed ) ) {
+            foreach( $allowed as $field ) {
+                if( is_string( $field ) ) $fields[] = strtolower( trim( $field ) );
+            }
+        }
+        return array(
+            'privileged' => $privileged,
+            'allowed' => $fields
+        );
+    }
+
+    /**
+     * Whether a {tag} or meta key of retrieve_method=users may be rendered for
+     * the current viewer, see users_retrieve_allowed_fields().
+     *
+     * @param string $key         user data field or user meta key
+     * @param array  $user_fields result of users_retrieve_allowed_fields()
+     * @return bool
+     */
+    public static function users_retrieve_field_allowed( $key, $user_fields ) {
+        if( self::users_retrieve_field_denied( $key ) ) return false;
+        if( !empty( $user_fields['privileged'] ) ) return true;
+        $key = strtolower( trim( (string) $key ) );
+        if( $key==='id' ) return true;
+        return ( isset( $user_fields['allowed'] ) && in_array( $key, $user_fields['allowed'], true ) );
     }
 
     

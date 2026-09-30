@@ -2776,11 +2776,17 @@ class SUPER_Common {
                 if ( strpos( $value, '{author_meta') !== false ) {
                     $meta_key = str_replace('{author_meta_', '', $value);
                     $meta_key = str_replace('}', '', $meta_key);
+                    // Security: the author is chosen by the request (?author=<id>), credentials, tokens, capabilities
+                    // and private `_` meta are never rendered (see SUPER_Shortcodes::users_retrieve_field_denied())
+                    if( !class_exists('SUPER_Shortcodes') ) {
+                        require_once( SUPER_PLUGIN_DIR . '/includes/class-shortcodes.php' );
+                    }
+                    if( SUPER_Shortcodes::users_retrieve_field_denied( $meta_key ) ) return '';
                     $value = get_user_meta( $current_author->ID, $meta_key, true ); 
                     if( $value=='' ) {
                         // Whenever no meta was found mostly we try to retrieve default values like user_login etc. (which is not meta data)
-                        // first convert object to array then try retrieve the value by key
-                        $value = $current_author->{$meta_key};
+                        // Only the WP_User data fields, the magic getter would otherwise also return user_pass, caps etc.
+                        $value = ( in_array( $meta_key, array( 'ID', 'user_login', 'user_nicename', 'user_email', 'user_url', 'user_registered', 'user_status', 'display_name' ), true ) ? $current_author->{$meta_key} : '' );
                     }
                     return $value;
                 }
