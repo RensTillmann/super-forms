@@ -2507,8 +2507,21 @@ if(!class_exists('SUPER_Forms')) :
             if( isset( $parts['user'] ) || isset( $parts['pass'] ) ) return false;
             $host = strtolower( $parts['host'] );
             if( !preg_match( '/^[a-z0-9.-]+$/', $host ) ) return false;
-            if( $host === 'f4d.nl' || $host === 'super-forms.com' ) return true;
-            return ( substr( $host, -16 ) === '.super-forms.com' );
+            // Hosts that may serve update packages (a leading "." also allows every subdomain).
+            // Updates are published through more than one origin, so keep this list in sync with the
+            // release channel; sites can extend it with the super_forms_trusted_update_hosts filter
+            $trusted = apply_filters( 'super_forms_trusted_update_hosts', array( 'f4d.nl', 'super-forms.com', '.super-forms.com', 'renstillmann.github.io' ) );
+            if( !is_array( $trusted ) ) return false;
+            foreach( $trusted as $allowed ) {
+                if( !is_string( $allowed ) || $allowed === '' || $allowed === '.' ) continue;
+                $allowed = strtolower( $allowed );
+                if( $allowed[0] === '.' ) {
+                    if( strlen( $host ) > strlen( $allowed ) && substr( $host, -strlen( $allowed ) ) === $allowed ) return true;
+                }elseif( $host === $allowed ) {
+                    return true;
+                }
+            }
+            return false;
         }
 
 
@@ -2537,7 +2550,7 @@ if(!class_exists('SUPER_Forms')) :
             foreach( $urls as $url ) {
                 if( !self::is_trusted_update_package_url( $url ) ) {
                     $url = ( is_string( $url ) ? preg_replace( '/[^\x20-\x7E]/', '?', substr( $url, 0, 200 ) ) : gettype( $url ) );
-                    error_log( 'Super Forms: update ignored, package URL is not https on f4d.nl or super-forms.com: ' . $url );
+                    error_log( 'Super Forms: update ignored, package URL is not https on a trusted host (super_forms_trusted_update_hosts): ' . $url );
                     return null;
                 }
             }

@@ -134,7 +134,34 @@ class Test_Security_Updater_Transport extends WP_UnitTestCase {
 			'api.super-forms.com'      => array( 'https://api.super-forms.com/v1/plugin/download/super-forms.zip' ),
 			'super-forms.com apex'     => array( 'https://super-forms.com/downloads/super-forms.zip' ),
 			'nested subdomain'         => array( 'https://cdn.eu.super-forms.com/super-forms.zip' ),
+			'GitHub Pages origin'      => array( 'https://renstillmann.github.io/super-forms/super-forms.zip' ),
 		);
+	}
+
+	public function test_trusted_hosts_filter_can_add_and_remove_hosts() {
+		$add = static function( $hosts ) {
+			$hosts[] = 'updates.example.org';
+			return $hosts;
+		};
+		add_filter( 'super_forms_trusted_update_hosts', $add );
+		$this->assertTrue( SUPER_Forms::is_trusted_update_package_url( 'https://updates.example.org/super-forms.zip' ) );
+		$this->assertFalse( SUPER_Forms::is_trusted_update_package_url( 'http://updates.example.org/super-forms.zip' ), 'https stays mandatory for added hosts' );
+		remove_filter( 'super_forms_trusted_update_hosts', $add );
+
+		$only_f4d = static function() {
+			return array( 'f4d.nl' );
+		};
+		add_filter( 'super_forms_trusted_update_hosts', $only_f4d );
+		$this->assertFalse( SUPER_Forms::is_trusted_update_package_url( 'https://api.super-forms.com/super-forms.zip' ) );
+		$this->assertTrue( SUPER_Forms::is_trusted_update_package_url( 'https://f4d.nl/super-forms.zip' ) );
+		remove_filter( 'super_forms_trusted_update_hosts', $only_f4d );
+
+		$broken = static function() {
+			return 'f4d.nl';
+		};
+		add_filter( 'super_forms_trusted_update_hosts', $broken );
+		$this->assertFalse( SUPER_Forms::is_trusted_update_package_url( 'https://f4d.nl/super-forms.zip' ), 'a non-array filter result trusts nothing' );
+		remove_filter( 'super_forms_trusted_update_hosts', $broken );
 	}
 
 	/**
