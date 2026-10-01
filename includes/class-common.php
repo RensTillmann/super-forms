@@ -3942,17 +3942,24 @@ class SUPER_Common {
      * stalls every form render and its error text is never printed into the page.
      *
      * - Only the three licence slugs are cached, under <key> = md5(slug|home) where
-     *   home is the stored home option (self::api_transient_key()), not get_home_url():
+     *   home is the stored home option (self::api_transient_home()), not get_home_url():
      *   a WP_HOME that follows the Host header would otherwise create rows per host.
      *   So at most 3 fresh transients, 3 last-known-good options, 3 locks and one
      *   breaker exist. Any other slug is fetched every time and never stored.
+     * - The request sends home_url => get_home_url(), like every other API call, so
+     *   the API decides on the domain licences are registered under. That home is
+     *   stored inside the cached value and a copy is only served to a request whose
+     *   get_home_url() is the same; any other home is a miss (it fetches, and while
+     *   the breaker or another request's lock blocks the fetch it gets the same
+     *   result as with nothing cached), so one host's answer is never served to another.
      * - A valid answer (HTTP 200, JSON, status 200) is stored byte-identical in the
-     *   transient _super_api_transient_<key> as array(body, version) for
+     *   transient _super_api_transient_<key> as array(body, version, home) for
      *   SUPER_API_TRANSIENT_TTL seconds (default 900) and, as last-known-good, in the
      *   non-autoloaded option _super_api_transient_last_<key> as array(body, time,
-     *   version). While the transient exists no request is made. A copy stored by
-     *   another SUPER_VERSION is ignored, so an upgrade never serves a body the API
-     *   sent to the previous version (it is overwritten by the next refresh).
+     *   version, home). While the transient exists no request is made. A copy stored by
+     *   another SUPER_VERSION, or without a home (stored before it was recorded), is
+     *   ignored, so an upgrade never serves a body the API sent to the previous
+     *   version (it is overwritten by the next refresh).
      * - On any failure (WP_Error, non-200, non-JSON, status!=200, empty response)
      *   the last-known-good body is served while it is younger than
      *   SUPER_API_TRANSIENT_STALE_MAX seconds (default 7 days). Without one the two
@@ -3983,18 +3990,21 @@ class SUPER_Common {
         $slug = (isset($x['slug']) ? $x['slug'] : '');
         $html = '';
         if($slug!=='before_do_shortcode' && $slug!=='before_do_shortcode_admin') $html = '<script>alert("Connection error! Please refresh the page to try again, or contact support.");</script>';
+        // The identity the API is asked about, exactly as every other API call sends it
+        $home = get_home_url();
         if( ( defined('SUPER_API_TRANSIENT_DISABLE_CACHE') && SUPER_API_TRANSIENT_DISABLE_CACHE ) || !in_array($slug, self::api_transient_slugs(), true) ) {
-            $body = self::api_transient_request($slug);
+            $body = self::api_transient_request($slug, $home);
             return ( $body===false ? $html : $body );
         }
         $key = self::api_transient_key($slug);
         $fresh = get_transient('_super_api_transient_'.$key);
-        if( is_array($fresh) && isset($fresh['body'], $fresh['version']) && is_string($fresh['body']) && $fresh['version']===SUPER_VERSION ) return $fresh['body'];
+        if( self::api_transient_copy_matches($fresh, $home) ) return $fresh['body'];
         $ttl = ( defined('SUPER_API_TRANSIENT_TTL') ? (int)SUPER_API_TRANSIENT_TTL : 900 );
         $stale_max = ( defined('SUPER_API_TRANSIENT_STALE_MAX') ? (int)SUPER_API_TRANSIENT_STALE_MAX : 7*DAY_IN_SECONDS );
-        // Last-known-good replaces the alert/'' fallback while it is young enough (and from this version)
+        // Last-known-good replaces the alert/'' fallback while it is young enough, from this
+        // version and for this home; a copy for another home is treated as nothing cached
         $last = get_option('_super_api_transient_last_'.$key);
-        if( is_array($last) && isset($last['body'], $last['time'], $last['version']) && is_string($last['body']) && $last['version']===SUPER_VERSION && (time()-(int)$last['time'])<=$stale_max ) {
+        if( self::api_transient_copy_matches($last, $home) && isset($last['time']) && (time()-(int)$last['time'])<=$stale_max ) {
             $html = $last['body'];
         }
         if( get_transient('_super_api_transient_cb')!==false ) return $html;
@@ -4002,7 +4012,7 @@ class SUPER_Common {
         $token = self::api_transient_lock($lock);
         if( $token===false ) return $html;
         try {
-            $body = self::api_transient_request($slug);
+            $body = self::api_transient_request($slug, $home);
         } finally {
             self::api_transient_unlock($lock, $token);
         }
@@ -4010,8 +4020,8 @@ class SUPER_Common {
             set_transient('_super_api_transient_cb', time(), 5*MINUTE_IN_SECONDS);
             return $html;
         }
-        set_transient('_super_api_transient_'.$key, array('body'=>$body, 'version'=>SUPER_VERSION), $ttl);
-        update_option('_super_api_transient_last_'.$key, array('body'=>$body, 'time'=>time(), 'version'=>SUPER_VERSION), 'no');
+        set_transient('_super_api_transient_'.$key, array('body'=>$body, 'version'=>SUPER_VERSION, 'home'=>$home), $ttl);
+        update_option('_super_api_transient_last_'.$key, array('body'=>$body, 'time'=>time(), 'version'=>SUPER_VERSION, 'home'=>$home), 'no');
         return $body;
     }
 
@@ -4025,19 +4035,42 @@ class SUPER_Common {
     }
 
     /**
-     * Cache key of a licence slug: md5(slug|home) with the home URL as stored in the
-     * database. get_home_url() and get_option('home') both return WP_HOME when it is
-     * defined, and a WP_HOME built from the Host header differs per request, which
-     * would create new option rows for every host name a request uses. The stored
-     * value is read from the autoloaded options (no extra query); the filtered
+     * Whether a cached copy (fresh transient or last-known-good option) may be served:
+     * it holds a string body, was stored by this SUPER_VERSION and was fetched for the
+     * same get_home_url() the current request would send. Copies stored before the home
+     * was recorded (no 'home' entry) and bare strings are a miss.
+     *
+     * @return bool
+    */
+    private static function api_transient_copy_matches($copy, $home) {
+        return ( is_array($copy) && isset($copy['body'], $copy['version'], $copy['home']) && is_string($copy['body']) && $copy['version']===SUPER_VERSION && $copy['home']===$home );
+    }
+
+    /**
+     * The home URL as stored in the database (of the current blog on multisite), used
+     * only for the cache key. get_home_url() and get_option('home') both return WP_HOME
+     * when it is defined, and a WP_HOME built from the Host header (or a home_url /
+     * option_home domain-mapping filter) differs per request, so keying on it would create
+     * rows per host. The request itself sends get_home_url() like every other API call
+     * (the domain licences are registered under); the home it sent is stored inside the
+     * cached value and a copy is only served to a request with that same get_home_url().
+     * The stored value is read from the autoloaded options (no extra query); the filtered
      * get_option('home') is only the fallback when it is not autoloaded.
      *
      * @return string
     */
-    private static function api_transient_key($slug) {
+    private static function api_transient_home() {
         $alloptions = wp_load_alloptions();
-        $home = ( isset($alloptions['home']) && is_string($alloptions['home']) ? $alloptions['home'] : (string) get_option('home') );
-        return md5($slug.'|'.$home);
+        return ( isset($alloptions['home']) && is_string($alloptions['home']) ? $alloptions['home'] : (string) get_option('home') );
+    }
+
+    /**
+     * Cache key of a licence slug: md5(slug|home) with home = self::api_transient_home()
+     *
+     * @return string
+    */
+    private static function api_transient_key($slug) {
+        return md5($slug.'|'.self::api_transient_home());
     }
 
     /**
@@ -4088,13 +4121,15 @@ class SUPER_Common {
     }
 
     /**
-     * POST a slug to the API (same endpoint, body and headers as before, 3 second
-     * timeout) and return the served body, or false on any failure.
+     * POST a slug to the API (same endpoint, body fields, field order and headers as
+     * before, 3 second timeout) and return the served body, or false on any failure.
+     * home_url is get_home_url() (passed in by the caller so the value sent is exactly
+     * the value stored with the answer), as in every other API call.
      *
      * @return string|false
     */
-    private static function api_transient_request($slug) {
-        $response = wp_remote_post( SUPER_API_ENDPOINT . '/settings/transient', array( 'method' => 'POST', 'timeout' => 3, 'data_format' => 'body', 'headers' => array('Content-Type' => 'application/json; charset=utf-8'), 'body' => json_encode( array( 'slug' => $slug, 'home_url' => get_home_url(), 'admin_url' => admin_url(), 'version' => SUPER_VERSION))));
+    private static function api_transient_request($slug, $home) {
+        $response = wp_remote_post( SUPER_API_ENDPOINT . '/settings/transient', array( 'method' => 'POST', 'timeout' => 3, 'data_format' => 'body', 'headers' => array('Content-Type' => 'application/json; charset=utf-8'), 'body' => json_encode( array( 'slug' => $slug, 'home_url' => $home, 'admin_url' => admin_url(), 'version' => SUPER_VERSION))));
         if( is_wp_error($response) || !isset($response['body'], $response['response']['code']) ) return false;
         $body = $response['body'];
         if( $response['response']['code']==200 && is_string($body) && strpos($body, '{') === 0 ) {

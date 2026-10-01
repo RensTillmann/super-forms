@@ -60,9 +60,16 @@ class Test_Security_Api_Transient_Cache extends WP_UnitTestCase {
 	 * WP_HOME / Host header dependent) get_home_url().
 	 */
 	private function key( $slug ) {
+		return md5( $slug . '|' . $this->stored_home() );
+	}
+
+	/**
+	 * The home URL as stored in the database: only the cache key uses it. The request
+	 * sends get_home_url(), which is also stored inside the cached value.
+	 */
+	private function stored_home() {
 		global $wpdb;
-		$home = $wpdb->get_var( "SELECT option_value FROM {$wpdb->options} WHERE option_name = 'home'" );
-		return md5( $slug . '|' . $home );
+		return $wpdb->get_var( "SELECT option_value FROM {$wpdb->options} WHERE option_name = 'home'" );
 	}
 
 	private function fresh_body( $slug ) {
@@ -203,6 +210,9 @@ class Test_Security_Api_Transient_Cache extends WP_UnitTestCase {
 		$this->assertIsArray( $last );
 		$this->assertSame( $body, $last['body'], 'The last-known-good option must hold the exact body.' );
 		$this->assertSame( SUPER_VERSION, $last['version'], 'The last-known-good option must record the plugin version.' );
+		$this->assertSame( get_home_url(), $last['home'], 'The last-known-good option must record the home it was fetched for.' );
+		$fresh = get_transient( '_super_api_transient_' . $key );
+		$this->assertSame( get_home_url(), $fresh['home'], 'The fresh transient must record the home it was fetched for.' );
 		$this->assertGreaterThanOrEqual( $before, (int) $last['time'] );
 		$this->assertLessThanOrEqual( time(), (int) $last['time'] );
 		$this->assertFalse( get_transient( '_super_api_transient_cb' ), 'A success must not trip the breaker.' );
@@ -393,11 +403,11 @@ class Test_Security_Api_Transient_Cache extends WP_UnitTestCase {
 			$option = '_super_api_transient_last_' . $this->key( $slug );
 			delete_transient( '_super_api_transient_cb' );
 
-			update_option( $option, array( 'body' => 'young-' . $slug, 'time' => time() - 7 * DAY_IN_SECONDS + MINUTE_IN_SECONDS, 'version' => SUPER_VERSION ), 'no' );
+			update_option( $option, array( 'body' => 'young-' . $slug, 'time' => time() - 7 * DAY_IN_SECONDS + MINUTE_IN_SECONDS, 'version' => SUPER_VERSION, 'home' => get_home_url() ), 'no' );
 			$this->assertSame( 'young-' . $slug, $this->call( $slug ), 'A copy younger than 7 days must be served.' );
 
 			delete_transient( '_super_api_transient_cb' );
-			update_option( $option, array( 'body' => 'old-' . $slug, 'time' => time() - 7 * DAY_IN_SECONDS - MINUTE_IN_SECONDS, 'version' => SUPER_VERSION ), 'no' );
+			update_option( $option, array( 'body' => 'old-' . $slug, 'time' => time() - 7 * DAY_IN_SECONDS - MINUTE_IN_SECONDS, 'version' => SUPER_VERSION, 'home' => get_home_url() ), 'no' );
 			$output = $this->call( $slug );
 			$this->assertSame( $this->fallback_for( $slug ), $output, 'A copy older than 7 days must not be served for ' . $slug );
 			$this->assert_no_error_text( $output, 'error text leaked for ' . $slug );
@@ -420,7 +430,7 @@ class Test_Security_Api_Transient_Cache extends WP_UnitTestCase {
 		$this->assertNotFalse( get_option( $lock ), 'A request that does not own the lock must not release it.' );
 
 		// Same with a last-known-good copy: it is served.
-		update_option( '_super_api_transient_last_' . $this->key( $slug ), array( 'body' => 'known-good', 'time' => time(), 'version' => SUPER_VERSION ), 'no' );
+		update_option( '_super_api_transient_last_' . $this->key( $slug ), array( 'body' => 'known-good', 'time' => time(), 'version' => SUPER_VERSION, 'home' => get_home_url() ), 'no' );
 		$this->assertSame( 'known-good', $this->call( $slug ) );
 		$this->assertCount( 0, $this->requests );
 
@@ -507,7 +517,8 @@ class Test_Security_Api_Transient_Cache extends WP_UnitTestCase {
 	/**
 	 * (9) A home URL that follows the Host header (WP_HOME built from $_SERVER['HTTP_HOST'])
 	 * does not create new rows per host: the key uses the stored home option, so the cache
-	 * stays bounded to the fixed licence slugs. The request body still sends get_home_url().
+	 * stays bounded to the fixed licence slugs. Each host sends its own get_home_url() and
+	 * its answer replaces the copy in the same rows; a copy for another host is a miss.
 	 */
 	public function test_home_url_that_varies_per_request_does_not_create_new_cache_rows() {
 		$this->require_cache_enabled();
@@ -522,20 +533,189 @@ class Test_Security_Api_Transient_Cache extends WP_UnitTestCase {
 		$this->assertSame( 'one-answer', $this->call( 'before_do_shortcode' ) );
 		$this->assertCount( 1, $this->requests );
 		$body = json_decode( $this->requests[0]['args']['body'], true );
-		$this->assertSame( 'https://host-a.example', $body['home_url'], 'The request keeps sending get_home_url().' );
+		$this->assertSame( 'https://host-a.example', $body['home_url'], 'The request sends get_home_url(), like every other API call.' );
 		$rows = $this->cache_rows();
 
 		foreach ( array( 'host-b.example', 'host-c.example', 'evil.example:8080' ) as $host ) {
 			$this->request_host = $host;
-			$this->assertSame( 'one-answer', $this->call( 'before_do_shortcode' ), 'Served from the same cache for ' . $host );
+			$this->assertSame( 'one-answer', $this->call( 'before_do_shortcode' ), 'Answer for ' . $host );
+			$this->assertSame( $rows, $this->cache_rows(), 'Another Host header must not add option rows (' . $host . ').' );
 		}
-		$this->assertCount( 1, $this->requests, 'Another Host header must not miss the cache.' );
+		$this->assertCount( 4, $this->requests, 'A copy for another host is a miss: one request per new host.' );
 		$this->assertSame( $rows, $this->cache_rows(), 'Another Host header must not add option rows.' );
 		$this->assertSame( 'one-answer', $this->fresh_body( 'before_do_shortcode' ) );
 	}
 
 	/**
-	 * (9b) Only the three licence slugs are cached; any other slug is fetched every time
+	 * Make get_home_url() return https://<request_host> while the stored home option is unchanged.
+	 */
+	private function filter_home_to( $host ) {
+		if ( ! has_filter( 'home_url', array( $this, 'filter_home_to_request_host' ) ) ) {
+			$this->add_tracked_filter( 'home_url', array( $this, 'filter_home_to_request_host' ), 99 );
+			$this->add_tracked_filter( 'option_home', array( $this, 'filter_home_option_to_request_host' ), 99 );
+		}
+		$this->request_host = $host;
+		$this->assertSame( 'https://' . $host, get_home_url(), 'Precondition: the home filter is active for ' . $host );
+		$this->assertNotSame( $this->stored_home(), get_home_url(), 'Precondition: get_home_url() differs from the stored home.' );
+	}
+
+	/**
+	 * Mimic the API: the answer depends on the home_url it is asked about.
+	 */
+	private function respond_per_home() {
+		$this->responder = function ( $args ) {
+			$sent = json_decode( $args['body'], true );
+			return $this->http_response( 200, $this->api_json( 200, 'answer-for-' . $sent['home_url'] ) );
+		};
+	}
+
+	/**
+	 * (9a) The request sends get_home_url(), as every other API call does (the domain
+	 * licences are registered under), even when the stored home option differs, on the
+	 * cached and the uncached path; the cached value records that same home.
+	 */
+	public function test_request_sends_get_home_url_even_when_the_stored_home_differs() {
+		$this->require_cache_enabled();
+		$this->filter_home_to( 'www.licensed-domain.example' );
+		$this->respond_per_home();
+
+		foreach ( array_merge( self::$slugs, array( 'pdf' ) ) as $slug ) {
+			$this->assertSame( 'answer-for-https://www.licensed-domain.example', $this->call( $slug ), 'Answer for get_home_url() for ' . $slug );
+		}
+		$this->assertCount( 4, $this->requests );
+		foreach ( $this->requests as $request ) {
+			$sent = json_decode( $request['args']['body'], true );
+			$this->assertSame( array( 'slug', 'home_url', 'admin_url', 'version' ), array_keys( $sent ), 'Unchanged body fields and order.' );
+			$this->assertSame( 'https://www.licensed-domain.example', $sent['home_url'], 'The request must send get_home_url(), not the stored home.' );
+		}
+		foreach ( self::$slugs as $slug ) {
+			$fresh = get_transient( '_super_api_transient_' . $this->key( $slug ) );
+			$last  = get_option( '_super_api_transient_last_' . $this->key( $slug ) );
+			$this->assertSame( 'https://www.licensed-domain.example', $fresh['home'], 'The fresh copy records the home it was fetched for.' );
+			$this->assertSame( 'https://www.licensed-domain.example', $last['home'], 'The last-known-good copy records the home it was fetched for.' );
+		}
+	}
+
+	/**
+	 * (9b) A copy fetched for host A is never served to a request whose get_home_url() is
+	 * host B: that read misses and fetches exactly once, and B's answer is then cached.
+	 */
+	public function test_copy_cached_for_another_home_is_a_miss_and_fetches_once() {
+		$this->require_cache_enabled();
+		$this->respond_per_home();
+		foreach ( self::$slugs as $slug ) {
+			$this->filter_home_to( 'host-a.example' );
+			$count = count( $this->requests );
+			$this->assertSame( 'answer-for-https://host-a.example', $this->call( $slug ) );
+			$this->assertCount( $count + 1, $this->requests );
+
+			$this->filter_home_to( 'host-b.example' );
+			$this->assertSame( 'answer-for-https://host-b.example', $this->call( $slug ), 'Host A\'s answer must not be served to host B for ' . $slug );
+			$this->assertCount( $count + 2, $this->requests, 'The mismatched copy is a miss: exactly one request for ' . $slug );
+			$sent = json_decode( $this->requests[ $count + 1 ]['args']['body'], true );
+			$this->assertSame( 'https://host-b.example', $sent['home_url'] );
+			$this->assertSame( 'answer-for-https://host-b.example', $this->fresh_body( $slug ) );
+			$this->assertSame( 'answer-for-https://host-b.example', $this->call( $slug ), 'Host B is now served from the cache.' );
+			$this->assertCount( $count + 2, $this->requests );
+		}
+	}
+
+	/**
+	 * (9c) A last-known-good copy fetched for another home is not a fallback: when the
+	 * refresh fails, or the breaker or another request's lock blocks it, the result is
+	 * the nothing-cached one ('' for the front slugs, the alert for the builder).
+	 */
+	public function test_last_known_good_for_another_home_is_not_served_when_the_fetch_fails() {
+		$this->require_cache_enabled();
+		$this->respond_per_home();
+		$this->filter_home_to( 'host-a.example' );
+		foreach ( self::$slugs as $slug ) {
+			$this->assertSame( 'answer-for-https://host-a.example', $this->call( $slug ) );
+		}
+		$count = count( $this->requests );
+
+		$this->filter_home_to( 'host-b.example' );
+		$this->respond_with_failure( 'wp_error' );
+		foreach ( self::$slugs as $slug ) {
+			delete_transient( '_super_api_transient_cb' );
+			$output = $this->call( $slug );
+			$this->assertCount( ++$count, $this->requests, 'The mismatched copy is a miss: the refresh is attempted for ' . $slug );
+			$this->assertSame( $this->fallback_for( $slug ), $output, 'Host A\'s last-known-good must not be served to host B for ' . $slug );
+			$this->assert_no_error_text( $output, 'error text leaked for ' . $slug );
+			$this->assertNotFalse( get_transient( '_super_api_transient_cb' ), 'A failure must trip the breaker.' );
+
+			// Breaker open: no request, still the nothing-cached result.
+			$this->assertSame( $this->fallback_for( $slug ), $this->call( $slug ), 'Breaker path for ' . $slug );
+			$this->assertCount( $count, $this->requests );
+
+			// Another request holds the lock: no request, still the nothing-cached result.
+			delete_transient( '_super_api_transient_cb' );
+			$lock = '_super_api_transient_lock_' . $this->key( $slug );
+			$this->assertTrue( add_option( $lock, time(), '', 'no' ) );
+			$this->assertSame( $this->fallback_for( $slug ), $this->call( $slug ), 'Lock path for ' . $slug );
+			$this->assertCount( $count, $this->requests );
+			delete_option( $lock );
+
+			// Host A still gets its own last-known-good while the breaker is open.
+			delete_transient( '_super_api_transient_' . $this->key( $slug ) );
+			set_transient( '_super_api_transient_cb', time(), 5 * MINUTE_IN_SECONDS );
+			$this->filter_home_to( 'host-a.example' );
+			$this->assertSame( 'answer-for-https://host-a.example', $this->call( $slug ), 'The copy is only withheld from another home.' );
+			$this->assertCount( $count, $this->requests );
+			$this->filter_home_to( 'host-b.example' );
+		}
+	}
+
+	/**
+	 * (9d) Reads with the same get_home_url() keep hitting the cache with no request,
+	 * also when that home differs from the stored home option.
+	 */
+	public function test_same_home_reads_hit_the_cache_without_a_request() {
+		$this->require_cache_enabled();
+		$this->respond_per_home();
+		$this->filter_home_to( 'www.licensed-domain.example' );
+		foreach ( self::$slugs as $slug ) {
+			$this->assertSame( 'answer-for-https://www.licensed-domain.example', $this->call( $slug ) );
+		}
+		$this->assertCount( 3, $this->requests );
+		for ( $i = 0; $i < 3; $i++ ) {
+			foreach ( self::$slugs as $slug ) {
+				$this->assertSame( 'answer-for-https://www.licensed-domain.example', $this->call( $slug ), 'Cached answer for ' . $slug );
+			}
+		}
+		$this->assertCount( 3, $this->requests, 'Same-home reads must not make a request.' );
+	}
+
+	/**
+	 * (9e) Copies written before the home was recorded inside the cached value (the
+	 * array(body, version) / array(body, time, version) shapes) are a miss, not an error,
+	 * and are replaced by the next successful refresh.
+	 */
+	public function test_copies_without_a_recorded_home_are_a_miss() {
+		$this->require_cache_enabled();
+		foreach ( self::$slugs as $slug ) {
+			$key = $this->key( $slug );
+			set_transient( '_super_api_transient_' . $key, array( 'body' => 'old-shape-fresh', 'version' => SUPER_VERSION ), 900 );
+			update_option( '_super_api_transient_last_' . $key, array( 'body' => 'old-shape-last', 'time' => time(), 'version' => SUPER_VERSION ), 'no' );
+
+			delete_transient( '_super_api_transient_cb' );
+			$this->respond_with_failure( 'wp_error' );
+			$count = count( $this->requests );
+			$this->assertSame( $this->fallback_for( $slug ), $this->call( $slug ), 'Neither old-shape copy may be served for ' . $slug );
+			$this->assertCount( $count + 1, $this->requests, 'The old-shape fresh copy is a miss for ' . $slug );
+
+			delete_transient( '_super_api_transient_cb' );
+			$this->respond_with_body( 'new-shape-' . $slug );
+			$this->assertSame( 'new-shape-' . $slug, $this->call( $slug ) );
+			$fresh = get_transient( '_super_api_transient_' . $key );
+			$last  = get_option( '_super_api_transient_last_' . $key );
+			$this->assertSame( array( 'new-shape-' . $slug, get_home_url() ), array( $fresh['body'], $fresh['home'] ) );
+			$this->assertSame( array( 'new-shape-' . $slug, get_home_url() ), array( $last['body'], $last['home'] ) );
+		}
+	}
+
+	/**
+	 * (9f) Only the three licence slugs are cached; any other slug is fetched every time
 	 * and leaves no rows behind, so the number of cache rows has a fixed upper bound.
 	 */
 	public function test_other_slugs_are_never_stored() {
@@ -572,8 +752,8 @@ class Test_Security_Api_Transient_Cache extends WP_UnitTestCase {
 		$this->require_cache_enabled();
 		$slug = 'before_do_shortcode_admin';
 		$key  = $this->key( $slug );
-		set_transient( '_super_api_transient_' . $key, array( 'body' => 'from-old-version', 'version' => '0.0.1' ), 900 );
-		update_option( '_super_api_transient_last_' . $key, array( 'body' => 'old-known-good', 'time' => time(), 'version' => '0.0.1' ), 'no' );
+		set_transient( '_super_api_transient_' . $key, array( 'body' => 'from-old-version', 'version' => '0.0.1', 'home' => get_home_url() ), 900 );
+		update_option( '_super_api_transient_last_' . $key, array( 'body' => 'old-known-good', 'time' => time(), 'version' => '0.0.1', 'home' => get_home_url() ), 'no' );
 
 		$this->respond_with_failure( 'wp_error' );
 		$this->assertSame( '', $this->call( $slug ), 'Neither copy of the old version may be served.' );
