@@ -1672,9 +1672,10 @@ if( !class_exists('SUPER_Register_Login') ) :
             if( !is_string($string) ) {
                 return $string;
             }
-            $unserialized = (defined('PHP_VERSION_ID') && PHP_VERSION_ID>=70000)
-                ? @unserialize( $string, array('allowed_classes'=>false) )
-                : @unserialize( $string );
+            // @since 6.3.318 - The string can contain submitted values: an array holding an object (an
+            // __PHP_Incomplete_Class, also nested) is not returned either, it would be saved to user meta,
+            // serialized again and instantiated when WordPress reads the meta back. Arrays and plain strings as before
+            $unserialized = SUPER_Common::unserialize_without_objects( $string );
             return is_array($unserialized) ? $unserialized : $string;
         }
 
