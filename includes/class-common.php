@@ -2106,6 +2106,60 @@ class SUPER_Common {
         return array( "\x1A" . $nonce . "o\x1A" => '[', "\x1A" . $nonce . "c\x1A" => ']' );
     }
 
+    /**
+     * @since 6.3.318 - Tokens for the E-mail foreach/if/isset syntax in submitted values, as token => characters.
+     *
+     * SUPER_Forms::email_if_statements() runs over the e-mail body AFTER email_tags() substituted the
+     * submitted values, so a `foreach(x):<%x%>endforeach;`, `if(...):...endif;` or `isset(...)` block a
+     * visitor typed was evaluated as if the form author wrote it (`<%field%>` becomes a live `{field}`
+     * that resolves the author tags of that field, e.g. a hidden default `{@secret}`). The characters
+     * that make this syntax (`<%`, `%>`, the `(` after foreach/if/isset, the `;` after endforeach/endif and
+     * the `:` after elseif) are swapped for these inert tokens in submitted text. They are put back by
+     * email_tags() like the `[`/`]` tokens, except for an e-mail body: there the caller keeps them
+     * (restore_literal_tag_values() with `$keepControlSyntax`) until email_if_statements() ran, which
+     * restores them as its last step (restore_submitted_control_syntax()).
+     * Same per-request nonce as submitted_tag_brace(), no token contains another.
+     */
+    public static function submitted_control_tokens() {
+        $nonce = trim( self::submitted_tag_brace(), "\x1A" );
+        return array(
+            "\x1A" . $nonce . "l\x1A" => '<%',
+            "\x1A" . $nonce . "g\x1A" => '%>',
+            "\x1A" . $nonce . "p\x1A" => '(',
+            "\x1A" . $nonce . "s\x1A" => ';',
+            "\x1A" . $nonce . "k\x1A" => ':',
+        );
+    }
+
+    /**
+     * @since 6.3.318 - Make the E-mail foreach/if/isset syntax in a submitted value inert (see submitted_control_tokens()).
+     * With `$entities` the characters become HTML entities instead, for {loop_fields} rows (HTML only).
+     */
+    public static function neutralize_submitted_control_syntax( $value, $entities=false ) {
+        if( !is_string($value) || strpbrk($value, '%(;:')===false ) return $value;
+        if( $entities ) {
+            $inert = array( '<%' => '&lt;%', '%>' => '%&gt;', '(' => '&#40;', ';' => '&#59;', ':' => '&#58;' );
+        }else{
+            $inert = array_flip( self::submitted_control_tokens() );
+        }
+        $result = preg_replace_callback(
+            '/<%|%>|(?:foreach|isset|if)\s*\(|end(?:foreach|if)\s*;|elseif\s*:/i',
+            function( $m ) use ( $inert ) {
+                return strtr( $m[0], $inert );
+            },
+            $value
+        );
+        return ( is_string($result) ? $result : $value );
+    }
+
+    /**
+     * @since 6.3.318 - Put back the E-mail foreach/if/isset syntax of submitted values (see submitted_control_tokens()).
+     */
+    public static function restore_submitted_control_syntax( $value ) {
+        if( !is_string($value) || self::$submitted_tag_brace===null ) return $value;
+        return strtr( $value, self::submitted_control_tokens() );
+    }
+
     public static function restore_submitted_tags( $value ) {
         if( is_string($value) && self::$submitted_tag_brace!==null ) {
             return str_replace( self::$submitted_tag_brace, '{', $value );
@@ -2193,9 +2247,13 @@ class SUPER_Common {
      * Make every `{`, `[` and `]` in a submitted value inert, except where they belong to one of $allowed_tags.
      * Pass $brace='&#123;' for HTML that is not run through email_tags() afterwards, the brackets
      * then become the `&#91;` and `&#93;` entities (the way WordPress core escapes a shortcode).
+     * @since 6.3.318 - The E-mail foreach/if/isset syntax is made inert as well (tokens, or entities with a `$brace`),
+     * unless `$control` is false (SUPER_Forms::email_if_statements() for the author's own foreach body).
      */
-    public static function neutralize_submitted_tags( $value, $allowed_tags=array(), $brace=null ) {
-        if( !is_string($value) || strpbrk($value, '{[]')===false ) return $value;
+    public static function neutralize_submitted_tags( $value, $allowed_tags=array(), $brace=null, $control=true ) {
+        if( !is_string($value) || strpbrk($value, '{[]%(;:')===false ) return $value;
+        if( $control ) $value = self::neutralize_submitted_control_syntax( $value, ( $brace!==null ) );
+        if( strpbrk($value, '{[]')===false ) return $value;
         if( $brace===null ) {
             $inert = array_merge( array( '{' => self::submitted_tag_brace() ), array_flip( self::submitted_shortcode_brackets() ) );
         }else{
@@ -2203,13 +2261,16 @@ class SUPER_Common {
         }
         $value = strtr( $value, $inert );
         foreach( $allowed_tags as $tag ) {
-            $value = str_replace( strtr($tag, $inert), $tag, $value );
+            $inert_tag = ( $control ? self::neutralize_submitted_control_syntax( $tag, ( $brace!==null ) ) : $tag );
+            $value = str_replace( strtr($inert_tag, $inert), $tag, $value );
         }
         return $value;
     }
 
     public static function neutralize_submitted_value( $value, $field_name, $data=null, $settings=null, $brace=null ) {
-        if( !is_string($value) || strpbrk($value, '{[]')===false ) return $value;
+        if( !is_string($value) || strpbrk($value, '{[]%(;:')===false ) return $value;
+        // Without braces or brackets no author tag can be in it, only the foreach/if/isset syntax needs to be made inert
+        if( strpbrk($value, '{[]')===false ) return self::neutralize_submitted_control_syntax( $value, ( $brace!==null ) );
         return self::neutralize_submitted_tags( $value, self::submitted_value_author_tags( $field_name, $data, $settings ), $brace );
     }
 
@@ -2246,10 +2307,13 @@ class SUPER_Common {
         //    an e-mail (HTML or plain text), with `&#91;`/`&#93;` for HTML that is passed through do_shortcode()
         //    again (see SUPER_Shortcodes::get_default_value()). strtr() inserts them in a single pass, so they are
         //    never scanned for tokens or tags
+        // 3. the E-mail foreach/if/isset syntax of submitted values (inert tokens, outermost call only), same as 2. but
+        //    a caller that passes the result to SUPER_Forms::email_if_statements() keeps them until that ran (see
+        //    submitted_control_tokens() and the `$keepControlSyntax` parameter of restore_literal_tag_values())
         if( self::$email_tags_depth===0 ) {
             $value = self::restore_submitted_tags( $value );
             if( self::$submitted_tag_brace!==null ) {
-                $literalValues = array_merge( $literalValues, self::submitted_shortcode_brackets() );
+                $literalValues = array_merge( $literalValues, self::submitted_shortcode_brackets(), self::submitted_control_tokens() );
             }
         }
         if( $restoreLiterals ) {
@@ -2956,7 +3020,8 @@ class SUPER_Common {
                     if( in_array( $k, self::literal_tag_names(), true ) ) {
                         if( strpos( $value, '{'. $k .'}' )!==false ) {
                             $placeholder = self::literal_tag_placeholder( $k );
-                            $literalValues[$placeholder] = self::decode( $v[1] );
+                            // @since 6.3.318 - and never as E-mail foreach/if/isset syntax either
+                            $literalValues[$placeholder] = self::neutralize_submitted_control_syntax( self::decode( $v[1] ) );
                             $value = str_replace( '{'. $k .'}', $placeholder, $value );
                         }
                         continue;
@@ -3000,7 +3065,8 @@ class SUPER_Common {
                         // Only the WP_User data fields, the magic getter would otherwise also return user_pass, caps etc.
                         $value = ( in_array( $meta_key, array( 'ID', 'user_login', 'user_nicename', 'user_email', 'user_url', 'user_registered', 'user_status', 'display_name' ), true ) ? $current_author->{$meta_key} : '' );
                     }
-                    return $value;
+                    // @since 6.3.318 - The user controls their own meta (e.g. the profile description), insert it literally
+                    return self::literal_meta_value( 'author_meta', $meta_key, $value, $literalValues );
                 }
             }
 
@@ -3011,7 +3077,8 @@ class SUPER_Common {
                     $meta_key = str_replace('{user_meta_', '', $value);
                     $meta_key = str_replace('}', '', $meta_key);
                     $value = get_user_meta( $current_user->ID, $meta_key, true ); 
-                    return $value;
+                    // @since 6.3.318 - The user controls their own meta (e.g. the profile description), insert it literally
+                    return self::literal_meta_value( 'user_meta', $meta_key, $value, $literalValues );
                 }
             }
 
@@ -3135,15 +3202,39 @@ class SUPER_Common {
      *
      * @since 6.3.318
     */
-    public static function restore_literal_tag_values( $value, $literalValues, $escapeShortcodes=false ) {
+    public static function restore_literal_tag_values( $value, $literalValues, $escapeShortcodes=false, $keepControlSyntax=false ) {
         if( empty( $literalValues ) || !is_string( $value ) ) return $value;
+        // @since 6.3.318 - The tokens of the E-mail foreach/if/isset syntax (see submitted_control_tokens()) go last, in their
+        // own pass, because the inserted contents carry them too. With `$keepControlSyntax` they stay for an e-mail body
+        // until SUPER_Forms::email_if_statements() ran, which puts them back (restore_submitted_control_syntax())
+        $control = array();
+        if( self::$submitted_tag_brace!==null ) {
+            $control = array_intersect_key( $literalValues, self::submitted_control_tokens() );
+            $literalValues = array_diff_key( $literalValues, $control );
+        }
         if( $escapeShortcodes ) {
             foreach( $literalValues as $k => $v ) {
                 $literalValues[$k] = str_replace( array( '[', ']' ), array( '&#91;', '&#93;' ), (string) $v );
             }
         }
         // strtr() replaces in a single pass, the inserted contents are never scanned again
-        return strtr( $value, $literalValues );
+        if( !empty( $literalValues ) ) $value = strtr( $value, $literalValues );
+        if( !$keepControlSyntax && !empty( $control ) ) $value = strtr( $value, $control );
+        return $value;
+    }
+
+    /**
+     * @since 6.3.318 - {user_meta_*} and {author_meta_*} return meta data the user controls (e.g. their profile
+     * description), so like the visitor controlled tags of literal_tag_names() the contents are inserted literally:
+     * email_tags() returns a placeholder and puts the contents back after every tag resolved, a caller that runs
+     * do_shortcode() over the result (SUPER_Shortcodes::get_default_value(), e-mail bodies) only after that ran.
+     * Non-string meta (arrays, numbers) is returned as before.
+     */
+    private static function literal_meta_value( $prefix, $meta_key, $meta, &$literalValues ) {
+        if( !is_string( $meta ) || $meta==='' || !is_array( $literalValues ) ) return $meta;
+        $placeholder = self::literal_tag_placeholder( $prefix . '_' . md5( (string) $meta_key ) );
+        $literalValues[$placeholder] = self::neutralize_submitted_control_syntax( $meta );
+        return $placeholder;
     }
 
 
