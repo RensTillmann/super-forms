@@ -37,11 +37,9 @@ trait Super_Forms_Row5_Seeded_Session {
 
     /**
      * Seed the cookie/option pair a real first response persists. A two-key session
-     * row is destroyed by the first `value => false` client-data write
-     * (includes/class-common.php:649-657 deletes the row once fewer than three keys
-     * remain, which is exactly what generate_nonce()'s "destroy old nonce" step
-     * does), and the CLI SAPI can never publish the replacement cookie. A live
-     * browser session always carries at least one unrelated record, so seed one.
+     * row is destroyed by a `value => false` client-data write when fewer than
+     * three keys remain. Seed an unrelated record so tests that explicitly purge
+     * client data can still inspect the same session in the CLI SAPI.
      */
     protected function seed_browser_session() {
         $session_id = bin2hex( random_bytes( 32 ) );

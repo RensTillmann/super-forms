@@ -477,30 +477,20 @@ function SUPERreCaptcha(){
     SUPER.refresh_dynamic_submission_route_field = function(field){
         var control = field,
             originalFieldName = '',
-            previousName = '',
             routeName = '',
-            levels = '',
-            form = null,
-            formId = 0;
+            levels = '';
         if(control && control.classList && control.classList.contains('super-fileupload')){
             control = control.parentNode.querySelector('.super-active-files');
         }
         if(!control || !control.name){
             return '';
         }
-        previousName = control.name;
         originalFieldName = (control.dataset && control.dataset.oname) ? control.dataset.oname : control.name;
         routeName = SUPER.get_submission_route_name(control);
         if(routeName===''){
             return control.name;
         }
         control.name = routeName;
-        form = control.closest('.super-form');
-        formId = form && form.id ? parseInt(form.id.replace('super-form-', ''), 10) : 0;
-        if(formId && previousName !== routeName && SUPER.files[formId] && SUPER.files[formId][previousName] && typeof SUPER.files[formId][routeName] === 'undefined'){
-            SUPER.files[formId][routeName] = SUPER.files[formId][previousName];
-            delete SUPER.files[formId][previousName];
-        }
         if(control.dataset){
             if(typeof originalFieldName === 'string' && originalFieldName !== ''){
                 control.dataset.oname = originalFieldName;
@@ -608,12 +598,13 @@ function SUPERreCaptcha(){
         args._process_form_data_callback = callback;
         args.formData = new FormData();
         SUPER.refresh_dynamic_submission_routes(args.form0);
-        var x = 0, y = 0, pendingDataIndexes = {};
+        var x = 0, y = 0, pendingDataIndexes = {}, pendingFieldNodes = {};
         Object.keys(args.files).forEach(function(key) {
             var activeFiles = args.form0.querySelector('.super-active-files[name="'+key+'"]');
             var fieldWrapper = activeFiles ? activeFiles.closest('.super-field-wrapper') : null;
             var fileNodes = fieldWrapper ? fieldWrapper.querySelectorAll('.super-fileupload-files > div') : [];
             var fieldName = (activeFiles && activeFiles.dataset.oname) ? activeFiles.dataset.oname : key;
+            pendingFieldNodes[key] = activeFiles;
             pendingDataIndexes[key] = [];
             for( y = 0; y < fileNodes.length; y++){
                 if(fileNodes[y].classList.contains('super-uploaded') || fileNodes[y].hasAttribute('data-upload-token')) continue;
@@ -667,6 +658,18 @@ function SUPERreCaptcha(){
                     SUPER.form_submission_finished(args, result);
                 }else{
                     var i, clientIndex, uploadedFiles, updateHtml=[], activeFiles, fieldWrapper, filesWrapper, field, file, files = result;
+                    // A repeated row may have been removed or renumbered while uploading.
+                    // Match the original field node before reconciling any returned receipts.
+                    var routesChanged = Object.keys(files).some(function(fieldName) {
+                        var current = args.form0.querySelector('.super-active-files[name="'+fieldName+'"]');
+                        var wrapper = current ? current.closest('.super-field-wrapper') : null;
+                        return !current || current !== pendingFieldNodes[fieldName] || !wrapper || !wrapper.querySelector('.super-fileupload-files');
+                    });
+                    if(routesChanged){
+                        SUPER.form_submission_finished(args, {error: true, msg: super_common_i18n.errors.failed_to_process_data});
+                        return;
+                    }
+
                     Object.keys(files).forEach(function(fieldName) {
                         activeFiles = args.form0.querySelector('.super-active-files[name="'+fieldName+'"]');
                         if(!activeFiles) return true; // continue to next field
@@ -686,12 +689,6 @@ function SUPERreCaptcha(){
                     // Loop over files and update src for each image
                     // We do not have to do this for other file types
                     Object.keys(files).forEach(function(fieldName) {
-                        if(typeof updateHtml[fieldName].filesWrapper === 'undefined'){
-                            updateHtml[fieldName] = {
-                                filesWrapper: filesWrapper,
-                                html: ''
-                            }
-                        }
                         field = files[fieldName];
                         activeFiles = args.form0.querySelector('.super-active-files[name="'+fieldName+'"]');
                         if(!activeFiles) return true; // continue to next field
@@ -931,6 +928,15 @@ function SUPERreCaptcha(){
                 nextSibling.classList.add('super-focus');
             }else{
                 var innerNodes = next.querySelectorAll('.super-item');
+                if(innerNodes.length===0){
+                    // A choice field without rendered options cannot receive focus.
+                    var followingField = e ? SUPER.nextTabField(e, next, form) : false;
+                    if(followingField && followingField!==next){
+                        return SUPER.focusNextTabField(e, followingField, form, followingField);
+                    }
+                    if(e) e.preventDefault();
+                    return false;
+                }
                 // Radio has active item
                 if(next.classList.contains('super-radio')){
                     var activeFound = next.querySelector('.super-item.super-active');
@@ -3486,7 +3492,7 @@ function SUPERreCaptcha(){
                     if(total < attr) error = true;
                 }
                 if(text_field===true){
-                    if(!parent.classList.contains('super-date')){
+                    if(!parent.classList.contains('super-date') && !parent.classList.contains('super-time')){
                         if(SUPER.unicode_length(args.el.value) < attr) error = true;
                     }
                 }
@@ -3504,7 +3510,7 @@ function SUPERreCaptcha(){
                     if(total > attr) error = true;
                 }
                 if(text_field===true){
-                    if(!parent.classList.contains('super-date')){
+                    if(!parent.classList.contains('super-date') && !parent.classList.contains('super-time')){
                         if(SUPER.unicode_length(args.el.value) > attr) error = true;
                     }
                 }
@@ -3794,7 +3800,7 @@ function SUPERreCaptcha(){
                 codeNodes[y].classList.remove('super-generated');
             }
             for(y=0; y<codeNodes.length; y++){
-                SUPER.update_unique_code(codeNodes[y], 'true');
+                SUPER.update_unique_code(codeNodes[y]);
             }
             var completeSubmitInterval = setInterval(function(){
                 var codeNodes = args.form.querySelectorAll('.super-shortcode-field.super-generated[data-code="true"]');
@@ -6055,37 +6061,57 @@ function SUPERreCaptcha(){
             $html += '</table>';
             return print_window($html);
         }
-        if( $print_file
-            && $print_file.value!=='' && $print_file.value!='0'
-            && $print_capability
-            && $print_capability.value!=='' ) {
-            // @since 3.9.0 - print custom HTML
+        if( $print_file && $print_file.value!=='' && $print_file.value!='0' && $print_capability ) {
             $file_id = $print_file.value;
             SUPER.prepare_form_data($(args.form), function(formData){
                 formData = SUPER.after_form_data_collected_hook(formData.data);
-                $.ajax({
-                    url: super_common_i18n.ajaxurl,
-                    type: 'post',
-                    data: {
-                        action: 'super_print_custom_html',
-                        data: formData,
-                        file_id: $file_id,
-                        capability: $print_capability.value
-                    },
-                    success: function (result, textStatus, jqXHR) {
-                        var nextCapability = jqXHR ? jqXHR.getResponseHeader('X-Super-Print-Capability') : '',
-                            payload = decode_json_response(result);
-                        if((payload && typeof payload === 'object' && payload.error === true) || typeof result !== 'string'){
-                            print_default_form();
-                            return false;
-                        }
-                        $print_capability.value = (nextCapability && /^[a-f0-9]{64}$/.test(nextCapability)) ? nextCapability : '';
-                        return print_window(result);
-                    },
-                    error: function () {
-                        return print_default_form();
-                    }
-                });
+                var refreshed = false,
+                    formId = parseInt(args.form.id.replace('super-form-', ''), 10),
+                    nonceInput = args.form.querySelector('input[name="super_create_nonce"]'),
+                    nonce = nonceInput ? nonceInput.value : '';
+                function refreshAndRetry() {
+                    if(refreshed) return print_default_form();
+                    refreshed = true;
+                    return $.ajax({
+                        url: super_common_i18n.ajaxurl,
+                        type: 'post',
+                        data: {action: 'super_create_nonce', form_id: formId, print_file_id: $file_id, nonce: nonce},
+                        success: function(result) {
+                            var payload = decode_json_response(result);
+                            if(!payload || typeof payload.print_capability !== 'string' || !/^[a-f0-9]{64}$/.test(payload.print_capability)) {
+                                return print_default_form();
+                            }
+                            $print_capability.value = payload.print_capability;
+                            return sendPrint();
+                        },
+                        error: function() { return print_default_form(); }
+                    });
+                }
+                function sendPrint() {
+                    if(!/^[a-f0-9]{64}$/.test($print_capability.value)) return refreshAndRetry();
+                    return $.ajax({
+                        url: super_common_i18n.ajaxurl,
+                        type: 'post',
+                        data: {
+                            action: 'super_print_custom_html',
+                            data: formData,
+                            file_id: $file_id,
+                            capability: $print_capability.value,
+                            nonce: nonce
+                        },
+                        success: function(result, textStatus, jqXHR) {
+                            var nextCapability = jqXHR ? jqXHR.getResponseHeader('X-Super-Print-Capability') : '',
+                                payload = decode_json_response(result);
+                            if((payload && typeof payload === 'object' && payload.error === true) || typeof result !== 'string') {
+                                return refreshAndRetry();
+                            }
+                            $print_capability.value = (nextCapability && /^[a-f0-9]{64}$/.test(nextCapability)) ? nextCapability : '';
+                            return print_window(result);
+                        },
+                        error: function() { return print_default_form(); }
+                    });
+                }
+                return sendPrint();
             });
         }else{
             return print_default_form();
@@ -6914,14 +6940,16 @@ function SUPERreCaptcha(){
             }
         }
     };
-    SUPER.update_unique_code = function(el, submittingForm){
+    SUPER.update_unique_code = function(el){
         $.ajax({
             url: super_common_i18n.ajaxurl,
             type: 'post',
             data: {
+                // Preview only: the server reads the saved code settings and reserves the final code on submit.
                 action: 'super_update_unique_code',
-                submittingForm: submittingForm,
-                codesettings: el.dataset.codesettings // {"invoice_key:"","len":"7","char":"1","pre":"","inv":"","invp":"4","suf":"","upper":"true","lower":""}
+                form_id: (el.closest('form') && el.closest('form').querySelector('input[name="hidden_form_id"]')) ? el.closest('form').querySelector('input[name="hidden_form_id"]').value : '',
+                field_name: (el.dataset.oname ? el.dataset.oname : el.name),
+                nonce: (el.closest('form') && el.closest('form').querySelector('input[name="super_create_nonce"]')) ? el.closest('form').querySelector('input[name="super_create_nonce"]').value : ''
             },
             success: function (result) {
                 el.value = result;
@@ -8812,28 +8840,22 @@ function SUPERreCaptcha(){
             }
             timeout2 = setTimeout(function () {
                 var $value = $this.val();
-                var $method = $this.data('wcosm');
-                var $filterby = $this.data('wcosfb');
-                var $return_label = $this.data('wcosrl');
-                var $return_value = $this.data('wcosrv');
-                var $populate = $this.data('wcosp');
-                var $skip = $this.data('wcoss');
-                var $status = $this.data('wcosst');
+                var $orderForm = $this.closest('form');
+                var $formId = $orderForm.find('input[name="hidden_form_id"]').val() || '';
+                var $nonce = $orderForm.find('input[name="super_create_nonce"]').val() || '';
+                var $fieldName = $this.data('oname') ? $this.data('oname') : $this.attr('name');
                 if( $value.length>0 ) {
                     $this.parents('.super-field-wrapper:eq(0)').addClass('super-populating');
                     $.ajax({
                         url: super_common_i18n.ajaxurl,
                         type: 'post',
                         data: {
+                            // The server reads every search setting from the saved form.
                             action: 'super_search_wc_orders',
                             value: $value,
-                            method: $method,
-                            filterby: $filterby,
-                            return_label: $return_label,
-                            return_value: $return_value,
-                            populate: $populate,
-                            skip: $skip,
-                            status: $status
+                            form_id: $formId,
+                            field_name: $fieldName,
+                            nonce: $nonce
                         },
                         success: function (result) {
                             if(result!==''){

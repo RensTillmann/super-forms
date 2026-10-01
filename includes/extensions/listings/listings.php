@@ -80,14 +80,14 @@ if(!class_exists('SUPER_Listings')) :
          * Deprecated compatibility wrapper. The hardened edit endpoint remains the
          * only execution path; this method must not be registered as an AJAX action.
          *
-         * @deprecated 6.3.317 Use SUPER_Ajax::listings_edit_entry().
+         * @deprecated 6.3.317 Use SUPER_Ajax::load_form_inside_modal().
          */
         public static function load_form_inside_modal() {
-            _deprecated_function( __METHOD__, '6.3.317', 'SUPER_Ajax::listings_edit_entry()' );
+            _deprecated_function( __METHOD__, '6.3.317', 'SUPER_Ajax::load_form_inside_modal()' );
             if( !class_exists('SUPER_Ajax') ) {
                 require_once( SUPER_PLUGIN_DIR . '/includes/class-ajax.php' );
             }
-            SUPER_Ajax::listings_edit_entry();
+            SUPER_Ajax::load_form_inside_modal();
         }
 
         // Required to change some settings when editing/updating an existing entry via Listings Add-on

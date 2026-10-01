@@ -128,6 +128,10 @@ if( isset($_POST['action']) && isset($_POST['entry_id']) && isset($_POST['form_i
                     )
                 );
                 $listing_loop = $loops['listing_loop'];
+                // @since 6.3.318 - The HTML below is passed through do_shortcode(): the entry values in the loop rows
+                // already use `&#91;`/`&#93;` (SUPER_Common::neutralize_submitted_loop_value()), the entry title
+                // is built from submitted values as well, so a [shortcode] in it is escaped the same way
+                $entry_title = str_replace( array( '[', ']' ), array( '&#91;', '&#93;' ), $entry_title );
                 $html = str_replace( '{loop_fields}', $listing_loop, $html_template);
                 $html = str_replace( '{listing_entry_id}', $entry_id, $html);
                 $html = str_replace( '{listing_form_id}', $form_id, $html);

@@ -104,6 +104,124 @@ class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
             $form_id
         );
     }
+    public function test_time_picker_bounds_are_not_text_length_requirements() {
+        $elements = array( array( 'tag' => 'time', 'data' => array(
+            'name' => 'from_time', 'minlength' => '09:00', 'maxlength' => '18:00',
+        ) ) );
+        $contract = array();
+        $collect = new ReflectionMethod( 'SUPER_Ajax', 'collect_submission_field_contract' );
+        $collect->setAccessible( true );
+        $args = array( $elements, &$contract, 0, 41 );
+        $collect->invokeArgs( null, $args );
+        $this->assertSame( 'skip', $contract['from_time']['length_mode'] );
+        $validate = new ReflectionMethod( 'SUPER_Ajax', 'submission_value_matches_validation' );
+        $validate->setAccessible( true );
+        $this->assertTrue( $validate->invoke( null, '10:00', $contract['from_time'] ) );
+        $this->assertTrue( $validate->invoke( null, 'any text', array( 'maxlength' => '0' ) ) );
+    }
+
+    public function test_numeric_field_names_create_entries_through_full_submission() {
+        foreach( array( '123', '0', '001' ) as $name ) {
+            $form_id = $this->create_form(
+                array( array( 'tag' => 'text', 'data' => array( 'name' => $name ) ) ),
+                array( 'save_contact_entry' => 'yes', 'send' => 'no', 'confirm' => 'no',
+                    'form_thanks_title' => '', 'form_thanks_description' => '',
+                    'form_show_thanks_msg' => '', 'form_redirect_option' => '' )
+            );
+            $before_ids = $this->entry_ids_for( $form_id );
+            $result = $this->with_super_settings( array( 'csrf_check' => 'false' ), function() use ( $form_id, $name ) {
+                $this->set_submission_request( $form_id,
+                    array( $name => array( 'name' => $name, 'value' => 'numeric entry', 'type' => 'var' ) ),
+                    array( 'action' => 'super_submit_form', 'i18n' => '' )
+                );
+                return $this->run_dying_callback( static function() { SUPER_Ajax::submit_form(); } );
+            } );
+            $this->assertSame( 0, $result['status'], $result['output'] );
+            $decoded = json_decode( $result['output'], true );
+            $this->assertIsArray( $decoded, $result['output'] );
+            $this->assertFalse( $decoded['error'], $result['output'] );
+            $entry_id = (int)$decoded['response_data']['contact_entry_id'];
+            $this->assertGreaterThan( 0, $entry_id );
+            $this->assertCount( count($before_ids) + 1, $this->entry_ids_for($form_id) );
+            $this->assertSame( 'numeric entry', SUPER_Data_Access::get_entry_data($entry_id)[$name]['value'] );
+        }
+    }
+
+    public function test_numeric_upload_field_keys_match_the_declared_file_route() {
+        $parallel = new ReflectionMethod( 'SUPER_Ajax', 'upload_files_are_parallel' );
+        $parallel->setAccessible( true );
+        $files = array();
+        foreach( array( 'name' => 'test.pdf', 'type' => 'application/pdf', 'tmp_name' => '/scratch/test.pdf', 'error' => 0, 'size' => 128 ) as $part => $value ) {
+            $files[$part] = array( 123 => array( $value ) );
+        }
+        $this->assertTrue( $parallel->invoke(null, $files) );
+        $collect = new ReflectionMethod( 'SUPER_Ajax', 'collect_submission_file_routes' );
+        $collect->setAccessible( true );
+        $routes = array();
+        $collect->invokeArgs(null, array(array(array('tag'=>'file', 'data'=>array('name'=>'123'))), &$routes));
+        $identity = new ReflectionMethod( 'SUPER_Ajax', 'upload_request_field_identities' );
+        $identity->setAccessible( true );
+        $result = $identity->invoke(null, $files['name'], $routes);
+        $this->assertSame( '123', $result[123]['stored_field_name'] );
+        $_POST['file_field_map'] = array(123=>'0123');
+        $this->assertFalse( $identity->invoke(null, $files['name'], $routes) );
+    }
+
+    public function test_numeric_field_names_survive_json_decoding_and_keep_exact_contracts() {
+        foreach( array( '123', '0', '001', '2147483648' ) as $name ) {
+            $elements = array( array( 'tag' => 'text', 'data' => array( 'name' => $name, 'validation' => 'none' ) ) );
+            $data = array_intersect_key( $this->production_repeater_data(), array_flip( array( 'hidden_form_id', 'hidden_contact_entry_id' ) ) );
+            $data[$name] = array( 'name' => $name, 'type' => 'var', 'value' => 'Numeric name value' );
+            $data = json_decode( wp_json_encode( (object)$data ), true );
+            $this->assertTrue( $this->validate( $data, $elements ), 'Stored numeric name: ' . $name );
+            $rebuilt = $this->rebuild_selection_entry_data( $data, $elements );
+            $this->assertTrue( is_array($rebuilt), 'Rebuilt numeric name: ' . $name );
+            $this->assertSame( 'Numeric name value', $rebuilt[$name]['value'] );
+            $data[$name]['name'] = 'different_name';
+            $this->assertFalse( $this->validate( $data, $elements ) );
+        }
+    }
+
+    public function test_numeric_repeater_names_match_both_rows_and_reject_changed_aliases() {
+        foreach( array( '123', '0' ) as $name ) {
+            $elements = json_decode( str_replace( array('guest_name', 'guest_document'), array($name, '456'), wp_json_encode($this->repeater_elements()) ), true );
+            $data = json_decode( str_replace( array('guest_name', 'guest_document'), array($name, '456'), wp_json_encode($this->production_repeater_data()) ), true );
+            $this->assertTrue( $this->validate( $data, $elements ), 'Numeric repeater: ' . $name );
+            $missing_group = $data;
+            unset($missing_group['_super_dynamic_data']);
+            $this->assertFalse( $this->validate( $missing_group, $elements ) );
+            $data[$name . '_2']['value'] = 'Forged alias';
+            $this->assertFalse( $this->validate( $data, $elements ) );
+        }
+    }
+
+    public function test_numeric_zero_names_retain_requiredness_and_single_field_repeater_rows() {
+        $collect = new ReflectionMethod( 'SUPER_Ajax', 'collect_required_fields' );
+        $collect->setAccessible( true );
+        $required = $collect->invoke(null, array(array('tag'=>'text', 'data'=>array('name'=>'0', 'validation'=>'required'))));
+        $this->assertArrayHasKey( 0, $required );
+        $this->assertTrue( $required[0]['always_present'] );
+        $this->assertFalse( $this->files_match_stored_policy(array(), array(array('tag'=>'file', 'data'=>array('name'=>'0', 'minlength'=>'1')))) );
+        $elements = json_decode(str_replace('guest_name', '0', wp_json_encode($this->repeater_elements())), true);
+        unset($elements[0]['inner'][1]);
+        $data = json_decode(str_replace('guest_name', '0', wp_json_encode($this->production_repeater_data())), true);
+        unset($data['guest_document'], $data['guest_document_2']);
+        unset($data['_super_dynamic_data'][0][0]['guest_document'], $data['_super_dynamic_data'][0][1]['guest_document_2']);
+        $this->assertTrue( $this->validate($data, $elements) );
+        $data['_super_dynamic_data'][0][0][1] = $data['_super_dynamic_data'][0][0][0];
+        $this->assertFalse( $this->validate($data, $elements) );
+    }
+
+    public function test_numeric_file_names_do_not_skip_stored_size_policy() {
+        $elements = array( array( 'tag' => 'file', 'data' => array( 'name' => '123', 'filesize' => '1' ) ) );
+        $data = json_decode( '{"123":{"type":"files","files":[{"size":2097152}]}}', true );
+        $this->assertFalse( $this->files_match_stored_policy( $data, $elements ) );
+        $data[123]['files'][0]['size'] = 128;
+        $this->assertTrue( $this->files_match_stored_policy( $data, $elements ) );
+        $data[999] = $data[123];
+        $this->assertFalse( $this->files_match_stored_policy( $data, $elements ) );
+    }
+
     private function validate( $data, $elements, $form_id=41, $entry_id='', $list_id='' ) {
         $method = new ReflectionMethod( 'SUPER_Ajax', 'submission_data_matches_contract' );
         $method->setAccessible( true );
@@ -1715,7 +1833,254 @@ class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
         $this->assertArrayNotHasKey( 'entry_value', $stripped['choices'] );
         $this->assertArrayNotHasKey( 'selected_values', $stripped['choices'] );
     }
-    public function test_date_timestamps_are_rebuilt_from_the_stored_format_and_stripped_when_unparseable() {
+    private function submit_review8_probe( $elements, $data, $allowed, $language='' ) {
+        global $wpdb;
+        $form_id = $this->create_form($elements, array(
+            'save_contact_entry' => 'yes', 'send' => 'no', 'confirm' => 'no',
+            'form_thanks_title' => '', 'form_thanks_description' => '',
+            'form_show_thanks_msg' => '', 'form_redirect_option' => '',
+        ));
+        $marker = '_review8_hook_' . $form_id;
+        $hook = static function( $value ) use ( $marker ) { update_option($marker, 'reached', false); return $value; };
+        add_filter('super_before_sending_email_data_filter', $hook);
+        try {
+            $result = $this->with_super_settings(array('csrf_check' => 'false'), function() use ($form_id, $data, $language) {
+                $this->set_submission_request($form_id, $data, array('action' => 'super_submit_form', 'i18n' => $language));
+                // A real WordPress request is slashed before the handler unslashes JSON.
+                $_POST['data'] = wp_slash($_POST['data']);
+                $_REQUEST = $_POST;
+                return $this->run_dying_callback(static function() { SUPER_Ajax::submit_form(); });
+            });
+        } finally { remove_filter('super_before_sending_email_data_filter', $hook); }
+        $this->assertSame(0, $result['status'], $result['output']);
+        $decoded = json_decode($result['output'], true);
+        $this->assertIsArray($decoded, $result['output']);
+        $this->assertSame(!$allowed, $decoded['error'], $result['output'] . wp_json_encode($data));
+        $this->assertCount($allowed ? 1 : 0, $this->entry_ids_for($form_id));
+        $observed = $wpdb->get_var($wpdb->prepare("SELECT option_value FROM {$wpdb->options} WHERE option_name = %s", $marker));
+        $this->assertSame($allowed ? 'reached' : null, $observed);
+        delete_option($marker);
+        return $form_id;
+    }
+
+    public function test_translated_dates_use_saved_language_formats_before_submission_effects() {
+        $cases = array(
+            array('', '27-09-2026', true, '', ''),
+            array('en', '09/27/2026', true, '', ''),
+            array('de', '3 März 2026', true, '', ''),
+            array('en', '02/31/2026', false, '', ''),
+            array('en', '27-09-2026', false, '', ''),
+            array('unknown', '09/27/2026', false, '', ''),
+            array('unknown', '27-09-2026', true, '', ''),
+            array(array('en'), '09/27/2026', false, '', ''),
+            array('en', '27.09.2026', false, 'dd.mm.yy', 'de'),
+        );
+        foreach($cases as $case) {
+            list($language, $value, $allowed, $client_format, $client_locale) = $case;
+            $date = array('tag' => 'date', 'data' => array(
+                'name' => 'appointment', 'format' => 'custom', 'custom_format' => 'dd-mm-yy',
+                'localization' => '', 'maxPicks' => '1', 'validation' => 'none',
+                'i18n' => array(
+                    'en' => array('custom_format' => 'mm/dd/yy'),
+                    'de' => array('custom_format' => 'd MM yy', 'localization' => 'de'),
+                ),
+            ));
+            // Nest the date to exercise the same traversal used for layout columns.
+            $elements = array(array('tag' => 'column', 'data' => array(), 'inner' => array($date)));
+            $data = array('appointment' => array('name' => 'appointment', 'type' => 'var', 'value' => $value));
+            if($client_format!=='') $data['appointment']['format'] = $client_format;
+            if($client_locale!=='') $data['appointment']['localization'] = $client_locale;
+            $form_id = $this->submit_review8_probe($elements, $data, $allowed, $language);
+            if($allowed) {
+                $entries = $this->entry_ids_for($form_id);
+                $stored = SUPER_Data_Access::get_entry_data($entries[0]);
+                $this->assertSame($value, $stored['appointment']['value']);
+                $expected = $language==='de' ? gmmktime(0, 0, 0, 3, 3, 2026) : gmmktime(0, 0, 0, 9, 27, 2026);
+                $this->assertSame((string)($expected * 1000), $stored['appointment']['timestamp']);
+            }
+        }
+    }
+
+
+    public function test_yearless_custom_dates_submit_with_a_server_owned_current_year() {
+        $year = (int)gmdate('Y');
+        foreach(array(
+            array('dd-mm', '', '03-09', true, 9, 3),
+            array('d MM', 'de', '3 März', true, 3, 3),
+            array('dd-mm', '', '31-02', false, 2, 31),
+            array('dd-mm', '', '29-02', checkdate(2, 29, $year), 2, 29),
+            array('dd-mm', '', '03-09-2026', false, 9, 3),
+            array('oo', '', '001', true, 1, 1),
+            array('mm', '', '09', false, 9, 0),
+        ) as $case) {
+            list($format, $locale, $value, $allowed, $month, $day) = $case;
+            $elements = array(array('tag' => 'date', 'data' => array(
+                'name' => 'appointment', 'format' => 'custom', 'custom_format' => $format,
+                'localization' => $locale, 'maxPicks' => '1', 'validation' => 'none',
+            )));
+            $data = array('appointment' => array('name' => 'appointment', 'type' => 'var', 'value' => $value, 'timestamp' => '1'));
+            $form_id = $this->submit_review8_probe($elements, $data, $allowed);
+            if($allowed) {
+                $entries = $this->entry_ids_for($form_id);
+                $stored = SUPER_Data_Access::get_entry_data($entries[0]);
+                $this->assertSame($value, $stored['appointment']['value']);
+                $this->assertSame((string)(gmmktime(0, 0, 0, $month, $day, $year) * 1000), $stored['appointment']['timestamp']);
+            }
+        }
+    }
+
+    public function test_saved_date_minimum_picks_are_enforced_before_submission_effects() {
+        foreach(array(
+            array('0', '', true),
+            array('1', '', false),
+            array('1', '03-09-2026', true),
+            array('2', '', false),
+            array('2', '03-09-2026', false),
+            array('2', '03-09-2026, 04-09-2026', true),
+            array('2', '03-09-2026, 03-09-2026', false),
+            array('2', '03-09-2026, 31-02-2026', false),
+        ) as $case) {
+            list($minimum, $value, $allowed) = $case;
+            $elements = array(array('tag' => 'date', 'data' => array(
+                'name' => 'appointment', 'format' => 'custom', 'custom_format' => 'dd-mm-yy',
+                'maxPicks' => '2', 'minPicks' => $minimum, 'validation' => 'none',
+            )));
+            $data = array('appointment' => array('name' => 'appointment', 'type' => 'var', 'value' => $value));
+            $this->submit_review8_probe($elements, $data, $allowed);
+        }
+    }
+
+    public function test_multi_date_submission_validates_every_pick_and_saved_limit_before_effects() {
+        $cases = array(
+            array('dd-mm-yy', '', '03-09-2026, 04-09-2026', true),
+            array('dd-mm-yy', '', '03-09-2026', true),
+            array('dd-mm-yy', '', '', true),
+            array('dd-mm-yy', '', 'arbitrary text', false),
+            array('dd-mm-yy', '', '03-09-2026, 31-02-2026', false),
+            array('dd-mm-yy', '', '03-09-2026, 04-09-2026, 05-09-2026', false),
+            array('dd-mm-yy', '', '03-09-2026, 03-09-2026', false),
+            array('dd-mm-yy', '', '03-09-2026, ', false),
+            array('dd-mm-yy', '', '03-09-2026; 04-09-2026', false),
+            array('D, d M yy', '', 'Thu, 3 Sep 2026, Fri, 4 Sep 2026', true),
+            array('dd-mm-yy', 'de', '03.03.2026, 04.03.2026', true),
+            array('d MM yy', 'de', '3 März 2026, 4 März 2026', true),
+        );
+        foreach($cases as $case) {
+            list($format, $locale, $value, $allowed) = $case;
+            $elements = array(array('tag' => 'date', 'data' => array(
+                'name' => 'appointment', 'format' => 'custom', 'custom_format' => $format,
+                'localization' => $locale, 'maxPicks' => '2', 'validation' => 'none',
+            )));
+            $data = array('appointment' => array('name' => 'appointment', 'type' => 'var', 'value' => $value, 'timestamp' => 'forged'));
+            $form_id = $this->submit_review8_probe($elements, $data, $allowed);
+            if($allowed && strpos($value, ', ')!==false) {
+                $entries = $this->entry_ids_for($form_id);
+                $stored = SUPER_Data_Access::get_entry_data($entries[0]);
+                $this->assertSame($value, $stored['appointment']['value']);
+                $this->assertArrayNotHasKey('timestamp', $stored['appointment']);
+            }
+        }
+    }
+
+    public function test_nested_repeated_codes_are_reserved_and_mirrored_before_storage() {
+        global $wpdb;
+        foreach(array(1, 2) as $depth) {
+            $prefix = 'NEST' . $depth . '-';
+            $invoice_key = 'nestedreview10-' . $depth;
+            $counter_key = '_sf_invoice_number_' . $invoice_key;
+            update_option($counter_key, '1', false);
+            update_option('_sf_unique_code-' . $prefix . '0001', $prefix . '0001', false);
+            $code = array('tag' => 'hidden', 'data' => array(
+                'name' => 'invoice_code', 'enable_random_code' => 'true', 'code_length' => '0',
+                'code_prefix' => $prefix, 'code_invoice' => 'true', 'code_invoice_key' => $invoice_key, 'code_invoice_padding' => '4',
+            ));
+            $nested = $code;
+            for($n=0; $n<$depth; $n++) $nested = array('tag' => 'column', 'data' => array('duplicate' => 'enabled'), 'inner' => array($nested));
+            $elements = array(array('tag' => 'column', 'data' => array('duplicate' => 'enabled'), 'inner' => array(
+                array('tag' => 'text', 'data' => array('name' => 'guest_name', 'validation' => 'none')), $nested,
+            )));
+            $data = array('_super_dynamic_data' => array('guest_name' => array()));
+            $routes = array();
+            for($row=0; $row<2; $row++) {
+                $suffix = $row===0 ? '' : '_2';
+                $guest = 'guest_name' . $suffix;
+                $carriers = array($guest => array('name' => $guest, 'type' => 'var', 'value' => 'Guest ' . $row));
+                for($inner=0; $inner<2; $inner++) {
+                    $name = 'invoice_code' . str_repeat('[0]', $depth-1) . '[' . $inner . ']' . $suffix;
+                    $carriers[$name] = array('name' => $name, 'type' => 'var', 'value' => $prefix . '0001');
+                    $routes[$name] = $row;
+                }
+                $data['_super_dynamic_data']['guest_name'][] = $carriers;
+                $data = array_merge($data, $carriers);
+            }
+            $hook_key = '_nested_code_hook_' . $depth;
+            $hook = static function($value) use ($hook_key) { update_option($hook_key, $value, false); return $value; };
+            add_filter('super_before_sending_email_data_filter', $hook);
+            try { $form_id = $this->submit_review8_probe($elements, $data, true); }
+            finally { remove_filter('super_before_sending_email_data_filter', $hook); }
+            $entries = $this->entry_ids_for($form_id);
+            $stored = SUPER_Data_Access::get_entry_data($entries[0]);
+            $seen_by_hook = maybe_unserialize($wpdb->get_var($wpdb->prepare("SELECT option_value FROM {$wpdb->options} WHERE option_name = %s", $hook_key)));
+            $number = 2;
+            foreach($routes as $name => $row) {
+                $expected = $prefix . sprintf('%04d', $number++);
+                $this->assertSame($expected, $stored[$name]['value']);
+                $this->assertSame($expected, $stored['_super_dynamic_data']['guest_name'][$row][$name]['value']);
+                $this->assertSame($expected, $seen_by_hook[$name]['value']);
+                $this->assertSame($expected, $seen_by_hook['_super_dynamic_data']['guest_name'][$row][$name]['value']);
+                $this->assertSame($expected, $wpdb->get_var($wpdb->prepare("SELECT option_value FROM {$wpdb->options} WHERE option_name = %s", '_sf_unique_code-' . $expected)));
+            }
+            $this->assertSame('5', $wpdb->get_var($wpdb->prepare("SELECT option_value FROM {$wpdb->options} WHERE option_name = %s", $counter_key)));
+            delete_option($hook_key);
+            // Malformed nested routes must fail before another invoice is reserved.
+            $old_name = array_key_first($routes);
+            $bad_name = str_replace('[0]', '[bad]', $old_name);
+            $bad = $data;
+            $bad[$bad_name] = $bad[$old_name];
+            $bad[$bad_name]['name'] = $bad_name;
+            unset($bad[$old_name]);
+            $bad['_super_dynamic_data']['guest_name'][0][$bad_name] = $bad[$bad_name];
+            unset($bad['_super_dynamic_data']['guest_name'][0][$old_name]);
+            $this->submit_review8_probe($elements, $bad, false);
+            $this->assertSame('5', $wpdb->get_var($wpdb->prepare("SELECT option_value FROM {$wpdb->options} WHERE option_name = %s", $counter_key)));
+        }
+    }
+
+    public function test_unconditional_generated_codes_cannot_be_omitted_but_dynamic_omissions_remain_valid() {
+        global $wpdb;
+        $code = array('tag' => 'hidden', 'data' => array(
+            'name' => 'invoice_code', 'enable_random_code' => 'true', 'code_length' => '0',
+            'code_prefix' => 'REVIEW8-', 'code_invoice' => 'true', 'code_invoice_key' => 'review8', 'code_invoice_padding' => '4',
+        ));
+        $carrier = array('tag' => 'text', 'data' => array('name' => 'carrier', 'validation' => 'none'));
+        $data = array('carrier' => array('name' => 'carrier', 'type' => 'var', 'value' => 'kept'));
+        $cases = array(
+            array($code, false),
+            array(array('tag' => 'multipart', 'inner' => array($code)), false),
+            array(array('tag' => 'column', 'data' => array('conditional_action' => 'show'), 'inner' => array($code)), true),
+            array(array('tag' => 'column', 'data' => array('hide_on_mobile' => 'true'), 'inner' => array($code)), true),
+            array(array('tag' => 'column', 'data' => array('duplicate' => 'enabled'), 'inner' => array($code)), true),
+        );
+        foreach(array('conditional_action' => 'show', 'hide_on_mobile' => 'true') as $setting => $value) {
+            $optional = array('tag' => 'column', 'data' => array($setting => $value), 'inner' => array($code));
+            foreach(array(array($code, $optional), array($optional, $code)) as $declarations) {
+                $cases[] = array(array('tag' => 'column', 'inner' => $declarations), false);
+            }
+        }
+        foreach($cases as $case) {
+            $before = $wpdb->get_var("SELECT option_value FROM {$wpdb->options} WHERE option_name = '_sf_invoice_number_review8'");
+            $this->submit_review8_probe(array($carrier, $case[0]), $data, $case[1]);
+            $this->assertSame($before, $wpdb->get_var("SELECT option_value FROM {$wpdb->options} WHERE option_name = '_sf_invoice_number_review8'"));
+        }
+        $data['invoice_code'] = array('name' => 'invoice_code', 'type' => 'var', 'value' => '');
+        $form_id = $this->submit_review8_probe(array($carrier, $code), $data, true);
+        $entries = $this->entry_ids_for($form_id);
+        $stored = SUPER_Data_Access::get_entry_data($entries[0]);
+        $this->assertSame('REVIEW8-0001', $stored['invoice_code']['value']);
+        $this->assertSame('1', $wpdb->get_var("SELECT option_value FROM {$wpdb->options} WHERE option_name = '_sf_invoice_number_review8'"));
+    }
+
+    public function test_date_timestamps_are_rebuilt_and_invalid_date_values_are_rejected() {
         $elements = array(
             array(
                 'tag' => 'date',
@@ -1815,7 +2180,7 @@ class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
         $unparseable['appointment']['value'] = 'not-a-date';
         $unparseable['appointment']['timestamp'] = '999';
         $stripped = $this->rebuild_selection_entry_data( $unparseable, $elements );
-        $this->assertArrayNotHasKey( 'timestamp', $stripped['appointment'] );
+        $this->assertFalse( $stripped, 'Invalid dates must fail the submission contract, not merely lose derived metadata.' );
 
         $unsupported_elements = array(
             array(
@@ -1835,7 +2200,7 @@ class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
             ),
         );
         $unsupported = $this->rebuild_selection_entry_data( $unsupported_data, $unsupported_elements );
-        $this->assertArrayNotHasKey( 'timestamp', $unsupported['unsupported_appointment'] );
+        $this->assertFalse( $unsupported, 'Values that cannot be parsed with the stored format must be rejected.' );
     }
 
 

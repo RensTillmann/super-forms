@@ -211,7 +211,7 @@
             }
             input.onblur = function () {
             }
-            input.addEventListener('keyup', function () {
+            var syncAdaptivePlaceholder = function () {
                 var wrapper = this.closest('.super-field-wrapper');
                 var placeholder = wrapper.querySelector('.super-adaptive-placeholder');
                 var span = placeholder.children[0];
@@ -230,7 +230,11 @@
                     parent.classList.remove('super-filled');
                     span.innerHTML = placeholder.dataset.placeholder;
                 }
-            });
+            };
+            // fill(), autofill, and IME input do not have to emit a keyup.
+            input.addEventListener('input', syncAdaptivePlaceholder);
+            input.addEventListener('keyup', syncAdaptivePlaceholder);
+            input.addEventListener('change', syncAdaptivePlaceholder);
             input.oncut = input.onpaste = function (event) {
                 var wrapper = this.closest('.super-field-wrapper');
                 var placeholder = wrapper.querySelector('.super-adaptive-placeholder');

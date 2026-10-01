@@ -3,6 +3,61 @@
 require_once __DIR__ . '/test-security-upload-00-base.php';
 
 class Test_Super_Forms_Upload_Receipt_Security extends Super_Forms_Upload_Security_Test_Case {
+    public function test_numeric_file_receipt_resolves_and_is_consumed_on_submission() {
+        $this->configure_csrf( 'false' );
+        $form_id = $this->create_form( 'publish', array( $this->file_element('123') ) );
+        $created = $this->create_owned_upload( $form_id, '123' );
+        $token = $this->issue_receipt( $created['owned'] );
+        $this->set_request( $form_id, array(123=>array('type'=>'files', 'files'=>array(array('upload_token'=>$token)))) );
+        $atts = SUPER_Ajax::submit_form_checks( array(), false );
+        foreach( $atts['owned_files'] as $owned_file ) $this->track_owned_cleanup( $owned_file );
+        $this->assertSame( '123', $atts['data'][123]['files'][0]['name'] );
+        $this->assertSame( $created['owned']['file'], $atts['owned_files'][0]['file'] );
+        $this->assertArrayNotHasKey( 'upload_token', $atts['data'][123]['files'][0] );
+        $this->assertFalse( $this->invoke_ajax_private('inspect_upload_receipt', array($token, $form_id, '123')) );
+    }
+
+    public function test_recaptcha_accepts_only_boolean_true_from_verifier() {
+        $this->configure_csrf( 'false' );
+        $response_body = '';
+        $transport = static function( $preempt, $args, $url ) use ( &$response_body ) {
+            if( $url !== 'https://www.google.com/recaptcha/api/siteverify' ) return $preempt;
+            return array(
+                'headers' => array(), 'body' => $response_body,
+                'response' => array( 'code' => 200, 'message' => 'OK' ),
+                'cookies' => array(), 'filename' => null,
+            );
+        };
+        $this->add_upload_filter( 'pre_http_request', $transport, 10, 3 );
+        foreach( array( 'v2', 'v3' ) as $version ) {
+            $form_id = $this->create_form(
+                'publish',
+                array( array( 'tag' => 'recaptcha', 'data' => array( 'version' => $version ) ) ),
+                array( 'form_recaptcha_secret' => 'test-secret', 'form_recaptcha_v3_secret' => 'test-v3-secret' )
+            );
+            $this->set_request( $form_id, array(), array(), array( 'version' => $version, 'token' => 'test-response' ) );
+            $response_body = wp_json_encode( array( 'success' => true ) );
+            $atts = SUPER_Ajax::submit_form_checks( array(), false );
+            $this->assertSame( $form_id, $atts['form_id'] );
+            $rejected = array(
+                array( 'success' => false ), array( 'success' => 1 ),
+                array( 'success' => 'true' ), array( 'success' => 'false' ),
+                array( 'success' => array( true ) ), array( 'success' => null ),
+                array(), true, 'success',
+            );
+            foreach( $rejected as $payload ) {
+                $response_body = wp_json_encode( $payload );
+                $this->assert_handler_rejected_with( static function() {
+                    SUPER_Ajax::submit_form_checks( array(), false );
+                }, 'reCAPTCHA verification failed' );
+            }
+            $response_body = '{invalid-json';
+            $this->assert_handler_rejected_with( static function() {
+                SUPER_Ajax::submit_form_checks( array(), false );
+            }, 'reCAPTCHA verification failed' );
+        }
+    }
+
     private function client_session_option_names() {
         global $wpdb;
         return $wpdb->get_col(

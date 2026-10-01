@@ -161,21 +161,45 @@ class SUPER_Shortcodes {
      *  @since      4.9.3
     */
     public static function get_default_value( $tag, $atts, $settings, $entry_data, $default='' ) {
+        // Only the default value configured by the form author may contain {tags} and shortcodes.
+        // Values coming from the request (GET/POST) or from entry data (previous submission, saved
+        // form progress) are user input and are kept literal, otherwise any visitor could read
+        // options/meta data (e.g. {option_super_settings;smtp_password}) or run shortcodes.
+        // Inside a dynamic column the entry data is placed in `value` by SUPER_Common::replace_tags_dynamic_columns(),
+        // which marks it with `_super_literal_value`
+        $literal = !empty( $atts['_super_literal_value'] );
         // Check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
+            $literal = true;
         }elseif( isset( $_POST[$atts['name']] ) ) { // Also check for POST key
             $atts['value'] = sanitize_text_field( $_POST[$atts['name']] );
+            $literal = true;
         }
         // Get the value for from entry data
         if( !isset( $atts['value'] ) ) $atts['value'] = $default;
         $entry_data_value = self::get_entry_data_value( $tag, $atts['value'], $atts['name'], $entry_data );
         if( (isset($entry_data_value)) && ($entry_data_value!=='') ){
             $atts['value'] = $entry_data_value;
+            if( isset( $entry_data[$atts['name']] ) ) $literal = true;
         }
-        if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings, $user=null, $skip=true, $skipSecrets=true );
-        // Add shortcode compatibility for default field value
-        $atts['value'] = do_shortcode($atts['value']);
+        if( $literal===false ) {
+            // Author default: tags resolve exactly as before ({@secrets} stay hidden until submission).
+            // The contents of visitor controlled tags such as {server_http_referrer} and {user_firstname}
+            // (SUPER_Common::literal_tag_names()) stay placeholders until the shortcodes ran, and are then put back literally
+            $literalValues = array();
+            if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings, $user=null, $skip=true, $skipSecrets=true, $skipOptions=false, $literalValues );
+            // Add shortcode compatibility for default field value
+            $atts['value'] = do_shortcode($atts['value']);
+            $atts['value'] = SUPER_Common::restore_literal_tag_values( $atts['value'], $literalValues, true );
+        }else{
+            // The complete form HTML is passed through do_shortcode() once more (end of super_form_func()),
+            // so escape the brackets the same way WordPress core does, otherwise a [shortcode] typed in the
+            // URL or stored in entry data would still run there. do_shortcode() restores the brackets
+            // afterwards (unescape_invalid_shortcodes) and the browser decodes the entities, so the
+            // visitor sees the value exactly as it was typed
+            $atts['value'] = str_replace( array( '[', ']' ), array( '&#91;', '&#93;' ), $atts['value'] );
+        }
 
         // Required for dropdown field:
         if( $tag=='dropdown' && !empty($atts['absolute_default']) && empty($atts['value']) ) {
@@ -937,7 +961,8 @@ class SUPER_Shortcodes {
                         $author_id = $post->post_author;
                     }
                 }
-                $data = get_user_meta( absint($author_id), $meta_field_name, true ); 
+                // Security: credentials, tokens and private `_` meta are never rendered (see users_retrieve_field_denied())
+                $data = ( self::users_retrieve_field_denied( $meta_field_name ) ? '' : get_user_meta( absint($author_id), $meta_field_name, true ) );
             }
             
             // Retrieve meta data from post
@@ -1040,6 +1065,12 @@ class SUPER_Shortcodes {
             if( !empty( $atts[$prefix.'retrieve_method_role_filters'] ) ) $role_filters = explode("\n",$atts[$prefix.'retrieve_method_role_filters']);
             if( !empty( $atts[$prefix.'retrieve_method_user_label'] ) ) $default_user_label = $atts[$prefix.'retrieve_method_user_label'];
             if( !empty( $atts[$prefix.'retrieve_method_user_meta_keys'] ) ) $meta_keys = $atts[$prefix.'retrieve_method_user_meta_keys'];
+            // Security: user data ends up in the public form HTML, only expose the fields this viewer may see
+            $user_fields = self::users_retrieve_allowed_fields( $atts );
+            if( !$user_fields['privileged'] && $default_user_label==='#{ID} - {first_name} {last_name} ({user_email})' ) {
+                // Keep the old default label readable for unprivileged viewers (no empty parentheses)
+                $default_user_label = '#{ID} - {display_name}';
+            }
             foreach($role_filters as $k => $v){
                 $role_filters[$k] = trim($v);    
             }
@@ -1059,6 +1090,11 @@ class SUPER_Shortcodes {
                 preg_match_all($regex, $user_label, $matches, PREG_SET_ORDER, 0);
                 foreach($matches as $mk => $mv){
                     if( empty($mv[1]) ) continue;
+                    if( !self::users_retrieve_field_allowed( $mv[1], $user_fields ) ) {
+                        // Denied {tags} resolve to an empty string
+                        $user_label = str_replace( '{' . $mv[1] . '}', '', $user_label );
+                        continue;
+                    }
                     if( isset($mv[1]) && isset($v[$mv[1]]) ) {
                         $user_label = str_replace( '{' . $mv[1] . '}', $v[$mv[1]], $user_label );
                     }else{
@@ -1072,6 +1108,11 @@ class SUPER_Shortcodes {
                 $user_value = array();
                 foreach($mk as $mv){
                     if( empty($mv) ) continue;
+                    if( !self::users_retrieve_field_allowed( $mv, $user_fields ) ) {
+                        // Denied keys resolve to an empty string, keeping the {field;N} positions intact
+                        $user_value[] = '';
+                        continue;
+                    }
                     if( isset($v[$mv]) ) {
                         $user_value[] = $v[$mv];
                     }else{
@@ -1214,6 +1255,81 @@ class SUPER_Shortcodes {
         }
         if(empty($items_values)) $items_values = array();
         return apply_filters( 'super_' . $tag . '_' . $atts['name'] . '_items_filter', array('items'=>$items, 'items_values'=>$items_values, 'atts'=>$atts), array( 'tag'=>$tag, 'atts'=>$atts, 'settings'=>$settings, 'entry_data'=>$entry_data ) );
+    }
+
+    /**
+     * Hard denylist for the "users" and "author" retrieve methods: credentials,
+     * tokens, capabilities and private `_` meta are never rendered into the
+     * form HTML, for any viewer.
+     *
+     * @param string $key user data field or user meta key
+     * @return bool
+     */
+    public static function users_retrieve_field_denied( $key ) {
+        $key = trim( (string) $key );
+        if( $key==='' || $key[0]==='_' ) return true;
+        if( in_array( strtolower( $key ), array( 'user_pass', 'user_activation_key', 'session_tokens' ), true ) ) return true;
+        return (bool) preg_match( '/(^|_)(capabilities|user_level|password|pass|token|secret|key|salt|hash)($|_)/i', $key );
+    }
+
+    /**
+     * Which user fields the current viewer may see through retrieve_method=users
+     * ({tag} labels and the meta keys that build the option value).
+     *
+     * Unprivileged viewers (not logged in, or lacking the `list_users` capability)
+     * only get the public profile fields. Privileged viewers keep every user data
+     * field and user meta key, minus the hard denylist (users_retrieve_field_denied()).
+     *
+     * Site owners can extend the allowlist deliberately with the
+     * `super_users_retrieve_allowed_fields` filter, which receives
+     * (array $allowed, bool $privileged, array $atts): the field names for
+     * unprivileged viewers, whether the viewer may already see all non-denied
+     * fields, and the element attributes (name, retrieve_method_* settings, ...).
+     * E.g. to list `user_url` on a public form:
+     *
+     *     add_filter( 'super_users_retrieve_allowed_fields', function( $allowed, $privileged, $atts ) {
+     *         if( !$privileged ) $allowed[] = 'user_url';
+     *         return $allowed;
+     *     }, 10, 3 );
+     *
+     * The filter cannot lift the hard denylist, and `ID` is always allowed.
+     *
+     * @param array $atts element attributes
+     * @return array {
+     *     @type bool  $privileged viewer may see all non-denied fields
+     *     @type array $allowed    lower-case field names for unprivileged viewers
+     * }
+     */
+    public static function users_retrieve_allowed_fields( $atts ) {
+        $privileged = ( is_user_logged_in() && current_user_can( 'list_users' ) );
+        $allowed = array( 'ID', 'display_name', 'user_nicename', 'nickname', 'first_name', 'last_name' );
+        $allowed = apply_filters( 'super_users_retrieve_allowed_fields', $allowed, $privileged, $atts );
+        $fields = array();
+        if( is_array( $allowed ) ) {
+            foreach( $allowed as $field ) {
+                if( is_string( $field ) ) $fields[] = strtolower( trim( $field ) );
+            }
+        }
+        return array(
+            'privileged' => $privileged,
+            'allowed' => $fields
+        );
+    }
+
+    /**
+     * Whether a {tag} or meta key of retrieve_method=users may be rendered for
+     * the current viewer, see users_retrieve_allowed_fields().
+     *
+     * @param string $key         user data field or user meta key
+     * @param array  $user_fields result of users_retrieve_allowed_fields()
+     * @return bool
+     */
+    public static function users_retrieve_field_allowed( $key, $user_fields ) {
+        if( self::users_retrieve_field_denied( $key ) ) return false;
+        if( !empty( $user_fields['privileged'] ) ) return true;
+        $key = strtolower( trim( (string) $key ) );
+        if( $key==='id' ) return true;
+        return ( isset( $user_fields['allowed'] ) && in_array( $key, $user_fields['allowed'], true ) );
     }
 
     
@@ -1657,8 +1773,14 @@ class SUPER_Shortcodes {
         }
         
         // @since 4.7.7 - absolute default value based on settings
+        // This is the author default value once more (see output_element_html()): like get_default_value(),
+        // never print {@secrets} (Secrets tab) into the page source, and insert the contents of visitor controlled tags
+        // literally (the form HTML is passed through do_shortcode() at the end of super_form_func())
         if( isset($atts['absolute_default']) ) {
-            $result .= ' data-absolute-default="' . esc_attr(SUPER_Common::email_tags( $atts['absolute_default'], null, $settings )) . '"';
+            $literalValues = array();
+            $absolute_default = SUPER_Common::email_tags( $atts['absolute_default'], null, $settings, $user=null, $skip=true, $skipSecrets=true, $skipOptions=false, $literalValues );
+            $absolute_default = SUPER_Common::restore_literal_tag_values( $absolute_default, $literalValues, true );
+            $result .= ' data-absolute-default="' . esc_attr($absolute_default) . '"';
         }
 
         
@@ -3115,70 +3237,11 @@ class SUPER_Shortcodes {
                 }
             }
 
-            // @since 3.1.0
-            // make sure if the parameter of this field element is set in the POST or GET we 
-            // have to set the GET variables to auto fill the form fields based on the contact entry found
-            if( $atts['value']!='' && $search_form_id!==0 ) {
-                global $wpdb;
-                $value = sanitize_text_field($atts['value']);
-                $entry = false;
-                if($method==='equals') {
-                    $entry = $wpdb->get_row(
-                        $wpdb->prepare(
-                            "SELECT ID FROM {$wpdb->posts}
-                            WHERE post_parent = %d
-                            AND post_title = BINARY %s
-                            AND post_status IN ('publish','super_unread','super_read')
-                            AND post_type = 'super_contact_entry'
-                            LIMIT 1",
-                            $search_form_id,
-                            $value
-                        )
-                    );
-                }elseif($method==='contains') {
-                    $entry = $wpdb->get_row(
-                        $wpdb->prepare(
-                            "SELECT ID FROM {$wpdb->posts}
-                            WHERE post_parent = %d
-                            AND post_title LIKE BINARY %s
-                            AND post_status IN ('publish','super_unread','super_read')
-                            AND post_type = 'super_contact_entry'
-                            LIMIT 1",
-                            $search_form_id,
-                            '%' . $wpdb->esc_like($value) . '%'
-                        )
-                    );
-                }
-                if($entry){
-                    $data = SUPER_Data_Access::get_entry_data( $entry->ID );
-                    unset($data['hidden_form_id']);
-                    $skip_fields = explode( "|", $skip );
-                    foreach($skip_fields as $field_name){
-                        if( isset($data[$field_name]) ) {
-                            unset($data[$field_name]);
-                        }
-                    }
-                    if( !SUPER_Common::entry_has_wc_order( $entry->ID ) ) {
-                        $data['hidden_contact_entry_id'] = array(
-                            'name' => 'hidden_contact_entry_id',
-                            'value' => $entry->ID,
-                            'type' => 'entry_id'
-                        );
-                    }
-                    if (is_array($data) || is_object($data)) {
-                        foreach($data as $k => $v){
-                            $_GET[$k] = $v['value'];
-                        }
-                    }
-
-                }
-            }
+            // Prefilled searches use the frontend's guarded populate request;
+            // rendering must not read entries or copy their data into request values.
         }
         if( $atts['wc_order_search']=='true' ) {
             if(!empty($atts['wc_order_search_method'])) $result .= ' data-wcosm="' . esc_attr($atts['wc_order_search_method']) . '"';
-            if(!empty($atts['wc_order_search_filterby'])) $result .= ' data-wcosfb="' . implode(';',explode("\n",$atts['wc_order_search_filterby'])) . '"';
-            if(!empty($atts['wc_order_search_return_label'])) $result .= ' data-wcosrl="' . esc_attr($atts['wc_order_search_return_label']) . '"';
-            if(!empty($atts['wc_order_search_return_value'])) $result .= ' data-wcosrv="' . esc_attr($atts['wc_order_search_return_value']) . '"';
             $wc_order_skip = '';
             if(!empty($atts['wc_order_search_skip'])) {
                 $wc_order_skip = sanitize_text_field($atts['wc_order_search_skip']);
@@ -3199,7 +3262,6 @@ class SUPER_Shortcodes {
                     }
                 }
             }
-            if(!empty($atts['wc_order_search_status'])) $result .= ' data-wcosst="' . implode(';',explode("\n",$atts['wc_order_search_status'])) . '"';
             if(!empty($atts['value'])) {
                 global $wpdb;
                 $value = sanitize_text_field($atts['value']);
@@ -3240,12 +3302,18 @@ class SUPER_Shortcodes {
                         }
                     }
                 }
+                // Only orders the visitor may see (shop staff: all, customers: their own, guests: none).
+                $order_scope = SUPER_Common::wc_order_search_scope( $search_form_id, $atts['name'] );
+                if( $order_scope!=='all' ) {
+                    $query .= " AND EXISTS (SELECT 1 FROM $wpdb->postmeta AS owner WHERE owner.post_id = wc_order.ID AND owner.meta_key = '_customer_user' AND owner.meta_value = %s)";
+                    $prepare_values[] = ( $order_scope===false ) ? '-1' : (string) $order_scope;
+                }
                 $query .= " GROUP BY wc_order.ID
                     LIMIT 1";
                 // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $query holds only literal SQL plus generated placeholders: implode( ' OR ', $where ) over the literals 'wc_order.ID LIKE %s' / '(meta.meta_key = %s AND meta.meta_value LIKE %s)' (includes/class-shortcodes.php:3213-3233) and implode( ',', array_fill( 0, count( $statuses ), '%s' ) ) (includes/class-shortcodes.php:3237); every value travels in $prepare_values through $wpdb->prepare() on this line.
                 $order_id = $wpdb->get_var( $wpdb->prepare( $query, $prepare_values ) );
                 $order_id = absint($order_id);
-                if($order_id!==0){
+                if($order_id!==0 && $order_scope!==false && SUPER_Common::wc_order_in_scope($order_id, $order_scope)){
                     if(!empty($atts['wc_order_search_populate']) && $search_form_id!==0){
                         $data = SUPER_Common::get_entry_data_by_wc_order_id($order_id, $wc_order_skip, $search_form_id);
                         if(is_array($data)){
@@ -4411,7 +4479,6 @@ class SUPER_Shortcodes {
         if( $atts['enable_random_code']=='true' ) $result .= ' data-code="' . $atts['enable_random_code'] . '"';
         if( $atts['code_invoice']=='true' ) $result .= ' data-invoice-padding="' . $atts['code_invoice_padding'] . '"';
 
-        if(!empty($codeSettings)) $result .= ' data-codeSettings="' . esc_attr(json_encode($codeSettings)) . '"';
         $result .= ' />';
 
         $result .= self::loop_variable_conditions( $atts );
@@ -5006,6 +5073,15 @@ class SUPER_Shortcodes {
         if(!empty($data['name'])){
             $data['originalFieldName'] = $data['name'];
             $element = array('tag' => $tag, 'data' => $data, 'group' => $group);
+            // Security: inside a dynamic column `value` may already hold the entry data (saved form progress or a previous submission),
+            // see SUPER_Common::replace_tags_dynamic_columns(). That is user input, the absolute default must be the author's value
+            if( !empty($data['_super_literal_value']) ) {
+                if( isset($data['_super_author_value']) ) {
+                    $element['data']['value'] = $data['_super_author_value'];
+                }else{
+                    unset($element['data']['value']);
+                }
+            }
             $data['absolute_default'] = SUPER_Common::get_absolute_default_value($element, $shortcodes);
         }
 

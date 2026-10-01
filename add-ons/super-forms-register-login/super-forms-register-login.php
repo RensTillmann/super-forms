@@ -1288,21 +1288,10 @@ if( !class_exists('SUPER_Register_Login') ) :
             if( !is_string($code) || $code==='' ) {
                 return false;
             }
-            $mail = self::send_verification_email(array('password'=>'', 'code'=>$code, 'user'=>$user, 'settings'=>$settings, 'data'=>$data));
-            if( !empty( $mail->ErrorInfo ) ) {
-                SUPER_Common::output_message(
-                    $error = true,
-                    $msg = $mail->ErrorInfo,
-                    $redirect = null
-                );
-            }
-            self::issue_pending_registration_recovery( $user->ID, $form_id, $user_login, $user_email );
-            SUPER_Common::output_message(
-                $error = false,
-                $msg = esc_html__( 'We have send you a new verification code, check your email to verify your account!', 'super-forms' ),
-                $redirect = null
-            );
+            self::maybe_resend_pending_activation_email( $user, $form_id, $settings, $data );
+            self::finish_resend_activation_request();
         }
+
         private static function resend_activation_rate_limit_key( $user_id, $user_email ) {
             return 'super_resend_activation_' . hash(
                 'sha256',
@@ -1347,9 +1336,12 @@ if( !class_exists('SUPER_Register_Login') ) :
             }
             if( !is_array($settings)
                 || empty($settings['register_login_action'])
-                || $settings['register_login_action']!=='register' ) {
+                || !in_array($settings['register_login_action'], array('register', 'login'), true) ) {
                 return false;
             }
+            // Login resends still require the password-established browser/form recovery
+            // grant in resend_activation_requested_user; registration mode is unrelated.
+            if( $settings['register_login_action']==='login' ) return $settings;
             $activation = isset($settings['register_login_activation']) && is_string($settings['register_login_activation'])
                 ? $settings['register_login_activation']
                 : 'verify';
@@ -1385,48 +1377,52 @@ if( !class_exists('SUPER_Register_Login') ) :
             return $login_user;
         }
 
-        private static function maybe_resend_pending_activation_email( $user, $form_id, $settings ) {
+        private static function maybe_resend_pending_activation_email( $user, $form_id, $settings, $data=null ) {
             if( !($user instanceof WP_User) ) {
                 return false;
             }
-            $form_id = absint($form_id);
-            $user_email = sanitize_email($user->user_email);
-            $account_status = get_user_meta( $user->ID, 'super_account_status', true );
-            $code = get_user_meta( $user->ID, 'super_account_activation', true );
-            if( $form_id===0
-                || !is_array($settings)
-                || $user_email===''
-                || $account_status===1
-                || $account_status==='1'
-                || !is_string($code)
-                || $code==='' ) {
-                return false;
-            }
-            $rate_limit_key = self::resend_activation_rate_limit_key( $user->ID, $user_email );
-            if( get_transient($rate_limit_key)!==false ) {
-                return true;
-            }
-            $daily_limit_key = self::resend_activation_daily_limit_key( $user->ID );
-            $daily_count = absint( get_transient($daily_limit_key) );
-            if( $daily_count>=5 ) {
-                return true;
-            }
-            $mail = self::send_verification_email(array(
-                'password' => '',
-                'code' => $code,
-                'user' => $user,
-                'settings' => $settings,
-                'data' => array(
-                    'user_login' => array( 'value' => $user->user_login ),
-                    'user_email' => array( 'value' => $user_email ),
-                ),
-            ));
-            if( !empty( $mail->ErrorInfo ) ) {
-                return false;
-            }
-            set_transient( $rate_limit_key, time(), MINUTE_IN_SECONDS );
-            set_transient( $daily_limit_key, $daily_count + 1, self::resend_activation_daily_limit_ttl() );
-            return true;
+            return SUPER_Common::with_registered_account_lock($user->ID, static function() use ($user, $form_id, $settings, $data) {
+                // Re-read account state after acquiring the same lock used by account operations.
+                wp_cache_delete($user->ID, 'user_meta');
+                $form_id = absint($form_id);
+                $user_email = sanitize_email($user->user_email);
+                $account_status = get_user_meta($user->ID, 'super_account_status', true);
+                $code = get_user_meta($user->ID, 'super_account_activation', true);
+                if( $form_id===0 || !is_array($settings) || $user_email===''
+                    || $account_status===1 || $account_status==='1' || !is_string($code) || $code==='' ) {
+                    return false;
+                }
+                $rate_limit_key = self::resend_activation_rate_limit_key($user->ID, $user_email);
+                $daily_limit_key = self::resend_activation_daily_limit_key($user->ID);
+                // A request may have cached these values before another request took the lock.
+                foreach( array($rate_limit_key, $daily_limit_key) as $key ) {
+                    wp_cache_delete($key, 'transient');
+                    wp_cache_delete('_transient_' . $key, 'options');
+                    wp_cache_delete('_transient_timeout_' . $key, 'options');
+                }
+                $daily_count = absint(get_transient($daily_limit_key));
+                if( get_transient($rate_limit_key)!==false || $daily_count>=5 ) {
+                    return true;
+                }
+                // Reserve the attempt before delivery, including failed or re-entrant sends.
+                if( !set_transient($rate_limit_key, time(), MINUTE_IN_SECONDS)
+                    || !set_transient($daily_limit_key, $daily_count + 1, self::resend_activation_daily_limit_ttl()) ) {
+                    return false;
+                }
+                if( !is_array($data) ) {
+                    $data = array(
+                        'user_login'=>array('value'=>$user->user_login),
+                        'user_email'=>array('value'=>$user_email),
+                    );
+                }
+                $mail = self::send_verification_email(array(
+                    'password'=>'', 'code'=>$code, 'user'=>$user, 'settings'=>$settings, 'data'=>$data,
+                ));
+                if( is_array($mail) ) {
+                    return !empty($mail['result']) && empty($mail['error']);
+                }
+                return is_object($mail) && empty($mail->ErrorInfo);
+            });
         }
 
         private static function finish_resend_activation_request() {
@@ -1502,6 +1498,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                 'super_user_login_status',
                 'super_user_approve_data',
                 'super_last_login',
+                'super_pending_registration_recovery',
             );
             if( in_array($meta_key, $protected, true) ) {
                 return true;
@@ -1672,9 +1669,10 @@ if( !class_exists('SUPER_Register_Login') ) :
             if( !is_string($string) ) {
                 return $string;
             }
-            $unserialized = (defined('PHP_VERSION_ID') && PHP_VERSION_ID>=70000)
-                ? @unserialize( $string, array('allowed_classes'=>false) )
-                : @unserialize( $string );
+            // @since 6.3.318 - The string can contain submitted values: an array holding an object (an
+            // __PHP_Incomplete_Class, also nested) is not returned either, it would be saved to user meta,
+            // serialized again and instantiated when WordPress reads the meta back. Arrays and plain strings as before
+            $unserialized = SUPER_Common::unserialize_without_objects( $string );
             return is_array($unserialized) ? $unserialized : $string;
         }
 
@@ -2552,12 +2550,22 @@ if( !class_exists('SUPER_Register_Login') ) :
                         // Maybe this user was already registered before Super Forms was used, if so skip the test
                         if( ( !isset( $data['activation_code'] ) ) && ( $status==0 ) && ( $status!='' ) ) {
                             wp_logout();
-                            $msg = sprintf(
-                                /* translators: 1: opening HTML link tag for resending the verification email, 2: closing HTML link tag. */
-                                esc_html__( 'You haven\'t verified your account yet. Please check your email or click %1$shere%2$s to resend your verification email.', 'super-forms' ),
-                                '<a href="#" class="resend-code" data-form="' . absint( $post['form_id'] ) . '" data-user="' . esc_attr($user->user_login) . '" data-email="' . esc_attr($user->user_email) . '" data-nonce="' . esc_attr( self::resend_activation_request_nonce() ) . '">',
-                                '</a>'
+                            // This branch is reached only after wp_signon validated the
+                            // password and the saved login role policy accepted the account.
+                            $can_resend = self::issue_pending_registration_recovery(
+                                $user_id, isset($post['form_id']) ? absint($post['form_id']) : 0,
+                                $user->user_login, $user->user_email
                             );
+                            if( $can_resend ) {
+                                $msg = sprintf(
+                                    /* translators: 1: opening HTML link tag for resending the verification email, 2: closing HTML link tag. */
+                                    esc_html__( 'You haven\'t verified your account yet. Please check your email or click %1$shere%2$s to resend your verification email.', 'super-forms' ),
+                                    '<a href="#" class="resend-code" data-form="' . absint( $post['form_id'] ) . '" data-user="' . esc_attr($user->user_login) . '" data-email="' . esc_attr($user->user_email) . '" data-nonce="' . esc_attr( self::resend_activation_request_nonce() ) . '">',
+                                    '</a>'
+                                );
+                            }else{
+                                $msg = esc_html__( 'You have not verified your account yet. Please check your verification email.', 'super-forms' );
+                            }
                             // Only store message in session, if overlay popup is not enabled
                             if(!empty($settings['form_processing_overlay']) && $settings['form_processing_overlay']==='true'){
                                 // Overlay enabled
@@ -2776,16 +2784,23 @@ if( !class_exists('SUPER_Register_Login') ) :
             $message = str_replace( '{user_login}', $username, $message );
             $message = str_replace( '{register_login_url}', $settings['register_login_url'], $message );
             $message = str_replace( '{register_activation_code}', $code, $message );
-            $message = SUPER_Common::email_tags( $message, $data, $settings );
+            // @since 6.3.318 - Two passes over the same message (submitted data, then the new user): submitted values
+            // stay inert tokens through both, so the second pass can never resolve a {tag} a visitor typed. Everything
+            // is put back once at the end, the foreach/if/isset syntax only after email_if_statements() ran
+            $literalValues = array();
+            $message = SUPER_Common::email_tags_keep_submitted( $message, $data, $settings, null, $literalValues );
             if(!empty($password)){
-                $message = str_replace( '{register_generated_password}', $password, $message );
+                // The password may be the one the visitor typed (`user_pass` field): insert it literally, byte for byte
+                $message = str_replace( '{register_generated_password}', SUPER_Common::literal_value_placeholder( 'register_generated_password', $password, $literalValues ), $message );
             }
-            $message = SUPER_Common::email_tags( $message, $data, $settings, $user );
+            $message = SUPER_Common::email_tags_keep_submitted( $message, $data, $settings, $user, $literalValues );
+            $message = SUPER_Common::restore_literal_tag_values( $message, $literalValues, false, true );
             $message = nl2br( $message );
             // By default use Admin email settings
             $h = self::get_email_headers(array('settings'=>$settings, 'data'=>$data, 'user'=>$user));
             // Send the email
             $message = apply_filters( 'super_before_sending_email_body_filter', $message, array( 'settings'=>$settings, 'email_loop'=>'', 'data'=>$data ) );
+            $message = SUPER_Common::restore_submitted_control_syntax( $message );
             $message = apply_filters( 'super_before_sending_verification_email_body_filter', $message, array( 'settings'=>$settings, 'email_loop'=>'', 'data'=>$data ) );
             $attachments = apply_filters( 'super_register_login_before_verify_attachments_filter', array(), array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$message ) );
             // Deprecated, but used as fallback for custome code by other devs
@@ -2803,21 +2818,27 @@ if( !class_exists('SUPER_Register_Login') ) :
             $message = str_replace( '{field_user_login}', $username, $message );
             $message = str_replace( '{user_login}', $username, $message );
             $message = str_replace( '{register_login_url}', $settings['register_login_url'], $message );
+            // @since 6.3.318 - The foreach/if/isset syntax of submitted values stays inert until email_if_statements() ran,
+            // the password is inserted literally (never resolved as a {tag}, whatever `random_password` filters return)
+            $literalValues = array();
             // Generate a password upon approval
             if( (isset($settings['register_approve_generate_pass'])) && ($settings['register_approve_generate_pass']=='true') ) {
                 add_filter( 'send_password_change_email', '__return_false' );
                 $password = wp_generate_password( 24, false );
                 $user_id = wp_update_user( array( 'ID' => $user->ID, 'user_pass' => $password ) );
-                $message = str_replace( '{field_user_pass}', $password, $message );
-                $message = str_replace( '{user_pass}', $password, $message );
-                $message = str_replace( '{register_generated_password}', $password, $message );
+                $password_placeholder = SUPER_Common::literal_value_placeholder( 'register_generated_password', $password, $literalValues );
+                $message = str_replace( '{field_user_pass}', $password_placeholder, $message );
+                $message = str_replace( '{user_pass}', $password_placeholder, $message );
+                $message = str_replace( '{register_generated_password}', $password_placeholder, $message );
             }
-            $message = SUPER_Common::email_tags( $message, $data, $settings );
+            $message = SUPER_Common::email_tags( $message, $data, $settings, null, true, false, false, $literalValues );
+            $message = SUPER_Common::restore_literal_tag_values( $message, $literalValues, false, true );
             $message = nl2br( $message );
             // By default use Admin email settings
             $h = self::get_email_headers(array('settings'=>$settings, 'data'=>$data, 'user'=>$user));
             // Send the email
             $message = apply_filters( 'super_before_sending_email_body_filter', $message, array( 'settings'=>$settings, 'email_loop'=>'', 'data'=>$data ) );
+            $message = SUPER_Common::restore_submitted_control_syntax( $message );
             $message = apply_filters( 'super_before_sending_approve_email_body_filter', $message, array( 'settings'=>$settings, 'email_loop'=>'', 'data'=>$data ) );
             $attachments = apply_filters( 'super_register_login_before_approve_attachments_filter', array(), array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$message ) );
             $mail = SUPER_Common::email( $to, $h['header_from'], $h['header_from_name'], $h['custom_reply'], $h['header_reply'], $h['header_reply_name'], '', '', $subject, $message, $settings, $attachments );
@@ -2833,15 +2854,21 @@ if( !class_exists('SUPER_Register_Login') ) :
             $message = str_replace( '{field_user_login}', $username, $message );
             $message = str_replace( '{user_login}', $username, $message );
             $message = str_replace( '{register_login_url}', $settings['register_login_url'], $message );
-            $message = str_replace( '{field_user_pass}', $password, $message );
-            $message = str_replace( '{user_pass}', $password, $message );
-            $message = str_replace( '{register_generated_password}', $password, $message );
-            $message = SUPER_Common::email_tags( $message, $data, $settings );
+            // @since 6.3.318 - The foreach/if/isset syntax of submitted values stays inert until email_if_statements() ran,
+            // the password is inserted literally (never resolved as a {tag})
+            $literalValues = array();
+            $password_placeholder = SUPER_Common::literal_value_placeholder( 'register_generated_password', $password, $literalValues );
+            $message = str_replace( '{field_user_pass}', $password_placeholder, $message );
+            $message = str_replace( '{user_pass}', $password_placeholder, $message );
+            $message = str_replace( '{register_generated_password}', $password_placeholder, $message );
+            $message = SUPER_Common::email_tags( $message, $data, $settings, null, true, false, false, $literalValues );
+            $message = SUPER_Common::restore_literal_tag_values( $message, $literalValues, false, true );
             $message = nl2br( $message );
             // By default use Admin email settings
             $h = self::get_email_headers(array('settings'=>$settings, 'data'=>$data, 'user'=>$user));
             // Send the email
             $message = apply_filters( 'super_before_sending_email_body_filter', $message, array( 'settings'=>$settings, 'email_loop'=>'', 'data'=>$data ) );
+            $message = SUPER_Common::restore_submitted_control_syntax( $message );
             $message = apply_filters( 'super_before_sending_reset_password_body_filter', $message, array( 'settings'=>$settings, 'email_loop'=>'', 'data'=>$data ) );
             $attachments = apply_filters( 'super_register_login_before_sending_reset_password_attachments_filter', array(), array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$message ) );
             $mail = SUPER_Common::email( $to, $h['header_from'], $h['header_from_name'], $h['custom_reply'], $h['header_reply'], $h['header_reply_name'], '', '', $subject, $message, $settings, $attachments );
