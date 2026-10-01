@@ -60,9 +60,16 @@ class Test_Security_Api_Transient_Cache extends WP_UnitTestCase {
 	 * WP_HOME / Host header dependent) get_home_url().
 	 */
 	private function key( $slug ) {
+		return md5( $slug . '|' . $this->stored_home() );
+	}
+
+	/**
+	 * The home URL as stored in the database: the cache key and the home_url the
+	 * request sends both use it.
+	 */
+	private function stored_home() {
 		global $wpdb;
-		$home = $wpdb->get_var( "SELECT option_value FROM {$wpdb->options} WHERE option_name = 'home'" );
-		return md5( $slug . '|' . $home );
+		return $wpdb->get_var( "SELECT option_value FROM {$wpdb->options} WHERE option_name = 'home'" );
 	}
 
 	private function fresh_body( $slug ) {
@@ -339,7 +346,7 @@ class Test_Security_Api_Transient_Cache extends WP_UnitTestCase {
 		$this->assertSame(
 			array(
 				'slug'      => $slug,
-				'home_url'  => get_home_url(),
+				'home_url'  => $this->stored_home(),
 				'admin_url' => admin_url(),
 				'version'   => SUPER_VERSION,
 			),
@@ -507,7 +514,7 @@ class Test_Security_Api_Transient_Cache extends WP_UnitTestCase {
 	/**
 	 * (9) A home URL that follows the Host header (WP_HOME built from $_SERVER['HTTP_HOST'])
 	 * does not create new rows per host: the key uses the stored home option, so the cache
-	 * stays bounded to the fixed licence slugs. The request body still sends get_home_url().
+	 * stays bounded to the fixed licence slugs. The request body sends the same stored home.
 	 */
 	public function test_home_url_that_varies_per_request_does_not_create_new_cache_rows() {
 		$this->require_cache_enabled();
@@ -522,7 +529,7 @@ class Test_Security_Api_Transient_Cache extends WP_UnitTestCase {
 		$this->assertSame( 'one-answer', $this->call( 'before_do_shortcode' ) );
 		$this->assertCount( 1, $this->requests );
 		$body = json_decode( $this->requests[0]['args']['body'], true );
-		$this->assertSame( 'https://host-a.example', $body['home_url'], 'The request keeps sending get_home_url().' );
+		$this->assertSame( $this->stored_home(), $body['home_url'], 'The request sends the stored home, the value the cache key uses.' );
 		$rows = $this->cache_rows();
 
 		foreach ( array( 'host-b.example', 'host-c.example', 'evil.example:8080' ) as $host ) {
@@ -532,6 +539,44 @@ class Test_Security_Api_Transient_Cache extends WP_UnitTestCase {
 		$this->assertCount( 1, $this->requests, 'Another Host header must not miss the cache.' );
 		$this->assertSame( $rows, $this->cache_rows(), 'Another Host header must not add option rows.' );
 		$this->assertSame( 'one-answer', $this->fresh_body( 'before_do_shortcode' ) );
+	}
+
+	/**
+	 * (9a) The identity the API is asked about is the one the answer is cached under.
+	 * With a home_url / option_home filter that returns another (staging-pattern or
+	 * unlicensed) domain on every request, each request still sends the stored home, so
+	 * the API never decides on the Host's domain and no other domain's answer is cached
+	 * for the site (fresh transient and last-known-good).
+	 */
+	public function test_home_url_filter_never_changes_the_requested_identity_or_the_cached_answer() {
+		$this->require_cache_enabled();
+		$this->add_tracked_filter( 'home_url', array( $this, 'filter_home_to_request_host' ), 99 );
+		$this->add_tracked_filter( 'option_home', array( $this, 'filter_home_option_to_request_host' ), 99 );
+		$stored          = $this->stored_home();
+		$this->responder = function ( $args ) use ( $stored ) {
+			// Mimic the API: the answer depends on the home_url it is asked about.
+			$sent = json_decode( $args['body'], true );
+			$body = ( $sent['home_url'] === $stored ) ? 'answer-for-stored-home' : 'answer-for-' . $sent['home_url'];
+			return $this->http_response( 200, $this->api_json( 200, $body ) );
+		};
+
+		foreach ( array( 'staging.example.com', 'dev.example.test', 'unlicensed.example', 'evil.example:8080' ) as $i => $host ) {
+			$this->request_host = $host;
+			$this->assertSame( 'https://' . $host, get_home_url(), 'The filter is active for ' . $host );
+			SUPER_Common::flush_api_transients();
+			foreach ( self::slug_provider() as $row ) {
+				$this->assertSame( 'answer-for-stored-home', $this->call( $row[0] ), 'Answer for the stored home with Host ' . $host );
+				$this->assertSame( 'answer-for-stored-home', $this->fresh_body( $row[0] ) );
+				$last = get_option( '_super_api_transient_last_' . $this->key( $row[0] ) );
+				$this->assertSame( 'answer-for-stored-home', $last['body'] );
+			}
+		}
+		$this->assertCount( 12, $this->requests, 'One request per slug and host after each flush.' );
+		foreach ( $this->requests as $request ) {
+			$sent = json_decode( $request['args']['body'], true );
+			$this->assertSame( $stored, $sent['home_url'], 'The request must send the stored home, never the filtered one.' );
+			$this->assertSame( array( 'slug', 'home_url', 'admin_url', 'version' ), array_keys( $sent ) );
+		}
 	}
 
 	/**
