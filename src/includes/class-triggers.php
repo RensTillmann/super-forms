@@ -195,7 +195,8 @@ class SUPER_Triggers {
         $email_loop = $options['loop_open'].$loops['email_loop'].$options['loop_close'];
         $attachments = $loops['attachments'];
         $string_attachments = $loops['string_attachments'];
-        $email_body = $options['body'];
+        // @since 6.4.008 - `{field}` placeholders of the author's foreach blocks resolve per row
+        $email_body = SUPER_Common::protect_foreach_placeholders( $options['body'], $data );
         $email_body = str_replace( '{loop_fields}', $email_loop, $email_body );
         // @since 6.3.318 - Same order as SUPER_Ajax::submit_form(): the `[` and `]` of submitted values stay inert until the
         // author's shortcodes ran, their foreach/if/isset syntax until email_if_statements() (body filter) ran

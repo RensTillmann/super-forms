@@ -1542,8 +1542,8 @@ if( !class_exists('SUPER_PayPal') ) :
 		 */
 		private function verify_ipn_message( $sandbox ) {
 			$url = 'https://ipnpb.' . ( $sandbox ? 'sandbox.' : '' ) . 'paypal.com/cgi-bin/webscr';
-			// Filterable for tests; the body PayPal posted is what gets echoed back for verification.
-			$raw_post_data = apply_filters( 'super_paypal_ipn_raw_body', file_get_contents('php://input') );
+			// The body PayPal posted is what gets echoed back for verification (not filterable, as on 6.3.318)
+			$raw_post_data = file_get_contents('php://input');
 			if ( !is_string($raw_post_data) || $raw_post_data === '' ) return 'INVALID';
 			$req = self::ipn_validation_body($raw_post_data);
 			$response = wp_remote_post( $url, array(
@@ -2000,6 +2000,8 @@ if( !class_exists('SUPER_PayPal') ) :
 						if(!empty($settings['paypal_completed_body_open'])) $settings['paypal_completed_body_open'] = $settings['paypal_completed_body_open'] . '<br /><br />';
 						if(!empty($settings['paypal_completed_body'])) $settings['paypal_completed_body'] = $settings['paypal_completed_body'] . '<br /><br />';
 						$email_body = $settings['paypal_completed_body_open'] . $settings['paypal_completed_body'] . $settings['paypal_completed_body_close'];
+						// @since 6.4.008 - `{field}` placeholders of the author's foreach blocks resolve per row
+						$email_body = SUPER_Common::protect_foreach_placeholders( $email_body, $data );
 						$email_body = str_replace( '{loop_fields}', $confirm_loop, $email_body );
 
 						// Set a new password when a user registered and when `{register_generated_password}` tag is found and if we are sending an email to the user

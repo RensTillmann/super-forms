@@ -2190,7 +2190,9 @@ if(!class_exists('SUPER_Forms')) :
                 // it is literal text (possibly typed by a visitor, together with this whole foreach).
                 // Keep it literal; only the <%field%> placeholders below may resolve.
                 // The foreach syntax of submitted values is still inert here (see SUPER_Common::submitted_control_tokens()),
-                // this block is the author's own, so its <%field%> placeholders are left alone
+                // this block is the author's own, so its <%field%> placeholders are left alone.
+                // @since 6.4.008 - The author's own `{field}` / file loop `{url}` placeholders arrive here as <%field%> / <%url%>:
+                // callers rewrite them in the template before email_tags() (SUPER_Common::protect_foreach_placeholders())
                 $return = SUPER_Common::neutralize_submitted_tags( $return, array(), null, false );
                 $i = 1;
                 $rows = '';

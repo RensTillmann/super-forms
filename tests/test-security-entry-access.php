@@ -268,6 +268,19 @@ class Test_Security_Entry_Access extends WP_UnitTestCase {
 		);
 	}
 
+	public function test_refreshing_nonce_preserves_a_nonce_only_browser_session() {
+		$session_id = $_COOKIE['_sfs_id'];
+		update_option( '_sfsdata_' . $session_id, array(
+			'expires' => time() + HOUR_IN_SECONDS,
+			'exp_var' => time() + 20 * MINUTE_IN_SECONDS,
+		), false );
+		$first = SUPER_Common::generate_nonce();
+		$second = SUPER_Common::generate_nonce();
+		$this->assertNotSame( $first, $second );
+		$this->assertSame( $session_id, $_COOKIE['_sfs_id'] );
+		$this->assertSame( $second, get_option( '_sfsdata_' . $session_id )['sf_nonce']['value'] );
+	}
+
 	public function test_valid_browser_cookie_authorizes_exact_entry_once() {
 		$before = time();
 		$call = $this->issue( $this->entry_a );

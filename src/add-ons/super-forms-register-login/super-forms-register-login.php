@@ -2675,7 +2675,8 @@ if( !class_exists('SUPER_Register_Login') ) :
             $username = $user->user_login;
             // Replace email tags with correct data
             $subject = SUPER_Common::email_tags( $settings['register_activation_subject'], $data, $settings );
-            $message = $settings['register_activation_email'];
+            // @since 6.4.008 - `{field}` placeholders of the author's foreach blocks resolve per row
+            $message = SUPER_Common::protect_foreach_placeholders( $settings['register_activation_email'], $data );
             $message = str_replace( '{field_user_login}', $username, $message );
             $message = str_replace( '{user_login}', $username, $message );
             $message = str_replace( '{register_login_url}', $settings['register_login_url'], $message );
@@ -2710,7 +2711,8 @@ if( !class_exists('SUPER_Register_Login') ) :
             $to = $user->user_email;
             // Replace email tags with correct data
             $subject = SUPER_Common::email_tags( $settings['register_approve_subject'], $data, $settings );
-            $message = $settings['register_approve_email'];
+            // @since 6.4.008 - `{field}` placeholders of the author's foreach blocks resolve per row
+            $message = SUPER_Common::protect_foreach_placeholders( $settings['register_approve_email'], $data );
             $message = str_replace( '{field_user_login}', $username, $message );
             $message = str_replace( '{user_login}', $username, $message );
             $message = str_replace( '{register_login_url}', $settings['register_login_url'], $message );
@@ -2746,7 +2748,8 @@ if( !class_exists('SUPER_Register_Login') ) :
             $to = $user->user_email;
             // Replace email tags with correct data
             $subject = SUPER_Common::email_tags( $settings['register_reset_password_subject'], $data, $settings, $user );
-            $message = $settings['register_reset_password_email'];
+            // @since 6.4.008 - `{field}` placeholders of the author's foreach blocks resolve per row
+            $message = SUPER_Common::protect_foreach_placeholders( $settings['register_reset_password_email'], $data );
             $message = str_replace( '{field_user_login}', $username, $message );
             $message = str_replace( '{user_login}', $username, $message );
             $message = str_replace( '{register_login_url}', $settings['register_login_url'], $message );

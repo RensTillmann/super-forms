@@ -3607,6 +3607,48 @@ class SUPER_Common {
     }
 
     /**
+     * @since 6.4.008 - 6.4 lets the author write `{field}` (next to `<%field%>`) inside an E-mail foreach block,
+     * and `{url}`, `{name}` etc. inside a file loop. Since 6.3.318 email_tags() runs over the body BEFORE
+     * SUPER_Forms::email_if_statements() (so submitted foreach/if/isset syntax stays inert), which would resolve such a
+     * `{field}` to the value of the first row before the loop expands. Callers pass the AUTHOR's template through this
+     * before {loop_fields} or any submitted value is inserted and before email_tags(): inside each foreach block a
+     * `{field}`/`{field;option}` of a submitted field (or `{counter}`), and in a file loop a `{url}`-style file
+     * attribute, is rewritten to the equivalent `<%...%>` placeholder, which email_tags() leaves alone and
+     * email_if_statements() resolves per row. Submitted values are never passed through here, so nothing a visitor
+     * typed can become a placeholder. Any other `{tag}` is left to email_tags() as before.
+     */
+    public static function protect_foreach_placeholders( $template, $data=null ) {
+        if( !is_string($template) || strpos($template, '{')===false || stripos($template, 'foreach')===false ) return $template;
+        if( !is_array($data) ) $data = array();
+        $fileAttributes = array( 'counter', 'url', 'ext', 'extension', 'type', 'mime', 'name', 'basename', 'attachment_id', 'attachment' );
+        $result = preg_replace_callback(
+            // Same foreach block regex as SUPER_Forms::email_if_statements()
+            '/(foreach\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?\)\s?:)([\s\S]*?)(endforeach\s?;)/',
+            function( $block ) use ( $data, $fileAttributes ) {
+                $loopName = explode( ';', $block[2] );
+                $fileLoop = ( isset($loopName[1]) && $loopName[1]==='loop' );
+                $body = preg_replace_callback(
+                    '/\{([-_a-zA-Z0-9]{1,})(?:;([-_a-zA-Z0-9]{1,}))?\}/',
+                    function( $tag ) use ( $data, $fileLoop, $fileAttributes ) {
+                        if( $fileLoop ) {
+                            if( !isset($tag[2]) && in_array( $tag[1], $fileAttributes, true ) ) return '<%' . $tag[1] . '%>';
+                            return $tag[0];
+                        }
+                        if( $tag[1]==='counter' && !isset($tag[2]) ) return '<%counter%>';
+                        if( isset($data[$tag[1]]) ) return '<%' . substr( $tag[0], 1, -1 ) . '%>';
+                        return $tag[0];
+                    },
+                    $block[3]
+                );
+                if( !is_string($body) ) $body = $block[3];
+                return $block[1] . $body . $block[4];
+            },
+            $template
+        );
+        return ( is_string($result) ? $result : $template );
+    }
+
+    /**
      * Create an array with tags that can be used in emails, this function also replaced tags when $value and $data are set
      *
      * @since 1.0.6

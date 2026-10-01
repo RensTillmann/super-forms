@@ -6008,6 +6008,8 @@ class SUPER_Ajax {
             }
         }
         $settings = SUPER_Common::get_form_settings($form_id);
+        // @since 6.4.008 - `{field}` placeholders of the template's own foreach blocks resolve per row
+        $html = SUPER_Common::protect_foreach_placeholders( $html, $data );
         // @since 6.3.318 - The foreach/if/isset syntax of submitted values stays inert until email_if_statements() ran
         $literalValues = array();
         $html = SUPER_Common::email_tags( $html, $data, $settings, null, true, false, false, $literalValues );
@@ -9542,7 +9544,8 @@ class SUPER_Ajax {
         // We must retrieve the new session info, because the register & login might have updated the `user_id` value
         $sfsi = get_option('_sfsi_' . $sfs_uid);
         if( $settings['send']=='yes' ) {
-            $email_body = $settings['email_body'];
+            // @since 6.4.008 - `{field}` placeholders of the author's foreach blocks resolve per row
+            $email_body = SUPER_Common::protect_foreach_placeholders( $settings['email_body'], $data );
             $email_body = str_replace( '{loop_fields}', $email_loop, $email_body );
             // @since 6.3.318 - The `[` and `]` of submitted values stay inert until the author's shortcodes ran
             $literalValues = array();
@@ -9632,7 +9635,8 @@ class SUPER_Ajax {
             // @since 2.8.0 - additional header support for confirmation emails
             if( !isset($settings['confirm_header_additional']) ) $settings['confirm_header_additional'] = '';
             $settings['header_additional'] = $settings['confirm_header_additional'];
-            $email_body = $settings['confirm_body'];
+            // @since 6.4.008 - `{field}` placeholders of the author's foreach blocks resolve per row
+            $email_body = SUPER_Common::protect_foreach_placeholders( $settings['confirm_body'], $data );
             $email_body = str_replace( '{loop_fields}', $confirm_loop, $email_body );
             // @since 6.3.318 - The `[` and `]` of submitted values stay inert until the author's shortcodes ran
             $literalValues = array();
@@ -9964,7 +9968,8 @@ class SUPER_Ajax {
             if( (isset($settings['form_show_thanks_msg'])) && ($settings['form_show_thanks_msg']=='true') ) $save_msg = true;
             $settings['form_thanks_title'] = '<h1>' . $settings['form_thanks_title'] . '</h1>';
 
-            $msg = do_shortcode( $settings['form_thanks_title'] . $settings['form_thanks_description'] );
+            // @since 6.4.008 - `{field}` placeholders of the author's foreach blocks resolve per row
+            $msg = do_shortcode( SUPER_Common::protect_foreach_placeholders( $settings['form_thanks_title'] . $settings['form_thanks_description'], $data ) );
             // @since 6.3.318 - The foreach/if/isset syntax of submitted values stays inert until email_if_statements() ran
             $literalValues = array();
             $msg = SUPER_Common::email_tags( $msg, $data, $settings, null, true, false, false, $literalValues );
