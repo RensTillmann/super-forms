@@ -8,12 +8,27 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Sep 27, 2026 - Version 6.3.318
+## Oct 01, 2026 - Version 6.3.318
 
-- **Security fix:** Hardened WooCommerce order search, unique code and invoice number generation, and PayPal payment notifications.
-- **Changed:** WooCommerce Order Search now shows orders only to shop staff (all orders) and to logged-in customers (their own orders); the search settings saved in the form are always used. Site owners can adjust who may search with the `super_wc_order_search_scope` filter.
-- **Changed:** Unique codes and invoice numbers are reserved when the form is submitted; the code shown while filling in the form is a preview.
-- **Changed:** PayPal payments are now linked to their contact entry, post and user through a signed reference. Payments that were started before this update are still recorded, but do not change the entry, post or user status automatically; update those by hand if needed.
+- **Security fix:** Improved security for WooCommerce order search, unique code and invoice number generation, PayPal payment notifications, and Mailchimp form data.
+- **Security fix:** Text a visitor types into a form field is always treated as plain text. `{tags}` and `[shortcodes]` inside submitted values are no longer resolved or run in e-mails, the success message, PayPal and WooCommerce details, saved entries, the Listings entry view or pre-filled fields. Tags and shortcodes you configure in your form keep working.
+- **Security fix:** Values taken from the URL, from saved entries or from saved form progress (including "Add more" columns) are shown literally in form fields, so visitors can no longer read site options or secrets through a link.
+- **Security fix:** E-mail `foreach(...)`, `if(...)` and `isset(...)` blocks and `<%field%>` placeholders a visitor types into a field are kept as plain text; only the ones in your own e-mail templates are evaluated.
+- **Security fix:** The Register & Login activation e-mail and Front-end Posting tags no longer resolve tags a visitor typed.
+- **Security fix:** The contents of `{server_http_referrer}`, `{user_firstname}`, `{user_lastname}`, `{user_display}`, `{user_meta_*}` and `{author_meta_*}` are inserted as plain text; tags and shortcodes inside them are never resolved or run.
+- **Security fix:** The "users" retrieve method only shows public name fields to visitors (no e-mail addresses), never renders credentials or private meta, and has a new `super_users_retrieve_allowed_fields` filter.
+- **Security fix:** Update information is fetched over HTTPS, and an update is only installed from an HTTPS URL on a trusted host; otherwise administrators see a notice (hosts adjustable with the `super_forms_trusted_update_hosts` filter).
+- **Security fix:** The Licenses screen's background requests require the Administrator capability, always go to the Super Forms API, and the license login token is validated before it is stored.
+- **Changed:** The licence check times out after 3 seconds, is cached, and falls back to the last known result instead of delaying forms or showing error text.
+- **Changed:** `{tags}` passed through form shortcode parameters, for example `[super_form id="123" email="{user_email}"]`, now pre-fill the field literally. Put the tag in the field's own Default value instead.
+- **Changed:** Dropdowns, checkboxes and radio buttons that use the "users" retrieve method show no e-mail address to visitors without the `list_users` capability. Use the `super_users_retrieve_allowed_fields` filter to allow more fields.
+- **Changed:** WooCommerce Order Search uses the settings saved in the form. By default, shop staff can search all orders, logged-in customers only their own orders, and guests cannot search orders. Customize with the `super_wc_order_search_scope` filter.
+- **Changed:** Unique codes and invoice numbers are reserved when the form is submitted. The code shown while filling in the form is a preview.
+- **Important PayPal update notice:** Payments started before installing this update can still be recorded, but do not automatically change the associated contact entry, post or user status. Review those payments and update the affected statuses manually if needed.
+- **Fix:** Corrected validation of date formats without a year and the minimum number of selected dates.
+- **Fix:** Custom printing can recover when its permission has expired, instead of immediately falling back to the default form printout.
+- **Fix:** Adaptive placeholders update when a field changes without a key press, including browser autofill.
+- **Improved:** IBAN field validation is also enforced when the form is submitted.
 
 ## Aug 21, 2026 - Version 6.3.317
 
