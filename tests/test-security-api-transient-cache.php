@@ -55,8 +55,26 @@ class Test_Security_Api_Transient_Cache extends WP_UnitTestCase {
 		}
 	}
 
+	/**
+	 * The cache key uses the home URL as stored in the database, never the (filterable,
+	 * WP_HOME / Host header dependent) get_home_url().
+	 */
 	private function key( $slug ) {
-		return md5( $slug . '|' . get_home_url() );
+		global $wpdb;
+		$home = $wpdb->get_var( "SELECT option_value FROM {$wpdb->options} WHERE option_name = 'home'" );
+		return md5( $slug . '|' . $home );
+	}
+
+	private function fresh_body( $slug ) {
+		$fresh = get_transient( '_super_api_transient_' . $this->key( $slug ) );
+		$this->assertIsArray( $fresh, 'The fresh transient must exist.' );
+		$this->assertSame( SUPER_VERSION, $fresh['version'], 'The fresh transient must record the plugin version.' );
+		return $fresh['body'];
+	}
+
+	private function cache_rows() {
+		global $wpdb;
+		return $wpdb->get_col( "SELECT option_name FROM {$wpdb->options} WHERE option_name LIKE '%\\_super\\_api\\_transient%' ORDER BY option_name" );
 	}
 
 	private function endpoint() {
@@ -180,10 +198,11 @@ class Test_Security_Api_Transient_Cache extends WP_UnitTestCase {
 		$this->assertCount( 1, $this->requests );
 
 		$key = $this->key( $slug );
-		$this->assertSame( $body, get_transient( '_super_api_transient_' . $key ), 'The fresh transient must hold the exact body.' );
+		$this->assertSame( $body, $this->fresh_body( $slug ), 'The fresh transient must hold the exact body.' );
 		$last = get_option( '_super_api_transient_last_' . $key );
 		$this->assertIsArray( $last );
 		$this->assertSame( $body, $last['body'], 'The last-known-good option must hold the exact body.' );
+		$this->assertSame( SUPER_VERSION, $last['version'], 'The last-known-good option must record the plugin version.' );
 		$this->assertGreaterThanOrEqual( $before, (int) $last['time'] );
 		$this->assertLessThanOrEqual( time(), (int) $last['time'] );
 		$this->assertFalse( get_transient( '_super_api_transient_cb' ), 'A success must not trip the breaker.' );
@@ -374,11 +393,11 @@ class Test_Security_Api_Transient_Cache extends WP_UnitTestCase {
 			$option = '_super_api_transient_last_' . $this->key( $slug );
 			delete_transient( '_super_api_transient_cb' );
 
-			update_option( $option, array( 'body' => 'young-' . $slug, 'time' => time() - 7 * DAY_IN_SECONDS + MINUTE_IN_SECONDS ), 'no' );
+			update_option( $option, array( 'body' => 'young-' . $slug, 'time' => time() - 7 * DAY_IN_SECONDS + MINUTE_IN_SECONDS, 'version' => SUPER_VERSION ), 'no' );
 			$this->assertSame( 'young-' . $slug, $this->call( $slug ), 'A copy younger than 7 days must be served.' );
 
 			delete_transient( '_super_api_transient_cb' );
-			update_option( $option, array( 'body' => 'old-' . $slug, 'time' => time() - 7 * DAY_IN_SECONDS - MINUTE_IN_SECONDS ), 'no' );
+			update_option( $option, array( 'body' => 'old-' . $slug, 'time' => time() - 7 * DAY_IN_SECONDS - MINUTE_IN_SECONDS, 'version' => SUPER_VERSION ), 'no' );
 			$output = $this->call( $slug );
 			$this->assertSame( $this->fallback_for( $slug ), $output, 'A copy older than 7 days must not be served for ' . $slug );
 			$this->assert_no_error_text( $output, 'error text leaked for ' . $slug );
@@ -401,7 +420,7 @@ class Test_Security_Api_Transient_Cache extends WP_UnitTestCase {
 		$this->assertNotFalse( get_option( $lock ), 'A request that does not own the lock must not release it.' );
 
 		// Same with a last-known-good copy: it is served.
-		update_option( '_super_api_transient_last_' . $this->key( $slug ), array( 'body' => 'known-good', 'time' => time() ), 'no' );
+		update_option( '_super_api_transient_last_' . $this->key( $slug ), array( 'body' => 'known-good', 'time' => time(), 'version' => SUPER_VERSION ), 'no' );
 		$this->assertSame( 'known-good', $this->call( $slug ) );
 		$this->assertCount( 0, $this->requests );
 
@@ -473,6 +492,104 @@ class Test_Security_Api_Transient_Cache extends WP_UnitTestCase {
 		$this->assertCount( 1, $this->requests );
 		$this->assertSame( $other, $this->lock_row( $lock ), 'Another request\'s lock must not be released.' );
 		$wpdb->query( $wpdb->prepare( "DELETE FROM {$wpdb->options} WHERE option_name = %s", $lock ) );
+	}
+
+	public function filter_home_to_request_host( $url ) {
+		return preg_replace( '#^https?://[^/]+#', 'https://' . $this->request_host, $url );
+	}
+
+	public function filter_home_option_to_request_host() {
+		return 'https://' . $this->request_host;
+	}
+
+	private $request_host = '';
+
+	/**
+	 * (9) A home URL that follows the Host header (WP_HOME built from $_SERVER['HTTP_HOST'])
+	 * does not create new rows per host: the key uses the stored home option, so the cache
+	 * stays bounded to the fixed licence slugs. The request body still sends get_home_url().
+	 */
+	public function test_home_url_that_varies_per_request_does_not_create_new_cache_rows() {
+		$this->require_cache_enabled();
+		if ( wp_using_ext_object_cache() ) {
+			$this->markTestSkipped( 'Transient rows are not stored in the options table with an external object cache.' );
+		}
+		$this->add_tracked_filter( 'home_url', array( $this, 'filter_home_to_request_host' ), 99 );
+		$this->add_tracked_filter( 'option_home', array( $this, 'filter_home_option_to_request_host' ), 99 );
+		$this->respond_with_body( 'one-answer' );
+
+		$this->request_host = 'host-a.example';
+		$this->assertSame( 'one-answer', $this->call( 'before_do_shortcode' ) );
+		$this->assertCount( 1, $this->requests );
+		$body = json_decode( $this->requests[0]['args']['body'], true );
+		$this->assertSame( 'https://host-a.example', $body['home_url'], 'The request keeps sending get_home_url().' );
+		$rows = $this->cache_rows();
+
+		foreach ( array( 'host-b.example', 'host-c.example', 'evil.example:8080' ) as $host ) {
+			$this->request_host = $host;
+			$this->assertSame( 'one-answer', $this->call( 'before_do_shortcode' ), 'Served from the same cache for ' . $host );
+		}
+		$this->assertCount( 1, $this->requests, 'Another Host header must not miss the cache.' );
+		$this->assertSame( $rows, $this->cache_rows(), 'Another Host header must not add option rows.' );
+		$this->assertSame( 'one-answer', $this->fresh_body( 'before_do_shortcode' ) );
+	}
+
+	/**
+	 * (9b) Only the three licence slugs are cached; any other slug is fetched every time
+	 * and leaves no rows behind, so the number of cache rows has a fixed upper bound.
+	 */
+	public function test_other_slugs_are_never_stored() {
+		$this->require_cache_enabled();
+		if ( wp_using_ext_object_cache() ) {
+			$this->markTestSkipped( 'Transient rows are not stored in the options table with an external object cache.' );
+		}
+		$this->respond_with_body( 'other' );
+		$before = $this->cache_rows();
+		$this->assertSame( 'other', $this->call( 'pdf' ) );
+		$this->assertSame( 'other', $this->call( 'pdf' ) );
+		$this->assertSame( 'other', $this->call( 'random-' . wp_generate_password( 8, false ) ) );
+		$this->assertCount( 3, $this->requests, 'Other slugs are not cached.' );
+		$this->assertSame( $before, $this->cache_rows(), 'Other slugs must not create option rows.' );
+
+		$this->respond_with_failure( 'wp_error' );
+		$output = $this->call( 'pdf' );
+		$this->assertSame( self::ALERT, $output, 'Unchanged fallback for other slugs.' );
+		$this->assert_no_error_text( $output, 'error text leaked for an other slug' );
+		$this->assertFalse( get_transient( '_super_api_transient_cb' ), 'Other slugs do not use the breaker.' );
+
+		foreach ( self::$slugs as $slug ) {
+			$this->respond_with_body( 'licence-' . $slug );
+			$this->call( $slug );
+		}
+		$this->assertLessThanOrEqual( 2 * 3 + 3, count( $this->cache_rows() ), 'At most a fresh transient (+ timeout) and a last-known-good row per licence slug.' );
+	}
+
+	/**
+	 * (10) A copy cached by another plugin version is not served after an upgrade:
+	 * the fresh transient is refreshed, and an old last-known-good is not a fallback.
+	 */
+	public function test_copies_cached_by_another_version_are_not_served() {
+		$this->require_cache_enabled();
+		$slug = 'before_do_shortcode_admin';
+		$key  = $this->key( $slug );
+		set_transient( '_super_api_transient_' . $key, array( 'body' => 'from-old-version', 'version' => '0.0.1' ), 900 );
+		update_option( '_super_api_transient_last_' . $key, array( 'body' => 'old-known-good', 'time' => time(), 'version' => '0.0.1' ), 'no' );
+
+		$this->respond_with_failure( 'wp_error' );
+		$this->assertSame( '', $this->call( $slug ), 'Neither copy of the old version may be served.' );
+		$this->assertCount( 1, $this->requests, 'The old fresh copy is a miss.' );
+
+		delete_transient( '_super_api_transient_cb' );
+		$this->respond_with_body( 'from-this-version' );
+		$this->assertSame( 'from-this-version', $this->call( $slug ) );
+		$this->assertSame( 'from-this-version', $this->fresh_body( $slug ) );
+		$last = get_option( '_super_api_transient_last_' . $key );
+		$this->assertSame( array( 'from-this-version', SUPER_VERSION ), array( $last['body'], $last['version'] ), 'The refresh overwrites the old rows.' );
+
+		// A bare string (the format before the version was recorded) is a miss as well.
+		set_transient( '_super_api_transient_' . $key, 'bare-string', 900 );
+		$this->respond_with_body( 'refetched' );
+		$this->assertSame( 'refetched', $this->call( $slug ) );
 	}
 
 	/**
