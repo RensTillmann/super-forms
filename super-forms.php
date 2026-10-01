@@ -3029,6 +3029,27 @@ if(!class_exists('SUPER_Forms')) :
         
         
         /**
+         * Remove all admin notice callbacks (used on the Licenses page only).
+         *
+         * @since       6.3.320
+         */
+        public function remove_admin_notices() {
+            remove_all_actions( 'admin_notices' );
+            remove_all_actions( 'all_admin_notices' );
+            remove_all_actions( 'network_admin_notices' );
+            remove_all_actions( 'user_admin_notices' );
+        }
+
+        /**
+         * Hide notices that are printed or injected outside the admin notice hooks (Licenses page only).
+         *
+         * @since       6.3.320
+         */
+        public function hide_late_admin_notices() {
+            echo '<style>.super-forms_page_super_addons #wpbody-content .notice,.super-forms_page_super_addons #wpbody-content .updated,.super-forms_page_super_addons #wpbody-content .error,.super-forms_page_super_addons #wpbody-content .update-nag{display:none !important;}</style>';
+        }
+
+        /**
          * Call Classes and Execute Functions based on current screen ID 
          *
          * @param  string $current_screen
@@ -3036,6 +3057,13 @@ if(!class_exists('SUPER_Forms')) :
          * @since       1.0.0
         */
         public function after_screen( $current_screen ) {
+
+            // The Licenses page only shows the "License Management has Moved" message and the
+            // dashboard button, so admin notices from other plugins, themes and core are kept off it.
+            if ( $current_screen->id === 'super-forms_page_super_addons' ) {
+                add_action( 'in_admin_header', array( $this, 'remove_admin_notices' ), PHP_INT_MAX );
+                add_action( 'admin_head', array( $this, 'hide_late_admin_notices' ) );
+            }
 
             if($current_screen->id==='super-forms_page_super_create_form'){
                 add_action( 'super_create_form_builder_tab', array( 'SUPER_Pages', 'builder_tab' ), 10, 1 );
