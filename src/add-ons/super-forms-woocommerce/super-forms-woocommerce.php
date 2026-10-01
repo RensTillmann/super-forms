@@ -1252,7 +1252,7 @@ if ( ! class_exists( 'SUPER_WooCommerce' ) ) :
 			}
 			$form_id = absint( $atts['form_id'] );
 			// If WC checkout is enabled but WC is not installed and activated
-			if ( ( isset( $settings['_woocommerce'] ) ) && ( $settings['_woocommerce']['checkout'] == 'true' ) ) {
+			if ( isset( $settings['_woocommerce'] ) && is_array( $settings['_woocommerce'] ) && isset( $settings['_woocommerce']['checkout'] ) && ( $settings['_woocommerce']['checkout'] == 'true' ) ) {
 				global $woocommerce;
 				if ( ! $woocommerce ) {
 					$msg = esc_html__( 'WooCommerce Checkout is enabled for this form, but WooCommerce itself is not activated!', 'super-forms' );
