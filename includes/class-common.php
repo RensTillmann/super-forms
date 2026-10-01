@@ -3784,7 +3784,191 @@ class SUPER_Common {
         if( self::delete_target_is_protected($file) ) return false;
         return unlink($file);
     }
-    public static function get_transient($x) { $html = ''; if($x['slug']!=='before_do_shortcode' && $x['slug']!=='before_do_shortcode_admin') $html = '<script>alert("Connection error! Please refresh the page to try again, or contact support.");</script>'; $response = wp_remote_post( SUPER_API_ENDPOINT . '/settings/transient', array( 'method' => 'POST', 'timeout' => 45, 'data_format' => 'body', 'headers' => array('Content-Type' => 'application/json; charset=utf-8'), 'body' => json_encode( array( 'slug' => $x['slug'], 'home_url' => get_home_url(), 'admin_url' => admin_url(), 'version' => SUPER_VERSION)))); if ( is_wp_error( $response ) ) { $html .= $response->get_error_message(); }else{ $body = $response['body']; $response = $response['response']; if($response['code']==200 && strpos($body, '{') === 0){ $object = json_decode($body); if($object->status==200){ $html = $object->body; } } } return $html; }
+    /**
+     * Return the licence script the Super Forms API serves for a slug.
+     *
+     * Interim change for the 6.3.x line: the request times out after 3 seconds
+     * (was 45) and the answer is cached, so a slow or unreachable API no longer
+     * stalls every form render and its error text is never printed into the page.
+     *
+     * - Only the three licence slugs are cached, under <key> = md5(slug|home) where
+     *   home is the stored home option (self::api_transient_key()), not get_home_url():
+     *   a WP_HOME that follows the Host header would otherwise create rows per host.
+     *   So at most 3 fresh transients, 3 last-known-good options, 3 locks and one
+     *   breaker exist. Any other slug is fetched every time and never stored.
+     * - A valid answer (HTTP 200, JSON, status 200) is stored byte-identical in the
+     *   transient _super_api_transient_<key> as array(body, version) for
+     *   SUPER_API_TRANSIENT_TTL seconds (default 900) and, as last-known-good, in the
+     *   non-autoloaded option _super_api_transient_last_<key> as array(body, time,
+     *   version). While the transient exists no request is made. A copy stored by
+     *   another SUPER_VERSION is ignored, so an upgrade never serves a body the API
+     *   sent to the previous version (it is overwritten by the next refresh).
+     * - On any failure (WP_Error, non-200, non-JSON, status!=200, empty response)
+     *   the last-known-good body is served while it is younger than
+     *   SUPER_API_TRANSIENT_STALE_MAX seconds (default 7 days). Without one the two
+     *   front-end slugs return '' and the builder slug returns the connection alert.
+     * - A failure sets the circuit breaker transient _super_api_transient_cb for
+     *   5 minutes; while it exists no request is made. It is shared by all slugs on
+     *   purpose: they all call the same endpoint, and the API answers every licence
+     *   slug with status 200, so a failure means the API is down or unreachable
+     *   rather than a problem with one slug, and a per-slug breaker would only send
+     *   three times the requests to an API that is down.
+     * - A refresh is single-flight: the option _super_api_transient_lock_<key> guards
+     *   it (taken with INSERT IGNORE, released with a compare-and-delete, see
+     *   self::api_transient_lock()), a lock older than 30 seconds is taken over, and
+     *   a request that does not hold the lock serves last-known-good.
+     * - Loading the Licenses page calls self::flush_api_transients() so the next
+     *   render refreshes immediately.
+     * - define('SUPER_API_TRANSIENT_DISABLE_CACHE', true) restores the always-fetch
+     *   behaviour, still with the 3 second timeout and without raw error output.
+     *
+     * Behaviour change for lapsed licences (fail-open by owner decision): the
+     * blocking script the API serves can be delayed by up to 15 minutes, and while
+     * the API is unreachable a site keeps its last known state for up to 7 days.
+     *
+     * @param array $x array('slug' => 'before_do_shortcode'|'before_do_shortcode_admin'|'super-forms_page_super_create_form')
+     * @return string
+    */
+    public static function get_transient($x) {
+        $slug = (isset($x['slug']) ? $x['slug'] : '');
+        $html = '';
+        if($slug!=='before_do_shortcode' && $slug!=='before_do_shortcode_admin') $html = '<script>alert("Connection error! Please refresh the page to try again, or contact support.");</script>';
+        if( ( defined('SUPER_API_TRANSIENT_DISABLE_CACHE') && SUPER_API_TRANSIENT_DISABLE_CACHE ) || !in_array($slug, self::api_transient_slugs(), true) ) {
+            $body = self::api_transient_request($slug);
+            return ( $body===false ? $html : $body );
+        }
+        $key = self::api_transient_key($slug);
+        $fresh = get_transient('_super_api_transient_'.$key);
+        if( is_array($fresh) && isset($fresh['body'], $fresh['version']) && is_string($fresh['body']) && $fresh['version']===SUPER_VERSION ) return $fresh['body'];
+        $ttl = ( defined('SUPER_API_TRANSIENT_TTL') ? (int)SUPER_API_TRANSIENT_TTL : 900 );
+        $stale_max = ( defined('SUPER_API_TRANSIENT_STALE_MAX') ? (int)SUPER_API_TRANSIENT_STALE_MAX : 7*DAY_IN_SECONDS );
+        // Last-known-good replaces the alert/'' fallback while it is young enough (and from this version)
+        $last = get_option('_super_api_transient_last_'.$key);
+        if( is_array($last) && isset($last['body'], $last['time'], $last['version']) && is_string($last['body']) && $last['version']===SUPER_VERSION && (time()-(int)$last['time'])<=$stale_max ) {
+            $html = $last['body'];
+        }
+        if( get_transient('_super_api_transient_cb')!==false ) return $html;
+        $lock = '_super_api_transient_lock_'.$key;
+        $token = self::api_transient_lock($lock);
+        if( $token===false ) return $html;
+        try {
+            $body = self::api_transient_request($slug);
+        } finally {
+            self::api_transient_unlock($lock, $token);
+        }
+        if( $body===false ) {
+            set_transient('_super_api_transient_cb', time(), 5*MINUTE_IN_SECONDS);
+            return $html;
+        }
+        set_transient('_super_api_transient_'.$key, array('body'=>$body, 'version'=>SUPER_VERSION), $ttl);
+        update_option('_super_api_transient_last_'.$key, array('body'=>$body, 'time'=>time(), 'version'=>SUPER_VERSION), 'no');
+        return $body;
+    }
+
+    /**
+     * The licence slugs whose API answer is cached (the only slugs the plugin requests)
+     *
+     * @return array
+    */
+    private static function api_transient_slugs() {
+        return array('before_do_shortcode', 'before_do_shortcode_admin', 'super-forms_page_super_create_form');
+    }
+
+    /**
+     * Cache key of a licence slug: md5(slug|home) with the home URL as stored in the
+     * database. get_home_url() and get_option('home') both return WP_HOME when it is
+     * defined, and a WP_HOME built from the Host header differs per request, which
+     * would create new option rows for every host name a request uses. The stored
+     * value is read from the autoloaded options (no extra query); the filtered
+     * get_option('home') is only the fallback when it is not autoloaded.
+     *
+     * @return string
+    */
+    private static function api_transient_key($slug) {
+        $alloptions = wp_load_alloptions();
+        $home = ( isset($alloptions['home']) && is_string($alloptions['home']) ? $alloptions['home'] : (string) get_option('home') );
+        return md5($slug.'|'.$home);
+    }
+
+    /**
+     * Take the single-flight refresh lock, or return false when another request holds it.
+     *
+     * add_option() is not atomic: two requests can both pass its get_option() check, and its
+     * INSERT ... ON DUPLICATE KEY UPDATE then reports success to both when their time()
+     * differs. INSERT IGNORE affects exactly one row only for the request that creates the
+     * row. A lock older than 30 seconds is taken over with a DELETE that only succeeds while
+     * the stale value is unchanged, so only one request can win the takeover.
+     *
+     * @return string|false The token that identifies this request's lock
+    */
+    private static function api_transient_lock($lock) {
+        global $wpdb;
+        $token = sprintf('%d.%06d', time(), mt_rand(0, 999999));
+        $insert = $wpdb->prepare("INSERT IGNORE INTO {$wpdb->options} (option_name, option_value, autoload) VALUES (%s, %s, 'no')", $lock, $token);
+        $won = ( $wpdb->query($insert)===1 );
+        if( !$won ) {
+            $held = $wpdb->get_var($wpdb->prepare("SELECT option_value FROM {$wpdb->options} WHERE option_name = %s", $lock));
+            if( $held!==null && is_numeric($held) && (time()-(int)$held)<=30 ) return false;
+            if( $held!==null && $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->options} WHERE option_name = %s AND option_value = %s", $lock, $held))!==1 ) return false;
+            $won = ( $wpdb->query($insert)===1 );
+        }
+        self::api_transient_lock_cache_reset($lock);
+        return ( $won ? $token : false );
+    }
+
+    /**
+     * Release the lock only if it is still ours (a request that took over a stale lock keeps it)
+    */
+    private static function api_transient_unlock($lock, $token) {
+        global $wpdb;
+        $wpdb->query($wpdb->prepare("DELETE FROM {$wpdb->options} WHERE option_name = %s AND option_value = %s", $lock, $token));
+        self::api_transient_lock_cache_reset($lock);
+    }
+
+    /**
+     * The lock row is written with SQL, so drop any copy the options cache holds
+    */
+    private static function api_transient_lock_cache_reset($lock) {
+        wp_cache_delete($lock, 'options');
+        $notoptions = wp_cache_get('notoptions', 'options');
+        if( is_array($notoptions) && isset($notoptions[$lock]) ) {
+            unset($notoptions[$lock]);
+            wp_cache_set('notoptions', $notoptions, 'options');
+        }
+    }
+
+    /**
+     * POST a slug to the API (same endpoint, body and headers as before, 3 second
+     * timeout) and return the served body, or false on any failure.
+     *
+     * @return string|false
+    */
+    private static function api_transient_request($slug) {
+        $response = wp_remote_post( SUPER_API_ENDPOINT . '/settings/transient', array( 'method' => 'POST', 'timeout' => 3, 'data_format' => 'body', 'headers' => array('Content-Type' => 'application/json; charset=utf-8'), 'body' => json_encode( array( 'slug' => $slug, 'home_url' => get_home_url(), 'admin_url' => admin_url(), 'version' => SUPER_VERSION))));
+        if( is_wp_error($response) || !isset($response['body'], $response['response']['code']) ) return false;
+        $body = $response['body'];
+        if( $response['response']['code']==200 && is_string($body) && strpos($body, '{') === 0 ) {
+            $object = json_decode($body);
+            if( is_object($object) && isset($object->status, $object->body) && $object->status==200 && is_string($object->body) ) {
+                return $object->body;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Forget the cached API answers, the circuit breaker and the refresh locks of
+     * all licence slugs so the next form render or builder load asks the API again.
+     * The last-known-good copies are kept.
+    */
+    public static function flush_api_transients() {
+        foreach( self::api_transient_slugs() as $slug ) {
+            $key = self::api_transient_key($slug);
+            delete_transient('_super_api_transient_'.$key);
+            delete_option('_super_api_transient_lock_'.$key);
+        }
+        delete_transient('_super_api_transient_cb');
+    }
 
     /**
      * Convert HEX color to RGB color format

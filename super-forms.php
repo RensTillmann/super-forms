@@ -3039,6 +3039,11 @@ if(!class_exists('SUPER_Forms')) :
                 add_action( 'admin_footer', function(){ echo SUPER_Common::get_transient(array('slug'=>'super-forms_page_super_create_form'));}, 15);
             }
 
+            // Licenses page: forget the cached API answers so the next render re-checks the licence
+            if($current_screen->id==='super-forms_page_super_addons'){
+                SUPER_Common::flush_api_transients();
+            }
+
             // @since 1.7 - add the export button only on the super_contact_entry page
             if( $current_screen->id=='edit-super_contact_entry' ) {
                 add_action( 'manage_posts_extra_tablenav', array( $this, 'contact_entry_export_button' ) );
