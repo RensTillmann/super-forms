@@ -935,7 +935,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                                     if( !empty( $v['label'] ) ) {
                                         // Replace %d with empty string if exists
                                         $v['label'] = str_replace('%d', '', $v['label']);
-                                        $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+                                        $row = str_replace( '{loop_label}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode( $v['label'] ), $k, $data, $settings ), $row );
                                     }else{
                                         $row = str_replace( '{loop_label}', '', $row );
                                     }
@@ -951,7 +951,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                                             if( $key==0 ) {
                                                 if( !empty( $v['label'] ) ) {
                                                     $v['label'] = str_replace('%d', '', $v['label']);
-                                                    $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+                                                    $row = str_replace( '{loop_label}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode( $v['label'] ), $k, $data, $settings ), $row );
                                                 }else{
                                                     $row = str_replace( '{loop_label}', '', $row );
                                                 }
@@ -991,7 +991,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                                         }
                                     }
                                 }
-                                $row = str_replace( '{loop_value}', $files_value, $row );
+                                $row = str_replace( '{loop_value}', SUPER_Common::neutralize_submitted_loop_value( $files_value, $k, $data, $settings ), $row );
                             }else{
                                 if( isset($v['type']) && (($v['type']=='form_id') || ($v['type']=='entry_id')) ) {
                                     $row = '';
@@ -999,7 +999,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
 
                                     if( !empty( $v['label'] ) ) {
                                         $v['label'] = str_replace('%d', '', $v['label']);
-                                        $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+                                        $row = str_replace( '{loop_label}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode( $v['label'] ), $k, $data, $settings ), $row );
                                     }else{
                                         $row = str_replace( '{loop_label}', '', $row );
                                     }
@@ -1008,13 +1008,13 @@ if( !class_exists('SUPER_WooCommerce') ) :
                                         // @since 3.9.0 - replace comma's with HTML
                                         if( !empty($v['replace_commas']) ) $v['admin_value'] = str_replace( ',', $v['replace_commas'], $v['admin_value'] );
                                         
-                                        $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['admin_value'] ), $row );
+                                        $row = str_replace( '{loop_value}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode_textarea_v5( $v, $v['admin_value'] ), $k, $data, $settings ), $row );
                                     }
                                     if( isset( $v['value'] ) ) {
                                         // @since 3.9.0 - replace comma's with HTML
                                         if( !empty($v['replace_commas']) ) $v['value'] = str_replace( ',', $v['replace_commas'], $v['value'] );
                                         
-                                        $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['value'] ), $row );
+                                        $row = str_replace( '{loop_value}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode_textarea_v5( $v, $v['value'] ), $k, $data, $settings ), $row );
                                     }
 
                                 }
@@ -1036,7 +1036,9 @@ if( !class_exists('SUPER_WooCommerce') ) :
                     if(!empty($settings['woocommerce_completed_body'])) $settings['woocommerce_completed_body'] = $settings['woocommerce_completed_body'] . '<br /><br />';
                     $email_body = $settings['woocommerce_completed_body_open'] . $settings['woocommerce_completed_body'] . $settings['woocommerce_completed_body_close'];
                     $email_body = str_replace( '{loop_fields}', $email_loop, $email_body );
-                    $email_body = SUPER_Common::email_tags( $email_body, $data, $settings );
+                    // @since 6.3.318 - The `[` and `]` of submitted values stay inert until the author's shortcodes ran
+                    $literalValues = array();
+                    $email_body = SUPER_Common::email_tags( $email_body, $data, $settings, null, true, false, false, $literalValues );
                 
                     // @since 3.1.0 - optionally automatically add line breaks
                     if(!isset($settings['woocommerce_completed_body_nl2br'])) $settings['woocommerce_completed_body_nl2br'] = 'true';
@@ -1047,6 +1049,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                     if($settings['woocommerce_completed_rtl']=='true') $email_body =  '<div dir="rtl" style="text-align:right;">' . $email_body . '</div>';
 
                     $email_body = do_shortcode($email_body);
+                    $email_body = SUPER_Common::restore_literal_tag_values( $email_body, $literalValues );
                     $email_body = apply_filters( 'super_before_sending_email_body_filter', $email_body, array( 'settings'=>$settings, 'email_loop'=>$email_loop, 'data'=>$data ) );
 
                     if( !isset( $settings['woocommerce_completed_from_type'] ) ) $settings['woocommerce_completed_from_type'] = 'default';

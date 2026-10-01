@@ -1038,6 +1038,13 @@ class SUPER_Common {
             }
             if( !empty($dv[$current_name]) ) {
                 if(!empty($dv[$current_name]['value'])) {
+                    // Security: this is entry data (previous submission or saved form progress), which is user input.
+                    // Keep the author's "Default value" for `data-absolute-default` (see SUPER_Shortcodes::output_element_html())
+                    // and mark the value literal so that SUPER_Shortcodes::get_default_value() never resolves {tags} or shortcodes in it
+                    if(empty($v['data']['_super_literal_value'])){
+                        $v['data']['_super_author_value'] = (isset($v['data']['value']) ? $v['data']['value'] : null);
+                    }
+                    $v['data']['_super_literal_value'] = true;
                     // Now override the "Default value" with the actual Entry data
                     $v['data']['value'] = $dv[$current_name]['value'];
                 }
@@ -2257,11 +2264,200 @@ class SUPER_Common {
     }
 
     /**
+     * @since 6.3.318 - Tags that reach a template through a submitted value are plain text.
+     *
+     * email_tags() substitutes submitted values into the form author's template first and
+     * then runs the {option_*}, {@secret}, {user_meta_*}, {post_meta_*}, {form_setting_*} and
+     * system-tag branches over the combined string, so a `{tag}` a visitor typed used to be
+     * resolved as if the author had written it (e.g. a PayPal item name `{item_name}` that
+     * returned the admin e-mail). Every `{` a submitted value contributes is now swapped for an
+     * inert per-request token while the template resolves; the outermost email_tags() call
+     * turns the tokens back into `{`, so the visitor's text arrives verbatim and is never
+     * resolved. The only tags left live are the ones the form author wrote into that same
+     * field's stored settings (default value, choice item values, variable values), e.g. a
+     * dropdown item `{@sales_email}` or a hidden field default `{@secret}`.
+     *
+     * The same goes for a `[shortcode]` a visitor typed: the `[` and `]` of submitted values
+     * are swapped for inert tokens as well, and only put back once do_shortcode() ran over the
+     * author's template (see email_tags() and restore_literal_tag_values()).
+     */
+    private static $email_tags_depth = 0;
+    private static $submitted_tag_brace = null;
+    private static $author_field_tags = array();
+
+    public static function submitted_tag_brace() {
+        if( self::$submitted_tag_brace===null ) {
+            try {
+                $nonce = bin2hex( random_bytes( 8 ) );
+            } catch( Exception $e ) {
+                $nonce = md5( uniqid( (string) mt_rand(), true ) );
+            }
+            self::$submitted_tag_brace = "\x1A" . $nonce . "\x1A";
+        }
+        return self::$submitted_tag_brace;
+    }
+
+    /**
+     * @since 6.3.318 - Tokens for the `[` and `]` of submitted values, as token => character.
+     * Same per-request nonce as submitted_tag_brace(), none of the three tokens contains another.
+     */
+    public static function submitted_shortcode_brackets() {
+        $nonce = trim( self::submitted_tag_brace(), "\x1A" );
+        return array( "\x1A" . $nonce . "o\x1A" => '[', "\x1A" . $nonce . "c\x1A" => ']' );
+    }
+
+    public static function restore_submitted_tags( $value ) {
+        if( is_string($value) && self::$submitted_tag_brace!==null ) {
+            return str_replace( self::$submitted_tag_brace, '{', $value );
+        }
+        return $value;
+    }
+
+    /**
+     * Every `{tag}` and `[shortcode]` the author wrote anywhere in a configuration array (or string).
+     */
+    public static function author_tags_in( $config ) {
+        $tags = array();
+        if( is_string($config) ) {
+            if( strpos($config, '{')!==false && preg_match_all('/\{[^{}]+\}/', $config, $matches) ) {
+                foreach( $matches[0] as $tag ) {
+                    $tags[$tag] = $tag;
+                }
+            }
+            // @since 6.3.318 - e.g. a choice item value `[my_shortcode]` keeps running in the e-mail
+            if( strpos($config, '[')!==false && preg_match_all('/\[[^\[\]]+\]/', $config, $matches) ) {
+                foreach( $matches[0] as $tag ) {
+                    $tags[$tag] = $tag;
+                }
+            }
+            return $tags;
+        }
+        if( is_array($config) ) {
+            foreach( $config as $key => $v ) {
+                if( $key==='inner' ) continue;
+                foreach( self::author_tags_in($v) as $tag ) {
+                    $tags[$tag] = $tag;
+                }
+            }
+        }
+        return $tags;
+    }
+
+    private static function collect_author_field_tags( $elements, &$map ) {
+        if( !is_array($elements) ) return;
+        foreach( $elements as $element ) {
+            if( !is_array($element) ) continue;
+            if( isset($element['data']) && is_array($element['data'])
+                && isset($element['data']['name']) && is_string($element['data']['name']) && $element['data']['name']!=='' ) {
+                $name = $element['data']['name'];
+                if( !isset($map[$name]) ) $map[$name] = array();
+                foreach( self::author_tags_in($element['data']) as $tag ) {
+                    $map[$name][$tag] = $tag;
+                }
+            }
+            if( !empty($element['inner']) ) self::collect_author_field_tags( $element['inner'], $map );
+        }
+    }
+
+    /**
+     * The tags the form author configured on the stored field a submitted value belongs to.
+     * Repeater copies (`name_2`) and nested repeater rows (`name[1]`) share the stored field.
+     */
+    public static function submitted_value_author_tags( $field_name, $data=null, $settings=null ) {
+        if( !is_scalar($field_name) || (string) $field_name==='' ) return array();
+        $form_id = 0;
+        if( is_array($data) && isset($data['hidden_form_id']['value']) && is_scalar($data['hidden_form_id']['value']) ) {
+            $form_id = absint($data['hidden_form_id']['value']);
+        }
+        if( $form_id===0 && is_array($settings) && isset($settings['id']) && is_scalar($settings['id']) ) {
+            $form_id = absint($settings['id']);
+        }
+        if( $form_id===0 ) return array();
+        $elements = self::get_form_elements( $form_id );
+        $hash = md5( serialize( $elements ) );
+        if( !isset(self::$author_field_tags[$form_id]) || self::$author_field_tags[$form_id]['hash']!==$hash ) {
+            $map = array();
+            self::collect_author_field_tags( $elements, $map );
+            self::$author_field_tags[$form_id] = array( 'hash'=>$hash, 'map'=>$map );
+        }
+        $map = self::$author_field_tags[$form_id]['map'];
+        $field_name = (string) $field_name;
+        $base_name = preg_replace( '/(?:\[\d+\])+$/', '', $field_name );
+        foreach( array( $field_name, $base_name, preg_replace( '/_[1-9]\d*$/', '', $base_name ) ) as $candidate ) {
+            if( isset($map[$candidate]) ) return $map[$candidate];
+        }
+        return array();
+    }
+
+    /**
+     * Make every `{`, `[` and `]` in a submitted value inert, except where they belong to one of $allowed_tags.
+     * Pass $brace='&#123;' for HTML that is not run through email_tags() afterwards, the brackets
+     * then become the `&#91;` and `&#93;` entities (the way WordPress core escapes a shortcode).
+     */
+    public static function neutralize_submitted_tags( $value, $allowed_tags=array(), $brace=null ) {
+        if( !is_string($value) || strpbrk($value, '{[]')===false ) return $value;
+        if( $brace===null ) {
+            $inert = array_merge( array( '{' => self::submitted_tag_brace() ), array_flip( self::submitted_shortcode_brackets() ) );
+        }else{
+            $inert = array( '{' => $brace, '[' => '&#91;', ']' => '&#93;' );
+        }
+        $value = strtr( $value, $inert );
+        foreach( $allowed_tags as $tag ) {
+            $value = str_replace( strtr($tag, $inert), $tag, $value );
+        }
+        return $value;
+    }
+
+    public static function neutralize_submitted_value( $value, $field_name, $data=null, $settings=null, $brace=null ) {
+        if( !is_string($value) || strpbrk($value, '{[]')===false ) return $value;
+        return self::neutralize_submitted_tags( $value, self::submitted_value_author_tags( $field_name, $data, $settings ), $brace );
+    }
+
+    /**
+     * {loop_fields} rows are HTML that callers paste into a template before (or without)
+     * calling email_tags(), so their submitted text uses the `&#123;`, `&#91;` and `&#93;` entities instead.
+     */
+    public static function neutralize_submitted_loop_value( $value, $field_name, $data=null, $settings=null ) {
+        return self::neutralize_submitted_value( $value, $field_name, $data, $settings, '&#123;' );
+    }
+
+    /**
      * Create an array with tags that can be used in emails, this function also replaced tags when $value and $data are set
      *
      * @since 1.0.6
     */
-    public static function email_tags( $value=null, $data=null, $settings=null, $user=null, $skip=true, $skipSecrets=false, $skipOptions=false ) {
+    public static function email_tags( $value=null, $data=null, $settings=null, $user=null, $skip=true, $skipSecrets=false, $skipOptions=false, &$literalValues=null ) {
+        // When the caller passes an array for `$literalValues` the contents of visitor controlled tags (see literal_tag_names())
+        // are left as placeholders and collected in it, the caller must put them back with restore_literal_tag_values()
+        $restoreLiterals = !is_array( $literalValues );
+        if( $restoreLiterals ) $literalValues = array();
+        self::$email_tags_depth++;
+        try {
+            $value = self::resolve_email_tags( $value, $data, $settings, $user, $skip, $skipSecrets, $skipOptions, $literalValues );
+        } finally {
+            self::$email_tags_depth--;
+        }
+        // @since 6.3.318 - Restore order, once every tag is resolved:
+        // 1. the `{` of submitted values (inert tokens), only by the outermost call, a nested call still has branches to run
+        // 2. the `[` and `]` of submitted values (inert tokens, outermost call only) together with the contents of the
+        //    visitor controlled tags (placeholders): right here, unless the caller asked for the placeholders. A caller
+        //    that runs do_shortcode() over the result passes `$literalValues` and calls restore_literal_tag_values()
+        //    itself AFTER do_shortcode(), so a [shortcode] a visitor typed never runs: with literal brackets for
+        //    an e-mail (HTML or plain text), with `&#91;`/`&#93;` for HTML that is passed through do_shortcode()
+        //    again (see SUPER_Shortcodes::get_default_value()). strtr() inserts them in a single pass, so they are
+        //    never scanned for tokens or tags
+        if( self::$email_tags_depth===0 ) {
+            $value = self::restore_submitted_tags( $value );
+            if( self::$submitted_tag_brace!==null ) {
+                $literalValues = array_merge( $literalValues, self::submitted_shortcode_brackets() );
+            }
+        }
+        if( $restoreLiterals ) {
+            $value = self::restore_literal_tag_values( $value, $literalValues );
+        }
+        return $value;
+    }
+    private static function resolve_email_tags( $value, $data, $settings, $user, $skip, $skipSecrets, $skipOptions, &$literalValues ) {
         if( ($value==='') && ($skip==true) ) return '';
         $current_author = null;
         $current_user = wp_get_current_user();
@@ -2853,6 +3049,13 @@ class SUPER_Common {
                         if(is_array($allFileNames)) $allFileNames = implode('<br />', $allFileNames);
                         if(is_array($allFileUrls)) $allFileUrls = implode('<br />', $allFileUrls);
                         if(is_array($allFileLinks)) $allFileLinks = implode('<br />', $allFileLinks);
+                        // @since 6.3.318 - file names, URLs and labels are submitted text
+                        $allFileNames = self::neutralize_submitted_value( $allFileNames, $k, $data, $settings );
+                        $allFileUrls = self::neutralize_submitted_value( $allFileUrls, $k, $data, $settings );
+                        $allFileLinks = self::neutralize_submitted_value( $allFileLinks, $k, $data, $settings );
+                        $inert = function( $string ) use ( $k, $data, $settings ) {
+                            return self::neutralize_submitted_value( self::decode( $string ), $k, $data, $settings );
+                        };
                         foreach($v['files'] as $fk => $fv){
                             // Returns the file name/basename by default e.g: `example.png`
                             $value = str_replace( '{' . $k . '}', $allFileNames, $value );
@@ -2873,31 +3076,31 @@ class SUPER_Common {
                                     $publicFileUrl = $resolvedPublicFileUrl;
                                 }
                             }
-                            $value = str_replace( '{' . $k . ';url}', self::decode($publicFileUrl), $value );
-                            $value = str_replace( '{' . $k . ';url['.$fk.']}', self::decode($publicFileUrl), $value );
+                            $value = str_replace( '{' . $k . ';url}', $inert($publicFileUrl), $value );
+                            $value = str_replace( '{' . $k . ';url['.$fk.']}', $inert($publicFileUrl), $value );
                             // Extension
                             $ext = pathinfo($fv['value'], PATHINFO_EXTENSION);
-                            $value = str_replace( '{' . $k . ';ext}', self::decode($ext), $value );
-                            $value = str_replace( '{' . $k . ';ext['.$fk.']}', self::decode($ext), $value );
-                            $value = str_replace( '{' . $k . ';extension}', self::decode($ext), $value );
-                            $value = str_replace( '{' . $k . ';extension['.$fk.']}', self::decode($ext), $value );
+                            $value = str_replace( '{' . $k . ';ext}', $inert($ext), $value );
+                            $value = str_replace( '{' . $k . ';ext['.$fk.']}', $inert($ext), $value );
+                            $value = str_replace( '{' . $k . ';extension}', $inert($ext), $value );
+                            $value = str_replace( '{' . $k . ';extension['.$fk.']}', $inert($ext), $value );
                             // Type
-                            $value = str_replace( '{' . $k . ';type}', self::decode($fv['type']), $value );
-                            $value = str_replace( '{' . $k . ';type['.$fk.']}', self::decode($fv['type']), $value );
-                            $value = str_replace( '{' . $k . ';mime}', self::decode($fv['type']), $value );
-                            $value = str_replace( '{' . $k . ';mime['.$fk.']}', self::decode($fv['type']), $value );
+                            $value = str_replace( '{' . $k . ';type}', $inert($fv['type']), $value );
+                            $value = str_replace( '{' . $k . ';type['.$fk.']}', $inert($fv['type']), $value );
+                            $value = str_replace( '{' . $k . ';mime}', $inert($fv['type']), $value );
+                            $value = str_replace( '{' . $k . ';mime['.$fk.']}', $inert($fv['type']), $value );
                             // Name
-                            $value = str_replace( '{' . $k . ';name}', self::decode($fv['value']), $value );
-                            $value = str_replace( '{' . $k . ';name['.$fk.']}', self::decode($fv['value']), $value );
-                            $value = str_replace( '{' . $k . ';basename}', self::decode($fv['value']), $value );
-                            $value = str_replace( '{' . $k . ';basename['.$fk.']}', self::decode($fv['value']), $value );
+                            $value = str_replace( '{' . $k . ';name}', $inert($fv['value']), $value );
+                            $value = str_replace( '{' . $k . ';name['.$fk.']}', $inert($fv['value']), $value );
+                            $value = str_replace( '{' . $k . ';basename}', $inert($fv['value']), $value );
+                            $value = str_replace( '{' . $k . ';basename['.$fk.']}', $inert($fv['value']), $value );
                             // Attachment
-                            if(isset($fv['attachment'])) $value = str_replace( '{' . $k . ';attachment_id}', self::decode($fv['attachment']), $value );
-                            if(isset($fv['attachment'])) $value = str_replace( '{' . $k . ';attachment_id['.$fk.']}', self::decode($fv['attachment']), $value );
-                            if(isset($fv['attachment'])) $value = str_replace( '{' . $k . ';attachment}', self::decode($fv['attachment']), $value );
-                            if(isset($fv['attachment'])) $value = str_replace( '{' . $k . ';attachment['.$fk.']}', self::decode($fv['attachment']), $value );
+                            if(isset($fv['attachment'])) $value = str_replace( '{' . $k . ';attachment_id}', $inert($fv['attachment']), $value );
+                            if(isset($fv['attachment'])) $value = str_replace( '{' . $k . ';attachment_id['.$fk.']}', $inert($fv['attachment']), $value );
+                            if(isset($fv['attachment'])) $value = str_replace( '{' . $k . ';attachment}', $inert($fv['attachment']), $value );
+                            if(isset($fv['attachment'])) $value = str_replace( '{' . $k . ';attachment['.$fk.']}', $inert($fv['attachment']), $value );
                             // E-mail label
-                            if(isset($v['label'])) $value = str_replace( '{' . $k . ';label}', self::decode($v['label']), $value );
+                            if(isset($v['label'])) $value = str_replace( '{' . $k . ';label}', $inert($v['label']), $value );
                         }
                         continue;
                     }
@@ -2906,22 +3109,22 @@ class SUPER_Common {
                             $v['value'] = self::decode_textarea( $v, $v['value'] );
                         }
                         if( isset( $v['timestamp'] ) ) {
-                            $value = str_replace( '{' . $v['name'] . ';timestamp}', self::decode( $v['timestamp'] ), $value );
+                            $value = str_replace( '{' . $v['name'] . ';timestamp}', self::neutralize_submitted_value( self::decode( $v['timestamp'] ), $v['name'], $data, $settings ), $value );
                         }
                         if( isset( $v['label'] ) ) {
-                            $value = str_replace( '{field_label_' . $v['name'] . '}', self::decode( $v['label'] ), $value );
+                            $value = str_replace( '{field_label_' . $v['name'] . '}', self::neutralize_submitted_value( self::decode( $v['label'] ), $v['name'], $data, $settings ), $value );
                         }
                         if( isset( $v['option_label'] ) ) {
                             if( !empty($v['replace_commas']) ) {
                                 $v['option_label'] = str_replace( ',', $v['replace_commas'], $v['option_label'] );
                             }
-                            $value = str_replace( '{' . $v['name'] . ';label}', self::decode( $v['option_label'] ), $value );
+                            $value = str_replace( '{' . $v['name'] . ';label}', self::neutralize_submitted_value( self::decode( $v['option_label'] ), $v['name'], $data, $settings ), $value );
                         }
                         if( isset( $v['value'] ) ) {
                             if( !empty($v['replace_commas']) ) {
                                 $v['value'] = str_replace( ',', $v['replace_commas'], $v['value'] );
                             }
-                            $value = str_replace( '{field_' . $v['name'] . '}', self::decode( $v['value'] ), $value );
+                            $value = str_replace( '{field_' . $v['name'] . '}', self::neutralize_submitted_value( self::decode( $v['value'] ), $v['name'], $data, $settings ), $value );
                         }
                     }
                 }
@@ -2938,16 +3141,27 @@ class SUPER_Common {
                             if( !empty($v['replace_commas']) ) {
                                 $v['value'] = str_replace( ',', $v['replace_commas'], $v['value'] );
                             }
-                            $value = str_replace( '{' . $v['name'] . '}', self::decode( $v['value'] ), $value );
+                            $value = str_replace( '{' . $v['name'] . '}', self::neutralize_submitted_value( self::decode( $v['value'] ), $v['name'], $data, $settings ), $value );
                         }
                     }
                 }
             }
 
             // Now replace all the tags inside the value with the correct data
+            // @since 6.3.318 - values such as the referrer, IP or the user's display name are not templates either
             foreach( $tags as $k => $v ) {
                 if( isset( $v[1] ) ) {
-                    $value = str_replace( '{'. $k .'}', self::decode( $v[1] ), $value );
+                    // Security: the contents of these tags are controlled by the visitor (see literal_tag_names()),
+                    // insert a placeholder now and the contents at the very end, so that no {tag} inside them is resolved
+                    if( in_array( $k, self::literal_tag_names(), true ) ) {
+                        if( strpos( $value, '{'. $k .'}' )!==false ) {
+                            $placeholder = self::literal_tag_placeholder( $k );
+                            $literalValues[$placeholder] = self::decode( $v[1] );
+                            $value = str_replace( '{'. $k .'}', $placeholder, $value );
+                        }
+                        continue;
+                    }
+                    $value = str_replace( '{'. $k .'}', self::neutralize_submitted_tags( self::decode( $v[1] ) ), $value );
                 }
             }
 
@@ -2962,7 +3176,8 @@ class SUPER_Common {
                     // After replacing the settings {tag} with data, make sure to once more replace any possible {tags}
                     // Only execute if replacing took place
                     if ($count > 0) {
-                        $value = self::email_tags( $value, $data, $settings, $user, $skip );
+                        // Share the placeholders, visitor controlled contents are only put back by the outer call
+                        $value = self::email_tags( $value, $data, $settings, $user, $skip, false, false, $literalValues );
                     }
                 }
             }
@@ -2973,11 +3188,17 @@ class SUPER_Common {
                 if ( strpos( $value, '{author_meta') !== false ) {
                     $meta_key = str_replace('{author_meta_', '', $value);
                     $meta_key = str_replace('}', '', $meta_key);
+                    // Security: the author is chosen by the request (?author=<id>), credentials, tokens, capabilities
+                    // and private `_` meta are never rendered (see SUPER_Shortcodes::users_retrieve_field_denied())
+                    if( !class_exists('SUPER_Shortcodes') ) {
+                        require_once( SUPER_PLUGIN_DIR . '/includes/class-shortcodes.php' );
+                    }
+                    if( SUPER_Shortcodes::users_retrieve_field_denied( $meta_key ) ) return '';
                     $value = get_user_meta( $current_author->ID, $meta_key, true ); 
                     if( $value=='' ) {
                         // Whenever no meta was found mostly we try to retrieve default values like user_login etc. (which is not meta data)
-                        // first convert object to array then try retrieve the value by key
-                        $value = $current_author->{$meta_key};
+                        // Only the WP_User data fields, the magic getter would otherwise also return user_pass, caps etc.
+                        $value = ( in_array( $meta_key, array( 'ID', 'user_login', 'user_nicename', 'user_email', 'user_url', 'user_registered', 'user_status', 'display_name' ), true ) ? $current_author->{$meta_key} : '' );
                     }
                     return $value;
                 }
@@ -3081,6 +3302,48 @@ class SUPER_Common {
 
         }
         return $tags;
+    }
+
+    /**
+     * Tags whose contents are controlled by the visitor: the Referer header is sent by the browser,
+     * and any registered user can set their own first/last/display name. Their contents are always
+     * inserted literally by email_tags(): a {tag} inside them is never resolved
+     *
+     * @since 6.3.318
+    */
+    public static function literal_tag_names() {
+        return array( 'server_http_referrer', 'server_http_referrer_session', 'user_firstname', 'user_lastname', 'user_display' );
+    }
+
+    /**
+     * Placeholder email_tags() inserts for a visitor controlled tag until all other tags are resolved.
+     * It contains no {braces} or [brackets] and carries a random token per request, so it can not be matched
+     * by any tag or shortcode, and a visitor can not type it
+     *
+     * @since 6.3.318
+    */
+    public static function literal_tag_placeholder( $name ) {
+        static $token = null;
+        if( $token===null ) $token = md5( uniqid( (string) mt_rand(), true ) );
+        return "\x1A" . 'super_literal_' . $token . '_' . $name . "\x1A";
+    }
+
+    /**
+     * Replace the placeholders of literal_tag_placeholder() with the actual contents.
+     * When `$escapeShortcodes` is true the square brackets of the contents are entity-escaped the same way
+     * WordPress core does, for values that are printed in the form HTML which is passed through do_shortcode()
+     *
+     * @since 6.3.318
+    */
+    public static function restore_literal_tag_values( $value, $literalValues, $escapeShortcodes=false ) {
+        if( empty( $literalValues ) || !is_string( $value ) ) return $value;
+        if( $escapeShortcodes ) {
+            foreach( $literalValues as $k => $v ) {
+                $literalValues[$k] = str_replace( array( '[', ']' ), array( '&#91;', '&#93;' ), (string) $v );
+            }
+        }
+        // strtr() replaces in a single pass, the inserted contents are never scanned again
+        return strtr( $value, $literalValues );
     }
 
 
@@ -3193,9 +3456,10 @@ class SUPER_Common {
                         if( !empty( $v['label'] ) ) {
                             // Replace %d with empty string if exists
                             $v['label'] = str_replace('%d', '', $v['label']);
-                            $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
-                            $confirm_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $confirm_row );
-                            $listing_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $listing_row );
+                            $loop_label = self::neutralize_submitted_loop_value( SUPER_Common::decode( $v['label'] ), $k, $data, $settings );
+                            $row = str_replace( '{loop_label}', $loop_label, $row );
+                            $confirm_row = str_replace( '{loop_label}', $loop_label, $confirm_row );
+                            $listing_row = str_replace( '{loop_label}', $loop_label, $listing_row );
                         }else{
                             $row = str_replace( '{loop_label}', '', $row );
                             $confirm_row = str_replace( '{loop_label}', '', $confirm_row );
@@ -3215,9 +3479,10 @@ class SUPER_Common {
                                 if( $key==0 ) {
                                     if( !empty( $v['label'] ) ) {
                                         $v['label'] = str_replace('%d', '', $v['label']);
-                                        $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
-                                        $confirm_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $confirm_row );
-                                        $listing_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $listing_row );
+                                        $loop_label = self::neutralize_submitted_loop_value( SUPER_Common::decode( $v['label'] ), $k, $data, $settings );
+                                        $row = str_replace( '{loop_label}', $loop_label, $row );
+                                        $confirm_row = str_replace( '{loop_label}', $loop_label, $confirm_row );
+                                        $listing_row = str_replace( '{loop_label}', $loop_label, $listing_row );
                                     }else{
                                         $row = str_replace( '{loop_label}', '', $row );
                                         $confirm_row = str_replace( '{loop_label}', '', $confirm_row );
@@ -3269,6 +3534,8 @@ class SUPER_Common {
                             }
                         }
                     }
+                    $files_value = self::neutralize_submitted_loop_value( $files_value, $k, $data, $settings );
+                    $files_value_listing = self::neutralize_submitted_loop_value( $files_value_listing, $k, $data, $settings );
                     $row = str_replace( '{loop_value}', $files_value, $row );
                     $confirm_row = str_replace( '{loop_value}', $files_value, $confirm_row );
                     $listing_row = str_replace( '{loop_value}', $files_value_listing, $listing_row );
@@ -3280,9 +3547,10 @@ class SUPER_Common {
                     }else{
                         if( !empty( $v['label'] ) ) {
                             $v['label'] = str_replace('%d', '', $v['label']);
-                            $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
-                            $confirm_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $confirm_row );
-                            $listing_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $listing_row );
+                            $loop_label = self::neutralize_submitted_loop_value( SUPER_Common::decode( $v['label'] ), $k, $data, $settings );
+                            $row = str_replace( '{loop_label}', $loop_label, $row );
+                            $confirm_row = str_replace( '{loop_label}', $loop_label, $confirm_row );
+                            $listing_row = str_replace( '{loop_label}', $loop_label, $listing_row );
                         }else{
                             $row = str_replace( '{loop_label}', '', $row );
                             $confirm_row = str_replace( '{loop_label}', '', $confirm_row );
@@ -3292,20 +3560,22 @@ class SUPER_Common {
                         if( isset( $v['admin_value'] ) ) {
                             // @since 3.9.0 - replace comma's with HTML
                             if( !empty($v['replace_commas']) ) $v['admin_value'] = str_replace( ',', $v['replace_commas'], $v['admin_value'] );
-                            $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['admin_value'] ), $row );
-                            $confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['admin_value'] ), $confirm_row );
+                            $loop_value = self::neutralize_submitted_loop_value( SUPER_Common::decode_textarea_v5( $v, $v['admin_value'] ), $k, $data, $settings );
+                            $row = str_replace( '{loop_value}', $loop_value, $row );
+                            $confirm_row = str_replace( '{loop_value}', $loop_value, $confirm_row );
                         }
                         if( isset( $v['confirm_value'] ) ) {
                             // @since 3.9.0 - replace comma's with HTML
                             if( !empty($v['replace_commas']) ) $v['confirm_value'] = str_replace( ',', $v['replace_commas'], $v['confirm_value'] );
-                            $confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['confirm_value'] ), $confirm_row );
+                            $confirm_row = str_replace( '{loop_value}', self::neutralize_submitted_loop_value( SUPER_Common::decode_textarea_v5( $v, $v['confirm_value'] ), $k, $data, $settings ), $confirm_row );
                         }
                         if( isset( $v['value'] ) ) {
                             // @since 3.9.0 - replace comma's with HTML
                             if( !empty($v['replace_commas']) ) $v['value'] = str_replace( ',', $v['replace_commas'], $v['value'] );
-                            $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['value'] ), $row );
-                            $confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['value'] ), $confirm_row );
-                            $listing_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['value'] ), $listing_row );
+                            $loop_value = self::neutralize_submitted_loop_value( SUPER_Common::decode_textarea_v5( $v, $v['value'] ), $k, $data, $settings );
+                            $row = str_replace( '{loop_value}', $loop_value, $row );
+                            $confirm_row = str_replace( '{loop_value}', $loop_value, $confirm_row );
+                            $listing_row = str_replace( '{loop_value}', $loop_value, $listing_row );
                         }
 
                     }
