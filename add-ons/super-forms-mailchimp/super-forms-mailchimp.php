@@ -852,7 +852,8 @@ if( !class_exists('SUPER_Mailchimp') ) :
                         // if no field exists, just save it as a string
                         $string = SUPER_Common::email_tags( $field[1], $data, $global_settings );
                         // check if string is serialized array
-                        $unserialize = unserialize($string);
+                        // @since 6.3.318 - The string can contain submitted values: never instantiate objects
+                        $unserialize = SUPER_Common::unserialize_without_objects($string);
                         if ($unserialize !== false) {
                             $merge_fields[$field[0]] = $unserialize;
                         }else{

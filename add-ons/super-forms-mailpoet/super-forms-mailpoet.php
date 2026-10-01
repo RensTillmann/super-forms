@@ -207,7 +207,8 @@ if( !class_exists('SUPER_MailPoet') ) :
                     $field = explode( "|", $k );
                     $string = $field[1];
                     // check if string is serialized array
-                    $unserialize = @unserialize($string);
+                    // @since 6.3.318 - The string can contain submitted values: never instantiate objects
+                    $unserialize = SUPER_Common::unserialize_without_objects($string);
                     if ($unserialize !== false) {
                         $sub[$field[0]] = $unserialize;
                     }else{

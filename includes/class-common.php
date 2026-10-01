@@ -3260,6 +3260,27 @@ class SUPER_Common {
     }
 
     /**
+     * @since 6.3.318 - unserialize() for a string that can contain submitted values (e.g. email_tags() output in the
+     * Mailchimp / Mailster / MailPoet field mapping): never instantiates objects (PHP object injection). Returns the
+     * unserialized value, or false when the string is not serialized or the result holds an object (an
+     * __PHP_Incomplete_Class, also nested in an array), so the caller keeps using the plain string, exactly like a
+     * string that is not serialized. Serialized arrays and scalars come back as before.
+     * (is_object() is false for __PHP_Incomplete_Class before PHP 7.2, hence the instanceof)
+     */
+    public static function unserialize_without_objects( $string ) {
+        if( !is_string( $string ) ) return false;
+        $value = @unserialize( $string, array( 'allowed_classes' => false ) );
+        if( $value===false ) return false;
+        $has_object = ( is_object( $value ) || $value instanceof __PHP_Incomplete_Class );
+        if( is_array( $value ) ) {
+            array_walk_recursive( $value, function( $item ) use ( &$has_object ) {
+                if( is_object( $item ) || $item instanceof __PHP_Incomplete_Class ) $has_object = true;
+            } );
+        }
+        return ( $has_object ? false : $value );
+    }
+
+    /**
      * @since 6.3.318 - A placeholder for a value a caller inserts into a template itself (e.g. the password a visitor
      * chose, inserted for {register_generated_password}): it is never resolved as a {tag}, [shortcode] or e-mail
      * foreach/if syntax and comes back byte for byte when the caller runs restore_literal_tag_values() (and, with
