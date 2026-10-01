@@ -2782,7 +2782,8 @@ if( !class_exists('SUPER_Register_Login') ) :
             $literalValues = array();
             $message = SUPER_Common::email_tags_keep_submitted( $message, $data, $settings, null, $literalValues );
             if(!empty($password)){
-                $message = str_replace( '{register_generated_password}', $password, $message );
+                // The password may be the one the visitor typed (`user_pass` field): insert it literally, byte for byte
+                $message = str_replace( '{register_generated_password}', SUPER_Common::literal_value_placeholder( 'register_generated_password', $password, $literalValues ), $message );
             }
             $message = SUPER_Common::email_tags_keep_submitted( $message, $data, $settings, $user, $literalValues );
             $message = SUPER_Common::restore_literal_tag_values( $message, $literalValues, false, true );
@@ -2809,17 +2810,19 @@ if( !class_exists('SUPER_Register_Login') ) :
             $message = str_replace( '{field_user_login}', $username, $message );
             $message = str_replace( '{user_login}', $username, $message );
             $message = str_replace( '{register_login_url}', $settings['register_login_url'], $message );
+            // @since 6.3.318 - The foreach/if/isset syntax of submitted values stays inert until email_if_statements() ran,
+            // the password is inserted literally (never resolved as a {tag}, whatever `random_password` filters return)
+            $literalValues = array();
             // Generate a password upon approval
             if( (isset($settings['register_approve_generate_pass'])) && ($settings['register_approve_generate_pass']=='true') ) {
                 add_filter( 'send_password_change_email', '__return_false' );
                 $password = wp_generate_password( 24, false );
                 $user_id = wp_update_user( array( 'ID' => $user->ID, 'user_pass' => $password ) );
-                $message = str_replace( '{field_user_pass}', $password, $message );
-                $message = str_replace( '{user_pass}', $password, $message );
-                $message = str_replace( '{register_generated_password}', $password, $message );
+                $password_placeholder = SUPER_Common::literal_value_placeholder( 'register_generated_password', $password, $literalValues );
+                $message = str_replace( '{field_user_pass}', $password_placeholder, $message );
+                $message = str_replace( '{user_pass}', $password_placeholder, $message );
+                $message = str_replace( '{register_generated_password}', $password_placeholder, $message );
             }
-            // @since 6.3.318 - The foreach/if/isset syntax of submitted values stays inert until email_if_statements() ran
-            $literalValues = array();
             $message = SUPER_Common::email_tags( $message, $data, $settings, null, true, false, false, $literalValues );
             $message = SUPER_Common::restore_literal_tag_values( $message, $literalValues, false, true );
             $message = nl2br( $message );
@@ -2843,11 +2846,13 @@ if( !class_exists('SUPER_Register_Login') ) :
             $message = str_replace( '{field_user_login}', $username, $message );
             $message = str_replace( '{user_login}', $username, $message );
             $message = str_replace( '{register_login_url}', $settings['register_login_url'], $message );
-            $message = str_replace( '{field_user_pass}', $password, $message );
-            $message = str_replace( '{user_pass}', $password, $message );
-            $message = str_replace( '{register_generated_password}', $password, $message );
-            // @since 6.3.318 - The foreach/if/isset syntax of submitted values stays inert until email_if_statements() ran
+            // @since 6.3.318 - The foreach/if/isset syntax of submitted values stays inert until email_if_statements() ran,
+            // the password is inserted literally (never resolved as a {tag})
             $literalValues = array();
+            $password_placeholder = SUPER_Common::literal_value_placeholder( 'register_generated_password', $password, $literalValues );
+            $message = str_replace( '{field_user_pass}', $password_placeholder, $message );
+            $message = str_replace( '{user_pass}', $password_placeholder, $message );
+            $message = str_replace( '{register_generated_password}', $password_placeholder, $message );
             $message = SUPER_Common::email_tags( $message, $data, $settings, null, true, false, false, $literalValues );
             $message = SUPER_Common::restore_literal_tag_values( $message, $literalValues, false, true );
             $message = nl2br( $message );

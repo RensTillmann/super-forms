@@ -682,6 +682,58 @@ class Test_Super_Forms_Submitted_Tags_Security extends Super_Forms_Upload_Securi
     }
 
     /*
+     * rc3 B2: the activation e-mail inserts the password for {register_generated_password}. When the form has a
+     * `user_pass` field that is the password the visitor typed (SUPER_Register_Login::register_user() passes
+     * $data['user_pass']['value']); it must arrive byte for byte and never be resolved or evaluated.
+     */
+
+    public function test_register_login_activation_email_inserts_visitor_password_literally() {
+        if( !class_exists( 'SUPER_Register_Login' ) ) {
+            require_once dirname( __DIR__ ) . '/add-ons/super-forms-register-login/super-forms-register-login.php';
+        }
+        wp_set_current_user( 0 );
+        $elements = $this->elements();
+        $elements[] = array( 'group' => 'form_elements', 'tag' => 'password', 'data' => array( 'name' => 'user_pass', 'email' => 'Password' ) );
+        update_post_meta( $this->form_id, '_super_elements', $elements );
+        $new_user_id = self::factory()->user->create( array( 'role' => 'subscriber', 'user_login' => 'secgpwuser', 'user_email' => 'secg-pw@example.test', 'user_url' => 'https://pw.example' ) );
+        $new_user = get_userdata( $new_user_id );
+        $settings = array_merge( $this->settings, array(
+            'register_activation_subject' => 'Activate',
+            'register_activation_email' => 'Your password: [{register_generated_password}] for {first_name}',
+            'register_login_url' => 'https://example.test/login/',
+            'register_custom_email_header' => 'admin',
+            'header_from' => 'no-reply@example.test',
+            'header_from_name' => 'Sec G',
+            'header_reply_enabled' => 'false',
+            'header_reply' => '',
+            'header_reply_name' => '',
+        ) );
+        $captured = array();
+        $capture = static function( $short_circuit, $atts ) use ( &$captured ) {
+            $captured[] = $atts['message'];
+            return true;
+        };
+        add_filter( 'pre_wp_mail', $capture, 10, 2 );
+        try {
+            foreach( array( '{@sales_email}|{option_admin_email}', 'foreach(first_name):<%first_name%>endforeach;', 'p[x]%{user_url}%>if(1==1):y endif;{@global_secret}' ) as $typed ) {
+                $captured = array();
+                $data = $this->data( array( 'first_name' => 'Jane', 'user_pass' => $typed ) );
+                // Same call SUPER_Register_Login::register_user() makes after creating the user.
+                SUPER_Register_Login::send_verification_email( array( 'password' => $typed, 'code' => 'CODE123', 'user' => $new_user, 'settings' => $settings, 'data' => $data ) );
+                $this->assertCount( 1, $captured, $typed );
+                $this->assertStringContainsString( 'Your password: [' . $typed . '] for Jane', $captured[0], $typed );
+                $this->assertStringNotContainsString( self::ADMIN_EMAIL, $captured[0], $typed );
+                $this->assertStringNotContainsString( self::SALES_EMAIL, $captured[0], $typed );
+                $this->assertStringNotContainsString( self::GLOBAL_SECRET, $captured[0], $typed );
+                $this->assertStringNotContainsString( 'https://pw.example', $captured[0], $typed );
+                $this->assertStringNotContainsString( "\x1A", $captured[0], $typed );
+            }
+        } finally {
+            remove_filter( 'pre_wp_mail', $capture, 10 );
+        }
+    }
+
+    /*
      * PR #213 review (#209 territory): {user_meta_*} and {author_meta_*} return meta data the user
      * controls (any subscriber can set their profile description), so the contents are inserted
      * literally: no nested tag resolution, no shortcode execution, brackets escaped on the

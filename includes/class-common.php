@@ -3259,6 +3259,22 @@ class SUPER_Common {
         return $placeholder;
     }
 
+    /**
+     * @since 6.3.318 - A placeholder for a value a caller inserts into a template itself (e.g. the password a visitor
+     * chose, inserted for {register_generated_password}): it is never resolved as a {tag}, [shortcode] or e-mail
+     * foreach/if syntax and comes back byte for byte when the caller runs restore_literal_tag_values() (and, with
+     * `$keepControlSyntax`, restore_submitted_control_syntax() after email_if_statements()).
+     */
+    public static function literal_value_placeholder( $name, $value, &$literalValues ) {
+        if( !is_array( $literalValues ) ) $literalValues = array();
+        $placeholder = self::literal_tag_placeholder( 'value_' . md5( (string) $name ) . '_' . count( $literalValues ) );
+        $literalValues[$placeholder] = self::neutralize_submitted_control_syntax( (string) $value );
+        if( self::$submitted_tag_brace!==null ) {
+            $literalValues = array_merge( $literalValues, self::submitted_control_tokens() );
+        }
+        return $placeholder;
+    }
+
 
     /**
      * Retrieve HTML for email loop
