@@ -9,6 +9,23 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## 2026-09-27 - Version 6.4.008-beta
+
+- **Security fix:** Hardened form file uploads, generated file downloads, account registration and updates, Listings entry actions, form administration, contact entry imports and exports, WooCommerce order search, unique code and invoice number generation, and PayPal payment notifications (the same fixes as stable 6.3.318).
+- **Changed:** WooCommerce Order Search now shows orders only to shop staff (all orders) and to logged-in customers (their own orders); the search settings saved in the form are always used. Site owners can adjust who may search with the `super_wc_order_search_scope` filter.
+- **Changed:** Unique codes and invoice numbers are reserved when the form is submitted; the code shown while filling in the form is a preview.
+- **Changed:** PayPal payments are now linked to their contact entry, post and user through a signed reference. Payments that were started before this update are still recorded, but do not change the entry, post or user status automatically; update those by hand if needed.
+- **Fix:** Multi-step forms wait for asynchronous validation before switching steps (Next button and step tabs).
+- **Fix:** Prefilled stored files are no longer uploaded again when a form is submitted a second time.
+- **Fix:** Listings: a missing column setting or an empty entry status no longer breaks the listing; the entry status can only be changed with the edit and change-status permissions, and the change is never stored as entry data.
+- **Fix:** "Delete files after submission" keeps working when an entry is edited; files that are no longer current are skipped instead of failing the edit.
+- **Fix:** Stripe checkout: session expiry is calculated in UTC; unknown or expired sessions on the success, cancel and retry links redirect to the home page instead of showing an error.
+- **Fix:** Rewrite rules are refreshed once per plugin version after an update, so sites coming from 6.3 get the new routes (for example the Stripe return URLs) without re-activating the plugin.
+- **Fix:** Google Sheets connected fields show an error item instead of a fatal error on PHP older than 7.4 or when the library fails.
+- **Fix:** Register & Login: safer user lookups for ACF-based fields; settings use the site URL instead of the server name.
+- **Improved:** The bundled Google API client (2.16.1) and Stripe PHP library (14.2.0) are now managed from one Composer lockfile.
+- **Note:** This version requires PHP 7.4 or newer.
+
 ## 2026-07-15 - Version 6.4.007-beta
 
 - **Fix:** Corrected server-side validation so optional fields can be left empty while required fields, including Toggle elements and fields in repeated rows, are enforced.

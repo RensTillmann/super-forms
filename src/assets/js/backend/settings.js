@@ -190,6 +190,7 @@
                                     url: ajaxurl,
                                     data: {
                                         action: 'super_prepare_contact_entry_import',
+                                        nonce: super_settings_i18n.admin_nonce,
                                         file_id: $id,
                                         import_delimiter: $import_delimiter,
                                         import_enclosure: $import_enclosure
@@ -203,11 +204,18 @@
                                         $html += '<a href="#" class="super-delete">Delete</a>';
                                         $html += '<ul class="import-column-connections">';
                                         $.each($result, function( index, value ) {
+                                            var $header = value,
+                                                $default_name = '';
+                                            if(typeof value === 'object' && value !== null){
+                                                $header = (typeof value.header !== 'undefined' ? value.header : '');
+                                                $default_name = (typeof value.name !== 'undefined' ? value.name : '');
+                                            }
+                                            if($default_name==='') $default_name = String($header).replace(/[^A-Za-z0-9_-]+/g, '_').replace(/^[-_]+|[-_]+$/g, '');
                                             $html += '<li>';
                                             var $dropdown = '<select name="column">';
                                             $dropdown += '<option value="var">VARCHAR (default)</option>';
                                             $dropdown += '<option value="text">TEXT</option>';
-                                            var $lower_case_value = value.toLowerCase();
+                                            var $lower_case_value = String($header).toLowerCase();
                                             if( ( $lower_case_value=='post author' ) || ( $lower_case_value=='post_author' ) || ( $lower_case_value=='author' ) || ( $lower_case_value=='author_id' ) || ( $lower_case_value=='author id' ) || ( $lower_case_value=='user_id' ) || ( $lower_case_value=='user id' ) || ( $lower_case_value=='user' ) || ( $lower_case_value=='id' ) ) {
                                                 $dropdown += '<option value="post_author" selected="selected">Author (User ID)</option>';
                                             }else{
@@ -241,8 +249,8 @@
 
                                             $dropdown += '</select>';
                                             $html += '<label><span>Save as: </span>'+$dropdown+'</label>';
-                                            $html += '<label><span>Field Label: </span><input type="text" name="label" value="'+value+'" /></label>';
-                                            $html += '<label><span>Field Name: </span><input type="text" name="name" value="'+value+'" /></label>';
+                                            $html += '<label><span>Field Label: </span><input type="text" name="label" value="'+$header+'" /></label>';
+                                            $html += '<label><span>Field Name: </span><input type="text" name="name" value="'+$default_name+'" /></label>';
                                             $html += '</li>';
                                         });
                                         $html += '</ul>';
@@ -298,6 +306,7 @@
                 url: ajaxurl,
                 data: {
                     action: 'super_import_contact_entries',
+                    nonce: super_settings_i18n.admin_nonce,
                     file_id: $id,
                     column_connections: $column_connections,
                     skip_first: $skip_first,
@@ -326,6 +335,8 @@
                 url: ajaxurl,
                 data: {
                     action: 'super_export_entries',
+                    nonce: super_settings_i18n.admin_nonce,
+                    sort_by: 'entry_date',
                     type: $type,
                     from: $from,
                     form_ids: $form_ids,
@@ -377,6 +388,7 @@
                     url: ajaxurl,
                     data: {
                         action: 'super_load_default_settings',
+                        nonce: super_settings_i18n.admin_nonce,
                     },
                     success: function () {
                         location.reload();
@@ -416,6 +428,7 @@
                 url: ajaxurl,
                 data: {
                     action: 'super_save_settings',
+                    nonce: super_settings_i18n.admin_nonce,
                     data: $data,
                 },
                 success: function (data) {
@@ -494,6 +507,7 @@
                 url: ajaxurl,
                 data: {
                     action: 'super_import_global_settings',
+                    nonce: super_settings_i18n.admin_nonce,
                     settings: $settings,
                     method: $method,
                 },
@@ -526,6 +540,7 @@
                 url: ajaxurl,
                 data: {
                     action: 'super_export_forms',
+                    nonce: super_settings_i18n.admin_nonce,
                     offset: offset,
                     limit: limit,
                     found: found
@@ -614,6 +629,7 @@
                                     url: ajaxurl,
                                     data: {
                                         action: 'super_start_forms_import',
+                                        nonce: super_settings_i18n.admin_nonce,
                                         file_id: $id,
                                     },
                                     success: function (response) {

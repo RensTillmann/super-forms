@@ -1,0 +1,461 @@
+<?php
+/**
+ * Public (logged-out reachable) AJAX endpoints and the PayPal IPN listener:
+ * WooCommerce order search / order populate, unique code preview and reservation, IPN verification.
+ */
+class Test_Security_Public_Endpoints extends Super_Forms_Upload_Security_Test_Case {
+
+    private $customer_id = 0;
+    private $other_customer_id = 0;
+    private $staff_id = 0;
+    private $orders = array();
+
+    public function set_up() {
+        parent::set_up();
+        $this->customer_id = self::factory()->user->create( array( 'role' => 'subscriber' ) );
+        $this->other_customer_id = self::factory()->user->create( array( 'role' => 'subscriber' ) );
+        $this->staff_id = self::factory()->user->create( array( 'role' => 'editor' ) );
+        get_user_by( 'id', $this->staff_id )->add_cap( 'edit_shop_orders' );
+        $this->orders['mine'] = $this->create_order( $this->customer_id, 'alice@example.test', 'Alice', '+31600000001' );
+        $this->orders['other'] = $this->create_order( $this->other_customer_id, 'bob@example.test', 'Bob', '+31600000002' );
+        wp_set_current_user( 0 );
+    }
+
+    private function create_order( $customer_id, $email, $first_name, $phone ) {
+        $order_id = self::factory()->post->create( array(
+            'post_type' => 'shop_order',
+            'post_status' => 'wc-processing',
+            'post_title' => 'Order',
+        ) );
+        update_post_meta( $order_id, '_customer_user', (string) $customer_id );
+        update_post_meta( $order_id, '_billing_email', $email );
+        update_post_meta( $order_id, '_billing_first_name', $first_name );
+        update_post_meta( $order_id, '_billing_last_name', 'Example' );
+        update_post_meta( $order_id, '_billing_phone', $phone );
+        return $order_id;
+    }
+
+    private function order_search_form( $overrides=array() ) {
+        $data = array_merge( array(
+            'name' => 'order_lookup',
+            'wc_order_search' => 'true',
+            'wc_order_search_method' => 'contains',
+            'wc_order_search_filterby' => "_billing_email\n_billing_first_name",
+            'wc_order_search_return_label' => 'Order #{ID} {_billing_email}',
+            'wc_order_search_return_value' => 'ID;_billing_email',
+            'wc_order_search_populate' => 'true',
+        ), $overrides );
+        return $this->create_form( 'publish', array( array( 'tag' => 'text', 'group' => 'form_elements', 'data' => $data ) ) );
+    }
+
+    private function set_post( $post ) {
+        $_POST = $post;
+        $_REQUEST = $post;
+    }
+
+    private function search( $form_id, $value, $extra=array(), $with_nonce=true ) {
+        $post = array_merge( array(
+            'form_id' => (string) $form_id,
+            'field_name' => 'order_lookup',
+            'value' => $value,
+        ), $extra );
+        if( $with_nonce ) {
+            $post['nonce'] = wp_create_nonce( 'super_create_nonce_' . $form_id );
+        }
+        $this->set_post( $post );
+        $result = $this->run_dying_handler( array( 'SUPER_Ajax', 'search_wc_orders' ) );
+        $this->assertTrue( $result['exited'] );
+        return $result['output'];
+    }
+
+    // ---- WooCommerce order search -------------------------------------------------------
+
+    public function test_guest_order_search_returns_no_orders() {
+        $form_id = $this->order_search_form();
+        $this->assertSame( '', $this->search( $form_id, 'example.test' ) );
+    }
+
+    public function test_order_search_without_nonce_returns_nothing() {
+        $form_id = $this->order_search_form();
+        wp_set_current_user( $this->staff_id );
+        $this->assertSame( '', $this->search( $form_id, 'example.test', array(), false ) );
+    }
+
+    public function test_order_search_requires_a_saved_order_search_field() {
+        $form_id = $this->order_search_form( array( 'wc_order_search' => '' ) );
+        wp_set_current_user( $this->staff_id );
+        $this->assertSame( '', $this->search( $form_id, 'example.test' ) );
+    }
+
+    public function test_customer_order_search_only_lists_own_orders() {
+        $form_id = $this->order_search_form();
+        wp_set_current_user( $this->customer_id );
+        $output = $this->search( $form_id, 'example.test' );
+        $this->assertStringContainsString( 'alice@example.test', $output );
+        $this->assertStringNotContainsString( 'bob@example.test', $output );
+    }
+
+    public function test_staff_order_search_lists_matching_orders() {
+        $form_id = $this->order_search_form();
+        wp_set_current_user( $this->staff_id );
+        $output = $this->search( $form_id, 'example.test' );
+        $this->assertStringContainsString( 'alice@example.test', $output );
+        $this->assertStringContainsString( 'bob@example.test', $output );
+    }
+
+    public function test_order_search_ignores_request_supplied_query_settings() {
+        $form_id = $this->order_search_form();
+        wp_set_current_user( $this->staff_id );
+        $output = $this->search( $form_id, 'example.test', array(
+            'return_value' => '_billing_phone',
+            'return_label' => '{_billing_phone}',
+            'filterby' => '_billing_phone',
+            'status' => "any') OR ('1'='1",
+            'method' => 'equals',
+        ) );
+        $this->assertStringContainsString( 'alice@example.test', $output );
+        $this->assertStringNotContainsString( '+3160000000', $output );
+    }
+
+    public function test_order_search_value_is_bound_not_interpolated() {
+        $form_id = $this->order_search_form();
+        wp_set_current_user( $this->staff_id );
+        $this->assertSame( '', $this->search( $form_id, "zz' OR '1'='1" ) );
+    }
+
+    // ---- WooCommerce order populate (click on a search result) --------------------------
+
+    /** Browser session cookie + stored session row (three records, as a live session carries). */
+    private function seed_session() {
+        $session_id = bin2hex( random_bytes( 32 ) );
+        $_COOKIE['_sfs_id'] = $session_id;
+        update_option( '_sfsdata_' . $session_id, array(
+            'expires' => time() + HOUR_IN_SECONDS,
+            'exp_var' => time() + HOUR_IN_SECONDS,
+            'sf_test_session_anchor' => array( 'expires' => time() + HOUR_IN_SECONDS, 'exp_var' => time() + HOUR_IN_SECONDS, 'value' => 'anchor' ),
+        ), false );
+    }
+
+    private function populate_order( $form_id, $order_id ) {
+        $this->seed_session();
+        $capability = SUPER_Common::issue_public_populate_capability( array(
+            'form_id' => $form_id,
+            'field_name' => 'order_lookup',
+            'method' => 'wc_order_id',
+            'skip' => '',
+            'result_scope' => 'wc_order_entry',
+        ) );
+        $this->assertIsString( $capability );
+        $this->set_post( array(
+            'form_id' => (string) $form_id,
+            'field_name' => 'order_lookup',
+            'method' => 'wc_order_id',
+            'skip' => '',
+            'capability' => $capability,
+            'order_id' => (string) $order_id,
+        ) );
+        $result = $this->run_dying_handler( array( 'SUPER_Ajax', 'populate_form_data' ) );
+        $this->assertTrue( $result['exited'] );
+        return json_decode( $result['output'], true );
+    }
+
+    public function test_guest_cannot_populate_from_an_order() {
+        $form_id = $this->order_search_form();
+        $response = $this->populate_order( $form_id, $this->orders['mine'] );
+        $this->assertSame( array( '_super_capability_rejected' => true ), $response );
+    }
+
+    public function test_customer_cannot_populate_from_someone_elses_order() {
+        $form_id = $this->order_search_form();
+        wp_set_current_user( $this->customer_id );
+        $response = $this->populate_order( $form_id, $this->orders['other'] );
+        $this->assertSame( array( '_super_capability_rejected' => true ), $response );
+    }
+
+    public function test_customer_can_populate_from_own_order() {
+        $form_id = $this->order_search_form();
+        wp_set_current_user( $this->customer_id );
+        $response = $this->populate_order( $form_id, $this->orders['mine'] );
+        $this->assertIsArray( $response );
+        $this->assertArrayNotHasKey( '_super_capability_rejected', $response );
+    }
+
+    private function render_with_order_in_url( $order_id ) {
+        $form_id = $this->create_form( 'publish', array(
+            array( 'tag' => 'text', 'group' => 'form_elements', 'inner' => array(), 'data' => array(
+                'name' => 'order_lookup',
+                'wc_order_search' => 'true',
+                'wc_order_search_method' => 'equals',
+                'wc_order_search_filterby' => '_billing_email',
+                'wc_order_search_populate' => 'true',
+            ) ),
+            array( 'tag' => 'text', 'group' => 'form_elements', 'inner' => array(), 'data' => array( 'name' => 'entry_secret' ) ),
+        ) );
+        $entry_id = self::factory()->post->create( array( 'post_type' => 'super_contact_entry', 'post_status' => 'super_unread', 'post_parent' => $form_id, 'post_title' => 'Linked entry' ) );
+        SUPER_Data_Access::update_entry_data( $entry_id, array(
+            'entry_secret' => array( 'name' => 'entry_secret', 'value' => 'order-linked-secret-' . $order_id, 'type' => 'text' ),
+        ) );
+        update_post_meta( $entry_id, '_super_contact_entry_wc_order_id', $order_id );
+        $_GET = array( 'order_lookup' => (string) $order_id );
+        return SUPER_Shortcodes::super_form_func( array( 'id' => (string) $form_id ) );
+    }
+
+    public function test_guest_render_with_order_in_url_does_not_prefill_the_linked_entry() {
+        $output = $this->render_with_order_in_url( $this->orders['mine'] );
+        $this->assertStringNotContainsString( 'order-linked-secret-', $output );
+    }
+
+    public function test_customer_render_prefills_only_from_own_order() {
+        wp_set_current_user( $this->customer_id );
+        $this->assertStringNotContainsString( 'order-linked-secret-', $this->render_with_order_in_url( $this->orders['other'] ) );
+        $this->assertStringContainsString( 'order-linked-secret-' . $this->orders['mine'], $this->render_with_order_in_url( $this->orders['mine'] ) );
+    }
+
+    // ---- Unique code / invoice numbers ---------------------------------------------------
+
+    private function code_form( $overrides=array() ) {
+        $data = array_merge( array(
+            'name' => 'invoice_code',
+            'enable_random_code' => 'true',
+            'code_length' => '0',
+            'code_prefix' => 'INV-',
+            'code_invoice' => 'true',
+            'code_invoice_padding' => '4',
+            'code_invoice_key' => 'unit',
+        ), $overrides );
+        return $this->create_form( 'publish', array( array( 'tag' => 'hidden', 'group' => 'form_elements', 'data' => $data ) ) );
+    }
+
+    private function code_option_count() {
+        global $wpdb;
+        return (int) $wpdb->get_var( "SELECT COUNT(*) FROM $wpdb->options WHERE option_name LIKE '\\_sf\\_unique\\_code-%' OR option_name LIKE '\\_sf\\_invoice\\_number%'" );
+    }
+
+    private function invoice_counter( $key ) {
+        global $wpdb;
+        return $wpdb->get_var( $wpdb->prepare( "SELECT option_value FROM $wpdb->options WHERE option_name = %s", '_sf_invoice_number_' . $key ) );
+    }
+
+    public function test_request_supplied_code_settings_never_write_options() {
+        $before = $this->code_option_count();
+        $this->set_post( array(
+            'submittingForm' => 'true',
+            'codesettings' => wp_json_encode( array( 'invoice_key' => 'attacker', 'len' => '5', 'char' => '1', 'pre' => 'X', 'inv' => 'true', 'invp' => '4', 'suf' => '', 'upper' => '', 'lower' => '' ) ),
+        ) );
+        $result = $this->run_dying_handler( array( 'SUPER_Ajax', 'update_unique_code' ) );
+        $this->assertTrue( $result['exited'] );
+        $this->assertSame( '', $result['output'] );
+        $this->assertSame( $before, $this->code_option_count() );
+    }
+
+    public function test_code_preview_uses_saved_settings_and_reserves_nothing() {
+        $form_id = $this->code_form();
+        SUPER_Common::generate_random_code( SUPER_Common::stored_code_fields( $form_id )['invoice_code'], true ); // counter at 1
+        $counter = $this->invoice_counter( 'unit' );
+        $codes = $this->code_option_count();
+        $this->set_post( array(
+            'form_id' => (string) $form_id,
+            'field_name' => 'invoice_code',
+            'nonce' => wp_create_nonce( 'super_create_nonce_' . $form_id ),
+            'submittingForm' => 'true',
+            'codesettings' => wp_json_encode( array( 'pre' => 'EVIL-', 'len' => '999999' ) ),
+        ) );
+        $result = $this->run_dying_handler( array( 'SUPER_Ajax', 'update_unique_code' ) );
+        $this->assertMatchesRegularExpression( '/\AINV-\d{4}\z/', $result['output'] ); // saved prefix and padding, not the request's
+        $this->assertSame( $counter, $this->invoice_counter( 'unit' ) );
+        $this->assertSame( $codes, $this->code_option_count() );
+    }
+
+    public function test_submission_reserves_the_code_server_side_once() {
+        $form_id = $this->code_form();
+        $data = array(
+            'invoice_code' => array( 'name' => 'invoice_code', 'value' => 'CLIENT-CHOSEN', 'type' => 'var' ),
+            'email' => array( 'name' => 'email', 'value' => 'a@example.test', 'type' => 'var' ),
+        );
+        $reserved = $this->invoke_ajax_private( 'reserve_generated_codes', array( $form_id, $data ) );
+        $this->assertSame( 'INV-0001', $reserved['invoice_code']['value'] );
+        $this->assertSame( 'a@example.test', $reserved['email']['value'] );
+        $this->assertSame( '1', $this->invoice_counter( 'unit' ) );
+        $again = $this->invoke_ajax_private( 'reserve_generated_codes', array( $form_id, $data ) );
+        $this->assertSame( 'INV-0002', $again['invoice_code']['value'] );
+    }
+
+    public function test_submission_keeps_a_previewed_invoice_number_it_can_claim() {
+        $form_id = $this->code_form();
+        $settings = SUPER_Common::stored_code_fields( $form_id )['invoice_code'];
+        $preview = SUPER_Common::generate_random_code( $settings, false ); // what the browser shows and a PDF may print
+        $data = array( 'invoice_code' => array( 'name' => 'invoice_code', 'value' => $preview, 'type' => 'var' ) );
+        $reserved = $this->invoke_ajax_private( 'reserve_generated_codes', array( $form_id, $data ) );
+        $this->assertSame( $preview, $reserved['invoice_code']['value'] );
+        $this->assertSame( '1', $this->invoice_counter( 'unit' ) );
+        // The same number cannot be claimed twice.
+        $again = $this->invoke_ajax_private( 'reserve_generated_codes', array( $form_id, $data ) );
+        $this->assertSame( 'INV-0002', $again['invoice_code']['value'] );
+    }
+
+    public function test_submission_keeps_a_previewed_random_code_once() {
+        $form_id = $this->code_form( array( 'code_invoice' => '', 'code_length' => '8', 'code_uppercase' => 'true', 'code_characters' => '1' ) );
+        $settings = SUPER_Common::stored_code_fields( $form_id )['invoice_code'];
+        $preview = SUPER_Common::generate_random_code( $settings, false );
+        $data = array( 'invoice_code' => array( 'name' => 'invoice_code', 'value' => $preview, 'type' => 'var' ) );
+        $first = $this->invoke_ajax_private( 'reserve_generated_codes', array( $form_id, $data ) );
+        $this->assertSame( $preview, $first['invoice_code']['value'] );
+        $second = $this->invoke_ajax_private( 'reserve_generated_codes', array( $form_id, $data ) );
+        $this->assertNotSame( $preview, $second['invoice_code']['value'] );
+    }
+
+    public function test_submission_replaces_codes_that_do_not_match_the_saved_format() {
+        $form_id = $this->code_form();
+        foreach( array( 'EVIL-0001', 'INV-0005', 'INV-01', 'INV-0001x', 'INV-' ) as $tampered ) {
+            $data = array( 'invoice_code' => array( 'name' => 'invoice_code', 'value' => $tampered, 'type' => 'var' ) );
+            $reserved = $this->invoke_ajax_private( 'reserve_generated_codes', array( $form_id, $data ) );
+            $this->assertMatchesRegularExpression( '/\AINV-\d{4}\z/', $reserved['invoice_code']['value'] );
+            $this->assertNotSame( $tampered, $reserved['invoice_code']['value'] );
+        }
+    }
+
+    public function test_dynamic_column_copies_are_reserved_but_unrelated_fields_are_left_alone() {
+        $form_id = $this->create_form( 'publish', array(
+            array( 'tag' => 'hidden', 'group' => 'form_elements', 'data' => array( 'name' => 'code', 'enable_random_code' => 'true', 'code_length' => '0', 'code_prefix' => 'C-', 'code_invoice' => 'true', 'code_invoice_padding' => '3', 'code_invoice_key' => 'dyn' ) ),
+            array( 'tag' => 'text', 'group' => 'form_elements', 'data' => array( 'name' => 'code_9' ) ),
+        ) );
+        $data = array(
+            'code' => array( 'name' => 'code', 'value' => 'x', 'type' => 'var' ),
+            'code_2' => array( 'name' => 'code_2', 'value' => 'x', 'type' => 'var' ),
+            'code_9' => array( 'name' => 'code_9', 'value' => 'keep me', 'type' => 'var' ),
+            '_super_dynamic_data' => array( 'code' => array( array( 'code' => array( 'name' => 'code', 'value' => 'x' ) ), array( 'code_2' => array( 'name' => 'code_2', 'value' => 'x' ) ) ) ),
+        );
+        $reserved = $this->invoke_ajax_private( 'reserve_generated_codes', array( $form_id, $data ) );
+        $this->assertSame( 'C-001', $reserved['code']['value'] );
+        $this->assertSame( 'C-002', $reserved['code_2']['value'] );
+        $this->assertSame( 'keep me', $reserved['code_9']['value'] );
+        $this->assertSame( 'C-002', $reserved['_super_dynamic_data']['code'][1]['code_2']['value'] );
+    }
+
+    public function test_filters_already_see_the_reserved_code() {
+        $form_id = $this->code_form();
+        $seen = null;
+        $this->add_upload_filter( 'super_before_sending_email_data_filter', static function( $filtered ) use ( &$seen ) {
+            $seen = $filtered;
+            return $filtered;
+        }, 10, 2 );
+        $this->set_request( $form_id, array( 'invoice_code' => array( 'name' => 'invoice_code', 'value' => 'CLIENT', 'type' => 'var' ) ) );
+        $atts = SUPER_Ajax::submit_form_checks( false );
+        $this->assertSame( 'INV-0001', $seen['invoice_code']['value'] );
+        $this->assertSame( 'INV-0001', $atts['data']['invoice_code']['value'] );
+    }
+
+    public function test_code_length_is_bounded() {
+        $code = SUPER_Common::generate_random_code( array( 'invoice_key' => '', 'len' => '100000', 'char' => '1', 'pre' => '', 'inv' => '', 'invp' => '', 'suf' => '', 'upper' => '', 'lower' => '' ), false );
+        $this->assertLessThanOrEqual( 64, strlen( $code ) );
+    }
+
+    // ---- PayPal IPN --------------------------------------------------------------------
+
+    private $ipn_requests = array();
+
+    private function paypal() {
+        if( !class_exists( 'SUPER_PayPal' ) ) {
+            require_once SUPER_PLUGIN_DIR . '/add-ons/super-forms-paypal/super-forms-paypal.php';
+        }
+        return SUPER_PayPal::instance();
+    }
+
+    private function subscription( $sub_id ) {
+        $post_id = self::factory()->post->create( array( 'post_type' => 'super_paypal_sub', 'post_status' => 'publish', 'post_title' => $sub_id ) );
+        update_post_meta( $post_id, '_super_sub_id', $sub_id );
+        update_post_meta( $post_id, '_super_txn_data', array( 'profile_status' => 'Active' ) );
+        return $post_id;
+    }
+
+    private function send_ipn( $post, $paypal_answer ) {
+        $this->ipn_requests = array();
+        $body = http_build_query( $post );
+        $this->add_upload_filter( 'super_paypal_ipn_raw_body', static function() use ( $body ) { return $body; } );
+        $requests = &$this->ipn_requests;
+        $this->add_upload_filter( 'pre_http_request', static function( $pre, $args, $url ) use ( $paypal_answer, &$requests ) {
+            $requests[] = array( 'url' => $url, 'args' => $args );
+            return array( 'headers' => array(), 'body' => $paypal_answer, 'response' => array( 'code' => 200, 'message' => 'OK' ), 'cookies' => array() );
+        }, 10, 3 );
+        $_GET['page'] = 'super_paypal_ipn';
+        $this->set_post( $post );
+        $paypal = $this->paypal();
+        return $this->run_dying_handler( static function() use ( $paypal ) { $paypal->paypal_ipn(); } );
+    }
+
+    private function signed_custom( $fields ) {
+        $method = new ReflectionMethod( 'SUPER_PayPal', 'sign_custom' );
+        $method->setAccessible( true );
+        return $method->invoke( null, $fields );
+    }
+
+    private function paypal_form( $settings=array() ) {
+        return $this->create_form( 'publish', array(), array_merge( array(
+            'paypal_merchant_email' => 'merchant@example.test',
+            'paypal_mode' => 'live',
+            'paypal_completed_post_status' => 'publish',
+        ), $settings ) );
+    }
+
+    private function verified_payment( $form_id, $custom ) {
+        return array(
+            'txn_type' => 'web_accept', 'payment_status' => 'Completed', 'txn_id' => 'TXN-' . wp_generate_password( 8, false ),
+            'receiver_email' => 'merchant@example.test', 'mc_gross' => '0.01', 'mc_currency' => 'USD', 'custom' => $custom,
+        );
+    }
+
+    public function test_tampered_custom_cannot_point_a_payment_at_another_post() {
+        $this->paypal();
+        $form_id = $this->paypal_form();
+        $victim_post = self::factory()->post->create( array( 'post_status' => 'draft' ) );
+        $legit = $this->signed_custom( array( $form_id, 'single', 0, 0, 0, 0 ) );
+        $tampered = preg_replace( '/^(\d+\|single\|0\|0\|)0/', '${1}' . $victim_post, $legit );
+        $this->send_ipn( $this->verified_payment( $form_id, $tampered ), 'VERIFIED' );
+        $this->assertSame( 'draft', get_post_status( $victim_post ) );
+        $unsigned = $form_id . '|single|0|0|' . $victim_post . '|0';
+        $this->send_ipn( $this->verified_payment( $form_id, $unsigned ), 'VERIFIED' );
+        $this->assertSame( 'draft', get_post_status( $victim_post ) );
+    }
+
+    public function test_signed_custom_updates_the_post_it_was_issued_for() {
+        $this->paypal();
+        $form_id = $this->paypal_form();
+        $own_post = self::factory()->post->create( array( 'post_status' => 'draft' ) );
+        $this->send_ipn( $this->verified_payment( $form_id, $this->signed_custom( array( $form_id, 'single', 0, 0, $own_post, 0 ) ) ), 'VERIFIED' );
+        $this->assertSame( 'publish', get_post_status( $own_post ) );
+    }
+
+    public function test_unverified_subscription_cancel_changes_nothing() {
+        $post_id = $this->subscription( 'I-UNIT1' );
+        $this->send_ipn( array( 'txn_type' => 'subscr_cancel', 'subscr_id' => 'I-UNIT1', 'payment_status' => 'Completed' ), 'INVALID' );
+        $this->assertSame( array( 'profile_status' => 'Active' ), get_post_meta( $post_id, '_super_txn_data', true ) );
+    }
+
+    public function test_unverified_refund_changes_nothing() {
+        $txn_id = self::factory()->post->create( array( 'post_type' => 'super_paypal_txn', 'post_status' => 'Completed', 'post_title' => 'TXN-UNIT' ) );
+        update_post_meta( $txn_id, '_super_txn_data', array( 'payment_status' => 'Completed' ) );
+        $this->send_ipn( array( 'payment_status' => 'Refunded', 'parent_txn_id' => 'TXN-UNIT', 'txn_type' => 'web_accept' ), 'INVALID' );
+        $this->assertSame( array( 'payment_status' => 'Completed' ), get_post_meta( $txn_id, '_super_txn_data', true ) );
+    }
+
+    public function test_verified_subscription_cancel_is_applied_and_verified_over_tls() {
+        $post_id = $this->subscription( 'I-UNIT2' );
+        $this->send_ipn( array( 'txn_type' => 'subscr_cancel', 'subscr_id' => 'I-UNIT2', 'payment_status' => 'Completed' ), 'VERIFIED' );
+        $data = get_post_meta( $post_id, '_super_txn_data', true );
+        $this->assertSame( 'Canceled', $data['profile_status'] );
+    }
+
+    public function test_ipn_verification_request_uses_tls_verification() {
+        $this->subscription( 'I-UNIT3' );
+        $captured = tempnam( sys_get_temp_dir(), 'sf-ipn-' );
+        $this->add_upload_filter( 'pre_http_request', static function( $pre, $args, $url ) use ( $captured ) {
+            file_put_contents( $captured, wp_json_encode( array( 'url' => $url, 'sslverify' => isset($args['sslverify']) ? $args['sslverify'] : null ) ) );
+            return $pre;
+        }, 1, 3 );
+        $this->send_ipn( array( 'txn_type' => 'subscr_cancel', 'subscr_id' => 'I-UNIT3', 'payment_status' => 'Completed' ), 'INVALID' );
+        $request = json_decode( (string) file_get_contents( $captured ), true );
+        unlink( $captured );
+        $this->assertSame( 'https://ipnpb.paypal.com/cgi-bin/webscr', $request['url'] );
+        $this->assertTrue( $request['sslverify'] );
+    }
+}

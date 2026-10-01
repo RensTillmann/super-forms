@@ -4,7 +4,7 @@
     // Switch between multiparts (prev/next or clicking on step)
     SUPER.switchMultipart = function(e, target, dir){
         // First get active part
-        var i, index, validate, result, skip, progress, multipart,
+        var i, index, validate, skip, progress, multipart,
             form = target.closest('.super-form'),
             stepParams = (form.dataset.stepParams ? form.dataset.stepParams : ''), // default
             nodes = form.querySelectorAll('.super-multipart'),
@@ -30,13 +30,19 @@
             }else{
                 // @since 2.0.0 - validate multi-part before going to next step
                 validate = form.querySelector('.super-multipart.super-active').dataset.validate;
-                if(validate=='true'){
-                    result = SUPER.validate_form({el: target, form: form.querySelector('.super-multipart.super-active'), submitButton: target, validateMultipart: true, event: e});
-                    if(result!==true) return false;
-                }
                 index = currentStep+1;
+                if(validate=='true'){
+                    // Validation is asynchronous: only switch once it reports no errors.
+                    SUPER.validate_form({el: target, form: form.querySelector('.super-multipart.super-active'), submitButton: target, validateMultipart: true, event: e}, function(hasErrors){
+                        if(!hasErrors) goToStep();
+                    });
+                    return false;
+                }
             }
         }
+        return goToStep();
+
+        function goToStep(){
         for( i = 0; i < nodes.length; i++){
             nodes[i].classList.remove('super-active');
             steps[i].classList.remove('super-active');
@@ -75,6 +81,7 @@
         // Focus first TAB index field in next multi-part
         multipart = form.querySelector('.super-multipart.super-active');
         SUPER.focusFirstTabIndexField(e, form, multipart);
+        }
     };
     // Make sure to skip the multi-part if no visible elements are found
     SUPER.skipMultipart = function(el, form, index, activeIndex){
@@ -2321,14 +2328,18 @@
             var $this = $(this);
             var $fieldWrapper = $this.parents('.super-field-wrapper:eq(0)');
             var $fieldName = $fieldWrapper.find('.super-active-files').attr('name');
-            var $index = $this.parents('div:eq(0)').index();
-            // Modify file list, and remove one element at $index
-            // We use splice() instead of delete() because we don't want to leave the old index with an `undefined` value
-            if(SUPER.files){
-                if(SUPER.files[formId]){
-                    if(SUPER.files[formId][$fieldName]){
-                        SUPER.files[formId][$fieldName].splice($index, 1); 
+            var fileNode = $this.parents('div:eq(0)')[0];
+            // Only browser-pending File objects live in SUPER.files. Existing entry files and
+            // server-issued receipts are represented by the DOM and must not shift that queue.
+            if(fileNode && !fileNode.classList.contains('super-uploaded') && !fileNode.hasAttribute('data-upload-token')){
+                var pendingIndex = 0;
+                var sibling = fileNode.previousElementSibling;
+                while(sibling){
+                    if(!sibling.classList.contains('super-uploaded') && !sibling.hasAttribute('data-upload-token')) pendingIndex++;
+                    sibling = sibling.previousElementSibling;
                     }
+                if(SUPER.files && SUPER.files[formId] && SUPER.files[formId][$fieldName]){
+                    SUPER.files[formId][$fieldName].splice(pendingIndex, 1);
                 }
             }
             var $parent = $this.parents('.super-fileupload-files:eq(0)');
@@ -2913,14 +2924,23 @@
 
         $doc.on('change', '.super-form select', function () {
             var $form = SUPER.get_frontend_or_backend_form({el: this}),
+                $parent = this.closest('.super-field'),
                 $min = this.dataset.minlength,
                 $max = this.dataset.maxlength,
+                $count,
                 $validation;
-            if(($min>0) && (this.value === null)){
+            if($parent && (typeof this.options !== 'undefined')){
+                $count = SUPER.selection_value_count(this, $parent);
+                if(($min>0) && ($count < parseInt($min, 10))){
                 SUPER.handle_errors(this);
-            }else if(this.value.length > $max){
+                }else if(($max!=='') && ($count > parseInt($max, 10))){
                 SUPER.handle_errors(this);
-            }else if(this.value.length < $min){
+                }else{
+                    this.closest('.super-field').classList.remove('super-error-active');
+                }
+            }else if(($min>0) && (SUPER.unicode_length(this.value) < parseInt($min, 10))){
+                SUPER.handle_errors(this);
+            }else if(($max!=='') && (SUPER.unicode_length(this.value) > parseInt($max, 10))){
                 SUPER.handle_errors(this);
             }else{
                 this.closest('.super-field').classList.remove('super-error-active');
@@ -2955,7 +2975,6 @@
                 index = clickedChildren.indexOf(el),
                 total = form.querySelectorAll('.super-multipart').length,
                 validate,
-                result,
                 progress,
                 multipart,
                 skip;
@@ -2963,11 +2982,17 @@
             // @since 2.0.0 - validate multi-part before going to next step
             if(activeIndex < index){ // Always allow going to previous step
                 validate = currentActive.dataset.validate;
-                if(validate=='true'){
-                    result = SUPER.validate_form({el: el, form: currentActive, submitButton: el, validateMultipart: true, event: e});
-                    if(result!==true) return false;
+                if(validate=='true' && el.dataset.superStepValidated!=='1'){
+                    // Validation is asynchronous: re-run this click once it reports no errors.
+                    SUPER.validate_form({el: el, form: currentActive, submitButton: el, validateMultipart: true, event: e}, function(hasErrors){
+                        if(hasErrors) return;
+                        el.dataset.superStepValidated = '1';
+                        el.click();
+                    });
+                    return false;
                 }
             }
+            delete el.dataset.superStepValidated;
             if(stepParams!=='false'){
                 window.location.hash = 'step-'+form_id+'-'+(parseInt(index,10)+1);
             }
