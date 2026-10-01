@@ -276,11 +276,16 @@ class SUPER_Ajax {
 		return array("wp_admin" => "false");
     }
     public static function api_auth(){
-        $auth = $_POST['auth'];
+        self::api_verify_access();
+        $auth = self::api_sanitize_auth_token(isset($_POST['auth']) ? $_POST['auth'] : '');
+        if( $auth===false ) {
+            echo 'false';
+            die();
+        }
         $result = setcookie(
             'super_forms[wp_admin]', // name
             $auth, // value
-            time()+60*120, // expires after 15 minutes
+            time()+60*120, // expires after 120 minutes (same lifetime as the token on the API)
             '',  // path
             '', // domain
             false, // secure (many WP dashboard might not have valid certificate, or are not forced to https protocol)
@@ -382,16 +387,47 @@ class SUPER_Ajax {
     }
 
     public static function api_do_request($route, $custom_args, $method='echo'){
+        self::api_verify_access();
         $args = self::api_default_post_args($custom_args);
         if($route==='logout'){
             setcookie('super_forms[wp_admin]', '', time()-3600);
         }
-        $api_endpoint = (isset($_POST['api_endpoint']) ? $_POST['api_endpoint'] : SUPER_API_ENDPOINT);
-        $r = wp_remote_post($api_endpoint . '/' . $route, $args);
+        // Always talk to the configured API (exact host and path of SUPER_API_ENDPOINT). The remotely
+        // rendered Licenses screen posts back an `api_endpoint` field, but that is only ever the value
+        // the plugin sent it (SUPER_API_ENDPOINT, see SUPER_Pages::addons()), so it is ignored here.
+        // This keeps the license auth cookie (added to the body by api_default_post_args()) from being
+        // sent to any other server, also for a forged (CSRF) request: these handlers can not require a
+        // nonce because the API rendered page does not send one.
+        $r = wp_remote_post(SUPER_API_ENDPOINT . '/' . $route, $args);
         $response = self::api_handle_response($r, $args);
         if($method=='return') return $response;
         if($method=='echo') echo $response;
         die();
+    }
+
+    // The super_api_* handlers are registered for every logged-in user, but they only serve
+    // the Licenses screen (manage_options, see SUPER_Menu::register_menu()), so require that here
+    public static function api_verify_access(){
+        if( !current_user_can('manage_options') ) {
+            wp_die( esc_html__( 'You do not have permission to do this.', 'super-forms' ), 403 );
+        }
+    }
+
+    /**
+     * Validate the license auth token the Licenses screen hands to api_auth()
+     *
+     * The API issues it as unpadded standard base64 (an encrypted, short lived token), so only
+     * accept a non-empty string of base64 characters with a sane length. Anything else is
+     * refused so arbitrary data can not be stored in the super_forms[wp_admin] cookie.
+     *
+     * @param  mixed $auth Value of $_POST['auth']
+     * @return string|false The token, or false when it is not valid
+     */
+    public static function api_sanitize_auth_token($auth){
+        if( !is_string($auth) ) return false;
+        $auth = wp_unslash($auth);
+        if( strlen($auth)>2048 || !preg_match('/\A[A-Za-z0-9+\/]+={0,2}\z/', $auth) ) return false;
+        return $auth;
     }
 
     public static function api_default_post_args($custom_args){
