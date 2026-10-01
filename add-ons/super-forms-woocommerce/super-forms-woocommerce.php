@@ -610,10 +610,16 @@ if( !class_exists('SUPER_WooCommerce') ) :
             global $woocommerce;
             $data = $woocommerce->session->get('_super_form_data', array() );
             $custom_fields = SUPER_Common::getClientData( 'wc_custom_fields' );
+            // @since 6.3.318 - Both the custom checkout field values and the mapped populate values were already run through
+            // email_tags() with the form settings when the form was submitted (see the `woocommerce_checkout_fields` and
+            // `woocommerce_populate_checkout_fields` loops), so the author's mapping (e.g. `{first_name} {last_name}`,
+            // `{user_email}`) is resolved and what is left is the visitor's text, verbatim. A second email_tags() pass here
+            // would resolve a `{tag}` the visitor typed (e.g. `{option_admin_email}`) on their own checkout page, so the
+            // stored value is returned as is
             if(is_array($custom_fields)){
                 foreach($custom_fields as $k => $v){
                     if($v['name']===$input){
-                        return SUPER_Common::email_tags( $v['value'], $data );
+                        return $v['value'];
                     }
                 }
             }
@@ -621,7 +627,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
             if( (isset($data[$input])) && (isset($data[$input]['value'])) ) return $data[$input]['value'];
             // If form contained no field name that is used on checkout page see if there is a custom mapped one from the settings
             $fields = $woocommerce->session->get('_super_form_woocommerce_populate_checkout_fields', array() );
-            if( isset($fields[$input]) ) return SUPER_Common::email_tags( $fields[$input], $data );
+            if( isset($fields[$input]) ) return $fields[$input];
             return $value;
         }
 
@@ -1049,8 +1055,10 @@ if( !class_exists('SUPER_WooCommerce') ) :
                     if($settings['woocommerce_completed_rtl']=='true') $email_body =  '<div dir="rtl" style="text-align:right;">' . $email_body . '</div>';
 
                     $email_body = do_shortcode($email_body);
-                    $email_body = SUPER_Common::restore_literal_tag_values( $email_body, $literalValues );
+                    // @since 6.3.318 - The foreach/if/isset syntax of submitted values stays inert until email_if_statements() ran
+                    $email_body = SUPER_Common::restore_literal_tag_values( $email_body, $literalValues, false, true );
                     $email_body = apply_filters( 'super_before_sending_email_body_filter', $email_body, array( 'settings'=>$settings, 'email_loop'=>$email_loop, 'data'=>$data ) );
+                    $email_body = SUPER_Common::restore_submitted_control_syntax( $email_body );
 
                     if( !isset( $settings['woocommerce_completed_from_type'] ) ) $settings['woocommerce_completed_from_type'] = 'default';
                     if( $settings['woocommerce_completed_from_type']=='default' ) {
