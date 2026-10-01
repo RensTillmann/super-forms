@@ -503,10 +503,19 @@ class Test_Super_Forms_Submitted_Tags_Security extends Super_Forms_Upload_Securi
      * tag of that hidden field (a local secret) into the visitor's own confirmation e-mail.
      */
 
+    /**
+     * The form settings the way production builds them (SUPER_Common::get_form_settings(): plugin defaults and
+     * global settings, then the form's own), with this test's settings on top. Add-ons hooked into the e-mail
+     * body filters (e.g. E-mail Templates reads email_template) expect the default keys to be present.
+     */
+    private function production_settings() {
+        return array_merge( SUPER_Common::get_form_settings( $this->form_id ), $this->settings );
+    }
+
     private function add_routing_and_notes_fields() {
         $elements = $this->elements();
         $elements[] = array( 'group' => 'form_elements', 'tag' => 'hidden', 'data' => array( 'name' => 'routing', 'value' => '{@sales_email}', 'email' => 'Routing' ) );
-        $elements[] = array( 'group' => 'form_elements', 'tag' => 'textarea', 'data' => array( 'name' => 'notes', 'email' => 'Notes' ) );
+        $elements[] = array( 'group' => 'form_elements', 'tag' => 'tinymce', 'data' => array( 'name' => 'notes', 'email' => 'Notes' ) );
         update_post_meta( $this->form_id, '_super_elements', $elements );
     }
 
@@ -515,6 +524,7 @@ class Test_Super_Forms_Submitted_Tags_Security extends Super_Forms_Upload_Securi
      * `super_before_sending_confirm_body_filter` that runs email_if_statements().
      */
     private function confirm_body( $template, $data, $settings ) {
+        $settings = array_merge( $this->production_settings(), $settings );
         $loops = SUPER_Common::retrieve_email_loop_html( array( 'data' => $data, 'settings' => $settings, 'exclude' => array() ) );
         $body = str_replace( '{loop_fields}', $loops['confirm_loop'], $template );
         $literalValues = array();
@@ -575,7 +585,7 @@ class Test_Super_Forms_Submitted_Tags_Security extends Super_Forms_Upload_Securi
         $this->configure_csrf( 'false' );
         $form_id = $this->create_form( 'publish', array(
             array( 'group' => 'form_elements', 'tag' => 'text', 'data' => array( 'name' => 'note', 'email' => 'Note' ) ),
-            array( 'group' => 'form_elements', 'tag' => 'textarea', 'data' => array( 'name' => 'notes', 'email' => 'Notes' ) ),
+            array( 'group' => 'form_elements', 'tag' => 'tinymce', 'data' => array( 'name' => 'notes', 'email' => 'Notes' ) ),
             array( 'group' => 'form_elements', 'tag' => 'hidden', 'data' => array( 'name' => 'routing', 'value' => '{@sales_email}', 'email' => 'Routing' ) ),
         ), array(
             'save_contact_entry' => 'no',
@@ -642,7 +652,7 @@ class Test_Super_Forms_Submitted_Tags_Security extends Super_Forms_Upload_Securi
         wp_set_current_user( 0 );
         $new_user_id = self::factory()->user->create( array( 'role' => 'subscriber', 'user_login' => 'secgnewbie', 'user_email' => 'secg-newbie@example.test', 'user_url' => 'https://newbie.example' ) );
         $new_user = get_userdata( $new_user_id );
-        $settings = array_merge( $this->settings, array(
+        $settings = array_merge( $this->production_settings(), array(
             'register_activation_subject' => 'Activate',
             'register_activation_email' => 'Hi {first_name}, code {register_activation_code}, login {register_login_url} as {user_login}, pw {register_generated_password}, site {option_blogname}, url {user_url}, dept {department}',
             'register_login_url' => 'https://example.test/login/',
@@ -697,7 +707,7 @@ class Test_Super_Forms_Submitted_Tags_Security extends Super_Forms_Upload_Securi
         update_post_meta( $this->form_id, '_super_elements', $elements );
         $new_user_id = self::factory()->user->create( array( 'role' => 'subscriber', 'user_login' => 'secgpwuser', 'user_email' => 'secg-pw@example.test', 'user_url' => 'https://pw.example' ) );
         $new_user = get_userdata( $new_user_id );
-        $settings = array_merge( $this->settings, array(
+        $settings = array_merge( $this->production_settings(), array(
             'register_activation_subject' => 'Activate',
             'register_activation_email' => 'Your password: [{register_generated_password}] for {first_name}',
             'register_login_url' => 'https://example.test/login/',
