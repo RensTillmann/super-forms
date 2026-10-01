@@ -989,6 +989,13 @@ class SUPER_Common {
             }
             if( !empty($dv[$current_name]) ) {
                 if(!empty($dv[$current_name]['value'])) {
+                    // Security: this is entry data (previous submission or saved form progress), which is user input.
+                    // Keep the author's "Default value" for `data-absolute-default` (see SUPER_Shortcodes::output_element_html())
+                    // and mark the value literal so that SUPER_Shortcodes::get_default_value() never resolves {tags} or shortcodes in it
+                    if(empty($v['data']['_super_literal_value'])){
+                        $v['data']['_super_author_value'] = (isset($v['data']['value']) ? $v['data']['value'] : null);
+                    }
+                    $v['data']['_super_literal_value'] = true;
                     // Now override the "Default value" with the actual Entry data
                     $v['data']['value'] = $dv[$current_name]['value'];
                 }
@@ -2061,8 +2068,12 @@ class SUPER_Common {
      *
      * @since 1.0.6
     */
-    public static function email_tags( $value=null, $data=null, $settings=null, $user=null, $skip=true, $skipSecrets=false, $skipOptions=false ) {
+    public static function email_tags( $value=null, $data=null, $settings=null, $user=null, $skip=true, $skipSecrets=false, $skipOptions=false, &$literalValues=null ) {
         if( ($value==='') && ($skip==true) ) return '';
+        // When the caller passes an array for `$literalValues` the contents of visitor controlled tags (see literal_tag_names())
+        // are left as placeholders and collected in it, the caller must put them back with restore_literal_tag_values()
+        $restoreLiterals = !is_array( $literalValues );
+        if( $restoreLiterals ) $literalValues = array();
         $current_author = null;
         $current_user = wp_get_current_user();
         $product = false;
@@ -2747,6 +2758,16 @@ class SUPER_Common {
             // Now replace all the tags inside the value with the correct data
             foreach( $tags as $k => $v ) {
                 if( isset( $v[1] ) ) {
+                    // Security: the contents of these tags are controlled by the visitor (see literal_tag_names()),
+                    // insert a placeholder now and the contents at the very end, so that no {tag} inside them is resolved
+                    if( in_array( $k, self::literal_tag_names(), true ) ) {
+                        if( strpos( $value, '{'. $k .'}' )!==false ) {
+                            $placeholder = self::literal_tag_placeholder( $k );
+                            $literalValues[$placeholder] = self::decode( $v[1] );
+                            $value = str_replace( '{'. $k .'}', $placeholder, $value );
+                        }
+                        continue;
+                    }
                     $value = str_replace( '{'. $k .'}', self::decode( $v[1] ), $value );
                 }
             }
@@ -2762,7 +2783,8 @@ class SUPER_Common {
                     // After replacing the settings {tag} with data, make sure to once more replace any possible {tags}
                     // Only execute if replacing took place
                     if ($count > 0) {
-                        $value = self::email_tags( $value, $data, $settings, $user, $skip );
+                        // Share the placeholders, visitor controlled contents are only put back by the outer call
+                        $value = self::email_tags( $value, $data, $settings, $user, $skip, false, false, $literalValues );
                     }
                 }
             }
@@ -2882,11 +2904,59 @@ class SUPER_Common {
                 }
             }
 
+            // Put back the contents of the visitor controlled tags, unless the caller asked for the placeholders
+            // (it then calls restore_literal_tag_values() itself, see SUPER_Shortcodes::get_default_value())
+            if( $restoreLiterals ) {
+                $value = self::restore_literal_tag_values( $value, $literalValues );
+            }
+
             // Now return the final output
             return $value;
 
         }
         return $tags;
+    }
+
+    /**
+     * Tags whose contents are controlled by the visitor: the Referer header is sent by the browser,
+     * and any registered user can set their own first/last/display name. Their contents are always
+     * inserted literally by email_tags(): a {tag} inside them is never resolved
+     *
+     * @since 6.3.318
+    */
+    public static function literal_tag_names() {
+        return array( 'server_http_referrer', 'server_http_referrer_session', 'user_firstname', 'user_lastname', 'user_display' );
+    }
+
+    /**
+     * Placeholder email_tags() inserts for a visitor controlled tag until all other tags are resolved.
+     * It contains no {braces} or [brackets] and carries a random token per request, so it can not be matched
+     * by any tag or shortcode, and a visitor can not type it
+     *
+     * @since 6.3.318
+    */
+    public static function literal_tag_placeholder( $name ) {
+        static $token = null;
+        if( $token===null ) $token = md5( uniqid( (string) mt_rand(), true ) );
+        return "\x1A" . 'super_literal_' . $token . '_' . $name . "\x1A";
+    }
+
+    /**
+     * Replace the placeholders of literal_tag_placeholder() with the actual contents.
+     * When `$escapeShortcodes` is true the square brackets of the contents are entity-escaped the same way
+     * WordPress core does, for values that are printed in the form HTML which is passed through do_shortcode()
+     *
+     * @since 6.3.318
+    */
+    public static function restore_literal_tag_values( $value, $literalValues, $escapeShortcodes=false ) {
+        if( empty( $literalValues ) || !is_string( $value ) ) return $value;
+        if( $escapeShortcodes ) {
+            foreach( $literalValues as $k => $v ) {
+                $literalValues[$k] = str_replace( array( '[', ']' ), array( '&#91;', '&#93;' ), (string) $v );
+            }
+        }
+        // strtr() replaces in a single pass, the inserted contents are never scanned again
+        return strtr( $value, $literalValues );
     }
 
 

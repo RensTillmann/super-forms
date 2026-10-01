@@ -164,8 +164,10 @@ class SUPER_Shortcodes {
         // Only the default value configured by the form author may contain {tags} and shortcodes.
         // Values coming from the request (GET/POST) or from entry data (previous submission, saved
         // form progress) are user input and are kept literal, otherwise any visitor could read
-        // options/meta data (e.g. {option_super_settings;smtp_password}) or run shortcodes
-        $literal = false;
+        // options/meta data (e.g. {option_super_settings;smtp_password}) or run shortcodes.
+        // Inside a dynamic column the entry data is placed in `value` by SUPER_Common::replace_tags_dynamic_columns(),
+        // which marks it with `_super_literal_value`
+        $literal = !empty( $atts['_super_literal_value'] );
         // Check if we can find parameters
         if( isset( $_GET[$atts['name']] ) ) {
             $atts['value'] = sanitize_text_field( $_GET[$atts['name']] );
@@ -182,10 +184,14 @@ class SUPER_Shortcodes {
             if( isset( $entry_data[$atts['name']] ) ) $literal = true;
         }
         if( $literal===false ) {
-            // Author default: tags resolve exactly as before ({@secrets} stay hidden until submission)
-            if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings, $user=null, $skip=true, $skipSecrets=true );
+            // Author default: tags resolve exactly as before ({@secrets} stay hidden until submission).
+            // The contents of visitor controlled tags such as {server_http_referrer} and {user_firstname}
+            // (SUPER_Common::literal_tag_names()) stay placeholders until the shortcodes ran, and are then put back literally
+            $literalValues = array();
+            if($atts['value']!='') $atts['value'] = SUPER_Common::email_tags( $atts['value'], null, $settings, $user=null, $skip=true, $skipSecrets=true, $skipOptions=false, $literalValues );
             // Add shortcode compatibility for default field value
             $atts['value'] = do_shortcode($atts['value']);
+            $atts['value'] = SUPER_Common::restore_literal_tag_values( $atts['value'], $literalValues, true );
         }else{
             // The complete form HTML is passed through do_shortcode() once more (end of super_form_func()),
             // so escape the brackets the same way WordPress core does, otherwise a [shortcode] typed in the
@@ -1768,9 +1774,13 @@ class SUPER_Shortcodes {
         
         // @since 4.7.7 - absolute default value based on settings
         // This is the author default value once more (see output_element_html()): like get_default_value(),
-        // never print {@secrets} (Secrets tab) into the page source
+        // never print {@secrets} (Secrets tab) into the page source, and insert the contents of visitor controlled tags
+        // literally (the form HTML is passed through do_shortcode() at the end of super_form_func())
         if( isset($atts['absolute_default']) ) {
-            $result .= ' data-absolute-default="' . esc_attr(SUPER_Common::email_tags( $atts['absolute_default'], null, $settings, $user=null, $skip=true, $skipSecrets=true )) . '"';
+            $literalValues = array();
+            $absolute_default = SUPER_Common::email_tags( $atts['absolute_default'], null, $settings, $user=null, $skip=true, $skipSecrets=true, $skipOptions=false, $literalValues );
+            $absolute_default = SUPER_Common::restore_literal_tag_values( $absolute_default, $literalValues, true );
+            $result .= ' data-absolute-default="' . esc_attr($absolute_default) . '"';
         }
 
         
@@ -5118,6 +5128,15 @@ class SUPER_Shortcodes {
         if(!empty($data['name'])){
             $data['originalFieldName'] = $data['name'];
             $element = array('tag' => $tag, 'data' => $data, 'group' => $group);
+            // Security: inside a dynamic column `value` may already hold the entry data (saved form progress or a previous submission),
+            // see SUPER_Common::replace_tags_dynamic_columns(). That is user input, the absolute default must be the author's value
+            if( !empty($data['_super_literal_value']) ) {
+                if( isset($data['_super_author_value']) ) {
+                    $element['data']['value'] = $data['_super_author_value'];
+                }else{
+                    unset($element['data']['value']);
+                }
+            }
             $data['absolute_default'] = SUPER_Common::get_absolute_default_value($element, $shortcodes);
         }
 
