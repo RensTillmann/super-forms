@@ -8846,7 +8846,9 @@ class SUPER_Ajax {
             if(!empty($settings['email_body'])) $settings['email_body'] = $settings['email_body'] . '<br /><br />';
             $email_body = $settings['email_body_open'] . $settings['email_body'] . $settings['email_body_close'];
             $email_body = str_replace( '{loop_fields}', $email_loop, $email_body );
-            $email_body = SUPER_Common::email_tags( $email_body, $data, $settings );
+            // @since 6.3.318 - The `[` and `]` of submitted values stay inert until the author's shortcodes ran
+            $literalValues = array();
+            $email_body = SUPER_Common::email_tags( $email_body, $data, $settings, null, true, false, false, $literalValues );
             
             // @since 3.1.0 - optionally automatically add line breaks
             if(!isset($settings['email_body_nl2br'])) $settings['email_body_nl2br'] = 'true';
@@ -8857,6 +8859,7 @@ class SUPER_Ajax {
             if($settings['email_rtl']=='true') $email_body =  '<div dir="rtl" style="text-align:right;">' . $email_body . '</div>';
 
             $email_body = do_shortcode($email_body);
+            $email_body = SUPER_Common::restore_literal_tag_values( $email_body, $literalValues );
             $email_body = apply_filters( 'super_before_sending_email_body_filter', $email_body, array( 'settings'=>$settings, 'email_loop'=>$email_loop, 'data'=>$data ) );
             if( !isset( $settings['header_from_type'] ) ) $settings['header_from_type'] = 'default';
             if( $settings['header_from_type']=='default' ) {
@@ -8930,7 +8933,9 @@ class SUPER_Ajax {
             if(!empty($settings['confirm_body'])) $settings['confirm_body'] = $settings['confirm_body'] . '<br /><br />';
             $email_body = $settings['confirm_body_open'] . $settings['confirm_body'] . $settings['confirm_body_close'];
             $email_body = str_replace( '{loop_fields}', $confirm_loop, $email_body );
-            $email_body = SUPER_Common::email_tags( $email_body, $data, $settings );
+            // @since 6.3.318 - The `[` and `]` of submitted values stay inert until the author's shortcodes ran
+            $literalValues = array();
+            $email_body = SUPER_Common::email_tags( $email_body, $data, $settings, null, true, false, false, $literalValues );
 
             // @since 3.1.0 - optionally automatically add line breaks
             if(!isset($settings['confirm_body_nl2br'])) $settings['confirm_body_nl2br'] = 'true';
@@ -8941,6 +8946,7 @@ class SUPER_Ajax {
             if($settings['confirm_rtl']=='true') $email_body = '<div dir="rtl" style="text-align:right;">' . $email_body . '</div>';
             
             $email_body = do_shortcode($email_body);
+            $email_body = SUPER_Common::restore_literal_tag_values( $email_body, $literalValues );
             $email_body = apply_filters( 'super_before_sending_confirm_body_filter', $email_body, array( 'settings'=>$settings, 'confirm_loop'=>$confirm_loop, 'data'=>$data ) );
             if( !isset( $settings['confirm_from_type'] ) ) $settings['confirm_from_type'] = 'default';
             if( $settings['confirm_from_type']=='default' ) {

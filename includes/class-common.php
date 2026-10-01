@@ -2076,6 +2076,10 @@ class SUPER_Common {
      * resolved. The only tags left live are the ones the form author wrote into that same
      * field's stored settings (default value, choice item values, variable values), e.g. a
      * dropdown item `{@sales_email}` or a hidden field default `{@secret}`.
+     *
+     * The same goes for a `[shortcode]` a visitor typed: the `[` and `]` of submitted values
+     * are swapped for inert tokens as well, and only put back once do_shortcode() ran over the
+     * author's template (see email_tags() and restore_literal_tag_values()).
      */
     private static $email_tags_depth = 0;
     private static $submitted_tag_brace = null;
@@ -2093,6 +2097,15 @@ class SUPER_Common {
         return self::$submitted_tag_brace;
     }
 
+    /**
+     * @since 6.3.318 - Tokens for the `[` and `]` of submitted values, as token => character.
+     * Same per-request nonce as submitted_tag_brace(), none of the three tokens contains another.
+     */
+    public static function submitted_shortcode_brackets() {
+        $nonce = trim( self::submitted_tag_brace(), "\x1A" );
+        return array( "\x1A" . $nonce . "o\x1A" => '[', "\x1A" . $nonce . "c\x1A" => ']' );
+    }
+
     public static function restore_submitted_tags( $value ) {
         if( is_string($value) && self::$submitted_tag_brace!==null ) {
             return str_replace( self::$submitted_tag_brace, '{', $value );
@@ -2101,12 +2114,18 @@ class SUPER_Common {
     }
 
     /**
-     * Every `{tag}` the author wrote anywhere in a configuration array (or string).
+     * Every `{tag}` and `[shortcode]` the author wrote anywhere in a configuration array (or string).
      */
     public static function author_tags_in( $config ) {
         $tags = array();
         if( is_string($config) ) {
             if( strpos($config, '{')!==false && preg_match_all('/\{[^{}]+\}/', $config, $matches) ) {
+                foreach( $matches[0] as $tag ) {
+                    $tags[$tag] = $tag;
+                }
+            }
+            // @since 6.3.318 - e.g. a choice item value `[my_shortcode]` keeps running in the e-mail
+            if( strpos($config, '[')!==false && preg_match_all('/\[[^\[\]]+\]/', $config, $matches) ) {
                 foreach( $matches[0] as $tag ) {
                     $tags[$tag] = $tag;
                 }
@@ -2171,27 +2190,32 @@ class SUPER_Common {
     }
 
     /**
-     * Make every `{` in a submitted value inert, except where it opens one of $allowed_tags.
-     * Pass $brace='&#123;' for HTML that is not run through email_tags() afterwards.
+     * Make every `{`, `[` and `]` in a submitted value inert, except where they belong to one of $allowed_tags.
+     * Pass $brace='&#123;' for HTML that is not run through email_tags() afterwards, the brackets
+     * then become the `&#91;` and `&#93;` entities (the way WordPress core escapes a shortcode).
      */
     public static function neutralize_submitted_tags( $value, $allowed_tags=array(), $brace=null ) {
-        if( !is_string($value) || strpos($value, '{')===false ) return $value;
-        if( $brace===null ) $brace = self::submitted_tag_brace();
-        $value = str_replace( '{', $brace, $value );
+        if( !is_string($value) || strpbrk($value, '{[]')===false ) return $value;
+        if( $brace===null ) {
+            $inert = array_merge( array( '{' => self::submitted_tag_brace() ), array_flip( self::submitted_shortcode_brackets() ) );
+        }else{
+            $inert = array( '{' => $brace, '[' => '&#91;', ']' => '&#93;' );
+        }
+        $value = strtr( $value, $inert );
         foreach( $allowed_tags as $tag ) {
-            $value = str_replace( $brace . substr($tag, 1), $tag, $value );
+            $value = str_replace( strtr($tag, $inert), $tag, $value );
         }
         return $value;
     }
 
     public static function neutralize_submitted_value( $value, $field_name, $data=null, $settings=null, $brace=null ) {
-        if( !is_string($value) || strpos($value, '{')===false ) return $value;
+        if( !is_string($value) || strpbrk($value, '{[]')===false ) return $value;
         return self::neutralize_submitted_tags( $value, self::submitted_value_author_tags( $field_name, $data, $settings ), $brace );
     }
 
     /**
      * {loop_fields} rows are HTML that callers paste into a template before (or without)
-     * calling email_tags(), so their submitted text uses the `&#123;` entity instead.
+     * calling email_tags(), so their submitted text uses the `&#123;`, `&#91;` and `&#93;` entities instead.
      */
     public static function neutralize_submitted_loop_value( $value, $field_name, $data=null, $settings=null ) {
         return self::neutralize_submitted_value( $value, $field_name, $data, $settings, '&#123;' );
@@ -2215,11 +2239,18 @@ class SUPER_Common {
         }
         // @since 6.3.318 - Restore order, once every tag is resolved:
         // 1. the `{` of submitted values (inert tokens), only by the outermost call, a nested call still has branches to run
-        // 2. the contents of the visitor controlled tags (placeholders), unless the caller asked for the placeholders
-        //    (it then calls restore_literal_tag_values() itself, see SUPER_Shortcodes::get_default_value()).
-        //    strtr() inserts them in a single pass, so they are never scanned for tokens or tags
+        // 2. the `[` and `]` of submitted values (inert tokens, outermost call only) together with the contents of the
+        //    visitor controlled tags (placeholders): right here, unless the caller asked for the placeholders. A caller
+        //    that runs do_shortcode() over the result passes `$literalValues` and calls restore_literal_tag_values()
+        //    itself AFTER do_shortcode(), so a [shortcode] a visitor typed never runs: with literal brackets for
+        //    an e-mail (HTML or plain text), with `&#91;`/`&#93;` for HTML that is passed through do_shortcode()
+        //    again (see SUPER_Shortcodes::get_default_value()). strtr() inserts them in a single pass, so they are
+        //    never scanned for tokens or tags
         if( self::$email_tags_depth===0 ) {
             $value = self::restore_submitted_tags( $value );
+            if( self::$submitted_tag_brace!==null ) {
+                $literalValues = array_merge( $literalValues, self::submitted_shortcode_brackets() );
+            }
         }
         if( $restoreLiterals ) {
             $value = self::restore_literal_tag_values( $value, $literalValues );

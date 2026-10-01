@@ -315,12 +315,15 @@ if( !class_exists('SUPER_Email_Reminders') ) :
                     if(!empty($settings['reminder_body'])) $settings['reminder_body'] = $settings['reminder_body'] . '<br /><br />';
                     $email_body = $settings['reminder_body_open'] . $settings['reminder_body'] . $settings['reminder_body_close'];
                     $email_body = str_replace( '{loop_fields}', $reminder_loop, $email_body );
-                    $email_body = SUPER_Common::email_tags( $email_body, $data, $settings );
+                    // @since 6.3.318 - The `[` and `]` of submitted values stay inert until the author's shortcodes ran
+                    $literalValues = array();
+                    $email_body = SUPER_Common::email_tags( $email_body, $data, $settings, null, true, false, false, $literalValues );
 
                     if(!isset($settings['reminder_body_nl2br'])) $settings['reminder_body_nl2br'] = 'true';
                     if($settings['reminder_body_nl2br']=='true') $email_body = nl2br( $email_body );
                     
                     $email_body = do_shortcode($email_body);
+                    $email_body = SUPER_Common::restore_literal_tag_values( $email_body, $literalValues );
                     $email_body = apply_filters( 'super_before_sending_reminder_body_filter', $email_body, array( 'settings'=>$settings, 'reminder_loop'=>$reminder_loop, 'data'=>$data ) );
                     if( !isset( $settings['reminder_from_type'] ) ) $settings['reminder_from_type'] = 'default';
                     if( $settings['reminder_from_type']=='default' ) {

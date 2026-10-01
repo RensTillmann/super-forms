@@ -13,6 +13,8 @@
  * never resolved, so they cannot come back resolved through e-mails, the
  * success message, PayPal parameters, stored entries, last-entry / edit-view
  * prefills or {loop_fields}. Tags the form author configured keep resolving.
+ * The same holds for a `[shortcode]` a visitor typed: it never runs in an
+ * e-mail, a prefill or the Listings view, author shortcodes keep running.
  *
  * @package Super_Forms_Tests
  */
@@ -28,6 +30,7 @@ class Test_Super_Forms_Submitted_Tags_Security extends Super_Forms_Upload_Securi
     const FORM_SETTING = 'SEC-G-FORM-SETTING';
     const GLOBAL_SECRET = 'SEC-G-GLOBAL-SECRET';
     const SALES_EMAIL = 'sec-g-sales@example.test';
+    const SC_MARKER = 'SEC-G-SHORTCODE-RAN';
 
     private $original_post_global;
     private $form_id;
@@ -286,5 +289,210 @@ class Test_Super_Forms_Submitted_Tags_Security extends Super_Forms_Upload_Securi
 
         // An author default still resolves at render.
         $this->assertSame( 'Sec G Blog', SUPER_Shortcodes::get_default_value( 'text', array( 'name' => 'first_name', 'value' => '{option_blogname}' ), $settings, null ) );
+    }
+
+    /*
+     * Owner decision (2026-10-01): a `[shortcode]` a visitor typed renders literally wherever
+     * the result still runs through do_shortcode() (e-mails, prefills, Listings view), while the
+     * shortcodes the form author wrote keep running.
+     */
+
+    private function register_test_shortcode() {
+        add_shortcode( 'sf_test_sc', static function() {
+            return self::SC_MARKER;
+        } );
+    }
+
+    private function visitor_shortcodes() {
+        return array( '[sf_test_sc]', '[sf_test_sc a="1"]', '[[sf_test_sc]]', 'x"] [sf_test_sc]', '{option_admin_email}[sf_test_sc]' );
+    }
+
+    /**
+     * The sequence SUPER_Ajax::submit_form() (and the PayPal, WooCommerce and E-mail Reminders
+     * add-ons) use for an e-mail body.
+     */
+    private function email_body( $template, $data, $settings, $nl2br=true ) {
+        $loops = SUPER_Common::retrieve_email_loop_html( array( 'data' => $data, 'settings' => $settings, 'exclude' => array() ) );
+        $body = str_replace( '{loop_fields}', $loops['email_loop'], $template );
+        $literalValues = array();
+        $body = SUPER_Common::email_tags( $body, $data, $settings, null, true, false, false, $literalValues );
+        if( $nl2br ) $body = nl2br( $body );
+        $body = do_shortcode( $body );
+        return SUPER_Common::restore_literal_tag_values( $body, $literalValues );
+    }
+
+    public function test_visitor_typed_shortcode_stays_literal_in_email_body_subject_paypal_item_name_and_loop_fields() {
+        $this->register_test_shortcode();
+        try {
+            foreach( $this->visitor_shortcodes() as $typed ) {
+                $data = $this->data( array( 'first_name' => $typed, 'message' => $typed, 'item_name' => $typed ) );
+
+                // HTML e-mail (nl2br) and plain text e-mail both carry the typed characters.
+                $this->assertSame( '<p>' . $typed . '</p>', $this->email_body( '<p>{message}</p>', $data, $this->settings ), $typed );
+                $this->assertSame( 'Message: ' . $typed, $this->email_body( 'Message: {message}', $data, $this->settings, false ), $typed );
+
+                // Visitor text inside an author shortcode attribute adds no shortcode of its own.
+                $body = $this->email_body( '<p>[sf_test_sc a="{first_name}"]</p>', $data, $this->settings );
+                $this->assertSame( 1, substr_count( $body, self::SC_MARKER ), $typed );
+
+                // {loop_fields}: entities in the HTML rows, the shortcode never runs.
+                $body = $this->email_body( '<table>{loop_fields}</table>', $data, $this->settings );
+                $this->assertStringNotContainsString( self::SC_MARKER, $body, $typed );
+                $this->assertStringContainsString( 'sf_test_sc', $body, $typed );
+
+                $subject = SUPER_Common::decode( SUPER_Common::email_tags( $this->settings['header_subject'], $data, $this->settings ) );
+                $this->assertSame( 'New message from ' . $typed, $subject, $typed );
+                $this->assertSame( $typed, SUPER_Common::email_tags( $this->settings['paypal_item_name'], $data, $this->settings ), $typed );
+                // The stored entry value stays verbatim.
+                $this->assertSame( $typed, SUPER_Common::email_tags( SUPER_Common::neutralize_submitted_value( $typed, 'first_name', $data, $this->settings ), $data, $this->settings ), $typed );
+                $this->assertNoSecret( $body . $subject );
+            }
+        } finally {
+            remove_shortcode( 'sf_test_sc' );
+        }
+    }
+
+    public function test_author_shortcodes_keep_running_in_emails() {
+        $this->register_test_shortcode();
+        try {
+            $data = $this->data( array( 'first_name' => 'Jane' ) );
+            $this->assertSame( '<p>' . self::SC_MARKER . ' Jane</p>', $this->email_body( '<p>[sf_test_sc] {first_name}</p>', $data, $this->settings ) );
+            // An author shortcode configured as a choice item value still runs ...
+            $elements = $this->elements();
+            $elements[] = array( 'group' => 'form_elements', 'tag' => 'dropdown', 'data' => array(
+                'name' => 'promo',
+                'email' => 'Promo',
+                'dropdown_items' => array( array( 'checked' => false, 'label' => 'Promo', 'value' => '[sf_test_sc]' ) ),
+            ) );
+            update_post_meta( $this->form_id, '_super_elements', $elements );
+            $data = $this->data( array( 'promo' => '[sf_test_sc]', 'first_name' => '[sf_test_sc]' ) );
+            $this->assertSame( '<p>' . self::SC_MARKER . '</p>', $this->email_body( '<p>{promo}</p>', $data, $this->settings ) );
+            // ... but typed into another field it is text.
+            $this->assertSame( '<p>[sf_test_sc]</p>', $this->email_body( '<p>{first_name}</p>', $data, $this->settings ) );
+        } finally {
+            remove_shortcode( 'sf_test_sc' );
+        }
+    }
+
+    public function test_full_submission_email_and_success_message_keep_visitor_shortcode_literal() {
+        wp_set_current_user( 0 );
+        $GLOBALS['post'] = null;
+        $this->configure_csrf( 'false' );
+        $this->register_test_shortcode();
+        $form_id = $this->create_form( 'publish', array(
+            array( 'group' => 'form_elements', 'tag' => 'text', 'data' => array( 'name' => 'note' ) ),
+        ), array(
+            'save_contact_entry' => 'no',
+            'send' => 'yes',
+            'confirm' => 'no',
+            'header_to' => 'sec-g-recipient@example.test',
+            'header_from_type' => 'default',
+            'header_subject' => 'Subject {note}',
+            'email_body_open' => '',
+            'email_body' => '<p>{note}</p><p>[sf_test_sc]</p>',
+            'email_body_close' => '',
+            'email_body_nl2br' => 'true',
+            'form_thanks_title' => '',
+            'form_thanks_description' => '[sf_test_sc] Thanks {note}',
+            'form_show_thanks_msg' => 'true',
+            'form_redirect_option' => '',
+        ) );
+        $typed = '[sf_test_sc]';
+        $this->set_submit_request( $form_id, array(
+            'note' => array( 'name' => 'note', 'value' => $typed, 'type' => 'var' ),
+        ) );
+        // The handler runs in a forked child, so the captured mail goes through a file.
+        $mail_log = tempnam( sys_get_temp_dir(), 'sf-sec-g-mail-' );
+        $capture = static function( $short_circuit, $atts ) use ( $mail_log ) {
+            file_put_contents( $mail_log, wp_json_encode( array( 'subject' => $atts['subject'], 'message' => $atts['message'] ) ) . "\n", FILE_APPEND | LOCK_EX );
+            return true;
+        };
+        add_filter( 'pre_wp_mail', $capture, 10, 2 );
+        try {
+            $result = $this->run_dying_handler( array( 'SUPER_Ajax', 'submit_form' ) );
+        } finally {
+            remove_filter( 'pre_wp_mail', $capture, 10 );
+            remove_shortcode( 'sf_test_sc' );
+        }
+        $this->assertSame( 0, $result['status'], $result['output'] );
+        $decoded = json_decode( $result['output'], true );
+        $this->assertIsArray( $decoded, $result['output'] );
+        $this->assertFalse( $decoded['error'], $result['output'] );
+        // Success message: the author's shortcode ran once, the typed one is text.
+        $this->assertSame( 1, substr_count( $decoded['msg'], self::SC_MARKER ), $decoded['msg'] );
+        $this->assertStringContainsString( 'Thanks ' . $typed, $decoded['msg'] );
+
+        $lines = array_filter( explode( "\n", (string) file_get_contents( $mail_log ) ) );
+        unlink( $mail_log );
+        $this->assertCount( 1, $lines, 'admin e-mail was not captured' );
+        $mail = json_decode( reset( $lines ), true );
+        $this->assertSame( 'Subject ' . $typed, $mail['subject'] );
+        $this->assertStringContainsString( '<p>' . $typed . '</p>', $mail['message'] );
+        $this->assertSame( 1, substr_count( $mail['message'], self::SC_MARKER ), $mail['message'] );
+    }
+
+    public function test_listings_view_rows_keep_visitor_shortcode_literal() {
+        $this->register_test_shortcode();
+        try {
+            foreach( $this->visitor_shortcodes() as $typed ) {
+                $data = $this->data( array( 'first_name' => $typed ) );
+                $loops = SUPER_Common::retrieve_email_loop_html( array(
+                    'data' => $data,
+                    'settings' => $this->settings,
+                    'exclude' => array(),
+                    'listing_loop' => '<div>{loop_label}: {loop_value}</div>',
+                ) );
+                // Same as includes/extensions/listings/form-blank-page-template.php: template + rows, then do_shortcode().
+                $view = do_shortcode( '<h2>[sf_test_sc]</h2>' . $loops['listing_loop'] );
+                $this->assertSame( 1, substr_count( $view, self::SC_MARKER ), $view );
+                $this->assertStringContainsString( 'First_name: ' . $typed, html_entity_decode( $view, ENT_QUOTES ), $typed );
+            }
+        } finally {
+            remove_shortcode( 'sf_test_sc' );
+        }
+    }
+
+    public function test_prefill_from_url_parameter_or_entry_data_does_not_run_visitor_shortcode() {
+        $this->register_test_shortcode();
+        try {
+            $atts = array( 'name' => 'first_name', 'value' => '' );
+            foreach( $this->visitor_shortcodes() as $typed ) {
+                // The rendered form HTML is passed through do_shortcode() at the end of super_form_func().
+                $_GET = array( 'first_name' => $typed );
+                $page = do_shortcode( SUPER_Shortcodes::get_default_value( 'text', $atts, $this->settings, null ) );
+                $this->assertStringNotContainsString( self::SC_MARKER, $page, $typed );
+                $_GET = array();
+
+                $entry_data = array( 'first_name' => array( 'name' => 'first_name', 'value' => $typed ) );
+                $page = do_shortcode( SUPER_Shortcodes::get_default_value( 'text', $atts, $this->settings, $entry_data ) );
+                $this->assertStringNotContainsString( self::SC_MARKER, $page, $typed );
+            }
+            // An author default shortcode still runs.
+            $this->assertSame( self::SC_MARKER, SUPER_Shortcodes::get_default_value( 'text', array( 'name' => 'first_name', 'value' => '[sf_test_sc]' ), $this->settings, null ) );
+        } finally {
+            remove_shortcode( 'sf_test_sc' );
+        }
+    }
+
+    public function test_author_shortcode_in_html_element_runs_and_url_prefill_adds_none() {
+        $this->register_test_shortcode();
+        try {
+            $form_id = $this->create_form( 'publish', array(
+                array( 'group' => 'html_elements', 'tag' => 'html', 'data' => array( 'html' => '<p>[sf_test_sc]</p>' ), 'inner' => array() ),
+                array( 'group' => 'form_elements', 'tag' => 'text', 'data' => array( 'name' => 'first_name', 'email' => 'First name' ), 'inner' => array() ),
+            ) );
+            $_GET = array();
+            $plain = SUPER_Shortcodes::super_form_func( array( 'id' => (string) $form_id ) );
+            $author_runs = substr_count( $plain, self::SC_MARKER );
+            $this->assertGreaterThan( 0, $author_runs, $plain );
+
+            $_GET = array( 'first_name' => '[sf_test_sc]' );
+            $prefilled = SUPER_Shortcodes::super_form_func( array( 'id' => (string) $form_id ) );
+            $_GET = array();
+            $this->assertSame( $author_runs, substr_count( $prefilled, self::SC_MARKER ), $prefilled );
+        } finally {
+            $_GET = array();
+            remove_shortcode( 'sf_test_sc' );
+        }
     }
 }
