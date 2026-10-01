@@ -1486,6 +1486,135 @@ class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
         $too_many['checks']['value'] = 'one,two,three';
         $this->assertFalse( $this->validate( $too_many, $elements ) );
     }
+
+    /**
+     * Zendesk #3525: a stored minlength/maxlength of 0 means "no limit" (the builder
+     * says "Set to 0 to remove limitations" and common_attributes() renders no
+     * data-maxlength for it). Forms saved with those legacy defaults must still submit.
+     */
+    public function test_zero_length_limits_mean_no_limit() {
+        $elements = array(
+            array(
+                'tag' => 'text',
+                'data' => array( 'name' => 'company', 'validation' => 'empty', 'minlength' => '0', 'maxlength' => '0' ),
+            ),
+            array(
+                'tag' => 'textarea',
+                'data' => array( 'name' => 'notes', 'minlength' => 0, 'maxlength' => 0 ),
+            ),
+            array(
+                'tag' => 'text',
+                'data' => array( 'name' => 'code', 'minlength' => '2', 'maxlength' => '3' ),
+            ),
+        );
+        $data = array(
+            'company' => array( 'name' => 'company', 'value' => 'Wholesale Buyer LLC', 'type' => 'var' ),
+            'notes' => array( 'name' => 'notes', 'value' => 'Please ship together.', 'type' => 'text' ),
+            'code' => array( 'name' => 'code', 'value' => 'ab', 'type' => 'var' ),
+            'hidden_form_id' => array( 'name' => 'hidden_form_id', 'value' => '41', 'type' => 'form_id' ),
+            'hidden_contact_entry_id' => array( 'name' => 'hidden_contact_entry_id', 'value' => '', 'type' => 'entry_id' ),
+        );
+        $this->assertTrue( $this->validate( $data, $elements ) );
+
+        // Positive limits are still enforced.
+        $too_long = $data;
+        $too_long['code']['value'] = 'abcd';
+        $this->assertFalse( $this->validate( $too_long, $elements ) );
+        $too_short = $data;
+        $too_short['code']['value'] = 'a';
+        $this->assertFalse( $this->validate( $too_short, $elements ) );
+    }
+
+    /**
+     * Zendesk #3525 review: the "0 means no limit" rule must not loosen real limits.
+     * A stored text maxlength of 5 still rejects 6 characters, a checkbox max of 1 still
+     * rejects 2 selections, and a stored selection limit of 0 means no limit.
+     */
+    public function test_positive_length_and_selection_limits_are_still_enforced() {
+        $elements = array(
+            array(
+                'tag' => 'text',
+                'data' => array( 'name' => 'short', 'minlength' => '0', 'maxlength' => '5' ),
+            ),
+            array(
+                'tag' => 'checkbox',
+                'data' => array(
+                    'name' => 'one_only',
+                    'minlength' => '0',
+                    'maxlength' => '1',
+                    'checkbox_items' => array(
+                        array( 'value' => 'red', 'label' => 'Red' ),
+                        array( 'value' => 'blue', 'label' => 'Blue' ),
+                    ),
+                ),
+            ),
+            array(
+                'tag' => 'checkbox',
+                'data' => array(
+                    'name' => 'any',
+                    'minlength' => '0',
+                    'maxlength' => '0',
+                    'checkbox_items' => array(
+                        array( 'value' => 'a', 'label' => 'A' ),
+                        array( 'value' => 'b', 'label' => 'B' ),
+                        array( 'value' => 'c', 'label' => 'C' ),
+                    ),
+                ),
+            ),
+        );
+        $data = array(
+            'short' => array( 'name' => 'short', 'value' => 'abcde', 'type' => 'var' ),
+            'one_only' => array( 'name' => 'one_only', 'value' => 'red', 'type' => 'var' ),
+            'any' => array( 'name' => 'any', 'value' => 'a,b,c', 'type' => 'var' ),
+            'hidden_form_id' => array( 'name' => 'hidden_form_id', 'value' => '41', 'type' => 'form_id' ),
+            'hidden_contact_entry_id' => array( 'name' => 'hidden_contact_entry_id', 'value' => '', 'type' => 'entry_id' ),
+        );
+        $this->assertTrue( $this->validate( $data, $elements ) );
+
+        $six = $data;
+        $six['short']['value'] = 'abcdef';
+        $this->assertFalse( $this->validate( $six, $elements ) );
+
+        $two = $data;
+        $two['one_only']['value'] = 'red,blue';
+        $this->assertFalse( $this->validate( $two, $elements ) );
+    }
+
+    /**
+     * Zendesk #3525: the Calculator add-on rewrites the top-level carrier value in
+     * after_form_data_collected_hook; common.js now copies that final value back into
+     * _super_dynamic_data so both carriers stay identical. A stale row copy is still refused.
+     */
+    public function test_calculator_value_in_repeater_must_match_dynamic_row_copy() {
+        $elements = array(
+            array(
+                'tag' => 'column',
+                'data' => array( 'duplicate' => 'enabled' ),
+                'inner' => array(
+                    array( 'tag' => 'quantity', 'data' => array( 'name' => 'qty' ) ),
+                    array( 'tag' => 'calculator', 'data' => array( 'name' => 'line_total', 'validation' => 'none' ) ),
+                ),
+            ),
+        );
+        $qty = array( 'name' => 'qty', 'value' => '2', 'type' => 'var' );
+        $line_total = array( 'name' => 'line_total', 'value' => '$25.00', 'type' => 'var' );
+        $data = array(
+            'qty' => $qty,
+            'line_total' => $line_total,
+            '_super_dynamic_data' => array(
+                'qty' => array(
+                    array( 'qty' => $qty, 'line_total' => $line_total ),
+                ),
+            ),
+            'hidden_form_id' => array( 'name' => 'hidden_form_id', 'value' => '41', 'type' => 'form_id' ),
+            'hidden_contact_entry_id' => array( 'name' => 'hidden_contact_entry_id', 'value' => '', 'type' => 'entry_id' ),
+        );
+        $this->assertTrue( $this->validate( $data, $elements ) );
+
+        $stale = $data;
+        $stale['_super_dynamic_data']['qty'][0]['line_total']['value'] = '25.00';
+        $this->assertFalse( $this->validate( $stale, $elements ) );
+    }
     public function test_selection_carriers_require_exact_slugs_and_support_explicit_selected_values_for_comma_containing_choices() {
         $elements = array(
             array(
