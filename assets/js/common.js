@@ -4498,7 +4498,28 @@ function SUPERreCaptcha(){
                 data = SUPER[name](data);
             }
         }
+        // Hooks (e.g. the Calculator add-on) may rewrite a top-level carrier after
+        // _super_dynamic_data already copied it. The server requires each repeater
+        // row carrier to equal its top-level carrier, so copy the final values back.
+        SUPER.sync_dynamic_data_carriers(data);
         return data;
+    };
+    SUPER.sync_dynamic_data_carriers = function(data){
+        var groupKey, rows, r, routeName;
+        if(!data || !data._super_dynamic_data || typeof data._super_dynamic_data !== 'object') return;
+        for(groupKey in data._super_dynamic_data){
+            if(!Object.prototype.hasOwnProperty.call(data._super_dynamic_data, groupKey)) continue;
+            rows = data._super_dynamic_data[groupKey];
+            if(!Array.isArray(rows)) continue;
+            for(r = 0; r < rows.length; r++){
+                if(!rows[r] || typeof rows[r] !== 'object') continue;
+                for(routeName in rows[r]){
+                    if(!Object.prototype.hasOwnProperty.call(rows[r], routeName)) continue;
+                    if(!data[routeName] || typeof data[routeName] !== 'object') continue;
+                    rows[r][routeName] = JSON.parse(JSON.stringify(data[routeName]));
+                }
+            }
+        }
     };
 
     // @since 1.3
