@@ -105,27 +105,63 @@ class Test_Security_Api_Proxy_Gate extends WP_UnitTestCase {
 		$this->assertSame( array( SUPER_API_ENDPOINT . '/addons/list' ), $this->requests );
 	}
 
-	public function resolve_cases() {
-		$default = 'https://api.super-forms.com/v1';
+	/**
+	 * $_POST['api_endpoint'] is ignored entirely: the handlers can not require a nonce (the API
+	 * rendered Licenses page does not send one), so a forged request must not be able to move the
+	 * auth cookie to any other host, sub domain or path, not even one of our own.
+	 */
+	public function posted_endpoint_cases() {
 		return array(
-			'same host'              => array( 'https://api.super-forms.com/v1', $default, 'https://api.super-forms.com/v1' ),
-			'trailing slash trimmed' => array( 'https://api.super-forms.com/v1/', $default, 'https://api.super-forms.com/v1' ),
-			'our subdomain'          => array( 'https://api.dev.super-forms.com/v1', $default, 'https://api.dev.super-forms.com/v1' ),
-			'http'                   => array( 'http://api.super-forms.com/v1', $default, $default ),
-			'foreign host'           => array( 'https://evil.example/v1', $default, $default ),
-			'look-alike suffix'      => array( 'https://api.super-forms.com.evil.example/v1', $default, $default ),
-			'look-alike prefix'      => array( 'https://evilsuper-forms.com/v1', $default, $default ),
-			'userinfo'               => array( 'https://api.super-forms.com@evil.example/v1', $default, $default ),
-			'query'                  => array( 'https://api.super-forms.com/v1?x=1', $default, $default ),
-			'fragment'               => array( 'https://api.super-forms.com/v1#x', $default, $default ),
-			'not a string'           => array( array( 'https://api.super-forms.com/v1' ), $default, $default ),
+			'the configured endpoint' => array( SUPER_API_ENDPOINT ),
+			'trailing slash'          => array( SUPER_API_ENDPOINT . '/' ),
+			'our dev sub domain'      => array( 'https://api.dev.super-forms.com/v1' ),
+			'our root domain'         => array( 'https://super-forms.com/v1' ),
+			'same host other path'    => array( 'https://api.super-forms.com/other' ),
+			'http'                    => array( 'http://api.super-forms.com/v1' ),
+			'foreign host'            => array( 'https://evil.example/v1' ),
+			'look-alike suffix'       => array( 'https://api.super-forms.com.evil.example/v1' ),
+			'userinfo'                => array( 'https://api.super-forms.com@evil.example/v1' ),
+			'query'                   => array( 'https://api.super-forms.com/v1?x=1' ),
+			'not a string'            => array( array( 'https://evil.example/v1' ) ),
 		);
 	}
 
 	/**
-	 * @dataProvider resolve_cases
+	 * @dataProvider posted_endpoint_cases
 	 */
-	public function test_resolve_endpoint( $requested, $default, $expected ) {
-		$this->assertSame( $expected, SUPER_Ajax::api_resolve_endpoint( $requested, $default ) );
+	public function test_posted_api_endpoint_is_ignored( $posted ) {
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		$_POST = array( 'api_endpoint' => $posted );
+		$this->do_request( 'addons/list' );
+		$this->assertSame( array( SUPER_API_ENDPOINT . '/addons/list' ), $this->requests );
+	}
+
+	public function test_configured_endpoint_is_the_https_api_host() {
+		$this->assertSame( 'https', wp_parse_url( SUPER_API_ENDPOINT, PHP_URL_SCHEME ) );
+		$this->assertSame( 'api.super-forms.com', wp_parse_url( SUPER_API_ENDPOINT, PHP_URL_HOST ) );
+	}
+
+	public function auth_token_cases() {
+		return array(
+			'raw base64'         => array( 'AbC09+/xyz', 'AbC09+/xyz' ),
+			'padded base64'      => array( 'QUJD==', 'QUJD==' ),
+			'slashed by WP'      => array( 'QUJD\\/x', 'QUJD/x' ),
+			'empty'              => array( '', false ),
+			'not a string'       => array( array( 'QUJD' ), false ),
+			'too long'           => array( str_repeat( 'A', 2049 ), false ),
+			'max length'         => array( str_repeat( 'A', 2048 ), str_repeat( 'A', 2048 ) ),
+			'cookie separator'   => array( 'QUJD; path=/', false ),
+			'html'               => array( '<script>', false ),
+			'newline'            => array( "QUJD\n", false ),
+			'padding in middle'  => array( 'QU=JD', false ),
+			'url-safe alphabet'  => array( 'QU-J_D', false ),
+		);
+	}
+
+	/**
+	 * @dataProvider auth_token_cases
+	 */
+	public function test_auth_token_validation( $posted, $expected ) {
+		$this->assertSame( $expected, SUPER_Ajax::api_sanitize_auth_token( $posted ) );
 	}
 }

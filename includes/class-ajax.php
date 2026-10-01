@@ -240,11 +240,15 @@ class SUPER_Ajax {
     }
     public static function api_auth(){
         self::api_verify_access();
-        $auth = $_POST['auth'];
+        $auth = self::api_sanitize_auth_token(isset($_POST['auth']) ? $_POST['auth'] : '');
+        if( $auth===false ) {
+            echo 'false';
+            die();
+        }
         $result = setcookie(
             'super_forms[wp_admin]', // name
             $auth, // value
-            time()+60*120, // expires after 15 minutes
+            time()+60*120, // expires after 120 minutes (same lifetime as the token on the API)
             '',  // path
             '', // domain
             false, // secure (many WP dashboard might not have valid certificate, or are not forced to https protocol)
@@ -351,8 +355,13 @@ class SUPER_Ajax {
         if($route==='logout'){
             setcookie('super_forms[wp_admin]', '', time()-3600);
         }
-        $api_endpoint = (isset($_POST['api_endpoint']) ? self::api_resolve_endpoint($_POST['api_endpoint'], SUPER_API_ENDPOINT) : SUPER_API_ENDPOINT);
-        $r = wp_remote_post($api_endpoint . '/' . $route, $args);
+        // Always talk to the configured API (exact host and path of SUPER_API_ENDPOINT). The remotely
+        // rendered Licenses screen posts back an `api_endpoint` field, but that is only ever the value
+        // the plugin sent it (SUPER_API_ENDPOINT, see SUPER_Pages::addons()), so it is ignored here.
+        // This keeps the license auth cookie (added to the body by api_default_post_args()) from being
+        // sent to any other server, also for a forged (CSRF) request: these handlers can not require a
+        // nonce because the API rendered page does not send one.
+        $r = wp_remote_post(SUPER_API_ENDPOINT . '/' . $route, $args);
         $response = self::api_handle_response($r, $args);
         if($method=='return') return $response;
         if($method=='echo') echo $response;
@@ -368,28 +377,20 @@ class SUPER_Ajax {
     }
 
     /**
-     * Only honour a caller supplied API endpoint when it lives on our own API host
+     * Validate the license auth token the Licenses screen hands to api_auth()
      *
-     * The remotely rendered Licenses screen posts back the endpoint the plugin sent it
-     * (SUPER_API_ENDPOINT). Anything else (http://, another host, credentials, query or
-     * fragment) falls back to $default so a request can not be pointed at an arbitrary server.
+     * The API issues it as unpadded standard base64 (an encrypted, short lived token), so only
+     * accept a non-empty string of base64 characters with a sane length. Anything else is
+     * refused so arbitrary data can not be stored in the super_forms[wp_admin] cookie.
      *
-     * @param  mixed  $requested Value of $_POST['api_endpoint']
-     * @param  string $default   SUPER_API_ENDPOINT
-     * @return string
+     * @param  mixed $auth Value of $_POST['auth']
+     * @return string|false The token, or false when it is not valid
      */
-    public static function api_resolve_endpoint($requested, $default){
-        if( is_string($requested) && strpos($requested, 'https://')===0 ) {
-            $parts = wp_parse_url($requested);
-            $host = ( is_array($parts) && !empty($parts['host']) ? strtolower($parts['host']) : '' );
-            if( $host!=='' && empty($parts['user']) && !isset($parts['pass']) && !isset($parts['query']) && !isset($parts['fragment']) ) {
-                $default_host = strtolower( (string) wp_parse_url($default, PHP_URL_HOST) );
-                if( $host===$default_host || ( strlen($host)>16 && substr($host, -16)==='.super-forms.com' ) ) {
-                    return rtrim($requested, '/');
-                }
-            }
-        }
-        return $default;
+    public static function api_sanitize_auth_token($auth){
+        if( !is_string($auth) ) return false;
+        $auth = wp_unslash($auth);
+        if( strlen($auth)>2048 || !preg_match('/\A[A-Za-z0-9+\/]+={0,2}\z/', $auth) ) return false;
+        return $auth;
     }
 
     public static function api_default_post_args($custom_args){
