@@ -28,7 +28,7 @@ class Test_Security_Updater_Transport extends WP_UnitTestCase {
 	public static function set_up_before_class() {
 		parent::set_up_before_class();
 		if ( ! class_exists( 'Puc_v4p6_Plugin_UpdateChecker' ) ) {
-			require_once dirname( __DIR__ ) . '/includes/admin/plugin-update-checker/plugin-update-checker.php';
+			require_once dirname( __DIR__ ) . '/src/includes/admin/plugin-update-checker/plugin-update-checker.php';
 		}
 	}
 

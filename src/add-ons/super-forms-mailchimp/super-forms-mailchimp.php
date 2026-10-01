@@ -734,17 +734,59 @@ if( !class_exists('SUPER_Mailchimp') ) :
 
 
         /**
+         * Keep legacy serialized merge arrays without allowing object creation from public form data.
+         */
+        private static function safe_mailchimp_merge_value( $value ) {
+            if( !is_string($value) || strlen($value)>65536 ) {
+                return $value;
+            }
+            try {
+                $decoded = @unserialize( $value, array( 'allowed_classes' => false, 'max_depth' => 5 ) );
+            } catch( Throwable $e ) {
+                return $value;
+            }
+            if( ($decoded===false && $value!=='b:0;') || !self::mailchimp_merge_shape_is_safe($decoded) ) {
+                return $value;
+            }
+            return $decoded;
+        }
+
+        private static function mailchimp_merge_shape_is_safe( $value, $depth=0 ) {
+            if( is_scalar($value) ) {
+                return true;
+            }
+            if( !is_array($value) || $depth>=4 || count($value)>256 ) {
+                return false;
+            }
+            foreach( $value as $item ) {
+                if( !self::mailchimp_merge_shape_is_safe($item, $depth+1) ) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        /**
          * Hook into before sending email and check for subscribe or unsubscribe action
          * After that do a curl request to mailchimp to update the list by the given List ID
          *
          *  @since      1.0.0
         */
         public static function update_mailchimp_subscribers( $atts ) {
-            extract($atts); // data, post, settings
-            if(!isset($atts['post']['data'])) return false;
-            $data = wp_unslash($atts['post']['data']);
-            $data = json_decode($data, true);
-            $form_id = isset($atts['post']['form_id']) ? absint($atts['post']['form_id']) : 0;
+            if( !is_array($atts) || !isset($atts['post']) || !is_array($atts['post'])
+                || !isset($atts['post']['data']) || !is_string($atts['post']['data'])
+                || !isset($atts['settings']) || !is_array($atts['settings'])
+                || !isset($atts['post']['form_id'])
+                || (!is_int($atts['post']['form_id']) && !is_string($atts['post']['form_id']))
+                || preg_match('/^[0-9]+$/D', (string)$atts['post']['form_id'])!==1 ) {
+                return false;
+            }
+            $settings = $atts['settings'];
+            $form_id = absint($atts['post']['form_id']);
+            $data = json_decode(wp_unslash($atts['post']['data']), true);
+            if( $form_id<1 || !is_array($data) ) {
+                return false;
+            }
             $resolved = self::resolve_mailchimp_variant_settings( $form_id, $data, $settings );
             if( $resolved===null ) {
                 return false;
@@ -832,12 +874,7 @@ if( !class_exists('SUPER_Mailchimp') ) :
                         // if no field exists, just save it as a string
                         $string = SUPER_Common::email_tags( $field[1], $data, $global_settings );
                         // check if string is serialized array
-                        $unserialize = unserialize($string);
-                        if ($unserialize !== false) {
-                            $merge_fields[$field[0]] = $unserialize;
-                        }else{
-                            $merge_fields[$field[0]] = $string;
-                        }
+                        $merge_fields[$field[0]] = self::safe_mailchimp_merge_value( $string );
                     }
                 }
                 foreach( $merge_fields as $k => $v ) {

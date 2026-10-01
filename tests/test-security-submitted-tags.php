@@ -557,7 +557,8 @@ class Test_Super_Forms_Submitted_Tags_Security extends Super_Forms_Upload_Securi
         }
         // A visitor `if(` can not take over the author's own if/endif.
         $data = $this->data( array( 'first_name' => 'if(x==y):', 'routing' => 'r' ) );
-        $this->assertSame( '<p>if(x==y):</p>YES ', $this->confirm_body( '<p>{first_name}</p>if({routing}==r):YES elseif:NO endif;', $data, $this->settings ) );
+        // 6.4 adaptation: the 6.4 SUPER_Common::filter_if_statements() trims whitespace around if/endif contents
+        $this->assertSame( '<p>if(x==y):</p>YES', $this->confirm_body( '<p>{first_name}</p>if({routing}==r):YES elseif:NO endif;', $data, $this->settings ) );
         // Every other email_tags() caller (subject, stored entry, redirect) gets the characters back right away.
         $data = $this->data( array( 'first_name' => 'if(a):b endif; isset(x):y endif;' ) );
         $this->assertSame( 'S: if(a):b endif; isset(x):y endif;', SUPER_Common::email_tags( 'S: {first_name}', $data, $this->settings ) );
@@ -570,7 +571,8 @@ class Test_Super_Forms_Submitted_Tags_Security extends Super_Forms_Upload_Securi
         $this->assertSame( '1. Jane (Sec G Blog)<br />2. Bob (Sec G Blog)<br />', $this->confirm_body( 'foreach(first_name):<%counter%>. <%first_name%> ({option_blogname})<br />endforeach;', $data, $this->settings ) );
         // The author's own foreach over the hidden field resolves its author tag, as documented.
         $this->assertSame( 'R:' . self::SALES_EMAIL . ';', $this->confirm_body( 'foreach(routing):R:<%routing%>;endforeach;', $data, $this->settings ) );
-        $this->assertSame( 'HELLO JANE ', $this->confirm_body( 'if({first_name}==Jane):HELLO JANE elseif:OTHER endif;', $data, $this->settings ) );
+        // 6.4 adaptation: the 6.4 SUPER_Common::filter_if_statements() trims whitespace around if/endif contents
+        $this->assertSame( 'HELLO JANE', $this->confirm_body( 'if({first_name}==Jane):HELLO JANE elseif:OTHER endif;', $data, $this->settings ) );
         $this->assertSame( 'OTHER ', $this->confirm_body( 'if({first_name}==Bob):HELLO BOB elseif:OTHER endif;', $data, $this->settings ) );
         $this->assertSame( 'HAS ROUTING ', $this->confirm_body( 'isset(routing):HAS ROUTING endif;', $data, $this->settings ) );
         $this->assertSame( 'NO NOPE ', $this->confirm_body( '!isset(nope):NO NOPE endif;', $data, $this->settings ) );
@@ -647,7 +649,7 @@ class Test_Super_Forms_Submitted_Tags_Security extends Super_Forms_Upload_Securi
 
     public function test_register_login_activation_email_keeps_visitor_tags_literal() {
         if( !class_exists( 'SUPER_Register_Login' ) ) {
-            require_once dirname( __DIR__ ) . '/add-ons/super-forms-register-login/super-forms-register-login.php';
+            require_once dirname( __DIR__ ) . '/src/add-ons/super-forms-register-login/super-forms-register-login.php';
         }
         wp_set_current_user( 0 );
         $new_user_id = self::factory()->user->create( array( 'role' => 'subscriber', 'user_login' => 'secgnewbie', 'user_email' => 'secg-newbie@example.test', 'user_url' => 'https://newbie.example' ) );
@@ -699,7 +701,7 @@ class Test_Super_Forms_Submitted_Tags_Security extends Super_Forms_Upload_Securi
 
     public function test_register_login_activation_email_inserts_visitor_password_literally() {
         if( !class_exists( 'SUPER_Register_Login' ) ) {
-            require_once dirname( __DIR__ ) . '/add-ons/super-forms-register-login/super-forms-register-login.php';
+            require_once dirname( __DIR__ ) . '/src/add-ons/super-forms-register-login/super-forms-register-login.php';
         }
         wp_set_current_user( 0 );
         $elements = $this->elements();

@@ -21,7 +21,7 @@ if( !class_exists( 'Super_Forms_Newsletter_Unserialize_Probe' ) ) {
 class Test_Security_Newsletter_Unserialize extends WP_UnitTestCase {
 
     private function addon_sources() {
-        $root = dirname( __DIR__ ) . '/add-ons/';
+        $root = dirname( __DIR__ ) . '/src/add-ons/';
         return array(
             'mailchimp' => file_get_contents( $root . 'super-forms-mailchimp/super-forms-mailchimp.php' ),
             'mailster' => file_get_contents( $root . 'super-forms-mailster/super-forms-mailster.php' ),

@@ -893,6 +893,7 @@ if(!class_exists('SUPER_Forms')) :
                 return $allowlist;
             }
             foreach( $entry_data as $field_name => $field ) {
+                if( is_int($field_name) ) $field_name = (string)$field_name;
                 if( !is_array($field) || empty($field['files']) || !is_array($field['files']) ) {
                     continue;
                 }
@@ -2105,6 +2106,7 @@ if(!class_exists('SUPER_Forms')) :
                 return;
             }
             foreach( $entry_data as $field_name => $field ) {
+                if( is_int($field_name) ) $field_name = (string)$field_name;
                             if( !is_array($field) || empty($field['files']) || !is_array ($field['files'] ) ) {
                                     // Delete possible generated PDF file
                                     
@@ -2184,6 +2186,12 @@ if(!class_exists('SUPER_Forms')) :
                 $return = '';
                 if( isset( $v[2] ) ) $return = $v[2];
                 if($return==='') continue;
+                // @since 6.3.318 - The body already went through email_tags(), so any `{tag}` still in
+                // it is literal text (possibly typed by a visitor, together with this whole foreach).
+                // Keep it literal; only the <%field%> placeholders below may resolve.
+                // The foreach syntax of submitted values is still inert here (see SUPER_Common::submitted_control_tokens()),
+                // this block is the author's own, so its <%field%> placeholders are left alone
+                $return = SUPER_Common::neutralize_submitted_tags( $return, array(), null, false );
                 $i = 1;
                 $rows = '';
                 while( isset( $data['data'][$field_name] ) ){
@@ -2210,16 +2218,20 @@ if(!class_exists('SUPER_Forms')) :
                                 $row = str_replace( $rv[0], $i, $row);
                                 continue;
                             }
-                            if($i<2){
-                                //$row = str_replace( $rv[0], '{'.$rv[2].'}', $row);
-                                $newName = $rv[2];
-                                if($rv[5]!=='') $newName .= ';'.$rv[5];
-                                $row = str_replace( $rv[0], $rv[1].$newName.$rv[6], $row);
-                                $replaceTags[$rv[1].$newName.$rv[6]] = '{'.$newName.'}';
+                            $newName = ($i<2) ? $rv[2] : $rv[2].'_'.$i;
+                            if($rv[5]!=='') $newName .= ';'.$rv[5];
+                            if($rv[1]==='<%' || $rv[1]==='{'){
+                                // @since 6.3.318 - A placeholder only resolves a submitted field, never a lookup tag
+                                if( !isset( $data['data'][$rv[2]] ) ) {
+                                    $row = str_replace( $rv[0], SUPER_Common::submitted_tag_brace().$rv[2].($rv[5]!=='' ? ';'.$rv[5] : '').'}', $row);
+                                    continue;
+                                }
+                                // @since 6.3.318 - Resolved by the email_tags() pass over the rows below: the body already
+                                // went through email_tags() before email_if_statements() runs, nothing resolves it afterwards
+                                $row = str_replace( $rv[0], '{'.$newName.'}', $row);
                                 continue;
                             }
-                            $newName = $rv[2].'_'.$i;
-                            if($rv[5]!=='') $newName .= ';'.$rv[5];
+                            // Nested foreach/isset syntax inside the loop refers to this row's field
                             $row = str_replace( $rv[0], $rv[1].$newName.$rv[6], $row);
                             $replaceTags[$rv[1].$newName.$rv[6]] = '{'.$newName.'}';
                         }
@@ -2234,12 +2246,17 @@ if(!class_exists('SUPER_Forms')) :
                     $i++;
                     $field_name = $original_field_name.'_'.$i;
                 }
-                $rows = SUPER_Common::email_tags( $rows, $data['data'], $data['settings'] );
+                // @since 6.3.318 - The rows contain submitted values: keep their foreach/if/isset syntax inert until the end
+                $rowLiterals = array();
+                $rows = SUPER_Common::email_tags( $rows, $data['data'], $data['settings'], null, true, false, false, $rowLiterals );
+                $rows = SUPER_Common::restore_literal_tag_values( $rows, $rowLiterals, false, true );
                 $email_body = str_replace( $original, $rows, $email_body);
             }
 
             // Regex to check if field was submitted (with isset and !isset)
-            $email_body = SUPER_Common::email_tags( $email_body, $data['data'], $data['settings'] );
+            // @since 6.3.318 - No email_tags() pass over the whole body here: every caller already ran email_tags() over it
+            // (keeping the foreach/if/isset syntax of submitted values inert, see SUPER_Common::submitted_control_tokens()).
+            // A second pass would resolve a {tag} a visitor typed, which is plain text once the first pass restored it
             $regex = '/(?:!isset|if\(!isset)\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?(?:\)|\)\))\s?:([\s\S]*?)(?:end(?:if)\s?;|(?:(?:elseif|else)\s?:([\s\S]*?))end(?:if)\s?;)/';
             $match = preg_match_all($regex, $email_body, $matches, PREG_SET_ORDER, 0);
             foreach($matches as $k => $v){
@@ -2276,9 +2293,14 @@ if(!class_exists('SUPER_Forms')) :
             }
             $email_body = SUPER_Common::filter_if_statements($email_body);
             foreach($replaceTags as $k => $v){
-                $email_body = str_replace( $k, $v, $email_body);
+                if( strpos( $email_body, $k )===false ) continue;
+                // @since 6.3.318 - Leftover loop syntax resolves to the field value right here (one email_tags() pass over
+                // the generated tag only), nothing runs email_tags() over the body after email_if_statements() anymore
+                $email_body = str_replace( $k, SUPER_Common::email_tags( $v, $data['data'], $data['settings'] ), $email_body);
             }
-            return $email_body;
+            // @since 6.3.318 - Only now put back the foreach/if/isset syntax a visitor typed, as plain text
+            // (see SUPER_Common::submitted_control_tokens())
+            return SUPER_Common::restore_submitted_control_syntax( $email_body );
         }
 
 
@@ -2469,6 +2491,15 @@ if(!class_exists('SUPER_Forms')) :
          *  @since      4.0.0
         */
         public function show_admin_notices() {
+            // An update was refused because its download location is not trusted (SUPER_Forms::filter_update_info())
+            $rejected = get_option( '_super_update_rejected' );
+            if( is_array( $rejected ) && !empty( $rejected['reason'] ) && current_user_can( 'update_plugins' ) ) {
+                echo '<div class="notice notice-error"><p>';
+                echo '<strong>' . esc_html__( 'Super Forms:', 'super-forms' ) . '</strong> ';
+                echo esc_html__( 'an available update was not installed because its download location could not be verified. Please download the latest version manually from super-forms.com or contact support.', 'super-forms' );
+                echo '<br /><small>' . esc_html( $rejected['reason'] ) . '</small>';
+                echo '</p></div>';
+            }
             if( version_compare(phpversion(), '7.4.0', '<') ) {
                 echo '<div class="notice notice-error">'; // notice-success, notice-error
                 echo '<p>';
@@ -2572,11 +2603,92 @@ if(!class_exists('SUPER_Forms')) :
 
             $slug = $this->slug;
             require_once ( 'includes/admin/plugin-update-checker/plugin-update-checker.php' );
+            // Defense in depth: PUC applies 'puc_request_info_result-{slug}' to the parsed metadata
+            // (Puc/v4p6/Plugin/UpdateChecker.php:138); returning null makes requestUpdate() report
+            // "no update" (:153-155) and injectInfo() fall back to the core result (:184-188).
+            add_filter( 'puc_request_info_result-' . $slug, array( 'SUPER_Forms', 'filter_update_info' ), 10, 2 );
             $MyUpdateChecker = Puc_v4_Factory::buildUpdateChecker(
-                'http://f4d.nl/@super-forms-updates/?action=get_metadata&slug=' . $slug,  //Metadata URL
+                'https://f4d.nl/@super-forms-updates/?action=get_metadata&slug=' . $slug,  //Metadata URL (https only: the http URL merely 301s, and that first hop is unauthenticated)
                 __FILE__, // Full path to the main plugin file.
                 $slug // Plugin slug. Usually it's the same as the name of the directory.
             );
+            return $MyUpdateChecker;
+        }
+
+
+        /**
+         * Only accept update packages that WordPress will download over https from our own hosts
+         *
+         * Even if the metadata response were forged or tampered with, the package URL must
+         * never point WordPress at an attacker controlled host.
+        */
+        public static function is_trusted_update_package_url( $url ) {
+            if( !is_string( $url ) || $url === '' ) return false;
+            $parts = ( function_exists( 'wp_parse_url' ) ? wp_parse_url( $url ) : parse_url( $url ) );
+            if( !is_array( $parts ) || empty( $parts['scheme'] ) || empty( $parts['host'] ) ) return false;
+            if( strtolower( $parts['scheme'] ) !== 'https' ) return false;
+            // userinfo tricks like https://f4d.nl@evil.example/ resolve to the host after the "@"
+            if( isset( $parts['user'] ) || isset( $parts['pass'] ) ) return false;
+            $host = strtolower( $parts['host'] );
+            if( !preg_match( '/^[a-z0-9.-]+$/', $host ) ) return false;
+            // Hosts that may serve update packages (a leading "." also allows every subdomain).
+            // Updates are published through more than one origin, so keep this list in sync with the
+            // release channel; sites can extend it with the super_forms_trusted_update_hosts filter
+            $trusted = apply_filters( 'super_forms_trusted_update_hosts', array( 'f4d.nl', 'super-forms.com', '.super-forms.com', 'renstillmann.github.io' ) );
+            if( !is_array( $trusted ) ) return false;
+            foreach( $trusted as $allowed ) {
+                if( !is_string( $allowed ) || $allowed === '' || $allowed === '.' ) continue;
+                $allowed = strtolower( $allowed );
+                if( $allowed[0] === '.' ) {
+                    if( strlen( $host ) > strlen( $allowed ) && substr( $host, -strlen( $allowed ) ) === $allowed ) return true;
+                }elseif( $host === $allowed ) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
+        /**
+         * Filter callback for 'puc_request_info_result-super-forms'
+         *
+         * Drops the update when the download URL (or any translation package URL) is not
+         * an https URL on one of our own hosts, see is_trusted_update_package_url()
+        */
+        public static function filter_update_info( $info, $result = null ) {
+            if( !is_object( $info ) ) return $info;
+            $urls = array( ( isset( $info->download_url ) ? $info->download_url : '' ) );
+            // json_decode() hands a JSON object back as stdClass and PUC copies it through as is
+            // (Puc/v4p6/Metadata.php:31,46-48), so cast the list instead of gating on is_array():
+            // that would skip an object-shaped list and let its packages reach the language pack
+            // upgrader unchecked. An entry without a package URL fails closed as well.
+            $translations = ( isset( $info->translations ) ? (array) $info->translations : array() );
+            foreach( $translations as $translation ) {
+                $translation = (array) $translation;
+                if( !isset( $translation['package'] ) ) {
+                    return self::reject_update_info( 'translation entry has no package URL' );
+                }
+                $urls[] = $translation['package'];
+            }
+            foreach( $urls as $url ) {
+                if( !self::is_trusted_update_package_url( $url ) ) {
+                    $url = ( is_string( $url ) ? preg_replace( '/[^\x20-\x7E]/', '?', substr( $url, 0, 200 ) ) : gettype( $url ) );
+                    return self::reject_update_info( 'package URL is not https on a trusted host (super_forms_trusted_update_hosts): ' . $url );
+                }
+            }
+            // A trusted update clears a previous rejection notice
+            if( get_option( '_super_update_rejected' )!==false ) delete_option( '_super_update_rejected' );
+            return $info;
+        }
+
+        /**
+         * Drop an update and remember why, so administrators see it (show_admin_notices()) instead
+         * of updates silently stopping
+         */
+        public static function reject_update_info( $reason ) {
+            error_log( 'Super Forms: update ignored, ' . $reason );
+            update_option( '_super_update_rejected', array( 'reason' => $reason, 'time' => time() ), 'no' );
+            return null;
         }
 
 
@@ -3053,6 +3165,11 @@ if(!class_exists('SUPER_Forms')) :
                 add_filter('get_edit_post_link', array( $this, 'edit_post_link' ), 99, 3);
                 add_action('admin_head', array( $this, 'add_post_link' ));
 
+            }
+
+            // Licenses page: forget the cached API answers so the next render re-checks the licence
+            if($current_screen->id==='super-forms_page_super_addons'){
+                SUPER_Common::flush_api_transients();
             }
 
             // @since 1.7 - add the export button only on the super_contact_entry page

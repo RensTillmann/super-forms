@@ -45,7 +45,7 @@ class Test_Super_Forms_Proof_Row2_Row14_Register_Admin_Json extends Super_Forms_
 
     private function require_register_login_addon() {
         if( !class_exists( 'SUPER_Register_Login' ) ) {
-            require_once dirname( __DIR__ ) . '/add-ons/super-forms-register-login/super-forms-register-login.php';
+            require_once dirname( __DIR__ ) . '/src/add-ons/super-forms-register-login/super-forms-register-login.php';
         }
     }
 

@@ -457,6 +457,10 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                         $tags_input_array = array();
 
                         // @since 1.1.4 - replace {tags}
+                        // @since 6.3.318 - When the value comes from the submitted `tags_input` / `tag_taxonomy` field it is
+                        // visitor text, not a template: only tags the form author configured on that field resolve
+                        if( isset( $data['tags_input'] ) ) $tags_input = SUPER_Common::neutralize_submitted_value( $tags_input, 'tags_input', $data, $settings );
+                        if( isset( $data['tag_taxonomy'] ) ) $tag_taxonomy = SUPER_Common::neutralize_submitted_value( $tag_taxonomy, 'tag_taxonomy', $data, $settings );
                         $tags_input = SUPER_Common::email_tags( $tags_input, $data, $settings );
                         $tag_taxonomy = SUPER_Common::email_tags( $tag_taxonomy, $data, $settings );
 
@@ -838,8 +842,19 @@ if( !class_exists('SUPER_Frontend_Posting') ) :
                                 $string = SUPER_Common::email_tags( $field[0], $data, $settings );
 
                                 // @since 1.0.3 - check if string is serialized array
-                                $unserialize = unserialize($string);
-                                if ($unserialize !== false) {
+                                // @since 6.3.318 - The string can contain submitted values: never instantiate objects
+                                // (PHP object injection), a serialized object becomes __PHP_Incomplete_Class, arrays keep working.
+                                // A result that holds an object is saved as the plain string instead: storing the incomplete
+                                // object would re-serialize it, and WordPress unserializes meta without class restrictions on read
+                                $unserialize = @unserialize( $string, array( 'allowed_classes' => false ) );
+                                // (is_object() is false for __PHP_Incomplete_Class before PHP 7.2, hence the instanceof)
+                                $has_object = ( is_object( $unserialize ) || $unserialize instanceof __PHP_Incomplete_Class );
+                                if( is_array( $unserialize ) ) {
+                                    array_walk_recursive( $unserialize, function( $item ) use ( &$has_object ) {
+                                        if( is_object( $item ) || $item instanceof __PHP_Incomplete_Class ) $has_object = true;
+                                    } );
+                                }
+                                if ($unserialize !== false && !$has_object) {
                                     $meta_data[$field[1]]['value'] = $unserialize;
                                 }else{
                                     $meta_data[$field[1]]['value'] = $string;

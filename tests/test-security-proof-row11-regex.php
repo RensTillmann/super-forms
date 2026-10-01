@@ -94,7 +94,25 @@ class Test_Super_Forms_Proof_Row11_Regex_And_Length_Parity extends Super_Forms_U
             'nonce' => wp_create_nonce( 'super_save_form' ),
         );
         $_REQUEST = $_POST;
-        return $this->run_dying_handler( array( 'SUPER_Ajax', 'save_form' ) );
+        // 6.4 adaptation: on the 6.4 line save_form() answers {"form_id":N,"modifiedTime":T} and ends with
+        // wp_die() instead of echoing the bare form ID and calling die(). End the request the same raw way
+        // the 6.3 handler does and hand the callers the form ID they expect.
+        $raw_die = static function() {
+            return static function() { die(); };
+        };
+        add_filter( 'wp_die_ajax_handler', $raw_die, PHP_INT_MAX );
+        add_filter( 'wp_die_handler', $raw_die, PHP_INT_MAX );
+        try {
+            $result = $this->run_dying_handler( array( 'SUPER_Ajax', 'save_form' ) );
+        } finally {
+            remove_filter( 'wp_die_ajax_handler', $raw_die, PHP_INT_MAX );
+            remove_filter( 'wp_die_handler', $raw_die, PHP_INT_MAX );
+        }
+        $decoded = json_decode( trim( $result['output'] ), true );
+        if( is_array( $decoded ) && isset( $decoded['form_id'] ) && !isset( $decoded['error'] ) ) {
+            $result['output'] = (string) absint( $decoded['form_id'] );
+        }
+        return $result;
     }
 
     /**

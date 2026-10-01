@@ -197,11 +197,16 @@ class SUPER_Triggers {
         $string_attachments = $loops['string_attachments'];
         $email_body = $options['body'];
         $email_body = str_replace( '{loop_fields}', $email_loop, $email_body );
-        $email_body = apply_filters( 'super_before_sending_email_body_filter', $email_body, array( 'settings'=>$settings, 'email_loop'=>$email_loop, 'data'=>$data ) );
-        $email_body = SUPER_Common::email_tags( $email_body, $data, $settings );
+        // @since 6.3.318 - Same order as SUPER_Ajax::submit_form(): the `[` and `]` of submitted values stay inert until the
+        // author's shortcodes ran, their foreach/if/isset syntax until email_if_statements() (body filter) ran
+        $literalValues = array();
+        $email_body = SUPER_Common::email_tags( $email_body, $data, $settings, null, true, false, false, $literalValues );
         // @since 4.9.5 - RTL email setting
         if($options['rtl']=='true') $email_body = '<div dir="rtl" style="text-align:right;">' . $email_body . '</div>';
         $email_body = do_shortcode($email_body);
+        $email_body = SUPER_Common::restore_literal_tag_values( $email_body, $literalValues, false, true );
+        $email_body = apply_filters( 'super_before_sending_email_body_filter', $email_body, array( 'settings'=>$settings, 'email_loop'=>$email_loop, 'data'=>$data ) );
+        $email_body = SUPER_Common::restore_submitted_control_syntax( $email_body );
         $to = SUPER_Common::decode_email_header(SUPER_Common::email_tags($options['to'], $data, $settings));
         $from = SUPER_Common::decode_email_header(SUPER_Common::email_tags($options['from_email'], $data, $settings));
         $from_name = SUPER_Common::decode(SUPER_Common::email_tags($options['from_name'], $data, $settings));
@@ -239,7 +244,6 @@ class SUPER_Triggers {
         $attachments = apply_filters( 'super_before_sending_email_attachments_filter', $attachments, array( 'atts'=>$x, 'settings'=>$settings, 'data'=>$data, 'email_body'=>$email_body ) );
         $email_params['attachments'] = $attachments;
         // Send the email
-        error_log(json_encode($email_params));
         $mail = SUPER_Common::email( $email_params );
         // Return error message
         if(!empty($mail->ErrorInfo)){
@@ -304,7 +308,7 @@ class SUPER_Triggers {
                         if( !empty( $v['label'] ) ) {
                             // Replace %d with empty string if exists
                             $v['label'] = str_replace('%d', '', $v['label']);
-                            $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+                            $row = str_replace( '{loop_label}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode( $v['label'] ), $k, $data, $settings ), $row );
                         }else{
                             $row = str_replace( '{loop_label}', '', $row );
                         }
@@ -320,7 +324,7 @@ class SUPER_Triggers {
                                 if( $key==0 ) {
                                     if( !empty( $v['label'] ) ) {
                                         $v['label'] = str_replace('%d', '', $v['label']);
-                                        $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+                                        $row = str_replace( '{loop_label}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode( $v['label'] ), $k, $data, $settings ), $row );
                                     }else{
                                         $row = str_replace( '{loop_label}', '', $row );
                                     }
@@ -370,14 +374,15 @@ class SUPER_Triggers {
                             }
                         }
                     }
-                    $row = str_replace( '{loop_value}', $files_value, $row );
+                    // @since 6.3.318 - {loop_fields} rows hold submitted text: `{`, `[`, `]` and foreach/if/isset syntax become entities
+                    $row = str_replace( '{loop_value}', SUPER_Common::neutralize_submitted_loop_value( $files_value, $k, $data, $settings ), $row );
                 }else{
                     if( isset($v['type']) && (($v['type']=='form_id') || ($v['type']=='entry_id')) ) {
                         $row = '';
                     }else{
                         if( !empty( $v['label'] ) ) {
                             $v['label'] = str_replace('%d', '', $v['label']);
-                            $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+                            $row = str_replace( '{loop_label}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode( $v['label'] ), $k, $data, $settings ), $row );
                         }else{
                             $row = str_replace( '{loop_label}', '', $row );
                         }
@@ -385,12 +390,12 @@ class SUPER_Triggers {
                         if( isset( $v['admin_value'] ) ) {
                             // @since 3.9.0 - replace comma's with HTML
                             if( !empty($v['replace_commas']) ) $v['admin_value'] = str_replace( ',', $v['replace_commas'], $v['admin_value'] );
-                            $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['admin_value'] ), $row );
+                            $row = str_replace( '{loop_value}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode_textarea_v5( $v, $v['admin_value'] ), $k, $data, $settings ), $row );
                         }
                         if( isset( $v['value'] ) ) {
                             // @since 3.9.0 - replace comma's with HTML
                             if( !empty($v['replace_commas']) ) $v['value'] = str_replace( ',', $v['replace_commas'], $v['value'] );
-                            $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['value'] ), $row );
+                            $row = str_replace( '{loop_value}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode_textarea_v5( $v, $v['value'] ), $k, $data, $settings ), $row );
                         }
 
                     }

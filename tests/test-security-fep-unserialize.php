@@ -22,7 +22,7 @@ if( !class_exists( 'Super_Forms_Fep_Unserialize_Probe' ) ) {
 class Test_Security_Fep_Unserialize extends WP_UnitTestCase {
 
     private function meta_value_for( $string ) {
-        $source = file_get_contents( dirname( __DIR__ ) . '/add-ons/super-forms-front-end-posting/super-forms-front-end-posting.php' );
+        $source = file_get_contents( dirname( __DIR__ ) . '/src/add-ons/super-forms-front-end-posting/super-forms-front-end-posting.php' );
         $start = strpos( $source, '$unserialize = @unserialize( $string' );
         $this->assertNotFalse( $start, 'the hardened unserialize() call is missing' );
         $if = strpos( $source, 'if ($unserialize !== false && !$has_object) {', $start );

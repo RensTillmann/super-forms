@@ -160,6 +160,8 @@ if(!class_exists('SUPER_Listings')) :
             ), $x));
             $list_id = absint($_POST['list_id']);
             $entry_id = absint($_POST['entry_id']);
+            // The rendered form does not carry this list (e.g. a list on another form showing these entries): no dropdown
+            if( !isset($settings['_listings']['lists']) || !is_array($settings['_listings']['lists']) ) return $result;
             $lists = $settings['_listings']['lists'];
             // The list does not exist
             if(!isset($lists[$list_id])) return $result;
@@ -528,11 +530,11 @@ if(!class_exists('SUPER_Listings')) :
             return dirname( __FILE__ ) . '/form-blank-page-template.php';
         }
         public static function load_form_inside_modal() {
-            _deprecated_function( __METHOD__, '6.3.317', 'SUPER_Ajax::listings_edit_entry()' );
+            _deprecated_function( __METHOD__, '6.3.317', 'SUPER_Ajax::load_form_inside_modal()' );
             if( !class_exists('SUPER_Ajax') ) {
                 require_once( SUPER_PLUGIN_DIR . '/includes/class-ajax.php' );
             }
-            SUPER_Ajax::listings_edit_entry();
+            SUPER_Ajax::load_form_inside_modal();
         }
         public static function add_style($styles){
             $assets_path = str_replace( array( 'http:', 'https:' ), '', plugin_dir_url( __FILE__ ) ) . 'assets/';

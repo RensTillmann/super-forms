@@ -46,7 +46,7 @@ class Test_Super_Forms_Proof_Row4_Register_Login_Activation extends Super_Forms_
 
     public function set_up() {
         if( !class_exists( 'SUPER_Register_Login' ) ) {
-            require_once dirname( __DIR__ ) . '/add-ons/super-forms-register-login/super-forms-register-login.php';
+            require_once dirname( __DIR__ ) . '/src/add-ons/super-forms-register-login/super-forms-register-login.php';
         }
         $this->original_get = $_GET;
         parent::set_up();
@@ -58,6 +58,11 @@ class Test_Super_Forms_Proof_Row4_Register_Login_Activation extends Super_Forms_
             $hook = ( $method==='add_activation_code_element' )
                 ? 'super_shortcodes_after_form_elements_filter'
                 : 'super_submission_carrier_contracts_filter';
+            // 6.4 adaptation: on the 6.4 line the add-on registers the same element through
+            // add_verification_code_element() (super-forms-register-login.php init_hooks())
+            if( $method==='add_activation_code_element' && !method_exists( $register_login, $method ) ) {
+                $method = 'add_verification_code_element';
+            }
             if( !has_filter( $hook, array( $register_login, $method ) ) ) {
                 add_filter( $hook, array( $register_login, $method ), 10, 2 );
             }
@@ -106,7 +111,8 @@ class Test_Super_Forms_Proof_Row4_Register_Login_Activation extends Super_Forms_
             'publish',
             array(
                 array(
-                    'tag' => 'activation_code',
+                    // 6.4 adaptation: the 6.4 add-on renders this field as the `verification_code` element
+                    'tag' => 'verification_code',
                     'group' => 'form_elements',
                     'data' => array(),
                 ),
@@ -181,7 +187,8 @@ class Test_Super_Forms_Proof_Row4_Register_Login_Activation extends Super_Forms_
         $form_id = $this->create_login_form();
 
         $html = $this->render_login_form( $form_id, $code );
-        $this->assertStringContainsString( 'class="super-shortcode super-field super-activation_code', $html );
+        // 6.4 adaptation: element class follows the 6.4 `verification_code` tag
+        $this->assertStringContainsString( 'class="super-shortcode super-field super-verification_code', $html );
         $this->assertStringContainsString( 'name="activation_code"', $html );
         $this->assertStringContainsString( 'value="' . $code . '"', $html );
         $this->assertStringContainsString( 'name="user_login"', $html );
@@ -321,7 +328,7 @@ class Test_Super_Forms_Proof_Row4_Mailchimp_Interests extends Super_Forms_Upload
 
     public function set_up() {
         if( !class_exists( 'SUPER_Mailchimp' ) ) {
-            require_once dirname( __DIR__ ) . '/add-ons/super-forms-mailchimp/super-forms-mailchimp.php';
+            require_once dirname( __DIR__ ) . '/src/add-ons/super-forms-mailchimp/super-forms-mailchimp.php';
         }
         $this->original_get = $_GET;
         parent::set_up();

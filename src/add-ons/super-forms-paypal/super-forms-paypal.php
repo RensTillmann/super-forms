@@ -1369,23 +1369,171 @@ if( !class_exists('SUPER_PayPal') ) :
 		 *
 		 * @since       1.0.0
 		 */
-		/**
-		 * The pass-through `custom` value travels through the buyer's browser, so it is signed:
-		 * form ID, payment type, contact entry, author, post and user can then not be changed.
-		 */
+		/** Authenticate provider round-trip metadata before using target identifiers. */
 		private static function sign_custom( $fields ) {
 			$payload = implode( '|', array_map( 'strval', $fields ) );
 			return $payload . '|' . substr( hash_hmac( 'sha256', 'super_paypal_custom|' . $payload, wp_salt( 'auth' ) ), 0, 32 );
 		}
 
-		/** The six signed fields of a `custom` value, or false when it is unsigned or altered. */
+		/** Return only authenticated checkout metadata. */
 		private static function verified_custom( $raw ) {
 			if ( !is_string($raw) ) return false;
 			$parts = explode( '|', $raw );
-			if ( count($parts) !== 7 || !preg_match( '/\A[a-f0-9]{32}\z/', $parts[6] ) ) return false;
-			$fields = array_slice( $parts, 0, 6 );
+			if ( count($parts) !== 10 || !preg_match( '/\A[a-f0-9]{32}\z/', $parts[9] ) ) return false;
+			$fields = array_slice( $parts, 0, 9 );
 			$expected = substr( hash_hmac( 'sha256', 'super_paypal_custom|' . implode( '|', $fields ), wp_salt( 'auth' ) ), 0, 32 );
-			return hash_equals( $expected, $parts[6] ) ? $fields : false;
+			return hash_equals( $expected, $parts[9] ) ? $fields : false;
+		}
+
+		/** Derive the payment floor from the fields actually sent at checkout. */
+		private static function checkout_terms_from_form( $cmd, $html ) {
+			preg_match_all('/<input type="hidden" name="([^"]+)" value="([^"]*)"/', $html, $inputs, PREG_SET_ORDER);
+			$values = array();
+			foreach ( $inputs as $input ) {
+				$name = $input[1];
+				if ( isset($values[$name]) && preg_match('/\A(?:amount|quantity|a[123]|currency_code|discount_|shipping|tax|handling)/', $name) ) return false;
+				$values[$name] = html_entity_decode($input[2], ENT_QUOTES, 'UTF-8');
+			}
+			$currency = isset($values['currency_code']) ? strtoupper(trim($values['currency_code'])) : '';
+			if ( !isset(self::$currency_codes[$currency]) ) return false;
+			$number = static function( $name, $default = 0 ) use ( $values ) {
+				if ( !isset($values[$name]) ) return $default;
+				$value = trim((string)$values[$name]);
+				if ( !preg_match('/\A[0-9]{1,10}(?:\.[0-9]{1,4})?\z/', $value) ) return false;
+				return (float)$value;
+			};
+			$floor = 0;
+			if ( $cmd === '_xclick' ) {
+				$amount = $number('amount', false);
+				$quantity = !empty($values['undefined_quantity']) ? 1 : $number('quantity', 1);
+				if ( $amount === false || $amount <= 0 || $quantity === false || $quantity < 1 || floor($quantity) != $quantity ) return false;
+				$discounted_additional = max(0, $quantity - 1);
+				if ( isset($values['discount_num']) ) {
+					$discount_limit = trim((string)$values['discount_num']);
+					if ( !preg_match('/\A[0-9]{1,10}\z/', $discount_limit) ) return false;
+					$discounted_additional = min($discounted_additional, (float)$discount_limit);
+				}
+				$discount = $number('discount_amount') + $discounted_additional * $number('discount_amount2');
+				$discount += $amount * $number('discount_rate') / 100;
+				$discount += $amount * $discounted_additional * $number('discount_rate2') / 100;
+				$floor = $amount * $quantity - $discount + $number('shipping') + max(0, $quantity - 1) * $number('shipping2') + $number('tax') + $number('handling');
+			} elseif ( $cmd === '_cart' ) {
+				$items = array();
+				foreach ( array_keys($values) as $name ) {
+					if ( preg_match('/\Aamount_([1-9][0-9]*)\z/', $name, $match) ) $items[] = (int)$match[1];
+				}
+				sort($items);
+				if ( !$items || $items !== range(1, count($items)) ) return false;
+				$subtotal = 0;
+				foreach ( $items as $item ) {
+					$amount = $number('amount_' . $item, false);
+					$quantity = $number('quantity_' . $item, 1);
+					if ( $amount === false || $amount <= 0 || $quantity === false || $quantity < 1 || floor($quantity) != $quantity ) return false;
+					$line = $amount * $quantity;
+					$subtotal += $line;
+					if ( !isset($values['discount_amount_cart']) ) $floor -= $number('discount_amount_' . $item);
+					if ( !isset($values['discount_rate_cart']) ) $floor -= $line * $number('discount_rate_' . $item) / 100;
+					if ( !isset($values['tax_cart']) ) $floor += $number('tax_' . $item);
+					$floor += $number('shipping_' . $item) + max(0, $quantity - 1) * $number('shipping2_' . $item);
+				}
+				$floor += $subtotal - $number('discount_amount_cart') - $subtotal * $number('discount_rate_cart') / 100;
+				$floor += $number('tax_cart') + $number('handling_cart') + $number('handling');
+			} elseif ( $cmd === '_xclick-subscriptions' ) {
+				$floor = $number('a3', false);
+			} elseif ( $cmd === '_donations' ) {
+				// A configured amount is the minimum; zero permits a buyer-chosen donation.
+				$floor = $number('amount');
+			} else {
+				return false;
+			}
+			if ( $floor === false || ( $cmd !== '_donations' && $floor <= 0 ) || !is_finite((float)$floor) ) return false;
+			$plan = '';
+			if ( $cmd === '_xclick-subscriptions' ) {
+				$plan = self::subscription_plan_digest($currency, $values, false);
+				if ( $plan === false ) return false;
+			}
+			$precision = !empty(self::$currency_codes[$currency]['decimal']) ? 0 : 2;
+			$amounts = array();
+			if ( $cmd === '_xclick-subscriptions' ) {
+				for ( $i = 1; $i <= 3; $i++ ) {
+					$amount = $number('a' . $i);
+					if ( $amount === false ) return false;
+					if ( $amount > 0 ) $amounts[] = number_format($amount, $precision, '.', '');
+				}
+				return array($currency, implode(',', array_unique($amounts)), $plan);
+			}
+			return array($currency, number_format($floor, $precision, '.', ''), $plan);
+		}
+
+		/** Normalize a subscription plan for authenticated comparison. */
+		private static function subscription_plan_digest( $currency, $values, $callback ) {
+			$precision = !empty(self::$currency_codes[$currency]['decimal']) ? 0 : 2;
+			$plan = array();
+			for ( $i = 1; $i <= 3; $i++ ) {
+				$amount_key = $callback ? 'mc_amount' . $i : 'a' . $i;
+				$amount = isset($values[$amount_key]) ? trim((string)$values[$amount_key]) : '';
+				if ( $callback && $amount === '' && $currency === 'USD' && isset($values['amount' . $i]) ) $amount = trim((string)$values['amount' . $i]);
+				$period = $callback ? (isset($values['period' . $i]) ? (string)$values['period' . $i] : '') :
+					(isset($values['p' . $i], $values['t' . $i]) ? $values['p' . $i] . ' ' . $values['t' . $i] : '');
+				$period = strtoupper(trim(preg_replace('/\s+/', ' ', $period)));
+				if ( $i !== 3 && $amount === '' && $period === '' ) {
+					$plan[] = '';
+					continue;
+				}
+				if ( !preg_match('/\A[0-9]{1,10}(?:\.[0-9]{1,2})?\z/', $amount) || !preg_match('/\A[0-9]{1,2} [DWMY]\z/', $period) ) return false;
+				$plan[] = number_format((float)$amount, $precision, '.', '') . '@' . $period;
+			}
+			return substr(hash('sha256', implode(';', $plan)), 0, 32);
+		}
+
+		/** Check provider-confirmed subscription terms before recording signup. */
+		private static function subscription_plan_matches( $fields, $post ) {
+			if ( !is_array($fields) || count($fields) !== 9 || !preg_match('/\A[a-f0-9]{32}\z/', $fields[8]) ) return false;
+			$currency = strtoupper(trim($fields[6]));
+			if ( !isset(self::$currency_codes[$currency]) || !isset($post['mc_currency']) || !hash_equals($currency, strtoupper(trim((string)$post['mc_currency']))) ) return false;
+			$actual = self::subscription_plan_digest($currency, $post, true);
+			return $actual !== false && hash_equals($fields[8], $actual);
+		}
+
+		/** Match the paid amount and currency to the authenticated checkout floor. */
+		private static function checkout_terms_match( $fields, $post ) {
+			if ( !is_array($fields) || count($fields) !== 9 ) return false;
+			$currency = strtoupper(trim($fields[6]));
+			if ( !preg_match('/\A[A-Z]{3}\z/', $currency) || !isset(self::$currency_codes[$currency]) ) return false;
+			if ( !isset($post['mc_currency']) || !is_string($post['mc_currency']) || !hash_equals($currency, strtoupper(trim($post['mc_currency']))) ) return false;
+			if ( !isset($post['mc_gross']) || !is_scalar($post['mc_gross']) ) return false;
+			$factor = !empty(self::$currency_codes[$currency]['decimal']) ? 1 : 100;
+			if ( !preg_match('/\A[0-9]{1,10}(?:\.[0-9]{1,2})?\z/', (string)$post['mc_gross']) ) return false;
+			$paid = (int) round((float)$post['mc_gross'] * $factor);
+			if ( $paid <= 0 ) return false;
+			if ( $fields[8] !== '' ) {
+				if ( !preg_match('/\A[a-f0-9]{32}\z/', $fields[8]) || !isset($post['txn_type']) || $post['txn_type'] !== 'subscr_payment' ) return false;
+				$amounts = explode(',', (string)$fields[7]);
+				if ( count($amounts) > 3 ) return false;
+				$matched = false;
+				foreach ( $amounts as $amount ) {
+					if ( !preg_match('/\A[0-9]{1,10}(?:\.[0-9]{1,2})?\z/', $amount) ) return false;
+					if ( $paid === (int) round((float)$amount * $factor) ) $matched = true;
+				}
+				return $matched;
+			}
+			if ( !preg_match('/\A[0-9]{1,10}(?:\.[0-9]{1,2})?\z/', (string)$fields[7]) ) return false;
+			$floor = (int) round((float)$fields[7] * $factor);
+			return $floor >= 0 && $paid >= $floor;
+		}
+
+		/** Build the validation request from the exact provider body. */
+		private static function ipn_validation_body( $raw_post_data ) {
+			$req = 'cmd=_notify-validate';
+			foreach ( explode('&', $raw_post_data) as $keyval ) {
+				$keyval = explode('=', $keyval, 2);
+				if ( count($keyval) !== 2 ) continue;
+				if ( $keyval[0] === 'payment_date' && substr_count($keyval[1], '+') === 1 ) {
+					$keyval[1] = str_replace('+', '%2B', $keyval[1]);
+				}
+				$req .= '&' . $keyval[0] . '=' . urlencode( urldecode($keyval[1]) );
+			}
+			return $req;
 		}
 
 		/**
@@ -1397,16 +1545,7 @@ if( !class_exists('SUPER_PayPal') ) :
 			// Filterable for tests; the body PayPal posted is what gets echoed back for verification.
 			$raw_post_data = apply_filters( 'super_paypal_ipn_raw_body', file_get_contents('php://input') );
 			if ( !is_string($raw_post_data) || $raw_post_data === '' ) return 'INVALID';
-			$req = 'cmd=_notify-validate';
-			foreach ( explode('&', $raw_post_data) as $keyval ) {
-				$keyval = explode('=', $keyval, 2);
-				if ( count($keyval) !== 2 ) continue;
-				// Keep the plus in the payment_date string encoded as PayPal sent it.
-				if ( $keyval[0] === 'payment_date' && substr_count($keyval[1], '+') === 1 ) {
-					$keyval[1] = str_replace('+', '%2B', $keyval[1]);
-				}
-				$req .= '&' . $keyval[0] . '=' . urlencode( urldecode($keyval[1]) );
-			}
+			$req = self::ipn_validation_body($raw_post_data);
 			$response = wp_remote_post( $url, array(
 				'sslverify' => true,
 				'body' => $req,
@@ -1417,30 +1556,76 @@ if( !class_exists('SUPER_PayPal') ) :
 			return ( trim( wp_remote_retrieve_body($response) ) === 'VERIFIED' ) ? 'VERIFIED' : 'INVALID';
 		}
 
+		private static function ipn_record_matches_merchant( $post_id, $post_type, $ipn_sandbox ) {
+			$record = $post_id ? get_post( $post_id ) : null;
+			if ( !$record || $record->post_type !== $post_type || !$record->post_parent ) return false;
+			$settings = SUPER_Common::get_form_settings( $record->post_parent );
+			if ( !is_array( $settings ) || empty( $settings['paypal_merchant_email'] ) ) return false;
+			if ( ( isset( $settings['paypal_mode'] ) && $settings['paypal_mode'] === 'sandbox' ) !== $ipn_sandbox ) return false;
+			$receiver = isset( $_POST['receiver_email'] ) && is_string( $_POST['receiver_email'] ) // phpcs:ignore WordPress.Security.NonceVerification.Missing -- PayPal authenticates this server callback through verify_ipn_message before stored records or hooks change; browser nonces do not apply.
+				? strtolower( trim( wp_unslash( $_POST['receiver_email'] ) ) ) : ''; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized,WordPress.Security.NonceVerification.Missing -- Scalar receiver is unslashed and compared exactly to the configured merchant below; provider verification precedes the caller.
+			if ( $receiver === '' ) return false;
+			$merchants = explode( ',', $settings['paypal_merchant_email'] );
+			$merchant_matches = false;
+			foreach ( $merchants as $merchant ) {
+				if ( $receiver === strtolower( trim( $merchant ) ) ) {
+					$merchant_matches = true;
+					break;
+				}
+			}
+			if ( !$merchant_matches ) return false;
+			$original = get_post_meta( $post_id, '_super_txn_data', true );
+			if ( !is_array( $original ) ) return false;
+			if ( isset( $original['receiver_email'] ) && strtolower( trim( (string) $original['receiver_email'] ) ) !== $receiver ) return false;
+			if ( isset( $original['test_ipn'] ) && ( (string) $original['test_ipn'] === '1' ) !== $ipn_sandbox ) return false;
+			return true;
+		}
+
 		public function paypal_ipn() {
 
 			if ((isset($_GET['page'])) && ($_GET['page'] == 'super_paypal_ipn')) {
 				error_log('Super Forms: handling incoming Paypal IPN');
 	
-				// Only continue for transactions that contain 'payment_status'
-				if(empty($_POST['payment_status']) && $_POST['txn_type']!=='subscr_signup') {
+				$subscription_events = array('subscr_eot', 'subscr_failed', 'subscr_modify', 'recurring_payment_suspended', 'subscr_cancel');
+				$txn_type = isset($_POST['txn_type']) && is_string($_POST['txn_type']) ? sanitize_text_field(wp_unslash($_POST['txn_type'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing -- PayPal authenticates this server callback through verify_ipn_message before stored records or hooks change; browser nonces do not apply.
+				if(empty($_POST['payment_status']) && $txn_type!=='subscr_signup' && !in_array($txn_type, $subscription_events, true)) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- PayPal authenticates this server callback through verify_ipn_message before stored records or hooks change; browser nonces do not apply.
 					error_log('Super Forms: Paypal IPN did not contain `payment_status` and is not of type `subscr_signup`, do nothing');
-					error_log($_POST['txn_type']);
 					die();
 				} 
 
 				// Verify with PayPal before anything below reads or changes stored transactions/subscriptions.
-				$ipn_sandbox = ( isset($_POST['test_ipn']) && (string) $_POST['test_ipn'] === '1' );
+				$ipn_sandbox = ( isset($_POST['test_ipn']) && (string) $_POST['test_ipn'] === '1' ); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- PayPal server callbacks cannot carry a browser nonce; verify_ipn_message authenticates the exact message before changes.
 				$ipn_verdict = $this->verify_ipn_message( $ipn_sandbox );
 				if ( $ipn_verdict === 'ERROR' ) {
-					error_log('Super Forms: could not reach PayPal to verify an IPN, asking PayPal to retry');
+					error_log('Super Forms: could not reach PayPal to verify an IPN, asking PayPal to retry'); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Fixed operational diagnostic for a provider verification failure; contains no payment or request data.
 					http_response_code(503);
 					exit;
 				}
 				if ( $ipn_verdict !== 'VERIFIED' ) {
-					error_log('Super Forms: ignored an IPN that PayPal did not verify');
+					error_log('Super Forms: ignored an IPN that PayPal did not verify'); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Fixed operational diagnostic for a rejected callback; contains no payment or request data.
 					http_response_code(200);
 					exit;
+				}
+
+				$subscription_post_id = 0;
+				if ( in_array($txn_type, $subscription_events, true) ) {
+					$subscription_id = '';
+					if ( isset($_POST['recurring_payment_id']) && is_string($_POST['recurring_payment_id']) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- PayPal authenticates this server callback through verify_ipn_message before stored records or hooks change; browser nonces do not apply.
+						$subscription_id = sanitize_text_field(wp_unslash($_POST['recurring_payment_id'])); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- PayPal authenticates this server callback through verify_ipn_message before stored records or hooks change; browser nonces do not apply.
+					} elseif ( !isset($_POST['recurring_payment_id']) && isset($_POST['subscr_id']) && is_string($_POST['subscr_id']) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- PayPal authenticates this server callback through verify_ipn_message before stored records or hooks change; browser nonces do not apply.
+						$subscription_id = sanitize_text_field(wp_unslash($_POST['subscr_id'])); // phpcs:ignore WordPress.Security.NonceVerification.Missing -- PayPal authenticates this server callback through verify_ipn_message before stored records or hooks change; browser nonces do not apply.
+					}
+					global $wpdb;
+					if ( is_string($subscription_id) && $subscription_id !== '' ) {
+						$subscription_post_id = $wpdb->get_var( $wpdb->prepare(
+							"SELECT post_id FROM $wpdb->postmeta AS meta INNER JOIN $wpdb->posts AS post ON post.id = meta.post_id WHERE post.post_type = 'super_paypal_sub' AND meta_key = '_super_sub_id' AND meta_value = %s",
+							sanitize_text_field($subscription_id)
+						) );
+					}
+					if ( !self::ipn_record_matches_merchant($subscription_post_id, 'super_paypal_sub', $ipn_sandbox) ) {
+						http_response_code(200);
+						exit;
+					}
 				}
 
 				// txn_type options are:
@@ -1474,18 +1659,8 @@ if( !class_exists('SUPER_PayPal') ) :
 				if( (isset($_POST['txn_type'])) && (($_POST['txn_type']=='subscr_modify') || ($_POST['txn_type']=='recurring_payment_suspended') || ($_POST['txn_type']=='subscr_cancel')) ) {
 					error_log('Super Forms: Paypal IPN subscription is being modified, suspended or canceled');
 
-					// Get subscription ID
-					if( isset($_POST['subscr_id']) ) {
-						$sub_id = sanitize_text_field( $_POST['subscr_id'] );
-					}
-					if( isset($_POST['recurring_payment_id']) ) {
-						$sub_id = sanitize_text_field( $_POST['recurring_payment_id'] );
-					}
+					$post_id = $subscription_post_id;
 
-					// Get ID based on ipn tracking ID
-					global $wpdb;
-					$post_id = $wpdb->get_var( $wpdb->prepare( "SELECT post_id FROM $wpdb->postmeta AS meta INNER JOIN $wpdb->posts AS post ON post.id = meta.post_id WHERE post.post_type = 'super_paypal_sub' AND meta_key = '_super_sub_id' AND meta_value = %s", isset($sub_id) ? $sub_id : '' ) );
-					
 					// Update data accordingly
 					if( isset($_POST['subscr_id']) ) {
 						update_post_meta( $post_id, '_super_sub_id', $_POST['subscr_id'] );
@@ -1530,6 +1705,10 @@ if( !class_exists('SUPER_PayPal') ) :
 					global $wpdb;
 					$parent_txn_id = sanitize_text_field($_POST['parent_txn_id']);
 					$post_id = $wpdb->get_var( $wpdb->prepare( "SELECT ID FROM $wpdb->posts WHERE post_type = 'super_paypal_txn' AND post_title = %s", $parent_txn_id ) );
+					if ( !self::ipn_record_matches_merchant( $post_id, 'super_paypal_txn', $ipn_sandbox ) ) {
+						http_response_code(200);
+						exit;
+					}
 					$post_txn_data = get_post_meta( $post_id, '_super_txn_data', true );
 					$post_txn_data['payment_status'] = 'Refunded';
 					update_post_meta( $post_id, '_super_txn_data', $post_txn_data );
@@ -1544,12 +1723,12 @@ if( !class_exists('SUPER_PayPal') ) :
 				// First retrieve the form settings
 				// Only a signed `custom` may point this payment at an entry, post or user. Payments started
 				// before signing was added are still recorded, but change nothing else.
-				$custom_raw = isset($_POST['custom']) ? wp_unslash( (string) $_POST['custom'] ) : '';
+				$custom_raw = isset($_POST['custom']) ? wp_unslash( (string) $_POST['custom'] ) : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Provider verified above; verified_custom checks the HMAC on these exact bytes before permitting entry/post/user changes.
 				$custom_fields = self::verified_custom( $custom_raw );
-				$custom = apply_filters( 'super_paypal_custom_data_filter', ( $custom_fields !== false ) ? implode( '|', $custom_fields ) : $custom_raw );
+				$custom = apply_filters( 'super_paypal_custom_data_filter', ( $custom_fields !== false ) ? implode( '|', array_slice($custom_fields, 0, 6) ) : $custom_raw );
 				$custom = explode('|', $custom);
 				if ( $custom_fields === false ) {
-					error_log('Super Forms: PayPal IPN without a valid signed custom value; recording the payment only');
+					error_log('Super Forms: PayPal IPN without a valid signed custom value; recording the payment only'); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Fixed operational diagnostic for rejected target authorization; contains no payment or request data.
 					foreach ( array( 2, 3, 4, 5 ) as $index ) {
 						$custom[$index] = 0;
 					}
@@ -1577,6 +1756,11 @@ if( !class_exists('SUPER_PayPal') ) :
 				// (live or sandbox) matches the PayPal environment that verified it.
 				if (!isset($settings['paypal_mode'])) $settings['paypal_mode'] = '';
 				if ( ( $settings['paypal_mode'] == 'sandbox' ) !== $ipn_sandbox ) return;
+				if ( isset($_POST['txn_type']) && $_POST['txn_type'] === 'subscr_signup' && $custom_fields !== false && !self::subscription_plan_matches($custom_fields, $_POST) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- PayPal authenticates this server callback through verify_ipn_message before stored records or hooks change; browser nonces do not apply.
+					error_log('Super Forms: PayPal subscription terms did not match checkout'); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Fixed operational rejection diagnostic; no request or payment data is logged.
+					http_response_code(200);
+					exit;
+				}
 				if ( $ipn_verdict === 'VERIFIED' ) {
 					$post_type = 'super_paypal_txn';
 					if( $_POST['txn_type']=='subscr_signup' ) {
@@ -1609,6 +1793,8 @@ if( !class_exists('SUPER_PayPal') ) :
 						$count = get_option( 'super_paypal_txn_count', 0 );
 						update_option( 'super_paypal_txn_count', ($count+1) );
 					}
+					// Completion effects require a successful payment; subscription signup is recorded above.
+					if ( isset($_POST['payment_status']) && $_POST['payment_status'] === 'Completed' && self::checkout_terms_match($custom_fields, $_POST) ) { // phpcs:ignore WordPress.Security.NonceVerification.Missing -- PayPal authenticates this server callback through verify_ipn_message before stored records or hooks change; browser nonces do not apply.
 					if( (isset($custom[2])) && ($custom[2]!=0) ) {
 						$contact_entry_id = absint($custom[2]);
 
@@ -1652,7 +1838,7 @@ if( !class_exists('SUPER_PayPal') ) :
 									);
 									$result = wp_update_user( $userdata );
 									if( is_wp_error( $result ) ) {
-										throw new Exception($result->get_error_message());
+										throw new Exception(esc_html($result->get_error_message()));
 									}
 								}
 							}
@@ -1724,8 +1910,8 @@ if( !class_exists('SUPER_PayPal') ) :
 										if( !empty( $v['label'] ) ) {
 											// Replace %d with empty string if exists
 											$v['label'] = str_replace('%d', '', $v['label']);
-											$row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
-											$confirm_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $confirm_row );
+											$row = str_replace( '{loop_label}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode( $v['label'] ), $k, $data, $settings ), $row );
+											$confirm_row = str_replace( '{loop_label}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode( $v['label'] ), $k, $data, $settings ), $confirm_row );
 										}else{
 											$row = str_replace( '{loop_label}', '', $row );
 											$confirm_row = str_replace( '{loop_label}', '', $confirm_row );
@@ -1737,8 +1923,8 @@ if( !class_exists('SUPER_PayPal') ) :
 											if( $key==0 ) {
 												if( !empty( $v['label'] ) ) {
 													$v['label'] = str_replace('%d', '', $v['label']);
-													$row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
-													$confirm_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $confirm_row );
+													$row = str_replace( '{loop_label}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode( $v['label'] ), $k, $data, $settings ), $row );
+													$confirm_row = str_replace( '{loop_label}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode( $v['label'] ), $k, $data, $settings ), $confirm_row );
 												}else{
 													$row = str_replace( '{loop_label}', '', $row );
 													$confirm_row = str_replace( '{loop_label}', '', $confirm_row );
@@ -1758,8 +1944,8 @@ if( !class_exists('SUPER_PayPal') ) :
 											}
 										}
 									}
-									$row = str_replace( '{loop_value}', $files_value, $row );
-									$confirm_row = str_replace( '{loop_value}', $files_value, $confirm_row );
+									$row = str_replace( '{loop_value}', SUPER_Common::neutralize_submitted_loop_value( $files_value, $k, $data, $settings ), $row );
+									$confirm_row = str_replace( '{loop_value}', SUPER_Common::neutralize_submitted_loop_value( $files_value, $k, $data, $settings ), $confirm_row );
 								}else{
 									if( isset($v['type']) && (($v['type']=='form_id') || ($v['type']=='entry_id')) ) {
 										$row = '';
@@ -1768,8 +1954,8 @@ if( !class_exists('SUPER_PayPal') ) :
 				
 										if( !empty( $v['label'] ) ) {
 											$v['label'] = str_replace('%d', '', $v['label']);
-											$row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
-											$confirm_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $confirm_row );
+											$row = str_replace( '{loop_label}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode( $v['label'] ), $k, $data, $settings ), $row );
+											$confirm_row = str_replace( '{loop_label}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode( $v['label'] ), $k, $data, $settings ), $confirm_row );
 										}else{
 											$row = str_replace( '{loop_label}', '', $row );
 											$confirm_row = str_replace( '{loop_label}', '', $confirm_row );
@@ -1779,21 +1965,21 @@ if( !class_exists('SUPER_PayPal') ) :
 											// @since 3.9.0 - replace comma's with HTML
 											if( !empty($v['replace_commas']) ) $v['admin_value'] = str_replace( ',', $v['replace_commas'], $v['admin_value'] );
 											
-											$row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['admin_value'] ), $row );
-											$confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['admin_value'] ), $confirm_row );
+											$row = str_replace( '{loop_value}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode_textarea_v5( $v, $v['admin_value'] ), $k, $data, $settings ), $row );
+											$confirm_row = str_replace( '{loop_value}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode_textarea_v5( $v, $v['admin_value'] ), $k, $data, $settings ), $confirm_row );
 										}
 										if( isset( $v['paypal_completed_value'] ) ) {
 											// @since 3.9.0 - replace comma's with HTML
 											if( !empty($v['replace_commas']) ) $v['paypal_completed_value'] = str_replace( ',', $v['replace_commas'], $v['paypal_completed_value'] );
 											
-											$confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['paypal_completed_value'] ), $confirm_row );
+											$confirm_row = str_replace( '{loop_value}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode_textarea_v5( $v, $v['paypal_completed_value'] ), $k, $data, $settings ), $confirm_row );
 										}
 										if( isset( $v['value'] ) ) {
 											// @since 3.9.0 - replace comma's with HTML
 											if( !empty($v['replace_commas']) ) $v['value'] = str_replace( ',', $v['replace_commas'], $v['value'] );
 											
-											$row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['value'] ), $row );
-											$confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['value'] ), $confirm_row );
+											$row = str_replace( '{loop_value}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode_textarea_v5( $v, $v['value'] ), $k, $data, $settings ), $row );
+											$confirm_row = str_replace( '{loop_value}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode_textarea_v5( $v, $v['value'] ), $k, $data, $settings ), $confirm_row );
 										}
 									}
 								}
@@ -1832,7 +2018,9 @@ if( !class_exists('SUPER_PayPal') ) :
 							}
 						}
 
-						$email_body = SUPER_Common::email_tags( $email_body, $data, $settings );
+						// @since 6.3.318 - The `[` and `]` of submitted values stay inert until the author's shortcodes ran
+						$literalValues = array();
+						$email_body = SUPER_Common::email_tags( $email_body, $data, $settings, null, true, false, false, $literalValues );
 
 						// @since 3.1.0 - optionally automatically add line breaks
 						if(!isset($settings['paypal_completed_body_nl2br'])) $settings['paypal_completed_body_nl2br'] = 'true';
@@ -1843,7 +2031,10 @@ if( !class_exists('SUPER_PayPal') ) :
 						if($settings['paypal_completed_rtl']=='true') $email_body = '<div dir="rtl" style="text-align:right;">' . $email_body . '</div>';
 						
 						$email_body = do_shortcode($email_body);
+						// @since 6.3.318 - The foreach/if/isset syntax of submitted values stays inert until email_if_statements() ran
+						$email_body = SUPER_Common::restore_literal_tag_values( $email_body, $literalValues, false, true );
 						$email_body = apply_filters( 'super_before_sending_confirm_body_filter', $email_body, array( 'settings'=>$settings, 'confirm_loop'=>$confirm_loop, 'data'=>$data ) );
+						$email_body = SUPER_Common::restore_submitted_control_syntax( $email_body );
 						if( !isset( $settings['paypal_completed_from_type'] ) ) $settings['paypal_completed_from_type'] = 'default';
 						if( $settings['paypal_completed_from_type']=='default' ) {
 							$settings['paypal_completed_from_name'] = get_option( 'blogname' );
@@ -1897,18 +2088,21 @@ if( !class_exists('SUPER_PayPal') ) :
 						$confirm_attachments = apply_filters( 'super_before_sending_email_confirm_attachments_filter', $confirm_attachments, array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$email_body )  );
 
 						// Send the email
-						$mail = SUPER_Common::email( array( 'to'=>$to, 'from'=>$from, 'from_name'=>$from_name, 'custom_reply'=>$custom_reply, 'reply'=>$reply, 'reply_name'=>$reply_name, 'cc'=>$cc, 'bcc'=>$bcc, 'subject'=>$subject, 'body'=>$email_body, 'settings'=>$settings, 'attachments'=>$attachments, 'string_attachments'=>$confirm_string_attachments ));
+						$mail = SUPER_Common::email( array( 'to'=>$to, 'from'=>$from, 'from_name'=>$from_name, 'custom_reply'=>$custom_reply, 'reply'=>$reply, 'reply_name'=>$reply_name, 'cc'=>$cc, 'bcc'=>$bcc, 'subject'=>$subject, 'body'=>$email_body, 'settings'=>$settings, 'attachments'=>$confirm_attachments, 'string_attachments'=>$confirm_string_attachments ));
 
 						// Return error message
 						if( !empty( $mail->ErrorInfo ) ) {
 							$msg = esc_html__( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
-							SUPER_Common::output_message( array( 
+							SUPER_Common::output_message( array(
 								'msg'=>$msg,
 								'form_id'=>absint($form_id)
 							));
 						}
 					}
 
+					}
+
+					// Preserve notification of recorded, provider-verified messages, including Pending.
 					do_action( 'super_after_paypal_ipn_payment_verified', array( 'post_id'=>$post_id, 'post'=>$_POST ) );
 
 				}
@@ -2128,7 +2322,9 @@ if( !class_exists('SUPER_PayPal') ) :
 				$message .= '<input type="hidden" name="currency_code" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_currency_code'], $data, $settings)) . '" />';
 				
 				// Pass-through variable for your own tracking purposes, which buyers do not see.
-				$message .= '<input type="hidden" name="custom" value="' . esc_attr(self::sign_custom($custom)) . '">';
+				// @since 6.3.318 - Signed together with the checkout terms (amount, currency, plan) once the form is complete, see below
+				$custom_placeholder = 'super-paypal-custom-' . wp_generate_uuid4();
+				$message .= '<input type="hidden" name="custom" value="' . esc_attr($custom_placeholder) . '">';
 				
 				// Pass-through variable you can use to identify your invoice number for this purchase.
 				if( !empty($settings['paypal_invoice']) ) {
@@ -2239,7 +2435,7 @@ if( !class_exists('SUPER_PayPal') ) :
 							$message .= '<input type="hidden" name="discount_rate" value="' . esc_attr($paypal_item_discount_rate) . '">';
 							$message .= '<input type="hidden" name="discount_rate2" value="' . esc_attr($paypal_item_discount_rate) . '">';
 						}
-						if( !empty($settings['paypal_item_discount_num']) ) {
+						if( isset($settings['paypal_item_discount_num']) && $settings['paypal_item_discount_num']!=='' ) {
 							$message .= '<input type="hidden" name="discount_num" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_item_discount_num'], $data, $settings)) . '">';
 						}
 					}
@@ -2265,6 +2461,7 @@ if( !class_exists('SUPER_PayPal') ) :
 						if( ($amount==0) || ($quantity==0) ) continue;
 						// Reset key to correct key, because paypal doesn't like it when we skip amount_1 and go straight to amount_2
 						$k = $absolute_key;
+						$absolute_key++;
 
 						$amount = self::tofloat($amount);
 						$message .= '<input type="hidden" name="amount_' . ($k+1) . '" value="' . esc_attr($amount) . '">';
@@ -2312,6 +2509,7 @@ if( !class_exists('SUPER_PayPal') ) :
 								$i = 2;
 								while (true) {
 								    if (!isset($data[$origin_name . '_' . $i])) break;
+									$absolute_key++;
 									$field_names = array(
 										'amount',
 										'quantity',
@@ -2334,7 +2532,7 @@ if( !class_exists('SUPER_PayPal') ) :
 												// @since 1.0.3 - in case static value is used
 												$value = $options[$ii];
 											}
-											$message .= '<input type="hidden" name="' . $v . '_' . $i . '" value="' . $value . '">';
+											$message .= '<input type="hidden" name="' . $v . '_' . $absolute_key . '" value="' . esc_attr($value) . '">';
 										}
 										$ii++;
 									}
@@ -2343,7 +2541,6 @@ if( !class_exists('SUPER_PayPal') ) :
 								break;
 							}
 						}
-						$absolute_key++;
 					}
 				}
 
@@ -2385,6 +2582,12 @@ if( !class_exists('SUPER_PayPal') ) :
 					$message .= '<input type="hidden" name="src" value="1">';
 				}
 			
+				$checkout_terms = self::checkout_terms_from_form($cmd, $message);
+				if ( $checkout_terms === false ) {
+					error_log('Super Forms: PayPal checkout terms could not be resolved'); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Fixed operational diagnostic for unresolved checkout terms; contains no request or payment data.
+					return;
+				}
+				$message = str_replace($custom_placeholder, esc_attr(self::sign_custom(array_merge($custom, $checkout_terms))), $message);
 				$message .= '</form>';
 				$message .= '<script data-cfasync="false" type="text/javascript" language="javascript">';
 				$message .= 'document.getElementById("super_paypal_' . $atts['post']['form_id'] . '").submit();';

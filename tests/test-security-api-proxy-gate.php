@@ -25,7 +25,7 @@ class Test_Security_Api_Proxy_Gate extends WP_UnitTestCase {
 	public static function set_up_before_class() {
 		parent::set_up_before_class();
 		if ( ! class_exists( 'SUPER_Ajax' ) ) {
-			require_once dirname( __DIR__ ) . '/includes/class-ajax.php';
+			require_once dirname( __DIR__ ) . '/src/includes/class-ajax.php';
 		}
 	}
 

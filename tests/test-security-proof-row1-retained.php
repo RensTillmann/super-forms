@@ -75,6 +75,12 @@ class Test_Super_Forms_Proof_Row1_Retained_Listings_Lifecycle extends Super_Form
         $output = ob_get_clean();
         $_POST = $original_post;
         $_GET = $original_get;
+        // 6.4 adaptation: the 6.4 Listings modal answers JSON ({"error":..,"html":..,"entry_data":..})
+        // instead of printing the form HTML, assert against the rendered form HTML it carries
+        $decoded = json_decode( $output, true );
+        if( is_array( $decoded ) && isset( $decoded['html'] ) && is_string( $decoded['html'] ) ) {
+            return $decoded['html'];
+        }
         return $output;
     }
 

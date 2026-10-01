@@ -24,6 +24,12 @@ abstract class Super_Forms_Upload_Security_Test_Case extends WP_UnitTestCase {
         if( !class_exists('SUPER_Ajax') ) {
             require_once SUPER_PLUGIN_DIR . '/includes/class-ajax.php';
         }
+        // From the LTS 6.3.318 test base: the contact-entry post statuses are registered only on admin
+        // requests and WP_Query silently drops unregistered statuses, so entry queries in this
+        // frontend-context process need them registered.
+        if( !get_post_status_object( 'super_unread' ) ) {
+            SUPER_Forms::custom_contact_entry_status();
+        }
 
         $this->original_post = $_POST;
         $this->original_request = $_REQUEST;
@@ -155,6 +161,94 @@ abstract class Super_Forms_Upload_Security_Test_Case extends WP_UnitTestCase {
         }
     }
 
+    /*
+     * Helpers the imported 6.3.318 security tests use (copied from the LTS tests/test-security-upload-00-base.php).
+     * The 6.4 set_up() already seeds a browser session, so bootstrap_shared_anonymous_session() is a no-op then.
+     */
+    protected function require_php_received_upload() {
+        if( PHP_SAPI!=='cli' && PHP_SAPI!=='phpdbg' ) {
+            return;
+        }
+        $this->markTestSkipped(
+            'A successful wp_handle_upload() needs a PHP-received upload (is_uploaded_file); see tests/UNVERIFIABLE-http-headers.md.'
+        );
+    }
+
+    protected function strict_security_pcntl_required() {
+        $flag = getenv( 'SUPER_FORMS_STRICT_SECURITY_TESTS' );
+        return is_string($flag) && $flag!=='' && $flag!=='0' && strtolower($flag)!=='false';
+    }
+
+    protected function require_process_forking( $message ) {
+        if( function_exists( 'pcntl_fork' ) && function_exists( 'pcntl_waitpid' ) && function_exists( 'pcntl_exec' ) ) {
+            return;
+        }
+        if( $this->strict_security_pcntl_required() ) {
+            $this->fail( $message );
+        }
+        $this->markTestSkipped( $message );
+    }
+
+    protected function bootstrap_shared_anonymous_session() {
+        if( get_current_user_id()!==0 ) {
+            return;
+        }
+        if( isset( $_COOKIE['_sfs_id'] ) && is_string( $_COOKIE['_sfs_id'] ) && $_COOKIE['_sfs_id']!=='' ) {
+            return;
+        }
+        // PHPUnit runs under the CLI SAPI, where headers_sent() is already true once the
+        // runner emits progress output, so startClientSession() can never publish a fresh
+        // Set-Cookie header: includes/class-common.php:610-612 returns false for a brand new
+        // session and the $publish_session closure (includes/class-common.php:559-577) refuses
+        // as well. Seed the exact cookie/option pair a real first response persists, then
+        // require the hardened adoption path to accept it unchanged without re-issuing.
+        $session_id = bin2hex( random_bytes( 32 ) );
+        $now = time();
+        // The third record matters: SUPER_Common::setClientData() DELETES a session row
+        // that drops below three keys (includes/class-common.php:649-657), and the CLI SAPI
+        // can never publish a replacement cookie. Any `value => false` client-data write
+        // would otherwise destroy the whole session - including the process-wide shutdown
+        // handler SUPER_Register_Login arms once per process
+        // (add-ons/super-forms-register-login/super-forms-register-login.php:1148-1153),
+        // which every forked child inherits and runs on exit. A live browser session always
+        // carries at least one unrelated record; the other seeding helpers do the same
+        // (tests/test-security-listings.php:43-51, tests/test-security-proof-row1-retained.php:53-56).
+        update_option( '_sfsdata_' . $session_id, array(
+            'expires' => $now + HOUR_IN_SECONDS,
+            'exp_var' => $now + ( 20 * MINUTE_IN_SECONDS ),
+            'session_marker' => array(
+                'expires' => $now + HOUR_IN_SECONDS,
+                'exp_var' => $now + ( 20 * MINUTE_IN_SECONDS ),
+                'value' => 'seeded-session-marker',
+            ),
+        ), 'no' );
+        $_COOKIE['_sfs_id'] = $session_id;
+        $adopted = SUPER_Common::startClientSession( array( 'force' => true ) );
+        $this->assertTrue( is_string( $adopted ) && $adopted!=='' );
+        $this->assertSame( $session_id, $adopted );
+        $this->assertSame( $session_id, $_COOKIE['_sfs_id'] );
+    }
+
+    protected function set_submit_request( $form_id, $data=array(), $extra_post=array() ) {
+        $this->set_request(
+            $form_id,
+            $data,
+            array(),
+            array_merge(
+                array(
+                    'action' => 'super_submit_form',
+                    'i18n' => '',
+                ),
+                $extra_post
+            )
+        );
+    }
+
+    protected function assertRenderedInputValue( $html, $name, $value ) {
+        $pattern = '/<input\b[^>]*(?:name="' . preg_quote( (string) $name, '/' ) . '"[^>]*value="' . preg_quote( (string) $value, '/' ) . '"|value="' . preg_quote( (string) $value, '/' ) . '"[^>]*name="' . preg_quote( (string) $name, '/' ) . '")[^>]*>/';
+        $this->assertSame( 1, preg_match( $pattern, $html ), $html );
+    }
+
     protected function configure_csrf( $value ) {
         $settings = array(
             'csrf_check' => $value,
@@ -211,9 +305,12 @@ abstract class Super_Forms_Upload_Security_Test_Case extends WP_UnitTestCase {
         $_FILES = $files;
     }
 
-    protected function run_dying_handler( $callback ) {
+    protected function run_dying_handler( $callback, $bootstrap_session=true ) {
         if( !function_exists( 'pcntl_fork' ) || !function_exists( 'pcntl_waitpid' ) || !function_exists( 'pcntl_exec' ) ) {
             $this->markTestSkipped( 'The raw-die endpoint regression requires pcntl fork, wait, and exec support.' );
+        }
+        if( $bootstrap_session ) {
+            $this->bootstrap_shared_anonymous_session();
         }
 
         $capture = tempnam( sys_get_temp_dir(), 'sf-upload-die-' );

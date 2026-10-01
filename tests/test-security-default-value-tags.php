@@ -704,19 +704,16 @@ class Test_Security_Default_Value_Tags extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( $this->shortcode_output(), $html );
 		$this->assertSame( 0, $this->shortcode_calls );
 
-		// Row 1 keeps the field name, the next rows get a _2, _3 suffix (class-common.php:983-987).
+		// 6.4 adaptation: the 6.4 line does not render saved dynamic column rows on the server (no
+		// `_super_dynamic_data` handling in SUPER_Shortcodes::column(); the browser adds rows, and
+		// SUPER.populate_form_with_entry_data() fills values through the DOM), so only the author's first
+		// row is in the HTML. The saved row values never reach get_default_value() there; what is
+		// asserted is that none of them resolved or ran a shortcode, and that the rendered row keeps the
+		// author default (data-absolute-default, used to reset an added row) with its {option_*} resolved.
 		$row1 = $this->named_input( $html, $this->field );
-		$row2 = $this->named_input( $html, $this->field . '_2' );
-		$row3 = $this->named_input( $html, $this->field . '_3' );
-		$this->assertSame( $smtp_tag, $this->attribute( $row1, 'value' ) );
-		$this->assertSame( $probe, $this->attribute( $row2, 'value' ) );
-		$this->assertSame( '{option_' . $this->custom_option . '}', $this->attribute( $row3, 'value' ) );
-
-		// data-absolute-default (used to reset an added row) is the author default, never the row
-		// value, and the author's {option_*} tag still resolves there.
-		foreach ( array( $row1, $row2, $row3 ) as $row ) {
-			$this->assertSame( 'Probe blog ' . $this->scope, $this->attribute( $row, 'data-absolute-default' ) );
-		}
+		$this->assertSame( 0, preg_match( '/\sname="' . preg_quote( $this->field . '_2', '/' ) . '"/', $html ) );
+		$this->assertStringNotContainsString( $this->option_sentinel, $html );
+		$this->assertSame( 'Probe blog ' . $this->scope, $this->attribute( $row1, 'data-absolute-default' ) );
 
 		// The marker replace_tags_dynamic_columns() sets makes get_default_value() literal by itself.
 		$extra = array( '_super_literal_value' => true );
@@ -743,11 +740,11 @@ class Test_Security_Default_Value_Tags extends WP_UnitTestCase {
 			)
 		);
 		$html = $this->render( $form_id );
+		// 6.4 adaptation: saved dynamic column rows are added in the browser (see
+		// test_dynamic_column_progress_values_render_literally()), only the author's first row is rendered here.
 		$row1 = $this->named_input( $html, $this->field );
-		$row2 = $this->named_input( $html, $this->field . '_2' );
 		$this->assertSame( 'Probe blog ' . $this->scope, $this->attribute( $row1, 'value' ) );
-		$this->assertSame( 'typed-' . $this->scope, $this->attribute( $row2, 'value' ) );
-		$this->assertSame( 'Probe blog ' . $this->scope, $this->attribute( $row2, 'data-absolute-default' ) );
+		$this->assertSame( 'Probe blog ' . $this->scope, $this->attribute( $row1, 'data-absolute-default' ) );
 
 		// With an empty author default the absolute default stays empty, it never becomes the row value.
 		$form_id = $this->create_dynamic_column_form( '' );
@@ -757,7 +754,9 @@ class Test_Security_Default_Value_Tags extends WP_UnitTestCase {
 		);
 		$html = $this->render( $form_id );
 		$row  = $this->named_input( $html, $this->field );
-		$this->assertSame( '{option_admin_email}', $this->attribute( $row, 'value' ) );
+		// 6.4 adaptation: the saved row is not rendered on the server, the rendered row keeps the (empty) author default
+		$this->assertContains( $this->attribute( $row, 'value' ), array( null, '' ) );
+		$this->assertStringNotContainsString( get_option( 'admin_email' ), $html );
 		$this->assertSame( '', $this->attribute( $row, 'data-absolute-default' ) );
 	}
 

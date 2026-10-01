@@ -24,7 +24,7 @@ class Test_Security_Register_Login_Meta_Unserialize extends WP_UnitTestCase {
     public function set_up() {
         parent::set_up();
         if( !class_exists( 'SUPER_Register_Login' ) ) {
-            require_once dirname( __DIR__ ) . '/add-ons/super-forms-register-login/super-forms-register-login.php';
+            require_once dirname( __DIR__ ) . '/src/add-ons/super-forms-register-login/super-forms-register-login.php';
         }
     }
 
