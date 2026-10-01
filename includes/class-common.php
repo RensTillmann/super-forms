@@ -3905,8 +3905,10 @@ class SUPER_Common {
      * stalls every form render and its error text is never printed into the page.
      *
      * - Only the three licence slugs are cached, under <key> = md5(slug|home) where
-     *   home is the stored home option (self::api_transient_key()), not get_home_url():
+     *   home is the stored home option (self::api_transient_home()), not get_home_url():
      *   a WP_HOME that follows the Host header would otherwise create rows per host.
+     *   The request sends that same stored home as home_url, so a cached answer is
+     *   always the answer for the site's own home and never for a request's Host.
      *   So at most 3 fresh transients, 3 last-known-good options, 3 locks and one
      *   breaker exist. Any other slug is fetched every time and never stored.
      * - A valid answer (HTTP 200, JSON, status 200) is stored byte-identical in the
@@ -3988,19 +3990,30 @@ class SUPER_Common {
     }
 
     /**
-     * Cache key of a licence slug: md5(slug|home) with the home URL as stored in the
-     * database. get_home_url() and get_option('home') both return WP_HOME when it is
-     * defined, and a WP_HOME built from the Host header differs per request, which
-     * would create new option rows for every host name a request uses. The stored
-     * value is read from the autoloaded options (no extra query); the filtered
+     * The site identity for the licence API: the home URL as stored in the database
+     * (of the current blog on multisite). get_home_url() and get_option('home') both
+     * return WP_HOME when it is defined, and a WP_HOME built from the Host header (or a
+     * home_url/option_home domain-mapping filter) differs per request. Both the cache key
+     * and the home_url the request sends use this value, so the answer the API gives is
+     * always cached under the home it was asked about: a request with another Host can
+     * neither create new rows nor store another domain's answer for the whole site.
+     * The stored value is read from the autoloaded options (no extra query); the filtered
      * get_option('home') is only the fallback when it is not autoloaded.
      *
      * @return string
     */
-    private static function api_transient_key($slug) {
+    private static function api_transient_home() {
         $alloptions = wp_load_alloptions();
-        $home = ( isset($alloptions['home']) && is_string($alloptions['home']) ? $alloptions['home'] : (string) get_option('home') );
-        return md5($slug.'|'.$home);
+        return ( isset($alloptions['home']) && is_string($alloptions['home']) ? $alloptions['home'] : (string) get_option('home') );
+    }
+
+    /**
+     * Cache key of a licence slug: md5(slug|home) with home = self::api_transient_home()
+     *
+     * @return string
+    */
+    private static function api_transient_key($slug) {
+        return md5($slug.'|'.self::api_transient_home());
     }
 
     /**
@@ -4051,13 +4064,15 @@ class SUPER_Common {
     }
 
     /**
-     * POST a slug to the API (same endpoint, body and headers as before, 3 second
-     * timeout) and return the served body, or false on any failure.
+     * POST a slug to the API (same endpoint, body fields, field order and headers as
+     * before, 3 second timeout) and return the served body, or false on any failure.
+     * home_url is the stored home (self::api_transient_home()), the value the cache key
+     * uses, instead of get_home_url().
      *
      * @return string|false
     */
     private static function api_transient_request($slug) {
-        $response = wp_remote_post( SUPER_API_ENDPOINT . '/settings/transient', array( 'method' => 'POST', 'timeout' => 3, 'data_format' => 'body', 'headers' => array('Content-Type' => 'application/json; charset=utf-8'), 'body' => json_encode( array( 'slug' => $slug, 'home_url' => get_home_url(), 'admin_url' => admin_url(), 'version' => SUPER_VERSION))));
+        $response = wp_remote_post( SUPER_API_ENDPOINT . '/settings/transient', array( 'method' => 'POST', 'timeout' => 3, 'data_format' => 'body', 'headers' => array('Content-Type' => 'application/json; charset=utf-8'), 'body' => json_encode( array( 'slug' => $slug, 'home_url' => self::api_transient_home(), 'admin_url' => admin_url(), 'version' => SUPER_VERSION))));
         if( is_wp_error($response) || !isset($response['body'], $response['response']['code']) ) return false;
         $body = $response['body'];
         if( $response['response']['code']==200 && is_string($body) && strpos($body, '{') === 0 ) {
