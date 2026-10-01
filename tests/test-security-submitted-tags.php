@@ -734,6 +734,50 @@ class Test_Super_Forms_Submitted_Tags_Security extends Super_Forms_Upload_Securi
     }
 
     /*
+     * rc3: WooCommerce "Populate checkout fields" mapping values are resolved with email_tags() when the form is
+     * submitted and stored in the WooCommerce session; populate_checkout_field_values() used to run email_tags() over
+     * the stored value a second time, resolving a `{tag}` the visitor typed on their own checkout page.
+     */
+
+    public function test_woocommerce_checkout_population_does_not_resolve_visitor_tags_a_second_time() {
+        $had_wc = array_key_exists( 'woocommerce', $GLOBALS );
+        $saved_wc = $had_wc ? $GLOBALS['woocommerce'] : null;
+        $session = new Super_Forms_SecG_Wc_Session_Stub();
+        $GLOBALS['woocommerce'] = (object) array( 'cart' => null, 'session' => $session );
+        try {
+            $typed = '{option_admin_email} {@sales_email} {option_super_settings;smtp_password}';
+            $data = $this->data( array( 'first_name' => 'Jane', 'company' => $typed ) );
+            $data['last_name'] = array( 'name' => 'last_name', 'value' => 'Doe', 'label' => 'Last_name', 'type' => 'var' );
+            $settings = $this->settings;
+            $settings['woocommerce_populate_checkout_fields'] = "billing_first_name|{first_name} {last_name}\nbilling_company|{company}\nbilling_email|{user_email}";
+            // Same loop SUPER_WooCommerce runs on submission (add-ons/super-forms-woocommerce/super-forms-woocommerce.php, `woocommerce_populate_checkout_fields`).
+            $fields = array();
+            foreach( explode( "\n", $settings['woocommerce_populate_checkout_fields'] ) as $v ) {
+                $field = explode( '|', $v );
+                $fields[$field[0]] = isset( $field[1] ) ? SUPER_Common::email_tags( $field[1], $data, $settings ) : '';
+            }
+            $session->set( '_super_form_woocommerce_populate_checkout_fields', $fields );
+            $session->set( '_super_form_data', $data );
+
+            // The visitor's text comes back exactly as typed, on the checkout page too.
+            $this->assertSame( $typed, SUPER_WooCommerce::populate_checkout_field_values( '', 'billing_company' ) );
+            // The author's mapping keeps working.
+            $this->assertSame( 'Jane Doe', SUPER_WooCommerce::populate_checkout_field_values( '', 'billing_first_name' ) );
+            $this->assertSame( wp_get_current_user()->user_email, SUPER_WooCommerce::populate_checkout_field_values( '', 'billing_email' ) );
+            // A checkout field the form posted directly is still used, and an unmapped one keeps WooCommerce's value.
+            $this->assertSame( 'Jane', SUPER_WooCommerce::populate_checkout_field_values( '', 'first_name' ) );
+            $this->assertSame( 'wc-default', SUPER_WooCommerce::populate_checkout_field_values( 'wc-default', 'billing_phone' ) );
+            $this->assertNoSecret( SUPER_WooCommerce::populate_checkout_field_values( '', 'billing_company' ) );
+        } finally {
+            if( $had_wc ) {
+                $GLOBALS['woocommerce'] = $saved_wc;
+            }else{
+                unset( $GLOBALS['woocommerce'] );
+            }
+        }
+    }
+
+    /*
      * PR #213 review (#209 territory): {user_meta_*} and {author_meta_*} return meta data the user
      * controls (any subscriber can set their profile description), so the contents are inserted
      * literally: no nested tag resolution, no shortcode execution, brackets escaped on the
@@ -772,6 +816,21 @@ class Test_Super_Forms_Submitted_Tags_Security extends Super_Forms_Upload_Securi
         } finally {
             $_GET = array();
             remove_shortcode( 'sf_test_sc' );
+        }
+    }
+}
+
+if( !class_exists( 'Super_Forms_SecG_Wc_Session_Stub' ) ) {
+    /**
+     * Minimal stand-in for WC()->session, enough for SUPER_WooCommerce::populate_checkout_field_values().
+     */
+    class Super_Forms_SecG_Wc_Session_Stub {
+        private $data = array();
+        public function get( $key, $default=null ) {
+            return array_key_exists( $key, $this->data ) ? $this->data[$key] : $default;
+        }
+        public function set( $key, $value ) {
+            $this->data[$key] = $value;
         }
     }
 }
