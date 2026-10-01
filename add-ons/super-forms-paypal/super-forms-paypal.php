@@ -1699,8 +1699,8 @@ if( !class_exists('SUPER_PayPal') ) :
 										if( !empty( $v['label'] ) ) {
 											// Replace %d with empty string if exists
 											$v['label'] = str_replace('%d', '', $v['label']);
-											$row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
-											$confirm_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $confirm_row );
+											$row = str_replace( '{loop_label}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode( $v['label'] ), $k, $data, $settings ), $row );
+											$confirm_row = str_replace( '{loop_label}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode( $v['label'] ), $k, $data, $settings ), $confirm_row );
 										}else{
 											$row = str_replace( '{loop_label}', '', $row );
 											$confirm_row = str_replace( '{loop_label}', '', $confirm_row );
@@ -1712,8 +1712,8 @@ if( !class_exists('SUPER_PayPal') ) :
 											if( $key==0 ) {
 												if( !empty( $v['label'] ) ) {
 													$v['label'] = str_replace('%d', '', $v['label']);
-													$row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
-													$confirm_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $confirm_row );
+													$row = str_replace( '{loop_label}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode( $v['label'] ), $k, $data, $settings ), $row );
+													$confirm_row = str_replace( '{loop_label}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode( $v['label'] ), $k, $data, $settings ), $confirm_row );
 												}else{
 													$row = str_replace( '{loop_label}', '', $row );
 													$confirm_row = str_replace( '{loop_label}', '', $confirm_row );
@@ -1733,8 +1733,8 @@ if( !class_exists('SUPER_PayPal') ) :
 											}
 										}
 									}
-									$row = str_replace( '{loop_value}', $files_value, $row );
-									$confirm_row = str_replace( '{loop_value}', $files_value, $confirm_row );
+									$row = str_replace( '{loop_value}', SUPER_Common::neutralize_submitted_loop_value( $files_value, $k, $data, $settings ), $row );
+									$confirm_row = str_replace( '{loop_value}', SUPER_Common::neutralize_submitted_loop_value( $files_value, $k, $data, $settings ), $confirm_row );
 								}else{
 									if( isset($v['type']) && (($v['type']=='form_id') || ($v['type']=='entry_id')) ) {
 										$row = '';
@@ -1743,8 +1743,8 @@ if( !class_exists('SUPER_PayPal') ) :
 				
 										if( !empty( $v['label'] ) ) {
 											$v['label'] = str_replace('%d', '', $v['label']);
-											$row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
-											$confirm_row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $confirm_row );
+											$row = str_replace( '{loop_label}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode( $v['label'] ), $k, $data, $settings ), $row );
+											$confirm_row = str_replace( '{loop_label}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode( $v['label'] ), $k, $data, $settings ), $confirm_row );
 										}else{
 											$row = str_replace( '{loop_label}', '', $row );
 											$confirm_row = str_replace( '{loop_label}', '', $confirm_row );
@@ -1754,21 +1754,21 @@ if( !class_exists('SUPER_PayPal') ) :
 											// @since 3.9.0 - replace comma's with HTML
 											if( !empty($v['replace_commas']) ) $v['admin_value'] = str_replace( ',', $v['replace_commas'], $v['admin_value'] );
 											
-											$row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['admin_value'] ), $row );
-											$confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['admin_value'] ), $confirm_row );
+											$row = str_replace( '{loop_value}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode_textarea_v5( $v, $v['admin_value'] ), $k, $data, $settings ), $row );
+											$confirm_row = str_replace( '{loop_value}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode_textarea_v5( $v, $v['admin_value'] ), $k, $data, $settings ), $confirm_row );
 										}
 										if( isset( $v['paypal_completed_value'] ) ) {
 											// @since 3.9.0 - replace comma's with HTML
 											if( !empty($v['replace_commas']) ) $v['paypal_completed_value'] = str_replace( ',', $v['replace_commas'], $v['paypal_completed_value'] );
 											
-											$confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['paypal_completed_value'] ), $confirm_row );
+											$confirm_row = str_replace( '{loop_value}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode_textarea_v5( $v, $v['paypal_completed_value'] ), $k, $data, $settings ), $confirm_row );
 										}
 										if( isset( $v['value'] ) ) {
 											// @since 3.9.0 - replace comma's with HTML
 											if( !empty($v['replace_commas']) ) $v['value'] = str_replace( ',', $v['replace_commas'], $v['value'] );
 											
-											$row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['value'] ), $row );
-											$confirm_row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['value'] ), $confirm_row );
+											$row = str_replace( '{loop_value}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode_textarea_v5( $v, $v['value'] ), $k, $data, $settings ), $row );
+											$confirm_row = str_replace( '{loop_value}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode_textarea_v5( $v, $v['value'] ), $k, $data, $settings ), $confirm_row );
 										}
 									}
 								}

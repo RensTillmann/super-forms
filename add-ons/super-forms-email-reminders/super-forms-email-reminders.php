@@ -254,7 +254,7 @@ if( !class_exists('SUPER_Email_Reminders') ) :
                                 if( ( !isset( $v['files'] ) ) || ( count( $v['files'] )==0 ) ) {
                                     $v['value'] = '';
                                     if( !empty( $v['label'] ) ) {
-                                        $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+                                        $row = str_replace( '{loop_label}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode( $v['label'] ), $k, $data, $settings ), $row );
                                     }else{
                                         $row = str_replace( '{loop_label}', '', $row );
                                     }
@@ -264,7 +264,7 @@ if( !class_exists('SUPER_Email_Reminders') ) :
                                     foreach( $v['files'] as $key => $value ) {
                                         if( $key==0 ) {
                                             if( !empty( $v['label'] ) ) {
-                                                $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+                                                $row = str_replace( '{loop_label}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode( $v['label'] ), $k, $data, $settings ), $row );
                                             }else{
                                                 $row = str_replace( '{loop_label}', '', $row );
                                             }
@@ -279,24 +279,24 @@ if( !class_exists('SUPER_Email_Reminders') ) :
                                         }
                                     }
                                 }
-                                $row = str_replace( '{loop_value}', $files_value, $row );
+                                $row = str_replace( '{loop_value}', SUPER_Common::neutralize_submitted_loop_value( $files_value, $k, $data, $settings ), $row );
                             }else{
                                 if( ($v['type']=='form_id') || ($v['type']=='entry_id') ) {
                                     $row = '';
                                 }else{
 
                                     if( !empty( $v['label'] ) ) {
-                                        $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+                                        $row = str_replace( '{loop_label}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode( $v['label'] ), $k, $data, $settings ), $row );
                                     }else{
                                         $row = str_replace( '{loop_label}', '', $row );
                                     }
                                     if( isset( $v['admin_value'] ) ) {
                                         if( !empty($v['replace_commas']) ) $v['admin_value'] = str_replace( ',', $v['replace_commas'], $v['admin_value'] );
-                                        $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['admin_value'] ), $row );
+                                        $row = str_replace( '{loop_value}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode_textarea_v5( $v, $v['admin_value'] ), $k, $data, $settings ), $row );
                                     }
                                     if( isset( $v['value'] ) ) {
                                         if( !empty($v['replace_commas']) ) $v['value'] = str_replace( ',', $v['replace_commas'], $v['value'] );
-                                        $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['value'] ), $row );
+                                        $row = str_replace( '{loop_value}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode_textarea_v5( $v, $v['value'] ), $k, $data, $settings ), $row );
                                     }
 
                                 }

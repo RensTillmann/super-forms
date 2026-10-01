@@ -8724,7 +8724,9 @@ class SUPER_Ajax {
                                     $final_entry_data[$k] = $v;
                                 }
                             }else{
-                                if(!empty($v['value'])) $v['value'] = SUPER_Common::email_tags( $v['value'], $data, $settings );
+                                // @since 6.3.318 - The value is what the visitor submitted: store it verbatim and only
+                                // resolve tags the form author configured on this field (e.g. a `{@secret}` default)
+                                if(!empty($v['value'])) $v['value'] = SUPER_Common::email_tags( SUPER_Common::neutralize_submitted_value( $v['value'], ( isset($v['name']) ? $v['name'] : $k ), $data, $settings ), $data, $settings );
                                 $final_entry_data[$k] = $v;
                             }
                         }

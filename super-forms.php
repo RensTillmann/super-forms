@@ -2100,6 +2100,10 @@ if(!class_exists('SUPER_Forms')) :
                 $return = '';
                 if( isset( $v[2] ) ) $return = $v[2];
                 if($return==='') continue;
+                // @since 6.3.318 - The body already went through email_tags(), so any `{tag}` still in
+                // it is literal text (possibly typed by a visitor, together with this whole foreach).
+                // Keep it literal; only the <%field%> placeholders below may resolve.
+                $return = SUPER_Common::neutralize_submitted_tags( $return );
                 $i = 1;
                 $rows = '';
                 while( isset( $data['data'][$field_name] ) ){
@@ -2124,11 +2128,16 @@ if(!class_exists('SUPER_Forms')) :
                                 $row = str_replace( $rv[0], $i, $row);
                                 continue;
                             }
+                            $splitName = explode(';', $rv[1]);
+                            // @since 6.3.318 - A placeholder only resolves a submitted field, never a lookup tag
+                            if( !isset( $data['data'][$splitName[0]] ) ) {
+                                $row = str_replace( $rv[0], SUPER_Common::submitted_tag_brace().$rv[1].'}', $row);
+                                continue;
+                            }
                             if($i<2){
                                 $row = str_replace( $rv[0], '{'.$rv[1].'}', $row);
                                 continue;
                             }
-                            $splitName = explode(';', $rv[1]);
                             $newName = $splitName[0].'_'.$i;
                             if(count($splitName)>1){
                                 $newName .= ';'.$splitName[1];
