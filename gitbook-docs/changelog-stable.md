@@ -6,6 +6,12 @@ description: Release notes for the Super Forms stable channel.
 
 ## Super Forms Stable - Changelog
 
+### Oct 01, 2026 - Version 6.3.319
+
+* **Fix:** Forms with a calculator inside a repeating ("Add more") column could be rejected with "Invalid form data." when submitted.
+* **Fix:** A minimum or maximum length, or number of selections, saved as 0 always means "no limit" when a form is submitted, as in the form builder. Some forms created with older versions were rejected with "Invalid form data." after updating to 6.3.317.
+* **Improved:** Compatibility with WordPress 7.1.2.
+
 ### Oct 01, 2026 - Version 6.3.318
 
 * **Security fix:** Improved security for WooCommerce order search, unique code and invoice number generation, PayPal payment notifications, and Mailchimp form data.
