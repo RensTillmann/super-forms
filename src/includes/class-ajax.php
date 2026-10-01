@@ -3181,6 +3181,14 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 	 * they are either optional or governed by conditional logic that is too complex
 	 * to evaluate server-side without executing the full JavaScript condition engine.
 	 *
+	 * Client parity: a field is only enrolled when the front-end would also require it.
+	 * common.js never validates
+	 *   - Hidden fields (tag `hidden`): they render inside a `.super-hidden` wrapper and
+	 *     SUPER.handle_validations() returns early for those;
+	 *   - fields inside an invisible column (`invisible` = 'true'): the column renders as
+	 *     `.super-invisible` and SUPER.has_hidden_parent() skips everything below it.
+	 * Both are still submitted, so enforcing them here rejected forms the browser accepted.
+	 *
 	 * @since  6.5.0
 	 * @param  array $elements  Form elements as stored in `_super_elements` meta.
 	 * @return array            [ field_name => true ] map of required field names.
@@ -3191,10 +3199,19 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 			return $required;
 		}
 		foreach ( $elements as $element ) {
+			$tag = isset( $element['tag'] ) ? $element['tag'] : '';
+			if ( $tag === 'column' && isset( $element['data']['invisible'] ) && $element['data']['invisible'] === 'true' ) {
+				// Invisible column: the front-end never validates its fields (see above).
+				continue;
+			}
 			if ( ! empty( $element['inner'] ) ) {
 				// Recurse into container elements (columns, rows, sections, etc.)
 				$required = array_merge( $required, self::collect_required_fields( $element['inner'] ) );
 			} elseif ( ! empty( $element['data'] ) && ! empty( $element['data']['name'] ) ) {
+				if ( $tag === 'hidden' ) {
+					// Hidden field: never validated by the front-end (see above).
+					continue;
+				}
 				$edata        = $element['data'];
 				$may_be_empty = isset( $edata['may_be_empty'] ) ? $edata['may_be_empty'] : 'false';
 				// 'conditions' requires conditional logic evaluation – skip server-side.
