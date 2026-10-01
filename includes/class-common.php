@@ -2321,6 +2321,28 @@ class SUPER_Common {
         }
         return $value;
     }
+
+    /**
+     * @since 6.3.318 - email_tags() for a caller that runs several passes over the same string (e.g. the
+     * Register & Login activation e-mail: a pass with the submitted data, then one with the new user).
+     * A plain second email_tags() call would see the `{` of submitted values already restored and resolve
+     * tags a visitor typed. Here every token stays in place - the `{` too - and is collected in
+     * `$literalValues`; the caller puts everything back once, after the last pass, with
+     * restore_literal_tag_values() (pass `$keepControlSyntax` when email_if_statements() runs afterwards).
+     */
+    public static function email_tags_keep_submitted( $value, $data=null, $settings=null, $user=null, &$literalValues=null ) {
+        if( !is_array( $literalValues ) ) $literalValues = array();
+        self::$email_tags_depth++;
+        try {
+            $value = self::email_tags( $value, $data, $settings, $user, true, false, false, $literalValues );
+        } finally {
+            self::$email_tags_depth--;
+        }
+        if( self::$email_tags_depth===0 && self::$submitted_tag_brace!==null ) {
+            $literalValues = array_merge( $literalValues, array( self::$submitted_tag_brace => '{' ), self::submitted_shortcode_brackets(), self::submitted_control_tokens() );
+        }
+        return $value;
+    }
     private static function resolve_email_tags( $value, $data, $settings, $user, $skip, $skipSecrets, $skipOptions, &$literalValues ) {
         if( ($value==='') && ($skip==true) ) return '';
         $current_author = null;

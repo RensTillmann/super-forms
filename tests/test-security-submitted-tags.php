@@ -631,6 +631,57 @@ class Test_Super_Forms_Submitted_Tags_Security extends Super_Forms_Upload_Securi
     }
 
     /*
+     * The Register & Login activation e-mail runs email_tags() twice over the same message (submitted data,
+     * then the new user). The second pass must not resolve a tag the visitor typed in the first.
+     */
+
+    public function test_register_login_activation_email_keeps_visitor_tags_literal() {
+        if( !class_exists( 'SUPER_Register_Login' ) ) {
+            require_once dirname( __DIR__ ) . '/add-ons/super-forms-register-login/super-forms-register-login.php';
+        }
+        wp_set_current_user( 0 );
+        $new_user_id = self::factory()->user->create( array( 'role' => 'subscriber', 'user_login' => 'secgnewbie', 'user_email' => 'secg-newbie@example.test', 'user_url' => 'https://newbie.example' ) );
+        $new_user = get_userdata( $new_user_id );
+        $settings = array_merge( $this->settings, array(
+            'register_activation_subject' => 'Activate',
+            'register_activation_email' => 'Hi {first_name}, code {register_activation_code}, login {register_login_url} as {user_login}, pw {register_generated_password}, site {option_blogname}, url {user_url}, dept {department}',
+            'register_login_url' => 'https://example.test/login/',
+            'register_custom_email_header' => 'admin',
+            'header_from' => 'no-reply@example.test',
+            'header_from_name' => 'Sec G',
+            'header_reply_enabled' => 'false',
+            'header_reply' => '',
+            'header_reply_name' => '',
+        ) );
+        $captured = array();
+        $capture = static function( $short_circuit, $atts ) use ( &$captured ) {
+            $captured[] = $atts['message'];
+            return true;
+        };
+        add_filter( 'pre_wp_mail', $capture, 10, 2 );
+        try {
+            foreach( array( '{option_admin_email}', '{@sales_email}', '{option_super_settings;smtp_password}', '{user_url}', '{{option_admin_email}}', 'isset(first_name):X endif;' ) as $typed ) {
+                $captured = array();
+                $data = $this->data( array( 'first_name' => $typed, 'department' => '{@sales_email}' ) );
+                SUPER_Register_Login::send_verification_email( array( 'password' => 'PW-456', 'code' => 'CODE123', 'user' => $new_user, 'settings' => $settings, 'data' => $data ) );
+                $this->assertCount( 1, $captured, $typed );
+                // The author's tags (activation code, login URL, user login, option, new user's URL, choice-item secret) resolve,
+                // the visitor's first name is shown exactly as typed.
+                $this->assertStringContainsString(
+                    'Hi ' . $typed . ', code CODE123, login https://example.test/login/ as secgnewbie, pw PW-456, site Sec G Blog, url https://newbie.example, dept ' . self::SALES_EMAIL,
+                    $captured[0],
+                    $typed
+                );
+                $this->assertStringNotContainsString( self::ADMIN_EMAIL, $captured[0], $typed );
+                $this->assertStringNotContainsString( self::SMTP_PASSWORD, $captured[0], $typed );
+                $this->assertStringNotContainsString( "\x1A", $captured[0], $typed );
+            }
+        } finally {
+            remove_filter( 'pre_wp_mail', $capture, 10 );
+        }
+    }
+
+    /*
      * PR #213 review (#209 territory): {user_meta_*} and {author_meta_*} return meta data the user
      * controls (any subscriber can set their profile description), so the contents are inserted
      * literally: no nested tag resolution, no shortcode execution, brackets escaped on the
