@@ -4584,7 +4584,10 @@ class SUPER_Ajax {
             return true;
         }
         foreach(array('minlength'=>'min', 'maxlength'=>'max') as $key=>$bound) {
-            if( isset($meta[$key]) && $meta[$key]!=='' && is_numeric($meta[$key]) ) {
+            // A stored limit of 0 means "no limit" (builder: "Set to 0 to remove limitations"),
+            // and SUPER_Shortcodes::common_attributes() only renders data-minlength/data-maxlength
+            // for a value above 0, so the browser never enforces a 0 limit either.
+            if( isset($meta[$key]) && $meta[$key]!=='' && is_numeric($meta[$key]) && (int)$meta[$key]>0 ) {
                 $length = self::submission_value_length( $value, $meta, $carrier );
                 if( $length<0 || ($bound==='min' && $length<(int)$meta[$key]) || ($bound==='max' && $length>(int)$meta[$key]) ) return false;
             }
