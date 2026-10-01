@@ -2783,16 +2783,22 @@ if( !class_exists('SUPER_Register_Login') ) :
             $message = str_replace( '{user_login}', $username, $message );
             $message = str_replace( '{register_login_url}', $settings['register_login_url'], $message );
             $message = str_replace( '{register_activation_code}', $code, $message );
-            $message = SUPER_Common::email_tags( $message, $data, $settings );
+            // @since 6.3.318 - Two passes over the same message (submitted data, then the new user): submitted values
+            // stay inert tokens through both, so the second pass can never resolve a {tag} a visitor typed. Everything
+            // is put back once at the end, the foreach/if/isset syntax only after email_if_statements() ran
+            $literalValues = array();
+            $message = SUPER_Common::email_tags_keep_submitted( $message, $data, $settings, null, $literalValues );
             if(!empty($password)){
                 $message = str_replace( '{register_generated_password}', $password, $message );
             }
-            $message = SUPER_Common::email_tags( $message, $data, $settings, $user );
+            $message = SUPER_Common::email_tags_keep_submitted( $message, $data, $settings, $user, $literalValues );
+            $message = SUPER_Common::restore_literal_tag_values( $message, $literalValues, false, true );
             $message = nl2br( $message );
             // By default use Admin email settings
             $h = self::get_email_headers(array('settings'=>$settings, 'data'=>$data, 'user'=>$user));
             // Send the email
             $message = apply_filters( 'super_before_sending_email_body_filter', $message, array( 'settings'=>$settings, 'email_loop'=>'', 'data'=>$data ) );
+            $message = SUPER_Common::restore_submitted_control_syntax( $message );
             $message = apply_filters( 'super_before_sending_verification_email_body_filter', $message, array( 'settings'=>$settings, 'email_loop'=>'', 'data'=>$data ) );
             $attachments = apply_filters( 'super_register_login_before_verify_attachments_filter', array(), array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$message ) );
             // Deprecated, but used as fallback for custome code by other devs
@@ -2819,12 +2825,16 @@ if( !class_exists('SUPER_Register_Login') ) :
                 $message = str_replace( '{user_pass}', $password, $message );
                 $message = str_replace( '{register_generated_password}', $password, $message );
             }
-            $message = SUPER_Common::email_tags( $message, $data, $settings );
+            // @since 6.3.318 - The foreach/if/isset syntax of submitted values stays inert until email_if_statements() ran
+            $literalValues = array();
+            $message = SUPER_Common::email_tags( $message, $data, $settings, null, true, false, false, $literalValues );
+            $message = SUPER_Common::restore_literal_tag_values( $message, $literalValues, false, true );
             $message = nl2br( $message );
             // By default use Admin email settings
             $h = self::get_email_headers(array('settings'=>$settings, 'data'=>$data, 'user'=>$user));
             // Send the email
             $message = apply_filters( 'super_before_sending_email_body_filter', $message, array( 'settings'=>$settings, 'email_loop'=>'', 'data'=>$data ) );
+            $message = SUPER_Common::restore_submitted_control_syntax( $message );
             $message = apply_filters( 'super_before_sending_approve_email_body_filter', $message, array( 'settings'=>$settings, 'email_loop'=>'', 'data'=>$data ) );
             $attachments = apply_filters( 'super_register_login_before_approve_attachments_filter', array(), array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$message ) );
             $mail = SUPER_Common::email( $to, $h['header_from'], $h['header_from_name'], $h['custom_reply'], $h['header_reply'], $h['header_reply_name'], '', '', $subject, $message, $settings, $attachments );
@@ -2843,12 +2853,16 @@ if( !class_exists('SUPER_Register_Login') ) :
             $message = str_replace( '{field_user_pass}', $password, $message );
             $message = str_replace( '{user_pass}', $password, $message );
             $message = str_replace( '{register_generated_password}', $password, $message );
-            $message = SUPER_Common::email_tags( $message, $data, $settings );
+            // @since 6.3.318 - The foreach/if/isset syntax of submitted values stays inert until email_if_statements() ran
+            $literalValues = array();
+            $message = SUPER_Common::email_tags( $message, $data, $settings, null, true, false, false, $literalValues );
+            $message = SUPER_Common::restore_literal_tag_values( $message, $literalValues, false, true );
             $message = nl2br( $message );
             // By default use Admin email settings
             $h = self::get_email_headers(array('settings'=>$settings, 'data'=>$data, 'user'=>$user));
             // Send the email
             $message = apply_filters( 'super_before_sending_email_body_filter', $message, array( 'settings'=>$settings, 'email_loop'=>'', 'data'=>$data ) );
+            $message = SUPER_Common::restore_submitted_control_syntax( $message );
             $message = apply_filters( 'super_before_sending_reset_password_body_filter', $message, array( 'settings'=>$settings, 'email_loop'=>'', 'data'=>$data ) );
             $attachments = apply_filters( 'super_register_login_before_sending_reset_password_attachments_filter', array(), array( 'settings'=>$settings, 'data'=>$data, 'email_body'=>$message ) );
             $mail = SUPER_Common::email( $to, $h['header_from'], $h['header_from_name'], $h['custom_reply'], $h['header_reply'], $h['header_reply_name'], '', '', $subject, $message, $settings, $attachments );

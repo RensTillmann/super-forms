@@ -831,8 +831,12 @@ class SUPER_Ajax {
             }
         }
         $settings = SUPER_Common::get_form_settings($form_id);
-        $html = SUPER_Common::email_tags( $html, $data, $settings );
+        // @since 6.3.318 - The foreach/if/isset syntax of submitted values stays inert until email_if_statements() ran
+        $literalValues = array();
+        $html = SUPER_Common::email_tags( $html, $data, $settings, null, true, false, false, $literalValues );
+        $html = SUPER_Common::restore_literal_tag_values( $html, $literalValues, false, true );
         $html = SUPER_Forms()->email_if_statements( $html, $data );
+        $html = SUPER_Common::restore_submitted_control_syntax( $html );
         // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- complete print document: the admin-authored print template file is fetched by file_id after SUPER_Common::consume_public_print_capability() (includes/class-common.php:252, enforced at includes/class-ajax.php:633-639) authorized this form_id/file_id pair; tags are rendered by SUPER_Common::email_tags() (includes/class-common.php:2064) and email_if_statements() (super-forms.php:2082), and every escaper would destroy the html/head/body/style markup the template consists of
         echo $html;
         die();
@@ -9251,8 +9255,10 @@ class SUPER_Ajax {
             if($settings['email_rtl']=='true') $email_body =  '<div dir="rtl" style="text-align:right;">' . $email_body . '</div>';
 
             $email_body = do_shortcode($email_body);
-            $email_body = SUPER_Common::restore_literal_tag_values( $email_body, $literalValues );
+            // @since 6.3.318 - The foreach/if/isset syntax of submitted values stays inert until email_if_statements() ran
+            $email_body = SUPER_Common::restore_literal_tag_values( $email_body, $literalValues, false, true );
             $email_body = apply_filters( 'super_before_sending_email_body_filter', $email_body, array( 'settings'=>$settings, 'email_loop'=>$email_loop, 'data'=>$data ) );
+            $email_body = SUPER_Common::restore_submitted_control_syntax( $email_body );
             if( !isset( $settings['header_from_type'] ) ) $settings['header_from_type'] = 'default';
             if( $settings['header_from_type']=='default' ) {
                 $settings['header_from_name'] = get_option( 'blogname' );
@@ -9338,8 +9344,10 @@ class SUPER_Ajax {
             if($settings['confirm_rtl']=='true') $email_body = '<div dir="rtl" style="text-align:right;">' . $email_body . '</div>';
             
             $email_body = do_shortcode($email_body);
-            $email_body = SUPER_Common::restore_literal_tag_values( $email_body, $literalValues );
+            // @since 6.3.318 - The foreach/if/isset syntax of submitted values stays inert until email_if_statements() ran
+            $email_body = SUPER_Common::restore_literal_tag_values( $email_body, $literalValues, false, true );
             $email_body = apply_filters( 'super_before_sending_confirm_body_filter', $email_body, array( 'settings'=>$settings, 'confirm_loop'=>$confirm_loop, 'data'=>$data ) );
+            $email_body = SUPER_Common::restore_submitted_control_syntax( $email_body );
             if( !isset( $settings['confirm_from_type'] ) ) $settings['confirm_from_type'] = 'default';
             if( $settings['confirm_from_type']=='default' ) {
                 $settings['confirm_from_name'] = get_option( 'blogname' );
@@ -9607,10 +9615,14 @@ class SUPER_Ajax {
             $settings['form_thanks_title'] = '<h1>' . $settings['form_thanks_title'] . '</h1>';
 
             $msg = do_shortcode( $settings['form_thanks_title'] . $settings['form_thanks_description'] );
-            $msg = SUPER_Common::email_tags( $msg, $data, $settings );
+            // @since 6.3.318 - The foreach/if/isset syntax of submitted values stays inert until email_if_statements() ran
+            $literalValues = array();
+            $msg = SUPER_Common::email_tags( $msg, $data, $settings, null, true, false, false, $literalValues );
+            $msg = SUPER_Common::restore_literal_tag_values( $msg, $literalValues, false, true );
             
             // @since 4.1.0 - option to do if statements in success message
             $msg = SUPER_Forms()->email_if_statements( $msg, $data );
+            $msg = SUPER_Common::restore_submitted_control_syntax( $msg );
 
             $session_data = array( 'msg'=>$msg, 'type'=>'success', 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id );
             if( !empty( $settings['form_redirect_option'] ) ) {

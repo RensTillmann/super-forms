@@ -1049,8 +1049,10 @@ if( !class_exists('SUPER_WooCommerce') ) :
                     if($settings['woocommerce_completed_rtl']=='true') $email_body =  '<div dir="rtl" style="text-align:right;">' . $email_body . '</div>';
 
                     $email_body = do_shortcode($email_body);
-                    $email_body = SUPER_Common::restore_literal_tag_values( $email_body, $literalValues );
+                    // @since 6.3.318 - The foreach/if/isset syntax of submitted values stays inert until email_if_statements() ran
+                    $email_body = SUPER_Common::restore_literal_tag_values( $email_body, $literalValues, false, true );
                     $email_body = apply_filters( 'super_before_sending_email_body_filter', $email_body, array( 'settings'=>$settings, 'email_loop'=>$email_loop, 'data'=>$data ) );
+                    $email_body = SUPER_Common::restore_submitted_control_syntax( $email_body );
 
                     if( !isset( $settings['woocommerce_completed_from_type'] ) ) $settings['woocommerce_completed_from_type'] = 'default';
                     if( $settings['woocommerce_completed_from_type']=='default' ) {

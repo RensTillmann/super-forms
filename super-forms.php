@@ -2105,7 +2105,9 @@ if(!class_exists('SUPER_Forms')) :
                 // @since 6.3.318 - The body already went through email_tags(), so any `{tag}` still in
                 // it is literal text (possibly typed by a visitor, together with this whole foreach).
                 // Keep it literal; only the <%field%> placeholders below may resolve.
-                $return = SUPER_Common::neutralize_submitted_tags( $return );
+                // The foreach syntax of submitted values is still inert here (see SUPER_Common::submitted_control_tokens()),
+                // this block is the author's own, so its <%field%> placeholders are left alone
+                $return = SUPER_Common::neutralize_submitted_tags( $return, array(), null, false );
                 $i = 1;
                 $rows = '';
                 while( isset( $data['data'][$field_name] ) ){
@@ -2157,7 +2159,10 @@ if(!class_exists('SUPER_Forms')) :
                     $i++;
                     $field_name = $original_field_name.'_'.$i;
                 }
-                $rows = SUPER_Common::email_tags( $rows, $data['data'], $data['settings'] );
+                // @since 6.3.318 - The rows contain submitted values: keep their foreach/if/isset syntax inert until the end
+                $rowLiterals = array();
+                $rows = SUPER_Common::email_tags( $rows, $data['data'], $data['settings'], null, true, false, false, $rowLiterals );
+                $rows = SUPER_Common::restore_literal_tag_values( $rows, $rowLiterals, false, true );
                 $email_body = str_replace( $original, $rows, $email_body);
             }
 
@@ -2198,7 +2203,9 @@ if(!class_exists('SUPER_Forms')) :
             }
 
             $email_body = SUPER_Common::filter_if_statements($email_body);
-            return $email_body;
+            // @since 6.3.318 - Only now put back the foreach/if/isset syntax a visitor typed, as plain text
+            // (see SUPER_Common::submitted_control_tokens())
+            return SUPER_Common::restore_submitted_control_syntax( $email_body );
         }
 
 

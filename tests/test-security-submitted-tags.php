@@ -495,4 +495,231 @@ class Test_Super_Forms_Submitted_Tags_Security extends Super_Forms_Upload_Securi
             remove_shortcode( 'sf_test_sc' );
         }
     }
+
+    /*
+     * PR #213 review: SUPER_Forms::email_if_statements() runs over the e-mail body after the submitted
+     * values were substituted, so a visitor-typed `foreach(x):<%x%>endforeach;` (or if/isset block)
+     * was evaluated as author syntax: `<%routing%>` became a live `{routing}` that resolved the author
+     * tag of that hidden field (a local secret) into the visitor's own confirmation e-mail.
+     */
+
+    private function add_routing_and_notes_fields() {
+        $elements = $this->elements();
+        $elements[] = array( 'group' => 'form_elements', 'tag' => 'hidden', 'data' => array( 'name' => 'routing', 'value' => '{@sales_email}', 'email' => 'Routing' ) );
+        $elements[] = array( 'group' => 'form_elements', 'tag' => 'textarea', 'data' => array( 'name' => 'notes', 'email' => 'Notes' ) );
+        update_post_meta( $this->form_id, '_super_elements', $elements );
+    }
+
+    /**
+     * The sequence SUPER_Ajax::submit_form() uses for the confirmation e-mail body, including the
+     * `super_before_sending_confirm_body_filter` that runs email_if_statements().
+     */
+    private function confirm_body( $template, $data, $settings ) {
+        $loops = SUPER_Common::retrieve_email_loop_html( array( 'data' => $data, 'settings' => $settings, 'exclude' => array() ) );
+        $body = str_replace( '{loop_fields}', $loops['confirm_loop'], $template );
+        $literalValues = array();
+        $body = SUPER_Common::email_tags( $body, $data, $settings, null, true, false, false, $literalValues );
+        $body = nl2br( $body );
+        $body = do_shortcode( $body );
+        $body = SUPER_Common::restore_literal_tag_values( $body, $literalValues, false, true );
+        $body = apply_filters( 'super_before_sending_confirm_body_filter', $body, array( 'settings' => $settings, 'confirm_loop' => $loops['confirm_loop'], 'data' => $data ) );
+        return SUPER_Common::restore_submitted_control_syntax( $body );
+    }
+
+    public function test_visitor_typed_foreach_in_html_field_never_reveals_author_secret_in_confirmation() {
+        $this->add_routing_and_notes_fields();
+        foreach( array( 'foreach(x):<%x%>endforeach;', 'foreach(routing):<%routing%>endforeach;', 'foreach( routing ):<%routing%> <%routing;label%>endforeach;' ) as $typed ) {
+            $data = $this->data( array( 'first_name' => 'Jane', 'routing' => '{@sales_email}', 'notes' => $typed ) );
+            $data['notes']['type'] = 'html';
+            $data['routing']['exclude'] = 1; // kept out of the confirmation e-mail by the author
+            $body = $this->confirm_body( '<p>Thanks {first_name}</p><table>{loop_fields}</table>', $data, $this->settings );
+            $this->assertStringNotContainsString( self::SALES_EMAIL, $body, $typed );
+            $this->assertStringContainsString( '<td>' . $typed . '</td>', html_entity_decode( $body, ENT_QUOTES ), $typed );
+            $this->assertStringNotContainsString( "\x1A", $body, $typed );
+        }
+    }
+
+    public function test_visitor_typed_if_and_isset_statements_stay_literal() {
+        $this->add_routing_and_notes_fields();
+        foreach( array( 'isset(routing):ROUTED endif;', '!isset(nope):MISSING endif;', 'if(1==1):SHOWN elseif:HIDDEN endif;', 'if(a==b):' ) as $typed ) {
+            $data = $this->data( array( 'first_name' => $typed, 'routing' => '{@sales_email}' ) );
+            $this->assertSame( '<p>' . $typed . '</p><p>after</p>', $this->confirm_body( '<p>{first_name}</p><p>after</p>', $data, $this->settings ), $typed );
+        }
+        // A visitor `if(` can not take over the author's own if/endif.
+        $data = $this->data( array( 'first_name' => 'if(x==y):', 'routing' => 'r' ) );
+        $this->assertSame( '<p>if(x==y):</p>YES ', $this->confirm_body( '<p>{first_name}</p>if({routing}==r):YES elseif:NO endif;', $data, $this->settings ) );
+        // Every other email_tags() caller (subject, stored entry, redirect) gets the characters back right away.
+        $data = $this->data( array( 'first_name' => 'if(a):b endif; isset(x):y endif;' ) );
+        $this->assertSame( 'S: if(a):b endif; isset(x):y endif;', SUPER_Common::email_tags( 'S: {first_name}', $data, $this->settings ) );
+    }
+
+    public function test_author_foreach_if_and_isset_keep_working() {
+        $this->add_routing_and_notes_fields();
+        $data = $this->data( array( 'first_name' => 'Jane', 'routing' => '{@sales_email}' ) );
+        $data['first_name_2'] = array( 'name' => 'first_name_2', 'value' => 'Bob', 'label' => 'First_name', 'type' => 'var' );
+        $this->assertSame( '1. Jane (Sec G Blog)<br />2. Bob (Sec G Blog)<br />', $this->confirm_body( 'foreach(first_name):<%counter%>. <%first_name%> ({option_blogname})<br />endforeach;', $data, $this->settings ) );
+        // The author's own foreach over the hidden field resolves its author tag, as documented.
+        $this->assertSame( 'R:' . self::SALES_EMAIL . ';', $this->confirm_body( 'foreach(routing):R:<%routing%>;endforeach;', $data, $this->settings ) );
+        $this->assertSame( 'HELLO JANE ', $this->confirm_body( 'if({first_name}==Jane):HELLO JANE elseif:OTHER endif;', $data, $this->settings ) );
+        $this->assertSame( 'OTHER ', $this->confirm_body( 'if({first_name}==Bob):HELLO BOB elseif:OTHER endif;', $data, $this->settings ) );
+        $this->assertSame( 'HAS ROUTING ', $this->confirm_body( 'isset(routing):HAS ROUTING endif;', $data, $this->settings ) );
+        $this->assertSame( 'NO NOPE ', $this->confirm_body( '!isset(nope):NO NOPE endif;', $data, $this->settings ) );
+        // Visitor syntax inside a value used in an author foreach row stays literal.
+        $data['first_name_2']['value'] = 'isset(routing):EVAL endif;';
+        $this->assertSame( '1. Jane|2. isset(routing):EVAL endif;|', $this->confirm_body( 'foreach(first_name):<%counter%>. <%first_name%>|endforeach;', $data, $this->settings ) );
+    }
+
+    public function test_full_submission_email_and_success_message_keep_visitor_if_and_foreach_literal() {
+        wp_set_current_user( 0 );
+        $GLOBALS['post'] = null;
+        $this->configure_csrf( 'false' );
+        $form_id = $this->create_form( 'publish', array(
+            array( 'group' => 'form_elements', 'tag' => 'text', 'data' => array( 'name' => 'note', 'email' => 'Note' ) ),
+            array( 'group' => 'form_elements', 'tag' => 'textarea', 'data' => array( 'name' => 'notes', 'email' => 'Notes' ) ),
+            array( 'group' => 'form_elements', 'tag' => 'hidden', 'data' => array( 'name' => 'routing', 'value' => '{@sales_email}', 'email' => 'Routing' ) ),
+        ), array(
+            'save_contact_entry' => 'no',
+            'send' => 'yes',
+            'confirm' => 'no',
+            'header_to' => 'sec-g-recipient@example.test',
+            'header_from_type' => 'default',
+            'header_subject' => 'Subject',
+            'email_body_open' => '',
+            'email_body' => '<p>{note}</p><table>{loop_fields}</table>',
+            'email_body_close' => '',
+            'email_body_nl2br' => 'false',
+            'email_loop' => '<tr><th>{loop_label}</th><td>{loop_value}</td></tr>',
+            'email_exclude_empty' => '',
+            'form_thanks_title' => '',
+            'form_thanks_description' => 'Thanks {note}',
+            'form_show_thanks_msg' => 'true',
+            'form_redirect_option' => '',
+        ) );
+        update_post_meta( $form_id, '_super_local_secrets', array( array( 'name' => 'sales_email', 'value' => self::SALES_EMAIL ) ) );
+        $typed = 'isset(note):EVALUATED endif;';
+        $loop_typed = 'foreach(routing):<%routing%>endforeach;';
+        $this->set_submit_request( $form_id, array(
+            'note' => array( 'name' => 'note', 'value' => $typed, 'type' => 'var' ),
+            'notes' => array( 'name' => 'notes', 'value' => $loop_typed, 'type' => 'html' ),
+            'routing' => array( 'name' => 'routing', 'value' => '{@sales_email}', 'type' => 'var' ),
+        ) );
+        $mail_log = tempnam( sys_get_temp_dir(), 'sf-sec-g-mail-' );
+        $capture = static function( $short_circuit, $atts ) use ( $mail_log ) {
+            file_put_contents( $mail_log, wp_json_encode( array( 'message' => $atts['message'] ) ) . "\n", FILE_APPEND | LOCK_EX );
+            return true;
+        };
+        add_filter( 'pre_wp_mail', $capture, 10, 2 );
+        try {
+            $result = $this->run_dying_handler( array( 'SUPER_Ajax', 'submit_form' ) );
+        } finally {
+            remove_filter( 'pre_wp_mail', $capture, 10 );
+        }
+        $this->assertSame( 0, $result['status'], $result['output'] );
+        $decoded = json_decode( $result['output'], true );
+        $this->assertIsArray( $decoded, $result['output'] );
+        $this->assertFalse( $decoded['error'], $result['output'] );
+        $this->assertStringContainsString( 'Thanks ' . $typed, $decoded['msg'] );
+
+        $lines = array_filter( explode( "\n", (string) file_get_contents( $mail_log ) ) );
+        unlink( $mail_log );
+        $this->assertCount( 1, $lines, 'admin e-mail was not captured' );
+        $mail = json_decode( reset( $lines ), true );
+        $this->assertStringContainsString( '<p>' . $typed . '</p>', $mail['message'] );
+        $this->assertStringContainsString( $loop_typed, html_entity_decode( $mail['message'], ENT_QUOTES ) );
+        // At most the routing row itself carries the author secret, the typed foreach adds no copy of it.
+        $this->assertLessThanOrEqual( 1, substr_count( $mail['message'], self::SALES_EMAIL ), $mail['message'] );
+    }
+
+    /*
+     * The Register & Login activation e-mail runs email_tags() twice over the same message (submitted data,
+     * then the new user). The second pass must not resolve a tag the visitor typed in the first.
+     */
+
+    public function test_register_login_activation_email_keeps_visitor_tags_literal() {
+        if( !class_exists( 'SUPER_Register_Login' ) ) {
+            require_once dirname( __DIR__ ) . '/add-ons/super-forms-register-login/super-forms-register-login.php';
+        }
+        wp_set_current_user( 0 );
+        $new_user_id = self::factory()->user->create( array( 'role' => 'subscriber', 'user_login' => 'secgnewbie', 'user_email' => 'secg-newbie@example.test', 'user_url' => 'https://newbie.example' ) );
+        $new_user = get_userdata( $new_user_id );
+        $settings = array_merge( $this->settings, array(
+            'register_activation_subject' => 'Activate',
+            'register_activation_email' => 'Hi {first_name}, code {register_activation_code}, login {register_login_url} as {user_login}, pw {register_generated_password}, site {option_blogname}, url {user_url}, dept {department}',
+            'register_login_url' => 'https://example.test/login/',
+            'register_custom_email_header' => 'admin',
+            'header_from' => 'no-reply@example.test',
+            'header_from_name' => 'Sec G',
+            'header_reply_enabled' => 'false',
+            'header_reply' => '',
+            'header_reply_name' => '',
+        ) );
+        $captured = array();
+        $capture = static function( $short_circuit, $atts ) use ( &$captured ) {
+            $captured[] = $atts['message'];
+            return true;
+        };
+        add_filter( 'pre_wp_mail', $capture, 10, 2 );
+        try {
+            foreach( array( '{option_admin_email}', '{@sales_email}', '{option_super_settings;smtp_password}', '{user_url}', '{{option_admin_email}}', 'isset(first_name):X endif;' ) as $typed ) {
+                $captured = array();
+                $data = $this->data( array( 'first_name' => $typed, 'department' => '{@sales_email}' ) );
+                SUPER_Register_Login::send_verification_email( array( 'password' => 'PW-456', 'code' => 'CODE123', 'user' => $new_user, 'settings' => $settings, 'data' => $data ) );
+                $this->assertCount( 1, $captured, $typed );
+                // The author's tags (activation code, login URL, user login, option, new user's URL, choice-item secret) resolve,
+                // the visitor's first name is shown exactly as typed.
+                $this->assertStringContainsString(
+                    'Hi ' . $typed . ', code CODE123, login https://example.test/login/ as secgnewbie, pw PW-456, site Sec G Blog, url https://newbie.example, dept ' . self::SALES_EMAIL,
+                    $captured[0],
+                    $typed
+                );
+                $this->assertStringNotContainsString( self::ADMIN_EMAIL, $captured[0], $typed );
+                $this->assertStringNotContainsString( self::SMTP_PASSWORD, $captured[0], $typed );
+                $this->assertStringNotContainsString( "\x1A", $captured[0], $typed );
+            }
+        } finally {
+            remove_filter( 'pre_wp_mail', $capture, 10 );
+        }
+    }
+
+    /*
+     * PR #213 review (#209 territory): {user_meta_*} and {author_meta_*} return meta data the user
+     * controls (any subscriber can set their profile description), so the contents are inserted
+     * literally: no nested tag resolution, no shortcode execution, brackets escaped on the
+     * default-value render path.
+     */
+
+    public function test_user_and_author_meta_contents_stay_literal() {
+        $this->register_test_shortcode();
+        try {
+            $user_id = get_current_user_id();
+            $author_id = self::factory()->user->create( array( 'role' => 'subscriber' ) );
+            foreach( array( '[sf_test_sc]', '{option_admin_email}', '{option_super_settings;smtp_password} [sf_test_sc a="1"]', 'x"] [sf_test_sc] {user_meta_sec_g_meta}' ) as $typed ) {
+                update_user_meta( $user_id, 'description', $typed );
+                update_user_meta( $author_id, 'description', $typed );
+                $atts = array( 'name' => 'first_name', 'value' => '{user_meta_description}' );
+                // The rendered form HTML is passed through do_shortcode() once more at the end of super_form_func().
+                $page = do_shortcode( SUPER_Shortcodes::get_default_value( 'text', $atts, $this->settings, null ) );
+                $this->assertStringNotContainsString( self::SC_MARKER, $page, $typed );
+                $this->assertSame( $typed, html_entity_decode( $page, ENT_QUOTES ), $typed );
+                $this->assertNoSecret( $page );
+                // E-mail body sequence.
+                $body = $this->email_body( '{user_meta_description}', $this->data( array() ), $this->settings, false );
+                $this->assertSame( $typed, $body, $typed );
+                // The author of a profile page is chosen by the request.
+                $_GET = array( 'author' => (string) $author_id );
+                $page = do_shortcode( SUPER_Shortcodes::get_default_value( 'text', array( 'name' => 'first_name', 'value' => '{author_meta_description}' ), $this->settings, null ) );
+                $_GET = array();
+                $this->assertStringNotContainsString( self::SC_MARKER, $page, $typed );
+                $this->assertSame( $typed, html_entity_decode( $page, ENT_QUOTES ), $typed );
+            }
+            // Normal meta values still appear.
+            update_user_meta( $user_id, 'description', 'I like forms & tea' );
+            $this->assertSame( 'I like forms & tea', html_entity_decode( SUPER_Shortcodes::get_default_value( 'text', array( 'name' => 'first_name', 'value' => '{user_meta_description}' ), $this->settings, null ), ENT_QUOTES ) );
+            $this->assertSame( self::USER_META, SUPER_Common::email_tags( '{user_meta_sec_g_meta}' ) );
+            $this->assertSame( self::USER_META, $this->email_body( '{user_meta_sec_g_meta}', $this->data( array() ), $this->settings, false ) );
+        } finally {
+            $_GET = array();
+            remove_shortcode( 'sf_test_sc' );
+        }
+    }
 }
