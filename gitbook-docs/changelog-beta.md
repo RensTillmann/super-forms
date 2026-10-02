@@ -8,6 +8,43 @@ Beta is opt-in for power users who want early access to new features before they
 
 ## Super Forms Beta - Changelog
 
+### Oct 02, 2026 - Version 6.4.008
+
+* **Security fix:** Hardened form file uploads, generated file downloads, account registration and updates, Listings entry actions, form administration, contact entry imports and exports, WooCommerce order search, unique code and invoice number generation, PayPal payment notifications and Mailchimp form data (the same fixes as stable 6.3.318).
+* **Security fix:** Text a visitor types into a form field is always treated as plain text. `{tags}` and `[shortcodes]` inside submitted values are no longer resolved or run in e-mails (including Triggers e-mails), the success message, PayPal and WooCommerce details, saved entries, the Listings entry view or pre-filled fields. Tags and shortcodes you configure in your form keep working.
+* **Security fix:** Values taken from the URL, from saved entries or from saved form progress (including "Add more" columns) are shown literally in form fields, so visitors can no longer read site options or secrets through a link.
+* **Security fix:** E-mail `foreach(...)`, `if(...)` and `isset(...)` blocks and `<%field%>` placeholders a visitor types into a field are kept as plain text; only the ones in your own e-mail templates are evaluated (including the `{field}` and file loop `{url}` placeholders inside your own foreach loops).
+* **Security fix:** The Register & Login activation e-mail and Front-end Posting tags no longer resolve tags a visitor typed.
+* **Security fix:** A password chosen in a Register & Login form is shown exactly as typed in the activation e-mail and is never resolved as a tag or e-mail template code.
+* **Security fix:** WooCommerce checkout fields pre-filled from a form no longer resolve tags the visitor typed.
+* **Security fix:** Front-end Posting custom meta, Register & Login custom user meta and the Mailchimp, Mailster and MailPoet field mappings never create PHP objects from submitted serialized strings.
+* **Security fix:** The contents of `{server_http_referrer}`, `{user_firstname}`, `{user_lastname}`, `{user_display}`, `{user_meta_*}` and `{author_meta_*}` are inserted as plain text; tags and shortcodes inside them are never resolved or run.
+* **Security fix:** The "users" retrieve method only shows public name fields to visitors (no e-mail addresses), never renders credentials or private meta, and has a new `super_users_retrieve_allowed_fields` filter.
+* **Security fix:** Update information is fetched over HTTPS, and an update is only installed from an HTTPS URL on a trusted host; otherwise administrators see a notice (hosts adjustable with the `super_forms_trusted_update_hosts` filter).
+* **Security fix:** The Licenses screen's background requests require the Administrator capability, always go to the Super Forms API, and the license login token is validated before it is stored.
+* **Changed:** The licence check times out after 3 seconds, is cached for the site address it was checked for, and falls back to the last known result instead of delaying forms or showing error text.
+* **Changed:** `{tags}` passed through form shortcode parameters, for example `[super_form id="123" email="{user_email}"]`, now pre-fill the field literally. Put the tag in the field's own Default value instead.
+* **Changed:** Dropdowns, checkboxes and radio buttons that use the "users" retrieve method show no e-mail address to visitors without the `list_users` capability. Use the `super_users_retrieve_allowed_fields` filter to allow more fields.
+* **Changed:** WooCommerce Order Search now shows orders only to shop staff (all orders) and to logged-in customers (their own orders); the search settings saved in the form are always used. Site owners can adjust who may search with the `super_wc_order_search_scope` filter.
+* **Changed:** Unique codes and invoice numbers are reserved when the form is submitted; the code shown while filling in the form is a preview.
+* **Changed:** PayPal payments are now linked to their contact entry, post and user through a signed reference. Payments that were started before this update are still recorded, but do not change the entry, post or user status automatically; update those by hand if needed.
+* **Fix:** Corrected validation of date formats without a year and the minimum number of selected dates.
+* **Fix:** Custom printing can recover when its permission has expired, instead of immediately falling back to the default form printout.
+* **Fix:** Adaptive placeholders update when a field changes without a key press, including browser autofill.
+* **Fix:** Multi-step forms wait for asynchronous validation before switching steps (Next button and step tabs).
+* **Fix:** Prefilled stored files are no longer uploaded again when a form is submitted a second time.
+* **Fix:** Listings: a missing column setting or an empty entry status no longer breaks the listing; the entry status can only be changed with the edit and change-status permissions, and the change is never stored as entry data.
+* **Fix:** "Delete files after submission" keeps working when an entry is edited; files that are no longer current are skipped instead of failing the edit.
+* **Fix:** Stripe checkout: session expiry is calculated in UTC; unknown or expired sessions on the success, cancel and retry links redirect to the home page instead of showing an error.
+* **Fix:** Rewrite rules are refreshed once per plugin version after an update, so sites coming from 6.3 get the new routes (for example the Stripe return URLs) without re-activating the plugin.
+* **Fix:** Google Sheets connected fields show an error item instead of a fatal error on PHP older than 7.4 or when the library fails.
+* **Fix:** Register & Login: safer user lookups for ACF-based fields; settings use the site URL instead of the server name.
+* **Improved:** IBAN field validation is also enforced when the form is submitted.
+* **Improved:** The bundled Google API client (2.16.1) and Stripe PHP library (14.2.0) are now managed from one Composer lockfile.
+* **Note:** This version requires PHP 7.4 or newer.
+
+This beta release delivers the same security fixes as the stable 6.3.317 and 6.3.318 releases, including the fixes for CVE-2026-28167, CVE-2026-17609 and CVE-2026-17196. Sites on 6.4.001 to 6.4.007 should update.
+
 ### Jul 17, 2026 - Version 6.4.007
 
 * **Fix:** Corrected server-side validation so optional fields can be left empty while required fields, including Toggle elements and fields in repeated rows, are enforced.
