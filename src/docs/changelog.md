@@ -9,7 +9,7 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## 2026-09-27 - Version 6.4.008-beta
+## 2026-10-02 - Version 6.4.008-beta
 
 - **Security fix:** Hardened form file uploads, generated file downloads, account registration and updates, Listings entry actions, form administration, contact entry imports and exports, WooCommerce order search, unique code and invoice number generation, PayPal payment notifications and Mailchimp form data (the same fixes as stable 6.3.318).
 - **Security fix:** Text a visitor types into a form field is always treated as plain text. `{tags}` and `[shortcodes]` inside submitted values are no longer resolved or run in e-mails (including Triggers e-mails), the success message, PayPal and WooCommerce details, saved entries, the Listings entry view or pre-filled fields. Tags and shortcodes you configure in your form keep working.
