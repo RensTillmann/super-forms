@@ -12,3 +12,6 @@ usd2.PHP
 .sass-cache
 *.swp
 *.swn
+# PHPUnit harness output (repository root only; src/vendor is the shipped, committed plugin library tree)
+/vendor/
+/wp-tests-config.php

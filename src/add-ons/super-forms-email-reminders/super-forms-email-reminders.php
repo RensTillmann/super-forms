@@ -20,7 +20,7 @@
  * License:           GPL v2 or later
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Requires at least: 4.9
- * Requires PHP:      5.4
+ * Requires PHP:      7.4
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -271,7 +271,7 @@ if( !class_exists('SUPER_Email_Reminders') ) :
                                 if( ( !isset( $v['files'] ) ) || ( count( $v['files'] )==0 ) ) {
                                     $v['value'] = '';
                                     if( !empty( $v['label'] ) ) {
-                                        $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+                                        $row = str_replace( '{loop_label}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode( $v['label'] ), $k, $data, $settings ), $row );
                                     }else{
                                         $row = str_replace( '{loop_label}', '', $row );
                                     }
@@ -281,7 +281,7 @@ if( !class_exists('SUPER_Email_Reminders') ) :
                                     foreach( $v['files'] as $key => $value ) {
                                         if( $key==0 ) {
                                             if( !empty( $v['label'] ) ) {
-                                                $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+                                                $row = str_replace( '{loop_label}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode( $v['label'] ), $k, $data, $settings ), $row );
                                             }else{
                                                 $row = str_replace( '{loop_label}', '', $row );
                                             }
@@ -296,24 +296,24 @@ if( !class_exists('SUPER_Email_Reminders') ) :
                                         }
                                     }
                                 }
-                                $row = str_replace( '{loop_value}', $files_value, $row );
+                                $row = str_replace( '{loop_value}', SUPER_Common::neutralize_submitted_loop_value( $files_value, $k, $data, $settings ), $row );
                             }else{
                                 if( ($v['type']=='form_id') || ($v['type']=='entry_id') ) {
                                     $row = '';
                                 }else{
 
                                     if( !empty( $v['label'] ) ) {
-                                        $row = str_replace( '{loop_label}', SUPER_Common::decode( $v['label'] ), $row );
+                                        $row = str_replace( '{loop_label}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode( $v['label'] ), $k, $data, $settings ), $row );
                                     }else{
                                         $row = str_replace( '{loop_label}', '', $row );
                                     }
                                     if( isset( $v['admin_value'] ) ) {
                                         if( !empty($v['replace_commas']) ) $v['admin_value'] = str_replace( ',', $v['replace_commas'], $v['admin_value'] );
-                                        $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['admin_value'] ), $row );
+                                        $row = str_replace( '{loop_value}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode_textarea_v5( $v, $v['admin_value'] ), $k, $data, $settings ), $row );
                                     }
                                     if( isset( $v['value'] ) ) {
                                         if( !empty($v['replace_commas']) ) $v['value'] = str_replace( ',', $v['replace_commas'], $v['value'] );
-                                        $row = str_replace( '{loop_value}', SUPER_Common::decode_textarea_v5( $v, $v['value'] ), $row );
+                                        $row = str_replace( '{loop_value}', SUPER_Common::neutralize_submitted_loop_value( SUPER_Common::decode_textarea_v5( $v, $v['value'] ), $k, $data, $settings ), $row );
                                     }
 
                                 }
@@ -332,12 +332,15 @@ if( !class_exists('SUPER_Email_Reminders') ) :
                     if(!empty($settings['reminder_body'])) $settings['reminder_body'] = $settings['reminder_body'] . '<br /><br />';
                     $email_body = $settings['reminder_body_open'] . $settings['reminder_body'] . $settings['reminder_body_close'];
                     $email_body = str_replace( '{loop_fields}', $reminder_loop, $email_body );
-                    $email_body = SUPER_Common::email_tags( $email_body, $data, $settings );
+                    // @since 6.3.318 - The `[` and `]` of submitted values stay inert until the author's shortcodes ran
+                    $literalValues = array();
+                    $email_body = SUPER_Common::email_tags( $email_body, $data, $settings, null, true, false, false, $literalValues );
 
                     if(!isset($settings['reminder_body_nl2br'])) $settings['reminder_body_nl2br'] = 'true';
                     if($settings['reminder_body_nl2br']=='true') $email_body = nl2br( $email_body );
                     
                     $email_body = do_shortcode($email_body);
+                    $email_body = SUPER_Common::restore_literal_tag_values( $email_body, $literalValues );
                     $email_body = apply_filters( 'super_before_sending_reminder_body_filter', $email_body, array( 'settings'=>$settings, 'reminder_loop'=>$reminder_loop, 'data'=>$data ) );
                     if( !isset( $settings['reminder_from_type'] ) ) $settings['reminder_from_type'] = 'default';
                     if( $settings['reminder_from_type']=='default' ) {

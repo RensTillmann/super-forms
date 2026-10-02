@@ -19,7 +19,7 @@
  * License:           GPL v2 or later
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Requires at least: 4.9
- * Requires PHP:      5.4
+ * Requires PHP:      7.4
 */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -215,7 +215,8 @@ if( !class_exists('SUPER_MailPoet') ) :
                     $field = explode( "|", $k );
                     $string = $field[1];
                     // check if string is serialized array
-                    $unserialize = @unserialize($string);
+                    // @since 6.3.318 - The string can contain submitted values: never instantiate objects
+                    $unserialize = SUPER_Common::unserialize_without_objects($string);
                     if ($unserialize !== false) {
                         $sub[$field[0]] = $unserialize;
                     }else{
