@@ -12,8 +12,10 @@ To install a downloaded zip: WordPress admin > Plugins > Add New > Upload Plugin
 
 ## Stable channel
 
-* **v6.3.319** (Oct 01, 2026) - [release page](https://github.com/RensTillmann/super-forms/releases/tag/v6.3.319)
+* **v6.3.320** (Oct 01, 2026) - [release page](https://github.com/RensTillmann/super-forms/releases/tag/v6.3.320)
 
 ## Beta channel
 
-The beta channel release with the same fixes, v6.4.008, is being published and will be listed here as soon as it is available. Do not install a 6.3 release on a site that runs 6.4.
+* **v6.4.008** (Oct 02, 2026) - [release page](https://github.com/RensTillmann/super-forms/releases/tag/v6.4.008)
+
+Do not install a 6.3 release on a site that runs 6.4.

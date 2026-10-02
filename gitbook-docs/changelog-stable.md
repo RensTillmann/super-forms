@@ -6,6 +6,10 @@ description: Release notes for the Super Forms stable channel.
 
 ## Super Forms Stable - Changelog
 
+### Oct 01, 2026 - Version 6.3.320
+
+* **Improved:** The Super Forms > Licenses page now only shows the Super Forms message and the "Manage Licenses in Dashboard" button; notices from other plugins and themes are no longer shown on that page.
+
 ### Oct 01, 2026 - Version 6.3.319
 
 * **Fix:** Forms with a calculator inside a repeating ("Add more") column could be rejected with "Invalid form data." when submitted.
