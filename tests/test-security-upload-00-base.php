@@ -422,6 +422,76 @@ abstract class Super_Forms_Upload_Security_Test_Case extends WP_UnitTestCase {
         );
     }
 
+    /**
+     * Real WordPress image processing, not an HTTP upload substitute.
+     * The HTTP suite must separately exercise PHP-received uploads.
+     */
+    protected function create_processed_image_upload( $form_id, $width=3000, $height=2000, $extension='jpg', $orientation=1, $wordpress_uploads=false ) {
+        require_once ABSPATH . 'wp-admin/includes/image.php';
+        $this->assertTrue( function_exists( 'imagecreatetruecolor' ), 'These image regressions require GD.' );
+        if( $wordpress_uploads ) {
+            $base = trailingslashit( ABSPATH ) . SUPER_FORMS_UPLOAD_DIR;
+            $parent = trailingslashit( $base ) . 'sf-camera-' . wp_generate_uuid4();
+            $root = $parent . '/owned';
+            $this->assertTrue( wp_mkdir_p( $root ) );
+            $parent = realpath( $parent );
+            $root = realpath( $root );
+            $this->temporary_parents[] = $parent;
+        } else {
+            list( $parent, $root ) = $this->create_temporary_root();
+        }
+        $filename = trailingslashit( $root ) . 'camera.' . $extension;
+        $image = imagecreatetruecolor( $width, $height );
+        $this->assertNotFalse( $image );
+        $mime = strtolower( $extension )==='png' ? 'image/png' : 'image/jpeg';
+        try {
+            $written = $mime==='image/png' ? imagepng( $image, $filename ) : imagejpeg( $image, $filename, 85 );
+            $this->assertTrue( $written );
+        } finally {
+            imagedestroy( $image );
+        }
+        if( $orientation!==1 ) {
+            $this->assertTrue( function_exists( 'exif_read_data' ), 'Rotation regressions require EXIF support.' );
+            // A genuine little-endian TIFF Orientation=6 tag inside JPEG APP1.
+            $this->assertSame( 6, $orientation );
+            $exif = "Exif\0\0" . hex2bin( '49492a0008000000010012010300010000000600000000000000' );
+            $jpeg = file_get_contents( $filename );
+            $this->assertNotFalse( file_put_contents( $filename, substr( $jpeg, 0, 2 )
+                . "\xff\xe1" . pack( 'n', strlen( $exif ) + 2 ) . $exif . substr( $jpeg, 2 ) ) );
+            $this->assertSame( 6, (int) wp_read_image_metadata( $filename )['orientation'] );
+        }
+        $attachment_id = wp_insert_attachment( array(
+            'post_mime_type' => $mime,
+            'post_title' => 'Camera image',
+            'post_status' => 'inherit',
+        ), $filename, 0 );
+        $this->assertTrue( is_int( $attachment_id ) && $attachment_id>0 );
+        $this->attachment_ids[] = $attachment_id;
+        add_post_meta( $attachment_id, 'super-forms-form-upload-file', true );
+        add_post_meta( $attachment_id, '_super_forms_upload_form_id', $form_id );
+        add_post_meta( $attachment_id, '_super_forms_upload_field', 'documents' );
+        $metadata = wp_generate_attachment_metadata( $attachment_id, $filename );
+        $this->assertIsArray( $metadata );
+        wp_update_attachment_metadata( $attachment_id, $metadata );
+        clearstatcache();
+        $created = array(
+            'parent' => $parent, 'root' => $root, 'file' => $filename,
+            'attachment' => $attachment_id, 'mime' => $mime,
+            'metadata' => $metadata, 'form_id' => $form_id,
+        );
+        $created['owned'] = $this->rebuild_processed_image_upload( $created );
+        $this->assertIsArray( $created['owned'] );
+        return $created;
+    }
+
+    protected function rebuild_processed_image_upload( $created ) {
+        return SUPER_Ajax::build_owned_upload(
+            $created['form_id'], 'documents', $created['file'], $created['mime'],
+            wp_get_attachment_url( $created['attachment'] ), $created['attachment'],
+            $created['root'], ''
+        );
+    }
+
     protected function issue_receipt( $owned ) {
         $token = $this->invoke_ajax_private( 'issue_upload_receipt', array( $owned ) );
         $this->assertTrue( is_string( $token ) );

@@ -2322,6 +2322,68 @@ class SUPER_Ajax {
         return $target!==$root && strpos($target, trailingslashit($root))===0;
     }
 
+    private static function canonical_attachment_upload_path( $path ) {
+        if( !is_string($path) || $path==='' || is_link($path) ) return false;
+        $real = realpath($path);
+        if( $real===false || !is_file($real) ) return false;
+        $real = wp_normalize_path($real);
+        $path = wp_normalize_path($path);
+        if( $path===$real ) return $real;
+
+        // A configured uploads root may have aliased ancestors. Nothing below
+        // that root may acquire authority through a directory or leaf symlink.
+        $uploads = wp_get_upload_dir();
+        if( !is_array($uploads) || !empty($uploads['error'])
+            || empty($uploads['basedir']) || !is_string($uploads['basedir']) ) return false;
+        $base = untrailingslashit(wp_normalize_path($uploads['basedir']));
+        if( !self::upload_path_is_descendant($path, $base) ) return false;
+        $physical_base = realpath($base);
+        if( $physical_base===false || !is_dir($physical_base) ) return false;
+        $relative = substr($path, strlen($base) + 1);
+        $mapped = trailingslashit(wp_normalize_path($physical_base)) . $relative;
+        return $mapped===$real ? $real : false;
+    }
+
+    private static function owned_upload_attachment_path( $attachment_id, $file, $root ) {
+        $attached_file = get_attached_file($attachment_id);
+        $attached_real = self::canonical_attachment_upload_path($attached_file);
+        if( $attached_real===false || !self::upload_path_is_descendant($attached_real, $root) ) return false;
+        if( $attached_real===$file ) return $attached_real;
+
+        // WordPress may repoint the attachment to a scaled or EXIF-rotated image.
+        // Its original_image value is an untrusted literal leaf, not a path.
+        $metadata = wp_get_attachment_metadata($attachment_id);
+        $original = is_array($metadata) && isset($metadata['original_image'])
+            ? $metadata['original_image'] : false;
+        if( !is_string($original) || $original==='' || $original==='.' || $original==='..'
+            || strpbrk($original, "/\\:\0")!==false ) return false;
+        $original_file = trailingslashit(dirname($attached_real)) . $original;
+        if( is_link($original_file) || !is_file($original_file) ) return false;
+        $original_real = realpath($original_file);
+        if( $original_real===false || wp_normalize_path($original_real)!==$original_file
+            || $original_file!==$file ) return false;
+        $wordpress_original = wp_get_original_image_path($attachment_id);
+        if( self::canonical_attachment_upload_path($wordpress_original)!==$file ) return false;
+        return $attached_real;
+    }
+
+    public static function attachment_upload_value_is_valid( $attachment_id, $value ) {
+        $attachment_id = absint($attachment_id);
+        if( !$attachment_id || get_post_type($attachment_id)!=='attachment'
+            || !is_string($value) || $value==='' ) return false;
+        $attached_file = get_attached_file($attachment_id);
+        $attached_real = self::canonical_attachment_upload_path($attached_file);
+        if( $attached_real===false ) return false;
+        $file = self::canonical_attachment_upload_path(
+            trailingslashit(dirname(wp_normalize_path($attached_file))) . $value
+        );
+        if( $file===false ) return false;
+        $root = wp_normalize_path(dirname($attached_real));
+        return self::owned_upload_attachment_path(
+            $attachment_id, $file, $root
+        )!==false;
+    }
+
     public static function build_owned_upload( $form_id, $field_name, $filename, $mime, $url, $attachment_id, $allowed_root, $size, $legacy_subdir='' ) {
         $root = realpath($allowed_root);
         $file = realpath($filename);
@@ -2341,13 +2403,13 @@ class SUPER_Ajax {
                 $root = $candidates[0]['root'];
             }
         }
+        $attached_file = false;
         if( $attachment_id!==0 ) {
-            $attached_file = get_attached_file($attachment_id);
-            $attached_real = $attached_file ? realpath($attached_file) : false;
-            if( get_post_type($attachment_id)!=='attachment' || $attached_real===false
-                || wp_normalize_path($attached_real)!==$file ) return false;
+            if( get_post_type($attachment_id)!=='attachment' ) return false;
+            $attached_file = self::owned_upload_attachment_path($attachment_id, $file, $root);
+            if( $attached_file===false ) return false;
         }
-        return array(
+        $owned = array(
             'version' => 1,
             'form_id' => absint($form_id),
             'field' => $field_name,
@@ -2362,6 +2424,11 @@ class SUPER_Ajax {
             'basename' => basename($file),
             'legacy_subdir' => $legacy_subdir,
         );
+        if( $attached_file!==false && $attached_file!==$file ) {
+            // Bind the derived path too; path/size ownership is not a content hash.
+            $owned['attached_file'] = $attached_file;
+        }
+        return $owned;
     }
 
     private static function owned_upload_is_current( $owned, $expected_parent=null ) {
@@ -2386,8 +2453,8 @@ class SUPER_Ajax {
             || basename($file)!==$owned['basename'] ) return false;
         if( $owned['storage']==='attachment' ) {
             $attachment_id = isset($owned['attachment']) ? absint($owned['attachment']) : 0;
-            $attached_file = $attachment_id ? get_attached_file($attachment_id) : false;
-            $attached_real = $attached_file ? realpath($attached_file) : false;
+            $attached_file = $attachment_id
+                ? self::owned_upload_attachment_path($attachment_id, $file, $root) : false;
             $stored_form_id = $attachment_id
                 ? get_post_meta($attachment_id, '_super_forms_upload_form_id', true)
                 : '';
@@ -2409,7 +2476,9 @@ class SUPER_Ajax {
             if( !$attachment_id || get_post_type($attachment_id)!=='attachment'
                 || !get_post_meta($attachment_id, 'super-forms-form-upload-file', true)
                 || (!$metadata_owned && !$legacy_owned)
-                || $attached_real===false || wp_normalize_path($attached_real)!==$file
+                || $attached_file===false
+                || ($attached_file!==$file && !isset($owned['attached_file']))
+                || (isset($owned['attached_file']) && $owned['attached_file']!==$attached_file)
                 || get_post_mime_type($attachment_id)!==$owned['mime'] ) return false;
             if( $expected_parent!==null && wp_get_post_parent_id($attachment_id)!==absint($expected_parent) ) return false;
             return true;
@@ -3288,7 +3357,7 @@ class SUPER_Ajax {
         if( !isset($allowed[$extension]) ) return false;
         $verified = wp_check_filetype_and_ext($filename, $basename, $allowed);
         if( empty($verified['ext']) || empty($verified['type'])
-            || $verified['ext']!==$extension || $verified['type']!==$allowed[$extension] ) return false;
+            || strtolower($verified['ext'])!==$extension || $verified['type']!==$allowed[$extension] ) return false;
         return $verified['type'];
     }
 
@@ -3357,9 +3426,10 @@ class SUPER_Ajax {
                     continue;
                 }
                 $verified = wp_check_filetype_and_ext($candidate['file'], $basename, $allowed);
+                $verified_extension = empty($verified['ext']) ? '' : strtolower($verified['ext']);
                 if( empty($verified['ext']) || empty($verified['type'])
-                    || !isset($allowed[$verified['ext']])
-                    || $allowed[$verified['ext']]!==$verified['type']
+                    || !isset($allowed[$verified_extension])
+                    || $allowed[$verified_extension]!==$verified['type']
                     || ($stored_type!=='' && $stored_type!==$verified['type']) ) {
                     continue;
                 }
@@ -3456,6 +3526,23 @@ class SUPER_Ajax {
             $stored_field = get_post_meta($attachment_id, '_super_forms_upload_field', true);
             if( $stored_form_id!=='' && absint($stored_form_id)!==absint($form_id) ) return false;
             if( $stored_field!=='' && (string) $stored_field!==$stored_field_name ) return false;
+            // Prefer a proven original identity. Legacy entries may instead hold
+            // the browser name, or an original that an optimiser has removed.
+            if( isset($stored['value']) && $stored['value']!==basename($filename) ) {
+                if( !is_string($stored['value']) || $stored['value']===''
+                    || $stored['value']==='.' || $stored['value']==='..'
+                    || strpbrk($stored['value'], "/\\:\0")!==false ) return false;
+                $metadata = wp_get_attachment_metadata($attachment_id);
+                if( is_array($metadata) && isset($metadata['original_image'])
+                    && $metadata['original_image']===$stored['value'] ) {
+                    $original_file = trailingslashit(dirname(wp_normalize_path($filename))) . $stored['value'];
+                    if( self::owned_upload_attachment_path(
+                        $attachment_id, $original_file, wp_normalize_path(dirname($filename))
+                    )!==false ) {
+                        $filename = $original_file;
+                    }
+                }
+            }
             $mime = self::verified_existing_upload_mime($filename, $file_element);
             $url = wp_get_attachment_url($attachment_id);
             $resolved = SUPER_Forms::resolve_owned_upload_file($filename, $settings);
@@ -3478,10 +3565,9 @@ class SUPER_Ajax {
             $owned['legacy_source_field'] = $field_name;
             $owned['legacy_source_key'] = $source_key;
             $owned['cleanup_parent'] = absint($entry_id);
-            // The attachment was verified above (upload marker, exact parent entry, form and
-            // field metadata), so like the custom-file branch it may be cleaned up when the
-            // form deletes files after submission.
-            $owned['cleanup_authority'] = true;
+            // A mismatched legacy selector can retain the attachment, but cannot
+            // authorize cleanup of its rebuilt identity.
+            $owned['cleanup_authority'] = isset($stored['value']) && $stored['value']===basename($filename);
             $record = self::owned_upload_file_record($owned, $field_name);
             $record['_super_file_authority'] = 'retained';
             return $record;
@@ -8854,7 +8940,7 @@ class SUPER_Ajax {
                 }
                 $original_type = wp_check_filetype($original_name, $allowed_mimes);
                 if( empty($original_type['ext']) || empty($original_type['type'])
-                    || $original_type['ext']!==$original_extension
+                    || strtolower($original_type['ext'])!==$original_extension
                     || $original_type['type']!==$allowed_mimes[$original_extension] ) {
                     SUPER_Common::output_message( array( 'error' => true, 'msg' => esc_html__( 'This file type is not permitted.', 'super-forms' ) ) );
                 }
@@ -8950,7 +9036,7 @@ class SUPER_Ajax {
                 if( $final_extension!==$file_plan['original_extension']
                     || !isset($plan['allowed_mimes'][$final_extension])
                     || empty($verified_type['ext']) || empty($verified_type['type'])
-                    || $verified_type['ext']!==$final_extension
+                    || strtolower($verified_type['ext'])!==$final_extension
                     || $verified_type['type']!==$plan['allowed_mimes'][$final_extension]
                     || $uploaded_file['type']!==$verified_type['type'] ) {
                     SUPER_Common::delete_file($filename, $upload_root);
