@@ -8,6 +8,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Unreleased
+
+- **Fix:** Date fields with omitted or empty date-format settings now use the default `dd-mm-yy` format during submission, while saved nonempty formats and strict date validation are preserved.
+
 ## Oct 01, 2026 - Version 6.3.320
 
 - **Improved:** The Super Forms > Licenses page now only shows the Super Forms message and the "Manage Licenses in Dashboard" button; notices from other plugins and themes are no longer shown on that page.
