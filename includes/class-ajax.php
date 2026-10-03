@@ -5553,6 +5553,19 @@ class SUPER_Ajax {
     }
 
     /**
+     * Match a finalized attachment value without granting path or cleanup authority.
+     */
+    public static function attachment_upload_value_is_valid( $attachment_id, $value ) {
+        $attachment_id = absint($attachment_id);
+        if( !$attachment_id || get_post_type($attachment_id)!=='attachment'
+            || !is_string($value) || $value==='' ) return false;
+        $attached_file = get_attached_file($attachment_id);
+        if( !is_string($attached_file) || $attached_file==='' ) return false;
+        $root = wp_normalize_path(dirname($attached_file));
+        return self::owned_attachment_file($attachment_id, trailingslashit($root) . $value, $root)!==false;
+    }
+
+    /**
      * Build the only record shape that can later authorize attachment/file effects.
      */
     public static function build_owned_upload( $form_id, $field_name, $filename, $mime, $url, $attachment_id, $allowed_root, $size, $legacy_subdir='' ) {
@@ -6754,15 +6767,22 @@ class SUPER_Ajax {
             if( $stored_field!=='' && (string) $stored_field!==$stored_field_name ) return false;
             // New image uploads store the preserved original's name and size,
             // while WordPress's attached file may be its scaled/rotated copy.
-            // Rebuild only that exact original, never a client-selected path.
-            if( isset($stored['value']) && $stored['value']!==basename($filename) ) {
+            // Legacy entries stored the browser's name, not the attached basename.
+            // Keep the attached file unless this literal value identifies a proven original.
+            if( isset($stored['value']) && (!is_string($stored['value'])
+                || $stored['value']==='' || $stored['value']==='.' || $stored['value']==='..'
+                || strpos($stored['value'], '/')!==false || strpos($stored['value'], '\\')!==false
+                || strpos($stored['value'], ':')!==false || strpos($stored['value'], "\0")!==false) ) return false;
+            if( isset($stored['value']) && is_string($stored['value'])
+                && $stored['value']!==basename($filename) ) {
                 $metadata = wp_get_attachment_metadata($attachment_id);
-                if( !is_string($stored['value']) || !is_array($metadata)
-                    || !isset($metadata['original_image'])
-                    || $metadata['original_image']!==$stored['value'] ) return false;
-                $original = trailingslashit(wp_normalize_path(dirname($filename))) . $stored['value'];
-                if( self::owned_attachment_file($attachment_id, $original, dirname($filename))===false ) return false;
-                $filename = $original;
+                if( is_array($metadata) && isset($metadata['original_image'])
+                    && $metadata['original_image']===$stored['value'] ) {
+                    $original = trailingslashit(wp_normalize_path(dirname($filename))) . $stored['value'];
+                    if( self::owned_attachment_file($attachment_id, $original, dirname($filename))!==false ) {
+                        $filename = $original;
+                    }
+                }
             }
             $mime = self::verified_existing_upload_mime($filename, $file_element);
             $url = wp_get_attachment_url($attachment_id);
@@ -6786,10 +6806,10 @@ class SUPER_Ajax {
             $owned['legacy_source_field'] = $field_name;
             $owned['legacy_source_key'] = $source_key;
             $owned['cleanup_parent'] = absint($entry_id);
-            // The attachment identity above is fully verified (post type, entry parent,
-            // upload markers, mime and configured root), so this record may finalize its
-            // own cleanup. Its use is re-verified by retained_owned_upload_is_current().
-            $owned['cleanup_authority'] = true;
+            // A legacy selector may authorize retention, not cleanup of a different identity.
+            // Final cleanup additionally rechecks the exact server-stored entry record.
+            $owned['cleanup_authority'] = isset($stored['value']) && is_string($stored['value'])
+                && $stored['value']===$owned['basename'];
             $record = self::owned_upload_file_record($owned, $field_name);
             $record['_super_file_authority'] = 'retained';
             return $record;

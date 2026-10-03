@@ -1597,7 +1597,9 @@ if( !class_exists('SUPER_Register_Login') ) :
                             ? realpath($filename)
                             : false;
                         if( $real===false || !is_file($real) || get_post_type($attachment_id)!=='attachment'
-                            || basename($real)!==$file['value'] ) {
+                            || (basename($real)!==$file['value']
+                                && (!class_exists('SUPER_Ajax')
+                                    || !SUPER_Ajax::attachment_upload_value_is_valid($attachment_id, $file['value']))) ) {
                             return new WP_Error( 'super_forms_invalid_custom_meta_file' );
                         }
                         $file_values[] = $attachment_id;

@@ -144,9 +144,28 @@ class Test_Super_Forms_Upload_Image_Regressions extends Super_Forms_Upload_Secur
         foreach( array('../' . $stored['value'], $created['file'], 'other/' . $stored['value'], 'other.jpg') as $value ) {
             $forged = $stored;
             $forged['value'] = $value;
-            $this->assertFalse($this->invoke_ajax_private('rebuild_retained_entry_file', array(
-                $forged, $entry, $form_id, 'documents', $element['data'], $settings, 0, 'documents',
-            )));
+            if( $value==='other.jpg' ) {
+                update_post_meta($entry, '_super_contact_entry_data', array(
+                    'documents'=>array('type'=>'files', 'files'=>array($forged)),
+                ));
+                $legacy_owned = false;
+                $legacy = $this->invoke_ajax_private('rebuild_retained_entry_file', array(
+                    $forged, $entry, $form_id, 'documents', $element['data'], $settings, 0, 'documents', &$legacy_owned,
+                ));
+                $this->assertIsArray($legacy);
+                $this->assertSame(basename($attached), $legacy['value']);
+                $this->assertSame(filesize($attached), $legacy['size']);
+                $this->assertFalse($legacy_owned['cleanup_authority']);
+                $this->assertFalse($this->invoke_ajax_private('retained_owned_upload_is_current', array($legacy_owned)));
+                $this->assertFalse($this->invoke_ajax_private('delete_finalized_owned_uploads', array(array($legacy_owned), $entry, $form_id)));
+                $this->assertFileExists($attached);
+                $this->assertFileExists($created['file']);
+                update_post_meta($entry, '_super_contact_entry_data', $atts['data']);
+            } else {
+                $this->assertFalse($this->invoke_ajax_private('rebuild_retained_entry_file', array(
+                    $forged, $entry, $form_id, 'documents', $element['data'], $settings, 0, 'documents',
+                )));
+            }
             if( $suffix!=='' ) {
                 $metadata = $created['metadata'];
                 $metadata['original_image'] = $value;
@@ -341,5 +360,148 @@ class Test_Super_Forms_Upload_Image_Regressions extends Super_Forms_Upload_Secur
         $this->assertTrue($this->invoke_ajax_private('retained_owned_upload_is_current', array($owned)));
         wp_update_post(array('ID'=>$created['attachment'], 'post_mime_type'=>'text/plain'));
         $this->assertFalse($this->invoke_ajax_private('retained_owned_upload_is_current', array($owned)));
+    }
+
+    public static function legacy_client_name_cases() {
+        return array(
+            'sanitized' => array('IMG 0001.JPG', 'IMG-0001.jpg', false),
+            'uniquified' => array('camera.jpg', 'camera-1.jpg', false),
+            'uppercase client' => array('CAMERA.JPG', 'CAMERA.jpg', false),
+            'removed original' => array('old camera.JPG', '', true),
+            'missing literal original' => array('', '', true),
+        );
+    }
+
+    /** @dataProvider legacy_client_name_cases */
+    public function test_legacy_client_name_retention_resolves_without_cleanup_authority( $client_name, $attached_name, $remove_original ) {
+        $element = $this->file_element('documents');
+        $form_id = $this->create_form('publish', array($element));
+        $created = $this->image_attachment($form_id, $remove_original ? 3000 : 320, $remove_original ? 2000 : 240);
+        $attached = get_attached_file($created['attachment']);
+        if( $remove_original ) {
+            $this->assertNotSame($created['file'], wp_normalize_path($attached));
+            if( $client_name==='' ) $client_name = basename($created['file']);
+            $this->assertTrue(unlink($created['file']));
+            clearstatcache();
+        } else {
+            $renamed = trailingslashit($created['root']) . $attached_name;
+            $this->assertTrue(rename($attached, $renamed));
+            $this->assertTrue(update_attached_file($created['attachment'], $renamed));
+            $attached = $renamed;
+        }
+        $entry = self::factory()->post->create(array(
+            'post_type'=>'super_contact_entry', 'post_status'=>'super_unread', 'post_parent'=>$form_id,
+        ));
+        wp_update_post(array('ID'=>$created['attachment'], 'post_parent'=>$entry));
+        $settings = array('file_upload_dir'=>'../' . basename($created['parent']) . '/' . basename($created['root']));
+        update_post_meta($form_id, '_super_form_settings', $settings);
+        $stored = array(
+            'value'=>$client_name, 'name'=>'documents', 'type'=>$created['mime'],
+            'url'=>wp_get_attachment_url($created['attachment']), 'attachment'=>$created['attachment'],
+        );
+        update_post_meta($entry, '_super_contact_entry_data', array(
+            'documents'=>array('type'=>'files', 'files'=>array(7=>$stored)),
+        ));
+        $owned = false;
+        $record = $this->invoke_ajax_private('resolve_retained_entry_file', array(
+            array('value'=>$client_name, 'url'=>$stored['url'], 'retention_token'=>'entry'),
+            $entry, 'documents', 'documents', &$owned,
+        ));
+        $this->assertIsArray($record);
+        $this->assertSame(basename($attached), $record['value']);
+        $this->assertSame(filesize($attached), $record['size']);
+        $this->assertSame(wp_normalize_path(realpath($attached)), $owned['file']);
+        $this->assertFalse($owned['cleanup_authority']);
+        $this->assertFalse($this->invoke_ajax_private('retained_owned_upload_is_current', array($owned)));
+        $this->assertFalse($this->invoke_ajax_private('delete_finalized_owned_uploads', array(array($owned), $entry, $form_id)));
+        $this->assertFileExists($attached);
+        if( $remove_original ) $this->assertFileDoesNotExist($created['file']);
+    }
+
+    public static function custom_meta_image_cases() {
+        return array(
+            'scaled' => array(3000, 2000, 1),
+            'rotated' => array(2000, 1500, 6),
+            'unprocessed' => array(320, 240, 1),
+        );
+    }
+
+    private function image_meta_action( $form_id, $data ) {
+        $settings = array(
+            'register_login_action'=>'update', 'register_login_user_id_update'=>'true',
+            'register_login_register_not_logged_in'=>'', 'register_login_not_logged_in_msg'=>'Please log in.',
+            'register_login_show_toolbar'=>'', 'register_user_role'=>'_super_keep_existing_role',
+            'register_login_update_user_meta'=>'documents|sf_image_meta', 'register_login_user_meta'=>'',
+            'register_login_action_skip_register'=>'', 'register_login_activation'=>'none',
+            'register_user_signup_status'=>'active', 'register_send_approve_email'=>'',
+            'register_login_multisite_enabled'=>'',
+        );
+        $post = array('action'=>'super_submit_form', 'form_id'=>(string)$form_id, 'data'=>wp_json_encode($data));
+        $_POST = $_REQUEST = $post;
+        $atts = array(
+            'settings'=>$settings, 'data'=>$data, 'post'=>$post,
+            'entry_id'=>0, 'attachments'=>array(),
+        );
+        SUPER_Register_Login::before_sending_email($atts);
+        return $atts;
+    }
+
+    /** @dataProvider custom_meta_image_cases */
+    public function test_register_login_maps_original_image_through_account_hooks( $width, $height, $orientation ) {
+        if( !class_exists('SUPER_Register_Login') ) {
+            require_once SUPER_PLUGIN_DIR . '/add-ons/super-forms-register-login/super-forms-register-login.php';
+        }
+        require_once ABSPATH . 'wp-admin/includes/user.php';
+        $form_id = $this->create_form('publish', array($this->file_element('documents')));
+        $created = $this->image_attachment($form_id, $width, $height, 'jpg', $orientation);
+        $owned = $this->build_image_owned($created);
+        $this->assertIsArray($owned);
+        $record = $this->invoke_ajax_private('owned_upload_file_record', array($owned));
+        $resolver = new ReflectionMethod('SUPER_Register_Login', 'resolve_custom_meta_value');
+        $resolver->setAccessible(true);
+        $data = array('documents'=>array('type'=>'files', 'files'=>array($record)));
+        $this->assertSame($created['attachment'], $resolver->invoke(null, 'documents', $data, array(), $form_id));
+        $user_id = self::factory()->user->create(array('role'=>'subscriber'));
+        wp_set_current_user($user_id);
+        $client_key = 'sfimage' . str_replace('-', '', wp_generate_uuid4());
+        $_COOKIE['_sfs_id'] = $client_key;
+        update_option('_sfsdata_' . $client_key, array(
+            'expires'=>time()+HOUR_IN_SECONDS, 'exp_var'=>time()+20*MINUTE_IN_SECONDS, 'image_meta_fixture'=>true,
+        ), false);
+        $data['user_id'] = array('type'=>'text', 'value'=>(string)$user_id);
+        try {
+            $atts = $this->image_meta_action($form_id, $data);
+            SUPER_Register_Login::before_email_success_msg($atts);
+            $this->assertSame((string)$created['attachment'], get_user_meta($user_id, 'sf_image_meta', true));
+            foreach( array('../' . $record['value'], 'other.jpg', get_attached_file($created['attachment'])) as $value ) {
+                $forged_data = $data;
+                $forged_data['documents']['files'][0]['value'] = $value;
+                $this->assertWPError($resolver->invoke(null, 'documents', $forged_data, array(), $form_id));
+                $forged_atts = $this->image_meta_action($form_id, $forged_data);
+                $result = $this->run_dying_handler(static function() use ($forged_atts) {
+                    SUPER_Register_Login::before_email_success_msg($forged_atts);
+                }, false);
+                $this->assertSame(0, $result['status'], $result['output']);
+                $this->assertStringContainsString('Invalid file upload', wp_strip_all_tags($result['output']));
+                $this->assertSame((string)$created['attachment'], get_user_meta($user_id, 'sf_image_meta', true));
+            }
+            if( $width>2560 || $orientation!==1 ) {
+                foreach( array('../' . $record['value'], 'other.jpg', $created['file'], array($record['value'])) as $value ) {
+                    $metadata = $created['metadata'];
+                    $metadata['original_image'] = $value;
+                    wp_update_attachment_metadata($created['attachment'], $metadata);
+                    $this->assertWPError($resolver->invoke(null, 'documents', $data, array(), $form_id));
+                    $this->assertFalse($this->invoke_ajax_private('owned_upload_is_current', array($owned, 0)));
+                }
+                wp_update_attachment_metadata($created['attachment'], $created['metadata']);
+            }
+        } finally {
+            wp_set_current_user(0);
+            wp_delete_user($user_id);
+            delete_option('_sfsdata_' . $client_key);
+            $clear = new ReflectionMethod('SUPER_Register_Login', 'clear_user_meta_bridge');
+            $clear->setAccessible(true);
+            $clear->invoke(null);
+        }
     }
 }
