@@ -13,6 +13,8 @@
 
 - **Fix:** Phone and camera images that WordPress scales or EXIF-rotates retain valid upload receipts and saved-file ownership, without disabling normal image processing. WordPress must resolve the original image to the exact owned file in the attachment's directory; the derived attachment path remains bound during receipt revalidation.
 - **Fix:** Image uploads with uppercase or mixed-case `.JPG`, `.JPEG` and `.PNG` extensions pass both upload file-type checks and remain valid when retained in saved entries; MIME restrictions and dangerous or double-extension rejection remain unchanged.
+- **Fix:** Retained legacy attachments remain usable when WordPress changed the browser filename or an optimiser removed the original image; a mismatched stored filename does not authorize file cleanup.
+- **Fix:** Register & Login custom user meta mappings accept scaled and rotated attachments only when the mapped original filename passes the same exact WordPress original-image validation as upload ownership.
 
 ## 2026-09-27 - Version 6.4.008-beta
 

@@ -2349,6 +2349,18 @@ class SUPER_Ajax {
         return $attached_real;
     }
 
+    public static function attachment_upload_value_is_valid( $attachment_id, $value ) {
+        $attachment_id = absint($attachment_id);
+        if( !$attachment_id || get_post_type($attachment_id)!=='attachment'
+            || !is_string($value) || $value==='' ) return false;
+        $attached_file = get_attached_file($attachment_id);
+        if( !is_string($attached_file) || $attached_file==='' ) return false;
+        $root = wp_normalize_path(dirname($attached_file));
+        return self::owned_upload_attachment_path(
+            $attachment_id, trailingslashit($root) . $value, $root
+        )!==false;
+    }
+
     public static function build_owned_upload( $form_id, $field_name, $filename, $mime, $url, $attachment_id, $allowed_root, $size, $legacy_subdir='' ) {
         $root = realpath($allowed_root);
         $file = realpath($filename);
@@ -3491,18 +3503,22 @@ class SUPER_Ajax {
             $stored_field = get_post_meta($attachment_id, '_super_forms_upload_field', true);
             if( $stored_form_id!=='' && absint($stored_form_id)!==absint($form_id) ) return false;
             if( $stored_field!=='' && (string) $stored_field!==$stored_field_name ) return false;
-            // Upload receipts store the original name and size, while WordPress
-            // may serve a scaled/rotated attachment. Preserve that exact identity.
+            // Prefer a proven original identity. Legacy entries may instead hold
+            // the browser name, or an original that an optimiser has removed.
             if( isset($stored['value']) && $stored['value']!==basename($filename) ) {
+                if( !is_string($stored['value']) || $stored['value']===''
+                    || $stored['value']==='.' || $stored['value']==='..'
+                    || strpbrk($stored['value'], "/\\:\0")!==false ) return false;
                 $metadata = wp_get_attachment_metadata($attachment_id);
-                if( !is_string($stored['value']) || !is_array($metadata)
-                    || !isset($metadata['original_image'])
-                    || $metadata['original_image']!==$stored['value'] ) return false;
-                $original_file = trailingslashit(dirname(wp_normalize_path($filename))) . $stored['value'];
-                if( self::owned_upload_attachment_path(
-                    $attachment_id, $original_file, wp_normalize_path(dirname($filename))
-                )===false ) return false;
-                $filename = $original_file;
+                if( is_array($metadata) && isset($metadata['original_image'])
+                    && $metadata['original_image']===$stored['value'] ) {
+                    $original_file = trailingslashit(dirname(wp_normalize_path($filename))) . $stored['value'];
+                    if( self::owned_upload_attachment_path(
+                        $attachment_id, $original_file, wp_normalize_path(dirname($filename))
+                    )!==false ) {
+                        $filename = $original_file;
+                    }
+                }
             }
             $mime = self::verified_existing_upload_mime($filename, $file_element);
             $url = wp_get_attachment_url($attachment_id);
@@ -3526,10 +3542,9 @@ class SUPER_Ajax {
             $owned['legacy_source_field'] = $field_name;
             $owned['legacy_source_key'] = $source_key;
             $owned['cleanup_parent'] = absint($entry_id);
-            // The attachment was verified above (upload marker, exact parent entry, form and
-            // field metadata), so like the custom-file branch it may be cleaned up when the
-            // form deletes files after submission.
-            $owned['cleanup_authority'] = true;
+            // A mismatched legacy selector can retain the attachment, but cannot
+            // authorize cleanup of its rebuilt identity.
+            $owned['cleanup_authority'] = isset($stored['value']) && $stored['value']===basename($filename);
             $record = self::owned_upload_file_record($owned, $field_name);
             $record['_super_file_authority'] = 'retained';
             return $record;
