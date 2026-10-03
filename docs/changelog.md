@@ -8,6 +8,13 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Unreleased
+
+- **Fix:** Camera photos now upload normally when WordPress scales large images or rotates them using EXIF orientation. Upload receipts and retained entry files keep the original image as their owned identity and verify its exact relationship to the attached copy.
+- **Fix:** Image filenames with upper-case or mixed-case extensions (such as `.JPG`, `.JPEG`, and `.PNG`) are accepted during upload and when retaining saved entry files, without relaxing file type restrictions.
+- **Fix:** Saved entry files whose original browser name was sanitized, uniquified, or lowercased by WordPress remain usable without granting cleanup authority to a mismatched name. Register & Login custom user meta mappings also accept the validated original image when WordPress attaches a scaled or rotated copy.
+- **Fix:** Media-library uploads also work when an uploads parent directory is a filesystem symlink. Ownership still checks canonical authorized roots and the exact original-image relationship, and symlinked file leaves remain rejected.
+
 ## Oct 01, 2026 - Version 6.3.320
 
 - **Improved:** The Super Forms > Licenses page now only shows the Super Forms message and the "Manage Licenses in Dashboard" button; notices from other plugins and themes are no longer shown on that page.
