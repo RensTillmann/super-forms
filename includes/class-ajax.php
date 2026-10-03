@@ -5522,16 +5522,35 @@ class SUPER_Ajax {
     }
 
     /**
+     * Allow a configured uploads-root alias, never links below that root or at the leaf.
+     */
+    private static function canonical_owned_attachment_file( $path, $root ) {
+        if( !is_string($path) || $path==='' || is_link($path) ) return false;
+        $path = wp_normalize_path($path);
+        if( preg_match('#(?:^|/)\.\.?(?:/|$)#', $path) ) return false;
+        $real = realpath($path);
+        if( $real===false || !is_file($real) ) return false;
+        $real = wp_normalize_path($real);
+        if( !self::upload_path_is_descendant($real, $root) ) return false;
+        if( $path===$real ) return $real;
+        $uploads = wp_get_upload_dir();
+        if( empty($uploads['basedir']) || !is_string($uploads['basedir']) ) return false;
+        $lexical_root = untrailingslashit(wp_normalize_path($uploads['basedir']));
+        $physical_root = realpath($lexical_root);
+        if( $physical_root===false || !self::upload_path_is_descendant($path, $lexical_root) ) return false;
+        $relative = substr($path, strlen(trailingslashit($lexical_root)));
+        if( trailingslashit(wp_normalize_path($physical_root)) . $relative!==$real ) return false;
+        return $real;
+    }
+
+    /**
      * Resolve an attachment's exact owned file, including WordPress's preserved
      * original after scaling or EXIF rotation. Metadata is not a path authority.
      */
     private static function owned_attachment_file( $attachment_id, $file, $root ) {
         $attached_file = get_attached_file($attachment_id);
-        $attached_real = $attached_file ? realpath($attached_file) : false;
-        if( $attached_real===false || is_link($attached_file) || !is_file($attached_real) ) return false;
-        $attached_real = wp_normalize_path($attached_real);
-        if( wp_normalize_path($attached_file)!==$attached_real
-            || !self::upload_path_is_descendant($attached_real, $root) ) return false;
+        $attached_real = self::canonical_owned_attachment_file($attached_file, $root);
+        if( $attached_real===false ) return false;
         if( $attached_real===$file ) return $attached_real;
 
         $metadata = wp_get_attachment_metadata($attachment_id);
@@ -5541,14 +5560,13 @@ class SUPER_Ajax {
             || strpos($original, '/')!==false || strpos($original, '\\')!==false
             || strpos($original, ':')!==false || strpos($original, "\0")!==false ) return false;
         $original_file = trailingslashit(dirname($attached_real)) . $original;
-        $original_real = realpath($original_file);
-        if( $original_real===false || is_link($original_file) || !is_file($original_real)
-            || wp_normalize_path($original_real)!==$original_file
-            || $original_file!==$file ) return false;
+        $original_real = self::canonical_owned_attachment_file($original_file, $root);
+        if( $original_real===false || $original_real!==$original_file || $original_file!==$file ) return false;
         // Require WordPress to identify this exact original as well; a metadata
         // leaf alone cannot authorize a different file or a filtered path.
         $original_path = wp_get_original_image_path($attachment_id);
-        if( !is_string($original_path) || wp_normalize_path($original_path)!==$file ) return false;
+        $original_path_real = self::canonical_owned_attachment_file($original_path, $root);
+        if( $original_path_real===false || $original_path_real!==$file ) return false;
         return $attached_real;
     }
 
@@ -5558,11 +5576,17 @@ class SUPER_Ajax {
     public static function attachment_upload_value_is_valid( $attachment_id, $value ) {
         $attachment_id = absint($attachment_id);
         if( !$attachment_id || get_post_type($attachment_id)!=='attachment'
-            || !is_string($value) || $value==='' ) return false;
+            || !is_string($value) || $value==='' || $value==='.' || $value==='..'
+            || strpos($value, '/')!==false || strpos($value, '\\')!==false
+            || strpos($value, ':')!==false || strpos($value, "\0")!==false ) return false;
         $attached_file = get_attached_file($attachment_id);
-        if( !is_string($attached_file) || $attached_file==='' ) return false;
-        $root = wp_normalize_path(dirname($attached_file));
-        return self::owned_attachment_file($attachment_id, trailingslashit($root) . $value, $root)!==false;
+        if( !is_string($attached_file) || $attached_file==='' || is_link($attached_file) ) return false;
+        $candidate = trailingslashit(wp_normalize_path(dirname($attached_file))) . $value;
+        $root = realpath(dirname($attached_file));
+        if( $root===false ) return false;
+        $root = wp_normalize_path($root);
+        $file = self::canonical_owned_attachment_file($candidate, $root);
+        return $file!==false && self::owned_attachment_file($attachment_id, $file, $root)!==false;
     }
 
     /**

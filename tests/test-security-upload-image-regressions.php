@@ -504,4 +504,136 @@ class Test_Super_Forms_Upload_Image_Regressions extends Super_Forms_Upload_Secur
             delete_option('_sfsdata_' . $client_key);
         }
     }
+
+    private function assert_symlinked_upload_parent_image( $width, $height, $orientation=1 ) {
+        $form_id = $this->create_form('publish', array($this->file_element('documents')));
+        $created = $this->image_attachment($form_id, $width, $height, 'jpg', $orientation);
+        $attached = wp_normalize_path(realpath(get_attached_file($created['attachment'])));
+        $uploads = wp_upload_dir();
+        $this->assertEmpty($uploads['error']);
+        $this->assertTrue(wp_mkdir_p($uploads['basedir']));
+        $linked_parent = trailingslashit($uploads['basedir']) . 'sf-linked-uploads-' . wp_generate_uuid4();
+        $this->assertTrue(symlink($created['root'], $linked_parent));
+        $upload_filter = $this->add_upload_filter('upload_dir', static function($directory) use ($linked_parent, $uploads) {
+            $directory['basedir'] = $directory['path'] = $linked_parent;
+            $directory['subdir'] = '';
+            $directory['baseurl'] = $directory['url'] = trailingslashit($uploads['baseurl']) . basename($linked_parent);
+            return $directory;
+        });
+        try {
+            $linked_attached = trailingslashit($linked_parent) . basename($attached);
+            $this->assertTrue(update_attached_file($created['attachment'], $linked_attached));
+            $this->assertSame(wp_normalize_path($linked_attached), wp_normalize_path(get_attached_file($created['attachment'])));
+            $this->assertTrue(is_link(dirname($linked_attached)));
+            $this->assertFalse(is_link($linked_attached));
+            $linked_original = trailingslashit($linked_parent) . basename($created['file']);
+            $owned = SUPER_Ajax::build_owned_upload(
+                $form_id, 'documents', $linked_original, $created['mime'],
+                wp_get_attachment_url($created['attachment']), $created['attachment'], $linked_parent, false
+            );
+            $this->assertIsArray($owned);
+            $this->assertSame($created['file'], $owned['file']);
+            $this->assertSame(wp_normalize_path(realpath($created['root'])), $owned['allowed_root']);
+            $this->assertSame(basename($created['file']), $owned['basename']);
+            $this->assertSame(filesize($created['file']), $owned['size']);
+            $this->assertTrue($this->invoke_ajax_private('owned_upload_is_current', array($owned, 0)));
+            // Direct attachments cover the old LTS behavior; processed originals
+            // separately exercise WordPress's lexical original-path normalization.
+            if( $attached!==$created['file'] ) {
+                $this->assertSame($attached, $owned['attached_file']);
+                $this->assertSame(wp_normalize_path($linked_original), wp_normalize_path(wp_get_original_image_path($created['attachment'])));
+                $this->assertTrue(SUPER_Ajax::attachment_upload_value_is_valid($created['attachment'], basename($created['file'])));
+                $this->assertFalse(SUPER_Ajax::attachment_upload_value_is_valid($created['attachment'], 'other/' . basename($created['file'])));
+            }
+            $outside = SUPER_Ajax::build_owned_upload(
+                $form_id, 'documents', $linked_original, $created['mime'],
+                wp_get_attachment_url($created['attachment']), $created['attachment'], $uploads['basedir'], false
+            );
+            $this->assertFalse($outside, 'A directory alias must not widen the authorized canonical root.');
+        } finally {
+            remove_filter('upload_dir', $upload_filter);
+            update_attached_file($created['attachment'], $attached);
+            unlink($linked_parent);
+        }
+    }
+
+    public function test_symlinked_upload_parent_accepts_unprocessed_image() {
+        $this->assert_symlinked_upload_parent_image(320, 240);
+    }
+
+    public static function symlinked_parent_processed_cases() {
+        return array(
+            'scaled original' => array(3000, 2000, 1),
+            'rotated original' => array(2000, 1500, 6),
+        );
+    }
+
+    /** @dataProvider symlinked_parent_processed_cases */
+    public function test_symlinked_upload_parent_preserves_processed_original_identity( $width, $height, $orientation ) {
+        $this->assert_symlinked_upload_parent_image($width, $height, $orientation);
+    }
+
+    public function test_symlinked_upload_leaf_remains_rejected() {
+        $form_id = $this->create_form('publish', array($this->file_element('documents')));
+        $created = $this->image_attachment($form_id, 320, 240);
+        $owned = $this->build_image_owned($created);
+        $this->assertIsArray($owned);
+        $linked_leaf = trailingslashit($created['root']) . 'linked-leaf.jpg';
+        $this->assertTrue(symlink($created['file'], $linked_leaf));
+        try {
+            $linked_input = $created;
+            $linked_input['file'] = $linked_leaf;
+            $this->assertFalse($this->build_image_owned($linked_input));
+            $linked_owned = $owned;
+            $linked_owned['file'] = $linked_leaf;
+            $this->assertFalse($this->invoke_ajax_private('owned_upload_is_current', array($linked_owned, 0)));
+            $this->assertTrue(update_attached_file($created['attachment'], $linked_leaf));
+            $this->assertFalse($this->build_image_owned($created));
+            $this->assertFalse($this->invoke_ajax_private('owned_upload_is_current', array($owned, 0)));
+            $this->assertFileExists($created['file']);
+        } finally {
+            update_attached_file($created['attachment'], $created['file']);
+            unlink($linked_leaf);
+        }
+    }
+
+    public function test_symlinked_upload_root_rejects_internal_directory_links() {
+        $form_id = $this->create_form('publish', array($this->file_element('documents')));
+        $created = $this->image_attachment($form_id, 320, 240);
+        $uploads = wp_upload_dir();
+        $this->assertEmpty($uploads['error']);
+        $this->assertTrue(wp_mkdir_p($uploads['basedir']));
+        $linked_parent = trailingslashit($uploads['basedir']) . 'sf-linked-uploads-' . wp_generate_uuid4();
+        $internal_link = trailingslashit($created['root']) . 'linked-directory';
+        $this->assertTrue(symlink($created['root'], $linked_parent));
+        $this->assertTrue(symlink($created['root'], $internal_link));
+        $upload_filter = $this->add_upload_filter('upload_dir', static function($directory) use ($linked_parent) {
+            $directory['basedir'] = $directory['path'] = $linked_parent;
+            $directory['subdir'] = '';
+            return $directory;
+        });
+        try {
+            $linked_file = trailingslashit($linked_parent) . basename($created['file']);
+            $this->assertTrue(update_attached_file($created['attachment'], $linked_file));
+            $owned = SUPER_Ajax::build_owned_upload(
+                $form_id, 'documents', $linked_file, $created['mime'],
+                wp_get_attachment_url($created['attachment']), $created['attachment'], $linked_parent, false
+            );
+            $this->assertIsArray($owned);
+            $this->assertTrue($this->invoke_ajax_private('owned_upload_is_current', array($owned, 0)));
+            $internal_file = trailingslashit($linked_parent) . 'linked-directory/' . basename($created['file']);
+            $this->assertSame($created['file'], wp_normalize_path(realpath($internal_file)));
+            $this->assertFalse(is_link($internal_file));
+            $this->assertTrue(update_attached_file($created['attachment'], $internal_file));
+            $this->assertFalse($this->build_image_owned($created));
+            $this->assertFalse($this->invoke_ajax_private('owned_upload_is_current', array($owned, 0)));
+            $this->assertFalse(SUPER_Ajax::attachment_upload_value_is_valid($created['attachment'], basename($created['file'])));
+            $this->assertFileExists($created['file']);
+        } finally {
+            remove_filter('upload_dir', $upload_filter);
+            update_attached_file($created['attachment'], $created['file']);
+            unlink($internal_link);
+            unlink($linked_parent);
+        }
+    }
 }
