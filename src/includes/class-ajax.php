@@ -2322,14 +2322,32 @@ class SUPER_Ajax {
         return $target!==$root && strpos($target, trailingslashit($root))===0;
     }
 
+    private static function canonical_attachment_upload_path( $path ) {
+        if( !is_string($path) || $path==='' || is_link($path) ) return false;
+        $real = realpath($path);
+        if( $real===false || !is_file($real) ) return false;
+        $real = wp_normalize_path($real);
+        $path = wp_normalize_path($path);
+        if( $path===$real ) return $real;
+
+        // A configured uploads root may have aliased ancestors. Nothing below
+        // that root may acquire authority through a directory or leaf symlink.
+        $uploads = wp_get_upload_dir();
+        if( !is_array($uploads) || !empty($uploads['error'])
+            || empty($uploads['basedir']) || !is_string($uploads['basedir']) ) return false;
+        $base = untrailingslashit(wp_normalize_path($uploads['basedir']));
+        if( !self::upload_path_is_descendant($path, $base) ) return false;
+        $physical_base = realpath($base);
+        if( $physical_base===false || !is_dir($physical_base) ) return false;
+        $relative = substr($path, strlen($base) + 1);
+        $mapped = trailingslashit(wp_normalize_path($physical_base)) . $relative;
+        return $mapped===$real ? $real : false;
+    }
+
     private static function owned_upload_attachment_path( $attachment_id, $file, $root ) {
         $attached_file = get_attached_file($attachment_id);
-        if( !is_string($attached_file) || $attached_file==='' || is_link($attached_file) ) return false;
-        $attached_real = realpath($attached_file);
-        if( $attached_real===false || !is_file($attached_real) ) return false;
-        $attached_real = wp_normalize_path($attached_real);
-        if( wp_normalize_path($attached_file)!==$attached_real
-            || !self::upload_path_is_descendant($attached_real, $root) ) return false;
+        $attached_real = self::canonical_attachment_upload_path($attached_file);
+        if( $attached_real===false || !self::upload_path_is_descendant($attached_real, $root) ) return false;
         if( $attached_real===$file ) return $attached_real;
 
         // WordPress may repoint the attachment to a scaled or EXIF-rotated image.
@@ -2345,7 +2363,7 @@ class SUPER_Ajax {
         if( $original_real===false || wp_normalize_path($original_real)!==$original_file
             || $original_file!==$file ) return false;
         $wordpress_original = wp_get_original_image_path($attachment_id);
-        if( !is_string($wordpress_original) || wp_normalize_path($wordpress_original)!==$file ) return false;
+        if( self::canonical_attachment_upload_path($wordpress_original)!==$file ) return false;
         return $attached_real;
     }
 
@@ -2354,10 +2372,15 @@ class SUPER_Ajax {
         if( !$attachment_id || get_post_type($attachment_id)!=='attachment'
             || !is_string($value) || $value==='' ) return false;
         $attached_file = get_attached_file($attachment_id);
-        if( !is_string($attached_file) || $attached_file==='' ) return false;
-        $root = wp_normalize_path(dirname($attached_file));
+        $attached_real = self::canonical_attachment_upload_path($attached_file);
+        if( $attached_real===false ) return false;
+        $file = self::canonical_attachment_upload_path(
+            trailingslashit(dirname(wp_normalize_path($attached_file))) . $value
+        );
+        if( $file===false ) return false;
+        $root = wp_normalize_path(dirname($attached_real));
         return self::owned_upload_attachment_path(
-            $attachment_id, trailingslashit($root) . $value, $root
+            $attachment_id, $file, $root
         )!==false;
     }
 

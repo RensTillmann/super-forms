@@ -15,6 +15,7 @@
 - **Fix:** Image uploads with uppercase or mixed-case `.JPG`, `.JPEG` and `.PNG` extensions pass both upload file-type checks and remain valid when retained in saved entries; MIME restrictions and dangerous or double-extension rejection remain unchanged.
 - **Fix:** Retained legacy attachments remain usable when WordPress changed the browser filename or an optimiser removed the original image; a mismatched stored filename does not authorize file cleanup.
 - **Fix:** Register & Login custom user meta mappings accept scaled and rotated attachments only when the mapped original filename passes the same exact WordPress original-image validation as upload ownership.
+- **Fix:** Media uploads continue working when the configured uploads root or its ancestors are symlinked. Attachment and original-image paths are compared canonically while symlinked files and noncanonical paths below that root remain rejected.
 
 ## 2026-09-27 - Version 6.4.008-beta
 
