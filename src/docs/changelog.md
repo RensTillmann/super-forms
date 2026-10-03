@@ -9,6 +9,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Unreleased
+
+- **Fix:** Date submissions use the default `dd-mm-yy` pattern when the saved format, or selected custom format, is missing or empty, while preserving explicit formats and strict date validation.
+
 ## 2026-09-27 - Version 6.4.008-beta
 
 - **Security fix:** Hardened form file uploads, generated file downloads, account registration and updates, Listings entry actions, form administration, contact entry imports and exports, WooCommerce order search, unique code and invoice number generation, PayPal payment notifications and Mailchimp form data (the same fixes as stable 6.3.318).
