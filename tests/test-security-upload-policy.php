@@ -185,6 +185,79 @@ class Test_Super_Forms_Upload_Policy_Security extends Super_Forms_Upload_Securit
         $this->assertFileExists( $tmp );
     }
 
+    public function test_uppercase_and_mixed_image_extensions_pass_preflight_before_the_real_http_upload_boundary() {
+        $this->configure_csrf( 'false' );
+        $form_id = $this->create_form( 'publish', array( $this->file_element( 'documents' ) ) );
+        list( $parent, $root ) = $this->create_temporary_root();
+        $marker = $root . '/entered-wordpress-upload';
+        $this->add_upload_filter( 'wp_handle_upload_prefilter', static function( $file ) use ( $marker ) {
+            file_put_contents( $marker, $file['name'] );
+            return $file;
+        } );
+        foreach( array( 'JPG', 'JpG', 'JPEG', 'jPeG', 'PNG', 'pNg' ) as $extension ) {
+            $created = $this->create_processed_image_upload( $form_id, 64, 48, $extension );
+            if( is_file( $marker ) ) unlink( $marker );
+            $files = $this->parallel_files( 'documents', array( array(
+                'name' => 'camera.' . $extension, 'tmp_name' => $created['file'],
+                'type' => $created['mime'], 'size' => filesize( $created['file'] ),
+            ) ) );
+            $this->set_request( $form_id, array(), array( 'files' => $files ) );
+            $result = $this->run_dying_handler( array( 'SUPER_Ajax', 'upload_files' ) );
+            $this->assertSame( 0, $result['status'], $result['output'] );
+            $this->assertFileExists( $marker, 'All plugin preflight checks must accept the case-insensitive extension.' );
+            $this->assertSame( 'camera.' . $extension, file_get_contents( $marker ) );
+            $response = json_decode( $result['output'], true );
+            $this->assertIsArray( $response, $result['output'] );
+            // CLI cannot satisfy is_uploaded_file(). Reaching this core rejection
+            // is preflight evidence only; parent HTTP smoke proves final checks.
+            $this->assertTrue( $response['error'] );
+            $this->assertStringContainsString( 'failed upload test', wp_strip_all_tags( $response['msg'] ) );
+            $this->assertFileExists( $created['file'] );
+        }
+    }
+
+    public function test_uppercase_and_mixed_image_extensions_remain_valid_when_saved_and_retained() {
+        $element = $this->file_element( 'documents' );
+        $form_id = $this->create_form( 'publish', array( $element ) );
+        foreach( array( 'JPG', 'JpG', 'JPEG', 'jPeG', 'PNG', 'pNg' ) as $extension ) {
+            $created = $this->create_processed_image_upload( $form_id, 64, 48, $extension, 1, true );
+            $this->assertSame( $created['mime'], $this->invoke_ajax_private(
+                'verified_existing_upload_mime', array( $created['file'], $element['data'] ) ) );
+            $entry_id = self::factory()->post->create( array(
+                'post_type' => 'super_contact_entry', 'post_status' => 'super_read', 'post_parent' => $form_id,
+            ) );
+            wp_update_post( array( 'ID' => $created['attachment'], 'post_parent' => $entry_id ) );
+            $stored = SUPER_Ajax::owned_upload_file_record( $created['owned'] );
+            update_post_meta( $entry_id, '_super_contact_entry_data', array( 'documents' =>
+                array( 'type' => 'files', 'files' => array( $stored ) ) ) );
+            $owned = false;
+            $rebuilt = $this->invoke_ajax_private( 'rebuild_retained_entry_file', array(
+                $stored, $entry_id, $form_id, 'documents', $element['data'], array(), 0, 'documents', &$owned,
+            ) );
+            $this->assertIsArray( $rebuilt );
+            $this->assertSame( $stored['value'], $rebuilt['value'] );
+            $this->assertSame( $created['mime'], $rebuilt['type'] );
+            $this->assertTrue( $this->invoke_ajax_private( 'retained_owned_upload_is_current', array( $owned ) ) );
+        }
+    }
+
+    public function test_mixed_case_dangerous_and_double_extensions_are_rejected_before_file_handling() {
+        $this->configure_csrf( 'false' );
+        $form_id = $this->create_form( 'publish', array( $this->file_element( 'documents' ) ) );
+        list( $parent, $root ) = $this->create_temporary_root();
+        $tmp = trailingslashit( $root ) . 'incoming';
+        file_put_contents( $tmp, 'not processed' );
+
+        foreach( array( 'shell.PhP.JPG', 'shell.pHtMl.PnG', 'shell.PHAR.JPEG', 'script.SVG', 'script.Js.PnG' ) as $name ) {
+            $files = $this->parallel_files( 'documents', array(
+                array( 'name' => $name, 'tmp_name' => $tmp, 'type' => 'image/jpeg', 'size' => filesize( $tmp ) ),
+            ) );
+            $this->set_request( $form_id, array(), array( 'files' => $files ) );
+            $this->assert_handler_rejected_with( array( 'SUPER_Ajax', 'upload_files' ), 'not permitted' );
+            $this->assertFileExists( $tmp );
+        }
+    }
+
     public function test_dangerous_and_double_extensions_are_rejected_before_file_handling() {
         $this->configure_csrf( 'false' );
         $form_id = $this->create_form( 'publish', array( $this->file_element( 'documents' ) ) );

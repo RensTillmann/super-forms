@@ -9,6 +9,11 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Unreleased
+
+- **Fix:** Phone and camera images that WordPress scales or EXIF-rotates retain valid upload receipts and saved-file ownership, without disabling normal image processing. WordPress must resolve the original image to the exact owned file in the attachment's directory; the derived attachment path remains bound during receipt revalidation.
+- **Fix:** Image uploads with uppercase or mixed-case `.JPG`, `.JPEG` and `.PNG` extensions pass both upload file-type checks and remain valid when retained in saved entries; MIME restrictions and dangerous or double-extension rejection remain unchanged.
+
 ## 2026-09-27 - Version 6.4.008-beta
 
 - **Security fix:** Hardened form file uploads, generated file downloads, account registration and updates, Listings entry actions, form administration, contact entry imports and exports, WooCommerce order search, unique code and invoice number generation, PayPal payment notifications and Mailchimp form data (the same fixes as stable 6.3.318).
