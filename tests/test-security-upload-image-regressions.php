@@ -496,12 +496,12 @@ class Test_Super_Forms_Upload_Image_Regressions extends Super_Forms_Upload_Secur
                 wp_update_attachment_metadata($created['attachment'], $created['metadata']);
             }
         } finally {
-            wp_set_current_user(0);
-            wp_delete_user($user_id);
-            delete_option('_sfsdata_' . $client_key);
             $clear = new ReflectionMethod('SUPER_Register_Login', 'clear_user_meta_bridge');
             $clear->setAccessible(true);
             $clear->invoke(null);
+            wp_set_current_user(0);
+            wp_delete_user($user_id);
+            delete_option('_sfsdata_' . $client_key);
         }
     }
 }
