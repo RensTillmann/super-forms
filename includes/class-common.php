@@ -1988,6 +1988,22 @@ class SUPER_Common {
      * and for invoice numbers the next counter value. Claims atomically; returns false when the
      * value cannot be claimed so the caller generates a fresh code instead.
      */
+    /** One alphabet contract for previews and atomic claims. */
+    private static function generated_code_character_set( $settings ) {
+        $characters = isset($settings['char']) ? (string)$settings['char'] : '';
+        $allowed = '';
+        if( in_array($characters, array('1','2','3'), true) ) $allowed .= '0123456789';
+        if( in_array($characters, array('1','2','4'), true) ) {
+            if( isset($settings['upper']) && $settings['upper']==='true' ) $allowed .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            if( isset($settings['lower']) && $settings['lower']==='true' ) $allowed .= 'abcdefghijklmnopqrstuvwxyz';
+        }
+        if( $characters==='2' ) $allowed .= '!@#$%^&*()';
+        // A saved letters-only field must remain submittable even if both case
+        // checkboxes are off. Use the same deterministic fallback in both paths.
+        if( $characters==='4' && $allowed==='' ) $allowed = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        return $allowed;
+    }
+
     public static function claim_generated_code( $codesettings, $candidate ) {
         global $wpdb;
         if( !is_array($codesettings) || !is_string($candidate) || $candidate==='' ) {
@@ -2010,14 +2026,7 @@ class SUPER_Common {
         if( strlen($random)!==$length ) {
             return false;
         }
-        $characters = $setting('char');
-        $allowed = '';
-        if( in_array($characters, array('1','2','3'), true) ) $allowed .= '0123456789';
-        if( in_array($characters, array('1','2','4'), true) ) {
-            if( $setting('upper')==='true' ) $allowed .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            if( $setting('lower')==='true' ) $allowed .= 'abcdefghijklmnopqrstuvwxyz';
-        }
-        if( $characters==='2' ) $allowed .= '!@#$%^&*()';
+        $allowed = self::generated_code_character_set( $codesettings );
         if( $length>0 && ( $allowed==='' || strspn($random, $allowed)!==$length ) ) {
             return false;
         }
@@ -2098,18 +2107,9 @@ class SUPER_Common {
         $suffix = $codesettings['suf'];
         $uppercase = $codesettings['upper'];
         $lowercase = $codesettings['lower'];
-        $char  = '';
-        if( ($characters=='1') || ($characters=='2') || ($characters=='3') ) {
-            $char .= '0123456789';
-        }
-        if( ($characters=='1') || ($characters=='2') || ($characters=='4') ) {
-            if($uppercase=='true') $char .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            if($lowercase=='true') $char .= 'abcdefghijklmnopqrstuvwxyz';
-        }
-        if($characters=='2') {
-            $char .= '!@#$%^&*()';
-        }
+        $char = self::generated_code_character_set( $codesettings );
         $charactersLength = strlen($char);
+        if( $length>0 && $charactersLength===0 ) return false;
         $code = '';
         for ($i = 0; $i < $length; $i++) {
             $code .= $char[rand(0, $charactersLength - 1)];

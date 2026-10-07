@@ -22,7 +22,7 @@ if a.group in ('date','all'):
     case('date-zero-month','date','00-2026',{'format':'custom','custom_format':'mm-yy'},False)
     case('date-bad-month','date','13-2026',{'format':'custom','custom_format':'mm-yy'},False)
 if a.group in ('code','all'):
-    base={'code':'true','code_length':'7','code_characters':'4','code_uppercase':'false','code_lowercase':'false','code_prefix':'','code_suffix':''}
+    base={'enable_random_code':'true','code_length':'7','code_characters':'4','code_uppercase':'false','code_lowercase':'false','code_prefix':'','code_suffix':''}
     case('code-empty-charset','hidden','',base,True,code_pattern='^[A-Z]{7}$')
     for k,u,l,pattern in [('upper','true','false','^[A-Z]{7}$'),('lower','false','true','^[a-z]{7}$')]:case('code-'+k,'hidden','',dict(base,code_uppercase=u,code_lowercase=l),True,code_pattern=pattern)
 if not cases:raise SystemExit('Unknown group '+a.group)
