@@ -7708,8 +7708,10 @@ class SUPER_Ajax {
             $seconds = gmmktime( 0, 0, 0, 1, $day_of_year, $year );
             return ( $seconds===false ) ? false : (string) (((int) $seconds) * 1000);
         }
-        $month = isset($parts['month']) ? absint($parts['month']) : 0;
-        $day = isset($parts['day']) ? absint($parts['day']) : 0;
+        // Explicit partial formats use a stable calendar anchor. Only omitted
+        // components default; a parsed zero still fails checkdate().
+        $month = isset($parts['month']) ? absint($parts['month']) : 1;
+        $day = isset($parts['day']) ? absint($parts['day']) : 1;
         if( !checkdate($month, $day, $year) ) {
             return false;
         }
