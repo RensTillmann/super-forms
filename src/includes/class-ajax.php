@@ -4428,11 +4428,11 @@ class SUPER_Ajax {
         if( $value==='' ) {
             return $min_picks>0 ? false : '';
         }
-        $format = isset($element_data['format']) && is_string($element_data['format']) ? $element_data['format'] : '';
+        $format = isset($element_data['format']) && is_string($element_data['format']) && $element_data['format']!=='' ? $element_data['format'] : 'dd-mm-yy';
         if( $format==='custom' ) {
-            $format = isset($element_data['custom_format']) && is_string($element_data['custom_format'])
+            $format = isset($element_data['custom_format']) && is_string($element_data['custom_format']) && $element_data['custom_format']!==''
                 ? $element_data['custom_format']
-                : '';
+                : 'dd-mm-yy';
         }
         $localization = isset($element_data['localization']) && is_string($element_data['localization'])
             ? $element_data['localization']
