@@ -3457,8 +3457,10 @@ function SUPERreCaptcha(){
             if (!regex.test(args.el.value)) error = true;
         }
         if (args.validation == 'email') {
-            regex = /^([\w-.+]+@([\w-]+\.)+[\w-]{2,63})?$/;
-            if ((SUPER.unicode_length(args.el.value) < 4) || (!regex.test(args.el.value))) {
+            // Match WordPress is_email(): ASCII local part and domain labels
+            // with no underscores, edge hyphens, empty labels or whitespace.
+            regex = /^[a-zA-Z0-9!#$%&'*+\/=?^_`{|}~.\-]+@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?$/;
+            if ((SUPER.unicode_length(args.el.value) < 6) || /\s/.test(args.el.value) || (!regex.test(args.el.value))) {
                 error = true;
             }
         }
