@@ -3826,6 +3826,19 @@ class SUPER_Ajax {
         return true;
     }
 
+    /** Shared renderer-default resolution for saved currency validation. */
+    private static function submission_currency_format( $data ) {
+        $defaults = SUPER_Common::generate_array_default_element_settings(false, 'form_elements', 'currency');
+        $effective = wp_parse_args($data, $defaults);
+        // These are the renderer's final fallbacks if a definition omits a key;
+        // normal generated defaults contain empty currency/grouping strings.
+        $format = array('currency'=>'$', 'format'=>'', 'decimals'=>'2', 'thousand_separator'=>',', 'decimal_separator'=>'.');
+        foreach( $format as $key=>$fallback ) {
+            if( isset($effective[$key]) ) $format[$key] = $effective[$key];
+        }
+        return $format;
+    }
+
     /**
      * Reconstruct the client carrier namespace solely from the stored element tree.
      * A non-file carrier can never nominate a field, type, or validation rule.
@@ -3870,13 +3883,7 @@ class SUPER_Ajax {
                     'selection_limit'=>( $tag==='dropdown' || $tag==='checkbox' || $tag==='countries' ),
                     'selection_joiner'=>( $tag==='checkbox' ? ',' : ', ' ),
                     'length_mode'=>$length_mode,
-                    'currency_format'=>( $tag==='currency' ? array(
-                        'currency'=>isset($data['currency']) ? $data['currency'] : '$',
-                        'format'=>isset($data['format']) ? $data['format'] : '',
-                        'decimals'=>isset($data['decimals']) ? $data['decimals'] : '2',
-                        'thousand_separator'=>isset($data['thousand_separator']) ? $data['thousand_separator'] : ',',
-                        'decimal_separator'=>isset($data['decimal_separator']) ? $data['decimal_separator'] : '.',
-                    ) : null ),
+                    'currency_format'=>( $tag==='currency' ? self::submission_currency_format($data) : null ),
                     'keyword_split_method'=>( isset($data['keyword_split_method']) && is_string($data['keyword_split_method']) ? $data['keyword_split_method'] : '' ),
                     'nested_repeater_suffix_depth'=>max( 0, $repeater_depth-1 ),
                     'repeatable'=>( $repeater_depth>0 ),
@@ -4870,7 +4877,15 @@ class SUPER_Ajax {
 
     /** Parse saved currency syntax for validation only; never strip arbitrary letters. */
     private static function submission_currency_validation_value( $value, $format ) {
+        $parsed = self::submission_currency_parse_saved_syntax( $value, $format );
+        if( $parsed!==false ) return $parsed;
+        // The saved grammar wins: raw canonical numbers are accepted only when
+        // they are not valid formatted syntax under the saved configuration.
         if( preg_match('/^[+-]?\d+(?:\.\d+)?$/D', $value)===1 ) return $value;
+        return false;
+    }
+
+    private static function submission_currency_parse_saved_syntax( $value, $format ) {
         foreach(array('currency','format','decimals','thousand_separator','decimal_separator') as $key) {
             if( !isset($format[$key]) || !is_scalar($format[$key]) ) return false;
             $format[$key] = (string)$format[$key];
@@ -7689,6 +7704,11 @@ class SUPER_Ajax {
                 return false;
             }
             return (string) $milliseconds;
+        }
+        // Literal/weekday-only formats carry no calendar information; anchoring
+        // them to January 1 would manufacture a timestamp from no date.
+        if( $parts['year']===null && $parts['month']===null && $parts['day']===null && $parts['day_of_year']===null ) {
+            return false;
         }
         // Like the datepicker, a format without a year uses the current year.
         // Derive it on the server; never reuse the submitted timestamp.

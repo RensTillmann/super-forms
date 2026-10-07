@@ -3381,14 +3381,19 @@ function SUPERreCaptcha(){
 
     // Normalize only configured currency syntax, without changing stored/display bytes.
     SUPER.currency_validation_value = function(el){
+        var parsed = SUPER.currency_parse_saved_syntax(el);
+        if(parsed!==false) return parsed;
+        if(/^[+-]?\d+(?:\.\d+)?$/.test(el.value) && !/\s/.test(el.value)) return el.value;
+        return false;
+    };
+    SUPER.currency_parse_saved_syntax = function(el){
         var value = el.value, d = el.dataset, sign = '', parts, integer,
-            thousands = typeof d.thousandSeparator==='undefined' ? ',' : d.thousandSeparator,
+            thousands = typeof d.thousandSeparator==='undefined' ? '' : d.thousandSeparator,
             decimal = typeof d.decimalSeparator==='undefined' ? '.' : d.decimalSeparator,
-            prefix = typeof d.currency==='undefined' ? '$' : d.currency,
+            prefix = typeof d.currency==='undefined' ? '' : d.currency,
             suffix = typeof d.format==='undefined' ? '' : d.format,
             precision = typeof d.decimals==='undefined' ? '2' : String(d.decimals),
             escape = function(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); };
-        if(/^[+-]?\d+(?:\.\d+)?$/.test(value) && !/\s/.test(value)) return value;
         if(!/^\d{1,2}$/.test(precision) || Number(precision)>20) return false;
         if(thousands===decimal) thousands = '';
         if(value.charAt(0)==='-' || value.charAt(0)==='+'){ sign=value.charAt(0); value=value.slice(1); }
