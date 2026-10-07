@@ -17,7 +17,8 @@ function fixture() {
         document:{documentElement:{classList:{contains:()=>false}}},
         super_common_i18n:{ajaxurl:'/no-network'}, setTimeout:()=>0, clearTimeout:()=>{}};
     ctx.window = ctx;
-    vm.runInNewContext(fs.readFileSync(process.env.SF_CLIENT_SOURCE || path.join(__dirname,'../assets/js/common.js'),'utf8'),ctx);
+    const defaultSource = fs.existsSync(path.join(__dirname,'../src/assets/js/common.js')) ? path.join(__dirname,'../src/assets/js/common.js') : path.join(__dirname,'../assets/js/common.js');
+    vm.runInNewContext(fs.readFileSync(process.env.SF_CLIENT_SOURCE || defaultSource,'utf8'),ctx);
     return ctx.SUPER;
 }
 function field(value, kind='text') {
@@ -63,6 +64,16 @@ test('currency numeric/float validate formatted amounts without changing the dis
     }
     assert.equal(validate(S,'$1,234.00','float','text'),true);
 });
+
+for(const c of JSON.parse(fs.readFileSync(path.join(__dirname,'validation-compatibility-cases.json'),'utf8'))) {
+    test('shared client/server contract: '+c.id,()=>{
+        const S=fixture(), el=field(c.value,c.tag);
+        Object.assign(el.dataset,{mayBeEmpty:'true',currency:'$',format:'',decimals:'2',thousandSeparator:',',decimalSeparator:'.'});
+        for(const [key,value] of Object.entries(c.settings)) el.dataset[key.replace(/_([a-z])/g,(_,letter)=>letter.toUpperCase())]=value;
+        assert.equal(S.handle_validations({el,validation:c.settings.validation,form:{}}),!c.accepted,c.id);
+        assert.equal(el.value,c.value,'display bytes changed');
+    });
+}
 
 test('optional empty email still accepted; malformed email still rejected',()=>{
     const S=fixture();

@@ -1,4 +1,4 @@
-import argparse,json,os,subprocess,sys,hashlib
+import argparse,json,os,subprocess,sys,hashlib,shutil
 from pathlib import Path
 p=argparse.ArgumentParser();p.add_argument('--plugin',required=True);p.add_argument('--bootstrap',required=True);p.add_argument('--group',default='hotfix');p.add_argument('--out',required=True);a=p.parse_args()
 plugin=Path(a.plugin).resolve(); cases=[]
@@ -9,14 +9,8 @@ if a.group in ('hotfix','all'):
     case('explicit-slash','date','27/09/2026',{'format':'custom','custom_format':'dd/mm/yy'},timestamp='1790467200000')
     case('wrong-format','date','2026-09-27',{'format':'dd-mm-yy'},False)
     case('invalid-day','date','31-02-2026',{'format':'dd-mm-yy'},False)
-if a.group in ('email','all'):
-    for email,accept in [('ops@backup_mx1.corp.example.com',False),('ops@-backup.example.com',False),('ops@backup-.example.com',False),('ops@backup-mx1.example.com',True),("o\'neil@example.com",True),('ops_test+tag@example.technology',True)]:case('email-'+email,'text',email,{'validation':'email'},accept)
-if a.group in ('currency','all'):
-    for id,value,fmt,accept in [('us','$1,234.00',{},True),('eu','€1.234,56',{'currency':'€','thousand_separator':'.','decimal_separator':','},True),('eu-no-affix','1.234,56',{'currency':'','thousand_separator':'.','decimal_separator':','},True),('zero','$0.00',{},True),('group-bad','$1,,234.00',{},False),('mixed','$1,234.00oops',{},False),('empty','',{},True),('raw','1234.56',{},True)]:case('currency-'+id,'currency',value,dict(validation='float',**fmt),accept)
-    case('currency-numeric-integer','currency','$1,234.00',{'validation':'numeric'},True)
-    case('currency-numeric-fraction','currency','$1,234.50',{'validation':'numeric'},False)
-    case('text-not-currency','text','$1,234.00',{'validation':'float'},False)
-    case('slider-raw','slider','1234.56',{'validation':'float'},True)
+shared_cases=json.loads(Path(__file__).with_name('validation-compatibility-cases.json').read_text(encoding='utf-8'))
+cases.extend(c for c in shared_cases if a.group=='all' or c['group']==a.group)
 if a.group in ('date','all'):
     for id,value,fmt,stamp in [('month-year','02-2026','mm-yy','1769904000000'),('year-only','2026','yy','1767225600000')]:case('date-'+id,'date',value,{'format':'custom','custom_format':fmt},timestamp=stamp)
     case('date-zero-month','date','00-2026',{'format':'custom','custom_format':'mm-yy'},False)
@@ -24,22 +18,35 @@ if a.group in ('date','all'):
 if a.group in ('code','all'):
     base={'enable_random_code':'true','code_length':'7','code_characters':'4','code_uppercase':'false','code_lowercase':'false','code_prefix':'','code_suffix':''}
     case('code-empty-charset','hidden','',base,True,code_pattern='^[A-Z]{7}$')
+    import secrets
+    case('code-preview-claim','hidden','',dict(base,code_prefix='contract-'+secrets.token_hex(8)+'-'),True,operation='code-claim')
     for k,u,l,pattern in [('upper','true','false','^[A-Z]{7}$'),('lower','false','true','^[a-z]{7}$')]:case('code-'+k,'hidden','',dict(base,code_uppercase=u,code_lowercase=l),True,code_pattern=pattern)
 if not cases:raise SystemExit('Unknown group '+a.group)
-php='C:/php-8.3.12/php.exe'
+php=shutil.which('php')
+if not php:raise SystemExit('PHP executable not found')
+php_command=[php]
+if sys.platform=='win32':
+    for extension in ['php_pdo_sqlite.dll','php_sqlite3.dll']:
+        dll=Path(php).resolve().parent/'ext'/extension
+        if not dll.exists():raise SystemExit('SQLite extension missing: '+str(dll))
+        php_command+=['-d','extension='+str(dll)]
 env={k:os.environ[k] for k in ['PATH','SystemRoot','WINDIR','TEMP','TMP','TMPDIR'] if k in os.environ}
 env.update(SF_PLUGIN_ROOT=plugin.as_posix(),SF_TEST_BOOTSTRAP=str(Path(a.bootstrap).resolve()))
 results=[]
 for c in cases:
-    r=subprocess.run([php,'-d','extension=C:/php-8.3.12/ext/php_pdo_sqlite.dll','-d','extension=C:/php-8.3.12/ext/php_sqlite3.dll',str(Path(__file__).with_name('validation-compatibility-submit.php'))],input=json.dumps(c),text=True,encoding='utf-8',env=env,capture_output=True,timeout=30)
+    r=subprocess.run(php_command+[str(Path(__file__).with_name('validation-compatibility-submit.php'))],input=json.dumps(c),text=True,encoding='utf-8',env=env,cwd=plugin,capture_output=True,timeout=30)
     accepted='CHECKS_ACCEPTED:' in r.stdout
     data=json.loads(r.stdout.split('CHECKS_ACCEPTED:')[-1]) if accepted else {}
-    ok=accepted==c['accepted'] and r.returncode==0 and not r.stderr
+    # Beta's inherited informational event log is retained, not treated as a warning.
+    unexpected_stderr=[line for line in r.stderr.splitlines() if line!='triggerEvent(sf.before.submission)']
+    ok=accepted==c['accepted'] and r.returncode==0 and not unexpected_stderr
+    if ok and accepted and 'code_pattern' not in c and 'operation' not in c:ok=data.get('value')==c['value']
     if ok and not accepted:
         try: rejection=json.loads(r.stdout)
         except ValueError: rejection={}
         ok=rejection.get('error') is True and rejection.get('msg')=='Invalid form data.'
     if ok and accepted and 'timestamp' in c:ok=data.get('timestamp')==c['timestamp']
+    if ok and accepted and c.get('operation')=='code-claim':ok=data.get('first_claim') is True and data.get('duplicate_claim') is False
     if ok and accepted and 'code_pattern' in c:
         import re
         ok=re.fullmatch(c['code_pattern'],data.get('value','')) is not None

@@ -1982,13 +1982,7 @@ class SUPER_Common {
         return $fields;
     }
 
-    /**
-     * Claim a code the visitor's browser previewed (and may already have printed, e.g. in a PDF),
-     * when it still matches the saved settings exactly: prefix, suffix, length, character set,
-     * and for invoice numbers the next counter value. Claims atomically; returns false when the
-     * value cannot be claimed so the caller generates a fresh code instead.
-     */
-    /** One alphabet contract for previews and atomic claims. */
+    /** Shared generator alphabet; claims and previews must accept the same characters. */
     private static function generated_code_character_set( $settings ) {
         $characters = isset($settings['char']) ? (string)$settings['char'] : '';
         $allowed = '';
@@ -2004,6 +1998,12 @@ class SUPER_Common {
         return $allowed;
     }
 
+    /**
+     * Claim a code the visitor's browser previewed (and may already have printed, e.g. in a PDF),
+     * when it still matches the saved settings exactly: prefix, suffix, length, character set,
+     * and for invoice numbers the next counter value. Claims atomically; returns false when the
+     * value cannot be claimed so the caller generates a fresh code instead.
+     */
     public static function claim_generated_code( $codesettings, $candidate ) {
         global $wpdb;
         if( !is_array($codesettings) || !is_string($candidate) || $candidate==='' ) {
@@ -2105,8 +2105,6 @@ class SUPER_Common {
         $invoice = $codesettings['inv'];
         $invoice_padding = $codesettings['invp'];
         $suffix = $codesettings['suf'];
-        $uppercase = $codesettings['upper'];
-        $lowercase = $codesettings['lower'];
         $char = self::generated_code_character_set( $codesettings );
         $charactersLength = strlen($char);
         if( $length>0 && $charactersLength===0 ) return false;
