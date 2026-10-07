@@ -36,4 +36,33 @@ class Test_Security_Date_Value_Validation extends Super_Forms_Upload_Security_Te
             }
         }
     }
+
+    private function date_element_without_format( $data_overrides ) {
+        return array( 'tag' => 'date', 'group' => 'form_elements', 'data' => array_merge(
+            array( 'name' => 'appointment' ),
+            $data_overrides
+        ) );
+    }
+
+    /**
+     * Alec private 6.3.321 hotfix: a missing/empty saved format (or an empty
+     * custom_format) falls back to dd-mm-yy instead of rejecting every submit.
+     * Day-less explicit formats (e.g. mm-yy) are NOT covered here; see T4.
+     */
+    public function test_omitted_or_empty_saved_format_falls_back_to_dmy() {
+        $this->configure_csrf( 'false' );
+        foreach( array(
+            array(),
+            array( 'format' => '' ),
+            array( 'format' => 'custom', 'custom_format' => '' ),
+        ) as $data_overrides ) {
+            $form_id = $this->create_form( 'publish', array( $this->date_element_without_format( $data_overrides ) ) );
+            $this->set_request( $form_id, array( 'appointment' => array(
+                'name' => 'appointment', 'type' => 'var', 'value' => '27-09-2026',
+            ) ) );
+            $atts = SUPER_Ajax::submit_form_checks( false );
+            $this->assertSame( '27-09-2026', $atts['data']['appointment']['value'] );
+            $this->assertSame( (string) (gmmktime(0, 0, 0, 9, 27, 2026) * 1000), $atts['data']['appointment']['timestamp'] );
+        }
+    }
 }

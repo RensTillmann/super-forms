@@ -680,6 +680,7 @@ class SUPER_Ajax {
             'allows_signature_lines' => !empty($meta['allows_signature_lines']),
             'allows_hidden_code' => !empty($meta['allows_hidden_code']),
             'allows_selected_values' => !empty($meta['allows_selected_values']),
+            'currency_format' => isset($meta['currency_format']) && is_array($meta['currency_format']) ? $meta['currency_format'] : null,
         );
         if( array_key_exists('choice_values', $meta) ) {
             if( $meta['choice_values']===false ) {
@@ -791,6 +792,13 @@ class SUPER_Ajax {
                     'selection_limit'=>( $tag==='dropdown' || $tag==='checkbox' || $tag==='countries' ),
                     'selection_joiner'=>( $tag==='checkbox' ? ',' : ', ' ),
                     'length_mode'=>$length_mode,
+                    'currency_format'=>( $tag==='currency' ? array(
+                        'currency'=>isset($data['currency']) ? $data['currency'] : '$',
+                        'format'=>isset($data['format']) ? $data['format'] : '',
+                        'decimals'=>isset($data['decimals']) ? $data['decimals'] : '2',
+                        'thousand_separator'=>isset($data['thousand_separator']) ? $data['thousand_separator'] : ',',
+                        'decimal_separator'=>isset($data['decimal_separator']) ? $data['decimal_separator'] : '.',
+                    ) : null ),
                     'keyword_split_method'=>( isset($data['keyword_split_method']) && is_string($data['keyword_split_method']) ? $data['keyword_split_method'] : '' ),
                     'nested_repeater_suffix_depth'=>max( 0, $repeater_depth-1 ),
                     'repeatable'=>( $repeater_depth>0 ),
@@ -1784,6 +1792,42 @@ class SUPER_Ajax {
         return $remainder===1;
     }
 
+    /** Parse saved currency syntax for validation only; never strip arbitrary letters. */
+    private static function submission_currency_validation_value( $value, $format ) {
+        if( preg_match('/^[+-]?\d+(?:\.\d+)?$/D', $value)===1 ) return $value;
+        foreach(array('currency','format','decimals','thousand_separator','decimal_separator') as $key) {
+            if( !isset($format[$key]) || !is_scalar($format[$key]) ) return false;
+            $format[$key] = (string)$format[$key];
+        }
+        if( preg_match('/^\d{1,2}$/D', $format['decimals'])!==1 || (int)$format['decimals']>20 ) return false;
+        $thousands = $format['thousand_separator'];
+        $decimal = $format['decimal_separator'];
+        if( $thousands===$decimal ) $thousands = '';
+        $sign = '';
+        if( substr($value, 0, 1)==='-' || substr($value, 0, 1)==='+' ) {
+            $sign = substr($value, 0, 1);
+            $value = substr($value, 1);
+        }
+        $prefix = $format['currency'];
+        $suffix = $format['format'];
+        if( $prefix!=='' && strpos($value, $prefix)!==0 ) return false;
+        $value = substr($value, strlen($prefix));
+        if( $suffix!=='' && substr($value, -strlen($suffix))!==$suffix ) return false;
+        if( $suffix!=='' ) $value = substr($value, 0, -strlen($suffix));
+        $parts = $decimal!=='' ? explode($decimal, $value) : array($value);
+        $precision = (int)$format['decimals'];
+        if( $precision>0 ) {
+            if( count($parts)!==2 || preg_match('/^\d{'.$precision.'}$/D', $parts[1])!==1 ) return false;
+        }elseif( count($parts)!==1 ) return false;
+        $integer = $parts[0];
+        if( $thousands!=='' && strpos($integer, $thousands)!==false ) {
+            if( preg_match('/^\d{1,3}(?:'.preg_quote($thousands, '/').'\d{3})+$/D', $integer)!==1 ) return false;
+            $integer = str_replace($thousands, '', $integer);
+        }
+        if( preg_match('/^\d+$/D', $integer)!==1 ) return false;
+        return $sign.$integer.(count($parts)===2 ? '.'.$parts[1] : '');
+    }
+
     private static function submission_value_matches_validation( $value, $meta, $carrier=null ) {
         if( !is_array($meta) || !is_scalar($value) && $value!==null ) return false;
         $value = (string)$value;
@@ -1808,8 +1852,15 @@ class SUPER_Ajax {
             return true; // requiredness is a separate stored-field rule.
         }
         $validation = isset($meta['validation']) ? $meta['validation'] : '';
-        if( $validation==='numeric' && preg_match('/^\d+$/D', $value)!==1 ) return false;
-        if( $validation==='float' && preg_match('/^[+-]?\d+(?:\.\d+)?$/D', $value)!==1 ) return false;
+        $numeric_value = $value;
+        if( isset($meta['currency_format']) && is_array($meta['currency_format'])
+            && ($validation==='numeric' || $validation==='float') ) {
+            $numeric_value = self::submission_currency_validation_value($value, $meta['currency_format']);
+            if( $numeric_value===false ) return false;
+            if( $validation==='numeric' ) $numeric_value = preg_replace('/\.0+$/D', '', $numeric_value);
+        }
+        if( $validation==='numeric' && preg_match('/^\d+$/D', $numeric_value)!==1 ) return false;
+        if( $validation==='float' && preg_match('/^[+-]?\d+(?:\.\d+)?$/D', $numeric_value)!==1 ) return false;
         if( $validation==='email' && !is_email($value) ) return false;
         if( $validation==='iban' && !self::submission_iban_is_valid($value) ) return false;
         if( $validation==='phone'
@@ -4402,8 +4453,10 @@ class SUPER_Ajax {
             $seconds = gmmktime( 0, 0, 0, 1, $day_of_year, $year );
             return ( $seconds===false ) ? false : (string) (((int) $seconds) * 1000);
         }
-        $month = isset($parts['month']) ? absint($parts['month']) : 0;
-        $day = isset($parts['day']) ? absint($parts['day']) : 0;
+        // Explicit partial formats use a stable calendar anchor. Only omitted
+        // components default; a parsed zero still fails checkdate().
+        $month = isset($parts['month']) ? absint($parts['month']) : 1;
+        $day = isset($parts['day']) ? absint($parts['day']) : 1;
         if( !checkdate($month, $day, $year) ) {
             return false;
         }
