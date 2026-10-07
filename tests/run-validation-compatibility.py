@@ -53,12 +53,19 @@ def persist(status):
         cases=results,passed=sum(x['ok'] for x in results),total=len(results),planned=len(cases))
     evidence_stream.seek(0); evidence_stream.write(json.dumps(receipt,indent=2)); evidence_stream.truncate(); evidence_stream.flush()
     return receipt
+def diagnostic_text(output):
+    # TimeoutExpired can contain bytes even with text=True, including a partial
+    # UTF-8 sequence when the process was stopped mid-write.
+    return output.decode('utf-8',errors='replace') if isinstance(output,bytes) else output or ''
+
 persist('running')
 for c in cases:
     try:
         r=subprocess.run(php_command+[str(Path(__file__).with_name('validation-compatibility-submit.php'))],input=json.dumps(c),text=True,encoding='utf-8',env=env,cwd=plugin,capture_output=True,timeout=30)
     except (OSError,subprocess.TimeoutExpired) as error:
-        results.append(dict(case=c,ok=False,execution_error=str(error)))
+        results.append(dict(case=c,ok=False,execution_error=str(error),
+            stdout=diagnostic_text(getattr(error,'stdout',None)),
+            stderr=diagnostic_text(getattr(error,'stderr',None))))
         persist('running'); print('FAIL',c['id'],str(error)); continue
     accepted='CHECKS_ACCEPTED:' in r.stdout
     data=json.loads(r.stdout.split('CHECKS_ACCEPTED:')[-1]) if accepted else {}
