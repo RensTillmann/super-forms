@@ -4,6 +4,15 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const crypto = require('node:crypto');
+const clientSource=process.env.SF_CLIENT_SOURCE || (fs.existsSync(path.join(__dirname,'../src/assets/js/common.js')) ? path.join(__dirname,'../src/assets/js/common.js') : path.join(__dirname,'../assets/js/common.js'));
+const renderReceipt=process.env.SF_RENDER_RECEIPT ? JSON.parse(fs.readFileSync(process.env.SF_RENDER_RECEIPT,'utf8')) : null;
+if(renderReceipt){
+    assert.equal(renderReceipt.status,'complete');
+    assert.equal(renderReceipt.passed,renderReceipt.total);
+    assert.equal(crypto.createHash('sha256').update(fs.readFileSync(clientSource)).digest('hex'),renderReceipt.source_hashes['assets/js/common.js'],'renderer receipt belongs to another client revision');
+}
+
 
 function fixture() {
     const chain = new Proxy({}, {get: (_, key) => key === 'length' ? 0 : () => chain});
@@ -17,8 +26,7 @@ function fixture() {
         document:{documentElement:{classList:{contains:()=>false}}},
         super_common_i18n:{ajaxurl:'/no-network'}, setTimeout:()=>0, clearTimeout:()=>{}};
     ctx.window = ctx;
-    const defaultSource = fs.existsSync(path.join(__dirname,'../src/assets/js/common.js')) ? path.join(__dirname,'../src/assets/js/common.js') : path.join(__dirname,'../assets/js/common.js');
-    vm.runInNewContext(fs.readFileSync(process.env.SF_CLIENT_SOURCE || defaultSource,'utf8'),ctx);
+    vm.runInNewContext(fs.readFileSync(clientSource,'utf8'),ctx);
     return ctx.SUPER;
 }
 function field(value, kind='text') {
@@ -68,8 +76,14 @@ test('currency numeric/float validate formatted amounts without changing the dis
 for(const c of JSON.parse(fs.readFileSync(path.join(__dirname,'validation-compatibility-cases.json'),'utf8'))) {
     test('shared client/server contract: '+c.id,()=>{
         const S=fixture(), el=field(c.value,c.tag);
-        Object.assign(el.dataset,{mayBeEmpty:'true',currency:'$',format:'',decimals:'2',thousandSeparator:',',decimalSeparator:'.'});
-        for(const [key,value] of Object.entries(c.settings)) el.dataset[key.replace(/_([a-z])/g,(_,letter)=>letter.toUpperCase())]=value;
+        Object.assign(el.dataset,{mayBeEmpty:'true',currency:'',format:'',decimals:'2',thousandSeparator:'',decimalSeparator:'.'});
+        const effectiveSettings=Object.assign({},c.settings,c.language ? c.settings.i18n[c.language] : {});
+        for(const [key,value] of Object.entries(effectiveSettings)) el.dataset[key.replace(/_([a-z])/g,(_,letter)=>letter.toUpperCase())]=value;
+        if(renderReceipt && c.tag==='currency') {
+            const row=renderReceipt.cases.find(row=>row.case.id===c.id);
+            assert.ok(row && row.ok, 'missing successful actual renderer case '+c.id);
+            el.dataset=row.data.rendered_attributes;
+        }
         assert.equal(S.handle_validations({el,validation:c.settings.validation,form:{}}),!c.accepted,c.id);
         assert.equal(el.value,c.value,'display bytes changed');
     });

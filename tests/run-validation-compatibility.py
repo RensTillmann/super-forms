@@ -1,6 +1,13 @@
 import argparse,json,os,subprocess,sys,hashlib,shutil
 from pathlib import Path
 p=argparse.ArgumentParser();p.add_argument('--plugin',required=True);p.add_argument('--bootstrap',required=True);p.add_argument('--group',default='hotfix');p.add_argument('--out',required=True);a=p.parse_args()
+# Reserve evidence before executing any stateful child. Exclusive creation also
+# closes the exists-check race; a failed setup may leave an empty reservation.
+out=Path(a.out);out.parent.mkdir(parents=True,exist_ok=True)
+try:
+    evidence_stream=out.open('x',encoding='utf-8')
+except FileExistsError:
+    raise SystemExit('Refuse to overwrite evidence: '+str(out))
 plugin=Path(a.plugin).resolve(); cases=[]
 def case(id,tag,value,settings,accepted=True,**extra): cases.append(dict(id=id,tag=tag,value=value,settings=settings,accepted=accepted,**extra))
 if a.group in ('hotfix','all'):
@@ -11,10 +18,14 @@ if a.group in ('hotfix','all'):
     case('invalid-day','date','31-02-2026',{'format':'dd-mm-yy'},False)
 shared_cases=json.loads(Path(__file__).with_name('validation-compatibility-cases.json').read_text(encoding='utf-8'))
 cases.extend(c for c in shared_cases if a.group=='all' or c['group']==a.group)
+if a.group=='render': cases=[dict(c,operation='render-currency',accepted=True) for c in shared_cases if c['tag']=='currency']
 if a.group in ('date','all'):
     for id,value,fmt,stamp in [('month-year','02-2026','mm-yy','1769904000000'),('year-only','2026','yy','1767225600000')]:case('date-'+id,'date',value,{'format':'custom','custom_format':fmt},timestamp=stamp)
     case('date-zero-month','date','00-2026',{'format':'custom','custom_format':'mm-yy'},False)
     case('date-bad-month','date','13-2026',{'format':'custom','custom_format':'mm-yy'},False)
+    case('date-literal-only','date','not-a-date',{'format':'custom','custom_format':"'not-a-date'"},False)
+    case('date-weekday-only','date','Monday',{'format':'custom','custom_format':'DD'},False)
+    case('date-unix','date','1769904000000',{'format':'custom','custom_format':'@'},True,timestamp='1769904000000')
 if a.group in ('code','all'):
     base={'enable_random_code':'true','code_length':'7','code_characters':'4','code_uppercase':'false','code_lowercase':'false','code_prefix':'','code_suffix':''}
     case('code-empty-charset','hidden','',base,True,code_pattern='^[A-Z]{7}$')
@@ -33,8 +44,22 @@ if sys.platform=='win32':
 env={k:os.environ[k] for k in ['PATH','SystemRoot','WINDIR','TEMP','TMP','TMPDIR'] if k in os.environ}
 env.update(SF_PLUGIN_ROOT=plugin.as_posix(),SF_TEST_BOOTSTRAP=str(Path(a.bootstrap).resolve()))
 results=[]
+def persist(status):
+    sourcefiles=['includes/class-ajax.php','includes/class-common.php','assets/js/common.js','includes/class-shortcodes.php','includes/shortcodes/form-elements.php']
+    harnessfiles=[Path(__file__),Path(__file__).with_name('validation-compatibility-submit.php'),Path(__file__).with_name('validation-compatibility-cases.json'),Path(a.bootstrap)]
+    receipt=dict(status=status,plugin=str(plugin),group=a.group,php=php,
+        source_hashes={f:hashlib.sha256((plugin/f).read_bytes()).hexdigest() for f in sourcefiles},
+        harness_hashes={str(f):hashlib.sha256(f.read_bytes()).hexdigest() for f in harnessfiles},
+        cases=results,passed=sum(x['ok'] for x in results),total=len(results),planned=len(cases))
+    evidence_stream.seek(0); evidence_stream.write(json.dumps(receipt,indent=2)); evidence_stream.truncate(); evidence_stream.flush()
+    return receipt
+persist('running')
 for c in cases:
-    r=subprocess.run(php_command+[str(Path(__file__).with_name('validation-compatibility-submit.php'))],input=json.dumps(c),text=True,encoding='utf-8',env=env,cwd=plugin,capture_output=True,timeout=30)
+    try:
+        r=subprocess.run(php_command+[str(Path(__file__).with_name('validation-compatibility-submit.php'))],input=json.dumps(c),text=True,encoding='utf-8',env=env,cwd=plugin,capture_output=True,timeout=30)
+    except (OSError,subprocess.TimeoutExpired) as error:
+        results.append(dict(case=c,ok=False,execution_error=str(error)))
+        persist('running'); print('FAIL',c['id'],str(error)); continue
     accepted='CHECKS_ACCEPTED:' in r.stdout
     data=json.loads(r.stdout.split('CHECKS_ACCEPTED:')[-1]) if accepted else {}
     # Beta's inherited informational event log is retained, not treated as a warning.
@@ -46,16 +71,14 @@ for c in cases:
         except ValueError: rejection={}
         ok=rejection.get('error') is True and rejection.get('msg')=='Invalid form data.'
     if ok and accepted and 'timestamp' in c:ok=data.get('timestamp')==c['timestamp']
-    if ok and accepted and c.get('operation')=='code-claim':ok=data.get('first_claim') is True and data.get('duplicate_claim') is False
+    if ok and accepted and c.get('operation')=='code-claim':ok=data.get('first_claim') is True and data.get('duplicate_claim') is False and data.get('claim_cleaned') is True
     if ok and accepted and 'code_pattern' in c:
         import re
         ok=re.fullmatch(c['code_pattern'],data.get('value','')) is not None
     results.append(dict(case=c,ok=ok,exit=r.returncode,data=data,stdout=r.stdout,stderr=r.stderr))
+    persist('running')
     print(('PASS' if ok else 'FAIL'),c['id'], 'accepted='+str(accepted),'' if ok else r.stdout[:250]+' '+r.stderr[:250])
-sourcefiles=['includes/class-ajax.php','includes/class-common.php','assets/js/common.js']
-receipt=dict(plugin=str(plugin),group=a.group,php=php,source_hashes={f:hashlib.sha256((plugin/f).read_bytes()).hexdigest() for f in sourcefiles},cases=results,passed=sum(x['ok'] for x in results),total=len(results))
-out=Path(a.out);out.parent.mkdir(parents=True,exist_ok=True)
-if out.exists():raise SystemExit('Refuse to overwrite evidence: '+str(out))
-out.write_text(json.dumps(receipt,indent=2),encoding='utf-8')
+receipt=persist('complete')
+evidence_stream.close()
 print(f"{receipt['passed']}/{receipt['total']} passed; receipt {out}")
 sys.exit(0 if all(x['ok'] for x in results) else 1)
