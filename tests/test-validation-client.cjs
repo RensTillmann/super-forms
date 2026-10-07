@@ -44,6 +44,26 @@ test('email UI retains valid local-part characters, hyphens and long domain suff
         assert.equal(validate(S,email,'email'),false,email);
     }
 });
+test('currency numeric/float validate formatted amounts without changing the display',()=>{
+    const S=fixture();
+    for(const [value,validation,dataset,expected] of [
+        ['$1,234.00','float',{},false],
+        ['€1.234,56','float',{currency:'€',thousandSeparator:'.',decimalSeparator:','},false],
+        ['1.234,56','float',{currency:'',thousandSeparator:'.',decimalSeparator:','},false],
+        ['$1,234.00','numeric',{},false],
+        ['$1,234.50','numeric',{},true],
+        ['$1,,234.00','float',{},true],
+        ['$1,234.00oops','float',{},true],
+        ['1234.56','float',{},false]
+    ]) {
+        const el=field(value,'currency');
+        Object.assign(el.dataset,{currency:'$',format:'',decimals:'2',thousandSeparator:',',decimalSeparator:'.'},dataset);
+        assert.equal(S.handle_validations({el,validation,form:{}}),expected,value+' '+validation);
+        assert.equal(el.value,value,'validation must preserve display/submission bytes');
+    }
+    assert.equal(validate(S,'$1,234.00','float','text'),true);
+});
+
 test('optional empty email still accepted; malformed email still rejected',()=>{
     const S=fixture();
     const el=field('');el.dataset.mayBeEmpty='true';

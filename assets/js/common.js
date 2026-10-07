@@ -3379,6 +3379,36 @@ function SUPERreCaptcha(){
         }
     };
 
+    // Normalize only configured currency syntax, without changing stored/display bytes.
+    SUPER.currency_validation_value = function(el){
+        var value = el.value, d = el.dataset, sign = '', parts, integer,
+            thousands = typeof d.thousandSeparator==='undefined' ? ',' : d.thousandSeparator,
+            decimal = typeof d.decimalSeparator==='undefined' ? '.' : d.decimalSeparator,
+            prefix = typeof d.currency==='undefined' ? '$' : d.currency,
+            suffix = typeof d.format==='undefined' ? '' : d.format,
+            precision = typeof d.decimals==='undefined' ? '2' : String(d.decimals),
+            escape = function(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); };
+        if(/^[+-]?\d+(?:\.\d+)?$/.test(value) && !/\s/.test(value)) return value;
+        if(!/^\d{1,2}$/.test(precision) || Number(precision)>20) return false;
+        if(thousands===decimal) thousands = '';
+        if(value.charAt(0)==='-' || value.charAt(0)==='+'){ sign=value.charAt(0); value=value.slice(1); }
+        if(prefix && value.indexOf(prefix)!==0) return false;
+        value=value.slice(prefix.length);
+        if(suffix && value.slice(-suffix.length)!==suffix) return false;
+        if(suffix) value=value.slice(0,-suffix.length);
+        parts=decimal ? value.split(decimal) : [value];
+        if(Number(precision)>0){
+            if(parts.length!==2 || !new RegExp('^\\d{'+Number(precision)+'}$').test(parts[1])) return false;
+        }else if(parts.length!==1) return false;
+        integer=parts[0];
+        if(thousands && integer.indexOf(thousands)!==-1){
+            if(!new RegExp('^\\d{1,3}(?:'+escape(thousands)+'\\d{3})+$').test(integer)) return false;
+            integer=integer.split(thousands).join('');
+        }
+        if(!/^\d+$/.test(integer) || /\s/.test(integer)) return false;
+        return sign+integer+(parts.length===2 ? '.'+parts[1] : '');
+    };
+
     // Check for errors, validate fields
     SUPER.handle_validations = function(args){
         if(args.el.closest('[data-conditional-action="show"]')){
@@ -3448,13 +3478,18 @@ function SUPERreCaptcha(){
         if (args.validation == 'captcha') {
             error = true;
         }
+        value = args.el.value;
+        if(parent.classList.contains('super-currency') && (args.validation==='numeric' || args.validation==='float')){
+            value = SUPER.currency_validation_value(args.el);
+            if(args.validation==='numeric' && typeof value==='string') value=value.replace(/\.0+$/, '');
+        }
         if (args.validation == 'numeric') {
             regex = /^\d+$/;
-            if (!regex.test(args.el.value)) error = true;
+            if (value===false || !regex.test(value)) error = true;
         }
         if (args.validation == 'float') {
             regex = /^[+-]?\d+(\.\d+)?$/;
-            if (!regex.test(args.el.value)) error = true;
+            if (value===false || !regex.test(value)) error = true;
         }
         if (args.validation == 'email') {
             // Match WordPress is_email(): ASCII local part and domain labels
