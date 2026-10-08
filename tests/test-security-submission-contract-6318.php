@@ -1158,7 +1158,8 @@ class Test_Super_Forms_Submission_Contract_6318_Security extends WP_UnitTestCase
         $cycle_b = $this->create_form(array($text('cycle_b_note')), array('send' => 'no', 'confirm' => 'no'));
         $cycle_a = $this->create_form(array($text('cycle_a_note'), $include($cycle_b)), array('send' => 'no', 'confirm' => 'no'));
         update_post_meta($cycle_b, '_super_elements', array($text('cycle_b_note'), $include($cycle_a), $include($cycle_b)));
-        $elements = SUPER_Common::get_form_elements($cycle_a);
+        $this->assertSame(array(), SUPER_Common::get_form_elements($cycle_a)[1]['inner'], 'stored tree is unchanged');
+        $elements = SUPER_Common::get_submission_elements($cycle_a);
         $this->assertSame('cycle_b_note', $elements[1]['inner'][0]['data']['name']);
         $this->submit_review8_probe(array($text('outer_name'), $include($cycle_a)),
             array('outer_name' => $carrier('outer_name', 'Jane'), 'cycle_a_note' => $carrier('cycle_a_note', 'a'), 'cycle_b_note' => $carrier('cycle_b_note', 'b')), true);

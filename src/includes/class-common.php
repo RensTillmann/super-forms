@@ -1768,7 +1768,7 @@ class SUPER_Common {
                 $walk( self::inner_elements( $element ) );
             }
         };
-        $walk( self::get_form_elements( absint( $form_id ) ) );
+        $walk( self::get_submission_elements( absint( $form_id ) ) );
         if( $found===false ) return false;
         $format = array( 'currency'=>'', 'format'=>'', 'thousand_separator'=>',', 'decimal_separator'=>'.' );
         foreach( $format as $key => $fallback ) {
@@ -2151,18 +2151,19 @@ class SUPER_Common {
      * instead of re-decoding inline.
      */
     /**
-     * Saved element tree of a form as the page renders it. An Include-form element (tag 'form')
+     * Element tree of a form as the page renders it, for the server's read-only walkers. An Include-form element (tag 'form')
      * renders the included form's saved elements in place (SUPER_Shortcodes::form()), so they are
      * placed in its 'inner' here and every server walker sees their fields (contract, required,
      * files, codes, choices, dynamic routes, i18n). Like the renderer, the included form's post
      * status is not checked; a deleted form contributes nothing. Cycles stop at a form already on
      * the include path, and nesting stops after a few levels.
      */
-    public static function get_form_elements($form_id) {
+    public static function get_submission_elements($form_id) {
         $form_id = absint($form_id);
-        return self::expand_included_forms( self::stored_form_elements($form_id), array($form_id) );
+        return self::expand_included_forms( self::get_form_elements($form_id), array($form_id) );
     }
-    private static function stored_form_elements( $form_id ) {
+    /** The form's saved element tree exactly as stored (builder/save round trips rely on this). */
+    public static function get_form_elements( $form_id ) {
         $elements = get_post_meta( absint($form_id), '_super_elements', true );
         if( is_array($elements) ) return $elements;
         if( empty($elements) ) return array();
@@ -2177,7 +2178,7 @@ class SUPER_Common {
             if( isset($element['tag']) && $element['tag']==='form' ) {
                 $include_id = isset($element['data']['id']) && is_scalar($element['data']['id']) ? absint($element['data']['id']) : 0;
                 $elements[$k]['inner'] = ( $include_id>0 && !in_array($include_id, $path, true) && count($path)<5 )
-                    ? self::expand_included_forms( self::stored_form_elements($include_id), array_merge($path, array($include_id)) )
+                    ? self::expand_included_forms( self::get_form_elements($include_id), array_merge($path, array($include_id)) )
                     : array();
                 continue;
             }
@@ -3237,7 +3238,7 @@ class SUPER_Common {
                 }
             }
         };
-        $walk( self::get_form_elements( absint($form_id) ) );
+        $walk( self::get_submission_elements( absint($form_id) ) );
         return $fields;
     }
 
@@ -3704,7 +3705,7 @@ class SUPER_Common {
             $form_id = absint($settings['id']);
         }
         if( $form_id===0 ) return array();
-        $elements = self::get_form_elements( $form_id );
+        $elements = self::get_submission_elements( $form_id );
         $hash = md5( serialize( $elements ) );
         if( !isset(self::$author_field_tags[$form_id]) || self::$author_field_tags[$form_id]['hash']!==$hash ) {
             $map = array();

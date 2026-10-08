@@ -63,7 +63,7 @@ class SUPER_Ajax {
             || get_post_type($form_id)!=='super_form'
             || (get_post_status($form_id)!=='publish' && !current_user_can('edit_post', $form_id))
             || get_post_type($file_id)!=='attachment'
-            || !self::saved_form_has_print_attachment(SUPER_Common::get_form_elements($form_id), $file_id) ) return '';
+            || !self::saved_form_has_print_attachment(SUPER_Common::get_submission_elements($form_id), $file_id) ) return '';
         $token = SUPER_Common::issue_public_print_capability(array('form_id'=>$form_id, 'file_id'=>$file_id));
         return is_string($token) ? $token : '';
     }
@@ -133,7 +133,7 @@ class SUPER_Ajax {
             return false;
         }
         $matches = array();
-        self::collect_public_entry_search_fields( SUPER_Common::get_form_elements($form_id), $field_name, $matches );
+        self::collect_public_entry_search_fields( SUPER_Common::get_submission_elements($form_id), $field_name, $matches );
         if( count($matches)!==1 ) {
             return false;
         }
@@ -158,7 +158,7 @@ class SUPER_Ajax {
             return false;
         }
         $matches = array();
-        self::collect_wc_order_search_fields( SUPER_Common::get_form_elements($form_id), $field_name, $matches, true );
+        self::collect_wc_order_search_fields( SUPER_Common::get_submission_elements($form_id), $field_name, $matches, true );
         if( count($matches)!==1 ) {
             return false;
         }
@@ -3718,7 +3718,7 @@ class SUPER_Ajax {
         // policy and configured root.  Never reconstruct a retained file under the host.
         $entry_form_id = absint($entry->post_parent);
         if( !$entry_form_id || get_post_type($entry_form_id)!=='super_form' ) return false;
-        $entry_elements = SUPER_Common::get_form_elements($entry_form_id);
+        $entry_elements = SUPER_Common::get_submission_elements($entry_form_id);
         $entry_file_element = self::get_file_element($entry_elements, $stored_field_name);
         $entry_settings = SUPER_Common::get_form_settings($entry_form_id);
         if( $entry_file_element===false || !is_array($entry_settings) ) return false;
@@ -5493,7 +5493,7 @@ class SUPER_Ajax {
     // Used when Ajax lookup is enabled
     public static function retrieve_variable_conditions(){
         // Get form elements
-        $elements = SUPER_Common::get_form_elements( absint($_POST['form_id']) ); // includes Include-form elements
+        $elements = SUPER_Common::get_submission_elements( absint($_POST['form_id']) ); // includes Include-form elements
         // Get field settings
         $atts = SUPER_Common::get_element_settings($elements, $_POST['field_name']);
         // When retrieve method is CSV
@@ -5980,7 +5980,7 @@ class SUPER_Ajax {
                 if( !empty($element['inner']) ) $walk( SUPER_Common::inner_elements($element), $locked );
             }
         };
-        $elements = SUPER_Common::get_form_elements(absint($form_id));
+        $elements = SUPER_Common::get_submission_elements(absint($form_id));
         $walk($elements);
         $contract = array();
         self::collect_submission_field_contract($elements, $contract, 0, $form_id);
@@ -6283,7 +6283,7 @@ class SUPER_Ajax {
             SUPER_Common::output_message( array( 'error' => true, 'msg' => esc_html__( 'Invalid form data.', 'super-forms' ) ) );
         }
         $file = wp_get_attachment_url($file_id);
-        $form_elements = SUPER_Common::get_form_elements($form_id);
+        $form_elements = SUPER_Common::get_submission_elements($form_id);
         if( !is_string($file) || $file==='' || !is_array($form_elements) ) {
             SUPER_Common::output_message( array( 'error' => true, 'msg' => esc_html__( 'Invalid form data.', 'super-forms' ) ) );
         }
@@ -6574,7 +6574,7 @@ class SUPER_Ajax {
             return false;
         }
         $matches = array();
-        self::collect_wc_order_search_fields( SUPER_Common::get_form_elements($form_id), $field_name, $matches );
+        self::collect_wc_order_search_fields( SUPER_Common::get_submission_elements($form_id), $field_name, $matches );
         if( count($matches)!==1 ) {
             return false;
         }
@@ -7975,7 +7975,7 @@ class SUPER_Ajax {
         $_super_global_secrets = (!empty($_POST['globalSecrets']) ? $_POST['globalSecrets'] : '');
         
         $elements_for_regex_validation = $_super_elements;
-        $stored_elements_for_regex_validation = ( $form_id!==0 ) ? SUPER_Common::get_form_elements($form_id) : array();
+        $stored_elements_for_regex_validation = ( $form_id!==0 ) ? SUPER_Common::get_submission_elements($form_id) : array();
         if( $action==='super_import_single_form' && !is_array($elements_for_regex_validation) ) {
             $decoded_elements = json_decode( stripslashes((string) $elements_for_regex_validation), true );
             if( $decoded_elements===null ) {
@@ -8838,7 +8838,7 @@ class SUPER_Ajax {
         if( !self::submission_entry_update_is_authorized($entry_id, $list_id, $form_id, $listing_settings, $listing_form_id, $list_id!=='') ) {
             SUPER_Common::output_message( array( 'error' => true, 'msg' => esc_html__( 'You do not have permission to edit this entry.', 'super-forms' ) ) );
         }
-        $form_elements = SUPER_Common::get_form_elements($form_id);
+        $form_elements = SUPER_Common::get_submission_elements($form_id);
         // Both callers verify the configured CSRF policy before submission checks.
         $submission_language = isset($_POST['i18n']) ? $_POST['i18n'] : ''; // phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized, WordPress.Security.ValidatedSanitizedInput.MissingUnslash -- Validated as a string, unslashed and sanitized below, then used only to select saved element translations, matching rendering.
         if( is_string($submission_language) ) $submission_language = sanitize_text_field(wp_unslash($submission_language));
@@ -9065,7 +9065,7 @@ class SUPER_Ajax {
         $atts = self::submit_form_checks( true );
         $data = $atts['data'];
         $form_id = $atts['form_id'];
-        $form_elements = SUPER_Common::get_form_elements($form_id);
+        $form_elements = SUPER_Common::get_submission_elements($form_id);
         $file_routes = array();
         self::collect_submission_file_routes($form_elements, $file_routes);
 

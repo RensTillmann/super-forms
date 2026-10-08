@@ -796,7 +796,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                 'status' => 'not_selector',
                 'role' => null,
             );
-            $elements = SUPER_Common::get_form_elements( $form_id );
+            $elements = SUPER_Common::get_submission_elements( $form_id );
             $matches = array();
             self::collect_registration_role_fields( $elements, $field_name, $matches );
             if( count($matches)===0 ) {
