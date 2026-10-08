@@ -4899,6 +4899,16 @@ function SUPERreCaptcha(){
     };
 
     // Grab fields data and return all data as an object
+    // Whether a field is left out of the submitted data. Only Super Forms hiding excludes a field:
+    // conditional logic and the hide-on-mobile column settings. Theme/custom CSS does not (D1), and
+    // neither does a column's 'invisible' setting: those fields (e.g. hidden pricing calculators)
+    // have always been submitted, so has_hidden_parent() is asked without its invisible-column check.
+    SUPER.submission_excludes_field = function(el){
+        return SUPER.has_hidden_parent(el, false, false) || $(el).parents('.super-hide-mobile, .super-hide-mobile-window').filter(function(){
+            return $(this).css('display')=='none';
+        }).length>0;
+    };
+
     SUPER.prepare_form_data_fields = function($form){
         var $data = {},
             $field,
@@ -4925,9 +4935,7 @@ function SUPERreCaptcha(){
             // Only Super Forms hiding excludes a field: conditional logic (the same rule validation
             // uses) and the hide-on-mobile column settings. A column hidden by theme/custom CSS
             // is submitted like a visible one (D1); the server enforces those fields.
-            $hidden = ($parent.length>0 && SUPER.has_hidden_parent($this[0])) || $this.parents('.super-hide-mobile, .super-hide-mobile-window').filter(function(){
-                return $(this).css('display')=='none';
-            }).length>0;
+            $hidden = ($parent.length>0 && SUPER.submission_excludes_field($this[0]));
             
             if( $hidden===true ) {
                 // Exclude conditionally
