@@ -2420,7 +2420,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                         $user = get_user_by( 'id', $user_id );
                         $mail = self::send_verification_email(array('password'=>$password, 'code'=>$code, 'user'=>$user, 'settings'=>$settings, 'data'=>$data));
                         // Return message
-                        if( SUPER_Common::email_error( $mail )!=='' ) {
+                        if( SUPER_Common::report_email_failure( $mail ) ) {
                             SUPER_Common::output_message(
                                 $error = true,
                                 $msg = SUPER_Common::email_error( $mail ),
@@ -2699,7 +2699,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                 $mail = self::send_reset_password_email(array('password'=>$password, 'code'=>'', 'user'=>$user, 'settings'=>$settings, 'data'=>$data));
 
                 // Return message
-                if( SUPER_Common::email_error( $mail )!=='' ) {
+                if( SUPER_Common::report_email_failure( $mail ) ) {
                     SUPER_Common::output_message(
                         $error = true,
                         $msg = SUPER_Common::email_error( $mail ),

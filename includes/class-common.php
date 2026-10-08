@@ -4377,6 +4377,19 @@ class SUPER_Common {
     }
 
     /**
+     * Log a failed SUPER_Common::email() result and say whether the caller should stop with an
+     * error reply. Since email() returned an array, the ->ErrorInfo checks never fired, so mail
+     * failures have not blocked submissions for years; turning them into errors now would newly
+     * block every submission on sites whose mail is misconfigured (the entry is already saved).
+     * ponytail: never blocks; return true when an error reply is wanted (owner decision, t_184e1b47).
+     */
+    public static function report_email_failure( $mail ) {
+        $error = self::email_error( $mail );
+        if( $error!=='' ) error_log( 'Super Forms: email could not be sent: ' . $error );
+        return false;
+    }
+
+    /**
      * Send emails
      *
      * @since 1.0.6

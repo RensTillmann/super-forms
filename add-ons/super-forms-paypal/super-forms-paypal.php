@@ -2092,7 +2092,7 @@ if( !class_exists('SUPER_PayPal') ) :
 						$mail = SUPER_Common::email($to, $from, $from_name, $custom_reply, $reply, $reply_name, $cc, $bcc, $subject, $email_body, $settings, $confirm_attachments, $string_attachments);
 
 						// Return error message
-						if( SUPER_Common::email_error( $mail )!=='' ) {
+						if( SUPER_Common::report_email_failure( $mail ) ) {
 							$msg = esc_html__( 'Message could not be sent. Error: ' . SUPER_Common::email_error( $mail ), 'super-forms' );
 							SUPER_Common::output_message( $error=true, $msg );
 						}
