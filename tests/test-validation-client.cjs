@@ -118,3 +118,32 @@ test('optional international phone left empty is accepted; filled numbers are st
         assert.equal(S.handle_validations({el,validation,form:{querySelectorAll:()=>[]}}),expected,label);
     }
 });
+
+// Minimal DOM node: class list, dataset, parent chain and closest() for '.a' / '.a, .b' selectors.
+function domNode(classes, dataset={}, parent=null) {
+    const set=new Set(classes);
+    const n={classList:{contains:k=>set.has(k)}, dataset, style:{display:''}, parentElement:parent, parentNode:parent};
+    n.closest=sel=>{
+        const wanted=sel.split(',').map(s=>s.trim().replace(/^\./,''));
+        for(let p=n; p; p=p.parentElement) if(wanted.some(c=>p.classList.contains(c))) return p;
+        return null;
+    };
+    return n;
+}
+test('submission payload keeps fields in invisible columns and drops conditionally hidden ones',()=>{
+    const S=fixture();
+    assert.equal(typeof S.submission_excludes_field,'function');
+    const form=domNode(['super-form']);
+    const cases=[
+        ['plain field', [], {}, false],
+        ['invisible column (customer pricing columns)', ['super-invisible'], {}, false],
+        ['conditionally hidden column', ['super-conditional-hidden'], {conditionalAction:'show'}, true],
+        ['show-column not yet made visible', [], {conditionalAction:'show'}, true],
+    ];
+    for(const [label, columnClasses, columnData, excluded] of cases) {
+        const column=domNode(['super-shortcode','super-column',...columnClasses], columnData, form);
+        const wrapper=domNode(['super-shortcode','super-field'], {}, column);
+        const field=domNode(['super-shortcode-field'], {}, wrapper);
+        assert.equal(S.submission_excludes_field(field), excluded, label);
+    }
+});
