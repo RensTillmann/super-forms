@@ -2242,6 +2242,26 @@ class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
         }
     }
 
+    public function test_international_phone_is_validated_as_the_e164_number_the_browser_submits() {
+        // The browser checks the displayed national number against the author's length/regex and
+        // the phone library, then submits intlTelInput getNumber() (E.164) (common.js prepare_form_data_fields).
+        foreach( array(
+            array(array('validation' => 'custom', 'custom_regex' => '^0', 'maxlength' => '11'), '+31612345678', true),
+            array(array('validation' => 'phone', 'maxlength' => '11'), '+31612345678', true),
+            array(array('validation' => 'none'), '+442071838750', true),
+            array(array('validation' => 'none', 'may_be_empty' => 'true'), '', true),
+            array(array('validation' => 'custom', 'custom_regex' => '^0', 'maxlength' => '11'), '06 12345678', false),
+            array(array('validation' => 'none'), '+31 6 1234', false),
+            array(array('validation' => 'none'), '+0612345678', false),
+            array(array('validation' => 'none'), '<b>+31612345678</b>', false),
+        ) as $case ) {
+            list($settings, $value, $allowed) = $case;
+            $elements = array(array('tag' => 'text', 'data' => array_merge(array('name' => 'phone', 'type' => 'int-phone'), $settings)));
+            $data = array('phone' => array('name' => 'phone', 'type' => 'var', 'value' => $value));
+            $this->submit_review8_probe($elements, $data, $allowed);
+        }
+    }
+
     public function test_saved_date_minimum_picks_are_enforced_before_submission_effects() {
         foreach(array(
             array('0', '', true),
