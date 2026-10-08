@@ -2155,7 +2155,7 @@ class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
             $mail = static function() use ( $delivered ) { return $delivered; };
             add_filter('pre_wp_mail', $mail);
             try {
-                $result = $this->with_super_settings(array('csrf_check' => 'false'), function() use ($form_id) {
+                $result = $this->with_super_settings(array('csrf_check' => 'false'), function() use ($form_id, $log) {
                     $this->set_submission_request($form_id, array('note' => array('name' => 'note', 'type' => 'var', 'value' => 'hello')), array('action' => 'super_submit_form'));
                     $_POST['data'] = wp_slash($_POST['data']);
                     $_REQUEST = $_POST;
