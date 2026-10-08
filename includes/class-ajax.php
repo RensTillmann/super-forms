@@ -3889,10 +3889,15 @@ class SUPER_Ajax {
                 }elseif( $tag==='text' && !empty($data['enable_keywords']) ) {
                     $length_mode = 'keywords';
                 }
+                // International phone (C3): the browser validates the displayed national number
+                // (author length/regex + phone library) and submits its E.164 form. The server
+                // validates that submitted representation: a well-formed E.164 number.
+                $int_phone = ( $tag==='text' && isset($data['type']) && $data['type']==='int-phone' );
+                if( $int_phone ) $length_mode = 'skip';
                 self::register_submission_contract_entry($contract, $data['name'], array(
                     'type'=>$type,
-                    'validation'=>isset($data['validation']) && is_string($data['validation']) ? $data['validation'] : '',
-                    'custom_regex'=>isset($data['custom_regex']) && is_string($data['custom_regex']) ? $data['custom_regex'] : '',
+                    'validation'=>$int_phone ? 'int_phone' : ( isset($data['validation']) && is_string($data['validation']) ? $data['validation'] : '' ),
+                    'custom_regex'=>( !$int_phone && isset($data['custom_regex']) && is_string($data['custom_regex']) ) ? $data['custom_regex'] : '',
                     'minlength'=>isset($data['minlength']) ? $data['minlength'] : '',
                     'maxlength'=>isset($data['maxlength']) ? $data['maxlength'] : '',
                     'selection_limit'=>( $tag==='dropdown' || $tag==='checkbox' || $tag==='countries' ),
@@ -4967,6 +4972,7 @@ class SUPER_Ajax {
         }
         if( $validation==='numeric' && preg_match('/^\d+$/D', $numeric_value)!==1 ) return false;
         if( $validation==='float' && preg_match('/^[+-]?\d+(?:\.\d+)?$/D', $numeric_value)!==1 ) return false;
+        if( $validation==='int_phone' && preg_match('/^\+[1-9]\d{6,14}$/D', $value)!==1 ) return false;
         if( $validation==='email' && !is_email($value) ) return false;
         if( $validation==='iban' && !self::submission_iban_is_valid($value) ) return false;
         if( $validation==='phone'
