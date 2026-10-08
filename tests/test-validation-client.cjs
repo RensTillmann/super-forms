@@ -180,3 +180,14 @@ test('conditions of wrappers without data-sfuid (e.g. Mailchimp columns) are not
     assert.deepEqual(ec(7, uid, '[{"v":"changed"}]'), [{v:'x'}]);
     assert.equal(S.conditional_logic.element_conditions(7, first, 'not json'), false);
 });
+
+test('clearing a listing edit form before population keeps its listing identity fields (t_c83bece7)',()=>{
+    const S=fixture();
+    const wrapper={classList:{contains:()=>false,add(){},remove(){}},querySelector:()=>null,querySelectorAll:()=>[],dataset:{}};
+    const input=(name)=>({name,value:'10',dataset:{},classList:{contains:()=>false,add(){},remove(){}},closest:()=>wrapper,parentNode:wrapper});
+    const inputs=['hidden_form_id','hidden_list_id','hidden_listing_form_id','hidden_contact_entry_id'].map(input);
+    const form={id:'super-form-7',querySelectorAll:sel=>sel==='.super-shortcode-field'?inputs:[],querySelector:()=>null,classList:{contains:()=>false,add(){},remove(){}},dataset:{}};
+    S.files={}; S.preFlightMappings={}; S.after_field_change_blur_hook=()=>{}; S.after_form_cleared_hook=()=>{};
+    S.init_clear_form({form, clear:true});
+    for(const el of inputs) assert.equal(el.value,'10',el.name);
+});
