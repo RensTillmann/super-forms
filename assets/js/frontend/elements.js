@@ -801,7 +801,9 @@
                     options.maxPicks = maxPicks;
                     $(el).multiDatesPicker(options);
                     // @since 4.9.583 - Fixes issue where the month would change back to January after selecting a second date or more
-                    $.datepicker._selectDateOverload = $.datepicker._selectDate;
+                    // Wrap the global _selectDate only once: wrapping it again for a second multi-pick field
+                    // made the wrapper call itself ('Maximum call stack size exceeded' in every picker).
+                    if(!$.datepicker._selectDateOverload) $.datepicker._selectDateOverload = $.datepicker._selectDate;
                     $.datepicker._selectDate = function (id, dateStr) {
                         var target = $(id);
                         var inst = this._getInst(target[0]);
