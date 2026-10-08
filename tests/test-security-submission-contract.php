@@ -2122,7 +2122,7 @@ class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
 
     public function test_required_values_starting_with_less_than_are_present_and_stored_unchanged() {
         foreach(array(
-            array('<10', true), array('<=5 kg', true), array('<5 years', true), array('0', true),
+            array('<10', true), array('<=5 kg', true), array('<5 years', true), array('0', true), array(' 0 ', true), array('0.00', true),
             array('', false), array('   ', false), array('<p></p>', false), array('<br />', false),
         ) as $case) {
             list($value, $allowed) = $case;
