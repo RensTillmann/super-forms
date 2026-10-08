@@ -5287,6 +5287,34 @@ class SUPER_Ajax {
         return true;
     }
 
+    /**
+     * The browser rewrites a saved option value that contains {tags} to the referenced field
+     * values before it submits (common.js update_variable_fields). Also allow that expansion,
+     * resolved from this same submission, next to the saved literal.
+     * ponytail: top-level fields only; repeater-row contracts keep the literal value.
+     */
+    private static function expand_tag_choice_values( $contract, $data, $form_id ) {
+        $settings = null;
+        foreach( $contract as $name => $meta ) {
+            if( !is_array($meta) ) continue;
+            $metas = array( 'primary' => $meta );
+            if( !empty($meta['variants']) ) $metas += $meta['variants'];
+            foreach( $metas as $key => $entry ) {
+                if( empty($entry['choice_values']) || !is_array($entry['choice_values']) ) continue;
+                $values = $entry['choice_values'];
+                foreach( $entry['choice_values'] as $choice ) {
+                    if( strpos($choice, '{')===false ) continue;
+                    if( $settings===null ) $settings = SUPER_Common::get_form_settings($form_id);
+                    $expanded = SUPER_Common::email_tags($choice, $data, $settings);
+                    if( is_string($expanded) && $expanded!=='' && !in_array($expanded, $values, true) ) $values[] = $expanded;
+                }
+                if( $key==='primary' ) $contract[$name]['choice_values'] = $values;
+                else $contract[$name]['variants'][$key]['choice_values'] = $values;
+            }
+        }
+        return $contract;
+    }
+
     private static function submission_identity_carrier_matches( $carrier, $name, $type, $expected_id ) {
         if( !is_array($carrier) || count($carrier)!==3
             || array_diff(array_keys($carrier), array('name', 'value', 'type'))
@@ -5305,6 +5333,7 @@ class SUPER_Ajax {
         $dynamic_routes = array();
         self::collect_submission_field_contract($elements, $contract, 0, $form_id);
         $contract = self::apply_register_login_role_contracts($contract, $form_id);
+        $contract = self::expand_tag_choice_values($contract, $data, $form_id);
         self::collect_dynamic_submission_contract($elements, $dynamic_groups, $form_id);
         if( !isset($data['hidden_form_id'], $data['hidden_contact_entry_id'])
             || !self::submission_identity_carrier_matches($data['hidden_form_id'], 'hidden_form_id', 'form_id', $form_id)
