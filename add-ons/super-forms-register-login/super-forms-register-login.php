@@ -1570,7 +1570,7 @@ if( !class_exists('SUPER_Register_Login') ) :
          * File values are accepted only when the core submission pipeline has
          * rebuilt them from an owned upload receipt or retained entry record.
          */
-        private static function resolve_custom_meta_value( $source, $data, $settings, $form_id=0 ) {
+        private static function resolve_custom_meta_value( $source, $data, $settings, $form_id=0, $owned_files=array(), $upload_parent=0 ) {
             if( isset($data[$source]) && is_array($data[$source])
                 && isset($data[$source]['type']) && $data[$source]['type']==='files' ) {
                 if( !isset($data[$source]['files']) || !is_array($data[$source]['files']) ) {
@@ -1592,12 +1592,9 @@ if( !class_exists('SUPER_Register_Login') ) :
                         if( isset($file['path']) || isset($file['subdir']) ) {
                             return new WP_Error( 'super_forms_invalid_custom_meta_file' );
                         }
-                        $filename = get_attached_file($attachment_id);
-                        $real = is_string($filename) && $filename!=='' && !is_link($filename)
-                            ? realpath($filename)
-                            : false;
-                        if( $real===false || !is_file($real) || get_post_type($attachment_id)!=='attachment'
-                            || basename($real)!==$file['value'] ) {
+                        if( !class_exists('SUPER_Ajax') || !SUPER_Ajax::owned_attachment_record_is_current(
+                            $file, $source, $form_id, $owned_files, $upload_parent
+                        ) ) {
                             return new WP_Error( 'super_forms_invalid_custom_meta_file' );
                         }
                         $file_values[] = $attachment_id;
@@ -1957,6 +1954,8 @@ if( !class_exists('SUPER_Register_Login') ) :
                 return;
             }
             $data = (isset($atts['data']) && is_array($atts['data'])) ? $atts['data'] : array();
+            $owned_files = (isset($atts['owned_files']) && is_array($atts['owned_files'])) ? $atts['owned_files'] : array();
+            $upload_parent = absint(isset($atts['owned_upload_parent']) ? $atts['owned_upload_parent'] : 0);
             $user_id = absint( $context['target'] );
             $form_id = absint( isset($post['form_id']) ? $post['form_id'] : 0 );
             $meta_data = array();
@@ -1967,7 +1966,9 @@ if( !class_exists('SUPER_Register_Login') ) :
                         $mapping['source'],
                         $data,
                         $settings,
-                        $form_id
+                        $form_id,
+                        $owned_files,
+                        $upload_parent
                     );
                     if( is_wp_error($value) ) {
                         SUPER_Common::output_message(
@@ -2003,7 +2004,7 @@ if( !class_exists('SUPER_Register_Login') ) :
             }
 
             foreach( $context['meta_mapping'] as $mapping ) {
-                $value = self::resolve_custom_meta_value($mapping['source'], $data, $settings, $form_id);
+                $value = self::resolve_custom_meta_value($mapping['source'], $data, $settings, $form_id, $owned_files, $upload_parent);
                 if( is_wp_error($value) ) {
                     SUPER_Common::output_message(
                         $error = true,
