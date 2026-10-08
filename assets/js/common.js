@@ -2051,10 +2051,10 @@ function SUPERreCaptcha(){
                         
                         // Check if we are conditionally validating a field
                         if($is_validate){
-                            // Hide wrappers
-                            Object.keys($hide_wrappers).forEach(function() {
-                                $validation_error = true;
-                            });
+                            // may_be_empty=conditions: true (may stay empty) unless a condition matched.
+                            // The field wrapper is not a conditional wrapper, so the show/hide lists
+                            // above never apply to it.
+                            $validation_error = ($match_found===0);
                         }else{
                             Object.keys($hide_wrappers).forEach(function(key) {
                                 if($hide_wrappers[key].classList.contains('super-error-active')){
@@ -3453,14 +3453,15 @@ function SUPERreCaptcha(){
                     allowEmpty = true; // Allow field to be empty
                 }
                 if (mayBeEmpty == 'conditions') {
-                    // Allow field to be empty only when following conditions are met
+                    // "Yes, but not when the following conditions are met": the field may stay
+                    // empty unless one of ITS OWN conditions matches.
                     allowEmpty = true; 
-                    args.conditionalLogic = args.form.querySelectorAll('.super-validate-conditions');
+                    args.conditionalLogic = args.el.closest('.super-shortcode').querySelectorAll('.super-validate-conditions');
                     if(typeof args.conditionalLogic !== 'undefined'){
                         if(args.conditionalLogic.length!==0){
                             result = SUPER.conditional_logic.loop(args);
                             if (!result) {
-                                allowEmpty = false; // when condition is met, we do not allow field to be empty
+                                allowEmpty = false; // a condition is met: the field may not be empty
                             }
                         }
                     }
@@ -4292,13 +4293,14 @@ function SUPERreCaptcha(){
                 return true;
             }
 
-            $this.parents('.super-shortcode.super-column').each(function(){
-                if($(this).css('display')=='none'){
-                    $hidden = true;
-                }
-            });
+            // Only Super Forms hiding excludes a field: conditional logic (the same rule validation
+            // uses) and the hide-on-mobile column settings. A column hidden by theme/custom CSS
+            // is submitted like a visible one (D1); the server enforces those fields.
+            $hidden = ($parent.length>0 && SUPER.has_hidden_parent($this[0])) || $this.parents('.super-hide-mobile, .super-hide-mobile-window').filter(function(){
+                return $(this).css('display')=='none';
+            }).length>0;
             
-            if( ( $hidden===true )  || ( ( $parent.css('display')=='none' ) && ( !$parent.hasClass('super-hidden') ) ) ) {
+            if( $hidden===true ) {
                 // Exclude conditionally
             }else{
                 // First replace %d with dynamic column number for E-mail label setting
