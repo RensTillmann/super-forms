@@ -5294,7 +5294,6 @@ class SUPER_Ajax {
      * ponytail: top-level fields only; repeater-row contracts keep the literal value.
      */
     private static function expand_tag_choice_values( $contract, $data, $form_id ) {
-        $settings = null;
         foreach( $contract as $name => $meta ) {
             if( !is_array($meta) ) continue;
             $metas = array( 'primary' => $meta );
@@ -5303,16 +5302,21 @@ class SUPER_Ajax {
                 if( empty($entry['choice_values']) || !is_array($entry['choice_values']) ) continue;
                 $values = $entry['choice_values'];
                 foreach( $entry['choice_values'] as $choice ) {
-                    if( strpos($choice, '{')===false ) continue;
-                    if( $settings===null ) $settings = SUPER_Common::get_form_settings($form_id);
-                    $expanded = SUPER_Common::email_tags($choice, $data, $settings);
-                    if( is_string($expanded) && $expanded!=='' && !in_array($expanded, $values, true) ) $values[] = $expanded;
+                    $expanded = self::submitted_tag_choice($choice, $data, $form_id);
+                    if( $expanded!=='' && !in_array($expanded, $values, true) ) $values[] = $expanded;
                 }
                 if( $key==='primary' ) $contract[$name]['choice_values'] = $values;
                 else $contract[$name]['variants'][$key]['choice_values'] = $values;
             }
         }
         return $contract;
+    }
+
+    /** A saved choice value with {tags} resolved from this submission ('' when it has none). */
+    private static function submitted_tag_choice( $choice, $data, $form_id ) {
+        if( !is_string($choice) || strpos($choice, '{')===false || !is_array($data) ) return '';
+        $expanded = SUPER_Common::email_tags($choice, $data, SUPER_Common::get_form_settings($form_id));
+        return ( is_string($expanded) && $expanded!==$choice ) ? $expanded : '';
     }
 
     private static function submission_identity_carrier_matches( $carrier, $name, $type, $expected_id ) {
@@ -7407,7 +7411,7 @@ class SUPER_Ajax {
         return $label;
     }
 
-    private static function server_owned_selection_values_for_element( $element, $field_name, $field_data, $form_id=0 ) {
+    private static function server_owned_selection_values_for_element( $element, $field_name, $field_data, $form_id=0, $data=null ) {
         if( !is_array($element) || !is_array($field_data) ) {
             return false;
         }
@@ -7420,6 +7424,16 @@ class SUPER_Ajax {
         }
         $element_data = (isset($element['data']) && is_array($element['data'])) ? $element['data'] : array();
         $choices = self::selection_field_choice_labels($element, $form_id);
+        if( is_array($choices) ) {
+            foreach( $choices as $choice => $label ) {
+                // The browser shows and submits {tag} options with the referenced values (C11).
+                $expanded = self::submitted_tag_choice((string) $choice, $data, $form_id);
+                if( $expanded!=='' && !isset($choices[$expanded]) ) {
+                    $expanded_label = self::submitted_tag_choice((string) $label, $data, $form_id);
+                    $choices[$expanded] = $expanded_label!=='' ? $expanded_label : $label;
+                }
+            }
+        }
         $meta = array(
             'selection_limit' => ( $tag!=='radio' ),
             'selection_joiner' => ( $tag==='checkbox' ? ',' : ', ' ),
@@ -7494,7 +7508,7 @@ class SUPER_Ajax {
         return $variants;
     }
 
-    private static function server_owned_selection_values( $field_name, $field_data, $form_elements, $form_id=0 ) {
+    private static function server_owned_selection_values( $field_name, $field_data, $form_elements, $form_id=0, $data=null ) {
         if( !is_string($field_name) || $field_name==='' || !is_array($field_data) || !is_array($form_elements) ) {
             return null;
         }
@@ -7505,7 +7519,7 @@ class SUPER_Ajax {
         $variants = null;
         $selection_matches = 0;
         foreach( $elements as $element ) {
-            $candidate = self::server_owned_selection_values_for_element($element, $field_name, $field_data, $form_id);
+            $candidate = self::server_owned_selection_values_for_element($element, $field_name, $field_data, $form_id, $data);
             if( $candidate===null ) {
                 continue;
             }
@@ -8030,7 +8044,7 @@ class SUPER_Ajax {
                 if( $server_label===false ) {
                     return false;
                 }
-                $variants = self::server_owned_selection_values($field_name, $field_data, $form_elements, $form_id);
+                $variants = self::server_owned_selection_values($field_name, $field_data, $form_elements, $form_id, $data);
                 if( $variants===false ) {
                     return false;
                 }
