@@ -147,3 +147,22 @@ test('submission payload keeps fields in invisible columns and drops conditional
         assert.equal(S.submission_excludes_field(field), excluded, label);
     }
 });
+
+test('listing edit stores the entry data under the form the modal rendered (t_c83bece7)',()=>{
+    const listingSource=path.join(path.dirname(clientSource),'../../includes/extensions/listings/assets/js/frontend/script.js');
+    const el=(cls=[],dataset={},parent=null)=>({tagName:'DIV',classList:{contains:k=>cls.includes(k),add(){},remove(){}},dataset,parentNode:parent,
+        style:{},children:[],appendChild(c){this.children.push(c);c.parentNode=this;return c;},removeChild(){},remove(){},querySelector:()=>null,addEventListener(){}});
+    let xhr;
+    const ctx={SUPER:{init_super_form_frontend(){}}, console, super_listings_i18n:{ajaxurl:'/x'}, jQuery:{param:()=>''},
+        XMLHttpRequest:function(){xhr=this;this.open=()=>{};this.setRequestHeader=()=>{};this.send=()=>{};},
+        addEventListener(){}, innerHeight:800, innerWidth:1000};
+    ctx.document={body:el(), createElement:()=>el(), querySelector:()=>null};
+    ctx.window=ctx;
+    vm.runInNewContext(fs.readFileSync(listingSource,'utf8'),ctx);
+    const listing=el(['super-listings'],{formId:'10',listId:'0',entryNonce:'n'}, ctx.document);
+    const entry=el(['super-entry'],{id:'55'},listing);
+    ctx.SUPER.frontEndListing.editEntry(el([],{},entry));
+    Object.assign(xhr,{readyState:4,status:200,responseText:JSON.stringify({error:false,html:'',form_id:20,entry_data:{note:{value:'before'}}})});
+    xhr.onreadystatechange();
+    assert.equal(JSON.parse(ctx.SUPER.form_js[20]._entry_data).note.value,'before');
+});

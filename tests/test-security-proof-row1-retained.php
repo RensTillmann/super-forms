@@ -113,6 +113,36 @@ class Test_Super_Forms_Proof_Row1_Retained_Listings_Lifecycle extends Super_Form
         return array( 'stored' => $stored, 'filename' => $filename );
     }
 
+    public function test_listing_edit_of_an_entry_from_another_form_reports_the_rendered_form_for_its_entry_data() {
+        // t_c83bece7: with retrieve specific_forms/all_forms the modal renders the ENTRY's form, so the
+        // client must key SUPER.form_js[...]['_entry_data'] by that form, not by the listing's host form.
+        $admin = self::factory()->user->create( array( 'role' => 'administrator' ) );
+        $target_form_id = $this->create_form( 'publish', array( array( 'tag' => 'text', 'group' => 'form_elements', 'inner' => array(),
+            'data' => array( 'name' => 'note', 'email' => 'Note:' ) ) ), array( 'send' => 'no', 'confirm' => 'no' ) );
+        foreach( array( 'specific_forms', 'all_forms', 'this_form' ) as $retrieve ) {
+            $list = array( 'enabled' => 'true', 'retrieve' => $retrieve, 'form_ids' => (string) $target_form_id,
+                'edit_any' => array( 'enabled' => 'true', 'user_roles' => 'administrator', 'user_ids' => '' ),
+                'edit_own' => array( 'enabled' => 'false', 'user_roles' => '', 'user_ids' => '' ) );
+            $host_form_id = $retrieve==='this_form' ? $target_form_id : $this->create_form( 'publish', array(), array( '_listings' => array( 'lists' => array( $list ) ) ) );
+            if( $retrieve==='this_form' ) update_post_meta( $target_form_id, '_super_form_settings', array_merge( SUPER_Common::get_form_settings( $target_form_id ), array( '_listings' => array( 'lists' => array( $list ) ) ) ) );
+            $entry_id = self::factory()->post->create( array( 'post_type' => 'super_contact_entry', 'post_status' => 'super_unread',
+                'post_parent' => $target_form_id, 'post_author' => $admin ) );
+            update_post_meta( $entry_id, '_super_contact_entry_data', array( 'note' => array( 'name' => 'note', 'value' => 'before', 'type' => 'var' ) ) );
+            $this->authenticate_actor( $admin );
+            $original_post = $_POST; $original_get = $_GET;
+            $_POST = array( 'action' => 'super_listings_edit_entry', 'entry_id' => $entry_id, 'form_id' => $host_form_id, 'list_id' => 0,
+                'nonce' => wp_create_nonce( 'super_listings_entry_' . $host_form_id . '_0' ) );
+            ob_start();
+            include SUPER_PLUGIN_DIR . '/includes/extensions/listings/form-blank-page-template.php';
+            $response = json_decode( ob_get_clean(), true );
+            $_POST = $original_post; $_GET = $original_get;
+            $this->assertFalse( $response['error'], $retrieve );
+            $this->assertRenderedInputValue( $response['html'], 'hidden_form_id', $target_form_id );
+            $this->assertSame( $target_form_id, $response['form_id'], $retrieve . ': entry_data belongs to the rendered form' );
+            $this->assertSame( 'before', $response['entry_data']['note']['value'], $retrieve );
+        }
+    }
+
     public function test_listing_grant_authorizes_retained_resubmission_under_the_stored_field_name_with_cleanup_authority_while_wrong_form_and_wrong_actor_are_rejected() {
         $admin_1 = self::factory()->user->create( array( 'role' => 'administrator' ) );
         $admin_2 = self::factory()->user->create( array( 'role' => 'administrator' ) );
