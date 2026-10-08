@@ -5335,6 +5335,8 @@ class SUPER_Shortcodes {
         $function = $callback[1];
         $data = json_decode(SUPER_Common::safe_json_encode($data), true);
         $inner = json_decode(SUPER_Common::safe_json_encode($inner), true);
+        // Every element prints its custom class raw into a class="" attribute; escape it once here.
+        if( is_array($data) && isset($data['class']) && is_string($data['class']) ) $data['class'] = esc_attr($data['class']);
         if($settings['theme_hide_icons']==='yes'){
             unset($data['icon']);
             unset($data['icon_align']);

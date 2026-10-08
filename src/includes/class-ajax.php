@@ -741,7 +741,19 @@ class SUPER_Ajax {
                     $contract[$name] = $normalized;
                     return true;
                 }
-                // Genuinely irreconcilable duplicate (two rendered fields, or two
+                if( $existing_authoritative && $authoritative
+                    && $compare_existing['type']===$normalized['type']
+                    && $compare_existing['repeatable']===$normalized['repeatable'] ) {
+                    // The same name rendered twice with different settings (typically in two
+                    // conditional columns, one shown at a time). Versions before 6.3.315 accepted
+                    // either; accept a carrier that satisfies one of the rendered variants.
+                    $variants = isset($compare_existing['variants']) ? $compare_existing['variants'] : array();
+                    unset($compare_existing['variants']);
+                    if( $compare_existing!==$normalized && !in_array($normalized, $variants, true) ) $variants[] = $normalized;
+                    $contract[$name]['variants'] = $variants;
+                    return true;
+                }
+                // Genuinely irreconcilable duplicate (two rendered fields of a different type, or two
                 // conflicting declarations for a never-rendered name): poison the carrier.
                 $contract[$name] = false;
                 return false;
@@ -799,10 +811,15 @@ class SUPER_Ajax {
                 }elseif( $tag==='text' && !empty($data['enable_keywords']) ) {
                     $length_mode = 'keywords';
                 }
+                // International phone (C3): the browser validates the displayed national number
+                // (author length/regex + phone library) and submits its E.164 form. The server
+                // validates that submitted representation: a well-formed E.164 number.
+                $int_phone = ( $tag==='text' && isset($data['type']) && $data['type']==='int-phone' );
+                if( $int_phone ) $length_mode = 'skip';
                 self::register_submission_contract_entry($contract, $data['name'], array(
                     'type'=>$type,
-                    'validation'=>isset($data['validation']) && is_string($data['validation']) ? $data['validation'] : '',
-                    'custom_regex'=>isset($data['custom_regex']) && is_string($data['custom_regex']) ? $data['custom_regex'] : '',
+                    'validation'=>$int_phone ? 'int_phone' : ( isset($data['validation']) && is_string($data['validation']) ? $data['validation'] : '' ),
+                    'custom_regex'=>( !$int_phone && isset($data['custom_regex']) && is_string($data['custom_regex']) ) ? $data['custom_regex'] : '',
                     'minlength'=>isset($data['minlength']) ? $data['minlength'] : '',
                     'maxlength'=>isset($data['maxlength']) ? $data['maxlength'] : '',
                     'selection_limit'=>( $tag==='dropdown' || $tag==='checkbox' || $tag==='countries' ),
@@ -1879,6 +1896,7 @@ class SUPER_Ajax {
         }
         if( $validation==='numeric' && preg_match('/^\d+$/D', $numeric_value)!==1 ) return false;
         if( $validation==='float' && preg_match('/^[+-]?\d+(?:\.\d+)?$/D', $numeric_value)!==1 ) return false;
+        if( $validation==='int_phone' && preg_match('/^\+[1-9]\d{6,14}$/D', $value)!==1 ) return false;
         if( $validation==='email' && !is_email($value) ) return false;
         if( $validation==='iban' && !self::submission_iban_is_valid($value) ) return false;
         if( $validation==='phone'
@@ -2100,6 +2118,15 @@ class SUPER_Ajax {
     }
 
     private static function submission_carrier_matches_contract( $name, $carrier, $meta ) {
+        if( is_array($meta) && !empty($meta['variants']) ) {
+            $variants = $meta['variants'];
+            unset($meta['variants']);
+            if( self::submission_carrier_matches_contract($name, $carrier, $meta) ) return true;
+            foreach( $variants as $variant ) {
+                if( self::submission_carrier_matches_contract($name, $carrier, $variant) ) return true;
+            }
+            return false;
+        }
         if( is_int($name) ) $name = (string)$name;
         if( !is_string($name) || !is_array($carrier) || !is_array($meta)
             || !isset($carrier['type']) || !is_string($carrier['type'])
@@ -2181,6 +2208,38 @@ class SUPER_Ajax {
         return true;
     }
 
+    /**
+     * The browser rewrites a saved option value that contains {tags} to the referenced field
+     * values before it submits (common.js update_variable_fields). Also allow that expansion,
+     * resolved from this same submission, next to the saved literal.
+     * ponytail: top-level fields only; repeater-row contracts keep the literal value.
+     */
+    private static function expand_tag_choice_values( $contract, $data, $form_id ) {
+        foreach( $contract as $name => $meta ) {
+            if( !is_array($meta) ) continue;
+            $metas = array( 'primary' => $meta );
+            if( !empty($meta['variants']) ) $metas += $meta['variants'];
+            foreach( $metas as $key => $entry ) {
+                if( empty($entry['choice_values']) || !is_array($entry['choice_values']) ) continue;
+                $values = $entry['choice_values'];
+                foreach( $entry['choice_values'] as $choice ) {
+                    $expanded = self::submitted_tag_choice($choice, $data, $form_id);
+                    if( $expanded!=='' && !in_array($expanded, $values, true) ) $values[] = $expanded;
+                }
+                if( $key==='primary' ) $contract[$name]['choice_values'] = $values;
+                else $contract[$name]['variants'][$key]['choice_values'] = $values;
+            }
+        }
+        return $contract;
+    }
+
+    /** A saved choice value with {tags} resolved from this submission ('' when it has none). */
+    private static function submitted_tag_choice( $choice, $data, $form_id ) {
+        if( !is_string($choice) || strpos($choice, '{')===false || !is_array($data) ) return '';
+        $expanded = SUPER_Common::email_tags($choice, $data, SUPER_Common::get_form_settings($form_id));
+        return ( is_string($expanded) && $expanded!==$choice ) ? $expanded : '';
+    }
+
     private static function submission_identity_carrier_matches( $carrier, $name, $type, $expected_id ) {
         if( !is_array($carrier) || count($carrier)!==3
             || array_diff(array_keys($carrier), array('name', 'value', 'type'))
@@ -2199,6 +2258,7 @@ class SUPER_Ajax {
         $dynamic_routes = array();
         self::collect_submission_field_contract($elements, $contract, 0, $form_id);
         $contract = self::apply_register_login_role_contracts($contract, $form_id);
+        $contract = self::expand_tag_choice_values($contract, $data, $form_id);
         self::collect_dynamic_submission_contract($elements, $dynamic_groups, $form_id);
         if( !isset($data['hidden_form_id'], $data['hidden_contact_entry_id'])
             || !self::submission_identity_carrier_matches($data['hidden_form_id'], 'hidden_form_id', 'form_id', $form_id)
@@ -4090,7 +4150,7 @@ class SUPER_Ajax {
         return $label;
     }
 
-    private static function server_owned_selection_values_for_element( $element, $field_name, $field_data, $form_id=0 ) {
+    private static function server_owned_selection_values_for_element( $element, $field_name, $field_data, $form_id=0, $data=null ) {
         if( !is_array($element) || !is_array($field_data) ) {
             return false;
         }
@@ -4103,6 +4163,16 @@ class SUPER_Ajax {
         }
         $element_data = (isset($element['data']) && is_array($element['data'])) ? $element['data'] : array();
         $choices = self::selection_field_choice_labels($element, $form_id);
+        if( is_array($choices) ) {
+            foreach( $choices as $choice => $label ) {
+                // The browser shows and submits {tag} options with the referenced values (C11).
+                $expanded = self::submitted_tag_choice((string) $choice, $data, $form_id);
+                if( $expanded!=='' && !isset($choices[$expanded]) ) {
+                    $expanded_label = self::submitted_tag_choice((string) $label, $data, $form_id);
+                    $choices[$expanded] = $expanded_label!=='' ? $expanded_label : $label;
+                }
+            }
+        }
         $meta = array(
             'selection_limit' => ( $tag!=='radio' ),
             'selection_joiner' => ( $tag==='checkbox' ? ',' : ', ' ),
@@ -4177,7 +4247,7 @@ class SUPER_Ajax {
         return $variants;
     }
 
-    private static function server_owned_selection_values( $field_name, $field_data, $form_elements, $form_id=0 ) {
+    private static function server_owned_selection_values( $field_name, $field_data, $form_elements, $form_id=0, $data=null ) {
         if( !is_string($field_name) || $field_name==='' || !is_array($field_data) || !is_array($form_elements) ) {
             return null;
         }
@@ -4188,7 +4258,7 @@ class SUPER_Ajax {
         $variants = null;
         $selection_matches = 0;
         foreach( $elements as $element ) {
-            $candidate = self::server_owned_selection_values_for_element($element, $field_name, $field_data, $form_id);
+            $candidate = self::server_owned_selection_values_for_element($element, $field_name, $field_data, $form_id, $data);
             if( $candidate===null ) {
                 continue;
             }
@@ -4722,7 +4792,7 @@ class SUPER_Ajax {
                 if( $server_label===false ) {
                     return false;
                 }
-                $variants = self::server_owned_selection_values($field_name, $field_data, $form_elements, $form_id);
+                $variants = self::server_owned_selection_values($field_name, $field_data, $form_elements, $form_id, $data);
                 if( $variants===false ) {
                     return false;
                 }

@@ -4202,7 +4202,8 @@ function SUPERreCaptcha(){
             }
         }
         // @since 5.0.022 - extra validation check for international phone numbers
-        if(args.el.closest('.super-int-phone')){
+        // An empty number is handled by the required/may-be-empty rules below, not by the number check.
+        if(args.el.closest('.super-int-phone') && args.el.value!==''){
             var super_int_phone = window.superTelInputGlobals.getInstance(args.el);
             if(!super_int_phone.isValidNumber()){ // If the phone validation causes false positives use super_int_phone.isPossibleNumber() instead
                 error = true;
@@ -4921,13 +4922,14 @@ function SUPERreCaptcha(){
                 return true;
             }
 
-            $this.parents('.super-shortcode.super-column').each(function(){
-                if($(this).css('display')=='none'){
-                    $hidden = true;
-                }
-            });
+            // Only Super Forms hiding excludes a field: conditional logic (the same rule validation
+            // uses) and the hide-on-mobile column settings. A column hidden by theme/custom CSS
+            // is submitted like a visible one (D1); the server enforces those fields.
+            $hidden = ($parent.length>0 && SUPER.has_hidden_parent($this[0])) || $this.parents('.super-hide-mobile, .super-hide-mobile-window').filter(function(){
+                return $(this).css('display')=='none';
+            }).length>0;
             
-            if( ( $hidden===true )  || ( ( $parent.css('display')=='none' ) && ( !$parent.hasClass('super-hidden') ) ) ) {
+            if( $hidden===true ) {
                 // Exclude conditionally
             }else{
                 // First replace %d with dynamic column number for E-mail label setting
@@ -5053,7 +5055,8 @@ function SUPERreCaptcha(){
                         
                             $new_value = [];
                             $selected_items.each(function(){
-                                $item_value = $(this).data('value').toString().split(';');
+                                // Raw attribute: .data() converts 'null', 'true', numbers and JSON-like option values.
+                                $item_value = String($(this).attr('data-value') || '').split(';');
                                 $new_value.push( $item_value[0]);
                             });
                             $data[$route_name].selected_values = $new_value.slice(0);
