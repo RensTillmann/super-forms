@@ -258,7 +258,9 @@ class Test_Security_Default_Value_Tags extends WP_UnitTestCase {
 		// forever, and the browser must not be pointed at fonts that do not exist.
 		$language = 'zzgatemissing';
 		$dir = SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts/';
-		if( !is_dir( $dir ) ) wp_mkdir_p( $dir );
+		if( !wp_mkdir_p( $dir ) || !is_writable( $dir ) ) {
+			$this->markTestSkipped( 'Plugin font directory is read-only here (PHPUnit runner payload); covered by the scratch font probe.' );
+		}
 		foreach( array( 'json', 'woff', 'woff2' ) as $ext ) @unlink( $dir . $language . '.' . $ext );
 		file_put_contents( $dir . $language . '.json', '' ); // left behind by an earlier failed download
 		$form_id = self::factory()->post->create( array( 'post_type' => 'super_form', 'post_status' => 'publish' ) );
