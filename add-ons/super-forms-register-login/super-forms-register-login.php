@@ -1777,7 +1777,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     continue;
                 }
                 if( !empty($element['inner']) ) {
-                    self::collect_registration_role_fields( $element['inner'], $field_name, $matches );
+                    self::collect_registration_role_fields( SUPER_Common::inner_elements($element), $field_name, $matches );
                 }
                 $data = (isset($element['data']) && is_array($element['data'])) ? $element['data'] : array();
                 if( isset($data['name']) && is_string($data['name']) && $data['name']===$field_name ) {

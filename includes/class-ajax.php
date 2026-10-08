@@ -142,7 +142,7 @@ class SUPER_Ajax {
                 && $element['tag']==='button' && $data['action']==='print'
                 && $data['print_custom']==='true' && is_scalar($data['print_file'])
                 && (string)$data['print_file']===(string)$file_id ) return true;
-            if( isset($element['inner']) && self::saved_form_has_print_attachment($element['inner'], $file_id) ) return true;
+            if( isset($element['inner']) && self::saved_form_has_print_attachment(SUPER_Common::inner_elements($element), $file_id) ) return true;
         }
         return false;
     }
@@ -513,7 +513,7 @@ class SUPER_Ajax {
                     $name = $settings['name'];
                     $always_present[$name] = ! $locked || !empty($always_present[$name]);
                 }
-                if( !empty($element['inner']) ) $walk( $element['inner'], $locked );
+                if( !empty($element['inner']) ) $walk( SUPER_Common::inner_elements($element), $locked );
             }
         };
         $elements = SUPER_Common::get_form_elements(absint($form_id));
@@ -1192,7 +1192,7 @@ class SUPER_Ajax {
                 continue;
             }
             if( !empty($element['inner']) ) {
-                self::collect_public_entry_search_fields( $element['inner'], $field_name, $matches );
+                self::collect_public_entry_search_fields( SUPER_Common::inner_elements($element), $field_name, $matches );
             }
             $data = ( isset($element['data']) && is_array($element['data']) ) ? $element['data'] : array();
             if( ( isset($element['tag']) ? $element['tag'] : '' )!=='text'
@@ -1216,7 +1216,7 @@ class SUPER_Ajax {
                 continue;
             }
             if( !empty($element['inner']) ) {
-                self::collect_wc_order_search_fields( $element['inner'], $field_name, $matches, $require_populate );
+                self::collect_wc_order_search_fields( SUPER_Common::inner_elements($element), $field_name, $matches, $require_populate );
             }
             $data = ( isset($element['data']) && is_array($element['data']) ) ? $element['data'] : array();
             if( ( isset($element['tag']) ? $element['tag'] : '' )!=='text'
@@ -2999,7 +2999,7 @@ class SUPER_Ajax {
             foreach($elements as $k => $v){
                 // Check if has inner elements
                 if(!empty($v['inner'])){
-                    $elements[$k]['inner'] = self::clear_i18n( $v['inner'], $translations );
+                    $elements[$k]['inner'] = SUPER_Common::map_inner_elements( $v['inner'], function( $items ) use ( $translations ) { return self::clear_i18n( $items, $translations ); } );
                 }else{
                     // Just remove deleted translations
                     if( !empty($v['data']['i18n']) && is_array($v['data']['i18n']) ) {
@@ -3577,7 +3577,7 @@ class SUPER_Ajax {
         );
         foreach( $elements as $element ) {
             if( !empty( $element['inner'] ) ) {
-                $name = self::first_repeater_group_name( $element['inner'] );
+                $name = self::first_repeater_group_name( SUPER_Common::inner_elements($element) );
                 if( $name === null || $name !== '' ) return $name;
                 continue;
             }
@@ -3679,8 +3679,8 @@ class SUPER_Ajax {
                 if( $repeater ) {
                     // A repeater is row-enforceable only when its payload group is known and
                     // NOTHING in its subtree has conditional or mobile-dependent visibility.
-                    $repeater_group = self::first_repeater_group_name( $element['inner'] );
-                    $this_safe = ( is_string( $repeater_group ) && $repeater_group !== '' && !self::subtree_has_dynamic_visibility( $element['inner'] ) );
+                    $repeater_group = self::first_repeater_group_name( SUPER_Common::inner_elements($element) );
+                    $this_safe = ( is_string( $repeater_group ) && $repeater_group !== '' && !self::subtree_has_dynamic_visibility( SUPER_Common::inner_elements($element) ) );
                     $child_ctx = array(
                         'ancestor_locked' => $child_locked,
                         'in_repeater' => true,
@@ -3695,7 +3695,7 @@ class SUPER_Ajax {
                         'repeater_group' => $ctx['repeater_group'],
                     );
                 }
-                foreach( self::collect_required_fields( $element['inner'], $child_ctx ) as $sub_name => $sub_meta ) {
+                foreach( self::collect_required_fields( SUPER_Common::inner_elements($element), $child_ctx ) as $sub_name => $sub_meta ) {
                     $required = self::merge_required_meta( $required, $sub_name, $sub_meta );
                 }
             } elseif( isset($edata['name']) && is_string($edata['name']) && $edata['name']!=='' ) {
@@ -3859,7 +3859,7 @@ class SUPER_Ajax {
             if( $tag==='column' && isset($data['duplicate']) && $data['duplicate']==='enabled' ) {
                 $child_repeater_depth++;
             }
-            if( !empty($element['inner']) ) self::collect_submission_field_contract($element['inner'], $contract, $child_repeater_depth, $form_id);
+            if( !empty($element['inner']) ) self::collect_submission_field_contract(SUPER_Common::inner_elements($element), $contract, $child_repeater_depth, $form_id);
             if( !empty($payload_tags[$tag]) && isset($data['name']) && is_string($data['name']) && $data['name']!=='' ) {
                 $type = $tag==='file' ? 'files' : 'var';
                 $length_mode = 'text';
@@ -4694,7 +4694,7 @@ class SUPER_Ajax {
                     return false;
                 }
             }
-            if( !empty($element['inner']) && !self::form_custom_regexes_are_compatible($element['inner']) ) {
+            if( !empty($element['inner']) && !self::form_custom_regexes_are_compatible(SUPER_Common::inner_elements($element)) ) {
                 return false;
             }
         }
@@ -4728,7 +4728,7 @@ class SUPER_Ajax {
                 }
             }
             if( !empty($element['inner'])
-                && !self::collect_incompatible_form_custom_regexes($element['inner'], $patterns, $identity_prefix . '[' . $index . ']') ) {
+                && !self::collect_incompatible_form_custom_regexes(SUPER_Common::inner_elements($element), $patterns, $identity_prefix . '[' . $index . ']') ) {
                 return false;
             }
         }
@@ -5007,7 +5007,7 @@ class SUPER_Ajax {
         foreach( $elements as $element ) {
             if( !is_array($element) ) continue;
             $data = (isset($element['data']) && is_array($element['data'])) ? $element['data'] : array();
-            $inner = (isset($element['inner']) && is_array($element['inner'])) ? $element['inner'] : array();
+            $inner = SUPER_Common::inner_elements($element);
             if( isset($element['tag']) && $element['tag']==='column'
                 && isset($data['duplicate']) && $data['duplicate']==='enabled' && !empty($inner) ) {
                 $group_name = self::first_repeater_group_name( $inner );
@@ -5449,7 +5449,7 @@ class SUPER_Ajax {
             $mobile_hide = ( ( isset( $edata['hide_on_mobile'] ) && $edata['hide_on_mobile'] === 'true' )
                 || ( isset( $edata['hide_on_mobile_window'] ) && $edata['hide_on_mobile_window'] === 'true' ) );
             if( ( $ca !== '' && $ca !== 'disabled' ) || $mobile_hide ) return true;
-            if( !empty( $element['inner'] ) && self::subtree_has_dynamic_visibility( $element['inner'] ) ) return true;
+            if( !empty( $element['inner'] ) && self::subtree_has_dynamic_visibility( SUPER_Common::inner_elements($element) ) ) return true;
         }
         return false;
     }
@@ -5461,7 +5461,7 @@ class SUPER_Ajax {
                 $data = isset($element['data']) && is_array($element['data']) ? $element['data'] : array();
                 $versions[(!empty($data['version']) && $data['version']==='v3') ? 'v3' : 'v2'] = true;
             }
-            if( !empty($element['inner']) ) self::form_recaptcha_versions($element['inner'], $versions);
+            if( !empty($element['inner']) ) self::form_recaptcha_versions(SUPER_Common::inner_elements($element), $versions);
         }
     }
 
@@ -5479,7 +5479,7 @@ class SUPER_Ajax {
                 && $edata['name']===$field_name ) {
                 $matches[] = $edata;
             }
-            if( !empty($element['inner']) ) self::collect_file_elements($element['inner'], $field_name, $matches);
+            if( !empty($element['inner']) ) self::collect_file_elements(SUPER_Common::inner_elements($element), $field_name, $matches);
         }
     }
 
@@ -6008,7 +6008,7 @@ class SUPER_Ajax {
                 $child_repeater_depth++;
             }
             if( !empty($element['inner']) ) {
-                self::collect_submission_file_routes($element['inner'], $routes, $child_repeater_depth);
+                self::collect_submission_file_routes(SUPER_Common::inner_elements($element), $routes, $child_repeater_depth);
             }
             if( $tag!=='file' || !isset($data['name']) || !is_string($data['name']) || $data['name']==='' ) {
                 continue;
@@ -7120,7 +7120,7 @@ class SUPER_Ajax {
                 || ( isset( $edata['hide_on_mobile_window'] ) && $edata['hide_on_mobile_window']==='true' ) );
             $child_locked = ( $ctx['ancestor_locked'] || $conditional || $repeater || $mobile_hide );
             if( !empty($element['inner']) ) {
-                foreach( self::collect_presence_enforced_file_routes( $element['inner'], array(
+                foreach( self::collect_presence_enforced_file_routes( SUPER_Common::inner_elements($element), array(
                     'ancestor_locked' => $child_locked,
                     'in_repeater' => ( $ctx['in_repeater'] || $repeater ),
                 ) ) as $route_name => $policy ) {
@@ -7218,7 +7218,7 @@ class SUPER_Ajax {
                 continue;
             }
             if( !empty($element['inner']) ) {
-                self::collect_named_submission_elements($element['inner'], $name, $matches);
+                self::collect_named_submission_elements(SUPER_Common::inner_elements($element), $name, $matches);
             }
             $data = (isset($element['data']) && is_array($element['data'])) ? $element['data'] : array();
             if( isset($data['name']) && is_string($data['name']) && $data['name']===$name ) {
@@ -7918,7 +7918,7 @@ class SUPER_Ajax {
                     // Match rendering using only this form's saved translation.
                     $element['data'] = array_replace_recursive($element['data'], $element['data']['i18n'][$language]);
                 }
-                if( isset($element['inner']) && is_array($element['inner']) ) $element['inner'] = $walk($element['inner']);
+                if( isset($element['inner']) && is_array($element['inner']) ) $element['inner'] = SUPER_Common::map_inner_elements($element['inner'], $walk);
             }
             unset($element);
             return $items;

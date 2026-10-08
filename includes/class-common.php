@@ -1963,6 +1963,51 @@ class SUPER_Common {
         );
     }
 
+    /**
+     * Saved child elements of $element, for both stored shapes of 'inner': a plain element
+     * list (column, multipart, ...) or one element list per pane (Tabs/Accordion, as saved by
+     * the builder). Every read-only walker over the saved form tree must descend through this,
+     * otherwise fields inside tab/accordion panes are invisible to the server.
+     */
+    public static function inner_elements( $element ) {
+        $inner = ( is_array($element) && isset($element['inner']) && is_array($element['inner']) ) ? $element['inner'] : array();
+        $children = array();
+        foreach( $inner as $item ) {
+            if( !is_array($item) ) continue;
+            if( isset($item['tag']) ) {
+                $children[] = $item;
+                continue;
+            }
+            foreach( $item as $pane_item ) {
+                if( is_array($pane_item) && isset($pane_item['tag']) ) $children[] = $pane_item;
+            }
+        }
+        return $children;
+    }
+
+    /**
+     * Apply $walk (element list => element list) to a saved 'inner' value while keeping its
+     * stored shape: once per pane for Tabs/Accordion, once for a plain list.
+     */
+    public static function map_inner_elements( $inner, $walk ) {
+        if( !is_array($inner) ) return $inner;
+        $panes = false;
+        foreach( $inner as $item ) {
+            if( is_array($item) && !isset($item['tag']) ) { $panes = true; break; }
+        }
+        if( !$panes ) return $walk($inner);
+        foreach( $inner as $k => $item ) {
+            if( !is_array($item) ) continue;
+            if( isset($item['tag']) ) {
+                $mapped = $walk(array($item));
+                $inner[$k] = $mapped[0];
+            }else{
+                $inner[$k] = $walk($item);
+            }
+        }
+        return $inner;
+    }
+
     /** Map of field name => code settings for every code-generating element saved on a form. */
     public static function stored_code_fields( $form_id ) {
         $fields = array();
@@ -1970,7 +2015,7 @@ class SUPER_Common {
             if( !is_array($elements) ) return;
             foreach( $elements as $element ) {
                 if( !is_array($element) ) continue;
-                if( !empty($element['inner']) ) $walk( $element['inner'] );
+                if( !empty($element['inner']) ) $walk( self::inner_elements($element) );
                 $data = ( isset($element['data']) && is_array($element['data']) ) ? $element['data'] : array();
                 $settings = self::code_settings_from_atts( $data );
                 if( $settings!==false && isset($data['name']) && is_string($data['name']) && $data['name']!=='' ) {
@@ -2407,7 +2452,7 @@ class SUPER_Common {
                     $map[$name][$tag] = $tag;
                 }
             }
-            if( !empty($element['inner']) ) self::collect_author_field_tags( $element['inner'], $map );
+            if( !empty($element['inner']) ) self::collect_author_field_tags( self::inner_elements($element), $map );
         }
     }
 
