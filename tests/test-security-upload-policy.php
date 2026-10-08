@@ -204,42 +204,43 @@ class Test_Super_Forms_Upload_Policy_Security extends Super_Forms_Upload_Securit
     }
 
     public function test_legitimate_multi_dot_names_are_accepted_when_the_final_extension_is_allowed() {
-        list( $parent, $root ) = $this->create_temporary_root( true );
-        $upload_settings = array(
-            'csrf_check' => 'false',
-            'email_reminder_amount' => 0,
-            'file_upload_dir' => '../' . basename( $parent ) . '/owned',
-            'file_upload_use_year_month_folders' => '',
-        );
-        update_option( 'super_settings', $upload_settings, false );
-        SUPER_Forms()->global_settings = $upload_settings;
-        $this->add_upload_filter( 'pre_move_uploaded_file', static function( $moved, $file, $new_file ) {
-            return copy( $file['tmp_name'], $new_file );
-        }, 10, 3 );
+        // A successful wp_handle_upload() needs a PHP-received upload, so this checks both name
+        // gates directly: the upload preflight must not refuse the name, and the retained-file
+        // re-verification must accept the real file under that name.
+        $this->configure_csrf( 'false' );
+        list( $parent, $root ) = $this->create_temporary_root();
         $jpeg = base64_decode( '/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=' );
         $pdf = "%PDF-1.4\n1 0 obj<</Type/Catalog>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF\n";
-        $this->require_php_received_upload();
+        $field = array( 'extensions' => 'jpg|pdf' );
         foreach( array(
-            'faktura.pl.pdf' => array( $pdf, 'application/pdf' ),
-            'notes.inc.pdf' => array( $pdf, 'application/pdf' ),
-            'site.com.jpg' => array( $jpeg, 'image/jpeg' ),
-            'my.photo.2026.jpg' => array( $jpeg, 'image/jpeg' ),
-            'report.v2.final.pdf' => array( $pdf, 'application/pdf' ),
+            'faktura.pl.pdf' => array( $pdf, 'application/pdf', true ),
+            'notes.inc.pdf' => array( $pdf, 'application/pdf', true ),
+            'site.com.jpg' => array( $jpeg, 'image/jpeg', true ),
+            'my.photo.2026.jpg' => array( $jpeg, 'image/jpeg', true ),
+            'report.v2.final.pdf' => array( $pdf, 'application/pdf', true ),
+            'shell.php.jpg' => array( $jpeg, 'image/jpeg', false ),
+            'shell.phtml.pdf' => array( $pdf, 'application/pdf', false ),
+            'shell.cgi.pdf' => array( $pdf, 'application/pdf', false ),
         ) as $name => $file ) {
-            $form_id = $this->create_form( 'publish', array( $this->file_element( 'documents', array( 'extensions' => 'jpg|pdf' ) ) ) );
-            $tmp = trailingslashit( $root ) . md5( $name );
-            file_put_contents( $tmp, $file[0] );
+            list( $bytes, $type, $legitimate ) = $file;
+            $path = trailingslashit( $root ) . $name;
+            file_put_contents( $path, $bytes );
+            $this->assertSame(
+                $legitimate ? $type : false,
+                $this->invoke_ajax_private( 'verified_existing_upload_mime', array( $path, $field ) ),
+                $name
+            );
+            $form_id = $this->create_form( 'publish', array( $this->file_element( 'documents', $field ) ) );
             $files = $this->parallel_files( 'documents', array(
-                array( 'name' => $name, 'tmp_name' => $tmp, 'type' => $file[1], 'size' => filesize( $tmp ) ),
+                array( 'name' => $name, 'tmp_name' => $path, 'type' => $type, 'size' => filesize( $path ) ),
             ) );
             $this->set_request( $form_id, array(), array( 'files' => $files ) );
             $result = $this->run_dying_handler( array( 'SUPER_Ajax', 'upload_files' ) );
-            $this->assertSame( 0, $result['status'], $result['output'] );
-            $response = json_decode( $result['output'], true );
-            $this->assertIsArray( $response, $name . ': ' . $result['output'] );
-            $this->assertArrayHasKey( 'documents', $response, $name . ': ' . $result['output'] );
-            $this->assertSame( $name, $response['documents']['files'][0]['value'] );
-            $this->receipt_tokens[] = $response['documents']['files'][0]['upload_token'];
+            if( $legitimate ) {
+                $this->assertStringNotContainsString( 'not permitted', $result['output'], $name );
+            }else{
+                $this->assertStringContainsString( 'not permitted', $result['output'], $name );
+            }
         }
     }
 
