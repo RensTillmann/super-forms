@@ -36,7 +36,8 @@ class Test_Super_Forms_Submission_Contract_6318_Security extends WP_UnitTestCase
      */
     private function ensure_addon_hooks() {
         $hooks = array(
-            array( 'super_shortcodes_after_form_elements_filter', array( SUPER_Register_Login(), 'add_activation_code_element' ) ),
+            // 6.4 renamed the element hook to add_verification_code_element() (see test-security-proof-row4-addons.php).
+            array( 'super_shortcodes_after_form_elements_filter', array( SUPER_Register_Login(), method_exists( SUPER_Register_Login(), 'add_activation_code_element' ) ? 'add_activation_code_element' : 'add_verification_code_element' ) ),
             array( 'super_submission_carrier_contracts_filter', array( SUPER_Register_Login(), 'submission_carrier_contracts' ) ),
             array( 'super_shortcodes_after_form_elements_filter', array( SUPER_Mailchimp(), 'add_mailchimp_element' ) ),
             array( 'super_submission_carrier_contracts_filter', array( SUPER_Mailchimp(), 'submission_carrier_contracts' ) ),
