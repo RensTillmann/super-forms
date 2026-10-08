@@ -7065,6 +7065,7 @@ function SUPERreCaptcha(){
         for (i = 0; i < nodes.length; i++) {
             if(nodes[i].name=='hidden_form_id') continue;
             if(nodes[i].name=='hidden_list_id') continue;
+            if(nodes[i].name=='hidden_listing_form_id') continue; // the listing host form: needed to authorize the edit
             if(nodes[i].name=='hidden_contact_entry_id') continue;
             element = nodes[i];
             default_value = '';
