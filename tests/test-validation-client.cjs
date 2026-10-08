@@ -14,7 +14,7 @@ if(renderReceipt){
 }
 
 
-function fixture() {
+function fixture(globals={}) {
     const chain = new Proxy({}, {get: (_, key) => key === 'length' ? 0 : () => chain});
     const jq = () => chain;
     jq.extend = Object.assign;
@@ -26,6 +26,7 @@ function fixture() {
         document:{documentElement:{classList:{contains:()=>false}}},
         super_common_i18n:{ajaxurl:'/no-network'}, setTimeout:()=>0, clearTimeout:()=>{}};
     ctx.window = ctx;
+    Object.assign(ctx, globals);
     vm.runInNewContext(fs.readFileSync(clientSource,'utf8'),ctx);
     return ctx.SUPER;
 }
@@ -94,4 +95,26 @@ test('optional empty email still accepted; malformed email still rejected',()=>{
     const el=field('');el.dataset.mayBeEmpty='true';
     assert.equal(S.handle_validations({el,validation:'email',form:{}}),false);
     for(const value of ['no-at-sign','a@foo..com','a@.com','a@example.com\n']) assert.equal(validate(S,value,'email'),true,value);
+});
+
+function intPhone(value, valid, dataset={}) {
+    const el=field(value);
+    const wrap={};
+    const closest=el.closest;
+    el.closest=s=>s==='.super-int-phone'?wrap:closest(s);
+    Object.assign(el.dataset,dataset);
+    const S=fixture({superTelInputGlobals:{getInstance:()=>({isValidNumber:()=>valid})}});
+    return {S,el};
+}
+test('optional international phone left empty is accepted; filled numbers are still validated',()=>{
+    for(const [value,valid,validation,dataset,expected,label] of [
+        ['',false,undefined,{},false,'optional (validation none) empty'],
+        ['',false,'phone',{mayBeEmpty:'true'},false,'may be empty, empty'],
+        ['',false,'empty',{},true,'required empty'],
+        ['06 1234',false,undefined,{},true,'optional but invalid number'],
+        ['06 12345678',true,undefined,{},false,'optional valid number'],
+    ]) {
+        const {S,el}=intPhone(value,valid,dataset);
+        assert.equal(S.handle_validations({el,validation,form:{querySelectorAll:()=>[]}}),expected,label);
+    }
 });
