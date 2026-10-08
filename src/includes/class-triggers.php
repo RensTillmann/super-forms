@@ -247,8 +247,8 @@ class SUPER_Triggers {
         // Send the email
         $mail = SUPER_Common::email( $email_params );
         // Return error message
-        if(!empty($mail->ErrorInfo)){
-            $msg = esc_html__( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
+        if( SUPER_Common::report_email_failure( $mail ) ) {
+            $msg = esc_html__( 'Message could not be sent. Error: ' . SUPER_Common::email_error( $mail ), 'super-forms' );
             SUPER_Common::output_message( array( 
                 'msg' => $msg,
                 'form_id' => absint($form_id)

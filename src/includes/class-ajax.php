@@ -761,6 +761,9 @@ class SUPER_Ajax {
         $format = array('currency'=>'$', 'format'=>'', 'decimals'=>'2', 'thousand_separator'=>',', 'decimal_separator'=>'.');
         foreach( $format as $key=>$fallback ) {
             if( isset($effective[$key]) ) $format[$key] = $effective[$key];
+            // The renderer prints these raw into data-* attributes, so the browser compares the
+            // decoded text (&euro; => €, &nbsp; => U+00A0); compare the same here.
+            if( is_string($format[$key]) ) $format[$key] = self::submission_decode_html_attribute($format[$key]);
         }
         return $format;
     }
@@ -2340,6 +2343,29 @@ class SUPER_Ajax {
         return $extensions;
     }
 
+    /**
+     * True when any extension segment of $name is dangerous. The final extension is checked
+     * against the full list; inner segments only against extensions a web server can execute
+     * through a multi-extension name (PHP family, SSI, CGI, ASP), so ordinary names such as
+     * faktura.pl.pdf, site.com.jpg or notes.inc.pdf are not refused for a country code,
+     * domain or abbreviation.
+     */
+    private static function upload_name_has_dangerous_extension( $name ) {
+        $parts = explode('.', strtolower((string) $name));
+        array_shift($parts);
+        $dangerous = self::dangerous_upload_extensions();
+        $inner = array_fill_keys(array(
+            'php', 'php2', 'php3', 'php4', 'php5', 'php6', 'php7', 'php8', 'phtml', 'pht', 'phtm',
+            'phps', 'phar', 'shtml', 'shtm', 'cgi', 'asp', 'aspx', 'htaccess', 'userini',
+        ), true);
+        $last = count($parts) - 1;
+        foreach( $parts as $index => $part ) {
+            $key = sanitize_key($part);
+            if( isset($inner[$key]) || ( $index===$last && isset($dangerous[$key]) ) ) return true;
+        }
+        return false;
+    }
+
     private static function dangerous_upload_extensions() {
         return array_fill_keys(array(
             'php', 'php2', 'php3', 'php4', 'php5', 'php6', 'php7', 'php8',
@@ -3395,10 +3421,7 @@ class SUPER_Ajax {
         $parts = explode('.', strtolower($basename));
         if( count($parts)<2 ) return false;
         array_shift($parts);
-        $dangerous = self::dangerous_upload_extensions();
-        foreach( $parts as $part ) {
-            if( $part==='' || isset($dangerous[sanitize_key($part)]) ) return false;
-        }
+        if( in_array('', $parts, true) || self::upload_name_has_dangerous_extension($basename) ) return false;
         $extension = end($parts);
         $allowed = self::allowed_file_mime_types($file_element);
         if( !isset($allowed[$extension]) ) return false;
@@ -8505,7 +8528,12 @@ class SUPER_Ajax {
         } elseif( !is_scalar( $value ) && $value !== null ) {
             return false;
         }
-        return trim( wp_strip_all_tags( (string) $value ) ) !== '';
+        $value = trim( (string) $value );
+        if( $value === '' ) return false;
+        if( trim( wp_strip_all_tags( $value ) ) !== '' ) return true;
+        // Markup-only values ('<p></p>', '<br />') stay empty. Text that merely starts with '<'
+        // ('<10', '<=5 kg') is not a tag; strip_tags would wrongly erase it.
+        return preg_match( '/<\/?[a-z!][^>]*>/i', $value ) !== 1;
     }
 
     /**
@@ -8993,12 +9021,8 @@ class SUPER_Ajax {
                     || !isset($allowed_mimes[$original_extension]) ) {
                     SUPER_Common::output_message( array( 'error' => true, 'msg' => esc_html__( 'This file type is not permitted.', 'super-forms' ) ) );
                 }
-                $name_parts = explode('.', strtolower($original_name));
-                array_shift($name_parts);
-                foreach( $name_parts as $name_part ) {
-                    if( isset($dangerous[sanitize_key($name_part)]) ) {
-                        SUPER_Common::output_message( array( 'error' => true, 'msg' => esc_html__( 'This file type is not permitted.', 'super-forms' ) ) );
-                    }
+                if( self::upload_name_has_dangerous_extension($original_name) ) {
+                    SUPER_Common::output_message( array( 'error' => true, 'msg' => esc_html__( 'This file type is not permitted.', 'super-forms' ) ) );
                 }
                 $original_type = wp_check_filetype($original_name, $allowed_mimes);
                 if( empty($original_type['ext']) || empty($original_type['type'])
@@ -9086,13 +9110,9 @@ class SUPER_Ajax {
                 }
                 $final_name = basename($filename);
                 $final_extension = strtolower(pathinfo($final_name, PATHINFO_EXTENSION));
-                $final_parts = explode('.', strtolower($final_name));
-                array_shift($final_parts);
-                foreach( $final_parts as $name_part ) {
-                    if( isset($dangerous[sanitize_key($name_part)]) ) {
-                        SUPER_Common::delete_file($filename, $upload_root);
-                        SUPER_Common::output_message( array( 'error' => true, 'msg' => esc_html__( 'Invalid file upload rejected.', 'super-forms' ) ) );
-                    }
+                if( self::upload_name_has_dangerous_extension($final_name) ) {
+                    SUPER_Common::delete_file($filename, $upload_root);
+                    SUPER_Common::output_message( array( 'error' => true, 'msg' => esc_html__( 'Invalid file upload rejected.', 'super-forms' ) ) );
                 }
                 $verified_type = wp_check_filetype_and_ext($filename, $final_name, $plan['allowed_mimes']);
                 if( $final_extension!==$file_plan['original_extension']
@@ -9776,8 +9796,8 @@ class SUPER_Ajax {
             $mail = SUPER_Common::email( $params );
             
             // Return error message
-            if( !empty( $mail->ErrorInfo ) ) {
-                $msg = esc_html__( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
+            if( SUPER_Common::report_email_failure( $mail ) ) {
+                $msg = esc_html__( 'Message could not be sent. Error: ' . SUPER_Common::email_error( $mail ), 'super-forms' );
                 SUPER_Common::output_message( array( 
                     'msg' => $msg,
                     'form_id' => absint($form_id)
@@ -9866,8 +9886,8 @@ class SUPER_Ajax {
             $mail = SUPER_Common::email( $params );
 
             // Return error message
-            if( !empty( $mail->ErrorInfo ) ) {
-                $msg = esc_html__( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
+            if( SUPER_Common::report_email_failure( $mail ) ) {
+                $msg = esc_html__( 'Message could not be sent. Error: ' . SUPER_Common::email_error( $mail ), 'super-forms' );
                 SUPER_Common::output_message( array( 
                     'msg' => $msg,
                     'form_id' => absint($form_id)
