@@ -253,6 +253,35 @@ class Test_Security_Default_Value_Tags extends WP_UnitTestCase {
 		$this->assertStringNotContainsString( '<customer-identifier>', $html );
 	}
 
+	public function test_pdf_font_download_failure_is_not_cached_and_no_font_link_is_printed() {
+		// t_1b97fa56: a failed font download must not leave an (empty) cached file that breaks PDFs
+		// forever, and the browser must not be pointed at fonts that do not exist.
+		$language = 'zzgatemissing';
+		$dir = SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts/';
+		if( !is_dir( $dir ) ) wp_mkdir_p( $dir );
+		foreach( array( 'json', 'woff', 'woff2' ) as $ext ) @unlink( $dir . $language . '.' . $ext );
+		file_put_contents( $dir . $language . '.json', '' ); // left behind by an earlier failed download
+		$form_id = self::factory()->post->create( array( 'post_type' => 'super_form', 'post_status' => 'publish' ) );
+		$this->form_ids[] = $form_id;
+		update_post_meta( $form_id, '_super_elements', array(
+			array( 'tag' => 'text', 'group' => 'form_elements', 'data' => array( 'name' => 'pdf_probe', 'email' => 'Probe:' ), 'inner' => array() ),
+		) );
+		update_post_meta( $form_id, '_super_form_settings', array(
+			'_pdf' => array( 'generate' => 'true', 'debug' => 'false', 'textRendering' => 'true', 'language' => $language ),
+		) );
+		$html = $this->render( $form_id );
+		ob_start();
+		do_action( 'wp_footer' );
+		$footer = ob_get_clean();
+		$this->assertStringContainsString( 'name="pdf_probe"', $html );
+		$this->assertStringNotContainsString( 'fonts/' . $language, $footer );
+		foreach( array( 'json', 'woff', 'woff2' ) as $ext ) {
+			$file = $dir . $language . '.' . $ext;
+			$this->assertFalse( file_exists( $file ) && filesize( $file )===0, 'empty cached ' . $ext );
+			@unlink( $file );
+		}
+	}
+
 	private function create_text_form( $default_value, $settings = array() ) {
 		return $this->create_form( 'text', $default_value, $settings );
 	}
