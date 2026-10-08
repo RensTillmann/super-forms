@@ -2182,6 +2182,66 @@ class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
         }
     }
 
+    public function test_choice_option_saved_as_a_tag_accepts_the_value_the_browser_substitutes() {
+        // The browser rewrites an option's {tag} value to the referenced field's value (common.js
+        // update_variable_fields: dataset.value = replaced html) before it submits.
+        $elements = array(
+            array('tag' => 'text', 'data' => array('name' => 'gate_name', 'validation' => 'none')),
+            array('tag' => 'dropdown', 'data' => array('name' => 'c11_tag_option', 'validation' => 'none', 'may_be_empty' => 'true',
+                'dropdown_items' => array(
+                    array('checked' => '', 'label' => 'Use my name', 'value' => '{gate_name}'),
+                    array('checked' => '', 'label' => 'Other', 'value' => 'other'),
+                ))),
+        );
+        foreach( array(
+            array('Jane Doe', 'Jane Doe', true),
+            array('Jane Doe', 'other', true),
+            array('Jane Doe', 'Mallory', false),
+            array('', 'Mallory', false),
+        ) as $case ) {
+            list($name, $choice, $allowed) = $case;
+            $data = array(
+                'gate_name' => array('name' => 'gate_name', 'type' => 'var', 'value' => $name),
+                'c11_tag_option' => array('name' => 'c11_tag_option', 'type' => 'var', 'value' => $choice, 'selected_values' => array($choice)),
+            );
+            $form_id = $this->submit_review8_probe($elements, $data, $allowed);
+            if($allowed) {
+                $entries = $this->entry_ids_for($form_id);
+                $stored = SUPER_Data_Access::get_entry_data($entries[0]);
+                $this->assertSame($choice, $stored['c11_tag_option']['value']);
+            }
+        }
+    }
+
+    public function test_same_name_in_two_conditional_columns_accepts_either_variant_and_nothing_else() {
+        foreach( array(
+            array('email', 'none', array(array('a', 'contact@example.com', true), array('b', 'free text', true))),
+            array('email', 'numeric', array(array('a', 'contact@example.com', true), array('b', '12345', true), array('a', 'hello', false))),
+        ) as $pair ) {
+            list($validation_a, $validation_b, $cases) = $pair;
+            $column = static function( $variant, $validation ) {
+                return array('tag' => 'column', 'data' => array('size' => '1/2', 'conditional_action' => 'show', 'conditional_trigger' => 'all',
+                    'conditional_items' => array(array('field' => '{gate_samename}', 'logic' => 'equal', 'value' => $variant, 'and_method' => '', 'field_and' => '', 'logic_and' => '', 'value_and' => ''))),
+                    'inner' => array(array('tag' => 'text', 'data' => array('name' => 'b3_contact', 'email' => 'Contact (' . $variant . '):', 'validation' => $validation, 'may_be_empty' => 'true'))));
+            };
+            $elements = array(
+                array('tag' => 'radio', 'data' => array('name' => 'gate_samename', 'validation' => 'none', 'radio_items' => array(
+                    array('checked' => '', 'label' => 'A', 'value' => 'a'), array('checked' => '', 'label' => 'B', 'value' => 'b'),
+                ))),
+                $column('a', $validation_a),
+                $column('b', $validation_b),
+            );
+            foreach( $cases as $case ) {
+                list($variant, $value, $allowed) = $case;
+                $data = array(
+                    'gate_samename' => array('name' => 'gate_samename', 'type' => 'var', 'value' => $variant, 'selected_values' => array($variant)),
+                    'b3_contact' => array('name' => 'b3_contact', 'type' => 'var', 'value' => $value),
+                );
+                $this->submit_review8_probe($elements, $data, $allowed);
+            }
+        }
+    }
+
     public function test_saved_date_minimum_picks_are_enforced_before_submission_effects() {
         foreach(array(
             array('0', '', true),
