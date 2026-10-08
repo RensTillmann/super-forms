@@ -3815,7 +3815,19 @@ class SUPER_Ajax {
                     $contract[$name] = $normalized;
                     return true;
                 }
-                // Genuinely irreconcilable duplicate (two rendered fields, or two
+                if( $existing_authoritative && $authoritative
+                    && $compare_existing['type']===$normalized['type']
+                    && $compare_existing['repeatable']===$normalized['repeatable'] ) {
+                    // The same name rendered twice with different settings (typically in two
+                    // conditional columns, one shown at a time). Versions before 6.3.315 accepted
+                    // either; accept a carrier that satisfies one of the rendered variants.
+                    $variants = isset($compare_existing['variants']) ? $compare_existing['variants'] : array();
+                    unset($compare_existing['variants']);
+                    if( $compare_existing!==$normalized && !in_array($normalized, $variants, true) ) $variants[] = $normalized;
+                    $contract[$name]['variants'] = $variants;
+                    return true;
+                }
+                // Genuinely irreconcilable duplicate (two rendered fields of a different type, or two
                 // conflicting declarations for a never-rendered name): poison the carrier.
                 $contract[$name] = false;
                 return false;
@@ -5185,6 +5197,15 @@ class SUPER_Ajax {
     }
 
     private static function submission_carrier_matches_contract( $name, $carrier, $meta ) {
+        if( is_array($meta) && !empty($meta['variants']) ) {
+            $variants = $meta['variants'];
+            unset($meta['variants']);
+            if( self::submission_carrier_matches_contract($name, $carrier, $meta) ) return true;
+            foreach( $variants as $variant ) {
+                if( self::submission_carrier_matches_contract($name, $carrier, $variant) ) return true;
+            }
+            return false;
+        }
         if( is_int($name) ) $name = (string)$name;
         if( !is_string($name) || !is_array($carrier) || !is_array($meta)
             || !isset($carrier['type']) || !is_string($carrier['type'])
