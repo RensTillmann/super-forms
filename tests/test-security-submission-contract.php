@@ -2268,7 +2268,9 @@ class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
         add_filter('locale', $filter);
         add_filter('determine_locale', $filter);
         unload_textdomain('super-forms');
-        SUPER_Forms()->load_plugin_textdomain();
+        // The plugin ships its own translations (i18n/languages); WordPress 6.7+ loads plugin
+        // textdomains just in time, so load the shipped .mo for this locale explicitly.
+        load_textdomain('super-forms', SUPER_PLUGIN_DIR . '/i18n/languages/super-forms-' . $locale . '.mo', $locale);
         try {
             return $callback();
         } finally {
