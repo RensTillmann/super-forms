@@ -98,7 +98,7 @@ if( !class_exists('SUPER_Mailchimp') ) :
                     continue;
                 }
                 if( !empty($element['inner']) ) {
-                    self::collect_mailchimp_elements( $element['inner'], $matches );
+                    self::collect_mailchimp_elements( SUPER_Common::inner_elements($element), $matches );
                 }
                 if( isset($element['tag']) && $element['tag']==='mailchimp' ) {
                     $matches[] = $element;
