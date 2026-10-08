@@ -192,13 +192,54 @@ class Test_Super_Forms_Upload_Policy_Security extends Super_Forms_Upload_Securit
         $tmp = trailingslashit( $root ) . 'incoming';
         file_put_contents( $tmp, 'not processed' );
 
-        foreach( array( 'shell.php', 'shell.php.jpg', 'shell.PHP8.jpg', 'shell.phtml.png', 'shell.phar.pdf' ) as $name ) {
+        foreach( array( 'shell.php', 'shell.php.jpg', 'shell.PHP8.jpg', 'shell.phtml.png', 'shell.phar.pdf', 'x.phtml', 'shell.php5.pdf', 'shell.pht.jpg', 'shell.shtml.jpg', 'shell.cgi.pdf', 'shell.jpg.php' ) as $name ) {
             $files = $this->parallel_files( 'documents', array(
                 array( 'name' => $name, 'tmp_name' => $tmp, 'type' => 'image/jpeg', 'size' => filesize( $tmp ) ),
             ) );
             $this->set_request( $form_id, array(), array( 'files' => $files ) );
             $this->assert_handler_rejected_with( array( 'SUPER_Ajax', 'upload_files' ), 'not permitted' );
             $this->assertFileExists( $tmp );
+        }
+    }
+
+    public function test_legitimate_multi_dot_names_are_accepted_when_the_final_extension_is_allowed() {
+        // A successful wp_handle_upload() needs a PHP-received upload, so this checks both name
+        // gates directly: the upload preflight must not refuse the name, and the retained-file
+        // re-verification must accept the real file under that name.
+        $this->configure_csrf( 'false' );
+        list( $parent, $root ) = $this->create_temporary_root();
+        $jpeg = base64_decode( '/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=' );
+        $pdf = "%PDF-1.4\n1 0 obj<</Type/Catalog>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF\n";
+        $field = array( 'extensions' => 'jpg|pdf' );
+        foreach( array(
+            'faktura.pl.pdf' => array( $pdf, 'application/pdf', true ),
+            'notes.inc.pdf' => array( $pdf, 'application/pdf', true ),
+            'site.com.jpg' => array( $jpeg, 'image/jpeg', true ),
+            'my.photo.2026.jpg' => array( $jpeg, 'image/jpeg', true ),
+            'report.v2.final.pdf' => array( $pdf, 'application/pdf', true ),
+            'shell.php.jpg' => array( $jpeg, 'image/jpeg', false ),
+            'shell.phtml.pdf' => array( $pdf, 'application/pdf', false ),
+            'shell.cgi.pdf' => array( $pdf, 'application/pdf', false ),
+        ) as $name => $file ) {
+            list( $bytes, $type, $legitimate ) = $file;
+            $path = trailingslashit( $root ) . $name;
+            file_put_contents( $path, $bytes );
+            $this->assertSame(
+                $legitimate ? $type : false,
+                $this->invoke_ajax_private( 'verified_existing_upload_mime', array( $path, $field ) ),
+                $name
+            );
+            $form_id = $this->create_form( 'publish', array( $this->file_element( 'documents', $field ) ) );
+            $files = $this->parallel_files( 'documents', array(
+                array( 'name' => $name, 'tmp_name' => $path, 'type' => $type, 'size' => filesize( $path ) ),
+            ) );
+            $this->set_request( $form_id, array(), array( 'files' => $files ) );
+            $result = $this->run_dying_handler( array( 'SUPER_Ajax', 'upload_files' ) );
+            if( $legitimate ) {
+                $this->assertStringNotContainsString( 'not permitted', $result['output'], $name );
+            }else{
+                $this->assertStringContainsString( 'not permitted', $result['output'], $name );
+            }
         }
     }
 

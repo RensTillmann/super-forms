@@ -801,7 +801,11 @@ class Test_Super_Forms_Submission_Contract_6318_Security extends WP_UnitTestCase
             array('dd-mm', '', '29-02', checkdate(2, 29, $year), 2, 29),
             array('dd-mm', '', '03-09-2026', false, 9, 3),
             array('oo', '', '001', true, 1, 1),
-            array('mm', '', '09', false, 9, 0),
+            // Omitted components are anchored (a8f8bcfc): a month-only value is the 1st of that month.
+            array('mm', '', '09', true, 9, 1),
+            array('mm', '', '13', false, 13, 1),
+            array('mm', '', '00', false, 0, 1),
+            array('mm', '', '9x', false, 9, 1),
         ) as $case) {
             list($format, $locale, $value, $allowed, $month, $day) = $case;
             $elements = array(array('tag' => 'date', 'data' => array(
@@ -815,6 +819,126 @@ class Test_Super_Forms_Submission_Contract_6318_Security extends WP_UnitTestCase
                 $stored = SUPER_Data_Access::get_entry_data($entries[0]);
                 $this->assertSame($value, $stored['appointment']['value']);
                 $this->assertSame((string)(gmmktime(0, 0, 0, $month, $day, $year) * 1000), $stored['appointment']['timestamp']);
+            }
+        }
+    }
+
+    public function test_currency_symbols_saved_as_html_entities_compare_like_the_browser() {
+        // The renderer prints data-currency/data-format raw, so the browser compares the decoded symbol.
+        foreach(array(
+            array(array('currency' => '&euro;', 'format' => '', 'thousand_separator' => '.', 'decimal_separator' => ','), "\u{20AC}1.234,56", true),
+            array(array('currency' => '', 'format' => '&nbsp;EUR', 'thousand_separator' => ',', 'decimal_separator' => '.'), "1,234.56\u{00A0}EUR", true),
+            array(array('currency' => '&euro;', 'format' => '', 'thousand_separator' => '.', 'decimal_separator' => ','), "-\u{20AC}5,00", true),
+            array(array('currency' => '&euro;', 'format' => '', 'thousand_separator' => '.', 'decimal_separator' => ','), '&euro;1.234,56', false),
+            array(array('currency' => '&euro;', 'format' => '', 'thousand_separator' => '.', 'decimal_separator' => ','), '$1.234,56', false),
+            array(array('currency' => '&euro;', 'format' => '', 'thousand_separator' => '.', 'decimal_separator' => ','), "\u{20AC}1.234,5", false),
+        ) as $case) {
+            list($format, $value, $allowed) = $case;
+            $elements = array(array('tag' => 'currency', 'data' => array_merge(array(
+                'name' => 'amount', 'decimals' => '2', 'validation' => 'float', 'may_be_empty' => 'true',
+            ), $format)));
+            $data = array('amount' => array('name' => 'amount', 'type' => 'var', 'value' => $value));
+            $form_id = $this->submit_review8_probe($elements, $data, $allowed);
+            if($allowed) {
+                $entries = $this->entry_ids_for($form_id);
+                $stored = SUPER_Data_Access::get_entry_data($entries[0]);
+                $this->assertSame($value, $stored['amount']['value']);
+            }
+        }
+    }
+
+    public function test_payment_amounts_use_the_saved_currency_format_or_an_unambiguous_parse() {
+        if( !class_exists('SUPER_PayPal') ) require_once SUPER_PLUGIN_DIR . '/add-ons/super-forms-paypal/super-forms-paypal.php';
+        if( !class_exists('SUPER_WooCommerce') ) require_once SUPER_PLUGIN_DIR . '/add-ons/super-forms-woocommerce/super-forms-woocommerce.php';
+        $unambiguous = array(
+            "\u{20AC}1.234" => 1234.0, '$1,234' => 1234.0, "\u{20AC}1.234,56" => 1234.56, '$1,234.56' => 1234.56,
+            '-$5.00' => -5.0, "-\u{20AC}5,00" => -5.0, '$-1,234.50' => -1234.5, '1234.56' => 1234.56, '12.5' => 12.5,
+            '0.125' => 0.125, '1.234.567' => 1234567.0, '' => 0.0, 'n/a' => 0.0,
+        );
+        $parsers = array(
+            'SUPER_PayPal' => array('SUPER_PayPal', 'tofloat'),
+            'SUPER_WooCommerce' => array('SUPER_WooCommerce', 'tofloat'),
+            'SUPER_Common' => array('SUPER_Common', 'tofloat'),
+        );
+        foreach( $parsers as $label => $parser ) {
+            foreach( $unambiguous as $value => $expected ) {
+                $this->assertSame($expected, call_user_func($parser, (string)$value), $label . ' ' . $value);
+            }
+        }
+        // A {tag} that names a currency or calculator field uses that field's saved format.
+        $form_id = $this->create_form(array(
+            array('tag' => 'currency', 'data' => array('name' => 'price', 'currency' => '&euro;', 'format' => '',
+                'decimals' => '3', 'thousand_separator' => '&nbsp;', 'decimal_separator' => ',')),
+            array('tag' => 'tabs', 'group' => 'layout_elements', 'data' => array('layout' => 'tabs'), 'inner' => array(array(
+                array('tag' => 'calculator', 'data' => array('name' => 'total', 'decimals' => '0', 'thousand_separator' => '.', 'decimal_separator' => ',')),
+            ))),
+        ), array('send' => 'no', 'confirm' => 'no'));
+        foreach( $parsers as $label => $parser ) {
+            $this->assertSame(1234.5, call_user_func($parser, "\u{20AC}1\u{00A0}234,500", '{price}', $form_id), $label);
+            $this->assertSame(1.234, call_user_func($parser, "\u{20AC}1,234", '{price}', $form_id), $label);
+            $this->assertSame(1234.0, call_user_func($parser, '1.234', '{total}', $form_id), $label);
+            $this->assertSame(1234.0, call_user_func($parser, '1.234', '{unknown}', $form_id), $label);
+        }
+    }
+
+    public function test_required_values_starting_with_less_than_are_present_and_stored_unchanged() {
+        foreach(array(
+            array('<10', true), array('<=5 kg', true), array('<5 years', true), array('0', true),
+            array('', false), array('   ', false), array('<p></p>', false), array('<br />', false),
+        ) as $case) {
+            list($value, $allowed) = $case;
+            $elements = array(array('tag' => 'text', 'data' => array(
+                'name' => 'budget', 'validation' => 'empty', 'may_be_empty' => 'false',
+            )));
+            $data = array('budget' => array('name' => 'budget', 'type' => 'var', 'value' => $value));
+            $form_id = $this->submit_review8_probe($elements, $data, $allowed);
+            if($allowed) {
+                $entries = $this->entry_ids_for($form_id);
+                $stored = SUPER_Data_Access::get_entry_data($entries[0]);
+                $this->assertSame($value, $stored['budget']['value']);
+            }
+        }
+    }
+
+    public function test_admin_email_failure_is_detected_and_logged_with_valid_json_and_no_php_warnings() {
+        $elements = array(array('tag' => 'text', 'data' => array('name' => 'note', 'validation' => 'none')));
+        $settings = array(
+            'save_contact_entry' => 'no', 'send' => 'yes', 'confirm' => 'no',
+            'header_to' => 'sf-mail-failure@example.test', 'header_from_type' => 'default',
+            'header_subject' => 'Subject', 'email_body_open' => '', 'email_body' => '<p>{note}</p>',
+            'email_body_close' => '', 'email_body_nl2br' => 'false',
+            'form_thanks_title' => '', 'form_thanks_description' => 'Thanks', 'form_show_thanks_msg' => 'true',
+            'form_redirect_option' => '',
+        );
+        foreach( array(false, true) as $delivered ) {
+            $form_id = $this->create_form($elements, $settings);
+            $log = tempnam(sys_get_temp_dir(), 'sf-mail-log-');
+            $mail = static function() use ( $delivered ) { return $delivered; };
+            add_filter('pre_wp_mail', $mail);
+            try {
+                $result = $this->with_super_settings(array('csrf_check' => 'false'), function() use ($form_id, $log) {
+                    $this->set_submission_request($form_id, array('note' => array('name' => 'note', 'type' => 'var', 'value' => 'hello')), array('action' => 'super_submit_form'));
+                    $_POST['data'] = wp_slash($_POST['data']);
+                    $_REQUEST = $_POST;
+                    return $this->run_dying_callback(static function() use ( $log ) {
+                        set_error_handler(static function( $errno, $errstr ) { echo 'PHP_WARNING:' . $errstr; return true; });
+                        ini_set('error_log', $log);
+                        SUPER_Ajax::submit_form();
+                    });
+                });
+            } finally { remove_filter('pre_wp_mail', $mail); }
+            $this->assertStringNotContainsString('PHP_WARNING:', $result['output']);
+            $decoded = json_decode($result['output'], true);
+            $this->assertIsArray($decoded, $result['output']);
+            // A failed mail never blocked a submission (owner decision pending, t_184e1b47): the
+            // reply stays a success and the failure is detected and logged instead of lost.
+            $this->assertFalse($decoded['error'], $result['output']);
+            $logged = (string) file_get_contents($log);
+            unlink($log);
+            if( $delivered ) {
+                $this->assertStringNotContainsString('email could not be sent', $logged);
+            }else{
+                $this->assertStringContainsString('Super Forms: email could not be sent: Email could not be send through wp_mail()', $logged);
             }
         }
     }
