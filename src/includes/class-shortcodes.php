@@ -6855,27 +6855,25 @@ class SUPER_Shortcodes {
                         $packageUrl = 'https://f4d.nl/@super-forms-updates/packages/fonts/';
                         $font_dir = SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts/';
                         // Create the target directory if it doesnt exist
-                        if(!is_dir($font_dir)) mkdir($font_dir, 0755, true);
-                        // Download the fonts if they don't exist yet.
-                        $json_file = SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts/'.$language.'.json';
-                        if(!file_exists($json_file)){
-                            $json_url = $packageUrl.$language.'.json';
-                            $json_data = file_get_contents($json_url);
-                            file_put_contents($json_file, $json_data);
+                        if(!is_dir($font_dir)) wp_mkdir_p($font_dir);
+                        // Download the fonts if they don't exist yet. A failed or empty download is never
+                        // cached (it used to leave an empty cyrillic.json that broke PDFs until cleared);
+                        // the next page load retries, and the font link is only printed once all files exist.
+                        $fonts_ready = preg_match('/^[a-z0-9_-]+$/', $language)===1;
+                        foreach( array('json', 'woff', 'woff2') as $font_ext ) {
+                            if( !$fonts_ready ) break;
+                            $font_file = $font_dir . $language . '.' . $font_ext;
+                            if( file_exists($font_file) && filesize($font_file)>0 ) continue;
+                            $font_data = @file_get_contents($packageUrl . $language . '.' . $font_ext);
+                            if( !is_string($font_data) || $font_data==='' || ( $font_ext==='json' && !is_array(json_decode($font_data, true)) ) ) {
+                                if( file_exists($font_file) ) @unlink($font_file);
+                                $fonts_ready = false;
+                                continue;
+                            }
+                            file_put_contents($font_file, $font_data);
                         }
-                        $woff_file = SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts/'.$language.'.woff';
-                        if(!file_exists($woff_file)){
-                            $woff_url = $packageUrl.$language.'.woff';
-                            $woff_data = file_get_contents($woff_url);
-                            file_put_contents($woff_file, $woff_data);
-                        }
-                        $woff2_file = SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts/'.$language.'.woff2';
-                        if(!file_exists($woff2_file)){
-                            $woff2_url = $packageUrl.$language.'.woff2';
-                            $woff2_data = file_get_contents($woff2_url);
-                            file_put_contents($woff2_file, $woff2_data);
-                        }
-                        add_action('wp_footer', function($arguments) use ($language) {
+                        // ponytail: without the fonts the browser falls back to the default PDF font path.
+                        if( $fonts_ready ) add_action('wp_footer', function($arguments) use ($language) {
                             $link = SUPER_PLUGIN_FILE . 'includes/extensions/pdf-generator/fonts/'.$language;
 ?><style>.super-form:after {font-family: 'SF-Unicode'!important; content:'.'!important; visibility:hidden!important; position:absolute!important; bottom:0px!important; left:0px!important; z-index:-999999!important;}
 @font-face {font-family:'SF-Unicode';src:url('<?php echo $link; ?>.woff') format('woff');}
