@@ -1024,6 +1024,29 @@ class Test_Super_Forms_Submission_Contract_6318_Security extends WP_UnitTestCase
         }
     }
 
+    public function test_get_element_settings_finds_a_field_after_the_first_layout_element() {
+        // t_62a5f5da: retrieve_variable_conditions() reads a CSV variable field's settings through this.
+        $target = array('name' => 'csv_variable', 'conditional_variable_method' => 'csv', 'conditional_variable_csv' => '42');
+        $text = static function( $data ) { return array('tag' => 'text', 'group' => 'form_elements', 'data' => $data, 'inner' => array()); };
+        $layouts = array(
+            'second column' => array(
+                array('tag' => 'column', 'data' => array('size' => '1/2'), 'inner' => array($text(array('name' => 'other')))),
+                array('tag' => 'column', 'data' => array('size' => '1/2'), 'inner' => array($text($target))),
+            ),
+            'after a column' => array(
+                array('tag' => 'column', 'data' => array('size' => '1/1'), 'inner' => array($text(array('name' => 'other')))),
+                $text($target),
+            ),
+            'tab two' => array(
+                array('tag' => 'tabs', 'data' => array('layout' => 'tabs'), 'inner' => array(array($text(array('name' => 'other'))), array($text($target)))),
+            ),
+        );
+        foreach( $layouts as $label => $elements ) {
+            $this->assertSame($target, SUPER_Common::get_element_settings($elements, 'csv_variable'), $label);
+        }
+        $this->assertSame(array(), SUPER_Common::get_element_settings($layouts['second column'], 'absent'));
+    }
+
     public function test_saved_date_minimum_picks_are_enforced_before_submission_effects() {
         foreach(array(
             array('0', '', true),
