@@ -193,13 +193,53 @@ class Test_Super_Forms_Upload_Policy_Security extends Super_Forms_Upload_Securit
         $tmp = trailingslashit( $root ) . 'incoming';
         file_put_contents( $tmp, 'not processed' );
 
-        foreach( array( 'shell.php', 'shell.php.jpg', 'shell.PHP8.jpg', 'shell.phtml.png', 'shell.phar.pdf' ) as $name ) {
+        foreach( array( 'shell.php', 'shell.php.jpg', 'shell.PHP8.jpg', 'shell.phtml.png', 'shell.phar.pdf', 'x.phtml', 'shell.php5.pdf', 'shell.pht.jpg', 'shell.shtml.jpg', 'shell.cgi.pdf', 'shell.jpg.php' ) as $name ) {
             $files = $this->parallel_files( 'documents', array(
                 array( 'name' => $name, 'tmp_name' => $tmp, 'type' => 'image/jpeg', 'size' => filesize( $tmp ) ),
             ) );
             $this->set_request( $form_id, array(), array( 'files' => $files ) );
             $this->assert_handler_rejected_with( array( 'SUPER_Ajax', 'upload_files' ), 'not permitted' );
             $this->assertFileExists( $tmp );
+        }
+    }
+
+    public function test_legitimate_multi_dot_names_are_accepted_when_the_final_extension_is_allowed() {
+        list( $parent, $root ) = $this->create_temporary_root( true );
+        $upload_settings = array(
+            'csrf_check' => 'false',
+            'email_reminder_amount' => 0,
+            'file_upload_dir' => '../' . basename( $parent ) . '/owned',
+            'file_upload_use_year_month_folders' => '',
+        );
+        update_option( 'super_settings', $upload_settings, false );
+        SUPER_Forms()->global_settings = $upload_settings;
+        $this->add_upload_filter( 'pre_move_uploaded_file', static function( $moved, $file, $new_file ) {
+            return copy( $file['tmp_name'], $new_file );
+        }, 10, 3 );
+        $jpeg = base64_decode( '/9j/4AAQSkZJRgABAQEASABIAAD/2wBDAP//////////////////////////////////////////////////////////////////////////////////////wgALCAABAAEBAREA/8QAFBABAAAAAAAAAAAAAAAAAAAAAP/aAAgBAQABPxA=' );
+        $pdf = "%PDF-1.4\n1 0 obj<</Type/Catalog>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF\n";
+        $this->require_php_received_upload();
+        foreach( array(
+            'faktura.pl.pdf' => array( $pdf, 'application/pdf' ),
+            'notes.inc.pdf' => array( $pdf, 'application/pdf' ),
+            'site.com.jpg' => array( $jpeg, 'image/jpeg' ),
+            'my.photo.2026.jpg' => array( $jpeg, 'image/jpeg' ),
+            'report.v2.final.pdf' => array( $pdf, 'application/pdf' ),
+        ) as $name => $file ) {
+            $form_id = $this->create_form( 'publish', array( $this->file_element( 'documents', array( 'extensions' => 'jpg|pdf' ) ) ) );
+            $tmp = trailingslashit( $root ) . md5( $name );
+            file_put_contents( $tmp, $file[0] );
+            $files = $this->parallel_files( 'documents', array(
+                array( 'name' => $name, 'tmp_name' => $tmp, 'type' => $file[1], 'size' => filesize( $tmp ) ),
+            ) );
+            $this->set_request( $form_id, array(), array( 'files' => $files ) );
+            $result = $this->run_dying_handler( array( 'SUPER_Ajax', 'upload_files' ) );
+            $this->assertSame( 0, $result['status'], $result['output'] );
+            $response = json_decode( $result['output'], true );
+            $this->assertIsArray( $response, $name . ': ' . $result['output'] );
+            $this->assertArrayHasKey( 'documents', $response, $name . ': ' . $result['output'] );
+            $this->assertSame( $name, $response['documents']['files'][0]['value'] );
+            $this->receipt_tokens[] = $response['documents']['files'][0]['upload_token'];
         }
     }
 
