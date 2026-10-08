@@ -284,6 +284,9 @@
                 suffix: $format,
                 affixesStay: true,
                 allowNegative: true,
+                // A typed 0 / $0.00 is a legitimate amount (C6); an untouched field stays empty.
+                allowZero: true,
+                allowEmpty: true,
                 thousands: $thousand_separator,
                 decimal: $decimal_seperator,
                 precision: $decimals
