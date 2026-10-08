@@ -4419,7 +4419,8 @@ function SUPERreCaptcha(){
                         $selected_items = $super_field.find('.super-field-wrapper .super-dropdown-list > .super-active');
                         $new_value = [];
                         $selected_items.each(function(){
-                            $item_value = $(this).data('value').toString().split(';');
+                            // Raw attribute: .data() converts 'null', 'true', numbers and JSON-like option values.
+                            $item_value = String($(this).attr('data-value') || '').split(';');
                             $new_value.push($item_value[0]);
                         });
                         $data[$route_name].selected_values = $new_value.slice(0);
