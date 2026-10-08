@@ -884,7 +884,7 @@ class Test_Super_Forms_Submission_Contract_6318_Security extends WP_UnitTestCase
 
     public function test_required_values_starting_with_less_than_are_present_and_stored_unchanged() {
         foreach(array(
-            array('<10', true), array('<=5 kg', true), array('<5 years', true), array('0', true),
+            array('<10', true), array('<=5 kg', true), array('<5 years', true), array('0', true), array(' 0 ', true), array('0.00', true),
             array('', false), array('   ', false), array('<p></p>', false), array('<br />', false),
         ) as $case) {
             list($value, $allowed) = $case;
@@ -941,6 +941,86 @@ class Test_Super_Forms_Submission_Contract_6318_Security extends WP_UnitTestCase
             }else{
                 $this->assertStringContainsString('Super Forms: email could not be sent: Email could not be send through wp_mail()', $logged);
             }
+        }
+    }
+
+    public function test_choice_option_saved_as_a_tag_accepts_the_value_the_browser_substitutes() {
+        // The browser rewrites an option's {tag} value to the referenced field's value (common.js
+        // update_variable_fields: dataset.value = replaced html) before it submits.
+        $elements = array(
+            array('tag' => 'text', 'data' => array('name' => 'gate_name', 'validation' => 'none')),
+            array('tag' => 'dropdown', 'data' => array('name' => 'c11_tag_option', 'validation' => 'none', 'may_be_empty' => 'true',
+                'dropdown_items' => array(
+                    array('checked' => '', 'label' => 'Use my name', 'value' => '{gate_name}'),
+                    array('checked' => '', 'label' => 'Other', 'value' => 'other'),
+                ))),
+        );
+        foreach( array(
+            array('Jane Doe', 'Jane Doe', true),
+            array('Jane Doe', 'other', true),
+            array('Jane Doe', 'Mallory', false),
+            array('', 'Mallory', false),
+        ) as $case ) {
+            list($name, $choice, $allowed) = $case;
+            $data = array(
+                'gate_name' => array('name' => 'gate_name', 'type' => 'var', 'value' => $name),
+                'c11_tag_option' => array('name' => 'c11_tag_option', 'type' => 'var', 'value' => $choice, 'selected_values' => array($choice)),
+            );
+            $form_id = $this->submit_review8_probe($elements, $data, $allowed);
+            if($allowed) {
+                $entries = $this->entry_ids_for($form_id);
+                $stored = SUPER_Data_Access::get_entry_data($entries[0]);
+                $this->assertSame($choice, $stored['c11_tag_option']['value']);
+            }
+        }
+    }
+
+    public function test_same_name_in_two_conditional_columns_accepts_either_variant_and_nothing_else() {
+        foreach( array(
+            array('email', 'none', array(array('a', 'contact@example.com', true), array('b', 'free text', true))),
+            array('email', 'numeric', array(array('a', 'contact@example.com', true), array('b', '12345', true), array('a', 'hello', false))),
+        ) as $pair ) {
+            list($validation_a, $validation_b, $cases) = $pair;
+            $column = static function( $variant, $validation ) {
+                return array('tag' => 'column', 'data' => array('size' => '1/2', 'conditional_action' => 'show', 'conditional_trigger' => 'all',
+                    'conditional_items' => array(array('field' => '{gate_samename}', 'logic' => 'equal', 'value' => $variant, 'and_method' => '', 'field_and' => '', 'logic_and' => '', 'value_and' => ''))),
+                    'inner' => array(array('tag' => 'text', 'data' => array('name' => 'b3_contact', 'email' => 'Contact (' . $variant . '):', 'validation' => $validation, 'may_be_empty' => 'true'))));
+            };
+            $elements = array(
+                array('tag' => 'radio', 'data' => array('name' => 'gate_samename', 'validation' => 'none', 'radio_items' => array(
+                    array('checked' => '', 'label' => 'A', 'value' => 'a'), array('checked' => '', 'label' => 'B', 'value' => 'b'),
+                ))),
+                $column('a', $validation_a),
+                $column('b', $validation_b),
+            );
+            foreach( $cases as $case ) {
+                list($variant, $value, $allowed) = $case;
+                $data = array(
+                    'gate_samename' => array('name' => 'gate_samename', 'type' => 'var', 'value' => $variant, 'selected_values' => array($variant)),
+                    'b3_contact' => array('name' => 'b3_contact', 'type' => 'var', 'value' => $value),
+                );
+                $this->submit_review8_probe($elements, $data, $allowed);
+            }
+        }
+    }
+
+    public function test_international_phone_is_validated_as_the_e164_number_the_browser_submits() {
+        // The browser checks the displayed national number against the author's length/regex and
+        // the phone library, then submits intlTelInput getNumber() (E.164) (common.js prepare_form_data_fields).
+        foreach( array(
+            array(array('validation' => 'custom', 'custom_regex' => '^0', 'maxlength' => '11'), '+31612345678', true),
+            array(array('validation' => 'phone', 'maxlength' => '11'), '+31612345678', true),
+            array(array('validation' => 'none'), '+442071838750', true),
+            array(array('validation' => 'none', 'may_be_empty' => 'true'), '', true),
+            array(array('validation' => 'custom', 'custom_regex' => '^0', 'maxlength' => '11'), '06 12345678', false),
+            array(array('validation' => 'none'), '+31 6 1234', false),
+            array(array('validation' => 'none'), '+0612345678', false),
+            array(array('validation' => 'none'), '<b>+31612345678</b>', false),
+        ) as $case ) {
+            list($settings, $value, $allowed) = $case;
+            $elements = array(array('tag' => 'text', 'data' => array_merge(array('name' => 'phone', 'type' => 'int-phone'), $settings)));
+            $data = array('phone' => array('name' => 'phone', 'type' => 'var', 'value' => $value));
+            $this->submit_review8_probe($elements, $data, $allowed);
         }
     }
 

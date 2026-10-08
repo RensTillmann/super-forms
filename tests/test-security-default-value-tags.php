@@ -231,6 +231,28 @@ class Test_Security_Default_Value_Tags extends WP_UnitTestCase {
 		return $form_id;
 	}
 
+	public function test_column_and_field_custom_classes_are_attribute_escaped() {
+		// A class with markup characters (e.g. a sanitizer placeholder) must not break out of the
+		// class attribute and push the fields outside the <form>.
+		$evil = 'note <customer-identifier> x"><b id="sf-injected">y</b><i class="';
+		$form_id = self::factory()->post->create( array( 'post_type' => 'super_form', 'post_status' => 'publish' ) );
+		$this->form_ids[] = $form_id;
+		update_post_meta( $form_id, '_super_elements', array(
+			array(
+				'tag' => 'column', 'group' => 'layout_elements',
+				'data' => array( 'size' => '1/1', 'class' => $evil ),
+				'inner' => array(
+					array( 'tag' => 'text', 'group' => 'form_elements', 'data' => array( 'name' => 'inside_column', 'email' => 'Inside:', 'class' => $evil ), 'inner' => array() ),
+				),
+			),
+		) );
+		update_post_meta( $form_id, '_super_form_settings', array() );
+		$html = $this->render( $form_id );
+		$this->assertStringContainsString( 'name="inside_column"', $html );
+		$this->assertStringNotContainsString( '<b id="sf-injected"', $html );
+		$this->assertStringNotContainsString( '<customer-identifier>', $html );
+	}
+
 	private function create_text_form( $default_value, $settings = array() ) {
 		return $this->create_form( 'text', $default_value, $settings );
 	}
