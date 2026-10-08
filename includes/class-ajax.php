@@ -7608,9 +7608,59 @@ class SUPER_Ajax {
         $cache[$key] = $symbols;
         return $symbols;
     }
-    private static function datepicker_name_candidates( $localized, $fallback, $with_number=false ) {
+    /**
+     * Translated month/day name lists the browser may have used for this site (H2): the names it was
+     * given (super_elements_i18n, filterable), the plugin translation for the request and for the
+     * site locale (a logged-in user's admin-ajax request can run in another locale), and WordPress
+     * core names (the current_date default is formatted with date_i18n()).
+     */
+    private static function translated_date_name_lists( $kind ) {
+        static $cache = array();
+        $request_locale = determine_locale();
+        $site_locale = get_locale();
+        $key = $request_locale . '|' . $site_locale;
+        if( !isset($cache[$key]) ) {
+            $sources = array();
+            $forms = SUPER_Forms();
+            if( is_array($forms->elements_i18n) ) $sources[] = $forms->elements_i18n;
+            $sources[] = SUPER_Forms::datepicker_i18n_names();
+            $sources[] = self::wp_locale_date_names();
+            if( $site_locale!==$request_locale && switch_to_locale($site_locale) ) {
+                $sources[] = SUPER_Forms::datepicker_i18n_names();
+                $sources[] = self::wp_locale_date_names();
+                restore_previous_locale();
+            }
+            $lists = array();
+            foreach( array('monthNames'=>12, 'monthNamesShort'=>12, 'dayNames'=>7, 'dayNamesShort'=>7) as $name => $count ) {
+                $lists[$name] = array();
+                foreach( $sources as $source ) {
+                    if( isset($source[$name]) && is_array($source[$name]) && count($source[$name])===$count ) {
+                        $lists[$name][] = array_map( static function( $label ) {
+                            return is_string($label) ? html_entity_decode($label, ENT_QUOTES, 'UTF-8') : '';
+                        }, array_values($source[$name]) );
+                    }
+                }
+            }
+            $cache[$key] = $lists;
+        }
+        return isset($cache[$key][$kind]) ? $cache[$key][$kind] : array();
+    }
+    private static function wp_locale_date_names() {
+        global $wp_locale;
+        if( !is_object($wp_locale) || empty($wp_locale->month) || empty($wp_locale->weekday) ) return array();
+        $months = array_values($wp_locale->month);
+        $days = array_values($wp_locale->weekday);
+        return array(
+            'monthNames' => $months,
+            'monthNamesShort' => array_map( array($wp_locale, 'get_month_abbrev'), $months ),
+            'dayNames' => $days,
+            'dayNamesShort' => array_map( array($wp_locale, 'get_weekday_abbrev'), $days ),
+        );
+    }
+    private static function datepicker_name_candidates( $localized, $fallback, $with_number=false, $kind='' ) {
         $candidates = array();
-        foreach( array( $localized, $fallback ) as $values ) {
+        $lists = array_merge( array( $localized ), $kind!=='' ? self::translated_date_name_lists($kind) : array(), array( $fallback ) );
+        foreach( $lists as $values ) {
             if( !is_array($values) ) {
                 continue;
             }
@@ -7668,21 +7718,27 @@ class SUPER_Ajax {
         $symbols = self::datepicker_localization_symbols($localization);
         $long_days = self::datepicker_name_candidates(
             isset($symbols['dayNames']) ? $symbols['dayNames'] : array(),
-            array( 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' )
+            array( 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ),
+            false,
+            'dayNames'
         );
         $short_days = self::datepicker_name_candidates(
             isset($symbols['dayNamesShort']) ? $symbols['dayNamesShort'] : array(),
-            array( 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' )
+            array( 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ),
+            false,
+            'dayNamesShort'
         );
         $long_months = self::datepicker_name_candidates(
             isset($symbols['monthNames']) ? $symbols['monthNames'] : array(),
             array( 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' ),
-            true
+            true,
+            'monthNames'
         );
         $short_months = self::datepicker_name_candidates(
             isset($symbols['monthNamesShort']) ? $symbols['monthNamesShort'] : array(),
             array( 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ),
-            true
+            true,
+            'monthNamesShort'
         );
         $read_digits = static function( $source, $offset, $min, $max, $allow_sign=false ) {
             $length = strlen($source);

@@ -4059,6 +4059,42 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
+    /**
+     * Today's date in a jQuery UI datepicker format (H3): token by token, so 'o'/'oo' are the
+     * 1-based day of the year (PHP 'z' is 0-based) and 'd' never pads, whatever case the rest has.
+     */
+    public static function format_current_date( $format ) {
+        $map = array( 'dd'=>'d', 'd'=>'j', 'DD'=>'l', 'D'=>'D', 'mm'=>'m', 'm'=>'n', 'MM'=>'F', 'M'=>'M', 'yy'=>'Y', 'y'=>'y' );
+        $format = (string) $format;
+        $out = '';
+        $length = strlen($format);
+        for( $i = 0; $i < $length; $i++ ) {
+            $char = $format[$i];
+            if( $char==="'" ) {
+                $close = strpos($format, "'", $i + 1);
+                if( $close===$i + 1 ) { $out .= "'"; $i++; continue; }
+                if( $close===false ) $close = $length;
+                $out .= substr($format, $i + 1, $close - $i - 1);
+                $i = $close;
+                continue;
+            }
+            $double = ( $i + 1 < $length && $format[$i + 1]===$char );
+            if( $char==='o' ) {
+                $day = (string) ( (int) date_i18n('z') + 1 );
+                $out .= $double ? str_pad($day, 3, '0', STR_PAD_LEFT) : $day;
+                if( $double ) $i++;
+                continue;
+            }
+            if( $double && isset($map[$char . $char]) ) {
+                $out .= date_i18n($map[$char . $char]);
+                $i++;
+                continue;
+            }
+            $out .= isset($map[$char]) ? date_i18n($map[$char]) : $char;
+        }
+        return $out;
+    }
+
     public static function date($x) {
         extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
@@ -4081,30 +4117,7 @@ class SUPER_Shortcodes {
         if( $format=='custom' ) $format = $atts['custom_format'];
         if( !isset( $atts['current_date'] ) ) $atts['current_date'] = '';
         if( $atts['current_date']=='true' ) {
-            $new_format = $format;
-            if (preg_match("/dd/i", $new_format)) {
-                $new_format = str_replace('dd', 'd', $new_format);
-            }else{
-                $new_format = str_replace('d', 'j', $new_format);
-            }
-            if (preg_match("/mm/i", $new_format)) {
-                $new_format = str_replace('mm', 'm', $new_format);
-            }else{
-                $new_format = str_replace('m', 'n', $new_format);
-            }
-            if (preg_match("/oo/i", $new_format)) {
-                $new_format = str_replace('oo', 'z', $new_format);
-            }else{
-                $new_format = str_replace('o', 'z', $new_format);
-            }
-            if (preg_match("/DD/i", $new_format)) {
-                $new_format = str_replace('DD', 'l', $new_format);
-            }
-            if (preg_match("/MM/i", $new_format)) {
-                $new_format = str_replace('MM', 'F', $new_format);
-            }
-            $new_format = str_replace('yy', 'Y', $new_format);
-            $atts['value'] = date_i18n($new_format);
+            $atts['value'] = self::format_current_date($format);
             $atts['absolute_default'] = $atts['value'];
         }
 
