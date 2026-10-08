@@ -1119,6 +1119,51 @@ class Test_Super_Forms_Submission_Contract_6318_Security extends WP_UnitTestCase
         }
     }
 
+    public function test_fields_of_an_included_form_are_part_of_the_submission_contract() {
+        // Beta Include-form element (tag 'form', data.id): the page renders the included form's saved
+        // elements inside the outer form, so their carriers and rules belong to the outer submission.
+        $text = static function( $name, $required=false ) {
+            return array('tag' => 'text', 'group' => 'form_elements', 'inner' => array(), 'data' => array(
+                'name' => $name, 'email' => $name . ':', 'validation' => $required ? 'empty' : 'none', 'may_be_empty' => $required ? 'false' : 'true'));
+        };
+        $include = static function( $id ) {
+            return array('tag' => 'form', 'group' => 'layout_elements', 'inner' => array(), 'data' => array('id' => (string) $id));
+        };
+        $carrier = static function( $name, $value ) { return array('name' => $name, 'type' => 'var', 'value' => $value); };
+        $embedded = $this->create_form(array($text('embedded_note')), array('send' => 'no', 'confirm' => 'no'));
+        $required = $this->create_form(array(array('tag' => 'column', 'group' => 'layout_elements', 'data' => array('size' => '1/1'),
+            'inner' => array($text('embedded_required', true)))), array('send' => 'no', 'confirm' => 'no'));
+        $outer = array($text('outer_name'), $include($embedded));
+        foreach( array(
+            'gate case: outer filled, embedded empty' => array($outer, array('outer_name' => 'Jane', 'embedded_note' => ''), true),
+            'both filled' => array($outer, array('outer_name' => 'Jane', 'embedded_note' => 'hello'), true),
+            'carrier not rendered anywhere' => array($outer, array('outer_name' => 'Jane', 'embedded_note' => '', 'forged' => 'x'), false),
+            'required field of the included form, empty' => array(array($text('outer_name'), $include($required)), array('outer_name' => 'Jane', 'embedded_required' => ''), false),
+            'required field of the included form, filled' => array(array($text('outer_name'), $include($required)), array('outer_name' => 'Jane', 'embedded_required' => 'yes'), true),
+            'included form that no longer exists' => array(array($text('outer_name'), $include(999999)), array('outer_name' => 'Jane'), true),
+            'include inside a tab pane' => array(array(array('tag' => 'tabs', 'group' => 'layout_elements', 'data' => array('layout' => 'tabs'),
+                'inner' => array(array($text('outer_name')), array($include($embedded))))), array('outer_name' => 'Jane', 'embedded_note' => 'hi'), true),
+        ) as $label => $case ) {
+            list($elements, $values, $allowed) = $case;
+            $data = array();
+            foreach( $values as $name => $value ) $data[$name] = $carrier($name, $value);
+            $form_id = $this->submit_review8_probe($elements, $data, $allowed);
+            if( $allowed && isset($values['embedded_note']) && $values['embedded_note']!=='' ) {
+                $entries = $this->entry_ids_for($form_id);
+                $stored = SUPER_Data_Access::get_entry_data($entries[0]);
+                $this->assertSame($values['embedded_note'], $stored['embedded_note']['value'], $label);
+            }
+        }
+        // Cycles (A includes B, B includes A; a form including itself) terminate and still accept.
+        $cycle_b = $this->create_form(array($text('cycle_b_note')), array('send' => 'no', 'confirm' => 'no'));
+        $cycle_a = $this->create_form(array($text('cycle_a_note'), $include($cycle_b)), array('send' => 'no', 'confirm' => 'no'));
+        update_post_meta($cycle_b, '_super_elements', array($text('cycle_b_note'), $include($cycle_a), $include($cycle_b)));
+        $elements = SUPER_Common::get_form_elements($cycle_a);
+        $this->assertSame('cycle_b_note', $elements[1]['inner'][0]['data']['name']);
+        $this->submit_review8_probe(array($text('outer_name'), $include($cycle_a)),
+            array('outer_name' => $carrier('outer_name', 'Jane'), 'cycle_a_note' => $carrier('cycle_a_note', 'a'), 'cycle_b_note' => $carrier('cycle_b_note', 'b')), true);
+    }
+
     public function test_saved_date_minimum_picks_are_enforced_before_submission_effects() {
         foreach(array(
             array('0', '', true),
