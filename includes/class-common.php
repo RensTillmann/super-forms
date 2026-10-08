@@ -1179,22 +1179,73 @@ class SUPER_Common {
     }
 
     /**
-     * This function takes the last comma or dot (if any) to make a clean float, ignoring thousand separator, currency or any other letter :
+     * Money amount from a submitted/{tag}-expanded value.
+     *
+     * When $template is exactly one {field} tag naming a saved currency or calculator field of
+     * $form_id, that field's saved symbol and separators are used. Otherwise an unambiguous parse:
+     * with both '.' and ',' the last one is the decimal separator; a repeated separator groups
+     * thousands; a single separator followed by exactly three digits after a 1-3 digit non-zero
+     * integer part groups thousands ('€1.234', '$1,234' => 1234), any other single separator is
+     * the decimal point. A minus before the first digit keeps the amount negative.
+     * ponytail: a 3-decimal amount without a known field format ('1.234' meaning 1.234) is read
+     * as 1234; reference the field with a plain {tag} so its saved format is used instead.
      */
-    public static function tofloat($num) {
-        $dotPos = strrpos($num, '.');
-        $commaPos = strrpos($num, ',');
-        $sep = (($dotPos > $commaPos) && $dotPos) ? $dotPos : 
-            ((($commaPos > $dotPos) && $commaPos) ? $commaPos : false);
-       
-        if (!$sep) {
-            return floatval(preg_replace("/[^0-9]/", "", $num));
-        } 
+    public static function tofloat( $num, $template='', $form_id=0 ) {
+        $value = trim( html_entity_decode( (string) $num, ENT_QUOTES, 'UTF-8' ) );
+        $format = self::saved_amount_format( $template, $form_id );
+        if( $format!==false ) {
+            foreach( array( $format['currency'], $format['format'] ) as $affix ) {
+                if( $affix!=='' ) $value = str_replace( $affix, '', $value );
+            }
+        }
+        if( preg_match( '/\d/', $value, $first, PREG_OFFSET_CAPTURE )!==1 ) return 0.0;
+        $negative = strpos( substr( $value, 0, $first[0][1] ), '-' )!==false;
+        if( $format!==false ) {
+            $thousands = $format['thousand_separator']===$format['decimal_separator'] ? '' : $format['thousand_separator'];
+            if( $thousands!=='' ) $value = str_replace( $thousands, '', $value );
+            if( $format['decimal_separator']!=='' ) $value = str_replace( $format['decimal_separator'], "\x01", $value );
+            $number = str_replace( "\x01", '.', preg_replace( '/[^0-9\x01]/', '', $value ) );
+        }else{
+            $number = preg_replace( '/[^0-9.,]/', '', $value );
+            $dot = strrpos( $number, '.' );
+            $comma = strrpos( $number, ',' );
+            if( $dot!==false && $comma!==false ) {
+                $decimal = $dot > $comma ? '.' : ',';
+                $number = str_replace( array( $decimal==='.' ? ',' : '.', $decimal ), array( '', '.' ), $number );
+            }elseif( $dot!==false || $comma!==false ) {
+                $separator = $dot!==false ? '.' : ',';
+                $parts = explode( $separator, $number );
+                $grouping = count( $parts )>2
+                    || ( strlen( $parts[1] )===3 && preg_match( '/^[1-9]\d{0,2}$/', $parts[0] )===1 );
+                $number = $grouping ? implode( '', $parts ) : $parts[0] . '.' . $parts[1];
+            }
+        }
+        if( preg_match( '/^\d+(?:\.\d+)?$/', $number )!==1 ) return 0.0;
+        return $negative ? -(float) $number : (float) $number;
+    }
 
-        return floatval(
-            preg_replace("/[^0-9]/", "", substr($num, 0, $sep)) . '.' .
-            preg_replace("/[^0-9]/", "", substr($num, $sep+1, strlen($num)))
-        );
+    /** Saved symbol/separators of the currency or calculator field a plain {field} template names. */
+    private static function saved_amount_format( $template, $form_id ) {
+        if( !is_string( $template ) || preg_match( '/^\s*\{([^{};\s]+)\}\s*$/', $template, $m )!==1 || absint( $form_id )===0 ) return false;
+        $found = false;
+        $walk = function( $elements ) use ( &$walk, &$found, $m ) {
+            foreach( (array) $elements as $element ) {
+                if( $found!==false || !is_array( $element ) ) continue;
+                $data = isset( $element['data'] ) && is_array( $element['data'] ) ? $element['data'] : array();
+                if( isset( $element['tag'], $data['name'] ) && $data['name']===$m[1] && in_array( $element['tag'], array( 'currency', 'calculator' ), true ) ) {
+                    $found = $data;
+                    return;
+                }
+                $walk( self::inner_elements( $element ) );
+            }
+        };
+        $walk( self::get_form_elements( absint( $form_id ) ) );
+        if( $found===false ) return false;
+        $format = array( 'currency'=>'', 'format'=>'', 'thousand_separator'=>',', 'decimal_separator'=>'.' );
+        foreach( $format as $key => $fallback ) {
+            if( isset( $found[$key] ) && is_scalar( $found[$key] ) ) $format[$key] = html_entity_decode( (string) $found[$key], ENT_QUOTES, 'UTF-8' );
+        }
+        return $format;
     }
 
 
@@ -4309,6 +4360,20 @@ class SUPER_Common {
             return false;
         }
         return $file;
+    }
+
+    /**
+     * Error text of a SUPER_Common::email() result ('' when delivered). email() returns
+     * array('result','error','mail'); legacy callers read ->ErrorInfo on that array, which
+     * never detected a failure and raised a PHP 8 warning into the JSON reply.
+     */
+    public static function email_error( $mail ) {
+        if( is_array($mail) ) {
+            if( !empty($mail['error']) && is_scalar($mail['error']) ) return (string) $mail['error'];
+            return ( array_key_exists('result', $mail) && empty($mail['result']) ) ? 'Email could not be sent.' : '';
+        }
+        if( is_object($mail) && !empty($mail->ErrorInfo) ) return (string) $mail->ErrorInfo;
+        return '';
     }
 
     /**

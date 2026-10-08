@@ -414,7 +414,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                             $password = '';
                             $mail = self::send_approve_email(array('password'=>$password, 'code'=>$code, 'user'=>$user, 'settings'=>$settings, 'data'=>$data));
                             // After email is send, delete the email and subject (remove the password from database for security reasons)
-                            if( empty( $mail->ErrorInfo ) ) {
+                            if( SUPER_Common::email_error( $mail )==='' ) {
                                 if( !self::can_manage_user_login_status($user_id) ) {
                                     return;
                                 }
@@ -1421,7 +1421,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                 if( is_array($mail) ) {
                     return !empty($mail['result']) && empty($mail['error']);
                 }
-                return is_object($mail) && empty($mail->ErrorInfo);
+                return is_object($mail) && SUPER_Common::email_error($mail)==='';
             });
         }
 
@@ -2420,10 +2420,10 @@ if( !class_exists('SUPER_Register_Login') ) :
                         $user = get_user_by( 'id', $user_id );
                         $mail = self::send_verification_email(array('password'=>$password, 'code'=>$code, 'user'=>$user, 'settings'=>$settings, 'data'=>$data));
                         // Return message
-                        if( !empty( $mail->ErrorInfo ) ) {
+                        if( SUPER_Common::email_error( $mail )!=='' ) {
                             SUPER_Common::output_message(
                                 $error = true,
-                                $msg = $mail->ErrorInfo,
+                                $msg = SUPER_Common::email_error( $mail ),
                                 $redirect = null
                             );
                         }
@@ -2699,10 +2699,10 @@ if( !class_exists('SUPER_Register_Login') ) :
                 $mail = self::send_reset_password_email(array('password'=>$password, 'code'=>'', 'user'=>$user, 'settings'=>$settings, 'data'=>$data));
 
                 // Return message
-                if( !empty( $mail->ErrorInfo ) ) {
+                if( SUPER_Common::email_error( $mail )!=='' ) {
                     SUPER_Common::output_message(
                         $error = true,
-                        $msg = $mail->ErrorInfo,
+                        $msg = SUPER_Common::email_error( $mail ),
                         $redirect = null
                     );
                 }else{
