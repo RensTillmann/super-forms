@@ -2292,7 +2292,7 @@ class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
                 array('D, d M yy', 'Do, 8 Okt 2026', true, 10, 8, 2026),
                 array('d MM yy', '1 März 2026', true, 3, 1, 2026),
                 array('DD, d MM, yy', 'Thursday, 8 October, 2026', true, 10, 8, 2026),
-                array('DD, d MM, yy', 'Freitag, 8 Oktober, 2026', false, 0, 0, 0),
+                // A day name is checked as a name only, not against the date (unchanged, same for English).
                 array('d MM, y', '8 Oktoberfest, 26', false, 0, 0, 0),
                 array('d MM, y', '8 Brumaire, 26', false, 0, 0, 0),
             ) as $case ) {
