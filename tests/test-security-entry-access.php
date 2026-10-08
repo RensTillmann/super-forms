@@ -268,6 +268,33 @@ class Test_Security_Entry_Access extends WP_UnitTestCase {
 		);
 	}
 
+	public function test_a_recent_nonce_of_the_same_session_stays_valid_after_a_newer_one_is_issued() {
+		// Two tabs (or a tab's upload and another tab's nonce fetch) interleave: N1, then N2, then N1 is submitted.
+		$session_id = $_COOKIE['_sfs_id'];
+		$first = SUPER_Common::generate_nonce();
+		$second = SUPER_Common::generate_nonce();
+		$this->assertTrue( SUPER_Common::sf_nonce_is_valid( $second ) );
+		$this->assertTrue( SUPER_Common::sf_nonce_is_valid( $first ), 'N1 is still valid after N2 was issued' );
+		$this->assertSame( $second, get_option( '_sfsdata_' . $session_id )['sf_nonce']['value'], 'the current nonce record is unchanged' );
+		// Unknown, empty and other-session values stay rejected.
+		$this->assertFalse( SUPER_Common::sf_nonce_is_valid( str_repeat( 'a', 96 ) ) );
+		$this->assertFalse( SUPER_Common::sf_nonce_is_valid( '' ) );
+		$_COOKIE['_sfs_id'] = 'foreign' . $session_id;
+		$this->assertFalse( SUPER_Common::sf_nonce_is_valid( $second ), 'a nonce is bound to its own session' );
+		$this->assertFalse( SUPER_Common::sf_nonce_is_valid( $first ) );
+		$_COOKIE['_sfs_id'] = $session_id;
+		// Each recent nonce keeps its own 15-minute expiry.
+		$stored = get_option( '_sfsdata_' . $session_id );
+		$stored['sf_nonces']['value'][$first] = time() - 1;
+		update_option( '_sfsdata_' . $session_id, $stored, false );
+		$this->assertFalse( SUPER_Common::sf_nonce_is_valid( $first ), 'an expired recent nonce is rejected' );
+		$this->assertTrue( SUPER_Common::sf_nonce_is_valid( $second ) );
+		// Only a small window is kept: five newer nonces evict N2.
+		for( $i = 0; $i < 5; $i++ ) $latest = SUPER_Common::generate_nonce();
+		$this->assertFalse( SUPER_Common::sf_nonce_is_valid( $second ), 'outside the window of recent nonces' );
+		$this->assertTrue( SUPER_Common::sf_nonce_is_valid( $latest ) );
+	}
+
 	public function test_refreshing_nonce_preserves_a_nonce_only_browser_session() {
 		$session_id = $_COOKIE['_sfs_id'];
 		update_option( '_sfsdata_' . $session_id, array(
