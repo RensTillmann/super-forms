@@ -2150,13 +2150,44 @@ class SUPER_Common {
      * inspect elements server-side (required-field validation, reCAPTCHA detection) should use this
      * instead of re-decoding inline.
      */
+    /**
+     * Saved element tree of a form as the page renders it. An Include-form element (tag 'form')
+     * renders the included form's saved elements in place (SUPER_Shortcodes::form()), so they are
+     * placed in its 'inner' here and every server walker sees their fields (contract, required,
+     * files, codes, choices, dynamic routes, i18n). Like the renderer, the included form's post
+     * status is not checked; a deleted form contributes nothing. Cycles stop at a form already on
+     * the include path, and nesting stops after a few levels.
+     */
     public static function get_form_elements($form_id) {
+        $form_id = absint($form_id);
+        return self::expand_included_forms( self::stored_form_elements($form_id), array($form_id) );
+    }
+    private static function stored_form_elements( $form_id ) {
         $elements = get_post_meta( absint($form_id), '_super_elements', true );
         if( is_array($elements) ) return $elements;
         if( empty($elements) ) return array();
         $decoded = json_decode( stripslashes($elements), true );
         if( $decoded === null ) $decoded = json_decode( $elements, true );
         return is_array($decoded) ? $decoded : array();
+    }
+    private static function expand_included_forms( $elements, $path ) {
+        if( !is_array($elements) ) return array();
+        foreach( $elements as $k => $element ) {
+            if( !is_array($element) ) continue;
+            if( isset($element['tag']) && $element['tag']==='form' ) {
+                $include_id = isset($element['data']['id']) && is_scalar($element['data']['id']) ? absint($element['data']['id']) : 0;
+                $elements[$k]['inner'] = ( $include_id>0 && !in_array($include_id, $path, true) && count($path)<5 )
+                    ? self::expand_included_forms( self::stored_form_elements($include_id), array_merge($path, array($include_id)) )
+                    : array();
+                continue;
+            }
+            if( isset($element['inner']) && is_array($element['inner']) ) {
+                $elements[$k]['inner'] = self::map_inner_elements( $element['inner'], function( $items ) use ( $path ) {
+                    return self::expand_included_forms( $items, $path );
+                } );
+            }
+        }
+        return $elements;
     }
 
     /**

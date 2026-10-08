@@ -5493,7 +5493,7 @@ class SUPER_Ajax {
     // Used when Ajax lookup is enabled
     public static function retrieve_variable_conditions(){
         // Get form elements
-        $elements = get_post_meta( $_POST['form_id'], '_super_elements', true );
+        $elements = SUPER_Common::get_form_elements( absint($_POST['form_id']) ); // includes Include-form elements
         // Get field settings
         $atts = SUPER_Common::get_element_settings($elements, $_POST['field_name']);
         // When retrieve method is CSV
