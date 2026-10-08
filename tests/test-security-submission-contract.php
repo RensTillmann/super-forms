@@ -2139,7 +2139,7 @@ class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
         }
     }
 
-    public function test_admin_email_failure_is_reported_as_valid_json_without_php_warnings() {
+    public function test_admin_email_failure_is_detected_and_logged_with_valid_json_and_no_php_warnings() {
         $elements = array(array('tag' => 'text', 'data' => array('name' => 'note', 'validation' => 'none')));
         $settings = array(
             'save_contact_entry' => 'no', 'send' => 'yes', 'confirm' => 'no',
@@ -2151,6 +2151,7 @@ class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
         );
         foreach( array(false, true) as $delivered ) {
             $form_id = $this->create_form($elements, $settings);
+            $log = tempnam(sys_get_temp_dir(), 'sf-mail-log-');
             $mail = static function() use ( $delivered ) { return $delivered; };
             add_filter('pre_wp_mail', $mail);
             try {
@@ -2158,8 +2159,9 @@ class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
                     $this->set_submission_request($form_id, array('note' => array('name' => 'note', 'type' => 'var', 'value' => 'hello')), array('action' => 'super_submit_form'));
                     $_POST['data'] = wp_slash($_POST['data']);
                     $_REQUEST = $_POST;
-                    return $this->run_dying_callback(static function() {
+                    return $this->run_dying_callback(static function() use ( $log ) {
                         set_error_handler(static function( $errno, $errstr ) { echo 'PHP_WARNING:' . $errstr; return true; });
+                        ini_set('error_log', $log);
                         SUPER_Ajax::submit_form();
                     });
                 });
@@ -2167,8 +2169,16 @@ class Test_Super_Forms_Submission_Contract_Security extends WP_UnitTestCase {
             $this->assertStringNotContainsString('PHP_WARNING:', $result['output']);
             $decoded = json_decode($result['output'], true);
             $this->assertIsArray($decoded, $result['output']);
-            $this->assertSame(!$delivered, $decoded['error'], $result['output']);
-            if( !$delivered ) $this->assertStringContainsString('Message could not be sent', $decoded['msg']);
+            // A failed mail never blocked a submission (owner decision pending, t_184e1b47): the
+            // reply stays a success and the failure is detected and logged instead of lost.
+            $this->assertFalse($decoded['error'], $result['output']);
+            $logged = (string) file_get_contents($log);
+            unlink($log);
+            if( $delivered ) {
+                $this->assertStringNotContainsString('email could not be sent', $logged);
+            }else{
+                $this->assertStringContainsString('Super Forms: email could not be sent: Email could not be send through wp_mail()', $logged);
+            }
         }
     }
 
