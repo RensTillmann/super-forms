@@ -5772,9 +5772,12 @@ function SUPERreCaptcha(){
             // @since 4.6.0 - if statement compatibility
             $html = SUPER.filter_if_statements($html);
             
-            if($target.value || $target.dataset.value){
+            // An option whose {tag} value resolved to '' (referenced field still empty) keeps its
+            // data-value attribute: test for the attribute, not its truthiness, so the value keeps
+            // following the referenced field instead of overwriting the option label (C11).
+            if($target.value || $target.hasAttribute('data-value')){
                 if($target.value) $target.value = $html;
-                if($target.dataset.value) $target.dataset.value = $html;
+                if($target.hasAttribute('data-value')) $target.dataset.value = $html;
             }else{
                 // Not if google map
                 if($target.classList.contains('super-google-map')){
