@@ -3653,7 +3653,8 @@ function SUPERreCaptcha(){
             }
         }
         // @since 5.0.022 - extra validation check for international phone numbers
-        if(args.el.closest('.super-int-phone')){
+        // An empty number is handled by the required/may-be-empty rules below, not by the number check.
+        if(args.el.closest('.super-int-phone') && args.el.value!==''){
             var super_int_phone = window.superTelInputGlobals.getInstance(args.el);
             if(!super_int_phone.isValidNumber()){
                 error = true;
