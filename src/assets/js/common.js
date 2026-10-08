@@ -1990,6 +1990,17 @@ function SUPERreCaptcha(){
         }
         return $shortcode_field_value;
     };
+    // Conditions of an element without a field (column, button, ...). They are cached per data-sfuid; a
+    // wrapper without one (e.g. the column around a Mailchimp element) reads its own textarea, otherwise
+    // every such wrapper would share '_element_undefined' and follow the first one's conditions.
+    SUPER.conditional_logic.element_conditions = function(form_id, wrapper, json){
+        var uid = wrapper.dataset.sfuid; // e.g: data-sfuid="oEfVwYr6-2"
+        if(uid && SUPER.allConditions[form_id]['_element_'+uid]) return SUPER.allConditions[form_id]['_element_'+uid];
+        var conditions;
+        try { conditions = JSON.parse(json); } catch(e) { return false; }
+        if(uid) SUPER.allConditions[form_id]['_element_'+uid] = conditions;
+        return conditions;
+    };
     SUPER.conditional_logic.loop = function(args){
         args.regex = /{([^\\\/\s"'+]*?)}/g;
         var v,
@@ -2062,11 +2073,7 @@ function SUPERreCaptcha(){
                     $field = $wrapper.closest('.super-field').querySelector('.super-shortcode-field');
                 }
                 if(!$field) {
-                    // Skip if we already retrieved the conditions before
-                    $uid = $wrapper.dataset.sfuid; // e.g: data-sfuid="oEfVwYr6-2"
-                    if(!SUPER.allConditions[form_id]['_element_'+$uid]){
-                        SUPER.allConditions[form_id]['_element_'+$uid] = JSON.parse($json);
-                    }
+                    SUPER.conditional_logic.element_conditions(form_id, $wrapper, $json);
                     return;
                 }
                 $field_name = $field.name;
@@ -2142,10 +2149,8 @@ function SUPERreCaptcha(){
                         }
                         $conditions = false;
                         if(!$field) {
-                            $uid = $wrapper.dataset.sfuid; // e.g: data-sfuid="oEfVwYr6-2"
-                            if(SUPER.allConditions[form_id]['_element_'+$uid]){
-                                $conditions = JSON.parse(JSON.stringify(SUPER.allConditions[form_id]['_element_'+$uid]));
-                            }
+                            $conditions = SUPER.conditional_logic.element_conditions(form_id, $wrapper, $json);
+                            if($conditions) $conditions = JSON.parse(JSON.stringify($conditions));
                         }else{
                             if(SUPER.allConditions[form_id][$field.name]){
                                 $conditions = JSON.parse(JSON.stringify(SUPER.allConditions[form_id][$field.name]));

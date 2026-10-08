@@ -171,11 +171,12 @@ test('conditions of wrappers without data-sfuid (e.g. Mailchimp columns) are not
     const S=fixture();
     S.allConditions={7:{}};
     assert.equal(typeof S.conditional_logic.element_conditions,'function');
+    const ec=(...a)=>JSON.parse(JSON.stringify(S.conditional_logic.element_conditions(...a)));
     const first={dataset:{}}, second={dataset:{}}, uid={dataset:{sfuid:'abc-1'}};
-    assert.deepEqual(S.conditional_logic.element_conditions(7, first, '[{"f":"choice","l":"equal","v":"first"}]'), [{f:'choice',l:'equal',v:'first'}]);
-    assert.deepEqual(S.conditional_logic.element_conditions(7, second, '[{"f":"choice","l":"equal","v":"second"}]'), [{f:'choice',l:'equal',v:'second'}]);
+    assert.deepEqual(ec(7, first, '[{"f":"choice","l":"equal","v":"first"}]'), [{f:'choice',l:'equal',v:'first'}]);
+    assert.deepEqual(ec(7, second, '[{"f":"choice","l":"equal","v":"second"}]'), [{f:'choice',l:'equal',v:'second'}]);
     // Elements with a uid keep using the per-uid cache.
-    assert.deepEqual(S.conditional_logic.element_conditions(7, uid, '[{"v":"x"}]'), [{v:'x'}]);
-    assert.deepEqual(S.conditional_logic.element_conditions(7, uid, '[{"v":"changed"}]'), [{v:'x'}]);
+    assert.deepEqual(ec(7, uid, '[{"v":"x"}]'), [{v:'x'}]);
+    assert.deepEqual(ec(7, uid, '[{"v":"changed"}]'), [{v:'x'}]);
     assert.equal(S.conditional_logic.element_conditions(7, first, 'not json'), false);
 });
