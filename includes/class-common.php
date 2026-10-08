@@ -828,6 +828,23 @@ class SUPER_Common {
                 'exp_var' => 15 * MINUTE_IN_SECONDS
             )
         );
+        if( SUPER_Common::getClientData( 'sf_nonce', false )!==$sf_nonce ) return $sf_nonce; // no session: nothing to remember
+        // Concurrent tabs of one session each fetch a nonce (and an upload issues one), so the
+        // previous nonces stay valid for their own 15 minutes. Not single-use: a CSRF nonce proves
+        // same-session origin, not uniqueness; duplicate-submit protection lives elsewhere.
+        // ponytail: last 5 per session; raise if more than ~2 tabs submit at the same moment.
+        $now = time();
+        $recent = SUPER_Common::getClientData( 'sf_nonces', false );
+        $recent = is_array($recent) ? array_filter( $recent, function( $expires ) use ( $now ) { return absint($expires) >= $now; } ) : array();
+        $recent[$sf_nonce] = $now + 15 * MINUTE_IN_SECONDS;
+        SUPER_Common::setClientData(
+            array(
+                'name' => 'sf_nonces',
+                'value' => array_slice( $recent, -5, 5, true ),
+                'expires' => 15 * MINUTE_IN_SECONDS,
+                'exp_var' => 15 * MINUTE_IN_SECONDS
+            )
+        );
         return $sf_nonce;
     }
 
@@ -837,11 +854,14 @@ class SUPER_Common {
     }
     // The check verifyCSRF() applies to the posted value (callable from tests: CLI has no INPUT_POST).
     public static function sf_nonce_is_valid( $v ){
-        $sf_nonce = SUPER_Common::getClientData( 'sf_nonce', false );
-        if(!$v || $v !== $sf_nonce){
-            return false; // invalid
+        if( !is_string($v) || $v==='' ) return false;
+        if( $v === SUPER_Common::getClientData( 'sf_nonce', false ) ) return true;
+        $recent = SUPER_Common::getClientData( 'sf_nonces', false );
+        if( !is_array($recent) ) return false;
+        foreach( $recent as $nonce => $expires ) {
+            if( absint($expires) >= time() && hash_equals( (string) $nonce, $v ) ) return true;
         }
-        return true; // valid
+        return false; // unknown, foreign session or expired
     }
 
     public static function reset_setting_icons($v){
