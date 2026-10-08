@@ -1047,6 +1047,78 @@ class Test_Super_Forms_Submission_Contract_6318_Security extends WP_UnitTestCase
         $this->assertSame(array(), SUPER_Common::get_element_settings($layouts['second column'], 'absent'));
     }
 
+    /** Run $callback with the site/request locale switched, reloading the plugin's own translations. */
+    private function with_plugin_locale( $locale, $callback ) {
+        $filter = static function() use ( $locale ) { return $locale; };
+        add_filter('locale', $filter);
+        add_filter('determine_locale', $filter);
+        unload_textdomain('super-forms');
+        // The plugin ships its own translations (i18n/languages); WordPress 6.7+ loads plugin
+        // textdomains just in time, so load the shipped .mo for this locale explicitly.
+        load_textdomain('super-forms', SUPER_PLUGIN_DIR . '/i18n/languages/super-forms-' . $locale . '.mo', $locale);
+        try {
+            return $callback();
+        } finally {
+            remove_filter('locale', $filter);
+            remove_filter('determine_locale', $filter);
+            unload_textdomain('super-forms');
+            SUPER_Forms()->load_plugin_textdomain();
+        }
+    }
+
+    public function test_dates_with_translated_month_and_day_names_submit_without_a_datepicker_localization() {
+        // H2 (t_1779ad78): without a datepicker localization the browser uses the plugin's translated
+        // names (super_elements_i18n: esc_html__('October','super-forms') ...); the server must accept them.
+        $this->with_plugin_locale('de_DE', function() {
+            $this->assertSame('Oktober', esc_html__('October', 'super-forms'), 'plugin de_DE translation loaded');
+            foreach( array(
+                array('d MM, y', '8 Oktober, 26', true, 10, 8, 2026),
+                array('DD, d MM, yy', 'Donnerstag, 8 Oktober, 2026', true, 10, 8, 2026),
+                array('D, d M yy', 'Do, 8 Okt 2026', true, 10, 8, 2026),
+                array('d MM yy', '1 März 2026', true, 3, 1, 2026),
+                array('DD, d MM, yy', 'Thursday, 8 October, 2026', true, 10, 8, 2026),
+                // A day name is checked as a name only, not against the date (unchanged, same for English).
+                array('d MM, y', '8 Oktoberfest, 26', false, 0, 0, 0),
+                array('d MM, y', '8 Brumaire, 26', false, 0, 0, 0),
+            ) as $case ) {
+                list($format, $value, $allowed, $month, $day, $year) = $case;
+                $elements = array(array('tag' => 'date', 'data' => array(
+                    'name' => 'appointment', 'format' => 'custom', 'custom_format' => $format,
+                    'localization' => '', 'maxPicks' => '1', 'validation' => 'none',
+                )));
+                $data = array('appointment' => array('name' => 'appointment', 'type' => 'var', 'value' => $value, 'timestamp' => '1'));
+                $form_id = $this->submit_review8_probe($elements, $data, $allowed);
+                if( $allowed ) {
+                    $entries = $this->entry_ids_for($form_id);
+                    $stored = SUPER_Data_Access::get_entry_data($entries[0]);
+                    $this->assertSame($value, $stored['appointment']['value']);
+                    $this->assertSame((string)(gmmktime(0, 0, 0, $month, $day, $year) * 1000), $stored['appointment']['timestamp'], $value);
+                }
+            }
+        });
+    }
+
+    public function test_current_date_default_uses_one_based_day_of_year_and_submits() {
+        // H3 (t_2642c3c0): jQuery UI 'o'/'oo' is the 1-based day of the year; PHP 'z' is 0-based.
+        foreach( array(
+            'o' => (string) ( (int) date_i18n('z') + 1 ),
+            'oo' => str_pad( (string) ( (int) date_i18n('z') + 1 ), 3, '0', STR_PAD_LEFT ),
+            'd MM yy' => date_i18n('j F Y'),
+            'dd/mm/yy' => date_i18n('d/m/Y'),
+        ) as $format => $expected ) {
+            $elements = array(array('tag' => 'date', 'group' => 'form_elements', 'inner' => array(), 'data' => array(
+                'name' => 'today', 'email' => 'Today:', 'format' => 'custom', 'custom_format' => $format,
+                'localization' => '', 'maxPicks' => '1', 'validation' => 'none', 'current_date' => 'true',
+            )));
+            $form_id = $this->create_form($elements, array('send' => 'no', 'confirm' => 'no'));
+            $html = SUPER_Shortcodes::super_form_func(array('id' => (string) $form_id));
+            $this->assertSame(1, preg_match('/<input[^>]*super-datepicker[^>]*\svalue="([^"]*)"/', $html, $m), $format);
+            $this->assertSame($expected, html_entity_decode($m[1], ENT_QUOTES, 'UTF-8'), $format);
+            $data = array('today' => array('name' => 'today', 'type' => 'var', 'value' => $expected));
+            $this->submit_review8_probe($elements, $data, true);
+        }
+    }
+
     public function test_saved_date_minimum_picks_are_enforced_before_submission_effects() {
         foreach(array(
             array('0', '', true),
