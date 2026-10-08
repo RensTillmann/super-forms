@@ -832,9 +832,12 @@ class SUPER_Common {
     }
 
     public static function verifyCSRF(){
-        $sf_nonce = SUPER_Common::getClientData( 'sf_nonce', false );
         $input = filter_input(INPUT_POST, 'sf_nonce');
-        $v = is_string($input) ? htmlspecialchars($input) : '';
+        return self::sf_nonce_is_valid( is_string($input) ? htmlspecialchars($input) : '' );
+    }
+    // The check verifyCSRF() applies to the posted value (callable from tests: CLI has no INPUT_POST).
+    public static function sf_nonce_is_valid( $v ){
+        $sf_nonce = SUPER_Common::getClientData( 'sf_nonce', false );
         if(!$v || $v !== $sf_nonce){
             return false; // invalid
         }
