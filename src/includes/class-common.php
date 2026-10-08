@@ -1344,8 +1344,9 @@ class SUPER_Common {
         if(is_array($elements)){
             foreach( $elements as $k => $v ) {
                 if(!empty($v['inner'])){
-                    // Loop over inner items
-                    return self::get_element_settings(self::inner_elements($v), $field_name);
+                    // Loop over inner items; keep looking in later siblings when the field is not in here.
+                    $found = self::get_element_settings(self::inner_elements($v), $field_name);
+                    if(!empty($found)) return $found;
                 }else{
                     if(!empty($v['data']) && !empty($v['data']['name'])){
                         if($v['data']['name']===$field_name){
