@@ -273,6 +273,9 @@ class Test_Security_Default_Value_Tags extends WP_UnitTestCase {
 		) );
 		$html = $this->render( $form_id );
 		ob_start();
+		// As on a real page load: wp_enqueue_scripts runs first, and WordPress core's
+		// wp_enqueue_block_template_skip_link() unhooks the deprecated the_block_template_skip_link from wp_footer.
+		do_action( 'wp_enqueue_scripts' );
 		do_action( 'wp_footer' );
 		$footer = ob_get_clean();
 		$this->assertStringContainsString( 'name="pdf_probe"', $html );
