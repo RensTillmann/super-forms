@@ -6,6 +6,35 @@ description: Release notes for the Super Forms stable channel.
 
 ## Super Forms Stable - Changelog
 
+### Oct 09, 2026 - Version 6.3.322
+
+* **Fix:** Date fields with omitted or empty date-format settings now use the default `dd-mm-yy` format during submission, while saved nonempty formats and strict date validation are preserved.
+* **Fix:** Date fields whose format leaves out the year, month or day accept the picked date again; impossible dates are still rejected.
+* **Fix:** Dates picked in another site language (for example German month and day names) are accepted when the form is submitted. A `current_date` default that uses the day of the year now starts at 1.
+* **Fix:** E-mail addresses that WordPress accepts are no longer rejected by the form in the browser.
+* **Fix:** Currency fields are checked against their own saved currency format, including currency symbols saved as HTML entities (such as `&euro;`). A typed amount of 0 is kept instead of being emptied.
+* **Fix:** PayPal and WooCommerce read amounts such as `€1.234,56` and `$1,234.56` using the field's currency format; negative amounts keep their sign.
+* **Fix:** Unique codes are always generated from a nonempty set of characters.
+* **Fix:** Fields inside Tabs and Accordion panes, including file upload fields, are accepted when the form is submitted.
+* **Fix:** A required field filled in with `0`, `0.00` or a value starting with `<` (such as `<10`) counts as filled in.
+* **Fix:** File names with several dots, such as `invoice.2026.pdf`, can be uploaded when the final extension is allowed; files that could run on the server are still rejected.
+* **Fix:** When an e-mail cannot be sent, the submission is still completed and the failure is logged, without a PHP warning.
+* **Fix:** An optional international phone field left empty no longer blocks the form. International phone numbers are checked as the full international number that is submitted.
+* **Fix:** Dropdown, checkbox and radio options with values such as `null` or `true` no longer stop the form from submitting.
+* **Fix:** Options whose value contains a `{tag}` are accepted, and keep following the field they refer to.
+* **Fix:** The same field name used in two conditional columns with different settings is accepted.
+* **Fix:** The "may be empty: when conditions match" setting keeps a field optional unless one of its own conditions matches.
+* **Fix:** Fields in a column that a theme or custom CSS hides are submitted like visible fields; only fields hidden by the form's own conditional logic are left out.
+* **Fix:** Two or more date fields that allow several picks on one page no longer break all date pickers.
+* **Fix:** Submitting the same form from two browser tabs at the same time no longer fails with "session expired".
+* **Fix:** Uploaded and saved entry files keep their original file names, and Register & Login profile fields map the uploaded file of the same submission.
+* **Fix:** Camera photos now upload normally when WordPress scales large images or rotates them using EXIF orientation. Upload receipts and retained entry files keep the original image as their owned identity and verify its exact relationship to the attached copy.
+* **Fix:** Image filenames with upper-case or mixed-case extensions (such as `.JPG`, `.JPEG`, and `.PNG`) are accepted during upload and when retaining saved entry files, without relaxing file type restrictions.
+* **Fix:** Saved entry files whose original browser name was sanitized, uniquified, or lowercased by WordPress, or whose original image an image optimiser removed, remain usable: they are shown under their file name on the server, saving the entry again is never blocked, and such a file is never deleted by the form. Register & Login custom user meta mappings also accept the validated original image when WordPress attaches a scaled or rotated copy.
+* **Fix:** Media-library uploads also work when an uploads parent directory is a filesystem symlink. Ownership still checks canonical authorized roots and the exact original-image relationship, and symlinked file leaves remain rejected.
+* **Security fix:** Custom CSS classes on columns and fields are escaped in the form's HTML.
+* **Security fix:** Removed an unused legacy Stripe test file.
+
 ### Oct 01, 2026 - Version 6.3.320
 
 * **Improved:** The Super Forms > Licenses page now only shows the Super Forms message and the "Manage Licenses in Dashboard" button; notices from other plugins and themes are no longer shown on that page.
