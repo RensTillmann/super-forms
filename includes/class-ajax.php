@@ -5679,6 +5679,74 @@ class SUPER_Ajax {
     }
 
     /**
+     * Allow a configured uploads-root alias, never links below that root or at the leaf.
+     */
+    private static function canonical_owned_attachment_file( $path, $root ) {
+        if( !is_string($path) || $path==='' || is_link($path) ) return false;
+        $path = wp_normalize_path($path);
+        if( preg_match('#(?:^|/)\.\.?(?:/|$)#', $path) ) return false;
+        $real = realpath($path);
+        if( $real===false || !is_file($real) ) return false;
+        $real = wp_normalize_path($real);
+        if( !self::upload_path_is_descendant($real, $root) ) return false;
+        if( $path===$real ) return $real;
+        $uploads = wp_get_upload_dir();
+        if( empty($uploads['basedir']) || !is_string($uploads['basedir']) ) return false;
+        $lexical_root = untrailingslashit(wp_normalize_path($uploads['basedir']));
+        $physical_root = realpath($lexical_root);
+        if( $physical_root===false || !self::upload_path_is_descendant($path, $lexical_root) ) return false;
+        $relative = substr($path, strlen(trailingslashit($lexical_root)));
+        if( trailingslashit(wp_normalize_path($physical_root)) . $relative!==$real ) return false;
+        return $real;
+    }
+
+    /**
+     * Resolve an attachment's exact owned file, including WordPress's preserved
+     * original after scaling or EXIF rotation. Metadata is not a path authority.
+     */
+    private static function owned_attachment_file( $attachment_id, $file, $root ) {
+        $attached_file = get_attached_file($attachment_id);
+        $attached_real = self::canonical_owned_attachment_file($attached_file, $root);
+        if( $attached_real===false ) return false;
+        if( $attached_real===$file ) return $attached_real;
+
+        $metadata = wp_get_attachment_metadata($attachment_id);
+        $original = is_array($metadata) && isset($metadata['original_image'])
+            ? $metadata['original_image'] : false;
+        if( !is_string($original) || $original==='' || $original==='.' || $original==='..'
+            || strpos($original, '/')!==false || strpos($original, '\\')!==false
+            || strpos($original, ':')!==false || strpos($original, "\0")!==false ) return false;
+        $original_file = trailingslashit(dirname($attached_real)) . $original;
+        $original_real = self::canonical_owned_attachment_file($original_file, $root);
+        if( $original_real===false || $original_real!==$original_file || $original_file!==$file ) return false;
+        // Require WordPress to identify this exact original as well; a metadata
+        // leaf alone cannot authorize a different file or a filtered path.
+        $original_path = wp_get_original_image_path($attachment_id);
+        $original_path_real = self::canonical_owned_attachment_file($original_path, $root);
+        if( $original_path_real===false || $original_path_real!==$file ) return false;
+        return $attached_real;
+    }
+
+    /**
+     * Match a finalized attachment value without granting path or cleanup authority.
+     */
+    public static function attachment_upload_value_is_valid( $attachment_id, $value ) {
+        $attachment_id = absint($attachment_id);
+        if( !$attachment_id || get_post_type($attachment_id)!=='attachment'
+            || !is_string($value) || $value==='' || $value==='.' || $value==='..'
+            || strpos($value, '/')!==false || strpos($value, '\\')!==false
+            || strpos($value, ':')!==false || strpos($value, "\0")!==false ) return false;
+        $attached_file = get_attached_file($attachment_id);
+        if( !is_string($attached_file) || $attached_file==='' || is_link($attached_file) ) return false;
+        $candidate = trailingslashit(wp_normalize_path(dirname($attached_file))) . $value;
+        $root = realpath(dirname($attached_file));
+        if( $root===false ) return false;
+        $root = wp_normalize_path($root);
+        $file = self::canonical_owned_attachment_file($candidate, $root);
+        return $file!==false && self::owned_attachment_file($attachment_id, $file, $root)!==false;
+    }
+
+    /**
      * Build the only record shape that can later authorize attachment/file effects.
      */
     public static function build_owned_upload( $form_id, $field_name, $filename, $mime, $url, $attachment_id, $allowed_root, $size, $legacy_subdir='' ) {
@@ -5700,13 +5768,12 @@ class SUPER_Ajax {
                 $root = $candidates[0]['root'];
             }
         }
+        $attached_file = '';
         if( $attachment_id!==0 ) {
-            $attached_file = get_attached_file($attachment_id);
-            $attached_real = $attached_file ? realpath($attached_file) : false;
-            if( get_post_type($attachment_id)!=='attachment' || $attached_real===false
-                || wp_normalize_path($attached_real)!==$file ) return false;
+            $attached_file = self::owned_attachment_file($attachment_id, $file, $root);
+            if( get_post_type($attachment_id)!=='attachment' || $attached_file===false ) return false;
         }
-        return array(
+        $owned = array(
             'version' => 1,
             'form_id' => absint($form_id),
             'field' => $field_name,
@@ -5721,6 +5788,10 @@ class SUPER_Ajax {
             'basename' => basename($file),
             'legacy_subdir' => $legacy_subdir,
         );
+        if( $attachment_id && $attached_file!==$file ) {
+            $owned['attached_file'] = $attached_file;
+        }
+        return $owned;
     }
 
     private static function owned_upload_is_current( $owned, $expected_parent=null ) {
@@ -5745,8 +5816,9 @@ class SUPER_Ajax {
             || basename($file)!==$owned['basename'] ) return false;
         if( $owned['storage']==='attachment' ) {
             $attachment_id = isset($owned['attachment']) ? absint($owned['attachment']) : 0;
-            $attached_file = $attachment_id ? get_attached_file($attachment_id) : false;
-            $attached_real = $attached_file ? realpath($attached_file) : false;
+            $attached_file = $attachment_id
+                ? self::owned_attachment_file($attachment_id, $file, $root)
+                : false;
             $stored_form_id = $attachment_id
                 ? get_post_meta($attachment_id, '_super_forms_upload_form_id', true)
                 : '';
@@ -5768,7 +5840,9 @@ class SUPER_Ajax {
             if( !$attachment_id || get_post_type($attachment_id)!=='attachment'
                 || !get_post_meta($attachment_id, 'super-forms-form-upload-file', true)
                 || (!$metadata_owned && !$legacy_owned)
-                || $attached_real===false || wp_normalize_path($attached_real)!==$file
+                || $attached_file===false
+                || (isset($owned['attached_file']) && $owned['attached_file']!==$attached_file)
+                || ($attached_file!==$file && !isset($owned['attached_file']))
                 || get_post_mime_type($attachment_id)!==$owned['mime'] ) return false;
             if( $expected_parent!==null && wp_get_post_parent_id($attachment_id)!==absint($expected_parent) ) return false;
             if( array_key_exists('original', $owned) ) {
@@ -6919,6 +6993,25 @@ class SUPER_Ajax {
             $stored_field = get_post_meta($attachment_id, '_super_forms_upload_field', true);
             if( $stored_form_id!=='' && absint($stored_form_id)!==absint($form_id) ) return false;
             if( $stored_field!=='' && (string) $stored_field!==$stored_field_name ) return false;
+            // New image uploads store the preserved original's name and size,
+            // while WordPress's attached file may be its scaled/rotated copy.
+            // Legacy entries stored the browser's name, not the attached basename.
+            // Keep the attached file unless this literal value identifies a proven original.
+            if( isset($stored['value']) && (!is_string($stored['value'])
+                || $stored['value']==='' || $stored['value']==='.' || $stored['value']==='..'
+                || strpos($stored['value'], '/')!==false || strpos($stored['value'], '\\')!==false
+                || strpos($stored['value'], ':')!==false || strpos($stored['value'], "\0")!==false) ) return false;
+            if( isset($stored['value']) && is_string($stored['value'])
+                && $stored['value']!==basename($filename) ) {
+                $metadata = wp_get_attachment_metadata($attachment_id);
+                if( is_array($metadata) && isset($metadata['original_image'])
+                    && $metadata['original_image']===$stored['value'] ) {
+                    $original = trailingslashit(wp_normalize_path(dirname($filename))) . $stored['value'];
+                    if( self::owned_attachment_file($attachment_id, $original, dirname($filename))!==false ) {
+                        $filename = $original;
+                    }
+                }
+            }
             $mime = self::verified_existing_upload_mime($filename, $file_element);
             $url = wp_get_attachment_url($attachment_id);
             $resolved = SUPER_Forms::resolve_owned_upload_file($filename, $settings);
@@ -6958,10 +7051,10 @@ class SUPER_Ajax {
             $owned['legacy_source_field'] = $field_name;
             $owned['legacy_source_key'] = $source_key;
             $owned['cleanup_parent'] = absint($entry_id);
-            // The attachment identity above is fully verified (post type, entry parent,
-            // upload markers, mime and configured root), so this record may finalize its
-            // own cleanup. Its use is re-verified by retained_owned_upload_is_current().
-            $owned['cleanup_authority'] = true;
+            // A legacy selector may authorize retention, not cleanup of a different identity.
+            // Final cleanup additionally rechecks the exact server-stored entry record.
+            $owned['cleanup_authority'] = isset($stored['value']) && is_string($stored['value'])
+                && $stored['value']===$owned['basename'];
             if( !self::owned_upload_is_current($owned, $entry_id) ) return false;
             $record = self::owned_upload_file_record($owned, $field_name);
             $record['_super_file_authority'] = 'retained';
