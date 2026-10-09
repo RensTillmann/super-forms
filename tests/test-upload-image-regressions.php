@@ -429,7 +429,7 @@ class Test_Super_Forms_Upload_Image_Regressions extends Super_Forms_Upload_Secur
         );
     }
 
-    private function image_meta_action( $form_id, $data ) {
+    private function image_meta_action( $form_id, $data, $owned_files=array() ) {
         $settings = array(
             'register_login_action'=>'update', 'register_login_user_id_update'=>'true',
             'register_login_register_not_logged_in'=>'', 'register_login_not_logged_in_msg'=>'Please log in.',
@@ -443,7 +443,7 @@ class Test_Super_Forms_Upload_Image_Regressions extends Super_Forms_Upload_Secur
         $_POST = $_REQUEST = $post;
         $atts = array(
             'settings'=>$settings, 'data'=>$data, 'post'=>$post,
-            'entry_id'=>0, 'attachments'=>array(),
+            'entry_id'=>0, 'attachments'=>array(), 'owned_files'=>$owned_files,
         );
         SUPER_Register_Login::before_sending_email($atts);
         return $atts;
@@ -473,14 +473,14 @@ class Test_Super_Forms_Upload_Image_Regressions extends Super_Forms_Upload_Secur
         ), false);
         $data['user_id'] = array('type'=>'text', 'value'=>(string)$user_id);
         try {
-            $atts = $this->image_meta_action($form_id, $data);
+            $atts = $this->image_meta_action($form_id, $data, array($owned));
             SUPER_Register_Login::before_email_success_msg($atts);
             $this->assertSame((string)$created['attachment'], get_user_meta($user_id, 'sf_image_meta', true));
             foreach( array('../' . $record['value'], 'other.jpg', get_attached_file($created['attachment'])) as $value ) {
                 $forged_data = $data;
                 $forged_data['documents']['files'][0]['value'] = $value;
                 $this->assertWPError($resolver->invoke(null, 'documents', $forged_data, array(), $form_id, array($owned)));
-                $forged_atts = $this->image_meta_action($form_id, $forged_data);
+                $forged_atts = $this->image_meta_action($form_id, $forged_data, array($owned));
                 $result = $this->run_dying_handler(static function() use ($forged_atts) {
                     SUPER_Register_Login::before_email_success_msg($forged_atts);
                 }, false);
