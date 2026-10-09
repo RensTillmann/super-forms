@@ -9,6 +9,39 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## 2026-10-09 - Version 6.4.009-beta
+
+- **Fix:** Date submissions use the default `dd-mm-yy` pattern when the saved format, or selected custom format, is missing or empty, while preserving explicit formats and strict date validation.
+- **Fix:** Date fields whose format leaves out the year, month or day accept the picked date again; impossible dates are still rejected.
+- **Fix:** Dates picked in another site language (for example German month and day names) are accepted when the form is submitted. A `current_date` default that uses the day of the year now starts at 1.
+- **Fix:** E-mail addresses that WordPress accepts are no longer rejected by the form in the browser.
+- **Fix:** Currency fields are checked against their own saved currency format, including currency symbols saved as HTML entities (such as `&euro;`). A typed amount of 0 is kept instead of being emptied.
+- **Fix:** PayPal and WooCommerce read amounts such as `€1.234,56` and `$1,234.56` using the field's currency format; negative amounts keep their sign.
+- **Fix:** Unique codes are always generated from a nonempty set of characters.
+- **Fix:** Fields inside Tabs and Accordion panes, including file upload fields, are accepted when the form is submitted.
+- **Fix:** Forms that contain an "Include form" element accept submissions again; the fields and rules of the included form are checked as part of the form.
+- **Fix:** A required field filled in with `0`, `0.00` or a value starting with `<` (such as `<10`) counts as filled in.
+- **Fix:** File names with several dots, such as `invoice.2026.pdf`, can be uploaded when the final extension is allowed; files that could run on the server are still rejected.
+- **Fix:** When an e-mail cannot be sent, the submission is still completed and the failure is logged, without a PHP warning.
+- **Fix:** An optional international phone field left empty no longer blocks the form. International phone numbers are checked as the full international number that is submitted.
+- **Fix:** Dropdown, checkbox and radio options with values such as `null` or `true` no longer stop the form from submitting.
+- **Fix:** Options whose value contains a `{tag}` are accepted, and keep following the field they refer to.
+- **Fix:** The same field name used in two conditional columns with different settings is accepted.
+- **Fix:** Fields in a column that a theme or custom CSS hides are submitted like visible fields; only fields hidden by the form's own conditional logic are left out.
+- **Fix:** Field settings are found for fields placed after the first column or other layout element.
+- **Fix:** Two or more date fields that allow several picks on one page no longer break all date pickers.
+- **Fix:** Submitting the same form from two browser tabs at the same time no longer fails with "session expired".
+- **Fix:** Mailchimp elements that are shown by conditional logic only subscribe to the audience that is visible.
+- **Fix:** Editing an entry through a Listing that shows entries of other forms ("specific forms" or "all forms") loads the entry's values and saves the changes, including the entry status.
+- **Fix:** PDF Generator: a failed font download is no longer cached as an empty font, and the font is only used once all of its files are available.
+- **Fix:** Uploaded and saved entry files keep their original file names, and Register & Login profile fields map the uploaded file of the same submission.
+- **Fix:** Phone and camera images that WordPress scales or EXIF-rotates retain valid upload receipts and saved-file ownership, without disabling normal image processing. WordPress must resolve the original image to the exact owned file in the attachment's directory; the derived attachment path remains bound during receipt revalidation.
+- **Fix:** Image uploads with uppercase or mixed-case `.JPG`, `.JPEG` and `.PNG` extensions pass both upload file-type checks and remain valid when retained in saved entries; MIME restrictions remain unchanged and dangerous extensions remain rejected.
+- **Fix:** Retained legacy attachments remain usable when WordPress changed the browser filename.
+- **Fix:** Register & Login custom user meta mappings accept scaled and rotated attachments only when the mapped original filename passes the same exact WordPress original-image validation as upload ownership.
+- **Fix:** Media uploads continue working when the configured uploads root or its ancestors are symlinked. Attachment and original-image paths are compared canonically while symlinked files and noncanonical paths below that root remain rejected.
+- **Security fix:** Custom CSS classes on columns and fields are escaped in the form's HTML.
+
 ## 2026-09-27 - Version 6.4.008-beta
 
 - **Security fix:** Hardened form file uploads, generated file downloads, account registration and updates, Listings entry actions, form administration, contact entry imports and exports, WooCommerce order search, unique code and invoice number generation, PayPal payment notifications and Mailchimp form data (the same fixes as stable 6.3.318).
