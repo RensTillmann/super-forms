@@ -64,7 +64,6 @@ class Test_Super_Forms_Upload_Consumers_Security extends Super_Forms_Upload_Secu
     }
 
     public function test_legacy_sanitized_and_uniquified_client_names_remain_selectable_without_cleanup() {
-        $this->markTestSkipped('CONFLICT with 8ec0230 (owner decision pending): the 2026-10-03 branch rewrites a retained file whose saved name differs from the backing file to the physical basename and withholds cleanup authority; our branch keeps the exact saved display name and allows verified cleanup.');
         $form_id = $this->create_form( 'publish', array( $this->file_element( 'documents' ) ) );
         foreach( array( array( 'My Photo.jpg', 'My-Photo.jpg' ), array( 'photo.jpg', 'photo-1.jpg' ) ) as $names ) {
             $created = $this->create_processed_image_upload( $form_id, 64, 48, 'jpg', 1, true );
@@ -79,7 +78,6 @@ class Test_Super_Forms_Upload_Consumers_Security extends Super_Forms_Upload_Secu
     }
 
     public function test_legacy_processed_attachment_with_removed_original_retains_attached_identity_without_cleanup() {
-        $this->markTestSkipped('CONFLICT with 8ec0230 (owner decision pending): the 2026-10-03 branch rewrites a retained file whose saved name differs from the backing file to the physical basename and withholds cleanup authority; our branch keeps the exact saved display name and allows verified cleanup.');
         $form_id = $this->create_form( 'publish', array( $this->file_element( 'documents' ) ) );
         $created = $this->create_processed_image_upload( $form_id, 3000, 2000, 'jpg', 1, true );
         $attached = wp_normalize_path( realpath( get_attached_file( $created['attachment'] ) ) );
@@ -92,7 +90,6 @@ class Test_Super_Forms_Upload_Consumers_Security extends Super_Forms_Upload_Secu
     }
 
     public function test_invalid_original_metadata_cannot_grant_original_or_cleanup_authority_on_legacy_retention() {
-        $this->markTestSkipped('CONFLICT with 8ec0230 (owner decision pending): the 2026-10-03 branch rewrites a retained file whose saved name differs from the backing file to the physical basename and withholds cleanup authority; our branch keeps the exact saved display name and allows verified cleanup.');
         $element = $this->file_element( 'documents' );
         $form_id = $this->create_form( 'publish', array( $element ) );
         $created = $this->create_processed_image_upload( $form_id, 3000, 2000, 'jpg', 1, true );
