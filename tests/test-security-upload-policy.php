@@ -248,7 +248,8 @@ class Test_Super_Forms_Upload_Policy_Security extends Super_Forms_Upload_Securit
         $tmp = trailingslashit( $root ) . 'incoming';
         file_put_contents( $tmp, 'not processed' );
 
-        foreach( array( 'shell.PhP.JPG', 'shell.pHtMl.PnG', 'shell.PHAR.JPEG', 'script.SVG', 'script.Js.PnG' ) as $name ) {
+        // CONFLICT with the approved G1 policy: an inner segment is rejected only when it is server-executable, so 'script.Js.PnG' is a legitimate name on our branch (final extension png). Dropped from this list.
+        foreach( array( 'shell.PhP.JPG', 'shell.pHtMl.PnG', 'shell.PHAR.JPEG', 'script.SVG' ) as $name ) {
             $files = $this->parallel_files( 'documents', array(
                 array( 'name' => $name, 'tmp_name' => $tmp, 'type' => 'image/jpeg', 'size' => filesize( $tmp ) ),
             ) );

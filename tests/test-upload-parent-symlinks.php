@@ -95,12 +95,12 @@ class Test_Super_Forms_Upload_Parent_Symlinks_Security extends Super_Forms_Uploa
             $mapping = new ReflectionMethod( 'SUPER_Register_Login', 'resolve_custom_meta_value' );
             $mapping->setAccessible( true );
             $this->assertSame( $created['attachment'], $mapping->invokeArgs( null, array(
-                'documents', array( 'documents' => array( 'type' => 'files', 'files' => array( $record ) ) ), array(), $created['form_id'],
+                'documents', array( 'documents' => array( 'type' => 'files', 'files' => array( $record ) ) ), array(), $created['form_id'], array( $owned ),
             ) ) );
             $mismatch = $record;
             $mismatch['value'] = 'not-the-original.jpg';
             $this->assertInstanceOf( 'WP_Error', $mapping->invokeArgs( null, array(
-                'documents', array( 'documents' => array( 'type' => 'files', 'files' => array( $mismatch ) ) ), array(), $created['form_id'],
+                'documents', array( 'documents' => array( 'type' => 'files', 'files' => array( $mismatch ) ) ), array(), $created['form_id'], array( $owned ),
             ) ) );
         }
     }
