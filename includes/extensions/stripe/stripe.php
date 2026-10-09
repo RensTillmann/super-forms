@@ -808,7 +808,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                 SUPER_VERSION,
 //                 'https://f4d.nl/super-forms'
 //             );
-//             \Stripe\Stripe::setApiKey('sk_test_CczNHRNSYyr4TenhiCp7Oz05');
+//             \Stripe\Stripe::setApiKey('sk_test_xxxxxxxxxxxxxxxxxxxxxxxx');
 //             \Stripe\Stripe::setApiVersion('2019-12-03');
 //         }
 //         
@@ -1477,7 +1477,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //             wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'stripe-elements.js', array( 'stripe-v3', 'jquery', 'super-common' ), SUPER_VERSION, false );  
 //             $global_settings = SUPER_Common::get_global_settings();
 //             if(empty($global_settings['stripe_pk'])){
-//                 $global_settings['stripe_pk'] = 'pk_test_1i3UyFAuxbe3Po62oX1FV47U';
+//                 $global_settings['stripe_pk'] = 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxx';
 //             }
 //             $idealPadding = '9px 15px 9px 15px';
 //             if( (isset($settings['theme_field_size'])) && ($settings['theme_field_size']=='large') ) {
@@ -2453,7 +2453,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                             array(
 //                                 'timeout' => 45,
 //                                 'headers'=>array(
-//                                     'Authorization' => 'Bearer sk_test_CczNHRNSYyr4TenhiCp7Oz05'
+//                                     'Authorization' => 'Bearer sk_test_xxxxxxxxxxxxxxxxxxxxxxxx'
 //                                 ),                      
 //                                 'body' => array(
 //                                     // The type of the source. The type is a payment method, one of ach_credit_transfer, ach_debit, alipay, bancontact, card, card_present, eps, giropay, ideal, multibanco, klarna, p24, sepa_debit, sofort, three_d_secure, or wechat. An additional hash is included on the source with a name matching this value. It contains additional information specific to the payment method used.
@@ -2867,7 +2867,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //             wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'stripe-elements.js', array( 'stripe-v3', 'jquery', 'super-common' ), SUPER_VERSION, false );  
 //             $global_settings = SUPER_Common::get_global_settings();
 //             if(empty($global_settings['stripe_pk'])){
-//                 $global_settings['stripe_pk'] = 'pk_test_1i3UyFAuxbe3Po62oX1FV47U';
+//                 $global_settings['stripe_pk'] = 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxx';
 //             }
 // 
 //             $idealPadding = '9px 15px 9px 15px';
@@ -2926,7 +2926,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //             wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'stripe-elements.js', array( 'stripe-v3', 'jquery', 'super-common' ), SUPER_VERSION, false );  
 //             $global_settings = SUPER_Common::get_global_settings();
 //             if(empty($global_settings['stripe_pk'])){
-//                 $global_settings['stripe_pk'] = 'pk_test_1i3UyFAuxbe3Po62oX1FV47U';
+//                 $global_settings['stripe_pk'] = 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxx';
 //             }
 // 
 //             $idealPadding = '9px 15px 9px 15px';
@@ -3001,7 +3001,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                     array(
 //                         'timeout' => 45,
 //                         'headers'=>array(
-//                             'Authorization' => 'Bearer sk_test_CczNHRNSYyr4TenhiCp7Oz05'
+//                             'Authorization' => 'Bearer sk_test_xxxxxxxxxxxxxxxxxxxxxxxx'
 //                         ),                      
 //                         'body' => array()
 //                     )
@@ -3023,7 +3023,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //                 wp_register_script( $handle, plugin_dir_url( __FILE__ ) . 'confirmation.js', array(), SUPER_VERSION, false ); 
 //                 $global_settings = SUPER_Common::get_global_settings();
 //                 if(empty($global_settings['stripe_pk'])){
-//                     $global_settings['stripe_pk'] = 'pk_test_1i3UyFAuxbe3Po62oX1FV47U';
+//                     $global_settings['stripe_pk'] = 'pk_test_xxxxxxxxxxxxxxxxxxxxxxxx';
 //                 }
 //                 wp_localize_script(
 //                     $handle,
