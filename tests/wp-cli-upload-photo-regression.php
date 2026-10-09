@@ -58,23 +58,36 @@ $check('exact claim consumption', count($invoke('consume_upload_receipt_claims',
 $check('consumed receipt cannot replay', $inspect()===false);
 $entry=wp_insert_post(array('post_type'=>'super_contact_entry','post_status'=>'super_read','post_parent'=>$form));
 wp_update_post(array('ID'=>$id,'post_parent'=>$entry));
-$stored=array('value'=>'Keep-Exact-Display.JPG','name'=>'file','type'=>'image/jpeg','url'=>wp_get_attachment_url($id),'size'=>filesize($path),'attachment'=>$id);
-$data=array('file'=>array('type'=>'files','files'=>array($stored)));
-update_post_meta($entry,'_super_contact_entry_data',$data);
 $resolve = static function($client, &$authority) use ($invoke, $entry) {
     $args=array($client,$entry,'file','file',&$authority);
     return $invoke('resolve_retained_entry_file',$args);
 };
+// 2026-10-03 rule (t_44dd6674): a saved name that is not the verified backing file is retained under
+// the on-disk name; the re-save is accepted, and the file is never deleted.
+$stored=array('value'=>'Keep-Exact-Display.JPG','name'=>'file','type'=>'image/jpeg','url'=>wp_get_attachment_url($id),'size'=>filesize($path),'attachment'=>$id);
+$data=array('file'=>array('type'=>'files','files'=>array($stored)));
+update_post_meta($entry,'_super_contact_entry_data',$data);
 foreach(array($stored,array('value'=>basename($attached),'url'=>wp_get_attachment_url($id))) as $alias) {
     $authority=false;$record=$resolve($alias,$authority);
-    $check('exact selector alias '.count($checks), is_array($record) && $record['value']===$stored['value'] && $record['size']===$stored['size']);
+    $check('mismatched saved name re-saves under the on-disk name '.count($checks), is_array($record) && $record['value']===basename($attached) && $record['size']===filesize($attached));
 }
 $authority=false;$record=$resolve($stored,$authority);
-$check('cleanup revalidates saved display rather than physical basename', $invoke('retained_owned_upload_is_current',array($authority))===true);
+$check('mismatched saved name grants no cleanup authority', is_array($authority) && $authority['cleanup_authority']===false && $invoke('retained_owned_upload_is_current',array($authority))===false);
+$check('mismatched saved name is never deleted', $invoke('delete_finalized_owned_uploads',array(array($authority),$entry,$form))===false && get_post($id)!==null && is_file($path) && is_file($attached));
 $forged=$stored;$forged['value']='forged.jpg';$unused=false;
 $check('forged selector rejected', $resolve($forged,$unused)===false);
 $forged=$stored;$forged['url'].='?forged=1';
 $check('forged URL rejected', $resolve($forged,$unused)===false);
+$drift=$data;$drift['file']['files'][0]['size']++;update_post_meta($entry,'_super_contact_entry_data',$drift);
+$authority=false;
+$check('size drift on a mismatched name still re-saves without cleanup', is_array($resolve($drift['file']['files'][0],$authority)) && $authority['cleanup_authority']===false);
+// The exact original name keeps its saved display and verified cleanup authority.
+$stored['value']=basename($path);
+$data=array('file'=>array('type'=>'files','files'=>array($stored)));
+update_post_meta($entry,'_super_contact_entry_data',$data);
+$authority=false;$record=$resolve($stored,$authority);
+$check('exact original name keeps its saved display', is_array($record) && $record['value']===$stored['value'] && $record['size']===$stored['size']);
+$check('cleanup revalidates the exact saved record', $authority['cleanup_authority']===true && $invoke('retained_owned_upload_is_current',array($authority))===true);
 $duplicate=$data;$duplicate['file']['files'][]=$stored;update_post_meta($entry,'_super_contact_entry_data',$duplicate);
 $check('duplicate selector rejected', $resolve($stored,$unused)===false);
 update_post_meta($entry,'_super_contact_entry_data',$data);
