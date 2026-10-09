@@ -32,7 +32,7 @@
 - **Fix:** Uploaded and saved entry files keep their original file names, and Register & Login profile fields map the uploaded file of the same submission.
 - **Fix:** Camera photos now upload normally when WordPress scales large images or rotates them using EXIF orientation. Upload receipts and retained entry files keep the original image as their owned identity and verify its exact relationship to the attached copy.
 - **Fix:** Image filenames with upper-case or mixed-case extensions (such as `.JPG`, `.JPEG`, and `.PNG`) are accepted during upload and when retaining saved entry files, without relaxing file type restrictions.
-- **Fix:** Saved entry files whose original browser name was sanitized, uniquified, or lowercased by WordPress remain usable. Register & Login custom user meta mappings also accept the validated original image when WordPress attaches a scaled or rotated copy.
+- **Fix:** Saved entry files whose original browser name was sanitized, uniquified, or lowercased by WordPress, or whose original image an image optimiser removed, remain usable: they are shown under their file name on the server, saving the entry again is never blocked, and such a file is never deleted by the form. Register & Login custom user meta mappings also accept the validated original image when WordPress attaches a scaled or rotated copy.
 - **Fix:** Media-library uploads also work when an uploads parent directory is a filesystem symlink. Ownership still checks canonical authorized roots and the exact original-image relationship, and symlinked file leaves remain rejected.
 - **Security fix:** Custom CSS classes on columns and fields are escaped in the form's HTML.
 - **Security fix:** Removed an unused legacy Stripe test file.
