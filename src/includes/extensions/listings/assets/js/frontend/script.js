@@ -271,6 +271,9 @@
                         node.innerHTML = result.html;
                     }
                     modal.appendChild(node);
+                    // The modal renders the entry's own form; with retrieve specific_forms/all_forms that is
+                    // not the listing's host form, and the form reads its _entry_data by its own id.
+                    if(result.form_id) form_id = String(result.form_id);
                     if(typeof SUPER.form_js === "undefined"){
                         SUPER.form_js = {};
                         SUPER.form_js[form_id] = {};

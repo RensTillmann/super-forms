@@ -1990,6 +1990,17 @@ function SUPERreCaptcha(){
         }
         return $shortcode_field_value;
     };
+    // Conditions of an element without a field (column, button, ...). They are cached per data-sfuid; a
+    // wrapper without one (e.g. the column around a Mailchimp element) reads its own textarea, otherwise
+    // every such wrapper would share '_element_undefined' and follow the first one's conditions.
+    SUPER.conditional_logic.element_conditions = function(form_id, wrapper, json){
+        var uid = wrapper.dataset.sfuid; // e.g: data-sfuid="oEfVwYr6-2"
+        if(uid && SUPER.allConditions[form_id]['_element_'+uid]) return SUPER.allConditions[form_id]['_element_'+uid];
+        var conditions;
+        try { conditions = JSON.parse(json); } catch(e) { return false; }
+        if(uid) SUPER.allConditions[form_id]['_element_'+uid] = conditions;
+        return conditions;
+    };
     SUPER.conditional_logic.loop = function(args){
         args.regex = /{([^\\\/\s"'+]*?)}/g;
         var v,
@@ -2062,11 +2073,7 @@ function SUPERreCaptcha(){
                     $field = $wrapper.closest('.super-field').querySelector('.super-shortcode-field');
                 }
                 if(!$field) {
-                    // Skip if we already retrieved the conditions before
-                    $uid = $wrapper.dataset.sfuid; // e.g: data-sfuid="oEfVwYr6-2"
-                    if(!SUPER.allConditions[form_id]['_element_'+$uid]){
-                        SUPER.allConditions[form_id]['_element_'+$uid] = JSON.parse($json);
-                    }
+                    SUPER.conditional_logic.element_conditions(form_id, $wrapper, $json);
                     return;
                 }
                 $field_name = $field.name;
@@ -2142,10 +2149,8 @@ function SUPERreCaptcha(){
                         }
                         $conditions = false;
                         if(!$field) {
-                            $uid = $wrapper.dataset.sfuid; // e.g: data-sfuid="oEfVwYr6-2"
-                            if(SUPER.allConditions[form_id]['_element_'+$uid]){
-                                $conditions = JSON.parse(JSON.stringify(SUPER.allConditions[form_id]['_element_'+$uid]));
-                            }
+                            $conditions = SUPER.conditional_logic.element_conditions(form_id, $wrapper, $json);
+                            if($conditions) $conditions = JSON.parse(JSON.stringify($conditions));
                         }else{
                             if(SUPER.allConditions[form_id][$field.name]){
                                 $conditions = JSON.parse(JSON.stringify(SUPER.allConditions[form_id][$field.name]));
@@ -3911,6 +3916,41 @@ function SUPERreCaptcha(){
         }
     };
 
+    // Normalize only configured currency syntax, without changing stored/display bytes.
+    SUPER.currency_validation_value = function(el){
+        var parsed = SUPER.currency_parse_saved_syntax(el);
+        if(parsed!==false) return parsed;
+        if(/^[+-]?\d+(?:\.\d+)?$/.test(el.value) && !/\s/.test(el.value)) return el.value;
+        return false;
+    };
+    SUPER.currency_parse_saved_syntax = function(el){
+        var value = el.value, d = el.dataset, sign = '', parts, integer,
+            thousands = typeof d.thousandSeparator==='undefined' ? '' : d.thousandSeparator,
+            decimal = typeof d.decimalSeparator==='undefined' ? '.' : d.decimalSeparator,
+            prefix = typeof d.currency==='undefined' ? '' : d.currency,
+            suffix = typeof d.format==='undefined' ? '' : d.format,
+            precision = typeof d.decimals==='undefined' ? '2' : String(d.decimals),
+            escape = function(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); };
+        if(!/^\d{1,2}$/.test(precision) || Number(precision)>20) return false;
+        if(thousands===decimal) thousands = '';
+        if(value.charAt(0)==='-' || value.charAt(0)==='+'){ sign=value.charAt(0); value=value.slice(1); }
+        if(prefix && value.indexOf(prefix)!==0) return false;
+        value=value.slice(prefix.length);
+        if(suffix && value.slice(-suffix.length)!==suffix) return false;
+        if(suffix) value=value.slice(0,-suffix.length);
+        parts=decimal ? value.split(decimal) : [value];
+        if(Number(precision)>0){
+            if(parts.length!==2 || !new RegExp('^\\d{'+Number(precision)+'}$').test(parts[1])) return false;
+        }else if(parts.length!==1) return false;
+        integer=parts[0];
+        if(thousands && integer.indexOf(thousands)!==-1){
+            if(!new RegExp('^\\d{1,3}(?:'+escape(thousands)+'\\d{3})+$').test(integer)) return false;
+            integer=integer.split(thousands).join('');
+        }
+        if(!/^\d+$/.test(integer) || /\s/.test(integer)) return false;
+        return sign+integer+(parts.length===2 ? '.'+parts[1] : '');
+    };
+
     // Check for errors, validate fields
     SUPER.handle_validations = function(args){
         if(args.el.closest('[data-conditional-action="show"]')){
@@ -3997,17 +4037,24 @@ function SUPERreCaptcha(){
         if (args.validation == 'captcha') {
             error = true;
         }
+        value = args.el.value;
+        if(parent.classList.contains('super-currency') && (args.validation==='numeric' || args.validation==='float')){
+            value = SUPER.currency_validation_value(args.el);
+            if(args.validation==='numeric' && typeof value==='string') value=value.replace(/\.0+$/, '');
+        }
         if (args.validation == 'numeric') {
             regex = /^\d+$/;
-            if (!regex.test(args.el.value)) error = true;
+            if (value===false || !regex.test(value)) error = true;
         }
         if (args.validation == 'float') {
             regex = /^[+-]?\d+(\.\d+)?$/;
-            if (!regex.test(args.el.value)) error = true;
+            if (value===false || !regex.test(value)) error = true;
         }
         if (args.validation == 'email') {
-            regex = /^([\w-.+]+@([\w-]+\.)+[\w-]{2,63})?$/;
-            if ((SUPER.unicode_length(args.el.value) < 4) || (!regex.test(args.el.value))) {
+            // Match WordPress is_email(): ASCII local part and domain labels
+            // with no underscores, edge hyphens, empty labels or whitespace.
+            regex = /^[a-zA-Z0-9!#$%&'*+\/=?^_`{|}~.\-]+@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?$/;
+            if ((SUPER.unicode_length(args.el.value) < 6) || /\s/.test(args.el.value) || (!regex.test(args.el.value))) {
                 error = true;
             }
         }
@@ -4160,7 +4207,8 @@ function SUPERreCaptcha(){
             }
         }
         // @since 5.0.022 - extra validation check for international phone numbers
-        if(args.el.closest('.super-int-phone')){
+        // An empty number is handled by the required/may-be-empty rules below, not by the number check.
+        if(args.el.closest('.super-int-phone') && args.el.value!==''){
             var super_int_phone = window.superTelInputGlobals.getInstance(args.el);
             if(!super_int_phone.isValidNumber()){ // If the phone validation causes false positives use super_int_phone.isPossibleNumber() instead
                 error = true;
@@ -4856,6 +4904,16 @@ function SUPERreCaptcha(){
     };
 
     // Grab fields data and return all data as an object
+    // Whether a field is left out of the submitted data. Only Super Forms hiding excludes a field:
+    // conditional logic and the hide-on-mobile column settings. Theme/custom CSS does not (D1), and
+    // neither does a column's 'invisible' setting: those fields (e.g. hidden pricing calculators)
+    // have always been submitted, so has_hidden_parent() is asked without its invisible-column check.
+    SUPER.submission_excludes_field = function(el){
+        return SUPER.has_hidden_parent(el, false, false) || $(el).parents('.super-hide-mobile, .super-hide-mobile-window').filter(function(){
+            return $(this).css('display')=='none';
+        }).length>0;
+    };
+
     SUPER.prepare_form_data_fields = function($form){
         var $data = {},
             $field,
@@ -4879,13 +4937,12 @@ function SUPERreCaptcha(){
                 return true;
             }
 
-            $this.parents('.super-shortcode.super-column').each(function(){
-                if($(this).css('display')=='none'){
-                    $hidden = true;
-                }
-            });
+            // Only Super Forms hiding excludes a field: conditional logic (the same rule validation
+            // uses) and the hide-on-mobile column settings. A column hidden by theme/custom CSS
+            // is submitted like a visible one (D1); the server enforces those fields.
+            $hidden = ($parent.length>0 && SUPER.submission_excludes_field($this[0]));
             
-            if( ( $hidden===true )  || ( ( $parent.css('display')=='none' ) && ( !$parent.hasClass('super-hidden') ) ) ) {
+            if( $hidden===true ) {
                 // Exclude conditionally
             }else{
                 // First replace %d with dynamic column number for E-mail label setting
@@ -5011,7 +5068,8 @@ function SUPERreCaptcha(){
                         
                             $new_value = [];
                             $selected_items.each(function(){
-                                $item_value = $(this).data('value').toString().split(';');
+                                // Raw attribute: .data() converts 'null', 'true', numbers and JSON-like option values.
+                                $item_value = String($(this).attr('data-value') || '').split(';');
                                 $new_value.push( $item_value[0]);
                             });
                             $data[$route_name].selected_values = $new_value.slice(0);
@@ -6404,9 +6462,11 @@ function SUPERreCaptcha(){
             // @since 4.6.0 - if statement compatibility
             html = SUPER.filter_if_statements(html);
             
-            if(target.value || target.dataset.value){
+            // An option whose {tag} value resolved to '' keeps its data-value attribute: test for the
+            // attribute, not its truthiness, so the value keeps following the referenced field (C11).
+            if(target.value || target.hasAttribute('data-value')){
                 if(target.value) target.value = html;
-                if(target.dataset.value) target.dataset.value = html;
+                if(target.hasAttribute('data-value')) target.dataset.value = html;
             }else{
                 // Not if google map
                 if(target.classList.contains('super-google-map')){
@@ -7005,6 +7065,7 @@ function SUPERreCaptcha(){
         for (i = 0; i < nodes.length; i++) {
             if(nodes[i].name=='hidden_form_id') continue;
             if(nodes[i].name=='hidden_list_id') continue;
+            if(nodes[i].name=='hidden_listing_form_id') continue; // the listing host form: needed to authorize the edit
             if(nodes[i].name=='hidden_contact_entry_id') continue;
             element = nodes[i];
             default_value = '';

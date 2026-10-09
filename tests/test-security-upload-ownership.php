@@ -3,6 +3,133 @@
 require_once __DIR__ . '/test-security-upload-00-base.php';
 
 class Test_Super_Forms_Upload_Ownership_Security extends Super_Forms_Upload_Security_Test_Case {
+    public function test_wordpress_generated_scaled_and_rotated_originals_remain_owned() {
+        $form_id = $this->create_form( 'publish' );
+        foreach( array(
+            array( 4032, 3024, 'jpg', 1, '-scaled' ),
+            array( 3024, 4032, 'jpg', 1, '-scaled' ),
+            array( 3000, 2000, 'png', 1, '-scaled' ),
+            array( 2000, 1500, 'jpg', 6, '-rotated' ),
+            array( 2200, 1650, 'jpg', 1, '' ),
+        ) as $case ) {
+            $created = $this->create_processed_image_upload( $form_id, $case[0], $case[1], $case[2], $case[3] );
+            $attached = wp_normalize_path( realpath( get_attached_file( $created['attachment'] ) ) );
+            $this->assertFileExists( $created['file'] );
+            $this->assertFileExists( $attached );
+            $this->assertSame( $created['file'], $created['owned']['file'] );
+            if( $case[4]!=='' ) {
+                $this->assertSame( basename( $created['file'] ), $created['metadata']['original_image'] );
+                $this->assertStringContainsString( $case[4], basename( $attached ) );
+                $this->assertSame( $attached, $created['owned']['attached_file'] );
+                $this->assertStringContainsString( $case[4], wp_get_attachment_url( $created['attachment'] ) );
+            } else {
+                $this->assertSame( $created['file'], $attached );
+            }
+            $this->assertTrue( $this->invoke_ajax_private( 'owned_upload_is_current', array( $created['owned'], 0 ) ) );
+        }
+    }
+
+    public function test_processed_original_metadata_rejects_forged_paths_at_build_and_receipt_revalidation() {
+        $form_id = $this->create_form( 'publish' );
+        $created = $this->create_processed_image_upload( $form_id );
+        $token = $this->issue_receipt( $created['owned'] );
+        $original = basename( $created['file'] );
+        $other = $created['root'] . '/other.jpg';
+        $this->assertTrue( copy( $created['file'], $other ) );
+        foreach( array(
+            '../owned/' . $original, $created['file'], 'another/' . $original,
+            '.\\' . $original, 'C:\\camera.jpg', './' . $original,
+            '', '.', '..', array( $original ), $original . "\0", 'missing.jpg', 'other.jpg',
+        ) as $forged ) {
+            $metadata = $created['metadata'];
+            $metadata['original_image'] = $forged;
+            wp_update_attachment_metadata( $created['attachment'], $metadata );
+            $this->assertFalse( $this->rebuild_processed_image_upload( $created ) );
+            $this->assertFalse( $this->invoke_ajax_private( 'owned_upload_is_current', array( $created['owned'], 0 ) ) );
+            $this->assertFalse( $this->invoke_ajax_private( 'inspect_upload_receipt', array( $token, $form_id, 'documents' ) ) );
+            $this->assertFalse( $this->invoke_ajax_private( 'cleanup_owned_uploads', array( array( $created['owned'] ) ) ) );
+            $this->assertFileExists( $other, 'Forged metadata must not authorize deleting another file.' );
+        }
+        wp_update_attachment_metadata( $created['attachment'], $created['metadata'] );
+        $this->assertTrue( $this->invoke_ajax_private( 'owned_upload_is_current', array( $created['owned'], 0 ) ) );
+    }
+
+    public function test_processed_attachment_and_original_path_drift_revoke_receipts_without_deleting_other_files() {
+        $form_id = $this->create_form( 'publish' );
+        $created = $this->create_processed_image_upload( $form_id );
+        $token = $this->issue_receipt( $created['owned'] );
+        $unbound = $created['owned'];
+        unset( $unbound['attached_file'] );
+        $this->assertFalse( $this->invoke_ajax_private( 'owned_upload_is_current', array( $unbound, 0 ) ) );
+        $attached = get_attached_file( $created['attachment'] );
+        $saved_attached = get_post_meta( $created['attachment'], '_wp_attached_file', true );
+        $other_attached = $created['root'] . '/another-scaled.jpg';
+        $this->assertTrue( copy( $attached, $other_attached ) );
+        update_post_meta( $created['attachment'], '_wp_attached_file', $other_attached );
+        // A fresh build may bind this same-directory association, but an issued
+        // record must never silently acquire a different derived path.
+        $this->assertFalse( $this->invoke_ajax_private( 'owned_upload_is_current', array( $created['owned'], 0 ) ) );
+        $this->assertFalse( $this->invoke_ajax_private( 'inspect_upload_receipt', array( $token, $form_id, 'documents' ) ) );
+        update_post_meta( $created['attachment'], '_wp_attached_file', $saved_attached );
+
+        list( $other_parent, $other_root ) = $this->create_temporary_root();
+        $outside_attached = $other_root . '/' . basename( $attached );
+        $this->assertTrue( copy( $attached, $outside_attached ) );
+        $this->assertTrue( copy( $created['file'], $other_root . '/' . basename( $created['file'] ) ) );
+        $link = $created['root'] . '/linked-scaled.jpg';
+        $this->assertTrue( symlink( $attached, $link ) );
+        $directory = $created['root'] . '/nonregular-scaled.jpg';
+        $this->assertTrue( mkdir( $directory ) );
+        $directory_link = $created['root'] . '/linked-directory';
+        $this->assertTrue( symlink( $created['root'], $directory_link ) );
+        foreach( array( $outside_attached, $link, $directory, $created['root'] . '/missing-scaled.jpg',
+            $directory_link . '/' . basename( $attached ), $created['root'] . '/./' . basename( $attached ) ) as $path ) {
+            update_post_meta( $created['attachment'], '_wp_attached_file', $path );
+            $this->assertFalse( $this->rebuild_processed_image_upload( $created ) );
+            $this->assertFalse( $this->invoke_ajax_private( 'owned_upload_is_current', array( $created['owned'], 0 ) ) );
+            $this->assertFalse( $this->invoke_ajax_private( 'inspect_upload_receipt', array( $token, $form_id, 'documents' ) ) );
+        }
+        update_post_meta( $created['attachment'], '_wp_attached_file', $saved_attached );
+        unlink( $link );
+        unlink( $directory_link );
+
+        $backup = $created['root'] . '/original-backup.jpg';
+        $this->assertTrue( rename( $created['file'], $backup ) );
+        foreach( array( 'missing', 'symlink', 'directory' ) as $replacement ) {
+            if( $replacement==='symlink' ) $this->assertTrue( symlink( $backup, $created['file'] ) );
+            if( $replacement==='directory' ) $this->assertTrue( mkdir( $created['file'] ) );
+            clearstatcache();
+            $this->assertFalse( $this->rebuild_processed_image_upload( $created ) );
+            $this->assertFalse( $this->invoke_ajax_private( 'owned_upload_is_current', array( $created['owned'], 0 ) ) );
+            $this->assertFalse( $this->invoke_ajax_private( 'inspect_upload_receipt', array( $token, $form_id, 'documents' ) ) );
+            if( $replacement==='symlink' ) unlink( $created['file'] );
+            if( $replacement==='directory' ) rmdir( $created['file'] );
+        }
+        $this->assertTrue( rename( $backup, $created['file'] ) );
+        $this->assertFileExists( $other_attached );
+        $this->assertFileExists( $outside_attached );
+        $this->assertTrue( $this->invoke_ajax_private( 'owned_upload_is_current', array( $created['owned'], 0 ) ) );
+    }
+
+    public function test_processed_original_size_drift_is_rejected_but_same_size_content_is_not_hashed() {
+        $created = $this->create_processed_image_upload( $this->create_form( 'publish' ) );
+        $bytes = file_get_contents( $created['file'] );
+        file_put_contents( $created['file'], $bytes . 'changed size' );
+        clearstatcache();
+        $this->assertFalse( $this->invoke_ajax_private( 'owned_upload_is_current', array( $created['owned'], 0 ) ) );
+        // The established security boundary binds path and byte count, not inode
+        // identity or a content digest. Do not claim same-size swap protection.
+        $backup = $created['root'] . '/size-swap-backup.jpg';
+        $this->assertTrue( rename( $created['file'], $backup ) );
+        file_put_contents( $created['file'], str_repeat( 'x', strlen( $bytes ) ) );
+        clearstatcache();
+        $this->assertTrue( $this->invoke_ajax_private( 'owned_upload_is_current', array( $created['owned'], 0 ) ) );
+        unlink( $created['file'] );
+        $this->assertTrue( rename( $backup, $created['file'] ) );
+        file_put_contents( $created['file'], $bytes );
+        clearstatcache();
+    }
+
     public function test_forged_generated_pdf_is_rejected_before_any_file_aware_filter_or_action() {
         $settings = array( '_pdf' => array( 'generate' => 'true' ) );
         $form_id = $this->create_form( 'publish', array(), $settings );

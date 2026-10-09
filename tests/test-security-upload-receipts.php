@@ -3,6 +3,59 @@
 require_once __DIR__ . '/test-security-upload-00-base.php';
 
 class Test_Super_Forms_Upload_Receipt_Security extends Super_Forms_Upload_Security_Test_Case {
+    public function test_processed_image_receipts_submit_and_retain_the_exact_original_identity() {
+        $this->configure_csrf( 'false' );
+        $element = $this->file_element( 'documents' );
+        $form_id = $this->create_form( 'publish', array( $element ) );
+        foreach( array( array( 3000, 2000, 'jpg', 1 ), array( 2000, 1500, 'jpg', 6 ) ) as $case ) {
+            $created = $this->create_processed_image_upload( $form_id, $case[0], $case[1], $case[2], $case[3], true );
+            $token = $this->issue_receipt( $created['owned'] );
+            $this->assertIsArray( $this->invoke_ajax_private( 'inspect_upload_receipt', array( $token, $form_id, 'documents' ) ) );
+            $this->set_request( $form_id, array( 'documents' => array( 'type' => 'files',
+                'files' => array( array( 'upload_token' => $token ) ) ) ) );
+            $atts = SUPER_Ajax::submit_form_checks( array(), false );
+            $this->assertCount( 1, $atts['owned_files'] );
+            $this->assertSame( $created['owned']['file'], $atts['owned_files'][0]['file'] );
+            $this->assertSame( $created['owned']['basename'], $atts['data']['documents']['files'][0]['value'] );
+            $this->assertFalse( $this->invoke_ajax_private( 'inspect_upload_receipt', array( $token, $form_id, 'documents' ) ) );
+            $this->invoke_ajax_private( 'disarm_owned_upload_cleanup' );
+
+            $entry_id = self::factory()->post->create( array( 'post_type' => 'super_contact_entry',
+                'post_status' => 'super_read', 'post_parent' => $form_id ) );
+            wp_update_post( array( 'ID' => $created['attachment'], 'post_parent' => $entry_id ) );
+            $stored = SUPER_Ajax::owned_upload_file_record( $created['owned'] );
+            update_post_meta( $entry_id, '_super_contact_entry_data', array( 'documents' =>
+                array( 'type' => 'files', 'files' => array( $stored ) ) ) );
+            $retained_owned = false;
+            $rebuilt = $this->invoke_ajax_private( 'rebuild_retained_entry_file', array(
+                $stored, $entry_id, $form_id, 'documents', $element['data'], array(), 0, 'documents', &$retained_owned,
+            ) );
+            $this->assertIsArray( $rebuilt );
+            $this->assertSame( $stored['value'], $rebuilt['value'] );
+            $this->assertSame( $stored['size'], $rebuilt['size'] );
+            $this->assertSame( $created['file'], $retained_owned['file'] );
+            $this->assertTrue( $this->invoke_ajax_private( 'retained_owned_upload_is_current', array( $retained_owned ) ) );
+            $forged = $stored;
+            $forged['value'] = '../owned/' . $stored['value'];
+            $this->assertFalse( $this->invoke_ajax_private( 'rebuild_retained_entry_file', array(
+                $forged, $entry_id, $form_id, 'documents', $element['data'], array(), 0,
+            ) ) );
+            $metadata = $created['metadata'];
+            $metadata['original_image'] = $forged['value'];
+            wp_update_attachment_metadata( $created['attachment'], $metadata );
+            $this->assertFalse( $this->invoke_ajax_private( 'rebuild_retained_entry_file', array(
+                $forged, $entry_id, $form_id, 'documents', $element['data'], array(), 0,
+            ) ) );
+            $this->assertFalse( $this->invoke_ajax_private( 'retained_owned_upload_is_current', array( $retained_owned ) ) );
+            wp_update_attachment_metadata( $created['attachment'], $created['metadata'] );
+            $this->assertTrue( $this->invoke_ajax_private( 'retained_owned_upload_is_current', array( $retained_owned ) ) );
+            $this->assertTrue( $this->invoke_ajax_private( 'delete_finalized_owned_uploads',
+                array( array( $retained_owned ), $entry_id, $form_id ) ) );
+            $this->assertFileDoesNotExist( $created['file'] );
+            $this->assertSame( false, get_post_status( $created['attachment'] ) );
+        }
+    }
+
     public function test_numeric_file_receipt_resolves_and_is_consumed_on_submission() {
         $this->configure_csrf( 'false' );
         $form_id = $this->create_form( 'publish', array( $this->file_element('123') ) );

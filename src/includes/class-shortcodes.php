@@ -4275,6 +4275,42 @@ class SUPER_Shortcodes {
         $result .= '</div>';
         return $result;
     }
+    /**
+     * Today's date in a jQuery UI datepicker format (H3): token by token, so 'o'/'oo' are the
+     * 1-based day of the year (PHP 'z' is 0-based) and 'd' never pads, whatever case the rest has.
+     */
+    public static function format_current_date( $format ) {
+        $map = array( 'dd'=>'d', 'd'=>'j', 'DD'=>'l', 'D'=>'D', 'mm'=>'m', 'm'=>'n', 'MM'=>'F', 'M'=>'M', 'yy'=>'Y', 'y'=>'y' );
+        $format = (string) $format;
+        $out = '';
+        $length = strlen($format);
+        for( $i = 0; $i < $length; $i++ ) {
+            $char = $format[$i];
+            if( $char==="'" ) {
+                $close = strpos($format, "'", $i + 1);
+                if( $close===$i + 1 ) { $out .= "'"; $i++; continue; }
+                if( $close===false ) $close = $length;
+                $out .= substr($format, $i + 1, $close - $i - 1);
+                $i = $close;
+                continue;
+            }
+            $double = ( $i + 1 < $length && $format[$i + 1]===$char );
+            if( $char==='o' ) {
+                $day = (string) ( (int) date_i18n('z') + 1 );
+                $out .= $double ? str_pad($day, 3, '0', STR_PAD_LEFT) : $day;
+                if( $double ) $i++;
+                continue;
+            }
+            if( $double && isset($map[$char . $char]) ) {
+                $out .= date_i18n($map[$char . $char]);
+                $i++;
+                continue;
+            }
+            $out .= isset($map[$char]) ? date_i18n($map[$char]) : $char;
+        }
+        return $out;
+    }
+
     public static function date($x) {
         extract(self::extract($x));
         $defaults = SUPER_Common::generate_array_default_element_settings(self::$shortcodes, 'form_elements', $tag);
@@ -4297,30 +4333,7 @@ class SUPER_Shortcodes {
         if( $format=='custom' ) $format = $atts['custom_format'];
         if( !isset( $atts['current_date'] ) ) $atts['current_date'] = '';
         if( $atts['current_date']=='true' ) {
-            $new_format = $format;
-            if (preg_match("/dd/i", $new_format)) {
-                $new_format = str_replace('dd', 'd', $new_format);
-            }else{
-                $new_format = str_replace('d', 'j', $new_format);
-            }
-            if (preg_match("/mm/i", $new_format)) {
-                $new_format = str_replace('mm', 'm', $new_format);
-            }else{
-                $new_format = str_replace('m', 'n', $new_format);
-            }
-            if (preg_match("/oo/i", $new_format)) {
-                $new_format = str_replace('oo', 'z', $new_format);
-            }else{
-                $new_format = str_replace('o', 'z', $new_format);
-            }
-            if (preg_match("/DD/i", $new_format)) {
-                $new_format = str_replace('DD', 'l', $new_format);
-            }
-            if (preg_match("/MM/i", $new_format)) {
-                $new_format = str_replace('MM', 'F', $new_format);
-            }
-            $new_format = str_replace('yy', 'Y', $new_format);
-            $atts['value'] = date_i18n($new_format);
+            $atts['value'] = self::format_current_date($format);
             $atts['absolute_default'] = $atts['value'];
         }
 
@@ -5335,6 +5348,8 @@ class SUPER_Shortcodes {
         $function = $callback[1];
         $data = json_decode(SUPER_Common::safe_json_encode($data), true);
         $inner = json_decode(SUPER_Common::safe_json_encode($inner), true);
+        // Every element prints its custom class raw into a class="" attribute; escape it once here.
+        if( is_array($data) && isset($data['class']) && is_string($data['class']) ) $data['class'] = esc_attr($data['class']);
         if($settings['theme_hide_icons']==='yes'){
             unset($data['icon']);
             unset($data['icon_align']);
@@ -6853,27 +6868,25 @@ class SUPER_Shortcodes {
                         $packageUrl = 'https://f4d.nl/@super-forms-updates/packages/fonts/';
                         $font_dir = SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts/';
                         // Create the target directory if it doesnt exist
-                        if(!is_dir($font_dir)) mkdir($font_dir, 0755, true);
-                        // Download the fonts if they don't exist yet.
-                        $json_file = SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts/'.$language.'.json';
-                        if(!file_exists($json_file)){
-                            $json_url = $packageUrl.$language.'.json';
-                            $json_data = file_get_contents($json_url);
-                            file_put_contents($json_file, $json_data);
+                        if(!is_dir($font_dir)) wp_mkdir_p($font_dir);
+                        // Download the fonts if they don't exist yet. A failed or empty download is never
+                        // cached (it used to leave an empty cyrillic.json that broke PDFs until cleared);
+                        // the next page load retries, and the font link is only printed once all files exist.
+                        $fonts_ready = preg_match('/^[a-z0-9_-]+$/', $language)===1;
+                        foreach( array('json', 'woff', 'woff2') as $font_ext ) {
+                            if( !$fonts_ready ) break;
+                            $font_file = $font_dir . $language . '.' . $font_ext;
+                            if( file_exists($font_file) && filesize($font_file)>0 ) continue;
+                            $font_data = @file_get_contents($packageUrl . $language . '.' . $font_ext);
+                            if( !is_string($font_data) || $font_data==='' || ( $font_ext==='json' && !is_array(json_decode($font_data, true)) ) ) {
+                                if( file_exists($font_file) ) @unlink($font_file);
+                                $fonts_ready = false;
+                                continue;
+                            }
+                            file_put_contents($font_file, $font_data);
                         }
-                        $woff_file = SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts/'.$language.'.woff';
-                        if(!file_exists($woff_file)){
-                            $woff_url = $packageUrl.$language.'.woff';
-                            $woff_data = file_get_contents($woff_url);
-                            file_put_contents($woff_file, $woff_data);
-                        }
-                        $woff2_file = SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts/'.$language.'.woff2';
-                        if(!file_exists($woff2_file)){
-                            $woff2_url = $packageUrl.$language.'.woff2';
-                            $woff2_data = file_get_contents($woff2_url);
-                            file_put_contents($woff2_file, $woff2_data);
-                        }
-                        add_action('wp_footer', function($arguments) use ($language) {
+                        // ponytail: without the fonts the browser falls back to the default PDF font path.
+                        if( $fonts_ready ) add_action('wp_footer', function($arguments) use ($language) {
                             $link = SUPER_PLUGIN_FILE . 'includes/extensions/pdf-generator/fonts/'.$language;
 ?><style>.super-form:after {font-family: 'SF-Unicode'!important; content:'.'!important; visibility:hidden!important; position:absolute!important; bottom:0px!important; left:0px!important; z-index:-999999!important;}
 @font-face {font-family:'SF-Unicode';src:url('<?php echo $link; ?>.woff') format('woff');}

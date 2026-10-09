@@ -113,6 +113,36 @@ class Test_Super_Forms_Proof_Row1_Retained_Listings_Lifecycle extends Super_Form
         return array( 'stored' => $stored, 'filename' => $filename );
     }
 
+    public function test_listing_edit_of_an_entry_from_another_form_reports_the_rendered_form_for_its_entry_data() {
+        // t_c83bece7: with retrieve specific_forms/all_forms the modal renders the ENTRY's form, so the
+        // client must key SUPER.form_js[...]['_entry_data'] by that form, not by the listing's host form.
+        $admin = self::factory()->user->create( array( 'role' => 'administrator' ) );
+        $target_form_id = $this->create_form( 'publish', array( array( 'tag' => 'text', 'group' => 'form_elements', 'inner' => array(),
+            'data' => array( 'name' => 'note', 'email' => 'Note:' ) ) ), array( 'send' => 'no', 'confirm' => 'no' ) );
+        foreach( array( 'specific_forms', 'all_forms', 'this_form' ) as $retrieve ) {
+            $list = array( 'enabled' => 'true', 'retrieve' => $retrieve, 'form_ids' => (string) $target_form_id,
+                'edit_any' => array( 'enabled' => 'true', 'user_roles' => 'administrator', 'user_ids' => '' ),
+                'edit_own' => array( 'enabled' => 'false', 'user_roles' => '', 'user_ids' => '' ) );
+            $host_form_id = $retrieve==='this_form' ? $target_form_id : $this->create_form( 'publish', array(), array( '_listings' => array( 'lists' => array( $list ) ) ) );
+            if( $retrieve==='this_form' ) update_post_meta( $target_form_id, '_super_form_settings', array_merge( SUPER_Common::get_form_settings( $target_form_id ), array( '_listings' => array( 'lists' => array( $list ) ) ) ) );
+            $entry_id = self::factory()->post->create( array( 'post_type' => 'super_contact_entry', 'post_status' => 'super_unread',
+                'post_parent' => $target_form_id, 'post_author' => $admin ) );
+            update_post_meta( $entry_id, '_super_contact_entry_data', array( 'note' => array( 'name' => 'note', 'value' => 'before', 'type' => 'var' ) ) );
+            $this->authenticate_actor( $admin );
+            $original_post = $_POST; $original_get = $_GET;
+            $_POST = array( 'action' => 'super_listings_edit_entry', 'entry_id' => $entry_id, 'form_id' => $host_form_id, 'list_id' => 0,
+                'nonce' => wp_create_nonce( 'super_listings_entry_' . $host_form_id . '_0' ) );
+            ob_start();
+            include SUPER_PLUGIN_DIR . '/includes/extensions/listings/form-blank-page-template.php';
+            $response = json_decode( ob_get_clean(), true );
+            $_POST = $original_post; $_GET = $original_get;
+            $this->assertFalse( $response['error'], $retrieve );
+            $this->assertRenderedInputValue( $response['html'], 'hidden_form_id', $target_form_id );
+            $this->assertSame( $target_form_id, $response['form_id'], $retrieve . ': entry_data belongs to the rendered form' );
+            $this->assertSame( 'before', $response['entry_data']['note']['value'], $retrieve );
+        }
+    }
+
     public function test_listing_grant_authorizes_retained_resubmission_under_the_stored_field_name_with_cleanup_authority_while_wrong_form_and_wrong_actor_are_rejected() {
         $admin_1 = self::factory()->user->create( array( 'role' => 'administrator' ) );
         $admin_2 = self::factory()->user->create( array( 'role' => 'administrator' ) );
@@ -282,6 +312,84 @@ class Test_Super_Forms_Proof_Row1_Retained_Listings_Lifecycle extends Super_Form
         $this->assertIsArray( $second_decoded, $second_submit['output'] );
         $this->assertFalse( $second_decoded['error'], isset($second_decoded['msg']) ? wp_strip_all_tags($second_decoded['msg']) : '' );
         $this->assertFileDoesNotExist( $filename, 'Cleanup authority must let the exact owned file be deleted.' );
+    }
+
+    public function test_listing_edit_resaves_an_old_entry_whose_original_image_an_optimiser_removed() {
+        // t_44dd6674 (2026-10-03 rule): re-saving an old entry through a Listings edit is never blocked
+        // when an image optimiser removed the original; the attached copy is kept, shown under its
+        // on-disk name, and never deleted (even with "delete files after submission" enabled).
+        $this->assertTrue( function_exists( 'imagecreatetruecolor' ), 'This regression requires GD image fixtures.' );
+        require_once ABSPATH . 'wp-admin/includes/image.php';
+        $admin = self::factory()->user->create( array( 'role' => 'administrator' ) );
+        list( $parent, $root ) = $this->create_temporary_root( true );
+        $target_settings = array(
+            'file_upload_dir' => '../' . basename( $parent ) . '/' . basename( $root ),
+            'file_upload_submission_delete' => 'true',
+            'send' => 'no', 'confirm' => 'no', 'save_contact_entry' => 'no',
+            'form_thanks_title' => '', 'form_thanks_description' => '', 'form_show_thanks_msg' => '', 'form_redirect_option' => '',
+        );
+        $target_form_id = $this->create_form( 'publish', array( array_merge(
+            $this->file_element( 'documents' ), array( 'group' => 'form_elements' )
+        ) ), $target_settings );
+        $list = array(
+            'enabled' => 'true', 'retrieve' => 'all_forms',
+            'edit_any' => array( 'enabled' => 'true', 'user_roles' => 'administrator', 'user_ids' => '' ),
+            'edit_own' => array( 'enabled' => 'false', 'user_roles' => '', 'user_ids' => '' ),
+        );
+        $host_form_id = $this->create_form( 'publish', array(), array( '_listings' => array( 'lists' => array( $list ) ) ) );
+        $entry_id = self::factory()->post->create( array(
+            'post_type' => 'super_contact_entry', 'post_status' => 'super_read',
+            'post_parent' => $target_form_id, 'post_author' => $admin,
+        ) );
+        // A camera photo WordPress scaled on upload (the entry stores the original's name).
+        $original = trailingslashit( $root ) . 'camera-' . wp_generate_uuid4() . '.jpg';
+        $image = imagecreatetruecolor( 3000, 2000 );
+        $this->assertTrue( imagejpeg( $image, $original, 85 ) );
+        imagedestroy( $image );
+        $attachment = wp_insert_attachment( array( 'post_mime_type' => 'image/jpeg', 'post_title' => 'Camera image', 'post_status' => 'inherit', 'post_parent' => $entry_id ), $original, $entry_id );
+        add_post_meta( $attachment, 'super-forms-form-upload-file', true );
+        add_post_meta( $attachment, '_super_forms_upload_form_id', $target_form_id );
+        add_post_meta( $attachment, '_super_forms_upload_field', 'documents' );
+        wp_update_attachment_metadata( $attachment, wp_generate_attachment_metadata( $attachment, $original ) );
+        $attached = wp_normalize_path( realpath( get_attached_file( $attachment ) ) );
+        $this->assertNotSame( wp_normalize_path( realpath( $original ) ), $attached, 'WordPress attached a scaled copy' );
+        $stored = array(
+            'value' => basename( $original ), 'name' => 'documents', 'type' => 'image/jpeg',
+            'url' => wp_get_attachment_url( $attachment ), 'size' => filesize( $original ), 'attachment' => $attachment,
+        );
+        update_post_meta( $entry_id, '_super_contact_entry_data', array( 'documents' => array( 'type' => 'files', 'files' => array( $stored ) ) ) );
+        // The optimiser removes the original.
+        $this->assertTrue( unlink( $original ) );
+        clearstatcache();
+        $attached_bytes = file_get_contents( $attached );
+
+        // The Listings edit modal issues the update grant; the browser re-saves with the retained carrier.
+        $this->authenticate_actor( $admin );
+        $this->render_listing_modal( array(
+            'action' => 'super_listings_edit_entry', 'entry_id' => $entry_id, 'form_id' => $host_form_id, 'list_id' => 0,
+            'nonce' => wp_create_nonce( 'super_listings_entry_' . $host_form_id . '_0' ),
+        ) );
+        $this->configure_csrf( 'false' );
+        $data = array(
+            'documents' => array( 'type' => 'files', 'files' => array( array(
+                'value' => $stored['value'], 'url' => $stored['url'], 'retention_token' => 'entry',
+            ) ) ),
+            'hidden_list_id' => array( 'name' => 'hidden_list_id', 'value' => '0', 'type' => 'var' ),
+        );
+        $this->set_submit_request( $target_form_id, $data,
+            array( 'entry_id' => (string) $entry_id, 'list_id' => '0', 'listing_form_id' => (string) $host_form_id ) );
+        $submit = $this->run_dying_handler( array( 'SUPER_Ajax', 'submit_form' ) );
+        $this->assertSame( 0, $submit['status'], $submit['output'] );
+        $decoded = json_decode( $submit['output'], true );
+        $this->assertIsArray( $decoded, $submit['output'] );
+        $this->assertFalse( $decoded['error'], isset( $decoded['msg'] ) ? wp_strip_all_tags( $decoded['msg'] ) : '' );
+
+        $saved = SUPER_Data_Access::get_entry_data( $entry_id )['documents']['files'][0];
+        $this->assertSame( basename( $attached ), $saved['value'], 'shown under its on-disk name' );
+        $this->assertSame( $attachment, absint( $saved['attachment'] ) );
+        $this->assertSame( 'attachment', get_post_type( $attachment ), 'the attachment is kept' );
+        $this->assertFileExists( $attached, 'the file is never deleted' );
+        $this->assertSame( $attached_bytes, file_get_contents( $attached ) );
     }
 
     public function test_repeater_suffixed_carrier_resolves_the_retained_file_through_the_stored_field_name() {

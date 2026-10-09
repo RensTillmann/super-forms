@@ -231,6 +231,65 @@ class Test_Security_Default_Value_Tags extends WP_UnitTestCase {
 		return $form_id;
 	}
 
+	public function test_column_and_field_custom_classes_are_attribute_escaped() {
+		// A class with markup characters (e.g. a sanitizer placeholder) must not break out of the
+		// class attribute and push the fields outside the <form>.
+		$evil = 'note <customer-identifier> x"><b id="sf-injected">y</b><i class="';
+		$form_id = self::factory()->post->create( array( 'post_type' => 'super_form', 'post_status' => 'publish' ) );
+		$this->form_ids[] = $form_id;
+		update_post_meta( $form_id, '_super_elements', array(
+			array(
+				'tag' => 'column', 'group' => 'layout_elements',
+				'data' => array( 'size' => '1/1', 'class' => $evil ),
+				'inner' => array(
+					array( 'tag' => 'text', 'group' => 'form_elements', 'data' => array( 'name' => 'inside_column', 'email' => 'Inside:', 'class' => $evil ), 'inner' => array() ),
+				),
+			),
+		) );
+		update_post_meta( $form_id, '_super_form_settings', array() );
+		$html = $this->render( $form_id );
+		$this->assertStringContainsString( 'name="inside_column"', $html );
+		$this->assertStringNotContainsString( '<b id="sf-injected"', $html );
+		$this->assertStringNotContainsString( '<customer-identifier>', $html );
+	}
+
+	public function test_pdf_font_download_failure_is_not_cached_and_no_font_link_is_printed() {
+		// t_1b97fa56: a failed font download must not leave an (empty) cached file that breaks PDFs
+		// forever, and the browser must not be pointed at fonts that do not exist.
+		$language = 'zzgatemissing';
+		$dir = SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts/';
+		if( !wp_mkdir_p( $dir ) || !is_writable( $dir ) ) {
+			$this->markTestSkipped( 'Plugin font directory is read-only here (PHPUnit runner payload); covered by the scratch font probe.' );
+		}
+		foreach( array( 'json', 'woff', 'woff2' ) as $ext ) @unlink( $dir . $language . '.' . $ext );
+		file_put_contents( $dir . $language . '.json', '' ); // left behind by an earlier failed download
+		$form_id = self::factory()->post->create( array( 'post_type' => 'super_form', 'post_status' => 'publish' ) );
+		$this->form_ids[] = $form_id;
+		update_post_meta( $form_id, '_super_elements', array(
+			array( 'tag' => 'text', 'group' => 'form_elements', 'data' => array( 'name' => 'pdf_probe', 'email' => 'Probe:' ), 'inner' => array() ),
+		) );
+		update_post_meta( $form_id, '_super_form_settings', array(
+			'_pdf' => array( 'generate' => 'true', 'debug' => 'false', 'textRendering' => 'true', 'language' => $language ),
+		) );
+		$html = $this->render( $form_id );
+		ob_start();
+		// As on a real page load, WordPress core's wp_enqueue_scripts callback
+		// wp_enqueue_block_template_skip_link() runs before wp_footer and unhooks the deprecated
+		// the_block_template_skip_link (default-filters.php). Only that callback is run: the full
+		// action needs core's built css/dist, which the test checkout lacks. The font link under test
+		// is hooked straight onto wp_footer at render time, so it does not depend on wp_enqueue_scripts.
+		wp_enqueue_block_template_skip_link();
+		do_action( 'wp_footer' );
+		$footer = ob_get_clean();
+		$this->assertStringContainsString( 'name="pdf_probe"', $html );
+		$this->assertStringNotContainsString( 'fonts/' . $language, $footer );
+		foreach( array( 'json', 'woff', 'woff2' ) as $ext ) {
+			$file = $dir . $language . '.' . $ext;
+			$this->assertFalse( file_exists( $file ) && filesize( $file )===0, 'empty cached ' . $ext );
+			@unlink( $file );
+		}
+	}
+
 	private function create_text_form( $default_value, $settings = array() ) {
 		return $this->create_form( 'text', $default_value, $settings );
 	}

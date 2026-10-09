@@ -98,7 +98,7 @@ if( !class_exists('SUPER_Mailchimp') ) :
                     continue;
                 }
                 if( !empty($element['inner']) ) {
-                    self::collect_mailchimp_elements( $element['inner'], $matches );
+                    self::collect_mailchimp_elements( SUPER_Common::inner_elements($element), $matches );
                 }
                 if( isset($element['tag']) && $element['tag']==='mailchimp' ) {
                     $matches[] = $element;
@@ -153,7 +153,7 @@ if( !class_exists('SUPER_Mailchimp') ) :
                 return false;
             }
             $matches = array();
-            self::collect_mailchimp_elements( SUPER_Common::get_form_elements( $form_id ), $matches );
+            self::collect_mailchimp_elements( SUPER_Common::get_submission_elements( $form_id ), $matches );
             $resolved = null;
             foreach( $matches as $element ) {
                 $element_data = ( isset($element['data']) && is_array($element['data']) ) ? $element['data'] : array();

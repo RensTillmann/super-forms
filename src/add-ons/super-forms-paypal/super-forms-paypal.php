@@ -285,20 +285,9 @@ if( !class_exists('SUPER_PayPal') ) :
 	    /**
 	     * This function takes the last comma or dot (if any) to make a clean float, ignoring thousand separator, currency or any other letter :
 	     */
-	    public static function tofloat($num) {
-	        $dotPos = strrpos($num, '.');
-	        $commaPos = strrpos($num, ',');
-	        $sep = (($dotPos > $commaPos) && $dotPos) ? $dotPos : 
-	            ((($commaPos > $dotPos) && $commaPos) ? $commaPos : false);
-	       
-	        if (!$sep) {
-	            return floatval(preg_replace("/[^0-9]/", "", $num));
-	        } 
-
-	        return floatval(
-	            preg_replace("/[^0-9]/", "", substr($num, 0, $sep)) . '.' .
-	            preg_replace("/[^0-9]/", "", substr($num, $sep+1, strlen($num)))
-	        );
+	    public static function tofloat($num, $template='', $form_id=0) {
+	        // One shared, format-aware parser (SUPER_Common::tofloat).
+	        return SUPER_Common::tofloat($num, $template, $form_id);
 	    }
 
 
@@ -2093,8 +2082,8 @@ if( !class_exists('SUPER_PayPal') ) :
 						$mail = SUPER_Common::email( array( 'to'=>$to, 'from'=>$from, 'from_name'=>$from_name, 'custom_reply'=>$custom_reply, 'reply'=>$reply, 'reply_name'=>$reply_name, 'cc'=>$cc, 'bcc'=>$bcc, 'subject'=>$subject, 'body'=>$email_body, 'settings'=>$settings, 'attachments'=>$confirm_attachments, 'string_attachments'=>$confirm_string_attachments ));
 
 						// Return error message
-						if( !empty( $mail->ErrorInfo ) ) {
-							$msg = esc_html__( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
+						if( SUPER_Common::report_email_failure( $mail ) ) {
+							$msg = esc_html__( 'Message could not be sent. Error: ' . SUPER_Common::email_error( $mail ), 'super-forms' );
 							SUPER_Common::output_message( array(
 								'msg'=>$msg,
 								'form_id'=>absint($form_id)
@@ -2401,7 +2390,7 @@ if( !class_exists('SUPER_PayPal') ) :
 
 				if (($cmd == '_xclick') || ($cmd == '_donations')) {
 					$paypal_item_amount = SUPER_Common::email_tags($settings['paypal_item_amount'], $data, $settings);
-					$paypal_item_amount = self::tofloat($paypal_item_amount);
+					$paypal_item_amount = self::tofloat($paypal_item_amount, $settings['paypal_item_amount'], ( isset($atts['post']['form_id']) ? $atts['post']['form_id'] : 0 ));
 					$message .= '<input type="hidden" name="amount" value="' . $paypal_item_amount . '">';
 					if( !empty($settings['paypal_item_name']) ) {
 						$message .= '<input type="hidden" name="item_name" value="' . esc_attr(SUPER_Common::email_tags($settings['paypal_item_name'], $data, $settings)) . '">';
@@ -2427,13 +2416,13 @@ if( !class_exists('SUPER_PayPal') ) :
 						}
 						if( !empty($settings['paypal_item_discount_amount']) ) {
 							$paypal_item_discount_amount = SUPER_Common::email_tags($settings['paypal_item_discount_amount'], $data, $settings);
-							$paypal_item_discount_amount = self::tofloat($paypal_item_discount_amount);
+							$paypal_item_discount_amount = self::tofloat($paypal_item_discount_amount, $settings['paypal_item_discount_amount'], ( isset($atts['post']['form_id']) ? $atts['post']['form_id'] : 0 ));
 							$message .= '<input type="hidden" name="discount_amount" value="' . esc_attr($paypal_item_discount_amount) . '">';
 							$message .= '<input type="hidden" name="discount_amount2" value="' . esc_attr($paypal_item_discount_amount) . '">';
 						}
 						if( !empty($settings['paypal_item_discount_rate']) ) {
 							$paypal_item_discount_rate = SUPER_Common::email_tags($settings['paypal_item_discount_rate'], $data, $settings);
-							$paypal_item_discount_rate = self::tofloat($paypal_item_discount_rate);
+							$paypal_item_discount_rate = self::tofloat($paypal_item_discount_rate, $settings['paypal_item_discount_rate'], ( isset($atts['post']['form_id']) ? $atts['post']['form_id'] : 0 ));
 							$message .= '<input type="hidden" name="discount_rate" value="' . esc_attr($paypal_item_discount_rate) . '">';
 							$message .= '<input type="hidden" name="discount_rate2" value="' . esc_attr($paypal_item_discount_rate) . '">';
 						}
@@ -2465,7 +2454,7 @@ if( !class_exists('SUPER_PayPal') ) :
 						$k = $absolute_key;
 						$absolute_key++;
 
-						$amount = self::tofloat($amount);
+						$amount = self::tofloat($amount, $options[0], ( isset($atts['post']['form_id']) ? $atts['post']['form_id'] : 0 ));
 						$message .= '<input type="hidden" name="amount_' . ($k+1) . '" value="' . esc_attr($amount) . '">';
 						$message .= '<input type="hidden" name="quantity_' . ($k+1) . '" value="' . esc_attr($quantity) . '">';
 						
@@ -2477,25 +2466,25 @@ if( !class_exists('SUPER_PayPal') ) :
 						$ii++;
 						if(!empty($options[$ii])) {
 							$tax = SUPER_Common::email_tags($options[$ii], $data, $settings);
-							$tax = self::tofloat($tax);
+							$tax = self::tofloat($tax, $options[$ii], ( isset($atts['post']['form_id']) ? $atts['post']['form_id'] : 0 ));
 							$message .= '<input type="hidden" name="tax_' . ($k+1) . '" value="' . esc_attr($tax) . '">';
 						}
 						$ii++;
 						if(!empty($options[$ii])) {
 							$shipping = SUPER_Common::email_tags($options[$ii], $data, $settings);
-							$shipping = self::tofloat($shipping);
+							$shipping = self::tofloat($shipping, $options[$ii], ( isset($atts['post']['form_id']) ? $atts['post']['form_id'] : 0 ));
 							$message .= '<input type="hidden" name="shipping_' . ($k+1) . '" value="' . esc_attr($shipping) . '">';
 						}
 						$ii++;
 						if(!empty($options[$ii])) {
 							$shipping = SUPER_Common::email_tags($options[$ii], $data, $settings);
-							$shipping = self::tofloat($shipping);
+							$shipping = self::tofloat($shipping, $options[$ii], ( isset($atts['post']['form_id']) ? $atts['post']['form_id'] : 0 ));
 							$message .= '<input type="hidden" name="shipping2_' . ($k+1) . '" value="' . esc_attr($shipping) . '">';
 						}
 						$ii++;
 						if(!empty($options[$ii])) {
 							$discount_amount = SUPER_Common::email_tags($options[$ii], $data, $settings);
-							$discount_amount = self::tofloat($discount_amount);
+							$discount_amount = self::tofloat($discount_amount, $options[$ii], ( isset($atts['post']['form_id']) ? $atts['post']['form_id'] : 0 ));
 							$message .= '<input type="hidden" name="discount_amount_' . ($k+1) . '" value="' . esc_attr($discount_amount) . '">';
 						}
 
@@ -2564,7 +2553,7 @@ if( !class_exists('SUPER_PayPal') ) :
 					foreach( $periods as $k => $v ) {
 						$options = explode("|", $v);
 						$amount = SUPER_Common::email_tags($options[0], $data, $settings);
-						$amount = self::tofloat($amount);
+						$amount = self::tofloat($amount, $options[0], ( isset($atts['post']['form_id']) ? $atts['post']['form_id'] : 0 ));
 						$period = SUPER_Common::email_tags($options[1], $data, $settings);
 						$time_format = SUPER_Common::email_tags($options[2], $data, $settings);
 						// a3 - the price of the subscription e.g: 5.00

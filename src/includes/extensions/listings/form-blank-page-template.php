@@ -1,6 +1,7 @@
 <?php
 ob_start();
 $entry_data_for_response = '';
+$entry_form_id_for_response = 0; // the form the edit modal renders (the entry's form, not the listing's host form)
 $entry_response_authorized = false;
 // View entry
 if( isset($_POST['action']) && isset($_POST['entry_id']) && isset($_POST['form_id']) && isset($_POST['list_id']) ) {
@@ -90,6 +91,7 @@ if( isset($_POST['action']) && isset($_POST['entry_id']) && isset($_POST['form_i
                                     echo $form_html;
                                     $entry_response_authorized = true;
                                     $entry_data_for_response = SUPER_Data_Access::get_entry_data($entry_id);
+                                    $entry_form_id_for_response = $target_form_id;
                                     $css = require(SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/style-default.php');
                                     $css .= require(SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/fonts.php');
                                     $css .= require(SUPER_PLUGIN_DIR . '/assets/css/frontend/themes/colors.php');
@@ -155,6 +157,7 @@ $return = array(
     'error' => !$entry_response_authorized,
     'html' => ob_get_clean(),
     'msg' => !$entry_response_authorized ? esc_html__('Unable to load this entry.', 'super-forms') : '',
-    'entry_data' => is_array($entry_data_for_response) ? $entry_data_for_response : ''
+    'entry_data' => is_array($entry_data_for_response) ? $entry_data_for_response : '',
+    'form_id' => $entry_form_id_for_response
 );
 echo SUPER_Common::safe_json_encode($return);

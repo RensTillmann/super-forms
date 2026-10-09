@@ -36,7 +36,8 @@ class Test_Super_Forms_Submission_Contract_6318_Security extends WP_UnitTestCase
      */
     private function ensure_addon_hooks() {
         $hooks = array(
-            array( 'super_shortcodes_after_form_elements_filter', array( SUPER_Register_Login(), 'add_activation_code_element' ) ),
+            // 6.4 renamed the element hook to add_verification_code_element() (see test-security-proof-row4-addons.php).
+            array( 'super_shortcodes_after_form_elements_filter', array( SUPER_Register_Login(), method_exists( SUPER_Register_Login(), 'add_activation_code_element' ) ? 'add_activation_code_element' : 'add_verification_code_element' ) ),
             array( 'super_submission_carrier_contracts_filter', array( SUPER_Register_Login(), 'submission_carrier_contracts' ) ),
             array( 'super_shortcodes_after_form_elements_filter', array( SUPER_Mailchimp(), 'add_mailchimp_element' ) ),
             array( 'super_submission_carrier_contracts_filter', array( SUPER_Mailchimp(), 'submission_carrier_contracts' ) ),
@@ -801,7 +802,11 @@ class Test_Super_Forms_Submission_Contract_6318_Security extends WP_UnitTestCase
             array('dd-mm', '', '29-02', checkdate(2, 29, $year), 2, 29),
             array('dd-mm', '', '03-09-2026', false, 9, 3),
             array('oo', '', '001', true, 1, 1),
-            array('mm', '', '09', false, 9, 0),
+            // Omitted components are anchored (a8f8bcfc): a month-only value is the 1st of that month.
+            array('mm', '', '09', true, 9, 1),
+            array('mm', '', '13', false, 13, 1),
+            array('mm', '', '00', false, 0, 1),
+            array('mm', '', '9x', false, 9, 1),
         ) as $case) {
             list($format, $locale, $value, $allowed, $month, $day) = $case;
             $elements = array(array('tag' => 'date', 'data' => array(
@@ -817,6 +822,347 @@ class Test_Super_Forms_Submission_Contract_6318_Security extends WP_UnitTestCase
                 $this->assertSame((string)(gmmktime(0, 0, 0, $month, $day, $year) * 1000), $stored['appointment']['timestamp']);
             }
         }
+    }
+
+    public function test_currency_symbols_saved_as_html_entities_compare_like_the_browser() {
+        // The renderer prints data-currency/data-format raw, so the browser compares the decoded symbol.
+        foreach(array(
+            array(array('currency' => '&euro;', 'format' => '', 'thousand_separator' => '.', 'decimal_separator' => ','), "\u{20AC}1.234,56", true),
+            array(array('currency' => '', 'format' => '&nbsp;EUR', 'thousand_separator' => ',', 'decimal_separator' => '.'), "1,234.56\u{00A0}EUR", true),
+            array(array('currency' => '&euro;', 'format' => '', 'thousand_separator' => '.', 'decimal_separator' => ','), "-\u{20AC}5,00", true),
+            array(array('currency' => '&euro;', 'format' => '', 'thousand_separator' => '.', 'decimal_separator' => ','), '&euro;1.234,56', false),
+            array(array('currency' => '&euro;', 'format' => '', 'thousand_separator' => '.', 'decimal_separator' => ','), '$1.234,56', false),
+            array(array('currency' => '&euro;', 'format' => '', 'thousand_separator' => '.', 'decimal_separator' => ','), "\u{20AC}1.234,5", false),
+        ) as $case) {
+            list($format, $value, $allowed) = $case;
+            $elements = array(array('tag' => 'currency', 'data' => array_merge(array(
+                'name' => 'amount', 'decimals' => '2', 'validation' => 'float', 'may_be_empty' => 'true',
+            ), $format)));
+            $data = array('amount' => array('name' => 'amount', 'type' => 'var', 'value' => $value));
+            $form_id = $this->submit_review8_probe($elements, $data, $allowed);
+            if($allowed) {
+                $entries = $this->entry_ids_for($form_id);
+                $stored = SUPER_Data_Access::get_entry_data($entries[0]);
+                $this->assertSame($value, $stored['amount']['value']);
+            }
+        }
+    }
+
+    public function test_payment_amounts_use_the_saved_currency_format_or_an_unambiguous_parse() {
+        if( !class_exists('SUPER_PayPal') ) require_once SUPER_PLUGIN_DIR . '/add-ons/super-forms-paypal/super-forms-paypal.php';
+        if( !class_exists('SUPER_WooCommerce') ) require_once SUPER_PLUGIN_DIR . '/add-ons/super-forms-woocommerce/super-forms-woocommerce.php';
+        $unambiguous = array(
+            "\u{20AC}1.234" => 1234.0, '$1,234' => 1234.0, "\u{20AC}1.234,56" => 1234.56, '$1,234.56' => 1234.56,
+            '-$5.00' => -5.0, "-\u{20AC}5,00" => -5.0, '$-1,234.50' => -1234.5, '1234.56' => 1234.56, '12.5' => 12.5,
+            '0.125' => 0.125, '1.234.567' => 1234567.0, '' => 0.0, 'n/a' => 0.0,
+        );
+        $parsers = array(
+            'SUPER_PayPal' => array('SUPER_PayPal', 'tofloat'),
+            'SUPER_WooCommerce' => array('SUPER_WooCommerce', 'tofloat'),
+            'SUPER_Common' => array('SUPER_Common', 'tofloat'),
+        );
+        foreach( $parsers as $label => $parser ) {
+            foreach( $unambiguous as $value => $expected ) {
+                $this->assertSame($expected, call_user_func($parser, (string)$value), $label . ' ' . $value);
+            }
+        }
+        // A {tag} that names a currency or calculator field uses that field's saved format.
+        $form_id = $this->create_form(array(
+            array('tag' => 'currency', 'data' => array('name' => 'price', 'currency' => '&euro;', 'format' => '',
+                'decimals' => '3', 'thousand_separator' => '&nbsp;', 'decimal_separator' => ',')),
+            array('tag' => 'tabs', 'group' => 'layout_elements', 'data' => array('layout' => 'tabs'), 'inner' => array(array(
+                array('tag' => 'calculator', 'data' => array('name' => 'total', 'decimals' => '0', 'thousand_separator' => '.', 'decimal_separator' => ',')),
+            ))),
+        ), array('send' => 'no', 'confirm' => 'no'));
+        foreach( $parsers as $label => $parser ) {
+            $this->assertSame(1234.5, call_user_func($parser, "\u{20AC}1\u{00A0}234,500", '{price}', $form_id), $label);
+            $this->assertSame(1.234, call_user_func($parser, "\u{20AC}1,234", '{price}', $form_id), $label);
+            $this->assertSame(1234.0, call_user_func($parser, '1.234', '{total}', $form_id), $label);
+            $this->assertSame(1234.0, call_user_func($parser, '1.234', '{unknown}', $form_id), $label);
+        }
+    }
+
+    public function test_required_values_starting_with_less_than_are_present_and_stored_unchanged() {
+        foreach(array(
+            array('<10', true), array('<=5 kg', true), array('<5 years', true), array('0', true), array(' 0 ', true), array('0.00', true),
+            array('', false), array('   ', false), array('<p></p>', false), array('<br />', false),
+        ) as $case) {
+            list($value, $allowed) = $case;
+            $elements = array(array('tag' => 'text', 'data' => array(
+                'name' => 'budget', 'validation' => 'empty', 'may_be_empty' => 'false',
+            )));
+            $data = array('budget' => array('name' => 'budget', 'type' => 'var', 'value' => $value));
+            $form_id = $this->submit_review8_probe($elements, $data, $allowed);
+            if($allowed) {
+                $entries = $this->entry_ids_for($form_id);
+                $stored = SUPER_Data_Access::get_entry_data($entries[0]);
+                $this->assertSame($value, $stored['budget']['value']);
+            }
+        }
+    }
+
+    public function test_admin_email_failure_is_detected_and_logged_with_valid_json_and_no_php_warnings() {
+        $elements = array(array('tag' => 'text', 'data' => array('name' => 'note', 'validation' => 'none')));
+        $settings = array(
+            'save_contact_entry' => 'no', 'send' => 'yes', 'confirm' => 'no',
+            'header_to' => 'sf-mail-failure@example.test', 'header_from_type' => 'default',
+            'header_subject' => 'Subject', 'email_body_open' => '', 'email_body' => '<p>{note}</p>',
+            'email_body_close' => '', 'email_body_nl2br' => 'false',
+            'form_thanks_title' => '', 'form_thanks_description' => 'Thanks', 'form_show_thanks_msg' => 'true',
+            'form_redirect_option' => '',
+        );
+        foreach( array(false, true) as $delivered ) {
+            $form_id = $this->create_form($elements, $settings);
+            $log = tempnam(sys_get_temp_dir(), 'sf-mail-log-');
+            $mail = static function() use ( $delivered ) { return $delivered; };
+            add_filter('pre_wp_mail', $mail);
+            try {
+                $result = $this->with_super_settings(array('csrf_check' => 'false'), function() use ($form_id, $log) {
+                    $this->set_submission_request($form_id, array('note' => array('name' => 'note', 'type' => 'var', 'value' => 'hello')), array('action' => 'super_submit_form'));
+                    $_POST['data'] = wp_slash($_POST['data']);
+                    $_REQUEST = $_POST;
+                    return $this->run_dying_callback(static function() use ( $log ) {
+                        set_error_handler(static function( $errno, $errstr ) { echo 'PHP_WARNING:' . $errstr; return true; });
+                        ini_set('error_log', $log);
+                        SUPER_Ajax::submit_form();
+                    });
+                });
+            } finally { remove_filter('pre_wp_mail', $mail); }
+            $this->assertStringNotContainsString('PHP_WARNING:', $result['output']);
+            $decoded = json_decode($result['output'], true);
+            $this->assertIsArray($decoded, $result['output']);
+            // A failed mail never blocked a submission (owner decision pending, t_184e1b47): the
+            // reply stays a success and the failure is detected and logged instead of lost.
+            $this->assertFalse($decoded['error'], $result['output']);
+            $logged = (string) file_get_contents($log);
+            unlink($log);
+            if( $delivered ) {
+                $this->assertStringNotContainsString('email could not be sent', $logged);
+            }else{
+                $this->assertStringContainsString('Super Forms: email could not be sent: Email could not be send through wp_mail()', $logged);
+            }
+        }
+    }
+
+    public function test_choice_option_saved_as_a_tag_accepts_the_value_the_browser_substitutes() {
+        // The browser rewrites an option's {tag} value to the referenced field's value (common.js
+        // update_variable_fields: dataset.value = replaced html) before it submits.
+        $elements = array(
+            array('tag' => 'text', 'data' => array('name' => 'gate_name', 'validation' => 'none')),
+            array('tag' => 'dropdown', 'data' => array('name' => 'c11_tag_option', 'validation' => 'none', 'may_be_empty' => 'true',
+                'dropdown_items' => array(
+                    array('checked' => '', 'label' => 'Use my name', 'value' => '{gate_name}'),
+                    array('checked' => '', 'label' => 'Other', 'value' => 'other'),
+                ))),
+        );
+        foreach( array(
+            array('Jane Doe', 'Jane Doe', true),
+            array('Jane Doe', 'other', true),
+            array('Jane Doe', 'Mallory', false),
+            array('', 'Mallory', false),
+        ) as $case ) {
+            list($name, $choice, $allowed) = $case;
+            $data = array(
+                'gate_name' => array('name' => 'gate_name', 'type' => 'var', 'value' => $name),
+                'c11_tag_option' => array('name' => 'c11_tag_option', 'type' => 'var', 'value' => $choice, 'selected_values' => array($choice)),
+            );
+            $form_id = $this->submit_review8_probe($elements, $data, $allowed);
+            if($allowed) {
+                $entries = $this->entry_ids_for($form_id);
+                $stored = SUPER_Data_Access::get_entry_data($entries[0]);
+                $this->assertSame($choice, $stored['c11_tag_option']['value']);
+            }
+        }
+    }
+
+    public function test_same_name_in_two_conditional_columns_accepts_either_variant_and_nothing_else() {
+        foreach( array(
+            array('email', 'none', array(array('a', 'contact@example.com', true), array('b', 'free text', true))),
+            array('email', 'numeric', array(array('a', 'contact@example.com', true), array('b', '12345', true), array('a', 'hello', false))),
+        ) as $pair ) {
+            list($validation_a, $validation_b, $cases) = $pair;
+            $column = static function( $variant, $validation ) {
+                return array('tag' => 'column', 'data' => array('size' => '1/2', 'conditional_action' => 'show', 'conditional_trigger' => 'all',
+                    'conditional_items' => array(array('field' => '{gate_samename}', 'logic' => 'equal', 'value' => $variant, 'and_method' => '', 'field_and' => '', 'logic_and' => '', 'value_and' => ''))),
+                    'inner' => array(array('tag' => 'text', 'data' => array('name' => 'b3_contact', 'email' => 'Contact (' . $variant . '):', 'validation' => $validation, 'may_be_empty' => 'true'))));
+            };
+            $elements = array(
+                array('tag' => 'radio', 'data' => array('name' => 'gate_samename', 'validation' => 'none', 'radio_items' => array(
+                    array('checked' => '', 'label' => 'A', 'value' => 'a'), array('checked' => '', 'label' => 'B', 'value' => 'b'),
+                ))),
+                $column('a', $validation_a),
+                $column('b', $validation_b),
+            );
+            foreach( $cases as $case ) {
+                list($variant, $value, $allowed) = $case;
+                $data = array(
+                    'gate_samename' => array('name' => 'gate_samename', 'type' => 'var', 'value' => $variant, 'selected_values' => array($variant)),
+                    'b3_contact' => array('name' => 'b3_contact', 'type' => 'var', 'value' => $value),
+                );
+                $this->submit_review8_probe($elements, $data, $allowed);
+            }
+        }
+    }
+
+    public function test_international_phone_is_validated_as_the_e164_number_the_browser_submits() {
+        // The browser checks the displayed national number against the author's length/regex and
+        // the phone library, then submits intlTelInput getNumber() (E.164) (common.js prepare_form_data_fields).
+        foreach( array(
+            array(array('validation' => 'custom', 'custom_regex' => '^0', 'maxlength' => '11'), '+31612345678', true),
+            array(array('validation' => 'phone', 'maxlength' => '11'), '+31612345678', true),
+            array(array('validation' => 'none'), '+442071838750', true),
+            array(array('validation' => 'none', 'may_be_empty' => 'true'), '', true),
+            array(array('validation' => 'custom', 'custom_regex' => '^0', 'maxlength' => '11'), '06 12345678', false),
+            array(array('validation' => 'none'), '+31 6 1234', false),
+            array(array('validation' => 'none'), '+0612345678', false),
+            array(array('validation' => 'none'), '<b>+31612345678</b>', false),
+        ) as $case ) {
+            list($settings, $value, $allowed) = $case;
+            $elements = array(array('tag' => 'text', 'data' => array_merge(array('name' => 'phone', 'type' => 'int-phone'), $settings)));
+            $data = array('phone' => array('name' => 'phone', 'type' => 'var', 'value' => $value));
+            $this->submit_review8_probe($elements, $data, $allowed);
+        }
+    }
+
+    public function test_get_element_settings_finds_a_field_after_the_first_layout_element() {
+        // t_62a5f5da: retrieve_variable_conditions() reads a CSV variable field's settings through this.
+        $target = array('name' => 'csv_variable', 'conditional_variable_method' => 'csv', 'conditional_variable_csv' => '42');
+        $text = static function( $data ) { return array('tag' => 'text', 'group' => 'form_elements', 'data' => $data, 'inner' => array()); };
+        $layouts = array(
+            'second column' => array(
+                array('tag' => 'column', 'data' => array('size' => '1/2'), 'inner' => array($text(array('name' => 'other')))),
+                array('tag' => 'column', 'data' => array('size' => '1/2'), 'inner' => array($text($target))),
+            ),
+            'after a column' => array(
+                array('tag' => 'column', 'data' => array('size' => '1/1'), 'inner' => array($text(array('name' => 'other')))),
+                $text($target),
+            ),
+            'tab two' => array(
+                array('tag' => 'tabs', 'data' => array('layout' => 'tabs'), 'inner' => array(array($text(array('name' => 'other'))), array($text($target)))),
+            ),
+        );
+        foreach( $layouts as $label => $elements ) {
+            $this->assertSame($target, SUPER_Common::get_element_settings($elements, 'csv_variable'), $label);
+        }
+        $this->assertSame(array(), SUPER_Common::get_element_settings($layouts['second column'], 'absent'));
+    }
+
+    /** Run $callback with the site/request locale switched, reloading the plugin's own translations. */
+    private function with_plugin_locale( $locale, $callback ) {
+        $filter = static function() use ( $locale ) { return $locale; };
+        add_filter('locale', $filter);
+        add_filter('determine_locale', $filter);
+        unload_textdomain('super-forms');
+        // The plugin ships its own translations (i18n/languages); WordPress 6.7+ loads plugin
+        // textdomains just in time, so load the shipped .mo for this locale explicitly.
+        load_textdomain('super-forms', SUPER_PLUGIN_DIR . '/i18n/languages/super-forms-' . $locale . '.mo', $locale);
+        try {
+            return $callback();
+        } finally {
+            remove_filter('locale', $filter);
+            remove_filter('determine_locale', $filter);
+            unload_textdomain('super-forms');
+            SUPER_Forms()->load_plugin_textdomain();
+        }
+    }
+
+    public function test_dates_with_translated_month_and_day_names_submit_without_a_datepicker_localization() {
+        // H2 (t_1779ad78): without a datepicker localization the browser uses the plugin's translated
+        // names (super_elements_i18n: esc_html__('October','super-forms') ...); the server must accept them.
+        $this->with_plugin_locale('de_DE', function() {
+            $this->assertSame('Oktober', esc_html__('October', 'super-forms'), 'plugin de_DE translation loaded');
+            foreach( array(
+                array('d MM, y', '8 Oktober, 26', true, 10, 8, 2026),
+                array('DD, d MM, yy', 'Donnerstag, 8 Oktober, 2026', true, 10, 8, 2026),
+                array('D, d M yy', 'Do, 8 Okt 2026', true, 10, 8, 2026),
+                array('d MM yy', '1 März 2026', true, 3, 1, 2026),
+                array('DD, d MM, yy', 'Thursday, 8 October, 2026', true, 10, 8, 2026),
+                // A day name is checked as a name only, not against the date (unchanged, same for English).
+                array('d MM, y', '8 Oktoberfest, 26', false, 0, 0, 0),
+                array('d MM, y', '8 Brumaire, 26', false, 0, 0, 0),
+            ) as $case ) {
+                list($format, $value, $allowed, $month, $day, $year) = $case;
+                $elements = array(array('tag' => 'date', 'data' => array(
+                    'name' => 'appointment', 'format' => 'custom', 'custom_format' => $format,
+                    'localization' => '', 'maxPicks' => '1', 'validation' => 'none',
+                )));
+                $data = array('appointment' => array('name' => 'appointment', 'type' => 'var', 'value' => $value, 'timestamp' => '1'));
+                $form_id = $this->submit_review8_probe($elements, $data, $allowed);
+                if( $allowed ) {
+                    $entries = $this->entry_ids_for($form_id);
+                    $stored = SUPER_Data_Access::get_entry_data($entries[0]);
+                    $this->assertSame($value, $stored['appointment']['value']);
+                    $this->assertSame((string)(gmmktime(0, 0, 0, $month, $day, $year) * 1000), $stored['appointment']['timestamp'], $value);
+                }
+            }
+        });
+    }
+
+    public function test_current_date_default_uses_one_based_day_of_year_and_submits() {
+        // H3 (t_2642c3c0): jQuery UI 'o'/'oo' is the 1-based day of the year; PHP 'z' is 0-based.
+        foreach( array(
+            'o' => (string) ( (int) date_i18n('z') + 1 ),
+            'oo' => str_pad( (string) ( (int) date_i18n('z') + 1 ), 3, '0', STR_PAD_LEFT ),
+            'd MM yy' => date_i18n('j F Y'),
+            'dd/mm/yy' => date_i18n('d/m/Y'),
+        ) as $format => $expected ) {
+            $elements = array(array('tag' => 'date', 'group' => 'form_elements', 'inner' => array(), 'data' => array(
+                'name' => 'today', 'email' => 'Today:', 'format' => 'custom', 'custom_format' => $format,
+                'localization' => '', 'maxPicks' => '1', 'validation' => 'none', 'current_date' => 'true',
+            )));
+            $form_id = $this->create_form($elements, array('send' => 'no', 'confirm' => 'no'));
+            $html = SUPER_Shortcodes::super_form_func(array('id' => (string) $form_id));
+            $this->assertSame(1, preg_match('/<input[^>]*super-datepicker[^>]*\svalue="([^"]*)"/', $html, $m), $format);
+            $this->assertSame($expected, html_entity_decode($m[1], ENT_QUOTES, 'UTF-8'), $format);
+            $data = array('today' => array('name' => 'today', 'type' => 'var', 'value' => $expected));
+            $this->submit_review8_probe($elements, $data, true);
+        }
+    }
+
+    public function test_fields_of_an_included_form_are_part_of_the_submission_contract() {
+        // Beta Include-form element (tag 'form', data.id): the page renders the included form's saved
+        // elements inside the outer form, so their carriers and rules belong to the outer submission.
+        $text = static function( $name, $required=false ) {
+            return array('tag' => 'text', 'group' => 'form_elements', 'inner' => array(), 'data' => array(
+                'name' => $name, 'email' => $name . ':', 'validation' => $required ? 'empty' : 'none', 'may_be_empty' => $required ? 'false' : 'true'));
+        };
+        $include = static function( $id ) {
+            return array('tag' => 'form', 'group' => 'layout_elements', 'inner' => array(), 'data' => array('id' => (string) $id));
+        };
+        $carrier = static function( $name, $value ) { return array('name' => $name, 'type' => 'var', 'value' => $value); };
+        $embedded = $this->create_form(array($text('embedded_note')), array('send' => 'no', 'confirm' => 'no'));
+        $required = $this->create_form(array(array('tag' => 'column', 'group' => 'layout_elements', 'data' => array('size' => '1/1'),
+            'inner' => array($text('embedded_required', true)))), array('send' => 'no', 'confirm' => 'no'));
+        $outer = array($text('outer_name'), $include($embedded));
+        foreach( array(
+            'gate case: outer filled, embedded empty' => array($outer, array('outer_name' => 'Jane', 'embedded_note' => ''), true),
+            'both filled' => array($outer, array('outer_name' => 'Jane', 'embedded_note' => 'hello'), true),
+            'carrier not rendered anywhere' => array($outer, array('outer_name' => 'Jane', 'embedded_note' => '', 'forged' => 'x'), false),
+            'required field of the included form, empty' => array(array($text('outer_name'), $include($required)), array('outer_name' => 'Jane', 'embedded_required' => ''), false),
+            'required field of the included form, filled' => array(array($text('outer_name'), $include($required)), array('outer_name' => 'Jane', 'embedded_required' => 'yes'), true),
+            'included form that no longer exists' => array(array($text('outer_name'), $include(999999)), array('outer_name' => 'Jane'), true),
+            'include inside a tab pane' => array(array(array('tag' => 'tabs', 'group' => 'layout_elements', 'data' => array('layout' => 'tabs'),
+                'inner' => array(array($text('outer_name')), array($include($embedded))))), array('outer_name' => 'Jane', 'embedded_note' => 'hi'), true),
+        ) as $label => $case ) {
+            list($elements, $values, $allowed) = $case;
+            $data = array();
+            foreach( $values as $name => $value ) $data[$name] = $carrier($name, $value);
+            $form_id = $this->submit_review8_probe($elements, $data, $allowed);
+            if( $allowed && isset($values['embedded_note']) && $values['embedded_note']!=='' ) {
+                $entries = $this->entry_ids_for($form_id);
+                $stored = SUPER_Data_Access::get_entry_data($entries[0]);
+                $this->assertSame($values['embedded_note'], $stored['embedded_note']['value'], $label);
+            }
+        }
+        // Cycles (A includes B, B includes A; a form including itself) terminate and still accept.
+        $cycle_b = $this->create_form(array($text('cycle_b_note')), array('send' => 'no', 'confirm' => 'no'));
+        $cycle_a = $this->create_form(array($text('cycle_a_note'), $include($cycle_b)), array('send' => 'no', 'confirm' => 'no'));
+        update_post_meta($cycle_b, '_super_elements', array($text('cycle_b_note'), $include($cycle_a), $include($cycle_b)));
+        $this->assertSame(array(), SUPER_Common::get_form_elements($cycle_a)[1]['inner'], 'stored tree is unchanged');
+        $elements = SUPER_Common::get_submission_elements($cycle_a);
+        $this->assertSame('cycle_b_note', $elements[1]['inner'][0]['data']['name']);
+        $this->submit_review8_probe(array($text('outer_name'), $include($cycle_a)),
+            array('outer_name' => $carrier('outer_name', 'Jane'), 'cycle_a_note' => $carrier('cycle_a_note', 'a'), 'cycle_b_note' => $carrier('cycle_b_note', 'b')), true);
     }
 
     public function test_saved_date_minimum_picks_are_enforced_before_submission_effects() {

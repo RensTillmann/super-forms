@@ -469,20 +469,9 @@ if( !class_exists('SUPER_WooCommerce') ) :
         /**
          * This function takes the last comma or dot (if any) to make a clean float, ignoring thousand separator, currency or any other letter :
          */
-        public static function tofloat($num) {
-            $dotPos = strrpos($num, '.');
-            $commaPos = strrpos($num, ',');
-            $sep = (($dotPos > $commaPos) && $dotPos) ? $dotPos : 
-                ((($commaPos > $dotPos) && $commaPos) ? $commaPos : false);
-           
-            if (!$sep) {
-                return floatval(preg_replace("/[^0-9]/", "", $num));
-            } 
-
-            return floatval(
-                preg_replace("/[^0-9]/", "", substr($num, 0, $sep)) . '.' .
-                preg_replace("/[^0-9]/", "", substr($num, $sep+1, strlen($num)))
-            );
+        public static function tofloat($num, $template='', $form_id=0) {
+            // One shared, format-aware parser (SUPER_Common::tofloat).
+            return SUPER_Common::tofloat($num, $template, $form_id);
         }
 
 
@@ -1259,7 +1248,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                         $id = SUPER_Common::email_tags($v['id'], $data, $settings);
                         $variation = SUPER_Common::email_tags($v['variation'], $data, $settings);
                         $price = SUPER_Common::email_tags($v['price'], $data, $settings);
-                        $price = self::tofloat($price);
+                        $price = self::tofloat($price, $v['price'], $form_id);
                         foreach($v['items'] as $ik => $iv){
                             // Skip items that don't exist in the form data
                             $value_before = $v['items'][$ik]['value'];
@@ -1320,7 +1309,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                             if(isset($fee[1])) $amount = SUPER_Common::email_tags($v['amount'], $data, $settings);
                             if(isset($fee[2])) $taxable = SUPER_Common::email_tags($v['taxable'], $data, $settings);
                             if(isset($fee[3])) $tax_class = SUPER_Common::email_tags($v['tax_class'], $data, $settings);
-                            $amount = self::tofloat($amount);
+                            $amount = self::tofloat($amount, $v['amount'], $form_id);
                             if($amount>0){
                                 $fees[] = array(
                                     'name' => $name,            // (string) required – Unique name for the fee. Multiple fees of the same name cannot be added.
