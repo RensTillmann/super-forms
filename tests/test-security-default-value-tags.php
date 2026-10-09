@@ -273,9 +273,12 @@ class Test_Security_Default_Value_Tags extends WP_UnitTestCase {
 		) );
 		$html = $this->render( $form_id );
 		ob_start();
-		// As on a real page load: wp_enqueue_scripts runs first, and WordPress core's
-		// wp_enqueue_block_template_skip_link() unhooks the deprecated the_block_template_skip_link from wp_footer.
-		do_action( 'wp_enqueue_scripts' );
+		// As on a real page load, WordPress core's wp_enqueue_scripts callback
+		// wp_enqueue_block_template_skip_link() runs before wp_footer and unhooks the deprecated
+		// the_block_template_skip_link (default-filters.php). Only that callback is run: the full
+		// action needs core's built css/dist, which the test checkout lacks. The font link under test
+		// is hooked straight onto wp_footer at render time, so it does not depend on wp_enqueue_scripts.
+		wp_enqueue_block_template_skip_link();
 		do_action( 'wp_footer' );
 		$footer = ob_get_clean();
 		$this->assertStringContainsString( 'name="pdf_probe"', $html );
