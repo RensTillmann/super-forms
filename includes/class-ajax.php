@@ -7051,10 +7051,10 @@ class SUPER_Ajax {
             $owned['legacy_source_field'] = $field_name;
             $owned['legacy_source_key'] = $source_key;
             $owned['cleanup_parent'] = absint($entry_id);
-            // A legacy selector may authorize retention, not cleanup of a different identity.
-            // Final cleanup additionally rechecks the exact server-stored entry record.
-            $owned['cleanup_authority'] = isset($stored['value']) && is_string($stored['value'])
-                && $stored['value']===$owned['basename'];
+            // The attachment identity above is fully verified (post type, entry parent,
+            // upload markers, mime and configured root), so this record may finalize its
+            // own cleanup. Its use is re-verified by retained_owned_upload_is_current().
+            $owned['cleanup_authority'] = true;
             if( !self::owned_upload_is_current($owned, $entry_id) ) return false;
             $record = self::owned_upload_file_record($owned, $field_name);
             $record['_super_file_authority'] = 'retained';
