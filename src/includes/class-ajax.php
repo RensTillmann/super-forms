@@ -3760,31 +3760,34 @@ class SUPER_Ajax {
                 $size
             );
             if( $owned===false ) return false;
-            // Keep the exact server-stored display name separate from the backing file.
-            if( !isset($stored['value']) || !is_string($stored['value']) || $stored['value']===''
-                || basename($stored['value'])!==$stored['value'] || strpos($stored['value'], '\\')!==false
-                || strpos($stored['value'], "\0")!==false || in_array($stored['value'], array('.', '..'), true) ) return false;
-            $public_size = $size;
-            if( isset($stored['size']) ) {
-                if( !is_numeric($stored['size']) || (float)$stored['size']!==(float)(int)$stored['size']
-                    || (int)$stored['size']<0 ) return false;
-                $public_size = (int)$stored['size'];
-                if( $public_size!==$size ) {
-                    $original = function_exists('wp_get_original_image_path')
-                        ? wp_get_original_image_path($attachment_id) : $filename;
-                    if( !is_string($original) || is_link($original) || realpath($original)===false ) return false;
-                    $owned['original'] = array('file'=>wp_normalize_path(realpath($original)), 'basename'=>basename($original), 'size'=>$public_size);
+            // 2026-10-03 rule (Rens, t_44dd6674): when the stored name is not the verified backing file
+            // (WordPress sanitized/uniquified it, or an optimiser removed the original), the file is
+            // retained under its on-disk name, a re-save is never blocked, and it is never deleted.
+            $exact_name = isset($stored['value']) && is_string($stored['value']) && $stored['value']===$owned['basename'];
+            if( $exact_name ) {
+                // Keep the exact server-stored display name separate from the backing file.
+                if( !isset($stored['value']) || !is_string($stored['value']) || $stored['value']===''
+                    || basename($stored['value'])!==$stored['value'] || strpos($stored['value'], '\\')!==false
+                    || strpos($stored['value'], "\0")!==false || in_array($stored['value'], array('.', '..'), true) ) return false;
+                $public_size = $size;
+                if( isset($stored['size']) ) {
+                    if( !is_numeric($stored['size']) || (float)$stored['size']!==(float)(int)$stored['size']
+                        || (int)$stored['size']<0 ) return false;
+                    $public_size = (int)$stored['size'];
+                    if( $public_size!==$size ) {
+                        $original = function_exists('wp_get_original_image_path')
+                            ? wp_get_original_image_path($attachment_id) : $filename;
+                        if( !is_string($original) || is_link($original) || realpath($original)===false ) return false;
+                        $owned['original'] = array('file'=>wp_normalize_path(realpath($original)), 'basename'=>basename($original), 'size'=>$public_size);
+                    }
                 }
+                $owned['retained'] = array('basename'=>$stored['value'], 'size'=>$public_size);
             }
-            $owned['retained'] = array('basename'=>$stored['value'], 'size'=>$public_size);
             $owned['legacy_entry_id'] = absint($entry_id);
             $owned['legacy_source_field'] = $field_name;
             $owned['legacy_source_key'] = $source_key;
             $owned['cleanup_parent'] = absint($entry_id);
-            // The attachment was verified above (upload marker, exact parent entry, form and
-            // field metadata), so like the custom-file branch it may be cleaned up when the
-            // form deletes files after submission.
-            $owned['cleanup_authority'] = true;
+            $owned['cleanup_authority'] = $exact_name;
             if( !self::owned_upload_is_current($owned, $entry_id) ) return false;
             $record = self::owned_upload_file_record($owned, $field_name);
             $record['_super_file_authority'] = 'retained';
