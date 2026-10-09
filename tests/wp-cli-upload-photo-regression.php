@@ -73,7 +73,8 @@ foreach(array($stored,array('value'=>basename($attached),'url'=>wp_get_attachmen
 }
 $authority=false;$record=$resolve($stored,$authority);
 $check('mismatched saved name grants no cleanup authority', is_array($authority) && $authority['cleanup_authority']===false && $invoke('retained_owned_upload_is_current',array($authority))===false);
-$check('mismatched saved name is never deleted', $invoke('delete_finalized_owned_uploads',array(array($authority),$entry,$form))===false && get_post($id)!==null && is_file($path) && is_file($attached));
+$invoke('delete_finalized_owned_uploads',array(array($authority),$entry,$form)); // LTS reports false, 6.4 reports true (nothing it may delete); both must keep the files
+$check('mismatched saved name is never deleted', get_post($id)!==null && is_file($path) && is_file($attached));
 $forged=$stored;$forged['value']='forged.jpg';$unused=false;
 $check('forged selector rejected', $resolve($forged,$unused)===false);
 $forged=$stored;$forged['url'].='?forged=1';
