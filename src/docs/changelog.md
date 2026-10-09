@@ -37,7 +37,7 @@
 - **Fix:** Uploaded and saved entry files keep their original file names, and Register & Login profile fields map the uploaded file of the same submission.
 - **Fix:** Phone and camera images that WordPress scales or EXIF-rotates retain valid upload receipts and saved-file ownership, without disabling normal image processing. WordPress must resolve the original image to the exact owned file in the attachment's directory; the derived attachment path remains bound during receipt revalidation.
 - **Fix:** Image uploads with uppercase or mixed-case `.JPG`, `.JPEG` and `.PNG` extensions pass both upload file-type checks and remain valid when retained in saved entries; MIME restrictions remain unchanged and dangerous extensions remain rejected.
-- **Fix:** Retained legacy attachments remain usable when WordPress changed the browser filename.
+- **Fix:** Retained legacy attachments remain usable when WordPress changed the browser filename or an optimiser removed the original image; they are shown under their file name on the server, saving the entry again is never blocked, and a mismatched stored filename does not authorize file cleanup.
 - **Fix:** Register & Login custom user meta mappings accept scaled and rotated attachments only when the mapped original filename passes the same exact WordPress original-image validation as upload ownership.
 - **Fix:** Media uploads continue working when the configured uploads root or its ancestors are symlinked. Attachment and original-image paths are compared canonically while symlinked files and noncanonical paths below that root remain rejected.
 - **Security fix:** Custom CSS classes on columns and fields are escaped in the form's HTML.
