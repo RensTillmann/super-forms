@@ -145,8 +145,6 @@ class Test_Super_Forms_Upload_Image_Regressions extends Super_Forms_Upload_Secur
             $forged = $stored;
             $forged['value'] = $value;
             if( $value==='other.jpg' ) {
-                // CONFLICT with 8ec0230 (owner decision pending): the 2026-10-03 branch rewrites a retained file whose saved name differs from the backing file to the physical basename and withholds cleanup authority; our branch keeps the exact saved display name and allows verified cleanup.
-            } elseif( false ) {
                 update_post_meta($entry, '_super_contact_entry_data', array(
                     'documents'=>array('type'=>'files', 'files'=>array($forged)),
                 ));
@@ -376,7 +374,6 @@ class Test_Super_Forms_Upload_Image_Regressions extends Super_Forms_Upload_Secur
 
     /** @dataProvider legacy_client_name_cases */
     public function test_legacy_client_name_retention_resolves_without_cleanup_authority( $client_name, $attached_name, $remove_original ) {
-        $this->markTestSkipped('CONFLICT with 8ec0230 (owner decision pending): the 2026-10-03 branch rewrites a retained file whose saved name differs from the backing file to the physical basename and withholds cleanup authority; our branch keeps the exact saved display name and allows verified cleanup.');
         $element = $this->file_element('documents');
         $form_id = $this->create_form('publish', array($element));
         $created = $this->image_attachment($form_id, $remove_original ? 3000 : 320, $remove_original ? 2000 : 240);
