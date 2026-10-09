@@ -13,3 +13,5 @@ build-release-zip.sh export-ignore
 # tests/ holds the PHPUnit security regressions and verifier notes; they are
 # harness inputs, never customer plugin files.
 tests/ export-ignore
+# docs/adr holds internal architecture decision records; never customer plugin files.
+docs/adr export-ignore

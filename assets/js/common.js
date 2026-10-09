@@ -2051,10 +2051,10 @@ function SUPERreCaptcha(){
                         
                         // Check if we are conditionally validating a field
                         if($is_validate){
-                            // Hide wrappers
-                            Object.keys($hide_wrappers).forEach(function() {
-                                $validation_error = true;
-                            });
+                            // may_be_empty=conditions: true (may stay empty) unless a condition matched.
+                            // The field wrapper is not a conditional wrapper, so the show/hide lists
+                            // above never apply to it.
+                            $validation_error = ($match_found===0);
                         }else{
                             Object.keys($hide_wrappers).forEach(function(key) {
                                 if($hide_wrappers[key].classList.contains('super-error-active')){
@@ -3379,6 +3379,41 @@ function SUPERreCaptcha(){
         }
     };
 
+    // Normalize only configured currency syntax, without changing stored/display bytes.
+    SUPER.currency_validation_value = function(el){
+        var parsed = SUPER.currency_parse_saved_syntax(el);
+        if(parsed!==false) return parsed;
+        if(/^[+-]?\d+(?:\.\d+)?$/.test(el.value) && !/\s/.test(el.value)) return el.value;
+        return false;
+    };
+    SUPER.currency_parse_saved_syntax = function(el){
+        var value = el.value, d = el.dataset, sign = '', parts, integer,
+            thousands = typeof d.thousandSeparator==='undefined' ? '' : d.thousandSeparator,
+            decimal = typeof d.decimalSeparator==='undefined' ? '.' : d.decimalSeparator,
+            prefix = typeof d.currency==='undefined' ? '' : d.currency,
+            suffix = typeof d.format==='undefined' ? '' : d.format,
+            precision = typeof d.decimals==='undefined' ? '2' : String(d.decimals),
+            escape = function(s){ return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); };
+        if(!/^\d{1,2}$/.test(precision) || Number(precision)>20) return false;
+        if(thousands===decimal) thousands = '';
+        if(value.charAt(0)==='-' || value.charAt(0)==='+'){ sign=value.charAt(0); value=value.slice(1); }
+        if(prefix && value.indexOf(prefix)!==0) return false;
+        value=value.slice(prefix.length);
+        if(suffix && value.slice(-suffix.length)!==suffix) return false;
+        if(suffix) value=value.slice(0,-suffix.length);
+        parts=decimal ? value.split(decimal) : [value];
+        if(Number(precision)>0){
+            if(parts.length!==2 || !new RegExp('^\\d{'+Number(precision)+'}$').test(parts[1])) return false;
+        }else if(parts.length!==1) return false;
+        integer=parts[0];
+        if(thousands && integer.indexOf(thousands)!==-1){
+            if(!new RegExp('^\\d{1,3}(?:'+escape(thousands)+'\\d{3})+$').test(integer)) return false;
+            integer=integer.split(thousands).join('');
+        }
+        if(!/^\d+$/.test(integer) || /\s/.test(integer)) return false;
+        return sign+integer+(parts.length===2 ? '.'+parts[1] : '');
+    };
+
     // Check for errors, validate fields
     SUPER.handle_validations = function(args){
         if(args.el.closest('[data-conditional-action="show"]')){
@@ -3418,14 +3453,15 @@ function SUPERreCaptcha(){
                     allowEmpty = true; // Allow field to be empty
                 }
                 if (mayBeEmpty == 'conditions') {
-                    // Allow field to be empty only when following conditions are met
+                    // "Yes, but not when the following conditions are met": the field may stay
+                    // empty unless one of ITS OWN conditions matches.
                     allowEmpty = true; 
-                    args.conditionalLogic = args.form.querySelectorAll('.super-validate-conditions');
+                    args.conditionalLogic = args.el.closest('.super-shortcode').querySelectorAll('.super-validate-conditions');
                     if(typeof args.conditionalLogic !== 'undefined'){
                         if(args.conditionalLogic.length!==0){
                             result = SUPER.conditional_logic.loop(args);
                             if (!result) {
-                                allowEmpty = false; // when condition is met, we do not allow field to be empty
+                                allowEmpty = false; // a condition is met: the field may not be empty
                             }
                         }
                     }
@@ -3448,17 +3484,24 @@ function SUPERreCaptcha(){
         if (args.validation == 'captcha') {
             error = true;
         }
+        value = args.el.value;
+        if(parent.classList.contains('super-currency') && (args.validation==='numeric' || args.validation==='float')){
+            value = SUPER.currency_validation_value(args.el);
+            if(args.validation==='numeric' && typeof value==='string') value=value.replace(/\.0+$/, '');
+        }
         if (args.validation == 'numeric') {
             regex = /^\d+$/;
-            if (!regex.test(args.el.value)) error = true;
+            if (value===false || !regex.test(value)) error = true;
         }
         if (args.validation == 'float') {
             regex = /^[+-]?\d+(\.\d+)?$/;
-            if (!regex.test(args.el.value)) error = true;
+            if (value===false || !regex.test(value)) error = true;
         }
         if (args.validation == 'email') {
-            regex = /^([\w-.+]+@([\w-]+\.)+[\w-]{2,63})?$/;
-            if ((SUPER.unicode_length(args.el.value) < 4) || (!regex.test(args.el.value))) {
+            // Match WordPress is_email(): ASCII local part and domain labels
+            // with no underscores, edge hyphens, empty labels or whitespace.
+            regex = /^[a-zA-Z0-9!#$%&'*+\/=?^_`{|}~.\-]+@(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?$/;
+            if ((SUPER.unicode_length(args.el.value) < 6) || /\s/.test(args.el.value) || (!regex.test(args.el.value))) {
                 error = true;
             }
         }
@@ -3611,7 +3654,8 @@ function SUPERreCaptcha(){
             }
         }
         // @since 5.0.022 - extra validation check for international phone numbers
-        if(args.el.closest('.super-int-phone')){
+        // An empty number is handled by the required/may-be-empty rules below, not by the number check.
+        if(args.el.closest('.super-int-phone') && args.el.value!==''){
             var super_int_phone = window.superTelInputGlobals.getInstance(args.el);
             if(!super_int_phone.isValidNumber()){
                 error = true;
@@ -4249,13 +4293,14 @@ function SUPERreCaptcha(){
                 return true;
             }
 
-            $this.parents('.super-shortcode.super-column').each(function(){
-                if($(this).css('display')=='none'){
-                    $hidden = true;
-                }
-            });
+            // Only Super Forms hiding excludes a field: conditional logic (the same rule validation
+            // uses) and the hide-on-mobile column settings. A column hidden by theme/custom CSS
+            // is submitted like a visible one (D1); the server enforces those fields.
+            $hidden = ($parent.length>0 && SUPER.has_hidden_parent($this[0])) || $this.parents('.super-hide-mobile, .super-hide-mobile-window').filter(function(){
+                return $(this).css('display')=='none';
+            }).length>0;
             
-            if( ( $hidden===true )  || ( ( $parent.css('display')=='none' ) && ( !$parent.hasClass('super-hidden') ) ) ) {
+            if( $hidden===true ) {
                 // Exclude conditionally
             }else{
                 // First replace %d with dynamic column number for E-mail label setting
@@ -4376,7 +4421,8 @@ function SUPERreCaptcha(){
                         $selected_items = $super_field.find('.super-field-wrapper .super-dropdown-list > .super-active');
                         $new_value = [];
                         $selected_items.each(function(){
-                            $item_value = $(this).data('value').toString().split(';');
+                            // Raw attribute: .data() converts 'null', 'true', numbers and JSON-like option values.
+                            $item_value = String($(this).attr('data-value') || '').split(';');
                             $new_value.push($item_value[0]);
                         });
                         $data[$route_name].selected_values = $new_value.slice(0);
@@ -5726,9 +5772,12 @@ function SUPERreCaptcha(){
             // @since 4.6.0 - if statement compatibility
             $html = SUPER.filter_if_statements($html);
             
-            if($target.value || $target.dataset.value){
+            // An option whose {tag} value resolved to '' (referenced field still empty) keeps its
+            // data-value attribute: test for the attribute, not its truthiness, so the value keeps
+            // following the referenced field instead of overwriting the option label (C11).
+            if($target.value || $target.hasAttribute('data-value')){
                 if($target.value) $target.value = $html;
-                if($target.dataset.value) $target.dataset.value = $html;
+                if($target.hasAttribute('data-value')) $target.dataset.value = $html;
             }else{
                 // Not if google map
                 if($target.classList.contains('super-google-map')){

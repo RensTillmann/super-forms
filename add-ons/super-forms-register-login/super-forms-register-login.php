@@ -414,7 +414,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                             $password = '';
                             $mail = self::send_approve_email(array('password'=>$password, 'code'=>$code, 'user'=>$user, 'settings'=>$settings, 'data'=>$data));
                             // After email is send, delete the email and subject (remove the password from database for security reasons)
-                            if( empty( $mail->ErrorInfo ) ) {
+                            if( SUPER_Common::email_error( $mail )==='' ) {
                                 if( !self::can_manage_user_login_status($user_id) ) {
                                     return;
                                 }
@@ -1421,7 +1421,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                 if( is_array($mail) ) {
                     return !empty($mail['result']) && empty($mail['error']);
                 }
-                return is_object($mail) && empty($mail->ErrorInfo);
+                return is_object($mail) && SUPER_Common::email_error($mail)==='';
             });
         }
 
@@ -1570,7 +1570,7 @@ if( !class_exists('SUPER_Register_Login') ) :
          * File values are accepted only when the core submission pipeline has
          * rebuilt them from an owned upload receipt or retained entry record.
          */
-        private static function resolve_custom_meta_value( $source, $data, $settings, $form_id=0 ) {
+        private static function resolve_custom_meta_value( $source, $data, $settings, $form_id=0, $owned_files=array(), $upload_parent=0 ) {
             if( isset($data[$source]) && is_array($data[$source])
                 && isset($data[$source]['type']) && $data[$source]['type']==='files' ) {
                 if( !isset($data[$source]['files']) || !is_array($data[$source]['files']) ) {
@@ -1592,12 +1592,9 @@ if( !class_exists('SUPER_Register_Login') ) :
                         if( isset($file['path']) || isset($file['subdir']) ) {
                             return new WP_Error( 'super_forms_invalid_custom_meta_file' );
                         }
-                        $filename = get_attached_file($attachment_id);
-                        $real = is_string($filename) && $filename!=='' && !is_link($filename)
-                            ? realpath($filename)
-                            : false;
-                        if( $real===false || !is_file($real) || get_post_type($attachment_id)!=='attachment'
-                            || basename($real)!==$file['value'] ) {
+                        if( !class_exists('SUPER_Ajax') || !SUPER_Ajax::owned_attachment_record_is_current(
+                            $file, $source, $form_id, $owned_files, $upload_parent
+                        ) ) {
                             return new WP_Error( 'super_forms_invalid_custom_meta_file' );
                         }
                         $file_values[] = $attachment_id;
@@ -1780,7 +1777,7 @@ if( !class_exists('SUPER_Register_Login') ) :
                     continue;
                 }
                 if( !empty($element['inner']) ) {
-                    self::collect_registration_role_fields( $element['inner'], $field_name, $matches );
+                    self::collect_registration_role_fields( SUPER_Common::inner_elements($element), $field_name, $matches );
                 }
                 $data = (isset($element['data']) && is_array($element['data'])) ? $element['data'] : array();
                 if( isset($data['name']) && is_string($data['name']) && $data['name']===$field_name ) {
@@ -1957,6 +1954,8 @@ if( !class_exists('SUPER_Register_Login') ) :
                 return;
             }
             $data = (isset($atts['data']) && is_array($atts['data'])) ? $atts['data'] : array();
+            $owned_files = (isset($atts['owned_files']) && is_array($atts['owned_files'])) ? $atts['owned_files'] : array();
+            $upload_parent = absint(isset($atts['owned_upload_parent']) ? $atts['owned_upload_parent'] : 0);
             $user_id = absint( $context['target'] );
             $form_id = absint( isset($post['form_id']) ? $post['form_id'] : 0 );
             $meta_data = array();
@@ -1967,7 +1966,9 @@ if( !class_exists('SUPER_Register_Login') ) :
                         $mapping['source'],
                         $data,
                         $settings,
-                        $form_id
+                        $form_id,
+                        $owned_files,
+                        $upload_parent
                     );
                     if( is_wp_error($value) ) {
                         SUPER_Common::output_message(
@@ -2003,7 +2004,7 @@ if( !class_exists('SUPER_Register_Login') ) :
             }
 
             foreach( $context['meta_mapping'] as $mapping ) {
-                $value = self::resolve_custom_meta_value($mapping['source'], $data, $settings, $form_id);
+                $value = self::resolve_custom_meta_value($mapping['source'], $data, $settings, $form_id, $owned_files, $upload_parent);
                 if( is_wp_error($value) ) {
                     SUPER_Common::output_message(
                         $error = true,
@@ -2419,10 +2420,10 @@ if( !class_exists('SUPER_Register_Login') ) :
                         $user = get_user_by( 'id', $user_id );
                         $mail = self::send_verification_email(array('password'=>$password, 'code'=>$code, 'user'=>$user, 'settings'=>$settings, 'data'=>$data));
                         // Return message
-                        if( !empty( $mail->ErrorInfo ) ) {
+                        if( SUPER_Common::report_email_failure( $mail ) ) {
                             SUPER_Common::output_message(
                                 $error = true,
-                                $msg = $mail->ErrorInfo,
+                                $msg = SUPER_Common::email_error( $mail ),
                                 $redirect = null
                             );
                         }
@@ -2698,10 +2699,10 @@ if( !class_exists('SUPER_Register_Login') ) :
                 $mail = self::send_reset_password_email(array('password'=>$password, 'code'=>'', 'user'=>$user, 'settings'=>$settings, 'data'=>$data));
 
                 // Return message
-                if( !empty( $mail->ErrorInfo ) ) {
+                if( SUPER_Common::report_email_failure( $mail ) ) {
                     SUPER_Common::output_message(
                         $error = true,
-                        $msg = $mail->ErrorInfo,
+                        $msg = SUPER_Common::email_error( $mail ),
                         $redirect = null
                     );
                 }else{

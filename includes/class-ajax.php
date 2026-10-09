@@ -142,7 +142,7 @@ class SUPER_Ajax {
                 && $element['tag']==='button' && $data['action']==='print'
                 && $data['print_custom']==='true' && is_scalar($data['print_file'])
                 && (string)$data['print_file']===(string)$file_id ) return true;
-            if( isset($element['inner']) && self::saved_form_has_print_attachment($element['inner'], $file_id) ) return true;
+            if( isset($element['inner']) && self::saved_form_has_print_attachment(SUPER_Common::inner_elements($element), $file_id) ) return true;
         }
         return false;
     }
@@ -513,7 +513,7 @@ class SUPER_Ajax {
                     $name = $settings['name'];
                     $always_present[$name] = ! $locked || !empty($always_present[$name]);
                 }
-                if( !empty($element['inner']) ) $walk( $element['inner'], $locked );
+                if( !empty($element['inner']) ) $walk( SUPER_Common::inner_elements($element), $locked );
             }
         };
         $elements = SUPER_Common::get_form_elements(absint($form_id));
@@ -1192,7 +1192,7 @@ class SUPER_Ajax {
                 continue;
             }
             if( !empty($element['inner']) ) {
-                self::collect_public_entry_search_fields( $element['inner'], $field_name, $matches );
+                self::collect_public_entry_search_fields( SUPER_Common::inner_elements($element), $field_name, $matches );
             }
             $data = ( isset($element['data']) && is_array($element['data']) ) ? $element['data'] : array();
             if( ( isset($element['tag']) ? $element['tag'] : '' )!=='text'
@@ -1216,7 +1216,7 @@ class SUPER_Ajax {
                 continue;
             }
             if( !empty($element['inner']) ) {
-                self::collect_wc_order_search_fields( $element['inner'], $field_name, $matches, $require_populate );
+                self::collect_wc_order_search_fields( SUPER_Common::inner_elements($element), $field_name, $matches, $require_populate );
             }
             $data = ( isset($element['data']) && is_array($element['data']) ) ? $element['data'] : array();
             if( ( isset($element['tag']) ? $element['tag'] : '' )!=='text'
@@ -2999,7 +2999,7 @@ class SUPER_Ajax {
             foreach($elements as $k => $v){
                 // Check if has inner elements
                 if(!empty($v['inner'])){
-                    $elements[$k]['inner'] = self::clear_i18n( $v['inner'], $translations );
+                    $elements[$k]['inner'] = SUPER_Common::map_inner_elements( $v['inner'], function( $items ) use ( $translations ) { return self::clear_i18n( $items, $translations ); } );
                 }else{
                     // Just remove deleted translations
                     if( !empty($v['data']['i18n']) && is_array($v['data']['i18n']) ) {
@@ -3577,7 +3577,7 @@ class SUPER_Ajax {
         );
         foreach( $elements as $element ) {
             if( !empty( $element['inner'] ) ) {
-                $name = self::first_repeater_group_name( $element['inner'] );
+                $name = self::first_repeater_group_name( SUPER_Common::inner_elements($element) );
                 if( $name === null || $name !== '' ) return $name;
                 continue;
             }
@@ -3679,8 +3679,8 @@ class SUPER_Ajax {
                 if( $repeater ) {
                     // A repeater is row-enforceable only when its payload group is known and
                     // NOTHING in its subtree has conditional or mobile-dependent visibility.
-                    $repeater_group = self::first_repeater_group_name( $element['inner'] );
-                    $this_safe = ( is_string( $repeater_group ) && $repeater_group !== '' && !self::subtree_has_dynamic_visibility( $element['inner'] ) );
+                    $repeater_group = self::first_repeater_group_name( SUPER_Common::inner_elements($element) );
+                    $this_safe = ( is_string( $repeater_group ) && $repeater_group !== '' && !self::subtree_has_dynamic_visibility( SUPER_Common::inner_elements($element) ) );
                     $child_ctx = array(
                         'ancestor_locked' => $child_locked,
                         'in_repeater' => true,
@@ -3695,7 +3695,7 @@ class SUPER_Ajax {
                         'repeater_group' => $ctx['repeater_group'],
                     );
                 }
-                foreach( self::collect_required_fields( $element['inner'], $child_ctx ) as $sub_name => $sub_meta ) {
+                foreach( self::collect_required_fields( SUPER_Common::inner_elements($element), $child_ctx ) as $sub_name => $sub_meta ) {
                     $required = self::merge_required_meta( $required, $sub_name, $sub_meta );
                 }
             } elseif( isset($edata['name']) && is_string($edata['name']) && $edata['name']!=='' ) {
@@ -3754,6 +3754,7 @@ class SUPER_Ajax {
             'allows_signature_lines' => !empty($meta['allows_signature_lines']),
             'allows_hidden_code' => !empty($meta['allows_hidden_code']),
             'allows_selected_values' => !empty($meta['allows_selected_values']),
+            'currency_format' => isset($meta['currency_format']) && is_array($meta['currency_format']) ? $meta['currency_format'] : null,
         );
         if( array_key_exists('choice_values', $meta) ) {
             if( $meta['choice_values']===false ) {
@@ -3814,7 +3815,19 @@ class SUPER_Ajax {
                     $contract[$name] = $normalized;
                     return true;
                 }
-                // Genuinely irreconcilable duplicate (two rendered fields, or two
+                if( $existing_authoritative && $authoritative
+                    && $compare_existing['type']===$normalized['type']
+                    && $compare_existing['repeatable']===$normalized['repeatable'] ) {
+                    // The same name rendered twice with different settings (typically in two
+                    // conditional columns, one shown at a time). Versions before 6.3.315 accepted
+                    // either; accept a carrier that satisfies one of the rendered variants.
+                    $variants = isset($compare_existing['variants']) ? $compare_existing['variants'] : array();
+                    unset($compare_existing['variants']);
+                    if( $compare_existing!==$normalized && !in_array($normalized, $variants, true) ) $variants[] = $normalized;
+                    $contract[$name]['variants'] = $variants;
+                    return true;
+                }
+                // Genuinely irreconcilable duplicate (two rendered fields of a different type, or two
                 // conflicting declarations for a never-rendered name): poison the carrier.
                 $contract[$name] = false;
                 return false;
@@ -3823,6 +3836,22 @@ class SUPER_Ajax {
         $normalized['authoritative'] = ( $authoritative || ( is_array($existing) && !empty($existing['authoritative']) ) );
         $contract[$name] = $normalized;
         return true;
+    }
+
+    /** Shared renderer-default resolution for saved currency validation. */
+    private static function submission_currency_format( $data ) {
+        $defaults = SUPER_Common::generate_array_default_element_settings(false, 'form_elements', 'currency');
+        $effective = wp_parse_args($data, $defaults);
+        // These are the renderer's final fallbacks if a definition omits a key;
+        // normal generated defaults contain empty currency/grouping strings.
+        $format = array('currency'=>'$', 'format'=>'', 'decimals'=>'2', 'thousand_separator'=>',', 'decimal_separator'=>'.');
+        foreach( $format as $key=>$fallback ) {
+            if( isset($effective[$key]) ) $format[$key] = $effective[$key];
+            // The renderer prints these raw into data-* attributes, so the browser compares the
+            // decoded text (&euro; => €, &nbsp; => U+00A0); compare the same here.
+            if( is_string($format[$key]) ) $format[$key] = self::submission_decode_html_attribute($format[$key]);
+        }
+        return $format;
     }
 
     /**
@@ -3845,7 +3874,7 @@ class SUPER_Ajax {
             if( $tag==='column' && isset($data['duplicate']) && $data['duplicate']==='enabled' ) {
                 $child_repeater_depth++;
             }
-            if( !empty($element['inner']) ) self::collect_submission_field_contract($element['inner'], $contract, $child_repeater_depth, $form_id);
+            if( !empty($element['inner']) ) self::collect_submission_field_contract(SUPER_Common::inner_elements($element), $contract, $child_repeater_depth, $form_id);
             if( !empty($payload_tags[$tag]) && isset($data['name']) && is_string($data['name']) && $data['name']!=='' ) {
                 $type = $tag==='file' ? 'files' : 'var';
                 $length_mode = 'text';
@@ -3860,15 +3889,21 @@ class SUPER_Ajax {
                 }elseif( $tag==='text' && !empty($data['enable_keywords']) ) {
                     $length_mode = 'keywords';
                 }
+                // International phone (C3): the browser validates the displayed national number
+                // (author length/regex + phone library) and submits its E.164 form. The server
+                // validates that submitted representation: a well-formed E.164 number.
+                $int_phone = ( $tag==='text' && isset($data['type']) && $data['type']==='int-phone' );
+                if( $int_phone ) $length_mode = 'skip';
                 self::register_submission_contract_entry($contract, $data['name'], array(
                     'type'=>$type,
-                    'validation'=>isset($data['validation']) && is_string($data['validation']) ? $data['validation'] : '',
-                    'custom_regex'=>isset($data['custom_regex']) && is_string($data['custom_regex']) ? $data['custom_regex'] : '',
+                    'validation'=>$int_phone ? 'int_phone' : ( isset($data['validation']) && is_string($data['validation']) ? $data['validation'] : '' ),
+                    'custom_regex'=>( !$int_phone && isset($data['custom_regex']) && is_string($data['custom_regex']) ) ? $data['custom_regex'] : '',
                     'minlength'=>isset($data['minlength']) ? $data['minlength'] : '',
                     'maxlength'=>isset($data['maxlength']) ? $data['maxlength'] : '',
                     'selection_limit'=>( $tag==='dropdown' || $tag==='checkbox' || $tag==='countries' ),
                     'selection_joiner'=>( $tag==='checkbox' ? ',' : ', ' ),
                     'length_mode'=>$length_mode,
+                    'currency_format'=>( $tag==='currency' ? self::submission_currency_format($data) : null ),
                     'keyword_split_method'=>( isset($data['keyword_split_method']) && is_string($data['keyword_split_method']) ? $data['keyword_split_method'] : '' ),
                     'nested_repeater_suffix_depth'=>max( 0, $repeater_depth-1 ),
                     'repeatable'=>( $repeater_depth>0 ),
@@ -4679,7 +4714,7 @@ class SUPER_Ajax {
                     return false;
                 }
             }
-            if( !empty($element['inner']) && !self::form_custom_regexes_are_compatible($element['inner']) ) {
+            if( !empty($element['inner']) && !self::form_custom_regexes_are_compatible(SUPER_Common::inner_elements($element)) ) {
                 return false;
             }
         }
@@ -4713,7 +4748,7 @@ class SUPER_Ajax {
                 }
             }
             if( !empty($element['inner'])
-                && !self::collect_incompatible_form_custom_regexes($element['inner'], $patterns, $identity_prefix . '[' . $index . ']') ) {
+                && !self::collect_incompatible_form_custom_regexes(SUPER_Common::inner_elements($element), $patterns, $identity_prefix . '[' . $index . ']') ) {
                 return false;
             }
         }
@@ -4860,6 +4895,50 @@ class SUPER_Ajax {
         return $remainder===1;
     }
 
+    /** Parse saved currency syntax for validation only; never strip arbitrary letters. */
+    private static function submission_currency_validation_value( $value, $format ) {
+        $parsed = self::submission_currency_parse_saved_syntax( $value, $format );
+        if( $parsed!==false ) return $parsed;
+        // The saved grammar wins: raw canonical numbers are accepted only when
+        // they are not valid formatted syntax under the saved configuration.
+        if( preg_match('/^[+-]?\d+(?:\.\d+)?$/D', $value)===1 ) return $value;
+        return false;
+    }
+
+    private static function submission_currency_parse_saved_syntax( $value, $format ) {
+        foreach(array('currency','format','decimals','thousand_separator','decimal_separator') as $key) {
+            if( !isset($format[$key]) || !is_scalar($format[$key]) ) return false;
+            $format[$key] = (string)$format[$key];
+        }
+        if( preg_match('/^\d{1,2}$/D', $format['decimals'])!==1 || (int)$format['decimals']>20 ) return false;
+        $thousands = $format['thousand_separator'];
+        $decimal = $format['decimal_separator'];
+        if( $thousands===$decimal ) $thousands = '';
+        $sign = '';
+        if( substr($value, 0, 1)==='-' || substr($value, 0, 1)==='+' ) {
+            $sign = substr($value, 0, 1);
+            $value = substr($value, 1);
+        }
+        $prefix = $format['currency'];
+        $suffix = $format['format'];
+        if( $prefix!=='' && strpos($value, $prefix)!==0 ) return false;
+        $value = substr($value, strlen($prefix));
+        if( $suffix!=='' && substr($value, -strlen($suffix))!==$suffix ) return false;
+        if( $suffix!=='' ) $value = substr($value, 0, -strlen($suffix));
+        $parts = $decimal!=='' ? explode($decimal, $value) : array($value);
+        $precision = (int)$format['decimals'];
+        if( $precision>0 ) {
+            if( count($parts)!==2 || preg_match('/^\d{'.$precision.'}$/D', $parts[1])!==1 ) return false;
+        }elseif( count($parts)!==1 ) return false;
+        $integer = $parts[0];
+        if( $thousands!=='' && strpos($integer, $thousands)!==false ) {
+            if( preg_match('/^\d{1,3}(?:'.preg_quote($thousands, '/').'\d{3})+$/D', $integer)!==1 ) return false;
+            $integer = str_replace($thousands, '', $integer);
+        }
+        if( preg_match('/^\d+$/D', $integer)!==1 ) return false;
+        return $sign.$integer.(count($parts)===2 ? '.'.$parts[1] : '');
+    }
+
     private static function submission_value_matches_validation( $value, $meta, $carrier=null ) {
         if( !is_array($meta) || !is_scalar($value) && $value!==null ) return false;
         $value = (string)$value;
@@ -4884,8 +4963,16 @@ class SUPER_Ajax {
             return true; // requiredness is a separate stored-field rule.
         }
         $validation = isset($meta['validation']) ? $meta['validation'] : '';
-        if( $validation==='numeric' && preg_match('/^\d+$/D', $value)!==1 ) return false;
-        if( $validation==='float' && preg_match('/^[+-]?\d+(?:\.\d+)?$/D', $value)!==1 ) return false;
+        $numeric_value = $value;
+        if( isset($meta['currency_format']) && is_array($meta['currency_format'])
+            && ($validation==='numeric' || $validation==='float') ) {
+            $numeric_value = self::submission_currency_validation_value($value, $meta['currency_format']);
+            if( $numeric_value===false ) return false;
+            if( $validation==='numeric' ) $numeric_value = preg_replace('/\.0+$/D', '', $numeric_value);
+        }
+        if( $validation==='numeric' && preg_match('/^\d+$/D', $numeric_value)!==1 ) return false;
+        if( $validation==='float' && preg_match('/^[+-]?\d+(?:\.\d+)?$/D', $numeric_value)!==1 ) return false;
+        if( $validation==='int_phone' && preg_match('/^\+[1-9]\d{6,14}$/D', $value)!==1 ) return false;
         if( $validation==='email' && !is_email($value) ) return false;
         if( $validation==='iban' && !self::submission_iban_is_valid($value) ) return false;
         if( $validation==='phone'
@@ -4941,7 +5028,7 @@ class SUPER_Ajax {
         foreach( $elements as $element ) {
             if( !is_array($element) ) continue;
             $data = (isset($element['data']) && is_array($element['data'])) ? $element['data'] : array();
-            $inner = (isset($element['inner']) && is_array($element['inner'])) ? $element['inner'] : array();
+            $inner = SUPER_Common::inner_elements($element);
             if( isset($element['tag']) && $element['tag']==='column'
                 && isset($data['duplicate']) && $data['duplicate']==='enabled' && !empty($inner) ) {
                 $group_name = self::first_repeater_group_name( $inner );
@@ -5116,6 +5203,15 @@ class SUPER_Ajax {
     }
 
     private static function submission_carrier_matches_contract( $name, $carrier, $meta ) {
+        if( is_array($meta) && !empty($meta['variants']) ) {
+            $variants = $meta['variants'];
+            unset($meta['variants']);
+            if( self::submission_carrier_matches_contract($name, $carrier, $meta) ) return true;
+            foreach( $variants as $variant ) {
+                if( self::submission_carrier_matches_contract($name, $carrier, $variant) ) return true;
+            }
+            return false;
+        }
         if( is_int($name) ) $name = (string)$name;
         if( !is_string($name) || !is_array($carrier) || !is_array($meta)
             || !isset($carrier['type']) || !is_string($carrier['type'])
@@ -5197,6 +5293,38 @@ class SUPER_Ajax {
         return true;
     }
 
+    /**
+     * The browser rewrites a saved option value that contains {tags} to the referenced field
+     * values before it submits (common.js update_variable_fields). Also allow that expansion,
+     * resolved from this same submission, next to the saved literal.
+     * ponytail: top-level fields only; repeater-row contracts keep the literal value.
+     */
+    private static function expand_tag_choice_values( $contract, $data, $form_id ) {
+        foreach( $contract as $name => $meta ) {
+            if( !is_array($meta) ) continue;
+            $metas = array( 'primary' => $meta );
+            if( !empty($meta['variants']) ) $metas += $meta['variants'];
+            foreach( $metas as $key => $entry ) {
+                if( empty($entry['choice_values']) || !is_array($entry['choice_values']) ) continue;
+                $values = $entry['choice_values'];
+                foreach( $entry['choice_values'] as $choice ) {
+                    $expanded = self::submitted_tag_choice($choice, $data, $form_id);
+                    if( $expanded!=='' && !in_array($expanded, $values, true) ) $values[] = $expanded;
+                }
+                if( $key==='primary' ) $contract[$name]['choice_values'] = $values;
+                else $contract[$name]['variants'][$key]['choice_values'] = $values;
+            }
+        }
+        return $contract;
+    }
+
+    /** A saved choice value with {tags} resolved from this submission ('' when it has none). */
+    private static function submitted_tag_choice( $choice, $data, $form_id ) {
+        if( !is_string($choice) || strpos($choice, '{')===false || !is_array($data) ) return '';
+        $expanded = SUPER_Common::email_tags($choice, $data, SUPER_Common::get_form_settings($form_id));
+        return ( is_string($expanded) && $expanded!==$choice ) ? $expanded : '';
+    }
+
     private static function submission_identity_carrier_matches( $carrier, $name, $type, $expected_id ) {
         if( !is_array($carrier) || count($carrier)!==3
             || array_diff(array_keys($carrier), array('name', 'value', 'type'))
@@ -5215,6 +5343,7 @@ class SUPER_Ajax {
         $dynamic_routes = array();
         self::collect_submission_field_contract($elements, $contract, 0, $form_id);
         $contract = self::apply_register_login_role_contracts($contract, $form_id);
+        $contract = self::expand_tag_choice_values($contract, $data, $form_id);
         self::collect_dynamic_submission_contract($elements, $dynamic_groups, $form_id);
         if( !isset($data['hidden_form_id'], $data['hidden_contact_entry_id'])
             || !self::submission_identity_carrier_matches($data['hidden_form_id'], 'hidden_form_id', 'form_id', $form_id)
@@ -5296,7 +5425,12 @@ class SUPER_Ajax {
         } elseif( !is_scalar( $value ) && $value !== null ) {
             return false;
         }
-        return trim( wp_strip_all_tags( (string) $value ) ) !== '';
+        $value = trim( (string) $value );
+        if( $value === '' ) return false;
+        if( trim( wp_strip_all_tags( $value ) ) !== '' ) return true;
+        // Markup-only values ('<p></p>', '<br />') stay empty. Text that merely starts with '<'
+        // ('<10', '<=5 kg') is not a tag; strip_tags would wrongly erase it.
+        return preg_match( '/<\/?[a-z!][^>]*>/i', $value ) !== 1;
     }
 
     /**
@@ -5383,7 +5517,7 @@ class SUPER_Ajax {
             $mobile_hide = ( ( isset( $edata['hide_on_mobile'] ) && $edata['hide_on_mobile'] === 'true' )
                 || ( isset( $edata['hide_on_mobile_window'] ) && $edata['hide_on_mobile_window'] === 'true' ) );
             if( ( $ca !== '' && $ca !== 'disabled' ) || $mobile_hide ) return true;
-            if( !empty( $element['inner'] ) && self::subtree_has_dynamic_visibility( $element['inner'] ) ) return true;
+            if( !empty( $element['inner'] ) && self::subtree_has_dynamic_visibility( SUPER_Common::inner_elements($element) ) ) return true;
         }
         return false;
     }
@@ -5395,7 +5529,7 @@ class SUPER_Ajax {
                 $data = isset($element['data']) && is_array($element['data']) ? $element['data'] : array();
                 $versions[(!empty($data['version']) && $data['version']==='v3') ? 'v3' : 'v2'] = true;
             }
-            if( !empty($element['inner']) ) self::form_recaptcha_versions($element['inner'], $versions);
+            if( !empty($element['inner']) ) self::form_recaptcha_versions(SUPER_Common::inner_elements($element), $versions);
         }
     }
 
@@ -5413,7 +5547,7 @@ class SUPER_Ajax {
                 && $edata['name']===$field_name ) {
                 $matches[] = $edata;
             }
-            if( !empty($element['inner']) ) self::collect_file_elements($element['inner'], $field_name, $matches);
+            if( !empty($element['inner']) ) self::collect_file_elements(SUPER_Common::inner_elements($element), $field_name, $matches);
         }
     }
 
@@ -5469,6 +5603,29 @@ class SUPER_Ajax {
     }
 
 
+    /**
+     * True when any extension segment of $name is dangerous. The final extension is checked
+     * against the full list; inner segments only against extensions a web server can execute
+     * through a multi-extension name (PHP family, SSI, CGI, ASP), so ordinary names such as
+     * faktura.pl.pdf, site.com.jpg or notes.inc.pdf are not refused for a country code,
+     * domain or abbreviation.
+     */
+    private static function upload_name_has_dangerous_extension( $name ) {
+        $parts = explode('.', strtolower((string) $name));
+        array_shift($parts);
+        $dangerous = self::dangerous_upload_extensions();
+        $inner = array_fill_keys(array(
+            'php', 'php2', 'php3', 'php4', 'php5', 'php6', 'php7', 'php8', 'phtml', 'pht', 'phtm',
+            'phps', 'phar', 'shtml', 'shtm', 'cgi', 'asp', 'aspx', 'htaccess', 'userini',
+        ), true);
+        $last = count($parts) - 1;
+        foreach( $parts as $index => $part ) {
+            $key = sanitize_key($part);
+            if( isset($inner[$key]) || ( $index===$last && isset($dangerous[$key]) ) ) return true;
+        }
+        return false;
+    }
+
     private static function dangerous_upload_extensions() {
         return array_fill_keys(array(
             'php', 'php2', 'php3', 'php4', 'php5', 'php6', 'php7', 'php8',
@@ -5522,6 +5679,74 @@ class SUPER_Ajax {
     }
 
     /**
+     * Allow a configured uploads-root alias, never links below that root or at the leaf.
+     */
+    private static function canonical_owned_attachment_file( $path, $root ) {
+        if( !is_string($path) || $path==='' || is_link($path) ) return false;
+        $path = wp_normalize_path($path);
+        if( preg_match('#(?:^|/)\.\.?(?:/|$)#', $path) ) return false;
+        $real = realpath($path);
+        if( $real===false || !is_file($real) ) return false;
+        $real = wp_normalize_path($real);
+        if( !self::upload_path_is_descendant($real, $root) ) return false;
+        if( $path===$real ) return $real;
+        $uploads = wp_get_upload_dir();
+        if( empty($uploads['basedir']) || !is_string($uploads['basedir']) ) return false;
+        $lexical_root = untrailingslashit(wp_normalize_path($uploads['basedir']));
+        $physical_root = realpath($lexical_root);
+        if( $physical_root===false || !self::upload_path_is_descendant($path, $lexical_root) ) return false;
+        $relative = substr($path, strlen(trailingslashit($lexical_root)));
+        if( trailingslashit(wp_normalize_path($physical_root)) . $relative!==$real ) return false;
+        return $real;
+    }
+
+    /**
+     * Resolve an attachment's exact owned file, including WordPress's preserved
+     * original after scaling or EXIF rotation. Metadata is not a path authority.
+     */
+    private static function owned_attachment_file( $attachment_id, $file, $root ) {
+        $attached_file = get_attached_file($attachment_id);
+        $attached_real = self::canonical_owned_attachment_file($attached_file, $root);
+        if( $attached_real===false ) return false;
+        if( $attached_real===$file ) return $attached_real;
+
+        $metadata = wp_get_attachment_metadata($attachment_id);
+        $original = is_array($metadata) && isset($metadata['original_image'])
+            ? $metadata['original_image'] : false;
+        if( !is_string($original) || $original==='' || $original==='.' || $original==='..'
+            || strpos($original, '/')!==false || strpos($original, '\\')!==false
+            || strpos($original, ':')!==false || strpos($original, "\0")!==false ) return false;
+        $original_file = trailingslashit(dirname($attached_real)) . $original;
+        $original_real = self::canonical_owned_attachment_file($original_file, $root);
+        if( $original_real===false || $original_real!==$original_file || $original_file!==$file ) return false;
+        // Require WordPress to identify this exact original as well; a metadata
+        // leaf alone cannot authorize a different file or a filtered path.
+        $original_path = wp_get_original_image_path($attachment_id);
+        $original_path_real = self::canonical_owned_attachment_file($original_path, $root);
+        if( $original_path_real===false || $original_path_real!==$file ) return false;
+        return $attached_real;
+    }
+
+    /**
+     * Match a finalized attachment value without granting path or cleanup authority.
+     */
+    public static function attachment_upload_value_is_valid( $attachment_id, $value ) {
+        $attachment_id = absint($attachment_id);
+        if( !$attachment_id || get_post_type($attachment_id)!=='attachment'
+            || !is_string($value) || $value==='' || $value==='.' || $value==='..'
+            || strpos($value, '/')!==false || strpos($value, '\\')!==false
+            || strpos($value, ':')!==false || strpos($value, "\0")!==false ) return false;
+        $attached_file = get_attached_file($attachment_id);
+        if( !is_string($attached_file) || $attached_file==='' || is_link($attached_file) ) return false;
+        $candidate = trailingslashit(wp_normalize_path(dirname($attached_file))) . $value;
+        $root = realpath(dirname($attached_file));
+        if( $root===false ) return false;
+        $root = wp_normalize_path($root);
+        $file = self::canonical_owned_attachment_file($candidate, $root);
+        return $file!==false && self::owned_attachment_file($attachment_id, $file, $root)!==false;
+    }
+
+    /**
      * Build the only record shape that can later authorize attachment/file effects.
      */
     public static function build_owned_upload( $form_id, $field_name, $filename, $mime, $url, $attachment_id, $allowed_root, $size, $legacy_subdir='' ) {
@@ -5543,13 +5768,12 @@ class SUPER_Ajax {
                 $root = $candidates[0]['root'];
             }
         }
+        $attached_file = '';
         if( $attachment_id!==0 ) {
-            $attached_file = get_attached_file($attachment_id);
-            $attached_real = $attached_file ? realpath($attached_file) : false;
-            if( get_post_type($attachment_id)!=='attachment' || $attached_real===false
-                || wp_normalize_path($attached_real)!==$file ) return false;
+            $attached_file = self::owned_attachment_file($attachment_id, $file, $root);
+            if( get_post_type($attachment_id)!=='attachment' || $attached_file===false ) return false;
         }
-        return array(
+        $owned = array(
             'version' => 1,
             'form_id' => absint($form_id),
             'field' => $field_name,
@@ -5564,6 +5788,10 @@ class SUPER_Ajax {
             'basename' => basename($file),
             'legacy_subdir' => $legacy_subdir,
         );
+        if( $attachment_id && $attached_file!==$file ) {
+            $owned['attached_file'] = $attached_file;
+        }
+        return $owned;
     }
 
     private static function owned_upload_is_current( $owned, $expected_parent=null ) {
@@ -5588,8 +5816,9 @@ class SUPER_Ajax {
             || basename($file)!==$owned['basename'] ) return false;
         if( $owned['storage']==='attachment' ) {
             $attachment_id = isset($owned['attachment']) ? absint($owned['attachment']) : 0;
-            $attached_file = $attachment_id ? get_attached_file($attachment_id) : false;
-            $attached_real = $attached_file ? realpath($attached_file) : false;
+            $attached_file = $attachment_id
+                ? self::owned_attachment_file($attachment_id, $file, $root)
+                : false;
             $stored_form_id = $attachment_id
                 ? get_post_meta($attachment_id, '_super_forms_upload_form_id', true)
                 : '';
@@ -5611,9 +5840,34 @@ class SUPER_Ajax {
             if( !$attachment_id || get_post_type($attachment_id)!=='attachment'
                 || !get_post_meta($attachment_id, 'super-forms-form-upload-file', true)
                 || (!$metadata_owned && !$legacy_owned)
-                || $attached_real===false || wp_normalize_path($attached_real)!==$file
+                || $attached_file===false
+                || (isset($owned['attached_file']) && $owned['attached_file']!==$attached_file)
+                || ($attached_file!==$file && !isset($owned['attached_file']))
                 || get_post_mime_type($attachment_id)!==$owned['mime'] ) return false;
             if( $expected_parent!==null && wp_get_post_parent_id($attachment_id)!==absint($expected_parent) ) return false;
+            if( array_key_exists('original', $owned) ) {
+                // WordPress may attach a scaled/rotated image. Presentation still
+                // describes the handled original, never a client-supplied path/name.
+                $original = $owned['original'];
+                if( !is_array($original) || !isset($original['file'], $original['size'], $original['basename'])
+                    || !is_string($original['file']) || !is_int($original['size'])
+                    || !is_string($original['basename']) || is_link($original['file']) ) return false;
+                $wp_original = function_exists('wp_get_original_image_path')
+                    ? wp_get_original_image_path($attachment_id) : get_attached_file($attachment_id);
+                $original_real = is_string($wp_original) && !is_link($wp_original) ? realpath($wp_original) : false;
+                if( $original_real===false || !is_file($original_real)
+                    || wp_normalize_path($original_real)!==$original['file']
+                    || dirname(wp_normalize_path($original_real))!==dirname($file)
+                    || !self::upload_path_is_descendant($original_real, $root)
+                    || basename($original_real)!==$original['basename']
+                    || filesize($original_real)!==$original['size']
+                    || self::verified_existing_upload_mime($file, array(
+                        'extensions' => strtolower(pathinfo($owned['basename'], PATHINFO_EXTENSION)),
+                    ))!==$owned['mime']
+                    || self::verified_existing_upload_mime($original_real, array(
+                        'extensions' => strtolower(pathinfo($original['basename'], PATHINFO_EXTENSION)),
+                    ))!==$owned['mime'] ) return false;
+            }
             return true;
         }
         return $owned['storage']==='custom'
@@ -5919,7 +6173,7 @@ class SUPER_Ajax {
                 $child_repeater_depth++;
             }
             if( !empty($element['inner']) ) {
-                self::collect_submission_file_routes($element['inner'], $routes, $child_repeater_depth);
+                self::collect_submission_file_routes(SUPER_Common::inner_elements($element), $routes, $child_repeater_depth);
             }
             if( $tag!=='file' || !isset($data['name']) || !is_string($data['name']) || $data['name']==='' ) {
                 continue;
@@ -6487,12 +6741,14 @@ class SUPER_Ajax {
         if( !is_string($route_name) || $route_name==='' ) {
             $route_name = $owned['field'];
         }
+        $public = isset($owned['retained']) ? $owned['retained']
+            : (isset($owned['original']) ? $owned['original'] : $owned);
         return array(
-            'value' => $owned['basename'],
+            'value' => $public['basename'],
             'name' => $route_name,
             'type' => $owned['mime'],
             'url' => $owned['url'],
-            'size' => $owned['size'],
+            'size' => $public['size'],
         );
     }
 
@@ -6512,6 +6768,31 @@ class SUPER_Ajax {
         $encoded = wp_json_encode($payload, JSON_UNESCAPED_SLASHES);
         if( !is_string($encoded) ) return false;
         return hash_hmac('sha256', $encoded, wp_salt('auth'));
+    }
+
+    /** Revalidate a finalized attachment using descriptors supplied by core, never submitted file flags. */
+    public static function owned_attachment_record_is_current( $file, $route_name, $form_id, $owned_files, $parent_id=0 ) {
+        $matches = 0;
+        foreach( (array) $owned_files as $owned ) {
+            if( !is_array($owned) || !isset($owned['storage'], $owned['form_id'], $owned['field'])
+                || $owned['storage']!=='attachment' ) continue;
+            $retained = isset($owned['legacy_entry_id']);
+            if( $retained && !isset($owned['legacy_source_field']) ) continue;
+            $owned_route = $retained ? $owned['legacy_source_field']
+                : (isset($owned['route_name']) ? $owned['route_name'] : $owned['field']);
+            if( $owned_route!==$route_name
+                || ($retained ? !self::retained_owned_upload_is_current($owned)
+                    : (absint($owned['form_id'])!==absint($form_id)
+                        || !self::owned_upload_is_current($owned, $parent_id))) ) continue;
+            $canonical = self::owned_upload_file_record($owned, $route_name);
+            if( $retained ) $canonical['_super_file_authority'] = 'retained';
+            $same = true;
+            foreach( $canonical as $key => $value ) {
+                if( !array_key_exists($key, $file) || $file[$key]!==$value ) { $same = false; break; }
+            }
+            if( $same ) $matches++;
+        }
+        return $matches===1;
     }
 
     private static function owned_upload_file_record( $owned, $route_name=null ) {
@@ -6535,16 +6816,13 @@ class SUPER_Ajax {
         $parts = explode('.', strtolower($basename));
         if( count($parts)<2 ) return false;
         array_shift($parts);
-        $dangerous = self::dangerous_upload_extensions();
-        foreach( $parts as $part ) {
-            if( $part==='' || isset($dangerous[sanitize_key($part)]) ) return false;
-        }
+        if( in_array('', $parts, true) || self::upload_name_has_dangerous_extension($basename) ) return false;
         $extension = end($parts);
         $allowed = self::allowed_file_mime_types($file_element);
         if( !isset($allowed[$extension]) ) return false;
         $verified = wp_check_filetype_and_ext($filename, $basename, $allowed);
         if( empty($verified['ext']) || empty($verified['type'])
-            || $verified['ext']!==$extension || $verified['type']!==$allowed[$extension] ) return false;
+            || strtolower($verified['ext'])!==$extension || $verified['type']!==$allowed[$extension] ) return false;
         return $verified['type'];
     }
 
@@ -6617,8 +6895,8 @@ class SUPER_Ajax {
                 }
                 $verified = wp_check_filetype_and_ext($candidate['file'], $basename, $allowed);
                 if( empty($verified['ext']) || empty($verified['type'])
-                    || !isset($allowed[$verified['ext']])
-                    || $allowed[$verified['ext']]!==$verified['type']
+                    || !isset($allowed[strtolower($verified['ext'])])
+                    || $allowed[strtolower($verified['ext'])]!==$verified['type']
                     || ($stored_type!=='' && $stored_type!==$verified['type']) ) {
                     continue;
                 }
@@ -6715,6 +6993,25 @@ class SUPER_Ajax {
             $stored_field = get_post_meta($attachment_id, '_super_forms_upload_field', true);
             if( $stored_form_id!=='' && absint($stored_form_id)!==absint($form_id) ) return false;
             if( $stored_field!=='' && (string) $stored_field!==$stored_field_name ) return false;
+            // New image uploads store the preserved original's name and size,
+            // while WordPress's attached file may be its scaled/rotated copy.
+            // Legacy entries stored the browser's name, not the attached basename.
+            // Keep the attached file unless this literal value identifies a proven original.
+            if( isset($stored['value']) && (!is_string($stored['value'])
+                || $stored['value']==='' || $stored['value']==='.' || $stored['value']==='..'
+                || strpos($stored['value'], '/')!==false || strpos($stored['value'], '\\')!==false
+                || strpos($stored['value'], ':')!==false || strpos($stored['value'], "\0")!==false) ) return false;
+            if( isset($stored['value']) && is_string($stored['value'])
+                && $stored['value']!==basename($filename) ) {
+                $metadata = wp_get_attachment_metadata($attachment_id);
+                if( is_array($metadata) && isset($metadata['original_image'])
+                    && $metadata['original_image']===$stored['value'] ) {
+                    $original = trailingslashit(wp_normalize_path(dirname($filename))) . $stored['value'];
+                    if( self::owned_attachment_file($attachment_id, $original, dirname($filename))!==false ) {
+                        $filename = $original;
+                    }
+                }
+            }
             $mime = self::verified_existing_upload_mime($filename, $file_element);
             $url = wp_get_attachment_url($attachment_id);
             $resolved = SUPER_Forms::resolve_owned_upload_file($filename, $settings);
@@ -6733,14 +7030,35 @@ class SUPER_Ajax {
                 $size
             );
             if( $owned===false ) return false;
+            // 2026-10-03 rule (Rens, t_44dd6674): when the stored name is not the verified backing file
+            // (WordPress sanitized/uniquified it, or an optimiser removed the original), the file is
+            // retained under its on-disk name, a re-save is never blocked, and it is never deleted.
+            $exact_name = isset($stored['value']) && is_string($stored['value']) && $stored['value']===$owned['basename'];
+            if( $exact_name ) {
+                // Keep the exact server-stored display name separate from the backing file.
+                if( !isset($stored['value']) || !is_string($stored['value']) || $stored['value']===''
+                    || basename($stored['value'])!==$stored['value'] || strpos($stored['value'], '\\')!==false
+                    || strpos($stored['value'], "\0")!==false || in_array($stored['value'], array('.', '..'), true) ) return false;
+                $public_size = $size;
+                if( isset($stored['size']) ) {
+                    if( !is_numeric($stored['size']) || (float)$stored['size']!==(float)(int)$stored['size']
+                        || (int)$stored['size']<0 ) return false;
+                    $public_size = (int)$stored['size'];
+                    if( $public_size!==$size ) {
+                        $original = function_exists('wp_get_original_image_path')
+                            ? wp_get_original_image_path($attachment_id) : $filename;
+                        if( !is_string($original) || is_link($original) || realpath($original)===false ) return false;
+                        $owned['original'] = array('file'=>wp_normalize_path(realpath($original)), 'basename'=>basename($original), 'size'=>$public_size);
+                    }
+                }
+                $owned['retained'] = array('basename'=>$stored['value'], 'size'=>$public_size);
+            }
             $owned['legacy_entry_id'] = absint($entry_id);
             $owned['legacy_source_field'] = $field_name;
             $owned['legacy_source_key'] = $source_key;
             $owned['cleanup_parent'] = absint($entry_id);
-            // The attachment identity above is fully verified (post type, entry parent,
-            // upload markers, mime and configured root), so this record may finalize its
-            // own cleanup. Its use is re-verified by retained_owned_upload_is_current().
-            $owned['cleanup_authority'] = true;
+            $owned['cleanup_authority'] = $exact_name;
+            if( !self::owned_upload_is_current($owned, $entry_id) ) return false;
             $record = self::owned_upload_file_record($owned, $field_name);
             $record['_super_file_authority'] = 'retained';
             return $record;
@@ -6791,6 +7109,11 @@ class SUPER_Ajax {
                 self::retained_entry_file_selector($record),
                 self::retained_entry_file_selector($stored),
             );
+            if( !empty($record_owned['attachment']) ) {
+                $selectors[] = self::retained_entry_file_selector(array(
+                    'value'=>$record_owned['basename'], 'url'=>$record_owned['url'],
+                ));
+            }
             if( !in_array($client_selector, $selectors, true) ) continue;
             if( $matched!==false ) return false;
             $matched = $record;
@@ -6981,7 +7304,7 @@ class SUPER_Ajax {
                 || ( isset( $edata['hide_on_mobile_window'] ) && $edata['hide_on_mobile_window']==='true' ) );
             $child_locked = ( $ctx['ancestor_locked'] || $conditional || $repeater || $mobile_hide );
             if( !empty($element['inner']) ) {
-                foreach( self::collect_presence_enforced_file_routes( $element['inner'], array(
+                foreach( self::collect_presence_enforced_file_routes( SUPER_Common::inner_elements($element), array(
                     'ancestor_locked' => $child_locked,
                     'in_repeater' => ( $ctx['in_repeater'] || $repeater ),
                 ) ) as $route_name => $policy ) {
@@ -7079,7 +7402,7 @@ class SUPER_Ajax {
                 continue;
             }
             if( !empty($element['inner']) ) {
-                self::collect_named_submission_elements($element['inner'], $name, $matches);
+                self::collect_named_submission_elements(SUPER_Common::inner_elements($element), $name, $matches);
             }
             $data = (isset($element['data']) && is_array($element['data'])) ? $element['data'] : array();
             if( isset($data['name']) && is_string($data['name']) && $data['name']===$name ) {
@@ -7190,7 +7513,7 @@ class SUPER_Ajax {
         return $label;
     }
 
-    private static function server_owned_selection_values_for_element( $element, $field_name, $field_data, $form_id=0 ) {
+    private static function server_owned_selection_values_for_element( $element, $field_name, $field_data, $form_id=0, $data=null ) {
         if( !is_array($element) || !is_array($field_data) ) {
             return false;
         }
@@ -7203,6 +7526,16 @@ class SUPER_Ajax {
         }
         $element_data = (isset($element['data']) && is_array($element['data'])) ? $element['data'] : array();
         $choices = self::selection_field_choice_labels($element, $form_id);
+        if( is_array($choices) ) {
+            foreach( $choices as $choice => $label ) {
+                // The browser shows and submits {tag} options with the referenced values (C11).
+                $expanded = self::submitted_tag_choice((string) $choice, $data, $form_id);
+                if( $expanded!=='' && !isset($choices[$expanded]) ) {
+                    $expanded_label = self::submitted_tag_choice((string) $label, $data, $form_id);
+                    $choices[$expanded] = $expanded_label!=='' ? $expanded_label : $label;
+                }
+            }
+        }
         $meta = array(
             'selection_limit' => ( $tag!=='radio' ),
             'selection_joiner' => ( $tag==='checkbox' ? ',' : ', ' ),
@@ -7277,7 +7610,7 @@ class SUPER_Ajax {
         return $variants;
     }
 
-    private static function server_owned_selection_values( $field_name, $field_data, $form_elements, $form_id=0 ) {
+    private static function server_owned_selection_values( $field_name, $field_data, $form_elements, $form_id=0, $data=null ) {
         if( !is_string($field_name) || $field_name==='' || !is_array($field_data) || !is_array($form_elements) ) {
             return null;
         }
@@ -7288,7 +7621,7 @@ class SUPER_Ajax {
         $variants = null;
         $selection_matches = 0;
         foreach( $elements as $element ) {
-            $candidate = self::server_owned_selection_values_for_element($element, $field_name, $field_data, $form_id);
+            $candidate = self::server_owned_selection_values_for_element($element, $field_name, $field_data, $form_id, $data);
             if( $candidate===null ) {
                 continue;
             }
@@ -7371,9 +7704,59 @@ class SUPER_Ajax {
         $cache[$key] = $symbols;
         return $symbols;
     }
-    private static function datepicker_name_candidates( $localized, $fallback, $with_number=false ) {
+    /**
+     * Translated month/day name lists the browser may have used for this site (H2): the names it was
+     * given (super_elements_i18n, filterable), the plugin translation for the request and for the
+     * site locale (a logged-in user's admin-ajax request can run in another locale), and WordPress
+     * core names (the current_date default is formatted with date_i18n()).
+     */
+    private static function translated_date_name_lists( $kind ) {
+        static $cache = array();
+        $request_locale = determine_locale();
+        $site_locale = get_locale();
+        $key = $request_locale . '|' . $site_locale;
+        if( !isset($cache[$key]) ) {
+            $sources = array();
+            $forms = SUPER_Forms();
+            if( is_array($forms->elements_i18n) ) $sources[] = $forms->elements_i18n;
+            $sources[] = SUPER_Forms::datepicker_i18n_names();
+            $sources[] = self::wp_locale_date_names();
+            if( $site_locale!==$request_locale && switch_to_locale($site_locale) ) {
+                $sources[] = SUPER_Forms::datepicker_i18n_names();
+                $sources[] = self::wp_locale_date_names();
+                restore_previous_locale();
+            }
+            $lists = array();
+            foreach( array('monthNames'=>12, 'monthNamesShort'=>12, 'dayNames'=>7, 'dayNamesShort'=>7) as $name => $count ) {
+                $lists[$name] = array();
+                foreach( $sources as $source ) {
+                    if( isset($source[$name]) && is_array($source[$name]) && count($source[$name])===$count ) {
+                        $lists[$name][] = array_map( static function( $label ) {
+                            return is_string($label) ? html_entity_decode($label, ENT_QUOTES, 'UTF-8') : '';
+                        }, array_values($source[$name]) );
+                    }
+                }
+            }
+            $cache[$key] = $lists;
+        }
+        return isset($cache[$key][$kind]) ? $cache[$key][$kind] : array();
+    }
+    private static function wp_locale_date_names() {
+        global $wp_locale;
+        if( !is_object($wp_locale) || empty($wp_locale->month) || empty($wp_locale->weekday) ) return array();
+        $months = array_values($wp_locale->month);
+        $days = array_values($wp_locale->weekday);
+        return array(
+            'monthNames' => $months,
+            'monthNamesShort' => array_map( array($wp_locale, 'get_month_abbrev'), $months ),
+            'dayNames' => $days,
+            'dayNamesShort' => array_map( array($wp_locale, 'get_weekday_abbrev'), $days ),
+        );
+    }
+    private static function datepicker_name_candidates( $localized, $fallback, $with_number=false, $kind='' ) {
         $candidates = array();
-        foreach( array( $localized, $fallback ) as $values ) {
+        $lists = array_merge( array( $localized ), $kind!=='' ? self::translated_date_name_lists($kind) : array(), array( $fallback ) );
+        foreach( $lists as $values ) {
             if( !is_array($values) ) {
                 continue;
             }
@@ -7431,21 +7814,27 @@ class SUPER_Ajax {
         $symbols = self::datepicker_localization_symbols($localization);
         $long_days = self::datepicker_name_candidates(
             isset($symbols['dayNames']) ? $symbols['dayNames'] : array(),
-            array( 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' )
+            array( 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday' ),
+            false,
+            'dayNames'
         );
         $short_days = self::datepicker_name_candidates(
             isset($symbols['dayNamesShort']) ? $symbols['dayNamesShort'] : array(),
-            array( 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' )
+            array( 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat' ),
+            false,
+            'dayNamesShort'
         );
         $long_months = self::datepicker_name_candidates(
             isset($symbols['monthNames']) ? $symbols['monthNames'] : array(),
             array( 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' ),
-            true
+            true,
+            'monthNames'
         );
         $short_months = self::datepicker_name_candidates(
             isset($symbols['monthNamesShort']) ? $symbols['monthNamesShort'] : array(),
             array( 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec' ),
-            true
+            true,
+            'monthNamesShort'
         );
         $read_digits = static function( $source, $offset, $min, $max, $allow_sign=false ) {
             $length = strlen($source);
@@ -7639,6 +8028,11 @@ class SUPER_Ajax {
             }
             return (string) $milliseconds;
         }
+        // Literal/weekday-only formats carry no calendar information; anchoring
+        // them to January 1 would manufacture a timestamp from no date.
+        if( $parts['year']===null && $parts['month']===null && $parts['day']===null && $parts['day_of_year']===null ) {
+            return false;
+        }
         // Like the datepicker, a format without a year uses the current year.
         // Derive it on the server; never reuse the submitted timestamp.
         $year = isset($parts['year']) ? absint($parts['year']) : (int)gmdate('Y');
@@ -7657,8 +8051,10 @@ class SUPER_Ajax {
             $seconds = gmmktime( 0, 0, 0, 1, $day_of_year, $year );
             return ( $seconds===false ) ? false : (string) (((int) $seconds) * 1000);
         }
-        $month = isset($parts['month']) ? absint($parts['month']) : 0;
-        $day = isset($parts['day']) ? absint($parts['day']) : 0;
+        // Explicit partial formats use a stable calendar anchor. Only omitted
+        // components default; a parsed zero still fails checkdate().
+        $month = isset($parts['month']) ? absint($parts['month']) : 1;
+        $day = isset($parts['day']) ? absint($parts['day']) : 1;
         if( !checkdate($month, $day, $year) ) {
             return false;
         }
@@ -7682,11 +8078,11 @@ class SUPER_Ajax {
         if( $value==='' ) {
             return $min_picks>0 ? false : '';
         }
-        $format = isset($element_data['format']) && is_string($element_data['format']) ? $element_data['format'] : '';
+        $format = isset($element_data['format']) && is_string($element_data['format']) && $element_data['format']!=='' ? $element_data['format'] : 'dd-mm-yy';
         if( $format==='custom' ) {
-            $format = isset($element_data['custom_format']) && is_string($element_data['custom_format'])
+            $format = isset($element_data['custom_format']) && is_string($element_data['custom_format']) && $element_data['custom_format']!==''
                 ? $element_data['custom_format']
-                : '';
+                : 'dd-mm-yy';
         }
         $localization = isset($element_data['localization']) && is_string($element_data['localization'])
             ? $element_data['localization']
@@ -7772,7 +8168,7 @@ class SUPER_Ajax {
                     // Match rendering using only this form's saved translation.
                     $element['data'] = array_replace_recursive($element['data'], $element['data']['i18n'][$language]);
                 }
-                if( isset($element['inner']) && is_array($element['inner']) ) $element['inner'] = $walk($element['inner']);
+                if( isset($element['inner']) && is_array($element['inner']) ) $element['inner'] = SUPER_Common::map_inner_elements($element['inner'], $walk);
             }
             unset($element);
             return $items;
@@ -7806,7 +8202,7 @@ class SUPER_Ajax {
                 if( $server_label===false ) {
                     return false;
                 }
-                $variants = self::server_owned_selection_values($field_name, $field_data, $form_elements, $form_id);
+                $variants = self::server_owned_selection_values($field_name, $field_data, $form_elements, $form_id, $data);
                 if( $variants===false ) {
                     return false;
                 }
@@ -7887,13 +8283,15 @@ class SUPER_Ajax {
             return false;
         }
         $stored = $entry_data[$field]['files'][$owned['legacy_source_key']];
+        $public = self::owned_upload_public_record($owned, $field);
         if( !is_array($stored)
             || !isset($stored['value'], $stored['name'], $stored['type'], $stored['url'])
             || !is_string($stored['value'])
             || !is_string($stored['name'])
             || !is_string($stored['type'])
             || !is_string($stored['url'])
-            || $stored['value']!==(string) $owned['basename']
+            || $stored['value']!==$public['value']
+            || (isset($stored['size']) && (!is_numeric($stored['size']) || (float)$stored['size']!==(float)$public['size']))
             || $stored['name']!==$field
             || $stored['type']!==(string) $owned['mime']
             || $stored['url']!==(string) $owned['url'] ) {
@@ -8683,16 +9081,12 @@ class SUPER_Ajax {
                     || !isset($allowed_mimes[$original_extension]) ) {
                     SUPER_Common::output_message($error = true, esc_html__( 'This file type is not permitted.', 'super-forms' ));
                 }
-                $name_parts = explode('.', strtolower($original_name));
-                array_shift($name_parts);
-                foreach( $name_parts as $name_part ) {
-                    if( isset($dangerous[sanitize_key($name_part)]) ) {
-                        SUPER_Common::output_message($error = true, esc_html__( 'This file type is not permitted.', 'super-forms' ));
-                    }
+                if( self::upload_name_has_dangerous_extension($original_name) ) {
+                    SUPER_Common::output_message($error = true, esc_html__( 'This file type is not permitted.', 'super-forms' ));
                 }
                 $original_type = wp_check_filetype($original_name, $allowed_mimes);
                 if( empty($original_type['ext']) || empty($original_type['type'])
-                    || $original_type['ext']!==$original_extension
+                    || strtolower($original_type['ext'])!==$original_extension
                     || $original_type['type']!==$allowed_mimes[$original_extension] ) {
                     SUPER_Common::output_message($error = true, esc_html__( 'This file type is not permitted.', 'super-forms' ));
                 }
@@ -8776,19 +9170,15 @@ class SUPER_Ajax {
                 }
                 $final_name = basename($filename);
                 $final_extension = strtolower(pathinfo($final_name, PATHINFO_EXTENSION));
-                $final_parts = explode('.', strtolower($final_name));
-                array_shift($final_parts);
-                foreach( $final_parts as $name_part ) {
-                    if( isset($dangerous[sanitize_key($name_part)]) ) {
-                        SUPER_Common::delete_file($filename, $upload_root);
-                        SUPER_Common::output_message($error = true, esc_html__( 'Invalid file upload rejected.', 'super-forms' ));
-                    }
+                if( self::upload_name_has_dangerous_extension($final_name) ) {
+                    SUPER_Common::delete_file($filename, $upload_root);
+                    SUPER_Common::output_message($error = true, esc_html__( 'Invalid file upload rejected.', 'super-forms' ));
                 }
                 $verified_type = wp_check_filetype_and_ext($filename, $final_name, $plan['allowed_mimes']);
                 if( $final_extension!==$file_plan['original_extension']
                     || !isset($plan['allowed_mimes'][$final_extension])
                     || empty($verified_type['ext']) || empty($verified_type['type'])
-                    || $verified_type['ext']!==$final_extension
+                    || strtolower($verified_type['ext'])!==$final_extension
                     || $verified_type['type']!==$plan['allowed_mimes'][$final_extension]
                     || $uploaded_file['type']!==$verified_type['type'] ) {
                     SUPER_Common::delete_file($filename, $upload_root);
@@ -8831,17 +9221,23 @@ class SUPER_Ajax {
                     }
                     SUPER_Common::output_message($error = true, esc_html__( 'The file upload failed.', 'super-forms' ));
                 }
+                $owned_filename = $attachment_id ? get_attached_file($attachment_id) : $filename;
+                $owned_size = is_string($owned_filename) && is_file($owned_filename) ? filesize($owned_filename) : false;
                 $owned = self::build_owned_upload(
                     $form_id,
                     $plan['field_name'],
-                    $filename,
+                    $owned_filename,
                     $verified_type['type'],
                     $file_url,
                     $attachment_id,
                     $upload_root,
-                    $final_size,
+                    $owned_size,
                     $legacy_subdir
                 );
+                if( is_array($owned) && $attachment_id && $owned['file']!==wp_normalize_path($filename) ) {
+                    $owned['original'] = array('file'=>wp_normalize_path($filename), 'basename'=>$final_name, 'size'=>$final_size);
+                    if( !self::owned_upload_is_current($owned, 0) ) $owned = false;
+                }
                 if( $owned===false ) {
                     if( $attachment_id ) {
                         wp_delete_attachment($attachment_id, true);
@@ -9321,8 +9717,8 @@ class SUPER_Ajax {
             $mail = SUPER_Common::email( $to, $from, $from_name, $custom_reply, $reply, $reply_name, $cc, $bcc, $subject, $email_body, $settings, $attachments, $string_attachments );
 
             // Return error message
-            if( !empty( $mail->ErrorInfo ) ) {
-                $msg = esc_html__( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
+            if( SUPER_Common::report_email_failure( $mail ) ) {
+                $msg = esc_html__( 'Message could not be sent. Error: ' . SUPER_Common::email_error( $mail ), 'super-forms' );
                 SUPER_Common::output_message( $error=true, $msg );
             }
         }
@@ -9409,8 +9805,8 @@ class SUPER_Ajax {
             $mail = SUPER_Common::email( $to, $from, $from_name, $custom_reply, $reply, $reply_name, $cc, $bcc, $subject, $email_body, $settings, $confirm_attachments, $confirm_string_attachments );
 
             // Return error message
-            if( !empty( $mail->ErrorInfo ) ) {
-                $msg = esc_html__( 'Message could not be sent. Error: ' . $mail->ErrorInfo, 'super-forms' );
+            if( SUPER_Common::report_email_failure( $mail ) ) {
+                $msg = esc_html__( 'Message could not be sent. Error: ' . SUPER_Common::email_error( $mail ), 'super-forms' );
                 SUPER_Common::output_message( $error=true, $msg );
             }
         }
@@ -9595,7 +9991,10 @@ class SUPER_Ajax {
                 'string_attachments' => (isset($string_attachments) ? $string_attachments : array())
             );
             $attachments = apply_filters( 'super_attachments_filter', $attachments, array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id, 'attachments'=>$attachments ) );
-            do_action( 'super_before_email_success_msg_action', array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id, 'attachments'=>$attachments ) );
+            do_action( 'super_before_email_success_msg_action', array( 'post'=>$_POST, 'data'=>$data, 'settings'=>$settings, 'entry_id'=>$contact_entry_id, 'attachments'=>$attachments,
+                'owned_files'=>array_merge($owned_files, $retained_owned_files),
+                'owned_upload_parent'=>$contact_entry_id ? absint($contact_entry_id) : absint($entry_id)
+            ) );
 
             // Delete only the exact server-owned objects resolved for this request. Client
             // attachment/path/subdir values and post-filter file-shaped data have no authority.

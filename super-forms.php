@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.3.320
+ * Version:           6.3.322
  * Plugin URI:        https://f4d.nl/super-forms
  * Author URI:        https://f4d.nl/super-forms
  * Author:            feeling4design
@@ -44,7 +44,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '6.3.320';
+        public $version = '6.3.322';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -2950,61 +2950,8 @@ if(!class_exists('SUPER_Forms')) :
                     // @since 3.2.0 - dynamic tab index class exclusion
                     'tab_index_exclusion' => $this->common_i18n['tab_index_exclusion'],
 
-                    'monthNames' => array(
-                        esc_html__( 'January', 'super-forms' ),
-                        esc_html__( 'February', 'super-forms' ),
-                        esc_html__( 'March', 'super-forms' ),
-                        esc_html__( 'April', 'super-forms' ),
-                        esc_html__( 'May', 'super-forms' ),
-                        esc_html__( 'June', 'super-forms' ),
-                        esc_html__( 'July', 'super-forms' ),
-                        esc_html__( 'August', 'super-forms' ),
-                        esc_html__( 'September', 'super-forms' ),
-                        esc_html__( 'October', 'super-forms' ),
-                        esc_html__( 'November', 'super-forms' ),
-                        esc_html__( 'December', 'super-forms' )
-                    ),
-                    'monthNamesShort' => array(
-                        esc_html__( 'Jan', 'super-forms' ),
-                        esc_html__( 'Feb', 'super-forms' ),
-                        esc_html__( 'Mar', 'super-forms' ),
-                        esc_html__( 'Apr', 'super-forms' ),
-                        esc_html__( 'May', 'super-forms' ),
-                        esc_html__( 'Jun', 'super-forms' ),
-                        esc_html__( 'Jul', 'super-forms' ),
-                        esc_html__( 'Aug', 'super-forms' ),
-                        esc_html__( 'Sep', 'super-forms' ),
-                        esc_html__( 'Oct', 'super-forms' ),
-                        esc_html__( 'Nov', 'super-forms' ),
-                        esc_html__( 'Dec', 'super-forms' )
-                    ),
-                    'dayNames' => array(
-                        esc_html__( 'Sunday', 'super-forms' ),
-                        esc_html__( 'Monday', 'super-forms' ),
-                        esc_html__( 'Tuesday', 'super-forms' ),
-                        esc_html__( 'Wednesday', 'super-forms' ),
-                        esc_html__( 'Thursday', 'super-forms' ),
-                        esc_html__( 'Friday', 'super-forms' ),
-                        esc_html__( 'Saturday', 'super-forms' )
-                    ),
-                    'dayNamesShort' => array(
-                        esc_html__( 'Sun', 'super-forms' ),
-                        esc_html__( 'Mon', 'super-forms' ),
-                        esc_html__( 'Tue', 'super-forms' ),
-                        esc_html__( 'Wed', 'super-forms' ),
-                        esc_html__( 'Thu', 'super-forms' ),
-                        esc_html__( 'Fri', 'super-forms' ),
-                        esc_html__( 'Sat', 'super-forms' )
-                    ),
-                    'dayNamesMin' => array(
-                        esc_html__( 'Su', 'super-forms' ),
-                        esc_html__( 'Mo', 'super-forms' ),
-                        esc_html__( 'Tu', 'super-forms' ),
-                        esc_html__( 'We', 'super-forms' ),
-                        esc_html__( 'Th', 'super-forms' ),
-                        esc_html__( 'Fr', 'super-forms' ),
-                        esc_html__( 'Sa', 'super-forms' )
-                    ),
+                    // Translated datepicker names; the server parses dates with the same list (SUPER_Ajax).
+                ) + self::datepicker_i18n_names() + array(
                     'weekHeader' => esc_html__( 'Wk', 'super-forms' ),
                 )
             );
@@ -4315,6 +4262,67 @@ if(!class_exists('SUPER_Forms')) :
         }
 
         
+        /** Month and day names the datepicker uses when a date field has no datepicker localization. */
+        public static function datepicker_i18n_names() {
+            return array(
+                'monthNames' => array(
+                    esc_html__( 'January', 'super-forms' ),
+                    esc_html__( 'February', 'super-forms' ),
+                    esc_html__( 'March', 'super-forms' ),
+                    esc_html__( 'April', 'super-forms' ),
+                    esc_html__( 'May', 'super-forms' ),
+                    esc_html__( 'June', 'super-forms' ),
+                    esc_html__( 'July', 'super-forms' ),
+                    esc_html__( 'August', 'super-forms' ),
+                    esc_html__( 'September', 'super-forms' ),
+                    esc_html__( 'October', 'super-forms' ),
+                    esc_html__( 'November', 'super-forms' ),
+                    esc_html__( 'December', 'super-forms' )
+                ),
+                'monthNamesShort' => array(
+                    esc_html__( 'Jan', 'super-forms' ),
+                    esc_html__( 'Feb', 'super-forms' ),
+                    esc_html__( 'Mar', 'super-forms' ),
+                    esc_html__( 'Apr', 'super-forms' ),
+                    esc_html__( 'May', 'super-forms' ),
+                    esc_html__( 'Jun', 'super-forms' ),
+                    esc_html__( 'Jul', 'super-forms' ),
+                    esc_html__( 'Aug', 'super-forms' ),
+                    esc_html__( 'Sep', 'super-forms' ),
+                    esc_html__( 'Oct', 'super-forms' ),
+                    esc_html__( 'Nov', 'super-forms' ),
+                    esc_html__( 'Dec', 'super-forms' )
+                ),
+                'dayNames' => array(
+                    esc_html__( 'Sunday', 'super-forms' ),
+                    esc_html__( 'Monday', 'super-forms' ),
+                    esc_html__( 'Tuesday', 'super-forms' ),
+                    esc_html__( 'Wednesday', 'super-forms' ),
+                    esc_html__( 'Thursday', 'super-forms' ),
+                    esc_html__( 'Friday', 'super-forms' ),
+                    esc_html__( 'Saturday', 'super-forms' )
+                ),
+                'dayNamesShort' => array(
+                    esc_html__( 'Sun', 'super-forms' ),
+                    esc_html__( 'Mon', 'super-forms' ),
+                    esc_html__( 'Tue', 'super-forms' ),
+                    esc_html__( 'Wed', 'super-forms' ),
+                    esc_html__( 'Thu', 'super-forms' ),
+                    esc_html__( 'Fri', 'super-forms' ),
+                    esc_html__( 'Sat', 'super-forms' )
+                ),
+                'dayNamesMin' => array(
+                    esc_html__( 'Su', 'super-forms' ),
+                    esc_html__( 'Mo', 'super-forms' ),
+                    esc_html__( 'Tu', 'super-forms' ),
+                    esc_html__( 'We', 'super-forms' ),
+                    esc_html__( 'Th', 'super-forms' ),
+                    esc_html__( 'Fr', 'super-forms' ),
+                    esc_html__( 'Sa', 'super-forms' )
+                )
+            );
+        }
+
         /**
          * Load Localisation files.
          * Note: the first-loaded translation file overrides any following ones if the same translation is present.

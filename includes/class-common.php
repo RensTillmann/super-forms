@@ -828,17 +828,40 @@ class SUPER_Common {
                 'exp_var' => 15 * MINUTE_IN_SECONDS
             )
         );
+        if( SUPER_Common::getClientData( 'sf_nonce', false )!==$sf_nonce ) return $sf_nonce; // no session: nothing to remember
+        // Concurrent tabs of one session each fetch a nonce (and an upload issues one), so the
+        // previous nonces stay valid for their own 15 minutes. Not single-use: a CSRF nonce proves
+        // same-session origin, not uniqueness; duplicate-submit protection lives elsewhere.
+        // ponytail: last 5 per session; raise if more than ~2 tabs submit at the same moment.
+        $now = time();
+        $recent = SUPER_Common::getClientData( 'sf_nonces', false );
+        $recent = is_array($recent) ? array_filter( $recent, function( $expires ) use ( $now ) { return absint($expires) >= $now; } ) : array();
+        $recent[$sf_nonce] = $now + 15 * MINUTE_IN_SECONDS;
+        SUPER_Common::setClientData(
+            array(
+                'name' => 'sf_nonces',
+                'value' => array_slice( $recent, -5, 5, true ),
+                'expires' => 15 * MINUTE_IN_SECONDS,
+                'exp_var' => 15 * MINUTE_IN_SECONDS
+            )
+        );
         return $sf_nonce;
     }
 
     public static function verifyCSRF(){
-        $sf_nonce = SUPER_Common::getClientData( 'sf_nonce', false );
         $input = filter_input(INPUT_POST, 'sf_nonce');
-        $v = is_string($input) ? htmlspecialchars($input) : '';
-        if(!$v || $v !== $sf_nonce){
-            return false; // invalid
+        return self::sf_nonce_is_valid( is_string($input) ? htmlspecialchars($input) : '' );
+    }
+    // The check verifyCSRF() applies to the posted value (callable from tests: CLI has no INPUT_POST).
+    public static function sf_nonce_is_valid( $v ){
+        if( !is_string($v) || $v==='' ) return false;
+        if( $v === SUPER_Common::getClientData( 'sf_nonce', false ) ) return true;
+        $recent = SUPER_Common::getClientData( 'sf_nonces', false );
+        if( !is_array($recent) ) return false;
+        foreach( $recent as $nonce => $expires ) {
+            if( absint($expires) >= time() && hash_equals( (string) $nonce, $v ) ) return true;
         }
-        return true; // valid
+        return false; // unknown, foreign session or expired
     }
 
     public static function reset_setting_icons($v){
@@ -1179,22 +1202,73 @@ class SUPER_Common {
     }
 
     /**
-     * This function takes the last comma or dot (if any) to make a clean float, ignoring thousand separator, currency or any other letter :
+     * Money amount from a submitted/{tag}-expanded value.
+     *
+     * When $template is exactly one {field} tag naming a saved currency or calculator field of
+     * $form_id, that field's saved symbol and separators are used. Otherwise an unambiguous parse:
+     * with both '.' and ',' the last one is the decimal separator; a repeated separator groups
+     * thousands; a single separator followed by exactly three digits after a 1-3 digit non-zero
+     * integer part groups thousands ('€1.234', '$1,234' => 1234), any other single separator is
+     * the decimal point. A minus before the first digit keeps the amount negative.
+     * ponytail: a 3-decimal amount without a known field format ('1.234' meaning 1.234) is read
+     * as 1234; reference the field with a plain {tag} so its saved format is used instead.
      */
-    public static function tofloat($num) {
-        $dotPos = strrpos($num, '.');
-        $commaPos = strrpos($num, ',');
-        $sep = (($dotPos > $commaPos) && $dotPos) ? $dotPos : 
-            ((($commaPos > $dotPos) && $commaPos) ? $commaPos : false);
-       
-        if (!$sep) {
-            return floatval(preg_replace("/[^0-9]/", "", $num));
-        } 
+    public static function tofloat( $num, $template='', $form_id=0 ) {
+        $value = trim( html_entity_decode( (string) $num, ENT_QUOTES, 'UTF-8' ) );
+        $format = self::saved_amount_format( $template, $form_id );
+        if( $format!==false ) {
+            foreach( array( $format['currency'], $format['format'] ) as $affix ) {
+                if( $affix!=='' ) $value = str_replace( $affix, '', $value );
+            }
+        }
+        if( preg_match( '/\d/', $value, $first, PREG_OFFSET_CAPTURE )!==1 ) return 0.0;
+        $negative = strpos( substr( $value, 0, $first[0][1] ), '-' )!==false;
+        if( $format!==false ) {
+            $thousands = $format['thousand_separator']===$format['decimal_separator'] ? '' : $format['thousand_separator'];
+            if( $thousands!=='' ) $value = str_replace( $thousands, '', $value );
+            if( $format['decimal_separator']!=='' ) $value = str_replace( $format['decimal_separator'], "\x01", $value );
+            $number = str_replace( "\x01", '.', preg_replace( '/[^0-9\x01]/', '', $value ) );
+        }else{
+            $number = preg_replace( '/[^0-9.,]/', '', $value );
+            $dot = strrpos( $number, '.' );
+            $comma = strrpos( $number, ',' );
+            if( $dot!==false && $comma!==false ) {
+                $decimal = $dot > $comma ? '.' : ',';
+                $number = str_replace( array( $decimal==='.' ? ',' : '.', $decimal ), array( '', '.' ), $number );
+            }elseif( $dot!==false || $comma!==false ) {
+                $separator = $dot!==false ? '.' : ',';
+                $parts = explode( $separator, $number );
+                $grouping = count( $parts )>2
+                    || ( strlen( $parts[1] )===3 && preg_match( '/^[1-9]\d{0,2}$/', $parts[0] )===1 );
+                $number = $grouping ? implode( '', $parts ) : $parts[0] . '.' . $parts[1];
+            }
+        }
+        if( preg_match( '/^\d+(?:\.\d+)?$/', $number )!==1 ) return 0.0;
+        return $negative ? -(float) $number : (float) $number;
+    }
 
-        return floatval(
-            preg_replace("/[^0-9]/", "", substr($num, 0, $sep)) . '.' .
-            preg_replace("/[^0-9]/", "", substr($num, $sep+1, strlen($num)))
-        );
+    /** Saved symbol/separators of the currency or calculator field a plain {field} template names. */
+    private static function saved_amount_format( $template, $form_id ) {
+        if( !is_string( $template ) || preg_match( '/^\s*\{([^{};\s]+)\}\s*$/', $template, $m )!==1 || absint( $form_id )===0 ) return false;
+        $found = false;
+        $walk = function( $elements ) use ( &$walk, &$found, $m ) {
+            foreach( (array) $elements as $element ) {
+                if( $found!==false || !is_array( $element ) ) continue;
+                $data = isset( $element['data'] ) && is_array( $element['data'] ) ? $element['data'] : array();
+                if( isset( $element['tag'], $data['name'] ) && $data['name']===$m[1] && in_array( $element['tag'], array( 'currency', 'calculator' ), true ) ) {
+                    $found = $data;
+                    return;
+                }
+                $walk( self::inner_elements( $element ) );
+            }
+        };
+        $walk( self::get_form_elements( absint( $form_id ) ) );
+        if( $found===false ) return false;
+        $format = array( 'currency'=>'', 'format'=>'', 'thousand_separator'=>',', 'decimal_separator'=>'.' );
+        foreach( $format as $key => $fallback ) {
+            if( isset( $found[$key] ) && is_scalar( $found[$key] ) ) $format[$key] = html_entity_decode( (string) $found[$key], ENT_QUOTES, 'UTF-8' );
+        }
+        return $format;
     }
 
 
@@ -1963,6 +2037,51 @@ class SUPER_Common {
         );
     }
 
+    /**
+     * Saved child elements of $element, for both stored shapes of 'inner': a plain element
+     * list (column, multipart, ...) or one element list per pane (Tabs/Accordion, as saved by
+     * the builder). Every read-only walker over the saved form tree must descend through this,
+     * otherwise fields inside tab/accordion panes are invisible to the server.
+     */
+    public static function inner_elements( $element ) {
+        $inner = ( is_array($element) && isset($element['inner']) && is_array($element['inner']) ) ? $element['inner'] : array();
+        $children = array();
+        foreach( $inner as $item ) {
+            if( !is_array($item) ) continue;
+            if( isset($item['tag']) ) {
+                $children[] = $item;
+                continue;
+            }
+            foreach( $item as $pane_item ) {
+                if( is_array($pane_item) && isset($pane_item['tag']) ) $children[] = $pane_item;
+            }
+        }
+        return $children;
+    }
+
+    /**
+     * Apply $walk (element list => element list) to a saved 'inner' value while keeping its
+     * stored shape: once per pane for Tabs/Accordion, once for a plain list.
+     */
+    public static function map_inner_elements( $inner, $walk ) {
+        if( !is_array($inner) ) return $inner;
+        $panes = false;
+        foreach( $inner as $item ) {
+            if( is_array($item) && !isset($item['tag']) ) { $panes = true; break; }
+        }
+        if( !$panes ) return $walk($inner);
+        foreach( $inner as $k => $item ) {
+            if( !is_array($item) ) continue;
+            if( isset($item['tag']) ) {
+                $mapped = $walk(array($item));
+                $inner[$k] = $mapped[0];
+            }else{
+                $inner[$k] = $walk($item);
+            }
+        }
+        return $inner;
+    }
+
     /** Map of field name => code settings for every code-generating element saved on a form. */
     public static function stored_code_fields( $form_id ) {
         $fields = array();
@@ -1970,7 +2089,7 @@ class SUPER_Common {
             if( !is_array($elements) ) return;
             foreach( $elements as $element ) {
                 if( !is_array($element) ) continue;
-                if( !empty($element['inner']) ) $walk( $element['inner'] );
+                if( !empty($element['inner']) ) $walk( self::inner_elements($element) );
                 $data = ( isset($element['data']) && is_array($element['data']) ) ? $element['data'] : array();
                 $settings = self::code_settings_from_atts( $data );
                 if( $settings!==false && isset($data['name']) && is_string($data['name']) && $data['name']!=='' ) {
@@ -1980,6 +2099,22 @@ class SUPER_Common {
         };
         $walk( self::get_form_elements( absint($form_id) ) );
         return $fields;
+    }
+
+    /** Shared generator alphabet; claims and previews must accept the same characters. */
+    private static function generated_code_character_set( $settings ) {
+        $characters = isset($settings['char']) ? (string)$settings['char'] : '';
+        $allowed = '';
+        if( in_array($characters, array('1','2','3'), true) ) $allowed .= '0123456789';
+        if( in_array($characters, array('1','2','4'), true) ) {
+            if( isset($settings['upper']) && $settings['upper']==='true' ) $allowed .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+            if( isset($settings['lower']) && $settings['lower']==='true' ) $allowed .= 'abcdefghijklmnopqrstuvwxyz';
+        }
+        if( $characters==='2' ) $allowed .= '!@#$%^&*()';
+        // A saved letters-only field must remain submittable even if both case
+        // checkboxes are off. Use the same deterministic fallback in both paths.
+        if( $characters==='4' && $allowed==='' ) $allowed = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        return $allowed;
     }
 
     /**
@@ -2010,14 +2145,7 @@ class SUPER_Common {
         if( strlen($random)!==$length ) {
             return false;
         }
-        $characters = $setting('char');
-        $allowed = '';
-        if( in_array($characters, array('1','2','3'), true) ) $allowed .= '0123456789';
-        if( in_array($characters, array('1','2','4'), true) ) {
-            if( $setting('upper')==='true' ) $allowed .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            if( $setting('lower')==='true' ) $allowed .= 'abcdefghijklmnopqrstuvwxyz';
-        }
-        if( $characters==='2' ) $allowed .= '!@#$%^&*()';
+        $allowed = self::generated_code_character_set( $codesettings );
         if( $length>0 && ( $allowed==='' || strspn($random, $allowed)!==$length ) ) {
             return false;
         }
@@ -2096,20 +2224,9 @@ class SUPER_Common {
         $invoice = $codesettings['inv'];
         $invoice_padding = $codesettings['invp'];
         $suffix = $codesettings['suf'];
-        $uppercase = $codesettings['upper'];
-        $lowercase = $codesettings['lower'];
-        $char  = '';
-        if( ($characters=='1') || ($characters=='2') || ($characters=='3') ) {
-            $char .= '0123456789';
-        }
-        if( ($characters=='1') || ($characters=='2') || ($characters=='4') ) {
-            if($uppercase=='true') $char .= 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-            if($lowercase=='true') $char .= 'abcdefghijklmnopqrstuvwxyz';
-        }
-        if($characters=='2') {
-            $char .= '!@#$%^&*()';
-        }
+        $char = self::generated_code_character_set( $codesettings );
         $charactersLength = strlen($char);
+        if( $length>0 && $charactersLength===0 ) return false;
         $code = '';
         for ($i = 0; $i < $length; $i++) {
             $code .= $char[rand(0, $charactersLength - 1)];
@@ -2409,7 +2526,7 @@ class SUPER_Common {
                     $map[$name][$tag] = $tag;
                 }
             }
-            if( !empty($element['inner']) ) self::collect_author_field_tags( $element['inner'], $map );
+            if( !empty($element['inner']) ) self::collect_author_field_tags( self::inner_elements($element), $map );
         }
     }
 
@@ -4266,6 +4383,33 @@ class SUPER_Common {
             return false;
         }
         return $file;
+    }
+
+    /**
+     * Error text of a SUPER_Common::email() result ('' when delivered). email() returns
+     * array('result','error','mail'); legacy callers read ->ErrorInfo on that array, which
+     * never detected a failure and raised a PHP 8 warning into the JSON reply.
+     */
+    public static function email_error( $mail ) {
+        if( is_array($mail) ) {
+            if( !empty($mail['error']) && is_scalar($mail['error']) ) return (string) $mail['error'];
+            return ( array_key_exists('result', $mail) && empty($mail['result']) ) ? 'Email could not be sent.' : '';
+        }
+        if( is_object($mail) && !empty($mail->ErrorInfo) ) return (string) $mail->ErrorInfo;
+        return '';
+    }
+
+    /**
+     * Log a failed SUPER_Common::email() result and say whether the caller should stop with an
+     * error reply. Since email() returned an array, the ->ErrorInfo checks never fired, so mail
+     * failures have not blocked submissions for years; turning them into errors now would newly
+     * block every submission on sites whose mail is misconfigured (the entry is already saved).
+     * ponytail: never blocks; return true when an error reply is wanted (owner decision, t_184e1b47).
+     */
+    public static function report_email_failure( $mail ) {
+        $error = self::email_error( $mail );
+        if( $error!=='' ) error_log( 'Super Forms: email could not be sent: ' . $error );
+        return false;
     }
 
     /**
