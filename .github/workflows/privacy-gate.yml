@@ -1,0 +1,86 @@
+name: Privacy gate
+
+# Blocks customer data (names, domains, emails, helpdesk case refs) and secrets
+# from reaching this public repository through a pull request.
+#
+# Security notes:
+# - Trigger is `pull_request_target`: GitHub takes this workflow file, and the
+#   PRIVACY_DENYLIST secret, from the TARGET branch, never from the PR. A PR that
+#   edits this file or the scanner has no effect until it is merged.
+# - Because the secret is available here, NOTHING from the PR head is ever checked
+#   out or executed. The job checks out pull_request.base.sha (persist-credentials
+#   false), runs .github/scripts/privacy-gate-ci.sh and privacy_scan.py from that
+#   checkout only, and reads the PR head (fetched via refs/pull/N/head, which also
+#   works for fork PRs) purely as git data with `git log` / `git diff`
+#   (merge-base..head). PR title, body and branch name only enter via env vars.
+#   The token is read-only (permissions: contents: read).
+# - Fork PRs get the secret and are scanned like any other PR.
+# - The denylist lives only in the PRIVACY_DENYLIST secret (one term per line).
+#   The log prints only where a hit is, never the term. Missing/empty secret
+#   fails closed.
+# - Bootstrap: the PR that first adds this gate has no workflow on its base, so the
+#   check does not run at all for it. Review and merge that PR by hand, then make
+#   `privacy-gate` a required check. (If the base ever has the workflow but not the
+#   scanner, the job fails with a clear message.)
+# - Do not add steps that check out, build or run PR code to this workflow:
+#   under pull_request_target that would expose the secret.
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, edited, ready_for_review]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: privacy-gate-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  privacy-gate:
+    name: privacy-gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out the TARGET branch (base.sha), never the PR head
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Fetch PR head as data only
+        env:
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          set -euo pipefail
+          git fetch --no-tags --no-recurse-submodules origin "+refs/pull/${PR_NUMBER}/head:refs/privacy-gate/head"
+          test "$(git rev-parse refs/privacy-gate/head)" = "$HEAD_SHA" || git fetch --no-tags --no-recurse-submodules origin "$HEAD_SHA"
+          git cat-file -e "${HEAD_SHA}^{commit}"
+
+      - name: Install gitleaks (pinned + checksum)
+        run: |
+          set -euo pipefail
+          v=8.21.2
+          curl -sSfL -o /tmp/gl.tgz "https://github.com/gitleaks/gitleaks/releases/download/v${v}/gitleaks_${v}_linux_x64.tar.gz"
+          echo "5bc41815076e6ed6ef8fbecc9d9b75bcae31f39029ceb55da08086315316e3ba  /tmp/gl.tgz" | sha256sum -c -
+          tar -xzf /tmp/gl.tgz -C /tmp gitleaks
+
+      - name: Scan PR commits, diff, branch, title and body (scanner from base)
+        env:
+          PRIVACY_DENYLIST: ${{ secrets.PRIVACY_DENYLIST }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$BASE_SHA" || { echo "privacy-gate: ERROR working tree is not the base commit"; exit 2; }
+          if [ ! -f .github/scripts/privacy-gate-ci.sh ] || [ ! -f .github/scripts/privacy_scan.py ]; then
+            echo "privacy-gate: ERROR the target branch has no privacy scanner yet (bootstrap)."
+            echo "privacy-gate: The scanner is never run from the PR itself. Review this PR by hand and merge it; later PRs are scanned."
+            exit 2
+          fi
+          bash .github/scripts/privacy-gate-ci.sh
