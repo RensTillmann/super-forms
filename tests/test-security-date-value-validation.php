@@ -45,7 +45,7 @@ class Test_Security_Date_Value_Validation extends Super_Forms_Upload_Security_Te
     }
 
     /**
-     * Alec private 6.3.321 hotfix: a missing/empty saved format (or an empty
+     * Private 6.3.321 hotfix regression: a missing/empty saved format (or an empty
      * custom_format) falls back to dd-mm-yy instead of rejecting every submit.
      * Day-less explicit formats (e.g. mm-yy) are NOT covered here; see T4.
      */
