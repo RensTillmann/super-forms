@@ -8,11 +8,11 @@ description: Start a 15 day free trial and try out the plugin for free
 If you have previously trialed the plugin you won't be able to trial the plugin again. In this case you will have to [**purchase a license**](purchasing-a-license.md) or enter an existing license that you already own.
 {% endhint %}
 
-After installing the plugin ([**super-forms.zip**](https://super-forms.com/download-super-forms-stable.php)) you can activate your 15 day trial by navigating to **Super Forms > Licenses** from your WordPress dashboard menu.
+After installing the plugin ([**super-forms.zip**](https://super-forms.com/download-super-forms-stable.php)), open [dashboard.super-forms.com](https://dashboard.super-forms.com) and sign in with your Super Forms account, or [register a new account](registration.md) if you haven't already.
 
-Now login with your Super Forms account, or [register a new account](registration.md) if you haven't already.
+(You can also reach the dashboard from WordPress via **Super Forms > Licenses**.)
 
-Once you are logged in click the **\[Start 15 days Free Trial]** button as shown below:
+Once you are signed in, click **Start 15 Day Trial**:
 
 {% hint style="warning" %}
 **Important:** Once your trial is active make sure to read the [First time setup](first-time-setup.md) which covers some basics about Super Forms.

@@ -4,11 +4,9 @@ description: Here you can reset your password
 
 # Password reset
 
-To reset the password for your Super Forms account, simply login to your WordPress site.
+To reset the password for your Super Forms account, open [dashboard.super-forms.com](https://dashboard.super-forms.com) and go to sign-in (WordPress **Super Forms > Licenses** also opens this).
 
-Navigate to **Super Forms > Licenses** from the WordPress menu. Now click **\[Login]**.&#x20;
-
-A popup will appear where you can enter your email address. After you entered your email address click the \[Reset password] link. If you tried to login with the wrong password you will also see the "Reset password" link.
+Enter your email address, then click the **Reset password** link. If you tried to sign in with the wrong password you will also see that link.
 
 <div align="left"><figure><img src="../../.gitbook/assets/image (38).png" alt="Resetting your password for your Super Forms account"><figcaption><p>Resetting your password for your Super Forms account</p></figcaption></figure></div>
 
