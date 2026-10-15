@@ -22,7 +22,7 @@ You can try this Add-on for 15 days for free from the [dashboard](https://dashbo
 
 ### Quick start
 
-The Add-on comes with a 15 day free trial. To start it, open [dashboard.super-forms.com](https://dashboard.super-forms.com) and sign in (or use **Super Forms > Licenses** in WordPress). Start the 15 day trial for the **Listings** Add-on. Once the trial is active, open any form under **Super Forms > Your forms**, or create one under **Super Forms > Create form**.
+The Add-on comes with a 15 day free trial. To start it, open [dashboard.super-forms.com](https://dashboard.super-forms.com) and sign in (WordPress **Super Forms > Licenses** opens the same dashboard). On the home header click **Start 15 Day Trial**, choose the **Listings** Add-on, enter your WordPress domain, and click **Start Trial**. Once the trial is active, open any form under **Super Forms > Your forms**, or create one under **Super Forms > Create form**.
 
 {% hint style="info" %}
 Add-on trials do not unlock saving forms. To save forms you need a Super Forms license or a Super Forms (core) 15 day trial.

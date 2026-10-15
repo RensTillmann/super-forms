@@ -4,11 +4,11 @@ description: How to activate Super Forms using your license code
 
 # Activating a license
 
-License activation happens in your Super Forms account dashboard, not under **Super Forms > Licenses** in WordPress.
+License activation happens in your Super Forms account dashboard at [dashboard.super-forms.com](https://dashboard.super-forms.com).
 
 1. Open [dashboard.super-forms.com](https://dashboard.super-forms.com) and sign in.
-2. Find your code under **Unused License Codes**.
-3. Under the hint *Click the button below to activate this license*, click **Activate License** and enter this site's domain.
+2. On the home page, find your code under **Unused License Codes**.
+3. On that code's card, click **Activate License** and enter this site's domain.
 
 {% hint style="info" %}
 From WordPress, **Super Forms > Licenses** opens a shortcut to the same dashboard.
