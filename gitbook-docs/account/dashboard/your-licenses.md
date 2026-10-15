@@ -4,7 +4,7 @@ description: Here you can find a list of your active licenses
 
 # Your Licenses
 
-Your licenses live in the Super Forms account dashboard at [dashboard.super-forms.com](https://dashboard.super-forms.com). Sign in, then open **Licenses**. Unused codes sit under **Unused License Codes**; codes already tied to a site appear with that site.
+Your licenses live in the Super Forms account dashboard at [dashboard.super-forms.com](https://dashboard.super-forms.com). After you sign in you land on the home page: unused codes sit under **Unused License Codes**; codes already tied to a site appear under **Your Websites**.
 
 {% hint style="info" %}
 From WordPress, **Super Forms > Licenses** opens a shortcut to this dashboard.
