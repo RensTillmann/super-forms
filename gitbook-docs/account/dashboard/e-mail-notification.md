@@ -4,9 +4,9 @@ description: Here you can change your E-mail notification settings
 
 # E-mail Notification
 
-To change your account notification settings you can login to your Super Forms account by navigating to **Super Forms > Licenses** from your WordPress dashboard menu.
+To change your account notification settings, open [dashboard.super-forms.com](https://dashboard.super-forms.com) and sign in (WordPress **Super Forms > Licenses** opens the same dashboard).
 
-Click **\[Login]** and login with your credentials. After logging in you can click on **\[Account]** to view your email address and the notification settings.&#x20;
+Open **Account** to view your email address and the notification settings.
 
 By default you should receive notifications about your license expiring, notifications about payment/billing issues and notifications about new invoices.
 
