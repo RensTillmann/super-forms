@@ -1,6 +1,16 @@
-## Branch Rules — You Are on `next/v7` (v7.0.0-alpha)
+## Branch Rules — You are on `alpha`: the rewrite (not released; version number not decided, never call it v7)
 
-**This branch is the v7 development track. It is NOT the stable/beta release track.**
+**This branch is the rewrite. It is NOT a release track: fixes for current users go to `lts/6.3.x` (and, if 6.4 has the bug, a second PR to `release/6.4.x`). Never cherry-pick from `alpha` into them.**
+
+| Branch | What it is | What goes there |
+|---|---|---|
+| `lts/6.3.x` | Stable channel, 6.3.x | Security fixes, bug fixes, small requested improvements |
+| `release/6.4.x` | Beta channel, 6.4.0xx, frozen | Security and bug fixes only |
+| `gitbook` | docs.super-forms.com | `gitbook-docs/` only |
+| `alpha` | The rewrite: not released, version number not decided | Rewrite work only. Never call it v7 |
+| `stable`, `beta` | Old 6.4.200/6.4.201 trunk, never released, being archived | Nothing. Never base work on them |
+
+GitHub's default branch is not where fixes go: always pick the base branch explicitly.
 
 ### What exists here that does NOT exist on master
 - React Form Builder V2 (`src/react/admin/`) — Vite + TypeScript + Tailwind CSS v4 + shadcn/ui
