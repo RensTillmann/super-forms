@@ -40,8 +40,8 @@ jobs:
           printf 'Fixed: a required field could be skipped.\n' > /tmp/leak-scan-clean.txt
           node .github/scripts/leak-scan.cjs /tmp/leak-scan-clean.txt --audience release_body || { echo "::error::scanner flagged clean text"; exit 1; }
           printf 'Built from the lts/6.3.x branch.\n' > /tmp/leak-scan-dirty.txt
-          node .github/scripts/leak-scan.cjs /tmp/leak-scan-dirty.txt --audience release_body
-          rc=$?
+          rc=0
+          node .github/scripts/leak-scan.cjs /tmp/leak-scan-dirty.txt --audience release_body || rc=$?
           if [[ "$rc" -ne 1 ]]; then
             echo "::error::scanner did not flag a known prohibited token (exit $rc, expected 1)"
             exit 1
