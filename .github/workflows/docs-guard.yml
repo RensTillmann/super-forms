@@ -1,0 +1,39 @@
+# .github/workflows/docs-guard.yml
+#
+# Documentation (docs.super-forms.com) lives only on the `gitbook` branch,
+# under `gitbook-docs/`. A PR that changes `gitbook-docs/` must target
+# `gitbook`; on any other base this check fails.
+
+name: docs-guard
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  docs-guard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: gitbook-docs/ changes must target gitbook
+        env:
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          set -euo pipefail
+          if [[ "$BASE_REF" == "gitbook" ]]; then
+            echo "Base is gitbook: documentation changes are allowed."
+            exit 0
+          fi
+          BASE_SHA=$(git merge-base "origin/${BASE_REF}" HEAD)
+          changed=$(git diff --name-only "${BASE_SHA}" HEAD -- 'gitbook-docs/')
+          if [[ -n "$changed" ]]; then
+            echo "::error::This PR changes gitbook-docs/ but targets ${BASE_REF}. Documentation changes go only to the gitbook branch."
+            echo "$changed"
+            exit 1
+          fi
+          echo "No gitbook-docs/ changes; nothing to guard."
