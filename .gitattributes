@@ -15,5 +15,8 @@ build-release-zip.sh export-ignore
 tests/ export-ignore
 # docs/adr holds internal architecture decision records; never customer plugin files.
 docs/adr export-ignore
+# AI-agent rule files are repository guidance, never customer plugin files.
+AGENTS.md export-ignore
+CLAUDE.md export-ignore
 # CI workflows and scripts are repository tooling, never customer plugin files.
 .github/ export-ignore
