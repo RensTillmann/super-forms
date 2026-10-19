@@ -21,10 +21,10 @@ You can also define a Header and Footer element which would then be visible on a
 
 ### Quick start
 
-Open [dashboard.super-forms.com](https://dashboard.super-forms.com) and sign in (WordPress **Super Forms > Licenses** opens the same dashboard). On the home header click **Start 15 Day Trial**, choose the **PDF Generator** Add-on, enter your WordPress domain, and click **Start Trial**. Once the trial is active, open any form under **Super Forms > Your forms**, or create one under **Super Forms > Create form**.
+Open [dashboard.super-forms.com](https://dashboard.super-forms.com) and sign in (WordPress **Super Forms > Licenses** opens the same dashboard). Click **Purchase New License**, add **PDF Generator** and complete the checkout. Your new license appears under **Unused License Codes**. Click **Activate License** and enter your WordPress domain. Then open any form under **Super Forms > Your forms**, or create one under **Super Forms > Create form**.
 
 {% hint style="info" %}
-Add-on trials do not unlock saving forms. To save forms you need a Super Forms license or a Super Forms (core) 15 day trial.
+The dashboard trial is for Super Forms only. To save forms you need a Super Forms license or a Super Forms 15 day trial.
 {% endhint %}
 
 Now click on the **\[PDF]** TAB at the top of the builder page. Here you will find all the settings and options for the Add-on. To enable PDF generation you can simple check the option Enable Form to PDF generation.

@@ -36,5 +36,3 @@ Subscription licences have no **Release** button. Use **Transfer to Domain** ins
 ### Rename a site's domain for every product on it
 
 On the website card, click the pencil icon (**Edit domain for all products**), edit the domain, and save.
-
-<figure><img src="https://webrehab.zendesk.com/hc/article_attachments/4419811049489/mceclip0.png" alt="Transferring your Super Forms license"><figcaption><p>Existing screenshot (may still show the old WordPress UI; refresh separately if needed)</p></figcaption></figure>

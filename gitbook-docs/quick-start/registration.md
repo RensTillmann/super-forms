@@ -10,9 +10,7 @@ After downloading the plugin ([**super-forms.zip**](https://super-forms.com/down
 In case you already have an account you can skip this guide and go to [**Starting your 15 day trial**](starting-your-15-day-trial.md) or [**Purchasing a license**](purchasing-a-license.md) (in case your trial period ended).
 {% endhint %}
 
-There are two ways to create an account. You can create one manually or automatically upon making your first purchase. The easiest way is to open [dashboard.super-forms.com](https://dashboard.super-forms.com) (or **Super Forms > Licenses** in WordPress, which opens the same dashboard), choose your license(s), and enter your primary email address as shown below:
-
-<div align="left"><figure><img src="../.gitbook/assets/image (13).png" alt="Purchasing your Super Forms license(s)."><figcaption><p>Purchasing your Super Forms license(s).</p></figcaption></figure></div>
+There are two ways to create an account. You can create one manually or automatically upon making your first purchase. The easiest way is to open [dashboard.super-forms.com](https://dashboard.super-forms.com) (or **Super Forms > Licenses** in WordPress, which opens the same dashboard). Click **Sign up** and enter your e-mail address and a password. Click **Create Account**. Open the link in the verification e-mail. Then sign in and click **Purchase New License** to buy your license(s).
 
 During the checkout process an account will automatically be created for you and you will be able to use the plugin instantly. You will still be eligible for the [**15 day free trial**](starting-your-15-day-trial.md) even after making the purchase.
 

@@ -18,7 +18,7 @@ After you clicked **Send Reset Email** you should receive an E-mail with a link 
 
 <div align="left"><figure><img src="../../.gitbook/assets/image (86).png" alt="Check your email inbox for the reset link"><figcaption><p>Check your email inbox for the reset link</p></figcaption></figure></div>
 
-Open the link in the E-mail. You will land on the **Reset Password** page — enter your **New Password** and **Confirm Password**, then save.
+Open the link in the E-mail. You will land on the **Reset Password** page — enter your **New Password** and **Confirm Password**, then click **Reset Password**.
 
 <div align="left"><figure><img src="../../.gitbook/assets/image (45).png" alt="Enter the new password for your account"><figcaption><p>Enter the new password for your account</p></figcaption></figure></div>
 
