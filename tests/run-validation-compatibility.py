@@ -71,6 +71,9 @@ if a.group in ('layout','all'):
             dict(outside=var('outside','show'),tab_a=var('tab_a','alpha'),cond_required=var('cond_required','gamma')),True,{}),
         ('column-nested-tabs',[column([text('outside'),panes('tabs',[text('tab_a')],[text('tab_b_required',True)])])],
             dict(outside=var('outside','hello'),tab_a=var('tab_a','alpha'),tab_b_required=var('tab_b_required','beta')),True,{}),
+        # An empty field with a validation rule inside an invisible column: the browser skips it.
+        ('invisible-column-validated-empty',[text('outside'),column([el('text',dict(name='amount',email='amount',validation='numeric',may_be_empty='false'))],invisible='true')],
+            dict(outside=var('outside','hello'),amount=var('amount','')),True,{}),
         # Negatives: still rejected after the fix.
         ('tabs-required-empty',[text('outside'),panes('tabs',[text('tab_a')],[text('tab_b_required',True)])],
             dict(outside=var('outside','hello'),tab_a=var('tab_a','alpha'),tab_b_required=var('tab_b_required','')),False,dict(expected_msg='Please fill in all required fields.')),
@@ -78,6 +81,8 @@ if a.group in ('layout','all'):
             dict(outside=var('outside','hello'),tab_a=var('tab_a','alpha'),tab_b=var('tab_b','beta'),injected=var('injected','x')),False,{}),
         ('tabs-dropdown-foreign-choice',[text('outside'),panes('tabs',[text('tab_a')],[plan])],
             dict(outside=var('outside','hello'),tab_a=var('tab_a','alpha'),plan=var('plan','enterprise',selected_values=['enterprise'])),False,{}),
+        ('visible-column-validated-empty',[text('outside'),column([el('text',dict(name='amount',email='amount',validation='numeric',may_be_empty='false'))],invisible='')],
+            dict(outside=var('outside','hello'),amount=var('amount','')),False,dict(expected_msg='Please fill in all required fields.')),
     ]
     for id,elements,payload,accepted,extra in layout_cases:
         cases.append(dict(id='layout-'+id,tag='layout',value=None,settings={},accepted=accepted,elements=elements,payload=payload,**extra))

@@ -9,6 +9,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Unreleased - Version 6.4.010-beta
+
+- **Fix:** A form no longer fails with "Please fill in all required fields" when an empty field with a validation rule is inside an invisible column. The browser never checks such fields, so the server no longer requires them either.
+
 ## 2026-10-09 - Version 6.4.009-beta
 
 - **Fix:** Date submissions use the default `dd-mm-yy` pattern when the saved format, or selected custom format, is missing or empty, while preserving explicit formats and strict date validation.
