@@ -12,7 +12,7 @@ This file is identical on `lts/6.3.x`, `release/6.4.x` and `gitbook`. Read it be
 | `alpha` | The rewrite: not released, version number not decided | Rewrite work only. Never call it v7 |
 | `stable`, `beta` | Old 6.4.200/6.4.201 trunk, never released, being archived | Nothing. Never base work on them |
 
-GitHub's default branch is not where fixes go: always pick the base branch explicitly.
+`lts/6.3.x` is GitHub's default branch. Still pick the base branch explicitly for every PR: the default is wrong for 6.4-only fixes, docs and rewrite work.
 
 ## Where a change goes
 
