@@ -10,9 +10,9 @@
 | `alpha` | The rewrite: not released, version number not decided | Rewrite work only. Never call it v7 |
 | `stable`, `beta` | Old 6.4.200/6.4.201 trunk, never released, being archived | Nothing. Never base work on them |
 
-GitHub's default branch is not where fixes go: always pick the base branch explicitly.
+`lts/6.3.x` is GitHub's default branch. Still pick the base branch explicitly for every PR: the default is wrong for 6.4-only fixes, docs and rewrite work.
 
-### What exists here that does NOT exist on master
+### What exists here that does NOT exist on `lts/6.3.x` / `release/6.4.x`
 - React Form Builder V2 (`src/react/admin/`) — Vite + TypeScript + Tailwind CSS v4 + shadcn/ui
 - Automations system (`src/includes/automations/`) — 19 built-in action types
 - Themes system (`src/includes/class-theme-dal.php`, `wp_superforms_themes` table)
@@ -22,10 +22,8 @@ GitHub's default branch is not where fixes go: always pick the base branch expli
 
 ### Branch policies
 
-- Bug fixes for users on v6.4.x or earlier → commit to `master`, not here.
-- This branch pulls FROM master quarterly: `git merge master` (resolve conflicts in favor
-  of this branch's React architecture).
-- Do not backport changes to master without explicit instruction.
+- Fixes for current users go to `lts/6.3.x`, not here. If 6.4 has the bug, open a second PR to `release/6.4.x`.
+- Never cherry-pick from `alpha` into `lts/6.3.x` or `release/6.4.x`.
 
 ### Do NOT commit these files
 
@@ -241,9 +239,6 @@ The email builder is now a reusable component library within the admin bundle:
 
 ## Visual Inspection
 
-You can use Playwright MCP to connect to WordPress admin:
-```
-https://f4d.nl/dev/wp-admin/?temp-login-token=e743c1697521d5cd707a09eb3d09df5e15e6daf6dc11d8e63cde5f9f6865f05b&tl-site=eead01cda8edfe6e
-```
-- After login, navigate to Form Builder V2: `https://f4d.nl/dev/wp-admin/admin.php?page=super_form_v2`
+You can use Playwright MCP to open WordPress admin on the dev server. Log in yourself; do not store login links or credentials in this file.
+- Form Builder V2: `https://f4d.nl/dev/wp-admin/admin.php?page=super_form_v2`
 - this is local pc, sync src to dev server via sync script, it contains the ssh details. you can use wp cli on dev server for sql
