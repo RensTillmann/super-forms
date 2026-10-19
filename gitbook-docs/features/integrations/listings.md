@@ -16,13 +16,13 @@ This Add-on allows you to display contact entries on your front-end in a table l
 
 <figure><img src="../../.gitbook/assets/front-end-listing-table-entries.png" alt="A table/list on the WordPress front-end displaying contact entries (form submissions)."><figcaption><p>A table/list on the WordPress front-end displaying contact entries (form submissions).</p></figcaption></figure>
 
-{% hint style="info" %}
-You can try this Add-on for 15 days for free by going to **Super Forms > Add-ons** in your WordPress dashboard.
-{% endhint %}
-
 ### Quick start
 
-The Add-on comes with a 15 day free trial, so you can try it out for free. To enable the trial, login to your WordPress site and navigate to **Super Forms > Licenses**. On this page you can start the 15 day trial for the **Listings** Add-on. Once the trial is activated, you can navigate to any of your existing forms via **Super Forms > Your forms**, or create a new form **Super Forms > Create form**.
+Open [dashboard.super-forms.com](https://dashboard.super-forms.com) and sign in (WordPress **Super Forms > Licenses** opens the same dashboard). Click **Purchase New License**, add **Listings** and complete the checkout. Your new license appears under **Unused License Codes**. Click **Activate License** and enter your WordPress domain. Then open any form under **Super Forms > Your forms**, or create one under **Super Forms > Create form**.
+
+{% hint style="info" %}
+The dashboard trial is for Super Forms only. To save forms you need a Super Forms license or a Super Forms 15 day trial.
+{% endhint %}
 
 Now click on the **\[Listings]** TAB at the top of the builder page:
 
