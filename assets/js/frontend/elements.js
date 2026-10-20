@@ -98,9 +98,9 @@
         for( i = 0; i < nodes.length; i++ ) {
             field = nodes[i].querySelector('.super-shortcode-field');
             if(field){ // This is a field
-                if(!SUPER.has_hidden_parent(field)) skip = false;
+                if(!SUPER.has_hidden_parent(field, false, false)) skip = false;
             }else{ // This is either a HTML element or something else without a field
-                if(!SUPER.has_hidden_parent(nodes[i])) skip = false;
+                if(!SUPER.has_hidden_parent(nodes[i], false, false)) skip = false;
             }
             if(skip===false) return false;
         }
@@ -194,7 +194,7 @@
                 }
             }
         }
-        if(SUPER.has_hidden_parent(nextField)){
+        if(SUPER.has_hidden_parent(nextField, false, false)){
             // Exclude conditionally
             nextField = SUPER.nextTabField(e, field, form, nextTabIndex+incNext);
         }
@@ -1391,7 +1391,7 @@
                         // the form became focus via regular tab, so we must focus the first field
                         nodes = form.querySelectorAll('.super-field:not('+super_common_i18n.tab_index_exclusion+')');
                         for (i = 0; i < nodes.length; i++) {
-                            if(SUPER.has_hidden_parent(nodes[i])) continue;
+                            if(SUPER.has_hidden_parent(nodes[i], false, false)) continue;
                             visibleNodes.push(nodes[i]);
                             break;
                         }
@@ -1407,7 +1407,7 @@
                         // the form became focus via shift+tab, so we must focus the last field
                         nodes = form.querySelectorAll('.super-field:not('+super_common_i18n.tab_index_exclusion+')');
                         for (i = 0; i < nodes.length; i++) {
-                            if(SUPER.has_hidden_parent(nodes[i])) continue;
+                            if(SUPER.has_hidden_parent(nodes[i], false, false)) continue;
                             visibleNodes.push(nodes[i]);
                         }
                         field = visibleNodes[visibleNodes.length-1];
@@ -1711,7 +1711,7 @@
                 nodes = document.querySelectorAll('.super-form .super-tabs-contents');
                 for (i = 0; i < nodes.length; i++) {
                     field = nodes[i].closest('.super-shortcode');
-                    if(!SUPER.has_hidden_parent(field, true)){ // Also include Multi-part for this check
+                    if(!SUPER.has_hidden_parent(field, true, false)){ // Also include Multi-part for this check
                         // Only if no focussed field is found
                         // First get the currently active TAB
                         var activeTab = field.querySelector('.super-tabs-contents > .super-tabs-content.super-active');
@@ -1745,7 +1745,7 @@
                         nodes = form.querySelectorAll('.super-field:not('+super_common_i18n.tab_index_exclusion+')');
                         var visibleNodes = [];
                         for (i = 0; i < nodes.length; i++) {
-                            if(SUPER.has_hidden_parent(nodes[i])) continue;
+                            if(SUPER.has_hidden_parent(nodes[i], false, false)) continue;
                             visibleNodes.push(nodes[i]);
                         }
                         // if we shift+tab from second visible field to first visible field, we must set tabindex on form to -1
@@ -1795,7 +1795,7 @@
                             SUPER.firstFocussedField = true;
                             nodes = form.querySelectorAll('.super-field:not('+super_common_i18n.tab_index_exclusion+')');
                             for (i = 0; i < nodes.length; i++) {
-                                if(SUPER.has_hidden_parent(nodes[i])) continue;
+                                if(SUPER.has_hidden_parent(nodes[i], false, false)) continue;
                                 SUPER.focusNextTabField(e, nodes[i], form, nodes[i]);
                                 e.preventDefault();
                                 return false;

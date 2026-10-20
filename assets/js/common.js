@@ -1036,8 +1036,13 @@ function SUPERreCaptcha(){
         }
         return value;
     };
-    SUPER.has_hidden_parent = function(changedField, includeMultiParts){
+    // includeInvisibleColumns (default true): a field inside an invisible column counts as hidden.
+    // Only validate_form relies on the default (the visitor can never see such an error); payload
+    // collection, conditional logic, math, tabbing and auto-step pass false to keep these fields.
+    SUPER.has_hidden_parent = function(changedField, includeMultiParts, includeInvisibleColumns){
+        if(typeof includeInvisibleColumns === 'undefined') includeInvisibleColumns = true;
         if(changedField[0]) changedField = changedField[0];
+        if(includeInvisibleColumns && changedField.parentNode && changedField.parentNode.closest('.super-invisible')) return true;
         
         var p, parent;
         parent = changedField.closest('.super-shortcode');
@@ -1899,7 +1904,7 @@ function SUPERreCaptcha(){
                                     $continue = true;
                                     continue;
                                 }
-                                $skip = SUPER.has_hidden_parent($shortcode_field);
+                                $skip = SUPER.has_hidden_parent($shortcode_field, false, false);
                                 $parent = $shortcode_field.closest('.super-shortcode');
                             }
                             if(v.and_method!==''){ 
@@ -1918,7 +1923,7 @@ function SUPERreCaptcha(){
                                         $continue_and = true;
                                         continue;
                                     }
-                                    $skip_and = SUPER.has_hidden_parent($shortcode_field_and);
+                                    $skip_and = SUPER.has_hidden_parent($shortcode_field_and, false, false);
                                     $parent_and = $shortcode_field_and.closest('.super-shortcode');
                                 }
                                 if(v.and_method==='or' && !$continue_and){
@@ -2799,7 +2804,7 @@ function SUPERreCaptcha(){
             if($element){
                 if($element[0]) $element = $element[0];
                 // Check if parent column or element is hidden (conditionally hidden)
-                if( SUPER.has_hidden_parent($element) ) {
+                if( SUPER.has_hidden_parent($element, false, false) ) {
                     // Exclude conditionally
                     // Lets just replace the field name with 0 as a value
                     args.value = args.value.replace('{'+$old_name+'}', $default_value);
@@ -3963,7 +3968,7 @@ function SUPERreCaptcha(){
                 totalFields = 0;
                 nodes = activeMultipart.querySelectorAll('.super-shortcode-field');
                 for (i = 0; i < nodes.length; ++i) {
-                    if(!SUPER.has_hidden_parent(nodes[i])){
+                    if(!SUPER.has_hidden_parent(nodes[i], false, false)){
                         // Also exclude any hidden fields, because `has_hidden_parent()` doesn't check for this
                         if(nodes[i].type=='hidden'){
                             if(nodes[i].closest('.super-shortcode').classList.contains('super-hidden')){
@@ -3976,7 +3981,7 @@ function SUPERreCaptcha(){
                 counter = 1;
                 nodes = activeMultipart.querySelectorAll('.super-shortcode-field');
                 for (i = 0; i < nodes.length; ++i) {
-                    if(!SUPER.has_hidden_parent(nodes[i])){
+                    if(!SUPER.has_hidden_parent(nodes[i], false, false)){
                         if(totalFields==counter){
                             if(nodes[i].name==args.el.name){
                                 setTimeout(function (){
@@ -4300,7 +4305,7 @@ function SUPERreCaptcha(){
             // Only Super Forms hiding excludes a field: conditional logic (the same rule validation
             // uses) and the hide-on-mobile column settings. A column hidden by theme/custom CSS
             // is submitted like a visible one (D1); the server enforces those fields.
-            $hidden = ($parent.length>0 && SUPER.has_hidden_parent($this[0])) || $this.parents('.super-hide-mobile, .super-hide-mobile-window').filter(function(){
+            $hidden = ($parent.length>0 && SUPER.has_hidden_parent($this[0], false, false)) || $this.parents('.super-hide-mobile, .super-hide-mobile-window').filter(function(){
                 return $(this).css('display')=='none';
             }).length>0;
             

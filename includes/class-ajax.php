@@ -3679,6 +3679,10 @@ class SUPER_Ajax {
         foreach( $elements as $element ) {
             $edata = ( isset( $element['data'] ) && is_array( $element['data'] ) ) ? $element['data'] : array();
             $tag = isset( $element['tag'] ) ? $element['tag'] : '';
+            // An invisible column hides its whole subtree from browser validation: common.js
+            // has_hidden_parent() defaults includeInvisibleColumns to true and validate_form skips
+            // such fields, while the payload still submits them. Never enroll them as required.
+            if( $tag === 'column' && isset( $edata['invisible'] ) && $edata['invisible'] === 'true' ) continue;
             // An element (or ancestor) that can hide/repeat its subtree "locks" the fields below
             // it: the front-end may legitimately omit them, so they can never be presence-enforced.
             // Conditional logic is not evaluable server-side; repeaters vary per
