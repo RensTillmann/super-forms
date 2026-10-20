@@ -937,6 +937,7 @@
                     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
                     var params = {
                         action: 'super_get_element_builder_html',
+                        nonce: super_create_form_i18n.admin_nonce,
                         tag: obj.$el.data('shortcode'),
                         group: obj.$el.data('group'),
                         predefined: $predefined,
@@ -955,6 +956,14 @@
             revert: true,
             cssEaseDuration: 0,
         });
+    };
+
+    // Returns true (and informs the user) when the server or a firewall rejected a builder request
+    SUPER.builder_request_rejected = function (xhr) {
+        var body = (typeof xhr.responseText === 'string' ? xhr.responseText.trim() : '');
+        if (xhr.status == 200 && body !== '-1' && body !== '0') return false;
+        alert(super_create_form_i18n.request_rejected.replace('%s', xhr.status));
+        return true;
     };
 
     SUPER.save_form = function ($this, $method, $button, $initial_i18n, callback, updatingRawFormCode) {
@@ -1008,6 +1017,13 @@
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
             if (this.readyState == 4) {
+                if (SUPER.builder_request_rejected(this)) {
+                    $('.super-create-form .super-actions .super-save').html('<i class="fas fa-save"></i>Save');
+                    if ($method == 1) $('.super-create-form .super-actions .super-preview:eq(3)').html('Preview');
+                    if ($method == 3) $('.super-preview-elements, .super-form-settings').removeClass('super-loading');
+                    if ($method == 2 && typeof callback === "function") callback();
+                    return false;
+                }
                 // Success:
                 if (this.status == 200) {
                     $('.super-create-form .super-actions .super-save').html('<i class="fas fa-save"></i>Save');
@@ -1110,6 +1126,12 @@
             var xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function () {
                 if (this.readyState == 4) {
+                    if (SUPER.builder_request_rejected(this)) {
+                        $('.super-live-preview').removeClass('super-loading').css('display', 'none');
+                        $('.super-tabs-content').css('display', '');
+                        $this.html('Preview').removeClass('super-active');
+                        return false;
+                    }
                     // Success:
                     if (this.status == 200) {
                         $('.super-live-preview').removeClass('super-loading');
@@ -1133,6 +1155,7 @@
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
             var params = {
                 action: 'super_load_preview',
+                nonce: super_create_form_i18n.admin_nonce,
                 form_id: $form_id
             };
             params = $.param(params);
@@ -1743,6 +1766,7 @@
                     url: ajaxurl,
                     data: {
                         action: 'super_switch_language',
+                        nonce: super_create_form_i18n.admin_nonce,
                         form_id: $('.super-create-form input[name="form_id"]').val(),
                         i18n: $i18n
                     },
@@ -1949,6 +1973,7 @@
                     url: ajaxurl,
                     data: {
                         action: 'super_undo_redo',
+                        nonce: super_create_form_i18n.admin_nonce,
                         form_id: $('.super-create-form input[name="form_id"]').val(),
                         elements: JSON.stringify($history[$index])
                     },
@@ -2545,6 +2570,7 @@
             }
             var params = {
                 action: 'super_get_element_builder_html',
+                nonce: super_create_form_i18n.admin_nonce,
                 tag: $tag,
                 group: $group,
                 builder: ($tag == 'tabs' ? $builder : 0),
@@ -2738,6 +2764,7 @@
             }
             var params = {
                 action: 'super_load_element_settings',
+                nonce: super_create_form_i18n.admin_nonce,
                 form_id: $('.super-create-form input[name="form_id"]').val(),
                 tag: $tag,
                 group: $group,

@@ -6532,33 +6532,33 @@ class SUPER_Shortcodes {
                 if($settings['_pdf']['textRendering']==='true'){
                     // Cyrillic compatible font
                     if($settings['_pdf']['cyrillicText']==='true') {
-                        add_action( 'wp_footer', function(){
-                            ?>
-                            <script>
-                            super_common_i18n.fonts = {
-                                NotoSans: JSON.parse('<?php echo file_get_contents(SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts.json'); ?>')
-                            };
-                            </script>
-                            <?php
-                        }, 100 );
+                        self::add_pdf_font_script( "super_common_i18n.fonts = {NotoSans: JSON.parse('" . file_get_contents(SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts.json') . "')};" );
                     }
                     // Arabic compatible font
                     if($settings['_pdf']['arabicText']==='true') {
-                        add_action( 'wp_footer', function(){
-                            ?>
-                            <script>
-                            super_common_i18n.fonts = {
-                                NotoSans: JSON.parse('<?php echo file_get_contents(SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts-arabic.json'); ?>')
-                            };
-                            </script>
-                            <?php
-                        }, 100 );
+                        self::add_pdf_font_script( "super_common_i18n.fonts = {NotoSans: JSON.parse('" . file_get_contents(SUPER_PLUGIN_DIR . '/includes/extensions/pdf-generator/fonts-arabic.json') . "')};" );
                     }
                 }
             }
         }
 
         return do_shortcode( $result );
+    }
+
+    /**
+     * Attach PDF font data to the `super-common` script so it always runs after
+     * the localized `super_common_i18n` object, also when optimization plugins
+     * reorder scripts. Falls back to a footer script when `super-common` was
+     * already printed (WordPress never outputs inline data for a printed handle).
+     */
+    private static function add_pdf_font_script( $js ) {
+        if( !wp_script_is( 'super-common', 'done' ) ) {
+            wp_add_inline_script( 'super-common', $js, 'after' );
+            return;
+        }
+        add_action( 'wp_footer', function() use ( $js ) {
+            echo '<script>' . $js . '</script>';
+        }, 100 );
     }
 
 }

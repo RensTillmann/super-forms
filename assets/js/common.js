@@ -759,9 +759,13 @@ function SUPERreCaptcha(){
             }
         }
         if(args.generatePdf){
-            SUPER.pdf_generator_init(args, function(args){
-                // When debugging is enabled download file instantly without submitting the form
-                if(args.pdfSettings.debug==="true"){
+            try {
+                SUPER.pdf_generator_init(args, function(args){
+                    // When debugging is enabled download file instantly without submitting the form
+                    if(args.pdfSettings.debug!=="true"){
+                        SUPER.save_data(args); 
+                        return true;
+                    }
                     var innerText = args.loadingOverlay.querySelector('.super-inner-text');
                     // Direct download of PDF
                     args._pdf.save(args.pdfSettings.filename, {returnPromise: true}).then(function() {
@@ -782,9 +786,10 @@ function SUPERreCaptcha(){
                         if(innerText) innerText.innerHTML = '<span>Something went wrong while downloading the PDF</span>';
                         args.loadingOverlay.classList.add('super-error');
                     });
-                }
-                SUPER.save_data(args); 
-            });
+                });
+            } catch(error) {
+                SUPER.pdf_generator_abort(args, error);
+            }
         }else{
             SUPER.save_data(args);
         }
@@ -1031,8 +1036,13 @@ function SUPERreCaptcha(){
         }
         return value;
     };
-    SUPER.has_hidden_parent = function(changedField, includeMultiParts){
+    // includeInvisibleColumns (default true): a field inside an invisible column counts as hidden.
+    // Only validate_form relies on the default (the visitor can never see such an error); payload
+    // collection, conditional logic, math, tabbing and auto-step pass false to keep these fields.
+    SUPER.has_hidden_parent = function(changedField, includeMultiParts, includeInvisibleColumns){
+        if(typeof includeInvisibleColumns === 'undefined') includeInvisibleColumns = true;
         if(changedField[0]) changedField = changedField[0];
+        if(includeInvisibleColumns && changedField.parentNode && changedField.parentNode.closest('.super-invisible')) return true;
         
         var p, parent;
         parent = changedField.closest('.super-shortcode');
@@ -1894,7 +1904,7 @@ function SUPERreCaptcha(){
                                     $continue = true;
                                     continue;
                                 }
-                                $skip = SUPER.has_hidden_parent($shortcode_field);
+                                $skip = SUPER.has_hidden_parent($shortcode_field, false, false);
                                 $parent = $shortcode_field.closest('.super-shortcode');
                             }
                             if(v.and_method!==''){ 
@@ -1913,7 +1923,7 @@ function SUPERreCaptcha(){
                                         $continue_and = true;
                                         continue;
                                     }
-                                    $skip_and = SUPER.has_hidden_parent($shortcode_field_and);
+                                    $skip_and = SUPER.has_hidden_parent($shortcode_field_and, false, false);
                                     $parent_and = $shortcode_field_and.closest('.super-shortcode');
                                 }
                                 if(v.and_method==='or' && !$continue_and){
@@ -2794,7 +2804,7 @@ function SUPERreCaptcha(){
             if($element){
                 if($element[0]) $element = $element[0];
                 // Check if parent column or element is hidden (conditionally hidden)
-                if( SUPER.has_hidden_parent($element) ) {
+                if( SUPER.has_hidden_parent($element, false, false) ) {
                     // Exclude conditionally
                     // Lets just replace the field name with 0 as a value
                     args.value = args.value.replace('{'+$old_name+'}', $default_value);
@@ -3254,10 +3264,9 @@ function SUPERreCaptcha(){
                     SUPER.init_resend_verification_code(args);
                 }else{
                     args.loadingOverlay.classList.add('super-success');
+                    // Debug mode never submits the form (it downloads the PDF in process_form_data), so we only get here when debug mode is off
                     if(args.generatePdf && args.pdfSettings.downloadBtn==='true'){
-                        if(args.pdfSettings.debug!=="true"){ // If debug mode is enabled we alread have a Download button, so we can skip this
-                            SUPER.show_pdf_download_btn(args);
-                        }
+                        SUPER.show_pdf_download_btn(args);
                     }
                     // Close Popup (if any)
                     if(typeof SUPER.init_popups === 'function' && typeof SUPER.init_popups.close === 'function' ){
@@ -3959,7 +3968,7 @@ function SUPERreCaptcha(){
                 totalFields = 0;
                 nodes = activeMultipart.querySelectorAll('.super-shortcode-field');
                 for (i = 0; i < nodes.length; ++i) {
-                    if(!SUPER.has_hidden_parent(nodes[i])){
+                    if(!SUPER.has_hidden_parent(nodes[i], false, false)){
                         // Also exclude any hidden fields, because `has_hidden_parent()` doesn't check for this
                         if(nodes[i].type=='hidden'){
                             if(nodes[i].closest('.super-shortcode').classList.contains('super-hidden')){
@@ -3972,7 +3981,7 @@ function SUPERreCaptcha(){
                 counter = 1;
                 nodes = activeMultipart.querySelectorAll('.super-shortcode-field');
                 for (i = 0; i < nodes.length; ++i) {
-                    if(!SUPER.has_hidden_parent(nodes[i])){
+                    if(!SUPER.has_hidden_parent(nodes[i], false, false)){
                         if(totalFields==counter){
                             if(nodes[i].name==args.el.name){
                                 setTimeout(function (){
@@ -4296,7 +4305,7 @@ function SUPERreCaptcha(){
             // Only Super Forms hiding excludes a field: conditional logic (the same rule validation
             // uses) and the hide-on-mobile column settings. A column hidden by theme/custom CSS
             // is submitted like a visible one (D1); the server enforces those fields.
-            $hidden = ($parent.length>0 && SUPER.has_hidden_parent($this[0])) || $this.parents('.super-hide-mobile, .super-hide-mobile-window').filter(function(){
+            $hidden = ($parent.length>0 && SUPER.has_hidden_parent($this[0], false, false)) || $this.parents('.super-hide-mobile, .super-hide-mobile-window').filter(function(){
                 return $(this).css('display')=='none';
             }).length>0;
             
@@ -7934,15 +7943,21 @@ function SUPERreCaptcha(){
         //
         // Add a timeout (just to be sure)
         setTimeout(function(){
-            SUPER.pdf_generator_prepare(args, function(args){
-                // Start generating pages (starting at page 1)
-                args.currentPage = 1;
-                SUPER.pdf_generator_generate_page(args);
-            });
+            try {
+                SUPER.pdf_generator_prepare(args, function(args){
+                    // Start generating pages (starting at page 1)
+                    args.currentPage = 1;
+                    SUPER.pdf_generator_generate_page(args);
+                });
+            } catch(error) {
+                SUPER.pdf_generator_abort(args, error);
+            }
         }, 5000);
         return false;
     };
     SUPER._pdf_generator_done_callback = function(args){
+        // Never submit after the PDF generation was aborted
+        if(args._pdfAborted) return false;
         // Reset everything to how it was
         SUPER.pdf_generator_reset(args.form0);
         // Attach as file to form data
@@ -7976,7 +7991,34 @@ function SUPERreCaptcha(){
             exclude: exclude
         };
         // We PDF has been generated, continue with form submission
+        // From here on any error belongs to the submission, not to the PDF generation
+        args._pdfDone = true;
         args._save_data_callback(args);
+    };
+    // Stop PDF generation after an error: restore the form, never submit, and let the visitor close the popup and try again
+    SUPER.pdf_generator_abort = function(args, error){
+        if(args._pdfDone || args._pdfAborted) return false;
+        args._pdfAborted = true;
+        // eslint-disable-next-line no-console
+        console.error('PDF generation failed:', error);
+        try {
+            // Returns false when the form was not (or no longer) prepared for the PDF, in that case only the submit button needs to be restored
+            if(SUPER.pdf_generator_reset(args.form0)===false) SUPER.reset_submit_button_loading_state(args.form0);
+        } catch(resetError) {
+            try {
+                SUPER.reset_submit_button_loading_state(args.form0);
+            } catch(buttonError) {
+                // eslint-disable-next-line no-console
+                console.error(buttonError);
+            }
+        }
+        if(args.loadingOverlay){
+            var innerText = args.loadingOverlay.querySelector('.super-inner-text');
+            if(innerText) innerText.innerHTML = '<span>'+super_common_i18n.loadingOverlay.pdf_generation_error+'</span>';
+            // Shows the Close button
+            args.loadingOverlay.classList.add('super-error');
+        }
+        return false;
     };
     SUPER.pdf_generator_prepare = function(args, callback){
         var form = args.form0;
@@ -8195,7 +8237,8 @@ function SUPERreCaptcha(){
             if(el && el.style) el.style.fontSize = newFontSize+'px';
         }
 
-        SUPER.init_super_responsive_form_fields({form: form, callback: function(){
+        // Runs after the responsive classes are updated (asynchronously), so it needs its own error handling
+        var determinePages = function(){
 
             // First disable the UI on the map for nicer print of the map
             // And make map fullwidth and directions fullwidth
@@ -8274,6 +8317,13 @@ function SUPERreCaptcha(){
             args.totalPercentagePerPage = (100/args.totalPages) / 3;
             args.pdfPercentageCompleted = 0;
             callback(args);
+        };
+        SUPER.init_super_responsive_form_fields({form: form, callback: function(){
+            try {
+                determinePages();
+            } catch(error) {
+                SUPER.pdf_generator_abort(args, error);
+            }
         }});
     };
 
@@ -8385,7 +8435,8 @@ function SUPERreCaptcha(){
         setTimeout(function(){
             // Now allow printing
             try {
-                // Only if not already canceled/reset
+                // Only if not already canceled/reset or aborted
+                if(args._pdfAborted) return false;
                 if(form && !form.classList.contains('super-generating-pdf')){
                     return false;
                 }
@@ -8401,7 +8452,8 @@ function SUPERreCaptcha(){
                     allowTaint: false,
                     backgroundColor: '#ffffff'
                 }).then(function(canvas) {
-                    // Only if not already canceled/reset
+                    // Only if not already canceled/reset or aborted
+                    if(args._pdfAborted) return false;
                     if(form && !form.classList.contains('super-generating-pdf')){
                         return false;
                     }
@@ -8459,10 +8511,18 @@ function SUPERreCaptcha(){
                         // No more pages to generate (submit form / send email)
                         SUPER._pdf_generator_done_callback(args);
                     }
+                }).catch(function(error) {
+                    if(args._pdfDone){
+                        // The PDF was finished, this error comes from the form submission
+                        // eslint-disable-next-line no-console
+                        console.error(error);
+                        return false;
+                    }
+                    SUPER.pdf_generator_abort(args, error);
                 });
             }
             catch(error) {
-                console.log("Error: ", error);
+                SUPER.pdf_generator_abort(args, error);
             }
         }, timeout );
     }
