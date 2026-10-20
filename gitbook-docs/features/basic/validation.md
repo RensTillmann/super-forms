@@ -2,6 +2,10 @@
 
 The Validation option gives you the ability to quickly add a specific validation to any of your fields. This will decrease the risk of a user making mistakes or typos while filling out the form.
 
+{% hint style="info" %}
+When a form is submitted, Super Forms checks required fields and each field's **Validation** rule again on the server, so these rules also apply to direct or automated requests (since version 6.3.315 and 6.4.006-beta). Rules that depend on the values of other fields are only checked in the browser: **Conditional Validation**, and **Allow field to be empty** > **Yes, but not when the following conditions are met**. To enforce those on the server, use the `super_before_processing_data` action hook (available in Super Forms 6.4), see [Prevent form submission based on entered field values](../../developers/code-examples/prevent-form-submission-based-on-entered-field-values.md).
+{% endhint %}
+
 Below you can find the available validation methods:
 
 ## Letters only
