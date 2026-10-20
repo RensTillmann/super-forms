@@ -10,6 +10,8 @@
 
 ## Unreleased
 
+- **Fix:** Pressing Enter in a field no longer submits the form when the submit button is hidden by conditional logic. If another submit button is visible, that one is used.
+- **Fix:** In a multi-part form, pressing Enter in a field of any step except the last now does the same as clicking that step's Next button (including the step's validation) instead of submitting the whole form and skipping the remaining steps. If that Next button is hidden by conditional logic, or the step has none, Enter does nothing. On the last step Enter submits the form as before.
 - **Security fix:** The form builder's preview, language switch, undo/redo, element settings and element HTML requests now require an administrator and a valid security token, so other logged-in users can no longer load form markup or settings.
 - **Fix:** When the builder's save or preview request is rejected (for example after the session expired or a security plugin blocked it), the button is restored and a message asks you to reload the page instead of staying on "Saving..." forever.
 - **Fix:** PDF Generator font data (Cyrillic and Arabic) is now attached to the Super Forms common script, so it still loads when a JavaScript optimization plugin reorders or delays scripts.
