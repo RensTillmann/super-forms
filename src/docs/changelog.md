@@ -12,6 +12,7 @@
 ## Unreleased - Version 6.4.010-beta
 
 - **Fix:** Pressing Enter in a field no longer submits the form when the submit button is hidden by conditional logic; the first visible submit button is used instead.
+- **Fix:** In a multi-part form, pressing Enter in a field of any step except the last now does the same as clicking that step's Next button (including the step's validation) instead of submitting the whole form and skipping the remaining steps. If that Next button is hidden by conditional logic, or the step has none, Enter does nothing. On the last step Enter submits the form as before.
 
 ## 2026-10-09 - Version 6.4.009-beta
 

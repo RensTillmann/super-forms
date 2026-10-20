@@ -76,7 +76,9 @@ class El {
         return found;
     }
     querySelector(selector) { return this.querySelectorAll(selector)[0] || null; }
+    click() { clicks.push(this); }
 }
+let clicks = [];
 function submitButton(wrapperClasses = '') {
     const name = new El('super-button-name', {action: 'submit'});
     const wrap = new El('super-button-wrap', {}, [name]);
@@ -89,19 +91,29 @@ function column(classes, dataset, button) {
 const hiddenColumn = button => column('super-conditional-hidden', {conditionalAction: 'show'}, button);
 const visibleColumn = button => column('super-conditional-visible', {conditionalAction: 'show'}, button);
 const invisibleColumn = button => column('super-invisible', {}, button);
+// Next button of a multi-part step (auto-generated clone of the submit button, or a custom button
+// with action "next"): `.super-next-multipart` instead of `.super-form-button`. Returns the wrapper.
+function nextButton() {
+    return new El('super-extra-shortcode super-shortcode super-field super-button super-next-multipart', {}, [
+        new El('super-button-wrap', {}, [new El('super-button-name', {action: 'submit'})])
+    ]);
+}
+const multipart = (active, children) => new El('super-shortcode super-multipart' + (active ? ' super-active' : ''), {}, children);
 
-function pressEnter({buttonWrappers, disableEnter}) {
+// `layout(field)` (optional) returns the form's children and places the focused field itself.
+function pressEnter({buttonWrappers, disableEnter, layout}) {
     const field = new El('super-shortcode super-field super-text super-focus', {}, [new El('super-shortcode-field')]);
-    const form = new El('super-form', disableEnter ? {disableEnter: 'true'} : {}, [field, ...buttonWrappers]);
+    const form = new El('super-form', disableEnter ? {disableEnter: 'true'} : {}, layout ? layout(field) : [field, ...buttonWrappers]);
     const body = new El('body', {}, [form]);
     const calls = [];
+    clicks = [];
     const SUPER = {validate_form: args => calls.push(args)};
     const context = vm.createContext({SUPER, document: body});
     vm.runInContext(hiddenSource, context);
     const handler = vm.runInContext(handlerSource, context);
     let prevented = 0;
     const result = handler({keyCode: 13, preventDefault: () => { prevented++; }});
-    return {calls, prevented, result};
+    return {calls, prevented, result, clicks};
 }
 
 const cases = [];
@@ -131,18 +143,70 @@ const cases = [];
     loading.classes.add('super-loading');
     cases.push({name: 'submit already in progress does not submit again', run: () => pressEnter({buttonWrappers: [visibleColumn(button)]}), expect: null});
 }
+// Multi-part forms: on a step that is not the last one, Enter takes the exact path of that step's
+// Next button (a click, handled by the `.super-next-multipart` listener -> SUPER.switchMultipart,
+// which runs the step validation and skip logic). Only the last step submits.
+{
+    const next = nextButton(), button = submitButton();
+    cases.push({name: 'multi-part: Enter on step 1 of 2 clicks Next, no submit', run: () => pressEnter({layout: field => [
+        multipart(true, [field, next]),
+        multipart(false, [button.parentElement.parentElement])
+    ]}), expectNext: next});
+}
+{
+    const first = nextButton(), second = nextButton(), button = submitButton();
+    cases.push({name: 'multi-part: Enter on step 2 of 3 clicks that step\'s Next', run: () => pressEnter({layout: field => [
+        multipart(false, [first]),
+        multipart(true, [field, second]),
+        multipart(false, [button.parentElement.parentElement])
+    ]}), expectNext: second});
+}
+{
+    const next = nextButton(), hidden = submitButton(), visible = submitButton();
+    cases.push({name: 'multi-part: Enter on the last step submits via the visible button', run: () => pressEnter({layout: field => [
+        multipart(false, [next]),
+        multipart(true, [field, hiddenColumn(hidden), visibleColumn(visible)])
+    ]}), expect: visible});
+}
+{
+    const next = nextButton(), button = submitButton();
+    cases.push({name: 'multi-part: Next button of the active step hidden by conditions does nothing', run: () => pressEnter({layout: field => [
+        multipart(true, [field, new El('super-shortcode super-column super-conditional-hidden', {conditionalAction: 'show'}, [next])]),
+        multipart(false, [button.parentElement.parentElement])
+    ]}), expect: null});
+}
+{
+    const button = submitButton();
+    cases.push({name: 'multi-part: active step without a Next button does nothing (never skips steps)', run: () => pressEnter({layout: field => [
+        multipart(true, [field]),
+        multipart(false, [button.parentElement.parentElement])
+    ]}), expect: null});
+}
+{
+    const next = nextButton(), button = submitButton();
+    cases.push({name: 'multi-part: disable-enter setting still wins', run: () => pressEnter({disableEnter: true, layout: field => [
+        multipart(true, [field, next]),
+        multipart(false, [button.parentElement.parentElement])
+    ]}), expect: null});
+}
 
 let failed = 0;
 for (const scenario of cases) {
     try {
-        const {calls, prevented} = scenario.run();
+        const {calls, prevented, clicks} = scenario.run();
         assert.equal(prevented, 1, scenario.name + ': default must be prevented');
-        if (scenario.expect) {
+        if (scenario.expectNext) {
+            assert.equal(calls.length, 0, scenario.name + ': validate_form must not be called');
+            assert.equal(clicks.length, 1, scenario.name + ': the Next button must be clicked once');
+            assert.equal(clicks[0], scenario.expectNext, scenario.name + ': wrong Next button clicked');
+        } else if (scenario.expect) {
+            assert.equal(clicks.length, 0, scenario.name + ': nothing must be clicked');
             assert.equal(calls.length, 1, scenario.name + ': validate_form calls');
             assert.equal(calls[0].submitButton, scenario.expect.parentElement, scenario.name + ': wrong submit button');
             assert.equal(calls[0].doingSubmit, true, scenario.name + ': doingSubmit');
         } else {
             assert.equal(calls.length, 0, scenario.name + ': validate_form must not be called');
+            assert.equal(clicks.length, 0, scenario.name + ': nothing must be clicked');
         }
         console.log('PASS ' + scenario.name);
     } catch (error) {
