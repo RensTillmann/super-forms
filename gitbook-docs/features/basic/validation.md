@@ -8,13 +8,9 @@ When a form is submitted, Super Forms checks required fields and each field's **
 
 Below you can find the available validation methods:
 
-## Letters only
+## None
 
-Only allow input field to contain letters, and nothing else
-
-```js
-^[a-zA-Z]+$
-```
+No validation is applied to the field.
 
 ## Required Field (not empty)
 
@@ -76,6 +72,12 @@ _The regex used for this validation is:_<br>
 Whenever you are asking for an IBAN number you can use this validation method to make sure the entered IBAN is a valid number.
 
 ## Custom Regex
+
+To only allow letters (and spaces), use a custom regex such as:
+
+```js
+^[A-Za-z ]+$
+```
 
 If you require a specific validation this option allows you to use a custom regular expression on the value entered by the user. If no match was found based on the entered value the Error Message will be displayed to the user.
 
