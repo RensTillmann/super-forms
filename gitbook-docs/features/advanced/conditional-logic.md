@@ -55,6 +55,24 @@ The last step is to define the condition itself. You will be able to set the fol
 * **Value** (in our example this would be `business` based on the **account\_type** field value)
 * **Or/And method** (each condition can have an `OR` or `AND` method to do an extra conditional check, but in our example we do not need it so leave it as is)
 
+### Can I hide individual checkbox, radio or dropdown options?
+
+No. Conditional logic always applies to a whole element. The options of a Checkbox, Radio button or Dropdown element do not have their own conditional logic settings.
+
+If some options should only be visible in certain cases, split them into separate fields:
+
+1. Create one Checkbox element for the options that are always visible.
+2. Create a separate Checkbox element for each option (or group of options) that must be shown or hidden.
+3. Apply conditional logic to each of these separate elements. You can also place them inside a **Column** and apply the conditional logic to the column.
+
+Give each field its own unique name. Remember that a conditionally hidden field is not submitted.
+
+To combine the separate fields into one value again, see [Combining several fields into one value](variable-fields.md#combining-several-fields-into-one-value). In emails you can also use [if statements](if-statements.md) and [foreach loops](foreach-loops.md#how-to-loop-over-selected-checkboxes-and-dropdown-items). More examples are on the [Checkbox](../../elements/form-elements/checkbox.md) page.
+
+{% hint style="success" %}
+**Tip:** To show another field based on one selected option of a Checkbox, use the `?? Contains` logic. For example: show the field `design_brief` when the checkbox `services` contains `design`. The condition checks each selected value. It matches when a selected value contains the text, so `design` also matches a value like `web_design`.
+{% endhint %}
+
 ### Example Form
 
 You can find an example form that uses conditional logic under: `Super Forms` > `Demos` > `Conditional Logic`

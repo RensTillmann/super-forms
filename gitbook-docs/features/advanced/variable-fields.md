@@ -66,6 +66,30 @@ In our case we will map the **width** field as our Column heading, so we can ent
 
 Variable fields can deal with {tags}, please read the {tags} system section for more information about tags.
 
+### Combining several fields into one value
+
+The new value of a variable condition can contain {tags}. The tags are replaced with the current field values whenever one of these fields changes. You can use this to combine several fields into one value. This is useful when you have [split one Checkbox into separate fields](conditional-logic.md#can-i-hide-individual-checkbox-radio-or-dropdown-options).
+
+For example, you have three Checkbox elements, each with one option:
+
+* `service_design` with the value `Design`
+* `service_development` with the value `Development`
+* `service_hosting` with the value `Hosting`
+
+To combine them into one field named `selected_services`:
+
+1. Add a `Hidden field` named `selected_services`.
+2. Edit it, choose `Conditional Variable (dynamic value)` and set **Make field variable** to: Enable (make variable).
+3. Add one condition:
+   * **Field**: `{service_design}{service_development}{service_hosting}`
+   * **Logic**: `!= Not equal`
+   * **Value**: leave empty
+   * **New value**: `{service_design} {service_development} {service_hosting}`
+
+The condition is met as soon as at least one of the checkboxes is checked. When the user checks Design and Hosting, `selected_services` contains `Design  Hosting`. A field that is not checked becomes empty, so the space around it stays. When nothing is checked, `selected_services` is empty.
+
+If you need exact control over the result, add one condition for each combination instead. The conditions are checked from top to bottom, and the first condition that is met sets the value.
+
 ### Example form
 
 You can find an example form that uses conditional logic under: `Super Forms` > `Demos` > `Variable Fields`

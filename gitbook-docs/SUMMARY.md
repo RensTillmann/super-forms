@@ -54,6 +54,7 @@
   * [Autosuggest](elements/form-elements/autosuggest.md)
   * [Keywords](elements/form-elements/keywords.md)
   * [Radio button](elements/form-elements/radio-button.md)
+  * [Checkbox](elements/form-elements/checkbox.md)
   * [Keyword Field](elements/form-elements/keyword-field.md)
   * [Button](elements/form-elements/button.md)
   * [Audio Recording (microphone)](elements/form-elements/audio-recording-microphone.md)
