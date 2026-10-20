@@ -8,7 +8,7 @@ description: >-
 # Prevent form submission based on entered field values
 
 {% hint style="info" %}
-The below action hook only works with Super Forms **v6.3.708+**
+The below action hook is only available in **Super Forms 6.4 (beta)**, starting with beta build 6.3.710-beta. Super Forms 6.3 LTS does not have this hook.
 {% endhint %}
 
 ```php

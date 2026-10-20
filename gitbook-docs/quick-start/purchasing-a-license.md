@@ -1,51 +1,37 @@
 ---
-description: Activate your plugin by purchasing a license
+description: Purchase a Super Forms license from your dashboard
 ---
 
 # Purchasing a license
 
 {% hint style="warning" %}
-**Note:** Make sure you read the [Installation](registration.md) and [Registration](registration.md) articles before reading this section.
+**Note:** Make sure you read the [Installation](installation.md) and [Registration](registration.md) articles before reading this section.
 {% endhint %}
 
-There are two ways to purchase licenses.&#x20;
+Licenses are purchased from your Super Forms dashboard. In WordPress, **Super Forms > Licenses** opens the same dashboard.
 
-You can [purchase license in bulk](purchasing-a-license.md#purchase-licenses-in-bulk), or [purchase single licenses](purchasing-a-license.md#purchase-a-single-license).&#x20;
+1. Sign in at [dashboard.super-forms.com](https://dashboard.super-forms.com). Don't have an account yet? [Register a new account](registration.md#registering-a-new-account) first.
+2. Click **Purchase New License**.
+3. Pick the product(s) and the number of licenses you want, then choose how to pay:
+   * **Yearly Subscription**: billed yearly and renews automatically. You can cancel it anytime from your dashboard.
+   * **Prepaid License**: you choose the **License duration** (in years) and pay once. It does not renew automatically; you renew it manually from your dashboard before it expires.
+4. Check out with Stripe to complete the payment.
+5. After the payment has been processed, your new license appears under **Unused License Codes**.
+6. Click **Activate License** and enter the domain of your site. See [Activating a license](activating-a-license.md) for details.
+
+### Discounts
+
+* **Volume tier discount**: the price per license drops when you buy more licenses of the same product. Licenses you already own count towards the tier.
+* **Multi-year discount**: a prepaid license for more than one year gets an extra discount.
+
+Before you pay, the purchase window shows the list price, your discounts (**Your total savings**) and the **Total**.
 
 {% hint style="info" %}
-When purchasing in **bulk** you will have the extra option to choose an extended lifetime (expiry) in years for your license(s). **Volume discount** will also be applied, which allows you to benefit from **extra discounts**.
+A license that is not activated yet stays under **Unused License Codes** until you activate it on one of your sites.
 {% endhint %}
 
-### Purchase a single license
-
-To purchase a single license simply select "No" when asked if you already have a license code. Then click the "Add to cart". From here you can proceed to choosing your preferred billing and payment method.
-
-<div align="left"><figure><img src="https://webrehab.zendesk.com/hc/article_attachments/9868868740369" alt="Add license to the cart."><figcaption><p>Add license to the cart.</p></figcaption></figure></div>
-
-Choosing your billing and payment method:
-
-<div align="left"><figure><img src="https://webrehab.zendesk.com/hc/article_attachments/9869134854033" alt="Choosing your preferred billing frequency and the payment method."><figcaption><p>Choosing your preferred billing frequency and the payment method.</p></figcaption></figure></div>
-
-After your payment has been processed, the plugin will be activated.
-
 {% hint style="danger" %}
-**Note:** depending on your payment method it could take a couple of days before your payment has been processed. Once your payment has been cleared by the payment provider the plugin should automatically be activated.
+**Note:** depending on your payment method it could take a couple of days before your payment has been processed.
 
 If you believe there was an issue with your payment please [**reach out to us**](../support.md).
 {% endhint %}
-
-### Purchase licenses in bulk
-
-To purchase licenses in bulk, simply choose a quantity and the lifetime (expiry) in years. Based on the selected quantity and your currently active licenses a volume price will be applied.
-
-{% hint style="info" %}
-An extra additional **discount** will be applied based on the selected lifetime (expiry) of the license.
-{% endhint %}
-
-{% hint style="warning" %}
-Please note that your license **will not expire** until you actually activated the license on one of your sites.
-{% endhint %}
-
-When you are logged out, you will have to enter your Super Forms email account address. If you do not have an account a new one will be created upon completing the payment. After your payment has been processed you will receive the license codes in your email inbox. You can then [enter your license code](activating-a-license.md).
-
-<div align="left"><figure><img src="https://webrehab.zendesk.com/hc/article_attachments/9869291548561" alt="Purchase license in bulk and register a new account instantly."><figcaption><p>Purchase license in bulk and register a new account instantly.</p></figcaption></figure></div>
