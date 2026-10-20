@@ -1,7 +1,7 @@
 {
   "name": "super-forms",
   "version": "1.0.0",
-  "description": "Documentation:\r https://renstillmann.github.io/super-forms",
+  "description": "Documentation:\r https://docs.super-forms.com",
   "main": "index.js",
   "directories": {
     "doc": "docs"

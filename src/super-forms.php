@@ -2168,8 +2168,8 @@ if(!class_exists('SUPER_Forms')) :
         public static function email_if_statements($email_body, $data) {
             // The following function parses E-mail If Statements and E-mail foreach loops
             // Refer the documentation for more info about this:
-            // https://renstillmann.github.io/super-forms/#/email-if-statements
-            // https://renstillmann.github.io/super-forms/#/email-foreach-loops
+            // https://docs.super-forms.com/features/advanced/if-statements
+            // https://docs.super-forms.com/features/advanced/foreach-loops
 
             // Regex to do foreach loop for dynamic column fields
             $regex = '/foreach\s?\(\s?[\'|"|\s|]?(.*?)[\'|"|\s|]?\)\s?:([\s\S]*?)(?:endforeach\s?;)/';
@@ -2569,7 +2569,7 @@ if(!class_exists('SUPER_Forms')) :
                             echo '<img style="height:100px;width:154px;" src="' . esc_url(SUPER_PLUGIN_FILE . '/assets/images/logo.jpg') . '" />';
                             echo '<div>';
                                 echo '<p>';
-                                    echo sprintf( esc_html__( 'Successfully updated Super Forms to v%s - %sCheck what\'s new!%s', 'super_forms' ), $this->version , '<a target="_blank" href="https://renstillmann.github.io/super-forms/#/changelog">', '</a>');
+                                    echo sprintf( esc_html__( 'Successfully updated Super Forms to v%s - %sCheck what\'s new!%s', 'super_forms' ), $this->version , '<a target="_blank" href="https://docs.super-forms.com/changelog">', '</a>');
                                     echo sprintf( esc_html__( '%sDisable this notification%s', 'super-forms' ), '<a style="padding-left:15px;" target="_blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#backend-settings') . '">', '</a>');
                                 echo '</p>';
                                 echo '<h1>' . esc_html__( 'What\'s new?', 'super-forms' ) . '</h1>';
