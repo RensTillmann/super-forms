@@ -10,6 +10,7 @@
 
 ## Unreleased
 
+- **Fix:** PDF Generator font data (Cyrillic and Arabic) is now attached to the Super Forms common script, so it still loads when a JavaScript optimization plugin reorders or delays scripts.
 - **Fix:** PDF Generator "Enable debug mode" now only downloads the PDF and no longer submits the form, so no entry is saved and no e-mails are sent.
 - **Fix:** When the PDF cannot be created, a message is shown and the visitor can close it and try again, instead of the form staying on "Generating PDF file..." forever. Nothing is submitted in that case.
 
