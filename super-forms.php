@@ -2776,7 +2776,7 @@ if(!class_exists('SUPER_Forms')) :
                     if( !empty( $settings['google_maps_api_language'] ) ){
                         $url .= 'language='.$settings['google_maps_api_language'].'&';
                     }
-                    $url .= 'key=' . $settings['form_google_places_api'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init';
+                    $url .= 'key=' . $settings['form_google_places_api'] . '&libraries=drawing,geometry,places,visualization,routes&callback=SUPER.google_maps_init';
                     wp_enqueue_script( 'google-maps-api', $url, array( 'super-common' ), SUPER_VERSION, false );
                 }
 
