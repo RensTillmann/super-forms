@@ -3018,6 +3018,7 @@ if(!class_exists('SUPER_Forms')) :
                         'processing' => esc_html__( 'Processing form data...', 'super-forms' ),
                         'uploading_files' => esc_html__( 'Uploading files...', 'super-forms' ),
                         'generating_pdf' => esc_html__( 'Generating PDF file...', 'super-forms' ),
+                        'pdf_generation_error' => esc_html__( 'PDF generation failed. Please try again or contact support if the problem persists.', 'super-forms' ),
                         'completed' => esc_html__( 'Completed!', 'super-forms' ),
                         'close' => esc_html__( 'Close', 'super-forms' ),
                         'redirecting' => esc_html__( 'Redirecting...', 'super-forms' ),
