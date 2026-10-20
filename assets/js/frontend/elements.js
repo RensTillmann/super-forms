@@ -1527,7 +1527,15 @@
                         return false;
                     }
                     if(!form.querySelector('.super-form-button.super-loading')){
-                        submitButton = form.querySelector('.super-form-button .super-button-wrap .super-button-name[data-action="submit"]');
+                        // Only use a submit button that is not hidden by conditional logic
+                        submitButton = null;
+                        nodes = form.querySelectorAll('.super-form-button .super-button-wrap .super-button-name[data-action="submit"]');
+                        for(i = 0; i < nodes.length; i++){
+                            if(!SUPER.has_hidden_parent(nodes[i])){
+                                submitButton = nodes[i];
+                                break;
+                            }
+                        }
                         if(submitButton) {
                             var args = {
                                 el: undefined,
