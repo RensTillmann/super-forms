@@ -8,7 +8,7 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Unreleased
+## Oct 20, 2026 - Version 6.3.323
 
 - **Fix:** Clicking the submit button after pressing Tab to leave the form submits again, instead of jumping to the first field and losing the click; keyboard Tab and Shift+Tab navigation is unchanged.
 - **Fix:** Switching the form builder to a translation no longer logs a PHP warning about a missing setting type.
@@ -17,13 +17,14 @@
 - **Fix:** WordPress no longer reports that the `super-forms` translations were loaded too early.
 - **Improved:** Button and Divider elements can now be shown, hidden or made read-only with conditional logic. In multi-part forms the automatic Prev/Next buttons don't take over the conditions of the submit button.
 - **Fix:** A required or validated field inside a column set to Invisible no longer blocks the form with an error the visitor cannot see; the field's value is still submitted, and the server no longer requires it either.
-- **Fix:** Pressing Enter in a field no longer submits the form when the submit button is hidden by conditional logic. If another submit button is visible, that one is used.
-- **Fix:** In a multi-part form, pressing Enter in a field of any step except the last now does the same as clicking that step's Next button (including the step's validation) instead of submitting the whole form and skipping the remaining steps. If that Next button is hidden by conditional logic, or the step has none, Enter does nothing. On the last step Enter submits the form as before.
+- **Fix:** Pressing Enter in a field uses the first submit button that is not hidden by conditional logic and is not read-only. If no such button is available, Enter does nothing.
+- **Fix:** In a multi-part form, pressing Enter in a field before the last step activates that step's visible, non-read-only Next button with the usual step validation, instead of submitting the whole form and skipping the remaining steps. If Next is absent, hidden by conditional logic or read-only, Enter does nothing. On the last step Enter uses the first visible, non-read-only submit button.
 - **Security fix:** The form builder's preview, language switch, undo/redo, element settings and element HTML requests now require an administrator and a valid security token, so other logged-in users can no longer load form markup or settings.
 - **Fix:** When the builder's save or preview request is rejected (for example after the session expired or a security plugin blocked it), the button is restored and a message asks you to reload the page instead of staying on "Saving..." forever.
 - **Fix:** PDF Generator font data (Cyrillic and Arabic) is now attached to the Super Forms common script, so it still loads when a JavaScript optimization plugin reorders or delays scripts.
 - **Fix:** PDF Generator "Enable debug mode" now only downloads the PDF and no longer submits the form, so no entry is saved and no e-mails are sent.
 - **Fix:** When the PDF cannot be created, a message is shown and the visitor can close it and try again, instead of the form staying on "Generating PDF file..." forever. Nothing is submitted in that case.
+- **Improved:** Compatibility with WordPress 7.1.3.
 
 ## Oct 09, 2026 - Version 6.3.322
 
