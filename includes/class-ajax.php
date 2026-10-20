@@ -719,7 +719,7 @@ class SUPER_Ajax {
                                 }
                             }
                             if( ( !isset( $v['hidden'] ) ) || ( $v['hidden']==false ) )  {
-                                $settings_html .= '<div class="super-field super-field-type-'.$v['type'].'">';
+                                $settings_html .= '<div class="super-field super-field-type-'.(isset($v['type']) ? $v['type'] : '').'">';
                                     if( isset( $v['name'] ) ) {
                                         $settings_html .= '<div class="super-field-name">' . ($v['name']);
                                         if( isset( $v['desc'] ) ) {
