@@ -7,6 +7,10 @@ description: >-
 
 # How to update the plugin
 
+{% hint style="info" %}
+**Updating does not clean an earlier compromise.** If your site previously ran vulnerable software, including a plugin that has since been removed, consider a security review as well as updating. Follow [Scan your WordPress site with Wordfence](wordpress-security-scan-wordfence.md) to run a scan, review findings safely, and understand when to ask for expert help.
+{% endhint %}
+
 ## Automatic updates
 
 Super Forms can be **updated automatically** via your WordPress dashboard without the need to delete the plugin and re-upload it. Whenever a new update is available WordPress will automatically show you a message in your dashboard that you can update the plugin. You can simply click on `Update now` to start the update process.
