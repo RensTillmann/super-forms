@@ -8,6 +8,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Unreleased
+
+- **Fix:** PDF Generator font data (Cyrillic and Arabic) is now attached to the Super Forms common script, so it still loads when a JavaScript optimization plugin reorders or delays scripts.
+
 ## Oct 09, 2026 - Version 6.3.322
 
 - **Fix:** Date fields with omitted or empty date-format settings now use the default `dd-mm-yy` format during submission, while saved nonempty formats and strict date validation are preserved.
