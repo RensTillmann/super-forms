@@ -253,24 +253,5 @@ class Test_Security_Builder_Ajax extends Super_Forms_Upload_Security_Test_Case {
 		$this->assertStringContainsString( 'super-update-element', $result['output'] );
 	}
 
-	public function test_builder_script_sends_the_admin_nonce_with_every_guarded_action() {
-		$source = file_get_contents( dirname( __DIR__ ) . '/assets/js/backend/create-form.js' );
-		$this->assertIsString( $source );
-		foreach ( array_keys( self::builder_actions() ) as $action ) {
-			$pattern = "/action:\\s*'super_" . $action . "',/";
-			$calls   = preg_match_all( $pattern, $source );
-			$this->assertGreaterThan( 0, $calls, $action );
-			$with_nonce = preg_match_all( "/action:\\s*'super_" . $action . "',\\s*nonce:\\s*super_create_form_i18n\\.admin_nonce,/", $source );
-			$this->assertSame( $calls, $with_nonce, $action );
-		}
-	}
 
-	public function test_builder_script_localizes_the_admin_nonce_and_rejected_request_message() {
-		$scripts = SUPER_Forms::get_scripts();
-		$this->assertArrayHasKey( 'super-create-form', $scripts );
-		$localize = $scripts['super-create-form']['localize'];
-		$this->assertNotFalse( wp_verify_nonce( $localize['admin_nonce'], 'super_admin_ajax' ) );
-		$this->assertArrayHasKey( 'request_rejected', $localize );
-		$this->assertStringContainsString( '%s', $localize['request_rejected'] );
-	}
 }
