@@ -10,6 +10,8 @@
 
 ## Unreleased
 
+- **Security fix:** The form builder's preview, language switch, undo/redo, element settings and element HTML requests now require an administrator and a valid security token, so other logged-in users can no longer load form markup or settings.
+- **Fix:** When the builder's save or preview request is rejected (for example after the session expired or a security plugin blocked it), the button is restored and a message asks you to reload the page instead of staying on "Saving..." forever.
 - **Fix:** PDF Generator font data (Cyrillic and Arabic) is now attached to the Super Forms common script, so it still loads when a JavaScript optimization plugin reorders or delays scripts.
 - **Fix:** PDF Generator "Enable debug mode" now only downloads the PDF and no longer submits the form, so no entry is saved and no e-mails are sent.
 - **Fix:** When the PDF cannot be created, a message is shown and the visitor can close it and try again, instead of the form staying on "Generating PDF file..." forever. Nothing is submitted in that case.
