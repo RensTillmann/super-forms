@@ -9,7 +9,7 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## 2026-10-20 - Version 6.4.010-beta
+## 2026-10-21 - Version 6.4.010-beta
 
 - **Fix:** Clicking the submit button after tabbing out of the form submits normally instead of jumping to the first field and losing the click. Keyboard Tab and Shift+Tab navigation is unchanged.
 - **Fix:** Pressing Enter uses the first submit button that is not hidden by conditional logic and is not read-only. If none is available, Enter does not submit.
