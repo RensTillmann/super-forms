@@ -1488,7 +1488,8 @@ if(!class_exists('SUPER_Forms')) :
         public static function minute_schedule( $schedules ) {
             $schedules['every_minute'] = array(
                 'interval' => 60,
-                'display' => esc_html__( 'Every minute', 'super-forms' )
+                // Translating before `after_setup_theme` triggers WordPress' "translation loading triggered too early" notice
+                'display' => did_action( 'after_setup_theme' ) ? esc_html__( 'Every minute', 'super-forms' ) : 'Every minute'
             );
             return $schedules;
         }

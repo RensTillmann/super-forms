@@ -9,6 +9,12 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Unreleased - Version 6.4.010-beta
+
+- **Fix:** Form submissions no longer write an `Undefined array key "_woocommerce"` warning or a `triggerEvent(...)` debug line to the PHP error log.
+- **Fix:** Removed a PHP 8.1+ `explode(): Passing null` deprecation notice on the form settings file picker when no files are selected.
+- **Fix:** WordPress no longer reports that the `super-forms` translations were loaded too early when the "Every minute" cron schedule is requested before themes are set up.
+
 ## 2026-10-09 - Version 6.4.009-beta
 
 - **Fix:** Date submissions use the default `dd-mm-yy` pattern when the saved format, or selected custom format, is missing or empty, while preserving explicit formats and strict date validation.
