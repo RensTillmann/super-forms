@@ -2853,6 +2853,12 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
   display: flex !important;
   flex-direction: row;
 }
+.super-form:not(.super-preview-elements) .super-button.super-conditional-hidden {
+  display: none !important;
+}
+.super-button.super-readonly .super-button-wrap {
+  pointer-events: none;
+}
 .super-form-button .super-button-wrap,
 .super-next-multipart .super-button-wrap,
 .super-prev-multipart .super-button-wrap {

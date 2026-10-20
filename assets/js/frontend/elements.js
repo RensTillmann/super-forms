@@ -98,9 +98,9 @@
         for( i = 0; i < nodes.length; i++ ) {
             field = nodes[i].querySelector('.super-shortcode-field');
             if(field){ // This is a field
-                if(!SUPER.has_hidden_parent(field)) skip = false;
+                if(!SUPER.has_hidden_parent(field, false, false)) skip = false;
             }else{ // This is either a HTML element or something else without a field
-                if(!SUPER.has_hidden_parent(nodes[i])) skip = false;
+                if(!SUPER.has_hidden_parent(nodes[i], false, false)) skip = false;
             }
             if(skip===false) return false;
         }
@@ -194,7 +194,7 @@
                 }
             }
         }
-        if(SUPER.has_hidden_parent(nextField)){
+        if(SUPER.has_hidden_parent(nextField, false, false)){
             // Exclude conditionally
             nextField = SUPER.nextTabField(e, field, form, nextTabIndex+incNext);
         }
@@ -1360,6 +1360,15 @@
             SUPER.init_super_form_frontend();
         });
 
+        // A mouse or touch press focuses the form before the click lands. Forget the
+        // last Tab key first, so focusin does not treat it as tabbing into the form
+        // (which would focus the first field, scroll the page and lose the click).
+        var resetLastTabKey = function(){
+            SUPER.lastTabKey = undefined;
+        };
+        document.addEventListener('mousedown', resetLastTabKey, true);
+        document.addEventListener('touchstart', resetLastTabKey, {capture: true, passive: true});
+
         $doc.on('focusin', function(e){
             var i, nodes;
             if(!e.target.tagName || typeof e.target.closest !== 'function') return true;
@@ -1391,7 +1400,7 @@
                         // the form became focus via regular tab, so we must focus the first field
                         nodes = form.querySelectorAll('.super-field:not('+super_common_i18n.tab_index_exclusion+')');
                         for (i = 0; i < nodes.length; i++) {
-                            if(SUPER.has_hidden_parent(nodes[i])) continue;
+                            if(SUPER.has_hidden_parent(nodes[i], false, false)) continue;
                             visibleNodes.push(nodes[i]);
                             break;
                         }
@@ -1407,7 +1416,7 @@
                         // the form became focus via shift+tab, so we must focus the last field
                         nodes = form.querySelectorAll('.super-field:not('+super_common_i18n.tab_index_exclusion+')');
                         for (i = 0; i < nodes.length; i++) {
-                            if(SUPER.has_hidden_parent(nodes[i])) continue;
+                            if(SUPER.has_hidden_parent(nodes[i], false, false)) continue;
                             visibleNodes.push(nodes[i]);
                         }
                         field = visibleNodes[visibleNodes.length-1];
@@ -1527,7 +1536,25 @@
                         return false;
                     }
                     if(!form.querySelector('.super-form-button.super-loading')){
-                        submitButton = form.querySelector('.super-form-button .super-button-wrap .super-button-name[data-action="submit"]');
+                        // Multi-part: on any step but the last one, Enter does what that step's Next button does
+                        var multiparts = form.querySelectorAll('.super-multipart'),
+                            activeMultipart = form.querySelector('.super-multipart.super-active');
+                        if(activeMultipart && activeMultipart!==multiparts[multiparts.length-1]){
+                            var nextButton = activeMultipart.querySelector('.super-next-multipart');
+                            // Do nothing when the step has no Next button or it is hidden by conditional logic
+                            if(nextButton && !SUPER.has_hidden_parent(nextButton, false, false) && !nextButton.closest('.super-readonly')) nextButton.click();
+                            e.preventDefault();
+                            return false;
+                        }
+                        // Only use a submit button that is not hidden by conditional logic
+                        submitButton = null;
+                        nodes = form.querySelectorAll('.super-form-button .super-button-wrap .super-button-name[data-action="submit"]');
+                        for(i = 0; i < nodes.length; i++){
+                            if(!SUPER.has_hidden_parent(nodes[i], false, false) && !nodes[i].closest('.super-readonly')){
+                                submitButton = nodes[i];
+                                break;
+                            }
+                        }
                         if(submitButton) {
                             var args = {
                                 el: undefined,
@@ -1693,7 +1720,7 @@
                 nodes = document.querySelectorAll('.super-form .super-tabs-contents');
                 for (i = 0; i < nodes.length; i++) {
                     field = nodes[i].closest('.super-shortcode');
-                    if(!SUPER.has_hidden_parent(field, true)){ // Also include Multi-part for this check
+                    if(!SUPER.has_hidden_parent(field, true, false)){ // Also include Multi-part for this check
                         // Only if no focussed field is found
                         // First get the currently active TAB
                         var activeTab = field.querySelector('.super-tabs-contents > .super-tabs-content.super-active');
@@ -1727,7 +1754,7 @@
                         nodes = form.querySelectorAll('.super-field:not('+super_common_i18n.tab_index_exclusion+')');
                         var visibleNodes = [];
                         for (i = 0; i < nodes.length; i++) {
-                            if(SUPER.has_hidden_parent(nodes[i])) continue;
+                            if(SUPER.has_hidden_parent(nodes[i], false, false)) continue;
                             visibleNodes.push(nodes[i]);
                         }
                         // if we shift+tab from second visible field to first visible field, we must set tabindex on form to -1
@@ -1777,7 +1804,7 @@
                             SUPER.firstFocussedField = true;
                             nodes = form.querySelectorAll('.super-field:not('+super_common_i18n.tab_index_exclusion+')');
                             for (i = 0; i < nodes.length; i++) {
-                                if(SUPER.has_hidden_parent(nodes[i])) continue;
+                                if(SUPER.has_hidden_parent(nodes[i], false, false)) continue;
                                 SUPER.focusNextTabField(e, nodes[i], form, nodes[i]);
                                 e.preventDefault();
                                 return false;
@@ -2678,6 +2705,8 @@
             e.stopPropagation();
             form = SUPER.get_frontend_or_backend_form({el: this});
             wrapper = this.closest('.super-field-wrapper');
+            // Not a form field (e.g. the builder's translation dropdowns), nothing to update here
+            if(!wrapper) return;
             input = wrapper.querySelector('.super-shortcode-field');
             parent = this.closest('.super-dropdown-list');
             placeholder = parent.querySelector('.super-placeholder');
@@ -3054,6 +3083,8 @@
         
         // Multi Part Next Prev Buttons
         $doc.on('click','.super-prev-multipart, .super-next-multipart',function(e){
+            // A button set to read-only by conditional logic can't be clicked
+            if(this.classList.contains('super-readonly')) return false;
             if(this.classList.contains('super-prev-multipart')){
                 SUPER.switchMultipart(e, this, 'prev');
             }else{
