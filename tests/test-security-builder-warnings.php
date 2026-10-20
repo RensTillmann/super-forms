@@ -45,7 +45,11 @@ class Test_Security_Builder_Warnings extends WP_UnitTestCase {
 		};
 		add_filter( 'get_post_metadata', $stop, 10, 3 );
 		$original_post = $_POST;
-		$_POST = array( 'form_id' => (string) $form_id, 'i18n' => 'nl_NL' );
+		$original_request = $_REQUEST;
+		$original_user = get_current_user_id();
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		$_POST = array( 'form_id' => (string) $form_id, 'i18n' => 'nl_NL', 'nonce' => wp_create_nonce( 'super_admin_ajax' ) );
+		$_REQUEST = $_POST;
 		$stopped = false;
 		$this->capture_issues();
 		ob_start();
@@ -58,6 +62,8 @@ class Test_Security_Builder_Warnings extends WP_UnitTestCase {
 			restore_error_handler();
 			remove_filter( 'get_post_metadata', $stop, 10 );
 			$_POST = $original_post;
+			$_REQUEST = $original_request;
+			wp_set_current_user( $original_user );
 		}
 		$this->assertTrue( $stopped, 'switch_language() did not reach the form elements.' );
 		$this->assertSame( array(), $this->issues );
