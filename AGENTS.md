@@ -34,4 +34,4 @@ No customer names, companies, domains, e-mail addresses or ticket numbers in com
 
 - [ ] Base branch, and why this branch.
 - [ ] What was tested, and how.
-- [ ] Privacy check: no customer data in the diff, the commits or the PR text.
+- [ ] Before you open the PR, check that there is no customer data in the diff, the commits or the PR text. This is a check only: don't write it in the PR.
