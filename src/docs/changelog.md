@@ -9,6 +9,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Unreleased - Version 6.4.010-beta
+
+- **Fix:** Pressing Enter in a field no longer submits the form when the submit button is hidden by conditional logic; the first visible submit button is used instead.
+
 ## 2026-10-09 - Version 6.4.009-beta
 
 - **Fix:** Date submissions use the default `dd-mm-yy` pattern when the saved format, or selected custom format, is missing or empty, while preserving explicit formats and strict date validation.
