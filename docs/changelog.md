@@ -8,6 +8,11 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Unreleased
+
+- **Security fix:** The form builder's preview, language switch, undo/redo, element settings and element HTML requests now require an administrator and a valid security token, so other logged-in users can no longer load form markup or settings.
+- **Fix:** When the builder's save or preview request is rejected (for example after the session expired or a security plugin blocked it), the button is restored and a message asks you to reload the page instead of staying on "Saving..." forever.
+
 ## Oct 09, 2026 - Version 6.3.322
 
 - **Fix:** Date fields with omitted or empty date-format settings now use the default `dd-mm-yy` format during submission, while saved nonempty formats and strict date validation are preserved.
