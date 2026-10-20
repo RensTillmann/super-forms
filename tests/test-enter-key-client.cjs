@@ -120,6 +120,9 @@ run('submit button in conditionally hidden column does not submit', add => [hidd
 run('first hidden, second visible uses the visible button', add => [hiddenColumn(add()), add()], 1);
 run('submit button in invisible (not conditionally hidden) column still submits', add => [column(['super-invisible'], {}, [add()])], 0);
 run('disable-enter setting does not submit', add => [add()], null, true);
+// A submit button made read-only by conditional logic (column or the button itself) is not usable by Enter either.
+run('read-only submit button does not submit', add => [column(['super-readonly'], {conditionalAction: 'readonly'}, [add()])], null);
+run('read-only first, visible second uses the visible button', add => [column(['super-readonly'], {conditionalAction: 'readonly'}, [add()]), add()], 1);
 
 // Multi-part forms: on a step that is not the last one, Enter takes the exact path of that step's
 // Next button (a click, handled by the `.super-next-multipart` listener -> SUPER.switchMultipart,

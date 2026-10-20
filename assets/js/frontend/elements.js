@@ -1533,7 +1533,7 @@
                         if(activeMultipart && activeMultipart!==multiparts[multiparts.length-1]){
                             var nextButton = activeMultipart.querySelector('.super-next-multipart');
                             // Do nothing when the step has no Next button or it is hidden by conditional logic
-                            if(nextButton && !SUPER.has_hidden_parent(nextButton, false, false)) nextButton.click();
+                            if(nextButton && !SUPER.has_hidden_parent(nextButton, false, false) && !nextButton.closest('.super-readonly')) nextButton.click();
                             e.preventDefault();
                             return false;
                         }
@@ -1541,7 +1541,7 @@
                         submitButton = null;
                         nodes = form.querySelectorAll('.super-form-button .super-button-wrap .super-button-name[data-action="submit"]');
                         for(i = 0; i < nodes.length; i++){
-                            if(!SUPER.has_hidden_parent(nodes[i], false, false)){
+                            if(!SUPER.has_hidden_parent(nodes[i], false, false) && !nodes[i].closest('.super-readonly')){
                                 submitButton = nodes[i];
                                 break;
                             }
