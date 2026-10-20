@@ -4983,6 +4983,9 @@ class SUPER_Shortcodes {
         if( !isset( $atts['class'] ) ) $atts['class'] = '';
         if( !isset( $atts['wrapper_class'] ) ) $atts['wrapper_class'] = '';
         if( $atts['wrapper_class']!='' ) $class .= ' ' . $atts['wrapper_class'];
+        // Conditional logic (show/hide/readonly the button)
+        $conditional = self::conditional_attributes( $atts );
+        $class .= $conditional['class'];
 
         $attributes = '';
         if( $color!='' ) {
@@ -5003,7 +5006,7 @@ class SUPER_Shortcodes {
         if( $font_hover!='' ) $attributes .= ' data-font-hover="' . esc_attr($font_hover) . '"';
         $result = '';
 
-        $result .= '<div' . $attributes . ' data-radius="' . esc_attr($radius) . '" data-type="' . esc_attr($type) . '" class="' . esc_attr($class) . '">';
+        $result .= '<div' . $attributes . ' data-radius="' . esc_attr($radius) . '" data-type="' . esc_attr($type) . '" class="' . esc_attr($class) . '"' . $conditional['dataset'] . '>';
             if( !isset( $atts['target'] ) ) $atts['target'] = '';
             if( !isset( $atts['action'] ) ) $atts['action'] = 'submit';
             $url = '';
@@ -5052,6 +5055,11 @@ class SUPER_Shortcodes {
                 $result .= '</div>';
                 $result .= '<span class="super-after"></span>';
             $result .= '</div>';
+            // A button's `name` is its label, not a field name: without it no error message markup is printed
+            // and no conditional items filter named after the label is applied
+            $cl_atts = $atts;
+            unset( $cl_atts['name'] );
+            $result .= self::loop_conditions( $cl_atts, $tag );
         $result .= '</div>';
         return $result;
     }

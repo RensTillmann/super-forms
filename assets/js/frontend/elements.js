@@ -3054,6 +3054,8 @@
         
         // Multi Part Next Prev Buttons
         $doc.on('click','.super-prev-multipart, .super-next-multipart',function(e){
+            // A button set to read-only by conditional logic can't be clicked
+            if(this.classList.contains('super-readonly')) return false;
             if(this.classList.contains('super-prev-multipart')){
                 SUPER.switchMultipart(e, this, 'prev');
             }else{

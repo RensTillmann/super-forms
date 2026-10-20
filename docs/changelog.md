@@ -8,6 +8,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Unreleased
+
+- **Improved:** Button and Divider elements can now be shown, hidden or made read-only with conditional logic. In multi-part forms the automatic Prev/Next buttons don't take over the conditions of the submit button.
+
 ## Oct 09, 2026 - Version 6.3.322
 
 - **Fix:** Date fields with omitted or empty date-format settings now use the default `dd-mm-yy` format during submission, while saved nonempty formats and strict date validation are preserved.
