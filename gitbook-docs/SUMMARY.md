@@ -11,6 +11,7 @@
 * [Activating a license](quick-start/activating-a-license.md)
 * [First time setup](quick-start/first-time-setup.md)
 * [Secure file uploads](quick-start/secure-file-uploads.md)
+* [Run a WordPress security scan with Wordfence](security-scan-with-wordfence.md)
 * [Creating a form](quick-start/creating-a-form.md)
 * [Adding form elements](quick-start/adding-form-elements.md)
 * [Editing elements](quick-start/editing-elements.md)
