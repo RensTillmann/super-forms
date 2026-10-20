@@ -10,6 +10,7 @@
 
 ## Unreleased
 
+- **Fix:** Clicking the submit button after pressing Tab to leave the form submits again, instead of jumping to the first field and losing the click; keyboard Tab and Shift+Tab navigation is unchanged.
 - **Fix:** Switching the form builder to a translation no longer logs a PHP warning about a missing setting type.
 - **Fix:** Dropdown settings without a default value no longer log a PHP warning in the form builder.
 - **Fix:** Clicking a language in the builder's translation dropdowns no longer logs a JavaScript error in the browser console.
