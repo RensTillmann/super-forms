@@ -1503,7 +1503,7 @@
                     var xhttp = new XMLHttpRequest();
                     xhttp.onreadystatechange = function () {
                         if (this.readyState == 4) {
-                            if (this.status == 200) {
+                            if (!SUPER.builder_request_rejected(this)) {
                                 // Success:
                                 var $elements = $(this.responseText).appendTo($target);
                                 SUPER.init_resize_element_labels();
@@ -1524,6 +1524,7 @@
                     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
                     var params = {
                         action: 'super_get_element_builder_html',
+                        nonce: super_create_form_i18n.admin_nonce,
                         tag: obj.$el.data('shortcode'),
                         group: obj.$el.data('group'),
                         predefined: $predefined,
@@ -1567,6 +1568,14 @@
             }
         }
     };
+    // WordPress and security plugins can reject a request with an HTTP error, -1 or 0.
+    SUPER.builder_request_rejected = function (xhr) {
+        var body = (typeof xhr.responseText === 'string' ? xhr.responseText.trim() : '');
+        if (xhr.status == 200 && body !== '-1' && body !== '0') return false;
+        alert(super_create_form_i18n.request_rejected.replace('%s', xhr.status));
+        return true;
+    };
+
     SUPER.save_form = function ($this, $method, $button, $initial_i18n, callback, updatingRawFormCode) {
         var i,ii,
             form = document.querySelector('.super-preview-elements'),
@@ -1618,6 +1627,14 @@
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
             if (this.readyState == 4) {
+                if (SUPER.builder_request_rejected(this)) {
+                    $('.super-create-form .super-actions .super-save').html('<i class="fas fa-save"></i>Save');
+                    if ($method == 1) $('.super-create-form .super-actions .super-preview:eq(3)').html('Preview').removeClass('super-active');
+                    if ($method == 3) $('.super-preview-elements, .super-form-settings').removeClass('super-loading');
+                    // Do not preview or switch language after an unsuccessful save.
+                    if ($method != 1 && $method != 3 && typeof callback === "function") callback();
+                    return false;
+                }
                 // Success:
                 if (this.status == 200) {
                     SUPER.alertWhenSaving = false;
@@ -1731,6 +1748,12 @@
             var xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function () {
                 if (this.readyState == 4) {
+                    if (SUPER.builder_request_rejected(this)) {
+                        $('.super-live-preview').removeClass('super-loading').css('display', 'none');
+                        $('.super-tabs-content').css('display', '');
+                        $this.html('Preview').removeClass('super-active');
+                        return false;
+                    }
                     // Success:
                     if (this.status == 200) {
                         $('.super-live-preview').removeClass('super-loading');
@@ -1756,6 +1779,7 @@
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
             var params = {
                 action: 'super_load_preview',
+                nonce: super_create_form_i18n.admin_nonce,
                 form_id: formId
             };
             params = $.param(params);
@@ -2479,20 +2503,23 @@
                         url: ajaxurl,
                         data: {
                             action: 'super_switch_language',
+                            nonce: super_create_form_i18n.admin_nonce,
                             form_id: $('.super-create-form input[name="form_id"]').val(),
                             i18n: $i18n
                         },
-                        success: function (data) {
+                        success: function (data, status, xhr) {
+                            if (SUPER.builder_request_rejected(xhr)) return;
                             data = JSON.parse(data);
                             $('.super-preview-elements').html(data.elements);
                             SUPER.regenerate_element_inner();
                             $('.super-form-settings .super-elements-container').html(data.settings);
                             $('.super-preview-elements, .super-form-settings').removeClass('super-loading');
                         },
-                        error: function () {
-                            alert(super_create_form_i18n.export_form_error);
+                        error: function (xhr) {
+                            SUPER.builder_request_rejected(xhr);
                         },
                         complete: function () {
+                            $('.super-preview-elements, .super-form-settings').removeClass('super-loading');
                             SUPER.init_slider_field();
                             SUPER.init_tooltips();
                             SUPER.init_docs();
@@ -2706,12 +2733,17 @@
                     url: ajaxurl,
                     data: {
                         action: 'super_undo_redo',
+                        nonce: super_create_form_i18n.admin_nonce,
                         form_id: $('.super-create-form input[name="form_id"]').val(),
                         elements: JSON.stringify($history[$index])
                     },
-                    success: function (result) {
+                    success: function (result, status, xhr) {
+                        if (SUPER.builder_request_rejected(xhr)) return;
                         $('.super-preview .super-preview-elements').html(result);
                         SUPER.init_resize_element_labels();
+                    },
+                    error: function (xhr) {
+                        SUPER.builder_request_rejected(xhr);
                     },
                     complete: function () {
                         $this.removeClass('super-loading');
@@ -3221,6 +3253,10 @@
             var xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function () {
                 if (this.readyState == 4) {
+                    if (SUPER.builder_request_rejected(this)) {
+                        $button.removeClass('super-loading');
+                        return false;
+                    }
                     // Success:
                     if (this.status == 200) {
                         var response = this.responseText;
@@ -3327,6 +3363,7 @@
             }
             var params = {
                 action: 'super_get_element_builder_html',
+                nonce: super_create_form_i18n.admin_nonce,
                 tag: $tag,
                 group: $group,
                 builder: ($tag == 'tabs' ? $builder : 0),
@@ -3482,6 +3519,10 @@
             var xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function () {
                 if (this.readyState == 4) {
+                    if (SUPER.builder_request_rejected(this)) {
+                        $target.removeClass('super-loading');
+                        return false;
+                    }
                     // Success:
                     if (this.status == 200) {
                         $target.html(this.responseText);
@@ -3521,6 +3562,7 @@
             }
             var params = {
                 action: 'super_load_element_settings',
+                nonce: super_create_form_i18n.admin_nonce,
                 form_id: $('.super-create-form input[name="form_id"]').val(),
                 tag: $tag,
                 group: $group,
