@@ -19,6 +19,31 @@ You also have the option to specifically include or exclude elements from the PD
 
 You can also define a Header and Footer element which would then be visible on all pages of the generated PDF file.
 
+### How PDF generation works
+
+The PDF is built in the visitor's browser, before the form is submitted. While this happens the visitor sees a popup with the text **Generating PDF file...** (you can change it with the **Generating text** setting) and a progress bar. Only after the PDF is finished is the form submitted: the Contact Entry is saved and the E-mails (with the PDF attached, if enabled) are sent.
+
+Because the browser does all the work, generation takes longer and uses more memory when:
+
+* the form has many elements or results in many pages;
+* the **PDF render scale** is high;
+* the form contains large images, or images loaded from another domain (cross-origin).
+
+{% hint style="info" %}
+**Tip:** if generation is slow or fails on some devices, lower the **PDF render scale** (see [PDF Render scale](#pdf-render-scale-resolution-sharpness-quality)).
+{% endhint %}
+
+### Debug mode
+
+Debug mode downloads the generated PDF directly in the browser so you can check the result while building your form. Only enable it while developing your form.
+
+* **6.4 (beta):** **\[PDF]** TAB > **Enable Form to PDF generation** > **General settings** > **Enable debug mode**. The PDF is downloaded and the form is not submitted.
+* **6.3 (LTS):** **\[PDF]** TAB > **Enable Form to PDF generation** > **Enable debug mode (this will not submit the form, but directly download the generated PDF, only enable this when developing your form)**.
+
+{% hint style="warning" %}
+**6.3 LTS:** in 6.3.322 and older, debug mode also submits the form (the entry is saved and e-mails are sent), so test with safe e-mail recipients.
+{% endhint %}
+
 ### Quick start
 
 Open [dashboard.super-forms.com](https://dashboard.super-forms.com) and sign in (WordPress **Super Forms > Licenses** opens the same dashboard). Click **Purchase New License**, add **PDF Generator** and complete the checkout. Your new license appears under **Unused License Codes**. Click **Activate License** and enter your WordPress domain. Then open any form under **Super Forms > Your forms**, or create one under **Super Forms > Create form**.
@@ -148,6 +173,17 @@ This feature is currently only available in the [BETA version](../../developers/
 {% endhint %}
 
 With smart page breaks enabled any element and or text will automatically be pushed onto the next page in case it didn't fit on the previous page for the full 100%.
+
+### Troubleshooting: stuck at "Generating PDF file..."
+
+If the popup keeps showing **Generating PDF file...** (or your own **Generating text**) and the form is never submitted, work through these steps:
+
+1. **Open the browser console** (press F12 and open the **Console** tab), submit the form again and look for red error lines. They usually point at the element or image that fails to render.
+2. **Use [debug mode](#debug-mode)** to test the PDF without waiting for the full submission. On 6.3 LTS, keep in mind that debug mode in 6.3.322 and older still submits the form.
+3. **Compare the settings** on the **\[PDF]** TAB and the **PDF Settings** section of your elements with a form where the PDF works.
+4. **6.4 with a non-Latin language script:** open the **Network** tab of the browser developer tools and check whether the request for `fonts/<language>.json` failed. Without this font file the PDF cannot start.
+5. **If the popup moved on to "Processing form data..." and then showed an error**, the PDF was created but is too large for your server. Ask your host to raise `post_max_size`, `memory_limit` or `max_execution_time` in PHP, or lower the **PDF render scale**.
+6. **Remove half of the form** (on a copy) and test again. Repeat with the half that still fails until you find the element that causes it.
 
 ### Pricing
 
