@@ -24,3 +24,7 @@ description: Here you will find a list of frequent problems and possible solutio
 [datepicker-styling-conflict-issues.md](datepicker-styling-conflict-issues.md)
 {% endcontent-ref %}
 
+{% content-ref url="form-not-showing-js-optimization.md" %}
+[form-not-showing-js-optimization.md](form-not-showing-js-optimization.md)
+{% endcontent-ref %}
+

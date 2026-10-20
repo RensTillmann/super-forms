@@ -37,6 +37,7 @@
   * [Datepicker Styling Conflict Issues](common-problems/index/datepicker-styling-conflict-issues.md)
   * [Session expired](common-problems/index/session-expired.md)
   * [reCaptcha Troubleshooting - Fix “Not Loading” & Verification Errors](common-problems/index/recaptcha-troubleshooting-fix-not-loading-and-verification-errors.md)
+  * [Form not showing after JavaScript optimization](common-problems/index/form-not-showing-js-optimization.md)
 
 ## Elements
 
