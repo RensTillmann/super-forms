@@ -46,6 +46,17 @@ You should use a multi-part for large forms. You can also use it when a form mus
 
 In order to add a multi-part you can open up the **Layout Elements** section on the builder page. You will see 4 elements, the last one is the so called Multi-part. You can simply drag & drop the Multi-part into the form. Not that a multi-part cannot be nested in a column nor inside another multi-part. Once you have added the multi-part you are allowed to add any element inside it that belongs to this step of the form.
 
+## Enter key navigation
+
+In **6.3.323 LTS**, when Enter-to-submit is enabled, pressing Enter in a field follows the current step's controls:
+
+* **Before the final step:** Enter activates the current step's visible, non-read-only Next button. It follows the same navigation and validation as clicking Next, including the step's **Check for errors before going to next step** setting.
+* **No available Next button:** If the current step has no Next button, or Next is hidden by conditional logic or read-only, Enter does nothing. It does not skip a step or submit the form.
+* **On the final step:** Enter uses the first submit button that is not hidden by conditional logic and is not read-only. If no such button is available, Enter does nothing.
+* **In a textarea:** Enter inserts a line break rather than advancing or submitting.
+
+Since **6.3.323 LTS**, a [Button's own conditional settings](../form-elements/button.md#conditional-logic) do not carry over to the automatic Prev/Next copies. Making the submit button conditional therefore does not hide or disable those navigation copies. Direct Button conditional-logic settings are not available in 6.4.
+
 ## Current step in the URL (#step-FORMID-STEP)
 
 Each time the user changes step, Super Forms writes the current step into the URL. It adds an anchor like `#step-12345-3`. Here `12345` is the form ID and `3` is the step number. Step numbers start at 1.
