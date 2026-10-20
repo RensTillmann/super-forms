@@ -1360,6 +1360,15 @@
             SUPER.init_super_form_frontend();
         });
 
+        // A mouse or touch press focuses the form before the click lands. Forget the
+        // last Tab key first, so focusin does not treat it as tabbing into the form
+        // (which would focus the first field, scroll the page and lose the click).
+        var resetLastTabKey = function(){
+            SUPER.lastTabKey = undefined;
+        };
+        document.addEventListener('mousedown', resetLastTabKey, true);
+        document.addEventListener('touchstart', resetLastTabKey, {capture: true, passive: true});
+
         $doc.on('focusin', function(e){
             var i, nodes;
             if(!e.target.tagName || typeof e.target.closest !== 'function') return true;
