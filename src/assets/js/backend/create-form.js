@@ -1503,7 +1503,7 @@
                     var xhttp = new XMLHttpRequest();
                     xhttp.onreadystatechange = function () {
                         if (this.readyState == 4) {
-                            if (this.status == 200) {
+                            if (!SUPER.handle_rejected_builder_request(this)) {
                                 // Success:
                                 var $elements = $(this.responseText).appendTo($target);
                                 SUPER.init_resize_element_labels();
@@ -1524,6 +1524,7 @@
                     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
                     var params = {
                         action: 'super_get_element_builder_html',
+                        nonce: super_create_form_i18n.admin_nonce,
                         tag: obj.$el.data('shortcode'),
                         group: obj.$el.data('group'),
                         predefined: $predefined,
@@ -1566,6 +1567,13 @@
                 return false;
             }
         }
+    };
+    // Returns true (and informs the user) when the server, a firewall or a security plugin rejected a builder request
+    SUPER.handle_rejected_builder_request = function (xhttp) {
+        var body = (typeof xhttp.responseText === 'string' ? xhttp.responseText.trim() : '');
+        if (xhttp.status == 200 && body !== '-1' && body !== '0') return false;
+        alert(super_create_form_i18n.request_rejected.replace('%s', xhttp.status));
+        return true;
     };
     SUPER.save_form = function ($this, $method, $button, $initial_i18n, callback, updatingRawFormCode) {
         var i,ii,
@@ -1618,8 +1626,15 @@
         var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function () {
             if (this.readyState == 4) {
-                // Success:
-                if (this.status == 200) {
+                if (SUPER.handle_rejected_builder_request(this)) {
+                    $('.super-create-form .super-actions .super-save').html('<i class="fas fa-save"></i>Save');
+                    if ($method == 3) {
+                        // Language switch can not continue without a saved form
+                        $('.super-preview-elements, .super-form-settings').removeClass('super-loading');
+                        return false;
+                    }
+                } else if (this.status == 200) {
+                    // Success:
                     SUPER.alertWhenSaving = false;
                     $('.super-create-form .super-actions .super-save').html('<i class="fas fa-save"></i>Save');
                     SUPER.set_session_data('_super_builder_has_unsaved_changes', false);
@@ -1731,6 +1746,12 @@
             var xhttp = new XMLHttpRequest();
             xhttp.onreadystatechange = function () {
                 if (this.readyState == 4) {
+                    if (SUPER.handle_rejected_builder_request(this)) {
+                        $('.super-live-preview').removeClass('super-loading').css('display', 'none');
+                        $('.super-tabs-content').css('display', '');
+                        $this.html('Preview').removeClass('super-active');
+                        return false;
+                    }
                     // Success:
                     if (this.status == 200) {
                         $('.super-live-preview').removeClass('super-loading');
@@ -1756,6 +1777,7 @@
             xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded; charset=UTF-8");
             var params = {
                 action: 'super_load_preview',
+                nonce: super_create_form_i18n.admin_nonce,
                 form_id: formId
             };
             params = $.param(params);
@@ -2479,6 +2501,7 @@
                         url: ajaxurl,
                         data: {
                             action: 'super_switch_language',
+                            nonce: super_create_form_i18n.admin_nonce,
                             form_id: $('.super-create-form input[name="form_id"]').val(),
                             i18n: $i18n
                         },
@@ -2706,6 +2729,7 @@
                     url: ajaxurl,
                     data: {
                         action: 'super_undo_redo',
+                        nonce: super_create_form_i18n.admin_nonce,
                         form_id: $('.super-create-form input[name="form_id"]').val(),
                         elements: JSON.stringify($history[$index])
                     },
@@ -3327,6 +3351,7 @@
             }
             var params = {
                 action: 'super_get_element_builder_html',
+                nonce: super_create_form_i18n.admin_nonce,
                 tag: $tag,
                 group: $group,
                 builder: ($tag == 'tabs' ? $builder : 0),
@@ -3521,6 +3546,7 @@
             }
             var params = {
                 action: 'super_load_element_settings',
+                nonce: super_create_form_i18n.admin_nonce,
                 form_id: $('.super-create-form input[name="form_id"]').val(),
                 tag: $tag,
                 group: $group,
