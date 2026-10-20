@@ -850,7 +850,6 @@ class SUPER_Common {
     }
     public static function triggerEvent($eventName, $form_data){
         global $wpdb;
-        error_log('triggerEvent('.$eventName.')');
         if(!class_exists('SUPER_Triggers')) require_once('class-triggers.php'); 
         $triggers = array();
         $form_id = absint($form_data['form_id']);
@@ -2132,8 +2131,8 @@ class SUPER_Common {
 
     // Check if we conditionally checkout to WooCommerce
     public static function conditionally_wc_checkout($data, $settings){
+        if(!isset($settings['_woocommerce']['checkout']) || $settings['_woocommerce']['checkout']!=='true') return false;
         $wcs = $settings['_woocommerce'];
-        if($wcs['checkout']!=='true') return false;
         $checkout = true;
         if(!empty($wcs['checkout_conditionally'] && $wcs['checkout_conditionally']['enabled']==='true')){
             $c = $wcs['checkout_conditionally'];
