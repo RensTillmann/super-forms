@@ -6,6 +6,24 @@ description: Release notes for the Super Forms stable channel.
 
 ## Super Forms Stable - Changelog
 
+### Oct 20, 2026 - Version 6.3.323
+
+* **Security fix:** The form builder's preview, language switch, undo/redo, element settings and element HTML requests now require administrator permissions and a valid security token, so other logged-in users can no longer load form markup or settings. Preview requests also reject form backups and non-form content.
+* **Fix:** When the builder's save or preview request is rejected, for example after a session expires or a security plugin blocks it, the button is restored and a message asks you to reload the page instead of leaving the builder stuck.
+* **Fix:** PDF Generator debug mode only downloads the PDF without submitting the form, saving an entry or sending e-mails.
+* **Fix:** When a PDF cannot be created, the form is restored and an error message lets the visitor close the popup and try again, instead of staying on "Generating PDF file...". Nothing is submitted in that case.
+* **Fix:** PDF Generator font data for Cyrillic and Arabic text is attached to the Super Forms common script so it loads in the correct order when JavaScript optimization plugins reorder or delay scripts.
+* **Fix:** Pressing Enter in a field skips submit buttons hidden by conditional logic or set to read-only, and uses the first available submit button. If none is available, Enter does nothing.
+* **Fix:** In multi-part forms, Enter on any step except the last uses that step's visible, non-read-only Next button and its usual validation instead of submitting the whole form. If Next is absent, hidden by conditional logic or read-only, Enter does nothing. On the last step, Enter uses the first visible, non-read-only submit button. Textareas retain their line breaks.
+* **Fix:** Required or validated fields inside a Column set to Invisible no longer block the form with errors the visitor cannot see. Their values are still submitted, and the server no longer requires those fields.
+* **Improved:** Since 6.3.323 LTS, Button and Divider elements have their own Conditional Logic settings for showing, hiding or making them read-only. Automatic multi-part Prev/Next copies do not inherit the submit button's conditions. This element feature is not available in 6.4.
+* **Fix:** Switching the form builder to a translation no longer logs a PHP warning about a missing setting type.
+* **Fix:** Dropdown settings without a default value no longer log a PHP warning in the form builder.
+* **Fix:** Clicking a language in the builder's translation dropdowns no longer logs a JavaScript error in the browser console.
+* **Fix:** WordPress no longer reports that the `super-forms` translations were loaded too early.
+* **Fix:** Clicking the submit button after pressing Tab to leave the form submits again instead of jumping to the first field and losing the click. Keyboard Tab and Shift+Tab navigation is unchanged.
+* **Improved:** Compatibility with WordPress 7.1.3.
+
 ### Oct 09, 2026 - Version 6.3.322
 
 * **Fix:** Date fields with omitted or empty date-format settings now use the default `dd-mm-yy` format during submission, while saved nonempty formats and strict date validation are preserved.

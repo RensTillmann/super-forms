@@ -16,7 +16,21 @@ You should use conditional logic to exclude fields from being submitted/saved. W
 
 Whenever you wish to hide fields but still want them to be submitted to emails and saved in contact entries, instead use either a **Hidden field**, or put the fields in a **Column** and make the column invisible and make sure the column does not have any conditional logic enabled.
 
-You can also use conditional logic to conditionally hide/show a Button element (submit button). For instance whenever you do not allow a user to submit the form based on specific input, you can conditionally hide the submit button and instead display a message to the user. You can do this by adding a Column element and adding a Button inside the column and applying the conditional logic on the column. The same thing you can do for the message to be displayed, you can add either a Heading or HTML element to display a message.
+### Buttons and Dividers
+
+Since **6.3.323 LTS**, [Button](../../elements/form-elements/button.md) and [Divider](../../elements/html-elements/divider.md) elements have their own **Conditional Logic** settings. Edit the element and choose **Conditional Logic** from the settings dropdown, then configure the conditions as described below. You can show, hide or make the element read-only. A read-only Button cannot be clicked; a Divider remains a visual separator.
+
+For example, show a submit button only when a field has a particular value, and show a Heading or HTML message otherwise. In multi-part forms, the automatic Prev/Next copies do not inherit the submit button's conditions, so hiding or making the submit button read-only does not hide or disable those navigation copies.
+
+{% hint style="info" %}
+These direct Button and Divider settings are available in LTS since 6.3.323 only, not in 6.4. On older LTS versions and in 6.4, add the Button or Divider inside a Column and apply conditional logic to the Column instead. You can use another conditional Column for a Heading or HTML message.
+{% endhint %}
+
+{% hint style="warning" %}
+Hiding a submit button is not a server-side access-control rule. It changes what the visitor sees, but does not authorize or forbid a direct submission request. Protect restricted actions and data with server-side permission checks.
+{% endhint %}
+
+In **6.3.323 LTS**, Enter skips submit buttons hidden by conditional logic or set to read-only. In a multi-part form, Enter before the last step uses that step's available Next button rather than submitting. See [Enter key navigation](../../elements/layout-elements/multi-part-step.md#enter-key-navigation).
 
 ### How to set conditions
 
