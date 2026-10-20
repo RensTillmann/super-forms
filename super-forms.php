@@ -440,7 +440,8 @@ if(!class_exists('SUPER_Forms')) :
         public static function minute_schedule( $schedules ) {
             $schedules['every_minute'] = array(
                 'interval' => 60,
-                'display' => esc_html__( 'Every minute', 'super-forms' )
+                // WordPress can ask for the schedules before the theme is set up (too early to load translations)
+                'display' => did_action( 'after_setup_theme' ) ? esc_html__( 'Every minute', 'super-forms' ) : 'Every minute'
             );
             return $schedules;
         }
@@ -2912,6 +2913,7 @@ if(!class_exists('SUPER_Forms')) :
                         'completed' => esc_html__( 'Completed!', 'super-forms' ),
                         'close' => esc_html__( 'Close', 'super-forms' ),
                         'redirecting' => esc_html__( 'Redirecting...', 'super-forms' ),
+                        'pdf_generation_error' => esc_html__( 'We couldn\'t create the PDF, so your form has not been sent yet. Please try again.', 'super-forms' ),
                     ),
 
                     'loading' => esc_html__( 'Loading...', 'super-forms' ),
@@ -3621,6 +3623,8 @@ if(!class_exists('SUPER_Forms')) :
                         'localize'=> array(
                             'save_form_nonce' => wp_create_nonce( 'super_save_form' ),
                             'admin_nonce' => wp_create_nonce( 'super_admin_ajax' ),
+                            /* translators: %s: HTTP status code of the rejected request */
+                            'request_rejected' => esc_html__( 'The request was rejected (HTTP %s). Your session may have expired or a security plugin blocked it. Please reload the page and try again.', 'super-forms' ),
                             'not_editing_an_element' => sprintf( esc_html__( 'You are currently not editing an element.%sEdit any alement by clicking the %s icon.', 'super-forms' ), '<br />', '<i class="fa fa-pencil"></i>' ),
                             'no_backups_found' => esc_html__( 'No backups found...', 'super-forms' ),
                             'confirm_reset' => esc_html__( 'Are you sure you want to reset all the form settings according to your current global settings?', 'super-forms' ),

@@ -3,6 +3,8 @@
 (function() { // Hide scope, no $ conflict
     jQuery(document).ready(function ($) {
         $(document).on('click', '.super-form-button > .super-button-wrap', function (e) {
+            // A button set to read-only by conditional logic can't be clicked
+            if(this.parentNode.classList.contains('super-readonly')) return false;
             var args = {
                 el: undefined,
                 form: this.closest('.super-form'),
