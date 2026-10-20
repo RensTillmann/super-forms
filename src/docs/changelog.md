@@ -13,11 +13,11 @@
 
 - **Fix:** Clicking the submit button after tabbing out of the form submits normally instead of jumping to the first field and losing the click. Keyboard Tab and Shift+Tab navigation is unchanged.
 - **Fix:** Pressing Enter uses the first submit button that is not hidden by conditional logic and is not read-only. If none is available, Enter does not submit.
-- **Fix:** On a non-final step of a multi-part form, Enter uses that step's visible, non-read-only Next button with the usual validation instead of submitting the whole form. On the last step it uses an eligible submit button.
+- **Fix:** On a non-final step of a multi-part form, Enter uses an eligible visible, non-read-only Next button with the usual validation instead of submitting the whole form. On the last step it uses an eligible submit button.
 - **Fix:** Required or validated fields inside an invisible column no longer block a legitimate submission. Their values are still submitted, and the server no longer requires them.
 - **Security fix:** Builder preview, language switching, undo/redo, element settings and element HTML requests require an administrator and a valid admin security token. Other logged-in users can no longer load form markup or settings through those requests.
 - **Fix:** Rejected builder save and preview requests restore their buttons and display a reload message instead of remaining stuck. A rejected save does not continue into preview or language switching.
-- **Fix:** PDF font configuration is attached after the Super Forms common script so script optimizers keep the localized font data in the correct order.
+- **Fix:** PDF font configuration is attached after the Super Forms common script so script optimizers keep the localized font data in the correct order. Pages with repeated font languages preserve the final configured font.
 - **Fix:** PDF generation failures restore the form and display an error with a Close button. Nothing is submitted, and the visitor can retry. A missing PDF font falls back to the default font.
 - **Fix:** Avoided a premature translation-loading notice when registering the recurring schedule.
 - **Improved:** Compatibility with WordPress 7.1.3.

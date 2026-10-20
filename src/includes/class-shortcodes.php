@@ -6887,10 +6887,10 @@ class SUPER_Shortcodes {
                         }
                         // ponytail: without the fonts the browser falls back to the default PDF font path.
                         if( $fonts_ready ) {
-                            static $loaded_font_links = array();
+                            static $last_font_link = null;
                             $link = SUPER_PLUGIN_FILE . 'includes/extensions/pdf-generator/fonts/'.$language;
-                            if( !isset($loaded_font_links[$link]) ) {
-                                $loaded_font_links[$link] = true;
+                            if( $last_font_link!==$link ) {
+                                $last_font_link = $link;
                                 add_action('wp_footer', function() use ($link) {
 ?><style>.super-form:after {font-family: 'SF-Unicode'!important; content:'.'!important; visibility:hidden!important; position:absolute!important; bottom:0px!important; left:0px!important; z-index:-999999!important;}
 @font-face {font-family:'SF-Unicode';src:url('<?php echo esc_url($link); ?>.woff') format('woff');}

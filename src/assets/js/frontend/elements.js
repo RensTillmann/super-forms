@@ -1653,8 +1653,13 @@
                         var multiparts = form.querySelectorAll('.super-multipart'),
                             activeMultipart = form.querySelector('.super-multipart.super-active');
                         if(activeMultipart && activeMultipart!==multiparts[multiparts.length-1]){
-                            var nextButton = activeMultipart.querySelector('.super-next-multipart');
-                            if(nextButton && !SUPER.has_hidden_parent(nextButton, false, false) && !nextButton.closest('.super-readonly')) nextButton.click();
+                            nodes = activeMultipart.querySelectorAll('.super-next-multipart');
+                            for(i=0; i<nodes.length; i++){
+                                if(!SUPER.has_hidden_parent(nodes[i], false, false) && !nodes[i].closest('.super-readonly')){
+                                    nodes[i].click();
+                                    break;
+                                }
+                            }
                             e.preventDefault();
                             return false;
                         }
