@@ -8,6 +8,11 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Unreleased
+
+- **Fix:** PDF Generator "Enable debug mode" now only downloads the PDF and no longer submits the form, so no entry is saved and no e-mails are sent.
+- **Fix:** When the PDF cannot be created, a message is shown and the visitor can close it and try again, instead of the form staying on "Generating PDF file..." forever. Nothing is submitted in that case.
+
 ## Oct 09, 2026 - Version 6.3.322
 
 - **Fix:** Date fields with omitted or empty date-format settings now use the default `dd-mm-yy` format during submission, while saved nonempty formats and strict date validation are preserved.
