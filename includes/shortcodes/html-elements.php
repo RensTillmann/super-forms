@@ -577,6 +577,7 @@ $array['html_elements'] = array(
                         ),
                     ),
                 ),                                              
+                'conditional_logic' => $conditional_logic_array
             ),
         ),
 

@@ -7042,6 +7042,19 @@ function SUPERreCaptcha(){
             }
         });
     }
+    // Remove the conditional logic from a copy of a button (used for the automatic multi-part Prev/Next buttons)
+    SUPER.remove_button_conditional_logic = function(button){
+        var i, nodes = button.querySelectorAll('.super-conditional-logic');
+        for( i = 0; i < nodes.length; i++){
+            nodes[i].remove();
+        }
+        button.classList.remove('super-conditional-hidden');
+        button.classList.remove('super-conditional-visible');
+        button.classList.remove('super-readonly');
+        button.removeAttribute('data-conditional-action');
+        button.removeAttribute('data-conditional-trigger');
+        return button;
+    };
     // init the form on the frontend
     SUPER.init_super_form_frontend = function(){
 
@@ -7172,7 +7185,8 @@ function SUPERreCaptcha(){
                         $submit_button = $form.find('.super-button:last');
                         $clone = $submit_button.clone();
                         $($clone).appendTo($form.find('.super-multipart:last'));
-                        $button_clone = $submit_button[0].outerHTML;
+                        // The Prev/Next copies must not inherit the conditional logic of the button
+                        $button_clone = SUPER.remove_button_conditional_logic($submit_button.clone()[0]).outerHTML;
                         $submit_button.remove();
                         $($button_clone).appendTo($form.find('.super-multipart').not(':last')).removeClass('super-button-align-left').removeClass('super-button-align-center').removeClass('super-button-align-right').removeClass('super-form-button').addClass('super-next-multipart').find('.super-button-name').html(super_common_i18n.directions.next);
                         $($button_clone).appendTo($form.find('.super-multipart').not(':first')).removeClass('super-button-align-left').removeClass('super-button-align-center').removeClass('super-button-align-right').removeClass('super-form-button').addClass('super-prev-multipart').find('.super-button-name').html(super_common_i18n.directions.prev);

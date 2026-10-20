@@ -10,6 +10,7 @@
 
 ## Unreleased
 
+- **Improved:** Button and Divider elements can now be shown, hidden or made read-only with conditional logic. In multi-part forms the automatic Prev/Next buttons don't take over the conditions of the submit button.
 - **Fix:** A required or validated field inside a column set to Invisible no longer blocks the form with an error the visitor cannot see; the field's value is still submitted, and the server no longer requires it either.
 - **Fix:** Pressing Enter in a field no longer submits the form when the submit button is hidden by conditional logic. If another submit button is visible, that one is used.
 - **Fix:** In a multi-part form, pressing Enter in a field of any step except the last now does the same as clicking that step's Next button (including the step's validation) instead of submitting the whole form and skipping the remaining steps. If that Next button is hidden by conditional logic, or the step has none, Enter does nothing. On the last step Enter submits the form as before.
