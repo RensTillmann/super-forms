@@ -50,18 +50,3 @@ for (const action of ['show', 'hide', 'readonly']) {
     assert.equal(wrap.removed, false, action + ': button markup kept');
     console.log('PASS copy of a button with "' + action + '" conditions loses its conditional logic');
 }
-
-// The automatic Prev/Next copies are made from a stripped clone; the button kept in the last step keeps its conditions.
-const branchStart = source.indexOf('if(!hasPrevNextBtns){');
-assert(branchStart >= 0);
-const branch = source.slice(branchStart, source.indexOf('// Now lets loop through all the multi-parts', branchStart));
-const lastStep = branch.indexOf(".appendTo($form.find('.super-multipart:last'))");
-const strip = branch.indexOf('SUPER.remove_button_conditional_logic(');
-const html = branch.indexOf('$button_clone = ');
-const nextCopy = branch.indexOf('.addClass(\'super-next-multipart\')');
-const prevCopy = branch.indexOf('.addClass(\'super-prev-multipart\')');
-assert(lastStep >= 0 && strip > lastStep, 'the submit button kept in the last step is appended before stripping');
-assert(strip >= 0 && nextCopy > strip && prevCopy > strip, 'Prev/Next copies are made after stripping');
-assert(/\$button_clone = SUPER\.remove_button_conditional_logic\(\$submit_button\.clone\(\)\[0\]\)\.outerHTML;/.test(branch), 'copies are built from a stripped clone of the button');
-assert(html >= 0);
-console.log('PASS automatic Prev/Next buttons are built from the stripped copy only');

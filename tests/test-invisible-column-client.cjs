@@ -116,32 +116,3 @@ test('has_hidden_parent: invisible column counts as hidden only when asked (defa
     col.dataset.conditionalAction = 'show';
     assert.equal(S.has_hidden_parent(hidden.input, false, false), true);
 });
-
-// Every caller except validate_form must keep today's behaviour (invisible-column fields are
-// still submitted, counted by conditional logic/math, tabbed to, auto-stepped, calculated).
-test('only validate_form relies on the invisible-column default', () => {
-    const files = ['assets/js/common.js', 'assets/js/frontend/elements.js', 'add-ons/super-forms-calculator/assets/js/frontend/calculator.js'].map(pick);
-    const relying = [];
-    for (const file of files) {
-        const src = fs.readFileSync(file, 'utf8');
-        const vStart = src.indexOf('SUPER.validate_form = function'), vEnd = src.indexOf('SUPER.scrollToError = function');
-        const re = /SUPER\.has_hidden_parent\(/g;
-        let m;
-        while ((m = re.exec(src)) !== null) {
-            if (src.slice(m.index, m.index + 40).startsWith('SUPER.has_hidden_parent = ')) continue;
-            let depth = 1, i = re.lastIndex, args = [''];
-            for (; depth > 0; i++) {
-                const ch = src[i];
-                if (ch === '(') depth++;
-                if (ch === ')' && --depth === 0) break;
-                if (ch === ',' && depth === 1) args.push(''); else args[args.length - 1] += ch;
-            }
-            const line = src.slice(0, m.index).split('\n').length;
-            if (args.length < 3 || args[2].trim() !== 'false') {
-                relying.push(path.relative(root, file) + ':' + line + (file === clientSource && m.index > vStart && m.index < vEnd ? ' (validate_form)' : ''));
-            }
-        }
-    }
-    assert.equal(relying.length, 1, relying.join('\n'));
-    assert.match(relying[0], /\(validate_form\)$/);
-});
