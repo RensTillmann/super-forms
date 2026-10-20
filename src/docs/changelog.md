@@ -9,6 +9,11 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Unreleased - Version 6.4.010-beta
+
+- **Fix:** PDF Generator: when the PDF can't be created, the popup now shows an error message with a Close button and the visitor can try again, instead of staying on "Generating PDF file...". The form is not sent without its PDF.
+- **Fix:** PDF Generator: a PDF in a non-Latin language no longer stays on "Generating PDF file..." when its font file can't be loaded; the font file is tried once more and otherwise the default PDF font is used.
+
 ## 2026-10-09 - Version 6.4.009-beta
 
 - **Fix:** Date submissions use the default `dd-mm-yy` pattern when the saved format, or selected custom format, is missing or empty, while preserving explicit formats and strict date validation.
