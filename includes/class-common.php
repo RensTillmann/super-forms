@@ -868,6 +868,7 @@ class SUPER_Common {
         $html  = '<div class="super-reset-settings-buttons">';
         if(!isset($v['v'])) $v['v'] = ''; // $v['default'];
         if(!isset($v['g'])) $v['g'] = ''; // $v['default'];
+        if(!isset($v['default'])) $v['default'] = '';
         if($v['default']==='_reset_'){
             $html .= '<i class="fas fa-undo-alt super-reset-default-value" title="' . esc_html__( 'Reset all to default value', 'super-forms' ) . '" data-value="'.esc_attr($v['default']).'"></i>';
             $html .= '<i class="fas fa-history super-reset-last-value" title="' . esc_html__( 'Reset all to last known value', 'super-forms' ) . '" data-value="'.esc_attr($v['v']).'"></i>';

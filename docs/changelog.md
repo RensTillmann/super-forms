@@ -8,6 +8,13 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Unreleased
+
+- **Fix:** Switching the form builder to a translation no longer logs a PHP warning about a missing setting type.
+- **Fix:** Dropdown settings without a default value no longer log a PHP warning in the form builder.
+- **Fix:** Clicking a language in the builder's translation dropdowns no longer logs a JavaScript error in the browser console.
+- **Fix:** WordPress no longer reports that the `super-forms` translations were loaded too early.
+
 ## Oct 09, 2026 - Version 6.3.322
 
 - **Fix:** Date fields with omitted or empty date-format settings now use the default `dd-mm-yy` format during submission, while saved nonempty formats and strict date validation are preserved.

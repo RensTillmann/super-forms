@@ -2678,6 +2678,8 @@
             e.stopPropagation();
             form = SUPER.get_frontend_or_backend_form({el: this});
             wrapper = this.closest('.super-field-wrapper');
+            // Not a form field (e.g. the builder's translation dropdowns), nothing to update here
+            if(!wrapper) return;
             input = wrapper.querySelector('.super-shortcode-field');
             parent = this.closest('.super-dropdown-list');
             placeholder = parent.querySelector('.super-placeholder');

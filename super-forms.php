@@ -440,7 +440,8 @@ if(!class_exists('SUPER_Forms')) :
         public static function minute_schedule( $schedules ) {
             $schedules['every_minute'] = array(
                 'interval' => 60,
-                'display' => esc_html__( 'Every minute', 'super-forms' )
+                // WordPress can ask for the schedules before the theme is set up (too early to load translations)
+                'display' => did_action( 'after_setup_theme' ) ? esc_html__( 'Every minute', 'super-forms' ) : 'Every minute'
             );
             return $schedules;
         }
