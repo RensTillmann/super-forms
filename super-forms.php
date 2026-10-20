@@ -2912,6 +2912,7 @@ if(!class_exists('SUPER_Forms')) :
                         'completed' => esc_html__( 'Completed!', 'super-forms' ),
                         'close' => esc_html__( 'Close', 'super-forms' ),
                         'redirecting' => esc_html__( 'Redirecting...', 'super-forms' ),
+                        'pdf_generation_error' => esc_html__( 'We couldn\'t create the PDF, so your form has not been sent yet. Please try again.', 'super-forms' ),
                     ),
 
                     'loading' => esc_html__( 'Loading...', 'super-forms' ),
