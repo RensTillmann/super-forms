@@ -28,7 +28,7 @@ Each column has the following features:
 Because conditional logic can be applied on almost all elements this part is covered in the [Conditional Logic](../../features/advanced/conditional-logic.md) guide.
 
 {% hint style="warning" %}
-When a column or any element is **conditionally hidden** the fields will not be included in emails (if enabled) and will not be saved under contact entries (if enabled) nor can you use {tags} to retrieve them inside your form or email body. Basically the field does not exist when conditionally hidden. This is different from making a column "invisible". Which means the user just can't see it, but it actually exists.
+When a column or any element is **conditionally hidden** the fields will not be included in emails (if enabled) and will not be saved under contact entries (if enabled) nor can you use {tags} to retrieve them inside your form or email body. Basically the field does not exist when conditionally hidden. This is different from making a column "invisible". Which means the user just can't see it, but it actually exists. The same goes for a column hidden by your theme or custom CSS: its fields are still submitted. Fields hidden by the form's own conditional logic, or by a column's **Hide on mobile devices** option, are excluded from the submission.
 {% endhint %}
 
 ### Column Visibility:
