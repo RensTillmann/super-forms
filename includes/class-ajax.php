@@ -633,6 +633,8 @@ class SUPER_Ajax {
      *  @since      4.7.0
     */
     public static function switch_language() {
+        self::authorize_admin_ajax_request();
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_admin_ajax_request() (manage_options + check_ajax_referer('super_admin_ajax'))
         $form_id = absint($_POST['form_id']);
         // Retrieve all settings with the correct default values
         $settings = SUPER_Common::get_form_settings($form_id);
@@ -849,6 +851,8 @@ class SUPER_Ajax {
      *  @since      3.8.0
     */
     public static function undo_redo() {
+        self::authorize_admin_ajax_request();
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_admin_ajax_request() (manage_options + check_ajax_referer('super_admin_ajax'))
         $form_id = absint($_POST['form_id']);
         $elements = $_POST['elements'];
         $shortcodes = SUPER_Shortcodes::shortcodes();
@@ -2983,7 +2987,10 @@ class SUPER_Ajax {
      *  @since      1.0.0
     */
     public static function load_preview() {
-        $form_id = absint( $_POST['form_id'] );
+        self::authorize_admin_ajax_request();
+        // phpcs:ignore WordPress.Security.NonceVerification.Missing -- guarded by SUPER_Ajax::authorize_admin_ajax_request() (manage_options + check_ajax_referer('super_admin_ajax'))
+        $form_id = isset( $_POST['form_id'] ) ? absint( $_POST['form_id'] ) : 0;
+        self::require_admin_form( $form_id );
         echo SUPER_Shortcodes::super_form_func( array( 'id'=>$form_id ) );
         die();
     }
@@ -3300,6 +3307,10 @@ class SUPER_Ajax {
      *  @since      1.0.0
     */
     public static function load_element_settings( $tag=null, $group=null, $data=null ) {
+        // Only the builder AJAX request is guarded; internal PHP calls pass their own arguments
+        if( doing_action( 'wp_ajax_super_load_element_settings' ) ) {
+            self::authorize_admin_ajax_request();
+        }
         if($tag==null) $tag = $_POST['tag'];
         if($group==null) $group = $_POST['group'];
         if($data==null) $data = $_POST['data'];
@@ -3448,6 +3459,10 @@ class SUPER_Ajax {
      *  @since      1.0.0
     */
     public static function get_element_builder_html( $tag=null, $group=null, $inner=null, $data=null, $method=1 ) {
+        // Only the builder AJAX request is guarded; internal PHP calls pass their own arguments
+        if( doing_action( 'wp_ajax_super_get_element_builder_html' ) ) {
+            self::authorize_admin_ajax_request();
+        }
         $i18n = (isset($_POST['i18n']) ? $_POST['i18n'] : '');
         $form_id = 0;
         if( isset( $_POST['form_id'] ) ) {
