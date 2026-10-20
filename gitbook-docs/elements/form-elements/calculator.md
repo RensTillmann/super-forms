@@ -11,7 +11,7 @@ description: >-
 With this element you can display calculations by doing any sort of complicated calculation based on user input.
 
 {% hint style="success" %}
-**Tip:** You can use any [Math()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math) JavaScript functions inside your **Math** setting.
+**Tip:** The **Math** setting is evaluated with [math.js](https://mathjs.org/docs/reference/functions.html) (version 10), not with plain JavaScript. You can use the math.js functions, such as `round`, `ceil`, `floor`, `min` and `max`. The `Math.` prefix is optional: `Math.round(x)` and `round(x)` do the same thing.
 {% endhint %}
 
 {% hint style="info" %}
@@ -32,6 +32,79 @@ _the list can go on, having doubts about if something is possible, just contact 
 ## How to define your calculations?
 
 Each **Calculator** element will have a setting called **Math**. Inside here you will define your calculations. For example if you want to calculate the total of `30x10` you would enter `30*10` inside your **Math** setting.
+
+## Rounding results
+
+Use `round(x, n)` to round a result to `n` decimals. Wrap the whole calculation inside `round()`. Use parentheses when you are not sure about the order of operations.
+
+* `round({price}*{qty}*1.21, 2)` rounds the total including 21% tax to 2 decimals. With a price of 12.5 and a quantity of 3 the result is **45.38** (instead of 45.375).
+* `Math.round({price}*{qty}*1.21, 2)` gives the same result. The `Math.` prefix is removed before the calculation runs.
+* `round({price}*{qty}*1.21*100)/100` is the older way to do the same. It still works.
+
+{% hint style="info" %}
+In plain JavaScript `Math.round()` ignores a second argument. In the Calculator it does not: `Math.round(x, 2)` rounds to 2 decimals.
+{% endhint %}
+
+`ceil()` always rounds up, and `floor()` always rounds down. Both also accept a number of decimals:
+
+* `ceil({amount}, 2)` rounds up to 2 decimals. 7.381 becomes **7.39**.
+* `floor({amount}, 2)` rounds down to 2 decimals. 7.389 becomes **7.38**.
+
+To round to a step instead of a number of decimals, divide by the step, round, and multiply again:
+
+* `ceil({hours}*4)/4` rounds up to the next quarter hour. 2.3 hours becomes **2.5**.
+* `floor({hours}*4)/4` rounds down to the quarter hour. 2.3 hours becomes **2.25**.
+* `round({total}/5)*5` rounds to the nearest 5. 37 becomes **35**.
+* `round({total}*2)/2` rounds to the nearest 0.5. 2.3 becomes **2.5**.
+
+### Length of decimal also rounds the saved value
+
+The **Length of decimal** setting (Advanced TAB) does more than change the display. The Calculator rounds the result to this number of decimals and stores the rounded value in the field. The rounded value is the value that is submitted with the form. It is also the value that other Calculator elements get when they use this field in their own **Math**.
+
+* If one Calculator uses the result of another Calculator, it gets the already rounded value. Set enough decimals on the first Calculator if you need the precise value later.
+* The setting uses JavaScript's `toFixed()`. It can round some values down that you would expect to round up. For example, 1.005 with 2 decimals becomes 1.00. `round(1.005, 2)` inside the **Math** setting gives **1.01**.
+
+## Conditional calculations (if/else)
+
+You can use a condition inside the **Math** setting with the `condition ? value_if_true : value_if_false` syntax. You can nest conditions to create more than two outcomes.
+
+For example, a price per item that depends on the quantity:
+
+* 100 or more items: 8 each
+* 50 to 99 items: 9 each
+* less than 50 items: 10 each
+
+```
+{qty} >= 100 ? {qty}*8 : ({qty} >= 50 ? {qty}*9 : {qty}*10)
+```
+
+With a quantity of 120 the result is **960**. With 60 it is **540**. With 10 it is **100**.
+
+You can combine a condition with rounding. The below gives a 10% discount from 10 items and rounds to 2 decimals:
+
+```
+round(({qty} >= 10 ? 0.9 : 1) * {qty} * {price}, 2)
+```
+
+With a quantity of 12 and a price of 4.99 the result is **53.89**. With a quantity of 3 it is **14.97**.
+
+{% hint style="warning" %}
+Put a condition between parentheses when it is part of a larger calculation. Without them, `{qty} >= 10 ? 0.9 : 1 * {qty} * {price}` returns only **0.9** when the quantity is 10 or more.
+{% endhint %}
+
+You can use the following inside a condition:
+
+* Comparisons: `==` (equal), `!=` (not equal), `>`, `<`, `>=`, `<=`
+* Combine comparisons with `and`, `or` and `not`. Do not use `&&` or `||`; these cause an error. For example: `{weight} > 20 or {express} == 1 ? 25 : 10`
+* Avoid a division by zero: `{people} > 0 ? {total}/{people} : 0`
+
+Keep the following in mind:
+
+* **Only numbers can be compared.** Every {tag} is replaced with a number before the calculation runs. Text that is not a number becomes `0`. So `{plan} == "pro"` does not work. Give your options numeric values instead.
+* **Use advanced tags to compare a second value.** For a dropdown named `plan` with the items `basic;1` and `pro;2`, use `{plan;2} == 2 ? 49 : 19`. See [Advanced tags](../../features/advanced/tags-system.md#advanced-tags).
+* **Fields hidden by conditional logic count as 0.**
+* **Checkboxes and dropdowns give the sum of the selected values.** A checkbox named `express` with one option that has the value `1` gives `1` when it is checked and `0` when it is not.
+* **Always use a condition with `? :`.** A comparison on its own, such as `{qty} > 3`, returns true or false instead of a number, and the Calculator cannot display it.
 
 ## Using tags inside calculations
 
@@ -127,25 +200,22 @@ If you have 3 fields named `1_server_option`, `2_server_option`, `3_server_optio
 * **Minus (subtraction)**: `20-4` = 16
 * **Obelus (division)**: `50/2` = 25
 * **Times (multiplication)**: `100*2` = 200
-* **Absolute value of a number**: `Math.abs(3, 5)` = 2
-* **Arccosine of a number**: `Math.acos(8, 10)` = 0.6435011087932843
+* **Absolute value of a number**: `Math.abs(3-5)` = 2
+* **Arccosine of a number**: `Math.acos(0.8)` = 0.6435011087932843
 * **Hyperbolic arccosine of a number**: `Math.acosh(2.5)` = 1.566799236972411
-* **Arcsine of a number**: `Math.asin(6, 10)` = 0.6435011087932844
+* **Arcsine of a number**: `Math.asin(0.6)` = 0.6435011087932844
 * **Hyperbolic arcsine of a number**: `Math.asinh(2)` = 1.4436354751788103
-* **Arctangent of a number**: `Math.atan(8, 10)` = 0.6747409422235527
-* **Hyperbolic arctangent of a number**: `Math.atanh(0.5)` = 0.549306144334055 (approximately)
+* **Arctangent of a number**: `Math.atan(0.8)` = 0.6747409422235527
+* **Hyperbolic arctangent of a number**: `Math.atanh(0.5)` = 0.5493061443340548
 * **Arctangent of the quotient of its arguments**: `Math.atan2(10, 0) * 180 / Math.PI` = 90
 * **Cube root of a number**: `Math.cbrt(64)` = 4
 * **Smallest integer greater than or equal to a number**: `Math.ceil(7.004)` = 8
-* **Number of leading zeroes of a 32-bit integer**: `Math.clz32(4)` = 29
 * **Cosine of a number**: `Math.cos(1) * 10` = 5.403023058681398
 * **Hyperbolic cosine of a number**: `Math.cosh(2)` = 3.7621956910836314
 * **Returns Ex, where x is the argument, and E is Euler's constant, the base of the natural logarithm**: `Math.exp(2)` = 7.38905609893065
 * **Subtracting 1 from exp(x)**: `Math.expm1(2)` = 6.38905609893065
 * **Largest integer less than or equal to a number**: `Math.floor(5.05)` = 5
-* **Nearest single precision float representation of a number**: `Math.fround(5.05)` = 5.050000190734863
 * **Square root of the sum of squares of its arguments**: `Math.hypot(5, 12)` = 13
-* **Result of a 32-bit integer multiplication**: `Math.imul(3, 4)` = 12
 * **Natural logarithm (loge, also ln) of a number**: `Math.log(8) / Math.log(2)` = 3
 * **Natural logarithm (loge, also ln) of 1 + x for a number x**: `Math.log1p(1)` = 0.6931471805599453
 * **Base 10 logarithm of a number**: `Math.log10(2)` = 0.3010299956639812
@@ -155,10 +225,15 @@ If you have 3 fields named `1_server_option`, `2_server_option`, `3_server_optio
 * **Base to the exponent power, that is, baseexponent**: `Math.pow(4, 0.5)` = 2
 * **Pseudo-random number between 0 and 1**: `Math.random()` = 0.04564961619624275
 * **Value of a number rounded to the nearest integer**: `Math.round(0.9)` = 1
+* **Value of a number rounded to a number of decimals**: `round(2.345, 2)` = 2.35
 * **Sign of the x, indicating whether x is positive, negative or zero**: `Math.sign(-3)` = -1
 * **Sine of a number**: `Math.sin(2) * 10` = 9.092974268256818
 * **Hyperbolic sine of a number**: `Math.sinh(2)` = 3.626860407847019
 * **Positive square root of a number**: `Math.sqrt((5 * 5) + (12 * 12))` = 13
 * **Tangent of a number**: `Math.tan(90 * Math.PI/180)` = 16331239353195370
 * **Hyperbolic tangent of a number**: `Math.tanh(1)` = 0.7615941559557649
-* **Integer part of the number x, removing any fractional digits**: `Math.trunc(42.84)` = 42
+* **Integer part of the number x, removing any fractional digits**: `fix(42.84)` = 42
+
+{% hint style="info" %}
+JavaScript-only functions such as `Math.trunc()`, `Math.clz32()`, `Math.fround()` and `Math.imul()` do not exist in math.js. Using them shows the message "There is a problem with the following calculation". Use `fix()` instead of `Math.trunc()`.
+{% endhint %}
