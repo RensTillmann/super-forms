@@ -6886,19 +6886,37 @@ class SUPER_Shortcodes {
                             file_put_contents($font_file, $font_data);
                         }
                         // ponytail: without the fonts the browser falls back to the default PDF font path.
-                        if( $fonts_ready ) add_action('wp_footer', function($arguments) use ($language) {
+                        if( $fonts_ready ) {
                             $link = SUPER_PLUGIN_FILE . 'includes/extensions/pdf-generator/fonts/'.$language;
+                            add_action('wp_footer', function($arguments) use ($link) {
 ?><style>.super-form:after {font-family: 'SF-Unicode'!important; content:'.'!important; visibility:hidden!important; position:absolute!important; bottom:0px!important; left:0px!important; z-index:-999999!important;}
 @font-face {font-family:'SF-Unicode';src:url('<?php echo $link; ?>.woff') format('woff');}
-@font-face {font-family:'SF-Unicode';src:url('<?php echo $link; ?>.woff2') format('woff2');}</style>
-<script>super_common_i18n.fonts = {link: '<?php echo $link; ?>'};</script><?php
-                        }, 100, 1);
+@font-face {font-family:'SF-Unicode';src:url('<?php echo $link; ?>.woff2') format('woff2');}</style><?php
+                            }, 100, 1);
+                            self::add_pdf_font_script('super_common_i18n.fonts = ' . wp_json_encode(array('link'=>$link)) . ';');
+                        }
                     }
                 }
             }
         }
 
         return do_shortcode( $result );
+    }
+
+    /**
+     * Attach the PDF font script to `super-common` so it always runs after the localized
+     * `super_common_i18n`, even when an optimization plugin moves scripts around.
+     * When `super-common` was already printed (e.g. in the head), WordPress would never output
+     * the inline data, so fall back to the footer.
+     */
+    private static function add_pdf_font_script( $js ) {
+        if( !wp_script_is('super-common', 'done') ) {
+            wp_add_inline_script('super-common', $js, 'after');
+            return;
+        }
+        add_action('wp_footer', function() use ($js) {
+            echo '<script>' . $js . '</script>';
+        }, 100);
     }
 
 }

@@ -9,6 +9,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Unreleased - Version 6.4.010-beta
+
+- **Fix:** The PDF Generator font script for non-Latin languages is now attached to the `super-common` script, so it always runs after `super_common_i18n` is defined, even when a JavaScript optimization plugin reorders scripts. If `super-common` was already printed, it is still printed in the footer.
+
 ## 2026-10-09 - Version 6.4.009-beta
 
 - **Fix:** Date submissions use the default `dd-mm-yy` pattern when the saved format, or selected custom format, is missing or empty, while preserving explicit formats and strict date validation.
