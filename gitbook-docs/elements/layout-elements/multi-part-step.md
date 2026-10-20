@@ -46,6 +46,49 @@ You should use a multi-part for large forms. You can also use it when a form mus
 
 In order to add a multi-part you can open up the **Layout Elements** section on the builder page. You will see 4 elements, the last one is the so called Multi-part. You can simply drag & drop the Multi-part into the form. Not that a multi-part cannot be nested in a column nor inside another multi-part. Once you have added the multi-part you are allowed to add any element inside it that belongs to this step of the form.
 
+## Current step in the URL (#step-FORMID-STEP)
+
+Each time the user changes step, Super Forms writes the current step into the URL. It adds an anchor like `#step-12345-3`. Here `12345` is the form ID and `3` is the step number. Step numbers start at 1.
+
+You can use this anchor in two ways:
+
+* **Link to a step.** Add the anchor to the page URL, for example `https://example.com/contact/#step-12345-2`. The form opens on step 2.
+* **Reopen the step after a reload.** When the user reloads the page, the form opens on the step in the URL.
+
+To turn this off, go to `Form Settings` > `Form settings` on the builder page. Enable **Disable Multi-part current step parameter in the URL**. The step is then no longer added to the URL.
+
+## Browser Back button
+
+The browser Back button works on the browser history, not on the form steps. Every step change adds a new `#step-...` anchor, and so a new history entry. What Back does with that entry depends on your Super Forms version.
+
+{% hint style="info" %}
+To move between steps, use the `Prev` button or click a step number. These always work as expected.
+{% endhint %}
+
+#### Super Forms 6.3 (LTS)
+
+* Back only changes the `#step-...` anchor in the address bar. The form stays on the current step.
+* When there are no more step anchors in the history, Back leaves the page.
+* The anchor is only read when the page loads. So if the user reloads after pressing Back, the form opens on the step in the URL.
+
+#### Super Forms 6.4 (beta)
+
+Back moves the form to the step from the previous anchor. There are some limitations:
+
+* The first history entry has no anchor. Going back to it does nothing, so the form stays on step 2. The next Back leaves the page.
+* Back undoes the last step change. It does not always go to the previous step number. For example, after the user clicks `Prev`, Back goes forward one step.
+* No validation runs when Back changes the step.
+
+#### When the step is not in the URL
+
+If **Disable Multi-part current step parameter in the URL** is enabled, no step anchors are added. Back then leaves the page right away, on both versions.
+
+Full browser history navigation (History API / pushState) between steps is not available.
+
+{% hint style="info" %}
+If users may leave the page by accident, enable [Save form progression](../../features/basic/save-form-progression-continue-later.md). Their entered data is then kept when they come back.
+{% endhint %}
+
 ## Multi-part Steps and Progress Bar Customization
 
 To customize the colors of the Steps and Progress bar, you can find the settings under `Form Settings` > `Theme & Colors` on the builder page. From here you can scroll down to the part that says **Progress Bar Colors** and **Progress Step Colors**. Optionally you can also choose to **hide/show** the Steps and or Progress Bar.

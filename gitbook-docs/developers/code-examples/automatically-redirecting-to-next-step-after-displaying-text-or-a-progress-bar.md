@@ -13,6 +13,10 @@ Inside the below code you can change the milliseconds 5000 to something differen
 
 This code can of course be altered for other use cases as well. For questions you can always contact support.
 
+{% hint style="warning" %}
+This code only works on Super Forms 6.4 (beta). It calls `SUPER.switch_to_step_and_or_field`, which does not exist in Super Forms 6.3 (LTS).
+{% endhint %}
+
 <pre class="language-javascript"><code class="lang-javascript"><strong>&#x3C;script>
 </strong><strong>(function(){
 </strong>  function hashChanged(storedHash){
