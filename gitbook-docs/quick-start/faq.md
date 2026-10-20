@@ -248,3 +248,11 @@ If you are getting the following error while trying to update Super Forms:
 It is always a permissions problem on your server. In any case you should contact your host about this so they can correctly set the permissions for your WordPress installation.
 
 </details>
+
+<details>
+
+<summary>Why doesn't the browser Back button go to the previous step?</summary>
+
+The browser Back button works on the browser history, not on the form steps. In 6.3 LTS it only changes the `#step-...` anchor in the URL, and in 6.4 beta it follows that anchor with some limitations. Use the `Prev` button or the step numbers instead. See [Browser Back button](../elements/layout-elements/multi-part-step.md#browser-back-button).
+
+</details>
