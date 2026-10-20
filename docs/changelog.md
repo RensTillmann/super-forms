@@ -14,6 +14,15 @@
 - **Fix:** Dropdown settings without a default value no longer log a PHP warning in the form builder.
 - **Fix:** Clicking a language in the builder's translation dropdowns no longer logs a JavaScript error in the browser console.
 - **Fix:** WordPress no longer reports that the `super-forms` translations were loaded too early.
+- **Improved:** Button and Divider elements can now be shown, hidden or made read-only with conditional logic. In multi-part forms the automatic Prev/Next buttons don't take over the conditions of the submit button.
+- **Fix:** A required or validated field inside a column set to Invisible no longer blocks the form with an error the visitor cannot see; the field's value is still submitted, and the server no longer requires it either.
+- **Fix:** Pressing Enter in a field no longer submits the form when the submit button is hidden by conditional logic. If another submit button is visible, that one is used.
+- **Fix:** In a multi-part form, pressing Enter in a field of any step except the last now does the same as clicking that step's Next button (including the step's validation) instead of submitting the whole form and skipping the remaining steps. If that Next button is hidden by conditional logic, or the step has none, Enter does nothing. On the last step Enter submits the form as before.
+- **Security fix:** The form builder's preview, language switch, undo/redo, element settings and element HTML requests now require an administrator and a valid security token, so other logged-in users can no longer load form markup or settings.
+- **Fix:** When the builder's save or preview request is rejected (for example after the session expired or a security plugin blocked it), the button is restored and a message asks you to reload the page instead of staying on "Saving..." forever.
+- **Fix:** PDF Generator font data (Cyrillic and Arabic) is now attached to the Super Forms common script, so it still loads when a JavaScript optimization plugin reorders or delays scripts.
+- **Fix:** PDF Generator "Enable debug mode" now only downloads the PDF and no longer submits the form, so no entry is saved and no e-mails are sent.
+- **Fix:** When the PDF cannot be created, a message is shown and the visitor can close it and try again, instead of the form staying on "Generating PDF file..." forever. Nothing is submitted in that case.
 
 ## Oct 09, 2026 - Version 6.3.322
 
