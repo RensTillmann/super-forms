@@ -540,7 +540,7 @@ $conditional_variable_array = array(
         ),
         'conditional_variable_csv' => array(
             'name' => esc_html__( 'Upload CSV file', 'super-forms' ), 
-            'label' => sprintf( esc_html__( 'Please read the %sCreating variable conditions with CSV file%s section in the documentation before using this method.', 'super-forms' ), '<a target="_blank" href="https://renstillmann.github.io/super-forms/#/variable-fields?id=creating-variable-conditions-with-csv-file">', '</a>' ),
+            'label' => sprintf( esc_html__( 'Please read the %sCreating variable conditions with CSV file%s section in the documentation before using this method.', 'super-forms' ), '<a target="_blank" href="https://docs.super-forms.com/features/advanced/variable-fields#creating-variable-conditions-with-csv-file">', '</a>' ),
             'default'=> ( !isset( $attributes['conditional_variable_csv'] ) ? '' : $attributes['conditional_variable_csv'] ),
             'type' => 'file',
             'filter'=>true,
