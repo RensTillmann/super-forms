@@ -1527,6 +1527,16 @@
                         return false;
                     }
                     if(!form.querySelector('.super-form-button.super-loading')){
+                        // Multi-part: on any step but the last one, Enter does what that step's Next button does
+                        var multiparts = form.querySelectorAll('.super-multipart'),
+                            activeMultipart = form.querySelector('.super-multipart.super-active');
+                        if(activeMultipart && activeMultipart!==multiparts[multiparts.length-1]){
+                            var nextButton = activeMultipart.querySelector('.super-next-multipart');
+                            // Do nothing when the step has no Next button or it is hidden by conditional logic
+                            if(nextButton && !SUPER.has_hidden_parent(nextButton)) nextButton.click();
+                            e.preventDefault();
+                            return false;
+                        }
                         // Only use a submit button that is not hidden by conditional logic
                         submitButton = null;
                         nodes = form.querySelectorAll('.super-form-button .super-button-wrap .super-button-name[data-action="submit"]');
