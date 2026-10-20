@@ -97,7 +97,7 @@ class SUPER_Pages {
         extract($atts);
         echo '<div class="super-secrets">';
             echo '<div class="sfui-notice sfui-yellow">';
-                echo '<strong>' . esc_html__('Not sure what secrets are?', 'super-forms') . ':</strong> <a href="https://renstillmann.github.io/super-forms/#/secrets" target="_blank">' . esc_html__( 'Read the documentation here!', 'super-forms' ) . '</a>';
+                echo '<strong>' . esc_html__('Not sure what secrets are?', 'super-forms') . ':</strong> <a href="https://docs.super-forms.com/features/advanced/secrets" target="_blank">' . esc_html__( 'Read the documentation here!', 'super-forms' ) . '</a>';
             echo '</div>';
             echo '<div class="sfui-notice sfui-desc">';
                 echo '<strong>' . esc_html__('Tip', 'super-forms') . ':</strong> ';
