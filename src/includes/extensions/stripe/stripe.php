@@ -953,7 +953,7 @@ if(!class_exists('SUPER_Stripe')) :
             $webhookSecret = (isset($global_settings['stripe_' . $api['stripe_mode'] . '_webhook_secret']) ? $global_settings['stripe_' . $api['stripe_mode'] . '_webhook_secret'] : '');
             if(empty($webhookId)){
                 $msg = sprintf(
-                    esc_html( 'Please enter your webhook ID under:%s%sSettings > Stripe Checkout%s.%sIt should start with `we_`.%sYou can find your Webhook ID via %swebhook settings%s.', 'super-forms' ), 
+                    esc_html__( 'Please enter your webhook ID under:%s%sSettings > Stripe Checkout%s.%sIt should start with `we_`.%sYou can find your Webhook ID via %swebhook settings%s.', 'super-forms' ), 
                     '<br />',
                     '<a target="_blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#stripe-checkout') . '">', '</a>', 
                     '<br /><br />', '<br /><br />',
@@ -965,7 +965,7 @@ if(!class_exists('SUPER_Stripe')) :
             }
             if(empty($webhookSecret)){
                 $msg = sprintf(
-                    esc_html( 'Please enter your webhook secret under:%s%sSettings > Stripe Checkout%s.%sIt should start with `whsec_`.%sYou can find your Stripe endpoint\'s secret via %swebhook settings%s.', 'super-forms' ), 
+                    esc_html__( 'Please enter your webhook secret under:%s%sSettings > Stripe Checkout%s.%sIt should start with `whsec_`.%sYou can find your Stripe endpoint\'s secret via %swebhook settings%s.', 'super-forms' ), 
                     '<br />',
                     '<a target="_blank" href="' . esc_url(admin_url() . 'admin.php?page=super_settings#stripe-checkout') . '">', '</a>', 
                     '<br /><br />', '<br /><br />',
@@ -981,7 +981,7 @@ if(!class_exists('SUPER_Stripe')) :
             // Check if $webhookUrl ends with $endsWith
             if(substr(trailingslashit($webhook['url']), -strlen($endsWith))!==$endsWith){
                 $msg = sprintf(
-                    esc_html( 'Please update your Webhook endpoint so that it points to the following URL:%sYou can change this via %swebhook settings%s.', 'super-forms' ), 
+                    esc_html__( 'Please update your Webhook endpoint so that it points to the following URL:%sYou can change this via %swebhook settings%s.', 'super-forms' ), 
                     '<br /><br /><code> ' . $home_url . 'sfstripe/webhook</code><br /><br />', // super forms stripe webhook e.g: https://domain.com/sfstripe/webhook will be converted into https://domain.com/index.php?sfstripewebhook=true 
                     '<a target="_blank" href="https://dashboard.stripe.com/webhooks/'. $webhook['id'].'">', '</a>'
                 );
