@@ -759,9 +759,13 @@ function SUPERreCaptcha(){
             }
         }
         if(args.generatePdf){
-            SUPER.pdf_generator_init(args, function(args){
-                // When debugging is enabled download file instantly without submitting the form
-                if(args.pdfSettings.debug==="true"){
+            try {
+                SUPER.pdf_generator_init(args, function(args){
+                    // When debugging is enabled download file instantly without submitting the form
+                    if(args.pdfSettings.debug!=="true"){
+                        SUPER.save_data(args); 
+                        return true;
+                    }
                     var innerText = args.loadingOverlay.querySelector('.super-inner-text');
                     // Direct download of PDF
                     args._pdf.save(args.pdfSettings.filename, {returnPromise: true}).then(function() {
@@ -782,9 +786,10 @@ function SUPERreCaptcha(){
                         if(innerText) innerText.innerHTML = '<span>Something went wrong while downloading the PDF</span>';
                         args.loadingOverlay.classList.add('super-error');
                     });
-                }
-                SUPER.save_data(args); 
-            });
+                });
+            } catch(error) {
+                SUPER.pdf_generator_abort(args, error);
+            }
         }else{
             SUPER.save_data(args);
         }
@@ -3259,10 +3264,9 @@ function SUPERreCaptcha(){
                     SUPER.init_resend_verification_code(args);
                 }else{
                     args.loadingOverlay.classList.add('super-success');
+                    // Debug mode never submits the form (it downloads the PDF in process_form_data), so we only get here when debug mode is off
                     if(args.generatePdf && args.pdfSettings.downloadBtn==='true'){
-                        if(args.pdfSettings.debug!=="true"){ // If debug mode is enabled we alread have a Download button, so we can skip this
-                            SUPER.show_pdf_download_btn(args);
-                        }
+                        SUPER.show_pdf_download_btn(args);
                     }
                     // Close Popup (if any)
                     if(typeof SUPER.init_popups === 'function' && typeof SUPER.init_popups.close === 'function' ){
@@ -7925,15 +7929,21 @@ function SUPERreCaptcha(){
         //
         // Add a timeout (just to be sure)
         setTimeout(function(){
-            SUPER.pdf_generator_prepare(args, function(args){
-                // Start generating pages (starting at page 1)
-                args.currentPage = 1;
-                SUPER.pdf_generator_generate_page(args);
-            });
+            try {
+                SUPER.pdf_generator_prepare(args, function(args){
+                    // Start generating pages (starting at page 1)
+                    args.currentPage = 1;
+                    SUPER.pdf_generator_generate_page(args);
+                });
+            } catch(error) {
+                SUPER.pdf_generator_abort(args, error);
+            }
         }, 5000);
         return false;
     };
     SUPER._pdf_generator_done_callback = function(args){
+        // Never submit after the PDF generation was aborted
+        if(args._pdfAborted) return false;
         // Reset everything to how it was
         SUPER.pdf_generator_reset(args.form0);
         // Attach as file to form data
@@ -7967,7 +7977,34 @@ function SUPERreCaptcha(){
             exclude: exclude
         };
         // We PDF has been generated, continue with form submission
+        // From here on any error belongs to the submission, not to the PDF generation
+        args._pdfDone = true;
         args._save_data_callback(args);
+    };
+    // Stop PDF generation after an error: restore the form, never submit, and let the visitor close the popup and try again
+    SUPER.pdf_generator_abort = function(args, error){
+        if(args._pdfDone || args._pdfAborted) return false;
+        args._pdfAborted = true;
+        // eslint-disable-next-line no-console
+        console.error('PDF generation failed:', error);
+        try {
+            // Returns false when the form was not (or no longer) prepared for the PDF, in that case only the submit button needs to be restored
+            if(SUPER.pdf_generator_reset(args.form0)===false) SUPER.reset_submit_button_loading_state(args.form0);
+        } catch(resetError) {
+            try {
+                SUPER.reset_submit_button_loading_state(args.form0);
+            } catch(buttonError) {
+                // eslint-disable-next-line no-console
+                console.error(buttonError);
+            }
+        }
+        if(args.loadingOverlay){
+            var innerText = args.loadingOverlay.querySelector('.super-inner-text');
+            if(innerText) innerText.innerHTML = '<span>'+super_common_i18n.loadingOverlay.pdf_generation_error+'</span>';
+            // Shows the Close button
+            args.loadingOverlay.classList.add('super-error');
+        }
+        return false;
     };
     SUPER.pdf_generator_prepare = function(args, callback){
         var form = args.form0;
@@ -8186,7 +8223,8 @@ function SUPERreCaptcha(){
             if(el && el.style) el.style.fontSize = newFontSize+'px';
         }
 
-        SUPER.init_super_responsive_form_fields({form: form, callback: function(){
+        // Runs after the responsive classes are updated (asynchronously), so it needs its own error handling
+        var determinePages = function(){
 
             // First disable the UI on the map for nicer print of the map
             // And make map fullwidth and directions fullwidth
@@ -8265,6 +8303,13 @@ function SUPERreCaptcha(){
             args.totalPercentagePerPage = (100/args.totalPages) / 3;
             args.pdfPercentageCompleted = 0;
             callback(args);
+        };
+        SUPER.init_super_responsive_form_fields({form: form, callback: function(){
+            try {
+                determinePages();
+            } catch(error) {
+                SUPER.pdf_generator_abort(args, error);
+            }
         }});
     };
 
@@ -8376,7 +8421,8 @@ function SUPERreCaptcha(){
         setTimeout(function(){
             // Now allow printing
             try {
-                // Only if not already canceled/reset
+                // Only if not already canceled/reset or aborted
+                if(args._pdfAborted) return false;
                 if(form && !form.classList.contains('super-generating-pdf')){
                     return false;
                 }
@@ -8392,7 +8438,8 @@ function SUPERreCaptcha(){
                     allowTaint: false,
                     backgroundColor: '#ffffff'
                 }).then(function(canvas) {
-                    // Only if not already canceled/reset
+                    // Only if not already canceled/reset or aborted
+                    if(args._pdfAborted) return false;
                     if(form && !form.classList.contains('super-generating-pdf')){
                         return false;
                     }
@@ -8450,10 +8497,18 @@ function SUPERreCaptcha(){
                         // No more pages to generate (submit form / send email)
                         SUPER._pdf_generator_done_callback(args);
                     }
+                }).catch(function(error) {
+                    if(args._pdfDone){
+                        // The PDF was finished, this error comes from the form submission
+                        // eslint-disable-next-line no-console
+                        console.error(error);
+                        return false;
+                    }
+                    SUPER.pdf_generator_abort(args, error);
                 });
             }
             catch(error) {
-                console.log("Error: ", error);
+                SUPER.pdf_generator_abort(args, error);
             }
         }, timeout );
     }
