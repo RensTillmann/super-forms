@@ -852,7 +852,17 @@ if( !class_exists('SUPER_WooCommerce') ) :
                     }
                 }
 
-                //var_dump('@TODO WC Completed E-mail trigger');
+                // Run the `Payment completed E-mail` trigger(s)
+                if($new_status==='completed'){
+                    SUPER_Common::triggerEvent('wc.order.status.completed', array(
+                        'form_id'=>$form_id,
+                        'data'=>$data,
+                        'settings'=>$form_settings,
+                        'entry_id'=>$contact_entry_id,
+                        'attachments'=>array(),
+                        'post'=>array()
+                    ));
+                }
                 // tmp if( !empty($form_settings['woocommerce_completed_email']) ) {
                 // tmp     $global_settings = SUPER_Common::get_global_settings();
                 // tmp     if( $form_settings!=false ) {
