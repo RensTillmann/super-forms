@@ -8,11 +8,11 @@ description: >-
 # BETA version
 
 {% hint style="warning" %}
-This version has already been tested by a small set of users, so you will probably not encounter any issues using it. However if you do run into issues, please report them by [submitting a ticket here](../support.md).
+Beta releases can contain bugs. Back up your site and, where possible, test the update on staging before using it on a live site. Verify your forms after updating, and report problems by [submitting a ticket here](../support.md).
 {% endhint %}
 
 {% hint style="success" %}
-**Download:** [super-forms-beta.zip](https://super-forms.com/download-super-forms-beta.php) (**v6.4.009** - Oct 09, 2026)
+**Download:** [super-forms-beta.zip](https://super-forms.com/download-super-forms-beta.php) (**v6.4.010** - Oct 21, 2026)
 {% endhint %}
 
 {% hint style="info" %}
