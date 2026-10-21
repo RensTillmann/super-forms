@@ -10,32 +10,32 @@
     $add_ons = array(
         'pdf_generator' => array(
             'title' => 'PDF Generator Add-on',
-            'url' => 'https://renstillmann.github.io/super-forms/#/pdf-generator-add-on',
+            'url' => 'https://docs.super-forms.com/features/integrations/pdf-generator',
             'id' => '21048964',
         ),
         'email_reminders' => array(
             'title' => 'E-mail Reminders',
-            'url' => 'https://renstillmann.github.io/super-forms/#/email-reminders',
+            'url' => 'https://docs.super-forms.com/features/advanced/e-mail-reminders',
             'id' => '21048964',
         ),
         'paypal' => array(
             'title' => 'PayPal',
-            'url' => 'https://renstillmann.github.io/super-forms/#/paypal-checkout',
+            'url' => 'https://docs.super-forms.com/features/integrations/paypal',
             'id' => '21048964',
         ),
         'mailster' => array(
             'title' => 'Mailster',
-            'url' => 'https://renstillmann.github.io/super-forms/#/mailster',
+            'url' => 'https://docs.super-forms.com/features/integrations/mailster',
             'id' => '19735910',
         ),
         'password_protect' => array(
             'title' => 'Password Protect & User Lockout & Hide',
-            'url' => 'https://renstillmann.github.io/super-forms/#/password-protect-user-lockout-hide',
+            'url' => 'https://docs.super-forms.com/features/basic/hide-or-lock-out-user-from-your-forms',
             'id' => '19604086',
         ),
         'zapier' => array(
             'title' => 'Zapier',
-            'url' => 'https://renstillmann.github.io/super-forms/#/zapier',
+            'url' => 'https://docs.super-forms.com/features/integrations/zapier',
             'id' => '19483649',
         ),
         'csv_attachment' => array(
@@ -57,7 +57,7 @@
         ),
         'calculator' => array(
             'title' => 'Calculator',
-            'url' => 'https://renstillmann.github.io/super-forms/#/calculator',
+            'url' => 'https://docs.super-forms.com/elements/form-elements/calculator',
             'id' => '16045945',
         ),
         'signature' => array(
@@ -70,12 +70,12 @@
         ),
         'register_login' => array(
             'title' => 'Register & Login',
-            'url' => 'https://renstillmann.github.io/super-forms/#/register-login',
+            'url' => 'https://docs.super-forms.com/features/advanced/custom-registration-form-for-wordpress',
             'id' => '14403267',
         ),
         'mailchimp' => array(
             'title' => 'MailChimp',
-            'url' => 'https://renstillmann.github.io/super-forms/#/mailchimp',
+            'url' => 'https://docs.super-forms.com/features/integrations/mailchimp',
             'id' => '14126404',
         ),
     );
@@ -125,7 +125,7 @@ You entered the following E-mail address: <strong>{email}</strong>
 
 This is an example reminder, for more information about this visit: 
 
-<a href="https://renstillmann.github.io/super-forms/#/email-reminders">https://renstillmann.github.io/super-forms/#/email-reminders</a>
+<a href="https://docs.super-forms.com/features/advanced/e-mail-reminders">https://docs.super-forms.com/features/advanced/e-mail-reminders</a>
 
 Below you will find the information your provided through the form:
 ";s:21:"email_reminder_1_body";s:44:"<table cellpadding="5">{loop_fields}</table>";s:27:"email_reminder_1_body_close";s:31:"Best Regards, {option_blogname}";s:27:"email_reminder_1_email_loop";s:78:"<tr><th valign="top" align="right">{loop_label}</th><td>{loop_value}</td></tr>";s:30:"email_reminder_1_exclude_empty";s:0:"";s:27:"email_reminder_1_body_nl2br";s:4:"true";s:26:"email_reminder_1_header_cc";s:0:"";s:27:"email_reminder_1_header_bcc";s:0:"";s:34:"email_reminder_1_header_additional";s:0:"";s:28:"email_reminder_1_attachments";s:0:"";s:16:"email_reminder_2";s:0:"";s:16:"email_reminder_3";s:0:"";s:23:"frontend_posting_action";s:4:"none";s:16:"mailster_enabled";s:0:"";s:16:"password_protect";s:0:"";s:22:"password_protect_roles";s:0:"";s:22:"password_protect_login";s:0:"";s:31:"password_protect_not_login_hide";s:0:"";s:15:"paypal_checkout";s:0:"";s:21:"register_login_action";s:4:"none";s:23:"wc_instant_orders_action";s:4:"none";s:20:"woocommerce_checkout";s:0:"";s:13:"zapier_enable";s:0:"";s:11:"import-file";s:0:"";s:13:"popup_enabled";s:0:"";}s:8:"elements";a:4:{i:0;a:3:{s:3:"tag";s:7:"heading";s:5:"group";s:13:"html_elements";s:4:"data";a:3:{s:4:"desc";s:430:"Enter your real E-mail address to receive the reminder (your email address will not be stored). You should receive 2 emails after submitting the form, the first one will be send immediately. The second one will be send after 5 minutes (for demonstration purposes). Please understand that you might receive these emails shortly after each other, just look at the date and time of the email being delivered/send in your mail client!";s:13:"heading_color";s:7:"#ff0000";s:10:"desc_color";s:7:"#ff0000";}}i:1;a:3:{s:3:"tag";s:4:"text";s:5:"group";s:13:"form_elements";s:4:"data";a:7:{s:4:"name";s:5:"email";s:5:"email";s:14:"Email address:";s:11:"placeholder";s:18:"Your Email Address";s:4:"type";s:5:"email";s:10:"validation";s:5:"email";s:5:"error";s:92:"Provide your real email address to receive E-mail reminders, this is just for demo purposes!";s:4:"icon";s:12:"envelope;far";}}i:2;a:3:{s:3:"tag";s:8:"textarea";s:5:"group";s:13:"form_elements";s:4:"data";a:6:{s:4:"name";s:8:"question";s:5:"email";s:9:"Question:";s:11:"placeholder";s:23:"Ask us any questions...";s:10:"validation";s:5:"empty";s:5:"error";s:59:"This field is required, please just type something randomly";s:4:"icon";s:8:"question";}}i:3;a:3:{s:3:"tag";s:5:"radio";s:5:"group";s:13:"form_elements";s:4:"data";a:8:{s:4:"name";s:6:"option";s:5:"email";s:7:"Option:";s:11:"radio_items";a:3:{i:0;a:4:{s:7:"checked";s:0:"";s:5:"image";s:0:"";s:5:"label";s:12:"First choice";s:5:"value";s:12:"first_choice";}i:1;a:4:{s:7:"checked";s:0:"";s:5:"image";s:0:"";s:5:"label";s:13:"Second choice";s:5:"value";s:13:"second_choice";}i:2;a:4:{s:7:"checked";s:0:"";s:5:"image";s:0:"";s:5:"label";s:12:"Third choice";s:5:"value";s:12:"third_choice";}}s:17:"admin_email_value";s:5:"label";s:19:"confirm_email_value";s:5:"label";s:10:"validation";s:5:"empty";s:5:"error";s:61:"Just choose one of the three options, just for demo purposes!";s:4:"icon";s:14:"dot-circle;far";}}}}'

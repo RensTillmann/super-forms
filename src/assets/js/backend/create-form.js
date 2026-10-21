@@ -3888,14 +3888,14 @@
         var $skip = $('input[name="super_skip_tutorial"]').val();
         var $elements_found = $('.super-preview-elements .super-element').length;
         if (($skip != 'true') && (!$elements_found)) {
-            var $git = 'https://renstillmann.github.io/super-forms/#/';
+            var $git = 'https://docs.super-forms.com';
             var $timeout = 0;
             var $margin = 0;
             var $timeout_s = 400;
             var $event = 'next';
             var $showSkip = false;
             var $showNext = true;
-            var $tags_allowed = '<span class="super-tip">You are allowed to use {tags} for this setting,<br />for more information about tags refer to the documentation section:<br /><a target="blank" href="' + $git + 'tags-system">Tags system</a></span>';
+            var $tags_allowed = '<span class="super-tip">You are allowed to use {tags} for this setting,<br />for more information about tags refer to the documentation section:<br /><a target="blank" href="' + $git + '/features/advanced/tags-system">Tags system</a></span>';
 
             // Check if field `wizard_title` exists
             if ($('input[name="wizard_title"]').length) {
@@ -3974,7 +3974,7 @@
                     },
                     {
                         selector: 'input[name="wizard_confirm_to"]',
-                        description: '<h1>The email address where the confirmation email should be send to.</h1><span class="super-tip">By default this is set to {email} which is a <a target="_blank" href="' + $git + 'tags-system">tag</a> that will automatically retrieve the email address that the user entered in the form.</span><span class="super-tip">You can separate emails with comma\'s to send to multiple addresses</span>' + $tags_allowed,
+                        description: '<h1>The email address where the confirmation email should be send to.</h1><span class="super-tip">By default this is set to {email} which is a <a target="_blank" href="' + $git + '/features/advanced/tags-system">tag</a> that will automatically retrieve the email address that the user entered in the form.</span><span class="super-tip">You can separate emails with comma\'s to send to multiple addresses</span>' + $tags_allowed,
                     },
                     {
                         selector: 'input[name="wizard_confirm_from"]',
@@ -4067,7 +4067,7 @@
                     },
                     {
                         selector: '.super-element-title .super-title > input',
-                        description: '<h1>Here you can quickly change the "Unique field name" of your field</h1><span class="super-tip">The unique field name relates to the user input. The {email} <a target="_blank" href="' + $git + 'tags-system">tag</a> in this case would retrieve the entered email address of the user which you can then use within your custom emails, HTML elements and <a target="_blank" href="' + $git + 'variable-fields">Variable fields</a> or inside your email subjects or other settings that support the use of {tags}.</span>',
+                        description: '<h1>Here you can quickly change the "Unique field name" of your field</h1><span class="super-tip">The unique field name relates to the user input. The {email} <a target="_blank" href="' + $git + '/features/advanced/tags-system">tag</a> in this case would retrieve the entered email address of the user which you can then use within your custom emails, HTML elements and <a target="_blank" href="' + $git + '/features/advanced/variable-fields">Variable fields</a> or inside your email subjects or other settings that support the use of {tags}.</span>',
                     },
                     {
                         onBeforeStart: function () {
@@ -4088,7 +4088,7 @@
                         radius: 10,
                         event: 'click',
                         shape: 'circle',
-                        description: '<h1>Click on the delete icon and delete this element</h1><span class="super-tip">Removing a "Layout Element" (<a target="_blank" href="' + $git + 'columns">Column</a> or <a target="_blank" href="' + $git + 'multi-parts">Multi-part</a>) will also delete all it\'s inner elements along with it.</span><span class="super-tip">Don\'t worry, we will cover Columns and Multi-part elements very soon!</span>',
+                        description: '<h1>Click on the delete icon and delete this element</h1><span class="super-tip">Removing a "Layout Element" (<a target="_blank" href="' + $git + '/elements/layout-elements/column-grid">Column</a> or <a target="_blank" href="' + $git + '/elements/layout-elements/multi-part-step">Multi-part</a>) will also delete all it\'s inner elements along with it.</span><span class="super-tip">Don\'t worry, we will cover Columns and Multi-part elements very soon!</span>',
                     },
                     {
                         selector: '.super-form-history .super-undo',
@@ -4163,7 +4163,7 @@
                         selector: '.super-element.super-element-settings .super-element-settings-tabs > select',
                         event: 'change',
                         showNext: false,
-                        description: '<h1>We have devided all element settings into sections which you can choose from via this dropdown, Open the dropdown and switch to a different section to find out about all the other features and settings for the element you are editing.</h1><span class="super-tip">Remember that all elements have different settings and features, so make sure to explore them all!</span><span class="super-tip">Note that the E-mail Address element that we added to our form, is a <a target="_blank" href="' + $git + 'text">Text field</a>. It is a predefined element that basically has the <a target="_blank" href="' + $git + 'validation?id=email-address">E-mail address validation</a> enabled by default. There are several other predefined elements for you just to make building even easier for you.',
+                        description: '<h1>We have devided all element settings into sections which you can choose from via this dropdown, Open the dropdown and switch to a different section to find out about all the other features and settings for the element you are editing.</h1><span class="super-tip">Remember that all elements have different settings and features, so make sure to explore them all!</span><span class="super-tip">Note that the E-mail Address element that we added to our form, is a <a target="_blank" href="' + $git + '/elements/form-elements/text-field">Text field</a>. It is a predefined element that basically has the <a target="_blank" href="' + $git + '/features/basic/validation#e-mail-address">E-mail address validation</a> enabled by default. There are several other predefined elements for you just to make building even easier for you.',
                     },
                     {
                         selector: '.super-element.super-element-settings',
@@ -4182,7 +4182,7 @@
                     },
                     {
                         selector: '.super-element.super-layout-elements .super-elements-container',
-                        description: '<h1>These are your "Layout Elements"</h1><span class="super-tip">The <a target="_blank" href="' + $git + 'columns">Columns (Grid Element)</a> can be used to create the layout of your form.</span><span class="super-tip">You can use columns to put fields next to eachother and to do <a target="_blank" href="' + $git + 'conditional-logic">Conditional Logic</a>.</span><span class="super-tip">A column can also be used to create <a target="_blank" href="' + $git + 'columns?id=dynamic-add-more">Dynamic fields</a> that can be duplicated by users. This way a set of fields can be dynamically added by clicking on a "+" icon.</span><span class="super-tip">Columns can be nested inside of each other as many times as you wish, they can also be inserted into a <a target="_blank" href="' + $git + 'multi-parts">Multi-part</a> element.</span><span class="super-tip">The <a target="_blank" href="' + $git + 'multi-parts">Multi-part</a> element can be used to split a form into multiple parts (also called steps). For each step you will have to add a new Multi-part element with inside the elements that belong to this particular step.</span>',
+                        description: '<h1>These are your "Layout Elements"</h1><span class="super-tip">The <a target="_blank" href="' + $git + '/elements/layout-elements/column-grid">Columns (Grid Element)</a> can be used to create the layout of your form.</span><span class="super-tip">You can use columns to put fields next to eachother and to do <a target="_blank" href="' + $git + '/features/advanced/conditional-logic">Conditional Logic</a>.</span><span class="super-tip">A column can also be used to create <a target="_blank" href="' + $git + '/elements/layout-elements/column-grid#dynamic-add-more">Dynamic fields</a> that can be duplicated by users. This way a set of fields can be dynamically added by clicking on a "+" icon.</span><span class="super-tip">Columns can be nested inside of each other as many times as you wish, they can also be inserted into a <a target="_blank" href="' + $git + '/elements/layout-elements/multi-part-step">Multi-part</a> element.</span><span class="super-tip">The <a target="_blank" href="' + $git + '/elements/layout-elements/multi-part-step">Multi-part</a> element can be used to split a form into multiple parts (also called steps). For each step you will have to add a new Multi-part element with inside the elements that belong to this particular step.</span>',
                         timeout: $timeout_s
                     },
                     {
@@ -4192,7 +4192,7 @@
                     },
                     {
                         selector: '.super-element.super-html-elements .super-elements-container',
-                        description: '<h1>Here you can find all HTML elements</h1><span class="super-tip">HTML elements are elements that users can not change or alter (they are fixed html items that do not require user input). However you can make some elements dynamically change with the use of <a target="_blank" href="' + $git + 'conditional-logic">Conditional Logic</a> and the use of <a target="_blank" href="' + $git + 'variable-fields">Variable fields</a> and the <a target="_blank" href="' + $git + 'tags-system">{tags} system</a>. These elements can help you to change the aesthetics of your form.</span>',
+                        description: '<h1>Here you can find all HTML elements</h1><span class="super-tip">HTML elements are elements that users can not change or alter (they are fixed html items that do not require user input). However you can make some elements dynamically change with the use of <a target="_blank" href="' + $git + '/features/advanced/conditional-logic">Conditional Logic</a> and the use of <a target="_blank" href="' + $git + '/features/advanced/variable-fields">Variable fields</a> and the <a target="_blank" href="' + $git + '/features/advanced/tags-system">{tags} system</a>. These elements can help you to change the aesthetics of your form.</span>',
                         timeout: $timeout_s
                     },
                     {
@@ -4229,7 +4229,7 @@
                             $('.super-switch-forms').removeClass('super-active');
                         },
                         selector: '.super-header .super-get-form-shortcodes',
-                        description: '<h1>This is the [shortcode] of your form. You can display your form by copy pasting the shortcode to any of your posts/pages.</h1><span class="super-tip">You can add your shortcode in posts, pages and widgets (e.g: sidebars or in your footer). Anywhere within your site where your theme supports shortcodes you can basically display your form. In case you want to read more about how to build and publish your first form you can read the <a target="_blank" href="' + $git + 'build">Documentation</a></span>',
+                        description: '<h1>This is the [shortcode] of your form. You can display your form by copy pasting the shortcode to any of your posts/pages.</h1><span class="super-tip">You can add your shortcode in posts, pages and widgets (e.g: sidebars or in your footer). Anywhere within your site where your theme supports shortcodes you can basically display your form. In case you want to read more about how to build and publish your first form you can read the <a target="_blank" href="' + $git + '/quick-start/first-time-setup">Documentation</a></span>',
                     },
                     {
                         selector: '.super-tab-translations',
