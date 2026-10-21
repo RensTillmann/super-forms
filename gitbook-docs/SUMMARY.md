@@ -124,6 +124,7 @@
 * [WordPress Form to Google Sheet Integration](tutorials/wordpress-form-to-google-sheet-integration.md)
 * [GDPR Consent / Terms agreement](tutorials/gdpr-consent-terms-agreement.md)
 * [How to update the plugin](tutorials/how-to-update-the-plugin.md)
+* [Scan your WordPress site with Wordfence](tutorials/wordpress-security-scan-wordfence.md)
 * [Sending emails to specific department for WordPress contact forms](tutorials/sending-emails-to-specific-department-for-wordpress-contact-forms.md)
 
 ***
