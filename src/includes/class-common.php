@@ -831,7 +831,12 @@ class SUPER_Common {
                 if(empty($trigger['event'])) continue; 
                 // Only current form
                 if(empty($trigger['listen_to'])){
-                    add_post_meta( $form_id, '_super_trigger-'.$triggerName, $trigger );
+                    if($delete===true){
+                        add_post_meta( $form_id, '_super_trigger-'.$triggerName, $trigger );
+                    }else{
+                        // Existing triggers are kept, replace a trigger with the same name instead of adding a duplicate
+                        update_post_meta( $form_id, '_super_trigger-'.$triggerName, $trigger );
+                    }
                     continue;
                 }
                 // Global trigger (for all forms)
@@ -2232,6 +2237,9 @@ class SUPER_Common {
         }else{
             $settings = $form_settings;
         }
+        // Keep what is stored for this form, so the one-time rewrite only saves form settings (not the merged global settings)
+        $stored_form_settings = $form_settings;
+        $merged_before_rewrite = $settings;
 
         $email_body = '';
         if(!empty($settings['email_body_open'])) $email_body .= $settings['email_body_open'] . "\n\n";
@@ -2256,6 +2264,60 @@ class SUPER_Common {
         if(version_compare($current_form_version, '6.4', '<')){
             // Get trigger settings
             $triggers = SUPER_Common::get_form_triggers($form_id);
+            // Convert triggers of the 2023 beta format (`active` flag, e-mail details directly on the action)
+            foreach($triggers as $tk => $tv){
+                if(!is_array($tv)) continue;
+                if(!isset($tv['enabled']) && isset($tv['active'])){
+                    $triggers[$tk]['enabled'] = ($tv['active']==='true' ? 'true' : 'false');
+                }
+                unset($triggers[$tk]['active']);
+                if(empty($tv['actions']) || !is_array($tv['actions'])) continue;
+                foreach($tv['actions'] as $ak => $av){
+                    if(!is_array($av)) continue;
+                    if(isset($av['data']) && is_array($av['data'])) continue;
+                    if(empty($av['action']) || $av['action']!=='send_email') continue;
+                    $old_enabled = (isset($av['conditionally']) && $av['conditionally']==='true' ? 'true' : 'false');
+                    $triggers[$tk]['actions'][$ak] = array(
+                        'action' => 'send_email',
+                        'order' => (isset($av['order']) ? $av['order'] : '1'),
+                        'conditions' => array(
+                            'enabled' => $old_enabled,
+                            'f1' => (isset($av['f1']) ? $av['f1'] : ''),
+                            'logic' => (!empty($av['logic']) ? $av['logic'] : '=='),
+                            'f2' => (isset($av['f2']) ? $av['f2'] : '')
+                        ),
+                        'data' => array(
+                            'to' => (isset($av['to']) ? $av['to'] : ''),
+                            'from_email' => (isset($av['from']) ? $av['from'] : ''),
+                            'from_name' => '',
+                            'reply_to' => array(
+                                'enabled' => (!empty($av['reply_to']) ? 'true' : 'false'),
+                                'email' => (isset($av['reply_to']) ? $av['reply_to'] : ''),
+                                'name' => ''
+                            ),
+                            'subject' => (isset($av['subject']) ? $av['subject'] : ''),
+                            'body' => (isset($av['body']) ? $av['body'] : ''),
+                            'loop_open' => '<table cellpadding="5">',
+                            'loop' => '<tr><th valign="top" align="right">{loop_label}</th><td>{loop_value}</td></tr>',
+                            'loop_close' => '</table>',
+                            'exclude' => array('enabled' => 'false', 'exclude_fields' => ''),
+                            'rtl' => 'false',
+                            'cc' => (isset($av['cc']) ? $av['cc'] : ''),
+                            'bcc' => (isset($av['bcc']) ? $av['bcc'] : ''),
+                            'header_additional' => (isset($av['headers']) ? $av['headers'] : ''),
+                            'attachments' => '',
+                            'content_type' => (!empty($av['content_type']) ? $av['content_type'] : 'html'),
+                            'charset' => (!empty($av['charset']) ? $av['charset'] : 'UTF-8'),
+                            'schedule' => array('enabled' => 'false', 'schedules' => array())
+                        )
+                    );
+                }
+            }
+            // Names of triggers that already exist, to not add them a second time
+            $existing_trigger_names = array();
+            foreach($triggers as $tv){
+                if(is_array($tv) && !empty($tv['name'])) $existing_trigger_names[sanitize_title_with_dashes(trim($tv['name']))] = true;
+            }
             // Regex to convert E-mail body settings to TinyMCE editor
             $regex = '/([\s\S]*?)(<[^\/<>]+?>[^\/<>]*?{loop_fields}[\s\S]*?>)([\s\S]*)|([\s\S]*?)({loop_fields})([\s\S]*)/';
             // Add trigger for E-mail reminders
@@ -2267,6 +2329,11 @@ class SUPER_Common {
             while( $x <= $limit ) {
                 if( (!empty($s['email_reminder_' . $x])) && ($s['email_reminder_' . $x]=='true') ) {
                     unset($s['email_reminder_' . $x]);
+                    // A trigger with this name already exists, keep it (and its queued reminders)
+                    if(isset($existing_trigger_names[sanitize_title_with_dashes('E-mail reminder #'.$x)])){
+                        $x++;
+                        continue;
+                    }
                     $t = array(
                         'enabled'=> 'true',
                         'event'=> 'sf.after.submission',
@@ -2372,7 +2439,7 @@ class SUPER_Common {
                 $x++;
             }
             // Add trigger for WooCommerce email after order completed
-            if(!empty($s['woocommerce_checkout']) && $s['woocommerce_checkout']==='true' && !empty($s['woocommerce_completed_email']) && $s['woocommerce_completed_email']==='true'){
+            if(!isset($existing_trigger_names['payment-completed-e-mail']) && !empty($s['woocommerce_checkout']) && $s['woocommerce_checkout']==='true' && !empty($s['woocommerce_completed_email']) && $s['woocommerce_completed_email']==='true'){
                 $t = array();
                 // Grab the body, and extract the `loop open`, `loop` and `loop close` parts
                 $body = '';
@@ -2459,6 +2526,7 @@ class SUPER_Common {
                 $triggers[] = $t;
             }
             SUPER_Common::save_form_triggers($triggers, $form_id, false);
+
 
             $s['_woocommerce'] = array();
             $s['_woocommerce']['checkout'] = (isset($s['woocommerce_checkout']) ? $s['woocommerce_checkout'] : 'false');
@@ -2725,7 +2793,18 @@ class SUPER_Common {
                     unset($s[$ks]);
                 }
             }
-            update_post_meta($form_id, '_super_form_settings', $s);
+            // Only save settings of this form: keys that were stored for the form, or that the rewrite added or changed
+            $s_to_save = array();
+            foreach($s as $ks => $kv){
+                if(is_array($stored_form_settings) && array_key_exists($ks, $stored_form_settings)){
+                    $s_to_save[$ks] = $kv;
+                    continue;
+                }
+                if(!array_key_exists($ks, $merged_before_rewrite) || $merged_before_rewrite[$ks]!==$kv){
+                    $s_to_save[$ks] = $kv;
+                }
+            }
+            update_post_meta($form_id, '_super_form_settings', $s_to_save);
             update_post_meta($form_id, '_super_version', SUPER_VERSION);
         }
         return apply_filters( 'super_form_settings_filter', $s, array( 'id'=>$form_id ) );
