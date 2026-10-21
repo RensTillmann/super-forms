@@ -3132,7 +3132,7 @@ class SUPER_Shortcodes {
                 $address_auto_complete_attr .= ' data-api-region="' . $atts['address_api_region'] . '"';
                 $url .= 'region='.$atts['address_api_region'].'&';
             }
-            $url .= 'key=' . $atts['address_api_key'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init';
+            $url .= 'key=' . $atts['address_api_key'] . '&libraries=drawing,geometry,places,visualization,routes&callback=SUPER.google_maps_init';
             wp_enqueue_script( 'google-maps-api', $url, array( 'super-common' ), SUPER_VERSION, false );
         }
 
@@ -4819,7 +4819,7 @@ class SUPER_Shortcodes {
         if( !empty( $atts['api_language'] ) ){
             $url .= 'language='.$atts['api_language'].'&';
         }
-        $url .= 'key=' . $atts['api_key'] . '&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init';
+        $url .= 'key=' . $atts['api_key'] . '&libraries=drawing,geometry,places,visualization,routes&callback=SUPER.google_maps_init';
         wp_enqueue_script( 'google-maps-api', $url, array( 'super-common' ), SUPER_VERSION, false );
 
         // Add field attributes if {tags} are being used

@@ -1435,88 +1435,76 @@ function SUPERreCaptcha(){
             }
             distance_calculator_timeout = setTimeout(function () {
                 args.el.closest('.super-field-wrapper').classList.add('super-calculating-distance');
-                $.ajax({
-                    url: super_common_i18n.ajaxurl,
-                    type: 'post',
-                    data: {
-                        action: 'super_calculate_distance',
-                        units: $units,
-                        origin: $origin,
-                        destination: $destination
-                    },
-                    success: function (result) {
-                        $result = JSON.parse(result);
-                        if($result.status=='OK'){
-                            $leg = $result.routes[0].legs[0];
-                            $field = $origin_field.dataset.distanceField;
-                            // distance  - Distance in meters
-                            if( $value=='distance' ) {
-                                $calculation_value = $leg.distance.value;
-                            }
-                            // dis_text  - Distance text in km or miles
-                            if( $value=='dis_text' ) {
-                                $calculation_value = $leg.distance.text;
-                            }
-                            // duration  - Duration in seconds
-                            if( $value=='duration' ) {
-                                $calculation_value = $leg.duration.value;
-                            }
-                            // dur_text  - Duration text in minutes
-                            if( $value=='dur_text' ) {
-                                $calculation_value = $leg.duration.text;
-                            }
-                            $field = SUPER.field(form, $field);
-                            $field.value = $calculation_value;
-                            if($calculation_value===''){
-                                $field.closest('.super-shortcode').classList.remove('super-filled');
-                            }else{
-                                $field.closest('.super-shortcode').classList.add('super-filled');
-                            }
-                            SUPER.after_field_change_blur_hook({el: $field});
-                            SUPER.init_replace_html_tags({el: $field, form: form}); //undefined, form);
-                        }else{
-                            if($result.status=='ZERO_RESULTS'){
-                                $alert_msg = super_common_i18n.errors.distance_calculator.zero_results;
-                            }else{
-                                if($result.status=='OVER_QUERY_LIMIT'){
-                                    $alert_msg = $result.error_message;
-                                }else{
-                                    if($result.error===true){
-                                        $alert_msg = $result.msg;
-                                    }else{
-                                        $alert_msg = super_common_i18n.errors.distance_calculator.error;
-                                    }
-                                }
-                            }
-                            $('.super-msg').remove();
-                            $result = JSON.parse(result);
-                            $html = '<div class="super-msg super-error">';                            
-                            $origin_field.blur();
-                            if(typeof $destination_field !== 'undefined') $destination_field.blur();
-                            $html += $alert_msg;
-                            $html += '<span class="super-close"></span>';
-                            $html += '</div>';
-                            $($html).prependTo($(form));
-                            if(form.closest('.super-popup-content')){
-                                $(form.closest('.super-popup-content')).animate({
-                                    scrollTop: $(form).offset().top-200
-                                }, 1000);
-                            }else{
-                                $('html, body').animate({
-                                    scrollTop: $(form).offset().top-200
-                                }, 1000);
-                            }
-                        }
-                    },
-                    complete: function(){
-                        args.el.closest('.super-field-wrapper').classList.remove('super-calculating-distance');
-                    },
-                    error: function (xhr, ajaxOptions, thrownError) {
-                        // eslint-disable-next-line no-console
-                        console.log(xhr, ajaxOptions, thrownError);
-                        alert(super_common_i18n.errors.failed_to_process_data);
+                var finish = function(){
+                    args.el.closest('.super-field-wrapper').classList.remove('super-calculating-distance');
+                };
+                var showError = function(msg){
+                    $('.super-msg').remove();
+                    var $html = '<div class="super-msg super-error">';
+                    $origin_field.blur();
+                    if(typeof $destination_field !== 'undefined') $destination_field.blur();
+                    $html += msg;
+                    $html += '<span class="super-close"></span>';
+                    $html += '</div>';
+                    $($html).prependTo($(form));
+                    if(form.closest('.super-popup-content')){
+                        $(form.closest('.super-popup-content')).animate({
+                            scrollTop: $(form).offset().top-200
+                        }, 1000);
+                    }else{
+                        $('html, body').animate({
+                            scrollTop: $(form).offset().top-200
+                        }, 1000);
                     }
-                });
+                };
+                // Computed in the browser with the Google Routes library (RouteMatrix)
+                var loadRoutes = (window.google && window.google.maps && typeof window.google.maps.importLibrary === 'function') ? window.google.maps.importLibrary('routes') : Promise.reject(new Error('Google Maps not loaded'));
+                loadRoutes.then(function(lib){
+                    return lib.RouteMatrix.computeRouteMatrix({
+                        origins: [$origin],
+                        destinations: [$destination],
+                        travelMode: 'DRIVING',
+                        units: ($units === 'imperial' ? 'IMPERIAL' : 'METRIC'),
+                        fields: ['distanceMeters', 'durationMillis', 'localizedValues', 'condition']
+                    });
+                }).then(function(response){
+                    var item = (response && response.matrix && response.matrix.rows && response.matrix.rows[0]) ? response.matrix.rows[0].items[0] : null;
+                    if(!item || (item.condition && item.condition !== 'ROUTE_EXISTS')){
+                        showError(super_common_i18n.errors.distance_calculator.zero_results);
+                        return;
+                    }
+                    var texts = item.localizedValues || {};
+                    $field = $origin_field.dataset.distanceField;
+                    // distance  - Distance in meters
+                    if( $value=='distance' ) {
+                        $calculation_value = item.distanceMeters;
+                    }
+                    // dis_text  - Distance text in km or miles
+                    if( $value=='dis_text' ) {
+                        $calculation_value = (texts.distance && texts.distance.text) ? texts.distance.text : '';
+                    }
+                    // duration  - Duration in seconds
+                    if( $value=='duration' ) {
+                        $calculation_value = Math.round(item.durationMillis/1000);
+                    }
+                    // dur_text  - Duration text in minutes
+                    if( $value=='dur_text' ) {
+                        $calculation_value = (texts.duration && texts.duration.text) ? texts.duration.text : '';
+                    }
+                    $field = SUPER.field(form, $field);
+                    $field.value = $calculation_value;
+                    if($calculation_value===''){
+                        $field.closest('.super-shortcode').classList.remove('super-filled');
+                    }else{
+                        $field.closest('.super-shortcode').classList.add('super-filled');
+                    }
+                    SUPER.after_field_change_blur_hook({el: $field});
+                    SUPER.init_replace_html_tags({el: $field, form: form});
+                }).catch(function(err){
+                    // eslint-disable-next-line no-console
+                    console.log(err);
+                    showError(super_common_i18n.errors.distance_calculator.error);
+                }).then(finish, finish);
             }, 1000);
         }
     };
@@ -5152,7 +5140,7 @@ function SUPERreCaptcha(){
                 url = '//maps.googleapis.com/maps/api/js?';
                 if(field.dataset.apiRegion!=='') url += 'region='+field.dataset.apiRegion+'&';
                 if(field.dataset.apiLanguage!=='') url += 'language='+field.dataset.apiLanguage+'&';
-                url += 'key='+field.dataset.apiKey+'&libraries=drawing,geometry,places,visualization&callback=SUPER.google_maps_init'
+                url += 'key='+field.dataset.apiKey+'&libraries=drawing,geometry,places,visualization,routes&callback=SUPER.google_maps_init'
                 $.getScript( url, function() {
                     SUPER.google_maps_api.initAutocompleteCallback(args);
                 });
