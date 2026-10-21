@@ -1,12 +1,12 @@
 ---
 description: >-
-  Install Wordfence, run a WordPress security scan, review findings safely, and
-  know when to ask your hosting provider or a security specialist for help.
+  Check PHP security with your host, install Wordfence, run a WordPress security
+  scan, and review findings safely with help when needed.
 ---
 
 # Scan your WordPress site with Wordfence
 
-This guide is for WordPress site owners, including sites that currently use Super Forms or had it installed in the past. It walks you through a first scan, safe handling of results, and ongoing protection. You can start with Wordfence Free; purchasing a paid license is not required to run a scan.
+This guide is for WordPress site owners, including sites that currently use Super Forms or had it installed in the past. It walks you through checking PHP security with your host, a first scan, safe handling of results, and ongoing protection. You can start with Wordfence Free; purchasing a paid license is not required to run a scan.
 
 {% hint style="warning" %}
 **Updating is not the same as cleaning an infected site.** Security updates address vulnerabilities, but do not necessarily remove files, accounts, or database changes left by an earlier compromise. Removing a previously vulnerable plugin does not undo those changes either. If your site previously ran an affected version of WordPress, Super Forms, or another component, investigation may still be appropriate even if that component is now updated or removed. A scan with no findings is useful information, not proof that a site is secure.
@@ -21,6 +21,31 @@ This guide is for WordPress site owners, including sites that currently use Supe
 * If you already use a security plugin or your host manages Wordfence, coordinate with them rather than installing several security plugins at once.
 
 Unexpected administrator accounts, redirects, spam, unfamiliar files, or a hosting malware warning deserve attention immediately. **Do not wait for a scan to finish before asking for help with an active compromise.** See [If an infection is suspected](#if-an-infection-is-suspected) below and Wordfence's [compromised-site guidance](https://www.wordfence.com/help/if-your-site-is-hacked/).
+
+### Check PHP with your hosting provider
+
+**PHP is the server software that runs WordPress.** Updating WordPress, Super Forms, other plugins, or themes does not normally update PHP or apply its security fixes. Your hosting provider or server maintainer must handle that separately. **Wordfence scanning neither patches PHP nor certifies the server's patch status**, even when a scan finishes with no findings.
+
+PHP's [security advisory](https://www.php.net/index.php#2026-10-21-5) covers two critical vulnerabilities that can allow remote code execution without logging in: [CVE-2026-109618](https://github.com/php/php-src/security/advisories/GHSA-w8hw-w9fx-j79w) and [CVE-2026-109619](https://github.com/php/php-src/security/advisories/GHSA-6wmf-4rv5-p3rp). The advisory includes all PHP installations serving web requests in its risk scope. This does not establish that your site has been compromised, but it does warrant prompt confirmation of patches with your host.
+
+These are the **first fixed upstream releases for both CVEs** on the listed branches, not a permanent list of the latest releases or proof that every other security issue is fixed:
+
+| PHP branch | First upstream release fixing both CVEs |
+| --- | --- |
+| 8.2 | 8.2.35 |
+| 8.3 | 8.3.36 |
+| 8.4 | 8.4.27 |
+| 8.5 | 8.5.12 |
+
+Source: [PHP's advisory and fixed releases](https://www.php.net/index.php#2026-10-21-5). A distribution or hosting vendor may **backport** the fixes into its own package without changing the upstream version to one in this table. A version string alone cannot confirm whether those fixes are present; ask for the vendor's advisory and the installed package/build that includes them.
+
+1. In your WordPress dashboard, open **Tools > Site Health > Info**, expand **Server**, and find **PHP version**. Note it for your host; this screen reports information rather than changing PHP. If the screen is unavailable, ask the administrator or host to check. See WordPress's [Site Health documentation](https://wordpress.org/documentation/article/site-health-screen/) and [PHP version-check instructions](https://wordpress.org/support/update-php/#how-to-check-your-php-version).
+2. Ask the host to confirm the PHP runtime **actually serving this website's web requests**, including all serving instances or worker pools. A command-line `php -v` result or the hosting control panel's selected default may refer to a different PHP installation or setting; neither alone proves which patched runtime visitors reach. Do not create a publicly accessible `phpinfo()` page or publish a full diagnostic report.
+3. Ask whether that runtime has fixes for **both CVEs above and other applicable PHP security issues**. Have the host confirm the installed release or vendor package against its security advisory. A general “PHP 8.3 or higher” recommendation, a green Site Health status, or a clean Wordfence scan is not that confirmation.
+4. If fixes are missing, have the host promptly apply a patched release on a supported PHP branch, or a maintained vendor package with confirmed backported fixes. Ask them to ensure **all running web workers use the patched runtime**, not merely that a new package has been installed or a control-panel setting changed. The host should manage any required worker replacement or restart.
+5. If changing PHP branches is necessary, coordinate WordPress, theme, plugin, and custom-code compatibility with the maintainer first. Preserve backups and test the intended branch on staging where possible; agree a recovery plan without leaving production on an unpatched runtime. **Do not blindly switch to the newest PHP branch.** After applying the update, have the host reconfirm the serving runtime and test the website and forms, including submissions, file uploads, confirmations, and email delivery, using non-sensitive test data.
+
+PHP 8.1 and older are **end-of-life upstream**. PHP's exceptional source backports for 7.4, 8.0, and 8.1 address these CVEs but do not restore ongoing upstream support. If your host relies on a vendor-maintained older branch, ask it to confirm both security coverage and its support lifetime; otherwise plan a compatible move to a supported branch. Check PHP's [current support schedule](https://www.php.net/supported-versions.php) when choosing a branch, and WordPress's [PHP update preparation guidance](https://wordpress.org/support/update-php/#before-you-update-your-php-version) for backup and compatibility planning.
 
 ## 2. Install Wordfence and finish license setup
 
@@ -65,7 +90,7 @@ Before starting, review these settings:
 * **Advanced Options:** inspect **Exclude files from scan that match these wildcard patterns**. Excluded files are not checked by that scan. Ask the person who configured any existing exclusions why they are there; do not add exclusions for uploads, plugins, or other large areas simply to get a successful result.
 * Ask your host about any reported unscanned paths, unreadable files, other sites, or applications in your hosting account. A normal scan covers the WordPress root files and standard WordPress directories, but is **not a complete audit of the entire hosting account or server**. The option **Scan files outside your WordPress installation** broadens scanning to additional subdirectories; it does not guarantee server-wide coverage and can increase resource usage.
 
-The scanner looks for known malware patterns, suspicious code and URLs, changed files, vulnerable/outdated components, and some suspicious database content. It does **not inspect every database table for every possible infection**. Its findings depend on enabled checks, accessible files, exclusions, and available signatures.
+The scanner looks for known malware patterns, suspicious code and URLs, changed files, vulnerable/outdated components, and some suspicious database content. It does **not inspect every database table for every possible infection**. Its findings depend on enabled checks, accessible files, exclusions, and available signatures. It does **not patch PHP or certify server patch status**; follow [Check PHP with your hosting provider](#check-php-with-your-hosting-provider) separately even if the scan has no findings.
 
 **Premium and custom plugins:** malware scanning can inspect commercial plugin files, including Super Forms, but comparison and automatic repair against WordPress.org originals are different features. Do not expect Wordfence to have an authoritative clean copy of premium Super Forms files. A file that cannot be compared or repaired is not automatically malicious, nor is it automatically safe.
 
