@@ -6186,7 +6186,9 @@ class SUPER_Ajax {
      *  @since      4.7.0
     */
     public static function switch_language() {
+        self::authorize_admin_ajax_request();
         $form_id = absint($_POST['form_id']);
+        self::require_admin_form( $form_id );
         // Retrieve all settings with the correct default values
         $settings = SUPER_Common::get_form_settings($form_id);
 
@@ -6415,6 +6417,7 @@ class SUPER_Ajax {
      *  @since      3.8.0
     */
     public static function undo_redo() {
+        self::authorize_admin_ajax_request();
         $form_id = absint($_POST['form_id']);
         $elements = $_POST['elements'];
         $elements = wp_unslash($elements);
@@ -7967,7 +7970,9 @@ class SUPER_Ajax {
      *  @since      1.0.0
     */
     public static function load_preview() {
-        $form_id = absint( $_POST['form_id'] );
+        self::authorize_admin_ajax_request();
+        $form_id = isset( $_POST['form_id'] ) ? absint( $_POST['form_id'] ) : 0;
+        self::require_admin_form( $form_id );
         echo SUPER_Shortcodes::super_form_func( array( 'id'=>$form_id ) );
         die();
     }
@@ -8331,6 +8336,10 @@ class SUPER_Ajax {
      *  @since      1.0.0
     */
     public static function load_element_settings( $tag=null, $group=null, $data=null ) {
+        // Internal PHP calls supply their own arguments and do not need an AJAX nonce.
+        if( doing_action( 'wp_ajax_super_load_element_settings' ) ) {
+            self::authorize_admin_ajax_request();
+        }
         if($tag==null) $tag = $_POST['tag'];
         if($group==null) $group = $_POST['group'];
         if($data==null) $data = $_POST['data'];
@@ -8483,6 +8492,10 @@ class SUPER_Ajax {
      *  @since      1.0.0
     */
     public static function get_element_builder_html( $tag=null, $group=null, $inner=null, $data=null, $method=1 ) {
+        // Internal PHP calls supply their own arguments and do not need an AJAX nonce.
+        if( doing_action( 'wp_ajax_super_get_element_builder_html' ) ) {
+            self::authorize_admin_ajax_request();
+        }
         $i18n = (isset($_POST['i18n']) ? $_POST['i18n'] : '');
         $form_id = 0;
         if( isset( $_POST['form_id'] ) ) {
@@ -8677,6 +8690,8 @@ class SUPER_Ajax {
         foreach( $elements as $element ) {
             $edata = ( isset( $element['data'] ) && is_array( $element['data'] ) ) ? $element['data'] : array();
             $tag = isset( $element['tag'] ) ? $element['tag'] : '';
+            // Invisible columns retain submitted values but are never validated in the browser.
+            if( $tag === 'column' && isset( $edata['invisible'] ) && $edata['invisible'] === 'true' ) continue;
             // An element (or ancestor) that can hide/repeat its subtree "locks" the fields below
             // it: the front-end may legitimately omit them, so they can never be presence-enforced.
             // Conditional logic is not evaluable server-side; repeaters/multipart vary per

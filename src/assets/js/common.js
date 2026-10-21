@@ -798,33 +798,37 @@ function SUPERreCaptcha(){
             }
         }
         if(args.generatePdf){
-            SUPER.pdf_generator_init(args, function(args){
-                // When debugging is enabled download file instantly without submitting the form
-                if(args.pdfSettings.debug!=="true"){
-                    SUPER.save_data(args); 
-                    return true;
-                }
-                var innerText = args.loadingOverlay.querySelector('.super-inner-text');
-                // Direct download of PDF
-                args._pdf.save(args.pdfSettings.filename, {returnPromise: true}).then(function() {
-                    // Close loading overlay
-                    if(args.progressBar) args.progressBar.style.width = (100)+"%";  
-                    if(innerText) innerText.innerHTML = '<span>'+super_common_i18n.loadingOverlay.completed+'</span>';
-                    args.loadingOverlay.classList.add('super-success');
-                    if(args.pdfSettings.downloadBtn==='true'){
+            try {
+                SUPER.pdf_generator_init(args, function(args){
+                    // When debugging is enabled download file instantly without submitting the form
+                    if(args.pdfSettings.debug!=="true"){
+                        SUPER.save_data(args);
+                        return true;
+                    }
+                    var innerText = args.loadingOverlay.querySelector('.super-inner-text');
+                    // Direct download of PDF
+                    args._pdf.save(args.pdfSettings.filename, {returnPromise: true}).then(function() {
+                        // Close loading overlay
+                        if(args.progressBar) args.progressBar.style.width = (100)+"%";
+                        if(innerText) innerText.innerHTML = '<span>'+super_common_i18n.loadingOverlay.completed+'</span>';
                         args.loadingOverlay.classList.add('super-success');
-                        SUPER.show_pdf_download_btn(args);
-                    }
-                    // Close Popup (if any)
-                    if(typeof SUPER.init_popups === 'function' && typeof SUPER.init_popups.close === 'function' ){
-                        SUPER.init_popups.close(true);
-                    }
-                }, function() {
-                    // Show error message
-                    if(innerText) innerText.innerHTML = '<span>Something went wrong while downloading the PDF</span>';
-                    args.loadingOverlay.classList.add('super-error');
+                        if(args.pdfSettings.downloadBtn==='true'){
+                            args.loadingOverlay.classList.add('super-success');
+                            SUPER.show_pdf_download_btn(args);
+                        }
+                        // Close Popup (if any)
+                        if(typeof SUPER.init_popups === 'function' && typeof SUPER.init_popups.close === 'function' ){
+                            SUPER.init_popups.close(true);
+                        }
+                    }, function() {
+                        // Show error message
+                        if(innerText) innerText.innerHTML = '<span>Something went wrong while downloading the PDF</span>';
+                        args.loadingOverlay.classList.add('super-error');
+                    });
                 });
-            });
+            } catch(error) {
+                SUPER.pdf_generator_abort(args, error);
+            }
         }else{
             SUPER.save_data(args);
         }
@@ -8815,6 +8819,8 @@ function SUPERreCaptcha(){
     SUPER.pdf_generator_init = function(args, callback){
         
         args._save_data_callback = callback;
+        args._pdfAborted = false;
+        args._pdfDone = false;
 
         // Page margins and print area
         // Media                Page size           Print area              Margins
@@ -8942,7 +8948,11 @@ function SUPERreCaptcha(){
         if(super_common_i18n.fonts && super_common_i18n.fonts.link){
             // Replace 'your_url_here' with the actual URL to the JSON file.
             const fontURL = super_common_i18n.fonts.link+'.json';
-            SUPER.pdf_get_font_data_from_url(fontURL).then((fontData) => {
+            const loadFontData = () => Promise.resolve().then(() => SUPER.pdf_get_font_data_from_url(fontURL)).catch(() => null);
+            loadFontData().then((fontData) => {
+                return fontData ? fontData : loadFontData();
+            }).then((fontData) => {
+                if(args._pdfAborted) return false;
                 if(fontData){
                     args._pdf.addFileToVFS('NotoSans-Regular-normal.ttf', fontData.regular);
                     args._pdf.addFont('NotoSans-Regular-normal.ttf', 'NotoSans-Regular', 'normal');
@@ -8952,20 +8962,12 @@ function SUPERreCaptcha(){
                         args._pdf.addFileToVFS('NotoSans-Bold-bold.ttf',fontData.bold);
                     }
                     args._pdf.addFont('NotoSans-Bold-bold.ttf', 'NotoSans-Bold', 'bold');
-
-                    SUPER.pdf_generator_prepare(args, function(args){
-                        // First add pdf-text 
-                        SUPER.pdfWrapTextNodes(args.pdfPageContainer);
-                        SUPER.pdfWrapTextNodesRender(args.pdfPageContainer);
-                        // First scroll over all pages, and determine total pages we have
-                        SUPER.pdf_determine_pages(args, function(args){
-                            // Start generating pages (starting at page 1)
-                            args.currentPage = 1;
-                            SUPER.pdf_generator_generate_page(args);
-                        });
-                    });
-
+                }else{
+                    console.warn('Super Forms: the PDF font file could not be loaded, the default PDF font is used instead.');
                 }
+                SUPER.pdf_generator_start(args);
+            }).catch((error) => {
+                SUPER.pdf_generator_abort(args, error);
             });
             return false;
         }
@@ -8976,19 +8978,31 @@ function SUPERreCaptcha(){
         //
         // Add a timeout (just to be sure)
         setTimeout(function(){
-            SUPER.pdf_generator_prepare(args, function(args){
-                // First add pdf-text 
-                SUPER.pdfWrapTextNodes(args.pdfPageContainer);
-                SUPER.pdfWrapTextNodesRender(args.pdfPageContainer);
-                // First scroll over all pages, and determine total pages we have
-                SUPER.pdf_determine_pages(args, function(args){
-                    // Start generating pages (starting at page 1)
-                    args.currentPage = 1;
-                    SUPER.pdf_generator_generate_page(args);
-                });
-            });
+            SUPER.pdf_generator_start(args);
         }, 5000);
         return false;
+    };
+    // Prepare the form, determine page boundaries, then generate the first page.
+    SUPER.pdf_generator_start = function(args){
+        if(args._pdfAborted) return false;
+        try {
+            SUPER.pdf_generator_prepare(args, function(args){
+                if(args._pdfAborted) return false;
+                try {
+                    SUPER.pdfWrapTextNodes(args.pdfPageContainer);
+                    SUPER.pdfWrapTextNodesRender(args.pdfPageContainer);
+                    SUPER.pdf_determine_pages(args, function(args){
+                        if(args._pdfAborted) return false;
+                        args.currentPage = 1;
+                        SUPER.pdf_generator_generate_page(args);
+                    });
+                } catch(error) {
+                    SUPER.pdf_generator_abort(args, error);
+                }
+            });
+        } catch(error) {
+            SUPER.pdf_generator_abort(args, error);
+        }
     };
     SUPER.pdf_determine_pages = function(args, callback){
         args.pageOrientationChanges = {};
@@ -9570,6 +9584,8 @@ function SUPERreCaptcha(){
     }
 
     SUPER._pdf_generator_done_callback = function(args){
+        // Ignore aborted or duplicate completion callbacks.
+        if(args._pdfAborted || args._pdfDone) return false;
         // Reset everything to how it was
         SUPER.pdf_generator_reset(args.form0);
         // Attach as file to form data
@@ -9603,10 +9619,13 @@ function SUPERreCaptcha(){
             exclude: exclude
         };
         // We PDF has been generated, continue with form submission
+        // Errors after this point belong to submission, not PDF generation.
+        args._pdfDone = true;
         args._save_data_callback(args);
     };
 
     SUPER.recheckCanvasImages = function(args, callback){
+        if(args._pdfAborted) return false;
         var node = args.pdfPageContainer.querySelector('.super-int-phone_selected-flag .super-int-phone_flag:not(.super-canvas-initialized)');
         if(!node || node.closest('[data-pdfoption="exclude"]') || node.closest('[data-html2cvanas-ignore="true"]')){
             callback();
@@ -9620,9 +9639,12 @@ function SUPERreCaptcha(){
                 allowTaint: false,
                 backgroundColor: '#ffffff'
             }).then(function(canvas) {
+                if(args._pdfAborted) return false;
                 var imgData = canvas.toDataURL("image/jpeg", 1.0);
                 node.dataset.imgData = imgData;
                 SUPER.recheckCanvasImages(args, callback);
+            }).catch(function(error) {
+                SUPER.pdf_generator_abort(args, error);
             });
         }
     }
@@ -10058,7 +10080,8 @@ function SUPERreCaptcha(){
             }
         }
         SUPER.recheckCanvasImages(args, function(){
-            SUPER.init_super_responsive_form_fields({form: form, callback: function(formId){
+            var prepareFields = function(formId){
+                if(args._pdfAborted || !form.classList.contains('super-generating-pdf')) return false;
                 // First disable the UI on the map for nicer print of the map
                 // And make map fullwidth and directions fullwidth
                 for(i=0; i < SUPER.google_maps_api.allMaps[formId].length; i++){
@@ -10115,6 +10138,13 @@ function SUPERreCaptcha(){
                 // tmp args.totalPercentagePerPage = (100/args.totalPages) / 3;
                 // tmp args.pdfPercentageCompleted = 0;
                 callback(args);
+            };
+            SUPER.init_super_responsive_form_fields({form: form, callback: function(formId){
+                try {
+                    prepareFields(formId);
+                } catch(error) {
+                    SUPER.pdf_generator_abort(args, error);
+                }
             }});
         });
 
@@ -10137,8 +10167,8 @@ function SUPERreCaptcha(){
         setTimeout(function(){
             // Now allow printing
             try {
-                // Only if not already canceled/reset
-                if(form && !form.classList.contains('super-generating-pdf')){
+                // Only if not already canceled/reset or aborted
+                if(args._pdfAborted || (form && !form.classList.contains('super-generating-pdf'))){
                     return false;
                 }
                 // Re-wrap text nodes because of possible updated HTML content such as pagination {tags}
@@ -10318,12 +10348,11 @@ function SUPERreCaptcha(){
                     }
                 }
                 if(args.pdfSettings.native==='true'){
-                    // Experimental
-                    document.querySelector('.super-pdf-page-container').classList.remove('super-pdf-toggle-ignore-items');
-                    // Only if not already canceled/reset
-                    if(form && !form.classList.contains('super-generating-pdf')){
+                    // Only if not already canceled/reset or aborted
+                    if(args._pdfAborted || (form && !form.classList.contains('super-generating-pdf'))){
                         return false;
                     }
+                    document.querySelector('.super-pdf-page-container').classList.remove('super-pdf-toggle-ignore-items');
                     args.pdfPercentageCompleted += args.totalPercentagePerPage;
                     if(args.pdfPercentageCompleted > 99){
                         args.pdfPercentageCompleted = 100;
@@ -10360,11 +10389,11 @@ function SUPERreCaptcha(){
                         allowTaint: false,
                         backgroundColor: '#ffffff'
                     }).then(function(canvas) {
-                        document.querySelector('.super-pdf-page-container').classList.remove('super-pdf-toggle-ignore-items');
-                        // Only if not already canceled/reset
-                        if(form && !form.classList.contains('super-generating-pdf')){
+                        // Check before touching DOM that cancellation may have removed.
+                        if(args._pdfAborted || (form && !form.classList.contains('super-generating-pdf'))){
                             return false;
                         }
+                        document.querySelector('.super-pdf-page-container').classList.remove('super-pdf-toggle-ignore-items');
                         args.pdfPercentageCompleted += args.totalPercentagePerPage;
                         if(args.pdfPercentageCompleted > 99){
                             args.pdfPercentageCompleted = 100;
@@ -10411,11 +10440,13 @@ function SUPERreCaptcha(){
                             // No more pages to generate (submit form / send email)
                             SUPER._pdf_generator_done_callback(args);
                         }
+                    }).catch(function(error) {
+                        SUPER.pdf_generator_abort(args, error);
                     });
                 }
             }
             catch(error) {
-                console.log("Error: ", error);
+                SUPER.pdf_generator_abort(args, error);
             }
         }, timeout );
     }
@@ -11716,6 +11747,35 @@ function SUPERreCaptcha(){
             nodes[i].classList.remove('super-pdf-tmp-replaced');
         }
         SUPER.init_super_responsive_form_fields({form: form});
+    };
+    // Restore the form after a PDF failure without submitting it.
+    SUPER.pdf_generator_abort = function(args, error){
+        if(args._pdfAborted) return false;
+        if(args._pdfDone){
+            console.error(error);
+            return false;
+        }
+        args._pdfAborted = true;
+        console.error('Super Forms: the PDF file could not be generated.', error);
+        var restored = false;
+        try {
+            restored = (SUPER.pdf_generator_reset(args.form0)!==false);
+        } catch(resetError) {
+            console.error(resetError);
+        }
+        if(!restored){
+            try {
+                SUPER.reset_submit_button_loading_state(args.form0);
+            } catch(buttonError) {
+                console.error(buttonError);
+            }
+        }
+        if(args.loadingOverlay){
+            var innerText = args.loadingOverlay.querySelector('.super-inner-text');
+            if(innerText) innerText.innerHTML = '<span>'+super_common_i18n.loadingOverlay.pdf_generation_error+'</span>';
+            args.loadingOverlay.classList.add('super-error');
+        }
+        return false;
     };
     SUPER.save_data = function(args){
         if(args.progressBar) args.progressBar.style.width = 0+'%';

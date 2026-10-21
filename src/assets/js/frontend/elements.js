@@ -1475,6 +1475,13 @@
             SUPER.init_super_form_frontend();
         });
 
+        // Clear the last Tab key before pointer focus moves into the form.
+        var resetLastTabKey = function(){
+            SUPER.lastTabKey = undefined;
+        };
+        document.addEventListener('mousedown', resetLastTabKey, true);
+        document.addEventListener('touchstart', resetLastTabKey, {capture: true, passive: true});
+
         $doc.on('focusin', function(e){
             var i, nodes;
             if(!e.target.tagName || typeof e.target.closest !== 'function') return true;
@@ -1642,7 +1649,29 @@
                         return false;
                     }
                     if(!form.querySelector('.super-form-button.super-loading')){
-                        submitButton = form.querySelector('.super-form-button .super-button-wrap .super-button-name[data-action="submit"]');
+                        // On a nonfinal step Enter follows Next, including normal step validation.
+                        var multiparts = form.querySelectorAll('.super-multipart'),
+                            activeMultipart = form.querySelector('.super-multipart.super-active');
+                        if(activeMultipart && activeMultipart!==multiparts[multiparts.length-1]){
+                            nodes = activeMultipart.querySelectorAll('.super-next-multipart');
+                            for(i=0; i<nodes.length; i++){
+                                if(!SUPER.has_hidden_parent(nodes[i], false, false) && !nodes[i].closest('.super-readonly')){
+                                    nodes[i].click();
+                                    break;
+                                }
+                            }
+                            e.preventDefault();
+                            return false;
+                        }
+                        // Only submit through a visible button that is not read-only.
+                        submitButton = null;
+                        nodes = form.querySelectorAll('.super-form-button .super-button-wrap .super-button-name[data-action="submit"]');
+                        for(i=0; i<nodes.length; i++){
+                            if(!SUPER.has_hidden_parent(nodes[i], false, false) && !nodes[i].closest('.super-readonly')){
+                                submitButton = nodes[i];
+                                break;
+                            }
+                        }
                         if(submitButton) {
                             var args = {
                                 el: undefined,

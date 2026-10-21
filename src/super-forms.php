@@ -11,7 +11,7 @@
  * @wordpress-plugin
  * Plugin Name:       Super Forms - Drag & Drop Form Builder
  * Description:       The most advanced, flexible and easy to use form builder for WordPress!
- * Version:           6.4.009
+ * Version:           6.4.010
  * Plugin URI:        https://super-forms.com
  * Author URI:        https://github.com/RensTillmann
  * Author:            Rens Tillmann
@@ -20,7 +20,7 @@
  * License:           GPL v2 or later
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Requires at least: 4.9
- * Tested up to:      7.0.1
+ * Tested up to:      7.1.3
  * Requires PHP:      7.4
  */
 
@@ -1047,7 +1047,7 @@ if(!class_exists('SUPER_Forms')) :
          *
          *  @since      1.0.0
         */
-        public $version = '6.4.009';
+        public $version = '6.4.010';
         public $slug = 'super-forms';
         public $apiUrl = 'https://api.super-forms.com/';
         public $apiVersion = 'v1';
@@ -1488,7 +1488,8 @@ if(!class_exists('SUPER_Forms')) :
         public static function minute_schedule( $schedules ) {
             $schedules['every_minute'] = array(
                 'interval' => 60,
-                'display' => esc_html__( 'Every minute', 'super-forms' )
+                // Cron can request schedules before it is safe to load translations.
+                'display' => did_action( 'after_setup_theme' ) ? esc_html__( 'Every minute', 'super-forms' ) : 'Every minute'
             );
             return $schedules;
         }
@@ -3018,6 +3019,7 @@ if(!class_exists('SUPER_Forms')) :
                         'processing' => esc_html__( 'Processing form data...', 'super-forms' ),
                         'uploading_files' => esc_html__( 'Uploading files...', 'super-forms' ),
                         'generating_pdf' => esc_html__( 'Generating PDF file...', 'super-forms' ),
+                        'pdf_generation_error' => esc_html__( 'We couldn\'t create the PDF, so your form has not been sent yet. Please try again.', 'super-forms' ),
                         'completed' => esc_html__( 'Completed!', 'super-forms' ),
                         'close' => esc_html__( 'Close', 'super-forms' ),
                         'redirecting' => esc_html__( 'Redirecting...', 'super-forms' ),
@@ -3728,6 +3730,8 @@ if(!class_exists('SUPER_Forms')) :
                             
                             'save_form_nonce' => wp_create_nonce( 'super_save_form' ),
                             'admin_nonce' => wp_create_nonce( 'super_admin_ajax' ),
+                            /* translators: %s: HTTP status code of the rejected request */
+                            'request_rejected' => esc_html__( 'The request was rejected (HTTP %s). Your session may have expired or a security plugin blocked it. Please reload the page and try again.', 'super-forms' ),
                             'home_url' => get_home_url(),
                             'not_editing_an_element' => sprintf( esc_html__( 'You are currently not editing an element.%sEdit any alement by clicking the %s icon.', 'super-forms' ), '<br />', '<i class="fa fa-pencil"></i>' ),
                             'no_backups_found' => esc_html__( 'No backups found...', 'super-forms' ),
