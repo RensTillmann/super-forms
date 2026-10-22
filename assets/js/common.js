@@ -898,8 +898,9 @@ function SUPERreCaptcha(){
             parentTabElement = parentTabElement.parentNode.closest('.super-accordion-item');
         }
 
-        if(e && e.type!=='click' && keyCode != 32){
+        if(e && e.type!=='click' && keyCode != 32 && SUPER.disable_tab_scroll !== true){
             // Only scroll into view via tabbing, not via clicking
+            // Set SUPER.disable_tab_scroll = true to keep the page from scrolling
             next.scrollIntoView({behavior: "auto", block: "center", inline: "center"});
         }
         if(keyCode != 32){
