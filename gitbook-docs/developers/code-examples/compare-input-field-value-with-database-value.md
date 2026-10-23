@@ -4,6 +4,10 @@ description: Comparing WordPress database value with form input value
 
 # Compare input field value with database value
 
+{% hint style="warning" %}
+**Needs Super Forms 6.4 (beta).** This example uses `SUPER_Common::safe_json_encode()`, which the stable 6.3 version doesn't have.
+{% endhint %}
+
 {% hint style="info" %}
 _Insert the below PHP code in your child theme functions.php file, or create a custom plugin. You may also use a plugin that allows you to insert code sinppets to your site._
 {% endhint %}

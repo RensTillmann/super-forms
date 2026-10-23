@@ -28,8 +28,12 @@ description: Extend your form functionality with third party integrations and to
 [mailchimp.md](mailchimp.md)
 {% endcontent-ref %}
 
-{% content-ref url="/broken/spaces/l6Kz0R6S7z3Fb6KLZYVE/pages/OosCoQqwbLxZYO6pZA4W" %}
-[Broken link](/broken/spaces/l6Kz0R6S7z3Fb6KLZYVE/pages/OosCoQqwbLxZYO6pZA4W)
+{% content-ref url="mailster.md" %}
+[mailster.md](mailster.md)
+{% endcontent-ref %}
+
+{% content-ref url="stripe-beta.md" %}
+[stripe-beta.md](stripe-beta.md)
 {% endcontent-ref %}
 
 {% content-ref url="woocommerce-instant-order-in-progress.md" %}

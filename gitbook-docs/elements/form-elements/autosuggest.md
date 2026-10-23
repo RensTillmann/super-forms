@@ -81,7 +81,7 @@ You will have the ability to either return the `Slug`, `Title` or `ID` of the ta
 
 This retrieve method allows you to filter based on a CSV file you uploaded.
 
-This option works the same as the [Custom Items](/broken/pages/Ss4cGlMwua87zD6X5ztJ) retrieve method, except that you will upload a CSV file that will represent the options to filter on.
+This option works the same as the [Custom Items](#custom-items) retrieve method, except that you will upload a CSV file that will represent the options to filter on.
 
 {% hint style="warning" %}
 **Important:** The CSV file only requires two columns in order to work properly. The first column represent the **Value**, and the second column it's **Label**. If you don't need separate values for the label and value, then you can simply define one column.
