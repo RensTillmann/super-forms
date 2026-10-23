@@ -103,7 +103,7 @@ In this case you can enable the `General > Return the current date as default va
 This will populate the datepicker with date of today.
 
 {% hint style="info" %}
-By default the user will be able to change/edit this date, if you want to prevent this you can set `Advanced > Disable the input field` to `Yes`. Another option would be to put the datepicker inside a [column](/broken/pages/bft7eRFPFAmdrM8Ziw9G), and set the [column](/broken/pages/bft7eRFPFAmdrM8Ziw9G) to be invisible via `General > Make column invisible` > `Yes`.
+By default the user will be able to change/edit this date, if you want to prevent this you can set `Advanced > Disable the input field` to `Yes`. Another option would be to put the datepicker inside a [column](../layout-elements/column-grid.md), and set the [column](../layout-elements/column-grid.md) to be invisible via `General > Make column invisible` > `Yes`.
 {% endhint %}
 
 ### Optionally allow users to select work days and or weekends
@@ -134,7 +134,7 @@ This setting comes in use when excluding holidays and perhaps specific dates tha
 
 You can define your ranges under `General > Exclude dates or a range of dates`.
 
-You are also allowed to use [tags](/broken/pages/bft7eRFPFAmdrM8Ziw9G) if needed.
+You are also allowed to use [tags](../../features/advanced/tags-system.md) if needed.
 
 **Examples:**
 
@@ -158,7 +158,7 @@ When you want to exclude both Sundays and Mondays from the datepicker you can en
 
 ### Override days exclusion
 
-This setting works exactly the same as [Exclude dates or a range of dates](/broken/pages/bft7eRFPFAmdrM8Ziw9G) but is solely intended to override any days defined to be excluded under [Exclude specific days](/broken/pages/bft7eRFPFAmdrM8Ziw9G)
+This setting works exactly the same as [Exclude dates or a range of dates](#exclude-dates-or-a-range-of-dates) but is solely intended to override any days defined to be excluded under [Exclude specific days](#exclude-specific-days)
 
 This can become useful in the event of the excluded day being in a month where you are not closed on those days and instead opened for business or service.
 
@@ -204,7 +204,7 @@ By default when you use a datepicker in combination with the calculator element,
 
 With this you can basically do any tipe of manipulation and calculation required.
 
-To make things easier for you the [Calculator element](/broken/pages/bft7eRFPFAmdrM8Ziw9G) simply adds an option for the **Datepicker** element called `General > Return age as value instead of the date`.
+To make things easier for you the [Calculator element](calculator.md) simply adds an option for the **Datepicker** element called `General > Return age as value instead of the date`.
 
 When enabled the datepicker will not return the date, but instead it will return the age in years.
 
@@ -317,19 +317,19 @@ In order to accomplish this, there are a couple of things that you need to do. T
 
 1. Add a datepicker field `Form Elements > Date` and name it `date`
 2. Add a total of 2 timepicker fields `Form Elements > Time` and name them `other`, `friday_saturday`
-3. Add a hidden field `Form Elements > Hidden` and name it `time` (we will make it a [variable field](/broken/pages/bft7eRFPFAmdrM8Ziw9G) which will hold either the value from `other` or `friday_saturday`)
+3. Add a hidden field `Form Elements > Hidden` and name it `time` (we will make it a [variable field](../../features/advanced/variable-fields.md) which will hold either the value from `other` or `friday_saturday`)
 4. Edit the `other` timepicker and change `General > The time that should appear first...` to `13:00` and `General > The time that should appear last...` to `18:00`
 5. Edit the `friday_saturday` timepicker and change `General > The time that should appear first...` to `13:00` and `General > The time that should appear last...` to `22:00`
 
 **2. Changing the date format**
 
-In our example we need to know which day the user selected (not to be confused with "which date"). We need to know the day of the week as in "Monday", "Tuesday" etc. Based on this we can display the correct timepicker via [conditional logic](/broken/pages/bft7eRFPFAmdrM8Ziw9G). Edit the `date` field and change the date format `General > Date Format` to `Full`.
+In our example we need to know which day the user selected (not to be confused with "which date"). We need to know the day of the week as in "Monday", "Tuesday" etc. Based on this we can display the correct timepicker via [conditional logic](../../features/advanced/conditional-logic.md). Edit the `date` field and change the date format `General > Date Format` to `Full`.
 
 Since we are closed on Sunday and Monday we must also exclude these days from the datepicker. To do so edit the `date` field and set `General > Exclude specific days` to `0,1`. This will make sure both Sundays and Mondays can't be selected by the user.
 
 **3. Conditionally show the timepickers**
 
-Now we have to define the [conditional logic](/broken/pages/bft7eRFPFAmdrM8Ziw9G) for our timepickers so they are displayed accordingly.
+Now we have to define the [conditional logic](../../features/advanced/conditional-logic.md) for our timepickers so they are displayed accordingly.
 
 First let's edit the `other` timepicker so that it will be displayed when the `date` does **not contain** the value `Fri` and `Sat`.
 
@@ -357,7 +357,7 @@ However they do not share the same field name right now (`other` and `friday_sat
 
 This might not be a problem in normal situations, because those fields can still share the same E-mail label. However when you are using a third party service, or doing a POST requires. Or any other data handling (exproting entries for instance) that depends on the field name(s), it might be required to always have the same field name no matter what field was conditionally visible.
 
-?> **TIP:** In general it is good practise to use a [variable field](/broken/pages/bft7eRFPFAmdrM8Ziw9G) in these situations.
+?> **TIP:** In general it is good practise to use a [variable field](../../features/advanced/variable-fields.md) in these situations.
 
 If you decide to use a variable field to merge multiple fields into one, you will most likely want to exclude the others fields from both emails and from being saved in the contact entry. You can do so by editing both timepickers `other` and `friday_saturday` and setting `Advanced > Exclude from email` to `Exclude from all emails`. And disable `Advanced > Do not save field in Contact Entry`.
 

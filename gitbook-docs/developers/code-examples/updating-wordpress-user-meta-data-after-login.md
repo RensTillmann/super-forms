@@ -6,10 +6,14 @@ description: >-
 
 # Updating WordPress user meta data after login
 
+{% hint style="warning" %}
+**Needs Super Forms 6.4 (beta).** Method 1 uses `super_before_login_user_action`, which the stable 6.3 version doesn't have. On 6.3, use Method 2.
+{% endhint %}
+
 ### Method 1 (recommended)
 
 {% hint style="warning" %}
-This method requires Super Forms **v6.3.709** or higher to work
+This method needs Super Forms **6.4 (beta)**. On the stable 6.3 version, use Method 2.
 {% endhint %}
 
 The preferred method would be to use the build in Super Forms hook, using the code below. Simply replace `push_id` with your form field name and `custom_user_meta_data_key` with the user meta data key that you would like to update.

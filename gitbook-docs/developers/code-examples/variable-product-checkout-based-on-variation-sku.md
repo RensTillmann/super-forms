@@ -7,6 +7,10 @@ description: >-
 
 # Variable product checkout based on variation SKU
 
+{% hint style="warning" %}
+**Not available yet.** This example uses the `super_before_adding_wc_products_to_cart_filter` filter, which isn't in any released version of Super Forms (6.3 or 6.4).
+{% endhint %}
+
 Below PHP code is an example where we would ask a user to select their base product, a color, and the size of the product. We then use a variable field to create the desired SKU e.g. `{product}_{color}_{size}` which the script then translates to the actual variation ID.
 
 Simply define the `Enter the product(s) ID that needs to be added to the car` h in your WooCommerce Checkout settings, to `{sku}|{quantity}`  where your form would contain a field named `sku` which will hold the generated SKU.&#x20;

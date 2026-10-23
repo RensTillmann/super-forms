@@ -4,6 +4,10 @@ description: Sending your WordPress submitted form data to another website.
 
 # Send submitted form data to another site
 
+{% hint style="warning" %}
+**On the stable 6.3 version, change the error call.** `SUPER_Common::output_message( array(...) )` only works on Super Forms 6.4 (beta). On 6.3 use `SUPER_Common::output_message( true, $error_message );` instead.
+{% endhint %}
+
 ```php
     add_action('super_before_email_success_msg_action', '_super_submit_data_to_site', 10, 1);
     function _super_submit_data_to_site( $atts ) {

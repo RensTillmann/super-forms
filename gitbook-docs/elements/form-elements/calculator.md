@@ -137,7 +137,7 @@ We will have a dynamic column, and inside it we will have a dropdown named `prod
 
 Now everything is set in place, we can add our final **Calculator** element **outside** the dynamic column and sum all the `amount` **Calculator** elements together to get our total. We can simply add the following calculation to do this: `{amount}+{amount_*}`
 
-Now whenever a user chooses: Red T-shirt (3x) and Blue T-shirt (2x) the `amount` **Calculator** will contain the value **30**, and the `amount_2` will contain the value **40**. Our final **Calculator** will sum the two and will result in **70**, which will eventually display **$70.00** (depending on your **Calculator** [settings](/broken/pages/WSZ55PaHwicLK48lPXbQ) of course)
+Now whenever a user chooses: Red T-shirt (3x) and Blue T-shirt (2x) the `amount` **Calculator** will contain the value **30**, and the `amount_2` will contain the value **40**. Our final **Calculator** will sum the two and will result in **70**, which will eventually display **$70.00** (depending on your **Calculator** [settings](#settings) of course)
 
 ## Settings
 

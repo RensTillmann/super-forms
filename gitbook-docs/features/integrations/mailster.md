@@ -4,8 +4,8 @@ description: Add subscribers to your Mailster campaign list after they fill out 
 
 # Mailster
 
-* [About](/broken/pages/RxvjvOwco7MEOpIDhS4s)
-* [Quick start](/broken/pages/RxvjvOwco7MEOpIDhS4s)
+* [About](#about)
+* [Quick start](#quick-start)
 
 ## About
 
