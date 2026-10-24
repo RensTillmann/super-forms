@@ -14,7 +14,7 @@ A clear and concise description of what the bug is.
 
 - WordPress version:
 - PHP version:
-- Super Forms version:
+- Super Forms version (Stable 6.3.x or Beta 6.4.0xx, give the exact number):
 - Browser (if applicable):
 - Active Super Forms add-ons (if applicable):
 - Other active plugins that may interact:
