@@ -5156,6 +5156,29 @@ function SUPERreCaptcha(){
             }
         });
     };
+    // Maps the legacy "The types of place results to return" setting onto Autocomplete (New)
+    // primary types: legacy "address" is not a primary type, and type collections such
+    // as (regions)/(cities) cannot be combined with any other type.
+    SUPER.google_maps_api.primary_types = function (typesData) {
+        if (!typesData) return undefined;
+        var collections = { '(regions)': true, '(cities)': true };
+        var legacy = {
+            address: ['street_address'],
+            geocode: ['geocode'],
+            establishment: ['establishment']
+        };
+        var requested = typesData.split(',').map(function (type) { return type.trim(); }).filter(Boolean);
+        var collection = requested.filter(function (type) { return collections[type]; })[0];
+        if (collection) return [collection];
+        var mapped = [];
+        requested.forEach(function (type) {
+            (legacy[type] || []).forEach(function (primary) {
+                if (mapped.indexOf(primary) === -1) mapped.push(primary);
+            });
+        });
+        return mapped.length ? mapped.slice(0, 5) : undefined; // at most five primary types
+    };
+
     SUPER.google_maps_api.initAutocompleteCallback = async function (args) {
         var el = args.el;
         var form = args.form;
@@ -5206,9 +5229,7 @@ function SUPERreCaptcha(){
 
         var fields = Array.from(fieldsSet);
 
-        var typesData = el.dataset.types;
-        var types = typesData ? typesData.split(',').map(t => t.trim()) : undefined;
-        var types = typesData ? typesData.split(',').map(t => t.trim()).filter(Boolean) : undefined;
+        var types = SUPER.google_maps_api.primary_types(el.dataset.types);
         var countryData = el.dataset.countries;
         var countryRestriction = countryData ? countryData.split(',').map(c => c.trim()).filter(Boolean) : [];
 
@@ -5218,24 +5239,38 @@ function SUPERreCaptcha(){
         var debounceTimeout = null;
         var token = new AutocompleteSessionToken(); // Reused for a session
 
-        el.addEventListener('input', async function () {
-            var inputVal = el.value.trim();
-            if (inputVal.length < 3) return;
+        var escape_html = function (text) {
+            return String(text).replace(/[&<>"']/g, function (character) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character];
+            });
+        };
 
+        var close_dropdown = function () {
+            if (dropdown && dropdown.parentNode) dropdown.remove();
+            var wrapper = el.parentNode ? el.parentNode.closest('.super-shortcode') : null;
+            if (wrapper) {
+                wrapper.classList.remove('super-string-found');
+                wrapper.classList.remove('super-auto-suggest');
+            }
+        };
+
+        el.addEventListener('input', function () {
+            var inputVal = el.value.trim();
             clearTimeout(debounceTimeout);
+            if (inputVal.length < 3) {
+                close_dropdown();
+                return;
+            }
             debounceTimeout = setTimeout(async () => {
                 var form = SUPER.get_frontend_or_backend_form({ el: el });
-                var form_id = parseInt(form.id.replace('super-form-', ''), 10);
-
                 try {
                     var request = {
                         input: inputVal,
                         sessionToken: token,
                         includedRegionCodes: countryRestriction, // ["de", "fr"]
-                        //region: countryRestriction,
-                        includedPrimaryTypes: types,
                         language: el.dataset.apiLanguage || 'en'
                     };
+                    if (types) request.includedPrimaryTypes = types;
 
                     var { suggestions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
                     var parent = el.parentNode.closest('.super-shortcode');
@@ -5260,8 +5295,16 @@ function SUPERreCaptcha(){
                             li.className = 'super-item super-match';
 
                             var fullText = suggestion.placePrediction.text.text || '';
+                            var safeText = escape_html(fullText);
                             var match = fullText.match(matchRegex);
-                            var html = match ? fullText.replace(matchRegex, `<span>${match[1]}</span>`) : fullText;
+                            var html = safeText;
+                            if (match) {
+                                var safeMatch = escape_html(match[1]);
+                                var matchStart = safeText.toLowerCase().indexOf(safeMatch.toLowerCase());
+                                if (matchStart !== -1) {
+                                    html = safeText.slice(0, matchStart) + '<span>' + safeText.slice(matchStart, matchStart + safeMatch.length) + '</span>' + safeText.slice(matchStart + safeMatch.length);
+                                }
+                            }
 
                             li.innerHTML = html;
                             li.setAttribute('data-value', place.id);
@@ -5311,13 +5354,10 @@ function SUPERreCaptcha(){
                                     SUPER.handle_validations({event: event, el: el, form: form, validation: validation, conditionalValidation: conditionalValidation});
                                     SUPER.after_field_change_blur_hook({ el: el });
                                     SUPER.google_maps_api.populateFields(event, fieldsSet, place, el, form, mapping, false);
+                                    SUPER.calculate_distance({ el: el });
+                                    SUPER.google_maps_init({ el: el, form: form });
+                                    $(el).trigger('keyup');
                                 } catch (error) {
-                                    var overlayArgs = SUPER.createLoadingOverlay({
-                                        showOverlay: 'true',
-                                        form_id: form_id,
-                                        custom_msg: 'Error fetching place details: ' + error
-                                    });
-                                    overlayArgs.loadingOverlay.classList.add('super-error');
                                     console.error('Error fetching place details:', error);
                                 }
 
@@ -5329,14 +5369,10 @@ function SUPERreCaptcha(){
 
                         parent.classList.add('super-string-found');
                         el.parentNode.appendChild(dropdown);
+                    } else {
+                        close_dropdown();
                     }
                 } catch (error) {
-                    var overlayArgs = SUPER.createLoadingOverlay({
-                        showOverlay: 'true',
-                        form_id: form_id,
-                        custom_msg: 'Error fetching autocomplete suggestions: ' + error
-                    });
-                    overlayArgs.loadingOverlay.classList.add('super-error');
                     console.error('Error fetching autocomplete suggestions:', error);
                 }
             }, 400);
