@@ -5157,19 +5157,47 @@ function SUPERreCaptcha(){
                     SUPER.google_maps_api.initAutocompleteCallback(args);
                 });
             }else{
-                SUPER.google_maps_api.initAutocompleteCallback(args);
+                if(google.maps && google.maps.places){
+                    SUPER.google_maps_api.initAutocompleteCallback(args);
+                }else{
+                    console.log('Super Forms address autocomplete requires google Places API to be enabled!');
+                }
             }
         });
     };
-    SUPER.google_maps_api.initAutocompleteCallback = function(args){
-        var i, x, s, obj = {}, inputField, autocomplete = [];
-            autocomplete[args.el.name] = new google.maps.places.Autocomplete(args.el);
+    // Maps the legacy "The types of place results to return" setting onto Autocomplete (New)
+    // primary types: legacy "address" is not a primary type, and type collections such
+    // as (regions)/(cities) cannot be combined with any other type.
+    SUPER.google_maps_api.primary_types = function (typesData) {
+        if (!typesData) return undefined;
+        var collections = { '(regions)': true, '(cities)': true };
+        var legacy = {
+            address: ['street_address'],
+            geocode: ['geocode'],
+            establishment: ['establishment']
+        };
+        var requested = typesData.split(',').map(function (type) { return type.trim(); }).filter(Boolean);
+        var collection = requested.filter(function (type) { return collections[type]; })[0];
+        if (collection) return [collection];
+        var mapped = [];
+        requested.forEach(function (type) {
+            (legacy[type] || []).forEach(function (primary) {
+                if (mapped.indexOf(primary) === -1) mapped.push(primary);
+            });
+        });
+        return mapped.length ? mapped.slice(0, 5) : undefined; // at most five primary types
+    };
+
+    SUPER.google_maps_api.initAutocompleteCallback = async function (args) {
+        var el = args.el;
+        var form = args.form;
+        var { Place, AutocompleteSessionToken, AutocompleteSuggestion } = await google.maps.importLibrary("places");
         var mapping = {
             street_number: 'street_number',
             route: 'street_name',
-            locality: 'city', // see: https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-addressform
-            postal_town: 'city', // see: https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-addressform
-            sublocality_level_1: 'city', // see: https://developers.google.com/maps/documentation/javascript/examples/places-autocomplete-addressform
+            locality: 'city',
+            postal_town: 'city',
+            sublocality_level_1: 'city',
             administrative_area_level_2: 'municipality',
             administrative_area_level_1: 'state',
             country: 'country',
@@ -5177,276 +5205,271 @@ function SUPERreCaptcha(){
             lat: 'lat',
             lng: 'lng'
         };
-        
-        // Check if any of the address components is mapped
-        var $returnAddressComponent = false;
-        for (var key in mapping) {
-            if($(args.el).data('map-'+mapping[key])){
-                $returnAddressComponent = true;
+
+        // Dynamically detect required fields
+        var fieldsSet = new Set(['formattedAddress', 'location']); // always needed
+        var placeKeyToAPIField = {
+            name: 'displayName',
+            formatted_address: 'formattedAddress',
+            formatted_phone_number: 'nationalPhoneNumber',
+            international_phone_number: 'internationalPhoneNumber',
+            website: 'websiteURI'
+        };
+
+        for (var [placeKey, apiField] of Object.entries(placeKeyToAPIField)) {
+            var attr = $(el).data(`map-${placeKey}`);
+            if (attr) {
+                var [fieldName] = attr.split('|');
+                var input = SUPER.field(form, fieldName);
+                if (input) fieldsSet.add(apiField);
             }
         }
-        
-        var $returnName = false;
-        if($(args.el).data('map-name')) $returnName = true;
 
-        mapping.formatted_phone_number = 'formatted_phone_number';
-        var $returnFormattedPhoneNumber = false;
-        if($(args.el).data('map-formatted_phone_number')) $returnFormattedPhoneNumber = true;
-
-        mapping.international_phone_number = 'international_phone_number';
-        var $returnInternationalPhoneNumber = false;
-        if($(args.el).data('map-international_phone_number')) $returnInternationalPhoneNumber = true;
-
-        mapping.website = 'website';
-        var $returnWebsite = false;
-        if($(args.el).data('map-website')) $returnWebsite = true;
-
-        var fields = ['formatted_address', 'geometry.location']; // This data is always used
-        if($returnAddressComponent) fields.push('address_components');
-        if($returnName) fields.push('name');
-        if($returnFormattedPhoneNumber) fields.push('formatted_phone_number');
-        if($returnInternationalPhoneNumber) fields.push('international_phone_number');
-        if($returnWebsite) fields.push('website');
-
-        var thisAutocomplete = autocomplete[args.el.name];
-        thisAutocomplete.setFields(fields);
-        thisAutocomplete.el = args.el;
-        thisAutocomplete.form = args.form;
-
-        s = $(args.el).data('countries'); // Could be empty or a comma seperated string e.g: fr,nl,de
-        if(s){
-            x = s.split(',');
-            obj.countries = [];
-            for(i=0; i<x.length; i++){
-                obj.countries.push(x[i].trim());
+        for (var [type, mapKey] of Object.entries(mapping)) {
+            var attr = $(el).data(`map-${mapKey}`);
+            if (attr) {
+                var [fieldName] = attr.split('|');
+                var input = SUPER.field(form, fieldName);
+                if (input) {
+                    fieldsSet.add('addressComponents'); // all mapping types use addressComponents
+                }
             }
-            thisAutocomplete.setComponentRestrictions({
-                country: obj.countries, // e.g: ["us", "pr", "vi", "gu", "mp"],
+        }
+
+        var fields = Array.from(fieldsSet);
+
+        var types = SUPER.google_maps_api.primary_types(el.dataset.types);
+        var countryData = el.dataset.countries;
+        var countryRestriction = countryData ? countryData.split(',').map(c => c.trim()).filter(Boolean) : [];
+
+
+        el.setAttribute('autocomplete', 'off');
+        var dropdown;
+        var debounceTimeout = null;
+        var token = new AutocompleteSessionToken(); // Reused for a session
+
+        var escape_html = function (text) {
+            return String(text).replace(/[&<>"']/g, function (character) {
+                return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[character];
             });
-        }
-        s = $(args.el).data('types'); // Could be empty or a comma seperated string e.g: fr,nl,de
-        if(s){
-            x = s.split(',');
-            obj.types = [];
-            for(i=0; i<x.length; i++){
-                obj.types.push(x[i].trim());
+        };
+
+        var close_dropdown = function () {
+            if (dropdown && dropdown.parentNode) dropdown.remove();
+            var wrapper = el.parentNode ? el.parentNode.closest('.super-shortcode') : null;
+            if (wrapper) {
+                wrapper.classList.remove('super-string-found');
+                wrapper.classList.remove('super-auto-suggest');
             }
-            thisAutocomplete.setTypes(obj.types);
-        }
-        thisAutocomplete.addListener( 'place_changed', function () {
-            // Set text field to the formatted address
-            var place = thisAutocomplete.getPlace();
-            thisAutocomplete.el.value = place.formatted_address;
-            SUPER.calculate_distance({el: thisAutocomplete.el});
+        };
 
-            var street_data = {
-                number: {
-                    long: '',
-                    short: ''
-                },
-                name: {
-                    long: '',
-                    short: ''
-                }
-            };
+        el.addEventListener('input', function () {
+            var inputVal = el.value.trim();
+            clearTimeout(debounceTimeout);
+            if (inputVal.length < 3) {
+                close_dropdown();
+                return;
+            }
+            debounceTimeout = setTimeout(async () => {
+                var form = SUPER.get_frontend_or_backend_form({ el: el });
+                try {
+                    var request = {
+                        input: inputVal,
+                        sessionToken: token,
+                        includedRegionCodes: countryRestriction, // ["de", "fr"]
+                        language: el.dataset.apiLanguage || 'en'
+                    };
+                    if (types) request.includedPrimaryTypes = types;
 
-            // @since 3.2.0 - add address latitude and longitude for ACF google map compatibility
-            var lat = place.geometry.location.lat();
-            var lng = place.geometry.location.lng();
-            thisAutocomplete.el.dataset.lat = lat;
-            thisAutocomplete.el.dataset.lng = lng;
+                    var { suggestions } = await AutocompleteSuggestion.fetchAutocompleteSuggestions(request);
+                    var parent = el.parentNode.closest('.super-shortcode');
+                    parent.classList.remove('super-string-found');
 
-            // @since 3.5.0 - trigger / update google maps in case {tags} have been used
-            args.el = thisAutocomplete.el;
-            args.form = thisAutocomplete.form;
-            SUPER.google_maps_init(args);
-
-            $(thisAutocomplete.el).trigger('keyup');
-            var $attribute;
-            var $val;
-            var $address;
-            
-            if($returnAddressComponent){
-                place.address_components.push({
-                    long_name: lat,
-                    short_name: lat,
-                    types: ["lat"]
-                });
-                place.address_components.push({
-                    long_name: lng,
-                    short_name: lng,
-                    types: ["lng"]
-                });
-                for (var i = 0; i < place.address_components.length; i++) {
-                    var item = place.address_components[i];
-                    var long = item.long_name;
-                    var short = item.short_name;
-                    var types = item.types;
-                    // Street number
-                    if(types.indexOf('street_number')!==-1){
-                        street_data.number.long = long;
-                        street_data.number.short = short;
-                    }
-                    // Street name
-                    if(types.indexOf('route')!==-1){
-                        street_data.name.long = long;
-                        street_data.name.short = short;
-                    }
-                    $attribute = $(thisAutocomplete.el).data('map-'+mapping[types[0]]);
-                    if(typeof $attribute !=='undefined'){
-                        $attribute = $attribute.split('|');
-                        inputField = SUPER.field(thisAutocomplete.form, $attribute[0]);
-                        if(inputField){
-                            if($attribute[1]==='') $attribute[1] = 'long';
-                            $val = place.address_components[i][$attribute[1]+'_name'];
-                            inputField.value = $val;
-                            if($val===''){
-                                inputField.closest('.super-shortcode').classList.remove('super-filled');
-                            }else{
-                                inputField.closest('.super-shortcode').classList.add('super-filled');
-                            }
-                            SUPER.after_field_change_blur_hook({el: inputField}); // @since 3.1.0 - trigger hooks after changing the value
+                    if (suggestions && suggestions.length > 0) {
+                        if (!dropdown) {
+                            dropdown = document.createElement('ul');
+                            dropdown.className = 'super-dropdown-list';
+                        } else {
+                            dropdown.innerHTML = '';
                         }
-                    }
-                }
-            }
 
-            // Name of the place
-            $attribute = $(thisAutocomplete.el).data('map-name');
-            if(typeof $attribute !=='undefined'){
-                $attribute = $attribute.split('|');
-                inputField = SUPER.field(thisAutocomplete.form, $attribute[0]);
-                if(inputField){
-                    if($attribute[1]==='') $attribute[1] = 'long';
-                    $val = place.name;
-                    inputField.value = $val;
-                    if($val===''){
-                        inputField.closest('.super-shortcode').classList.remove('super-filled');
-                    }else{
-                        inputField.closest('.super-shortcode').classList.add('super-filled');
-                    }
-                    SUPER.after_field_change_blur_hook({el: inputField}); // @since 3.1.0 - trigger hooks after changing the value
-                }
-            }
+                        parent.classList.add('super-auto-suggest');
+                        var searchValue = el.value.toLowerCase();
+                        var matchRegex = new RegExp(`(${searchValue.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'i');
 
-            // Formatted address of the place
-            $attribute = $(thisAutocomplete.el).data('map-formatted_address');
-            if(typeof $attribute !=='undefined'){
-                $attribute = $attribute.split('|');
-                inputField = SUPER.field(thisAutocomplete.form, $attribute[0]);
-                if(inputField){
-                    if($attribute[1]==='') $attribute[1] = 'long';
-                    $val = place.formatted_address;
-                    inputField.value = $val;
-                    if($val===''){
-                        inputField.closest('.super-shortcode').classList.remove('super-filled');
-                    }else{
-                        inputField.closest('.super-shortcode').classList.add('super-filled');
-                    }
-                    SUPER.after_field_change_blur_hook({el: inputField}); // @since 3.1.0 - trigger hooks after changing the value
-                }
-            }
+                        for (var suggestion of suggestions) {
+                            var place = suggestion.placePrediction.toPlace();
 
-            // Formatted phone number
-            $attribute = $(thisAutocomplete.el).data('map-formatted_phone_number');
-            if(typeof $attribute !=='undefined'){
-                $attribute = $attribute.split('|');
-                inputField = SUPER.field(thisAutocomplete.form, $attribute[0]);
-                if(inputField){
-                    if($attribute[1]==='') $attribute[1] = 'long';
-                    $val = place.formatted_phone_number;
-                    inputField.value = $val;
-                    if($val===''){
-                        inputField.closest('.super-shortcode').classList.remove('super-filled');
-                    }else{
-                        inputField.closest('.super-shortcode').classList.add('super-filled');
-                    }
-                    SUPER.after_field_change_blur_hook({el: inputField}); // @since 3.1.0 - trigger hooks after changing the value
-                }
-            }
+                            var li = document.createElement('li');
+                            li.className = 'super-item super-match';
 
-            // International phone number
-            $attribute = $(thisAutocomplete.el).data('map-international_phone_number');
-            if(typeof $attribute !=='undefined'){
-                $attribute = $attribute.split('|');
-                inputField = SUPER.field(thisAutocomplete.form, $attribute[0]);
-                if(inputField){
-                    if($attribute[1]==='') $attribute[1] = 'long';
-                    $val = place.international_phone_number;
-                    inputField.value = $val;
-                    if($val===''){
-                        inputField.closest('.super-shortcode').classList.remove('super-filled');
-                    }else{
-                        inputField.closest('.super-shortcode').classList.add('super-filled');
-                    }
-                    SUPER.after_field_change_blur_hook({el: inputField}); // @since 3.1.0 - trigger hooks after changing the value
-                }
-            }
+                            var fullText = suggestion.placePrediction.text.text || '';
+                            var safeText = escape_html(fullText);
+                            var match = fullText.match(matchRegex);
+                            var html = safeText;
+                            if (match) {
+                                var safeMatch = escape_html(match[1]);
+                                var matchStart = safeText.toLowerCase().indexOf(safeMatch.toLowerCase());
+                                if (matchStart !== -1) {
+                                    html = safeText.slice(0, matchStart) + '<span>' + safeText.slice(matchStart, matchStart + safeMatch.length) + '</span>' + safeText.slice(matchStart + safeMatch.length);
+                                }
+                            }
 
-            // Busniness website
-            $attribute = $(thisAutocomplete.el).data('map-website');
-            if(typeof $attribute !=='undefined'){
-                $attribute = $attribute.split('|');
-                inputField = SUPER.field(thisAutocomplete.form, $attribute[0]);
-                if(inputField){
-                    if($attribute[1]==='') $attribute[1] = 'long';
-                    $val = place.website;
-                    inputField.value = $val;
-                    if($val===''){
-                        inputField.closest('.super-shortcode').classList.remove('super-filled');
-                    }else{
-                        inputField.closest('.super-shortcode').classList.add('super-filled');
-                    }
-                    SUPER.after_field_change_blur_hook({el: inputField}); // @since 3.1.0 - trigger hooks after changing the value
-                }
-            }
+                            li.innerHTML = html;
+                            li.setAttribute('data-value', place.id);
+                            li.setAttribute('data-search-value', fullText);
+                            li.addEventListener('click', async (event) => {
+                                try {
+                                    var currentTarget = event.currentTarget;
+                                    if (currentTarget.classList.contains('super-active')) {
+                                        if (currentTarget.parentNode.querySelector('.super-dropdown-list')) currentTarget.parentNode.querySelector('.super-dropdown-list').remove();
+                                        delete el.dataset.lat;
+                                        delete el.dataset.lng;
+                                        el.removeAttribute('lat');
+                                        el.removeAttribute('lng');
+                                        el.value = '';
+                                        // Loop over any mapped fields and empty them.
+                                        var place = new Place({ id: currentTarget.dataset.value });
+                                        await place.fetchFields({ fields });
+                                        SUPER.google_maps_api.populateFields(event, fieldsSet, place, el, form, mapping, true);
+                                        return;
+                                    }
+                                    var place = new Place({ id: currentTarget.dataset.value });
+                                    await place.fetchFields({ fields });
+                                    var lat = place.location?.lat();
+                                    var lng = place.location?.lng();
+                                    if (lat) el.dataset.lat = lat;
+                                    if (lng) el.dataset.lng = lng;
+                                    var i, items = dropdown.querySelectorAll('.super-item.super-active');
+                                    for( i = 0; i < items.length; i++ ) {
+                                        items[i].classList.remove('super-active');
+                                    }
+                                    currentTarget.classList.add('super-active');
+                                    parent.classList.remove('super-focus');
+                                    parent.classList.remove('super-open');
+                                    parent.classList.remove('super-string-found');
+                                    var wrapper = parent.querySelector('.super-field-wrapper');
+                                    wrapper.classList.add('super-overlap');
+                                    parent.classList.add('super-filled');
 
-            // @since 3.5.0 - combine street name and number
-            $attribute = $(thisAutocomplete.el).data('map-street_name_number');
-            if( typeof $attribute !=='undefined' ) {
-                $attribute = $attribute.split('|');
-                inputField = SUPER.field(thisAutocomplete.form, $attribute[0]);
-                if(inputField){
-                    $address = '';
-                    if( street_data.name[$attribute[1]]!=='' ) $address += street_data.name[$attribute[1]];
-                    if( $address!=='' ) {
-                        $address += ' '+street_data.number[$attribute[1]];
-                    }else{
-                        $address += street_data.number[$attribute[1]];
-                    }
-                    inputField.value = $address;
-                    if($address===''){
-                        inputField.closest('.super-shortcode').classList.remove('super-filled');
-                    }else{
-                        inputField.closest('.super-shortcode').classList.add('super-filled');
-                    }
-                    SUPER.after_field_change_blur_hook({el: inputField}); // @since 3.1.0 - trigger hooks after changing the value
-                }
-            }
+                                    var displayAddress = place.formattedAddress;
+                                    if (el.dataset.normalize === 'true') {
+                                        displayAddress = displayAddress.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                                    }
+                                    el.value = displayAddress; //place.formattedAddress;
 
-            // @since 3.5.1 - combine street number and name
-            $attribute = $(thisAutocomplete.el).data('map-street_number_name');
-            if( typeof $attribute !=='undefined' ) {
-                $attribute = $attribute.split('|');
-                inputField = SUPER.field(thisAutocomplete.form, $attribute[0]);
-                if(inputField){
-                    $address = '';
-                    if( street_data.number[$attribute[1]]!=='' ) $address += street_data.number[$attribute[1]];
-                    if( $address!=='' ) {
-                        $address += ' '+street_data.name[$attribute[1]];
-                    }else{
-                        $address += street_data.name[$attribute[1]];
+                                    var validation = el.dataset.validation;
+                                    var conditionalValidation = el.dataset.conditionalValidation;
+                                    SUPER.handle_validations({event: event, el: el, form: form, validation: validation, conditionalValidation: conditionalValidation});
+                                    SUPER.after_field_change_blur_hook({ el: el });
+                                    SUPER.google_maps_api.populateFields(event, fieldsSet, place, el, form, mapping, false);
+                                    SUPER.calculate_distance({ el: el });
+                                    SUPER.google_maps_init({ el: el, form: form });
+                                    $(el).trigger('keyup');
+                                } catch (error) {
+                                    console.error('Error fetching place details:', error);
+                                }
+
+                                token = new AutocompleteSessionToken(); // new session after click
+                            });
+
+                            dropdown.appendChild(li);
+                        }
+
+                        parent.classList.add('super-string-found');
+                        el.parentNode.appendChild(dropdown);
+                    } else {
+                        close_dropdown();
                     }
-                    inputField.value = $address;
-                    if($address===''){
-                        inputField.closest('.super-shortcode').classList.remove('super-filled');
-                    }else{
-                        inputField.closest('.super-shortcode').classList.add('super-filled');
-                    }
-                    SUPER.after_field_change_blur_hook({el: inputField}); // @since 3.1.0 - trigger hooks after changing the value
+                } catch (error) {
+                    console.error('Error fetching autocomplete suggestions:', error);
                 }
-            }
+            }, 400);
         });
+    };
+    SUPER.google_maps_api.populateFields = function(event, fieldsSet, place, el, form, mapping, empty) {
+        var lat = place.location?.lat();
+        var lng = place.location?.lng();
+        // Clone addressComponents if allowed
+        var addressComponents = Array.isArray(place.addressComponents) ? [...place.addressComponents] : [];
+        if (lat && lng && fieldsSet.has('addressComponents')) {
+            addressComponents.push({ longText: lat, shortText: lat, types: ["lat"] });
+            addressComponents.push({ longText: lng, shortText: lng, types: ["lng"] });
+        }
+        var street_data = { number: { long: '', short: '' }, name: { long: '', short: '' } };
+        addressComponents.forEach(component => {
+            var long = component.longText || component.long_name || '';
+            var short = component.shortText || component.short_name || '';
+            var types = component.types || [];
+            if (!types.length) return;
+
+            if (types.includes('street_number')) street_data.number = { long, short };
+            if (types.includes('route')) street_data.name = { long, short };
+
+            var mapKey = mapping[types[0]];
+            if (!mapKey) return;
+
+            var attr = $(el).data(`map-${mapKey}`);
+            if (!attr) return;
+
+            var [fieldName, mode = 'long'] = attr.split('|');
+            var inputField = SUPER.field(form, fieldName);
+            if (!inputField) return;
+            var value = mode === 'short' ? short : long;
+            SUPER.set_correct_placeholder_value_for_mapped_autocomplete_fields(event, form, empty, inputField, value);
+        });
+
+        SUPER.google_maps_api.updateFieldFromPlace(event, form, empty, place, el, 'displayName', 'map-name');
+        SUPER.google_maps_api.updateFieldFromPlace(event, form, empty, place, el, 'formattedAddress', 'map-formatted_address');
+        SUPER.google_maps_api.updateFieldFromPlace(event, form, empty, place, el, 'nationalPhoneNumber', 'map-formatted_phone_number');
+        SUPER.google_maps_api.updateFieldFromPlace(event, form, empty, place, el, 'internationalPhoneNumber', 'map-international_phone_number');
+        SUPER.google_maps_api.updateFieldFromPlace(event, form, empty, place, el, 'websiteURI', 'map-website');
+
+        var combineFields = (event, form, empty, attrName, parts) => {
+            var attr = $(el).data(attrName);
+            if (!attr) return;
+            var [fieldName, modeRaw] = attr.split('|');
+            var mode = modeRaw?.trim() || 'long'; // Default to 'long' if empty or undefined
+            var value = parts.map(p => p[mode]).filter(Boolean).join(' ');
+            var inputField = SUPER.field(form, fieldName);
+            SUPER.set_correct_placeholder_value_for_mapped_autocomplete_fields(event, form, empty, inputField, value);
+        };
+        combineFields(event, form, empty, 'map-street_name_number', [street_data.name, street_data.number]);
+        combineFields(event, form, empty, 'map-street_number_name', [street_data.number, street_data.name]);
+    };
+    SUPER.google_maps_api.updateFieldFromPlace = function(event, form, empty, place, el, placeKey, dataAttr) {
+        var attr = $(el).data(dataAttr);
+        if (!attr) return;
+        var [fieldName, mode = 'long'] = attr.split('|');
+        var value = place[placeKey];
+        var inputField = SUPER.field(form, fieldName);
+        SUPER.set_correct_placeholder_value_for_mapped_autocomplete_fields(event, form, empty, inputField, value);
+    };
+    SUPER.set_correct_placeholder_value_for_mapped_autocomplete_fields = function(event, form, empty, inputField, value){
+        if(!value) return;
+        if(inputField){
+            if(empty) value = '';
+            var field = inputField.closest('.super-shortcode');
+            field.classList.toggle('super-filled', !!value);
+            var adaptivePlaceholder = field.querySelector('.super-adaptive-placeholder');
+            if(adaptivePlaceholder){
+                if(field.classList.contains('super-filled')){
+                    adaptivePlaceholder.querySelector('span').innerHTML = adaptivePlaceholder.dataset.placeholderfilled;
+                }else{
+                    adaptivePlaceholder.querySelector('span').innerHTML = adaptivePlaceholder.dataset.placeholder;
+                }
+            }
+            inputField.value = value;
+            // Internation phonenumber
+            if(field.classList.contains('super-int-phone-field')){
+                var intPhone = window.superTelInputGlobals.getInstance(inputField);
+                intPhone.setNumber(value);
+            }
+            var validation = inputField.dataset.validation;
+            var conditionalValidation = inputField.dataset.conditionalValidation;
+            SUPER.handle_validations({event: event, el: inputField, form: form, validation: validation, conditionalValidation: conditionalValidation});
+            SUPER.after_field_change_blur_hook({ el: inputField });
+        }
     };
 
     // Checkbox handler
