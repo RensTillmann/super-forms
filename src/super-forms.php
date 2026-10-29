@@ -2576,10 +2576,10 @@ if(!class_exists('SUPER_Forms')) :
                                 echo '<h1>' . esc_html__( 'What\'s new?', 'super-forms' ) . '</h1>';
                                 echo '<hr />';
                                 echo '<h2>' . sprintf( esc_html__( 'Listings Add-on %1$sBETA%2$s', 'super-forms' ), '<span style="color:red;">', '</span>' ) . '</h2>';
-                                echo '<p><a target="_blank" href="https://docs.super-forms.com/features/integrations/listings" class="button button-secondary button-large">' . esc_html__( 'Documentation', 'super-forms' ) . '</a> <a target="_blank" href="' . esc_url(admin_url() . 'admin.php?page=super_addons') . '" class="button button-primary button-large">' . esc_html__( 'Start 15 day trial', 'super-forms' ) . '</a></p>';
+                                echo '<p><a target="_blank" href="https://docs.super-forms.com/features/integrations/listings" class="button button-secondary button-large">' . esc_html__( 'Documentation', 'super-forms' ) . '</a> <a target="_blank" rel="noopener" href="' . esc_url( SUPER_Common::dashboard_trial_url( 'listings' ) ) . '" class="button button-primary button-large">' . esc_html__( 'Start 15 day trial', 'super-forms' ) . '</a></p>';
                                 echo '<hr />';
                                 echo '<h2>' . sprintf( esc_html__( 'PDF Generator Add-on %1$sBETA%2$s', 'super-forms' ), '<span style="color:red;">', '</span>' ) . '</h2>';
-                                echo '<p><a target="_blank" href="https://docs.super-forms.com/features/integrations/pdf-generator" class="button button-secondary button-large">' . esc_html__( 'Documentation', 'super-forms' ) . '</a> <a target="_blank" href="' . esc_url(admin_url() . 'admin.php?page=super_addons') . '" class="button button-primary button-large">' . esc_html__( 'Start 15 day trial', 'super-forms' ) . '</a></p>';
+                                echo '<p><a target="_blank" href="https://docs.super-forms.com/features/integrations/pdf-generator" class="button button-secondary button-large">' . esc_html__( 'Documentation', 'super-forms' ) . '</a> <a target="_blank" rel="noopener" href="' . esc_url( SUPER_Common::dashboard_trial_url( 'pdf' ) ) . '" class="button button-primary button-large">' . esc_html__( 'Start 15 day trial', 'super-forms' ) . '</a></p>';
                                 echo '<hr />';
                                 echo '<h2>' . sprintf( esc_html__( 'Secure File Uploads', 'super-forms' ), '<span style="color:red;">', '</span>' ) . '</h2>';
                                 echo '<p>' . sprintf( esc_html__( 'By default any files uploaded via your forms will no longer be visible in the %1$sMedia Library%2$s. To change this behaviour you can visit the File Upload Settings.', 'super-forms'), '<a target="_blank" href="' . esc_url(get_admin_url() . 'upload.php') . '">', '</a>') . '</p>';
@@ -3964,14 +3964,6 @@ if(!class_exists('SUPER_Forms')) :
                         'method'  => 'register',
                         'localize' => SUPER_Forms()->elements_i18n,
                     ), 
-                    'super-stripe-js-v3' => array(
-                        'src'     => 'https://js.stripe.com/v3/',
-                        'deps'    => array(),
-                        'version' => SUPER_VERSION,
-                        'footer'  => true,
-                        'screen'  => array( 'super-forms_page_super_addons' ),
-                        'method'  => 'enqueue'
-                    )
                 )
             );
         }

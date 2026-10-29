@@ -9,6 +9,10 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
+## Unreleased
+
+- **Fix:** "Start 15 day trial" buttons for PDF Generator and Listings now open the trial in your Super Forms dashboard.
+
 ## 2026-10-21 - Version 6.4.010-beta
 
 - **Fix:** Clicking the submit button after tabbing out of the form submits normally instead of jumping to the first field and losing the click. Keyboard Tab and Shift+Tab navigation is unchanged.
