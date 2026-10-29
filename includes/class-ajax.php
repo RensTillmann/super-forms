@@ -92,7 +92,6 @@ class SUPER_Ajax {
 
             'api_cancel_subscription'       => false,
             'api_transfer_license'          => false,
-            'api_start_trial'               => false,
             'api_checkout'                  => false,
             'api_register_user'             => false,
             'api_login_user'                => false,
@@ -370,16 +369,6 @@ class SUPER_Ajax {
             ))
         );
         self::api_do_request('addons/cancel', $custom_args);
-    }
-    public static function api_start_trial() {
-        $custom_args = array(
-            'body' => (array(
-                'slug' => $_POST['slug'],
-                'l' => (isset($_POST['l']) ? $_POST['l'] : ''),
-                'data' => $_POST['data']
-            ))
-        );
-        self::api_do_request('addons/start_trial', $custom_args);
     }
     public static function api_checkout() {
         $custom_args = array('body' => $_POST);
