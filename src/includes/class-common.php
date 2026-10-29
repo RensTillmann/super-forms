@@ -5454,6 +5454,31 @@ class SUPER_Common {
     }
 
     /**
+     * Base URL of the Super Forms account dashboard, without a trailing slash. Derived from
+     * the API host (api.super-forms.com → dashboard.super-forms.com, api.dev.super-forms.com
+     * → dashboard.dev.super-forms.com). Override with the `super_dashboard_url` filter.
+    */
+    public static function dashboard_url() {
+        $url = 'https://dashboard.super-forms.com';
+        $api = wp_parse_url( SUPER_API_ENDPOINT );
+        if( !empty($api['host']) && strpos($api['host'], 'api.')===0 ) {
+            $url = ( !empty($api['scheme']) ? $api['scheme'] : 'https' ) . '://dashboard.' . substr($api['host'], 4);
+        }
+        return untrailingslashit( apply_filters( 'super_dashboard_url', $url ) );
+    }
+
+    /**
+     * Dashboard link that opens the trial window for `$slug` (super-forms, pdf or listings) on
+     * this site. The domain is the home URL host, plus its path when WordPress lives in a
+     * subfolder; the API canonicalises it. Returns a raw URL: escape it on output.
+    */
+    public static function dashboard_trial_url( $slug ) {
+        $home = wp_parse_url( home_url() );
+        $domain = ( isset($home['host']) ? $home['host'] : '' ) . ( isset($home['path']) ? untrailingslashit($home['path']) : '' );
+        return self::dashboard_url() . '/?trial=' . rawurlencode($slug) . '&domain=' . rawurlencode($domain);
+    }
+
+    /**
      * Convert HEX color to RGB color format
      *
      * @since 1.3
