@@ -409,16 +409,17 @@ if( !class_exists('SUPER_Email_Reminders') ) :
             if(empty($settings['email_reminder_'.$suffix.'_time_offset'])) $settings['email_reminder_'.$suffix.'_time_offset'] = 0;
             if(empty($settings['email_reminder_'.$suffix.'_base_date'])) $settings['email_reminder_'.$suffix.'_base_date'] = date('Y-m-d');
             // 86400 = 1 day / 24 hours
-            $offset = $settings['email_reminder_'.$suffix.'_date_offset'];
-            $offset = 86400 * $offset;
+            // Offsets and the {field;timestamp} base are cast to numbers: on PHP 8 arithmetic on a non-numeric
+            // string (e.g. a tag that resolved to nothing) throws a TypeError and the submission ends in an HTTP 500.
+            $offset = 86400 * (float) $settings['email_reminder_'.$suffix.'_date_offset'];
             $base_date = $settings['email_reminder_'.$suffix.'_base_date'];
             if(strpos($base_date, ';timestamp') !== false){
                 $base_date = SUPER_Common::email_tags( $base_date, $data, $settings );
-                $base_date = $base_date/1000;
-                $reminder_date = date('Y-m-d', $base_date + $offset);
+                $base_date = (float) $base_date / 1000;
+                $reminder_date = date('Y-m-d', (int) ($base_date + $offset));
             }else{
                 $base_date = SUPER_Common::email_tags( $base_date, $data, $settings );
-                $reminder_date = date('Y-m-d', strtotime($base_date) + $offset);
+                $reminder_date = date('Y-m-d', (int) (strtotime($base_date) + $offset));
             }
 
             // Send at a fixed time
@@ -435,8 +436,8 @@ if( !class_exists('SUPER_Email_Reminders') ) :
                 // Send based of form submission + an offset
                 $base_time = current_time('H:i');
                 // 3600 = 1 hour / 60 minutes
-                $offset = 3600 * $settings['email_reminder_'.$suffix.'_time_offset'];
-                $reminder_time = date('H:i', strtotime($base_time) + $offset);
+                $offset = 3600 * (float) $settings['email_reminder_'.$suffix.'_time_offset'];
+                $reminder_time = date('H:i', (int) (strtotime($base_time) + $offset));
             }
             $reminder_real_date = date('Y-m-d H:i', strtotime($reminder_date.' '.$reminder_time));
 

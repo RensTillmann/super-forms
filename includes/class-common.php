@@ -4558,8 +4558,10 @@ class SUPER_Common {
             // TCP port to connect to
             $phpmailer->Port = $global_settings['smtp_port'];
 
-            // Set Timeout
-            $phpmailer->Timeout = $global_settings['smtp_timeout'];
+            // Set Timeout. An empty or non-numeric value falls back to the 30 second default: on PHP 8 PHPMailer
+            // passes it to stream_socket_client(), which throws a TypeError and the submission ends in an HTTP 500.
+            $smtp_timeout = isset( $global_settings['smtp_timeout'] ) ? $global_settings['smtp_timeout'] : '';
+            $phpmailer->Timeout = ( is_numeric( $smtp_timeout ) && $smtp_timeout > 0 ) ? (int) $smtp_timeout : 30;
 
             // Set keep alive
             if( $global_settings['smtp_keep_alive']=='enabled' ) {
