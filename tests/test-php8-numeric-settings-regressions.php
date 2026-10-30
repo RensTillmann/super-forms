@@ -120,4 +120,23 @@ class Test_PHP8_Numeric_Settings_Regressions extends Super_Forms_Upload_Security
             ), $this->reminder_data( $day ) );
         }, 'can not be used as a reminder date because it is in the past' );
     }
+
+    /**
+     * A host that disables PHP's mail() makes PHPMailer throw an Error on PHP 8 that wp_mail() does not catch.
+     * An Error thrown from phpmailer_init escapes wp_mail() the same way.
+     */
+    public function test_wp_mail_error_is_reported_as_a_failed_email_instead_of_a_fatal() {
+        SUPER_Forms()->global_settings = array( 'smtp_enabled' => 'disabled' );
+        $throw = function() {
+            throw new Error( 'Call to undefined function PHPMailer\PHPMailer\mail()' );
+        };
+        add_action( 'phpmailer_init', $throw );
+        try {
+            $mail = SUPER_Common::email( 'to@example.com', 'from@example.com', 'Sender', false, '', '', '', '', 'Subject', 'Body', array() );
+        } finally {
+            remove_action( 'phpmailer_init', $throw );
+        }
+        $this->assertFalse( $mail['result'] );
+        $this->assertStringContainsString( 'Call to undefined function', $mail['error'] );
+    }
 }

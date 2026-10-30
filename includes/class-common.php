@@ -4507,9 +4507,17 @@ class SUPER_Common {
                     $headers[] = 'Bcc: ' . trim($value);
                 }
             }
-            $result = wp_mail( $to, $subject, $body, $headers, $attachmentPaths );
+            // A host can disable PHP's mail() (disable_functions). On PHP 8 calling it then throws an
+            // Error that wp_mail() does not catch, so the whole submission ended in an HTTP 500.
+            // Report it as a failed e-mail instead; the entry is already saved at this point.
             $error = '';
-            if($result==false){
+            try {
+                $result = wp_mail( $to, $subject, $body, $headers, $attachmentPaths );
+            } catch ( \Error $e ) {
+                $result = false;
+                $error = 'Email could not be send through wp_mail(): ' . $e->getMessage();
+            }
+            if( $result==false && $error==='' ){
                 $error = 'Email could not be send through wp_mail()';
             }
             // Return
@@ -4654,7 +4662,13 @@ class SUPER_Common {
             $phpmailer->Body = $body;
 
             // Send the email
-            $result = $phpmailer->send();
+            // Same as above: a PHP 8 Error while sending is reported as a failed e-mail, not an HTTP 500.
+            try {
+                $result = $phpmailer->send();
+            } catch ( \Error $e ) {
+                $result = false;
+                $phpmailer->ErrorInfo = $e->getMessage();
+            }
 
             // Explicit call to smtpClose() when keep alive is enabled
             if( $phpmailer->SMTPKeepAlive==true ) {

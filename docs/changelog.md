@@ -13,6 +13,7 @@
 - **Fix:** "Start 15 day trial" buttons for PDF Generator and Listings now open the trial in your Super Forms dashboard.
 - **Fix:** On PHP 8, submitting a form no longer fails with "There has been a critical error on this website" (HTTP 500) when SMTP is enabled under Super Forms > Settings > SMTP Server and the Timeout field is empty or not a number; the default of 30 seconds is used instead.
 - **Fix:** On PHP 8, submitting a form with an E-mail Reminder no longer fails with "There has been a critical error on this website" (HTTP 500) when the day or hour offset is not a number, or when the `{field;timestamp}` base date tag is empty; the reminder is handled the same way as on PHP 7.
+- **Fix:** On PHP 8, submitting a form no longer fails with "There has been a critical error on this website" (HTTP 500) when the hosting has disabled PHP's mail() function; the submission completes and the failed e-mail is logged instead.
 
 ## Oct 20, 2026 - Version 6.3.323
 
