@@ -1759,13 +1759,13 @@ textarea.super-variable-conditions, textarea.super-conditional-logic, textarea.s
 .super-first-responsiveness .super-grid > .super-column.last-column:not(.super-not-responsive) {
   padding-left: 0px;
 }
-.super-first-responsiveness .super-hide-mobile {
+.super-first-responsiveness .super-column.super-hide-mobile {
   display: none;
 }
 
-.super-second-responsiveness .super-hide-mobile,
-.super-window-first-responsiveness .super-hide-mobile-window,
-.super-window-second-responsiveness .super-hide-mobile-window {
+.super-second-responsiveness .super-column.super-hide-mobile,
+.super-window-first-responsiveness .super-column.super-hide-mobile-window,
+.super-window-second-responsiveness .super-column.super-hide-mobile-window {
   display: none;
 }
 
