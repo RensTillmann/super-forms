@@ -1036,6 +1036,14 @@ function SUPERreCaptcha(){
         }
         return value;
     };
+    // Keep responsive-column validation and submission exclusions in sync.
+    // Theme/custom CSS hiding alone does not exclude a field.
+    SUPER.has_mobile_hidden_parent = function(field){
+        return $(field).parents('.super-hide-mobile, .super-hide-mobile-window').filter(function(){
+            return $(this).css('display')=='none';
+        }).length>0;
+    };
+
     // includeInvisibleColumns (default true): a field inside an invisible column counts as hidden.
     // Only validate_form relies on the default (the visitor can never see such an error); payload
     // collection, conditional logic, math, tabbing and auto-step pass false to keep these fields.
@@ -3784,6 +3792,12 @@ function SUPERreCaptcha(){
         for ( i = 0; i < nodes.length; i++) {
             field = nodes[i];
             textField = true;
+            if(SUPER.has_mobile_hidden_parent(field)){
+                // A desktop error must not block submission after the column becomes mobile-hidden.
+                if(field.closest('.super-field')) field.closest('.super-field').classList.remove('super-error-active');
+                SUPER.remove_error_status_parent_layout_element($, field);
+                continue;
+            }
             if(!SUPER.has_hidden_parent(field)){
                 // super-shortcode-field super-fileupload super-rendered
                 if(field.classList.contains('super-active-files')){
@@ -4305,9 +4319,7 @@ function SUPERreCaptcha(){
             // Only Super Forms hiding excludes a field: conditional logic (the same rule validation
             // uses) and the hide-on-mobile column settings. A column hidden by theme/custom CSS
             // is submitted like a visible one (D1); the server enforces those fields.
-            $hidden = ($parent.length>0 && SUPER.has_hidden_parent($this[0], false, false)) || $this.parents('.super-hide-mobile, .super-hide-mobile-window').filter(function(){
-                return $(this).css('display')=='none';
-            }).length>0;
+            $hidden = ($parent.length>0 && SUPER.has_hidden_parent($this[0], false, false)) || SUPER.has_mobile_hidden_parent($this[0]);
             
             if( $hidden===true ) {
                 // Exclude conditionally
