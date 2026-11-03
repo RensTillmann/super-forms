@@ -1728,13 +1728,13 @@ html[dir=rtl] .super-rtl .super-rating .super-field-wrapper .super-rating {
 .super-first-responsiveness .super-grid > .super-column.last-column:not(.super-not-responsive) {
   padding-left: 0px;
 }
-.super-first-responsiveness .super-hide-mobile {
+.super-first-responsiveness .super-column.super-hide-mobile {
   display: none;
 }
 
-.super-second-responsiveness .super-hide-mobile,
-.super-window-first-responsiveness .super-hide-mobile-window,
-.super-window-second-responsiveness .super-hide-mobile-window {
+.super-second-responsiveness .super-column.super-hide-mobile,
+.super-window-first-responsiveness .super-column.super-hide-mobile-window,
+.super-window-second-responsiveness .super-column.super-hide-mobile-window {
   display: none;
 }
 

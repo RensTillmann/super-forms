@@ -1136,6 +1136,14 @@ function SUPERreCaptcha(){
         }
         return value;
     };
+    // Keep responsive-column validation and submission exclusions in sync.
+    // Theme/custom CSS hiding alone does not exclude a field.
+    SUPER.has_mobile_hidden_parent = function(field){
+        return $(field).parents('.super-hide-mobile, .super-hide-mobile-window').filter(function(){
+            return $(this).css('display')=='none';
+        }).length>0;
+    };
+
     SUPER.has_hidden_parent = function(changedField, includeMultiParts, includeInvisibleColumns){
         if(typeof includeInvisibleColumns === 'undefined') includeInvisibleColumns = true;
         if(changedField[0]) changedField = changedField[0];
@@ -4335,6 +4343,12 @@ function SUPERreCaptcha(){
         for ( i = 0; i < nodes.length; i++) {
             field = nodes[i];
             textField = true;
+            if(SUPER.has_mobile_hidden_parent(field)){
+                // A desktop error must not block submission after the column becomes mobile-hidden.
+                if(field.closest('.super-field')) field.closest('.super-field').classList.remove('super-error-active');
+                SUPER.remove_error_status_parent_layout_element($, field);
+                continue;
+            }
             if(!SUPER.has_hidden_parent(field)){
                 // super-shortcode-field super-fileupload super-rendered
                 if(field.classList.contains('super-active-files')){
@@ -4913,9 +4927,7 @@ function SUPERreCaptcha(){
     // neither does a column's 'invisible' setting: those fields (e.g. hidden pricing calculators)
     // have always been submitted, so has_hidden_parent() is asked without its invisible-column check.
     SUPER.submission_excludes_field = function(el){
-        return SUPER.has_hidden_parent(el, false, false) || $(el).parents('.super-hide-mobile, .super-hide-mobile-window').filter(function(){
-            return $(this).css('display')=='none';
-        }).length>0;
+        return SUPER.has_hidden_parent(el, false, false) || SUPER.has_mobile_hidden_parent(el);
     };
 
     SUPER.prepare_form_data_fields = function($form){
