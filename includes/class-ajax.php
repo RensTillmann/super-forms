@@ -6086,16 +6086,20 @@ class SUPER_Ajax {
 
     private static function generated_pdf_size_limit( $settings ) {
         $pdf_settings = self::generated_pdf_settings($settings);
-        $configured = array();
-        if( isset($pdf_settings['filesize']) ) {
-            $configured['filesize'] = $pdf_settings['filesize'];
-        }
-        $field_limit = self::get_upload_field_size_limit($configured);
-        if( $field_limit===false ) {
-            return false;
+        // A PDF the plugin rendered itself is not a visitor upload: the 5 MB default of a
+        // file upload field must not become its ceiling. Without a size configured for the
+        // PDF, the bounds are the site's own upload limit and the 10 MB PDF bound, so a
+        // long form whose rendered PDF exceeds 5 MB is still accepted.
+        $candidates = array( (float) wp_max_upload_size(), 10 * 1000000.0 );
+        if( array_key_exists('filesize', $pdf_settings) ) {
+            $field_limit = self::get_upload_field_size_limit( array( 'filesize' => $pdf_settings['filesize'] ) );
+            if( $field_limit===false ) {
+                return false;
+            }
+            $candidates[] = (float) $field_limit['bytes'];
         }
         $limit = 0.0;
-        foreach( array( (float) $field_limit['bytes'], (float) wp_max_upload_size(), 10 * 1000000.0 ) as $candidate ) {
+        foreach( $candidates as $candidate ) {
             if( is_finite($candidate) && $candidate>0 && ($limit===0.0 || $candidate<$limit) ) {
                 $limit = $candidate;
             }

@@ -7872,7 +7872,7 @@ function SUPERreCaptcha(){
             orientation: args.orientation,   // Orientation of the first page. Possible values are "portrait" or "landscape" (or shortcuts "p" or "l").
             format: args.format,             // The format of the first page.  Default is "a4"
             putOnlyUsedFonts: true,    // Only put fonts into the PDF, which were used.
-            compress: false,            // Compress the generated PDF.
+            compress: true,             // Compress the generated PDF.
             precision: 16,              // Precision of the element-positions.
             userUnit: 1.0,              // Not to be confused with the base unit. Please inform yourself before you use it.
             floatPrecision: 16,         // or "smart", default is 16
@@ -8464,7 +8464,11 @@ function SUPERreCaptcha(){
                     if(args.progressBar) args.progressBar.style.width = args.pdfPercentageCompleted+"%";  
                     //var percentage = (100/args.totalPages)*args.currentPage;
                     //if(args.progressBar) args.progressBar.style.width = percentage+"%";  
-                    var imgData = canvas.toDataURL("image/jpeg", 1.0);
+                    // Quality 1.0 turned every A4 slice into a ~1 MB JPEG, so a long form
+                    // produced a PDF far beyond the 10 MB bound (and the request that
+                    // carries it beyond common post_max_size limits). 0.9 stays visually
+                    // identical for text and signatures at a fraction of the bytes.
+                    var imgData = canvas.toDataURL("image/jpeg", 0.9);
                     // Add this image as 1 single page
                     args._pdf.addImage(
                         imgData,    // imageData as base64 encoded DataUrl or Image-HTMLElement or Canvas-HTMLElement
