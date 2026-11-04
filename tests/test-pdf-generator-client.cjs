@@ -51,7 +51,7 @@ function makeNode(){
 }
 
 function setup(opts = {}){
-    const calls = {saveData: 0, reset: 0, buttonReset: 0, pdfSave: 0, addPage: 0, renders: 0, consoleError: 0, output: 0, errors: []};
+    const calls = {saveData: 0, reset: 0, buttonReset: 0, pdfSave: 0, addPage: 0, renders: 0, consoleError: 0, output: 0, errors: [], pdfOptions: null, toDataURLArgs: null};
     const overlayClasses = new Set();
     const innerText = {innerHTML: ''};
     const loadingOverlay = {
@@ -90,11 +90,12 @@ function setup(opts = {}){
         calls.renders++;
         renderIndex++;
         if(opts.render) return opts.render(renderIndex);
-        return Promise.resolve({toDataURL: () => 'data:image/jpeg;base64,'});
+        return Promise.resolve({toDataURL: (...args) => { calls.toDataURLArgs = args; return 'data:image/jpeg;base64,'; }});
     }
     class FakePdf {
         constructor(){
             if(opts.jsPdfThrows) throw new Error('jsPDF failed');
+            calls.pdfOptions = arguments[0] || {};
             this.internal = {pageSize: {getWidth: () => 210, getHeight: () => 297}};
         }
         addImage(){}
@@ -290,4 +291,33 @@ test('(h) an error from the submission after the PDF is done is not a PDF error'
     assert.equal(env.calls.buttonReset, 0);
     assert.notEqual(env.args._pdfAborted, true);
     assert(env.calls.consoleError >= 1, 'submission error is logged');
+});
+
+// A 7-page membership form rendered each A4 slice at JPEG quality 1.0: the PDF grew to
+// 8.2 MB — 10.95 MB once base64 encoded, past the 5 MB generated-PDF policy and past a
+// common 8 MB post_max_size — so every submission of that form was rejected. The page
+// image must stay compressed.
+test('(i) the page image is a compressed JPEG, not maximum quality', async () => {
+    const env = setup();
+    assert.equal(env.run(), null);
+    await flush();
+    assert(env.calls.pdfOptions, 'jsPDF was constructed');
+    assert.equal(env.calls.pdfOptions.compress, true, 'jsPDF compresses the PDF streams');
+    assert(env.calls.toDataURLArgs, 'the page image was encoded');
+    assert.equal(env.calls.toDataURLArgs[0], 'image/jpeg', 'page image format');
+    const quality = env.calls.toDataURLArgs[1];
+    assert.equal(typeof quality, 'number', 'an explicit JPEG quality is used');
+    assert(quality > 0.5 && quality < 1, 'page image is not written at maximum JPEG quality: ' + quality);
+    assert(!env.overlayClasses.has('super-error'));
+});
+
+test('(j) the page image quality does not change the submitted PDF carrier', async () => {
+    const env = setup();
+    assert.equal(env.run(), null);
+    await flush();
+    const carrier = env.args.data._generated_pdf_file;
+    assert.equal(carrier.type, 'files');
+    assert.equal(carrier.files.length, 1);
+    assert.equal(carrier.files[0].name, 'document.pdf');
+    assert.equal(env.calls.saveData, 1);
 });

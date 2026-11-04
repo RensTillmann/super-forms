@@ -30,6 +30,20 @@ Cases cover missing/empty/custom/full date formats, exact server timestamps, inv
 
 The added PHPUnit hotfix test follows the existing public `submit_form_checks` seam, but its native PHPUnit suite has not been executed in this session. Run the existing release suite with its pcntl/MySQL requirements before channel release.
 
+## Generated PDF with Signature elements
+
+A form with Signature elements posts its own generated PDF back as a data URI. Two checks cover it:
+
+```sh
+python tests/run-validation-compatibility.py --plugin ABSOLUTE_PLUGIN_RUNTIME_ROOT --bootstrap OWNED_WORDPRESS_BOOTSTRAP --group signatures --out NEW_RECEIPT.json
+```
+
+`--group signatures` submits a form with three Signature elements through `SUPER_Ajax::submit_form_checks` and expects `CHECKS_ACCEPTED` with an 8,215,751 byte `application/pdf` file record, no surviving data URI, and no stderr. `tests/generated-pdf-signature-fixture.php` builds that exact-size PDF with seven embedded images; the PHPUnit test uses the same fixture, so a signed membership form is represented by size, not by a placeholder.
+
+The PHPUnit side is `tests/test-generated-pdf-size-limit.php` (same WordPress test suite as the other `tests/*.php` files). It pins three things: the default PDF size limit accepts the plugin's own PDF above the 5 MB upload-element default on a host whose PHP allows 20 MB, a payload above the site's own upload cap is still refused, and an explicitly configured `_pdf.filesize` is still enforced. The upload cap is set through the `upload_size_limit` filter, so the test does not depend on the runner's php.ini.
+
+Date, currency, code and layout cases live in the client contract above; the generated-PDF cases are the ones that cover the submission path after upload validation.
+
 ## Release boundary
 
 Focused green results do not replace the established full suites, independent review, exact ZIP build/install, browser/upgrade matrix or operator acceptance. Neither test runner publishes, deploys or sends customer messages.
