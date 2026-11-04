@@ -32,6 +32,11 @@ if a.group in ('code','all'):
     import secrets
     case('code-preview-claim','hidden','',dict(base,code_prefix='contract-'+secrets.token_hex(8)+'-'),True,operation='code-claim')
     for k,u,l,pattern in [('upper','true','false','^[A-Z]{7}$'),('lower','false','true','^[a-z]{7}$')]:case('code-'+k,'hidden','',dict(base,code_uppercase=u,code_lowercase=l),True,code_pattern=pattern)
+if a.group in ('signatures','all'):
+    # A form with three Signature elements and PDF generation on: the plugin's own
+    # generated PDF is bigger than the generic 5 MB upload default and must still pass.
+    cases.append(dict(id='generated-pdf-three-signatures',tag='signature',value=None,settings={},accepted=True,
+        operation='generated-pdf-three-signatures',expected_pdf_bytes=8215751,signature_fields=3))
 if a.group in ('layout','all'):
     # B2: fields inside Tabs/Accordion panes (saved inner = one list per pane). Every layout
     # case has a flat twin (same elements, layout wrapper removed) proving the payload is legitimate.
@@ -135,6 +140,9 @@ for c in cases:
         ok=rejection.get('error') is True and rejection.get('msg')==c.get('expected_msg','Invalid form data.')
     if ok and accepted and 'timestamp' in c:ok=data.get('timestamp')==c['timestamp']
     if ok and accepted and c.get('operation')=='code-claim':ok=data.get('first_claim') is True and data.get('duplicate_claim') is False and data.get('claim_cleaned') is True
+    if ok and accepted and c.get('operation')=='generated-pdf-three-signatures':
+        ok=(data.get('pdf_bytes')==c['expected_pdf_bytes'] and data.get('pdf_mime')=='application/pdf'
+            and data.get('signature_fields')==c['signature_fields'] and data.get('data_uri_removed') is True)
     if ok and accepted and 'code_pattern' in c:
         import re
         ok=re.fullmatch(c['code_pattern'],data.get('value','')) is not None

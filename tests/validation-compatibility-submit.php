@@ -8,6 +8,7 @@ foreach( array('SUPER_Forms'=>'super-forms.php','SUPER_Ajax'=>'includes/class-aj
         fwrite(STDERR,'Wrong loaded class: '.$class.' '.(new ReflectionClass($class))->getFileName()); exit(2);
     }
 }
+require_once __DIR__.'/generated-pdf-signature-fixture.php';
 $case=json_decode(stream_get_contents(STDIN),true);
 if (!is_array($case)) exit(2);
 if( isset($case['operation']) && $case['operation']==='code-claim' ) {
@@ -28,6 +29,37 @@ if( isset($case['operation']) && $case['operation']==='code-claim' ) {
 }
 $fid=wp_insert_post(array('post_type'=>'super_form','post_status'=>'publish','post_title'=>'synthetic-validation-'.uniqid()));
 register_shutdown_function(function()use($fid){wp_delete_post($fid,true);});
+if( isset($case['operation']) && $case['operation']==='generated-pdf-three-signatures' ) {
+    // A form a buyer builds: three Signature elements, a PDF page break, PDF generation on.
+    // The browser hands the generated PDF back as a data URI, exactly as a real submission
+    // does. The PDF is the plugin's own output for this form, not an uploaded file.
+    $pdf_bytes=super_forms_test_build_signature_pdf(isset($case['pdf_bytes']) ? (int)$case['pdf_bytes'] : 8215751);
+    $settings=array(
+        'send'=>'no',
+        'confirm'=>'no',
+        'save_contact_entry'=>'no',
+        '_pdf'=>array('generate'=>'true','filename'=>'form.pdf','emailLabel'=>'PDF file:'),
+    );
+    if( isset($case['pdf_filesize']) ) $settings['_pdf']['filesize']=(string)$case['pdf_filesize'];
+    update_post_meta($fid,'_super_elements',super_forms_test_signature_elements());
+    update_post_meta($fid,'_super_form_settings',$settings);
+    $data=super_forms_test_signature_values()+super_forms_test_generated_pdf_carrier('data:application/pdf;base64,'.base64_encode($pdf_bytes));
+    $data['hidden_form_id']=array('name'=>'hidden_form_id','type'=>'form_id','value'=>(string)$fid);
+    $data['hidden_contact_entry_id']=array('name'=>'hidden_contact_entry_id','type'=>'entry_id','value'=>'');
+    $_POST=array('form_id'=>(string)$fid,'action'=>'super_submit_form','i18n'=>'','data'=>wp_slash(wp_json_encode($data)));
+    $_REQUEST=$_POST;$_FILES=array();
+    $atts=SUPER_Ajax::submit_form_checks($settings,false);
+    $file=$atts['data']['_generated_pdf_file']['files'][0];
+    $attachment_id=isset($file['attachment']) ? absint($file['attachment']) : 0;
+    register_shutdown_function(function()use($attachment_id){ if($attachment_id) wp_delete_attachment($attachment_id,true); });
+    echo 'CHECKS_ACCEPTED:'.wp_json_encode(array(
+        'pdf_bytes'=>isset($file['size']) ? (int)$file['size'] : 0,
+        'pdf_mime'=>isset($file['type']) ? $file['type'] : '',
+        'signature_fields'=>count(super_forms_test_signature_elements()),
+        'data_uri_removed'=>!isset($file['datauristring']),
+    ));
+    exit;
+}
 if( isset($case['elements']) ) {
     // Multi-element form: the saved tree and the browser carriers are given verbatim.
     update_post_meta($fid,'_super_elements',$case['elements']);
