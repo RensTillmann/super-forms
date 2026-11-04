@@ -6,6 +6,14 @@ description: Release notes for the Super Forms stable channel.
 
 ## Super Forms Stable - Changelog
 
+### Nov 04, 2026 - Version 6.3.324
+
+Super Forms 6.3.324 (LTS). This update applies to the 6.3.x stable channel.
+
+* **Fix:** A generated PDF larger than the 5 MB file-upload default (a long form with several signature fields renders about 8 MB) no longer rejects every submission with "Invalid file upload rejected." A generated PDF is now bounded by the site's upload limit and the 10 MB PDF bound, and its page images are written compressed.
+* **Fix:** Columns set to hide on mobile, by form width or by screen width, now stay hidden, and the fields inside them no longer block validation or submission.
+* **Fix:** "Start 15 day trial" buttons for PDF Generator and Listings now open the trial in your Super Forms dashboard.
+
 ### Oct 20, 2026 - Version 6.3.323
 
 * **Security fix:** The form builder's preview, language switch, undo/redo, element settings and element HTML requests now require administrator permissions and a valid security token, so other logged-in users can no longer load form markup or settings. Preview requests also reject form backups and non-form content.
