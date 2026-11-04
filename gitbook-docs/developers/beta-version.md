@@ -12,7 +12,7 @@ Beta releases can contain bugs. Back up your site and, where possible, test the 
 {% endhint %}
 
 {% hint style="success" %}
-**Download:** [super-forms-beta.zip](https://super-forms.com/download-super-forms-beta.php) (**v6.4.010** - Oct 21, 2026)
+**Download:** [super-forms-beta.zip](https://super-forms.com/download-super-forms-beta.php) (**v6.4.011** - Nov 04, 2026)
 {% endhint %}
 
 {% hint style="info" %}

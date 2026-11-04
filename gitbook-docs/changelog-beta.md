@@ -8,6 +8,14 @@ Beta is opt-in for power users who want early access to new features before they
 
 ## Super Forms Beta - Changelog
 
+### Nov 04, 2026 - Version 6.4.011
+
+Super Forms 6.4.011 (beta line) brings the fixes from LTS 6.3.324 to the 6.4 beta. **Update recommended for every site running 6.4.x.** Sites on 6.4.x receive this update automatically through the Super Forms update channel. Sites on 6.3.x stay on the 6.3 line (6.3.324).
+
+* **Fix:** A generated PDF larger than the 5 MB file-upload default (a long form with several signature fields renders about 8 MB) no longer rejects every submission with "Invalid file upload rejected." A generated PDF is now bounded by the site's upload limit and the 10 MB PDF bound, and its page images are written compressed.
+* **Fix:** Columns set to hide on mobile, by form width or by screen width, now stay hidden, and the fields inside them no longer block validation or submission.
+* **Fix:** "Start 15 day trial" buttons for PDF Generator and Listings now open the trial in your Super Forms dashboard.
+
 ### Oct 21, 2026 - Version 6.4.010
 
 * **Fix:** Clicking the submit button after tabbing out of the form submits normally instead of jumping to the first field and losing the click. Keyboard Tab and Shift+Tab navigation is unchanged.
