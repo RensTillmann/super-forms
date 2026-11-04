@@ -153,6 +153,7 @@
   * [Send submitted form data to another site](developers/code-examples/send-submitted-form-data-to-another-site.md)
   * [Exclude empty fields from emails](developers/code-examples/exclude-empty-fields-from-emails.md)
   * [Execute custom JS when a column becomes conditionally visible](developers/code-examples/execute-custom-js-when-a-column-becomes-conditionally-visible.md)
+  * [Stop the page from scrolling when tabbing through fields](developers/code-examples/stop-page-scrolling-when-tabbing-through-fields.md)
   * [Toolset Plugin: Update comma separated string to Array for meta data saved via Front-end Posting](developers/code-examples/toolset-plugin-update-comma-separated-string-to-array-for-meta-data-saved-via-front-end-posting.md)
   * [Toolset Plugin: Update file ID to file URL for meta data saved via Front-end Posting](developers/code-examples/toolset-plugin-update-file-id-to-file-url-for-meta-data-saved-via-front-end-posting.md)
   * [Delete uploaded files after email has been send](developers/code-examples/delete-uploaded-files-after-email-has-been-send.md)
