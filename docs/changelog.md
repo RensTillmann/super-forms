@@ -8,8 +8,9 @@
 
 - [PDF Generator Add-on](https://renstillmann.github.io/super-forms/#/pdf-generator-add-on)
 
-## Unreleased
+## Nov 04, 2026 - Version 6.3.324
 
+- **Fix:** A generated PDF larger than 5 MB (a long form with several signature fields) no longer rejects every submission with "Invalid file upload rejected." Page images are written compressed, and a generated PDF is bounded by the site's upload limit instead of the file-upload default.
 - **Fix:** "Start 15 day trial" buttons for PDF Generator and Listings now open the trial in your Super Forms dashboard.
 
 ## Oct 20, 2026 - Version 6.3.323
