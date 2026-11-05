@@ -182,7 +182,7 @@ If the popup keeps showing **Generating PDF file...** (or your own **Generating 
 2. **Use [debug mode](#debug-mode)** to test the PDF without waiting for the full submission. On 6.3 LTS, keep in mind that debug mode in 6.3.322 and older still submits the form.
 3. **Compare the settings** on the **\[PDF]** TAB and the **PDF Settings** section of your elements with a form where the PDF works.
 4. **6.4 with a non-Latin language script:** open the **Network** tab of the browser developer tools and check whether the request for `fonts/<language>.json` failed. Without this font file the PDF cannot start.
-5. **If the popup moved on to "Processing form data..." and then showed an error**, the PDF was created but is too large for your server. Ask your host to raise `post_max_size`, `memory_limit` or `max_execution_time` in PHP, or lower the **PDF render scale**.
+5. **If the popup moved on to "Processing form data..." and then showed an error**, read the actual error and the failed request’s response in the browser’s **Network** tab, and ask your host to check the matching server/PHP logs. This stage alone does not prove that the PDF is too large. On **Stable 6.3.323** and **Beta 6.4.010**, `Invalid file upload rejected.` can also mean that a generated PDF failed format or content validation. Keep upload protection enabled. Only change server limits or lower the **PDF render scale** after a size or resource limit has been confirmed as the cause.
 6. **Remove half of the form** (on a copy) and test again. Repeat with the half that still fails until you find the element that causes it.
 
 ### Pricing
