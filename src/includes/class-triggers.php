@@ -124,6 +124,8 @@ class SUPER_Triggers {
                     $base_time = current_time('H:i');
                     // 3600 = 1 hour (60 minutes)
                     $offset = SUPER_Common::email_tags($v['offset'], $data, $settings);
+                    // Convert offset to float, fallback to 0 if it is not numeric (PHP 8 throws on string * int)
+                    $offset = is_numeric($offset) ? (float)$offset : 0;
                     $time_offset = 3600 * $offset;
                     $scheduled_time = date('H:i', strtotime($base_time) + $time_offset);
                     $dateString = date('Y-m-d H:i', strtotime($scheduled_date.' '.$scheduled_time));
