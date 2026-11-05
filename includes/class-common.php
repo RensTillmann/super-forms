@@ -1596,13 +1596,17 @@ class SUPER_Common {
         if( !class_exists( 'SUPER_Settings' ) )  require_once( 'class-settings.php' ); 
         $form_settings = get_post_meta( absint($form_id), '_super_form_settings', true );
         if(!$form_settings) $form_settings = array();
+        if(is_string($form_settings)){
+            $form_settings = maybe_unserialize($form_settings);
+            if(!is_array($form_settings)) $form_settings = array();
+        }
         $global_settings = self::get_global_settings();
         $defaults = SUPER_Settings::get_defaults($global_settings);
         $global_settings = array_merge( $defaults, $global_settings );
         if(is_array($form_settings)){
             $settings = array_merge( $global_settings, $form_settings );
         }else{
-            $settings = $form_settings;
+            $settings = $global_settings;
         }
         return apply_filters( 'super_form_settings_filter', $settings, array( 'id'=>$form_id ) );
     }
