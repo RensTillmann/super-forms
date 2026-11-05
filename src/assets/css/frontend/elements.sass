@@ -5458,31 +5458,13 @@ html[dir="rtl"]
         .super-item
           flex-grow: 1
 
-// HTML dir="rtl" and RTL enabled on form:
+// Page-direction adjustments for controls outside the local row contexts.
 html[dir="rtl"]
   .super-timepicker-dialog .ui-timepicker-list li
     padding-left: 0
     padding-right: 15px
   .super-form
     &.super-rtl
-      .super-heading-title,
-      .super-heading-description
-        justify-content: flex-start
-        &.super-align-left
-          justify-content: flex-end
-        &.super-align-center
-          justify-content: center
-        &.super-align-right
-          justify-content: flex-start
-      .super-multipart-steps
-        flex-direction: row
-      .display-horizontal
-        .super-items-list
-          flex-direction: row
-      .super-checkbox,
-      .super-radio
-        .super-item
-          flex-direction: row
       &.super-default-rounded
         .super-quantity
           .super-minus-button
@@ -5490,21 +5472,17 @@ html[dir="rtl"]
           .super-plus-button
             border-radius: 4px 0px 0px 4px
       .super-field:not(.super-icon-outside,.super-icon-inside)
-        &.super-checkbox,
-        &.super-radio,
         &.super-rating
           .super-field-wrapper
             justify-content: flex-start
-      .display-horizontal
+      .display-horizontal:not(.super-checkbox):not(.super-radio)
         .super-field-wrapper
           justify-content: flex-start
         .super-items-list
           flex-direction: row
-      .super-multipart-progress-inner
-        flex-direction: row
       .super-dropdown:not(.super-open.super-focus, .super-filled) .super-adaptive-placeholder
         justify-content: flex-start
-      .display-grid .super-items-list
+      .display-grid:not(.super-checkbox):not(.super-radio) .super-items-list
         flex-direction: row
         flex-grow: 1
       .super-checkbox,
@@ -5518,22 +5496,62 @@ html[dir="rtl"]
         flex-direction: row
       .super-color .super-field-wrapper
         justify-content: flex-start
-      .super-file .super-field-wrapper .super-fileupload-button
-        flex-direction: row
       .super-calculator.super-align-left .super-field-wrapper
         justify-content: flex-end
       .super-calculator.super-align-right .super-field-wrapper
         justify-content: flex-start
-      .super-file
-        .super-field-wrapper
-          align-items: flex-start
-          .super-fileupload-files
-            flex-direction: row
-      .super-tabs-menu,
-      .super-accordion-header,
       .super-int-phone_flag-container .super-int-phone_selected-flag,
       .super-int-phone_country-list .super-int-phone_country
         flex-direction: row
+
+// Keep RTL row axes local: themes may set direction on any page wrapper.
+// Do not set direction on the form or all descendants (phone/quantity stay independent).
+.super-form.super-rtl
+  .super-tabs-menu,
+  .super-accordion-header,
+  .super-checkbox,
+  .super-radio,
+  .super-multipart-steps,
+  .super-multipart-progress-inner,
+  .super-file,
+  .super-heading-title,
+  .super-heading-description
+    direction: rtl
+  .super-heading-title,
+  .super-heading-description
+    justify-content: flex-start
+    &.super-align-left
+      justify-content: flex-end
+    &.super-align-center
+      justify-content: center
+    &.super-align-right
+      justify-content: flex-start
+  .super-tabs-menu,
+  .super-accordion-header,
+  .super-multipart-steps,
+  .super-multipart-progress-inner,
+  .super-checkbox .super-item,
+  .super-radio .super-item,
+  .super-checkbox.display-horizontal .super-items-list,
+  .super-radio.display-horizontal .super-items-list
+    flex-direction: row
+  .super-field:not(.super-icon-outside,.super-icon-inside)
+    &.super-checkbox,
+    &.super-radio
+      .super-field-wrapper
+        justify-content: flex-start
+  .super-checkbox.display-horizontal .super-field-wrapper,
+  .super-radio.display-horizontal .super-field-wrapper
+    justify-content: flex-start
+  .super-checkbox.display-grid .super-items-list,
+  .super-radio.display-grid .super-items-list
+    flex-direction: row
+    flex-grow: 1
+  .super-file .super-field-wrapper
+    align-items: flex-start
+    .super-fileupload-button,
+    .super-fileupload-files
+      flex-direction: row
 
 .super-form
 
