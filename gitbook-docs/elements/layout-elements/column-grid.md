@@ -45,6 +45,8 @@ Click the `Update Element` button to apply the changes to the column. You will n
 When a column is **invisible** the fields will still be included in emails (if enabled) and saved under contact entries (if enabled). If you still require specific fields inside a hidden column to be excluded, you can change this per field. To do this edit the field and go to `Advanced` TAB and change the **Exclude from email** and **Do not save field in Contact Entry** options accordingly.
 {% endhint %}
 
+In **6.3.323 LTS** and **6.4.010 Beta**, required or validated fields inside an invisible column no longer block the form with errors the visitor cannot see. Their values are still submitted, and the server no longer requires them.
+
 ### Dynamic Add More:
 
 In some cases you want to allow the end user to add a new set of fields dynamically by clicking a :heavy\_plus\_sign: button.

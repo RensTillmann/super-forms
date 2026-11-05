@@ -22,6 +22,6 @@ Hiding a submit button is a user-interface choice, not a server-side access-cont
 
 ## Pressing Enter
 
-In **6.3.323 LTS**, when Enter-to-submit is enabled, pressing Enter in a field uses the first submit button that is not hidden by conditional logic and is not read-only. If no such button is available, Enter does nothing. Textareas keep their normal line breaks.
+In **6.3.323 LTS** and **6.4.010 Beta**, when Enter-to-submit is enabled, pressing Enter in a field uses the first submit button that is not hidden by conditional logic and is not read-only. If no such button is available, Enter does nothing. Textareas keep their normal line breaks.
 
 In a multi-part form, Enter on a step before the last uses that step's visible, non-read-only Next button with the usual step validation; if Next is absent, hidden or read-only, Enter does nothing. The final step uses the first visible, non-read-only submit button. See [Enter key navigation](../layout-elements/multi-part-step.md#enter-key-navigation).

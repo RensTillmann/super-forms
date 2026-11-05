@@ -30,7 +30,7 @@ These direct Button and Divider settings are available in LTS since 6.3.323 only
 Hiding a submit button is not a server-side access-control rule. It changes what the visitor sees, but does not authorize or forbid a direct submission request. Protect restricted actions and data with server-side permission checks.
 {% endhint %}
 
-In **6.3.323 LTS**, Enter skips submit buttons hidden by conditional logic or set to read-only. In a multi-part form, Enter before the last step uses that step's available Next button rather than submitting. See [Enter key navigation](../../elements/layout-elements/multi-part-step.md#enter-key-navigation).
+In **6.3.323 LTS** and **6.4.010 Beta**, Enter skips submit buttons hidden by conditional logic or set to read-only. In a multi-part form, Enter before the last step uses that step's available Next button rather than submitting. See [Enter key navigation](../../elements/layout-elements/multi-part-step.md#enter-key-navigation).
 
 ### How to set conditions
 

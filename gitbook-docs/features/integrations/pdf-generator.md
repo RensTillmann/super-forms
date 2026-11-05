@@ -176,12 +176,14 @@ With smart page breaks enabled any element and or text will automatically be pus
 
 ### Troubleshooting: stuck at "Generating PDF file..."
 
+In **6.3.323 LTS** and **6.4.010 Beta**, if a PDF cannot be created the form is restored and an error message with a **Close** button appears. Nothing is submitted, and the visitor can try again.
+
 If the popup keeps showing **Generating PDF file...** (or your own **Generating text**) and the form is never submitted, work through these steps:
 
 1. **Open the browser console** (press F12 and open the **Console** tab), submit the form again and look for red error lines. They usually point at the element or image that fails to render.
 2. **Use [debug mode](#debug-mode)** to test the PDF without waiting for the full submission. On 6.3 LTS, keep in mind that debug mode in 6.3.322 and older still submits the form.
 3. **Compare the settings** on the **\[PDF]** TAB and the **PDF Settings** section of your elements with a form where the PDF works.
-4. **6.4 with a non-Latin language script:** open the **Network** tab of the browser developer tools and check whether the request for `fonts/<language>.json` failed. Without this font file the PDF cannot start.
+4. **6.4 with a non-Latin language script:** open the **Network** tab of the browser developer tools and check whether the request for `fonts/<language>.json` failed. In 6.4.010 and later the PDF falls back to the default font when this file is missing, so non-Latin text may not display correctly. In 6.4.009 and older the PDF cannot start without it.
 5. **If the popup moved on to "Processing form data..." and then showed an error**, the PDF was created but is too large for your server. Ask your host to raise `post_max_size`, `memory_limit` or `max_execution_time` in PHP, or lower the **PDF render scale**.
 6. **Remove half of the form** (on a copy) and test again. Repeat with the half that still fails until you find the element that causes it.
 

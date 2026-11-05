@@ -48,7 +48,7 @@ In order to add a multi-part you can open up the **Layout Elements** section on 
 
 ## Enter key navigation
 
-In **6.3.323 LTS**, when Enter-to-submit is enabled, pressing Enter in a field follows the current step's controls:
+In **6.3.323 LTS** and **6.4.010 Beta**, when Enter-to-submit is enabled, pressing Enter in a field follows the current step's controls:
 
 * **Before the final step:** Enter activates the current step's visible, non-read-only Next button. It follows the same navigation and validation as clicking Next, including the step's **Check for errors before going to next step** setting.
 * **No available Next button:** If the current step has no Next button, or Next is hidden by conditional logic or read-only, Enter does nothing. It does not skip a step or submit the form.
