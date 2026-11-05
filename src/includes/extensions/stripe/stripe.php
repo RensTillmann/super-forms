@@ -656,7 +656,7 @@ if(!class_exists('SUPER_Stripe')) :
                 $logic = $c['logic'];
                 $f1 = SUPER_Common::email_tags($c['f1'], $data, $settings);
                 $f2 = SUPER_Common::email_tags($c['f2'], $data, $settings);
-                $checkout = self::conditional_compare_check($f1, $logic, $f2);
+                $checkout = SUPER_Common::conditional_compare_check($f1, $logic, $f2);
             }
             if($checkout===false) return true;
             try{
@@ -823,7 +823,7 @@ if(!class_exists('SUPER_Stripe')) :
                 }else{
                     $shipping_options['shipping_rate_data']['delivery_estimate']['minimum']['value'] = intval($shipping_options['shipping_rate_data']['delivery_estimate']['minimum']['value']);
                     $shipping_options['shipping_rate_data']['delivery_estimate']['maximum']['value'] = intval($shipping_options['shipping_rate_data']['delivery_estimate']['maximum']['value']);
-                    $shipping_options['shipping_rate_data']['fixed_amount']['amount'] = floatval($shipping_options['shipping_rate_data']['fixed_amount']['amount']) * 100;
+                    $shipping_options['shipping_rate_data']['fixed_amount']['amount'] = SUPER_Common::tofloat($shipping_options['shipping_rate_data']['fixed_amount']['amount']) * 100;
                 }
             }
             // A set of key-value pairs that you can attach to a source object. 
@@ -853,7 +853,7 @@ if(!class_exists('SUPER_Stripe')) :
                     $p = SUPER_Common::get_tag_parts($v['price_data']['unit_amount_decimal'], $i);
                     //'unit_amount_decimal' => '10.95', // amount representing how much to charge
                     $v['price_data']['unit_amount_decimal'] = SUPER_Common::email_tags( $p['new'], $data, $settings );
-                    $v['price_data']['unit_amount_decimal'] = floatval($v['price_data']['unit_amount_decimal']) * 100;
+                    $v['price_data']['unit_amount_decimal'] = SUPER_Common::tofloat($v['price_data']['unit_amount_decimal']) * 100;
                     $v['price_data']['tax_behavior'] = $v['price_data']['tax_behavior'];
                     if($v['price_data']['type'] === 'product_data'){
                         // Unset empty product values
@@ -893,7 +893,7 @@ if(!class_exists('SUPER_Stripe')) :
                         // Prices require an `unit_amount` or `unit_amount_decimal` parameter to be set.
                         $p = SUPER_Common::get_tag_parts($ov['price_data']['unit_amount_decimal'], $i);
                         $v['price_data']['unit_amount_decimal'] = SUPER_Common::email_tags( $p['new'], $data, $settings );
-                        $v['price_data']['unit_amount_decimal'] = floatval($v['price_data']['unit_amount_decimal']) * 100;
+                        $v['price_data']['unit_amount_decimal'] = SUPER_Common::tofloat($v['price_data']['unit_amount_decimal']) * 100;
                         $v['price_data']['tax_behavior'] = $ov['price_data']['tax_behavior'];
                         if($ov['price_data']['type'] === 'product_data'){
                             // Unset empty product values
