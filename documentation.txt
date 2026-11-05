@@ -1,8 +1,8 @@
 Documentation:
-https://renstillmann.github.io/super-forms
+https://docs.super-forms.com
 
 Changelog:
-https://renstillmann.github.io/super-forms/#/changelog
+https://docs.super-forms.com/changelog
 
 Support:
-https://renstillmann.github.io/super-forms/#/support
+https://docs.super-forms.com/support

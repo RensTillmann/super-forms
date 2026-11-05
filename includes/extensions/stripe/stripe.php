@@ -3116,7 +3116,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 //             $array['stripe_checkout'] = array(        
 //                 'name' => esc_html__( 'Stripe Checkout', 'super-forms' ),
 //                 'label' => esc_html__( 'Stripe Checkout', 'super-forms' ),
-//                 'html' => array( '<style>.super-settings .stripe-settings-html-notice {display:none;}</style>', '<p class="stripe-settings-html-notice">' . sprintf( esc_html__( 'Before filling out these settings we %shighly recommend%s you to read the %sdocumentation%s.', 'super-forms' ), '<strong>', '</strong>', '<a target="_blank" href="https://renstillmann.github.io/super-forms/#/stripe-add-on">', '</a>' ) . '</p>' ),
+//                 'html' => array( '<style>.super-settings .stripe-settings-html-notice {display:none;}</style>', '<p class="stripe-settings-html-notice">' . sprintf( esc_html__( 'Before filling out these settings we %shighly recommend%s you to read the %sdocumentation%s.', 'super-forms' ), '<strong>', '</strong>', '<a target="_blank" href="https://docs.super-forms.com/features/integrations/stripe-beta">', '</a>' ) . '</p>' ),
 //                 'fields' => array(
 //                     'stripe_mode' => array(
 //                         'hidden' => true,
