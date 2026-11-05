@@ -4284,6 +4284,14 @@ if(!class_exists('SUPER_Forms')) :
             if( !is_array($elements) ) {
                 $elements = json_decode( $elements, true );
             }
+            if( is_array($elements) ) {
+                foreach($elements as $k => $v){
+                    if(!empty($elements[$k]['data']['retrieve_method_google_sheet_credentials'])){
+                        // add_post_meta() unslashes its value; slash the JSON credentials so their backslashes survive
+                        $elements[$k]['data']['retrieve_method_google_sheet_credentials'] = wp_slash($elements[$k]['data']['retrieve_method_google_sheet_credentials']);
+                    }
+                }
+            }
             add_post_meta( $new_id, '_super_elements', $elements );
             
             $triggers = SUPER_Common::get_form_triggers($id);
