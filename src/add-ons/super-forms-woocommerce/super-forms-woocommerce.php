@@ -815,11 +815,20 @@ if( !class_exists('SUPER_WooCommerce') ) :
                 if ( !empty( $_super_wc_signup ) ) { // @since 1.0.2 - check if not empty
                     // Update login status
                     if(!empty($_super_wc_signup['user_id'])) {
-                        $matched_login_status = array();
-                        foreach($settings['_woocommerce']['login_status'] as $k => $v){
-                            $matched_login_status[$v['order']] = $v['login_status'];
+                        // Use the signup snapshot saved on the order, including legacy scalar statuses.
+                        $login_status = isset($_super_wc_signup['status']) ? $_super_wc_signup['status'] : '';
+                        if( is_array($login_status) ) {
+                            $matched_login_status = '';
+                            foreach( $login_status as $row ) {
+                                if( is_array($row) && isset($row['order'], $row['login_status']) && $row['order']==='completed' ) {
+                                    $matched_login_status = $row['login_status'];
+                                }
+                            }
+                            $login_status = $matched_login_status;
                         }
-                        update_user_meta( $_super_wc_signup['user_id'], 'super_user_login_status', $matched_login_status['completed'] );
+                        if( is_string($login_status) && $login_status!=='' ) {
+                            update_user_meta( $_super_wc_signup['user_id'], 'super_user_login_status', $login_status );
+                        }
                         // Update user role
                         if( !empty($_super_wc_signup['role']) ) {
                             $userdata = array(
@@ -846,7 +855,7 @@ if( !class_exists('SUPER_WooCommerce') ) :
                 // Update contact entry status after succesfull payment
                 foreach($form_settings['_woocommerce']['entry_status'] as $k => $v){
                     if(trim($v['order'])===$new_status){
-                        $new_entry_status = SUPER_Common::email_tags($v['entry'], $data, $settings);
+                        $new_entry_status = SUPER_Common::email_tags($v['entry'], $data, $form_settings);
                         update_post_meta($contact_entry_id, '_super_contact_entry_status', $new_entry_status);
                         break;
                     }
