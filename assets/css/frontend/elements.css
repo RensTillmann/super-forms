@@ -6164,30 +6164,7 @@ html[dir=rtl] .super-timepicker-dialog .ui-timepicker-list li {
   padding-left: 0;
   padding-right: 15px;
 }
-html[dir=rtl] .super-form.super-rtl .super-heading-title,
-html[dir=rtl] .super-form.super-rtl .super-heading-description {
-  justify-content: flex-start;
-}
-html[dir=rtl] .super-form.super-rtl .super-heading-title.super-align-left,
-html[dir=rtl] .super-form.super-rtl .super-heading-description.super-align-left {
-  justify-content: flex-end;
-}
-html[dir=rtl] .super-form.super-rtl .super-heading-title.super-align-center,
-html[dir=rtl] .super-form.super-rtl .super-heading-description.super-align-center {
-  justify-content: center;
-}
-html[dir=rtl] .super-form.super-rtl .super-heading-title.super-align-right,
-html[dir=rtl] .super-form.super-rtl .super-heading-description.super-align-right {
-  justify-content: flex-start;
-}
-html[dir=rtl] .super-form.super-rtl .super-multipart-steps {
-  flex-direction: row;
-}
-html[dir=rtl] .super-form.super-rtl .display-horizontal .super-items-list {
-  flex-direction: row;
-}
-html[dir=rtl] .super-form.super-rtl .super-checkbox .super-item,
-html[dir=rtl] .super-form.super-rtl .super-radio .super-item {
+html[dir=rtl] .super-form.super-rtl .display-horizontal:not(.super-checkbox):not(.super-radio) .super-items-list {
   flex-direction: row;
 }
 html[dir=rtl] .super-form.super-rtl.super-default-rounded .super-quantity .super-minus-button {
@@ -6196,22 +6173,16 @@ html[dir=rtl] .super-form.super-rtl.super-default-rounded .super-quantity .super
 html[dir=rtl] .super-form.super-rtl.super-default-rounded .super-quantity .super-plus-button {
   border-radius: 4px 0px 0px 4px;
 }
-html[dir=rtl] .super-form.super-rtl .super-field:not(.super-icon-outside, .super-icon-inside).super-checkbox .super-field-wrapper, html[dir=rtl] .super-form.super-rtl .super-field:not(.super-icon-outside, .super-icon-inside).super-radio .super-field-wrapper, html[dir=rtl] .super-form.super-rtl .super-field:not(.super-icon-outside, .super-icon-inside).super-rating .super-field-wrapper {
+html[dir=rtl] .super-form.super-rtl .super-field:not(.super-icon-outside, .super-icon-inside).super-rating .super-field-wrapper {
   justify-content: flex-start;
 }
-html[dir=rtl] .super-form.super-rtl .display-horizontal .super-field-wrapper {
+html[dir=rtl] .super-form.super-rtl .display-horizontal:not(.super-checkbox):not(.super-radio) .super-field-wrapper {
   justify-content: flex-start;
-}
-html[dir=rtl] .super-form.super-rtl .display-horizontal .super-items-list {
-  flex-direction: row;
-}
-html[dir=rtl] .super-form.super-rtl .super-multipart-progress-inner {
-  flex-direction: row;
 }
 html[dir=rtl] .super-form.super-rtl .super-dropdown:not(.super-open.super-focus, .super-filled) .super-adaptive-placeholder {
   justify-content: flex-start;
 }
-html[dir=rtl] .super-form.super-rtl .display-grid .super-items-list {
+html[dir=rtl] .super-form.super-rtl .display-grid:not(.super-checkbox):not(.super-radio) .super-items-list {
   flex-direction: row;
   flex-grow: 1;
 }
@@ -6229,25 +6200,72 @@ html[dir=rtl] .super-form.super-rtl .super-toggle {
 html[dir=rtl] .super-form.super-rtl .super-color .super-field-wrapper {
   justify-content: flex-start;
 }
-html[dir=rtl] .super-form.super-rtl .super-file .super-field-wrapper .super-fileupload-button {
-  flex-direction: row;
-}
 html[dir=rtl] .super-form.super-rtl .super-calculator.super-align-left .super-field-wrapper {
   justify-content: flex-end;
 }
 html[dir=rtl] .super-form.super-rtl .super-calculator.super-align-right .super-field-wrapper {
   justify-content: flex-start;
 }
-html[dir=rtl] .super-form.super-rtl .super-file .super-field-wrapper {
-  align-items: flex-start;
-}
-html[dir=rtl] .super-form.super-rtl .super-file .super-field-wrapper .super-fileupload-files {
-  flex-direction: row;
-}
-html[dir=rtl] .super-form.super-rtl .super-tabs-menu,
-html[dir=rtl] .super-form.super-rtl .super-accordion-header,
 html[dir=rtl] .super-form.super-rtl .super-int-phone_flag-container .super-int-phone_selected-flag,
 html[dir=rtl] .super-form.super-rtl .super-int-phone_country-list .super-int-phone_country {
+  flex-direction: row;
+}
+
+/* Keep RTL row axes local, independent of the page wrapper direction. */
+.super-form.super-rtl .super-tabs-menu,
+.super-form.super-rtl .super-accordion-header,
+.super-form.super-rtl .super-checkbox,
+.super-form.super-rtl .super-radio,
+.super-form.super-rtl .super-multipart-steps,
+.super-form.super-rtl .super-multipart-progress-inner,
+.super-form.super-rtl .super-file,
+.super-form.super-rtl .super-heading-title,
+.super-form.super-rtl .super-heading-description {
+  direction: rtl;
+}
+.super-form.super-rtl .super-heading-title,
+.super-form.super-rtl .super-heading-description {
+  justify-content: flex-start;
+}
+.super-form.super-rtl .super-heading-title.super-align-left,
+.super-form.super-rtl .super-heading-description.super-align-left {
+  justify-content: flex-end;
+}
+.super-form.super-rtl .super-heading-title.super-align-center,
+.super-form.super-rtl .super-heading-description.super-align-center {
+  justify-content: center;
+}
+.super-form.super-rtl .super-heading-title.super-align-right,
+.super-form.super-rtl .super-heading-description.super-align-right {
+  justify-content: flex-start;
+}
+.super-form.super-rtl .super-tabs-menu,
+.super-form.super-rtl .super-accordion-header,
+.super-form.super-rtl .super-multipart-steps,
+.super-form.super-rtl .super-multipart-progress-inner,
+.super-form.super-rtl .super-checkbox .super-item,
+.super-form.super-rtl .super-radio .super-item,
+.super-form.super-rtl .super-checkbox.display-horizontal .super-items-list,
+.super-form.super-rtl .super-radio.display-horizontal .super-items-list {
+  flex-direction: row;
+}
+.super-form.super-rtl .super-field:not(.super-icon-outside, .super-icon-inside).super-checkbox .super-field-wrapper, .super-form.super-rtl .super-field:not(.super-icon-outside, .super-icon-inside).super-radio .super-field-wrapper {
+  justify-content: flex-start;
+}
+.super-form.super-rtl .super-checkbox.display-horizontal .super-field-wrapper,
+.super-form.super-rtl .super-radio.display-horizontal .super-field-wrapper {
+  justify-content: flex-start;
+}
+.super-form.super-rtl .super-checkbox.display-grid .super-items-list,
+.super-form.super-rtl .super-radio.display-grid .super-items-list {
+  flex-direction: row;
+  flex-grow: 1;
+}
+.super-form.super-rtl .super-file .super-field-wrapper {
+  align-items: flex-start;
+}
+.super-form.super-rtl .super-file .super-field-wrapper .super-fileupload-button,
+.super-form.super-rtl .super-file .super-field-wrapper .super-fileupload-files {
   flex-direction: row;
 }
 
