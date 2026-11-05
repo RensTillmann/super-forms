@@ -2512,7 +2512,7 @@ if(!class_exists('SUPER_Stripe')) :
                 'hidden' => true,
                 'name' => esc_html__( 'Stripe Checkout', 'super-forms' ),
                 'label' => esc_html__( 'Stripe Checkout', 'super-forms' ),
-                //'html' => array( '<style>.super-settings .stripe-settings-html-notice {}</style>', '<p class="stripe-settings-html-notice">' . sprintf( esc_html__( 'Before filling out these settings we %shighly recommend%s you to read the %sdocumentation%s.', 'super-forms' ), '<strong>', '</strong>', '<a target="_blank" href="https://renstillmann.github.io/super-forms/#/stripe-add-on">', '</a>' ) . '</p>' ),
+                //'html' => array( '<style>.super-settings .stripe-settings-html-notice {}</style>', '<p class="stripe-settings-html-notice">' . sprintf( esc_html__( 'Before filling out these settings we %shighly recommend%s you to read the %sdocumentation%s.', 'super-forms' ), '<strong>', '</strong>', '<a target="_blank" href="https://docs.super-forms.com/features/integrations/stripe-beta">', '</a>' ) . '</p>' ),
                 'html' => array('<div class="sfui-notice sfui-yellow" style="display:flex;align-items:center;"><p><strong>Note:</strong> You only have to fill out the public key and secret key of the API. Super Forms will automatically create a Webhook with all the required events for you.</p></div>'),
                 'fields' => array(
                     // Sandbox keys
