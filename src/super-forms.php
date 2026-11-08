@@ -1622,7 +1622,7 @@ if(!class_exists('SUPER_Forms')) :
             // add_option() refuses an existing option, so the repair runs once per site
             if( get_option( 'super_beta_trigger_repair' ) !== false ) return;
             if( !add_option( 'super_beta_trigger_repair', $this->version, '', false ) ) return;
-            SUPER_Common::repair_2023_beta_duplicate_triggers();
+            SUPER_Common::repair_pre_64_duplicate_triggers();
         }
         public function query_vars( $query_vars ){
             $query_vars[] = 'sfdlfi';

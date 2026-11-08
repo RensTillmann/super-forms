@@ -855,11 +855,15 @@ class SUPER_Common {
         }
     }
     /**
-     * Convert a trigger saved by a 2023 beta (6.3.6xx/6.3.7xx) to the 6.4 format: the `active` flag becomes
-     * `enabled`, and each `send_email` action gets its e-mail details under `data` and its condition under
-     * `conditions`. Parts already in the 6.4 format are kept as they are.
+     * Convert a trigger saved before 6.4 to the 6.4 format. Two beta shapes exist:
+     * - 2023 betas (6.3.6xx/6.3.7xx): an `active` flag, `listen_to_ids`, and the e-mail details directly on each
+     *   `send_email` action (`to`, `from`, `subject`, `conditionally`, ...);
+     * - 6.3.742 builds (2024): `enabled`, and the e-mail details under `actions[].email` with schedules under
+     *   `email.schedule.dates`.
+     * 6.4 reads `enabled`, `ids`, `actions[].conditions` and `actions[].data` (schedules under `schedule.schedules`).
+     * Parts already in the 6.4 format are kept as they are.
      */
-    public static function convert_2023_beta_trigger($tv){
+    public static function convert_pre_64_trigger($tv){
         $trigger = $tv;
         if(!isset($tv['enabled']) && isset($tv['active'])){
             $trigger['enabled'] = ($tv['active']==='true' ? 'true' : 'false');
@@ -868,10 +872,47 @@ class SUPER_Common {
         // The 6.4 builder keeps the form IDs of a "specific forms" trigger in `ids`
         if(!isset($tv['ids']) && isset($tv['listen_to_ids'])) $trigger['ids'] = $tv['listen_to_ids'];
         if(empty($tv['actions']) || !is_array($tv['actions'])) return $trigger;
+        $email_defaults = array(
+            'to' => '',
+            'from_email' => '',
+            'from_name' => '',
+            'reply_to' => array('enabled' => 'false', 'email' => '', 'name' => ''),
+            'subject' => '',
+            'body' => '',
+            'loop_open' => '<table cellpadding="5">',
+            'loop' => '<tr><th valign="top" align="right">{loop_label}</th><td>{loop_value}</td></tr>',
+            'loop_close' => '</table>',
+            'exclude' => array('enabled' => 'false', 'exclude_fields' => ''),
+            'rtl' => 'false',
+            'cc' => '',
+            'bcc' => '',
+            'header_additional' => '',
+            'attachments' => '',
+            'content_type' => 'html',
+            'charset' => 'UTF-8',
+            'schedule' => array('enabled' => 'false', 'schedules' => array())
+        );
         foreach($tv['actions'] as $ak => $av){
             if(!is_array($av)) continue;
             if(isset($av['data']) && is_array($av['data'])) continue;
             if(empty($av['action']) || $av['action']!=='send_email') continue;
+            // 6.3.742 shape: the e-mail details are complete under `email`, only the group names differ
+            if(isset($av['email']) && is_array($av['email'])){
+                $data = array_merge($email_defaults, $av['email']);
+                if(!is_array($data['schedule'])) $data['schedule'] = $email_defaults['schedule'];
+                if(isset($data['schedule']['dates']) && !isset($data['schedule']['schedules'])) $data['schedule']['schedules'] = $data['schedule']['dates'];
+                unset($data['schedule']['dates']);
+                if(!isset($data['schedule']['enabled'])) $data['schedule']['enabled'] = 'false';
+                if(!isset($data['schedule']['schedules']) || !is_array($data['schedule']['schedules'])) $data['schedule']['schedules'] = array();
+                $converted = $av;
+                unset($converted['email']);
+                $converted['data'] = $data;
+                if(!isset($converted['conditions']) || !is_array($converted['conditions'])){
+                    $converted['conditions'] = array('enabled' => 'false', 'f1' => '', 'logic' => '==', 'f2' => '');
+                }
+                $trigger['actions'][$ak] = $converted;
+                continue;
+            }
             // A condition without an operator never stopped the action, so it is converted switched off
             $old_enabled = (isset($av['conditionally']) && $av['conditionally']==='true' && !empty($av['logic']) ? 'true' : 'false');
             $trigger['actions'][$ak] = array(
@@ -912,18 +953,31 @@ class SUPER_Common {
         return $trigger;
     }
     /**
-     * @since 6.4.012 - One-time repair for forms the 6.4.009 to 6.4.011 rewrite went through. It added every trigger
-     * of a 2023 beta a second time, unchanged, so the form has two or more rows of that trigger with the old `active`
-     * flag and no `enabled`, and 6.4 runs none of them. Each such set of rows becomes one converted row.
-     * Rows of any other shape, and single rows, are left alone.
+     * Whether a trigger is still in a pre-6.4 shape (see convert_pre_64_trigger()): the 2023 `active` flag without
+     * `enabled`, or a `send_email` action with its e-mail details under the 6.3.742 `email` group and no `data`.
      */
-    public static function repair_2023_beta_duplicate_triggers(){
+    public static function is_pre_64_trigger($t){
+        if(!is_array($t)) return false;
+        if(isset($t['active']) && !isset($t['enabled'])) return true;
+        if(empty($t['actions']) || !is_array($t['actions'])) return false;
+        foreach($t['actions'] as $a){
+            if(is_array($a) && isset($a['email']) && is_array($a['email']) && !isset($a['data'])) return true;
+        }
+        return false;
+    }
+    /**
+     * @since 6.4.012 - One-time repair for forms the 6.4.009 to 6.4.011 rewrite went through. It added every trigger
+     * saved before 6.4 a second time, unchanged: a 2023-beta trigger then ran in neither copy, a 6.3.742 trigger
+     * ran in both without its e-mail details. Each set of identical rows of one trigger that is still in a pre-6.4
+     * shape becomes one converted row. Rows of any other shape, and single rows, are left alone.
+     */
+    public static function repair_pre_64_duplicate_triggers(){
         global $wpdb;
         $groups = $wpdb->get_results($wpdb->prepare("SELECT post_id, meta_key FROM $wpdb->postmeta WHERE meta_key LIKE %s GROUP BY post_id, meta_key HAVING COUNT(*) > 1", $wpdb->esc_like('_super_trigger-').'%'));
         foreach($groups as $g){
             $values = $wpdb->get_col($wpdb->prepare("SELECT meta_value FROM $wpdb->postmeta WHERE post_id = %d AND meta_key = %s ORDER BY meta_id", $g->post_id, $g->meta_key));
             $first = maybe_unserialize($values[0]);
-            if(!is_array($first) || !isset($first['active']) || isset($first['enabled'])) continue;
+            if(!self::is_pre_64_trigger($first)) continue;
             // The copies are the first row as stored, or with its backslashes stripped by the save that added them
             $copies_only = true;
             foreach($values as $v){
@@ -935,7 +989,7 @@ class SUPER_Common {
             }
             if(!$copies_only) continue;
             delete_post_meta($g->post_id, $g->meta_key);
-            add_post_meta($g->post_id, $g->meta_key, wp_slash(self::convert_2023_beta_trigger($first)));
+            add_post_meta($g->post_id, $g->meta_key, wp_slash(self::convert_pre_64_trigger($first)));
         }
     }
     public static function triggerEvent($eventName, $form_data){
@@ -2349,9 +2403,9 @@ class SUPER_Common {
         if(version_compare($current_form_version, '6.4', '<')){
             // Get trigger settings
             $triggers = SUPER_Common::get_form_triggers($form_id);
-            // Convert triggers of the 2023 beta format (`active` flag, e-mail details directly on the action)
+            // Convert triggers saved before 6.4 (2023-beta and 6.3.742 shapes) to the 6.4 format
             foreach($triggers as $tk => $tv){
-                if(is_array($tv)) $triggers[$tk] = self::convert_2023_beta_trigger($tv);
+                if(is_array($tv)) $triggers[$tk] = self::convert_pre_64_trigger($tv);
             }
             // Names of triggers that already exist, to not add them a second time
             $existing_trigger_names = array();
