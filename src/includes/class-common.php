@@ -998,6 +998,9 @@ class SUPER_Common {
         if(!class_exists('SUPER_Triggers')) require_once('class-triggers.php'); 
         $triggers = array();
         $form_id = absint($form_data['form_id']);
+        // Condition {tags} resolve against the submitted data and this form's settings
+        $data = (isset($form_data['data']) && is_array($form_data['data']) ? $form_data['data'] : array());
+        $settings = (isset($form_data['settings']) && is_array($form_data['settings']) ? $form_data['settings'] : self::get_form_settings($form_id));
         $triggers = self::get_form_triggers($form_id);
         usort($triggers, function($a, $b) {
             return absint($a['order']) - absint($b['order']);

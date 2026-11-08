@@ -79,7 +79,7 @@ class Test_Super_Forms_Form_Rewrite_Pre_64_Triggers extends WP_UnitTestCase {
         return array_map( 'maybe_unserialize', $rows );
     }
 
-    private function submit_trigger_mails( $form_id ) {
+    private function submit_trigger_mails( $form_id, $first_name = 'value-one' ) {
         $mails = array();
         $capture = static function( $short_circuit, $atts ) use ( &$mails ) {
             $mails[] = $atts;
@@ -89,7 +89,7 @@ class Test_Super_Forms_Form_Rewrite_Pre_64_Triggers extends WP_UnitTestCase {
         try {
             SUPER_Common::triggerEvent( 'sf.after.submission', array(
                 'form_id' => $form_id,
-                'data' => array( 'first_name' => array( 'name' => 'first_name', 'value' => 'value-one', 'label' => 'First name', 'type' => 'var' ) ),
+                'data' => array( 'first_name' => array( 'name' => 'first_name', 'value' => $first_name, 'label' => 'First name', 'type' => 'var' ) ),
                 'settings' => SUPER_Common::get_form_settings( $form_id ),
                 'entry_id' => 0,
                 'attachments' => array(),
@@ -328,5 +328,20 @@ class Test_Super_Forms_Form_Rewrite_Pre_64_Triggers extends WP_UnitTestCase {
         $this->assertCount( 1, $rows );
         $this->assertSame( self::OFFICE, $rows[0]['actions'][0]['data']['to'] );
         $this->assertCount( 1, $this->submit_trigger_mails( $form_id ) );
+    }
+
+    /**
+     * A trigger condition compares the submitted value of a {tag}, not the tag text.
+     */
+    public function test_condition_tag_resolves_to_the_submitted_value() {
+        $eq = $this->create_beta_form( array( $this->beta_trigger( 'Equal', 'true', array( 'conditionally' => 'true', 'f1' => '{first_name}', 'logic' => '==', 'f2' => 'first_choice' ) ) ) );
+        $ne = $this->create_beta_form( array( $this->beta_trigger( 'Not equal', 'true', array( 'conditionally' => 'true', 'f1' => '{first_name}', 'logic' => '!=', 'f2' => 'first_choice' ) ) ) );
+        SUPER_Common::get_form_settings( $eq );
+        SUPER_Common::get_form_settings( $ne );
+
+        $this->assertCount( 1, $this->submit_trigger_mails( $eq, 'first_choice' ), '== with the matching value sends' );
+        $this->assertCount( 0, $this->submit_trigger_mails( $eq, 'second_choice' ), '== with another value does not send' );
+        $this->assertCount( 0, $this->submit_trigger_mails( $ne, 'first_choice' ), '!= with the matching value does not send' );
+        $this->assertCount( 1, $this->submit_trigger_mails( $ne, 'second_choice' ), '!= with another value sends' );
     }
 }
