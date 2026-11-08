@@ -854,6 +854,90 @@ class SUPER_Common {
             }
         }
     }
+    /**
+     * Convert a trigger saved by a 2023 beta (6.3.6xx/6.3.7xx) to the 6.4 format: the `active` flag becomes
+     * `enabled`, and each `send_email` action gets its e-mail details under `data` and its condition under
+     * `conditions`. Parts already in the 6.4 format are kept as they are.
+     */
+    public static function convert_2023_beta_trigger($tv){
+        $trigger = $tv;
+        if(!isset($tv['enabled']) && isset($tv['active'])){
+            $trigger['enabled'] = ($tv['active']==='true' ? 'true' : 'false');
+        }
+        unset($trigger['active']);
+        // The 6.4 builder keeps the form IDs of a "specific forms" trigger in `ids`
+        if(!isset($tv['ids']) && isset($tv['listen_to_ids'])) $trigger['ids'] = $tv['listen_to_ids'];
+        if(empty($tv['actions']) || !is_array($tv['actions'])) return $trigger;
+        foreach($tv['actions'] as $ak => $av){
+            if(!is_array($av)) continue;
+            if(isset($av['data']) && is_array($av['data'])) continue;
+            if(empty($av['action']) || $av['action']!=='send_email') continue;
+            // A condition without an operator never stopped the action, so it is converted switched off
+            $old_enabled = (isset($av['conditionally']) && $av['conditionally']==='true' && !empty($av['logic']) ? 'true' : 'false');
+            $trigger['actions'][$ak] = array(
+                'action' => 'send_email',
+                'order' => (isset($av['order']) ? $av['order'] : '1'),
+                'conditions' => array(
+                    'enabled' => $old_enabled,
+                    'f1' => (isset($av['f1']) ? $av['f1'] : ''),
+                    'logic' => (!empty($av['logic']) ? $av['logic'] : '=='),
+                    'f2' => (isset($av['f2']) ? $av['f2'] : '')
+                ),
+                'data' => array(
+                    'to' => (isset($av['to']) ? $av['to'] : ''),
+                    'from_email' => (isset($av['from']) ? $av['from'] : ''),
+                    'from_name' => '',
+                    'reply_to' => array(
+                        'enabled' => (!empty($av['reply_to']) ? 'true' : 'false'),
+                        'email' => (isset($av['reply_to']) ? $av['reply_to'] : ''),
+                        'name' => ''
+                    ),
+                    'subject' => (isset($av['subject']) ? $av['subject'] : ''),
+                    'body' => (isset($av['body']) ? $av['body'] : ''),
+                    'loop_open' => '<table cellpadding="5">',
+                    'loop' => '<tr><th valign="top" align="right">{loop_label}</th><td>{loop_value}</td></tr>',
+                    'loop_close' => '</table>',
+                    'exclude' => array('enabled' => 'false', 'exclude_fields' => ''),
+                    'rtl' => 'false',
+                    'cc' => (isset($av['cc']) ? $av['cc'] : ''),
+                    'bcc' => (isset($av['bcc']) ? $av['bcc'] : ''),
+                    'header_additional' => (isset($av['headers']) ? $av['headers'] : ''),
+                    'attachments' => '',
+                    'content_type' => (!empty($av['content_type']) ? $av['content_type'] : 'html'),
+                    'charset' => (!empty($av['charset']) ? $av['charset'] : 'UTF-8'),
+                    'schedule' => array('enabled' => 'false', 'schedules' => array())
+                )
+            );
+        }
+        return $trigger;
+    }
+    /**
+     * @since 6.4.012 - One-time repair for forms the 6.4.009 to 6.4.011 rewrite went through. It added every trigger
+     * of a 2023 beta a second time, unchanged, so the form has two or more rows of that trigger with the old `active`
+     * flag and no `enabled`, and 6.4 runs none of them. Each such set of rows becomes one converted row.
+     * Rows of any other shape, and single rows, are left alone.
+     */
+    public static function repair_2023_beta_duplicate_triggers(){
+        global $wpdb;
+        $groups = $wpdb->get_results($wpdb->prepare("SELECT post_id, meta_key FROM $wpdb->postmeta WHERE meta_key LIKE %s GROUP BY post_id, meta_key HAVING COUNT(*) > 1", $wpdb->esc_like('_super_trigger-').'%'));
+        foreach($groups as $g){
+            $values = $wpdb->get_col($wpdb->prepare("SELECT meta_value FROM $wpdb->postmeta WHERE post_id = %d AND meta_key = %s ORDER BY meta_id", $g->post_id, $g->meta_key));
+            $first = maybe_unserialize($values[0]);
+            if(!is_array($first) || !isset($first['active']) || isset($first['enabled'])) continue;
+            // The copies are the first row as stored, or with its backslashes stripped by the save that added them
+            $copies_only = true;
+            foreach($values as $v){
+                $v = maybe_unserialize($v);
+                if($v!==$first && $v!==wp_unslash($first)){
+                    $copies_only = false;
+                    break;
+                }
+            }
+            if(!$copies_only) continue;
+            delete_post_meta($g->post_id, $g->meta_key);
+            add_post_meta($g->post_id, $g->meta_key, wp_slash(self::convert_2023_beta_trigger($first)));
+        }
+    }
     public static function triggerEvent($eventName, $form_data){
         global $wpdb;
         error_log('triggerEvent('.$eventName.')');
@@ -2267,55 +2351,7 @@ class SUPER_Common {
             $triggers = SUPER_Common::get_form_triggers($form_id);
             // Convert triggers of the 2023 beta format (`active` flag, e-mail details directly on the action)
             foreach($triggers as $tk => $tv){
-                if(!is_array($tv)) continue;
-                if(!isset($tv['enabled']) && isset($tv['active'])){
-                    $triggers[$tk]['enabled'] = ($tv['active']==='true' ? 'true' : 'false');
-                }
-                unset($triggers[$tk]['active']);
-                // The 6.4 builder keeps the form IDs of a "specific forms" trigger in `ids`
-                if(!isset($tv['ids']) && isset($tv['listen_to_ids'])) $triggers[$tk]['ids'] = $tv['listen_to_ids'];
-                if(empty($tv['actions']) || !is_array($tv['actions'])) continue;
-                foreach($tv['actions'] as $ak => $av){
-                    if(!is_array($av)) continue;
-                    if(isset($av['data']) && is_array($av['data'])) continue;
-                    if(empty($av['action']) || $av['action']!=='send_email') continue;
-                    // A condition without an operator never stopped the action, so it is converted switched off
-                    $old_enabled = (isset($av['conditionally']) && $av['conditionally']==='true' && !empty($av['logic']) ? 'true' : 'false');
-                    $triggers[$tk]['actions'][$ak] = array(
-                        'action' => 'send_email',
-                        'order' => (isset($av['order']) ? $av['order'] : '1'),
-                        'conditions' => array(
-                            'enabled' => $old_enabled,
-                            'f1' => (isset($av['f1']) ? $av['f1'] : ''),
-                            'logic' => (!empty($av['logic']) ? $av['logic'] : '=='),
-                            'f2' => (isset($av['f2']) ? $av['f2'] : '')
-                        ),
-                        'data' => array(
-                            'to' => (isset($av['to']) ? $av['to'] : ''),
-                            'from_email' => (isset($av['from']) ? $av['from'] : ''),
-                            'from_name' => '',
-                            'reply_to' => array(
-                                'enabled' => (!empty($av['reply_to']) ? 'true' : 'false'),
-                                'email' => (isset($av['reply_to']) ? $av['reply_to'] : ''),
-                                'name' => ''
-                            ),
-                            'subject' => (isset($av['subject']) ? $av['subject'] : ''),
-                            'body' => (isset($av['body']) ? $av['body'] : ''),
-                            'loop_open' => '<table cellpadding="5">',
-                            'loop' => '<tr><th valign="top" align="right">{loop_label}</th><td>{loop_value}</td></tr>',
-                            'loop_close' => '</table>',
-                            'exclude' => array('enabled' => 'false', 'exclude_fields' => ''),
-                            'rtl' => 'false',
-                            'cc' => (isset($av['cc']) ? $av['cc'] : ''),
-                            'bcc' => (isset($av['bcc']) ? $av['bcc'] : ''),
-                            'header_additional' => (isset($av['headers']) ? $av['headers'] : ''),
-                            'attachments' => '',
-                            'content_type' => (!empty($av['content_type']) ? $av['content_type'] : 'html'),
-                            'charset' => (!empty($av['charset']) ? $av['charset'] : 'UTF-8'),
-                            'schedule' => array('enabled' => 'false', 'schedules' => array())
-                        )
-                    );
-                }
+                if(is_array($tv)) $triggers[$tk] = self::convert_2023_beta_trigger($tv);
             }
             // Names of triggers that already exist, to not add them a second time
             $existing_trigger_names = array();

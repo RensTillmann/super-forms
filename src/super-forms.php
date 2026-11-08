@@ -1423,6 +1423,9 @@ if(!class_exists('SUPER_Forms')) :
             add_action( 'query_vars', array( $this, 'query_vars' ) );
             add_filter( 'parse_request', array( $this, 'parse_request' ) );
 
+            // @since 6.4.012 - One-time repair of the trigger rows the 6.4.009 to 6.4.011 form rewrite duplicated
+            add_action( 'init', array( $this, 'repair_duplicate_triggers_once' ) );
+
             // Clean up expired contact-entry export attachments
             add_action( 'super_cleanup_export_attachment', array( __CLASS__, 'cleanup_export_attachment' ) );
 
@@ -1614,6 +1617,12 @@ if(!class_exists('SUPER_Forms')) :
         public function flush_rewrite_rules_once() {
             flush_rewrite_rules( false );
             update_option( 'super_rewrite_rules_version', $this->version, false );
+        }
+        public function repair_duplicate_triggers_once() {
+            // add_option() refuses an existing option, so the repair runs once per site
+            if( get_option( 'super_beta_trigger_repair' ) !== false ) return;
+            if( !add_option( 'super_beta_trigger_repair', $this->version, '', false ) ) return;
+            SUPER_Common::repair_2023_beta_duplicate_triggers();
         }
         public function query_vars( $query_vars ){
             $query_vars[] = 'sfdlfi';
