@@ -829,25 +829,26 @@ class SUPER_Common {
                 $triggerName = sanitize_title_with_dashes(trim($trigger['name']));
                 // Skip if no event was choosen
                 if(empty($trigger['event'])) continue; 
+                // The one-time rewrite passes stored values; the meta functions unslash what they save, so slash them first
+                $value = ($delete===true ? $trigger : wp_slash($trigger));
                 // Only current form
                 if(empty($trigger['listen_to'])){
-                    if($delete===true){
-                        add_post_meta( $form_id, '_super_trigger-'.$triggerName, $trigger );
-                    }else{
-                        // Existing triggers are kept, replace a trigger with the same name instead of adding a duplicate
-                        update_post_meta( $form_id, '_super_trigger-'.$triggerName, $trigger );
+                    if($delete!==true){
+                        // Existing triggers are kept: replace every row with this name instead of adding a duplicate
+                        delete_post_meta( $form_id, '_super_trigger-'.$triggerName );
                     }
+                    add_post_meta( $form_id, '_super_trigger-'.$triggerName, $value );
                     continue;
                 }
                 // Global trigger (for all forms)
                 if(isset($trigger['listen_to']) && $trigger['listen_to']==='all'){
                     // Use our custom update_metadata function because we can't parse zero value otherwise
-                    self::update_metadata( 'post', 0, '_super_global_trigger-'.$triggerName, $trigger );
+                    self::update_metadata( 'post', 0, '_super_global_trigger-'.$triggerName, $value );
                     continue;
                 }
                 // Specific forms only (by ID)
                 if(isset($trigger['listen_to']) && $trigger['listen_to']==='id'){
-                    self::update_metadata( 'post', 0, '_super_specific_trigger-'.$triggerName, $trigger );
+                    self::update_metadata( 'post', 0, '_super_specific_trigger-'.$triggerName, $value );
                     continue;
                 }
             }
@@ -2271,12 +2272,15 @@ class SUPER_Common {
                     $triggers[$tk]['enabled'] = ($tv['active']==='true' ? 'true' : 'false');
                 }
                 unset($triggers[$tk]['active']);
+                // The 6.4 builder keeps the form IDs of a "specific forms" trigger in `ids`
+                if(!isset($tv['ids']) && isset($tv['listen_to_ids'])) $triggers[$tk]['ids'] = $tv['listen_to_ids'];
                 if(empty($tv['actions']) || !is_array($tv['actions'])) continue;
                 foreach($tv['actions'] as $ak => $av){
                     if(!is_array($av)) continue;
                     if(isset($av['data']) && is_array($av['data'])) continue;
                     if(empty($av['action']) || $av['action']!=='send_email') continue;
-                    $old_enabled = (isset($av['conditionally']) && $av['conditionally']==='true' ? 'true' : 'false');
+                    // A condition without an operator never stopped the action, so it is converted switched off
+                    $old_enabled = (isset($av['conditionally']) && $av['conditionally']==='true' && !empty($av['logic']) ? 'true' : 'false');
                     $triggers[$tk]['actions'][$ak] = array(
                         'action' => 'send_email',
                         'order' => (isset($av['order']) ? $av['order'] : '1'),

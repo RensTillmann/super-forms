@@ -85,7 +85,8 @@ class SUPER_Triggers {
             }
         }
         $actionName = $action['action'];
-        if($options['schedule']['enabled']==='true'){
+        // Actions the one-time rewrite created for the WooCommerce completed e-mail have no `schedule` or `exclude`
+        if(!empty($options['schedule']['enabled']) && $options['schedule']['enabled']==='true'){
             $schedules = $options['schedule']['schedules'];
             foreach($schedules as $k => $v){
                 // Determine the date
@@ -260,7 +261,7 @@ class SUPER_Triggers {
     }
 
     public static function retrieve_email_loop_html($data, $settings, $options){
-        if($options['exclude']['enabled']==='true'){
+        if(!empty($options['exclude']['enabled']) && $options['exclude']['enabled']==='true'){
             foreach($options['exclude']['exclude_fields'] as $v){
                 if(isset($data[$v['name']])){
                     unset($data[$v['name']]);
