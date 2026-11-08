@@ -378,7 +378,13 @@
     };
 
     // init connected datepickers
-    SUPER.init_connected_datepicker = function($this, selectedDate, $parse_format, oneDay, skipFieldChangeForElement){
+    SUPER.init_connected_datepicker = function($this, selectedDate, $parse_format, oneDay, skipFieldChangeForElement, connectedChain){
+        // Two connected date fields can point at each other; without this guard the function
+        // recursed into itself until the call stack overflowed and rewrote both values.
+        // A field already updated in this chain is skipped, so longer chains still propagate.
+        if(typeof connectedChain === 'undefined') connectedChain = [];
+        if(connectedChain.indexOf($this)!==-1) return;
+        connectedChain.push($this);
         if(selectedDate===''){
             $this.closest('.super-field').classList.remove('super-filled');
         }else{
@@ -432,7 +438,7 @@
                                 }else{
                                     $connected_date.closest('.super-field').classList.add('super-filled');
                                 }
-                                $parse = Date.parseExact($connected_date.value, $parse_format);
+                                $parse = Date.parseExact($connected_date.value, [$connected_date.dataset.jsformat]);
                                 if($parse!==null){
                                     selectedDate = $parse.toString($format);
                                     d = Date.parseExact(selectedDate, $format);
@@ -441,7 +447,7 @@
                                     day = d.toString('dd');          
                                     selectedDate = new Date(Date.UTC(year, month-1, day));
                                     $connected_date.dataset.mathDiff = selectedDate.getTime();
-                                    SUPER.init_connected_datepicker($connected_date, $connected_date.value, $parse_format, oneDay);
+                                    SUPER.init_connected_datepicker($connected_date, $connected_date.value, [$connected_date.dataset.jsformat], oneDay, skipFieldChangeForElement, connectedChain);
                                 }
                             }
                         }
@@ -464,7 +470,7 @@
                             }else{
                                 $connected_date.closest('.super-field').classList.add('super-filled');
                             }
-                            $parse = Date.parseExact($connected_date.value, $parse_format);
+                            $parse = Date.parseExact($connected_date.value, [$connected_date.dataset.jsformat]);
                             if($parse!==null){
                                 selectedDate = $parse.toString($format);
                                 d = Date.parseExact(selectedDate, $format);
@@ -473,7 +479,7 @@
                                 day = d.toString('dd');          
                                 selectedDate = new Date(Date.UTC(year, month-1, day));
                                 $connected_date.dataset.mathDiff = selectedDate.getTime();
-                                SUPER.init_connected_datepicker($connected_date, $connected_date.value, $parse_format, oneDay);
+                                SUPER.init_connected_datepicker($connected_date, $connected_date.value, [$connected_date.dataset.jsformat], oneDay, skipFieldChangeForElement, connectedChain);
                             }
                         }
                     }
@@ -626,7 +632,7 @@
                 singleDatesClassName = 'super-datepicker-singledates';
             var options = {
                 onClose: function( selectedDate ) {
-                    SUPER.init_connected_datepicker(this, selectedDate, parseFormat, oneDay, skipFieldChangeForElement);
+                    SUPER.init_connected_datepicker(this, selectedDate, [this.dataset.jsformat], oneDay, skipFieldChangeForElement);
                 },
                 beforeShowDay: function(dt) {
                     workDays = (this.dataset.workDays == 'true');
@@ -742,28 +748,44 @@
                     return [];
                 },
                 beforeShow: function(input, inst) {
-                    var maxPicks = (inst.settings.maxPicks ? inst.settings.maxPicks : 1);
+                    var maxPicks = (inst.settings.maxPicks ? inst.settings.maxPicks : 1),
+                        $current = $(input),
+                        currentName = $current.attr('name'),
+                        currentFormat = input.dataset.jsformat,
+                        connectedFormat, connectedDays, connectedDate;
                     widget = $(inst).datepicker('widget');
                     widget[0].classList.add('super-datepicker-dialog');
                     if(maxPicks<=1){
                         widget[0].classList.remove(multiDatesClassName);
                         widget[0].classList.add(singleDatesClassName);
-                        $('.super-datepicker[data-connected-min="'+$(this).attr('name')+'"]').each(function(){
+                        $('.super-datepicker[data-connected-min="'+currentName+'"]').each(function(){
                             if($(this).val()!==''){
-                                connectedMinDays = $(this).data('connected-min-days');
-                                minDate = Date.parseExact($(this).val(), parseFormat).add({ days: connectedMinDays }).toString(jsformat);
-                                $(el).datepicker('option', 'minDate', minDate );
+                                // Parse the connected field's value with its own date format, and apply the
+                                // option to the picker being opened. With two different date formats the
+                                // old code parsed with (and wrote to) the last initialised picker, so
+                                // Date.parseExact returned null and .add() threw, aborting the show.
+                                connectedFormat = this.dataset.jsformat;
+                                connectedDays = $(this).data('connected-min-days');
+                                connectedDate = Date.parseExact($(this).val(), [connectedFormat]);
+                                if(connectedDate!==null){
+                                    minDate = connectedDate.add({ days: connectedDays }).toString(currentFormat);
+                                    $current.datepicker('option', 'minDate', minDate );
+                                }
                             }
                         });
                     }else{
                         widget[0].classList.add(multiDatesClassName);
                         widget[0].classList.remove(singleDatesClassName);
                     }
-                    $('.super-datepicker[data-connected-max="'+$(this).attr('name')+'"]').each(function(){
+                    $('.super-datepicker[data-connected-max="'+currentName+'"]').each(function(){
                         if($(this).val()!==''){
-                            connectedMaxDays = $(this).data('connected-max-days');
-                            maxDate = Date.parseExact($(this).val(), parseFormat).add({ days: connectedMaxDays }).toString(jsformat);
-                            $(el).datepicker('option', 'maxDate', maxDate );
+                            connectedFormat = this.dataset.jsformat;
+                            connectedDays = $(this).data('connected-max-days');
+                            connectedDate = Date.parseExact($(this).val(), [connectedFormat]);
+                            if(connectedDate!==null){
+                                maxDate = connectedDate.add({ days: connectedDays }).toString(currentFormat);
+                                $current.datepicker('option', 'maxDate', maxDate );
+                            }
                         }
                     });
                 },
