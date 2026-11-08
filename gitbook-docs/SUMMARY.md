@@ -78,6 +78,7 @@
   * [Populate form](features/basic/populate-form.md)
   * [Popups](features/basic/popups.md)
   * [Import & Export](features/basic/import-and-export.md)
+  * [Contact Entries](features/basic/contact-entries.md)
   * [Hide form after submitting](features/basic/hide-form-after-submitting.md)
   * [Hide or lock out user from your forms](features/basic/hide-or-lock-out-user-from-your-forms.md)
   * [Validation](features/basic/validation.md)
