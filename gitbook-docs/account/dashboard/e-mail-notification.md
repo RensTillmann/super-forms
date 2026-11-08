@@ -10,6 +10,8 @@ Open **Notification Settings** (Quick Actions).
 
 By default you should receive notifications about your license expiring, notifications about payment/billing issues and notifications about new invoices.
 
+A license reminder is sent 30 days and 2 days before a license expires.
+
 You can add more recipients if required with each their own notification settings.
 
 After you made changes click **Save Notification Settings**.

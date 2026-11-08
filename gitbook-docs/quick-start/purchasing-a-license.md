@@ -14,7 +14,7 @@ Licenses are purchased from your Super Forms dashboard. In WordPress, **Super Fo
 2. Click **Purchase New License**.
 3. Pick the product(s) and the number of licenses you want, then choose how to pay:
    * **Yearly Subscription**: billed yearly and renews automatically. You can cancel it anytime from your dashboard.
-   * **Prepaid License**: you choose the **License duration** (in years) and pay once. It does not renew automatically; you renew it manually from your dashboard before it expires.
+   * **Prepaid License**: you choose the **License duration** (in years) and pay once. It does not renew automatically; you [renew it manually from your dashboard](../account/dashboard/license-expiry-and-renewal.md), before or after it expires.
 4. Check out with Stripe to complete the payment.
 5. After the payment has been processed, your new license appears under **Unused License Codes**.
 6. Click **Activate License** and enter the domain of your site. See [Activating a license](activating-a-license.md) for details.

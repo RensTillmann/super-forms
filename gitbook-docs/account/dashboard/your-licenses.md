@@ -12,6 +12,8 @@ From WordPress, **Super Forms > Licenses** opens a shortcut to this dashboard.
 
 To activate an unused code on a site: open **Unused License Codes** → **Activate License** → enter that site's domain.
 
+Licenses are renewed from this dashboard as well. See [License expiry and renewal](license-expiry-and-renewal.md) for what happens when a license runs out, the renew steps and moving a site to a yearly subscription.
+
 ### Move a license to another domain
 
 1. Sign in at [dashboard.super-forms.com](https://dashboard.super-forms.com).
