@@ -23,6 +23,7 @@
   * [Your Invoices](account/dashboard/your-invoices.md)
   * [Billing details](account/dashboard/billing-details.md)
   * [Your Licenses](account/dashboard/your-licenses.md)
+  * [License expiry and renewal](account/dashboard/license-expiry-and-renewal.md)
   * [E-mail Notification](account/dashboard/e-mail-notification.md)
   * [Password reset](account/dashboard/password-reset.md)
   * [Cancel subscription](account/dashboard/cancel-subscription.md)
