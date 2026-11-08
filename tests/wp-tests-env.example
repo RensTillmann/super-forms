@@ -1,0 +1,8 @@
+# Copy to tests/wp-tests-env and fill in the values for the WordPress installation the
+# tests run against. Keep that copy out of git (do not commit it, do not paste it into
+# an issue); or export the same names in the shell before running PHPUnit.
+WP_TESTS_ABSPATH=/var/www/html/
+WP_TESTS_DB_NAME=wordpress_test
+WP_TESTS_DB_USER=root
+WP_TESTS_DB_PASSWORD=
+WP_TESTS_DB_HOST=localhost

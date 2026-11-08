@@ -3,24 +3,31 @@
  * WordPress PHPUnit Test Configuration
  *
  * This file is used by the WordPress test framework to configure the test environment.
- * It points to the existing WordPress installation on the dev server.
+ * No paths or database credentials live in this repository: they are read from the
+ * environment (WP_TESTS_*), so the file can stay public.
  *
  * @package Super_Forms
  */
 
-// Path to the WordPress codebase (dev server)
-define( 'ABSPATH', '/home/u2669-dvgugyayggy5/www/f4d.nl/public_html/dev/' );
+$super_forms_tests_env = static function ( $name, $default = '' ) {
+	$value = getenv( $name );
+	return ( false === $value || '' === $value ) ? $default : $value;
+};
 
-// Database settings - use the same database with a test prefix
-define( 'DB_NAME', 'dbpygjzmdbtuij' );
-define( 'DB_USER', 'uwdwwvbmiu15j' );
-define( 'DB_PASSWORD', 'e2tngfdnts9f' );
-define( 'DB_HOST', 'localhost' );
+// Path to the WordPress installation the tests run against.
+define( 'ABSPATH', rtrim( $super_forms_tests_env( 'WP_TESTS_ABSPATH', '/path/to/wordpress/' ), '/' ) . '/' );
+
+// Database settings - a separate test prefix is used in that database.
+define( 'DB_NAME', $super_forms_tests_env( 'WP_TESTS_DB_NAME', 'wordpress_test' ) );
+define( 'DB_USER', $super_forms_tests_env( 'WP_TESTS_DB_USER', 'root' ) );
+define( 'DB_PASSWORD', $super_forms_tests_env( 'WP_TESTS_DB_PASSWORD' ) );
+define( 'DB_HOST', $super_forms_tests_env( 'WP_TESTS_DB_HOST', 'localhost' ) );
 define( 'DB_CHARSET', 'utf8' );
 define( 'DB_COLLATE', '' );
 
 // Test table prefix (different from production to avoid conflicts)
 $table_prefix = 'wptests_';
+
 
 // Test domain
 define( 'WP_TESTS_DOMAIN', 'f4d.nl' );
