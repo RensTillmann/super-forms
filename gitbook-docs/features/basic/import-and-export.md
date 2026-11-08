@@ -132,3 +132,5 @@ In case you need only a couple Contact Entries to be exported to a CSV file you 
 
 At the action bar click on the `Export to CSV` button. This will open up a popup where you can choose only the fields you wish to export to the CSV file. Each field will become it's own column in the CSV file. After selecting the fields you require in your CSV file click on the `Export` button. _Your CSV file will now be downloaded._
 
+To see only certain entries before you select them — one form, or a range of dates — filter the list first. [Contact Entries](contact-entries.md) shows how.
+
