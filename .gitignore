@@ -100,3 +100,8 @@ sessions/tasks/
 sessions/transcripts/
 .mcp/super-forms-server.json
 src/super-forms.php.backup-search
+
+# Browser suite (test/e2e): its installed dependencies and run output
+test/e2e/node_modules
+test/e2e/test-results
+test/e2e/playwright-report

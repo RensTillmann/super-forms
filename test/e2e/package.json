@@ -1,0 +1,14 @@
+{
+  "name": "super-forms-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Browser suite for the Super Forms plugin: drives a deployed WordPress site with Playwright",
+  "scripts": {
+    "test": "playwright test",
+    "list": "playwright test --list"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1",
+    "@types/node": "22.10.2"
+  }
+}

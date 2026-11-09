@@ -448,7 +448,43 @@ When fixing bugs, test related functionality:
 - ✅ Migration integration tests (Developer Tools)
 - ✅ Trigger system unit tests (`tests/triggers/`)
 - ✅ Trigger system performance tests
-- ❌ No E2E tests configured
+- ✅ Browser suite (Playwright) against a deployed site: `npm run e2e` (below)
+
+### Browser Suite (Playwright)
+
+**Location:** `/test/e2e/` (its own `package.json` and `playwright.config.ts`; the rest of `test/` is the old
+migration tooling)
+
+**One command, from the repo root:**
+
+```bash
+SF_SITE_URL=https://forms.example.com \
+SF_ADMIN_USER=<admin> SF_ADMIN_PASSWORD=<password> \
+npm run e2e
+```
+
+`npm run e2e` installs the pinned Playwright and its Chromium on the first run, then runs every spec against a
+**deployed site** (`SF_SITE_URL`, required). The suite never renders this repo's code itself, so it proves what a
+site carrying the plugin actually does. Add `-- --grep submit` for one spec.
+
+**What it proves:**
+
+| Spec | Proves |
+|---|---|
+| `channel.spec.ts` | The site serves a line the suite knows, read from the plugin version in the site's own assets, and the page states that same version. |
+| `render.spec.ts` | Forms render their fields, labels and calculator; the seeded test form renders all 13 fields; no console error, and no page falls back to WordPress's critical-error message. |
+| `submit.spec.ts` | A three-step form with conditional logic and a calculator submits **once** (the entries list grows by one), and the entry holds the revealed field, the calculated total and the attachment. |
+| `build.spec.ts` | Text, dropdown, file and calculator elements are dragged into the builder, saved, and survive closing and reopening the form. It deletes the form it built. |
+
+**Channel tags.** Each spec starts with a header naming the lines it covers (`@channel lts beta`, where `lts` is
+6.3.x, `beta` is 6.4.x and `alpha` is the rewrite), which is what a suite catalogue is generated from. The run
+records the channel it actually proved, read from the site, as an annotation on every test. A version on no known
+line fails loudly: add the line to `channelOf()` in `test/e2e/e2e/support/site.ts`.
+
+**Fixture.** `submit.spec.ts` needs the **Browser test form** page on the site (`/browser-test-form/`): three
+steps, a dropdown that reveals a company field, a Calculator that adds up quantity x price, and a file upload; a
+site without it fails the spec by name. The `build.spec.ts` builder adapter covers the classic builder (6.3.x and
+6.4.x); the alpha React builder has no adapter yet.
 
 ### Migration Integration Tests
 

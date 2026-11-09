@@ -7,6 +7,7 @@
     "doc": "docs"
   },
   "scripts": {
+    "e2e": "bash test/e2e/run.sh",
     "delswaps": "find . -type f \\( -name \".*.swp\" -o -name \".*.swo\" \\) -exec rm -f {} + && find . -type d -name \".sass-cache\" -exec rm -rf {} +",
     "jshint": "jshint src/",
     "lint": "eslint src/assets/js/**/*.js",
