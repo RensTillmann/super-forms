@@ -14,6 +14,7 @@
 			<exclude>./tests/automations</exclude>
 			<exclude>./tests/integration</exclude>
 			<exclude>./tests/fixtures</exclude>
+			<exclude>./tests/lab</exclude>
 		</testsuite>
 		<testsuite name="triggers">
 			<directory suffix=".php">./tests/triggers</directory>

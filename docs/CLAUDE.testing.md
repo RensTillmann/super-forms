@@ -64,6 +64,19 @@ Location: `/tests/`
 ./sync-to-webserver.sh --test "Super Forms Test Suite"
 ```
 
+### Live-site checks (`/tests/lab/`)
+
+Some flows end in `die()` and need a whole WordPress install, so they cannot run
+inside PHPUnit. They live in `/tests/lab/` as scripts that run against a site
+with the plugin active and exit non-zero when the check fails; `phpunit.xml`
+excludes that folder from every suite. The script cleans up what it creates.
+
+- `form-submitted-once.php` — one submission fires `form.submitted` exactly
+  once, and produces one automation run, one mail and one entry:
+  ```bash
+  php tests/lab/form-submitted-once.php --wp-root=/var/www/html [--form-id=1]
+  ```
+
 ## Testing Philosophy
 
 **The Golden Rule:** Every change must be tested in the actual environment before claiming it's fixed.
