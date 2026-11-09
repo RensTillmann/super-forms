@@ -66,12 +66,15 @@ if ( ! class_exists( 'SUPER_Workflow_Executor' ) ) {
 				);
 			}
 
-			// Execution context
+			// Execution context: one array, passed by reference the whole run, so
+			// every node reads what the nodes before it produced.
 			$context = array(
 				'form_id' => $form_id,
 				'event_data' => $event_data,
 				'executed_nodes' => array(), // Track which nodes have been executed
-				'node_outputs' => array(),   // Store output from each node
+				'node_outputs' => array(),   // [node id][output port] => value
+				'node_inputs' => array(),    // [node id][input port] => value, from the edge that feeds it
+				'variables' => array(),      // set_variable: [name] => value, readable as {name}
 				'abort' => false,            // Flag to abort workflow execution
 			);
 
@@ -90,6 +93,8 @@ if ( ! class_exists( 'SUPER_Workflow_Executor' ) ) {
 			return array(
 				'status' => $context['abort'] ? 'aborted' : 'success',
 				'executed_nodes' => $context['executed_nodes'],
+				'node_outputs' => $context['node_outputs'],
+				'variables' => $context['variables'],
 				'context' => $context,
 			);
 		}
@@ -116,11 +121,27 @@ if ( ! class_exists( 'SUPER_Workflow_Executor' ) ) {
 			// Mark as executed
 			$context['executed_nodes'][] = $node_id;
 
+			// What the edges into this node carry. An edge out of a data port is
+			// that node's value for the input port it lands on; the control port
+			// (trigger) only activates the node and carries nothing.
+			$context['node_inputs'][ $node_id ] = self::gather_node_inputs( $node_id, $connections, $context );
+
 			// Execute node action based on type
 			$output = self::execute_node_action( $node, $context );
 
-			// Store node output
-			$context['node_outputs'][ $node_id ] = $output;
+			// Store what this node produced, per output port, so every node after
+			// it reads it as {<node id>.<port>} (module-format.md §8) and a data
+			// edge can carry it on.
+			$context['node_outputs'][ $node_id ] = ( isset( $output['outputs'] ) && is_array( $output['outputs'] ) )
+				? $output['outputs']
+				: array();
+
+			// set_variable: the value is readable by name in every later node.
+			if ( ! empty( $output['variables'] ) && is_array( $output['variables'] ) ) {
+				foreach ( $output['variables'] as $variable_name => $variable_value ) {
+					$context['variables'][ $variable_name ] = $variable_value;
+				}
+			}
 
 			// Check if workflow should abort
 			if ( isset( $output['abort'] ) && $output['abort'] === true ) {
@@ -138,6 +159,13 @@ if ( ! class_exists( 'SUPER_Workflow_Executor' ) ) {
 			);
 
 			foreach ( $downstream_connections as $connection ) {
+				// Only the control port activates a node (module-format.md §6.1); an
+				// edge onto a data port carries a value there and activates nothing.
+				$to_input = $connection['toInput'] ?? '';
+				if ( '' !== $to_input && 'trigger' !== $to_input ) {
+					continue;
+				}
+
 				// Check if connection condition is met (for conditional nodes)
 				if ( ! self::check_connection_condition( $connection, $output, $node ) ) {
 					error_log( "Connection condition not met for: {$connection['id']}" );
@@ -165,16 +193,24 @@ if ( ! class_exists( 'SUPER_Workflow_Executor' ) ) {
 		 *
 		 * @return array Output from the node execution
 		 */
-		private static function execute_node_action( $node, $context ) {
+		private static function execute_node_action( $node, &$context ) {
+			$node_id = $node['id'];
 			$type = $node['type'];
-			$config = $node['config'];
+
+			// A port id is the declaration's property name (§6.1), so a value an
+			// edge carried into an input port is this action's config value under
+			// the same name.
+			$inputs = isset( $context['node_inputs'][ $node_id ] ) ? $context['node_inputs'][ $node_id ] : array();
+			$node_config = isset( $node['config'] ) && is_array( $node['config'] ) ? $node['config'] : array();
+			$config = array_merge( $node_config, $inputs );
+
 			$event_data = $context['event_data'];
 
 			error_log( "Executing action for node type: {$type}" );
 
 			// Map node types to actions
 			switch ( $type ) {
-				// === TRIGGERS (no action, just pass data through) ===
+				// === TRIGGERS (no action: the node's outputs are the event's payload) ===
 				case 'form.submitted':
 				case 'form.spam_detected':
 				case 'entry.created':
@@ -184,35 +220,41 @@ if ( ! class_exists( 'SUPER_Workflow_Executor' ) ) {
 				case 'payment.paypal.payment_completed':
 				case 'session.started':
 				case 'session.abandoned':
-					return array( 'data' => $event_data );
+					return array(
+						'status' => 'success',
+						'outputs' => is_array( $event_data ) ? $event_data : array(),
+					);
 
 				// === ACTIONS ===
 				case 'send_email':
-					return self::action_send_email( $config, $event_data );
+					return self::action_send_email( $config, $context );
 
 				case 'http_request':
 				case 'webhook':
-					return self::action_http_request( $config, $event_data );
+					return self::action_http_request( $config, $context );
 
 				case 'create_post':
-					return self::action_create_post( $config, $event_data );
+					return self::action_create_post( $config, $context );
 
 				case 'update_entry_status':
-					return self::action_update_entry_status( $config, $event_data, $context );
+					return self::action_update_entry_status( $config, $context );
 
 				case 'log_message':
-					return self::action_log_message( $config, $event_data );
+					return self::action_log_message( $config, $context );
+
+				case 'set_variable':
+					return self::action_set_variable( $config, $context );
 
 				case 'abort_submission':
-					return self::action_abort_submission( $config, $event_data );
+					return self::action_abort_submission( $config, $context );
 
 				case 'delay_execution':
-					return self::action_delay_execution( $config, $event_data );
+					return self::action_delay_execution( $config, $context );
 
 				// === CONDITIONS ===
 				case 'conditional_action':
 				case 'condition_group':
-					return self::evaluate_condition( $config, $event_data );
+					return self::evaluate_condition( $config, $context );
 
 				default:
 					error_log( "WARNING: Unknown node type: {$type}" );
@@ -221,17 +263,54 @@ if ( ! class_exists( 'SUPER_Workflow_Executor' ) ) {
 		}
 
 		/**
+		 * Collect the values the edges into a node carry, by input port
+		 *
+		 * @param string $node_id The node being executed
+		 * @param array  $connections All connections in the workflow
+		 * @param array  $context Execution context
+		 *
+		 * @return array [input port] => value
+		 */
+		private static function gather_node_inputs( $node_id, $connections, $context ) {
+			$inputs = array();
+
+			foreach ( $connections as $connection ) {
+				if ( ( $connection['to'] ?? '' ) !== $node_id ) {
+					continue;
+				}
+
+				$to_input = $connection['toInput'] ?? '';
+				if ( '' === $to_input || 'trigger' === $to_input ) {
+					continue; // the control port: it activates the node, it carries no value
+				}
+
+				$from = $connection['from'] ?? '';
+				$from_output = $connection['fromOutput'] ?? '';
+
+				if ( ! isset( $context['node_outputs'][ $from ] ) || ! array_key_exists( $from_output, $context['node_outputs'][ $from ] ) ) {
+					continue; // the source has not produced that port
+				}
+
+				// Two edges into one input: the last one wins until the port
+				// schema's cardinality and combine decide (§6.1).
+				$inputs[ $to_input ] = $context['node_outputs'][ $from ][ $from_output ];
+			}
+
+			return $inputs;
+		}
+
+		/**
 		 * Action: Send Email
 		 */
-		private static function action_send_email( $config, $event_data ) {
+		private static function action_send_email( $config, $context ) {
 			error_log( 'ACTION: send_email' );
 
 			// Replace tags in email fields
-			$to = self::replace_tags( $config['to'] ?? '', $event_data );
-			$subject = self::replace_tags( $config['subject'] ?? 'No Subject', $event_data );
-			$body = self::replace_tags( $config['body'] ?? '', $event_data );
-			$from = self::replace_tags( $config['from'] ?? get_option( 'admin_email' ), $event_data );
-			$replyTo = self::replace_tags( $config['replyTo'] ?? '', $event_data );
+			$to = self::replace_tags( $config['to'] ?? '', $context );
+			$subject = self::replace_tags( $config['subject'] ?? 'No Subject', $context );
+			$body = self::replace_tags( $config['body'] ?? '', $context );
+			$from = self::replace_tags( $config['from'] ?? get_option( 'admin_email' ), $context );
+			$replyTo = self::replace_tags( $config['replyTo'] ?? '', $context );
 
 			// Build headers
 			$headers = array(
@@ -251,19 +330,26 @@ if ( ! class_exists( 'SUPER_Workflow_Executor' ) ) {
 			return array(
 				'status' => $sent ? 'success' : 'error',
 				'sent' => $sent,
+				'outputs' => array(
+					'success' => (bool) $sent,
+					'to' => $to,
+					'recipients' => $to,
+					'subject' => $subject,
+					'message' => $body,
+				),
 			);
 		}
 
 		/**
 		 * Action: HTTP Request / Webhook
 		 */
-		private static function action_http_request( $config, $event_data ) {
+		private static function action_http_request( $config, $context ) {
 			error_log( 'ACTION: http_request' );
 
-			$url = self::replace_tags( $config['url'] ?? '', $event_data );
+			$url = self::replace_tags( $config['url'] ?? '', $context );
 			$method = $config['method'] ?? 'POST';
 			$headers = $config['headers'] ?? array();
-			$body = self::replace_tags( $config['body'] ?? '', $event_data );
+			$body = self::replace_tags( $config['body'] ?? '', $context );
 
 			// Make HTTP request
 			$args = array(
@@ -280,6 +366,14 @@ if ( ! class_exists( 'SUPER_Workflow_Executor' ) ) {
 				return array(
 					'status' => 'error',
 					'error' => $response->get_error_message(),
+					'outputs' => array(
+						'success' => false,
+						'url' => $url,
+						'method' => $method,
+						'status_code' => 0,
+						'response_body' => '',
+						'message' => $response->get_error_message(),
+					),
 				);
 			}
 
@@ -292,18 +386,26 @@ if ( ! class_exists( 'SUPER_Workflow_Executor' ) ) {
 				'status' => 'success',
 				'status_code' => $status_code,
 				'response' => $response_body,
+				'outputs' => array(
+					'success' => true,
+					'url' => $url,
+					'method' => $method,
+					'status_code' => $status_code,
+					'response_body' => $response_body,
+					'message' => '',
+				),
 			);
 		}
 
 		/**
 		 * Action: Create Post
 		 */
-		private static function action_create_post( $config, $event_data ) {
+		private static function action_create_post( $config, $context ) {
 			error_log( 'ACTION: create_post' );
 
 			$post_data = array(
-				'post_title' => self::replace_tags( $config['postTitle'] ?? 'Untitled', $event_data ),
-				'post_content' => self::replace_tags( $config['postContent'] ?? '', $event_data ),
+				'post_title' => self::replace_tags( $config['postTitle'] ?? 'Untitled', $context ),
+				'post_content' => self::replace_tags( $config['postContent'] ?? '', $context ),
 				'post_status' => $config['postStatus'] ?? 'draft',
 				'post_type' => $config['postType'] ?? 'post',
 			);
@@ -315,6 +417,10 @@ if ( ! class_exists( 'SUPER_Workflow_Executor' ) ) {
 				return array(
 					'status' => 'error',
 					'error' => $post_id->get_error_message(),
+					'outputs' => array(
+						'post_id' => 0,
+						'message' => $post_id->get_error_message(),
+					),
 				);
 			}
 
@@ -323,21 +429,35 @@ if ( ! class_exists( 'SUPER_Workflow_Executor' ) ) {
 			return array(
 				'status' => 'success',
 				'post_id' => $post_id,
+				'outputs' => array(
+					'post_id' => $post_id,
+					'post_url' => get_permalink( $post_id ),
+					'message' => '',
+				),
 			);
 		}
 
 		/**
 		 * Action: Update Entry Status
 		 */
-		private static function action_update_entry_status( $config, $event_data, $context ) {
+		private static function action_update_entry_status( $config, $context ) {
 			error_log( 'ACTION: update_entry_status' );
 
+			$event_data = $context['event_data'];
 			$entry_id = $event_data['entry_id'] ?? null;
 			$new_status = $config['status'] ?? 'completed';
 
 			if ( ! $entry_id ) {
 				error_log( 'ERROR: No entry_id in event data' );
-				return array( 'status' => 'error', 'message' => 'No entry_id' );
+				return array(
+					'status' => 'error',
+					'message' => 'No entry_id',
+					'outputs' => array(
+						'entry_id' => null,
+						'new_status' => $new_status,
+						'message' => 'No entry_id',
+					),
+				);
 			}
 
 			global $wpdb;
@@ -356,28 +476,81 @@ if ( ! class_exists( 'SUPER_Workflow_Executor' ) ) {
 			return array(
 				'status' => $updated ? 'success' : 'error',
 				'updated' => $updated,
+				'outputs' => array(
+					'entry_id' => $entry_id,
+					'new_status' => $new_status,
+					'message' => '',
+				),
 			);
 		}
 
 		/**
 		 * Action: Log Message
 		 */
-		private static function action_log_message( $config, $event_data ) {
-			$message = self::replace_tags( $config['message'] ?? '', $event_data );
+		private static function action_log_message( $config, $context ) {
+			$message = self::replace_tags( $config['message'] ?? '', $context );
 			$level = $config['level'] ?? 'info';
 
 			error_log( "[{$level}] {$message}" );
 
-			return array( 'status' => 'success' );
+			return array(
+				'status' => 'success',
+				'outputs' => array(
+					'success' => true,
+					'message' => $message,
+					'level' => $level,
+				),
+			);
+		}
+
+		/**
+		 * Action: Set Variable
+		 *
+		 * Stores a value under a name in this run's context, so a later node
+		 * reads it as {name}; the node's own variable_value output carries it too.
+		 */
+		private static function action_set_variable( $config, $context ) {
+			error_log( 'ACTION: set_variable' );
+
+			// The canvas writes variableName/value; the declaration's port ids are
+			// variable_name/variable_value (§6.1).
+			$variable_name = (string) ( $config['variable_name'] ?? $config['variableName'] ?? '' );
+			$variable_name = preg_replace( '/[^a-zA-Z0-9_]/', '', $variable_name );
+
+			if ( '' === $variable_name ) {
+				return array(
+					'status' => 'error',
+					'error' => 'Variable name is required',
+					'outputs' => array(
+						'success' => false,
+						'variable_name' => '',
+						'variable_value' => null,
+					),
+				);
+			}
+
+			$raw_value = $config['variable_value'] ?? $config['value'] ?? '';
+			$value = self::replace_tags( (string) $raw_value, $context );
+
+			return array(
+				'status' => 'success',
+				'outputs' => array(
+					'success' => true,
+					'variable_name' => $variable_name,
+					'variable_value' => $value,
+					'set_at' => current_time( 'mysql' ),
+				),
+				'variables' => array( $variable_name => $value ),
+			);
 		}
 
 		/**
 		 * Action: Abort Submission
 		 */
-		private static function action_abort_submission( $config, $event_data ) {
+		private static function action_abort_submission( $config, $context ) {
 			error_log( 'ACTION: abort_submission' );
 
-			$message = self::replace_tags( $config['message'] ?? 'Submission aborted', $event_data );
+			$message = self::replace_tags( $config['message'] ?? 'Submission aborted', $context );
 
 			return array(
 				'status' => 'success',
@@ -389,7 +562,7 @@ if ( ! class_exists( 'SUPER_Workflow_Executor' ) ) {
 		/**
 		 * Action: Delay Execution
 		 */
-		private static function action_delay_execution( $config, $event_data ) {
+		private static function action_delay_execution( $config, $context ) {
 			error_log( 'ACTION: delay_execution' );
 
 			$duration = $config['duration'] ?? 1;
@@ -417,7 +590,7 @@ if ( ! class_exists( 'SUPER_Workflow_Executor' ) ) {
 		/**
 		 * Evaluate Condition
 		 */
-		private static function evaluate_condition( $config, $event_data ) {
+		private static function evaluate_condition( $config, $context ) {
 			error_log( 'CONDITION: evaluating' );
 
 			$operator = $config['operator'] ?? 'AND';
@@ -426,14 +599,17 @@ if ( ! class_exists( 'SUPER_Workflow_Executor' ) ) {
 			$results = array();
 
 			foreach ( $rules as $rule ) {
-				$field_value = self::replace_tags( $rule['field'], $event_data );
-				$comparison_value = $rule['value'];
-				$rule_operator = $rule['operator'];
+				// A rule's field is a tag or a bare path: {name}, {node_id.port},
+				// or the name itself.
+				$field = $rule['field'] ?? '';
+				$field_value = self::resolve_value( $field, $context );
+				$comparison_value = self::resolve_value( $rule['value'] ?? '', $context );
+				$rule_operator = $rule['operator'] ?? '==';
 
 				$result = self::compare_values( $field_value, $rule_operator, $comparison_value );
 				$results[] = $result;
 
-				error_log( "Rule: {$field_value} {$rule_operator} {$comparison_value} = " . ( $result ? 'true' : 'false' ) );
+				error_log( "Rule: {$field} {$rule_operator} {$comparison_value} = " . ( $result ? 'true' : 'false' ) );
 			}
 
 			// Evaluate based on AND/OR operator
@@ -447,6 +623,7 @@ if ( ! class_exists( 'SUPER_Workflow_Executor' ) ) {
 				'status' => 'success',
 				'condition_met' => $condition_met,
 				'output_path' => $condition_met ? 'true' : 'false',
+				'outputs' => array(),
 			);
 		}
 
@@ -457,7 +634,7 @@ if ( ! class_exists( 'SUPER_Workflow_Executor' ) ) {
 			// For conditional nodes, check if output matches connection path
 			if ( $node['type'] === 'conditional_action' || $node['type'] === 'condition_group' ) {
 				$output_path = $node_output['output_path'] ?? 'true';
-				$from_output = $connection['fromOutput'];
+				$from_output = $connection['fromOutput'] ?? '';
 
 				return $output_path === $from_output;
 			}
@@ -467,10 +644,10 @@ if ( ! class_exists( 'SUPER_Workflow_Executor' ) ) {
 		}
 
 		/**
-		 * Replace tags in string with event data
+		 * Replace tags in a string with the values this run holds
 		 */
-		private static function replace_tags( $string, $event_data ) {
-			if ( empty( $string ) ) {
+		private static function replace_tags( $string, $context ) {
+			if ( ! is_string( $string ) || '' === $string ) {
 				return $string;
 			}
 
@@ -478,11 +655,83 @@ if ( ! class_exists( 'SUPER_Workflow_Executor' ) ) {
 			preg_match_all( '/\{([^}]+)\}/', $string, $matches );
 
 			foreach ( $matches[1] as $tag ) {
-				$value = $event_data[ $tag ] ?? '';
-				$string = str_replace( '{' . $tag . '}', $value, $string );
+				$value = self::resolve_path( $tag, $context );
+				if ( null === $value ) {
+					continue; // unknown tag: leave it as written
+				}
+
+				$string = str_replace( '{' . $tag . '}', self::stringify( $value ), $string );
 			}
 
 			return $string;
+		}
+
+		/**
+		 * Resolve a tag or bare path (field, {field}, node_id.port, variable name)
+		 *
+		 * @param mixed $path A tag, or a value that is not a string
+		 * @param array $context Execution context
+		 *
+		 * @return mixed The value (a string when nothing declares the path)
+		 */
+		private static function resolve_value( $path, $context ) {
+			if ( ! is_string( $path ) || '' === $path ) {
+				return $path;
+			}
+
+			$trimmed = preg_match( '/^\{([^}]+)\}$/', $path, $match ) ? $match[1] : $path;
+			$value = self::resolve_path( $trimmed, $context );
+
+			return null === $value ? $path : $value;
+		}
+
+		/**
+		 * Walk a dotted path through the run's values
+		 *
+		 * @param string $path node_id.port[.key], a variable name, or an event key
+		 * @param array  $context Execution context
+		 *
+		 * @return mixed|null
+		 */
+		private static function resolve_path( $path, $context ) {
+			$parts = explode( '.', $path );
+			$node_id = $parts[0];
+
+			if ( count( $parts ) > 1 && isset( $context['node_outputs'][ $node_id ] ) ) {
+				$value = $context['node_outputs'][ $node_id ];
+				foreach ( array_slice( $parts, 1 ) as $part ) {
+					if ( ! is_array( $value ) || ! array_key_exists( $part, $value ) ) {
+						return null;
+					}
+					$value = $value[ $part ];
+				}
+				return $value;
+			}
+
+			if ( isset( $context['variables'] ) && array_key_exists( $path, $context['variables'] ) ) {
+				return $context['variables'][ $path ];
+			}
+
+			$event_data = $context['event_data'] ?? array();
+			if ( is_array( $event_data ) && array_key_exists( $path, $event_data ) ) {
+				return $event_data[ $path ];
+			}
+
+			return null;
+		}
+
+		/**
+		 * A tag's value as the text it is written into
+		 */
+		private static function stringify( $value ) {
+			if ( is_array( $value ) || is_object( $value ) ) {
+				return wp_json_encode( $value );
+			}
+			if ( is_bool( $value ) ) {
+				return $value ? 'true' : 'false';
+			}
+
+			return (string) $value;
 		}
 
 		/**

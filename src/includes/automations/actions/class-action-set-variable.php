@@ -2,8 +2,9 @@
 /**
  * Set Variable Action
  *
- * Sets a variable in the trigger context that can be used by subsequent actions
- * Variables are stored in memory for the current trigger execution only
+ * Sets a variable for the rest of this run: every action after it reads the
+ * value as {variable_name}, and the executor also carries it as the node's
+ * variable_value output. The value does not outlive the run.
  *
  * @package Super_Forms
  * @subpackage Triggers/Actions
@@ -89,20 +90,6 @@ class SUPER_Action_Set_Variable extends SUPER_Action_Base {
 					'json' => 'JSON (parse as object/array)'
 				],
 				'description' => __('How to interpret the value', 'super-forms')
-			],
-			[
-				'name' => 'scope',
-				'label' => __('Variable Scope', 'super-forms'),
-				'type' => 'select',
-				'required' => false,
-				'default' => 'trigger',
-				'options' => [
-					'trigger' => 'Trigger (current execution only)',
-					'entry' => 'Entry (stored in entry meta)',
-					'user' => 'User (stored in user meta)',
-					'global' => 'Global (stored in options table)'
-				],
-				'description' => __('Where to store the variable', 'super-forms')
 			]
 		];
 	}
@@ -148,26 +135,17 @@ class SUPER_Action_Set_Variable extends SUPER_Action_Base {
 			];
 		}
 
-		// Get scope
-		$scope = $config['scope'] ?? 'trigger';
-
-		// Store variable based on scope
-		$stored = $this->store_variable($variable_name, $converted_value, $scope, $context);
-
-		if (is_wp_error($stored)) {
-			return [
-				'success' => false,
-				'error' => $stored->get_error_message()
-			];
-		}
-
+		// The variable lives in this run's context: the executor carries it into
+		// every action after this one, where {name} reads it. There is no other
+		// place to keep it — nothing read the entry, user or global stores back,
+		// so a stored variable looked set and read empty.
 		return [
 			'success' => true,
 			'variable_name' => $variable_name,
 			'variable_value' => $converted_value,
 			'value_type' => $value_type,
-			'scope' => $scope,
-			'set_at' => current_time('mysql')
+			'set_at' => current_time('mysql'),
+			'variables' => [ $variable_name => $converted_value ]
 		];
 	}
 
@@ -199,46 +177,6 @@ class SUPER_Action_Set_Variable extends SUPER_Action_Base {
 			case 'string':
 			default:
 				return (string)$value;
-		}
-	}
-
-	/**
-	 * Store variable based on scope
-	 *
-	 * @param string $name Variable name
-	 * @param mixed $value Variable value
-	 * @param string $scope Storage scope
-	 * @param array $context Event context
-	 * @return bool|WP_Error Success or error
-	 */
-	private function store_variable($name, $value, $scope, $context) {
-		switch ($scope) {
-			case 'trigger':
-				// Store in context for subsequent actions (handled by executor)
-				// Return success - executor will add to context
-				return true;
-
-			case 'entry':
-				if (empty($context['entry_id'])) {
-					return new WP_Error('no_entry', 'Entry scope requires entry_id in context');
-				}
-				update_post_meta($context['entry_id'], '_super_var_' . $name, $value);
-				return true;
-
-			case 'user':
-				$user_id = $context['user_id'] ?? get_current_user_id();
-				if (empty($user_id)) {
-					return new WP_Error('no_user', 'User scope requires user_id in context or logged-in user');
-				}
-				update_user_meta($user_id, '_super_var_' . $name, $value);
-				return true;
-
-			case 'global':
-				update_option('_super_var_' . $name, $value);
-				return true;
-
-			default:
-				return new WP_Error('invalid_scope', 'Invalid variable scope');
 		}
 	}
 

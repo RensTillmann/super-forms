@@ -326,9 +326,12 @@ if ( ! class_exists( 'SUPER_Automation_Manager' ) ) :
 				// Check if automation applies to this event based on workflow type
 				$applies = false;
 
-				if ( 'visual' === $automation['workflow_type'] ) {
+				// The row's column is type; nothing ever wrote a workflow_type key.
+				$workflow_type = $automation['type'] ?? '';
+
+				if ( 'visual' === $workflow_type ) {
 					$applies = self::check_visual_workflow_applies( $automation, $event_id, $context );
-				} elseif ( 'code' === $automation['workflow_type'] ) {
+				} elseif ( 'code' === $workflow_type ) {
 					$applies = self::check_code_workflow_applies( $automation, $event_id, $context );
 				}
 

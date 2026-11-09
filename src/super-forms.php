@@ -275,6 +275,7 @@ include_once 'includes/class-developer-tools.php';
 		include_once 'includes/automations/class-automation-manager.php';
 		include_once 'includes/automations/class-automation-scheduler.php'; // Phase 2: Action Scheduler integration
 		include_once 'includes/automations/class-automation-executor.php';
+		include_once 'includes/class-workflow-executor.php'; // Visual workflow graphs
 		include_once 'includes/automations/class-automation-rest-controller.php';
 
 		// Automations System - Phase 3: Execution & Logging
