@@ -31,17 +31,16 @@ A **Super Forms — Expired** card over a form has a **Renew license** button th
 
 ### Switch from a prepaid license to a yearly subscription
 
-A license can't be converted in place. A domain holds one license per product, so while the old license — even an expired one — is still on the domain, activating another code is refused with:
+Any prepaid license can become a yearly subscription on the same site, in one step. You do not release anything and there is no new code to activate: the license the site already uses becomes the subscription.
 
-> This domain already has a license for Super Forms (it may have expired). Renew or release that license first, or use the pencil icon to move it to another domain.
+1. Sign in at [dashboard.super-forms.com](https://dashboard.super-forms.com).
+2. Open the site's card under **Your Websites** and click **Switch to subscription** on the prepaid license row. On a code you have not activated yet, the same button sits next to **Activate License** under **Unused License Codes**.
+3. The window shows the yearly price and when your first payment is. Confirm, then pay by card through Stripe.
+4. The license row moves to the subscription part of the site's card, where it shows the renewal date. Nothing else changes.
 
-To move the site to a yearly subscription:
+**The time you already paid for is added to the subscription.** If your prepaid license is paid until 12 May, your first subscription payment is on 12 May and the plan renews yearly from then. If the license has already expired, the subscription starts today and the site is licensed again once the plugin picks it up, which takes up to 15 minutes.
 
-1. Buy the subscription under **Purchase New License** → **Yearly Subscription** ([Purchasing a license](../../quick-start/purchasing-a-license.md)).
-2. Release the prepaid license: open the site's card under **Your Websites** and click **Release** on the prepaid license row. The old code returns to **Unused License Codes**. See [Free up a one-time licence for later](your-licenses.md#free-up-a-one-time-licence-for-later).
-3. Activate the subscription code on the site: open **Unused License Codes** → **Activate License** → enter the site's domain.
-
-From then on the subscription renews automatically, and you can cancel it from the dashboard whenever you want ([Cancel subscription](cancel-subscription.md)).
+The site stays licensed the whole time, and you can cancel the subscription from the dashboard whenever you want ([Cancel subscription](cancel-subscription.md)).
 
 ### Where the renewal reminders go
 
