@@ -172,7 +172,7 @@ if ( ! class_exists( 'SUPER_Automation_Executor' ) ) :
 			if ( class_exists( 'SUPER_Automation_Performance' ) ) {
 				SUPER_Automation_Performance::end_timer( $timer_key, array(
 					'event_id'        => $event_id,
-					'automations_found'  => count( $triggers ),
+					'automations_found'  => count( $automations ),
 					'automations_executed' => count( $results ),
 				) );
 			}
@@ -221,8 +221,8 @@ if ( ! class_exists( 'SUPER_Automation_Executor' ) ) :
 			// Add trigger ID to context
 			$context['automation_id'] = $automation_id;
 
-			// Check if this is a visual workflow
-			if ( isset( $automation['workflow_type'] ) && 'visual' === $automation['workflow_type'] && ! empty( $automation['workflow_graph'] ) ) {
+			// Check if this is a visual workflow (the row's column is type)
+			if ( isset( $automation['type'] ) && 'visual' === $automation['type'] && ! empty( $automation['workflow_graph'] ) ) {
 				// Execute visual workflow
 				// Note: form_id comes from context (node-level scope architecture)
 				if ( class_exists( 'SUPER_Workflow_Executor' ) ) {
@@ -325,6 +325,7 @@ if ( ! class_exists( 'SUPER_Automation_Executor' ) ) :
 				} else {
 					// Execute synchronously
 					$result = self::execute_action( $action, $context );
+					$context = self::absorb_action_result( $context, $action, $result );
 					$actions_sync++;
 
 					$action_results[ $action['id'] ] = $result;
@@ -515,6 +516,45 @@ if ( ! class_exists( 'SUPER_Automation_Executor' ) ) :
 		 */
 		public static function execute_automation_async( $automation_id, $context ) {
 			return self::execute_automation( $automation_id, $context, self::MODE_ASYNC );
+		}
+
+		/**
+		 * Carry what an action produced into the context later actions read
+		 *
+		 * set_variable's name joins the context as {name}; an action's output ports
+		 * join it as {action_id.port} (module-format.md §8), so a later action's tag
+		 * replacement finds them. The context is handed to every action of this run
+		 * in order, so this is where one action's value reaches the next.
+		 *
+		 * @param array $context Event context
+		 * @param array $action  The action that just ran
+		 * @param mixed $result  What it returned
+		 * @return array The context with that action's values in it
+		 * @since 6.5.0
+		 */
+		private static function absorb_action_result( $context, $action, $result ) {
+			if ( ! is_array( $result ) ) {
+				return $context;
+			}
+
+			if ( ! empty( $result['variables'] ) && is_array( $result['variables'] ) ) {
+				if ( ! isset( $context['variables'] ) || ! is_array( $context['variables'] ) ) {
+					$context['variables'] = array();
+				}
+				foreach ( $result['variables'] as $name => $value ) {
+					$context['variables'][ $name ] = $value;
+					$context[ $name ] = $value;
+				}
+			}
+
+			if ( ! empty( $result['outputs'] ) && is_array( $result['outputs'] ) ) {
+				$action_id = $action['id'] ?? '';
+				foreach ( $result['outputs'] as $port => $value ) {
+					$context[ $action_id . '.' . $port ] = $value;
+				}
+			}
+
+			return $context;
 		}
 
 		/**
@@ -851,7 +891,7 @@ if ( ! class_exists( 'SUPER_Automation_Executor' ) ) :
 			$start_time = microtime( true );
 
 			// Handle visual workflows
-			if ( 'visual' === $automation['workflow_type'] && ! empty( $automation['workflow_graph'] ) ) {
+			if ( 'visual' === ( $automation['type'] ?? '' ) && ! empty( $automation['workflow_graph'] ) ) {
 				if ( class_exists( 'SUPER_Workflow_Executor' ) ) {
 					$result = SUPER_Workflow_Executor::execute(
 						$automation['workflow_graph'],

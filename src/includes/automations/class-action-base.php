@@ -225,7 +225,7 @@ abstract class SUPER_Action_Base {
         $options = array_merge($defaults, $options);
 
         return preg_replace_callback(
-            '/\{([a-zA-Z0-9_]+)\}/',
+            '/\{([a-zA-Z0-9_.]+)\}/',
             function($matches) use ($context, &$options) {
                 $variable = $matches[1];
 
