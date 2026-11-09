@@ -5697,12 +5697,6 @@ if ( ! class_exists( 'SUPER_Ajax' ) ) :
 				}
 				error_log( '@@@@@@@@UPDATE _sfsi_.' . $session_key . ': ' . json_encode( $sfsi ) );
 				SUPER_Session_DAL::update_by_key( $session_key, $sfsi );
-				SUPER_Automation_Executor::fire_event( 'form.submitted', array(
-					'session_key' => $session_key,
-					'form_id' => $form_id,
-					'session_data' => $sfsi,
-					'entry_id' => $contact_entry_id
-				) );
 				do_action(
 					'super_before_email_success_msg_action',
 					array(
